@@ -3,22 +3,24 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::Process
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Manage Memory Shellcode Injection Module',
-      'Description'   => %q{
-        This module will inject into the memory of a process a specified shellcode.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'phra <https://iwantmore.pizza>' ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Memory Shellcode Injection Module',
+        'Description' => %q{
+          This module will inject into the memory of a process a specified shellcode.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'phra <https://iwantmore.pizza>' ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
@@ -31,7 +33,8 @@ class MetasploitModule < Msf::Post
         OptBool.new('AUTOUNHOOK', [true, 'Auto remove EDRs hooks', false]),
         OptInt.new('WAIT_UNHOOK', [true, 'Seconds to wait for unhook to be executed', 5]),
         OptEnum.new('BITS', [true, 'Set architecture bits', '64', ['32', '64']])
-      ])
+      ]
+    )
   end
 
   # Run Method for when run command is issued

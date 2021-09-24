@@ -11,22 +11,23 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Multi Manage Set Wallpaper',
-        'Description'   => %q(
+        'Name' => 'Multi Manage Set Wallpaper',
+        'Description' => %q{
           This module will set the desktop wallpaper background on the specified session.
           The method of setting the wallpaper depends on the platform type.
-        ),
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'timwr'],
-        'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'timwr'],
+        'Platform' => [ 'win', 'osx', 'linux', 'android' ],
+        'SessionTypes' => [ 'meterpreter' ]
       )
     )
 
     register_options(
       [
         OptPath.new('WALLPAPER_FILE', [true, 'The local wallpaper file to set on the remote session'])
-      ])
+      ]
+    )
   end
 
   def upload_wallpaper(tempdir, file)

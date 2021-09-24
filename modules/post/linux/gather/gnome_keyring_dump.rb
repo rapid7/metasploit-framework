@@ -23,7 +23,10 @@ class MetasploitModule < Msf::Post
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_railgun_*
+              core_native_arch
+              stdapi_net_resolve_host
+              stdapi_railgun_api
+              stdapi_railgun_memread
             ]
           }
         }

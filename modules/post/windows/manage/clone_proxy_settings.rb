@@ -3,69 +3,68 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize
     super(
-      'Name'        => 'Windows Manage Proxy Setting Cloner',
-      'Description'    => %q{
+      'Name' => 'Windows Manage Proxy Setting Cloner',
+      'Description' => %q{
         This module copies the proxy settings from the current user to the
         targeted user SID, supports remote hosts as well if remote registry
         is allowed.
       },
-      'Author'      => [ 'mubix' ],
-      'License'     => MSF_LICENSE,
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'Author' => [ 'mubix' ],
+      'License' => MSF_LICENSE,
+      'Platform' => [ 'win' ],
+      'SessionTypes' => [ 'meterpreter' ]
     )
 
     register_options(
       [
-        OptAddress.new('RHOST',   [ false,  'Remote host to clone settings to, defaults to local' ]),
-        OptString.new('SID',   [ false,  'SID of user to clone settings to, defaults to SYSTEM', 'S-1-5-18' ])
-      ])
+        OptAddress.new('RHOST', [ false, 'Remote host to clone settings to, defaults to local' ]),
+        OptString.new('SID', [ false, 'SID of user to clone settings to, defaults to SYSTEM', 'S-1-5-18' ])
+      ]
+    )
   end
 
   def parse_settings(data)
-    print_status "\tProxy Counter = #{(data[4,1].unpack('C*'))[0]}"
-    case (data[8,1].unpack('C*'))[0]
-      when 1
-        print_status "\tSetting: No proxy settings"
-      when 3
-        print_status "\tSetting: Proxy server"
-      when 5
-        print_status "\tSetting: Set proxy via AutoConfigure script"
-      when 7
-        print_status "\tSetting: Proxy server and AutoConfigure script"
-      when 9
-        print_status "\tSetting: WPAD"
-      when 11
-        print_status "\tSetting: WPAD and Proxy server"
-      when 13
-        print_status "\tSetting: WPAD and AutoConfigure script"
-      when 15
-        print_status "\tSetting: WPAD, Proxy server and AutoConfigure script"
-      else
-        print_status "\tSetting: Unknown proxy setting found"
+    print_status "\tProxy Counter = #{(data[4, 1].unpack('C*'))[0]}"
+    case (data[8, 1].unpack('C*'))[0]
+    when 1
+      print_status "\tSetting: No proxy settings"
+    when 3
+      print_status "\tSetting: Proxy server"
+    when 5
+      print_status "\tSetting: Set proxy via AutoConfigure script"
+    when 7
+      print_status "\tSetting: Proxy server and AutoConfigure script"
+    when 9
+      print_status "\tSetting: WPAD"
+    when 11
+      print_status "\tSetting: WPAD and Proxy server"
+    when 13
+      print_status "\tSetting: WPAD and AutoConfigure script"
+    when 15
+      print_status "\tSetting: WPAD, Proxy server and AutoConfigure script"
+    else
+      print_status "\tSetting: Unknown proxy setting found"
     end
 
     cursor = 12
-    proxyserver = data[cursor+4, (data[cursor,1].unpack('C*'))[0]]
+    proxyserver = data[cursor + 4, (data[cursor, 1].unpack('C*'))[0]]
     print_status "\tProxy Server: #{proxyserver}" if proxyserver != ""
 
     cursor = cursor + 4 + (data[cursor].unpack('C*'))[0]
-    additionalinfo = data[cursor+4, (data[cursor,1].unpack('C*'))[0]]
+    additionalinfo = data[cursor + 4, (data[cursor, 1].unpack('C*'))[0]]
     print_status "\tAdditional Info: #{additionalinfo}" if additionalinfo != ""
 
     cursor = cursor + 4 + (data[cursor].unpack('C*'))[0]
-    autoconfigurl = data[cursor+4, (data[cursor,1].unpack('C*'))[0]]
+    autoconfigurl = data[cursor + 4, (data[cursor, 1].unpack('C*'))[0]]
     print_status "\tAutoConfigURL: #{autoconfigurl}" if autoconfigurl != ""
   end
 
-  def target_settings(dst_root_key,dst_base_key)
-
+  def target_settings(dst_root_key, dst_base_key)
     if datastore['RHOST']
       begin
         dst_key = session.sys.registry.open_remote_key(datastore['RHOST'], dst_root_key)
@@ -73,7 +72,7 @@ class MetasploitModule < Msf::Post
         print_error("Unable to contact remote registry service on #{datastore['RHOST']}")
         print_status("Attempting to start service remotely...")
         begin
-          service_start('RemoteRegistry',datastore['RHOST'])
+          service_start('RemoteRegistry', datastore['RHOST'])
         rescue
           print_error('Unable to read registry or start the service, exiting...')
           return
@@ -88,8 +87,8 @@ class MetasploitModule < Msf::Post
 
     dst_values = dst_open_key.query_value('DefaultConnectionSettings')
 
-    #If we started the service we need to stop it.
-    service_stop('RemoteRegistry',datastore['RHOST']) if startedreg
+    # If we started the service we need to stop it.
+    service_stop('RemoteRegistry', datastore['RHOST']) if startedreg
 
     dst_data = dst_values.data
 
@@ -98,7 +97,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     if datastore['SID'] == "" and !datastore['RHOST']
       print_error('No reason to copy the settings on top of themselves, please set a SID or/and RHOST')
       return
@@ -111,7 +109,6 @@ class MetasploitModule < Msf::Post
     src_data = src_values.data
     print_status('Proxy settings being copied:')
     parse_settings(src_data)
-
 
     # Print current settings of target
     print_status('Attempting to read target\'s settings...')
@@ -132,7 +129,7 @@ class MetasploitModule < Msf::Post
         print_error("Unable to contact remote registry service on #{datastore['RHOST']}")
         print_status("Attempting to start service remotely...")
         begin
-          service_start('RemoteRegistry',datastore['RHOST'])
+          service_start('RemoteRegistry', datastore['RHOST'])
         rescue
           print_error('Unable to read registry or start the service, exiting...')
           return
@@ -145,13 +142,12 @@ class MetasploitModule < Msf::Post
       dst_open_key = session.sys.registry.create_key(dst_root_key, dst_base_key, KEY_WRITE + 0x0000)
     end
 
-    #If we started the service we need to stop it.
-    service_stop('RemoteRegistry',datastore['RHOST']) if startedreg2
+    # If we started the service we need to stop it.
+    service_stop('RemoteRegistry', datastore['RHOST']) if startedreg2
 
     dst_open_key.set_value('DefaultConnectionSettings', REG_BINARY, src_data)
 
     print_status('New settings:')
     target_settings(dst_root_key, dst_base_key)
-
   end
 end

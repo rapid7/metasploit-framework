@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
@@ -41,7 +40,6 @@ class MetasploitModule < Msf::Post
     @sam_numeric = "0123456789012345678901234567890123456789\x00"
     @sam_empty_lm = ['aad3b435b51404eeaad3b435b51404ee'].pack('H*')
     @sam_empty_nt = ['31d6cfe0d16ae931b73c59d7e0c089c0'].pack('H*')
-
   end
 
   # Run Method for when run command is issued
@@ -164,7 +162,6 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
 
   def rid_to_key(rid)
-
     s1 = [rid].pack('V')
     s1 << s1[0, 3]
 
@@ -177,7 +174,6 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
 
   def decrypt_user_hash(rid, hbootkey, enchash, pass)
-
     if enchash.empty?
       case pass
       when @sam_lmpass

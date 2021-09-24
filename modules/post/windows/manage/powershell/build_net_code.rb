@@ -13,18 +13,18 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'           => "Powershell .NET Compiler",
-        'Description'    => %q(
+        'Name' => "Powershell .NET Compiler",
+        'Description' => %q{
           This module will build a .NET source file using powershell. The compiler builds
           the executable or library in memory and produces a binary. After compilation the
           PowerShell session can also sign the executable if provided a path the
           a .pfx formatted certificate. Compiler options and a list of assemblies
           required can be configured in the datastore.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
-        'Platform'       => [ 'windows' ],
-        'SessionTypes'   => [ 'meterpreter' ],
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+        'Platform' => [ 'windows' ],
+        'SessionTypes' => [ 'meterpreter' ],
         'DisclosureDate' => '2012-08-14'
       )
     )

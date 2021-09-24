@@ -267,9 +267,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def read_success?(header)
-    status_code = header.match(/Status Code: [0-9]{3}*/).to_s.split(/ /)[2]
+    # As far as we can tell, a successful status code can be either:
+    # 200
+    # 200 OK
+    # OK
+    # And so this should handle all three.
+    # See this issue for more details:
+    # https://github.com/rapid7/metasploit-framework/issues/15673
 
-    status_code == '200'
+    status_code = header.scan(/Status Code: (\w+)/).flatten.first
+
+    (status_code == '200' || status_code == 'OK')
   end
 
   def read_remote_file

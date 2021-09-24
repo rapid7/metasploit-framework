@@ -8,18 +8,21 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Post Windows Gather NTDS.DIT Location',
-      'Description'  => %q{
-        This module will find the location of the NTDS.DIT file (from the Registry),
-        check that it exists, and display its location on the screen, which is useful
-        if you wish to manually acquire the file using ntdsutil or vss.
-      },
-      'Author'       => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'],
-      'License'      => MSF_LICENSE,
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Post Windows Gather NTDS.DIT Location',
+        'Description' => %q{
+          This module will find the location of the NTDS.DIT file (from the Registry),
+          check that it exists, and display its location on the screen, which is useful
+          if you wish to manually acquire the file using ntdsutil or vss.
+        },
+        'Author' => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'],
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter']
+      )
+    )
   end
 
   def run

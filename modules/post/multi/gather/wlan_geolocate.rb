@@ -3,27 +3,31 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Multiplatform WLAN Enumeration and Geolocation',
-        'Description'   => %q{ Enumerate wireless networks visible to the target device.
-        Optionally geolocate the target by gathering local wireless networks and
-        performing a lookup against Google APIs.},
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
-        'Platform'      => %w{ android osx win linux bsd solaris },
-        'SessionTypes'  => [ 'meterpreter', 'shell' ],
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multiplatform WLAN Enumeration and Geolocation',
+        'Description' => %q{
+          Enumerate wireless networks visible to the target device.
+          Optionally geolocate the target by gathering local wireless networks and
+          performing a lookup against Google APIs.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Tom Sellers <tom[at]fadedcode.net>'],
+        'Platform' => %w{android osx win linux bsd solaris},
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+      )
+    )
 
-      register_options(
-        [
+    register_options(
+      [
         OptBool.new('GEOLOCATE', [ false, 'Use Google APIs to geolocate Linux, Windows, and OS X targets.', false]),
         OptString.new('APIKEY', [ false, 'Key for Google APIs if error is received without one.', '']),
-        ])
-
+      ]
+    )
   end
 
   def get_strength(quality)
@@ -33,7 +37,6 @@ class MetasploitModule < Msf::Post
     signal_str = quality.to_i / 2
     signal_str = (signal_str - 95).round
     return signal_str
-
   end
 
   def parse_wireless_win(listing)
@@ -50,7 +53,6 @@ class MetasploitModule < Msf::Post
 
     return wlan_list
   end
-
 
   def parse_wireless_linux(listing)
     wlan_list = []
@@ -209,11 +211,9 @@ class MetasploitModule < Msf::Post
       print_error("The target's platform, #{session.platform}, is not supported at this time.")
       return nil
     end
-
   rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
   rescue ::Exception => e
     print_status("The following Error was encountered: #{e.class} #{e}")
   end
-
 
 end

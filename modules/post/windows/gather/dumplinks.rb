@@ -7,40 +7,44 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Accounts
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Dump Recent Files lnk Info',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Dump Recent Files lnk Info',
+        'Description' => %q{
           The dumplinks module is a modified port of Harlan Carvey's lslnk.pl Perl script.
           This module will parse .lnk files from a user's Recent Documents folder
           and Microsoft Office's Recent Documents folder, if present.
           Windows creates these link files automatically for many common file types.
           The .lnk files contain time stamps, file locations, including share
-          names, volume serial numbers, and more. },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'davehull <dph_msf[at]trustedsignal.com>'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+          names, volume serial numbers, and more.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'davehull <dph_msf[at]trustedsignal.com>'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   # Run Method for when run command is issued
   def run
     print_status("Running module against #{sysinfo['Computer']}")
     enum_users(sysinfo['OS']).each do |user|
-    if user['userpath']
-      print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."
-      extract_lnk_info(user['userpath'])
-    else
-      print_status "No Recent directory found for user #{user['username']}. Nothing to do."
+      if user['userpath']
+        print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."
+        extract_lnk_info(user['userpath'])
+      else
+        print_status "No Recent directory found for user #{user['username']}. Nothing to do."
+      end
+      if user['useroffcpath']
+        print_status "Extracting lnk files for user #{user['username']} at #{user['useroffcpath']}..."
+        extract_lnk_info(user['useroffcpath'])
+      else
+        print_status "No Recent Office files found for user #{user['username']}. Nothing to do."
+      end
     end
-    if user['useroffcpath']
-      print_status "Extracting lnk files for user #{user['username']} at #{user['useroffcpath']}..."
-      extract_lnk_info(user['useroffcpath'])
-    else
-      print_status "No Recent Office files found for user #{user['username']}. Nothing to do."
-    end
-  end
   end
 
   def enum_users(os)
@@ -64,6 +68,7 @@ class MetasploitModule < Msf::Post
       print_status("Running as SYSTEM extracting user list...")
       session.fs.dir.foreach(userpath) do |u|
         next if u =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini)$/
+
         userinfo['username'] = u
         userinfo['userpath'] = userpath + u + lnkpath
         userinfo['useroffcpath'] = userpath + u + officelnkpath
@@ -95,12 +100,12 @@ class MetasploitModule < Msf::Post
 
   def extract_lnk_info(path)
     session.fs.dir.foreach(path) do |file_name|
-      if file_name =~ /\.lnk$/   # We have a .lnk file
+      if file_name =~ /\.lnk$/ # We have a .lnk file
         record = nil
         offset = 0 # ToDo: Look at moving this to smaller scope
         lnk_file = session.fs.file.new(path + file_name, "rb")
         record = lnk_file.sysread(0x04)
-        if record.unpack('V')[0] == 76  # We have a .lnk file signature
+        if record.unpack('V')[0] == 76 # We have a .lnk file signature
           file_stat = session.fs.filestat.new(path + file_name)
           print_status "Processing: #{path + file_name}."
           @data_out = ""
@@ -143,8 +148,8 @@ class MetasploitModule < Msf::Post
                 lvt['name'] = lnk_file.sysread(lvt['len'] - 0x10)
 
                 @data_out += "\t\tVolume Name = #{lvt['name']}\n" +
-                  "\t\tVolume Type = #{get_vol_type(lvt['type'])}\n" +
-                  "\t\tVolume SN   = 0x%X" % lvt['vol_sn'] + "\n"
+                             "\t\tVolume Type = #{get_vol_type(lvt['type'])}\n" +
+                             "\t\tVolume SN   = 0x%X" % lvt['vol_sn'] + "\n"
               end
 
               if (loc['flags'] & 0x02) > 0
@@ -168,7 +173,7 @@ class MetasploitModule < Msf::Post
           end
         end
         lnk_file.close
-        logfile = store_loot("host.windows.lnkfileinfo", "text/plain", session,@data_out , "#{sysinfo['Computer']}_#{file_name}.txt", "User lnk file info")
+        logfile = store_loot("host.windows.lnkfileinfo", "text/plain", session, @data_out, "#{sysinfo['Computer']}_#{file_name}.txt", "User lnk file info")
       end
     end
   end
@@ -205,18 +210,21 @@ class MetasploitModule < Msf::Post
   end
 
   def get_vol_type(type)
-    vol_type = { 0 => "Unknown",
+    vol_type = {
+      0 => "Unknown",
       1 => "No root directory",
       2 => "Removable",
       3 => "Fixed",
       4 => "Remote",
       5 => "CD-ROM",
-      6 => "RAM Drive"}
+      6 => "RAM Drive"
+    }
     return vol_type[type]
   end
 
   def get_showwnd(hdr)
-    showwnd = { 0 => "SW_HIDE",
+    showwnd = {
+      0 => "SW_HIDE",
       1 => "SW_NORMAL",
       2 => "SW_SHOWMINIMIZED",
       3 => "SW_SHOWMAXIMIZED",
@@ -226,7 +234,8 @@ class MetasploitModule < Msf::Post
       7 => "SW_SHOWMINNOACTIVE",
       8 => "SW_SHOWNA",
       9 => "SW_RESTORE",
-      10 => "SHOWDEFAULT"}
+      10 => "SHOWDEFAULT"
+    }
     data_out = "\tShowWnd value(s):\n"
     showwnd.each do |key, value|
       if (hdr["showwnd"] & key) > 0
@@ -245,7 +254,8 @@ class MetasploitModule < Msf::Post
   end
 
   def get_attrs(hdr)
-    fileattr = {0x01 => "Target is read only",
+    fileattr = {
+      0x01 => "Target is read only",
       0x02 => "Target is hidden",
       0x04 => "Target is a system file",
       0x08 => "Target is a volume label",
@@ -257,7 +267,8 @@ class MetasploitModule < Msf::Post
       0x200 => "Target is a sparse file",
       0x400 => "Target has a reparse point",
       0x800 => "Target is compressed",
-      0x1000 => "Target is offline"}
+      0x1000 => "Target is offline"
+    }
     data_out = "\tAttributes:\n"
     fileattr.each do |key, attr|
       if (hdr["attr"] & key) > 0
@@ -279,13 +290,15 @@ class MetasploitModule < Msf::Post
   end
 
   def get_flags(hdr)
-    flags  = {0x01 => "Shell Item ID List exists",
+    flags = {
+      0x01 => "Shell Item ID List exists",
       0x02 => "Shortcut points to a file or directory",
       0x04 => "The shortcut has a descriptive string",
       0x08 => "The shortcut has a relative path string",
       0x10 => "The shortcut has working directory",
       0x20 => "The shortcut has command line arguments",
-      0x40 => "The shortcut has a custom icon"}
+      0x40 => "The shortcut has a custom icon"
+    }
     data_out = "\tFlags:\n"
     flags.each do |key, flag|
       if (hdr["flags"] & key) > 0
@@ -298,15 +311,15 @@ class MetasploitModule < Msf::Post
   def get_headers(record)
     hd = record.unpack('x16V12x8')
     hdr = Hash.new()
-    hdr["flags"]    = hd[0]
-    hdr["attr"]     = hd[1]
-    hdr["ctime"]    = get_time(hd[2], hd[3])
-    hdr["mtime"]    = get_time(hd[4], hd[5])
-    hdr["atime"]    = get_time(hd[6], hd[7])
-    hdr["length"]   = hd[8]
+    hdr["flags"] = hd[0]
+    hdr["attr"] = hd[1]
+    hdr["ctime"] = get_time(hd[2], hd[3])
+    hdr["mtime"] = get_time(hd[4], hd[5])
+    hdr["atime"] = get_time(hd[6], hd[7])
+    hdr["length"] = hd[8]
     hdr["icon_num"] = hd[9]
-    hdr["showwnd"]  = hd[10]
-    hdr["hotkey"]   = hd[11]
+    hdr["showwnd"] = hd[10]
+    hdr["hotkey"] = hd[11]
     return hdr
   end
 
@@ -336,11 +349,12 @@ class MetasploitModule < Msf::Post
     else
       lo_byte -= 0xd53e8000
       hi_byte -= 0x019db1de
-      time = (hi_byte * 429.4967296 + lo_byte/1e7).to_i
+      time = (hi_byte * 429.4967296 + lo_byte / 1e7).to_i
       if time < 0
         return 0
       end
     end
+
     return time
   end
 end

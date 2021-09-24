@@ -12,17 +12,16 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Windows Gather MDaemonEmailServer Credential Cracking',
-        'Description'   => 'Finds and cracks the stored passwords of MDaemon Email Server',
-        'References'    =>
-        [
+        'Name' => 'Windows Gather MDaemonEmailServer Credential Cracking',
+        'Description' => 'Finds and cracks the stored passwords of MDaemon Email Server',
+        'References' => [
           ['BID', '4686']
         ],
-        'License'       => MSF_LICENSE,
-        'Author'        => ['Manuel Nader #AgoraSecurity'],
-        'Platform'      => ['win'],
-        'Arch'          => [ARCH_X86, ARCH_X64],
-        'SessionTypes'  => ['meterpreter']
+        'License' => MSF_LICENSE,
+        'Author' => ['Manuel Nader #AgoraSecurity'],
+        'Platform' => ['win'],
+        'Arch' => [ARCH_X86, ARCH_X64],
+        'SessionTypes' => ['meterpreter']
       )
     )
 
