@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
       OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
     ])
   end
-
+  
   def run
     unless client.automotive
       print_error("The hwbridge requires a functional automotive extention")
