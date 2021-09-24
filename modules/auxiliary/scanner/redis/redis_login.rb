@@ -36,7 +36,10 @@ class MetasploitModule < Msf::Auxiliary
       ])
 
     # redis does not have an username, there's only password
-    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS', 'PASSWORD_SPRAY')
+    deregister_options(
+      'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
+      'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASSWORD_SPRAY'
+    )
   end
 
   def requires_password?(_ip)
@@ -59,15 +62,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
+    cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      # The LoginScanner API refuses to run if there's no username, so we give it a fake one.
-      # But we will not be reporting this to the database.
-      username: 'redis'
+      password: datastore['PASSWORD']
     )
-
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Redis.new(

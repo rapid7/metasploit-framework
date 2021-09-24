@@ -89,17 +89,10 @@ class MetasploitModule < Msf::Auxiliary
     un_list.delete('logout') #logout, even when used as a un or pass will exit the terminal
 
     un_list.each do |un|
-      cred_collection = Metasploit::Framework::CredentialCollection.new(
-          blank_passwords: datastore['BLANK_PASSWORDS'],
-          pass_file: datastore['PASS_FILE'],
-          password: datastore['PASSWORD'],
-          user_file: datastore['USER_FILE'],
-          userpass_file: datastore['USERPASS_FILE'],
-          username: un,
-          user_as_pass: datastore['USER_AS_PASS'],
+      cred_collection = build_credential_collection(
+          username: datastore['USERNAME'],
+          password: datastore['PASSWORD']
       )
-
-      cred_collection = prepend_db_passwords(cred_collection)
 
       scanner = Metasploit::Framework::LoginScanner::Telnet.new(
           host: ip,

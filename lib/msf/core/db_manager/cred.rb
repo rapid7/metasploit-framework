@@ -31,8 +31,12 @@ module Msf::DBManager::Cred
         query = query.where(Mdm::Service[:port].in(opts[:ports]))
       end
 
-      if opts[:realm].present?
-        query = query.where('"metasploit_credential_realms"."value" = ?', opts[:realm])
+      if opts.key?(:realm)
+        if opts[:realm].nil?
+          query = query.where( realm: nil )
+        else
+          query = query.where('"metasploit_credential_realms"."value" = ?', opts[:realm])
+        end
       end
 
       if opts[:user].present?
