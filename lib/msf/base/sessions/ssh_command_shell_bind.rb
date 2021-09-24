@@ -28,7 +28,7 @@ module Msf::Sessions
     # channel object.
     #
     class TcpClientChannel
-      include Rex::IO::StreamAbstraction
+      include Rex::Post::Channel::StreamAbstraction
 
       #
       # This is a common interface that socket paris are extended with to be
@@ -114,27 +114,6 @@ module Msf::Sessions
         end
 
         @ssh_channel.eof!
-      end
-
-      #
-      # Read *length* bytes from the channel. If the operation times out, the data
-      # that was read will be returned or nil if no data was read.
-      #
-      def read(length = nil)
-        if closed?
-          raise IOError, 'Channel has been closed.', caller
-        end
-
-        buf = ''
-        length = 65536 if length.nil?
-
-        begin
-          buf << lsock.recv(length - buf.length) while buf.length < length
-        rescue StandardError
-          buf = nil if buf.empty?
-        end
-
-        buf
       end
 
       #
