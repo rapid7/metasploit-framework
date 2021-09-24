@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/io/stream_abstraction'
+
 module Rex
   module Post
     module Channel

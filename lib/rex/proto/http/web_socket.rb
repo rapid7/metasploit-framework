@@ -334,7 +334,7 @@ class Frame  < BinData::Record
   end
 
   def self.from_binary(value, last: true, mask: true)
-    from_opcode(Opcode::Binary, value, last: last, mask: mask)
+    from_opcode(Opcode::BINARY, value, last: last, mask: mask)
   end
 
   def self.from_text(value, last: true, mask: true)
@@ -348,9 +348,10 @@ class Frame  < BinData::Record
   # @return [String] the masked payload data is returned
   def mask!(key=nil)
     masked.assign(1)
-    key = rand(0x100000000) if key.nil?
+    key = rand(1..0xffffffff) if key.nil?
     masking_key.assign(key)
     payload_data.assign(self.class.apply_masking_key(payload_data, masking_key))
+    payload_data.value
   end
 
   #
@@ -360,7 +361,7 @@ class Frame  < BinData::Record
   def unmask!
     payload_data.assign(self.class.apply_masking_key(payload_data, masking_key))
     masked.assign(0)
-    payload_data
+    payload_data.value
   end
 
   def payload_len
