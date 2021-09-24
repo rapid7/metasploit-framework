@@ -285,6 +285,7 @@ module Msf::Sessions
           else
               elog("Remote forwarding failed on #{params.localhost}:#{params.localport}")
           end
+          condition.signal
         }
       end
 
