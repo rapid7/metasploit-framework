@@ -9,7 +9,12 @@ module WebSocket
 class WebSocketError < StandardError
 end
 
+# This defines the interface that the standard socket is extended with to provide WebSocket functionality. It should be
+# used on a socket when the server has already successfully handled a WebSocket upgrade request.
 module Interface
+  #
+  # A channel object that allows reading and writing either text or binary data directly to the remote peer.
+  #
   class Channel
     include Rex::Post::Channel::StreamAbstraction
 
@@ -21,8 +26,15 @@ module Interface
       end
     end
 
+    # The socket parameters describing the underlying connection.
+    # @!attribute [r] params
+    #   @return [Rex::Socket::Parameters]
     attr_reader :params
 
+    # @param [WebSocket::Interface] websocket the WebSocket that this channel is being opened on
+    # @param [nil, Symbol] read_type the data type(s) to read from the WebSocket, one of :binary, :text or nil (for both
+    #   binary and text)
+    # @param [Symbol] write_type the data type to write to the WebSocket
     def initialize(websocket, read_type: nil, write_type: :binary)
       initialize_abstraction
 
@@ -80,6 +92,10 @@ module Interface
       cleanup_abstraction
     end
 
+    #
+    # Close the channel for write operations. This sends a CONNECTION_CLOSE request, after which (per RFC 6455 section
+    # 5.5.1) this side must not send any more data frames.
+    #
     def close_write
       if closed?
         raise IOError, 'Channel has been closed.', caller
@@ -114,37 +130,75 @@ module Interface
       length
     end
 
+    #
+    # This provides a hook point that is called when data is read from the WebSocket peer. Subclasses can intercept and
+    # process the data. The default functionality does nothing.
+    #
+    # @param [String] data the data that was read
+    # @param [Symbol] data_type the type of data that was received, either :binary or :text
+    # @return [String, nil] if a string is returned, it's passed through the channel
     def on_data_read(data, _data_type)
       data
     end
 
+    #
+    # This provides a hook point that is called when data is written to the WebSocket peer. Subclasses can intercept and
+    # process the data. The default functionality does nothing.
+    #
+    # @param [String] data the data that is being written
+    # @return [String, nil] if a string is returned, it's passed through the channel
     def on_data_write(data)
       data
     end
   end
 
+  #
+  # Send a WebSocket::Frame to the peer.
+  #
+  # @param [WebSocket::Frame] frame the frame to send to the peer.
   def put_wsframe(frame, opts={})
     put(frame.to_binary_s, opts=opts)
   end
 
+  #
+  # Build a WebSocket::Frame representing the binary data and send it to the peer.
+  #
+  # @param [String] value the binary value to use as the frame payload.
   def put_wsbinary(value, opts={})
     put_wsframe(Frame.from_binary(value), opts=opts)
   end
 
+  #
+  # Build a WebSocket::Frame representing the text data and send it to the peer.
+  #
+  # @param [String] value the binary value to use as the frame payload.
   def put_wstext(value, opts={})
     put_wsframe(Frame.from_text(value), opts=opts)
   end
 
+  #
+  # Read a WebSocket::Frame from the peer.
+  #
+  # @return [WebSocket::Frame] the frame that was received from the peer.
   def get_wsframe(_opts={})
     Frame.read(self)
   rescue EOFError
     nil
   end
 
+  #
+  # Build a channel to allow reading and writing from the WebSocket. This provides high level functionality so the
+  # caller needn't worry about individual frames.
+  #
+  # @return [WebSocket::Interface::Channel]
   def to_wschannel(**kwargs)
     Channel.new(self, **kwargs)
   end
 
+  #
+  # Close the WebSocket. If the underlying TCP socket is still active a WebSocket CONNECTION_CLOSE request will be sent
+  # and then it will wait for a CONNECTION_CLOSE response. Once completed the underlying TCP socket will be closed.
+  #
   def wsclose
     return if closed? # there's nothing to do if the underlying TCP socket has already been closed
 
@@ -162,9 +216,11 @@ module Interface
     close # close the underlying TCP socket
   end
 
+  #
   # Run a loop to handle data from the remote end of the websocket. The loop will automatically handle fragmentation
-  # unmasking payload data and ping requests. When the remote connection is closed, the loop will exit. If
-  # specified the block will be passed data chunks and their data types.
+  # unmasking payload data and ping requests. When the remote connection is closed, the loop will exit. If specified the
+  # block will be passed data chunks and their data types.
+  #
   def wsloop(&block)
     buffer = ''
     buffer_type = nil
@@ -285,6 +341,11 @@ class Frame  < BinData::Record
     from_opcode(Opcode::TEXT, value, last: last, mask: mask)
   end
 
+  #
+  # Update the frame instance in place to apply a masking key to the payload data as defined in RFC 6455 section 5.3.
+  #
+  # @param [nil, Integer] key either an explicit 32-bit masking key or nil to generate a random one
+  # @return [String] the masked payload data is returned
   def mask!(key=nil)
     masked.assign(1)
     key = rand(0x100000000) if key.nil?
@@ -292,6 +353,10 @@ class Frame  < BinData::Record
     payload_data.assign(self.class.apply_masking_key(payload_data, masking_key))
   end
 
+  #
+  # Update the frame instance in place to apply a masking key to the payload data as defined in RFC 6455 section 5.3.
+  #
+  # @return [String] the unmasked payload data is returned
   def unmask!
     payload_data.assign(self.class.apply_masking_key(payload_data, masking_key))
     masked.assign(0)
