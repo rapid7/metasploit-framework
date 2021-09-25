@@ -22,10 +22,10 @@ class MetasploitModule < Msf::Post
 
   def run
     unless client.automotive
-      print_error('The hwbridge requires a functional automotive extention')
+      print_error("The hwbridge requires a functional automotive extention")
       return
     end
-    print_status('Performing ECU Hard Reset...')
-    client.automotive.cansend(datastore['CANBUS'], datastore['ARBID'], '0211010000000000')
+    print_status("Performing ECU Hard Reset...")
+    client.automotive.cansend(datastore['CANBUS'], datastore['ARBID'], "0211010000000000")
   end
 end
