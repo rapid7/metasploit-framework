@@ -9,6 +9,16 @@ module WebSocket
 class WebSocketError < StandardError
 end
 
+class ConnectionError < WebSocketError
+  def initialize(msg: 'The WebSocket connection failed', http_response: nil)
+    @message = msg
+    @http_response = http_response
+  end
+
+  attr_accessor :message, :http_response
+  alias :to_s :message
+end
+
 # This defines the interface that the standard socket is extended with to provide WebSocket functionality. It should be
 # used on a socket when the server has already successfully handled a WebSocket upgrade request.
 module Interface
