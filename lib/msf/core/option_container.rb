@@ -208,7 +208,7 @@ module Msf
       end
 
       # Validate all permutations of rhost combinations
-      if include?('RHOSTS')
+      if include?('RHOSTS') && !(datastore['RHOSTS'].blank? && !get('RHOSTS').required)
         error_options = Set.new
         error_reasons = Hash.new do |hash, key|
           hash[key] = []
