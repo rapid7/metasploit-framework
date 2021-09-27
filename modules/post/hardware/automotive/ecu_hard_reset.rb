@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Jay Turla'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
         'Notes' => {
           'Stability' => [ CRASH_SERVICE_RESTARTS ],
           'SideEffects' => [ PHYSICAL_EFFECTS ],
