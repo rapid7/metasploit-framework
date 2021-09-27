@@ -23,7 +23,7 @@ class Client
   #
   # Creates a new client instance
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', comm: nil)
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
@@ -32,6 +32,7 @@ class Client
     self.proxies  = proxies
     self.username = username
     self.password = password
+    self.comm = comm
 
     # Take ClientRequest's defaults, but override with our own
     self.config = Http::ClientRequest::DefaultConfig.merge({
@@ -68,8 +69,6 @@ class Client
       'chunked_size'           => 'integer',
       'partial'                => 'bool'
     }
-
-
   end
 
   #
@@ -181,7 +180,8 @@ class Client
       'SSL'        => self.ssl,
       'SSLVersion' => self.ssl_version,
       'Proxies'    => self.proxies,
-      'Timeout'    => timeout
+      'Timeout'    => timeout,
+      'Comm'       => self.comm
     )
   end
 
@@ -230,7 +230,7 @@ class Client
     end
 
     send_request(req, t)
-    
+
     res = read_response(t)
     if req.opts['ntlm_transform_response'] and self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
@@ -677,6 +677,10 @@ class Client
     nil
   end
 
+  #
+  # An optional comm to use for creating the underlying socket.
+  #
+  attr_accessor :comm
   #
   # The client request configuration
   #
