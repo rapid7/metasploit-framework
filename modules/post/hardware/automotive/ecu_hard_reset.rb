@@ -6,16 +6,16 @@
 class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(update_info(info,
-                      'Name' => 'ECU Hard Reset',
-                      'Description' => ' This module performs hard reset in the ECU Reset Service Identifier (0x11)',
-                      'License' => MSF_LICENSE,
-                      'Author' => ['Jay Turla'],
-                      'Platform' => ['hardware'],
-                      'SessionTypes' => ['hwbridge']))
+      'Name' => 'ECU Hard Reset',
+      'Description' => ' This module performs hard reset in the ECU Reset Service Identifier (0x11)',
+      'License' => MSF_LICENSE,
+      'Author' => ['Jay Turla'],
+      'Platform' => ['hardware'],
+      'SessionTypes' => ['hwbridge']))
     register_options([
-                       OptString.new('ARBID', [false, 'CAN ID to perform ECU Hard Reset', '0x7DF']),
-                       OptString.new('CANBUS', [false, 'CAN Bus to perform scan on, defaults to connected bus', nil])
-                     ])
+      OptString.new('ARBID', [false, 'CAN ID to perform ECU Hard Reset', '0x7DF']),
+      OptString.new('CANBUS', [false, 'CAN Bus to perform scan on, defaults to connected bus', nil])
+      ])
   end
 
   def run
@@ -26,4 +26,5 @@ class MetasploitModule < Msf::Post
     print_status('Performing ECU Hard Reset...')
     client.automotive.cansend(datastore['CANBUS'], datastore['ARBID'], '0211010000000000')
   end
+
 end
