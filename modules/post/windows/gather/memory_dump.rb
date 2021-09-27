@@ -78,8 +78,6 @@ class MetasploitModule < Msf::Post
     fail_with(Msf::Module::Failure::PayloadFailed, "Could not find process #{target_pid}") unless name
     print_status("Dumping memory for #{name}")
 
-    railgun = session.railgun
-
     if datastore['DUMP_TYPE'] == 'standard'
       # MiniDumpWithDataSegs | MiniDumpWithHandleData | MiniDumpWithIndirectlyReferencedMemory
       # | MiniDumpWithProcessThreadData | MiniDumpWithPrivateReadWriteMemory | MiniDumpWithThreadInfo
@@ -94,7 +92,7 @@ class MetasploitModule < Msf::Post
     begin
       process_handle = get_process_handle
       file_handle = create_file
-      result = railgun.dbghelp.MiniDumpWriteDump(process_handle,
+      result = session.railgun.dbghelp.MiniDumpWriteDump(process_handle,
                                                  target_pid,
                                                  file_handle,
                                                  dump_flags,
@@ -105,8 +103,8 @@ class MetasploitModule < Msf::Post
         fail_with(Msf::Module::Failure::PayloadFailed, "Minidump failed: #{result['ErrorMessage']}")
       end
     ensure
-      railgun.kernel32.CloseHandle(process_handle) if process_handle
-      railgun.kernel32.CloseHandle(file_handle) if file_handle
+      session.railgun.kernel32.CloseHandle(process_handle) if process_handle
+      session.railgun.kernel32.CloseHandle(file_handle) if file_handle
     end
 
     path = datastore['DUMP_PATH']

