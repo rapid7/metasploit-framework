@@ -17,7 +17,8 @@ class MetasploitModule < Msf::Post
         'Notes' => {
           'Stability' => [ CRASH_SERVICE_RESTARTS ],
           'SideEffects' => [ PHYSICAL_EFFECTS ],
-          'Reliability' => [ REPEATABLE_SESSION ]        
+          'Reliability' => [ REPEATABLE_SESSION ]
+        }
       )
     )
     register_options([
