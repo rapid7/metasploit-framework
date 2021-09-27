@@ -57,13 +57,12 @@ class MetasploitModule < Msf::Post
           This is a module that searches for Gadugadu credentials on a windows remote host. Gadu-Gadu is a Polish instant messaging client using a proprietary protocol. Gadu-Gadu was the most popular IM service in Poland.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Kazuyoshi Maruta',
-            'Daniel Hallsworth',
-            'Barwar Salim M',
-            'Z. Cliffe Schreuders' # http://z.cliffe.schreuders.org
-          ],
+        'Author' => [
+          'Kazuyoshi Maruta',
+          'Daniel Hallsworth',
+          'Barwar Salim M',
+          'Z. Cliffe Schreuders' # http://z.cliffe.schreuders.org
+        ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Notes' => {

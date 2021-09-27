@@ -77,13 +77,12 @@ class MetasploitModule < Msf::Post
           This is a module that searches for credentials stored in Flock on a windows remote host.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Kazuyoshi Maruta',
-            'Daniel Hallsworth',
-            'Barwar Salim M',
-            'Z. Cliffe Schreuders' # http://z.cliffe.schreuders.org
-          ],
+        'Author' => [
+          'Kazuyoshi Maruta',
+          'Daniel Hallsworth',
+          'Barwar Salim M',
+          'Z. Cliffe Schreuders' # http://z.cliffe.schreuders.org
+        ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Notes' => {

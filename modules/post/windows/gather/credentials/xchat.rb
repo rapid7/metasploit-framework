@@ -56,13 +56,12 @@ class MetasploitModule < Msf::Post
           This is a module that searches for Xchat credentials on a windows remote host. XChat is an IRC chat program for both Linux and Windows.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Kazuyoshi Maruta',
-            'Daniel Hallsworth',
-            'Barwar Salim M',
-            'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
-          ],
+        'Author' => [
+          'Kazuyoshi Maruta',
+          'Daniel Hallsworth',
+          'Barwar Salim M',
+          'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
+        ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Notes' => {

@@ -54,13 +54,12 @@ class MetasploitModule < Msf::Post
           This is a module that searches for credentials in Viber desktop application on a windows remote host. Viber is a cross-platform voice over IP and instant messaging software application.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Kazuyoshi Maruta',
-            'Daniel Hallsworth',
-            'Barwar Salim M',
-            'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
-          ],
+        'Author' => [
+          'Kazuyoshi Maruta',
+          'Daniel Hallsworth',
+          'Barwar Salim M',
+          'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
+        ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Notes' => {

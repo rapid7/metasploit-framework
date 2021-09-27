@@ -84,13 +84,12 @@ class MetasploitModule < Msf::Post
           This is a module that searches for Tango credentials on a windows remote host. Tango is a third-party, cross platform messaging application software for smartphones developed by TangoME, Inc.t
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Kazuyoshi Maruta',
-            'Daniel Hallsworth',
-            'Barwar Salim M',
-            'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
-          ],
+        'Author' => [
+          'Kazuyoshi Maruta',
+          'Daniel Hallsworth',
+          'Barwar Salim M',
+          'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
+        ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Notes' => {
