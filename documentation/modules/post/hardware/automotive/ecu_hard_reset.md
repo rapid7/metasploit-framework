@@ -1,6 +1,6 @@
 ## Introduction
 
-This module performs hard reset in the ECU Reset Service Identifier (0x11) where the tester can request this to re-initialize the core hardware components of the system.
+This module performs hard reset in the ECU Reset Service Identifier (0x11).
 
 ## Verification Steps
 
