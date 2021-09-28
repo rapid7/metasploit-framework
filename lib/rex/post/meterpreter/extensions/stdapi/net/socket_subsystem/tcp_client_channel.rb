@@ -81,6 +81,15 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
     unless sock_params.nil?
       @params = sock_params.merge(Socket.parameters_from_response(packet))
+      lsock.extend(Rex::Socket::SslTcp) if sock_params.ssl
+    end
+
+    begin
+      lsock.initsock(@params)
+      rsock.initsock(@params)
+    rescue ::IOError
+      # this exception is raised when initializing an SSL socket if the DIO handler closes it in another thread
+      # disregarding it here allows the SSL-specific exception to be raised to the caller instead
     end
   end
 

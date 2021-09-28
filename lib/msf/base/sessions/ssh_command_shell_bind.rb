@@ -82,6 +82,10 @@ module Msf::Sessions
         rsock.extend(SocketInterface)
         rsock.channel = self
 
+        lsock.extend(Rex::Socket::SslTcp) if params.ssl
+        lsock.initsock(params)
+        rsock.initsock(params)
+
         client.add_channel(self)
       end
 
@@ -190,15 +194,16 @@ module Msf::Sessions
       mutex = Mutex.new
       condition = ConditionVariable.new
       ssh_channel = msf_channel = nil
+      opened = false
 
       if params.proto == 'tcp'
         if params.server
           raise ::Rex::BindFailed.new(params.localhost, params.localport, reason: 'TCP server sockets are not supported by SSH sessions.')
         end
 
-        ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, params.peerhost, :long, params.peerport, :string, params.localhost, :long, params.localport) do |new_channel|
+        ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, params.peerhost, :long, params.peerport, :string, params.localhost, :long, params.localport) do |_|
           dlog("new direct-tcpip channel opened to #{Rex::Socket.is_ipv6?(params.peerhost) ? '[' + params.peerhost + ']' : params.peerhost}:#{params.peerport}")
-          msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, params)
+          opened = true
           mutex.synchronize do
             condition.signal
           end
@@ -219,10 +224,11 @@ module Msf::Sessions
       end
 
       mutex.synchronize do
-        condition.wait(mutex, params.timeout)
+        timeout = params.timeout.to_i <= 0 ? nil : params.timeout
+        condition.wait(mutex, timeout)
       end
 
-      if msf_channel.nil?
+      unless opened
         ssh_channel.close
 
         raise ::Rex::ConnectionTimeout.new(params.peerhost, params.peerport) if failure_reason_code.nil?
@@ -239,6 +245,7 @@ module Msf::Sessions
         raise ::Rex::ConnectionError.new(params.peerhost, params.peerport, reason: reason)
       end
 
+      msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, ssh_channel, params)
       sock = msf_channel.lsock
 
       # Notify now that we've created the socket
