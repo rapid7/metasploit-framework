@@ -81,7 +81,12 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
     unless sock_params.nil?
       @params = sock_params.merge(Socket.parameters_from_response(packet))
+      lsock.extend(Rex::Socket::SslTcp) if sock_params.ssl
     end
+
+    # synchronize access so the socket isn't closed while initializing, this is particularly important for SSL
+    lsock.synchronize_access { lsock.initsock(@params) }
+    rsock.synchronize_access { rsock.initsock(@params) }
   end
 
   #
