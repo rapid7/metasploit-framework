@@ -83,8 +83,10 @@ module Msf::Sessions
         rsock.channel = self
 
         lsock.extend(Rex::Socket::SslTcp) if params.ssl
-        lsock.initsock(params)
-        rsock.initsock(params)
+
+        # synchronize access so the socket isn't closed while initializing, this is particularly important for SSL
+        lsock.synchronize_access { lsock.initsock(params) }
+        rsock.synchronize_access { rsock.initsock(params) }
 
         client.add_channel(self)
       end

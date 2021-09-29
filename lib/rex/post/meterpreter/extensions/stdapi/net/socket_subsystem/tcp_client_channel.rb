@@ -84,13 +84,9 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
       lsock.extend(Rex::Socket::SslTcp) if sock_params.ssl
     end
 
-    begin
-      lsock.initsock(@params)
-      rsock.initsock(@params)
-    rescue ::IOError
-      # this exception is raised when initializing an SSL socket if the DIO handler closes it in another thread
-      # disregarding it here allows the SSL-specific exception to be raised to the caller instead
-    end
+    # synchronize access so the socket isn't closed while initializing, this is particularly important for SSL
+    lsock.synchronize_access { lsock.initsock(@params) }
+    rsock.synchronize_access { rsock.initsock(@params) }
   end
 
   #
