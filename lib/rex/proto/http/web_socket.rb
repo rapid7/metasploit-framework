@@ -191,7 +191,13 @@ module Interface
   #
   # @return [WebSocket::Frame] the frame that was received from the peer.
   def get_wsframe(_opts={})
-    Frame.read(self)
+    # if this socket provides synchronization (as Rex::Io::Stream does), use it when reading a WebSocket frame which
+    # involves multiple calls to #read
+    if respond_to?(:synchronize_access)
+      synchronize_access { Frame.read(self) }
+    else
+      Frame.read(self)
+    end
   rescue EOFError
     nil
   end
