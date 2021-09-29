@@ -146,7 +146,7 @@ def check_logins(rhost, rport, targeturi, domain, usernames, passwords, timeout,
 
 def run(args):
     """Run the module, gathering the domain if desired and verifying usernames and passwords"""
-    module.LogHandler.setup(msg_prefix='{} - '.format(args['RHOSTS']))
+    module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if DEPENDENCIES_MISSING:
         module.log('Module dependencies are missing, cannot continue', level='error')
         return
@@ -154,7 +154,7 @@ def run(args):
     user_agent = args['user_agent']
     # Verify the service is up if requested
     if args['verify_service']:
-        service_verified = verify_service(args['RHOSTS'], args['rport'],
+        service_verified = verify_service(args['rhost'], args['rport'],
                                           args['targeturi'], int(args['timeout']), user_agent)
         if service_verified:
             module.log('Service is up, beginning scan...', level='good')
@@ -166,7 +166,7 @@ def run(args):
     # Gather AD Domain either from args or enumeration
     domain = args['domain'] if 'domain' in args else None
     if not domain and args['enum_domain']:
-        domain = get_ad_domain(args['RHOSTS'], args['rport'], user_agent)
+        domain = get_ad_domain(args['rhost'], args['rport'], user_agent)
 
     # Verify we have a proper domain
     if not domain:
@@ -188,7 +188,7 @@ def run(args):
     else:
         passwords = ['wrong']
     # Check each valid login combination
-    check_logins(args['RHOSTS'], args['rport'], args['targeturi'],
+    check_logins(args['rhost'], args['rport'], args['targeturi'],
                    domain, usernames, passwords, int(args['timeout']), user_agent)
 
 if __name__ == '__main__':
