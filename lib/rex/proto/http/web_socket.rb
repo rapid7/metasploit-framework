@@ -191,13 +191,7 @@ module Interface
   #
   # @return [WebSocket::Frame] the frame that was received from the peer.
   def get_wsframe(_opts={})
-    # if this socket provides synchronization (as Rex::Io::Stream does), use it when reading a WebSocket frame which
-    # involves multiple calls to #read
-    if respond_to?(:synchronize_access)
-      synchronize_access { Frame.read(self) }
-    else
-      Frame.read(self)
-    end
+    Frame.read(self)
   rescue ::IOError
     nil
   end
@@ -241,45 +235,66 @@ module Interface
     buffer = ''
     buffer_type = nil
 
-    while (frame = get_wsframe(opts))
-      frame.unmask! if frame.masked
+    # since web sockets have their own tear down exchange, use a synchronization lock to ensure we aren't closed until
+    # either the remote socket is closed or the teardown takes place
+    @wsstream_lock = Rex::ReadWriteLock.new
+    @wsstream_lock.synchronize_read {
+      while (frame = get_wsframe(opts))
+        frame.unmask! if frame.masked
 
-      case frame.opcode
-      when Opcode::CONNECTION_CLOSE
-        put_wsframe(Frame.new(opcode: Opcode::CONNECTION_CLOSE).tap { |f| f.mask! }, opts=opts)
-        break
-      when Opcode::CONTINUATION
-        # a continuation frame can only be sent for a data frames
-        # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.4
-        raise WebSocketError, 'Received an unexpected continuation frame (uninitialized buffer)' if buffer_type.nil?
-        buffer << frame.payload_data
-      when Opcode::BINARY
-        raise WebSocketError, 'Received an unexpected binary frame (incomplete buffer)' unless buffer_type.nil?
-        buffer = frame.payload_data
-        buffer_type = :binary
-      when Opcode::TEXT
-        raise WebSocketError, 'Received an unexpected text frame (incomplete buffer)' unless buffer_type.nil?
-        buffer = frame.payload_data
-        buffer_type = :text
-      when Opcode::PING
-        # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.5.2
-        put_wsframe(frame.dup.tap { |f| f.opcode = Opcode::PONG }, opts=opts)
-      end
-
-      if frame.fin == 1
-        if block_given?
-          # text data is UTF-8 encoded
-          # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.6
-          buffer.force_encoding('UTF-8') if buffer_type == :text
-          block.call(buffer, buffer_type)
+        case frame.opcode
+        when Opcode::CONNECTION_CLOSE
+          put_wsframe(Frame.new(opcode: Opcode::CONNECTION_CLOSE).tap { |f| f.mask! }, opts=opts)
+          break
+        when Opcode::CONTINUATION
+          # a continuation frame can only be sent for a data frames
+          # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.4
+          raise WebSocketError, 'Received an unexpected continuation frame (uninitialized buffer)' if buffer_type.nil?
+          buffer << frame.payload_data
+        when Opcode::BINARY
+          raise WebSocketError, 'Received an unexpected binary frame (incomplete buffer)' unless buffer_type.nil?
+          buffer = frame.payload_data
+          buffer_type = :binary
+        when Opcode::TEXT
+          raise WebSocketError, 'Received an unexpected text frame (incomplete buffer)' unless buffer_type.nil?
+          buffer = frame.payload_data
+          buffer_type = :text
+        when Opcode::PING
+          # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.5.2
+          put_wsframe(frame.dup.tap { |f| f.opcode = Opcode::PONG }, opts=opts)
         end
 
-        buffer = ''
-        buffer_type = nil
+        if frame.fin == 1
+          if block_given?
+            # text data is UTF-8 encoded
+            # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.6
+            buffer.force_encoding('UTF-8') if buffer_type == :text
+            # release the stream lock before entering the callback, allowing it to close the socket if desired
+            @wsstream_lock.unlock_read
+            begin
+              block.call(buffer, buffer_type)
+            ensure
+              @wsstream_lock.lock_read
+            end
+          end
+
+          buffer = ''
+          buffer_type = nil
+        end
       end
-    end
+    }
 
     close
+  end
+
+  def close
+    # if #wsloop was ever called, a synchronization lock will have been initialized
+    @wsstream_lock.lock_write unless @wsstream_lock.nil?
+    begin
+      super
+    ensure
+      @wsstream_lock.unlock_write unless @wsstream_lock.nil?
+    end
   end
 end
 
