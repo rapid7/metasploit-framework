@@ -94,13 +94,24 @@ def get_ad_domain(rhost, rport, user_agent):
         if request.status_code == 401 and 'WWW-Authenticate' in request.headers and \
           'NTLM' in request.headers['WWW-Authenticate']:
             try:
-                domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
-                domain = base64.b64decode(bytes(domain_hash, 'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
+                ntlm_header_array = request.headers['WWW-Authenticate'].split('NTLM ')
+                if len(ntlm_header_array) < 2:
+                    module.log("NTLM authenticate header was not in the expected format for %s" % url)
+                    continue
+
+                domain_hash = ntlm_header_array[1].split(',')[0]
+                domain = base64.b64decode(bytes(domain_hash, 'utf-8')).replace(b'\x00',b'').split(b'\n')
+                if len(domain) < 2:
+                    module.log("Domain is not in the right format, skipping processing %s" % url)
+                    continue
+
+                domain = domain[1]
                 domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
                 module.log('Found Domain: {}'.format(domain), level='good')
                 return domain
             except:
-                pass
+                module.log("An unhandled exception occured when processing %s. Please file a bug report." %url)
+                continue
     module.log('Failed to find Domain', level='error')
     return None
 
