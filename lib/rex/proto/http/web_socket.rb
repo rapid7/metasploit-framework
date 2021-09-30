@@ -198,7 +198,7 @@ module Interface
     else
       Frame.read(self)
     end
-  rescue EOFError
+  rescue ::IOError
     nil
   end
 
@@ -215,7 +215,7 @@ module Interface
   # Close the WebSocket. If the underlying TCP socket is still active a WebSocket CONNECTION_CLOSE request will be sent
   # and then it will wait for a CONNECTION_CLOSE response. Once completed the underlying TCP socket will be closed.
   #
-  def wsclose
+  def wsclose(opts={})
     return if closed? # there's nothing to do if the underlying TCP socket has already been closed
 
     # this implementation doesn't handle the optional close reasons at all
@@ -223,8 +223,8 @@ module Interface
     # close frames must be masked
     # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.5.1
     frame.mask!
-    put_wsframe(frame)
-    while (frame = get_wsframe)
+    put_wsframe(frame, opts=opts)
+    while (frame = get_wsframe(opts))
       break if frame.opcode == Opcode::CONNECTION_CLOSE
       # all other frames are dropped after our connection close request is sent
     end
@@ -237,17 +237,16 @@ module Interface
   # unmasking payload data and ping requests. When the remote connection is closed, the loop will exit. If specified the
   # block will be passed data chunks and their data types.
   #
-  def wsloop(&block)
+  def wsloop(opts={}, &block)
     buffer = ''
     buffer_type = nil
 
-    while (frame = get_wsframe)
+    while (frame = get_wsframe(opts))
       frame.unmask! if frame.masked
 
       case frame.opcode
       when Opcode::CONNECTION_CLOSE
-        put_wsframe(Frame.new(opcode: Opcode::CONNECTION_CLOSE).tap { |f| f.mask! })
-        close
+        put_wsframe(Frame.new(opcode: Opcode::CONNECTION_CLOSE).tap { |f| f.mask! }, opts=opts)
         break
       when Opcode::CONTINUATION
         # a continuation frame can only be sent for a data frames
@@ -264,7 +263,7 @@ module Interface
         buffer_type = :text
       when Opcode::PING
         # see: https://datatracker.ietf.org/doc/html/rfc6455#section-5.5.2
-        put_wsframe(frame.dup.tap { |f| f.opcode = Opcode::PONG })
+        put_wsframe(frame.dup.tap { |f| f.opcode = Opcode::PONG }, opts=opts)
       end
 
       if frame.fin == 1
@@ -279,6 +278,8 @@ module Interface
         buffer_type = nil
       end
     end
+
+    close
   end
 end
 
