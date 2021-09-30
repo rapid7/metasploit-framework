@@ -65,7 +65,7 @@ You can use candump to verify the CAN messages being sent:
 
 ```
 └─$ candump vcan0        
-  vcan0  7F1   [8]  03 22 F1 90 00 00 00 00
+  vcan0  7DF   [8]  01 04 55 55 55 55 55 55
 ```
 
 UDS Server Output
