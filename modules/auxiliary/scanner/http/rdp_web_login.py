@@ -93,12 +93,14 @@ def get_ad_domain(rhost, rport, user_agent):
         # Decode the provided NTLM Response to strip out the domain name
         if request.status_code == 401 and 'WWW-Authenticate' in request.headers and \
           'NTLM' in request.headers['WWW-Authenticate']:
-            domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
-            domain = base64.b64decode(bytes(domain_hash,
-                                            'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
-            domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
-            module.log('Found Domain: {}'.format(domain), level='good')
-            return domain
+            try:
+                domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
+                domain = base64.b64decode(bytes(domain_hash, 'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
+                domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
+                module.log('Found Domain: {}'.format(domain), level='good')
+                return domain
+            except:
+                pass
     module.log('Failed to find Domain', level='error')
     return None
 
