@@ -106,7 +106,13 @@ def get_ad_domain(rhost, rport, user_agent):
                     continue
 
                 domain = domain[1]
-                domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
+                start = domain.find(b'\x0f')
+                end = domain.find(b'\x02')
+                if (start == -1) or (end == -1):
+                    module.log("Couldn't find byte 0xf or 0x2 in the request, skipping processing %s", url)
+                    continue
+
+                domain = domain[start + 1:end].decode('utf-8')
                 module.log('Found Domain: {}'.format(domain), level='good')
                 return domain
             except:
