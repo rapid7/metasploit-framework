@@ -337,6 +337,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     case add_printer_driver_ex(container)
+    when nil # prevent the module from erroring out in case the response can't be mapped to a Win32 error code
+      return Exploit::CheckCode::Unknown('Received unknown status code, implying the target is not vulnerable.')
     when ::WindowsError::Win32::ERROR_PATH_NOT_FOUND
       return Exploit::CheckCode::Vulnerable('Received ERROR_PATH_NOT_FOUND, implying the target is vulnerable.')
     when ::WindowsError::Win32::ERROR_BAD_NET_NAME
