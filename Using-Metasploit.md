@@ -174,7 +174,7 @@ check http://admin:user@application.local/cacti/
 USERNAME and PASSWORD will be set to 'admin' and 'user'
 ```
 
-For the following module, as are no `USERNAME`/`PASSWORD` options, the `HttpUsername`/`HttpPassword` options will be chosen instead for [HTTP Basic access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) purposes
+For the following module, as there are no `USERNAME`/`PASSWORD` options, the `HttpUsername`/`HttpPassword` options will be chosen instead for [HTTP Basic access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) purposes
 
 ```
 use exploit/multi/http/tomcat_mgr_deploy
