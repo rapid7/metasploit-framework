@@ -1,15 +1,15 @@
 name: Labels
 on:
   pull_request_target:
-    types: [labeled]
+    types: [ labeled ]
   issues:
-    types: [labeled]
+    types: [ labeled ]
 
 jobs:
   handle-labels:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@f05a81df23035049204b043b50c3322045ce7eb3 # pin@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |

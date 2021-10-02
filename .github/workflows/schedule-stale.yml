@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: stale
         id: stale
-        uses: actions/stale@v3
+        uses: actions/stale@98ed4cb500039dbcccf4bd9bedada4d0187f2757 # pin@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 30
