@@ -142,6 +142,8 @@ module Msf::Sessions
     # Will receive connection messages back from the SSH server,
     # whereupon a TcpClientChannel will be opened
     class TcpServerChannel
+      include Rex::IO::StreamServer
+
       def initialize(params, client, host, port)
         @params = params
         @client = client
