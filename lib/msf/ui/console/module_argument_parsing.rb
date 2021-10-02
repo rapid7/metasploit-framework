@@ -53,7 +53,7 @@ module ModuleArgumentParsing
       end
     end
 
-    parse_opts(@@module_opts_with_action_support, args, help_cmd: help_cmd)
+    parse_opts(@@module_opts_with_action_support, args, help_cmd: help_cmd, action: action)
   end
 
   def parse_exploit_opts(args)
