@@ -6,7 +6,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Ghostcat',
+        'Name' => 'Apache Tomcat AJP File Read',
         'Description' => %q{
           When using the Apache JServ Protocol (AJP), care must be taken when trusting incoming connections to Apache
           Tomcat. Tomcat treats AJP connections as having higher trust than, for example, a similar HTTP connection.
@@ -34,9 +34,17 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
-          ['CVE', '2020-1938']
+          ['CVE', '2020-1938'],
+          ['EDB', '48143'],
+          ['URL', 'https://www.chaitin.cn/en/ghostcat']
         ],
-        'DisclosureDate' => '2020-02-20'
+        'DisclosureDate' => '2020-02-20',
+        'Notes' => {
+          'AKA' => ['Ghostcat'],
+          'Stability' => ['CRASH_SAFE'],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
     register_options(
