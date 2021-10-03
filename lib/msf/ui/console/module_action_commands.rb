@@ -29,9 +29,10 @@ module ModuleActionCommands
 
   #
   # Allow modules to define their own commands
+  # Note: A change to this method will most likely require a corresponding change to respond_to_missing?
   #
   def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s, true) )
+    if mod && mod.respond_to?(meth.to_s, true)
 
       # Initialize user interaction
       mod.init_ui(driver.input, driver.output)
@@ -39,9 +40,26 @@ module ModuleActionCommands
       return mod.send(meth.to_s, *args)
     end
 
-    action = meth.to_s.delete_prefix('cmd_')
+    action = meth.to_s.delete_prefix('cmd_').delete_suffix('_tabs')
     if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).any? { |a| a.casecmp?(action) }
+      return cmd_run_tabs(*args) if meth.end_with?('_tabs')
       return do_action(action, *args)
+    end
+
+    super
+  end
+
+  #
+  # Note: A change to this method will most likely require a corresponding change to method_missing
+  #
+  def respond_to_missing?(meth, _include_private = true)
+    if mod && mod.respond_to?(meth.to_s, true)
+      return true
+    end
+
+    action = meth.to_s.delete_prefix('cmd_').delete_suffix('_tabs')
+    if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).any? { |a| a.casecmp?(action) }
+      return true
     end
 
     super
