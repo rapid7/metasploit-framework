@@ -1,6 +1,5 @@
 ## Introduction
-
-
+This module will keep the vehicle in a diagnostic state on rounds by sending tester present packet.
 
 ## Verification Steps
 
