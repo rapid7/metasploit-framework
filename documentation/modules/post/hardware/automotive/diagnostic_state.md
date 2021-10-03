@@ -26,7 +26,7 @@ Module options (post/hardware/automotive/diagnostic_state):
 
    Name     Current Setting  Required  Description
    ----     ---------------  --------  -----------
-   ARBID    0x7DF            no        CAN ID to perform ECU Hard Reset
+   ARBID    0x7DF            no        CAN ID to perform Diagnostic State
    CANBUS                    no        CAN Bus to perform scan on, defaults to connected bus
    ROUNDS   500              yes       Number of executed rounds
    SESSION                   yes       The session to run this module on.
