@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
       )
     )
     register_options([
-      OptString.new('ARBID', [false, 'CAN ID to perform ECU Hard Reset', '0x7DF']),
+      OptString.new('ARBID', [false, 'CAN ID to perform Diagnostic State', '0x7DF']),
       OptString.new('CANBUS', [false, 'CAN Bus to perform scan on, defaults to connected bus', nil]),
       OptInt.new('ROUNDS', [true, 'Number of executed rounds', 500])
     ])
