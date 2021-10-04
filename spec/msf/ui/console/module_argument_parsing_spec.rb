@@ -272,6 +272,40 @@ RSpec.describe Msf::Ui::Console::ModuleArgumentParsing do
     it_behaves_like 'a command which shows help menus',
                     method_name: 'parse_run_opts',
                     expected_help_cmd: 'cmd_run_help'
+
+    it 'handles an action being supplied' do
+      args = []
+      expected_result = {
+        jobify: false,
+        quiet: false,
+        action: 'action-name',
+        datastore_options: {}
+      }
+      expect(subject.parse_run_opts(args, action: 'action-name')).to eq(expected_result)
+    end
+
+    it 'handles an action being specified from the original datastore value' do
+      current_mod.datastore['action'] = 'datastore-action-name'
+      args = []
+      expected_result = {
+        jobify: false,
+        quiet: false,
+        action: 'action-name',
+        datastore_options: {}
+      }
+      expect(subject.parse_run_opts(args, action: 'action-name')).to eq(expected_result)
+    end
+
+    it 'handles an action being nil' do
+      args = []
+      expected_result = {
+        jobify: false,
+        quiet: false,
+        action: nil,
+        datastore_options: {}
+      }
+      expect(subject.parse_run_opts(args)).to eq(expected_result)
+    end
   end
 
   describe '#parse_exploit_opts' do
