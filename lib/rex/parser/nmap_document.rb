@@ -362,10 +362,8 @@ module Rex
         scripts = @report_data.delete(:scripts) || []
         host_object = db_report(:host, @report_data.merge( :workspace => @args[:workspace] ) )
         db.emit(:address,@report_data[:host],&block) if block
-
         scripts.each do |script|
           script.each_pair do |k,v|
-            ntype =
             nse_note = {
               :workspace => host_object.workspace,
               :host => host_object,
@@ -375,6 +373,7 @@ module Rex
             }
             db_report(:note, nse_note)
           end
+
         end
 
         host_object
@@ -392,7 +391,6 @@ module Rex
         svc_obj = db_report(:service, svc.merge(:host => host_object, :workspace => wspace.name))
         scripts.each do |script|
           script.each_pair do |k,v|
-            ntype =
             nse_note = {
               :workspace => wspace,
               :host => host_object,
@@ -404,6 +402,7 @@ module Rex
             db_report(:note, nse_note)
           end
         end
+
         reported << svc_obj
       end
       reported

@@ -179,8 +179,9 @@ module Msf::DBManager::Host
   # +:virtual_host+:: -- the name of the virtualization software, eg "VMWare", "QEMU", "Xen", "Docker", etc.
   #
   def report_host(opts)
-
     return if !active
+    opts = opts.clone() # protect the original caller's opts
+
     addr = opts.delete(:host) || return
 
     # Sometimes a host setup through a pivot will see the address as "Remote Pipe"

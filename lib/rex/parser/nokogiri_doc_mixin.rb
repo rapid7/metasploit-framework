@@ -51,6 +51,7 @@ module Parser
       @block = block if block
       @report_data = {:workspace => args[:workspace]}
       @nx_console_id = args[:nx_console_id]
+      @notes = []
       super()
     end
 
@@ -149,7 +150,12 @@ module Parser
       return nil if just_the_facts.empty?
       just_the_facts[:task] = @args[:task]
       just_the_facts[:workspace] = @args[:workspace] # workspace context is a required `fact`
-      db.send("report_#{table}", just_the_facts)
+      if table == :note
+        @notes << db.initialize_note(just_the_facts)
+        @notes[-1]
+      else
+        db.send("report_#{table}", just_the_facts)
+      end
     end
 
     # XXX: It would be better to either have a single registry of acceptable
@@ -221,6 +227,7 @@ module Parser
     end
 
     def end_document
+      save_notes
       block = @block
       return unless @report_type_ok
       unless @state[:current_tag].empty?
@@ -231,6 +238,10 @@ module Parser
       end
     end
 
+    def save_notes
+      db.report_notes(@notes)
+      @notes = []
+    end
   end
 
 end
