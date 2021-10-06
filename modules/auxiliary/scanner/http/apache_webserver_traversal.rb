@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2021-41773']
         ],
         'DisclosureDate' => '2021-10-05',
-        'Platform' => 'ruby',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
