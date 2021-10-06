@@ -1,0 +1,29 @@
+apiVersion: v2
+name: metasploit
+description: A Helm chart for deployiong metasploit framework into Kubernetes
+
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.0
+appVersion: 6.1.8
+keywords:
+  - metasploit
+  - security
+  - pentest
+  - penetration testing
+home: https://www.metasploit.com/
+icon: https://www.metasploit.com/includes/images/metasploit-r7-logo.svg
+sources:
+- https://github.com/rapid7/metasploit-framework
+maintainers:
+- email: gadi_naor@rapid7.com
+  name: Gadi Naor
+
+
+dependencies:
+  - name: postgresql
+    version: '0.2.1'
+    repository: https://cetic.github.io/helm-charts
+    alias: msfdb
