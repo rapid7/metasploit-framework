@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Path Traversal in Apache 2.4.49',
       'Description' => %q{
-        This module exploits an unauthenticated directory traversal vulnerability which exists in Apache version 2.4.49. 
+        This module exploits an unauthenticated directory traversal vulnerability which exists in Apache version 2.4.49.
         If files outside of the document root are not protected by ‘require all denied’ these requests can succeed.
       },
       'References'  =>
