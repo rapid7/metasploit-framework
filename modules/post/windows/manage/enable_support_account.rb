@@ -24,7 +24,14 @@ class MetasploitModule < Msf::Post
         'Author' => 'salcho <salchoman[at]gmail.com>',
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
-        'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
+        'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              priv_elevate_getsystem
+            ]
+          }
+        }
       )
     )
 

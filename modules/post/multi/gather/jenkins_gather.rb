@@ -21,7 +21,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'thesubtlety' ],
         'Platform' => [ 'linux', 'win' ],
-        'SessionTypes' => %w[shell meterpreter]
+        'SessionTypes' => %w[shell meterpreter],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+            ]
+          }
+        }
       )
     )
     register_options(

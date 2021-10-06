@@ -32,7 +32,16 @@ class MetasploitModule < Msf::Post
           [ 'LIST', { 'Description' => 'Lists all folders' } ],
           [ 'SEARCH', { 'Description' => 'Searches for an email' } ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_config_sysinfo
+              stdapi_ui_get_idle_time
+            ]
+          }
+        }
       )
     )
 

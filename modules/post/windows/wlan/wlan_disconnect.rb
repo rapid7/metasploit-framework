@@ -18,7 +18,16 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['theLightCosine'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_process_attach
+              stdapi_sys_process_getpid
+            ]
+          }
+        }
       )
     )
 

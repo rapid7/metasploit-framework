@@ -21,7 +21,17 @@ class MetasploitModule < Msf::Post
           'RageLtMan <rageltman[at]sempervictus>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
       )
     )
 

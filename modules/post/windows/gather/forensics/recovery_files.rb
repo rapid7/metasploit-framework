@@ -26,7 +26,14 @@ class MetasploitModule < Msf::Post
         'Author' => ['Borja Merino <bmerinofe[at]gmail.com>'],
         'References' => [
           [ 'URL', 'http://www.youtube.com/watch?v=9yzCf360ujY&hd=1' ]
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
     register_options(

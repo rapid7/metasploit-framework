@@ -22,7 +22,15 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Jim Halfpenny'],
         'Platform' => %w{bsd linux osx unix},
-        'SessionTypes' => ['meterpreter', 'shell' ]
+        'SessionTypes' => ['meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_ls
+              stdapi_fs_separator
+            ]
+          }
+        }
       )
     )
   end

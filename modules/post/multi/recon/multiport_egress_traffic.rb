@@ -22,7 +22,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
         'Platform' => ['linux', 'osx', 'unix', 'solaris', 'bsd', 'windows'],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
 

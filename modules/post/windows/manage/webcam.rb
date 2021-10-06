@@ -23,7 +23,14 @@ class MetasploitModule < Msf::Post
           [ 'LIST', { 'Description' => 'Show a list of webcams' } ],
           [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_webcam_*
+            ]
+          }
+        }
       )
     )
 

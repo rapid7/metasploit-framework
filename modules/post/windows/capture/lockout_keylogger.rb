@@ -20,7 +20,21 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'mubix', 'cg' ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'References' => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
+        'References' => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_railgun_api
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_ui_get_idle_time
+              stdapi_ui_get_keys_utf8
+              stdapi_ui_start_keyscan
+              stdapi_ui_stop_keyscan
+            ]
+          }
+        }
       )
     )
 

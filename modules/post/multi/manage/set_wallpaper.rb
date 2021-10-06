@@ -19,7 +19,15 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'timwr'],
         'Platform' => [ 'win', 'osx', 'linux', 'android' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              android_*
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
 

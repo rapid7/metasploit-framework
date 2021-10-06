@@ -29,6 +29,20 @@ class MetasploitModule < Msf::Post
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              stdapi_fs_delete_file
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_process_getpid
+            ]
+          }
         }
       )
     )
@@ -93,12 +107,12 @@ class MetasploitModule < Msf::Post
       process_handle = get_process_handle
       file_handle = create_file
       result = session.railgun.dbghelp.MiniDumpWriteDump(process_handle,
-                                                 target_pid,
-                                                 file_handle,
-                                                 dump_flags,
-                                                 nil,
-                                                 nil,
-                                                 nil)
+                                                         target_pid,
+                                                         file_handle,
+                                                         dump_flags,
+                                                         nil,
+                                                         nil,
+                                                         nil)
       unless result['return']
         fail_with(Msf::Module::Failure::PayloadFailed, "Minidump failed: #{result['ErrorMessage']}")
       end

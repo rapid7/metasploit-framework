@@ -28,7 +28,14 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'References' => [
           ['URL', 'http://www.shelliscoming.com/2014/11/getting-outbound-filtering-rules-by.html']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
 

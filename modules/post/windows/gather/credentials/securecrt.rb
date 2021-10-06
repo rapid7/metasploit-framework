@@ -32,6 +32,14 @@ class MetasploitModule < Msf::Post
           'Reliability' => [],
           'Stability' => [],
           'SideEffects' => [ IOC_IN_LOGS ]
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_fs_separator
+            ]
+          }
         }
       )
     )

@@ -19,6 +19,13 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Tom Sellers <tom[at]fadedcode.net>'],
         'Platform' => %w{android osx win linux bsd solaris},
         'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              android_*
+            ]
+          }
+        },
       )
     )
 

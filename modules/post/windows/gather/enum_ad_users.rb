@@ -39,7 +39,14 @@ class MetasploitModule < Msf::Post
           'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_host
+            ]
+          }
+        }
       )
     )
 

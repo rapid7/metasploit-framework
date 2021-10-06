@@ -28,6 +28,13 @@ class MetasploitModule < Msf::Post
         ], # Module author
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        },
       )
     )
     register_options(

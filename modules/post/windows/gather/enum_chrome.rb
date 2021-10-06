@@ -24,7 +24,29 @@ class MetasploitModule < Msf::Post
           'sinn3r',     # Metasploit post module
           'Kx499',      # x64 support
           'mubix'       # Parse extensions
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_migrate
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getsid
+              stdapi_sys_config_getuid
+              stdapi_sys_config_steal_token
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
 

@@ -18,7 +18,20 @@ class MetasploitModule < Msf::Post
           'bannedit' # Based on bannedit's pidgin_cred module structure
         ],
         'Platform' => %w{osx win},
-        'SessionTypes' => ['meterpreter', 'shell']
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
       )
     )
     register_options(

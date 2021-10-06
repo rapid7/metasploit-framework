@@ -15,7 +15,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Maximiliano Tedesco <maxitedesco1@gmail.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              peinjector_inject_shellcode
+            ]
+          }
+        }
       )
     )
 

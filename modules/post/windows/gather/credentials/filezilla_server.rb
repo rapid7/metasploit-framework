@@ -20,7 +20,20 @@ class MetasploitModule < Msf::Post
           'g0tmi1k' # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
         ],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter' ]
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_registry_query_value_direct
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
       )
     )
 

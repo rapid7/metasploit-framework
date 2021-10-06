@@ -42,7 +42,14 @@ class MetasploitModule < Msf::Post
           ['MSB', 'MS14-025']
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_adsi_domain_query
+            ]
+          }
+        }
       )
     )
 

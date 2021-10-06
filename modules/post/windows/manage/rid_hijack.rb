@@ -28,7 +28,14 @@ class MetasploitModule < Msf::Post
       'SessionTypes' => ['meterpreter'],
       'References'	=> [
         ['URL', 'http://csl.com.co/rid-hijacking/']
-      ])
+      ],
+      'Compat' => {
+        'Meterpreter' => {
+          'Commands' => %w[
+            priv_elevate_getsystem
+          ]
+        }
+      })
 
     register_options(
       [

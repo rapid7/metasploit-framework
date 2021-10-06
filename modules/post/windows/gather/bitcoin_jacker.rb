@@ -25,7 +25,15 @@ class MetasploitModule < Msf::Post
           'todb' # Added Armory support
         ],
         'Platform' => [ 'win' ], # TODO: Several more platforms host Bitcoin wallets...
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 

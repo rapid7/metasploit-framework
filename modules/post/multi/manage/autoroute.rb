@@ -25,7 +25,15 @@ class MetasploitModule < Msf::Post
           'todb',
           'Josh Hale "sn0wfa11" <jhale85446[at]gmail.com>'
         ],
-        'SessionTypes' => [ 'meterpreter']
+        'SessionTypes' => [ 'meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_config_get_interfaces
+              stdapi_net_config_get_routes
+            ]
+          }
+        }
       )
     )
 

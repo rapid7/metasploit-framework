@@ -25,7 +25,21 @@ class MetasploitModule < Msf::Post
           ['URL', 'http://www.shelliscoming.com/2017/05/post-exploitation-mounting-vmdk-files.html']
         ],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_delete_file
+              stdapi_fs_ls
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_process_execute
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 

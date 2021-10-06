@@ -40,7 +40,15 @@ class MetasploitModule < Msf::Post
         'SessionTypes'	=> ['meterpreter'],
         'Author' => [
           'SphaZ <cyberphaz[at]gmail.com>'
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              priv_fs_get_file_mace
+              priv_fs_set_file_mace
+            ]
+          }
+        }
       )
     )
 

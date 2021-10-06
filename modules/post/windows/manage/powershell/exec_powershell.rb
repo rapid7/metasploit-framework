@@ -33,7 +33,14 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
           'RageLtMan <rageltman[at]sempervictus>' # post module
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
       )
     )
 
