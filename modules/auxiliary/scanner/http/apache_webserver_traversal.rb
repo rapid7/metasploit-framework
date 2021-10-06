@@ -53,14 +53,14 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     unless res && res.code == 200
-      print_error('Nothing was downloaded')
+      vprint_error('Nothing was downloaded')
       return
     end
 
     vprint_good("#{peer} - #{res.body}")
     path = store_loot(
-      'apache.41773.traversal',
-      'text/plain',
+      'apache.traversal',
+      'application/octet-stream',
       ip,
       res.body,
       filename
