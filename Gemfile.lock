@@ -85,6 +85,7 @@ PATH
       tzinfo-data
       unix-crypt
       warden
+      win32api
       windows_error
       winrm
       xdr
@@ -479,6 +480,7 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    win32api (0.1.0)
     windows_error (0.1.2)
     winrm (2.3.6)
       builder (>= 2.1.2)
