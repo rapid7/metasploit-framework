@@ -15,6 +15,7 @@ This module also reports credentials to the credentials database when they are d
 - [ ] `set username USER_OR_FILE`
 - [ ] `set password PASSWORD_OR_FILE`
 - [ ] `set domain DOMAIN`
+- [ ] `run`
 - [ ] Check output for validity of your test username(s), and password(s)
 
 
