@@ -20,7 +20,7 @@ except ImportError:
 
 # Metasploit Metadata
 metadata = {
-    'name': 'Microsoft RDP Web Client Login Enumeration',
+    'name': 'Microsoft Azure Active Directory Login Enumeration',
     'description': '''
         Enumerate valid usernames and passwords against a Microsoft Azure Active Directory
         domain by utilizing a flaw in how SSO authenticates.
@@ -28,7 +28,7 @@ metadata = {
     'authors': [
         'Matthew Dunn'
     ],
-    'date': '2021-10-05',
+    'date': '2021-10-06',
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'https://arstechnica.com/information-technology/2021/09/new-azure-active-directory-password-brute-forcing-flaw-has-no-fix/'},
@@ -51,7 +51,7 @@ metadata = {
                      'required': True, 'default': None},
         'password': {'type': 'string',
                      'description': 'The password to try or path to a file of passwords',
-                     'required': False, 'default': None},
+                     'required': True, 'default': None},
     }
 }
 
