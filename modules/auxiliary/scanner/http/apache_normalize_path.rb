@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'RPORT' => 443,
           'SSL' => true
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
         }
       )
     )
