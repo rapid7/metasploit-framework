@@ -4,14 +4,6 @@
 .SECONDARY:
 .SECONDEXPANSION:
 
-# Required for globs to work correctly
-#SHELL      = /usr/bin/env bash
-
-GIT_COMMIT = $(shell git rev-parse HEAD)
-GIT_SHA    = $(shell git rev-parse --short HEAD)
-GIT_TAG    = $(shell git describe --tags --abbrev=0 --exact-match 2>/dev/null)
-GIT_DIRTY  = $(shell test -n "`git status --porcelain`" && echo "dirty" || echo "clean")
-
 lint-charts: ##@Lint Lint Helm Chart
 	helm lint metasploit
 
