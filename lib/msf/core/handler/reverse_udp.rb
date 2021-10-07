@@ -18,6 +18,7 @@ module Handler
 module ReverseUdp
 
   include Msf::Handler
+  include Msf::Handler::Reverse::Comm
 
   #
   # Returns the string representation of the handler type, in this case
@@ -49,6 +50,14 @@ module ReverseUdp
     "udp://#{uri_host}:#{datastore['LPORT']}"
   end
 
+  def comm_string
+    if listener_sock.nil?
+      "(setting up)"
+    else
+      via_string(self.listener_sock.channel.client) if self.listener_sock.respond_to?(:channel) && self.listener_sock.channel.respond_to?(:client)
+    end
+  end
+
   # A URI describing where we are listening
   #
   # @param addr [String] the address that
@@ -77,8 +86,8 @@ module ReverseUdp
       [
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
+        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false]),
+        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener'])
       ] +
       Msf::Opt::stager_retry_options,
       Msf::Handler::ReverseUdp)
@@ -94,15 +103,7 @@ module ReverseUdp
   def setup_handler
     ex = false
 
-    comm = case datastore['ReverseListenerComm'].to_s
-      when "local"; ::Rex::Socket::Comm::Local
-      when /\A[0-9]+\Z/; framework.sessions[datastore['ReverseListenerComm'].to_i]
-      else; nil
-      end
-    unless comm.is_a? ::Rex::Socket::Comm
-      comm = nil
-    end
-
+    comm = select_comm
     local_port = bind_port
     addrs = bind_address
 
@@ -122,15 +123,7 @@ module ReverseUdp
 
         ex = false
 
-        comm_used = comm || Rex::Socket::SwitchBoard.best_comm( ip )
-        comm_used = Rex::Socket::Comm::Local if comm_used == nil
-
-        if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )
-          via = "via the #{comm_used.type} on session #{comm_used.sid}"
-        else
-          via = ""
-        end
-
+        via = via_string(self.listener_sock.channel.client) if self.listener_sock.respond_to?(:channel) && self.listener_sock.channel.respond_to?(:client)
         print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
         break
       rescue
@@ -168,11 +161,13 @@ module ReverseUdp
         begin
           inbound, peerhost, peerport = self.listener_sock.recvfrom
           next if peerhost.nil?
+          comm = self.listener_sock.channel.client if self.listener_sock.respond_to?(:channel) && self.listener_sock.channel.respond_to?(:client)
+
           cli_opts = {
             'PeerPort' => peerport,
             'PeerHost' => peerhost,
             'LocalPort' => self.listener_sock.localport,
-            'Comm' => self.listener_sock.respond_to?(:comm) ? self.listener_sock.comm : nil
+            'Comm' => comm
           }
 
           # unless ['::', '0.0.0.0'].any? {|alladdr| self.listener_sock.localhost == alladdr }

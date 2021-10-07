@@ -1002,6 +1002,12 @@ class ReadableText
         if pinst.respond_to?(:luri)
           row[3] << pinst.luri
         end
+        if pinst.respond_to?(:comm_string)
+          via = pinst.comm_string
+          if via
+            row[3] << " #{via}"
+          end
+        end
       end
 
       if verbose

@@ -39,9 +39,8 @@ module Comm
     comm
   end
 
-  def via_string_for_ip(ip, comm)
+  def via_string(comm)
     comm_used = comm
-    comm_used ||= Rex::Socket::SwitchBoard.best_comm(ip)
     comm_used ||= Rex::Socket::Comm::Local
 
     if comm_used.respond_to?(:type) && comm_used.respond_to?(:sid)
