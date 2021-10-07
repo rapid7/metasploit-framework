@@ -32,7 +32,13 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://blogs.opera.com/security/2021/10/fuzzing-http-proxies-squid-part-2/']
         ],
       'DisclosureDate' => '2021-05-27'
-    ))
+    )
+      'Notes' => {
+        'Stability' => [ CRASH_SERVICE_DOWN ],
+        'Reliability' => [ ],
+        'SideEffects' => [ IOC_IN_LOGS ]
+      }
+)
 
     register_options(
       [
