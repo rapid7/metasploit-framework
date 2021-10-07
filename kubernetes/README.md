@@ -21,7 +21,7 @@ The installation chart also offers to install & run metasploit framework with di
 4. Run metasploit console by running:
 
     ```sh
-    export MSF_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "metasploit.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+    export MSF_POD_NAME=$(kubectl get pods --namespace metasploit -l "app.kubernetes.io/name=metasploit,app.kubernetes.io/instance=metasploit" -o jsonpath="{.items[0].metadata.name}")
 
-    kubectl --namespace {{ .Release.Namespace }} exec -it $MSF_POD_NAME -- msfconsole.sh
+    kubectl --namespace metasploit exec -it $MSF_POD_NAME -- msfconsole.sh
     ```  
