@@ -12,11 +12,11 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module will bleed all the brakes on the 2014 Jeep Cherokee while the car is moving.
           This has the result that the brakes will not work during this time and has significant
-          safety issues, even if it only works if you are driving slowly. 
+          safety issues, even if it only works if you are driving slowly.
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Charlie Miller', # Original Research 
+          'Charlie Miller', # Original Research
           'Chris Valasek', # Original Research
           'Jay Turla' # Metasploit Module
         ],
