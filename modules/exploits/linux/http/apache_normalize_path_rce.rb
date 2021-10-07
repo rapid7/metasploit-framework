@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Exploit::Remote
         'Arch' => [ARCH_CMD, ARCH_X64, ARCH_X86],
         'DefaultOptions' => {
           'CheckModule' => 'auxiliary/scanner/http/apache_normalize_path',
+          'Action' => 'RCE',
           'RPORT' => 443,
           'SSL' => true
         },

