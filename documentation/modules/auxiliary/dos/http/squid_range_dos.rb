@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 This module exploits a vulnerability in the Squid Caching Proxy server and its handling
-of the 'Range' HTTP header.
+of the `Range` HTTP header.
 
 Due to the way Squid handles the HTTP request header 'Range', an assertion can be
 caused due to a standard HTTP request. Once all of Squid's children workers have
