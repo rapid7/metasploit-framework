@@ -15,9 +15,9 @@ fullnameOverride: ""
 
 priviliges:
   # Disable Kubernetes API Server Access - even to the discovery APIs
-  useServiceAccount: false
+  useServiceAccount: true
   # Run metasploit framework as Kubernetes cluster admin (useServiceAccount must be true for this setting to be effective)
-  #bindClusterRole: cluster-admin 
+  bindClusterRole: "" #cluster-admin 
 
   #
   # Priviliges related to node hosting metasploit Pod

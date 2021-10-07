@@ -20,6 +20,8 @@ spec:
     {{- end }}
       {{- if .Values.priviliges.useServiceAccount }}
       serviceAccountName: {{ include "metasploit.fullname" . }}
+      {{ else }}
+      automountServiceAccountToken: false
       {{ end }}
       securityContext:
         {{- toYaml .Values.priviliges.podSecurityContext | nindent 8 }}

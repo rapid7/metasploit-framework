@@ -5,6 +5,31 @@ Running metasploit framework inside Kubernetes enables pentesters to security te
 
 The installation chart also offers to install & run metasploit framework with different priviliges and permissions with respect to Kubernetes node hosting metasploit, as well as Kubernetes API server itself - see 'priviliges' section under values.yaml
 
+```yaml
+priviliges:
+  # Disable Kubernetes API Server Access - even to the discovery APIs
+  useServiceAccount: true
+  # Run metasploit framework as Kubernetes cluster admin (useServiceAccount must be true for this setting to be effective)
+  bindClusterRole: "" #cluster-admin 
+
+  #
+  # Priviliges related to node hosting metasploit Pod
+  # See: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  podSecurityContext: {}
+    # fsGroup: 2000
+  # Metasploit container security context
+  securityContext: {}
+    #allowPrivilegeEscalation: false
+    # capabilities:
+    #   add:
+    #   - NET_BIND_SERVICE
+    #   drop:
+    #   - all
+    #runAsNonRoot: true
+    #runAsUser: 1000
+    #runAsGroup: 1000
+```
+
 # Installation
 
 1. Make sure helm (version 3 or above) is [installed](https://helm.sh/docs/intro/install/)
