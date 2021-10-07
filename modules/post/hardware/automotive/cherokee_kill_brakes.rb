@@ -12,11 +12,11 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module will bleed all the brakes on the 2014 Jeep Cherokee while the car is moving.
           This has the result that the brakes will not work during this time and has significant
-          safety issues, even if it only works if you are driving slowly.
+          safety issues, even if it only works if you are driving slowly. 
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Charlie Miller', # Original Research
+          'Charlie Miller', # Original Research 
           'Chris Valasek', # Original Research
           'Jay Turla' # Metasploit Module
         ],
@@ -36,9 +36,19 @@ class MetasploitModule < Msf::Post
     register_options([
       OptString.new('CANBUS', [false, 'CAN Bus to perform scan on, defaults to connected bus', nil])
     ])
+
+    register_advanced_options([
+      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true])
+    ])
   end
 
   def run
+    if datastore['DefangedMode']
+      print_error('Running in defanged mode')
+      print_error('Set this to false to disable defanged mode and enable module functionality.')
+      return
+    end
+
     unless client.automotive
       print_error('The hwbridge requires a functional automotive extention')
       return
