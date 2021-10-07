@@ -59,8 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         Msf::OptInt.new('SESSION', [false, 'An optional session to use for configuration']),
         OptRegexp.new('HIGHLIGHT_NAME_PATTERN', [true, 'PCRE regex of resource names to highlight', 'username|password|user|pass']),
         OptString.new('NAME', [false, 'The name of the resource to enumerate', nil]),
-        OptEnum.new('OUTPUT', [true, 'output format to use', 'table', ['table', 'json']]),
-        OptString.new('NAMESPACE_LIST', [false, 'The default namespace list to iterate when the current token does not have the permission to retrieve the available namespaces', 'default,dev,staging,production,kube-node-lease,kube-lease,kube-system'])
+        OptEnum.new('OUTPUT', [true, 'output format to use', 'table', ['table', 'json']])
       ]
     )
   end
