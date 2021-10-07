@@ -34,9 +34,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('domain', [true, 'The target Azure AD domain', '']),
-        OptString.new('azure_endpoint', [true, 'The Azure Autologon endpoint', 'autologon.microsoftazuread-sso.com']),
-        OptString.new('targeturi', [ true, 'The base path to the Azure autologon endpoint', '/winauth/trust/2005/usernamemixed']),
+        OptString.new('DOMAIN', [true, 'The target Azure AD domain', '']),
+        OptString.new('AZURE_ENDPOINT', [true, 'The Azure Autologon endpoint', 'autologon.microsoftazuread-sso.com']),
+        OptString.new('TARGETURI', [ true, 'The base path to the Azure autologon endpoint', '/winauth/trust/2005/usernamemixed']),
       ]
     )
 
@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
                        'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'BLANK_PASSWORDS')
   end
 
-  def report_login(azure_endpoint, _domain, username, password)
+  def report_login(azure_endpoint, domain, username, password)
     # report information, if needed
     service_data = {
       address: azure_endpoint,
@@ -56,6 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
+      realm: domain,
       username: username,
       private_data: password,
       private_type: :password
@@ -113,8 +114,6 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => "/#{domain}#{targeturi}",
       'method' => 'POST',
       'rhost' => azure_endpoint,
-      'ssl' => true,
-      'rport' => 443,
       'vars_get' => {
         'client-request-id' => request_id
       },
@@ -159,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
   def check_logins(azure_endpoint, targeturi, domain, usernames, passwords)
     for username in usernames do
       for password in passwords do
-        check_login(azure_endpoint, targeturi, domain, username.strip, password.strip)
+        check_login(azure_endpoint, targeturi, domain, username.strip.encode(xml: :text), password.strip.encode(xml: :text))
       end
     end
   end
@@ -177,6 +176,6 @@ class MetasploitModule < Msf::Auxiliary
       passwords = [datastore['PASSWORD']]
     end
 
-    check_logins(datastore['azure_endpoint'], datastore['targeturi'], datastore['domain'], usernames, passwords)
+    check_logins(datastore['AZURE_ENDPOINT'], datastore['TARGETURI'], datastore['DOMAIN'], usernames, passwords)
   end
 end
