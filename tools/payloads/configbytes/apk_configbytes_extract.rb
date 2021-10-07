@@ -5,6 +5,13 @@ class ExtractError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < ExtractError; end
 
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', '..', 'lib')))
+
 require 'rex'
 require 'zip'
 require 'tmpdir'
