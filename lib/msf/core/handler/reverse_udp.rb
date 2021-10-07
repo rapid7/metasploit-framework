@@ -86,7 +86,8 @@ module ReverseUdp
       [
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
+        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false]),
+        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener'])
       ] +
       Msf::Opt::stager_retry_options,
       Msf::Handler::ReverseUdp)
