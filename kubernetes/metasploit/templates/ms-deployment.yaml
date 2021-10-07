@@ -18,11 +18,15 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "metasploit.serviceAccountName" . }}
+      {{- if .Values.priviliges.useServiceAccount }}
+      serviceAccountName: {{ include "metasploit.fullname" . }}
+      {{ end }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.priviliges.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository}}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}        
           command: ["/bin/bash"]
           tty: true
           stdin: true
@@ -33,24 +37,11 @@ spec:
                     name: {{ include "metasploit.fullname" . }}
                     key: database-url
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository}}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+            {{- toYaml .Values.priviliges.securityContext | nindent 12 }}
           ports:
             - containerPort: 4444
               protocol: TCP
               name: metasploit
-            # - name: http
-            #   containerPort: 80
-            #   protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: metasploit
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: metasploit
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

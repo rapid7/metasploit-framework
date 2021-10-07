@@ -19,6 +19,7 @@ generate-deployment:	##@Generate Generate K8S installation
 	helm template metasploit metasploit > metasploit.yaml   
 
 install-chart: ##@Install Install Metasploit chart
+	find -- metasploit/charts -prune -type d -empty || helm dep update ./metasploit 
 	helm upgrade --create-namespace -i -n metasploit metasploit ./metasploit
 
 delete-chart: ##@Install Delete Metasploit chart    

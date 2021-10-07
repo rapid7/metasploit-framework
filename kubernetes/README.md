@@ -1,4 +1,11 @@
-# Running Metasploit Inside Kubernetes
+
+# Running Metasploit Framework Inside Kubernetes
+
+Running metasploit framework inside Kubernetes enables pentesters to security test cluster components such as the API Server, as well as internal application components or micro-services.
+
+The installation chart also offers to install & run metasploit framework with different priviliges and permissions with respect to Kubernetes node hosting metasploit, as well as Kubernetes API server itself - see 'priviliges' section under values.yaml
+
+# Installation
 
 1. Make sure helm (version 3 or above) is [installed](https://helm.sh/docs/intro/install/)
 2. Make sure you have an available Kubernetes cluster to deploy metasploit. You can install a local Kubernetes cluster using [KIND](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
@@ -7,6 +14,7 @@
 3. Install the helm chart by running:
 
     ```sh
+    helm dep update ./metasploit
     helm upgrade --create-namespace -i -n metasploit metasploit ./metasploit
     ```
 

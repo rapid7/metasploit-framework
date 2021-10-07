@@ -1,6 +1,6 @@
 apiVersion: v2
 name: metasploit
-description: A Helm chart for deployiong metasploit framework into Kubernetes
+description: A Helm chart for deploying metasploit framework into Kubernetes
 
 type: application
 
@@ -18,12 +18,12 @@ icon: https://www.metasploit.com/includes/images/metasploit-r7-logo.svg
 sources:
 - https://github.com/rapid7/metasploit-framework
 maintainers:
-- email: gadi_naor@rapid7.com
-  name: Gadi Naor
+- email: msfdev@metasploit.com
+  name: Metasploit Hackers
 
 
 dependencies:
   - name: postgresql
-    version: '0.2.1'
-    repository: https://cetic.github.io/helm-charts
+    version: '10.12.2'
+    repository: https://charts.bitnami.com/bitnami
     alias: msfdb
