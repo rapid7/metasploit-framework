@@ -125,7 +125,7 @@ def parse_args(args)
     opts[:verbose] = true
   end
 
-  opt.on('-k', '--keep', 'Keep working directory') do
+  opt.on('-k', '--keep', 'Keep analysis directory') do
     opts[:keep] = true
   end
 
@@ -177,7 +177,7 @@ begin
   temp_dir << "/"
 
   if options[:out].nil?
-    print_status("No output option selected, working in #{temp_dir}")
+    print_status("No output option selected, analysis in #{temp_dir}")
     output = "#{temp_dir}configbytes.txt"
     options[:keep] = true
   else
