@@ -9,7 +9,7 @@ asserted, a Denial of Service of the proxy is achieved.
 
 Vulnerable versions of Squid include:
 * 2.5.STABLE2-2.7.STABLE9.
-ć* 3.0-4.1.4.
+* 3.0-4.1.4.
 * 5.0.1-5.0.5.
 
 Security bulletin from Squid: https://github.com/squid-cache/squid/security/advisories/GHSA-pxwq-f3qr-w2xf
