@@ -1,13 +1,6 @@
 .bundle
 Gemfile.local
 Gemfile.local.lock
-
-###MY IGNORES
-#script to test exploit
-debug_script.rc
-#android development
-data/java
-
 # Rubymine project directory
 .idea
 # Sublime Text project directory (not created by ST by default)
