@@ -12,43 +12,52 @@ This module also reports credentials to the credentials database when they are d
 
 - [ ] Start `msfconsole`
 - [ ] `use auxiliary/scanner/http/azure_ad_login`
-- [ ] `set username USER_OR_FILE`
-- [ ] `set password PASSWORD_OR_FILE`
-- [ ] `set domain DOMAIN`
+- [ ] `show info`
+- [ ] `set USER_FILE USER_FILE`
+- [ ] `set PASS_FILE PASS_FILE`
+- [ ] `set DOMAIN example.com`
 - [ ] `run`
 - [ ] Check output for validity of your test username(s), and password(s)
 
 
 ## Options
 
-### domain
+### DOMAIN
 
 The target tenant domain to use for the username checks.
 
-### username
+### USERNAME
 
-Either a specific username to verify or a file with one username per line to verify.
+A specific username to verify.
 
-### password
+### PASSWORD
 
-Either a specific password to attempt or a file with one password per line to verify.
+A specific password to verify.
+
+### USER_FILE
+
+A file with users, one per line.
+
+### PASS_FILE
+
+A file with passwords, one per line.
+    
 
 ## Scenarios
 If a tenant's domain is known, you can use this module for username and password brute-forcing.
 
 Specific target output replaced with *s so as not to disclose information
 ```msf6 > use auxiliary/scanner/http/azure_ad_login
-msf6 auxiliary(scanner/http/azure_ad_login) > set username /home/kali/users.txt
-username => /home/kali/users.txt
-msf6 auxiliary(scanner/http/azure_ad_login) > set password /home/kali/pass.txt
-pass => /home/kali/pass.txt
-msf6 auxiliary(scanner/http/azure_ad_login) > set domain example.com
-domain => example.com
+msf6 auxiliary(scanner/http/azure_ad_login) > set USER_FILE /home/kali/users.txt
+USER_FILE => /home/kali/users.txt
+msf6 auxiliary(scanner/http/azure_ad_login) > set PASS_FILE /home/kali/pass.txt
+PASS_FILE => /home/kali/pass.txt
+msf6 auxiliary(scanner/http/azure_ad_login) > set DOMAIN example.com
+DOMAIN => example.com
 msf6 auxiliary(scanner/http/azure_ad_login) > run
 
 msf6 auxiliary(scanner/http/azure_ad_login) > run
 
-[*] Running for *.*.*.*...
 [-] example.com\wrong is not a valid user
 [-] example.com\wrong is not a valid user
 [-] example.com\wrong is not a valid user
@@ -65,15 +74,14 @@ msf6 auxiliary(scanner/http/azure_ad_login) > run
 If a tenant's domain is known, you can enumerate their usernames
     
 ```msf6 > use auxiliary/scanner/http/azure_ad_login
-msf6 auxiliary(scanner/http/azure_ad_login) > set username /home/kali/users.txt
-username => /home/kali/users.txt
-msf6 auxiliary(scanner/http/azure_ad_login) > set password password
-pass => password
-msf6 auxiliary(scanner/http/azure_ad_login) > set domain example.com
-domain => example.com
+msf6 auxiliary(scanner/http/azure_ad_login) > set USER_FILE /home/kali/users.txt
+USER_FILE => /home/kali/users.txt
+msf6 auxiliary(scanner/http/azure_ad_login) > set PASSWORD password
+PASSWORD => password
+msf6 auxiliary(scanner/http/azure_ad_login) > set DOMAIN example.com
+DOMAIN => example.com
 msf6 auxiliary(scanner/http/azure_ad_login) > run
 
-[*] Running for 127.0.0.1...
 [-] example.com\wrong is not a valid user
 [-] example.com\k0pak4 is not a valid user
 [+] Password password is invalid but example.com\**** is valid!

