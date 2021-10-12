@@ -5,6 +5,8 @@ vulnerability, in that the `db_backup_log.txt` is publicly accessible.  If the b
 is being utilized, this file will disclose where the backup files can be downloaded.
 After downloading the backup file, it will be parsed to grab all user credentials.
 
+Download it from [here](https://downloads.wordpress.org/plugin/bulletproof-security.5.1.zip)
+
 ## Verification Steps
 
 1. Install the plugin, create a backup job, and manually run it.
