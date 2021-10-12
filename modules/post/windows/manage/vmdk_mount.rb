@@ -240,7 +240,7 @@ class MetasploitModule < Msf::Post
           session.sys.process.kill(p["pid"])
           sleep(1)
         rescue ::Rex::Post::Meterpreter::RequestError => error
-          print_error("The #{mount_bin} instance depending on Meterpeter could not be killed")
+          print_error("The #{mount_bin} instance depending on Meterpreter could not be killed")
           return false
         end
       end
