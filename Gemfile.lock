@@ -506,7 +506,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord-import
   factory_bot_rails
   fivemat
   memory_profiler

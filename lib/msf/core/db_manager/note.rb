@@ -1,4 +1,5 @@
-require 'activerecord-import'
+require 'activerecord-import/base'
+require 'activerecord-import/active_record/adapters/postgresql_adapter'
 module Msf::DBManager::Note
   #
   # This method iterates the notes table calling the supplied block with the
