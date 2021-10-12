@@ -1,13 +1,8 @@
 apiVersion: v2
 name: metasploit
 description: A Helm chart for deploying metasploit framework into Kubernetes
-
 type: application
-
-# This is the chart version. This version number should be incremented each time you make changes
-# to the chart and its templates, including the app version.
 version: 0.1.0
-appVersion: 6.1.8
 keywords:
   - metasploit
   - security
