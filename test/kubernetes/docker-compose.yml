@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  setup: &setup
+    build: .
+    environment:
+      - KUBECONFIG=/kube/config
+    volumes:
+      - ./:/kubernetes
+      - ~/.kube:/kube:ro
+    network_mode: host
+    command: make install
+
+  forward:
+    <<: *setup
+    command: make forward
