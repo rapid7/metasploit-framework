@@ -59,22 +59,39 @@ ENV METASPLOIT_GROUP=metasploit
 # used for the copy command
 RUN addgroup -S $METASPLOIT_GROUP
 
-RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs postgresql-libs python2 python3 py3-pip ncurses libcap su-exec alpine-sdk python2-dev openssl-dev nasm
+RUN apk add --no-cache \
+    bash \
+    sqlite-libs \
+    nmap \
+    nmap-scripts \
+    nmap-nselibs \
+    postgresql-libs \
+    python2 \
+    python3 \
+    py3-pip \
+    ncurses \
+    libcap \
+    su-exec \
+    alpine-sdk \
+    python2-dev \
+    openssl-dev \
+    nasm
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
 
 COPY --from=builder /usr/local/bundle /usr/local/bundle
-RUN chown -R root:metasploit /usr/local/bundle
 COPY . $APP_HOME/
 COPY --from=builder $TOOLS_HOME $TOOLS_HOME
-RUN chown -R root:metasploit $APP_HOME/
-RUN chmod 664 $APP_HOME/Gemfile.lock
-RUN gem update --system
-RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
-RUN curl -L -O https://github.com/pypa/get-pip/raw/3843bff3a0a61da5b63ea0b7d34794c5c51a2f11/get-pip.py && python get-pip.py && rm get-pip.py
-RUN pip install impacket
-RUN pip install requests
+RUN chown -R root:metasploit /usr/local/bundle \
+    && chown -R root:metasploit $APP_HOME/ \
+    && chmod 664 $APP_HOME/Gemfile.lock \
+    && gem update --system \
+    && cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml \
+    && curl -L -O https://github.com/pypa/get-pip/raw/3843bff3a0a61da5b63ea0b7d34794c5c51a2f11/get-pip.py \
+    && python get-pip.py \
+    && rm get-pip.py \
+    && pip install  --no-cache-dir impacket requests
 
 ENV GOPATH=$TOOLS_HOME/go
 ENV GOROOT=$TOOLS_HOME/bin/go
