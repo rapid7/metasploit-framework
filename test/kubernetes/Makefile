@@ -1,22 +1,51 @@
-#.POSIX:
-.PHONY: install thinkphp secrets secret-files forward-% help
+.POSIX:
+.PHONY: install thinkphp forward-thinkphp lucee forward-lucee dashboard forward-dashboard admin-token service-token secrets secret-files help
 .DEFAULT_GOAL: help
 
 default: help
 
-install: secret-files thinkphp secrets ## Install all charts
+install: secret-files thinkphp lucee secrets dashboard ##@install Install all charts
 
-thinkphp:
+thinkphp: ##@install Install vulnerable thinkphp application with full cluster access
 	helm upgrade --install thinkphp ./thinkphp
 
-secrets: secret-files
+lucee: ##@install Install vulnerable lucee application with minimal cluster access
+	helm upgrade --install lucee ./lucee
+
+dashboard: ##@install Install the Kubernetes dashboard
+	helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+	helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+
+secrets: secret-files ##@install Install enumerable secrets
 	helm upgrade --install secrets ./secrets
 
-forward-thinkphp: ## Forward thinkphp to the host machine on port 9001
-	export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=thinkphp,app.kubernetes.io/instance=thinkphp" -o jsonpath="{.items[0].metadata.name}")
-	export CONTAINER_PORT=$(kubectl get pod --namespace default $$POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-	echo "Visit http://127.0.0.1:9001 to use your application"
-	kubectl --namespace default port-forward $$POD_NAME --address='0.0.0.0' 9001:$$CONTAINER_PORT
+forward-thinkphp: ##@forward Forward thinkphp to the host machine on port 9001
+	$(call forward,thinkphp,9001)
+
+forward-lucee: ##@forward Forward lucee to the host machine on port 9002
+	$(call forward,lucee,9002)
+
+forward-dashboard: ##@forward Forward Kubernetes dashboard to the host machine on port 8443
+	$(call forward,kubernetes-dashboard,8443)
+
+admin-token: ##@tokens Create an admin token which will have full access to the cluster, also useful for the Kubernetes Dashboard
+	kubectl create -n default serviceaccount admin-sa --dry-run=client -o yaml | kubectl apply -f -
+	kubectl create -n default clusterrolebinding admin-sa-binding --clusterrole=cluster-admin --serviceaccount=default:admin-sa --dry-run=client -o yaml | kubectl apply -f -
+	echo $$(kubectl get secret -n default $$(kubectl -n default get serviceaccount admin-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 -d)
+
+service-token: ##@tokens Create a Kubernetes service token for the default service account
+	echo $$(kubectl get secret -n default $$(kubectl -n default get serviceaccount default -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 -d)
+
+# Forward a running pod on the given port
+# ${1}=podname
+# ${2}=port
+define forward
+	export POD_NAME=$$(kubectl get pods --namespace default -l "app.kubernetes.io/name=${1},app.kubernetes.io/instance=${1}" -o jsonpath="{.items[0].metadata.name}"); \
+	export CONTAINER_PORT=$$(kubectl get pod --namespace default $$POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}"); \
+	echo; \
+	echo "Visit http://127.0.0.1:${2} to use your application"; \
+	kubectl --namespace default port-forward $$POD_NAME --address='0.0.0.0' ${2}:$$CONTAINER_PORT
+endef
 
 ### Creating a sample collection of extractable secret files to ensure Metasploit can correctly extract/parse them all
 SECRETS_DIR = ./secrets/files
@@ -30,8 +59,8 @@ ALL_SECRETS = $(addprefix $(SECRETS_DIR)/, \
 		tls/ca.key \
 		tls/ca.crt \
 	)
-secret-files: $(ALL_SECRETS) ## Generate all secret files
-$(SECRETS_DIR)/ssh-auth:
+secret-files: $(ALL_SECRETS) ##@create Create all secret files
+$(SECRETS_DIR)/ssh-auth/:
 	mkdir $@
 
 $(SECRETS_DIR)/ssh-auth/id-rsa-without-passphrase:
@@ -46,7 +75,7 @@ $(SECRETS_DIR)/ssh-auth/id-ed25519-with-passphrase:
 $(SECRETS_DIR)/ssh-auth/id-ed25519-without-passphrase:
 	ssh-keygen -t ed25519 -f $@ -N ''
 
-$(SECRETS_DIR)/tls:
+$(SECRETS_DIR)/tls/:
 	mkdir $@
 
 $(SECRETS_DIR)/tls/ca.key:
@@ -56,14 +85,18 @@ $(SECRETS_DIR)/tls/ca.crt: $(SECRETS_DIR)/tls/ca.key
 	openssl req -x509 -new -nodes -days 365 -key $< -out $@ -subj "/CN=example.com"
 
 HELP_FUN = \
-	%help; \
-	while(<>) { push @{$$help{$$2 // 'options'}}, [$$1, $$3] if /^(\w+)\s*:.*\#\#(?:@(\w+))?\s(.*)$$/ }; \
+	%help, @order; \
+	while(<>) { \
+		if(/^([a-z0-9_-]+):.*\#\#(?:@(\w+))?\s(.*)$$/) { \
+			push(@{$$help{$$2}}, [$$1, $$3]); \
+			push @order, $$2 unless $$count{$$2}++; \
+		} \
+	}; \
 	print "usage: make [target]\n\n"; \
-	for (keys %help) { \
-		print "$$_:\n"; $$sep = " " x (20 - length $$_->[0]); \
-		print "  $$_->[0]$$sep$$_->[1]\n" for @{$$help{$$_}}; \
+	for ( @order ) { \
+		print "$$_:\n"; \
+		printf("  %-20s %s\n", $$_->[0], $$_->[1]) for @{$$help{$$_}}; \
 		print "\n"; \
 	}
-
 help: ##@miscellaneous Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)

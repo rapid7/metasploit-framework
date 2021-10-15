@@ -1,16 +1,15 @@
 version: '3'
 
 services:
-  setup: &setup
+  setup:
     build: .
     environment:
       - KUBECONFIG=/kube/config
     volumes:
       - ./:/kubernetes
       - ~/.kube:/kube:ro
-    network_mode: host
+    ports:
+      - 8443:8443 # Kubernetes dashboard
+      - 9001:9001 # thinkphp
+      - 9002:9002 # lucee
     command: make install
-
-  forward:
-    <<: *setup
-    command: make forward

@@ -10,5 +10,6 @@ RUN curl --output helm.tar.gz https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz
     rm helm.tar.gz
 
 RUN curl -LO "https://dl.k8s.io/release/v1.22.2/bin/linux/amd64/kubectl" && \
+    (echo "aeca0018958c1cae0bf2f36f566315e52f87bdab38b440df349cd091e9f13f36  kubectl" | sha256sum -c -) && \
     chmod +x ./kubectl && \
     mv kubectl /usr/local/bin
