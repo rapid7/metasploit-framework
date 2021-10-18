@@ -268,7 +268,7 @@ GEM
       railties (~> 6.0)
       recog (~> 2.0)
       webrick
-    metasploit_payloads-mettle (1.0.13)
+    metasploit_payloads-mettle (1.0.15)
     method_source (1.0.0)
     mini_portile2 (2.6.1)
     minitest (5.14.4)
