@@ -1,22 +1,46 @@
 ### Kubernetes
 
-A collection of Helm charts have been created to aid both Metasploit developers and pentesters explore Metasploit's
-Kubernetes support and exploitation capabilities.
+A collection of [Helm](https://helm.sh/) charts have been created to aid both Metasploit developers and pentesters explore Metasploit's
+Kubernetes support. These charts can help provision your local Kubernetes environment with intentionally vulnerable applications,
+which can be exploited using Metasploit modules.
 
 ## Usage
+
+### Requirements
 
 Kubernetes is installed on your host machine with either [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation),
 [Minikube](https://minikube.sigs.k8s.io/docs/start/), [Docker Desktop](https://docs.docker.com/desktop/kubernetes/), or alternatives.
 
+If you are using Kind, you will need to create a cluster ahead of time:
+
+```
+kind create cluster
+```
+
+Kubectl and Helm will also need to be available on your path, an example of installing these tools can be found within the
+example [Dockerfile](./Dockerfile).
+
+### Installing
+
+The provided `Makefile` will have all of the required commands available for setting up your environment:
+
+```
+make help
+```
+
 Next install the vulnerable charts and configuration:
+
+```
+make install
+```
+
+If you are on a Mac environment, you can optionally you you can use the `docker-compose` setup:
 
 ```
 docker-compose run setup
 ```
 
-You can now use Metasploit from your host machine to target the intentionally vulnerable cluster.
-
-To enter into an interactive environment with all of the required Helm/Kubectl tools available:
+It is also possible to enter into an interactive environment with the required Helm/Kubectl tools available:
 
 ```
 $ docker-compose run --service-ports setup /bin/sh
@@ -30,8 +54,9 @@ make install
 ### secrets
 
 Create multiple Kubernetes Secrets to test Metasploit's enumeration capabilities:
+
 ```
-docker-compose run setup make secrets
+make secrets
 ```
 
 ### thinkphp
@@ -39,12 +64,12 @@ docker-compose run setup make secrets
 Run an intentionally vulnerable `thinkphp` application with full cluster access:
 
 ```
-docker-compose run setup make thinkphp
+make thinkphp
 ```
 
 Forwarding to host on port 9001:
 ```
-docker-compose run --service-ports setup make forward-thinkphp
+make forward-thinkphp
 ```
 
 Exploitation will result in a Meterpreter session with full cluster access:
@@ -57,12 +82,12 @@ run http://target_ip:9001
 
 Run an intentionally vulnerable `lucee` application with a default service account with minimal access:
 ```
-docker-compose run setup lucee
+make lucee
 ```
 
 Forwarding to host on port 9002:
 ```
-docker-compose run --service-ports setup make forward-lucee
+make forward-lucee
 ```
 
 Exploitation will result in a cmd shell session with a default service account with minimal access:
@@ -75,14 +100,14 @@ run http://target_ip:9002 lhost=...
 
 First configure the Kubernetes environment:
 ```
-docker-compose run setup
+make install
 ```
 
 Now expose the exploitable thinkphp application to your host machine. In the real world this step would not be required
 as the application would be most likely already be publicly accessible:
 
 ```
-docker-compose run forward-thinkphp
+make forward-thinkphp
 ```
 
 Open Metasploit and exploit the thinkphp container to open a Metarpreter session:
@@ -117,10 +142,12 @@ See the corresponding documentation for each module for more detail.
 To access the Kubernetes dashboard:
 
 ```
-$ docker-compose run --service-ports setup /bin/sh
 make dashboard
-make admin-token
 make forward-dashboard
 ```
 
-Now visit https://localhost:9443 and use the generated token to authenticate
+Now visit https://localhost:9443, and select the token option. To generate an admin token will full access to the cluster:
+
+```
+make admin-token
+```
