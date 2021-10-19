@@ -95,10 +95,16 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       error_count += 1
-      if error_count > reqs # If we cannot connect after `res` amount of attempts, assume the DoS was successful.
-        print_good('DoS completely successful.')
-        return
-      end
+      next unless error_count > reqs # If we cannot connect after `res` amount of attempts, assume the DoS was successful.
+
+      print_good('DoS completely successful.')
+      report_vuln(
+        host: rhost,
+        port: rport,
+        name: name,
+        refs: references
+      )
+      return
     end
   end
 end
