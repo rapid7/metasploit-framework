@@ -292,7 +292,7 @@ module Auxiliary::Report
     }.merge(opts)
     vuln = framework.db.report_vuln(opts)
     if vuln.nil?
-      print_error("Failed to report vuln for #{opts[:host]}:#{opts[:port]}")
+      print_error("Failed to report vuln for #{opts[:host]}:#{opts[:port]} to the database")
       return
     end
     # add vuln attempt audit details here during report
