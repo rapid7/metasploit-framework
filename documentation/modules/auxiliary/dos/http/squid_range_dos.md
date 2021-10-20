@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
-This module exploits a vulnerability in the Squid Caching Proxy server and its handling
-of the `Range` HTTP header.
+This module exploits two vulnerabilities in the Squid Caching Proxy server and its
+handling of cached pages and the `Range` HTTP header.
 
 Due to the way Squid handles the HTTP request header `Range`, an assertion can be
 caused due to a standard HTTP request. Once all of Squid's children workers have
@@ -31,6 +31,11 @@ order to perform the actual Denial of Service (i.e. accepted requests by the ser
 and the number of requests that are sent to confirm that the Squid host is actually 
 dead.
 
+### CVE
+
+This is the CVE that will be used to exploit the vulnerability.
+The default setting is `CVE-2021-31806`, but `CVE-2021-31807` can also be chosen.
+
 ## Scenarios
 
 In this scenario the target server is running on the same host as Metasploit (192.168.159.128).
@@ -46,6 +51,7 @@ Module options (auxiliary/dos/http/squid_range_dos):
 
    Name           Current Setting  Required  Description
    ----           ---------------  --------  -----------
+   CVE            CVE-2021-31806   yes       CVE to check/exploit (Accepted: CVE-2021-31806, CVE-2021-31807)
    Proxies                         no        A proxy chain of format type:host:port[,type:host:port][...]
    REQUEST_COUNT  50               yes       The number of requests to be sent, as well as the number of re-tries to confirm a dead host
    RHOSTS         192.168.159.128  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
@@ -70,12 +76,12 @@ msf6 auxiliary(dos/http/squid_range_dos) > run
 
 [*] Sending 50 DoS requests to 192.168.159.128:3128
 [*] Using URL: http://192.168.159.128:8080/Sv2fFH3gmGeN4VC
+[*] Sent first request to 192.168.159.128:3128
 [*] Sent DoS request 1 to 192.168.159.128:3128
 [*] Sent DoS request 2 to 192.168.159.128:3128
 [*] Sent DoS request 3 to 192.168.159.128:3128
 [*] Sent DoS request 4 to 192.168.159.128:3128
 [*] Sent DoS request 5 to 192.168.159.128:3128
-[*] Sent DoS request 6 to 192.168.159.128:3128
 [+] DoS completely successful.
 [*] Server stopped.
 [*] Auxiliary module execution completed
