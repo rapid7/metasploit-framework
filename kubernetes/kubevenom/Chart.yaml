@@ -1,0 +1,18 @@
+apiVersion: v2
+name: kubevenom
+description: A Helm chart for deploying metasploit payload into Kubernetes
+type: application
+version: 0.1.0
+keywords:
+  - metasploit
+  - meterperter
+  - security
+  - pentest
+  - penetration testing
+home: https://www.metasploit.com/
+icon: https://www.metasploit.com/includes/images/metasploit-r7-logo.svg
+sources:
+- https://github.com/rapid7/metasploit-framework
+maintainers:
+- email: msfdev@metasploit.com
+  name: Metasploit Hackers
