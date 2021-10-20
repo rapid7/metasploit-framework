@@ -34,7 +34,7 @@ Next install the vulnerable charts and configuration:
 make install
 ```
 
-If you are on a Mac environment, you can optionally you you can use the `docker-compose` setup:
+If you are on a Mac environment, you can optionally use the `docker-compose` setup:
 
 ```
 docker-compose run setup

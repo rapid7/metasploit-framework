@@ -1,9 +1,14 @@
-.POSIX:
-.PHONY: install thinkphp forward-thinkphp lucee forward-lucee dashboard forward-dashboard admin-token service-token secrets secret-files help
+.PHONY: install thinkphp forward-thinkphp lucee forward-lucee dashboard forward-dashboard admin-token service-token secrets secret-files patch-docker-desktop-admin-service-accounts help
 .DEFAULT_GOAL: help
 
-default: help
+RED := $(shell tput -Txterm setaf 1)
+RESET := $(shell tput -Txterm sgr0)
 
+# Detect if docker-desktop is defaulting service accounts to have full admin cluster privileges by default
+# https://github.com/docker/for-mac/issues/4774#issuecomment-6622851890
+HAS_CLUSTER_ADMIN_SERVICE_ACCOUNT=$(shell kubectl get clusterrolebinding docker-for-desktop-binding -o yaml 2>/dev/null | grep -c 'name: system:serviceaccounts$$')
+
+default: help
 install: secret-files thinkphp lucee secrets dashboard ##@install Install all charts
 
 thinkphp: ##@install Install vulnerable thinkphp application with full cluster access
@@ -11,6 +16,9 @@ thinkphp: ##@install Install vulnerable thinkphp application with full cluster a
 
 lucee: ##@install Install vulnerable lucee application with minimal cluster access
 	helm upgrade --install lucee ./lucee
+ifeq ($(HAS_CLUSTER_ADMIN_SERVICE_ACCOUNT),1)
+	@echo "${RED}[!] docker-desktop detected. Additionally run 'make patch-docker-desktop-admin-service-accounts' to ensure lucee does not have full cluster access by default${RESET}" 2>&2
+endif
 
 dashboard: ##@install Install the Kubernetes dashboard
 	helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
@@ -36,7 +44,11 @@ admin-token: ##@tokens Create an admin token which will have full access to the 
 service-token: ##@tokens Create a Kubernetes service token for the default service account
 	echo $$(kubectl get secret -n default $$(kubectl -n default get serviceaccount default -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 -d)
 
-# Forward a running pod on the given port
+patch-docker-desktop-admin-service-accounts: ##@miscellaneous Patch service accounts to not have full cluster access by default on docker-desktop - https://github.com/docker/for-mac/issues/4774
+	# https://github.com/docker/for-mac/issues/4774#issuecomment-6622851890
+	kubectl patch clusterrolebinding docker-for-desktop-binding --type=json --patch $$'[{"op":"replace", "path":"/subjects/0/name", "value":"system:serviceaccounts:kube-system"}]'
+
+# forward a running pod on the given port
 # ${1}=podname
 # ${2}=port
 define forward

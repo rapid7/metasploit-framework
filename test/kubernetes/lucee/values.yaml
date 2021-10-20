@@ -19,19 +19,17 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  create: false
+  create: true
 
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  # Intentionally specify an invalid service account name for Mac users, to ensure there's no privileges:
-  # https://github.com/docker/for-mac/issues/4774
-  name: "invalid"
+  name: ""
 
 privileges:
   # Override the default cluster role (useServiceAccount must be true for this setting to be effective)
-  bindClusterRoleOverride: "" # Alternatively lucee-all-access or lucee-no-access
+  bindClusterRoleOverride: "lucee-no-access" # Alternatively lucee-all-access
 
   #
   # Privileges related to node hosting metasploit Pod
