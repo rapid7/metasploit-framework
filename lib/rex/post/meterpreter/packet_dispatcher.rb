@@ -131,7 +131,7 @@ module PacketDispatcher
     end
 
     # Uncomment this line if you want to see outbound packets in the console.
-    #STDERR.puts("SEND: #{packet.inspect}\n")
+    # STDERR.puts("\n\e[1;31mSEND\e[0m: #{packet.inspect}\n")
 
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
@@ -580,7 +580,7 @@ module PacketDispatcher
     handled = false
 
     # Uncomment this line if you want to see inbound packets in the console
-    #STDERR.puts("RECV: #{packet.inspect}\n")
+    # STDERR.puts("\n\e[1;32mRECV\e[0m: #{packet.inspect}\n")
 
     # Update our last reply time
     self.last_checkin = ::Time.now
@@ -708,4 +708,3 @@ module HttpPacketDispatcher
 end
 
 end; end; end
-

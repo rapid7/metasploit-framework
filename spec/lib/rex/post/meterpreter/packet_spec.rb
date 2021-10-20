@@ -118,19 +118,38 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
   end
 
   context "A Command ID TLV" do
-    subject(:tlv) {
-      Rex::Post::Meterpreter::Tlv.new(
-        Rex::Post::Meterpreter::TLV_TYPE_COMMAND_ID,
-        31337
-      )
-    }
-    it "should have a meta type of UINT" do
-      expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_UINT)).to eq true
+    context 'when the Command ID is valid' do
+      subject(:tlv) {
+        Rex::Post::Meterpreter::Tlv.new(
+          Rex::Post::Meterpreter::TLV_TYPE_COMMAND_ID,
+          1001
+        )
+      }
+      it "should have a meta type of UINT" do
+        expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_UINT)).to eq true
+      end
+
+      it "should show the correct type and meta type in inspect" do
+        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND-ID      meta=INT        value=1001 command=stdapi_fs_chdir>"
+        expect(tlv.inspect).to eq tlv_to_s
+      end
     end
 
-    it "should show the correct type and meta type in inspect" do
-      tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND-ID      meta=INT        value=31337>"
-      expect(tlv.inspect).to eq tlv_to_s
+    context 'when the Command ID is invalid' do
+      subject(:tlv) {
+        Rex::Post::Meterpreter::Tlv.new(
+          Rex::Post::Meterpreter::TLV_TYPE_COMMAND_ID,
+          31337
+        )
+      }
+      it "should have a meta type of UINT" do
+        expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_UINT)).to eq true
+      end
+
+      it "should show the correct type and meta type in inspect" do
+        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND-ID      meta=INT        value=31337 command=unknown>"
+        expect(tlv.inspect).to eq tlv_to_s
+      end
     end
   end
 
