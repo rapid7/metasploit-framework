@@ -62,7 +62,7 @@ module Interactive
 
   def comm_channel
     return @comm_info if @comm_info
-    if rstream.respond_to?(:channel)
+    if rstream.respond_to?(:channel) && rstream.channel.respond_to?(:client)
       @comm_info = "via session #{rstream.channel.client.sid}" if rstream.channel.client.respond_to?(:sid)
     end
   end
