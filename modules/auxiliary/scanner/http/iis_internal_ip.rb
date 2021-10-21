@@ -7,9 +7,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize(_info = {})
+  def initialize(info = {})
     super(
       update_info(
+        info,
         'Name' => 'Microsoft IIS HTTP Internal IP Disclosure',
         'Description' => %q{
           Collect any leaked internal IPs by requesting commonly redirected locations from IIS.
