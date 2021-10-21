@@ -1,4 +1,1 @@
-Run metasploit:
-  export MSF_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "kubevenom.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  kubectl --namespace {{ .Release.Namespace }} exec -it $MSF_POD_NAME -- msfconsole.sh
-
+Make sure kubevenom connected to your Metasploit Receive Handler running at {{ .Values.lhost}}:{{.Values.lport}}

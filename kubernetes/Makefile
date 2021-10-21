@@ -5,23 +5,15 @@
 .SECONDEXPANSION:
 
 lint-charts: ##@Lint Lint Helm Chart
-	helm lint metasploit
 	helm lint kubevenom    
 
 generate-deployment:	##@Generate Generate K8S installation
-	helm template metasploit metasploit > metasploit.yaml   
+	helm template kubevenom kubevenom --set lport="4444" --set lhost="1.1.1.1" > kubevenom.yaml   
 
-install-metasploit: ##@Metasploit Install Metasploit chart
-	find -- metasploit/charts -prune -type d -empty || helm dep update ./metasploit 
-	helm upgrade --create-namespace -i -n metasploit metasploit ./metasploit
-
-delete-metasploit: ##@Metasploit Delete Metasploit chart    
-	helm -n metasploit delete metasploit
-
-install-kubevenom: ##@Kubevenom Install kubevenom chart
+install-kubevenom: ##@kubevenom Install kubevenom chart
 	helm upgrade --create-namespace -i -n metasploit kubevenom ./kubevenom
 
-delete-kubevenom: ##@Kubevenom Delete kubevenom chart    
+delete-kubevenom: ##@kubevenom Delete kubevenom chart    
 	helm -n metasploit delete kubevenom    
 
 
