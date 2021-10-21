@@ -7,8 +7,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize
+  def initialize(_info = {})
     super(
+      update_info(
         'Name' => 'Microsoft IIS HTTP Internal IP Disclosure',
         'Description' => %q{
           Collect any leaked internal IPs by requesting commonly redirected locations from IIS.
@@ -16,16 +17,21 @@ class MetasploitModule < Msf::Auxiliary
           such as IIS 7+, this occurs when the alternateHostName is not set or misconfigured. Also
           collects internal IPs leaked from the PROPFIND method in certain IIS versions.
         },
-        'Author' => ['Heather Pilkington', 'Matthew Dunn - k0pak4'],
+        'Author' => [
+          'Heather Pilkington',
+          'Matthew Dunn - k0pak4'
+        ],
         'License' => MSF_LICENSE,
         'References' => [
-          ['CVE', '2000-0649', '2002-0422'],
+          ['CVE', '2000-0649'],
+          ['CVE', '2002-0422'],
           ['BID', '1499'],
           ['EDB', '20096'],
           ['URL', 'https://support.microsoft.com/en-us/help/218180/internet-information-server-returns-ip-address-in-http-header-content'], # iis 4,5,5.1
           ['URL', 'https://support.microsoft.com/en-us/help/967342/fix-the-internal-ip-address-of-an-iis-7-0-server-is-revealed-if-an-htt'], # iis 7+
           ['URL', 'https://techcommunity.microsoft.com/t5/iis-support-blog/iis-web-servers-running-in-windows-azure-may-reveal-their/ba-p/826500']
         ]
+      )
     )
   end
 
