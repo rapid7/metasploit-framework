@@ -9,6 +9,7 @@ RESET := $(shell tput -Txterm sgr0)
 HAS_CLUSTER_ADMIN_SERVICE_ACCOUNT=$(shell kubectl get clusterrolebinding docker-for-desktop-binding -o yaml 2>/dev/null | grep -c 'name: system:serviceaccounts$$')
 
 default: help
+all: run  ##@install Install all charts
 install: secret-files thinkphp lucee secrets dashboard ##@install Install all charts
 
 thinkphp: ##@install Install vulnerable thinkphp application with full cluster access
