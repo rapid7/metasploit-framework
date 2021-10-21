@@ -324,6 +324,9 @@ protected
           # So if we haven't seen either a Content-Length or a
           # Transfer-Encoding header, there shouldn't be a message body.
           self.body_bytes_left = 0
+        elsif (self.headers['Connection']&.downcase == 'upgrade' && self.headers['Upgrade']&.downcase == 'websocket')
+          # The server appears to be responding to a websocket request
+          self.body_bytes_left = 0
         #else
         # Otherwise we need to keep reading until EOF
         end
