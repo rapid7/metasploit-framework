@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_request_uri(cli, _request)
     # The Last-Modified response header must be set such that Squid caches the page.
-    send_response(cli, '<html></html>', { 'Vary' => 'Other:' })
+    send_response(cli, '<html></html>', { 'Last-Modified' => 'Mon, 01 Jan 2020 00:00:00 GMT' })
   end
 
   def run
