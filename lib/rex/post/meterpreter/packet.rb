@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'openssl'
+require 'rex/post/meterpreter/command_mapper'
 
 module Rex
 module Post
@@ -403,6 +404,14 @@ class Tlv
       tlvs_inspect << "]"
     else
       tlvs_inspect = "meta=#{meta.ljust(10)} value=#{val}"
+      if type == TLV_TYPE_COMMAND_ID
+        begin
+          command_name = ::Rex::Post::Meterpreter::CommandMapper.get_command_name(value)
+        rescue
+          command_name = nil
+        end
+        tlvs_inspect <<= " command=#{command_name || 'unknown'}"
+      end
     end
     "#<#{self.class} type=#{stype.ljust(15)} #{tlvs_inspect}>"
   end
@@ -1092,4 +1101,3 @@ end
 
 
 end; end; end
-

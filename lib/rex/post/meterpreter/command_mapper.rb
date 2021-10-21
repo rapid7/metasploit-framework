@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/core_ids'
+require 'rex/post/meterpreter/client_core'
 
 module Rex
 module Post
