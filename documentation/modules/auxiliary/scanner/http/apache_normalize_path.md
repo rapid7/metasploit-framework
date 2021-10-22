@@ -1,4 +1,4 @@
-This module scan for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773)
+This module scans for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773)
 and 2.4.50 (CVE-2021-42013).
 
 A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a
@@ -8,7 +8,7 @@ If files outside of the document root are not protected by "require all denied" 
 
 Additionally this flaw could leak the source of interpreted files like CGI scripts.
 
-If CGI scripts are also enabled for these aliased pathes, this could allow for remote code execution.
+If CGI scripts are also enabled for these aliased paths, this could allow for remote code execution.
 
 It was found that the fix for CVE-2021-41773 in Apache HTTP Server 2.4.50 was insufficient (CVE-2021-42013).
 
@@ -165,7 +165,7 @@ msf6 auxiliary(scanner/http/apache_normalize_path) > setg action CHECK_RCE
 action => CHECK_RCE
 msf6 auxiliary(scanner/http/apache_normalize_path) > run
 
-[+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-42013 (mod_cgi enabled).
+[+] http://172.20.4.11:8080 - The target is vulnerable to CVE-2021-42013 (mod_cgi is enabled).
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf6 auxiliary(scanner/http/apache_normalize_path) > 
@@ -221,4 +221,3 @@ msf6 auxiliary(scanner/http/apache_normalize_path) >
   3. <https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/apache/apache-httpd-rce.yaml>
   4. <https://github.com/projectdiscovery/nuclei-templates/commit/9384dd235ec5107f423d930ac80055f2ce2bff74>
   5. <https://attackerkb.com/topics/1RltOPCYqE/cve-2021-41773/rapid7-analysis>
-  

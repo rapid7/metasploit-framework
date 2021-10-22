@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Apache 2.4.49/2.4.50 Traversal RCE scanner',
         'Description' => %q{
-          This module scan for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773).
+          This module scans for an unauthenticated RCE vulnerability which exists in Apache version 2.4.49 (CVE-2021-41773).
           If files outside of the document root are not protected by ‘require all denied’ and CGI has been explicitly enabled,
           it can be used to execute arbitrary commands (Remote Command Execution).
           This vulnerability has been reintroduced in Apache 2.4.50 fix (CVE-2021-42013).
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if response.code == 200 && response.body.include?(rand_str)
-        print_good(message("The target is vulnerable to #{datastore['CVE']} (mod_cgi enabled)."))
+        print_good(message("The target is vulnerable to #{datastore['CVE']} (mod_cgi is enabled)."))
         report_vuln(
           host: target_host,
           name: name,
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
 
         return Exploit::CheckCode::Vulnerable
       end
-      print_error(message("The target is not vulnerable to #{datastore['CVE']} (mod_cgi enabled)."))
+      print_error(message("The target is not vulnerable to #{datastore['CVE']} (requires mod_cgi to be enabled)."))
 
       return Exploit::CheckCode::Safe
     when 'READ_FILE'
@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
 
       vprint_status("Obtained HTTP response code #{response.code}.")
       if response.code == 500
-        print_warning(message("The target is vulnerable to #{datastore['CVE']} (mod_cgi enabled)."))
+        print_warning(message("The target is vulnerable to #{datastore['CVE']} (mod_cgi is enabled)."))
         report_vuln(
           host: target_host,
           name: name,
