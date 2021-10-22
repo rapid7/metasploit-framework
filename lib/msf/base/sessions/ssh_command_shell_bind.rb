@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'metasploit/framework/ssh/platform'
 require 'rex/post/channel'
 require 'rex/post/meterpreter/channels/socket_abstraction'
 
@@ -234,6 +235,21 @@ module Msf::Sessions
       super(rstream, opts)
     end
 
+    def bootstrap(datastore = {}, handler = nil)
+      @platform = Metasploit::Framework::Ssh::Platform.get_platform(self)
+
+      # if the platform is known, it was recovered by communicating with the device, so skip verification, also not all
+      # shells accessed through SSH may respond to the echo command issued for verification as expected
+      datastore['AutoVerifySession'] &= @platform.blank?
+      super
+
+      @info = "SSH #{username} @ #{@peer_info}"
+    end
+
+    def desc
+      "SSH"
+    end
+
     #
     # Create a network socket using this session. At this time, only TCP client
     # connections can be made (like SSH port forwarding) while TCP server sockets
@@ -403,5 +419,9 @@ module Msf::Sessions
 
     attr_reader :sock, :ssh_connection
 
+    # Define #exec! as shell_command. This allows invocations of exec!(...).to_s to either use this session object or
+    # the ssh_connection. Once this objects #initialize method is called and the Net::SSH::CommandStream instance is
+    # created, the @ssh_connection's #exec! method can not be used.
+    alias exec! shell_command
   end
 end

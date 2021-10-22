@@ -21,11 +21,20 @@ module Generic
     'none'
   end
 
-  def handler(sock)
-    create_session(sock)
+  # This is necessary for find-sock style payloads.
+  #
+  def handler(*args)
+    create_session(*args)
+
     Claimed
   end
 
+  #
+  # Always wait at least 5 seconds for this payload (due to channel delays)
+  #
+  def wfs_delay
+    datastore['WfsDelay'] > 4 ? datastore['WfsDelay'] : 5
+  end
 end
 
 end

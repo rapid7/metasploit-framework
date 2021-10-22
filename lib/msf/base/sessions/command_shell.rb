@@ -107,13 +107,11 @@ class CommandShell
           banner.gsub!(/[^[:print:][:space:]]+/n, "_")
           banner.strip!
 
-          banner = %Q{
+          session_info = @banner = %Q{
 Shell Banner:
 #{banner}
 -----
           }
-
-          session_info = banner
         end
       end
 
@@ -781,6 +779,7 @@ Shell Banner:
   attr_accessor :arch
   attr_accessor :platform
   attr_accessor :max_threads
+  attr_reader :banner
 
 protected
 
@@ -804,7 +803,7 @@ protected
 
     # Displays +info+ on all session startups
     # +info+ is set to the shell banner and initial prompt in the +bootstrap+ method
-    user_output.print("#{self.info}\n") if (self.info && !self.info.empty?) && self.interacting
+    user_output.print("#{@banner}\n") if !@banner.blank? && self.interacting
 
     run_single('')
 
