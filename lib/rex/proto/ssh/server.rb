@@ -14,6 +14,10 @@ module ServerClient
   # Initialize a new connection instance.
   #
   def init_cli(server, do_not_start = false)
+    # Ssh relies on PTY not available on Windows, limiting the `require` here
+    # ensures eager_load patterns from zeitwerk will not attempt to load `hrr_rb_ssh`
+    # during startup.
+    require 'connection'
     @server          = server
     @connection      = Rex::Proto::Ssh::Connection.new(
       self, server.server_options.merge(ssh_server: server), server.context
@@ -21,6 +25,8 @@ module ServerClient
     @connection_thread = Rex::ThreadFactory.spawn("SshConnectionMonitor-#{self}", false) {
       self.connection.start
     } unless do_not_start
+  rescue LoadError => e
+    wlog(e)
   end
 
   def close
@@ -44,7 +50,7 @@ class Server
   # hostname.
   #
   def initialize(port = 22, listen_host = '0.0.0.0', context = {}, comm = nil,
-    ssh_opts = Ssh::Connection.default_options, cc_cb = nil, cd_cb = nil)
+    ssh_opts = default_options, cc_cb = nil, cd_cb = nil)
 
     self.listen_host            = listen_host
     self.listen_port            = port
@@ -193,6 +199,17 @@ protected
     end
   end
 
+  private
+
+  # Ssh relies on PTY not available on Windows, limiting the `require` here
+  # ensures eager_load patterns from zeitwerk will not attempt to load `hrr_rb_ssh`
+  # during startup.
+  def default_options
+    require 'connection'
+    Ssh::Connection.default_options
+  rescue LoadError => e
+    wlog(e)
+  end
 end
 
 end

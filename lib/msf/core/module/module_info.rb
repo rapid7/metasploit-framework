@@ -89,7 +89,14 @@ module Msf::Module::ModuleInfo
       if (info[name])
         # If it's not an array, convert it to an array and merge the
         # two
-        if (info[name].kind_of?(Array) == false)
+        if (info[name].kind_of?(Hash))
+          raise TypeError, 'can only merge a hash into a hash' unless val.kind_of?(Hash)
+          val.each_pair do |val_key, val_val|
+            merge_check_key(info[name], val_key, val_val)
+          end
+
+          return
+        elsif (info[name].kind_of?(Array) == false)
           curr       = info[name]
           info[name] = [ curr ]
         end

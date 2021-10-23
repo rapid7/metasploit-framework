@@ -41,21 +41,6 @@ module Priv
     cmd_exec("echo '#{file_origin}' > #{final_file}")
   end
 
-  def pids()
-    dir_proc = "/proc/"
-    pids = []
-
-    directories_proc = dir(dir_proc)
-    directories_proc.each do |elem|
-      elem.gsub( / *\n+/, "")
-      if elem[-1] == '1' || elem[-1] == '2' || elem[-1] == '3' || elem[-1] == '4' || elem[-1] == '5' || elem[-1] == '6' || elem[-1] == '7' || elem[-1] == '8' || elem[-1] == '9' || elem[-1] == '0'
-        pids.insert(-1, elem)
-      end
-    end
-
-    return pids.sort_by(&:to_i)
-  end
-
   def binary_of_pid(pid)
     binary = read_file("/proc/#{pid}/cmdline")
     if binary == "" #binary.empty?

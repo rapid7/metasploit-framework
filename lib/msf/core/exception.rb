@@ -19,16 +19,29 @@ end
 # to pass data store validation.  The list of option names
 # can be obtained through the options attribute.
 #
+# A human readable error can be associated with each option,
+# which can contain additional detail / context on why the
+# option validation failed.
+#
 ###
 class OptionValidateError < ArgumentError
+
   include Exception
 
-  def initialize(options = [])
-    @options = options
-    super("The following options failed to validate: #{options.join(', ')}.")
+  def initialize(options = [], reasons: {}, message: nil)
+    if options.is_a?(Hash)
+      @options = options.keys
+      @reasons = options
+    else
+      @options = options
+      @reasons = reasons
+    end
+    @reasons = @reasons.transform_values { |value| Array(value) }
+
+    super(message || "The following options failed to validate: #{@options.join(', ')}.")
   end
 
-  attr_reader :options
+  attr_reader :options, :reasons
 end
 
 ###

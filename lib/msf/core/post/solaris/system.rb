@@ -115,19 +115,6 @@ module System
   end
 
   #
-  # Gets the process id(s) of `program`
-  # @return [Array]
-  #
-  def pidof(program)
-    pids = []
-    full = cmd_exec('ps -elf').to_s
-    full.split("\n").each do |pid|
-      pids << pid.split(' ')[3].to_i if pid.include? program
-    end
-    pids
-  end
-
-  #
   # Gets the mount point of `filepath`
   # @param [String] filepath The filepath to get the mount point
   # @return [String]

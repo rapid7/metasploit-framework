@@ -7,7 +7,7 @@ class Msf::Analyze::Result
   attr_reader :mod
   attr_reader :required
 
-  def initialize(host:, mod:, framework:, available_creds: nil, datastore: nil)
+  def initialize(host:, mod:, framework:, available_creds: nil, payloads: nil, datastore: nil)
     @host = host
     @mod = mod
     @required = []
@@ -15,13 +15,15 @@ class Msf::Analyze::Result
     @invalid = []
     @datastore = datastore&.transform_keys(&:downcase) || Hash.new
     @available_creds = available_creds
+    @wanted_payloads = payloads
     @framework = framework
 
     determine_likely_compatibility
   end
 
-  def evaluate(with: @datastore)
+  def evaluate(with: @datastore, payloads: @wanted_payloads)
     @datastore = with
+    @wanted_payloads = payloads
 
     determine_prerequisites
     self
@@ -67,7 +69,12 @@ class Msf::Analyze::Result
   end
 
   def determine_prerequisites
-    @mod = @framework.modules.create(@mod.fullname)
+    mod_detail = @framework.modules.create(@mod.fullname)
+    if mod_detail.nil?
+      @required << :module_not_loadable
+      return
+    end
+    @mod = mod_detail
 
     if @mod.respond_to?(:session_types) && @mod.session_types
       @required << :session
@@ -85,6 +92,22 @@ class Msf::Analyze::Result
 
     @datastore.each_pair do |k, v|
       @mod.datastore[k] = v
+    end
+
+    target_idx = @mod.respond_to?(:auto_targeted_index) ? @mod.auto_targeted_index(@host) : nil
+    if target_idx
+      @datastore['target'] = target_idx
+      @mod.datastore['target'] = target_idx
+    end
+
+    # Must come after the target so we know we match the target we want.
+    # TODO: feed available payloads into target selection
+    if @wanted_payloads
+      if p = @wanted_payloads.find { |p| @mod.is_payload_compatible?(p) }
+        @datastore['payload'] = p
+      else
+        @missing << :payload_match
+      end
     end
 
     @mod.validate
@@ -163,12 +186,16 @@ class Msf::Analyze::Result
   def missing_message
     @missing.map do |m|
       case m
+      when :module_not_loadable
+        "module not loadable"
       when :os_match
         "operating system does not match"
       when :session, "SESSION"
         "open #{required_sessions_list} session required"
       when :credential
         "credentials are required"
+      when :payload_match
+        "none of the requested payloads match"
       when String
         "option #{m.inspect} needs to be set"
       end

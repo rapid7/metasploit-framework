@@ -32,11 +32,11 @@ class Db
   #
   def commands
     base = {
-      "db_connect"    => "Connect to an existing data service",
-      "db_disconnect" => "Disconnect from the current data service",
-      "db_status"     => "Show the current data service status",
-      "db_save"       => "Save the current data service connection as the default to reconnect on startup",
-      "db_remove"     => "Remove the saved data service entry"
+      "db_connect"       => "Connect to an existing data service",
+      "db_disconnect"    => "Disconnect from the current data service",
+      "db_status"        => "Show the current data service status",
+      "db_save"          => "Save the current data service connection as the default to reconnect on startup",
+      "db_remove"        => "Remove the saved data service entry"
     }
 
     more = {
@@ -416,7 +416,6 @@ class Db
         mode << :add
       when '-d','--delete'
         mode << :delete
-        return
       when '-c','-C'
         list = args.shift
         if(!list)
@@ -1271,6 +1270,9 @@ class Db
     tbl = Rex::Text::Table.new({
         'Header'  => "Loot",
         'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
+        # For now, don't perform any word wrapping on the loot table as it breaks the workflow of
+        # copying paths and pasting them into applications
+        'WordWrap' => false,
       })
 
     # Sentinel value meaning all
@@ -1826,17 +1828,20 @@ class Db
   end
 
   def cmd_db_disconnect_help
-    print_line "Usage: db_disconnect"
-    print_line
-    print_line "Disconnect from the data service."
+    print_line "Usage:"
+    print_line "    db_disconnect              Temporarily disconnects from the currently configured dataservice."
+    print_line "    db_disconnect --clear      Clears the default dataservice that msfconsole will use when opened."
     print_line
   end
 
   def cmd_db_disconnect(*args)
     return if not db_check_driver
 
-    if(args[0] and (args[0] == "-h" || args[0] == "--help"))
+    if args[0] == '-h' || args[0] == '--help'
       cmd_db_disconnect_help
+      return
+    elsif args[0] == '-c' || args[0] == '--clear'
+      clear_default_db
       return
     end
 

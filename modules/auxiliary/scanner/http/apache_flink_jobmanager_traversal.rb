@@ -22,22 +22,20 @@ class MetasploitModule < Msf::Auxiliary
           This module has been tested successfully on Apache Flink version 1.11.2
           on Ubuntu 18.04.4.
         },
-        'Author' =>
-          [
-            '0rich1 - Ant Security FG Lab', # Vulnerability discovery
-            'Hoa Nguyen - Suncsr Team', # Metasploit module
-            'bcoles', # Metasploit module cleanup and improvements
-          ],
+        'Author' => [
+          '0rich1 - Ant Security FG Lab', # Vulnerability discovery
+          'Hoa Nguyen - Suncsr Team', # Metasploit module
+          'bcoles', # Metasploit module cleanup and improvements
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['CVE', '2020-17519'],
-            ['CWE', '22'],
-            ['EDB', '49398'],
-            ['PACKETSTORM', '160849'],
-            ['URL', 'http://www.openwall.com/lists/oss-security/2021/01/05/2'],
-            ['URL', 'https://www.tenable.com/cve/CVE-2020-17519']
-          ],
+        'References' => [
+          ['CVE', '2020-17519'],
+          ['CWE', '22'],
+          ['EDB', '49398'],
+          ['PACKETSTORM', '160849'],
+          ['URL', 'http://www.openwall.com/lists/oss-security/2021/01/05/2'],
+          ['URL', 'https://www.tenable.com/cve/CVE-2020-17519']
+        ],
         'DefaultOptions' => { 'RPORT' => 8081 },
         'DisclosureDate' => '2021-01-05'
       )

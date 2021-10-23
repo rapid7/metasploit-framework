@@ -2,6 +2,23 @@
 
 module Msf::Post::Common
 
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+              stdapi_sys_process_close
+              stdapi_sys_process_execute
+            ]
+          }
+        }
+      )
+    )
+  end
+
   def clear_screen
     Gem.win_platform? ? (system "cls") : (system "clear")
   end
@@ -12,7 +29,7 @@ module Msf::Post::Common
     case session.type
     when 'meterpreter'
       session.sock.peerhost
-    when 'shell'
+    when 'shell', 'powershell'
       session.session_host
     end
   end
@@ -21,21 +38,13 @@ module Msf::Post::Common
     case session.type
     when 'meterpreter'
       session.sock.peerport
-    when 'shell'
+    when 'shell', 'powershell'
       session.session_port
     end
   end
 
   def peer
     "#{rhost}:#{rport}"
-  end
-
-  #
-  # Checks if the remote system has a process with ID +pid+
-  #
-  def has_pid?(pid)
-    pid_list = get_processes.collect { |e| e['pid'] }
-    pid_list.include?(pid)
   end
 
   #
@@ -69,9 +78,9 @@ module Msf::Post::Common
   #
   # Returns a (possibly multi-line) String.
   #
-  def cmd_exec(cmd, args=nil, time_out=15)
+  def cmd_exec(cmd, args=nil, time_out=15, opts = {})
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       #
       # The meterpreter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
@@ -95,15 +104,20 @@ module Msf::Post::Common
       end
 
       session.response_timeout = time_out
-      o = session.sys.process.capture_output(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true }, time_out)
-    when /powershell/
+      opts = {
+        'Hidden' => true,
+        'Channelized' => true,
+        'Subshell' => true
+      }.merge(opts)
+      o = session.sys.process.capture_output(cmd, args, opts, time_out)
+    when 'powershell'
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)
       else
         o = session.shell_command("#{cmd} #{args}", time_out)
       end
       o.chomp! if o
-    when /shell/
+    when 'shell'
       if args.nil? || args.empty?
         o = session.shell_command_token("#{cmd}", time_out)
       else
@@ -117,7 +131,7 @@ module Msf::Post::Common
 
   def cmd_exec_get_pid(cmd, args=nil, time_out=15)
     case session.type
-      when /meterpreter/
+      when 'meterpreter'
         if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
           args = ""
         end
@@ -153,9 +167,11 @@ module Msf::Post::Common
   #
   def get_env(env)
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       return session.sys.config.getenv(env)
-    when /shell/
+    when 'powershell'
+      return cmd_exec("echo $env:#{env}").strip
+    when 'shell'
       if session.platform == 'windows'
         if env[0,1] == '%'
           unless env[-1,1] == '%'
@@ -183,9 +199,9 @@ module Msf::Post::Common
   #
   def get_envs(*envs)
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       return session.sys.config.getenvs(*envs)
-    when /shell/
+    when 'shell', 'powershell'
       result = {}
       envs.each do |env|
         res = get_env(env)
@@ -198,51 +214,28 @@ module Msf::Post::Common
     nil
   end
 
+  # Checks if the specified command can be executed by the session. It should be
+  # noted that not all commands correspond to a binary file on disk. For example,
+  # a bash shell session will provide the `eval` command when there is no `eval`
+  # binary on disk. Likewise, a Powershell session will provide the `Get-Item`
+  # command when there is no `Get-Item` executable on disk.
   #
-  # Checks if the `cmd` is installed on the system
-  # @return [Boolean]
-  #
+  # @param [String] cmd the command to check
+  # @return [Boolean] true when the command exists
   def command_exists?(cmd)
-    if session.platform == 'windows'
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if session.type == 'powershell'
+      cmd_exec("try {if(Get-Command #{cmd}) {echo #{verification_token}}} catch {}").include?(verification_token)
+    elsif session.platform == 'windows'
       # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/where_1
       # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
-      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo true").to_s.include? 'true'
+      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo #{verification_token}").to_s.include?(verification_token)
     else
-      cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+      cmd_exec("command -v #{cmd} || which #{cmd} && echo #{verification_token}").include?(verification_token)
     end
   rescue
     raise "Unable to check if command `#{cmd}' exists"
   end
 
-  def get_processes
-    if session.type == 'meterpreter'
-      return session.sys.process.get_processes.map {|p| p.slice('name', 'pid')}
-    end
-    processes = []
-    if session.platform == 'windows'
-      tasklist = cmd_exec('tasklist').split("\n")
-      4.times { tasklist.delete_at(0) }
-      tasklist.each do |p|
-        properties = p.split
-        process = {}
-        process['name'] = properties[0]
-        process['pid'] = properties[1].to_i
-        processes.push(process)
-      end
-      # adding manually because this is common for all windows I think and splitting for this was causing problem for other processes.
-      processes.prepend({ 'name' => '[System Process]', 'pid' => 0 })
-    else
-      ps_aux = cmd_exec('ps aux').split("\n")
-      ps_aux.delete_at(0)
-      ps_aux.each do |p|
-        properties = p.split
-        process = {}
-        process['name'] = properties[10].gsub(/\[|\]/,"")
-        process['pid'] = properties[1].to_i
-        processes.push(process)
-      end
-    end
-    return processes
-  end
 
 end

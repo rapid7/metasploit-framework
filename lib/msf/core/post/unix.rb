@@ -99,8 +99,8 @@ module Msf::Post::Unix
   #
   def whoami
     shellpid = get_session_pid()
-    statuspid = pid_uid(shellpid)
-    statuspid.each_line do |line|
+    status = read_file("/proc/#{shellpid}/status") 
+    status.each_line do |line|
       split = line.split(":")
       if split[0] == "Uid"
         regex = /.*\s(.*)\s/

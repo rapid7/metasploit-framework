@@ -362,6 +362,7 @@ module Rex
           def initialize(id)
             @id = id
             @edges = []
+            @subgraph = nil
             super()
           end
 
@@ -390,6 +391,9 @@ module Rex
           # @!attribute edges
           #   @return [Array] An array of all edges for which this node is either the source or the target.
           attr_reader :edges
+          # @!attribute subgraph
+          #   @return [Graph,nil] A subgraph contained within this node.
+          attr_accessor :subgraph
         end
       end
 
@@ -461,6 +465,7 @@ module Rex
 
           when 'graph'
             element = Element::Graph.from_xml_attributes(attrs)
+            @stack[-1].subgraph = element if @stack[-1].is_a? Element::Node
             @graphml.graphs << element
 
           when 'graphml'
@@ -505,7 +510,12 @@ module Rex
               raise Error::ParserError, "The #{meta_attribute.name} attribute is invalid for #{parent.class::ELEMENT_NAME} elements"
             end
 
-            parent.attributes[meta_attribute.name] = meta_attribute.convert(string)
+            if meta_attribute.type == :string && !parent.attributes[meta_attribute.name].nil?
+              # this may be run multiple times if there is an XML escape sequence in the string to concat the parts together
+              parent.attributes[meta_attribute.name] << meta_attribute.convert(string)
+            else
+              parent.attributes[meta_attribute.name] = meta_attribute.convert(string)
+            end
 
           when Element::Default
             @stack[-1] = Element::Default.new(value: string)
@@ -530,10 +540,10 @@ module Rex
           when 'graph'
             element.edges.each do |edge|
               source_node = element.nodes[edge.source]
-              raise InvalidAttributeError.new('edge', 'source', details: 'undefined source', missing: false) if source_node.nil?
+              raise Error::InvalidAttributeError.new('edge', 'source', details: "undefined source: '#{edge.source}'", missing: false) if source_node.nil?
 
               target_node = element.nodes[edge.target]
-              raise InvalidAttributeError.new('edge', 'target', details: 'undefined target', missing: false) if target_node.nil?
+              raise Error::InvalidAttributeError.new('edge', 'target', details: "undefined target: '#{edge.target}'", missing: false) if target_node.nil?
 
               source_node.edges << edge
               target_node.edges << edge

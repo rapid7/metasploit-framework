@@ -6,6 +6,21 @@ module Windows
 
 module Kiwi
 
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              kiwi_*
+            ]
+          }
+        }
+      )
+    )
+  end
+
   def load_kiwi
     if session.kiwi
       return true

@@ -134,6 +134,14 @@ class Console::CommandDispatcher::Stdapi::Fs
     "Stdapi: File system"
   end
 
+  def vali_date(str)
+    result = DateTime.parse(str)
+    return result.to_time.to_i
+  rescue
+    print_error("Bad date/time specification (#{str}). Use this format: \"YYYY-mm-dd\" or \"YYYY-mm-ddTHH:MM:SS\", e.g \"1970-01-01\"")
+    nil
+  end
+
   #
   # Search for files.
   #
@@ -143,12 +151,16 @@ class Console::CommandDispatcher::Stdapi::Fs
     recurse = true
     globs   = []
     files   = []
+    modified_start_date = nil
+    modified_end_date = nil
 
     opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
-      "-r" => [ true,  "Recursively search sub directories. (Default: #{recurse})" ]
+      "-r" => [ true,  "Recursively search sub directories. (Default: #{recurse})" ],
+      "-a" => [ true,  "Find files modified after timestamp (UTC).  Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"],
+      "-b" => [ true,  "Find files modified before timestamp (UTC). Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"]
     )
 
     opts.parse(args) { | opt, idx, val |
@@ -164,6 +176,12 @@ class Console::CommandDispatcher::Stdapi::Fs
           globs << val
         when "-r"
           recurse = false if val =~ /^(f|n|0)/i
+        when "-a"
+          modified_start_date = vali_date(val)
+          return unless modified_start_date
+        when "-b"
+          modified_end_date = vali_date(val)
+          return unless modified_end_date
       end
     }
 
@@ -173,7 +191,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     globs.uniq.each do |glob|
-      files += client.fs.file.search(root, glob, recurse)
+      files += client.fs.file.search(root, glob, recurse, -1, modified_start_date, modified_end_date)
     end
 
     if files.empty?
@@ -181,15 +199,27 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-    print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
-    files.each do | file |
-      if file['size'] > 0
-        print("    #{file['path']}#{ file['path'].empty? ? '' : client.fs.file.separator }#{file['name']} (#{file['size']} bytes)\n")
-      else
-        print("    #{file['path']}#{ file['path'].empty? ? '' : client.fs.file.separator }#{file['name']}\n")
-      end
-    end
+    header = "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..."
+    results_table = Rex::Text::Table.new(
+        'WordWrap'   => false,
+        'Width'      => 120,
+        'Header'     => header,
+        'Indent'     => 0,
+        'SortIndex'  => 0,
+        'Columns'    => ['Path', 'Size (bytes)', 'Modified (UTC)'],
+    )
 
+    files.each do | file |
+      filestr = ''
+      unless file['path'].empty?
+        filestr += "#{file['path']}#{client.fs.file.separator}"
+      end
+      filestr += file['name']
+      datestr = ''
+      datestr = Time.at(file['mtime']).to_s if file['mtime']
+      results_table << [filestr, file['size'], datestr]
+    end
+    print_line results_table.to_s
   end
 
   #

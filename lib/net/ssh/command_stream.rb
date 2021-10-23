@@ -49,10 +49,18 @@ class Net::SSH::CommandStream
     self.ssh = ssh
     self.thread = Thread.new(ssh, cmd, pty, cleanup) do |rssh, rcmd, rpty, rcleanup|
       info = rssh.transport.socket.getpeername_as_array
-      self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
+      if Rex::Socket.is_ipv6?(info[1])
+        self.lsock.peerinfo = "[#{info[1]}]:#{info[2]}"
+      else
+        self.lsock.peerinfo = "#{info[1]}:#{info[2]}"
+      end
 
       info = rssh.transport.socket.getsockname
-      self.lsock.localinfo = "#{info[1]}:#{info[2]}"
+      if Rex::Socket.is_ipv6?(info[1])
+        self.lsock.localinfo = "[#{info[1]}]:#{info[2]}"
+      else
+        self.lsock.localinfo = "#{info[1]}:#{info[2]}"
+      end
 
       channel = rssh.open_channel do |rch|
         # A PTY will write us to {u,w}tmp and lastlog

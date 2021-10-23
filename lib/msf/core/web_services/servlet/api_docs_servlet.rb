@@ -1,26 +1,4 @@
 require 'swagger/blocks'
-load 'documentation/api/v1/root_api_doc.rb'
-load 'documentation/api/v1/auth_api_doc.rb'
-load 'documentation/api/v1/credential_api_doc.rb'
-load 'documentation/api/v1/db_export_api_doc.rb'
-load 'documentation/api/v1/event_api_doc.rb'
-load 'documentation/api/v1/exploit_api_doc.rb'
-load 'documentation/api/v1/host_api_doc.rb'
-load 'documentation/api/v1/login_api_doc.rb'
-load 'documentation/api/v1/loot_api_doc.rb'
-load 'documentation/api/v1/module_search_api_doc.rb'
-load 'documentation/api/v1/msf_api_doc.rb'
-load 'documentation/api/v1/nmap_api_doc.rb'
-load 'documentation/api/v1/note_api_doc.rb'
-load 'documentation/api/v1/payload_api_doc.rb'
-load 'documentation/api/v1/service_api_doc.rb'
-load 'documentation/api/v1/session_api_doc.rb'
-load 'documentation/api/v1/session_event_api_doc.rb'
-load 'documentation/api/v1/user_api_doc.rb'
-load 'documentation/api/v1/vuln_api_doc.rb'
-load 'documentation/api/v1/vuln_attempt_api_doc.rb'
-load 'documentation/api/v1/workspace_api_doc.rb'
-
 
 module Msf::WebServices::ApiDocsServlet
   include Swagger::Blocks
@@ -45,27 +23,27 @@ module Msf::WebServices::ApiDocsServlet
   def self.get_api_docs
     lambda {
       swaggered_classes = [
-          RootApiDoc,
-          AuthApiDoc,
-          CredentialApiDoc,
-          DbExportApiDoc,
-          EventApiDoc,
-          ExploitApiDoc,
-          HostApiDoc,
-          LoginApiDoc,
-          LootApiDoc,
-          ModuleSearchApiDoc,
-          MsfApiDoc,
-          NmapApiDoc,
-          NoteApiDoc,
-          PayloadApiDoc,
-          ServiceApiDoc,
-          SessionApiDoc,
-          SessionEventApiDoc,
-          UserApiDoc,
-          VulnApiDoc,
-          VulnAttemptApiDoc,
-          WorkspaceApiDoc
+          Msf::WebServices::Documentation::Api::V1::RootApiDoc,
+          Msf::WebServices::Documentation::Api::V1::AuthApiDoc,
+          Msf::WebServices::Documentation::Api::V1::CredentialApiDoc,
+          Msf::WebServices::Documentation::Api::V1::DbExportApiDoc,
+          Msf::WebServices::Documentation::Api::V1::EventApiDoc,
+          Msf::WebServices::Documentation::Api::V1::ExploitApiDoc,
+          Msf::WebServices::Documentation::Api::V1::HostApiDoc,
+          Msf::WebServices::Documentation::Api::V1::LoginApiDoc,
+          Msf::WebServices::Documentation::Api::V1::LootApiDoc,
+          Msf::WebServices::Documentation::Api::V1::ModuleSearchApiDoc,
+          Msf::WebServices::Documentation::Api::V1::MsfApiDoc,
+          Msf::WebServices::Documentation::Api::V1::NmapApiDoc,
+          Msf::WebServices::Documentation::Api::V1::NoteApiDoc,
+          Msf::WebServices::Documentation::Api::V1::PayloadApiDoc,
+          Msf::WebServices::Documentation::Api::V1::ServiceApiDoc,
+          Msf::WebServices::Documentation::Api::V1::SessionApiDoc,
+          Msf::WebServices::Documentation::Api::V1::SessionEventApiDoc,
+          Msf::WebServices::Documentation::Api::V1::UserApiDoc,
+          Msf::WebServices::Documentation::Api::V1::VulnApiDoc,
+          Msf::WebServices::Documentation::Api::V1::VulnAttemptApiDoc,
+          Msf::WebServices::Documentation::Api::V1::WorkspaceApiDoc
       ].freeze
       json = Swagger::Blocks.build_root_json(swaggered_classes)
       set_json_response(json, [])

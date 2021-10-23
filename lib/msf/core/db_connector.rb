@@ -257,7 +257,7 @@ module DbConnector
   end
 
   def self.build_postgres_url
-    conn_params = ApplicationRecord.connection_config
+    conn_params = ApplicationRecord.connection_db_config.configuration_hash
     url = ''
     url += "#{conn_params[:username]}" if conn_params[:username]
     url += ":#{conn_params[:password]}" if conn_params[:password]

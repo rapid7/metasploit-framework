@@ -139,7 +139,7 @@ def helpmsg
   print("Remote Windows Enumeration Meterpreter Script\n" +
     "This script will enumerate windows hosts in the target enviroment\n" +
     "given a username and password or using the credential under witch\n" +
-    "Meterpeter is running using WMI wmic windows native tool.\n" +
+    "Meterpreter is running using WMI wmic windows native tool.\n" +
     "Usage:\n" +
     @@exec_opts.usage)
 end

@@ -18,19 +18,17 @@ class MetasploitModule < Msf::Auxiliary
           Email Subscribers & Newsletters plugin contains an unauthenticated timebased SQL injection in
           versions before 4.3.1.  The hash parameter is vulnerable to injection.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'red0xff', # sqli libs in msf
-            'Wordfence' # blog post says team, no individual(s) called out for discovery
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'red0xff', # sqli libs in msf
+          'Wordfence' # blog post says team, no individual(s) called out for discovery
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            [ 'EDB', '48699' ],
-            [ 'CVE', '2019-20361' ],
-            [ 'URL', 'https://www.wordfence.com/blog/2019/11/multiple-vulnerabilities-patched-in-email-subscribers-newsletters-plugin/' ]
-          ],
+        'References' => [
+          [ 'EDB', '48699' ],
+          [ 'CVE', '2019-20361' ],
+          [ 'URL', 'https://www.wordfence.com/blog/2019/11/multiple-vulnerabilities-patched-in-email-subscribers-newsletters-plugin/' ]
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],

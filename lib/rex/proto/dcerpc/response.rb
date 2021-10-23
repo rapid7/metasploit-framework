@@ -13,6 +13,9 @@ class Response
   attr_accessor :alloc_hint, :context_id, :cancel_cnt, :status, :stub_data
   attr_accessor :raw
 
+  FLAG_FIRST_FRAG = 1 << 0
+  FLAG_LAST_FRAG = 1 << 1
+
   # Create a new DCERPC::Response object
   # This can be initialized in two ways:
   # 1) Call .new() with the first 10 bytes of packet, then call parse on the rest
@@ -46,7 +49,6 @@ class Response
 
     uuid = Rex::Proto::DCERPC::UUID
     data = self.raw
-
 
     if(not data)
       raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
@@ -141,13 +143,14 @@ class Response
       self.context_id,
       self.cancel_cnt = data.unpack('CCCCNvvVVvC')
 
+      stub_offset = 24
       # Error out if the whole header was not read
       if !(self.alloc_hint and self.context_id and self.cancel_cnt)
         raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
       end
 
       # Put the application data into self.stub_data
-      self.stub_data = data[data.length - self.alloc_hint, 0xffff]
+      self.stub_data = data[stub_offset..self.frag_len - self.auth_len]
       # End of RESPONSE
     end
 

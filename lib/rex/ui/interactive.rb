@@ -24,7 +24,7 @@ module Interactive
   def interact(user_input, user_output)
 
     # Detach from any existing console
-    if(self.interacting)
+    if self.interacting
       detach()
     end
 
@@ -43,6 +43,8 @@ module Interactive
     handle_suspend
 
     handle_usr1
+
+    handle_winch
 
     # As long as we're interacting...
     while (self.interacting == true)
@@ -70,11 +72,13 @@ module Interactive
       # Restore the suspend handler
       restore_suspend
 
+      restore_winch
+
       # If we've hit eof, call the interact complete handler
       _interact_complete if (eof == true)
 
       # Shutdown the readline thread
- 			# XXX disabled
+      # XXX disabled
       # user_input.readline_stop() if user_input.supports_readline
 
       # Detach from the input/output handles
@@ -131,6 +135,7 @@ protected
   #
   attr_accessor :orig_suspend
   attr_accessor :orig_usr1
+  attr_accessor :orig_winch
 
   #
   # Stub method that is meant to handler interaction
@@ -261,6 +266,31 @@ protected
     end
   end
 
+  def handle_winch
+    if orig_winch.nil?
+      begin
+        self.orig_winch = Signal.trap("WINCH") do
+          Thread.new { _winch }.join
+        end
+      rescue
+      end
+    end
+  end
+
+  def restore_winch
+    begin
+      if orig_winch
+        Signal.trap("WINCH", orig_winch)
+      else
+        Signal.trap("WINCH", "DEFAULT")
+      end
+      self.orig_winch = nil
+    rescue
+    end
+  end
+
+  def _winch
+  end
 
   def restore_usr1
     begin

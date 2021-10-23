@@ -93,21 +93,25 @@ module CommandDispatcher
 
   #
   # Generate an array of job or session IDs from a given range String.
-  # Always returns an Array.
+  # Always returns an Array unless an incorrect input is given.
+  # In that case, the result will always be nil, even if only one argument is incorrect.
   #
   # @param id_list [String] Range or list description such as 1-5 or 1,3,5 etc
-  # @return [Array<String>] Representing the range
+  # @return [Array<String>, nil] Representing the range
   def build_range_array(id_list)
     item_list = []
     unless id_list.blank?
       temp_list = id_list.split(',')
       temp_list.each do |ele|
-        return if ele.count('-') > 1
-        return if ele.first == '-' || ele[-1] == '-'
-        return if ele.first == '.' || ele[-1] == '.'
-        return unless ele =~ (/^\d+((\.\.|-)\d+)?$/)  # Not a number or range
+        return if ele.count('-') > 1 # Eg. 'sessions -u -1-,5', incorrect syntax
+        return if ele.last == '-' # Last item of array is a '-', resulting in an incomplete range
+        return if ele.first == '.' || ele.last == '.' #Eg. 'sessions -u .1..' or 'sessions -u ..
+        return unless ele =~ (/^\d+((\.\.|-)\d+)?$/) || ele =~ (/^-?\d+$/) # Not a number or range
 
-        if ele.include? '-'
+        # Check if the item is negative, as this will not always be a range
+        if ele =~ (/^-?\d+$/) && ele.to_i < 0 # if ele is a single negative number
+          item_list.push(ele.to_i)
+        elsif ele.include? '-'
           temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a
           item_list.concat(temp_array)
         elsif ele.include? '..'

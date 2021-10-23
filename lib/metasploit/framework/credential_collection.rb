@@ -35,6 +35,10 @@ module Metasploit::Framework
     #   @return [String]
     attr_accessor :realm
 
+    # @!attribute filter
+    #   A block that can be used to filter credential objects
+    attr_accessor :filter
+
     # @option opts [Boolean] :blank_passwords See {#blank_passwords}
     # @option opts [String] :pass_file See {#pass_file}
     # @option opts [String] :password See {#password}
@@ -49,6 +53,7 @@ module Metasploit::Framework
       end
       self.prepended_creds     ||= []
       self.additional_privates ||= []
+      self.filter = nil
     end
 
     # Adds a string as an additional private credential
@@ -70,12 +75,20 @@ module Metasploit::Framework
       self
     end
 
+    def each_filtered
+      each_unfiltered do |credential|
+        next unless self.filter.nil? || self.filter.call(credential)
+
+        yield credential
+      end
+    end
+
     # Combines all the provided credential sources into a stream of {Credential}
     # objects, yielding them one at a time
     #
     # @yieldparam credential [Metasploit::Framework::Credential]
     # @return [void]
-    def each
+    def each_unfiltered
       if pass_file.present?
         pass_fd = File.open(pass_file, 'r:binary')
       end
@@ -109,12 +122,21 @@ module Metasploit::Framework
       prepended_creds.empty? && !has_privates?
     end
 
+    # Returns true when a filter is defined
+    #
+    # @return [Boolean]
+    def filtered?
+      !self.filter.nil?
+    end
+
     # Returns true when there are any private values set
     #
     # @return [Boolean]
     def has_privates?
       password.present? || pass_file.present? || !additional_privates.empty? || blank_passwords
     end
+
+    alias each each_filtered
 
     protected
 
@@ -189,7 +211,7 @@ module Metasploit::Framework
     #
     # @yieldparam credential [Metasploit::Framework::Credential]
     # @return [void]
-    def each
+    def each_unfiltered
       if pass_file.present?
         pass_fd = File.open(pass_file, 'r:binary')
       end

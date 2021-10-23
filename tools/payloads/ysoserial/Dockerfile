@@ -23,11 +23,11 @@ RUN wget -q https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysos
 # Download ysoserial-modified
 RUN wget -q https://github.com/pimps/ysoserial-modified/raw/1bd423d30ae87074f94d6b9b687c17162f122c3d/target/ysoserial-modified.jar
 
-# Install gems: diff-lcs v1.3 (to diff the ysoserial output, v1.4 breaks the script)
+# Install gems: diff-lcs v1.4.4 (to diff the ysoserial output)
 #               json (to print the scripts results in JSON)
 #               pry (to debug issues)
-RUN gem install --silent diff-lcs:1.3 json pry
+RUN gem install --silent diff-lcs:1.4.4 json pry
 
 COPY find_ysoserial_offsets.rb /
 
-CMD ruby /find_ysoserial_offsets.rb -a
+ENTRYPOINT ["ruby", "/find_ysoserial_offsets.rb"]

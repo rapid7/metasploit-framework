@@ -79,7 +79,7 @@ $ sudo proxychains nmap -n -sT -sV -PN -p 445 10.10.125.0/24
 ```
 
 ### Combined With Default Route
-Using the default route option along with the Socks proxy and Proxychains, you can browse the internet as the compromised host. This is possible because adding a default route to a Meterpeter session will cause all TCP/IP traffic; that is not otherwise specified in Metasploit's routing table, to route through that session. This is easy to set up and test.
+Using the default route option along with the Socks proxy and Proxychains, you can browse the internet as the compromised host. This is possible because adding a default route to a Meterpreter session will cause all TCP/IP traffic; that is not otherwise specified in Metasploit's routing table, to route through that session. This is easy to set up and test.
 
 You need a Windows Meterpreter session on a host that has a different public IP address than your attacking machine.
 

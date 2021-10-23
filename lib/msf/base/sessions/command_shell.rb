@@ -79,6 +79,10 @@ class CommandShell
     self.class.type
   end
 
+  def abort_foreground_supported
+    self.platform != 'windows'
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
@@ -92,13 +96,45 @@ class CommandShell
     session = self
 
     if datastore['AutoVerifySession']
+      session_info = ''
+
+      # Read the initial output and mash it into a single line
+      # Timeout set to 1 to read in banner of all payload responses (may capture prompt as well)
+      # Encoding is not forced to support non ASCII shells
+      if session.info.nil? || session.info.empty?
+        banner = shell_read(-1, 1)
+        if banner && !banner.empty?
+          banner.gsub!(/[^[:print:][:space:]]+/n, "_")
+          banner.strip!
+
+          banner = %Q{
+Shell Banner:
+#{banner}
+-----
+          }
+
+          session_info = banner
+        end
+      end
+
       token = Rex::Text.rand_text_alphanumeric(8..24)
-      response = shell_command("echo #{token}", 3)
+      response = shell_command("echo #{token}")
       unless response&.include?(token)
         dlog("Session #{session.sid} failed to respond to an echo command")
         print_error("Command shell session #{session.sid} is not valid and will be closed")
         session.kill
         return nil
+      end
+
+      # Only populate +session.info+ with a captured banner if the shell is responsive and verified
+      session.info = session_info
+      session
+    else
+      # Encrypted shells need all information read before anything is written, so we read in the banner here. However we
+      # don't populate session.info with the captured value since without AutoVerify there's no way to be certain this
+      # actually is a banner and not junk/malicious input
+      if session.class == ::Msf::Sessions::EncryptedShell
+        shell_read(-1, 0.1)
       end
     end
   end
@@ -182,6 +218,7 @@ class CommandShell
     end
 
     if prompt_yesno("Background session #{name}?")
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
       self.interacting = false
     end
   end
@@ -216,6 +253,7 @@ class CommandShell
       print_status("Session #{self.name} is already interactive.")
     else
       print_status("Backgrounding session #{self.name}...")
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
       # store the next session id so that it can be referenced as soon
       # as this session is no longer interacting
       self.next_session = args[0]
@@ -326,22 +364,33 @@ class CommandShell
     print_error("Can not pop up an interactive shell")
   end
 
+  def self.binary_exists(binary, platform: nil, &block)
+    if block.call('command -v command').to_s.strip == 'command'
+      binary_path = block.call("command -v '#{binary}' && echo true").to_s.strip
+    else
+      binary_path = block.call("which '#{binary}' && echo true").to_s.strip
+    end
+    return nil unless binary_path.include?('true')
+
+    binary_path.split("\n")[0].strip # removes 'true' from stdout
+  end
+
   #
   # Returns path of a binary in PATH env.
   #
   def binary_exists(binary)
-    print_status("Trying to find binary(#{binary}) on target machine")
-    if shell_command_token('command -v command').to_s.strip == 'command'
-      binary_path = shell_command_token("command -v '#{binary}' && echo true").to_s.strip
-    else
-      binary_path = shell_command_token("which '#{binary}' && echo true").to_s.strip
+    print_status("Trying to find binary '#{binary}' on the target machine")
+
+    binary_path = self.class.binary_exists(binary, platform: platform) do |command|
+      shell_command_token(command)
     end
-    unless binary_path.include?("true")
+
+    if binary_path.nil?
       print_error("#{binary} not found")
-      return nil
+    else
+      print_status("Found #{binary} at #{binary_path}")
     end
-    binary_path = binary_path.split("\n")[0].strip  #removes 'true' from stdout
-    print_status("Found #{binary} at #{binary_path}")
+
     return binary_path
   end
 
@@ -548,8 +597,9 @@ class CommandShell
     if expressions.empty?
       print_status('Starting IRB shell...')
       print_status("You are in the \"self\" (session) object\n")
-
-      Rex::Ui::Text::IrbShell.new(self).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        Rex::Ui::Text::IrbShell.new(self).run
+      end
     else
       # XXX: No vprint_status here
       if framework.datastore['VERBOSE'].to_s == 'true'
@@ -585,8 +635,10 @@ class CommandShell
 
     print_status('Starting Pry shell...')
     print_status("You are in the \"self\" (session) object\n")
-
-    self.pry
+    Pry.config.history_load = false
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      self.pry
+    end
   end
 
   #
@@ -605,7 +657,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd + "\n")
+    shell_write(cmd + command_termination)
   end
 
   #
@@ -623,7 +675,7 @@ class CommandShell
   #
   def shell_command(cmd, timeout=5)
     # Send the command to the session's stdin.
-    shell_write(cmd + "\n")
+    shell_write(cmd + command_termination)
 
     etime = ::Time.now.to_f + timeout
     buff = ""
@@ -713,20 +765,6 @@ class CommandShell
   # Execute any specified auto-run scripts for this session
   #
   def process_autoruns(datastore)
-    # Read the initial output and mash it into a single line
-    if (not self.info or self.info.empty?)
-      initial_output = shell_read(-1, 0.01)
-      if (initial_output)
-        initial_output.force_encoding("ASCII-8BIT") if initial_output.respond_to?(:force_encoding)
-        initial_output.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
-        initial_output.gsub!(/[\r\n\t]+/, ' ')
-        initial_output.strip!
-
-        # Set the inital output to .info
-        self.info = initial_output
-      end
-    end
-
     if datastore['InitialAutoRunScript'] && !datastore['InitialAutoRunScript'].empty?
       args = Shellwords.shellwords( datastore['InitialAutoRunScript'] )
       print_status("Session ID #{sid} (#{tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
@@ -753,7 +791,9 @@ protected
   # shell_write instead of operating on rstream directly.
   def _interact
     framework.events.on_session_interact(self)
-    _interact_stream
+    Rex::Ui::Text::Shell::HistoryManager.with_context(name: self.type.to_sym) {
+      _interact_stream
+    }
   end
 
   ##
@@ -761,6 +801,13 @@ protected
   #
   def _interact_stream
     fds = [rstream.fd, user_input.fd]
+
+    # Displays +info+ on all session startups
+    # +info+ is set to the shell banner and initial prompt in the +bootstrap+ method
+    user_output.print("#{self.info}\n") if (self.info && !self.info.empty?) && self.interacting
+
+    run_single('')
+
     while self.interacting
       sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
       next unless sd

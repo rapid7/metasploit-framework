@@ -63,6 +63,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    validate_rpaths!
+
     begin
       smb_download
     rescue Rex::Proto::SMB::Exceptions::LoginError => e

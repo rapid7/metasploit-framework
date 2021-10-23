@@ -6,32 +6,35 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Accounts
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Windows Gather Directory Permissions Enumeration",
-      'Description'    => %q{
-        This module enumerates directories and lists the permissions set
-        on found directories. Please note: if the PATH option isn't specified,
-        then the module will start enumerate whatever is in the target machine's
-        %PATH% variable.
-      },
-      'License'        => MSF_LICENSE,
-      'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter'],
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Windows Gather Directory Permissions Enumeration",
+        'Description' => %q{
+          This module enumerates directories and lists the permissions set
+          on found directories. Please note: if the PATH option isn't specified,
+          then the module will start enumerate whatever is in the target machine's
+          %PATH% variable.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => [
           'Kx499',
           'Ben Campbell',
           'sinn3r'
         ]
-    ))
+      )
+    )
 
     register_options(
       [
         OptString.new('PATH', [ false, 'Directory to begin search from', '']),
         OptEnum.new('FILTER', [ false, 'Filter to limit results by', 'NA', [ 'NA', 'R', 'W', 'RW' ]]),
-        OptInt.new('DEPTH', [ true, 'Depth to drill down into subdirs, O = no limit',0]),
-      ])
+        OptInt.new('DEPTH', [ true, 'Depth to drill down into subdirs, O = no limit', 0]),
+      ]
+    )
   end
 
   def enum_subdirs(perm_filter, dpath, maxdepth, token)
@@ -46,15 +49,16 @@ class MetasploitModule < Msf::Post
     end
 
     if maxdepth >= 1 or maxdepth < 0
-      dirs.each do|d|
+      dirs.each do |d|
         next if d =~ /^(\.|\.\.)$/
+
         realpath = dpath + '\\' + d
         if session.fs.file.stat(realpath).directory?
           perm = check_dir_perms(realpath, token)
           if perm_filter and perm and perm.include?(perm_filter)
             print_status(perm + "\t" + realpath)
           end
-          enum_subdirs(perm_filter, realpath, maxdepth - 1,token)
+          enum_subdirs(perm_filter, realpath, maxdepth - 1, token)
         end
       end
     end
@@ -94,6 +98,7 @@ class MetasploitModule < Msf::Post
   def enum_perms(perm_filter, token, depth, paths)
     paths.each do |path|
       next if path.empty?
+
       path = path.strip
 
       print_status("Checking directory permissions from: #{path}")
@@ -105,7 +110,7 @@ class MetasploitModule < Msf::Post
           print_status(perm + "\t" + path)
         end
 
-        #call recursive function to loop through and check all sub directories
+        # call recursive function to loop through and check all sub directories
         enum_subdirs(perm_filter, path, depth, token)
       end
     end

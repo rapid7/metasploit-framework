@@ -98,7 +98,7 @@ module Msf
 
     def send_redis_command(*command_parts)
       sock.put(redis_proto(command_parts))
-      command_response = sock.get_once(-1, read_timeout)
+      command_response = sock.get(read_timeout)
       return unless command_response
       command_response.strip
     end
@@ -123,10 +123,15 @@ module Msf
     
       def parse_resp_array
         # Read array length
-        unless /\A\*(?<arr_len>\d+)\r/ =~ data_at_counter
+        unless /\A\*(?<arr_len>\d+)(\r|$)/ =~ data_at_counter
           raise "RESP parsing error in array"
         end
-        @counter += data_at_counter.index(LINE_BREAK) + 2
+
+        @counter += (1 + arr_len.length)
+
+        if data_at_counter.start_with?(LINE_BREAK)
+          @counter += LINE_BREAK.length
+        end
     
         arr_len = arr_len.to_i
     
@@ -148,14 +153,23 @@ module Msf
       end
     
       def parse_bulk_string
-        unless /\A\$(?<str_len>\d+)\r/ =~ data_at_counter
+        unless /\A\$(?<str_len>[-\d]+)(\r|$)/ =~ data_at_counter
           raise "RESP parsing error in bulk string"
         end
+
+        @counter += (1 + str_len.length)
         str_len = str_len.to_i
-        @counter += data_at_counter.index(LINE_BREAK) + 2
-        result = data_at_counter[0..str_len - 1]
-        @counter += str_len
-        @counter += 2 # Skip over next CLRF
+
+        if data_at_counter.start_with?(LINE_BREAK)
+          @counter += LINE_BREAK.length
+        end
+
+        result = nil
+        if str_len != -1
+          result = data_at_counter[0..str_len - 1]
+          @counter += str_len
+          @counter += 2 # Skip over next CLRF
+        end
         result
       end
     
@@ -169,7 +183,7 @@ module Msf
         when "$"
           parse_bulk_string
         else
-          raise "RESP parsing error"
+          raise "RESP parsing error: " + data_at_counter
         end
       end
     end

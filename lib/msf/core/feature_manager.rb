@@ -14,6 +14,7 @@ module Msf
 
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
+    FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -21,8 +22,8 @@ module Msf
         default_value: true
       }.freeze,
       {
-        name: 'RHOST_HTTP_URL',
-        description: 'When enabled in supported modules you can specify a URL as a target',
+        name: FULLY_INTERACTIVE_SHELLS,
+        description: 'When enabled you will have the option to drop into a fully interactive shell from within meterpreter',
         default_value: false
       }.freeze
     ].freeze

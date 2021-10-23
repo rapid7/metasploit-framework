@@ -33,11 +33,12 @@ module System
       version = read_file('/etc/system-release').gsub(/\n|\\n|\\l/,'').strip
       if version.include? 'CentOS'
         system_data[:distro] = 'centos'
-        system_data[:version] = version
+      elsif version.include? 'Fedora'
+        system_data[:distro] = 'fedora'
       else
         system_data[:distro] = 'amazon'
-        system_data[:version] = version
       end
+      system_data[:version] = version
 
     # Alpine
     elsif etc_files.include?('alpine-release')
@@ -155,7 +156,7 @@ module System
   #
   def get_cpu_info
     info = {}
-    orig = cmd_exec("cat /proc/cpuinfo").to_s
+    orig = read_file("/proc/cpuinfo").to_s
     cpuinfo = orig.split("\n\n")[0]
     # This is probably a more platform independent way to parse the results (compared to splitting and assigning preset indices to values)
     cpuinfo.split("\n").each do |l|
@@ -228,32 +229,11 @@ module System
   end
 
   #
-  # Gets the process id(s) of `program`
-  # @return [Array]
-  #
-  def pidof(program)
-    pids = []
-    full = cmd_exec('ps aux').to_s
-    full.split("\n").each do |pid|
-      pids << pid.split(' ')[1].to_i if pid.include? program
-    end
-    pids
-  end
-
-  #
-  # Gets the uid of a pid
-  # @return [String]
-  #
-  def pid_uid(pid)
-    read_file("/proc/#{pid}/status").to_s
-  end
-
-  #
   # Checks if `file_path` is mounted on a noexec mount point
   # @return [Boolean]
   #
   def noexec?(file_path)
-    mount = cmd_exec('cat /proc/mounts').to_s
+    mount = read_file('/proc/mounts').to_s
     mount_path = get_mount_path(file_path)
     mount.lines.each do |l|
       return true if l =~ Regexp.new("#{mount_path} (.*)noexec(.*)")
@@ -268,7 +248,7 @@ module System
   # @return [Boolean]
   #
   def nosuid?(file_path)
-    mount = cmd_exec('cat /proc/mounts').to_s
+    mount = read_file('/proc/mounts').to_s
     mount_path = get_mount_path(file_path)
     mount.lines.each do |l|
       return true if l =~ Regexp.new("#{mount_path} (.*)nosuid(.*)")

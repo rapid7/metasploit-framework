@@ -15,19 +15,17 @@ class MetasploitModule < Msf::Auxiliary
           By default, a session expires 4 hours after login (the setting can be changed by the admin), for this
           reason, the module attempts to retrieve the most recently created sessions.
         },
-        'Author' =>
-          [
-            'X41 D-Sec GmbH <info@x41-dsec.de>', # Original Advisory
-            'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>' # Metasploit module
-          ],
+        'Author' => [
+          'X41 D-Sec GmbH <info@x41-dsec.de>', # Original Advisory
+          'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>' # Metasploit module
+        ],
         'License' => MSF_LICENSE,
         'Platform' => %w[linux],
-        'References' =>
-          [
-            [ 'EDB', '42130' ],
-            [ 'CVE', '2017-8835' ],
-            [ 'URL', 'https://gist.github.com/red0xff/c4511d2f427efcb8b018534704e9607a' ]
-          ],
+        'References' => [
+          [ 'EDB', '42130' ],
+          [ 'CVE', '2017-8835' ],
+          [ 'URL', 'https://gist.github.com/red0xff/c4511d2f427efcb8b018534704e9607a' ]
+        ],
         'Targets' => [['Wildcard Target', {}]],
         'DefaultTarget' => 0
       )

@@ -1,3 +1,5 @@
+require 'warden'
+
 module Msf::WebServices::Authentication
   module Strategies
     Warden::Strategies.add(:api_token, Msf::WebServices::Authentication::Strategies::ApiToken)

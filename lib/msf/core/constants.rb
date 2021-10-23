@@ -107,6 +107,8 @@ module HttpClients
   OPERA  = "Opera"
   CHROME = "Chrome"
   EDGE = "Edge"
+  GIT = "Git"
+  GIT_LFS = "Git LFS"
 
   UNKNOWN = "Unknown"
 end

@@ -11,19 +11,30 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name' => 'NTDS Grabber',
-      'Description' => %q(This module uses a powershell script to obtain a copy of the ntds,dit SAM and SYSTEM files on a domain controller.
-                          It compresses all these files in a cabinet file called All.cab.),
-      'License' => MSF_LICENSE,
-      'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
-      'References' => [''],
-      'Platform' => [ 'win' ],
-      'Arch' => [ 'x86', 'x64' ],
-      'SessionTypes' => [ 'meterpreter' ]
+    super(
+      update_info(
+        info,
+        'Name' => 'NTDS Grabber',
+        'Description' => %q(This module uses a powershell script to obtain a copy of the ntds,dit SAM and SYSTEM files on a domain controller.
+                            It compresses all these files in a cabinet file called All.cab.),
+        'License' => MSF_LICENSE,
+        'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
+        'References' => [''],
+        'Platform' => [ 'win' ],
+        'Arch' => [ 'x86', 'x64' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_railgun_api
+              stdapi_sys_process_execute
+              stdapi_sys_process_getpid
+            ]
+          }
+        }
+      )
     )
-  )
 
     register_options(
       [

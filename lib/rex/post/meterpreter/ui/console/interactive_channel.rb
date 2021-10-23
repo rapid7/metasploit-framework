@@ -14,6 +14,7 @@ module Console::InteractiveChannel
 
   include Rex::Ui::Interactive
 
+  attr_accessor :raw
   #
   # Interacts with self.
   #
@@ -21,8 +22,14 @@ module Console::InteractiveChannel
     # If the channel has a left-side socket, then we can interact with it.
     if (self.lsock)
       self.interactive(true)
-
-      interact_stream(self)
+      if raw
+        update_term_size
+        _local_fd.raw do
+          interact_stream(self)
+        end
+      else
+        interact_stream(self)
+      end
 
       self.interactive(false)
     else
@@ -67,7 +74,11 @@ module Console::InteractiveChannel
   # Reads data from local input and writes it remotely.
   #
   def _stream_read_local_write_remote(channel)
-    data = user_input.gets
+    if raw
+      data = user_input.sysread(1024)
+    else
+      data = user_input.gets
+    end
     return if not data
 
     self.on_command_proc.call(data.strip) if self.on_command_proc
@@ -90,6 +101,34 @@ module Console::InteractiveChannel
   #
   def _remote_fd(stream)
     self.lsock
+  end
+
+  attr_accessor :rows
+  attr_accessor :cols
+
+  def _winch
+    update_term_size
+  end
+
+  def update_term_size
+    rows, cols = ::IO.console.winsize
+    unless rows == self.rows && cols == self.cols
+      set_term_size(rows, cols)
+      self.rows = rows
+      self.cols = cols
+    end
+  end
+
+  def set_term_size(rows, columns)
+    if self.cid.nil?
+      raise IOError, 'Channel has been closed.', caller
+    end
+
+    request = Packet.create_request(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_SET_TERM_SIZE)
+    request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+    request.add_tlv(Extensions::Stdapi::TLV_TYPE_TERMINAL_ROWS, rows)
+    request.add_tlv(Extensions::Stdapi::TLV_TYPE_TERMINAL_COLUMNS, columns)
+    self.client.send_packet(request)
   end
 
   attr_accessor :on_log_proc

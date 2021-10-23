@@ -76,11 +76,12 @@ module ReverseTcpDoubleSSL
       begin
 
         self.listener_sock = Rex::Socket::SslTcpServer.create(
-        'LocalHost' => ip,
-        'LocalPort' => local_port,
-        'Comm'      => comm,
-        'SSLCert'   => datastore['HandlerSSLCert'],
-        'Context'   =>
+        'LocalHost'  => ip,
+        'LocalPort'  => local_port,
+        'Comm'       => comm,
+        'SSLCert'    => datastore['HandlerSSLCert'],
+        'SSLVersion' => datastore['SSLVersion'],
+        'Context'    =>
           {
             'Msf'        => framework,
             'MsfPayload' => self,
@@ -89,7 +90,7 @@ module ReverseTcpDoubleSSL
 
         ex = false
 
-        via = via_string_for_ip(ip, comm)
+        via = via_string(self.listener_sock.client) if self.listener_sock.respond_to?(:client)
 
         print_status("Started reverse double SSL handler on #{ip}:#{local_port} #{via}")
         break
@@ -99,6 +100,21 @@ module ReverseTcpDoubleSSL
       end
     }
     raise ex if (ex)
+  end
+
+  # A URI describing what the payload is configured to use for transport
+  def payload_uri
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "ssl://#{uri_host}:#{datastore['LPORT']}"
+  end
+
+  def comm_string
+    if listener_sock.nil?
+      "(setting up)"
+    else
+      via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    end
   end
 
   #

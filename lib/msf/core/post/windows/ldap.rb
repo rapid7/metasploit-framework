@@ -85,7 +85,19 @@ module LDAP
   }
 
     def initialize(info = {})
-      super
+      super(
+        update_info(
+          info,
+          'Compat' => {
+            'Meterpreter' => {
+              'Commands' => %w[
+                stdapi_railgun_*
+              ]
+            }
+          }
+        )
+      )
+
       register_options(
       [
         OptString.new('DOMAIN', [false, 'The domain to query or distinguished name (e.g. DC=test,DC=com)', nil]),

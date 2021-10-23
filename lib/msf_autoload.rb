@@ -53,15 +53,15 @@ class MsfAutoload
     [
       "#{__dir__}/msf/core/constants.rb",
       "#{__dir__}/msf/core/cert_provider.rb",
-      "#{__dir__}/msf/core/rpc/json/error.rb",
-      "#{__dir__}/msf/core/rpc/json/v2_0/",
+      "#{__dir__}/msf/core/rpc/json/",
       "#{__dir__}/msf/core/modules/external/ruby/metasploit.rb",
       "#{__dir__}/msf/core/rpc/v10/constants.rb",
       "#{__dir__}/msf/core.rb",
       "#{__dir__}/msf/base.rb",
       "#{__dir__}/rex/post/",
       "#{__dir__}/rex/post.rb",
-      "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb"
+      "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb",
+      "#{__dir__}/rex/proto/ssh/connection.rb"
     ]
   end
 
@@ -81,7 +81,6 @@ class MsfAutoload
 
   def custom_inflections
     {
-      'opt_http_rhost_url' => 'OptHTTPRhostURL',
       'uuid' => 'UUID',
       'db_manager' => 'DBManager',
       'ci' => 'CI',
@@ -254,6 +253,7 @@ class MsfAutoload
       'vncinject_options' => 'VncInjectOptions',
       'vncinject' => 'VncInject',
       'json_hash_file' => 'JSONHashFile',
+      'jwt' => 'JWT',
       'ndr' => 'NDR',
       'ci_document' => 'CIDocument',
       'fusionvm_document' => 'FusionVMDocument',
@@ -296,7 +296,6 @@ class MsfAutoload
     [
       { path: "#{__dir__}/msf/", namespace: Msf },
       { path: "#{__dir__}/rex/", namespace: Rex },
-      { path: "#{__dir__}/../app/validators/" },
     ]
   end
 

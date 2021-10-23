@@ -21,18 +21,16 @@ class MetasploitModule < Msf::Auxiliary
           read to retrieve the last backup file.  That backup is then downloaded, and any sql
           files will be parsed looking for the wp_users INSERT statement to grab user creds.
         },
-        'References' =>
-          [
-            ['EDB', '49252'],
-            ['WPVDB', '10502'],
-            ['WPVDB', '10503'],
-            ['URL', 'https://plugins.trac.wordpress.org/changeset/2439376/boldgrid-backup']
-          ],
-        'Author' =>
-          [
-            'Wadeek', # Vulnerability discovery
-            'h00die' # Metasploit module
-          ],
+        'References' => [
+          ['EDB', '49252'],
+          ['WPVDB', '10502'],
+          ['WPVDB', '10503'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset/2439376/boldgrid-backup']
+        ],
+        'Author' => [
+          'Wadeek', # Vulnerability discovery
+          'h00die' # Metasploit module
+        ],
         'DisclosureDate' => '2020-12-12',
         'License' => MSF_LICENSE
       )

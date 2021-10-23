@@ -32,20 +32,12 @@ class MetasploitModule < Msf::Post
   #
   def load_file(fname)
     begin
-      data = cmd_exec("cat #{fname}")
+      data = read_file(fname)
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Failed to retrieve file. #{e.message}")
       data = ''
     end
-
-    if data =~ /^#{fname}: regular file, no read permission$/ or data =~ /Permission denied$/
-      return :access_denied
-    elsif data =~ /\(No such file or directory\)$/
-      return :not_found
-    elsif data.empty?
-      return :empty
-    end
-
+    fail_with(Failure::BadConfig, "The file #{fname} does not exist or is not a readable file!") unless data
     return data
   end
 
@@ -133,17 +125,8 @@ class MetasploitModule < Msf::Post
 
   def run
     fname = datastore['FILE']
-    f     = load_file(fname)
-
-    case f
-    when :access_denied
-      print_error("No permission to read: #{fname}")
-    when :not_found
-      print_error("Not found: #{fname}")
-    when :empty
-      print_status("File is actually empty: #{fname}")
-    else
-      extract_secrets(f)
-    end
+    f = load_file(fname)
+    extract_secrets(f)
   end
+
 end

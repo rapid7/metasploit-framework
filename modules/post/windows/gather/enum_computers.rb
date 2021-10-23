@@ -8,17 +8,20 @@ class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'         => 'Windows Gather Enumerate Computers',
-        'Description'  => %q{
-            This module will enumerate computers included in the primary Domain.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Enumerate Computers',
+        'Description' => %q{
+          This module will enumerate computers included in the primary Domain.
         },
-        'License'      => MSF_LICENSE,
-        'Author'       => [ 'Joshua Abraham <jabra[at]rapid7.com>'],
-        'Platform'     => [ 'win'],
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Joshua Abraham <jabra[at]rapid7.com>'],
+        'Platform' => [ 'win'],
         'SessionTypes' => [ 'meterpreter' ]
-      ))
+      )
+    )
   end
 
   # Run Method for when run command is issued
@@ -37,6 +40,7 @@ class MetasploitModule < Msf::Post
     result = client.net.resolve.resolve_host(hostname)
 
     return nil if result[:ip].nil? or result[:ip].blank?
+
     return result[:ip]
   end
 
@@ -46,8 +50,8 @@ class MetasploitModule < Msf::Post
     devisor = "-------------------------------------------------------------------------------\r\n"
     raw_list = cmd_exec('net view').split(devisor)[1]
     if raw_list =~ /The command completed successfully/
-      raw_list.sub!(/The command completed successfully\./,'')
-      raw_list.gsub!(/\\\\/,'')
+      raw_list.sub!(/The command completed successfully\./, '')
+      raw_list.gsub!(/\\\\/, '')
       raw_list.split(" ").each do |m|
         computer_list << m
       end
@@ -63,7 +67,7 @@ class MetasploitModule < Msf::Post
       subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
       v_name = "DCName"
       domain_dc = registry_getvaldata(subkey, v_name)
-      dom_info =  domain_dc.split('.')
+      dom_info = domain_dc.split('.')
       domain = dom_info[1].upcase
     rescue
       print_error("This host is not part of a domain.")
@@ -71,19 +75,20 @@ class MetasploitModule < Msf::Post
     return domain
   end
 
-  def list_computers(domain,hosts)
+  def list_computers(domain, hosts)
     tbl = Rex::Text::Table.new(
-      'Header'  => "List of Domain Hosts for the primary Domain.",
-      'Indent'  => 1,
+      'Header' => "List of Domain Hosts for the primary Domain.",
+      'Indent' => 1,
       'Columns' =>
       [
         "Domain",
         "Hostname",
         "IPs",
-      ])
+      ]
+    )
     hosts.each do |hostname|
       hostip = gethost(hostname)
-      tbl << [domain,hostname,hostip]
+      tbl << [domain, hostname, hostip]
     end
     results = tbl.to_s
     print_line("\n" + results + "\n")

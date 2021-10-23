@@ -25,25 +25,21 @@ module MetasploitModule
           valid (uncorrupted) import table. PE files with CLR(C#/.NET executables), bounded imports, and TLS callbacks
           are not currently supported. Also PE files which use resource loading might crash.
         },
-        'Author' =>
-          [
-            'ege <egebalci[at]pm.me>'
-          ],
-        'References' =>
-          [
-            'https://github.com/EgeBalci/Amber'
-          ],
+        'Author' => [
+          'ege <egebalci[at]pm.me>'
+        ],
+        'References' => [
+          'https://github.com/EgeBalci/Amber'
+        ],
         'License' => MSF_LICENSE,
         'Platform' => 'win',
         'Arch' => ARCH_X64,
-        'PayloadCompat' =>
-          {
-            'Convention' => 'sockrdi handlerdi -http -https'
-          },
-        'DefaultOptions' =>
-          {
-            'EXITFUNC' => 'thread'
-          }
+        'PayloadCompat' => {
+          'Convention' => 'sockrdi handlerdi -http -https'
+        },
+        'DefaultOptions' => {
+          'EXITFUNC' => 'thread'
+        }
       )
     )
   end

@@ -52,8 +52,6 @@ class Console
   # assumed that init_ui has been called prior.
   #
   def interact(&block)
-    init_tab_complete
-
     # Run queued commands
     commands.delete_if { |ent|
       run_single(ent)
@@ -77,7 +75,7 @@ class Console
   #
   # Interacts with the supplied channel.
   #
-  def interact_with_channel(channel)
+  def interact_with_channel(channel, *_)
     channel.extend(InteractiveChannel) unless (channel.kind_of?(InteractiveChannel) == true)
     channel.on_command_proc = self.on_command_proc if self.on_command_proc
     channel.on_print_proc   = self.on_print_proc if self.on_print_proc

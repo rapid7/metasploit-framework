@@ -21,7 +21,7 @@ module Metasploit
 
           # Returns a parser.
           #
-          # @param template [String] Soure code to parse.
+          # @param template [String] Source code to parse.
           # @return [Metasm::C::Parser]
           def parse(template)
             main_parser = Metasploit::Framework::Obfuscation::CRandomizer::Utility.parse(template)
