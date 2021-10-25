@@ -49,8 +49,9 @@ class MetasploitModule < Msf::Post
     contents = []
     if file_path == '/' && session.platform == 'windows'
       get_drives.each do |drive|
-        furl = uripath + drive
-        contents << [furl, drive]
+        driveurl = drive + ':/'
+        furl = uripath + driveurl
+        contents << [furl, driveurl]
       end
       return contents
     end

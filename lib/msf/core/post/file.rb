@@ -705,7 +705,7 @@ module Msf::Post::File
         label = letters[i,1]
         rem = bitmask % (2**(i+1))
         if rem > 0
-          drives << "#{label}:/"
+          drives << label
           bitmask = bitmask - rem
         end
       end
@@ -713,7 +713,7 @@ module Msf::Post::File
       disks = cmd_exec("wmic logicaldisk get caption").split("\r\n")
       for disk in disks
         if /([A-Z]):/ =~ disk
-          drives << "#{disk[0]}:/"
+          drives << disk[0]
         end
       end
     end
