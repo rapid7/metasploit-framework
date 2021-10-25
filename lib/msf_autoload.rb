@@ -329,3 +329,4 @@ end
 autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
 require 'rexml/document'
+require 'activerecord-import'
