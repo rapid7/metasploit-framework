@@ -39,23 +39,6 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # It returns an array of the drives currently mounted. Credits to mubix for this function.
-  def get_drives
-    a = client.railgun.kernel32.GetLogicalDrives()["return"]
-    drives = []
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    (0..25).each do |i|
-      test = letters[i, 1]
-      rem = a % (2**(i + 1))
-      if rem > 0
-        drives << test
-        a = a - rem
-      end
-    end
-
-    drives
-  end
-
   def run
     vol = datastore['DRIVE'][0].upcase
     vmdk = datastore['VMDK_PATH']
