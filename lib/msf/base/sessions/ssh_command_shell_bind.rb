@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-# TODO: refactor this so it's no longer under Meterpreter so it can be used elsewhere
 require 'rex/post/channel'
 require 'rex/post/meterpreter/channels/socket_abstraction'
 
@@ -82,7 +81,7 @@ module Msf::Sessions
         rsock.extend(SocketInterface)
         rsock.channel = self
 
-        lsock.extend(Rex::Socket::SslTcp) if params.ssl
+        lsock.extend(Rex::Socket::SslTcp) if params.ssl && !params.server
 
         # synchronize access so the socket isn't closed while initializing, this is particularly important for SSL
         lsock.synchronize_access { lsock.initsock(params) }
@@ -153,6 +152,11 @@ module Msf::Sessions
         @closed = false
         @mutex = Mutex.new
         @condition = ConditionVariable.new
+
+        if params.ssl
+          extend(Rex::Socket::SslTcpServer)
+          initsock(params)
+        end
       end
 
       def accept(opts = {})
