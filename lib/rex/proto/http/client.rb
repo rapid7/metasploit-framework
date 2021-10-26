@@ -225,14 +225,14 @@ class Client
   # @return (see #read_response)
   def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
-    if req.opts['ntlm_transform_request'] and self.ntlm_client
+    if req.respond_to?(:opts) && req.opts['ntlm_transform_request'] && self.ntlm_client
       req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
     end
 
     send_request(req, t)
 
     res = read_response(t)
-    if req.opts['ntlm_transform_response'] and self.ntlm_client
+    if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
     end
     res.request = req.to_s if res
