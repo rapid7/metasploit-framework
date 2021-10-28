@@ -206,7 +206,7 @@ module Msf::DBManager::Note
 
   def report_notes(notes)
     ::ApplicationRecord.connection_pool.with_connection { |connection|
-      Mdm::Note.import notes
+      Mdm::Note.import notes, on_duplicate_key_update: [:id]
       notes.each do |note|
         note.changes_applied
         note.run_callbacks(:save) { true }
