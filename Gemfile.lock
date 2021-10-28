@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.12)
+    metasploit-framework (6.1.13)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -127,13 +127,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.517.0)
+    aws-partitions (1.520.0)
     aws-sdk-core (3.121.3)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.271.0)
+    aws-sdk-ec2 (1.273.0)
       aws-sdk-core (~> 3, >= 3.121.2)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.62.0)
@@ -229,7 +229,7 @@ GEM
     jmespath (1.4.0)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.6.0)
+    json (2.6.1)
     little-plugger (1.1.4)
     logging (2.3.0)
       little-plugger (~> 1.1)
@@ -381,9 +381,9 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.33)
+    rex-socket (0.1.34)
       rex-core
-    rex-sslscan (0.1.6)
+    rex-sslscan (0.1.7)
       rex-core
       rex-socket
       rex-text
@@ -416,7 +416,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.10.2)
-    rubocop (1.22.1)
+    rubocop (1.22.3)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -467,7 +467,7 @@ GEM
     ttfunk (1.7.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2021.4)
+    tzinfo-data (1.2021.5)
       tzinfo (>= 1.0.0)
     unf (0.1.4)
       unf_ext
