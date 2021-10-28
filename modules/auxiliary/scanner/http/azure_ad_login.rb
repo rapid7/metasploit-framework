@@ -166,15 +166,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     # Check whether the username is a file or string, stick either in an array
-    if datastore.include? 'USER_FILE'
+    if datastore['USER_FILE']
       usernames = File.readlines(datastore['USER_FILE'])
-    else
+    elsif datastore['USERNAME']
       usernames = [datastore['USERNAME']]
-    end
-    if datastore.include? 'PASS_FILE'
-      passwords = File.readlines(datastore['PASS_FILE'])
     else
+      print_error('Either USERNAME or USER_FILE must be set. Aborting...')
+      return
+    end
+    if datastore['PASS_FILE']
+      passwords = File.readlines(datastore['PASS_FILE'])
+    elsif datastore['PASSWORD']
       passwords = [datastore['PASSWORD']]
+    else
+      print_error('Either PASSWORD or PASS_FILE must be set. Aborting...')
+      return
     end
 
     check_logins(datastore['RHOST'], datastore['RPORT'], datastore['TARGETURI'],
