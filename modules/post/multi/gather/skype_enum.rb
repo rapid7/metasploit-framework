@@ -22,7 +22,20 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => %w{osx win},
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              stdapi_fs_search
+              stdapi_fs_separator
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
     register_advanced_options(

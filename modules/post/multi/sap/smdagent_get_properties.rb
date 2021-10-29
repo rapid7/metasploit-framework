@@ -37,7 +37,14 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'CVE', '2019-0307' ],
           [ 'URL', 'https://conference.hitb.org/hitblockdown002/materials/D2T1%20-%20SAP%20RCE%20-%20The%20Agent%20Who%20Spoke%20Too%20Much%20-%20Yvan%20Genuer.pdf' ]
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_host
+            ]
+          }
+        }
       )
     )
   end

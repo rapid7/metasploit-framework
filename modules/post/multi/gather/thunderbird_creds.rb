@@ -27,7 +27,18 @@ class MetasploitModule < Msf::Post
           'sinn3r', # Metasploit
         ],
         'Platform' => %w{linux osx win},
-        'SessionTypes' => ['meterpreter', 'shell']
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

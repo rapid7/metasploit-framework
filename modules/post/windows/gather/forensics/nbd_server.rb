@@ -28,7 +28,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
+        'Author' => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
     register_options(

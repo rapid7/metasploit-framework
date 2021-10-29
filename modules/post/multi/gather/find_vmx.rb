@@ -19,7 +19,18 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['theLightCosine'],
         'Platform' => %w{bsd linux osx unix win},
-        'SessionTypes' => ['shell', 'meterpreter' ]
+        'SessionTypes' => ['shell', 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_search
+            ]
+          }
+        }
       )
     )
   end

@@ -25,7 +25,14 @@ class MetasploitModule < Msf::Post
         ],
         'References' => [
           ['URL', 'http://msdn.microsoft.com/en-us/library/aa394391(v=vs.85).aspx']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_wmi_query
+            ]
+          }
+        }
       )
     )
   end

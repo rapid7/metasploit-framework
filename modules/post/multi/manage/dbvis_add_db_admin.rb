@@ -24,7 +24,15 @@ class MetasploitModule < Msf::Post
           ['URL', 'http://youtu.be/0LCLRVHX1vA']
         ],
         'Platform' => %w{linux win},
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

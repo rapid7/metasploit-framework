@@ -25,7 +25,20 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Merlyn drforbin Cousins <drforbin6[at]gmail.com>' ],
         'Version' => '$Revision:1$',
         'Platform' => [ 'windows' ],
-        'SessionTypes' => [ 'meterpreter']
+        'SessionTypes' => [ 'meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_execute
+            ]
+          }
+        }
       )
     )
 

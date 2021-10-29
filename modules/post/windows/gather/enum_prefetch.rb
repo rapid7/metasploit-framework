@@ -22,7 +22,16 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['TJ Glad <tjglad[at]cmail.nu>'],
         'Platform' => ['win'],
-        'SessionType' => ['meterpreter']
+        'SessionType' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
       )
     )
   end

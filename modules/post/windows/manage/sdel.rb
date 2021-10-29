@@ -23,7 +23,17 @@ class MetasploitModule < Msf::Post
         'License' => BSD_LICENSE,
         'Author' => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              priv_fs_set_file_mace
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

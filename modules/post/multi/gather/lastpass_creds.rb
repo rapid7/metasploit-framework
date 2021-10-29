@@ -31,7 +31,21 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://www.martinvigo.com/even-the-lastpass-will-be-stolen-deal-with-it' ]
         ],
-        'SessionTypes' => %w(meterpreter shell)
+        'SessionTypes' => %w(meterpreter shell),
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_registry_open_key
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end

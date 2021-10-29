@@ -32,7 +32,21 @@ class MetasploitModule < Msf::Post
           ['URL', 'http://www.recon.cx/en/f/vskype-part2.pdf'],
           ['URL', 'http://insecurety.net/?p=427'],
           ['URL', 'https://github.com/skypeopensource/tools']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_ls
+              stdapi_railgun_api
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end

@@ -32,7 +32,23 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
           [ 'EDB', '15985' ]
         ],
-        'DisclosureDate' => '2010-10-12'
+        'DisclosureDate' => '2010-10-12',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_delete_file
+              stdapi_railgun_api
+              stdapi_railgun_memwrite
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_getpid
+            ]
+          }
+        }
       )
     )
   end

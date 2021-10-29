@@ -27,7 +27,21 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'References' => [
           [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ]
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_attach
+              stdapi_sys_process_execute
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_kill
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_write
+              stdapi_sys_process_thread_create
+            ]
+          }
+        }
       )
     )
     register_options(

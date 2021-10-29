@@ -26,7 +26,14 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           ['URL', 'https://www.dionach.com/blog/easily-grabbing-microsoft-sql-server-password-hashes']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_rev2self
+            ]
+          }
+        }
       )
     )
 

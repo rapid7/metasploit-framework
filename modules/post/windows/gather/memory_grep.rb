@@ -20,7 +20,20 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['bannedit'],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter' ]
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_railgun_api
+              stdapi_sys_process_attach
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_query
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_thread_open
+            ]
+          }
+        }
       )
     )
     register_options([

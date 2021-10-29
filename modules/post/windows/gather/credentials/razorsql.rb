@@ -25,7 +25,18 @@ class MetasploitModule < Msf::Post
           'sinn3r' # Reporting, file parser
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
   end

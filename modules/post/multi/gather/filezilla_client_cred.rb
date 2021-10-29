@@ -21,7 +21,20 @@ class MetasploitModule < Msf::Post
           'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
         ],
         'Platform' => %w{bsd linux osx unix win},
-        'SessionTypes' => ['shell', 'meterpreter' ]
+        'SessionTypes' => ['shell', 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_stat
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
       )
     )
   end

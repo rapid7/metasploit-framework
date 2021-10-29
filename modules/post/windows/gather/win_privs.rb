@@ -19,7 +19,16 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Merlyn Cousins <drforbin6[at]gmail.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_config_getprivs
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
       )
     )
   end

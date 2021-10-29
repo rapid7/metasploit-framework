@@ -25,7 +25,15 @@ class MetasploitModule < Msf::Post
           'Dean Welch <dean_welch[at]rapid7.com>'
         ],
         'Platform' => [ 'windows' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_mkdir
+              stdapi_fs_separator
+            ]
+          }
+        }
       )
     )
 

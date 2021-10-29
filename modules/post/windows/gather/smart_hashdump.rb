@@ -23,7 +23,19 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              priv_elevate_getsystem
+              priv_passwd_get_sam_hashes
+              stdapi_registry_open_key
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_getpid
+            ]
+          }
+        }
       )
     )
     register_options(

@@ -30,7 +30,14 @@ class MetasploitModule < Msf::Post
           'DLL_Cool_J' # Specify PID to migrate into
         ],
         'Platform' => ['win'], # @todo add support for posix meterpreter somehow?
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+            ]
+          }
+        }
       )
     )
 

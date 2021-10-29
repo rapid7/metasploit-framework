@@ -19,7 +19,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter' ]
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
   end

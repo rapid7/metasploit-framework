@@ -20,7 +20,15 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'sinn3r' ],
         'Platform' => [ 'win', 'linux' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_rev2self
+              stdapi_sys_config_steal_token
+            ]
+          }
+        }
       )
     )
 

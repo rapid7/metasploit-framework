@@ -17,7 +17,14 @@ class MetasploitModule < Msf::Post
         'License' => BSD_LICENSE,
         'Author' => [ 'vt <nick.freeman[at]security-assessment.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_registry_open_key
+            ]
+          }
+        }
       )
     )
 

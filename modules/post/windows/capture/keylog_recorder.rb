@@ -29,7 +29,22 @@ class MetasploitModule < Msf::Post
           'Josh Hale <jhale85446[at]gmail.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter', ]
+        'SessionTypes' => [ 'meterpreter', ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_railgun_api
+              stdapi_sys_config_getuid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_ui_get_keys_utf8
+              stdapi_ui_start_keyscan
+              stdapi_ui_stop_keyscan
+            ]
+          }
+        }
       )
     )
     register_options(

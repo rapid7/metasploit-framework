@@ -24,7 +24,14 @@ class MetasploitModule < Msf::Post
           'Kx499',
           'Ben Campbell',
           'sinn3r'
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
 

@@ -24,7 +24,20 @@ class MetasploitModule < Msf::Post
           'Joshua Harper <josh[at]radixtx.com>' # @JonValt
         ],
         'Platform' => %w{win},
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              stdapi_fs_search
+              stdapi_fs_separator
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
   end

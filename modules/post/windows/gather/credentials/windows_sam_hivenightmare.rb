@@ -37,6 +37,13 @@ class MetasploitModule < Msf::Post
           'Reliability' => [ ],
           'SideEffects' => [ ],
           'Stability' => [ CRASH_SAFE ]
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
         }
       )
     )

@@ -20,7 +20,15 @@ class MetasploitModule < Msf::Post
           'juan vazquez' # minor help
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
   end

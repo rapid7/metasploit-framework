@@ -35,7 +35,22 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Quentin Kaiser <kaiserquentin[at]gmail.com>']
+        'Author' => ['Quentin Kaiser <kaiserquentin[at]gmail.com>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getsid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end

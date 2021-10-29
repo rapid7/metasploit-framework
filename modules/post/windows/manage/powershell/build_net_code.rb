@@ -25,7 +25,17 @@ class MetasploitModule < Msf::Post
         'Author' => 'RageLtMan <rageltman[at]sempervictus>',
         'Platform' => [ 'windows' ],
         'SessionTypes' => [ 'meterpreter' ],
-        'DisclosureDate' => '2012-08-14'
+        'DisclosureDate' => '2012-08-14',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getsid
+              stdapi_sys_process_execute
+            ]
+          }
+        }
       )
     )
 

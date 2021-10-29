@@ -29,6 +29,14 @@ class MetasploitModule < Msf::Post
           # ARTIFACTS_ON_DISK when the platform is linux
           'SideEffects' => [ ARTIFACTS_ON_DISK, AUDIO_EFFECTS, SCREEN_EFFECTS ]
         },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              android_*
+              stdapi_sys_process_execute
+            ]
+          }
+        },
       )
     )
 

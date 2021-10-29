@@ -24,7 +24,15 @@ class MetasploitModule < Msf::Post
           'OJ Reeves'
         ],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
   end

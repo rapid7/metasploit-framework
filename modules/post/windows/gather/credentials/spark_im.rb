@@ -26,7 +26,17 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           [ 'URL', 'http://adamcaudill.com/2012/07/27/decrypting-spark-saved-passwords/']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+            ]
+          }
+        }
       )
     )
   end

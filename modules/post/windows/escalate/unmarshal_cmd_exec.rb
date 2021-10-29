@@ -32,6 +32,13 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'Arch' => ARCH_X64,
         'License' => MSF_LICENSE,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        },
       )
     )
 
