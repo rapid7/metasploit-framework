@@ -1,13 +1,14 @@
 # -*- coding: binary -*-
 
 class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
+
   #
   # Execute any specified auto-run scripts for this session
   #
   def process_autoruns(datastore)
 
     # Read the username and hostname from the initial banner
-    initial_output = shell_read(-1, 0.01)
+    initial_output = shell_read(-1, 2)
     if initial_output =~ /running as user ([^\s]+) on ([^\s]+)/
       username = $1
       hostname = $2
