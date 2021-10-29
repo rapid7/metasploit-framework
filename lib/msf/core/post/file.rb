@@ -654,7 +654,9 @@ module Msf::Post::File
       $mstream = New-Object System.IO.MemoryStream(,$gzip_bytes);
       $gzipstream = New-Object System.IO.Compression.GzipStream $mstream, ([System.IO.Compression.CompressionMode]::Decompress);
       $filestream = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{file_mode});
-      $gzipstream.CopyTo($filestream);
+      $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
+      $gzipstream.Read($file_bytes,0,$file_bytes.Length);
+      $filestream.Write($file_bytes,0,$file_bytes.Length);
       $filestream.Close();
       $gzipstream.Close();
     PSH
@@ -683,7 +685,7 @@ module Msf::Post::File
       $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{offset}..#{offset + chunk_size - 1}];
       $gzipstream.Write($get_bytes, 0, $get_bytes.Length);
       $gzipstream.Close();
-      [Convert]::ToBase64String($mstream.ToArray());
+      [System.Convert]::ToBase64String($mstream.ToArray());
     PSH
     b64_data = cmd_exec(pwsh_code)
     return nil if b64_data.empty?
