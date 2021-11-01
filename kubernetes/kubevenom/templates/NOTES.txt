@@ -1,1 +1,0 @@
-Make sure kubevenom connected to your Metasploit Receive Handler running at {{ .Values.lhost}}:{{.Values.lport}}

@@ -1,8 +1,8 @@
-# Default values for kubevenom.
+# Default values for meterpreter.
 
-#"<The IP Address the payload will connect to>"
+#The IP Address the payload will connect to
 lhost: 
-#"<The Port kubevenom meterperter will connect to>"
+#The Port meterpreter will connect to
 lport: 
 
 image:
@@ -14,7 +14,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Tune the priviliges your Kubernetes meterperter will run with 
+# Tune the priviliges your Kubernetes meterpreter will run with 
 priviliges:
   # Disable Kubernetes API Server Access - even to the discovery APIs
   useServiceAccount: true

@@ -5,16 +5,16 @@
 .SECONDEXPANSION:
 
 lint-charts: ##@Lint Lint Helm Chart
-	helm lint kubevenom    
+	helm lint meterpreter    
 
-generate-deployment:	##@Generate Generate K8S installation
-	helm template kubevenom kubevenom --set lport="4444" --set lhost="1.1.1.1" > kubevenom.yaml   
+generate-deployment:	##@Generate Generate YAML based deployment
+	helm template meterpreter meterpreter --set lport="4444" --set lhost="1.1.1.1" > meterpreter.yaml   
 
-install-kubevenom: ##@kubevenom Install kubevenom chart
-	helm upgrade --create-namespace -i -n metasploit kubevenom ./kubevenom
+install-meterpreter: ##@meterpreter Install meterpreter chart
+	helm upgrade --create-namespace -i -n metasploit meterpreter ./meterpreter
 
-delete-kubevenom: ##@kubevenom Delete kubevenom chart    
-	helm -n metasploit delete kubevenom    
+delete-meterpreter: ##@meterpreter Delete meterpreter chart    
+	helm -n metasploit delete meterpreter    
 
 
 create-kind-cluster:  ##@Test create KIND cluster

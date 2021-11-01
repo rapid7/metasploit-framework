@@ -1,11 +1,11 @@
 apiVersion: v2
-name: kubevenom
+name: meterpreter
 description: A Helm chart for deploying metasploit payload into Kubernetes
 type: application
 version: 0.1.0
 keywords:
   - metasploit
-  - meterperter
+  - meterpreter
   - security
   - pentest
   - penetration testing

