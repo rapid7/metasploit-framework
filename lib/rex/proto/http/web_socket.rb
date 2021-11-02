@@ -195,7 +195,12 @@ module Rex
             frame = Frame.new
             frame.header.read(self)
             payload_data = ''
-            payload_data << read(frame.payload_len - payload_data.length) while payload_data.length < frame.payload_len
+            while payload_data.length < frame.payload_len
+              chunk = read(frame.payload_len - payload_data.length)
+              return nil if chunk.nil? # no partial reads!
+
+              payload_data << chunk
+            end
             frame.payload_data.assign(payload_data)
             frame
           rescue ::IOError
