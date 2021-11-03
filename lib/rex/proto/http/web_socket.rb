@@ -197,13 +197,17 @@ module Rex
             payload_data = ''
             while payload_data.length < frame.payload_len
               chunk = read(frame.payload_len - payload_data.length)
-              return nil if chunk.nil? # no partial reads!
+              if chunk.empty? # no partial reads!
+                elog('WebSocket::Interface#get_wsframe: received an empty websocket payload data chunk')
+                return nil
+              end
 
               payload_data << chunk
             end
             frame.payload_data.assign(payload_data)
             frame
           rescue ::IOError
+            wlog('WebSocket::Interface#get_wsframe: encountered an IOError while reading a websocket frame')
             nil
           end
 
