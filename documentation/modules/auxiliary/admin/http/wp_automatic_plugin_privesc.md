@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 This module exploits an unauthenticated arbitrary wordpress options change vulnerability
-in the Automatic (wp-automatic) plugin.
+in the Automatic (wp-automatic) plugin <= 3.53.2.
 
 If `WPEMAIL` is provided, the administrator's email address will be changed.
 
