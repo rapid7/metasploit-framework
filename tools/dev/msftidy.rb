@@ -299,7 +299,7 @@ class MsftidyRunner
     end
 
     # This helps us track when CVEs aren't assigned
-    unless cve_assigned
+    if !cve_assigned && is_exploit_module?
       info('No CVE references found. Please check before you land!')
     end
   end
