@@ -54,8 +54,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RHOSTS(nil, false),
-        Opt::RPORT(nil, false),
         Msf::OptInt.new('SESSION', [false, 'An optional session to use for configuration']),
         OptRegexp.new('HIGHLIGHT_NAME_PATTERN', [true, 'PCRE regex of resource names to highlight', 'username|password|user|pass']),
         OptString.new('NAME', [false, 'The name of the resource to enumerate', nil]),
