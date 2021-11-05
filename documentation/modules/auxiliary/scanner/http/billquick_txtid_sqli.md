@@ -25,7 +25,7 @@ This install can be rather complicated and take about 2hrs to install.
 1. visit http://<ip>/ws2020 and finish the install/config
 
 Even at this point, 2 people with these instructions and one independently were unable to login to
-the webapp at this point.  It can be SQLi, but no one was able to use it successfully.
+the webapp.  It can be SQLi, but no one was able to use it successfully.
 
 ## Verification Steps
 
