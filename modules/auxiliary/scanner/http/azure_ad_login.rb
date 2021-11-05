@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'RPORT' => 443,
         'SSL' => true,
-        'RHOST' => 'autologon.microsoftazuread-sso.com'
+        'RHOST' => 'autologon.microsoftazuread-sso.com',
+        'PASSWORD' => 'password'
       }
     )
 
@@ -171,16 +172,14 @@ class MetasploitModule < Msf::Auxiliary
     elsif datastore['USERNAME']
       usernames = [datastore['USERNAME']]
     else
-      print_error('Either USERNAME or USER_FILE must be set. Aborting...')
-      return
+      fail_with(Failure::BadConfig, 'Either USERNAME or USER_FILE must be set')
     end
     if datastore['PASS_FILE']
       passwords = File.readlines(datastore['PASS_FILE'])
     elsif datastore['PASSWORD']
       passwords = [datastore['PASSWORD']]
     else
-      print_error('Either PASSWORD or PASS_FILE must be set. Aborting...')
-      return
+      fail_with(Failure::BadConfig, 'Either PASSWORD or PASS_FILE must be set')
     end
 
     check_logins(datastore['RHOST'], datastore['RPORT'], datastore['TARGETURI'],
