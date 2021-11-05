@@ -1,4 +1,4 @@
-{{- if .Values.priviliges.useServiceAccount -}}
+{{- if .Values.privileges.useServiceAccount -}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -7,7 +7,7 @@ metadata:
     {{- include "meterpreter.labels" . | nindent 4 }}
 
 ---
-{{- if ne .Values.priviliges.bindClusterRole "" -}}
+{{- if ne .Values.privileges.bindClusterRole "" -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -17,7 +17,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Values.priviliges.bindClusterRole }}
+  name: {{ .Values.privileges.bindClusterRole }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "meterpreter.fullname" . }}

