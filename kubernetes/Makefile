@@ -1,26 +1,23 @@
-#
-# 
-#
 .SECONDARY:
 .SECONDEXPANSION:
 
 lint-charts: ##@Lint Lint Helm Chart
-	helm lint meterpreter    
+	helm lint meterpreter
 
 generate-deployment:	##@Generate Generate YAML based deployment
-	helm template meterpreter meterpreter --set lport="4444" --set lhost="1.1.1.1" > meterpreter.yaml   
+	helm template meterpreter meterpreter --set lport="4444" --set lhost="1.1.1.1" > meterpreter.yaml
 
 install-meterpreter: ##@meterpreter Install meterpreter chart
 	helm upgrade --create-namespace -i -n metasploit meterpreter ./meterpreter
 
-delete-meterpreter: ##@meterpreter Delete meterpreter chart    
-	helm -n metasploit delete meterpreter    
+delete-meterpreter: ##@meterpreter Delete meterpreter chart
+	helm -n metasploit delete meterpreter
 
 
-create-kind-cluster:  ##@Test create KIND cluster
+create-kind-cluster:  ##@Test create kind cluster
 	kind create cluster --image kindest/node:v1.18.2 --name metasploit
 
-delete-kind-cluster:  ##@Test delete KIND cluster
+delete-kind-cluster:  ##@Test delete kind cluster
 	kind delete cluster --name metasploit
 
 

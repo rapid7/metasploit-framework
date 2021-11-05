@@ -10,9 +10,6 @@ keywords:
   - pentest
   - penetration testing
 home: https://www.metasploit.com/
-icon: https://www.metasploit.com/includes/images/metasploit-r7-logo.svg
+icon: https://www.metasploit.com/includes/images/metasploit-og.png
 sources:
 - https://github.com/rapid7/metasploit-framework
-maintainers:
-- email: msfdev@metasploit.com
-  name: Metasploit Hackers
