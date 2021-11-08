@@ -174,7 +174,7 @@ class Console::CommandDispatcher::Kiwi
   end
 
   def cmd_dcsync(*args)
-    return unless check_is_domain_user
+    check_is_domain_user
 
     if args.length != 1
       print_line('Usage: dcsync <DOMAIN\user>')
@@ -186,7 +186,7 @@ class Console::CommandDispatcher::Kiwi
   end
 
   def cmd_dcsync_ntlm(*args)
-    return unless check_is_domain_user
+    check_is_domain_user
 
     if args.length != 1
       print_line('Usage: dcsync_ntlm <DOMAIN\user>')
@@ -541,7 +541,7 @@ protected
   end
 
 
-  def check_is_domain_user(msg='Running as SYSTEM, function will not work.')
+  def check_is_domain_user(msg='Running as SYSTEM; function will only work if this computer account has replication privileges (e.g. Domain Controller)')
     if client.sys.config.is_system?
       print_warning(msg)
       return false
