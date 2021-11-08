@@ -10,7 +10,6 @@ module Msf::Post::Common
           'Meterpreter' => {
             'Commands' => %w[
               stdapi_sys_config_getenv
-              stdapi_sys_process_close
               stdapi_sys_process_execute
             ]
           }
