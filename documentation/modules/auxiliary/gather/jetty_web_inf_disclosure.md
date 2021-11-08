@@ -12,10 +12,11 @@ https://github.com/ColdFusionX/CVE-2021-34429/blob/main/docker-compose.yml
 ## Verification Steps
 
 1. Install Jetty with an app that contains a `WEB-INF` folder
-2. Start msfconsole
-3. Do: `use auxiliary/gather/jetty_web_inf_disclosure`
-4. Do: `run`
-5. You should get the contents of a file
+1. Start msfconsole
+1. Do: `use auxiliary/gather/jetty_web_inf_disclosure`
+1. Do: `set rhosts`
+1. Do: `run`
+1. You should get the contents of a file
 
 ## Options
 
