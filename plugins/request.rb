@@ -137,7 +137,7 @@ class Plugin::Requests < Msf::Plugin
         :print_body      => true,
         :print_headers   => false,
         :ssl_version     => 'Auto',
-        :user_agent      => Rex::Proto::Http::Client::DefaultUserAgent,
+        :user_agent      => Rex::Proto::Http::ClientRequest.DefaultUserAgent,
         :version         => '1.1'
       }
 
