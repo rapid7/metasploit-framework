@@ -58,12 +58,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     res = send_request_cgi('uri' => '/')
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
-    fail_with(Failure::UnexpectedReply, "#{peer} - No Server header found") unless res.headers['Server']
+    return Exploit::CheckCode::Safe("#{peer} - Could not connect to web service - no response") if res.nil?
+    return Exploit::CheckCode::Safe("#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
+    return Exploit::CheckCode::Safe("#{peer} - No Server header found") unless res.headers['Server']
     unless /Jetty\((?<version>[^)]+)\)/ =~ res.headers['Server']
-      fail_with(Failure::UnexpectedReply, "#{peer} - Unable to detect Jetty version from server header: #{res.headers['Server']}")
+      return Exploit::CheckCode::Safe("#{peer} - Unable to detect Jetty version from server header: #{res.headers['Server']}")
     end
+
     vprint_status("Found version: #{version}")
     version = Rex::Version.new(version)
 
@@ -77,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Detected
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe('Server not vulnerable')
   end
 
   def pick_payload
