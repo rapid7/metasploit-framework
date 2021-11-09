@@ -412,6 +412,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   alias :cmd_mv_tabs :cmd_cat_tabs
   alias :cmd_move_tabs :cmd_cat_tabs
   alias :cmd_rename_tabs :cmd_cat_tabs
+  alias :cmd_download_tabs :cmd_cat_tabs
 
   #
   # Move source to destination
