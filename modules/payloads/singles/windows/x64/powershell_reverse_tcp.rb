@@ -4,11 +4,6 @@
 ##
 require 'rex/powershell'
 
-###
-#
-# Extends the Exec payload to add a new user.
-#
-###
 module MetasploitModule
 
   CachedSize = :dynamic
@@ -28,12 +23,12 @@ module MetasploitModule
         ],
       'References'    =>
         [
-          ['URL', 'https://www.nettitude.co.uk/interactive-powershell-session-via-metasploit/']
+          ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit/']
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::ReverseTcpSsl,
+      'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::PowerShell,
       ))
 
