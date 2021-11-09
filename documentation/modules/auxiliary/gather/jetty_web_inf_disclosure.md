@@ -1,8 +1,17 @@
 ## Vulnerable Application
 
-Instructions to get the vulnerable application. If applicable, include links to the vulnerable install
-files, as well as instructions on installing/configuring the environment if it is different than a
-standard install. Much of this will come from the PR, and can be copy/pasted.
+Jetty suffers from a vulnerability where certain encoded URIs and ambiguous paths can access
+protected files in the `WEB-INF` folder. 
+
+Versions effected are:
+
+ - 9.4.37.v20210219, 9.4.38.v20210224
+ - 9.4.37-9.4.42
+ - 10.0.1-10.0.5
+ - 11.0.1-11.0.5
+
+Exploitation can obtain any file in the `WEB-INF` folder, but web.xml is most likely
+to have information of value.
 
 ### CVE-2021-34429
 
@@ -23,6 +32,10 @@ https://github.com/ColdFusionX/CVE-2021-34429/blob/main/docker-compose.yml
 ### FILE
 
 The file in the `WEB-INF` folder to retrieve. Defaults to `web.xml`
+
+### CVE
+
+Which vulnerability to use.  Options: `CVE-2021-34429`, `CVE-2021-28164`. Defaults to `CVE-2021-34429`
 
 ## Scenarios
 

