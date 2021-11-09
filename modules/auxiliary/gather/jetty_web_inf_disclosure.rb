@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'DisclosureDate' => '2021-07-15',
         'Actions' => [
-          [ 'READ_FILE', { 'Description' => 'Read file on the remote server from WEB-INF folder.' } ],
+          [ 'READ_FILE', { 'Description' => 'Read file on the remote server from WEB-INF folder' } ],
         ],
         'DefaultAction' => 'READ_FILE'
       )
