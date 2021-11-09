@@ -101,6 +101,10 @@ class Console::CommandDispatcher::Priv::Elevate
       return false
     end
 
+    if client.sys.config.is_system?
+      print_error("Already running as SYSTEM")
+      return
+    end
     begin
       result = client.priv.getsystem( technique )
     rescue Rex::Post::Meterpreter::RequestError => e
