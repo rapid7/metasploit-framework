@@ -148,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('ALLOW_NOWAF', [true, 'Automatically switch to NoWAFBypass when detection fails with the Automatic action', false]),
       OptBool.new('ENUM_BRT', [true, 'Set DNS bruteforce as optional', true]),
       OptBool.new('REPORT_LEAKS', [true, 'Set to write leaked ip addresses in notes', false]),
-      OptString.new('USERAGENT', [true, 'Specify a personalized User-Agent header in HTTP requests', Rex::Proto::Http::ClientRequest.DefaultUserAgent]),
+      OptString.new('USERAGENT', [true, 'Specify a personalized User-Agent header in HTTP requests', Rex::UserAgent.session_agent]),
       OptEnum.new('TAG', [true, 'Specify the HTML tag in which you want to find the fingerprint', 'title', ['title', 'html']]),
       OptInt.new('HTTP_TIMEOUT', [true, 'HTTP(s) request timeout', 8]),
     ])

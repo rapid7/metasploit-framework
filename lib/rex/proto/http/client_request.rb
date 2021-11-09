@@ -12,26 +12,6 @@ module Http
 
 class ClientRequest
 
-  def self.DefaultUserAgent
-    options = [
-      # Chrome
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
-
-      # Edge
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44',
-
-      # Safari
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
-
-      # Firefox
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 12.0; rv:94.0) Gecko/20100101 Firefox/94.0',
-    ]
-    options.sample
-  end
-  
   DefaultConfig = {
     #
     # Regular HTTP stuff
@@ -106,7 +86,7 @@ class ClientRequest
 
   def initialize(opts={})
     @opts = DefaultConfig.merge(opts)
-    @opts['agent'] ||= DefaultUserAgent
+    @opts['agent'] ||= Rex::UserAgent.session_agent
     @opts['headers'] ||= {}
   end
 
