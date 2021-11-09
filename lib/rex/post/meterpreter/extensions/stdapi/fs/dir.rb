@@ -148,18 +148,24 @@ class Dir < Rex::Post::Dir
     end
 
     fpath.each_with_index do |file_name, idx|
-      if dir && sbuf[idx]
+      is_dir = false
+      if sbuf[idx]
         st = ::Rex::Post::FileStat.new
         if new_stat_buf
           st.update(sbuf[idx].value)
         else
           st.update32(sbuf[idx].value)
         end
-        next if st.ftype != 'directory' # if file_name isn't directory
+        is_dir = st.ftype == 'directory'
+        next if (dir && !is_dir) # if file_name isn't directory
       end
 
       if !file_name.value.end_with?('.', '\\', '/') # Exclude current and parent directory
-        files << client.unicode_filter_encode(file_name.value)
+        name = client.unicode_filter_encode(file_name.value)
+        if is_dir
+          name += client.fs.file.separator
+        end
+        files << name
       end
     end
 

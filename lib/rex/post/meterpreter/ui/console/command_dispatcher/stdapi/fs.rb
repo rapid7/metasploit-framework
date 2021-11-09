@@ -775,13 +775,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     return true
   end
 
-  #
-  # Tab completion for the ls command
-  #
-  def cmd_ls_tabs(str, words)
-    tab_complete_cdirectory(str, words)
-  end
-
+  alias :cmd_ls_tabs :cmd_cd_tabs
   #
   # Alias the ls command to dir, for those of us who have windows muscle-memory
   #
@@ -1048,22 +1042,31 @@ class Console::CommandDispatcher::Stdapi::Fs
   # sometimes it wouldn't execute successfully especailly on bad network.
   #
   def tab_complete_cfilenames(str, words)
-    if client.commands.include?(COMMAND_ID_STDAPI_FS_LS)
-      return client.fs.dir.match(str) rescue nil
-    end
-
-    []
+    tab_complete_path(str, words, false)
   end
 
   #
   # Provide a generic tab completion for client directory names.
   #
   def tab_complete_cdirectory(str, words)
-    if client.commands.include?(COMMAND_ID_STDAPI_FS_LS)
-      return client.fs.dir.match(str, true) rescue nil
-    end
+    tab_complete_path(str, words, true)
+  end
 
-    []
+  def tab_complete_path(str, words, dir_only)
+    if client.commands.include?(COMMAND_ID_STDAPI_FS_LS)
+      results = client.fs.dir.match(str, dir_only) rescue []
+      if results.length == 1 && results[0] != str && results[0].end_with?(client.fs.file.separator)
+        # If Readline receives a single value from this function, it will assume we're done with the tab
+        # completing, and add an extra space at the end.
+        # This is annoying if we're recursively tab-traversing our way through subdirectories -
+        # we may want to continue traversing, but MSF will add a space, requiring us to back up to continue
+        # tab-completing our way through successive subdirectories.
+        ::Readline.completion_append_character = nil
+      end
+      results
+    else
+      []
+    end
   end
 
 end
