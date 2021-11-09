@@ -2,9 +2,10 @@
 
 This powershell payload is suitable for the following environments:
 
+* Windows 2012
 * Windows 10
 
-Older versions of Windows (Windows 7, Windows Server 2012) may have issues establishing the SSL connection.
+Older versions of Windows (e.g Windows 7) may have issues establishing the SSL connection.
 For these versions using the non-SSL payload (cmd/windows/powershell_reverse_tcp) is recommended.
 
 ## Verification Steps
