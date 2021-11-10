@@ -104,7 +104,7 @@ module Msf
             print_error("Handler failed to bind to #{ip}:#{local_port}:- #{comm} -")
           else
             ex = false
-            via = via_string_for_ip(ip, comm)
+            via = via_string(self.listener_sock.client) if self.listener_sock.respond_to?(:client)
             print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
             break
           end

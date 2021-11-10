@@ -3,7 +3,7 @@
 module Metasploit
   module Framework
     module RailsVersionConstraint
-      RAILS_VERSION =  '~> 5.2.2'
+      RAILS_VERSION =  '~> 6.0'
     end
   end
 end

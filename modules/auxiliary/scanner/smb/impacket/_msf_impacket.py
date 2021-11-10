@@ -83,7 +83,7 @@ class RemoteShell(object):
 
     def get_output(self):
         def output_callback(data):
-            self._outputBuffer += data
+            self._outputBuffer += data.decode("utf-8")
 
         if self._noOutput is True:
             self._outputBuffer = ''

@@ -13,7 +13,7 @@ module Evasion
     begin
       # Clone the module to prevent changes to the original instance
 
-      Msf::Simple::Framework.simplify_module( evasion, false )
+      Msf::Simple::Framework.simplify_module(evasion)
       yield(evasion) if block_given?
 
       # Import options from the OptionStr or Option hash.
@@ -91,6 +91,9 @@ module Evasion
     rescue ::Interrupt
       evasion.error = $!
       raise $!
+    rescue ::Msf::OptionValidateError => e
+      evasion.error = e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       evasion.error = e
       evasion.print_error("evasion failed: #{e}")

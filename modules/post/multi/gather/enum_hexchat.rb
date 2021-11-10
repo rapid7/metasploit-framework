@@ -25,17 +25,15 @@ class MetasploitModule < Msf::Post
         'Author' => ['sinn3r', 'h00die'],
         'Platform' => ['linux'],
         'SessionTypes' => ['shell', 'meterpreter'],
-        'Actions' =>
-          [
-            ['CONFIGS', { 'Description' => 'Collect config files' } ],
-            ['CHATS', { 'Description' => 'Collect chat logs with a pattern' } ],
-            ['ALL', { 'Description' => 'Collect both the configs and chat logs' }]
-          ],
+        'Actions' => [
+          ['CONFIGS', { 'Description' => 'Collect config files' } ],
+          ['CHATS', { 'Description' => 'Collect chat logs with a pattern' } ],
+          ['ALL', { 'Description' => 'Collect both the configs and chat logs' }]
+        ],
         'DefaultAction' => 'ALL',
-        'References' =>
-          [
-            ['URL', 'https://hexchat.readthedocs.io/en/latest/settings.html']
-          ]
+        'References' => [
+          ['URL', 'https://hexchat.readthedocs.io/en/latest/settings.html']
+        ]
       )
     )
     register_options([

@@ -24,23 +24,20 @@ class MetasploitModule < Msf::Auxiliary
           At the time of disclosure, this is was a 0 day, but IBM later patched it and released their advisory.
           Versions 2.0.2 to 2.0.4 are vulnerable, version 2.0.1 is not.
         },
-        'Author' =>
-          [
-            'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and Metasploit module
-          ],
+        'Author' => [
+          'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and Metasploit module
+        ],
         'License' => MSF_LICENSE,
-        'DefaultOptions' =>
-          {
-            'SSL' => true
-          },
-        'References' =>
-          [
-            [ 'CVE', '2020-4427' ], # auth bypass
-            [ 'CVE', '2020-4429' ], # insecure default password
-            [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
-            [ 'URL', 'https://seclists.org/fulldisclosure/2020/Apr/33' ],
-            [ 'URL', 'https://www.ibm.com/blogs/psirt/security-bulletin-vulnerabilities-exist-in-ibm-data-risk-manager-cve-2020-4427-cve-2020-4428-cve-2020-4429-and-cve-2020-4430/']
-          ],
+        'DefaultOptions' => {
+          'SSL' => true
+        },
+        'References' => [
+          [ 'CVE', '2020-4427' ], # auth bypass
+          [ 'CVE', '2020-4429' ], # insecure default password
+          [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2020/Apr/33' ],
+          [ 'URL', 'https://www.ibm.com/blogs/psirt/security-bulletin-vulnerabilities-exist-in-ibm-data-risk-manager-cve-2020-4427-cve-2020-4428-cve-2020-4429-and-cve-2020-4430/']
+        ],
         'DisclosureDate' => '2020-04-21',
         'Actions' => [
           ['Download', { 'Description' => 'Download arbitrary file' }]

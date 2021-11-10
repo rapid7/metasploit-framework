@@ -15,18 +15,24 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'           => 'SSH Key Persistence',
-        'Description'    => %q{
+        'Name' => 'SSH Key Persistence',
+        'Description' => %q{
           This module will add an SSH key to a specified user (or all), to allow
           remote login via SSH at any time.
         },
-        'License'        => MSF_LICENSE,
-        'Author'         =>
-          [
-            'h00die <mike@shorebreaksecurity.com>'
-          ],
-        'Platform'       => [ 'linux' ],
-        'SessionTypes'   => [ 'meterpreter', 'shell' ]
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'h00die <mike@shorebreaksecurity.com>'
+        ],
+        'Platform' => [ 'linux' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_separator
+            ]
+          }
+        }
       )
     )
 

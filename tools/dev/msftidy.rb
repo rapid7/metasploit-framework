@@ -245,8 +245,6 @@ class MsftidyRunner
         in_refs = false
       elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
         in_notes = true
-      elsif in_super and in_notes and line =~ /^[[:space:]]+\},*/m
-        break
       elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
         identifier = $1.strip.upcase
         value      = $2.strip
@@ -301,7 +299,7 @@ class MsftidyRunner
     end
 
     # This helps us track when CVEs aren't assigned
-    unless cve_assigned
+    if !cve_assigned && is_exploit_module?
       info('No CVE references found. Please check before you land!')
     end
   end

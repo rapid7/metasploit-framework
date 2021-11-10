@@ -39,7 +39,14 @@ class MetasploitModule < Msf::Post
           [ 'LIST', { 'Description' => 'List basic information about all Exchange servers and mailboxes hosted on the target' } ],
           [ 'EXPORT', { 'Description' => 'Export and download a chosen mailbox in the form of a .PST file, with support for an optional filter keyword' } ],
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
 

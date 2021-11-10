@@ -75,7 +75,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Raises a RequestError if +root+ is not a directory.
   #
-  def File.search( root=nil, glob="*.*", recurse=true, timeout=-1 )
+  def File.search( root=nil, glob="*.*", recurse=true, timeout=-1, modified_start_date=nil, modified_end_date=nil)
 
     files = ::Array.new
 
@@ -87,6 +87,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
     request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
+    request.add_tlv( TLV_TYPE_SEARCH_M_START_DATE, modified_start_date) if modified_start_date
+    request.add_tlv( TLV_TYPE_SEARCH_M_END_DATE, modified_end_date) if modified_end_date
 
     # we set the response timeout to -1 to wait indefinitely as a
     # search could take an indeterminate amount of time to complete.
@@ -96,7 +98,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
         files << {
           'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( self.separator )),
           'name' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_NAME)),
-          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE)
+          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE),
+          'mtime'=> results.get_tlv_value(TLV_TYPE_SEARCH_MTIME)
         }
       end
     end
@@ -323,6 +326,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # again when each download is complete.
   #
   def File.download(dest, src_files, opts = {}, &stat)
+    dest.force_encoding('UTF-8')
     timestamp = opts["timestamp"]
     [*src_files].each { |src|
       src.force_encoding('UTF-8')

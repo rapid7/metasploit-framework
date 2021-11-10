@@ -23,13 +23,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author'	=> [ 'aushack' ],
         'License'	=> MSF_LICENSE,
-        'References'	=>
-          [
-            [ 'BID', '19680' ],
-            [ 'CVE', '2006-4313' ],
-            [ 'OSVDB', '28139' ],
-            [ 'OSVDB', '28138' ]
-          ],
+        'References' => [
+          [ 'BID', '19680' ],
+          [ 'CVE', '2006-4313' ],
+          [ 'OSVDB', '28139' ],
+          [ 'OSVDB', '28138' ]
+        ],
         'DisclosureDate' => '2006-08-23'
       )
     )

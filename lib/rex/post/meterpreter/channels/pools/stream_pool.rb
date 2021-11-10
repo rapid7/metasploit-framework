@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/io/stream_abstraction'
 require 'rex/post/meterpreter/channels/pool'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
 

@@ -14,11 +14,10 @@ class MetasploitModule < Msf::Post
           identify within an Active Directory environment.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'h4ng3r <h4ng3r@computerpirate.me>',
-            'h00die'
-          ],
+        'Author' => [
+          'h4ng3r <h4ng3r@computerpirate.me>',
+          'h00die'
+        ],
         'References' => [ 'URL', 'https://github.com/BloodHoundAD/BloodHound/' ],
         'Platform' => [ 'win' ],
         'Arch' => [ ARCH_X86, ARCH_X64 ],

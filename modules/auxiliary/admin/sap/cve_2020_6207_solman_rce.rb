@@ -16,13 +16,12 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'SAP Solution Manager remote unauthorized OS commands execution',
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Yvan Genuer', # @_1ggy The researcher who originally found this vulnerability
-            'Pablo Artuso', # @lmkalg The researcher who originally found this vulnerability
-            'Dmitry Chastuhin', # @chipik The researcher who made first PoC
-            'Vladimir Ivanov' # @_generic_human_ This Metasploit module
-          ],
+        'Author' => [
+          'Yvan Genuer', # @_1ggy The researcher who originally found this vulnerability
+          'Pablo Artuso', # @lmkalg The researcher who originally found this vulnerability
+          'Dmitry Chastuhin', # @chipik The researcher who made first PoC
+          'Vladimir Ivanov' # @_generic_human_ This Metasploit module
+        ],
         'Description' => %q{
           This module exploits the CVE-2020-6207 vulnerability within the SAP EEM servlet (tc~smd~agent~application~eem) of
           SAP Solution Manager (SolMan) running version 7.2. The vulnerability occurs due to missing authentication
@@ -32,12 +31,11 @@ class MetasploitModule < Msf::Auxiliary
           Successful exploitation of the vulnerability enables unauthenticated remote attackers to achieve SSRF and execute OS commands from the agent connected
           to SolMan as a user from which the SMDAgent service starts, usually the daaadm.
         },
-        'References' =>
-          [
-            ['CVE', '2020-6207'],
-            ['URL', 'https://i.blackhat.com/USA-20/Wednesday/us-20-Artuso-An-Unauthenticated-Journey-To-Root-Pwning-Your-Companys-Enterprise-Software-Servers-wp.pdf'],
-            ['URL', 'https://github.com/chipik/SAP_EEM_CVE-2020-6207']
-          ],
+        'References' => [
+          ['CVE', '2020-6207'],
+          ['URL', 'https://i.blackhat.com/USA-20/Wednesday/us-20-Artuso-An-Unauthenticated-Journey-To-Root-Pwning-Your-Companys-Enterprise-Software-Servers-wp.pdf'],
+          ['URL', 'https://github.com/chipik/SAP_EEM_CVE-2020-6207']
+        ],
         'Actions' => [
           ['LIST', { 'Description' => 'List connected agents' }],
           ['SSRF', { 'Description' => 'Send SSRF from connected agent' }],

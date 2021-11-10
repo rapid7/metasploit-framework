@@ -7,25 +7,37 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super(update_info(info,
-        'Name'          => 'Multi Manage File Compressor',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Manage File Compressor',
+        'Description' => %q{
           This module zips a file or a directory. On Linux, it uses the zip command.
           On Windows, it will try to use remote target's 7Zip if found. If not, it falls
           back to its Windows Scripting Host.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'sinn3r' ],
-        'Platform'      => [ 'win', 'linux' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'Platform' => [ 'win', 'linux' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_rev2self
+              stdapi_sys_config_steal_token
+            ]
+          }
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('DESTINATION', [true, 'The destination path']),
         OptString.new('SOURCE', [true, 'The directory or file to compress'])
-      ])
+      ]
+    )
   end
 
   def get_program_file_path
@@ -138,4 +150,3 @@ class MetasploitModule < Msf::Post
     end
   end
 end
-

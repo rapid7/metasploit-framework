@@ -39,13 +39,13 @@ module Msf
       Msf::OptString.new(__method__.to_s, [ required, desc, default ])
     end
 
-    # @return [OptAddressRange]
-    def self.RHOSTS(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
-      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
+    # @return [OptRhosts]
+    def self.RHOSTS(default= nil, required=true, desc="The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit")
+      Msf::OptRhosts.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
-    def self.RHOST(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
-      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
+    def self.RHOST(default=nil, required=true, desc="The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit")
+      Msf::OptRhosts.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
     # @return [OptPort]

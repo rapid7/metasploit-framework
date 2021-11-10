@@ -12,21 +12,25 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Identify endpoints speaking the Remote Desktop Protocol (RDP)',
-        'Description'    => %q(
+        'Name' => 'Identify endpoints speaking the Remote Desktop Protocol (RDP)',
+        'Description' => %q{
           This module attempts to connect to the specified Remote Desktop Protocol port
           and determines if it speaks RDP.
 
           When available, the Credential Security Support Provider (CredSSP) protocol will be used to identify the
           version of Windows on which the server is running. Enabling the DETECT_NLA option will cause a second
           connection to be made to the server to identify if Network Level Authentication (NLA) is required.
-        ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
-        'References'     =>
-          [
-            ['URL', 'https://msdn.microsoft.com/en-us/library/cc240445.aspx']
-          ],
-        'License'        => MSF_LICENSE
+        },
+        'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'References' => [
+          ['URL', 'https://msdn.microsoft.com/en-us/library/cc240445.aspx']
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
       )
     )
 
@@ -51,7 +55,12 @@ class MetasploitModule < Msf::Auxiliary
     service_info = nil
     if is_rdp
       product_version = (version_info && version_info[:product_version]) ? version_info[:product_version] : 'N/A'
-      info = "Detected RDP on #{peer} (Windows version: #{product_version})"
+      info = "Detected RDP on #{peer} "
+      info << "(name:#{version_info[:nb_name]}) " if version_info[:nb_name]
+      info << "(domain:#{version_info[:nb_domain]}) " if version_info[:nb_domain]
+      info << "(domain_fqdn:#{version_info[:dns_domain]}) " if version_info[:dns_domain]
+      info << "(server_fqdn:#{version_info[:dns_server]}) " if version_info[:dns_server]
+      info << "(os_version:#{product_version})"
 
       if datastore['DETECT_NLA']
         service_info = "Requires NLA: #{(!version_info[:product_version].nil? && requires_nla?) ? 'Yes' : 'No'}"
@@ -75,6 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return false unless is_rdp
+
     return [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
   end
 

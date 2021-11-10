@@ -5,26 +5,42 @@
 
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Manage Hosts File Injection',
-      'Description'   => %q{
-        This module allows the attacker to insert a new entry into the target
-        system's hosts file.
-      },
-      'License'       => BSD_LICENSE,
-      'Author'        => [ 'vt <nick.freeman[at]security-assessment.com>'],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Hosts File Injection',
+        'Description' => %q{
+          This module allows the attacker to insert a new entry into the target
+          system's hosts file.
+        },
+        'License' => BSD_LICENSE,
+        'Author' => [ 'vt <nick.freeman[at]security-assessment.com>'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_tell
+              core_channel_write
+              stdapi_fs_stat
+            ]
+          }
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('DOMAIN', [ true, 'Domain name for host file manipulation.' ]),
         OptString.new('IP', [ true, 'IP address to point domain name to.' ])
-      ])
+      ]
+    )
   end
-
 
   def run
     if datastore['IP'].nil? or datastore['DOMAIN'].nil?
@@ -32,7 +48,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    ip       = datastore['IP']
+    ip = datastore['IP']
     hostname = datastore['DOMAIN']
 
     # Get a temporary file path

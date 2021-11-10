@@ -22,16 +22,22 @@ class MetasploitModule < Msf::Post
           interface.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
-            'bannedit', # post module
-            'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record/loot support,log x approach, nx
-            'Adrian Kubok', # better record file names
-            'DLL_Cool_J' # Specify PID to migrate into
-          ],
+        'Author' => [
+          'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
+          'bannedit', # post module
+          'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record/loot support,log x approach, nx
+          'Adrian Kubok', # better record file names
+          'DLL_Cool_J' # Specify PID to migrate into
+        ],
         'Platform' => ['win'], # @todo add support for posix meterpreter somehow?
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+            ]
+          }
+        }
       )
     )
 
@@ -137,7 +143,6 @@ class MetasploitModule < Msf::Post
         print_error('This may be due to the file being in use if you are on a Windows platform')
       end
     end
-
   end
 
   def migrate

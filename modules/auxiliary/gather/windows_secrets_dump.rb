@@ -33,15 +33,18 @@ class MetasploitModule < Msf::Auxiliary
           implement yet. It will be done in a next iteration.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-        [
+        'Author' => [
           'Alberto Solino', # Original Impacket code
           'Christophe De La Fuente', # MSf module
         ],
-        'References' =>
-        [
+        'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => [],
+          'Stability' => [],
+          'SideEffects' => [ IOC_IN_LOGS ]
+        }
       )
     )
 
@@ -261,15 +264,16 @@ class MetasploitModule < Msf::Auxiliary
       hash = Digest::MD5.new
       hash.update(value_data[0x70, 16] + qwerty + boot_key + digits)
       rc4 = OpenSSL::Cipher.new('rc4')
+      rc4.decrypt
       rc4.key = hash.digest
       hboot_key = rc4.update(value_data[0x80, 32])
       hboot_key << rc4.final
       hboot_key
     when 2
       aes = OpenSSL::Cipher.new('aes-128-cbc')
+      aes.decrypt
       aes.key = boot_key
       aes.padding = 0
-      aes.decrypt
       aes.iv = value_data[0x78, 16]
       aes.update(value_data[0x88, 16]) # we need only 16 bytes
     else
@@ -386,6 +390,7 @@ class MetasploitModule < Msf::Auxiliary
       md5.update(hboot_key[0, 16] + [rid].pack('V') + pass)
 
       rc4 = OpenSSL::Cipher.new('rc4')
+      rc4.decrypt
       rc4.key = md5.digest
       okey = rc4.update(enc_hash[4, 16])
     when 2
@@ -394,9 +399,9 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       aes = OpenSSL::Cipher.new('aes-128-cbc')
+      aes.decrypt
       aes.key = hboot_key[0, 16]
       aes.padding = 0
-      aes.decrypt
       aes.iv = enc_hash[8, 16]
       okey = aes.update(enc_hash[24, 16]) # we need only 16 bytes
     else
@@ -407,17 +412,19 @@ class MetasploitModule < Msf::Auxiliary
     des_k1, des_k2 = rid_to_key(rid)
 
     d1 = OpenSSL::Cipher.new('des-ecb')
+    d1.decrypt
     d1.padding = 0
     d1.key = des_k1
 
     d2 = OpenSSL::Cipher.new('des-ecb')
+    d2.decrypt
     d2.padding = 0
     d2.key = des_k2
 
-    d1o = d1.decrypt.update(okey[0, 8])
+    d1o = d1.update(okey[0, 8])
     d1o << d1.final
 
-    d2o = d2.decrypt.update(okey[8, 8])
+    d2o = d2.update(okey[8, 8])
     d1o << d2.final
     d1o + d2o
   end
@@ -525,6 +532,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       rc4 = OpenSSL::Cipher.new('rc4')
+      rc4.decrypt
       rc4.key = md5x.digest
       lsa_key = rc4.update(value_data[12, 48])
       lsa_key << rc4.final
@@ -552,9 +560,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def decrypt_hash_vista(edata, nlkm, iv)
     aes = OpenSSL::Cipher.new('aes-128-cbc')
+    aes.decrypt
     aes.key = nlkm[16...32]
     aes.padding = 0
-    aes.decrypt
     aes.iv = iv
 
     decrypted = ''
@@ -568,6 +576,7 @@ class MetasploitModule < Msf::Auxiliary
   def decrypt_hash(edata, nlkm, iv)
     rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest.new('md5'), nlkm, iv)
     rc4 = OpenSSL::Cipher.new('rc4')
+    rc4.decrypt
     rc4.key = rc4key
     decrypted = rc4.update(edata)
     decrypted << rc4.final
@@ -663,7 +672,7 @@ class MetasploitModule < Msf::Auxiliary
         jtr_hash = "M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       end
       credential_opts[:jtr_format] = identify_hash(jtr_hash)
-      unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, credential_opts)
+      unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, **credential_opts)
         vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
       end
       hashes << "#{logon_domain_name}\\#{username}:#{jtr_hash}\n"
@@ -901,13 +910,13 @@ class MetasploitModule < Msf::Auxiliary
         realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
         realm_value: domain
       }
-      unless report_creds(print_name, ntlm_hash, credential_opts)
+      unless report_creds(print_name, ntlm_hash, **credential_opts)
         vprint_bad("Error when reporting #{print_name} NTLM hash")
       end
 
       raw_passwd = secret_item.unpack('H*')[0]
       credential_opts[:type] = :password
-      unless report_creds(print_name, raw_passwd, credential_opts)
+      unless report_creds(print_name, raw_passwd, **credential_opts)
         vprint_bad("Error when reporting #{print_name} raw password hash")
       end
       secret = "#{print_name}:plain_password_hex:#{raw_passwd}\n"
@@ -918,7 +927,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         credential_opts[:type] = :nonreplayable_hash
         extra_secret.each do |sec|
-          unless report_creds(print_name, sec, credential_opts)
+          unless report_creds(print_name, sec, **credential_opts)
             vprint_bad("Error when reporting #{print_name} machine kerberos key #{sec}")
           end
           sec.prepend("#{print_name}:")

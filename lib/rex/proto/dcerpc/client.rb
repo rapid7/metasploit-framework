@@ -107,7 +107,7 @@ require 'rex/text'
   end
 
   def smb_connect()
-    
+
     if(not self.smb)
       if self.socket.peerport == 139
         smb = Rex::Proto::SMB::SimpleClient.new(self.socket)
@@ -253,26 +253,33 @@ require 'rex/text'
     return true if not do_recv
 
     raw_response = ''
+    data = ''
+    last_frag = false
 
-    begin
-      raw_response = self.read()
-    rescue ::EOFError
-      raise Rex::Proto::DCERPC::Exceptions::NoResponse
+    until last_frag do
+      begin
+        raw_response = self.read()
+      rescue ::EOFError
+        raise Rex::Proto::DCERPC::Exceptions::NoResponse
+      end
+
+      if (raw_response == nil or raw_response.length == 0)
+        raise Rex::Proto::DCERPC::Exceptions::NoResponse
+      end
+
+      self.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
+
+      if self.last_response.type == 3
+        e = Rex::Proto::DCERPC::Exceptions::Fault.new
+        e.fault = self.last_response.status
+        raise e
+      end
+
+      data << self.last_response.stub_data
+      last_frag = (self.last_response.flags & Rex::Proto::DCERPC::Response::FLAG_LAST_FRAG) == Rex::Proto::DCERPC::Response::FLAG_LAST_FRAG
     end
 
-    if (raw_response == nil or raw_response.length == 0)
-      raise Rex::Proto::DCERPC::Exceptions::NoResponse
-    end
-
-    self.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
-
-    if self.last_response.type == 3
-      e = Rex::Proto::DCERPC::Exceptions::Fault.new
-      e.fault = self.last_response.status
-      raise e
-    end
-
-    self.last_response.stub_data
+    data
   end
 
   # Process a DCERPC response packet from a socket

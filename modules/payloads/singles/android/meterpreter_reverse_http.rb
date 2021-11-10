@@ -37,8 +37,6 @@ module MetasploitModule
   end
 
   def generate_jar(opts={})
-    uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
-    opts[:uri] = generate_uri_uuid_mode(:connect, uri_req_len)
     opts[:stageless] = true
     super(opts)
   end

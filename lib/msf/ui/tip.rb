@@ -36,6 +36,7 @@ module Msf
         "Use #{highlight('sessions -1')} to interact with the last opened session",
         "View missing module options with #{highlight('show missing')}",
         "Start commands with a space to avoid saving them to history",
+        "You can pivot connections over sessions started with the ssh_login modules"
       ].freeze
       private_constant :COMMON_TIPS
 

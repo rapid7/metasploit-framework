@@ -15,11 +15,10 @@ class MetasploitModule < Msf::Auxiliary
         documentation for info on how to retrieve the bot token and corresponding chat
         ID values.
         },
-    'Author' =>
-      [
-        'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
-        'Gaurav Purswani' # @pingport80
-      ],
+    'Author' => [
+      'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
+      'Gaurav Purswani' # @pingport80
+    ],
     'License' => MSF_LICENSE,
     )
 

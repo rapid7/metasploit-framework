@@ -3,7 +3,7 @@
 ### Description
 
 This module can be used to retrieve arbitrary files from anywhere in the web application, including the `WEB-INF` and `META-INF`
-directories and any other location that can be reached via ServletContext.getResourceAsStream() on Apache Tomcat servers.
+directories and any other location that can be reached via `ServletContext.getResourceAsStream()` on Apache Tomcat servers.
 It also allows the attacker to process any file in the web application as JSP.
 
 ### Setup
@@ -27,7 +27,7 @@ docker run --name tomcat --rm -p 8080:8080 -p 8009:8009 tomcat:8.5.32
 ## Options
 
 ### FILENAME
-The file you would like to retrieve from the target web application.
+The file you would like to retrieve from the target web application. Defaults to `/WEB-INF/web.xml`
 
 ### AJP_PORT
 The port on the target that is running the Apache JServ Protocol (AJP).

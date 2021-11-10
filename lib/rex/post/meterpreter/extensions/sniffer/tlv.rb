@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+require 'rex/post/meterpreter/packet'
+
 module Rex
 module Post
 module Meterpreter

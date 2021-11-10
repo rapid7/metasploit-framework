@@ -844,6 +844,7 @@ class ReadableText
     end
 
     sinfo = session.info.to_s
+    sinfo = sinfo.gsub(/[\r\n\t]+/, ' ')
     # Arbitrarily cut info at 80 columns
     if sinfo.length > 80
       sinfo = "#{sinfo[0,77]}..."
@@ -1000,6 +1001,12 @@ class ReadableText
         end
         if pinst.respond_to?(:luri)
           row[3] << pinst.luri
+        end
+        if pinst.respond_to?(:comm_string)
+          via = pinst.comm_string
+          if via
+            row[3] << " #{via}"
+          end
         end
       end
 
