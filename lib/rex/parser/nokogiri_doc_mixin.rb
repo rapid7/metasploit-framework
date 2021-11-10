@@ -151,8 +151,7 @@ module Parser
       just_the_facts[:task] = @args[:task]
       just_the_facts[:workspace] = @args[:workspace] # workspace context is a required `fact`
       if table == :note
-        @notes << db.initialize_note(just_the_facts)
-        @notes[-1]
+        @notes << just_the_facts
       else
         db.send("report_#{table}", just_the_facts)
       end

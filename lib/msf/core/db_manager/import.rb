@@ -66,6 +66,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Retina
   include Msf::DBManager::Import::Spiceworks
   include Msf::DBManager::Import::Wapiti
+  include Msf::DBManager::Note::InitializeNotes
 
   # If hex notation is present, turn them into a character.
   def dehex(str)
@@ -553,5 +554,16 @@ module Msf::DBManager::Import
       return false
     end
     return true
+  end
+
+  def report_notes(opts)
+    notes = opts.map{ |note| initialize_note(note) }
+    ::ApplicationRecord.connection_pool.with_connection { |connection|
+      Mdm::Note.import notes, on_duplicate_key_update: [:id]
+      notes.each do |note|
+        note.changes_applied
+        note.run_callbacks(:save) { true }
+      end
+    }
   end
 end
