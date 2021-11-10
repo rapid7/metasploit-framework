@@ -126,7 +126,7 @@ module Metasploit
         public
 
         def get_platform(proof)
-          Metasploit::Framework::Ssh::Platform.get_platform(proof)
+          Metasploit::Framework::Ssh::Platform.get_platform_from_info(proof)
         end
       end
     end

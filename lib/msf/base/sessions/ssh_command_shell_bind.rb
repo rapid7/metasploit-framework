@@ -228,19 +228,20 @@ module Msf::Sessions
       initialize_channels
       @channel_ticker = 0
 
-      rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
-
       # Be alerted to reverse port forward connections (once we start listening on a port)
       ssh_connection.on_open_channel('forwarded-tcpip', &method(:on_got_remote_connection))
-      super(rstream, opts)
+      super(nil, opts)
     end
 
     def bootstrap(datastore = {}, handler = nil)
-      @platform = Metasploit::Framework::Ssh::Platform.get_platform(self)
+      # this won't work after the rstream is initialized, so do it first
+      @platform = Metasploit::Framework::Ssh::Platform.get_platform(ssh_connection)
 
       # if the platform is known, it was recovered by communicating with the device, so skip verification, also not all
       # shells accessed through SSH may respond to the echo command issued for verification as expected
       datastore['AutoVerifySession'] &= @platform.blank?
+
+      @rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
       super
 
       @info = "SSH #{username} @ #{@peer_info}"
@@ -418,10 +419,5 @@ module Msf::Sessions
     end
 
     attr_reader :sock, :ssh_connection
-
-    # Define #exec! as shell_command. This allows invocations of exec!(...).to_s to either use this session object or
-    # the ssh_connection. Once this objects #initialize method is called and the Net::SSH::CommandStream instance is
-    # created, the @ssh_connection's #exec! method can not be used.
-    alias exec! shell_command
   end
 end

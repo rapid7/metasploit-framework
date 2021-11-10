@@ -36,7 +36,7 @@ module Auxiliary::CommandShell
       obj.sock.extend(CRLFLineEndings)
     end
 
-    sock ||= obj.sock
+    sock ||= obj.respond_to?(:sock) ? obj.sock : nil
     sess ||= Msf::Sessions::CommandShell.new(sock)
     sess.set_from_exploit(obj)
 
@@ -44,8 +44,8 @@ module Auxiliary::CommandShell
     sess.exploit_datastore.merge!(ds_merge)
 
     # Prevent the socket from being closed
-    obj.sockets.delete(sock)
-    obj.sock = nil if obj.respond_to? :sock
+    obj.sockets.delete(sock) if sock
+    obj.sock = nil if obj.respond_to?(:sock)
 
     framework.sessions.register(sess)
 
