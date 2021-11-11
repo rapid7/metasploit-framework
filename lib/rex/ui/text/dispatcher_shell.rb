@@ -404,7 +404,11 @@ module DispatcherShell
 
     # Pop the last word and pass it to the real method
     result = tab_complete_stub(str, split_str)
-    result.uniq
+    if result
+      result.uniq
+    else
+      result
+    end
   end
 
   # Performs tab completion of a command, if supported
