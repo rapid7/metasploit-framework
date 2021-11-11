@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [
           'h00die', # msf module
-          'Caleb Stewart <caleb.stewart94@gmail.com>' # original PoC, analysis
+          'Caleb Stewart <caleb.stewart94[at]gmail.com>' # original PoC, analysis
         ],
         'References' => [
           ['URL', 'https://www.huntress.com/blog/threat-advisory-hackers-are-exploiting-a-vulnerability-in-popular-billing-software-to-deploy-ransomware'],
@@ -57,8 +57,8 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'default.aspx'),
         'method' => 'GET'
       }, datastore['HttpClientTimeout'])
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-      fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") if res.code != 200
+      return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
+      return Exploit::CheckCode::Safe("#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") if res.code != 200
 
       %r{Version: (?<version>\d{1,2}\.\d{1,2}\.\d{1,2})\.\d{1,2}</span>} =~ res.body
 
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Appears("Version Detected: #{version}")
       end
     rescue ::Rex::ConnectionError
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+      return Exploit::CheckCode::Unknown("#{peer} - Could not connect to the web service")
     end
     Exploit::CheckCode::Safe("Unexploitable Version: #{version}")
   end
