@@ -403,7 +403,12 @@ module DispatcherShell
     split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(str, split_str)
+    result = tab_complete_stub(str, split_str)
+    if result
+      result.uniq
+    else
+      result
+    end
   end
 
   # Performs tab completion of a command, if supported
