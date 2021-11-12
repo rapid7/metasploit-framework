@@ -154,7 +154,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       end
 
       # Now find the environment variables we'll need from the client
-      env_regex = /\$(?:([A-Za-z0-9_]+)|\{([A-Za-z0-9_.]+)\})/
+      env_regex = /\$(?:([A-Za-z0-9_]+)|\{([A-Za-z0-9_]+)\})/
       matches = path.to_enum(:scan, env_regex).map { Regexp.last_match }
       env_vars = matches.map { |match| (match[1] || match[2]).to_s }.uniq
 
@@ -162,7 +162,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       env_vals = client.sys.config.getenvs(*env_vars)
 
       # Now fill them in
-      path = path.gsub(env_regex) { |z| envvar = $1; envvar = $2 if envvar == nil; env_vals[envvar] }
+      path = path.gsub(env_regex) { |_z| envvar = $1; envvar = $2 if envvar == nil; env_vals[envvar] }
       path
     end
   end

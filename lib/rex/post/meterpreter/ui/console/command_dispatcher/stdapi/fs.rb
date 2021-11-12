@@ -28,7 +28,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     if client.platform == 'windows'
       /\%(\w*)\%/
     else
-      /\$(([A-Za-z0-9_]+)|\{([A-Za-z0-9_.]+)\})|^~/
+      /\$(([A-Za-z0-9_]+)|\{([A-Za-z0-9_]+)\})|^~/
     end
   end
 

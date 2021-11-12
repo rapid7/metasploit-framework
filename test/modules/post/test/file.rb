@@ -205,7 +205,7 @@ class MetasploitModule < Msf::Post
         s == result
       end
 
-      it "no env vars should not expand" do
+      it "env vars with invalid naming should not expand" do
         s = 'no environment $ variables /here'
         result = expand_path(s)
         s == result
