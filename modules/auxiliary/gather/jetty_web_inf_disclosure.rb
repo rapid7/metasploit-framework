@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options([
-      Opt::RPORT(80),
+      Opt::RPORT(8080),
       OptString.new('FILE', [false, 'File in WEB-INF to retrieve', 'web.xml']),
       OptEnum.new('CVE', [true, 'The vulnerability to use', 'CVE-2021-34429', ['CVE-2021-34429', 'CVE-2021-28164']])
     ])
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     res = send_request_cgi('uri' => '/')
-    return Exploit::CheckCode::Safe("#{peer} - Could not connect to web service - no response") if res.nil?
+    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
     return Exploit::CheckCode::Safe("#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
     return Exploit::CheckCode::Safe("#{peer} - No Server header found") unless res.headers['Server']
     unless /Jetty\((?<version>[^)]+)\)/ =~ res.headers['Server']
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
           version.between?(Rex::Version.new('10.0.1'), Rex::Version.new('10.0.6')) ||
           version.between?(Rex::Version.new('11.0.1'), Rex::Version.new('11.0.6'))
       print_good("#{version} vulnerable to CVE-2021-34429")
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Appears
     end
 
     Exploit::CheckCode::Safe('Server not vulnerable')
