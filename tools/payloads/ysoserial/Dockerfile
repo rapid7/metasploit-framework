@@ -10,7 +10,7 @@
 #       We attempt to use the ysoserial-modified fork, then fail back to the original ysoserial project.
 #       You will see warnings, but we're doing our best.  :-)
 
-FROM ubuntu:20.04
+FROM ubuntu:impish-20211015
 
 RUN apt update && apt -y upgrade
 # Dependencies: wget (to download ysoserial)
