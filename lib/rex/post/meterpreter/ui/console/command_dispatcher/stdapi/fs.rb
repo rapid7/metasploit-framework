@@ -24,7 +24,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
   private_constant :CHECKSUM_ALGORITHMS
 
-  def path_expand_regex
+  private def path_expand_regex
     if client.platform == 'windows'
       /\%(\w*)\%/
     else

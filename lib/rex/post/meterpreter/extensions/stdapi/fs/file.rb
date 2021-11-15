@@ -136,34 +136,34 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #    # => "asdf"
   #
   def File.expand_path(path)
-    if client.platform == 'windows'
-      request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH)
+    case client.platform
+      when 'osx', 'freebsd', 'bsd', 'linux', 'android', 'apple_ios'
+        # For unix-based systems, do some of the work here
+        # First check for ~
+        path_components = path.split(separator)
+        if path_components.length > 0 && path_components[0] == '~'
+          path_components[0] = '$HOME'
+          path = path_components.join(separator)
+        end
 
-      request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
+        # Now find the environment variables we'll need from the client
+        env_regex = /\$(?:([A-Za-z0-9_]+)|\{([A-Za-z0-9_]+)\})/
+        matches = path.to_enum(:scan, env_regex).map { Regexp.last_match }
+        env_vars = matches.map { |match| (match[1] || match[2]).to_s }.uniq
 
-      response = client.send_request(request)
+        # Retrieve them
+        env_vals = client.sys.config.getenvs(*env_vars)
 
-      return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
-    else
-      # For unix-based systems, do some of the work here
-      # First check for ~
-      path_components = path.split(separator)
-      if path_components.length > 0 && path_components[0] == '~'
-        path_components[0] = '$HOME'
-        path = path_components.join(separator)
-      end
+        # Now fill them in
+        path.gsub(env_regex) { |_z| envvar = $1; envvar = $2 if envvar == nil; env_vals[envvar] }
+      else
+        request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH)
 
-      # Now find the environment variables we'll need from the client
-      env_regex = /\$(?:([A-Za-z0-9_]+)|\{([A-Za-z0-9_]+)\})/
-      matches = path.to_enum(:scan, env_regex).map { Regexp.last_match }
-      env_vars = matches.map { |match| (match[1] || match[2]).to_s }.uniq
+        request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
 
-      # Retrieve them
-      env_vals = client.sys.config.getenvs(*env_vars)
+        response = client.send_request(request)
 
-      # Now fill them in
-      path = path.gsub(env_regex) { |_z| envvar = $1; envvar = $2 if envvar == nil; env_vals[envvar] }
-      path
+        return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
     end
   end
 
