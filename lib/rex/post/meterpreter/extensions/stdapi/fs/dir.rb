@@ -122,9 +122,9 @@ class Dir < Rex::Post::Dir
 
   #
   # Enumerates all of the files and folders matched with name.
-  # When option dir is true, return matched folders.
+  # When option match_dir is true, return matched folders.
   #
-  def Dir.match(name, dir = false)
+  def Dir.match(name, match_dir = false)
     path  = name + '*'
     files = []
     sbuf = nil
@@ -157,7 +157,7 @@ class Dir < Rex::Post::Dir
           st.update32(sbuf[idx].value)
         end
         is_dir = st.ftype == 'directory'
-        next if (dir && !is_dir) # if file_name isn't directory
+        next if (match_dir && !is_dir) # if file_name isn't directory
       end
 
       if !file_name.value.end_with?('.', '\\', '/') # Exclude current and parent directory
