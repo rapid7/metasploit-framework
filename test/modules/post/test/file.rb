@@ -185,6 +185,42 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def test_path_expansion_nix
+    unless session.platform =~ /win/i
+      it "should expand home" do
+        home1 = expand_path('~')
+        home2 = expand_path('$HOME')
+        home1 == home2 && home1.length > 0
+      end
+
+      it "non-isolated tilde should not expand" do
+        s = '~a'
+        result = expand_path(s)
+        s == result
+      end
+
+      it "mid-string tilde should not expand" do
+        s = '/home/~'
+        result = expand_path(s)
+        s == result
+      end
+
+      it "env vars with invalid naming should not expand" do
+        s = 'no environment $ variables /here'
+        result = expand_path(s)
+        s == result
+      end
+
+      it "should expand multiple variables" do
+        result = expand_path('/blah/$HOME/test/$USER')
+        home = expand_path('$HOME')
+        user = expand_path('$USER')
+        expected = "/blah/#{home}/test/#{user}"
+        result == expected
+      end
+    end
+  end
+
   def cleanup
     vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
     cd(@old_pwd)
