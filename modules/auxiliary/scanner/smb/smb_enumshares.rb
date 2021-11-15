@@ -334,8 +334,8 @@ class MetasploitModule < Msf::Auxiliary
       rescue Rex::ConnectionTimeout => e
         print_error e.to_s
         return
-      rescue Rex::Proto::SMB::Exceptions::LoginError
-        print_error 'Cannot connect over NetBIOS'
+      rescue Rex::Proto::SMB::Exceptions::LoginError => e
+        print_error e.to_s
       rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure
