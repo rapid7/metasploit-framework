@@ -142,8 +142,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
         # First check for ~
         path_components = path.split(separator)
         if path_components.length > 0 && path_components[0] == '~'
-          path_components[0] = '$HOME'
-          path = path_components.join(separator)
+          path = "$HOME#{path[1..-1]}"
         end
 
         # Now find the environment variables we'll need from the client
