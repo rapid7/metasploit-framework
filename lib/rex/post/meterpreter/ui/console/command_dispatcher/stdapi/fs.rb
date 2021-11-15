@@ -178,6 +178,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           return
         when "-d"
           root = val
+          root = client.fs.file.expand_path(root) if root =~ path_expand_regex
         when "-f"
           globs << val
         when "-r"
@@ -277,10 +278,14 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    if (client.fs.file.stat(args[0]).directory?)
-      print_error("#{args[0]} is a directory")
+    path = args[0]
+    path = client.fs.file.expand_path(path) if path =~ path_expand_regex
+
+
+    if (client.fs.file.stat(path).directory?)
+      print_error("#{path} is a directory")
     else
-      fd = client.fs.file.new(args[0], "rb")
+      fd = client.fs.file.new(path, "rb")
       begin
         until fd.eof?
           print(fd.read)
@@ -358,6 +363,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     args.each do |filepath|
+      filepath = client.fs.file.expand_path(filepath) if filepath =~ path_expand_regex
       checksum = client.fs.file.send(algorithm, filepath)
       print_line("#{Rex::Text.to_hex(checksum, '')}  #{filepath}")
     end
@@ -529,6 +535,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     # Go through each source item and download them
     src_items.each { |src|
+
+      src = client.fs.file.expand_path(src) if src =~ path_expand_regex
       glob = nil
       if client.fs.file.is_glob?(src)
         glob = ::File.basename(src)
@@ -613,15 +621,18 @@ class Console::CommandDispatcher::Stdapi::Fs
     meterp_temp.binmode
     temp_path = meterp_temp.path
 
+    client_path = args[0]
+    client_path = client.fs.file.expand_path(client_path) if client_path =~ path_expand_regex
+
     # Try to download the file, but don't worry if it doesn't exist
-    client.fs.file.download_file(temp_path, args[0]) rescue nil
+    client.fs.file.download_file(temp_path, client_path) rescue nil
 
     # Spawn the editor (default to vi)
     editor = Rex::Compat.getenv('EDITOR') || 'vi'
 
     # If it succeeds, upload it to the remote side.
     if (system("#{editor} #{temp_path}") == true)
-      client.fs.file.upload_file(args[0], temp_path)
+      client.fs.file.upload_file(client_path, temp_path)
     end
 
     # Get rid of that pesky temporary file
@@ -1013,6 +1024,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     else
       dest = last
     end
+
+    dest = client.fs.file.expand_path(dest) if dest =~ path_expand_regex
 
     # Go through each source item and upload them
     src_items.each { |src|
