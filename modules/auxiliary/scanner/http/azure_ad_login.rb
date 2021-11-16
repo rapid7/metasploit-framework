@@ -46,10 +46,10 @@ class MetasploitModule < Msf::Auxiliary
                        'BLANK_PASSWORDS', 'RHOSTS')
   end
 
-  def report_login(domain, username, password)
+  def report_login(address, domain, username, password)
     # report information, if needed
     service_data = {
-      address: rhost,
+      address: address,
       port: rport,
       service_name: 'Azure AD',
       protocol: 'http'
@@ -120,6 +120,12 @@ class MetasploitModule < Msf::Auxiliary
       'data' => body
     })
 
+    unless res
+      fail_with(Failure::Unreachable, "#{peer} - Could not communicate with service.")
+    end
+
+    @target_host ||= report_host(host: rhost, name: rhost, state: Msf::HostState::Alive)
+
     # Check the XML response for either the SSO Token or the error code
     xml = res.get_xml_document
     xml.remove_namespaces!
@@ -133,22 +139,22 @@ class MetasploitModule < Msf::Auxiliary
     if xml.xpath('//DesktopSsoToken')[0]
       print_good("Login #{domain}\\#{username}:#{password} is valid!")
       print_good("Desktop SSO Token: #{auth_details}")
-      report_login(domain, username, password)
+      report_login(@target_host.address, domain, username, password)
       :next_user
     elsif auth_details.start_with?('AADSTS50126') # Valid user but incorrect password
       print_good("Password #{password} is invalid but #{domain}\\#{username} is valid!")
-      report_login(domain, username, nil)
+      report_login(@target_host.address, domain, username, nil)
     elsif auth_details.start_with?('AADSTS50056') # User exists without a password in Azure AD
       print_good("#{domain}\\#{username} is valid but the user does not have a password in Azure AD!")
-      report_login(domain, username, nil)
+      report_login(@target_host.address, domain, username, nil)
       :next_user
     elsif auth_details.start_with?('AADSTS50076') # User exists, but you need MFA to connect to this resource
       print_good("Login #{domain}\\#{username}:#{password} is valid, but you need MFA to connect to this resource")
-      report_login(domain, username, password)
+      report_login(@target_host.address, domain, username, password)
       :next_user
     elsif auth_details.start_with?('AADSTS50014') # User exists, but the maximum Pass-through Authentication time was exceeded
       print_good("#{domain}\\#{username} is valid but the maximum pass-through authentication time was exceeded")
-      report_login(domain, username, nil)
+      report_login(@target_host.address, domain, username, nil)
     elsif auth_details.start_with?('AADSTS50034') # User does not exist
       print_error("#{domain}\\#{username} is not a valid user")
     elsif auth_details.start_with?('AADSTS50053') # Account is locked
