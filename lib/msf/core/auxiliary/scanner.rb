@@ -248,11 +248,11 @@ def run
       # remove any finished threads from the list
       # and continue on.
       tla = 0
-      @thread_list.map {|t| tla += t[:batch_size] }
+      @thread_list.map {|t| tla += t[:batch_size] if t[:batch_size] }
       @thread_list.first.join(1)
       @thread_list.delete_if { |t| not t.alive? }
       tlb = 0
-      @thread_list.map {|t| tlb += t[:batch_size] }
+      @thread_list.map {|t| tlb += t[:batch_size] if t[:batch_size] }
 
       @range_done += tla - tlb
       scanner_show_progress() if @show_progress
