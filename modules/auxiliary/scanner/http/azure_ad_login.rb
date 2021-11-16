@@ -93,8 +93,8 @@ class MetasploitModule < Msf::Auxiliary
                 <wsu:Expires>#{expires}</wsu:Expires>
             </wsu:Timestamp>
             <wsse:UsernameToken wsu:Id=\"#{username_token}\">
-                <wsse:Username>#{username}@#{domain}</wsse:Username>
-                <wsse:Password>#{password}</wsse:Password>
+                <wsse:Username>#{username.strip.encode(xml: :text)}@#{domain}</wsse:Username>
+                <wsse:Password>#{password.strip.encode(xml: :text)}</wsse:Password>
             </wsse:UsernameToken>
         </wsse:Security>
     </s:Header>
