@@ -48,12 +48,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_login(address, domain, username, password)
     # report information, if needed
-    service_data = {
+    service_data = service_details.merge({
       address: address,
-      port: rport,
       service_name: 'Azure AD',
-      protocol: 'http'
-    }
+      workspace_id: myworkspace_id
+    })
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
