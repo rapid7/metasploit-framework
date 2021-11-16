@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('RHOST', [true, 'The target Azure endpoint', 'autologon.microsoftazuread-sso.com']),
-        OptString.new('DOMAIN', [true, 'The target Azure AD domain', '']),
+        OptString.new('DOMAIN', [true, 'The target Azure AD domain']),
         OptString.new('TARGETURI', [ true, 'The base path to the Azure autologon endpoint', '/winauth/trust/2005/usernamemixed']),
       ]
     )
@@ -56,7 +56,8 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
-      realm: domain,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: domain,
       username: username,
       private_data: password,
       private_type: :password
