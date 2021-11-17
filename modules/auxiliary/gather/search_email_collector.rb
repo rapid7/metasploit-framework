@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Searching Google for email addresses from #{targetdom}")
     response = ""
     emails = []
-    header = { 'User-Agent' => "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
+    header = { 'User-Agent' => Rex::UserAgent.session_agent }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.google.com")
     searches = ["100", "200","300", "400", "500"]
     searches.each { |num|
