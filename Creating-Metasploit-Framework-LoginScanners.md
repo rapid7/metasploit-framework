@@ -54,13 +54,12 @@ The `build_credential_collection` method will handle prepending usernames and pa
 **Example (from modules/auxiliary/scanner/ftp/ftp_login.rb)**:
 
 ```ruby
-    cred_collection = build_credential_collection(
-        username: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
-        prepended_creds: anonymous_creds
-    )
+cred_collection = build_credential_collection(
+    username: datastore['USERNAME'],
+    password: datastore['PASSWORD'],
+    prepended_creds: anonymous_creds
+)
 ```
-
 
 
 # LoginScanner Base
