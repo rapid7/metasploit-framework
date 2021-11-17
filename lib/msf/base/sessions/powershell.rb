@@ -26,6 +26,10 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     "powershell"
   end
 
+  def self.can_cleanup_files
+    true
+  end
+
   #
   # Returns the session platform.
   #

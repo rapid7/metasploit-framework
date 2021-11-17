@@ -53,6 +53,10 @@ class CommandShell
     "shell"
   end
 
+  def self.can_cleanup_files
+    true
+  end
+
   def initialize(conn, opts = {})
     self.platform ||= ""
     self.arch     ||= ""
