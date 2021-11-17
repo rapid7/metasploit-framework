@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ])
+        OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", Rex::UserAgent.session_agent ])
       ])
   end
 
