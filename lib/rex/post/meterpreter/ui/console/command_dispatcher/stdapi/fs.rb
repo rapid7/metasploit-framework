@@ -1073,7 +1073,10 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   def tab_complete_path(str, words, dir_only)
     if client.commands.include?(COMMAND_ID_STDAPI_FS_LS)
-      results = client.fs.dir.match(str, dir_only) rescue []
+      expanded = str
+      expanded = client.fs.file.expand_path(expanded) if expanded =~ path_expand_regex
+      results = client.fs.dir.match(expanded, dir_only) rescue []
+      results = unexpand_path_for_suggestions(str, expanded, results)
       if results.length == 1 && results[0] != str && results[0].end_with?(client.fs.file.separator)
         # If Readline receives a single value from this function, it will assume we're done with the tab
         # completing, and add an extra space at the end.
@@ -1085,6 +1088,23 @@ class Console::CommandDispatcher::Stdapi::Fs
       results
     else
       []
+    end
+  end
+
+  #
+  # After a path expansion followed by a tab completion suggestion set,
+  # unexpand the path back so that Readline is happy
+  #
+  def unexpand_path_for_suggestions(original_path, expanded_path, suggestions)
+    if original_path == expanded_path
+      suggestions
+    else
+      result = []
+      suggestions.each do |suggestion|
+        addition = suggestion[expanded_path.length..-1]
+        result.append("#{original_path}#{addition}")
+      end
+      result
     end
   end
 
