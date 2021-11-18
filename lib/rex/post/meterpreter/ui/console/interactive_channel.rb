@@ -111,6 +111,7 @@ module Console::InteractiveChannel
   end
 
   def update_term_size
+    return unless self.client.commands.include?(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_SET_TERM_SIZE)
     rows, cols = ::IO.console.winsize
     unless rows == self.rows && cols == self.cols
       set_term_size(rows, cols)

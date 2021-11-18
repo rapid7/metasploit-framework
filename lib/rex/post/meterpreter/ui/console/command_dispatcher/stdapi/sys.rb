@@ -395,7 +395,16 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def pty_shell(sh_path, raw: false)
     args = ['-p']
-    args << '-r' if raw
+
+    if raw
+      args << '-r' if raw
+      if client.commands.include?(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_SET_TERM_SIZE)
+        print_line("Terminal size will be synced automatically.")
+      else
+        print_line("You may want to set the correct terminal size manually.")
+        print_line("Example: `stty rows {rows} cols {columns}`")
+      end
+    end
     sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
     # Python Meterpreter calls pty.openpty() - No need for other methods
