@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.15)
+    metasploit-framework (6.1.16)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -127,13 +127,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.527.0)
+    aws-partitions (1.532.0)
     aws-sdk-core (3.122.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.278.0)
+    aws-sdk-ec2 (1.281.0)
       aws-sdk-core (~> 3, >= 3.122.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.63.0)
@@ -142,7 +142,7 @@ GEM
     aws-sdk-kms (1.51.0)
       aws-sdk-core (~> 3, >= 3.122.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.105.1)
+    aws-sdk-s3 (1.106.0)
       aws-sdk-core (~> 3, >= 3.122.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
@@ -301,7 +301,7 @@ GEM
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.12.4)
-    pdf-reader (2.5.0)
+    pdf-reader (2.6.0)
       Ascii85 (~> 1.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -351,7 +351,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.18)
+    rex-core (0.1.20)
     rex-encoder (0.1.6)
       metasm
       rex-arch
@@ -416,7 +416,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.10.3)
-    rubocop (1.22.3)
+    rubocop (1.23.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
