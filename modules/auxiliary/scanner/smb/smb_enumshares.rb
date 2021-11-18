@@ -55,17 +55,22 @@ class MetasploitModule < Msf::Auxiliary
   # Updated types for RubySMB. These are all the types we can ever receive from calling net_share_enum_all
   ENUMERABLE_SHARE_TYPES = ['DISK', 'TEMPORARY'].freeze
   SKIPPABLE_SHARE_TYPES = ['PRINTER', 'IPC', 'DEVICE', 'SPECIAL'].freeze
+  SKIPPABLE_SHARES = ['ADMIN$', 'IPC$'].freeze
+
+  # By default all of the drives connected to the server can be seen
+  DEFAULT_SHARES = ['C$', 'D$', 'E$', 'F$', 'G$', 'H$', 'I$', 'J$', 'K$', 'L$', 'M$', 'N$',
+                    'O$', 'P$', 'Q$', 'R$', 'S$', 'T$', 'U$', 'V$', 'W$', 'X$', 'Y$', 'Z$'].freeze
+
+  BOOT_VOLUME = 'C$'.freeze
+  USERS_SHARE = 'Users'.freeze
+
+  SMB1_PORT = 139
+  SMB1_REDIRECT = false
+  SMB2_3_PORT = 445
+  SMB2_3_REDIRECT = true
 
   def rport
     @rport || datastore['RPORT']
-  end
-
-  def smb_direct
-    @smb_redirect || datastore['SMBDirect']
-  end
-
-  def srvsvc
-    @srvsvc || datastore['USE_SRVSVC_ONLY']
   end
 
   def enum_tree(tree, share, subdir = '')
@@ -172,11 +177,11 @@ class MetasploitModule < Msf::Auxiliary
 
     shares.each do |share|
       share_name = share[:name].strip
-      if (share_name == 'ADMIN$') || (share_name == 'IPC$')
+      if SKIPPABLE_SHARES.include? share_name
         next
       end
 
-      if (share_name == 'Users') && !datastore['SpiderProfiles']
+      if (share_name == USERS_SHARE) && !datastore['SpiderProfiles']
         next
       end
 
@@ -193,13 +198,13 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       subdirs = ['']
-      if (share_name == 'C$') && datastore['SpiderProfiles']
+      if (share_name == BOOT_VOLUME) && datastore['SpiderProfiles']
         subdirs = profile_options(tree, share)
       end
       until subdirs.empty?
         depth = subdirs.first.count('\\')
 
-        if share_name == 'C$'
+        if share_name == BOOT_VOLUME
           if datastore['SpiderProfiles']
             if (depth - 2) > datastore['MaxDepth']
               subdirs.shift
@@ -234,7 +239,7 @@ class MetasploitModule < Msf::Auxiliary
           if simple.client.default_domain && simple.client.default_name
             header << " \\\\#{simple.client.default_domain}"
           end
-          header << "\\#{share_name.sub('C$', 'C$\\')}" if simple.client.default_name
+          header << "\\#{share_name.sub(BOOT_VOLUME, BOOT_VOLUME + '\\')}" if simple.client.default_name
           header << subdirs.first
 
           files.each do |file|
@@ -258,14 +263,13 @@ class MetasploitModule < Msf::Auxiliary
 
             pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
             detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
-            logdata << "#{ip}\\#{share_name.sub('C$', 'C$\\')}#{subdirs.first}\\#{fname.encode}\n"
+            logdata << "#{ip}\\#{share_name.sub(BOOT_VOLUME, BOOT_VOLUME + '\\')}#{subdirs.first}\\#{fname.encode}\n"
           end
           print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         end
         subdirs.shift
       end
 
-      tree.disconnect! # simple.client.tree_disconnect is the same. Which is preferred?
       print_status("Spidering #{share_name} complete.") unless datastore['ShowFiles']
     end
     unless detailed_tbl.rows.empty?
@@ -285,13 +289,12 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     shares = []
 
-    [{ port: 139, redirect: false }, { port: 445, redirect: true} ].each do |info|
+    [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|
       @rport = info[:port]
-      @smb_redirect = info[:redirect]
 
       begin
         print_status 'Starting module'
-        if rport == 139
+        if info[:port] == SMB1_PORT
           connect(versions: [1])
         else
           connect(versions: [1, 2, 3])
@@ -336,6 +339,12 @@ class MetasploitModule < Msf::Auxiliary
         return
       rescue Rex::Proto::SMB::Exceptions::LoginError => e
         print_error e.to_s
+      rescue RubySMB::RubySMBError => e
+        print_error("RubySMB encountered an error: #{e.to_s}")
+        return
+      rescue RuntimeError => e
+        print_error e.to_s
+        return
       rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure
