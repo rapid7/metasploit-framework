@@ -52,16 +52,16 @@ module Msf::DBManager::Note::InitializeNotes
       mode = opts[:update] || :unique
 
 
-      if addr and not host
+      if addr && !host
         host = get_host(:workspace => wspace, :host => addr)
       end
-      if host and (opts[:port] and proto)
+      if host && (opts[:port] && proto)
         # only one result can be returned, as the +port+ field restricts potential results to a single service
         service = services(:workspace => wspace,
                            :hosts => {address: host.address},
                            :proto => proto,
                            :port => opts[:port]).first
-      elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
+      elsif opts[:service] && opts[:service].kind_of?(::Mdm::Service)
         service = opts[:service]
       end
 
@@ -91,7 +91,7 @@ module Msf::DBManager::Note::InitializeNotes
             break
           end
         end
-        if not note
+        unless note
           # We didn't find one with the data we're looking for, make
           # a new one.
           note = wspace.notes.new(conditions.merge(:data => data))
@@ -102,7 +102,7 @@ module Msf::DBManager::Note::InitializeNotes
         if host
           note.host_id = host[:id]
         end
-        if opts[:service] and opts[:service].kind_of? ::Mdm::Service
+        if opts[:service] && opts[:service].kind_of?(::Mdm::Service)
           note.service_id = opts[:service][:id]
         end
         note.seen     = seen

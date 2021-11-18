@@ -1,5 +1,5 @@
 module Msf::DBManager::Note
-  include InitializeNotes
+  include Msf::DBManager::Note::InitializeNotes
   #
   # This method iterates the notes table calling the supplied block with the
   # note instance of each entry.
