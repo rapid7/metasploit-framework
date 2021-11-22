@@ -1,10 +1,10 @@
 ## Vulnerable Application
 
-The Microsoft Azure AD service has a vulnerable endpoint that delivers an error-code based response
-to specific authentication requests in XML. The endpoint, when passed the correct credentials,
-will respond with a DesktopSsoToken that can be used to authenticate to Azure AD. When
-the authentication is unsuccessful, the error code that is returned can be used to discover the
-validity of usernames in the target tenant.
+The Microsoft Azure AD SSO service has a vulnerable endpoint that delivers an error-code based
+response to specific authentication requests in XML. The endpoint, when passed the correct
+credentials, will respond with a DesktopSsoToken that can be used to authenticate to Azure AD.
+When the authentication is unsuccessful, the error code that is returned can be used to discover
+the validity of usernames in the target tenant.
 This module also reports credentials to the credentials database when they are discovered.
 
 ## Verification Steps
@@ -89,8 +89,9 @@ msf6 auxiliary(scanner/http/azure_ad_login) > run
 [*] Auxiliary module execution completed```
 
 ## Version and OS
-Tested against current Azure AD tenants.
+Tested against current Azure AD tenants with SSO enabled.
 
 ## References
+- https://raxis.com/blog/metasploit-azure-ad-login
 - https://arstechnica.com/information-technology/2021/09/new-azure-active-directory-password-brute-forcing-flaw-has-no-fix/
 - https://github.com/treebuilder/aad-sso-enum-brute-spray
