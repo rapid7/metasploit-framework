@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
     opts['IamInstanceProfile.Name'] = datastore['ROLE_NAME'] unless datastore['ROLE_NAME'].blank?
     unless datastore['USERDATA_FILE'].blank?
       if File.exist?(datastore['USERDATA_FILE'])
-        opts['UserData'] = URI.encode(Base64.encode64(open(datastore['USERDATA_FILE'], 'r').read).strip)
+        opts['UserData'] = URI::DEFAULT_PARSER.escape(Base64.encode64(open(datastore['USERDATA_FILE'], 'r').read).strip)
       else
         print_error("Could not open userdata file: #{datastore['USERDATA_FILE']}")
       end
@@ -204,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
     print_error("Could not create SG") && return if doc['groupId'].nil?
     sg = doc['groupId']
     proto, port = datastore['SEC_GROUP_PORT'].split(':')
-    cidr = URI.encode(datastore['SEC_GROUP_CIDR'])
+    cidr = URI::DEFAULT_PARSER.escape(datastore['SEC_GROUP_CIDR'])
     action = 'AuthorizeSecurityGroupIngress'
     doc = call_ec2(creds, 'Action' => action,
                           'IpPermissions.1.IpRanges.1.CidrIp' => cidr,
