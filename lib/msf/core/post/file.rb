@@ -446,6 +446,7 @@ module Msf::Post::File
         return _write_file_unix_shell(file_name, data)
       end
     end
+    true
   end
 
   #
