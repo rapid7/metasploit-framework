@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('SpiderShares', [false, 'Spider shares recursively', false]),
         OptBool.new('ShowFiles', [true, 'Show detailed information when spidering', false]),
-        OptBool.new('SpiderProfiles', [false, 'Spider only user profiles when share = C$', true]),
+        OptBool.new('SpiderProfiles', [false, 'Spider only user profiles when share is a disk share', true]),
         OptEnum.new('LogSpider', [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0, 1, 2, 3]]),
         OptInt.new('MaxDepth', [true, 'Max number of subdirectories to spider', 999]),
       ]
@@ -61,13 +61,10 @@ class MetasploitModule < Msf::Auxiliary
   DEFAULT_SHARES = ['C$', 'D$', 'E$', 'F$', 'G$', 'H$', 'I$', 'J$', 'K$', 'L$', 'M$', 'N$',
                     'O$', 'P$', 'Q$', 'R$', 'S$', 'T$', 'U$', 'V$', 'W$', 'X$', 'Y$', 'Z$'].freeze
 
-  BOOT_VOLUME = 'C$'.freeze
   USERS_SHARE = 'Users'.freeze
 
   SMB1_PORT = 139
-  SMB1_REDIRECT = false
   SMB2_3_PORT = 445
-  SMB2_3_REDIRECT = true
 
   def rport
     @rport || datastore['RPORT']
@@ -198,13 +195,13 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       subdirs = ['']
-      if (share_name == BOOT_VOLUME) && datastore['SpiderProfiles']
+      if (DEFAULT_SHARES.include? share_name) && datastore['SpiderProfiles']
         subdirs = profile_options(tree, share)
       end
       until subdirs.empty?
         depth = subdirs.first.count('\\')
 
-        if share_name == BOOT_VOLUME
+        if DEFAULT_SHARES.include? share_name
           if datastore['SpiderProfiles']
             if (depth - 2) > datastore['MaxDepth']
               subdirs.shift
@@ -239,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
           if simple.client.default_domain && simple.client.default_name
             header << " \\\\#{simple.client.default_domain}"
           end
-          header << "\\#{share_name.sub(BOOT_VOLUME, BOOT_VOLUME + '\\')}" if simple.client.default_name
+          header << "\\#{share_name}" if simple.client.default_name
           header << subdirs.first
 
           files.each do |file|
@@ -263,7 +260,7 @@ class MetasploitModule < Msf::Auxiliary
 
             pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
             detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
-            logdata << "#{ip}\\#{share_name.sub(BOOT_VOLUME, BOOT_VOLUME + '\\')}#{subdirs.first}\\#{fname.encode}\n"
+            logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
           end
           print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         end
@@ -294,7 +291,7 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         print_status 'Starting module'
-        if info[:port] == SMB1_PORT
+        if rport == SMB1_PORT
           connect(versions: [1])
         else
           connect(versions: [1, 2, 3])
