@@ -175,7 +175,7 @@ module Anemone
       return nil if link.nil?
 
       # remove anchor
-      link = URI::DEFAULT_PARSER.escape(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/,'')) # this is deprecated
+      link = URI::DEFAULT_PARSER.escape(link.to_s.gsub(/#[a-zA-Z0-9_-]*$/,''))
 
       relative = URI(link)
       absolute = @url.merge(relative)
