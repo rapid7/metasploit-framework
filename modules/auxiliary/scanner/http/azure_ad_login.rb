@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'References' => [
+        [ 'URL', 'https://raxis.com/blog/metasploit-azure-ad-login'],
         [ 'URL', 'https://arstechnica.com/information-technology/2021/09/new-azure-active-directory-password-brute-forcing-flaw-has-no-fix/'],
         [ 'URL', 'https://github.com/treebuilder/aad-sso-enum-brute-spray'],
       ],
