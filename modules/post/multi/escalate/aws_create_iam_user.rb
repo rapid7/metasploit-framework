@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Post
     print_status("Creating group policy")
     pol_doc = datastore['IAM_GROUP_POL']
     action = 'PutGroupPolicy'
-    doc = call_iam(creds, 'Action' => action, 'GroupName' => groupname, 'PolicyName' => 'Policy', 'PolicyDocument' => URI.encode(pol_doc))
+    doc = call_iam(creds, 'Action' => action, 'GroupName' => groupname, 'PolicyName' => 'Policy', 'PolicyDocument' => URI::DEFAULT_PARSER.escape(pol_doc))
     print_results(doc, action)
 
     # add user to group
