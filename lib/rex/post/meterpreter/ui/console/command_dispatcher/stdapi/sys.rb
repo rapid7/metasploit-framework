@@ -368,11 +368,14 @@ class Console::CommandDispatcher::Stdapi::Sys
       if raw && !use_pty
         print_warning('Note: To use the fully interactive shell you must use a pty, i.e. %grnshell -it%clr')
         return false
-      end
-      if use_pty && pty_shell(sh_path, raw: raw)
+      elsif use_pty && pty_shell(sh_path, raw: raw)
         return true
       end
 
+      if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS) && !raw && !use_pty
+        print_line('This Meterpreter supports %grnshell -it%clr to start a fully interactive TTY.')
+        print_line('This will increase network traffic.')
+      end
       cmd_execute('-f', '/bin/sh', '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
