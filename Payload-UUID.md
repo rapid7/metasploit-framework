@@ -67,5 +67,5 @@ Active sessions
 
 ### Whitelisting UUIDs
 
-The ```~/.msf4/payloads.json``` file can also be used as a whitelist. This makes it possible to run a listener on a common port on a public IP address without the Metasploit Framework instance being flooded with bogus sessions. To enable whitelisting, set the ```IgnoreUnknownPayloads``` option to ```true``` in the handler instance. Any incoming request that does match both a registered Payload UUID and one of the pre-generated URLs will be ignored. The ```payloads.json``` file can be copied between Metasploit Framework instances and even hand-edited while the framework is running.
+The ```~/.msf4/payloads.json``` file can also be used as a whitelist. This makes it possible to run a listener on a common port on a public IP address without the Metasploit Framework instance being flooded with bogus sessions. To enable whitelisting for HTTP payloads, set the ```IgnoreUnknownPayloads``` option to ```true``` in the handler instance. Any incoming request that does match both a registered Payload UUID and one of the pre-generated URLs will be ignored. The ```payloads.json``` file can be copied between Metasploit Framework instances and even hand-edited while the framework is running.
 
