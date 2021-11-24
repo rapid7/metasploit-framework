@@ -88,10 +88,13 @@ class MetasploitModule < Msf::Post
         payload_name = 'windows/x64/meterpreter/reverse_tcp'
         larch = [ARCH_X64]
         psh_arch = 'x64'
-      else
+      elsif arch =~ /32-bit/m
         payload_name = 'windows/meterpreter/reverse_tcp'
         larch = [ARCH_X86]
         psh_arch = 'x86'
+      else
+        print_error('Target is running Windows on an unsupported architecture such as Windows ARM!')
+        return nil
       end
       vprint_status('Platform: Windows')
     when 'osx'
