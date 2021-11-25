@@ -99,10 +99,11 @@ class MetasploitModule < Msf::Auxiliary
       list = tree.list(directory: subdir)
     rescue RubySMB::Error::UnexpectedStatusCode => e
       vprint_error("Error when trying to list tree contents in #{share[:name]}\\#{subdir} - #{e.status_code.name}")
+      return read, write, msg, []
     end
 
     rfd = []
-    if list
+    unless list.nil? || list.empty?
       list.entries.each do |file|
         file_name = file.file_name.strip.encode('UTF-8')
         next if file_name == '.' || file_name == '..'
@@ -247,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         subdirs.shift
       end
-      print_status("Spidering #{share_name} complete.") unless datastore['ShowFiles']
+      print_status("Spidering #{share_name} complete") unless datastore['ShowFiles']
     end
 
     unless detailed_tbl.rows.empty?
