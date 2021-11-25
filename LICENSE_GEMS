@@ -10,12 +10,12 @@ afm, 0.2.2, MIT
 arel-helpers, 2.12.1, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
-aws-partitions, 1.532.0, "Apache 2.0"
-aws-sdk-core, 3.122.1, "Apache 2.0"
-aws-sdk-ec2, 1.281.0, "Apache 2.0"
+aws-partitions, 1.534.0, "Apache 2.0"
+aws-sdk-core, 3.123.0, "Apache 2.0"
+aws-sdk-ec2, 1.282.0, "Apache 2.0"
 aws-sdk-iam, 1.63.0, "Apache 2.0"
 aws-sdk-kms, 1.51.0, "Apache 2.0"
-aws-sdk-s3, 1.106.0, "Apache 2.0"
+aws-sdk-s3, 1.107.0, "Apache 2.0"
 aws-sigv4, 1.4.0, "Apache 2.0"
 bcrypt, 3.1.16, MIT
 bcrypt_pbkdf, 1.1.0, MIT
@@ -75,7 +75,7 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.3, "New BSD"
 metasploit-credential, 5.0.5, "New BSD"
-metasploit-framework, 6.1.16, "New BSD"
+metasploit-framework, 6.1.17, "New BSD"
 metasploit-model, 4.0.3, "New BSD"
 metasploit-payloads, 2.0.60, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.4, "New BSD"
@@ -102,7 +102,7 @@ openssl-cmac, 2.0.1, MIT
 openvas-omp, 0.0.4, MIT
 packetfu, 1.1.13, BSD
 parallel, 1.21.0, MIT
-parser, 3.0.2.0, MIT
+parser, 3.0.3.0, MIT
 patch_finder, 1.0.2, "New BSD"
 pcaprub, 0.12.4, LGPL-2.1
 pdf-reader, 2.6.0, MIT
