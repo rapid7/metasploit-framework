@@ -427,12 +427,10 @@ module Msf::Post::File
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
-  # @return [void]
+  # @return bool
   def write_file(file_name, data)
     if session.type == 'meterpreter'
-      fd = session.fs.file.new(file_name, 'wb')
-      fd.write(data)
-      fd.close
+      return _write_file_meterpreter(file_name, data)
     elsif session.type == 'powershell'
       _write_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
@@ -446,7 +444,6 @@ module Msf::Post::File
         return _write_file_unix_shell(file_name, data)
       end
     end
-    true
   end
 
   #
@@ -457,9 +454,7 @@ module Msf::Post::File
   # @return bool
   def append_file(file_name, data)
     if session.type == 'meterpreter'
-      fd = session.fs.file.new(file_name, 'ab')
-      fd.write(data)
-      fd.close
+      return _write_file_meterpreter(file_name, data, 'ab')
     elsif session.type == 'powershell'
       _append_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
@@ -738,6 +733,17 @@ protected
   end
 
   #
+  # Meterpreter-specific file write. Returns true on success
+  #
+  def _write_file_meterpreter(file_name, data, mode = 'wb')
+    fd = session.fs.file.new(file_name, mode)
+    fd.write(data)
+    fd.close
+    return true
+  rescue ::Rex::Post::Meterpreter::RequestError => e
+    return false
+  end
+
   # Meterpreter-specific file read.  Returns contents of remote file
   # +file_name+ as a String or nil if there was an error
   #
