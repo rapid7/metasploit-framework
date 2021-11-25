@@ -8,6 +8,7 @@ module Msf::DBManager::Import::Nmap
     end
     parser = ::Nokogiri::XML::SAX::Parser.new(doc)
     parser.parse(args[:data])
+    doc.result
   end
 
   # If you have Nokogiri installed, you'll be shunted over to
@@ -23,11 +24,11 @@ module Msf::DBManager::Import::Nmap
       noko_args[:workspace] = wspace
       if block
         yield(:parser, "Nokogiri v#{::Nokogiri::VERSION}")
-        import_nmap_noko_stream(noko_args) {|type, data| yield type,data }
+        result = import_nmap_noko_stream(noko_args) {|type, data| yield type,data }
       else
-        import_nmap_noko_stream(noko_args)
+        result = import_nmap_noko_stream(noko_args)
       end
-      return true
+      return result
     end
 
     # XXX: Legacy nmap xml parser starts here.
