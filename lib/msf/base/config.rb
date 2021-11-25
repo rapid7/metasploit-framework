@@ -257,6 +257,13 @@ class Config < Hash
     self.new.save(opts)
   end
 
+  # Deletes all config options for saved module options.
+  # 'framework/' config options are not deleted as they contain important instance-specific information.
+  # @return [void]
+  def self.delete_all
+    self.new.delete_all
+  end
+
   # Deletes the specified config group from the ini file
   #
   # @param group [String] The name of the group to remove
@@ -461,6 +468,17 @@ class Config < Hash
     ini.to_file
   end
 
+  # Deletes all config options for saved module options.
+  # 'framework/' config options are not deleted as they contain important instance-specific information.
+  # @return [void]
+  def delete_all
+    ini = Rex::Parser::Ini.new(config_file)
+
+    ini.delete_if { |k, _v| !k.start_with?('framework') }
+
+    ini.to_file(config_file)
+  end
+
   # Deletes the specified config group from the ini file
   #
   # @param group [String] The name of the group to remove
@@ -475,4 +493,3 @@ class Config < Hash
 end
 
 end
-

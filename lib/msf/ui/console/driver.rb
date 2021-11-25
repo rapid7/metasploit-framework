@@ -288,6 +288,17 @@ class Driver < Msf::Ui::Driver
   end
 
   #
+  # Delete all saved module options from the config file.
+  #
+  def delete_config
+    begin
+      Msf::Config.delete_all
+    rescue ::Exception
+      print_error("Failed to delete console config: #{$!}")
+    end
+  end
+
+  #
   # Saves the recent history to the specified file
   #
   def save_recent_history(path)
