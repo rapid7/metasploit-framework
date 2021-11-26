@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
       list = tree.list(directory: subdir)
     rescue RubySMB::Error::UnexpectedStatusCode => e
       vprint_error("Error when trying to list tree contents in #{share[:name]}\\#{subdir} - #{e.status_code.name}")
-      return read, write, msg, []
+      return read, write, msg, nil
     end
 
     rfd = []
@@ -136,9 +136,9 @@ class MetasploitModule < Msf::Auxiliary
   def get_user_dirs(tree, share, base)
     dirs = []
 
-    _read, _write, _type, files = enum_tree(tree, share, base)
+    read, _write, _type, files = enum_tree(tree, share, base)
 
-    return dirs if files.nil?
+    return dirs if files.nil? || !read
 
     files.each do |f|
       dirs.push("\\#{base}\\#{f[:file_name].encode('UTF-8')}")
@@ -202,9 +202,9 @@ class MetasploitModule < Msf::Auxiliary
           next
         end
 
-        read, write, _type, files = enum_tree(tree, share, subdirs.first)
+        read, _write, _type, files = enum_tree(tree, share, subdirs.first)
 
-        if files && (read || write) && files.empty?
+        if files.nil? || files.empty? || !read
           subdirs.shift
           next
         end
