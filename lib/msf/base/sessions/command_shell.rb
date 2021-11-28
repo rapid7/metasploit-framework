@@ -648,8 +648,13 @@ Shell Banner:
     # Do nil check for cmd (CTRL+D will cause nil error)
     return unless cmd
 
-    arguments = Shellwords.shellwords(cmd)
-    method    = arguments.shift
+    begin
+      arguments = Shellwords.shellwords(cmd)
+      method = arguments.shift
+    rescue ArgumentError => e
+      # Handle invalid shellwords, such as unmatched quotes
+      # See https://github.com/rapid7/metasploit-framework/issues/15912
+    end
 
     # Built-in command
     if commands.key?(method)
