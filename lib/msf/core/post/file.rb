@@ -436,13 +436,15 @@ module Msf::Post::File
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
-          return _win_ansi_write_file(file_name, data)
+          _win_ansi_write_file(file_name, data)
         else
-          return _win_bin_write_file(file_name, data)
+          _win_bin_write_file(file_name, data)
         end
       else
-        return _write_file_unix_shell(file_name, data)
+        _write_file_unix_shell(file_name, data)
       end
+    else
+      return false
     end
     true
   end
