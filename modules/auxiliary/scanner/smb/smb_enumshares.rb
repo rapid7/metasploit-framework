@@ -61,8 +61,10 @@ class MetasploitModule < Msf::Auxiliary
   SKIPPABLE_SHARES = ['ADMIN$', 'IPC$'].freeze
 
   # By default all of the drives connected to the server can be seen
-  DEFAULT_SHARES = ['C$', 'D$', 'E$', 'F$', 'G$', 'H$', 'I$', 'J$', 'K$', 'L$', 'M$', 'N$',
-                    'O$', 'P$', 'Q$', 'R$', 'S$', 'T$', 'U$', 'V$', 'W$', 'X$', 'Y$', 'Z$'].freeze
+  DEFAULT_SHARES = [
+    'C$', 'D$', 'E$', 'F$', 'G$', 'H$', 'I$', 'J$', 'K$', 'L$', 'M$', 'N$',
+    'O$', 'P$', 'Q$', 'R$', 'S$', 'T$', 'U$', 'V$', 'W$', 'X$', 'Y$', 'Z$'
+  ].freeze
 
   USERS_SHARE = 'Users'.freeze # Where the users are stored in Windows 7
   USERS_DIR = '\Users'.freeze # Windows 7 & Windows 10 user directory
@@ -197,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         depth = subdirs.first.count('\\')
 
-        if DEFAULT_SHARES.include?(share_name) && datastore['SpiderProfiles'] && (depth - 2) > datastore['MaxDepth']
+        if DEFAULT_SHARES.include?(share_name) && datastore['SpiderProfiles'] && ((depth - 2) > datastore['MaxDepth'])
           subdirs.shift
           next
         end
@@ -210,17 +212,16 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         header = ''
-        pretty_tbl = Rex::Text::Table.new(
-          'Header' => header,
-          'Indent' => 1,
-          'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
-        )
-
         if simple.client.default_domain && simple.client.default_name
           header << " \\\\#{simple.client.default_domain}"
         end
         header << "\\#{share_name}" if simple.client.default_name
         header << subdirs.first
+        pretty_tbl = Rex::Text::Table.new(
+          'Header' => header,
+          'Indent' => 1,
+          'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
+        )
 
         files.each do |file|
           fname = file.file_name.encode('UTF-8')
@@ -269,6 +270,8 @@ class MetasploitModule < Msf::Auxiliary
     shares = []
 
     [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|
+      # Assign @rport so that it is accessible via the rport method in this module,
+      # as well as making it accessible to the module mixins
       @rport = info[:port]
 
       begin
@@ -286,7 +289,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("Error when trying to enumerate shares - #{e.status_code.name}")
           next
         rescue RubySMB::Error::InvalidPacket => e
-          print_error("Invalid packet received when trying to enumerate shares - #{e.to_s}")
+          print_error("Invalid packet received when trying to enumerate shares - #{e}")
           next
         end
 
@@ -329,7 +332,7 @@ class MetasploitModule < Msf::Auxiliary
       rescue Rex::Proto::SMB::Exceptions::LoginError => e
         print_error(e.to_s)
       rescue RubySMB::Error::RubySMBError => e
-        print_error("RubySMB encountered an error: #{e.to_s}")
+        print_error("RubySMB encountered an error: #{e}")
         return
       rescue RuntimeError => e
         print_error e.to_s
