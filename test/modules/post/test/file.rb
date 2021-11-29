@@ -78,9 +78,9 @@ class MetasploitModule < Msf::Post
 
     it 'should create text files' do
       rm_f(datastore['BaseFileName'])
-      write_file(datastore['BaseFileName'], 'foo')
-
-      file?(datastore['BaseFileName'])
+      ret = write_file(datastore['BaseFileName'], 'foo')
+      ret &&= file?(datastore['BaseFileName'])
+      ret
     end
 
     it 'should read the text we just wrote' do
@@ -156,10 +156,11 @@ class MetasploitModule < Msf::Post
     it 'should write binary data' do
       vprint_status "Writing #{binary_data.length} bytes"
       t = Time.now
-      write_file(datastore['BaseFileName'], binary_data)
+      ret = write_file(datastore['BaseFileName'], binary_data)
       vprint_status("Finished in #{Time.now - t}")
 
-      file_exist?(datastore['BaseFileName'])
+      ret &&= file_exist?(datastore['BaseFileName'])
+      ret
     end
 
     it 'should read the binary data we just wrote' do
