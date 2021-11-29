@@ -117,6 +117,12 @@ class Console::CommandDispatcher::Powershell
     print_line(@@powershell_import_opts.usage)
   end
 
+  def cmd_powershell_import_tabs(str, words)
+    if words.length == 1 # Just the command
+      tab_complete_filenames(str, words)
+    end
+  end
+
   #
   # Import a script or assembly component into the target.
   #
