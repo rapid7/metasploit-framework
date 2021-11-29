@@ -391,6 +391,7 @@ module DispatcherShell
   #
   def tab_complete(str)
     ::Readline.completion_append_character = ' '
+    ::Readline.completion_case_fold = false
 
     # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
