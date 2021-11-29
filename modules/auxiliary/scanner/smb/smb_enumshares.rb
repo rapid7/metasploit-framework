@@ -199,7 +199,12 @@ class MetasploitModule < Msf::Auxiliary
         end
         depth = subdirs.first.count('\\')
 
-        if DEFAULT_SHARES.include?(share_name) && datastore['SpiderProfiles'] && ((depth - 2) > datastore['MaxDepth'])
+        if datastore['SpiderProfiles'] && DEFAULT_SHARES.include?(share_name)
+          if (depth - 2) > datastore['MaxDepth']
+            subdirs.shift
+            next
+          end
+        elsif depth > datastore['MaxDepth']
           subdirs.shift
           next
         end
