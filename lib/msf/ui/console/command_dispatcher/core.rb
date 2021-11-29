@@ -1665,7 +1665,7 @@ class Core
 
   def cmd_sessions_tabs(str, words)
     if words.length == 1
-      return @@sessions_opts.fmt.keys
+      return @@sessions_opts.fmt.keys.select { |opt| opt.start_with?(str) }
     end
 
     case words[-1]
