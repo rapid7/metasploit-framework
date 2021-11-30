@@ -32,14 +32,6 @@ module MetasploitModule
       )
     )
 
-    # Register command execution options
-    register_options(
-      [
-        OptString.new('LOAD_MODULES', [ false, 'A list of powershell modules separated by a comma to download over the web', nil ]),
-      ]
-    )
-    # Hide the CMD option...this is kinda ugly
-    deregister_options('CMD')
   end
 
   #

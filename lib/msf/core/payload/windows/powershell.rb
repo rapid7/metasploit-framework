@@ -10,6 +10,20 @@ module Msf
 
 module Payload::Windows::Powershell
 
+  def initialize(info = {})
+    ret = super(info)
+
+    # Register command execution options
+    register_options(
+      [
+        OptString.new('LOAD_MODULES', [ false, 'A list of powershell modules separated by a comma to download over the web', nil ]),
+      ]
+    )
+    # Hide the CMD option
+    deregister_options('CMD')
+    ret
+  end
+
   def generate_powershell_code(conntype)
     lport = datastore['LPORT']
     lhost = datastore['LHOST']

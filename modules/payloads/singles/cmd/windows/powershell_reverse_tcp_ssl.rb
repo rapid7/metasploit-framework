@@ -36,11 +36,6 @@ module MetasploitModule
         }
       )
     )
-    register_options(
-      [
-        OptString.new('LOAD_MODULES', [ false, 'A list of powershell modules separated by a comma to download over the web', nil ]),
-      ]
-    )
   end
 
   def generate
