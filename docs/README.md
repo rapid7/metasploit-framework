@@ -2,45 +2,33 @@
 
 ## Setup 
 
-### Build content
+### Developer build
 
-First build the latest docs content from the existing [Metasploit Wiki](https://github.com/rapid7/metasploit-framework/wiki). This a temporary
-solution until the docs content is directly committed to the [metasploit-framework](https://github.com/rapid7/metasploit-framework) repository. 
+Builds the latest docs content from the existing [Metasploit Wiki](https://github.com/rapid7/metasploit-framework/wiki), and
+serves the files locally:
 
-```
+```bash
 bundle install
-bundle exec ruby build.rb
-```
-
-### Running
-
-Running:
-
-```
-bundle install
-bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental
+bundle exec ruby build.rb --serve
 ```
 
 Now visit http://127.0.0.1:4000
 
 ### Production build
 
-Testing production build:
-```
-rm -rf _site
+Builds the latest docs content from the existing [Metasploit Wiki](https://github.com/rapid7/metasploit-framework/wiki), creates
+a production Jekyll build, and serves the files locally:
+
+```bash
 bundle install
-bundle exec ruby build.rb
-JEKYLL_ENV=production jekyll build
+bundle exec ruby build.rb --release --serve
 ```
+
+Now visit http://127.0.0.1:4000/metasploit-framework/
 
 ### Modifying pages
 
 **Note** - to modify pages, for now, the changes will need to be made to [Metasploit Wiki](https://github.com/rapid7/metasploit-framework/wiki).
 However the `docs` folder can be edited locally. Jekyll will rebuild the required file, and the changes can be seen after refreshing your browser.
 
-When adding test files locally, Jekyll will not always regenerate the navigation for all pages. It is easier to regenerate the entire site again:
-
-```
-rm -rf _site
-bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental
-```
+When adding test files locally, Jekyll will not always regenerate the navigation for all pages. It is easier to rebuild the entire site again.

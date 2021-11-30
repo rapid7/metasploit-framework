@@ -15,6 +15,7 @@ require 'optparse'
 # merged with metasploit-framework, and the old wiki will no longer be updated.
 module Build
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
+  PRODUCTION_BUILD_ARTIFACTS = '_site'
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
   # for each build. This allows changes to be made to the existing wiki until it's migrated
@@ -22,24 +23,10 @@ module Build
   module Git
     def self.clone_wiki!
       unless File.exist?(WIKI_PATH)
-        run "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{WIKI_PATH}", exception: true
+        Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{WIKI_PATH}", exception: true
       end
 
-      run "cd #{WIKI_PATH}; git pull", exception: true
-    end
-
-    private_class_method def self.run(command, exception: true)
-      puts command
-      stdout, status = ::Open3.capture2(
-        { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
-        '/bin/bash', '--login', '-c', command
-      )
-      puts stdout
-      if !status.success? && exception
-        raise
-      end
-
-      stdout
+      Build.run_command "cd #{WIKI_PATH}; git pull", exception: true
     end
   end
 
@@ -1049,12 +1036,85 @@ module Build
     end
   end
 
+  # Serve the production build at http://127.0.0.1:4000/metasploit-framework/
+  class ProductionServer
+    autoload :WEBrick, 'WEBrick'
+
+    def self.run
+      server = WEBrick::HTTPServer.new(
+        {
+          Port: 4000
+        }
+      )
+      server.mount_proc('/') do |_req, res|
+        res.set_redirect(WEBrick::HTTPStatus::TemporaryRedirect, '/metasploit-framework/')
+      end
+      server.mount('/metasploit-framework', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
+      trap('INT') do
+        server.shutdown
+      rescue StandardError
+        nil
+      end
+      server.start
+    ensure
+      server.shutdown
+    end
+  end
+
+  def self.run_command(command, exception: true)
+    puts command
+    result = ""
+    ::Open3.popen2e(
+      { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
+      '/bin/bash', '--login', '-c', command
+    ) do |stdin, stdout_and_stderr, wait_thr|
+      stdin.close_write
+
+      while wait_thr.alive?
+        ready = IO.select([stdout_and_stderr], nil, nil, 1)
+
+        if ready
+          reads, _writes, _errors = ready
+
+          reads.to_a.each do |io|
+            data = io.read_nonblock(1024)
+            puts data
+            result += data
+          rescue EOFError, Errno::EAGAIN
+            # noop
+          end
+        end
+      end
+
+      if !wait_thr.value.success? && exception
+        raise "command did not succeed, exit status #{wait_thr.value.exitstatus.inspect}"
+      end
+    end
+
+    result
+  end
+
   def self.run(options)
     Git.clone_wiki! unless options[:skip_wiki_pull]
 
     config = Config.new
     migrator = WikiMigration.new
     migrator.run(config)
+
+    if options[:production]
+      begin
+        FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS)
+      rescue StandardError
+        nil
+      end
+      run_command('JEKYLL_ENV=production jekyll build')
+
+      if options[:serve]
+        ProductionServer.run
+      end
+    elsif options[:serve]
+      run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
+    end
   end
 end
 
@@ -1069,6 +1129,14 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--skip-wiki-pull', 'Skip pulling the Metasploit Wiki') do |skip_wiki_pull|
       options[:skip_wiki_pull] = skip_wiki_pull
+    end
+
+    opts.on('--production', 'Run a production build') do |production|
+      options[:production] = production
+    end
+
+    opts.on('--serve', 'serve the docs site, requires either --dev or --production to be set') do |serve|
+      options[:serve] = serve
     end
   end
   options_parser.parse!

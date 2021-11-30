@@ -43,6 +43,7 @@ compress_html:
 
 exclude:
   - '*.rb'
+  - 'build.rb'
   - metasploit-framework.wiki
   - README.md
 
