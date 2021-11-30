@@ -906,12 +906,10 @@ module Build
           page.fetch(:path).downcase.end_with?(old_path.downcase + '.md')
       end
       if matched_pages.empty?
-        warn "Missing path for #{old_path}"
-        return 'missing'
+        raise "Missing path for #{old_path}"
       end
       if matched_pages.count > 1
-        warn "Duplicate paths for #{old_path}"
-        return 'missing'
+        raise "Duplicate paths for #{old_path}"
       end
 
       matched_pages.first.fetch(:new_path)
@@ -1097,9 +1095,11 @@ module Build
   def self.run(options)
     Git.clone_wiki! unless options[:skip_wiki_pull]
 
-    config = Config.new
-    migrator = WikiMigration.new
-    migrator.run(config)
+    unless options[:skip_migration]
+      config = Config.new
+      migrator = WikiMigration.new
+      migrator.run(config)
+    end
 
     if options[:production]
       begin
@@ -1129,6 +1129,10 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--skip-wiki-pull', 'Skip pulling the Metasploit Wiki') do |skip_wiki_pull|
       options[:skip_wiki_pull] = skip_wiki_pull
+    end
+
+    opts.on('--skip-migration', 'Skip building the content') do |skip_migration|
+      options[:skip_migration] = skip_migration
     end
 
     opts.on('--production', 'Run a production build') do |production|
