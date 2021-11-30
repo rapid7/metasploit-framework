@@ -145,7 +145,7 @@ class Console::CommandDispatcher::Powershell
 
     result = client.powershell.import_file(opts)
     if result.nil? || result == false
-      print_error("File failed to load.")
+      print_error('File failed to load. The file must end in ".ps1" or ".dll".')
     elsif result == true || result.empty?
       print_good("File successfully imported. No result was returned.")
     else
