@@ -310,7 +310,7 @@ use auxiliary/gather/windows_secrets_dump
 run smb://user:pass@192.168.123.6
 ```
 
-Dumping secrets with NT:LM hashes
+Dumping secrets with NTLM hashes
 
 ```
 use auxiliary/gather/windows_secrets_dump
