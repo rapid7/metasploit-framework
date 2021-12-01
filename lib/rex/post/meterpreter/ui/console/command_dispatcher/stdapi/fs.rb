@@ -1072,6 +1072,9 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   def tab_complete_path(str, words, dir_only)
+    if client.platform == 'windows'
+        ::Readline.completion_case_fold = true
+    end
     if client.commands.include?(COMMAND_ID_STDAPI_FS_LS)
       expanded = str
       expanded = client.fs.file.expand_path(expanded) if expanded =~ path_expand_regex
