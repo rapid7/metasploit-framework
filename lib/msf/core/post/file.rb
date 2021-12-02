@@ -525,6 +525,16 @@ module Msf::Post::File
   end
 
   #
+  # Read a local exploit source file from the external exploits directory
+  #
+  # @param path [String] Directory in the exploits folder
+  # @param path [String] Filename in the source folder
+  def exploit_source(source_directory, file)
+    file_path = ::File.join( Msf::Config.install_root, 'external', 'source', 'exploits', source_directory, file)
+    ::File.read(file_path)
+  end
+
+  #
   # Delete remote files
   #
   # @param remote_files [Array<String>] List of remote filenames to
