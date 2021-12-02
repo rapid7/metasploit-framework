@@ -1,4 +1,7 @@
-title: Metasploit
+# Additionally influences open graph metadata as part of jekyll-seo-tag
+title: 'Metasploit Documentation | Penetration Testing Software, Pen Testing Security'
+description: View Metasploit Framework Documentation
+searchTitle: Metasploit Documentation
 baseurl: '/metasploit-framework'
 url: ''
 
@@ -12,7 +15,8 @@ aux_links:
 
 nav_cache: true
 
-gh_edit_link: true
+# False until the wiki's markdown files are migrated into the Metasploit repository
+gh_edit_link: false
 gh_edit_link_text: 'Edit this page on GitHub'
 gh_edit_repository: 'https://github.com/rapid7/metasploit-framework'
 gh_edit_branch: 'master'
@@ -21,6 +25,8 @@ gh_edit_view_mode: 'tree'
 
 ga_tracking: UA-4622520-7
 ga_tracking_anonymize_ip: true
+
+favicon: assets/images/favicon.png
 
 # Build settings
 theme: just-the-docs

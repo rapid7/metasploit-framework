@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/adfoster-r7/just-the-docs.git
-  revision: 71772286f92421332a29c75765e7af86402db581
+  revision: de685cdfb62d1f962e01898f31c9854ef5ebca0e
   branch: r7_ver_custom
   specs:
     just-the-docs (0.3.3)

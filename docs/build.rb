@@ -331,31 +331,25 @@ module Build
                       nav_order: 0
                     },
                     {
-                      title: 'Compiling',
-                      folder: 'compiling',
+                      title: 'Compiling C',
+                      folder: 'c',
                       children: [
                         {
-                          title: 'Compiling C',
-                          folder: 'c',
-                          children: [
-                            {
-                              path: 'How-to-use-Metasploit-Framework-Compiler-Windows-to-compile-C-code.md',
-                              title: 'Overview',
-                              nav_order: 1
-                            },
-                            {
-                              path: 'How-to-XOR-with-Metasploit-Framework-Compiler.md',
-                              title: 'XOR Support'
-                            },
-                            {
-                              path: 'How-to-decode-Base64-with-Metasploit-Framework-Compiler.md',
-                              title: 'Base64 Support'
-                            },
-                            {
-                              path: 'How-to-decrypt-RC4-with-Metasploit-Framework-Compiler.md',
-                              title: 'RC4 Support'
-                            },
-                          ]
+                          path: 'How-to-use-Metasploit-Framework-Compiler-Windows-to-compile-C-code.md',
+                          title: 'Overview',
+                          nav_order: 1
+                        },
+                        {
+                          path: 'How-to-XOR-with-Metasploit-Framework-Compiler.md',
+                          title: 'XOR Support'
+                        },
+                        {
+                          path: 'How-to-decode-Base64-with-Metasploit-Framework-Compiler.md',
+                          title: 'Base64 Support'
+                        },
+                        {
+                          path: 'How-to-decrypt-RC4-with-Metasploit-Framework-Compiler.md',
+                          title: 'RC4 Support'
                         },
                       ]
                     },
@@ -447,11 +441,11 @@ module Build
                       children: [
                         {
                           path: 'How-to-obfuscate-JavaScript-in-Metasploit.md',
-                          title: 'JavaScript'
+                          title: 'JavaScript Obfuscation'
                         },
                         {
                           path: 'How-to-use-Metasploit-Framework-Obfuscation-CRandomizer.md',
-                          title: 'C'
+                          title: 'C Obfuscation'
                         },
                       ]
                     },
@@ -991,13 +985,13 @@ module Build
         page_config = {
           layout: 'default',
           **page.slice(:title, :has_children, :nav_order),
-          parent: (page[:parents][-1] || {})[:title]
+          parent: (page[:parents][-1] || {})[:title],
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
         preamble = <<~PREAMBLE
           ---
-          #{page_config.map { |key, value| "#{key}: #{value.inspect}" }.join("\n")}
+          #{page_config.map { |key, value| "#{key}: #{value.to_s.strip.inspect}" }.join("\n")}
           ---
 
         PREAMBLE
