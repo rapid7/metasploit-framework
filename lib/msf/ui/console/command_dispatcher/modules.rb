@@ -538,7 +538,7 @@ module Msf
 
           def cmd_search_tabs(str, words)
             if words.length == 1
-              return @@search_opts.fmt.keys
+              return @@search_opts.option_keys
             end
 
             []
