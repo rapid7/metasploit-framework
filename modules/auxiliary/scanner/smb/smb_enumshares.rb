@@ -24,15 +24,16 @@ class MetasploitModule < Msf::Auxiliary
           are readable/writable. It also collects additional information such as share types,
           directories, files, time stamps, etc.
 
-          By default, a netshareenum request is done in order to retrieve share information,
-          but if this fails, you may also fall back to SRVSVC.
+          By default, a RubySMB net_share_enum_all request is done in order to retrieve share information,
+          which uses SRVSVC.
         },
         'Author' => [
           'hdm',
           'nebulus',
           'sinn3r',
           'r3dy',
-          'altonjx'
+          'altonjx',
+          'sjanusz-r7'
         ],
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
@@ -45,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('SpiderShares', [false, 'Spider shares recursively', false]),
         OptBool.new('ShowFiles', [true, 'Show detailed information when spidering', false]),
-        OptBool.new('SpiderProfiles', [false, 'Spider only user profiles when share = C$', true]),
+        OptBool.new('SpiderProfiles', [false, 'Spider only user profiles when share is a disk share', true]),
         OptEnum.new('LogSpider', [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0, 1, 2, 3]]),
         OptInt.new('MaxDepth', [true, 'Max number of subdirectories to spider', 999]),
       ]
@@ -54,107 +55,73 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('RPORT')
   end
 
-  def device_type_int_to_text(device_type)
-    types = [
-      'UNSET', 'BEEP', 'CDROM', 'CDROM FILE SYSTEM', 'CONTROLLER', 'DATALINK',
-      'DFS', 'DISK', 'DISK FILE SYSTEM', 'FILE SYSTEM', 'INPORT PORT', 'KEYBOARD',
-      'MAILSLOT', 'MIDI IN', 'MIDI OUT', 'MOUSE', 'UNC PROVIDER', 'NAMED PIPE',
-      'NETWORK', 'NETWORK BROWSER', 'NETWORK FILE SYSTEM', 'NULL', 'PARALLEL PORT',
-      'PHYSICAL NETCARD', 'PRINTER', 'SCANNER', 'SERIAL MOUSE PORT', 'SERIAL PORT',
-      'SCREEN', 'SOUND', 'STREAMS', 'TAPE', 'TAPE FILE SYSTEM', 'TRANSPORT', 'UNKNOWN',
-      'VIDEO', 'VIRTUAL DISK', 'WAVE IN', 'WAVE OUT', '8042 PORT', 'NETWORK REDIRECTOR',
-      'BATTERY', 'BUS EXTENDER', 'MODEM', 'VDM'
-    ]
+  # Updated types for RubySMB. These are all the types we can ever receive from calling net_share_enum_all
+  ENUMERABLE_SHARE_TYPES = ['DISK', 'TEMPORARY'].freeze
+  SKIPPABLE_SHARE_TYPES = ['PRINTER', 'IPC', 'DEVICE', 'SPECIAL'].freeze
+  SKIPPABLE_SHARES = ['ADMIN$', 'IPC$'].freeze
 
-    types[device_type]
+  # By default all of the drives connected to the server can be seen
+  DEFAULT_SHARES = [
+    'C$', 'D$', 'E$', 'F$', 'G$', 'H$', 'I$', 'J$', 'K$', 'L$', 'M$', 'N$',
+    'O$', 'P$', 'Q$', 'R$', 'S$', 'T$', 'U$', 'V$', 'W$', 'X$', 'Y$', 'Z$'
+  ].freeze
+
+  USERS_SHARE = 'Users'.freeze # Where the users are stored in Windows 7
+  USERS_DIR = '\Users'.freeze # Windows 7 & Windows 10 user directory
+  DOCUMENTS_DIR = '\Documents and Settings'.freeze # Windows XP user directory
+
+  SMB1_PORT = 139
+  SMB2_3_PORT = 445
+
+  def rport
+    @rport || datastore['RPORT']
   end
 
-  def to_unix_time(thi, tlo)
-    t = ::Time.at(::Rex::Proto::SMB::Utils.time_smb_to_unix(thi, tlo))
-    t.strftime('%m-%d-%Y %H:%M:%S')
-  end
-
-  def eval_host(ip, share, subdir = '')
-    read = write = false
-
-    # srvsvc adds a null byte that needs to be removed
-    share = share.chomp("\x00")
-
-    return false, false, nil, nil if share == 'IPC$'
-
-    simple.connect("\\\\#{ip}\\#{share}")
-
-    begin
-      # XXX: not implemented with RubySMB client, should I implement it?
-      device_type = simple.client.queryfs_fs_device['device_type']
-      unless device_type
-        vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
-        return false, false, nil, nil
-      end
-    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      err = e.to_s.scan(/The server responded with error: (\w+)/i).flatten[0]
-      case err
-      when /0xffff0002/
-        # 0xffff0002 means that the server can't handle the request for device type
-        device_type = -1
-      when /STATUS_INVALID_DEVICE_REQUEST/
-        return false, false, 'Invalid device request'
-      when /0x00040002/
-        # Samba may throw this error too
-        return false, false, 'Mac/Apple Clipboard?'
-      when /STATUS_NETWORK_ACCESS_DENIED/, /0x00030001/, /0x00060002/
-        # 0x0006002 = bad network name, 0x0030001 Directory not found
-        return false, false, nil, nil
-      else
-        vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
-        return false, false, nil, nil
-      end
-    end
-
+  def enum_tree(tree, share, subdir = '')
+    subdir = subdir[1..subdir.length] if subdir.starts_with?('\\')
+    read = tree.permissions.read_ea == 1
+    write = tree.permissions.write_ea == 1
     skip = false
-    msg = ''
-    case device_type
-    when -1
-      msg = 'Unable to determine device'
-    when 1, 21..29, 34..35, 37..44
+
+    if ENUMERABLE_SHARE_TYPES.include?(share[:type])
+      msg = share[:type]
+    elsif SKIPPABLE_SHARE_TYPES.include?(share[:type])
+      msg = share[:type]
       skip = true
-      msg = "Unhandled Device Type (#{device_type})"
-    when 2..16, 18..20, 30..33, 36
-      msg = device_type_int_to_text(device_type)
-    when 17
-      skip = true
-      msg = device_type_int_to_text(device_type)
     else
-      msg = 'Unknown Device Type'
-      msg << " (#{device_type})" if device_type
+      msg = "Unhandled Device Type (#{share[:type]})"
+      skip = true
     end
 
+    print_status("Skipping share #{share[:name].strip} as it is of type #{share[:type]}") if skip
     return read, write, msg, nil if skip
 
-    rfd = simple.client.find_first("#{subdir}\\*")
-    read = true if !rfd.nil?
+    # Create list after possibly skipping a share we wouldn't be able to access.
+    begin
+      list = tree.list(directory: subdir)
+    rescue RubySMB::Error::UnexpectedStatusCode => e
+      vprint_error("Error when trying to list tree contents in #{share[:name]}\\#{subdir} - #{e.status_code.name}")
+      return read, write, msg, nil
+    end
 
-    # Test writable
-    filename = Rex::Text.rand_text_alpha(rand(8))
-    wfd = simple.open("\\#{filename}", 'rwct')
-    wfd << Rex::Text.rand_text_alpha(rand(1024))
-    wfd.close
-    simple.delete("\\#{filename}")
-    simple.disconnect("\\\\#{ip}\\#{share}")
+    rfd = []
+    unless list.nil? || list.empty?
+      list.entries.each do |file|
+        file_name = file.file_name.strip.encode('UTF-8')
+        next if file_name == '.' || file_name == '..'
 
-    # Operating under assumption STATUS_ACCESS_DENIED or the like will get
-    # thrown before write=true
-    write = true
+        rfd.push(file)
+      end
+    end
 
     return read, write, msg, rfd
-  rescue ::Rex::Proto::SMB::Exceptions::NoReply, ::Rex::Proto::SMB::Exceptions::InvalidType,
-         ::Rex::Proto::SMB::Exceptions::ReadPacket, ::Rex::Proto::SMB::Exceptions::ErrorCode
-    return read, false, msg, rfd
   end
 
-  def get_os_info(ip, rport)
+  def get_os_info(ip)
     os = smb_fingerprint
-    os_info = "#{os['os']} #{os['sp']} (#{os['lang']})" if os['os'] != 'Unknown'
+    if os['os'] != 'Unknown'
+      os_info = "#{os['os']} #{os['sp']} (#{os['lang']})"
+    end
     if os_info
       report_service(
         host: ip,
@@ -168,46 +135,30 @@ class MetasploitModule < Msf::Auxiliary
     os_info
   end
 
-  def get_user_dirs(ip, share, base, sub_dirs)
+  def get_user_dirs(tree, share, base)
     dirs = []
-    usernames = []
 
-    begin
-      read, write, type, files = eval_host(ip, share, base)
-      # files or type could return nil due to various conditions
-      return dirs if files.nil?
+    read, _write, _type, files = enum_tree(tree, share, base)
 
-      files.each do |f|
-        if (f[0] != '.') && (f[0] != '..')
-          usernames.push(f[0])
-        end
-      end
-      usernames.each do |username|
-        sub_dirs.each do |sub_dir|
-          dirs.push("#{base}\\#{username}\\#{sub_dir}")
-        end
-      end
-      return dirs
-    rescue StandardError
-      return dirs
+    return dirs if files.nil? || !read
+
+    files.each do |f|
+      dirs.push("\\#{base}\\#{f[:file_name].encode('UTF-8')}")
     end
+
+    dirs
   end
 
-  def profile_options(ip, share)
-    old_dirs = ['My Documents', 'Desktop']
-    new_dirs = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos']
-
-    dirs = get_user_dirs(ip, share, 'Documents and Settings', old_dirs)
+  def profile_options(tree, share)
+    dirs = get_user_dirs(tree, share, 'Documents and Settings')
     if dirs.blank?
-      dirs = get_user_dirs(ip, share, 'Users', new_dirs)
+      dirs = get_user_dirs(tree, share, 'Users')
     end
-    return dirs
+
+    dirs
   end
 
-  def get_files_info(ip, _rport, shares, info)
-    read = false
-    write = false
-
+  def get_files_info(ip, shares)
     # Creating a separate file for each IP address's results.
     detailed_tbl = Rex::Text::Table.new(
       'Header' => "Spidered results for #{ip}.",
@@ -217,24 +168,39 @@ class MetasploitModule < Msf::Auxiliary
 
     logdata = ''
 
-    list = shares.collect { |e| e[0] }
-    list.each do |x|
-      x = x.strip
-      if (x == 'ADMIN$') || (x == 'IPC$')
+    shares.each do |share|
+      share_name = share[:name].strip
+      if SKIPPABLE_SHARES.include?(share_name) || (share_name == USERS_SHARE && !datastore['SpiderProfiles'])
+        print_status("Skipping #{share_name}")
         next
       end
 
       if !datastore['ShowFiles']
-        print_status("Spidering #{x}.")
+        print_status("Spidering #{share_name}")
       end
+
+      begin
+        tree = simple.client.tree_connect("\\\\#{ip}\\#{share_name}")
+      rescue RubySMB::Error::UnexpectedStatusCode, RubySMB::Error::InvalidPacket => e
+        vprint_error("Error when trying to connect to share #{share_name} - #{e.status_code.name}")
+        print_status("Spidering #{share_name} complete") unless datastore['ShowFiles']
+        next
+      end
+
       subdirs = ['']
-      if (x.strip == 'C$') && datastore['SpiderProfiles']
-        subdirs = profile_options(ip, x)
+      if DEFAULT_SHARES.include?(share_name) && datastore['SpiderProfiles']
+        subdirs = profile_options(tree, share)
       end
       until subdirs.empty?
-        depth = subdirs[0].count('\\')
-        if datastore['SpiderProfiles'] && (x == 'C$')
-          if depth - 2 > datastore['MaxDepth']
+        # Skip user directories if we do not want to spider them
+        if (subdirs.first == USERS_DIR || subdirs.first == DOCUMENTS_DIR) && !datastore['SpiderProfiles']
+          subdirs.shift
+          next
+        end
+        depth = subdirs.first.count('\\')
+
+        if datastore['SpiderProfiles'] && DEFAULT_SHARES.include?(share_name)
+          if (depth - 2) > datastore['MaxDepth']
             subdirs.shift
             next
           end
@@ -242,60 +208,55 @@ class MetasploitModule < Msf::Auxiliary
           subdirs.shift
           next
         end
-        read, write, type, files = eval_host(ip, x, subdirs[0])
-        if files && (read || write)
-          if files.length < 3
-            subdirs.shift
-            next
-          end
-          header = ''
-          if simple.client.default_domain && simple.client.default_name
-            header << " \\\\#{simple.client.default_domain}"
-          end
-          header << "\\#{x.sub('C$', 'C$\\')}" if simple.client.default_name
-          header << subdirs[0]
 
-          pretty_tbl = Rex::Text::Table.new(
-            'Header' => header,
-            'Indent' => 1,
-            'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
-          )
+        read, _write, _type, files = enum_tree(tree, share, subdirs.first)
 
-          f_types = {
-            1 => 'RO', 2 => 'HIDDEN', 4 => 'SYS', 8 => 'VOL',
-            16 => 'DIR', 32 => 'ARC', 64 => 'DEV', 128 => 'FILE'
-          }
-
-          files.each do |file|
-            next unless file[0] && (file[0] != '.') && (file[0] != '..')
-
-            info = file[1]['info']
-            fa = f_types[file[1]['attr']] # Item type
-            fname = file[0] # Filename
-            tcr = to_unix_time(info[3], info[2]) # Created
-            tac = to_unix_time(info[5], info[4]) # Accessed
-            twr = to_unix_time(info[7], info[6]) # Written
-            tch = to_unix_time(info[9], info[8]) # Changed
-            sz = info[12] + info[13] # Size
-
-            # Filename is too long for the UI table, cut it.
-            fname = "#{fname[0, 35]}..." if fname.length > 35
-
-            # Add subdirectories to list to use if SpiderShare is enabled.
-            if (fa == 'DIR') || (fa.nil? && (sz == 0))
-              subdirs.push(subdirs[0] + '\\' + fname)
-            end
-
-            pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
-            detailed_tbl << [ip.to_s, fa || 'Unknown', x.to_s, subdirs[0] + '\\', fname, tcr, tac, twr, tch, sz]
-            logdata << "#{ip}\\#{x.sub('C$', 'C$\\')}#{subdirs[0]}\\#{fname}\n"
-          end
-          print_good(pretty_tbl.to_s) if datastore['ShowFiles']
+        if files.nil? || files.empty? || !read
+          subdirs.shift
+          next
         end
+
+        header = ''
+        if simple.client.default_domain && simple.client.default_name
+          header << " \\\\#{simple.client.default_domain}"
+        end
+        header << "\\#{share_name}" if simple.client.default_name
+        header << subdirs.first
+        pretty_tbl = Rex::Text::Table.new(
+          'Header' => header,
+          'Indent' => 1,
+          'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
+        )
+
+        files.each do |file|
+          fname = file.file_name.encode('UTF-8')
+          tcr = file.create_time.to_datetime
+          tac = file.last_access.to_datetime
+          twr = file.last_write.to_datetime
+          tch = file.last_change.to_datetime
+
+          # Add subdirectories to list to use if SpiderShare is enabled.
+          if (file[:file_attributes]&.directory == 1) || (file[:ext_file_attributes]&.directory == 1)
+            fa = 'DIR'
+            subdirs.push(subdirs.first + '\\' + fname)
+          else
+            fa = 'FILE'
+            sz = file.end_of_file
+          end
+
+          # Filename is too long for the UI table, cut it.
+          fname = "#{fname[0, 35]}..." if fname.length > 35
+
+          pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
+          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
+          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
+        end
+        print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         subdirs.shift
       end
-      print_status("Spider #{x} complete.") unless datastore['ShowFiles']
+      print_status("Spidering #{share_name} complete") unless datastore['ShowFiles']
     end
+
     unless detailed_tbl.rows.empty?
       if datastore['LogSpider'] == '1'
         p = store_loot('smb.enumshares', 'text/csv', ip, detailed_tbl.to_csv)
@@ -310,87 +271,78 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def rport
-    @rport || datastore['RPORT']
-  end
-
-  # Overrides the one in smb.rb
-  def smb_direct
-    @smb_redirect || datastore['SMBDirect']
-  end
-
   def run_host(ip)
-    @rport = datastore['RPORT']
-    @smb_redirect = datastore['SMBDirect']
-    @srvsvc = datastore['USE_SRVSVC_ONLY']
     shares = []
 
-    [[139, false], [445, true]].each do |info|
-      @rport = info[0]
-      @smb_redirect = info[1]
+    [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|
+      # Assign @rport so that it is accessible via the rport method in this module,
+      # as well as making it accessible to the module mixins
+      @rport = info[:port]
 
       begin
-        connect
+        print_status 'Starting module'
+        if rport == SMB1_PORT
+          connect(versions: [1])
+        else
+          connect(versions: [1, 2, 3])
+        end
         smb_login
-        shares = smb_netshareenumall
 
-        os_info = get_os_info(ip, rport)
+        begin
+          shares = simple.client.net_share_enum_all(ip)
+        rescue RubySMB::Error::UnexpectedStatusCode => e
+          print_error("Error when trying to enumerate shares - #{e.status_code.name}")
+          next
+        rescue RubySMB::Error::InvalidPacket => e
+          print_error("Invalid packet received when trying to enumerate shares - #{e}")
+          next
+        end
+
+        os_info = get_os_info(ip)
         print_status(os_info) if os_info
 
         if shares.empty?
-          print_status('No shares collected')
+          print_status('No shares available')
         else
-          shares_info = shares.map { |x| "#{x[0]} - (#{x[1]}) #{x[2]}" }.join(', ')
-          shares_info.split(', ').each do |share|
-            print_good share
+          shares.each do |share|
+            print_good("#{share[:name]} - (#{share[:type]}) #{share[:comment]}")
           end
+
+          # Map RubySMB shares to the same data format as it was with Rex SMB
+          report_shares = shares.map { |share| [share[:name], share[:type], share[:comment]] }
           report_note(
             host: ip,
             proto: 'tcp',
             port: rport,
             type: 'smb.shares',
-            data: { shares: shares },
+            data: { shares: report_shares },
             update: :unique_data
           )
 
           if datastore['SpiderShares']
-            begin
-              connect(versions: [1])
-              smb_login
-              get_files_info(ip, rport, shares, info)
-            rescue ::Rex::Proto::SMB::Exceptions::Error, Errno::ECONNRESET => e
-              print_error(
-                "Error when Spidering shares recursively (#{e}). This feature "\
-                'is only available with Rex client (SMB1 only) and the host '\
-                "probably doesn't support SMB1."
-              )
-            end
+            get_files_info(ip, shares)
           end
-
-          break if rport == 139
         end
       rescue ::Interrupt
         raise $ERROR_INFO
-      rescue ::Rex::Proto::SMB::Exceptions::LoginError,
-             ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-        print_error(e.message)
-        return if e.message =~ /STATUS_ACCESS_DENIED/
-      rescue Errno::ECONNRESET,
-             ::Rex::Proto::SMB::Exceptions::InvalidType,
-             ::Rex::Proto::SMB::Exceptions::ReadPacket,
-             ::Rex::Proto::SMB::Exceptions::InvalidCommand,
-             ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
-             ::Rex::Proto::SMB::Exceptions::NoReply => e
+      rescue Errno::ECONNRESET => e
         vprint_error(e.message)
-        next if !shares.empty? && (rport == 139) # no results, try again
       rescue Errno::ENOPROTOOPT
         print_status('Wait 5 seconds before retrying...')
         select(nil, nil, nil, 5)
         retry
-      rescue ::Exception => e
-        next if e.to_s =~ /execution expired/
-        next if !shares.empty? && (rport == 139)
-
+      rescue Rex::ConnectionTimeout => e
+        print_error(e.to_s)
+        return
+      rescue Rex::Proto::SMB::Exceptions::LoginError => e
+        print_error(e.to_s)
+      rescue RubySMB::Error::RubySMBError => e
+        print_error("RubySMB encountered an error: #{e}")
+        return
+      rescue RuntimeError => e
+        print_error e.to_s
+        return
+      rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure
         disconnect
