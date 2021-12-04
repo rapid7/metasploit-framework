@@ -683,6 +683,7 @@ module Msf
             print_line '  search eternalblue'
             print_line '  use <name|index>'
             print_line
+            print_april_fools_module_use
           end
 
           #
@@ -1247,6 +1248,13 @@ module Msf
 
             return dangerzone_modules_to_codenames(res.sort) if dangerzone_active?
             return res.sort
+          end
+
+          def print_april_fools_module_use
+            return unless ENV['APRILFOOLSMODULEUSE'] || Time.now.strftime("%m%d") == "0401"
+
+            banner = Msf::Ui::Banner.readfile('help-using-a-module.txt')
+            print_line("%grn#{banner}%clr")
           end
 
           #
