@@ -1577,7 +1577,7 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspace.id} **(Current)** | 0 | 0 | 0 | 0 |
+        | #{workspace.id.to_s(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
@@ -1639,7 +1639,7 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspace.id} **(Current)** | 1 | 1 | 1 | 1 |
+        | #{workspace.id.to_s(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
@@ -1729,11 +1729,11 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[1].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[3].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[4].id} **(Current)** | 0 | 0 | 0 | 0 |
+        | #{workspaces[0].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[1].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[2].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[3].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id.to_s(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
@@ -1801,11 +1801,11 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id} | 1 | 1 | 1 | 1 |
-        | #{workspaces[1].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id} | 1 | 1 | 1 | 1 |
-        | #{workspaces[3].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[4].id} **(Current)** | 1 | 1 | 1 | 1 |
+        | #{workspaces[0].id.to_s(:delimited)} | 1 | 1 | 1 | 1 |
+        | #{workspaces[1].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[2].id.to_s(:delimited)} | 1 | 1 | 1 | 1 |
+        | #{workspaces[3].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id.to_s(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
