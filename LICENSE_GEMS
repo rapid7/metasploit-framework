@@ -10,7 +10,7 @@ afm, 0.2.2, MIT
 arel-helpers, 2.12.1, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
-aws-partitions, 1.538.0, "Apache 2.0"
+aws-partitions, 1.539.0, "Apache 2.0"
 aws-sdk-core, 3.124.0, "Apache 2.0"
 aws-sdk-ec2, 1.286.0, "Apache 2.0"
 aws-sdk-iam, 1.64.0, "Apache 2.0"
@@ -75,7 +75,7 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.3, "New BSD"
 metasploit-credential, 5.0.5, "New BSD"
-metasploit-framework, 6.1.18, "New BSD"
+metasploit-framework, 6.1.19, "New BSD"
 metasploit-model, 4.0.3, "New BSD"
 metasploit-payloads, 2.0.60, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.4, "New BSD"
@@ -123,7 +123,7 @@ rake, 13.0.6, MIT
 rb-readline, 0.5.5, BSD
 recog, 2.3.21, unknown
 redcarpet, 3.5.1, MIT
-regexp_parser, 2.1.1, MIT
+regexp_parser, 2.2.0, MIT
 reline, 0.2.5, ruby
 rex-arch, 0.1.14, "New BSD"
 rex-bin_tools, 0.1.8, "New BSD"

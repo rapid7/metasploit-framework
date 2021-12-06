@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.18)
+    metasploit-framework (6.1.19)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -127,7 +127,7 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.538.0)
+    aws-partitions (1.539.0)
     aws-sdk-core (3.124.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
@@ -340,7 +340,7 @@ GEM
     recog (2.3.21)
       nokogiri
     redcarpet (3.5.1)
-    regexp_parser (2.1.1)
+    regexp_parser (2.2.0)
     reline (0.2.5)
       io-console (~> 0.5)
     rex-arch (0.1.14)
