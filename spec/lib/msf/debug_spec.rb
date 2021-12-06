@@ -1559,6 +1559,7 @@ RSpec.describe Msf::Ui::Debug do
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
 
       allow(::Mdm::Workspace).to receive(:count).and_return(1)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
       allow(::Mdm::Host).to receive(:count).and_return(0)
       allow(::Mdm::Vuln).to receive(:count).and_return(0)
       allow(::Mdm::Note).to receive(:count).and_return(0)
@@ -1621,6 +1622,7 @@ RSpec.describe Msf::Ui::Debug do
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
 
       allow(::Mdm::Workspace).to receive(:count).and_return(1)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
       allow(::Mdm::Host).to receive(:count).and_return(1)
       allow(::Mdm::Vuln).to receive(:count).and_return(1)
       allow(::Mdm::Note).to receive(:count).and_return(1)
@@ -1711,6 +1713,7 @@ RSpec.describe Msf::Ui::Debug do
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
 
       allow(::Mdm::Workspace).to receive(:count).and_return(5)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
       allow(::Mdm::Host).to receive(:count).and_return(0)
       allow(::Mdm::Vuln).to receive(:count).and_return(0)
       allow(::Mdm::Note).to receive(:count).and_return(0)
@@ -1783,6 +1786,7 @@ RSpec.describe Msf::Ui::Debug do
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
 
       allow(::Mdm::Workspace).to receive(:count).and_return(5)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
       allow(::Mdm::Host).to receive(:count).and_return(2)
       allow(::Mdm::Vuln).to receive(:count).and_return(2)
       allow(::Mdm::Note).to receive(:count).and_return(2)
