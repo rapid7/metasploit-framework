@@ -218,14 +218,6 @@ class DataStore < Hash
     ini.to_file(path)
   end
 
-  def delete_config(path, name)
-    ini = Rex::Parser::Ini.new(path)
-
-    ini.delete(name)
-
-    ini.to_file(path)
-  end
-
   #
   # Imports datastore values from the specified file path using the supplied
   # name

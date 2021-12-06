@@ -97,7 +97,7 @@ class Core
     "-h" => [ false, "Help banner."                                                                   ],
     "-r" => [ false, "Reload default options for the active module."                                  ],
     "-l" => [ false, "Load the saved options for the active module."                                  ],
-    "-D" => [ false, "Delete saved options for all modules from the config file."                     ])
+    "-d" => [ false, "Delete saved options for all modules from the config file."                     ])
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -1214,6 +1214,7 @@ class Core
     print_line 'Usage: save [options]'
     print_line
     print_line 'Save the active datastore contents to disk for automatic use across restarts of the console'
+    print_line "The configuration is stored in #{Msf::Config.config_file}"
     print @@save_opts.usage
   end
 
@@ -1224,7 +1225,7 @@ class Core
   def cmd_save(*args)
     if args.include?('-h') || args.include?('--help')
       cmd_save_help
-      return
+      return false
     end
 
     if args.empty?
@@ -1242,7 +1243,7 @@ class Core
       begin
         framework.save_config
 
-        if (active_module)
+        if active_module
           active_module.save_config
         end
       rescue
@@ -1255,12 +1256,20 @@ class Core
 
     @@save_opts.parse(args) do |opt|
       case opt
-      when '-D'
+      when '-d'
         # Delete all saved options for modules from the config file.
         # No framework options will be deleted.
-        driver.delete_config
+        begin
+          ini = Rex::Parser::Ini.new(::Msf::Config.config_file)
 
-        if (active_module)
+          ini.delete_if { |k, _v| !k.start_with?('framework') }
+
+          ini.to_file(::Msf::Config.config_file)
+        rescue StandardError
+          print_error("Failed to delete console config: #{$!}")
+        end
+
+        if active_module
           active_module.import_defaults
         end
         print_line('Deleted saved configs for all modules.')
@@ -1269,9 +1278,9 @@ class Core
         print_line('Reloaded default options.')
       when '-l'
         active_module.load_config
-        print_line('Loaded previously saved options.')
+        print_line("Loaded config from #{Msf::Config.config_file}.")
       else
-        print_line('Unknown save option. Type `save -h` for more information.')
+        cmd_save_help
         return false
       end
     end
