@@ -1270,13 +1270,14 @@ class Console::CommandDispatcher::Core
     @@load_opts.parse(args) { |opt, idx, val|
       case opt
       when '-l'
-        exts = SortedSet.new
+        exts = Set.new
         if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
           # Use API to get list of extensions from the gem
           exts.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
         else
           exts.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
         end
+        exts = exts.sort.uniq
         print(exts.to_a.join("\n") + "\n")
 
         return true
@@ -1374,12 +1375,13 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_load_tabs(str, words)
-    tabs = SortedSet.new
+    tabs = Set.new
     if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
       tabs.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
     else
       tabs.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
     end
+    tabs = tabs.sort.uniq
     return tabs.to_a
   end
 
