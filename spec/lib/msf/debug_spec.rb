@@ -1529,13 +1529,6 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   context 'Database Configuration Debug' do
-    before(:each) do
-      ::Mdm::Workspace.delete_all
-      ::Mdm::Host.delete_all
-      ::Mdm::Vuln.delete_all
-      ::Mdm::Service.delete_all
-      ::Mdm::Note.delete_all
-    end
 
     it 'correctly retrieves the current empty workspace with DB connected' do
       workspace = FactoryBot.create(:mdm_workspace)
@@ -1565,6 +1558,12 @@ RSpec.describe Msf::Ui::Debug do
       allow(connection_pool).to receive(:with_connection).and_yield(connection)
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
 
+      allow(::Mdm::Workspace).to receive(:count).and_return(1)
+      allow(::Mdm::Host).to receive(:count).and_return(0)
+      allow(::Mdm::Vuln).to receive(:count).and_return(0)
+      allow(::Mdm::Note).to receive(:count).and_return(0)
+      allow(::Mdm::Service).to receive(:count).and_return(0)
+
       expected_output = <<~OUTPUT
         ##  %grnDatabase Configuration%clr
 
@@ -1579,7 +1578,7 @@ RSpec.describe Msf::Ui::Debug do
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
         | #{workspace.id} **(Current)** | 0 | 0 | 0 | 0 |
-        | **Total (1)** | **0** | **0** | **0** | **0** |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
 
@@ -1590,7 +1589,7 @@ RSpec.describe Msf::Ui::Debug do
     end
 
     it 'correctly retrieves the current workspace with contents with DB connected' do
-      workspace = FactoryBot.create(:mdm_workspace, id: 1)
+      workspace = FactoryBot.create(:mdm_workspace)
       host = FactoryBot.create(:mdm_host, workspace: workspace)
       vuln = FactoryBot.create(:mdm_vuln, host: host)
       service = FactoryBot.create(:mdm_service, host: host)
@@ -1621,6 +1620,12 @@ RSpec.describe Msf::Ui::Debug do
       allow(connection_pool).to receive(:with_connection).and_yield(connection)
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
 
+      allow(::Mdm::Workspace).to receive(:count).and_return(1)
+      allow(::Mdm::Host).to receive(:count).and_return(1)
+      allow(::Mdm::Vuln).to receive(:count).and_return(1)
+      allow(::Mdm::Note).to receive(:count).and_return(1)
+      allow(::Mdm::Service).to receive(:count).and_return(1)
+
       expected_output = <<~OUTPUT
         ##  %grnDatabase Configuration%clr
 
@@ -1635,7 +1640,7 @@ RSpec.describe Msf::Ui::Debug do
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
         | #{workspace.id} **(Current)** | 1 | 1 | 1 | 1 |
-        | **Total (1)** | **1** | **1** | **1** | **1** |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
 
@@ -1678,11 +1683,7 @@ RSpec.describe Msf::Ui::Debug do
     end
 
     it 'correctly retrieves multiple empty workspaces with DB connected' do
-      workspaces = []
-      5.times do
-        workspaces.push FactoryBot.create(:mdm_workspace)
-      end
-      workspaces.sort_by!(&:id)
+      workspaces = 5.times.map { FactoryBot.create(:mdm_workspace) }
 
       db = instance_double(
         Msf::DBManager,
@@ -1708,6 +1709,12 @@ RSpec.describe Msf::Ui::Debug do
       )
       allow(connection_pool).to receive(:with_connection).and_yield(connection)
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+
+      allow(::Mdm::Workspace).to receive(:count).and_return(5)
+      allow(::Mdm::Host).to receive(:count).and_return(0)
+      allow(::Mdm::Vuln).to receive(:count).and_return(0)
+      allow(::Mdm::Note).to receive(:count).and_return(0)
+      allow(::Mdm::Service).to receive(:count).and_return(0)
 
       expected_output = <<~OUTPUT
         ##  %grnDatabase Configuration%clr
@@ -1727,7 +1734,7 @@ RSpec.describe Msf::Ui::Debug do
         | #{workspaces[2].id} | 0 | 0 | 0 | 0 |
         | #{workspaces[3].id} | 0 | 0 | 0 | 0 |
         | #{workspaces[4].id} **(Current)** | 0 | 0 | 0 | 0 |
-        | **Total (5)** | **0** | **0** | **0** | **0** |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
 
@@ -1738,16 +1745,17 @@ RSpec.describe Msf::Ui::Debug do
     end
 
     it 'correctly retrieves multiple workspaces with content with DB connected' do
-      workspaces = []
-      5.times do
+      workspaces = 5.times.map do |index|
         workspace = FactoryBot.create(:mdm_workspace)
-        host = FactoryBot.create(:mdm_host, workspace: workspace)
-        vuln = FactoryBot.create(:mdm_vuln, host: host)
-        service = FactoryBot.create(:mdm_service, host: host)
-        note = FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
-        workspaces.push workspace
+        # Only some of the workspaces should have values to make the output not be the same for every workspace.
+        if index.even?
+          host = FactoryBot.create(:mdm_host, workspace: workspace)
+          vuln = FactoryBot.create(:mdm_vuln, host: host)
+          service = FactoryBot.create(:mdm_service, host: host)
+          note = FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
+        end
+        workspace
       end
-      workspaces.sort_by!(&:id)
 
       db = instance_double(
         Msf::DBManager,
@@ -1773,6 +1781,12 @@ RSpec.describe Msf::Ui::Debug do
       )
       allow(connection_pool).to receive(:with_connection).and_yield(connection)
       allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+
+      allow(::Mdm::Workspace).to receive(:count).and_return(5)
+      allow(::Mdm::Host).to receive(:count).and_return(2)
+      allow(::Mdm::Vuln).to receive(:count).and_return(2)
+      allow(::Mdm::Note).to receive(:count).and_return(2)
+      allow(::Mdm::Service).to receive(:count).and_return(2)
 
       expected_output = <<~OUTPUT
         ##  %grnDatabase Configuration%clr
@@ -1788,75 +1802,11 @@ RSpec.describe Msf::Ui::Debug do
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
         | #{workspaces[0].id} | 1 | 1 | 1 | 1 |
-        | #{workspaces[1].id} | 1 | 1 | 1 | 1 |
-        | #{workspaces[2].id} | 1 | 1 | 1 | 1 |
-        | #{workspaces[3].id} | 1 | 1 | 1 | 1 |
-        | #{workspaces[4].id} **(Current)** | 1 | 1 | 1 | 1 |
-        | **Total (5)** | **5** | **5** | **5** | **5** |
-
-        </details>
-
-
-      OUTPUT
-
-      expect(subject.database_configuration(framework)).to eql(expected_output)
-    end
-
-    it 'correctly retrieves multiple empty workspaces after deleting a workspace with DB connected' do
-      workspaces = []
-      5.times do
-        workspace = FactoryBot.create(:mdm_workspace)
-        workspaces.push workspace
-      end
-      workspaces.sort_by!(&:id)
-
-      to_delete = workspaces[1]
-      workspaces.delete(to_delete)
-      ::Mdm::Workspace.delete(to_delete)
-
-      db = instance_double(
-        Msf::DBManager,
-        connection_established?: true,
-        name: 'msf',
-        driver: 'postgresql',
-        active: true,
-        workspace: workspaces.last,
-        workspaces: workspaces
-      )
-
-      framework = instance_double(
-        ::Msf::Framework,
-        version: 'VERSION',
-        db: db
-      )
-
-      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
-      connection = double(
-        'connection',
-        current_database: 'msf',
-        respond_to?: true
-      )
-      allow(connection_pool).to receive(:with_connection).and_yield(connection)
-      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
-
-      expected_output = <<~OUTPUT
-        ##  %grnDatabase Configuration%clr
-
-        The database contains the following information:
-        <details>
-        <summary>Collapse</summary>
-
-        ```
-        Session Type: Connected to msf. Connection type: postgresql.
-        ```
-
-        | ID | Hosts | Vulnerabilities | Notes | Services |
-        |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id} | 0 | 0 | 0 | 0 |
         | #{workspaces[1].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id} | 0 | 0 | 0 | 0 |
-        | #{workspaces[3].id} **(Current)** | 0 | 0 | 0 | 0 |
-        | **Total (4)** | **0** | **0** | **0** | **0** |
+        | #{workspaces[2].id} | 1 | 1 | 1 | 1 |
+        | #{workspaces[3].id} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id} **(Current)** | 1 | 1 | 1 | 1 |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
 

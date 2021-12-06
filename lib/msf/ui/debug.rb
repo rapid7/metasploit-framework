@@ -163,7 +163,7 @@ module Msf
           example_workspaces = ::Mdm::Workspace.order(id: :desc).take(10)
           ordered_workspaces = ([current_workspace] + example_workspaces).uniq.sort_by(&:id)
           workspace_rows = ordered_workspaces.map do |workspace|
-            id = current_workspace.id == workspace.id ? "#{workspace.id} **(Current)**" : workspace.id
+            id = current_workspace.id == workspace.id ? "#{workspace.id.to_s(:delimited)} **(Current)**" : workspace.id.to_s(:delimited)
             [
               id,
               workspace.hosts.count.to_s(:delimited),
