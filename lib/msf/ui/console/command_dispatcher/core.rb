@@ -64,11 +64,12 @@ class Core
 
   @@debug_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
-    "-d" => [ false, "Display the Datastore Information."             ],
+    "-d" => [ false, "Display the datastore information."             ],
     "-c" => [ false, "Display command history."                       ],
     "-e" => [ false, "Display the most recent Error and Stack Trace." ],
     "-l" => [ false, "Display the most recent logs."                  ],
-    "-v" => [ false, "Display versions and install info."             ])
+    "-v" => [ false, "Display versions and install info."             ],
+    "-s" => [ false, "Display database statistics."                   ])
 
   @@connect_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -311,6 +312,8 @@ class Core
           output << Debug.logs
         when '-v'
           output << Debug.versions(framework)
+        when '-s'
+          output << Debug.database_configuration(framework)
         end
       end
 
