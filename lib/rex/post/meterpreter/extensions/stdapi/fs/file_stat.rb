@@ -22,35 +22,6 @@ class FileStat < Rex::Post::FileStat
     attr_accessor :client
   end
 
-  @@struct_stat = [
-    'st_dev',     4,  # 0
-    'st_mode',    4,  # 4
-    'st_nlink',   4,  # 8
-    'st_uid',     4,  # 12
-    'st_gid',     4,  # 16
-    'st_rdev',    4,  # 20
-    'st_ino',     8,  # 24
-    'st_size',    8,  # 32
-    'st_atime',   8,  # 40
-    'st_mtime',   8,  # 48
-    'st_ctime',   8,  # 56
-  ]
-
-  @@struct_stat32 = [
-    'st_dev',     4,  # 0
-    'st_ino',     2,  # 4
-    'st_mode',    2,  # 6
-    'st_nlink',   2,  # 8
-    'st_uid',     2,  # 10
-    'st_gid',     2,  # 12
-    'pad1',       2,  # 14
-    'st_rdev',    4,  # 16
-    'st_size',    4,  # 20
-    'st_atime',   8,  # 24
-    'st_mtime',   8,  # 32
-    'st_ctime',   8,  # 40
-  ]
-
   ##
   #
   # Constructor
@@ -61,73 +32,14 @@ class FileStat < Rex::Post::FileStat
   # Returns an instance of a FileStat object.
   #
   def initialize(file)
-    self.stathash = stat(file) if (file)
-  end
-
-  #
-  # Swaps in a new stat hash.
-  #
-  def update(stat_buf)
-    elem   = @@struct_stat
-    hash   = {}
-    offset = 0
-    index  = 0
-
-    while (index < elem.length)
-      size = elem[index + 1]
-      format = 'V'
-      case size
-      when 2
-        format = 'v'
-      when 8
-        format = 'Q'
-      end
-
-      value = stat_buf[offset, size].unpack(format)[0]
-      offset += size
-
-      hash[elem[index]] = value
-
-      index += 2
-    end
-
-    return (self.stathash = hash)
-  end
-
-  #
-  # Swaps in a new old style stat hash.
-  #
-  def update32(stat_buf)
-    elem   = @@struct_stat32
-    hash   = {}
-    offset = 0
-    index  = 0
-
-    while (index < elem.length)
-      size = elem[index + 1]
-
-      value   = stat_buf[offset, size].unpack(size == 2 ? 'v' : 'V')[0]
-      offset += size
-
-      hash[elem[index]] = value
-
-      index += 2
-    end
-
-    return (self.stathash = hash)
+    super
+    stat(file) if (file)
   end
 
 protected
-
-  ##
-  #
-  # Initializer
-  #
-  ##
-
   #
   # Gets information about the supplied file and returns a populated
-  # hash to the requestor.
+  # hash to the requester.
   #
   def stat(file)
     request = Packet.create_request(COMMAND_ID_STDAPI_FS_STAT)
