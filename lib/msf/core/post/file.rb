@@ -658,16 +658,18 @@ module Msf::Post::File
     else
       file_mode = 'Create'
     end
-    pwsh_code = %($encoded=\"#{encoded_chunk}\";
-    $mstream = [System.IO.MemoryStream]::new([System.Convert]::FromBase64String($encoded));
-    $reader = [System.IO.StreamReader]::new([System.IO.Compression.GZipStream]::new($mstream,[System.IO.Compression.CompressionMode]::Decompress));
-    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{file_mode})
-    $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
-    $reader.BaseStream.Read($file_bytes,0,$file_bytes.Length);
-    $filename.Write($file_bytes, 0, $file_bytes.Length);
-    $filename.Close();
-    $mstream.Close();
-    $reader.Close();)
+    pwsh_code = <<~PSH
+      $encoded='#{encoded_chunk}';
+      $gzip_bytes=[System.Convert]::FromBase64String($encoded);
+      $mstream = New-Object System.IO.MemoryStream(,$gzip_bytes);
+      $gzipstream = New-Object System.IO.Compression.GzipStream $mstream, ([System.IO.Compression.CompressionMode]::Decompress);
+      $filestream = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{file_mode});
+      $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
+      $gzipstream.Read($file_bytes,0,$file_bytes.Length);
+      $filestream.Write($file_bytes,0,$file_bytes.Length);
+      $filestream.Close();
+      $gzipstream.Close();
+    PSH
     cmd_exec(pwsh_code)
   end
 
@@ -687,12 +689,15 @@ module Msf::Post::File
   end
 
   def _read_file_powershell_fragment(filename, chunk_size, offset = 0)
-    b64_data = cmd_exec("$mstream = [System.IO.MemoryStream]::new();\
-      $gzipstream = [System.IO.Compression.GZipStream]::new($mstream, [System.IO.Compression.CompressionMode]::Compress);\
-      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{offset}..#{offset + chunk_size - 1}];\
-      $gzipstream.Write($get_bytes, 0 , $get_bytes.Length);\
-      $gzipstream.Close();\
-      [Convert]::ToBase64String($mstream.ToArray())")
+    pwsh_code = <<~PSH
+      $mstream = New-Object System.IO.MemoryStream;
+      $gzipstream = New-Object System.IO.Compression.GZipStream($mstream, [System.IO.Compression.CompressionMode]::Compress);
+      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{offset}..#{offset + chunk_size - 1}];
+      $gzipstream.Write($get_bytes, 0, $get_bytes.Length);
+      $gzipstream.Close();
+      [System.Convert]::ToBase64String($mstream.ToArray());
+    PSH
+    b64_data = cmd_exec(pwsh_code)
     return nil if b64_data.empty?
 
     uncompressed_fragment = Zlib::GzipReader.new(StringIO.new(Base64.decode64(b64_data))).read

