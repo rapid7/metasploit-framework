@@ -99,7 +99,7 @@ class Dir < Rex::Post::Dir
     fname.each_with_index { |file_name, idx|
       st = nil
 
-      if (sbuf[idx])
+      if sbuf[idx] && sbuf[idx].value.length > 0
         st = ::Rex::Post::FileStat.new
         if new_stat_buf
           st.update(sbuf[idx].value)
