@@ -198,7 +198,7 @@ class FileStat
   #
   def prettymode
     m  = mode
-    om = '%04o' % m
+    om = '%06o' % m
     perms = ''
 
     3.times {
