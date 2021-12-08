@@ -94,6 +94,12 @@ class Core
     "-n" => [ true,  "Show the last n commands."                      ],
     "-c" => [ false, "Clear command history and history file."        ])
 
+  @@save_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                                                   ],
+    "-r" => [ false, "Reload default options for the active module."                                  ],
+    "-l" => [ false, "Load the saved options for the active module."                                  ],
+    "-d" => [ false, "Delete saved options for all modules from the config file."                     ])
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -1206,42 +1212,81 @@ class Core
     ret
   end
 
+  # Print save help information
   def cmd_save_help
-    print_line "Usage: save"
+    print_line 'Usage: save [options]'
     print_line
-    print_line "Save the active datastore contents to disk for automatic use across restarts of the console"
-    print_line
+    print_line 'Save the active datastore contents to disk for automatic use across restarts of the console'
     print_line "The configuration is stored in #{Msf::Config.config_file}"
-    print_line
+    print @@save_opts.usage
   end
 
   #
-  # Saves the active datastore contents to disk for automatic use across
+  # Deletes or saves the active datastore contents to disk for automatic use across
   # restarts of the console.
   #
   def cmd_save(*args)
-    # Save the console config
-    driver.save_config
-
-    begin
-      FeatureManager.instance.save_config
-    rescue StandardException => e
-      elog(e)
-    end
-
-    # Save the framework's datastore
-    begin
-      framework.save_config
-
-      if (active_module)
-        active_module.save_config
-      end
-    rescue
-      log_error("Save failed: #{$!}")
+    if args.include?('-h') || args.include?('--help')
+      cmd_save_help
       return false
     end
 
-    print_line("Saved configuration to: #{Msf::Config.config_file}")
+    if args.empty?
+      # Save config for current module
+      # Save the console config
+      driver.save_config
+
+      begin
+        FeatureManager.instance.save_config
+      rescue StandardException => e
+        elog(e)
+      end
+
+      # Save the framework's datastore
+      begin
+        framework.save_config
+
+        if active_module
+          active_module.save_config
+        end
+      rescue
+        log_error("Save failed: #{$!}")
+        return false
+      end
+
+      print_line("Saved configuration to: #{Msf::Config.config_file}")
+    end
+
+    @@save_opts.parse(args) do |opt|
+      case opt
+      when '-d'
+        # Delete all saved options for modules from the config file.
+        # No framework options will be deleted.
+        begin
+          ini = Rex::Parser::Ini.new(::Msf::Config.config_file)
+
+          ini.delete_if { |k, _v| !k.start_with?('framework') }
+
+          ini.to_file(::Msf::Config.config_file)
+        rescue StandardError
+          print_error("Failed to delete console config: #{$!}")
+        end
+
+        if active_module
+          active_module.import_defaults
+        end
+        print_line('Deleted saved configs for all modules.')
+      when '-r'
+        active_module.import_defaults
+        print_line('Reloaded default options.')
+      when '-l'
+        active_module.load_config
+        print_line("Loaded config from #{Msf::Config.config_file}.")
+      else
+        cmd_save_help
+        return false
+      end
+    end
   end
 
   def cmd_spool_help
