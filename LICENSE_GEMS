@@ -7,10 +7,10 @@ activerecord, 6.1.4.1, MIT
 activesupport, 6.1.4.1, MIT
 addressable, 2.8.0, "Apache 2.0"
 afm, 0.2.2, MIT
-arel-helpers, 2.12.1, MIT
+arel-helpers, 2.13.0, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
-aws-partitions, 1.539.0, "Apache 2.0"
+aws-partitions, 1.540.0, "Apache 2.0"
 aws-sdk-core, 3.124.0, "Apache 2.0"
 aws-sdk-ec2, 1.286.0, "Apache 2.0"
 aws-sdk-iam, 1.64.0, "Apache 2.0"
@@ -75,7 +75,7 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.3, "New BSD"
 metasploit-credential, 5.0.5, "New BSD"
-metasploit-framework, 6.1.19, "New BSD"
+metasploit-framework, 6.1.20, "New BSD"
 metasploit-model, 4.0.3, "New BSD"
 metasploit-payloads, 2.0.65, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.4, "New BSD"
@@ -102,7 +102,7 @@ openssl-cmac, 2.0.1, MIT
 openvas-omp, 0.0.4, MIT
 packetfu, 1.1.13, BSD
 parallel, 1.21.0, MIT
-parser, 3.0.3.1, MIT
+parser, 3.0.3.2, MIT
 patch_finder, 1.0.2, "New BSD"
 pcaprub, 0.12.4, LGPL-2.1
 pdf-reader, 2.6.0, MIT
