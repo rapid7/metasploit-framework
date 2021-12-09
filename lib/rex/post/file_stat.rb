@@ -73,7 +73,7 @@ class FileStat
   end
 
   def update(buf)
-    skeys = %W{st_dev st_mode st_nlink st_uid st_gid st_rdev st_ino st_size st_ctime st_atime st_mtime}
+    skeys = %W{st_dev st_mode st_nlink st_uid st_gid st_rdev st_ino st_size st_atime st_mtime st_ctime}
     svals = buf.unpack("VVVVVVQQQQQ")
     skeys.each_index do |i|
       self.stathash[ skeys[i] ] = svals[i]
