@@ -1,6 +1,8 @@
 admin
 manager
 role1
+role
 root
 tomcat
 both
+QCC
