@@ -77,9 +77,9 @@ metasploit-concern, 4.0.3, "New BSD"
 metasploit-credential, 5.0.5, "New BSD"
 metasploit-framework, 6.1.20, "New BSD"
 metasploit-model, 4.0.3, "New BSD"
-metasploit-payloads, 2.0.65, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.66, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.4, "New BSD"
-metasploit_payloads-mettle, 1.0.15, "3-clause (or ""modified"") BSD"
+metasploit_payloads-mettle, 1.0.17, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
 mini_portile2, 2.6.1, MIT
 minitest, 5.14.4, MIT
