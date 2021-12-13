@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 #
 # A mixin used for providing Modules with post-exploitation options and helper methods
 
@@ -11,7 +12,6 @@ module Msf
   class Post
     module Windows
       module Packrat
-
         include Msf::Post::File
         include Msf::Post::Windows::UserProfiles
 
@@ -88,7 +88,6 @@ module Msf
         end
 
         def extract_regex(saving_path, artifact_child, artifact, local_loc)
-
           file_string = ''
           ::File.open(saving_path.to_s, 'rb').each do |file_content|
             file_string << file_content.to_s
@@ -150,9 +149,12 @@ module Msf
           print_status e.to_s
         end
 
+        # rubocop:disable Lint/UselessAssignment
+        # rubocop:disable Lint/UnusedBlockArgument
+        # rubocop:disable Style/Eval
         def extract_json(saving_path, artifact_child, artifact, local_loc)
           json_file = ::File.read(saving_path.to_s)
-          json_parse = JSON.parse(json_file)
+          json_parse = JSON.parse(json_file) # rubocop:disable Lint/UselessAssignment
           parent_json_query = ''
           child_json_query = []
           json_credential_save = []
@@ -183,6 +185,9 @@ module Msf
         rescue StandardError => e
           print_status e.to_s
         end
+        # rubocop:enable Lint/UselessAssignment
+        # rubocop:enable Lint/UnusedBlockArgument
+        # rubocop:enable Style/Eval
 
         # Download file from the remote system, if it exists.
         def packrat_download_file(saving_path, file_to_download, file, application)
@@ -243,7 +248,6 @@ module Msf
 
             # Download each files found
             found_files.each do |file|
-
               vprint_status "Processing #{file['path']}"
 
               file_split = file['path'].split('\\')
