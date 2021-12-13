@@ -17,8 +17,16 @@ module Process
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              core_channel_*
-              stdapi_sys_process_*
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_attach
+              stdapi_sys_process_execute
+              stdapi_sys_process_getpid
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_protect
+              stdapi_sys_process_memory_write
+              stdapi_sys_process_thread_create
             ]
           }
         }

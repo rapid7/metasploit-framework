@@ -13,8 +13,12 @@ module Msf::Post::File
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              core_channel_*
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
               stdapi_fs_chdir
+              stdapi_fs_chmod
               stdapi_fs_delete_dir
               stdapi_fs_delete_file
               stdapi_fs_file_expand_path
@@ -22,7 +26,9 @@ module Msf::Post::File
               stdapi_fs_getwd
               stdapi_fs_ls
               stdapi_fs_mkdir
+              stdapi_fs_separator
               stdapi_fs_stat
+              stdapi_railgun_api
             ]
           }
         }

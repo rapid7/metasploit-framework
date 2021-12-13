@@ -14,7 +14,28 @@ module Msf
 
         include Msf::Post::File
         include Msf::Post::Windows::UserProfiles
-		  
+
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    core_channel_close
+                    core_channel_eof
+                    core_channel_open
+                    core_channel_read
+                    stdapi_fs_search
+                    stdapi_fs_separator
+                    stdapi_fs_stat
+                  ]
+                }
+              }
+            )
+          )
+        end
+
         # Check to see if the application base folder exists on the remote system.
         def parent_folder_available?(path, dir, application)
           parent_folder = dir.split('\\').first

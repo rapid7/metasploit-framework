@@ -9,10 +9,26 @@
 ###
 
 module Msf::Post::Windows::ReflectiveDLLInjection
-
   include Msf::ReflectiveDLLLoader
 
   PAGE_ALIGN = 1024
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_protect
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
+      )
+    )
+  end
 
   # Inject the given shellcode into a target process.
   #
