@@ -35,6 +35,7 @@ module Msf::Post::Windows::Priv
               stdapi_sys_config_getsid
               stdapi_sys_config_steal_token
               stdapi_sys_config_sysinfo
+              stdapi_sys_process_get_processes
             ]
           }
         }
