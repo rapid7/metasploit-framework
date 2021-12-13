@@ -283,6 +283,11 @@ module Msf::PostMixin
       end
     end
 
+    # Windows does not support chmod, but will be defined by default in the file mixin
+    if session.base_platform == 'windows'
+      cmd_ids -= [Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_CHMOD]
+    end
+
     missing_cmd_ids = (cmd_ids - session.commands)
     unless missing_cmd_ids.empty?
       # If there are missing commands, try to load the necessary extension.
