@@ -37,17 +37,17 @@ module Msf
         end
 
         # Check to see if the application base folder exists on the remote system.
-        def parent_folder_available?(path, dir, application)
+        def parent_folder_available?(path, dir, _application)
           parent_folder = dir.split('\\').first
-          dirs = session.fs.dir.foreach(path).collect				
-			
-          return dirs.include? parent_folder 
+          dirs = session.fs.dir.foreach(path).collect
+
+          return dirs.include? parent_folder
         end
-		  
-		def artifact_folder_available?(path, dir, application, artifact_child)
-			parent_folder_path = "#{path}#{session.fs.file.separator}#{dir}"
-			return directory?(parent_folder_path)
-		end
+
+        def artifact_folder_available?(path, dir, _application, _artifact_child)
+          parent_folder_path = "#{path}#{session.fs.file.separator}#{dir}"
+          return directory?(parent_folder_path)
+        end
 
         def find_files(userprofile, application, artifact, path, dir)
           file_directory = "#{path}\\#{dir}"
@@ -101,13 +101,13 @@ module Msf
 
           artifact_child[:regex_search].each do |reg_child|
             reg_child[:regex].map { |r| Regexp.new(r) }.each do |regex_to_match|
-              if file_string =~ regex_to_match
-                file_string.scan(regex_to_match).each do |found_credential|
-                  file_strip = found_credential.gsub(/\s+/, '').to_s
-                  vprint_status(reg_child[:extraction_description].to_s)
-                  print_good file_strip
-                  credential_array << file_strip
-                end
+              next unless file_string =~ regex_to_match
+
+              file_string.scan(regex_to_match).each do |found_credential|
+                file_strip = found_credential.gsub(/\s+/, '').to_s
+                vprint_status(reg_child[:extraction_description].to_s)
+                print_good file_strip
+                credential_array << file_strip
               end
             end
           end
@@ -167,7 +167,7 @@ module Msf
 
           child_json_query.each do |split|
             children = eval("json_parse#{parent_json_query}")
-            children.each do |child_node|
+            children.each do |_child_node|
               child = eval("child_node#{split}").to_s
               json_credential_save << "#{split}:  #{child}"
             end
@@ -217,19 +217,17 @@ module Msf
             else
               vprint_error("#{application.capitalize}'s base folder not found in #{userprofile['UserName']}'s user directory\n")
               # skip non-existing file
-                next
+              next
             end
-			  
-			#Check the availability of the folder containing the artifact of interest.
-			if artifact_folder_available?(path, dir, application, artifact_child)
-				vprint_status("Found the folder containing specified artifact for #{artifact}.")
-			else
-				vprint_error("Could not find the folder for the specified artifact #{artifact} at #{dir}.\n")
-				# skip non-existing file
-                next
-			end
-			 
- 
+
+            # Check the availability of the folder containing the artifact of interest.
+            if artifact_folder_available?(path, dir, application, artifact_child)
+              vprint_status("Found the folder containing specified artifact for #{artifact}.")
+            else
+              vprint_error("Could not find the folder for the specified artifact #{artifact} at #{dir}.\n")
+              # skip non-existing file
+              next
+            end
 
             # Get the files that matches the pre-defined artifact name
             found_files = find_files(userprofile, application, artifact, path, dir)
