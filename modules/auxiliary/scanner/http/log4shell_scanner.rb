@@ -13,8 +13,10 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'Log4Shell HTTP Scanner',
       'Description' => %q{
-        Check and HTTP endpoint for the Log4Shell vulnerability. This will try a series of HTTP requests based on the
-        module configuration in an attempt to trigger a LDAP connections from a vulnerable instance.
+        This module will scan an HTTP end point for the Log4Shell vulnerability by injecting a format message that will
+        trigger an LDAP connection to Metasploit. This module is a generic scanner and is only capable of identifying
+        instances that are vulnerable via one of the pre-determined HTTP request injection points. These points include
+        HTTP headers and the HTTP request path.
       },
       'Author' => [
         'Spencer McIntyre'
@@ -73,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
       details = normalize_uri(context[:target_uri]).to_s
       details << " (header: #{context[:headers].keys.first})" unless context[:headers].nil?
       details << " (java: #{java_version})" unless java_version.blank?
-      print_good('Log4Shell found via ' + details)
+      print_good("#{peer} - Log4Shell found via #{details}")
       report_vuln(
         host: context[:rhost],
         port: context[:rport],
@@ -83,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     end
   rescue Net::LDAP::PDU::Error => e
-    vprint_error(e.to_s)
+    vprint_error("#{peer} - #{e}")
   ensure
     service.close_client(client)
   end
@@ -96,6 +98,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    fail_with(Failure::BadConfig, 'The SRVHOST option must be set to a routable IP address.') if ['0.0.0.0', '::'].include?(datastore['SRVHOST'])
     @tokens = {}
     # always disable SSL because the LDAP server doesn't use it but the setting is shared with the HTTP requests
     begin
