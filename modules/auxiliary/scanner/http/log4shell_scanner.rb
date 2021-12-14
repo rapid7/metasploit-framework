@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('HTTP_METHOD', [ true, 'The HTTP method to use', 'GET' ]),
       OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
       OptPath.new('HEADERS_FILE', [
-        true, 'File containing headers to check',
+        false, 'File containing headers to check',
         File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
       ]),
       OptPath.new('URIS_FILE', [ false, 'File containing additional URIs to check' ])
@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue Net::LDAP::PDU::Error => e
     vprint_error(e.to_s)
   ensure
-    client.close
+    service.close_client(client)
   end
 
   def rand_text_alpha_lower_numeric(len, bad = '')
@@ -98,19 +98,29 @@ class MetasploitModule < Msf::Auxiliary
   def run
     @tokens = {}
     # always disable SSL because the LDAP server doesn't use it but the setting is shared with the HTTP requests
-    start_service('SSL' => false)
+    begin
+      start_service('SSL' => false)
+    rescue Rex::BindFailed => e
+      fail_with(Failure::BadConfig, e.to_s)
+    end
+
     super
   ensure
     stop_service
   end
 
   def replicant
+    # don't duplicate the service
+    service = @service
+    @service = nil
     obj = super
+    @service = service
+
+    # but do duplicate the mutable tokens hash
     obj.tokens = tokens
     obj
   end
 
-  # Fingerprint a single host
   def run_host(ip)
     run_host_uri(ip, normalize_uri(target_uri)) unless target_uri.blank?
 
@@ -125,13 +135,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host_uri(_ip, uri)
-    headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
-    headers_file.lines.each do |header|
-      header.strip!
-      next if header.start_with?('#')
+    unless datastore['HEADERS_FILE'].blank?
+      headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
+      headers_file.lines.each do |header|
+        header.strip!
+        next if header.start_with?('#')
 
-      token = rand_text_alpha_lower_numeric(8..32)
-      test(token, uri: uri, headers: { header => jndi_string(token) })
+        token = rand_text_alpha_lower_numeric(8..32)
+        test(token, uri: uri, headers: { header => jndi_string(token) })
+      end
     end
 
     token = rand_text_alpha_lower_numeric(8..32)
