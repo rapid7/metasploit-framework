@@ -6,3 +6,8 @@ root
 tomcat
 both
 QCC
+j2deployer
+ovwebusr
+cxsdk
+ADMIN
+xampp
