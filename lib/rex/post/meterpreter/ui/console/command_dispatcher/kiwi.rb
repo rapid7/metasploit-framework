@@ -676,6 +676,11 @@ protected
   end
 
   def report_creds(type, user, domain, secret)
+    if client&.db_record&.id.nil?
+      wlog('The session is not stored correctly in the database. Something went wrong.')
+      return
+    end
+
     credential_data = {
         origin_type: :session,
         post_reference_name: 'kiwi',
