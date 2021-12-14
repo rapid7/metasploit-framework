@@ -30,8 +30,8 @@ verbose => true
 resource (hide_login.rb)> run
 [*] Checking /wp-content/plugins/wps-hide-login/readme.txt
 [*] Found version 1.9 in the plugin
-[+] 1.1.1.1 - Vulnerable version detected
-[*] 1.1.1.1 - Determining Login Page
+[+] 1.1.1.1 - Vulnerable version of wps_hide_login detected
+[*] 1.1.1.1 - Determining login page
 [+] Login Page: http://1.1.1.1/supersecret/?redirect_to=%2Fwp-admin%2FilOYZU&reauth=1
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed

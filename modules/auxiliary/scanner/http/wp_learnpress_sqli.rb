@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('Learnpress version not vulnerable')
       return
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of Learnpress detected')
 
     cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
 
