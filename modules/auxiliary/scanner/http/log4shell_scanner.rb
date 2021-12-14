@@ -52,10 +52,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_client_connect(client)
     client.extend(Net::BER::BERParser)
-    Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
-
-    client.write(['300c02010161070a010004000400'].pack('H*'))
     pdu = Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
+    return unless pdu.app_tag == Net::LDAP::PDU::BindRequest
+
+    response = [
+      pdu.message_id.to_ber,
+      [
+        Net::LDAP::ResultCodeSuccess.to_ber_enumerated, ''.to_ber, ''.to_ber
+      ].to_ber_appsequence(Net::LDAP::PDU::BindResult)
+    ].to_ber_sequence
+    client.write(response)
+
+    pdu = Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
+    return unless pdu.app_tag == Net::LDAP::PDU::SearchRequest
+
     base_object = pdu.search_parameters[:base_object].to_s
     token, java_version = base_object.split('/', 2)
 
@@ -72,6 +82,8 @@ class MetasploitModule < Msf::Auxiliary
         refs: references
       )
     end
+  rescue Net::LDAP::PDU::Error => e
+    vprint_error(e.to_s)
   ensure
     client.close
   end
