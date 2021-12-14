@@ -21,7 +21,7 @@ a production Jekyll build, and serves the files locally:
 
 ```bash
 bundle install
-bundle exec ruby build.rb --release --serve
+bundle exec ruby build.rb --production --serve
 ```
 
 Now visit http://127.0.0.1:4000/metasploit-framework/

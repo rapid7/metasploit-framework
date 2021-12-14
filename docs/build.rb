@@ -1,6 +1,4 @@
 require 'fileutils'
-require 'shellwords'
-require 'json'
 require 'uri'
 require 'open3'
 require 'optparse'
@@ -363,6 +361,7 @@ module Build
                     },
                     {
                       path: 'How-to-zip-files-with-Msf-Util-EXE.to_zip.md',
+                      new_base_name: 'How-to-zip-files-with-Msf-Util-EXE-to_zip.md',
                       title: 'Zip'
                     },
                     {
@@ -512,7 +511,8 @@ module Build
                       path: 'Module-Reference-Identifiers.md'
                     },
                     {
-                      path: 'Definition-of-Module-Reliability,-Side-Effects,-and-Stability.md'
+                      path: 'Definition-of-Module-Reliability,-Side-Effects,-and-Stability.md',
+                      new_base_name: 'Definition-of-Module-Reliability-Side-Effects-and-Stability.md'
                     },
                   ]
                 }
@@ -563,6 +563,7 @@ module Build
                     },
                     {
                       path: 'Testing-Rex-and-other-Gem-File-Updates-With-Gemfile.local-and-Gemfile.local.example.md',
+                      new_base_name: 'using-local-gems.md',
                       title: 'Using local Gems'
                     },
                     {
@@ -675,13 +676,17 @@ module Build
                   path: 'Metasploit-Framework-Wish-List.md'
                 },
                 {
-                  path: 'Metasploit-5.0-Release-Notes.md'
+                  path: 'Metasploit-5.0-Release-Notes.md',
+                  new_base_name: 'Metasploit-5-Release-Notes.md',
+                  title: 'Metasploit Framework 5.0 Release Notes'
                 },
                 {
                   path: '2017-Roadmap-Review.md'
                 },
                 {
-                  path: 'Metasploit-6.0-Development-Notes.md'
+                  path: 'Metasploit-6.0-Development-Notes.md',
+                  new_base_name: 'Metasploit-6-Release-Notes.md',
+                  title: 'Metasploit Framework 6.0 Release Notes'
                 },
                 {
                   path: '2017-Roadmap.md'
@@ -731,6 +736,11 @@ module Build
       page_paths = to_enum.reject { |page| page[:path] }.map { |page| page[:title] }
       duplicate_page_paths = page_paths.tally.select { |_name, count| count > 1 }
       raise "Duplicate paths, will cause issues: #{duplicate_page_paths}" if duplicate_page_paths.any?
+
+      # Ensure new file paths are only alphanumeric and hyphenated
+      new_paths = to_enum.map { |page| page[:new_path] }
+      invalid_new_paths = new_paths.select { |path| File.basename(path) !~ /^[a-zA-Z0-9_-]*\.md$/ }
+      raise "Only alphanumeric and hyphenated file names required: #{invalid_new_paths}" if invalid_new_paths.any?
     end
 
     def available_paths
@@ -806,7 +816,7 @@ module Build
   end
 
   # Extracts markdown links from https://github.com/rapid7/metasploit-framework/wiki into a Jekyll format
-  # Additionally corrects links to Github / Twitter accounts
+  # Additionally corrects links to Github
   class LinkCorrector
     def initialize(config)
       @config = config
@@ -873,7 +883,9 @@ module Build
       markdown.scan(/(\[\[([\w_ '().:,-]+)(?:\|([\w_ '():,.-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
         new_path = new_path_for(old_path)
-        raise "Mismatching new_path for #{old_path}" if existing_links[full_match] && existing_links[full_match][:path]
+        if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
+          raise "Link for #{full_match} previously resolved to #{existing_links[full_match][:new_path]}, but now resolves to #{new_path}"
+        end
 
         link_text = left
         replacement = "[#{link_text}]({% link docs/#{new_path} %})"
@@ -971,17 +983,11 @@ module Build
 
       # Clean up new docs folder in preparation for regenerating it entirely from the latest wiki
       result_folder = File.join('.', 'docs')
-      begin
-        FileUtils.remove_dir(result_folder)
-      rescue StandardError
-        nil
-      end
+      FileUtils.remove_dir(result_folder, true)
       FileUtils.mkdir(result_folder)
 
       link_corrector = link_corrector_for(config)
-      config.enum_for(:each).each do |page|
-        # last_modified = `git log -1 --pretty="format:%ci" "#{Shellwords.escape(path)}"`
-        # date:   "#{last_modified}"
+      config.each do |page|
         page_config = {
           layout: 'default',
           **page.slice(:title, :has_children, :nav_order),
@@ -1017,7 +1023,7 @@ module Build
 
     def link_corrector_for(config)
       link_corrector = LinkCorrector.new(config)
-      config.enum_for(:each).each do |page|
+      config.each do |page|
         unless page[:folder]
           content = File.read(File.join(WIKI_PATH, page[:path]))
           link_corrector.extract(content)
@@ -1030,7 +1036,7 @@ module Build
 
   # Serve the production build at http://127.0.0.1:4000/metasploit-framework/
   class ProductionServer
-    autoload :WEBrick, 'WEBrick'
+    autoload :WEBrick, 'webrick'
 
     def self.run
       server = WEBrick::HTTPServer.new(
@@ -1059,10 +1065,10 @@ module Build
     ::Open3.popen2e(
       { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
       '/bin/bash', '--login', '-c', command
-    ) do |stdin, stdout_and_stderr, wait_thr|
+    ) do |stdin, stdout_and_stderr, wait_thread|
       stdin.close_write
 
-      while wait_thr.alive?
+      while wait_thread.alive?
         ready = IO.select([stdout_and_stderr], nil, nil, 1)
 
         if ready
@@ -1078,8 +1084,8 @@ module Build
         end
       end
 
-      if !wait_thr.value.success? && exception
-        raise "command did not succeed, exit status #{wait_thr.value.exitstatus.inspect}"
+      if !wait_thread.value.success? && exception
+        raise "command did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
       end
     end
 
@@ -1096,11 +1102,7 @@ module Build
     end
 
     if options[:production]
-      begin
-        FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS)
-      rescue StandardError
-        nil
-      end
+      FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
       run_command('JEKYLL_ENV=production jekyll build')
 
       if options[:serve]
@@ -1133,7 +1135,7 @@ if $PROGRAM_NAME == __FILE__
       options[:production] = production
     end
 
-    opts.on('--serve', 'serve the docs site, requires either --dev or --production to be set') do |serve|
+    opts.on('--serve', 'serve the docs site') do |serve|
       options[:serve] = serve
     end
   end

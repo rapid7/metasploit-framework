@@ -1,12 +1,34 @@
-# Additionally influences open graph metadata as part of jekyll-seo-tag
+# Additionally influences open graph metadata as part of jekyll-seo-tag, and the theme
 title: 'Metasploit Documentation | Penetration Testing Software, Pen Testing Security'
 description: View Metasploit Framework Documentation
 searchTitle: Metasploit Documentation
 baseurl: '/metasploit-framework'
-url: ''
+url: 'https://rapid7.github.io/metasploit-framework'
+logo: assets/images/favicon.png
 
-permalink: pretty
+# Build settings
+theme: just-the-docs
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
 
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blanklines: false
+  profile: false
+  ignore:
+    envs: development
+
+exclude:
+  - '*.rb'
+  - 'build.rb'
+  - metasploit-framework.wiki
+  - README.md
+
+# just-the-docs config
 heading_anchors: true
 aux_links_new_tab: true
 aux_links:
@@ -28,30 +50,8 @@ ga_tracking_anonymize_ip: true
 
 favicon: assets/images/favicon.png
 
-# Build settings
-theme: just-the-docs
-plugins:
-  - jekyll-sitemap
-  - jekyll-seo-tag
-
 back_to_top: true
 back_to_top_text: 'Back to top'
-
-compress_html:
-  clippings: all
-  comments: all
-  endings: all
-  startings: []
-  blanklines: false
-  profile: false
-  ignore:
-    envs: development
-
-exclude:
-  - '*.rb'
-  - 'build.rb'
-  - metasploit-framework.wiki
-  - README.md
 
 just_the_docs:
   collections: []
