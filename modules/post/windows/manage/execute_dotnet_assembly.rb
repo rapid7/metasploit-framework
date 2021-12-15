@@ -34,7 +34,21 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'Targets' => [['Windows x64 (<= 10)', { 'Arch' => ARCH_X64 }]],
         'References' => [['URL', 'https://b4rtik.github.io/posts/execute-assembly-via-meterpreter-session/']],
-        'DefaultTarget' => 0
+        'DefaultTarget' => 0,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_attach
+              stdapi_sys_process_execute
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_kill
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_write
+              stdapi_sys_process_thread_create
+            ]
+          }
+        }
       )
     )
     register_options(

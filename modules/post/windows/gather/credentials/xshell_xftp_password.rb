@@ -27,7 +27,16 @@ class MetasploitModule < Msf::Post
           'Kali-Team <kali-team[at]qq.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_fs_separator
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
     register_options(

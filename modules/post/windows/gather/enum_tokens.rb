@@ -22,7 +22,20 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>']
+        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              incognito_list_tokens
+              priv_elevate_getsystem
+              stdapi_registry_open_key
+              stdapi_sys_config_getprivs
+              stdapi_sys_config_getuid
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_get_processes
+            ]
+          }
+        }
       )
     )
     register_options(

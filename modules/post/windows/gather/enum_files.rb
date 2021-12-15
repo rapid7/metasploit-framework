@@ -21,7 +21,17 @@ class MetasploitModule < Msf::Post
           'RageLtMan <rageltman[at]sempervictus>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
       )
     )
 
@@ -31,24 +41,6 @@ class MetasploitModule < Msf::Post
         OptString.new('FILE_GLOBS', [ true, 'The file pattern to search for in a filename', '*.config'])
       ]
     )
-  end
-
-  def get_drives
-    # #All Credit Goes to mubix for this railgun-FU
-    a = client.railgun.kernel32.GetLogicalDrives()["return"]
-    drives = []
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    (0..25).each do |i|
-      test = letters[i, 1]
-      rem = a % (2**(i + 1))
-
-      if rem > 0
-        drives << test
-        a = a - rem
-      end
-    end
-
-    return drives
   end
 
   def download_files(location, file_type)

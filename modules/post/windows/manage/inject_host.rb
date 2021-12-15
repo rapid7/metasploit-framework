@@ -17,7 +17,20 @@ class MetasploitModule < Msf::Post
         'License' => BSD_LICENSE,
         'Author' => [ 'vt <nick.freeman[at]security-assessment.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_tell
+              core_channel_write
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
 

@@ -23,7 +23,18 @@ class MetasploitModule < Msf::Post
           'phra <https://iwantmore.pizza>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_sys_config_getenv
+              stdapi_sys_process_attach
+              stdapi_sys_process_execute
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 

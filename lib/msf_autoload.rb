@@ -253,6 +253,7 @@ class MsfAutoload
       'vncinject_options' => 'VncInjectOptions',
       'vncinject' => 'VncInject',
       'json_hash_file' => 'JSONHashFile',
+      'jwt' => 'JWT',
       'ndr' => 'NDR',
       'ci_document' => 'CIDocument',
       'fusionvm_document' => 'FusionVMDocument',

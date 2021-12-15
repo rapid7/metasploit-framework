@@ -19,7 +19,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'sinn3r'],
         'Platform' => %w{linux osx win},
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_webcam_*
+            ]
+          }
+        }
       )
     )
 

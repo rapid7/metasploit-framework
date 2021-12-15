@@ -22,7 +22,26 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Justin Cacak'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end

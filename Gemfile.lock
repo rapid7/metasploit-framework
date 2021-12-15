@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.9)
+    metasploit-framework (6.1.20)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -29,9 +29,9 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.58)
+      metasploit-payloads (= 2.0.66)
       metasploit_data_models
-      metasploit_payloads-mettle (= 1.0.13)
+      metasploit_payloads-mettle (= 1.0.17)
       mqtt
       msgpack
       nessus_rest
@@ -85,6 +85,7 @@ PATH
       tzinfo-data
       unix-crypt
       warden
+      win32api
       windows_error
       winrm
       xdr
@@ -122,27 +123,27 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
-    arel-helpers (2.12.1)
+    arel-helpers (2.13.0)
       activerecord (>= 3.1.0, < 7)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.508.0)
-    aws-sdk-core (3.121.1)
+    aws-partitions (1.540.0)
+    aws-sdk-core (3.124.0)
       aws-eventstream (~> 1, >= 1.0.2)
-      aws-partitions (~> 1, >= 1.239.0)
+      aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.265.0)
-      aws-sdk-core (~> 3, >= 3.120.0)
+    aws-sdk-ec2 (1.286.0)
+      aws-sdk-core (~> 3, >= 3.122.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-iam (1.61.0)
-      aws-sdk-core (~> 3, >= 3.120.0)
+    aws-sdk-iam (1.64.0)
+      aws-sdk-core (~> 3, >= 3.122.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-kms (1.48.0)
-      aws-sdk-core (~> 3, >= 3.120.0)
+    aws-sdk-kms (1.52.0)
+      aws-sdk-core (~> 3, >= 3.122.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.103.0)
-      aws-sdk-core (~> 3, >= 3.120.0)
+    aws-sdk-s3 (1.109.0)
+      aws-sdk-core (~> 3, >= 3.122.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
     aws-sigv4 (1.4.0)
@@ -220,7 +221,7 @@ GEM
       domain_name (~> 0.5)
     http_parser.rb (0.8.0)
     httpclient (2.8.3)
-    i18n (1.8.10)
+    i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     io-console (0.5.9)
     irb (1.3.6)
@@ -228,7 +229,7 @@ GEM
     jmespath (1.4.0)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.5.1)
+    json (2.6.1)
     little-plugger (1.1.4)
     logging (2.3.0)
       little-plugger (~> 1.1)
@@ -256,7 +257,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-payloads (2.0.58)
+    metasploit-payloads (2.0.66)
     metasploit_data_models (5.0.4)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -267,7 +268,7 @@ GEM
       railties (~> 6.0)
       recog (~> 2.0)
       webrick
-    metasploit_payloads-mettle (1.0.13)
+    metasploit_payloads-mettle (1.0.17)
     method_source (1.0.0)
     mini_portile2 (2.6.1)
     minitest (5.14.4)
@@ -296,11 +297,11 @@ GEM
     packetfu (1.1.13)
       pcaprub
     parallel (1.21.0)
-    parser (3.0.2.0)
+    parser (3.0.3.2)
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.12.4)
-    pdf-reader (2.5.0)
+    pdf-reader (2.6.0)
       Ascii85 (~> 1.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -314,9 +315,9 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (5.5.0)
+    puma (5.5.2)
       nio4r (~> 2.0)
-    racc (1.5.2)
+    racc (1.6.0)
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
@@ -339,7 +340,7 @@ GEM
     recog (2.3.21)
       nokogiri
     redcarpet (3.5.1)
-    regexp_parser (2.1.1)
+    regexp_parser (2.2.0)
     reline (0.2.5)
       io-console (~> 0.5)
     rex-arch (0.1.14)
@@ -350,7 +351,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.18)
+    rex-core (0.1.20)
     rex-encoder (0.1.6)
       metasm
       rex-arch
@@ -369,7 +370,7 @@ GEM
       rex-arch
     rex-ole (0.1.7)
       rex-text
-    rex-powershell (0.1.93)
+    rex-powershell (0.1.94)
       rex-random_identifier
       rex-text
       ruby-rc4
@@ -380,9 +381,9 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.33)
+    rex-socket (0.1.34)
       rex-core
-    rex-sslscan (0.1.6)
+    rex-sslscan (0.1.7)
       rex-core
       rex-socket
       rex-text
@@ -414,8 +415,8 @@ GEM
       rspec-support (~> 3.10)
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
-    rspec-support (3.10.2)
-    rubocop (1.22.0)
+    rspec-support (3.10.3)
+    rubocop (1.23.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -424,14 +425,14 @@ GEM
       rubocop-ast (>= 1.12.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.12.0)
+    rubocop-ast (1.14.0)
       parser (>= 3.0.1.1)
     ruby-macho (2.5.1)
     ruby-prof (1.4.2)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (2.0.11)
+    ruby_smb (2.0.12)
       bindata
       openssl-ccm
       openssl-cmac
@@ -466,7 +467,7 @@ GEM
     ttfunk (1.7.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2021.2)
+    tzinfo-data (1.2021.5)
       tzinfo (>= 1.0.0)
     unf (0.1.4)
       unf_ext
@@ -479,6 +480,7 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    win32api (0.1.0)
     windows_error (0.1.2)
     winrm (2.3.6)
       builder (>= 2.1.2)
@@ -494,8 +496,9 @@ GEM
       activesupport (>= 4.2, < 7.0)
     xmlrpc (0.3.2)
       webrick
-    yard (0.9.26)
-    zeitwerk (2.4.2)
+    yard (0.9.27)
+      webrick (~> 1.7.0)
+    zeitwerk (2.5.1)
 
 PLATFORMS
   ruby

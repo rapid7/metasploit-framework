@@ -16,7 +16,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Ben Campbell' ],
         'Platform' => %w{win python},
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_hosts
+            ]
+          }
+        }
       )
     )
 

@@ -30,7 +30,14 @@ class MetasploitModule < Msf::Post
           'Ben Campbell', # A HUGE amount of support in this :-)
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_pageant_send_query
+            ]
+          }
+        }
       )
     )
     register_options(

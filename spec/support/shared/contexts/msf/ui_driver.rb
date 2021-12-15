@@ -21,14 +21,14 @@ RSpec.shared_context 'Msf::UIDriver' do
   end
 
   def capture_logging(target)
-    append_output = proc do |string|
+    append_output = proc do |string = ''|
       lines = string.split("\n")
       @output ||= []
       @output.concat(lines)
       @combined_output ||= []
       @combined_output.concat(lines)
     end
-    append_error = proc do |string|
+    append_error = proc do |string = ''|
       lines = string.split("\n")
       @error ||= []
       @error.concat(lines)
@@ -36,11 +36,13 @@ RSpec.shared_context 'Msf::UIDriver' do
       @combined_output.concat(lines)
     end
 
-    allow(target).to receive(:print).with(kind_of(String), &append_output)
-    allow(target).to receive(:print_line).with(kind_of(String), &append_output)
-    allow(target).to receive(:print_status).with(kind_of(String), &append_output)
-    allow(target).to receive(:print_warning).with(kind_of(String), &append_error)
-    allow(target).to receive(:print_error).with(kind_of(String), &append_error)
-    allow(target).to receive(:print_bad).with(kind_of(String), &append_error)
+    allow(target).to receive(:print, &append_output)
+    allow(target).to receive(:print_line, &append_output)
+    allow(target).to receive(:print_status, &append_output)
+    allow(target).to receive(:print_good, &append_output)
+
+    allow(target).to receive(:print_warning, &append_error)
+    allow(target).to receive(:print_error, &append_error)
+    allow(target).to receive(:print_bad, &append_error)
   end
 end

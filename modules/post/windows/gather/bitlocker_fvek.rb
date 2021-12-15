@@ -28,7 +28,15 @@ class MetasploitModule < Msf::Post
         'References' => [
           ['URL', 'https://github.com/libyal/libbde/blob/master/documentation/BitLocker Drive Encryption (BDE) format.asciidoc'],
           ['URL', 'http://www.hsc.fr/ressources/outils/dislocker/']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

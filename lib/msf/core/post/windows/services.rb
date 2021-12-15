@@ -48,8 +48,9 @@ module Services
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              extapi_service_*
-              stdapi_railgun_api*
+              extapi_service_enum
+              extapi_service_query
+              stdapi_railgun_api
             ]
           }
         }

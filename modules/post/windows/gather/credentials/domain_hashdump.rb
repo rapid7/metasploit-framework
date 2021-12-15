@@ -26,7 +26,15 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['theLightCosine'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_ntds_parse
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
     deregister_options('SMBUser', 'SMBPass', 'SMBDomain')

@@ -21,7 +21,16 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'mubix' ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_host
+              stdapi_railgun_api
+              stdapi_railgun_memread
+            ]
+          }
+        }
       )
     )
 

@@ -30,9 +30,12 @@ module Msf::Post::Windows::Priv
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_sys_config_*
-              stdapi_sys_process_*
-              stdapi_registry_*
+              stdapi_railgun_api
+              stdapi_registry_open_key
+              stdapi_sys_config_getsid
+              stdapi_sys_config_steal_token
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_get_processes
             ]
           }
         }

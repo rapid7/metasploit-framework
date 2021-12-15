@@ -28,7 +28,15 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           ['URL', 'https://github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              kiwi_exec_cmd
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
 

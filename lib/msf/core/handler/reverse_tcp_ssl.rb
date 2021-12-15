@@ -68,7 +68,7 @@ module ReverseTcpSsl
 
         ex = false
 
-        via = via_string_for_ip(ip, comm)
+        via = via_string(self.listener_sock.client) if self.listener_sock.respond_to?(:client)
         print_status("Started reverse SSL handler on #{ip}:#{local_port} #{via}")
         break
       rescue

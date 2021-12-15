@@ -25,7 +25,21 @@ class MetasploitModule < Msf::Post
           ['URL', 'http://www.shelliscoming.com/2017/05/post-exploitation-mounting-vmdk-files.html']
         ],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_delete_file
+              stdapi_fs_ls
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_process_execute
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 
@@ -37,23 +51,6 @@ class MetasploitModule < Msf::Post
         OptBool.new('DEL_LCK', [true, 'Delete .vmdk lock file', false]),
       ]
     )
-  end
-
-  # It returns an array of the drives currently mounted. Credits to mubix for this function.
-  def get_drives
-    a = client.railgun.kernel32.GetLogicalDrives()["return"]
-    drives = []
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    (0..25).each do |i|
-      test = letters[i, 1]
-      rem = a % (2**(i + 1))
-      if rem > 0
-        drives << test
-        a = a - rem
-      end
-    end
-
-    drives
   end
 
   def run
@@ -240,7 +237,7 @@ class MetasploitModule < Msf::Post
           session.sys.process.kill(p["pid"])
           sleep(1)
         rescue ::Rex::Post::Meterpreter::RequestError => error
-          print_error("The #{mount_bin} instance depending on Meterpeter could not be killed")
+          print_error("The #{mount_bin} instance depending on Meterpreter could not be killed")
           return false
         end
       end

@@ -18,12 +18,10 @@ module Http
 ###
 class Client
 
-  DefaultUserAgent = ClientRequest::DefaultUserAgent
-
   #
   # Creates a new client instance
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', comm: nil)
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
@@ -32,12 +30,14 @@ class Client
     self.proxies  = proxies
     self.username = username
     self.password = password
+    self.comm = comm
 
     # Take ClientRequest's defaults, but override with our own
     self.config = Http::ClientRequest::DefaultConfig.merge({
       'read_max_data'   => (1024*1024*1),
       'vhost'           => self.hostname,
     })
+    self.config['agent'] ||= Rex::UserAgent.session_agent
 
     # XXX: This info should all be controlled by ClientRequest
     self.config_types = {
@@ -68,8 +68,6 @@ class Client
       'chunked_size'           => 'integer',
       'partial'                => 'bool'
     }
-
-
   end
 
   #
@@ -181,7 +179,8 @@ class Client
       'SSL'        => self.ssl,
       'SSLVersion' => self.ssl_version,
       'Proxies'    => self.proxies,
-      'Timeout'    => timeout
+      'Timeout'    => timeout,
+      'Comm'       => self.comm
     )
   end
 
@@ -225,14 +224,14 @@ class Client
   # @return (see #read_response)
   def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
-    if req.opts['ntlm_transform_request'] and self.ntlm_client
+    if req.respond_to?(:opts) && req.opts['ntlm_transform_request'] && self.ntlm_client
       req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
     end
 
     send_request(req, t)
-    
+
     res = read_response(t)
-    if req.opts['ntlm_transform_response'] and self.ntlm_client
+    if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
     end
     res.request = req.to_s if res
@@ -677,6 +676,10 @@ class Client
     nil
   end
 
+  #
+  # An optional comm to use for creating the underlying socket.
+  #
+  attr_accessor :comm
   #
   # The client request configuration
   #

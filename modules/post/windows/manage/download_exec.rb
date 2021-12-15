@@ -18,7 +18,18 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['RageLtMan <rageltman[at]sempervictus>']
+        'Author' => ['RageLtMan <rageltman[at]sempervictus>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_delete_file
+              stdapi_fs_file_expand_path
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

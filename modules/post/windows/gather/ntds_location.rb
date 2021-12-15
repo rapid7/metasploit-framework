@@ -20,7 +20,14 @@ class MetasploitModule < Msf::Post
         'Author' => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'],
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
   end

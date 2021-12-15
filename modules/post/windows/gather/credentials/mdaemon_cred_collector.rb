@@ -21,7 +21,21 @@ class MetasploitModule < Msf::Post
         'Author' => ['Manuel Nader #AgoraSecurity'],
         'Platform' => ['win'],
         'Arch' => [ARCH_X86, ARCH_X64],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              stdapi_fs_ls
+              stdapi_fs_stat
+              stdapi_registry_query_value_direct
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

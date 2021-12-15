@@ -51,7 +51,25 @@ class MetasploitModule < Msf::Post
           'g0tmi1k' # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
         ],
         'Platform' => %w{bsd linux osx unix win},
-        'SessionTypes' => ['meterpreter', 'shell' ]
+        'SessionTypes' => ['meterpreter', 'shell' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_tell
+              core_channel_write
+              stdapi_fs_stat
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 

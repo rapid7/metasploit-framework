@@ -15,7 +15,15 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'tebo[at]attackresearch.com'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter']
+        'SessionTypes' => [ 'meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              incognito_list_tokens
+              priv_passwd_get_sam_hashes
+            ]
+          }
+        }
       )
     )
   end

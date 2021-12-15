@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-  def validate(range)
+  def validate_hosts_range(range)
     hosts_list = range.split(",")
     return false if hosts_list.nil? or hosts_list.empty?
 
@@ -311,7 +311,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['RESOLVE'] == 'remote'
       range = datastore['TARGETS']
-      unless validate(range)
+      unless validate_hosts_range(range)
         print_error("TARGETS must be a comma separated list of IP addresses or hostnames when RESOLVE is remote")
         return
       end

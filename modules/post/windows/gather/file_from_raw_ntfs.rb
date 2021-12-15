@@ -25,7 +25,14 @@ class MetasploitModule < Msf::Post
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
         'References' => [
           [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
       )
     )
 

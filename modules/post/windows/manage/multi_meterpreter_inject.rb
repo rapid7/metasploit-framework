@@ -24,7 +24,18 @@ class MetasploitModule < Msf::Post
           'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>' # added multiple payload support
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter']
+        'SessionTypes' => [ 'meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_attach
+              stdapi_sys_process_execute
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_write
+              stdapi_sys_process_thread_create
+            ]
+          }
+        }
       )
     )
 

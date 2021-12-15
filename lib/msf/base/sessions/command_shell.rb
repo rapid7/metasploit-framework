@@ -118,7 +118,7 @@ Shell Banner:
       end
 
       token = Rex::Text.rand_text_alphanumeric(8..24)
-      response = shell_command("echo #{token}", 3)
+      response = shell_command("echo #{token}")
       unless response&.include?(token)
         dlog("Session #{session.sid} failed to respond to an echo command")
         print_error("Command shell session #{session.sid} is not valid and will be closed")
@@ -648,8 +648,13 @@ Shell Banner:
     # Do nil check for cmd (CTRL+D will cause nil error)
     return unless cmd
 
-    arguments = Shellwords.shellwords(cmd)
-    method    = arguments.shift
+    begin
+      arguments = Shellwords.shellwords(cmd)
+      method = arguments.shift
+    rescue ArgumentError => e
+      # Handle invalid shellwords, such as unmatched quotes
+      # See https://github.com/rapid7/metasploit-framework/issues/15912
+    end
 
     # Built-in command
     if commands.key?(method)

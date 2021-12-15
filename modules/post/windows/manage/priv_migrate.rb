@@ -30,7 +30,19 @@ class MetasploitModule < Msf::Post
           'theLightCosine'
         ],
         'Platform' => ['win' ],
-        'SessionTypes' => ['meterpreter' ]
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_sys_config_getuid
+              stdapi_sys_process_attach
+              stdapi_sys_process_execute
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 

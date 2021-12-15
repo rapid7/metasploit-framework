@@ -25,7 +25,14 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'http://blog.scriptmonkey.eu/bypassing-group-policy-using-the-windows-registry' ]
         ],
         'Platform' => 'win',
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
 

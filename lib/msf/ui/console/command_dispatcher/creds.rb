@@ -276,7 +276,7 @@ class Creds
         data[:private_data] = params['postgres']
         data[:jtr_format] = 'postgres'
       else
-        print_error("Postgres MD5 hashes should start wtih 'md5'")
+        print_error("Postgres MD5 hashes should start with 'md5'")
       end
     end
 
@@ -495,7 +495,7 @@ class Creds
     end
 
     if mode == :delete
-      result = framework.db.delete_credentials(ids: matched_cred_ids)
+      result = framework.db.delete_credentials(ids: matched_cred_ids.uniq)
       delete_count = result.size
     end
 

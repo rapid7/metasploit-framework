@@ -18,7 +18,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>']
+        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_host
+            ]
+          }
+        }
       )
     )
   end

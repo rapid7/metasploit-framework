@@ -24,7 +24,15 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'References' => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]
+        'References' => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_registry_open_key
+            ]
+          }
+        }
       )
     )
   end

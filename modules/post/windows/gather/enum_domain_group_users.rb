@@ -22,7 +22,14 @@ class MetasploitModule < Msf::Post
           'Stephen Haywood <haywoodsb[at]gmail.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
       )
     )
     register_options(

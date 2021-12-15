@@ -22,7 +22,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Ben Campbell'],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter' ]
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              kiwi_exec_cmd
+            ]
+          }
+        }
       )
     )
   end

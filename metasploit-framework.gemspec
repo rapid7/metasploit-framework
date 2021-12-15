@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.58'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.66'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.13'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.17'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -224,6 +224,9 @@ Gem::Specification.new do |spec|
 
   # Earlier than latest Faraday gem is used to prevent upstream Octokit errors
   spec.add_runtime_dependency 'faraday'
+
+  # Required for windows terminal colors as of Ruby 3.0
+  spec.add_runtime_dependency 'win32api'
 
   spec.add_runtime_dependency 'zeitwerk'
 end

@@ -34,6 +34,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-t" => [ false, "Execute process with currently impersonated thread token"],
     "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
     "-z" => [ false, "Execute process in a subshell"	   ],
+    "-p" => [ false, "Execute process in a pty (if available on target platform)"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
   @@execute_opts_with_raw_mode = Rex::Parser::Arguments.new(@@execute_opts.fmt.merge(
@@ -228,6 +229,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     use_thread_token = false
     raw = false
     subshell = false
+    pty = false
 
     execute_opts.parse(args) { |opt, idx, val|
       case opt
@@ -259,6 +261,8 @@ class Console::CommandDispatcher::Stdapi::Sys
           raw = true
         when "-z"
           subshell = true
+        when "-p"
+          pty = true
       end
     }
 
@@ -276,6 +280,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Hidden'      => hidden,
       'InMemory'    => (from_mem) ? dummy_exec : nil,
       'Subshell' => subshell,
+      'Pty' => pty,
       'UseThreadToken' => use_thread_token)
 
     print_line("Process #{p.pid} created.")
@@ -361,13 +366,16 @@ class Console::CommandDispatcher::Stdapi::Sys
       cmd_execute('-f', '/system/bin/sh', '-c', '-i')
     when 'linux', 'osx'
       if raw && !use_pty
-        print_warning("Note: To use the fully interactive shell you must use a pty, i.e. %grnshell -it%clr")
+        print_warning('Note: To use the fully interactive shell you must use a pty, i.e. %grnshell -it%clr')
         return false
-      end
-      if use_pty && pty_shell(sh_path, raw: raw)
+      elsif use_pty && pty_shell(sh_path, raw: raw)
         return true
       end
 
+      if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS) && !raw && !use_pty
+        print_line('This Meterpreter supports %grnshell -it%clr to start a fully interactive TTY.')
+        print_line('This will increase network traffic.')
+      end
       cmd_execute('-f', '/bin/sh', '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
@@ -389,8 +397,17 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Spawn a PTY shell
   #
   def pty_shell(sh_path, raw: false)
-    args = []
-    args << '-r' if raw
+    args = ['-p']
+
+    if raw
+      args << '-r' if raw
+      if client.commands.include?(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_SET_TERM_SIZE)
+        print_line("Terminal size will be synced automatically.")
+      else
+        print_line("You may want to set the correct terminal size manually.")
+        print_line("Example: `stty rows {rows} cols {columns}`")
+      end
+    end
     sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
     # Python Meterpreter calls pty.openpty() - No need for other methods

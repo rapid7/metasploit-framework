@@ -78,9 +78,9 @@ class MetasploitModule < Msf::Post
 
     it 'should create text files' do
       rm_f(datastore['BaseFileName'])
-      write_file(datastore['BaseFileName'], 'foo')
-
-      file?(datastore['BaseFileName'])
+      ret = write_file(datastore['BaseFileName'], 'foo')
+      ret &&= file?(datastore['BaseFileName'])
+      ret
     end
 
     it 'should read the text we just wrote' do
@@ -156,10 +156,11 @@ class MetasploitModule < Msf::Post
     it 'should write binary data' do
       vprint_status "Writing #{binary_data.length} bytes"
       t = Time.now
-      write_file(datastore['BaseFileName'], binary_data)
+      ret = write_file(datastore['BaseFileName'], binary_data)
       vprint_status("Finished in #{Time.now - t}")
 
-      file_exist?(datastore['BaseFileName'])
+      ret &&= file_exist?(datastore['BaseFileName'])
+      ret
     end
 
     it 'should read the binary data we just wrote' do
@@ -182,6 +183,42 @@ class MetasploitModule < Msf::Post
       rm_f(datastore['BaseFileName'])
 
       bin == "\xde\xad\xbe\xef"
+    end
+  end
+
+  def test_path_expansion_nix
+    unless session.platform =~ /win/i
+      it "should expand home" do
+        home1 = expand_path('~')
+        home2 = expand_path('$HOME')
+        home1 == home2 && home1.length > 0
+      end
+
+      it "non-isolated tilde should not expand" do
+        s = '~a'
+        result = expand_path(s)
+        s == result
+      end
+
+      it "mid-string tilde should not expand" do
+        s = '/home/~'
+        result = expand_path(s)
+        s == result
+      end
+
+      it "env vars with invalid naming should not expand" do
+        s = 'no environment $ variables /here'
+        result = expand_path(s)
+        s == result
+      end
+
+      it "should expand multiple variables" do
+        result = expand_path('/blah/$HOME/test/$USER')
+        home = expand_path('$HOME')
+        user = expand_path('$USER')
+        expected = "/blah/#{home}/test/#{user}"
+        result == expected
+      end
     end
   end
 

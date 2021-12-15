@@ -23,7 +23,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'David Bloom' ], # Twitter: @philophobia78
         'Platform' => %w{linux win},
-        'SessionTypes' => [ 'meterpreter', 'shell']
+        'SessionTypes' => [ 'meterpreter', 'shell'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
       )
     )
     register_options(

@@ -399,7 +399,7 @@ module Auxiliary::Report
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
-      if parts.length > 1 and parts[-1].length < 4
+      if parts.length > 1 and parts[-1].length <= 4
         ext = parts[-1]
       end
     end

@@ -15,7 +15,15 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
         'Platform' => %w{linux win},
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+              stdapi_sys_process_execute
+            ]
+          }
+        }
       )
     )
     @ltype = 'generic.environment'

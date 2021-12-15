@@ -27,7 +27,16 @@ class MetasploitModule < Msf::Post
           'Royce Davis "r3dy" <rdavis[at]accuvant.com>'
         ],
         'Platform' => 'win',
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_railgun_memread
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
       )
     )
 

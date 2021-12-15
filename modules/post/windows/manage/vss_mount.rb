@@ -28,7 +28,14 @@ class MetasploitModule < Msf::Post
         'Author' => ['theLightCosine'],
         'References' => [
           [ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
-        ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_execute
+            ]
+          }
+        }
       )
     )
     register_options(

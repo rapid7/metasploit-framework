@@ -24,7 +24,7 @@ module Msf::PostMixin
     )
 
     register_options( [
-      Msf::OptInt.new('SESSION', [ true, "The session to run this module on." ])
+      Msf::OptInt.new('SESSION', [ true, 'The session to run this module on' ])
     ] , Msf::Post)
 
     # Default stance is active
@@ -40,27 +40,28 @@ module Msf::PostMixin
   def setup
     alert_user
 
-    unless session
-      # Always fail if the session doesn't exist.
+    unless session || (datastore['SESSION'].blank? && !options['SESSION']&.required)
       raise Msf::OptionValidateError.new(['SESSION'])
     end
 
-    # Check session readiness before compatibility so the session can be queried
-    # for its platform, capabilities, etc.
-    check_for_session_readiness if session.type == "meterpreter"
+    if session
+      # Check session readiness before compatibility so the session can be queried
+      # for its platform, capabilities, etc.
+      check_for_session_readiness if session.type == "meterpreter"
 
-    incompatibility_reasons = session_incompatibility_reasons(session)
-    if incompatibility_reasons.any?
-      print_warning("SESSION may not be compatible with this module:")
-      incompatibility_reasons.each do |reason|
-        print_warning(" * #{reason}")
+      incompatibility_reasons = session_incompatibility_reasons(session)
+      if incompatibility_reasons.any?
+        print_warning("SESSION may not be compatible with this module:")
+        incompatibility_reasons.each do |reason|
+          print_warning(" * #{reason}")
+        end
       end
     end
 
     # Msf::Exploit#setup for exploits, NoMethodError for post modules
     super rescue NoMethodError
 
-    @session.init_ui(self.user_input, self.user_output)
+    @session.init_ui(self.user_input, self.user_output) if @session
     @sysinfo = nil
   end
 
@@ -214,6 +215,7 @@ module Msf::PostMixin
       issues << "incompatible session platform: #{s.platform}" unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
+    # Check all specified meterpreter commands are provided by the remote session
     if s.type == 'meterpreter'
       issues += meterpreter_session_incompatibility_reasons(s)
     end
@@ -279,6 +281,11 @@ module Msf::PostMixin
           Rex::Post::Meterpreter::ClientCore.extension_id + Rex::Post::Meterpreter::COMMAND_ID_RANGE - 1
         )
       end
+    end
+
+    # Windows does not support chmod, but will be defined by default in the file mixin
+    if session.base_platform == 'windows'
+      cmd_ids -= [Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_CHMOD]
     end
 
     missing_cmd_ids = (cmd_ids - session.commands)

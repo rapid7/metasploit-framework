@@ -25,7 +25,15 @@ class MetasploitModule < Msf::Post
         'References' => [ 'URL', 'https://forsec.nl/2015/02/windows-credentials-phishing-using-metasploit' ],
         'Platform' => [ 'win' ],
         'Arch' => [ ARCH_X86, ARCH_X64 ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_process_kill
+            ]
+          }
+        }
       )
     )
 

@@ -23,7 +23,18 @@ class MetasploitModule < Msf::Post
           'Unknown', # SecurityXploded Team, www.SecurityXploded.com
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_stat
+            ]
+          }
+        }
       )
     )
   end

@@ -19,7 +19,20 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Kx499']
+        'Author' => ['Kx499'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_host
+              stdapi_railgun_api
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
       )
     )
   end

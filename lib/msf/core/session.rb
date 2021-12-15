@@ -81,6 +81,9 @@ module Session
   def tunnel_peer
   end
 
+  def comm_channel
+  end
+
   #
   # Returns the host associated with the session
   #
@@ -133,7 +136,7 @@ module Session
   # Returns a pretty representation of the tunnel.
   #
   def tunnel_to_s
-    "#{(tunnel_local || '??')} -> #{(tunnel_peer || '??')}"
+    "#{(tunnel_local || '??')} -> #{(tunnel_peer || '??')} #{comm_channel}"
   end
 
   ##
