@@ -77,7 +77,7 @@ class Server
   #
   # @return [Rex::Proto::LDAP::Server] LDAP Server object
   attr_reader :serve_udp, :serve_tcp, :sock_options, :udp_sock, :tcp_sock, :syntax, :ldif
-  def initialize(lhost = '0.0.0.0', lport = 389, udp = true, tcp = false, syntax = DefaultLdapServerAsnSyntax, ldif = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
+  def initialize(lhost = '0.0.0.0', lport = 389, udp = true, tcp = true, syntax = DefaultLdapServerAsnSyntax, ldif = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
 
     @serve_udp = udp
     @serve_tcp = tcp
