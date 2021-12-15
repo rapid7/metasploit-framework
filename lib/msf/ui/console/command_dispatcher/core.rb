@@ -33,22 +33,22 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
-    "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
-    "-h"  => [ false, "Help banner"                                                    ],
-    "-i"  => [ true,  "Interact with the supplied session ID"                          ],
-    "-l"  => [ false, "List all active sessions"                                       ],
-    "-v"  => [ false, "List all active sessions in verbose mode"                       ],
-    "-d" =>  [ false, "List all inactive sessions"                                     ],
-    "-q"  => [ false, "Quiet mode"                                                     ],
-    "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
-    "-K"  => [ false, "Terminate all sessions"                                         ],
-    "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
-    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
-    "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
-    "-S"  => [ true,  "Row search filter."                                             ],
-    "-x" =>  [ false, "Show extended information in the session table"                 ],
-    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
+    ["-c", "--command"]              => [ true,  "Run a command on the session given with -i, or all"             ],
+    ["-C", "--meterpreter-command"]  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
+    ["-h", "--help"]                 => [ false, "Help banner"                                                    ],
+    ["-i", "--interact"]             => [ true,  "Interact with the supplied session ID"                          ],
+    ["-l", "--list-active"]          => [ false, "List all active sessions"                                       ],
+    ["-v", "--list-verbose"]         => [ false, "List all active sessions in verbose mode"                       ],
+    ["-d", "--list-inactive"]        => [ false, "List all inactive sessions"                                     ],
+    ["-q", "--quiet"]                => [ false, "Quiet mode"                                                     ],
+    ["-k", "--kill"]                 => [ true,  "Terminate sessions by session ID and/or range"                  ],
+    ["-K", "--kill-all"]             => [ false, "Terminate all sessions"                                         ],
+    ["-s", "--script"]               => [ true,  "Run a script or module on the session given with -i, or all"    ],
+    ["-u", "--upgrade"]              => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
+    ["-t", "--timeout"]              => [ true,  "Set a response timeout (default: 15)"                           ],
+    ["-S", "--search"]               => [ true,  "Row search filter."                                             ],
+    ["-x", "--list-extended"]        => [ false, "Show extended information in the session table"                 ],
+    ["-n", "--name"]                 => [ true,  "Name or rename a session by ID"                                 ])
 
 
   @@threads_opts = Rex::Parser::Arguments.new(
@@ -730,7 +730,7 @@ class Core
 
   def cmd_history_tabs(str, words)
     return [] if words.length > 1
-    @@history_opts.fmt.keys
+    @@history_opts.option_keys
   end
 
   def cmd_sleep_help
@@ -867,10 +867,10 @@ class Core
 
   def cmd_threads_tabs(str, words)
     if words.length == 1
-      return @@threads_opts.fmt.keys
+      return @@threads_opts.option_keys
     end
 
-    if words.length == 2 and (@@threads_opts.fmt[words[1]] || [false])[0]
+    if words.length == 2 && @@threads_opts.include?(words[1]) && @@threads_opts.arg_required?(words[1])
       return framework.threads.each_index.map{ |idx| idx.to_s }
     end
 
@@ -1363,54 +1363,54 @@ class Core
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
         case opt
-        when "-q"
+        when "-q", "--quiet"
           quiet = true
         # Run a command on all sessions, or the session given with -i
-        when "-c"
+        when "-c", "--command"
           method = 'cmd'
           cmds << val if val
-        when "-C"
+        when "-C", "--meterpreter-command"
             method = 'meterp-cmd'
             cmds << val if val
         # Display the list of inactive sessions
-        when "-d"
+        when "-d", "--list-inactive"
           show_inactive = true
           method = 'list_inactive'
-        when "-x"
+        when "-x", "--list-extended"
           show_extended = true
-        when "-v"
+        when "-v", "--list-verbose"
           verbose = true
         # Do something with the supplied session identifier instead of
         # all sessions.
-        when "-i"
+        when "-i", "--interact"
           sid = val
         # Display the list of active sessions
-        when "-l"
+        when "-l", "--list-active"
           show_active = true
           method = 'list'
-        when "-k"
+        when "-k", "--kill"
           method = 'kill'
           sid = val || false
-        when "-K"
+        when "-K", "--kill-all"
           method = 'killall'
         # Run a script or module on specified sessions
-        when "-s"
+        when "-s", "--script"
           unless script
             method = 'script'
             script = val
           end
         # Upload and exec to the specific command session
-        when "-u"
+        when "-u", "--upgrade"
           method = 'upexec'
           sid = val || false
         # Search for specific session
         when "-S", "--search"
           search_term = val
         # Display help banner
-        when "-h"
+        when "-h", "--help"
           cmd_sessions_help
           return false
-        when "-t"
+        when "-t", "--timeout"
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
@@ -1713,17 +1713,17 @@ class Core
 
   def cmd_sessions_tabs(str, words)
     if words.length == 1
-      return @@sessions_opts.fmt.keys.select { |opt| opt.start_with?(str) }
+      return @@sessions_opts.option_keys.select { |opt| opt.start_with?(str) }
     end
 
     case words[-1]
-    when "-i", "-k", "-u"
+    when "-i", "--interact", "-k", "--kill", "-u", "--upgrade"
       return framework.sessions.keys.map { |k| k.to_s }
 
-    when "-c"
+    when "-c", "--command"
       # Can't really complete commands hehe
 
-    when "-s"
+    when "-s", "--search"
       # XXX: Complete scripts
 
     end
