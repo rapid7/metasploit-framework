@@ -4,7 +4,10 @@ trigger an LDAP connection to Metasploit. This module is a generic scanner and i
 instances that are vulnerable via one of the pre-determined HTTP request injection points. These points include
 HTTP headers and the HTTP request path.
 
-This module has been successfully tested with Struts2 and Spring Boot.
+This module has been successfully tested with:
+* Apache Solr
+* Apache Struts2
+* Spring Boot
 
 ## Verification Steps
 
@@ -53,8 +56,10 @@ The HTTP method to use.
 File containing headers to check, one per line. Lines starting with `#` will be treated as comments.
 
 ### URIS_FILE
-File contianing additional URIs to check, one per line. These values will be appended to the `TARGETURI` option. Lines 
-starting with `#` will be treated as comments.
+File containing additional URIs to check, one per line. These values will be appended to the `TARGETURI` option. Lines 
+starting with `#` will be treated as comments. Lines may also contain the string `${jndi:uri}` which will be used as the
+injection point. This enables query parameters to be included in the request which are required for certain
+applicaitons.
 
 ### TIMEOUT
 Time to wait to receive LDAP connections.

