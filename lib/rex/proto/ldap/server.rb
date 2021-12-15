@@ -155,8 +155,7 @@ class Server
   end
 
   #
-  # Default LDAP request dispatcher, attempts to find
-  # response records in cache or forwards request upstream
+  # Default LDAP request dispatcher
   #
   # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client sending the request
   # @param data [String] raw LDAP request data
