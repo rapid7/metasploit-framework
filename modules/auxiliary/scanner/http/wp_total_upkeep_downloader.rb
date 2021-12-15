@@ -49,9 +49,9 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('boldgrid-backup', '1.14.10')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of 'Boldgrid Backup' was not found"
+      fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of Boldgrid Backup was not found"
     end
-    print_good("#{ip} - Vulnerable version of 'Boldgrid Backup' detected")
+    print_good("#{ip} - Vulnerable version of Boldgrid Backup detected")
 
     print_status("#{ip} - Obtaining Server Info")
     res = send_request_cgi({

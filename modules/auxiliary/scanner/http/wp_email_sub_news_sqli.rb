@@ -53,9 +53,9 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('email-subscribers', '4.3.1')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, 'Email subscribers and newsletter version not vulnerable'
+      fail_with Failure::NotVulnerable, 'Email Subscribers and Newsletter version not vulnerable'
     end
-    print_good('Vulnerable version of Email subscribers and newsletter detected')
+    print_good('Vulnerable version of Email Subscribers and Newsletter detected')
 
     guid = Rex::Text.rand_guid
     email = Rex::Text.rand_mail_address
