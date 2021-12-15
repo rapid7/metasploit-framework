@@ -291,10 +291,9 @@ module Auxiliary::Report
         :task => mytask
     }.merge(opts)
     vuln = framework.db.report_vuln(opts)
-    if vuln.nil?
-      print_error("Failed to report vuln for #{opts[:host]}:#{opts[:port]} to the database")
-      return
-    end
+
+    raise AuxiliaryError, "Failed to report vuln for #{opts[:host]}:#{opts[:port]} to the database" if vuln.nil?
+
     # add vuln attempt audit details here during report
 
     timestamp  = opts[:timestamp]
