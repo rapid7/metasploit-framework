@@ -775,6 +775,18 @@ RSpec.describe Msf::RhostsWalker do
       end
     end
 
+    context 'when using the tcp scheme' do
+      it 'enumerates tcp schemes' do
+        ssh_mod.datastore['RHOSTS'] = '"tcp://user:a b c@example.com" "tcp://example.com:3000"'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 22, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' },
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3000, 'USERNAME' => nil, 'PASSWORD' => nil },
+        ]
+        expect(each_error_for(ssh_mod)).to be_empty
+        expect(each_host_for(ssh_mod)).to have_datastore_values(expected)
+      end
+    end
+
     context 'when using the ssh scheme' do
       it 'enumerates ssh schemes' do
         ssh_mod.datastore['RHOSTS'] = '"ssh://user:a b c@example.com/"'
