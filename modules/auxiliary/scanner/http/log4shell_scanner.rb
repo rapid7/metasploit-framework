@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References' => [
         [ 'CVE', '2021-44228' ],
+        [ 'URL', 'https://attackerkb.com/topics/in9sPR2Bzt/cve-2021-44228-log4shell/rapid7-analysis' ]
       ],
       'DisclosureDate' => '2021-12-09',
       'License' => MSF_LICENSE,
