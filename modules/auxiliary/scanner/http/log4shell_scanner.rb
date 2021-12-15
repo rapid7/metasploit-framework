@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('HTTP_METHOD', [ true, 'The HTTP method to use', 'GET' ]),
       OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
-      OptBool.new('LDAP_AUTH_BYPASS', [true, 'Ignore LDAP client authentication', true])
+      OptBool.new('LDAP_AUTH_BYPASS', [true, 'Ignore LDAP client authentication', true]),
       OptPath.new('HEADERS_FILE', [
         true, 'File containing headers to check',
         File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
