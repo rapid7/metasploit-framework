@@ -77,7 +77,8 @@ class MetasploitModule < Msf::Auxiliary
       details = normalize_uri(context[:target_uri]).to_s
       details << " (header: #{context[:headers].keys.first})" unless context[:headers].nil?
       details << " (java: #{java_version})" unless java_version.blank?
-      print_good("#{peer} - Log4Shell found via #{details}")
+      peerinfo = "#{context[:rhost]}:#{context[:rport]}"
+      print_good("#{peerinfo.ljust(21)} - Log4Shell found via #{details}")
       report_vuln(
         host: context[:rhost],
         port: context[:rport],
@@ -130,6 +131,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    # probe the target before continuing
+    return if send_request_cgi('uri' => normalize_uri(target_uri)).nil?
+
     run_host_uri(ip, normalize_uri(target_uri)) unless target_uri.blank?
 
     return if datastore['URIS_FILE'].blank?
@@ -152,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host_uri(_ip, uri)
     unless datastore['HEADERS_FILE'].blank?
       headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
-      headers_file.lines.each do |header|
+      headers_file.each_line do |header|
         header.strip!
         next if header.start_with?('#')
 
