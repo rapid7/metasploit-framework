@@ -974,23 +974,23 @@ module Msf
 
             # Check for modules that failed to load
             if framework.modules.module_load_error_by_path.length > 0
-              print_error("WARNING! The following modules could not be loaded!")
+              wlog("WARNING! The following modules could not be loaded!")
 
               framework.modules.module_load_error_by_path.each do |path, _error|
-                print_error("\t#{path}")
+                wlog("\t#{path}")
               end
 
-              print_error(log_msg)
+              wlog(log_msg)
             end
 
             if framework.modules.module_load_warnings.length > 0
-              print_warning("The following modules were loaded with warnings:")
+              wlog("The following modules were loaded with warnings:")
 
               framework.modules.module_load_warnings.each do |path, _error|
-                print_warning("\t#{path}")
+                wlog("\t#{path}")
               end
 
-              print_warning(log_msg)
+              wlog(log_msg)
             end
 
             self.driver.run_single("banner")
