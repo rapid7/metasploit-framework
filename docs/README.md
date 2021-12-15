@@ -8,6 +8,8 @@ Builds the latest docs content from the existing [Metasploit Wiki](https://githu
 serves the files locally:
 
 ```bash
+cd metasploit-framework/docs
+
 bundle install
 bundle exec ruby build.rb --serve
 ```
@@ -20,6 +22,8 @@ Builds the latest docs content from the existing [Metasploit Wiki](https://githu
 a production Jekyll build, and serves the files locally:
 
 ```bash
+cd metasploit-framework/docs
+
 bundle install
 bundle exec ruby build.rb --production --serve
 ```
