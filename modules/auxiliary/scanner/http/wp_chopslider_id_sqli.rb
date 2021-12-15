@@ -36,6 +36,11 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-05-12'
       )
@@ -74,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('ChopSlider3 version not vulnerable or undetected')
       return
     else
-      print_good('Vulnerable version detected')
+      print_good('Vulnerable version of ChopSlider3 detected')
     end
 
     sliderid = Rex::Text.rand_text_numeric(8..10)
