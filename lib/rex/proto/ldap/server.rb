@@ -76,8 +76,7 @@ class Server
   # @param sblock [Proc] Handler for :send_response flow control interception
   #
   # @return [Rex::Proto::LDAP::Server] LDAP Server object
-  attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache
-  attr_reader :serve_udp, :serve_tcp, :sock_options, :lock, :udp_sock, :tcp_sock, :syntax
+  attr_reader :serve_udp, :serve_tcp, :sock_options, :udp_sock, :tcp_sock, :syntax, :ldif
   def initialize(lhost = '0.0.0.0', lport = 389, udp = true, tcp = false, syntax = DefaultLdapServerAsnSyntax, ldif = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
 
     @serve_udp = udp
