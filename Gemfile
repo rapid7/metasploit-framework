@@ -45,3 +45,5 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+gem 'ruby_smb', git: 'https://github.com/cdelafuente-r7/ruby_smb', branch: 'dcerpc_redesign_and_new_structs'
