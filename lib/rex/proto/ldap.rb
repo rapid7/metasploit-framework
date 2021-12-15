@@ -1,6 +1,8 @@
 require 'net/ldap'
 require 'rex/socket'
 
+# Monkeypatch upstream library, for now
+# TODO: write a real LDAP client in Rex and migrate all consumers
 class Net::LDAP::Connection #:nodoc:
   LdapVersion = 3
   MaxSaslChallenges = 10
@@ -25,3 +27,12 @@ class Net::LDAP::Connection #:nodoc:
     yield self if block_given?
   end
 end
+
+module Rex 
+module Proto
+module LDAP
+
+end
+end
+end
+
