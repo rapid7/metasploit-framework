@@ -44,7 +44,8 @@ class MetasploitModule < Msf::Auxiliary
         false, 'File containing headers to check',
         File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
       ]),
-      OptPath.new('URIS_FILE', [ false, 'File containing additional URIs to check' ])
+      OptPath.new('URIS_FILE', [ false, 'File containing additional URIs to check' ]),
+      OptInt.new('TIMEOUT', [ true, 'Time to wait to receive LDAP connections', 5 ])
     ])
   end
 
@@ -108,6 +109,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     super
+
+    vprint_status("Sleeping #{datastore['TIMEOUT']} seconds for any last connections")
+    sleep datastore['TIMEOUT']
   ensure
     stop_service
   end
@@ -129,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return if datastore['URIS_FILE'].blank?
 
-    File.open(datastore['URIS_FILE'], 'rb').lines.each do |uri|
+    File.open(datastore['URIS_FILE'], 'rb').each_line do |uri|
       uri.strip!
       next if uri.start_with?('#')
 

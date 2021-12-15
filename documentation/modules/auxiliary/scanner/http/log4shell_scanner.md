@@ -16,7 +16,7 @@ This module has been successfully tested with Struts2 and Spring Boot.
 5. Do: `run`
 6. The target should be identified as vulnerable
 
-### Struts2
+### Struts2 Setup
 
 The following docker file can be used to setup a vulnerable Struts2 instance for testing.
 
@@ -42,6 +42,22 @@ RUN curl https://dlcdn.apache.org/struts/2.5.28/struts-2.5.28-all.zip > struts-a
 	unzip struts-all.zip && \
 	cp /struts-2.5.28/apps/struts2-showcase.war /bitnami/tomcat/webapps/
 ```
+
+
+## Options
+
+### HTTP_METHOD
+The HTTP method to use.
+
+### HEADERS_FILE
+File containing headers to check, one per line. Lines starting with `#` will be treated as comments.
+
+### URIS_FILE
+File contianing additional URIs to check, one per line. These values will be appended to the `TARGETURI` option. Lines 
+starting with `#` will be treated as comments.
+
+### TIMEOUT
+Time to wait to receive LDAP connections.
 
 ## Scenarios
 
