@@ -154,7 +154,7 @@ module Msf
         # rubocop:disable Style/Eval
         def extract_json(saving_path, artifact_child, artifact, local_loc)
           json_file = ::File.read(saving_path.to_s)
-          json_parse = JSON.parse(json_file) # rubocop:disable Lint/UselessAssignment
+          json_parse = JSON.parse(json_file)
           parent_json_query = ''
           child_json_query = []
           json_credential_save = []
@@ -169,7 +169,7 @@ module Msf
 
           child_json_query.each do |split|
             children = eval("json_parse#{parent_json_query}")
-            children.each do |_child_node|
+            children.each do |child_node|
               child = eval("child_node#{split}").to_s
               json_credential_save << "#{split}:  #{child}"
             end
