@@ -151,7 +151,7 @@ module Msf
       obj = self.clone
       self.instance_variables.each { |k|
         v = instance_variable_get(k)
-        v = v.dup rescue v
+        v = (v.is_a?(Rex::SharedResource) ? v : v.dup) rescue v
         obj.instance_variable_set(k, v)
       }
 

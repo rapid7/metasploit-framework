@@ -138,10 +138,17 @@ class MetasploitModule < Msf::Auxiliary
   def run
     fail_with(Failure::BadConfig, 'The SRVHOST option must be set to a routable IP address.') if ['0.0.0.0', '::'].include?(datastore['SRVHOST'])
     @mutex = Mutex.new
+    @mutex.extend(Rex::SharedResource)
+
     @tokens = {}
+    @tokens.extend(Rex::SharedResource)
+
     @successes = []
+    @successes.extend(Rex::SharedResource)
+
     begin
       start_service
+      @service.extend(Rex::SharedResource)
     rescue Rex::BindFailed => e
       fail_with(Failure::BadConfig, e.to_s)
     end
@@ -158,23 +165,6 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Vulnerable(details: @successes)
   ensure
     stop_service
-  end
-
-  def replicant
-    #
-    # WARNING: This is a horrible pattern and should not be copy-pasted into new code. A better solution is currently
-    # in the works to address service / socket replication as it affects scanner modules.
-    #
-    service = @service
-    @service = nil
-    obj = super
-    @service = service
-
-    # but do copy the tokens and mutex to the new object
-    obj.mutex = @mutex
-    obj.tokens = @tokens
-    obj.successes = @successes
-    obj
   end
 
   def run_host(ip)
