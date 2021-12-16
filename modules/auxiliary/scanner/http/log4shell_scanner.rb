@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
       ]),
       OptPath.new('URIS_FILE', [ false, 'File containing additional URIs to check' ]),
-      OptInt.new('TIMEOUT', [ true, 'Time to wait to receive LDAP connections', 5 ])
+      OptInt.new('LDAP_TIMEOUT', [ true, 'Time in seconds to wait to receive LDAP connections', 30 ])
     ])
   end
 
@@ -73,15 +73,16 @@ class MetasploitModule < Msf::Auxiliary
     base_object = pdu.search_parameters[:base_object].to_s
     token, java_version = base_object.split('/', 2)
 
-    unless (context = @tokens.delete(token)).nil?
-      details = normalize_uri(context[:target_uri]).to_s
-      details << " (header: #{context[:headers].keys.first})" unless context[:headers].nil?
+    target_info = @mutex.synchronize { @tokens.delete(token) }
+    if target_info
+      details = normalize_uri(target_info[:target_uri]).to_s
+      details << " (header: #{target_info[:headers].keys.first})" unless target_info[:headers].nil?
       details << " (java: #{java_version})" unless java_version.blank?
-      peerinfo = "#{context[:rhost]}:#{context[:rport]}"
+      peerinfo = "#{target_info[:rhost]}:#{target_info[:rport]}"
       print_good("#{peerinfo.ljust(21)} - Log4Shell found via #{details}")
       report_vuln(
-        host: context[:rhost],
-        port: context[:rport],
+        host: target_info[:rhost],
+        port: target_info[:rport],
         info: "Module #{fullname} detected Log4Shell vulnerability via #{details}",
         name: name,
         refs: references
@@ -102,6 +103,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     fail_with(Failure::BadConfig, 'The SRVHOST option must be set to a routable IP address.') if ['0.0.0.0', '::'].include?(datastore['SRVHOST'])
+    @mutex = Mutex.new
     @tokens = {}
     # always disable SSL because the LDAP server doesn't use it but the setting is shared with the HTTP requests
     begin
@@ -112,21 +114,25 @@ class MetasploitModule < Msf::Auxiliary
 
     super
 
-    vprint_status("Sleeping #{datastore['TIMEOUT']} seconds for any last connections")
-    sleep datastore['TIMEOUT']
+    print_status("Sleeping #{datastore['LDAP_TIMEOUT']} seconds for any last LDAP connections")
+    sleep datastore['LDAP_TIMEOUT']
   ensure
     stop_service
   end
 
   def replicant
-    # don't duplicate the service
+    #
+    # WARNING: This is a horrible pattern and should not be copy-pasted into new code. A better solution is currently
+    # in the works to address service / socket replication as it affects scanner modules.
+    #
     service = @service
     @service = nil
     obj = super
     @service = service
 
-    # but do duplicate the mutable tokens hash
-    obj.tokens = tokens
+    # but do copy the tokens and mutex to the new object
+    obj.mutex = @mutex
+    obj.tokens = @tokens
     obj
   end
 
@@ -138,9 +144,8 @@ class MetasploitModule < Msf::Auxiliary
 
     return if datastore['URIS_FILE'].blank?
 
-    File.open(datastore['URIS_FILE'], 'rb').each_line do |uri|
-      uri.strip!
-      next if uri.start_with?('#')
+    File.open(datastore['URIS_FILE'], 'rb').each_line(chomp: true) do |uri|
+      next if uri.blank? || uri.start_with?('#')
 
       if uri.include?('${jndi:uri}')
         token = rand_text_alpha_lower_numeric(8..32)
@@ -156,9 +161,8 @@ class MetasploitModule < Msf::Auxiliary
   def run_host_uri(_ip, uri)
     unless datastore['HEADERS_FILE'].blank?
       headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
-      headers_file.each_line do |header|
-        header.strip!
-        next if header.start_with?('#')
+      headers_file.each_line(chomp: true) do |header|
+        next if header.blank? || header.start_with?('#')
 
         token = rand_text_alpha_lower_numeric(8..32)
         test(token, uri: uri, headers: { header => jndi_string(token) })
@@ -175,12 +179,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def test(token, uri: nil, headers: nil)
-    @tokens[token] = {
+    target_info = {
       rhost: rhost,
       rport: rport,
       target_uri: uri,
       headers: headers
     }
+    @mutex.synchronize { @tokens[token] = target_info }
 
     send_request_raw(
       'uri' => uri,
@@ -189,5 +194,5 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  attr_accessor :tokens
+  attr_accessor :mutex, :tokens
 end

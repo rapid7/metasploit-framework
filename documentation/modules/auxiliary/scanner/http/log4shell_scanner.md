@@ -2,7 +2,8 @@
 This module will scan an HTTP end point for the Log4Shell vulnerability by injecting a format message that will
 trigger an LDAP connection to Metasploit. This module is a generic scanner and is only capable of identifying
 instances that are vulnerable via one of the pre-determined HTTP request injection points. These points include
-HTTP headers and the HTTP request path.
+HTTP headers and the HTTP request path. Additinally URI paths for common, known-vulnerable applications are included
+in the `data/exploits/CVE-2021-44228/http_uris.txt` data file.
 
 This module has been successfully tested with:
 
@@ -13,7 +14,7 @@ This module has been successfully tested with:
 
 ## Verification Steps
 
-1. Setup a vulnerable Struts2 Instance
+1. Setup a vulnerable Struts2 instance (see the steps below)
 2. Start msfconsole
 3. Do: `use auxiliary/scanner/http/log4shell_scanner`
 4. Set the `SRVHOST`, `RHOSTS`, `RPORT` and `TARGETURI` options
@@ -48,7 +49,6 @@ RUN curl https://dlcdn.apache.org/struts/2.5.28/struts-2.5.28-all.zip > struts-a
 	cp /struts-2.5.28/apps/struts2-showcase.war /bitnami/tomcat/webapps/
 ```
 
-
 ## Options
 
 ### HTTP_METHOD
@@ -63,8 +63,8 @@ starting with `#` will be treated as comments. Lines may also contain the string
 injection point. This enables query parameters to be included in the request which are required for certain
 applications.
 
-### TIMEOUT
-Time to wait to receive LDAP connections.
+### LDAP_TIMEOUT
+Time in seconds to wait to receive LDAP connections.
 
 ## Scenarios
 
