@@ -50,7 +50,6 @@ class Payload < Msf::Module
   #
   def initialize(info = {})
     super
-    self.can_cleanup = true
 
     #
     # Gets the Dependencies if the payload requires external help
@@ -512,11 +511,6 @@ class Payload < Msf::Module
 
   end
 
-  #
-  # This attribute designates if the payload supports onsession()
-  # method calls (typically to clean up artifacts)
-  #
-  attr_accessor :can_cleanup
   #
   # This attribute holds the string that should be prepended to the buffer
   # when it's generated.
