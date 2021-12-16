@@ -61,7 +61,8 @@ class MetasploitModule < Msf::Auxiliary
           false,
           'File containing additional URIs to check',
           File.join(Msf::Config.data_directory, 'exploits', 'CVE-2021-44228', 'http_uris.txt')
-        ]),
+        ]
+      ),
       OptInt.new('LDAP_TIMEOUT', [ true, 'Time in seconds to wait to receive LDAP connections', 30 ])
     ])
   end
