@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         'PassiveActions' => [
           'Service'
         ],
+        'DefaultAction' => 'Service',
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
@@ -80,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
                    service.encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeNoSuchObject, '', 'No such object', Net::LDAP::PDU::SearchResult)
                  else
                    # Send the results and return success message for callback completion
-                   cli.write(res.join)
+                   client.write(res.join)
                    service.encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeSuccess, '', 'Search success', Net::LDAP::PDU::SearchResult)
                  end
                else
