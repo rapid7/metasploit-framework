@@ -22,7 +22,7 @@ This module has been successfully tested with:
 5. Do: `run`
 6. The target should be identified as vulnerable
 
-### Struts2 Setup
+### Apache Struts2 Setup
 
 The following docker file can be used to setup a vulnerable Struts2 instance for testing.
 
@@ -68,7 +68,7 @@ Time in seconds to wait to receive LDAP connections.
 
 ## Scenarios
 
-### Struts2
+### Apache Struts2
 
 ```
 msf6 > use auxiliary/scanner/http/log4shell_scanner 
