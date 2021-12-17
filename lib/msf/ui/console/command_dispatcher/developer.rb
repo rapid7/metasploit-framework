@@ -144,7 +144,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   def cmd_irb_tabs(_str, words)
     return [] if words.length > 1
 
-    @@irb_opts.fmt.keys
+    @@irb_opts.option_keys
   end
 
   def cmd_pry_help

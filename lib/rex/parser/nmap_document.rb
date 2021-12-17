@@ -9,6 +9,12 @@ module Rex
 
     include NokogiriDocMixin
 
+    attr_accessor :result
+    def initialize(args, db, &block)
+      @result = Rex::Parser::ParsedResult.new
+      super
+    end
+
     def determine_port_state(v)
       case v
       when "open"
@@ -376,7 +382,7 @@ module Rex
             db_report(:note, nse_note)
           end
         end
-
+        @result.record_host(host_object)
         host_object
       end
     end

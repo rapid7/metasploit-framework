@@ -34,6 +34,11 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-10-21'
       )
@@ -65,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('Loginizer version not vulnerable')
       return
     else
-      print_good('Vulnerable version detected')
+      print_good('Vulnerable version of Loginizer detected')
     end
 
     cookie = send_request_cgi({

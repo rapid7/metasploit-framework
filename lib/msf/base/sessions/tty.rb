@@ -81,6 +81,10 @@ class TTY
     rstream.close
   end
 
+  def self.can_cleanup_files
+    true
+  end
+
 end
 
 end

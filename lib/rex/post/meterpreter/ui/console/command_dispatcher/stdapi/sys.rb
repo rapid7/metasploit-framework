@@ -37,9 +37,9 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-p" => [ false, "Execute process in a pty (if available on target platform)"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
-  @@execute_opts_with_raw_mode = Rex::Parser::Arguments.new(@@execute_opts.fmt.merge(
+  @@execute_opts_with_raw_mode = @@execute_opts.merge(
     { '-r' => [ false, 'Raw mode'] }
-  ))
+  )
 
   #
   # Options used by the 'shell' command.
@@ -49,9 +49,9 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-l" => [ false, "List available shells (/etc/shells)."                ],
     "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
 
-  @@shell_opts_with_fully_interactive_shell = Rex::Parser::Arguments.new(@@shell_opts.fmt.merge(
+  @@shell_opts_with_fully_interactive_shell = @@shell_opts.merge(
     { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`).'] }
-  ))
+  )
 
   #
   # Options used by the 'reboot' command.
@@ -298,7 +298,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_execute_tabs(str, words)
-    return execute_opts.fmt.keys if words.length == 1
+    return execute_opts.option_keys if words.length == 1
     []
   end
 
@@ -310,7 +310,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_shell_tabs(str, words)
-    return shell_opts.fmt.keys if words.length == 1
+    return shell_opts.option_keys if words.length == 1
     []
   end
 
@@ -819,7 +819,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Tab completion for the ps command
   #
   def cmd_ps_tabs(str, words)
-    return @@ps_opts.fmt.keys if words.length == 1
+    return @@ps_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-A'
@@ -1104,7 +1104,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_reg_tabs(str, words)
     if words.length == 1
-      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.fmt.keys
+      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.option_keys
     end
 
     case words[-1]
@@ -1123,7 +1123,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     when '-w'
       return %w[32 64]
     when 'enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'
-      return @@reg_opts.fmt.keys
+      return @@reg_opts.option_keys
     end
 
     []
@@ -1247,7 +1247,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_shutdown_tabs(str, words)
-    return @@shutdown_opts.fmt.keys if words.length == 1
+    return @@shutdown_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-f'
@@ -1336,7 +1336,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Tab completion for the suspend command
   #
   def cmd_suspend_tabs(str, words)
-    return @@suspend_opts.fmt.keys if words.length == 1
+    return @@suspend_opts.option_keys if words.length == 1
     []
   end
 

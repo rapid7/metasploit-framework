@@ -35,6 +35,11 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }]
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-11-05'
       )
@@ -57,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('Abandoned Cart for WooCommerce version not vulnerable')
       return
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of Abandoned Cart for WooCommerce detected')
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, datastore['CHECKOUTURL']),

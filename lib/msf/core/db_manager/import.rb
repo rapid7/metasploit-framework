@@ -97,7 +97,8 @@ module Msf::DBManager::Import
     # this code looks to intentionally convert workspace to a string, why?
     opts = args.clone()
     opts.delete(:workspace)
-    self.send "import_#{ftype}".to_sym, opts.merge(workspace: wspace.name), &block
+    result = self.send "import_#{ftype}".to_sym, opts.merge(workspace: wspace.name), &block
+
     # post process the import here for missing default port maps
     mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_exploit_maps
     # the map build above is a little expensive, another option is to do
@@ -106,8 +107,13 @@ module Msf::DBManager::Import
     # compared to the vast number of possible references offered by a Vulnerability scanner.
     deferred_service_ports = [ 139 ] # I hate special cases, however 139 is no longer a preferred default
 
-    new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
-    (new_host_ids - existing_host_ids).each do |id|
+    if result.is_a?(Rex::Parser::ParsedResult)
+      new_host_ids = result.host_ids
+    else
+      new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id) - existing_host_ids
+    end
+
+    new_host_ids.each do |id|
       imported_host = Mdm::Host.where(id: id).first
       next if imported_host.vulns.nil? || imported_host.vulns.empty?
       # get all vulns with ports
@@ -158,8 +164,8 @@ module Msf::DBManager::Import
 
       end
     end
-    if preserve_hosts
-      (new_host_ids - existing_host_ids).each do |id|
+    if preserve_hosts || result.is_a?(Rex::Parser::ParsedResult)
+      new_host_ids.each do |id|
         Mdm::Host.where(id: id).first.normalize_os
       end
     else

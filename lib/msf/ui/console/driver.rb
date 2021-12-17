@@ -329,27 +329,21 @@ class Driver < Msf::Ui::Driver
   # displayed, scripts can be processed, and other fun can be had.
   #
   def on_startup(opts = {})
-    log_msg = "Please see #{File.join(Msf::Config.log_directory, 'framework.log')} for details."
-
     # Check for modules that failed to load
     if framework.modules.module_load_error_by_path.length > 0
-      print_warning("The following modules could not be loaded!")
+      wlog("The following modules could not be loaded!")
 
       framework.modules.module_load_error_by_path.each do |path, _error|
-        print_warning("\t#{path}")
+        wlog("\t#{path}")
       end
-
-      print_warning(log_msg)
     end
 
     if framework.modules.module_load_warnings.length > 0
       print_warning("The following modules were loaded with warnings:")
 
       framework.modules.module_load_warnings.each do |path, _error|
-        print_warning("\t#{path}")
+        wlog("\t#{path}")
       end
-
-      print_warning(log_msg)
     end
 
     if framework.db&.active

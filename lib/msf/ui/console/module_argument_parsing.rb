@@ -24,18 +24,18 @@ module ModuleArgumentParsing
     '-q' => [ false, 'Run the module in quiet mode with no output'           ]
   )
 
-  @@module_opts_with_action_support = Rex::Parser::Arguments.new(@@module_opts.fmt.merge(
+  @@module_opts_with_action_support = @@module_opts.merge(
     '-a' => [ true, 'The action to use. If none is specified, ACTION is used.']
-  ))
+  )
 
-  @@exploit_opts = Rex::Parser::Arguments.new(@@module_opts.fmt.merge(
+  @@exploit_opts = @@module_opts.merge(
     '-e' => [ true,  'The payload encoder to use.  If none is specified, ENCODER is used.' ],
     '-f' => [ false, 'Force the exploit to run regardless of the value of MinimumRank.'    ],
     '-n' => [ true,  'The NOP generator to use.  If none is specified, NOP is used.'       ],
     '-p' => [ true,  'The payload to use.  If none is specified, PAYLOAD is used.'         ],
     '-t' => [ true,  'The target index to use.  If none is specified, TARGET is used.'     ],
     '-z' => [ false, 'Do not interact with the session after successful exploitation.'     ]
-  ))
+  )
 
   def parse_check_opts(args)
     help_cmd = proc do |_result|

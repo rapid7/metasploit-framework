@@ -19,6 +19,7 @@ module Msf
       postgres
       smb
       ssh
+      tcp
     ].freeze
     private_constant :SUPPORTED_SCHEMAS
 
@@ -289,6 +290,27 @@ module Msf
 
       result['RHOSTS'] = uri.hostname
       result['RPORT'] = uri.port || 22
+
+      set_username(datastore, result, uri.user) if uri.user
+      set_password(datastore, result, uri.password) if uri.password
+
+      result
+    end
+
+    # Parses a uri string such as tcp://user:password@example.com into a hash
+    # which can safely be merged with a [Msf::DataStore] datastore for setting options.
+    #
+    # @param value [String] the uri string
+    # @return [Hash] A hash where keys match the required datastore options associated with
+    #   the uri value
+    def parse_tcp_uri(value, datastore)
+      uri = ::Addressable::URI.parse(value)
+      result = {}
+
+      result['RHOSTS'] = uri.hostname
+      if uri.port
+        result['RPORT'] = uri.port
+      end
 
       set_username(datastore, result, uri.user) if uri.user
       set_password(datastore, result, uri.password) if uri.password
