@@ -78,18 +78,34 @@ class MetasploitModule < Msf::Auxiliary
                  attrs = pdu.search_parameters[:attributes].empty? ? :all : pdu.search_parameters[:attributes]
                  res = service.search_ldif(filter, pdu.message_id, attrs)
                  if res.nil? || res.empty?
-                   service.encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeNoSuchObject, '', 'No such object', Net::LDAP::PDU::SearchResult)
+                   service.encode_ldap_response(
+                     pdu.message_id,
+                     Net::LDAP::ResultCodeNoSuchObject, '',
+                     Net::LDAP::ResultStrings[Net::LDAP::ResultCodeNoSuchObject],
+                     Net::LDAP::PDU::SearchResult
+                    )
                  else
                    # Send the results and return success message for callback completion
                    client.write(res.join)
-                   service.encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeSuccess, '', 'Search success', Net::LDAP::PDU::SearchResult)
+                   service.encode_ldap_response(
+                     pdu.message_id,
+                     Net::LDAP::ResultCodeSuccess, '',
+                     Net::LDAP::ResultStrings[Net::LDAP::ResultCodeSuccess],
+                     Net::LDAP::PDU::SearchResult
+                   )
                  end
                else
                  service.encode_ldap_response(pdu.message_id, 50, '', 'Not authenticated', Net::LDAP::PDU::SearchResult)
                end
              else
                # vprint_status("Received unknown LDAP request from #{client} - #{pp pdu}")
-               service.encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeUnwillingToPerform, '', "I'm sorry Dave, I can't do that", Net::LDAP::PDU::SearchResult)
+               service.encode_ldap_response(
+                 pdu.message_id,
+                 Net::LDAP::ResultCodeUnwillingToPerform,
+                 '',
+                 Net::LDAP::ResultStrings[Net::LDAP::ResultCodeUnwillingToPerform],
+                 Net::LDAP::PDU::SearchResult
+               )
              end
       resp.nil? ? client.close : on_send_response(client, resp)
     rescue StandardError => e

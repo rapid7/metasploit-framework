@@ -8,7 +8,7 @@ module Proto
 module LDAP
 
 class Server
-
+  attr_reader :serve_udp, :serve_tcp, :sock_options, :udp_sock, :tcp_sock, :syntax, :ldif
   module LdapClient
     attr_accessor :authenticated
     #
@@ -59,7 +59,6 @@ class Server
   # @param sblock [Proc] Handler for :send_response flow control interception
   #
   # @return [Rex::Proto::LDAP::Server] LDAP Server object
-  attr_reader :serve_udp, :serve_tcp, :sock_options, :udp_sock, :tcp_sock, :syntax, :ldif
   def initialize(lhost = '0.0.0.0', lport = 389, udp = true, tcp = true, ldif = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
     @serve_udp    = udp
     @serve_tcp    = tcp
@@ -171,13 +170,23 @@ class Server
           # Perform query against some loaded LDIF structure
           treebase = pdu.search_parameters[:base_object].to_s
           # ... search, build packet, send to client
-          encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeNoSuchObject, "", "No such object", Net::LDAP::PDU::SearchResult)
+          encode_ldap_response(
+            pdu.message_id,
+            Net::LDAP::ResultCodeNoSuchObject, '',
+            Net::LDAP::ResultStrings[Net::LDAP::ResultCodeNoSuchObject],
+            Net::LDAP::PDU::SearchResult
+          )
         else
           service.encode_ldap_response(pdu.message_id, 50, '', 'Not authenticated', Net::LDAP::PDU::SearchResult)
         end
       else
-        encode_ldap_response(pdu.message_id, Net::LDAP::ResultCodeUnwillingToPerform, "", "I'm sorry Dave, I can't do that", Net::LDAP::PDU::SearchResult)
-      end
+        service.encode_ldap_response(
+          pdu.message_id,
+          Net::LDAP::ResultCodeUnwillingToPerform,
+          '',
+          Net::LDAP::ResultStrings[Net::LDAP::ResultCodeUnwillingToPerform],
+          Net::LDAP::PDU::SearchResult
+        )      end
       resp.nil? ? cli.close : send_response(cli, resp)
     rescue => e
       elog(e)
