@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
                      Net::LDAP::ResultCodeNoSuchObject, '',
                      Net::LDAP::ResultStrings[Net::LDAP::ResultCodeNoSuchObject],
                      Net::LDAP::PDU::SearchResult
-                    )
+                   )
                  else
                    # Send the results and return success message for callback completion
                    client.write(res.join)

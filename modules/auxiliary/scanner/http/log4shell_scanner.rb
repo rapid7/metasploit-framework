@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     data.extend(Net::BER::Extensions::String)
     begin
       pdu = Net::LDAP::PDU.new(data.read_ber!(Net::LDAP::AsnSyntax))
-      vprint_status("LDAP request data remaining: #{data}") if data.length > 0
+      vprint_status("LDAP request data remaining: #{data}") if !data.empty?
       resp = case pdu.app_tag
              when Net::LDAP::PDU::BindRequest # bind request
                client.authenticated = true
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
                  Net::LDAP::PDU::BindResult
                )
              when Net::LDAP::PDU::SearchRequest # search request
-               if client.authenticated or datastore['LDAP_AUTH_BYPASS']
+               if client.authenticated || datastore['LDAP_AUTH_BYPASS']
                  # Perform query against some loaded LDIF structure
                  treebase = pdu.search_parameters[:base_object].to_s
                  token, java_version = treebase.split('/', 2)

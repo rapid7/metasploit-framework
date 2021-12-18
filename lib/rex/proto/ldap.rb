@@ -3,19 +3,19 @@ require 'rex/socket'
 
 # Monkeypatch upstream library, for now
 # TODO: write a real LDAP client in Rex and migrate all consumers
-class Net::LDAP::Connection #:nodoc:
+class Net::LDAP::Connection # :nodoc:
   LdapVersion = 3
   MaxSaslChallenges = 10
 
   def initialize(server)
     begin
-     @conn = Rex::Socket::Tcp.create(
-       'PeerHost' => server[:host],
-       'PeerPort' => server[:port],
-       'Proxies'  => server[:proxies]
-     )
+      @conn = Rex::Socket::Tcp.create(
+        'PeerHost' => server[:host],
+        'PeerPort' => server[:port],
+        'Proxies' => server[:proxies]
+      )
     rescue SocketError
-      raise Net::LDAP::LdapError, "No such address or other socket error."
+      raise Net::LDAP::LdapError, 'No such address or other socket error.'
     rescue Errno::ECONNREFUSED
       raise Net::LDAP::LdapError, "Server #{server[:host]} refused connection on port #{server[:port]}."
     end
@@ -28,11 +28,9 @@ class Net::LDAP::Connection #:nodoc:
   end
 end
 
-module Rex 
-module Proto
-module LDAP
-
+module Rex
+  module Proto
+    module LDAP
+    end
+  end
 end
-end
-end
-
