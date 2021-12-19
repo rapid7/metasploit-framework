@@ -121,6 +121,7 @@ class MetasploitModule < Msf::Auxiliary
       })
       next unless res && res.code == 200
 
+      print_status("#{plugin} was found and exploited successfully")
       vprint_good(res.body)
       path = store_loot(
         'grafana.loot',
