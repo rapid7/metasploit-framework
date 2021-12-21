@@ -568,7 +568,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_user_groups(sid)
     user_handle = nil
-    # domain_sid = sid.to_s.split('-')[0..-2].join('-')
     rid = sid.split('-').last.to_i
 
     user_handle = @samr.samr_open_user(domain_handle: @domain_handle, user_id: rid)
@@ -802,8 +801,7 @@ class MetasploitModule < Msf::Auxiliary
     user_info.each do |_sid, info|
       hash = "#{info[:lm_hash].unpack('H*')[0]}:#{info[:nt_hash].unpack('H*')[0]}"
       full_name = "#{domain_name}\\#{info[:username]}"
-      # credential_opts[:type] = :ntlm_hash
-      unless report_creds(full_name, hash, credential_opts)
+      unless report_creds(full_name, hash, **credential_opts)
         vprint_bad("Error when reporting #{full_name} hash")
       end
       print_line("#{full_name}:#{info[:rid]}:#{hash}:::")
@@ -861,7 +859,7 @@ class MetasploitModule < Msf::Auxiliary
           lm_h = Net::NTLM.lm_hash('') if lm_h.nil? || @lm_hash_not_stored
           history_hash = "#{lm_h.unpack('H*')[0]}:#{nt_h.unpack('H*')[0]}"
           history_name = "#{full_name}_history#{i}"
-          unless report_creds(history_name, history_hash, credential_opts)
+          unless report_creds(history_name, history_hash, **credential_opts)
             vprint_bad("Error when reporting #{full_name} history hash ##{i}")
           end
           print_line("#{history_name}:#{info[:rid]}:#{history_hash}:::")
@@ -881,7 +879,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_opts[:type] = :nonreplayable_hash
         info[:kerberos_keys].each do |key_type, key_value|
           key = "#{key_type}:#{key_value}"
-          unless report_creds(full_name, key, credential_opts)
+          unless report_creds(full_name, key, **credential_opts)
             vprint_bad("Error when reporting #{full_name} kerberos key #{key}")
           end
           print_line "#{full_name}:#{key}"
@@ -898,7 +896,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         credential_opts[:type] = :password
         info[:clear_text_passwords].each do |passwd|
-          unless report_creds(full_name, passwd, credential_opts)
+          unless report_creds(full_name, passwd, **credential_opts)
             vprint_bad("Error when reporting #{full_name} clear text password")
           end
           print_line("#{full_name}:CLEARTEXT:#{passwd}")
