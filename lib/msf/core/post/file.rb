@@ -287,8 +287,6 @@ module Msf::Post::File
         return cmd_exec("[System.IO.File]::OpenRead(\"#{path}\");if($?){echo\
           #{verification_token}}").include?(verification_token)
       end
-    end
-
     elsif session.platform == 'windows'
       result = cmd_exec("type #{path}").to_s
       if result.include?("Access is denied") || result.include?("cannot find the file")
