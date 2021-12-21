@@ -248,11 +248,12 @@ module Msf::Post::File
   def writable?(path)
     verification_token = Rex::Text.rand_text_alpha_upper(8)
     if session.type == 'powershell' && file?(path)
-      return cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
+      cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
+    elsif session.platform == 'windows'
+      cmd_exec("echo #{Rex::Text.rand_text_alphanumeric(5..30)} >> \"#{path}\" && echo true").to_s.include? 'true'
+    else
+      cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
     end
-    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
-
-    cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
   end
 
   #
@@ -288,9 +289,16 @@ module Msf::Post::File
       end
     end
 
-    raise "`readable?' method does not support Windows systems" if session.platform == 'windows'
-
-    cmd_exec("test -r '#{path}' && echo #{verification_token}").to_s.include?(verification_token)
+    elsif session.platform == 'windows'
+      result = cmd_exec("type #{path}").to_s
+      if result.include?("Access is denied") || result.include?("cannot find the file")
+        return false
+      else
+        return true
+      end
+    else
+      cmd_exec("test -r '#{path}' && echo #{verification_token}").to_s.include?(verification_token)
+    end
   end
 
   #
@@ -327,9 +335,16 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def attributes(path)
-    raise "`attributes' method does not support Windows systems" if session.platform == 'windows'
-
-    cmd_exec("lsattr -l '#{path}'").to_s.scan(/^#{path}\s+(.+)$/).flatten.first.to_s.split(', ')
+    if session.platform == 'windows'
+      result = cmd_exec("attrib \"#{path}\"").to_s.scan(%r{^(.*)[A-Z]{1}:\\})
+      if result.nil?
+        return ""
+      else
+        return result.gsub(/\s+/, '')
+      end
+    else
+      cmd_exec("lsattr -l '#{path}'").to_s.scan(/^#{path}\s+(.+)$/).flatten.first.to_s.split(', ')
+    end
   end
 
   #
