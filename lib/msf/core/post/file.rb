@@ -233,9 +233,11 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is executable
   #
   def executable?(path)
-    raise "`executable?' method does not support Windows systems" if session.platform == 'windows'
-
-    cmd_exec("test -x '#{path}' && echo true").to_s.include? 'true'
+    if session.platform == 'windows'
+      check_win_path_permissions(path, ["(F)", "(RX)", "GA", "GE", "(X", ",X,"])
+    else
+      cmd_exec("test -x '#{path}' && echo true").to_s.include? 'true'
+    end
   end
 
   #
@@ -250,7 +252,7 @@ module Msf::Post::File
     if session.type == 'powershell' && file?(path)
       cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
     elsif session.platform == 'windows'
-      cmd_exec("echo #{Rex::Text.rand_text_alphanumeric(5..30)} >> \"#{path}\" && echo true").to_s.include? 'true'
+      check_win_path_permissions(path, ["(F)", "(W)", "GA", "GW", "WD"])
     else
       cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
     end
@@ -288,12 +290,7 @@ module Msf::Post::File
           #{verification_token}}").include?(verification_token)
       end
     elsif session.platform == 'windows'
-      result = cmd_exec("type #{path}").to_s
-      if result.include?("Access is denied") || result.include?("cannot find the file")
-        return false
-      else
-        return true
-      end
+      check_win_path_permissions(path, ["(F)", "(RX)", "(R)", "GA", "GR", "RD"])
     else
       cmd_exec("test -r '#{path}' && echo #{verification_token}").to_s.include?(verification_token)
     end
@@ -328,21 +325,63 @@ module Msf::Post::File
 
   alias exists? exist?
 
+
+  #
+  # See if +path+ on the remote system is accessible in the manner specified by +perm+ by the current user.
+  #
+  # @param path [String] Remote path to check
+  # @param perms [Array] Array of permissions to check for
+  #
+  # @return [Boolean] true if +path+ is accessible to the current user via any of the manners listed in +perms+, otherwise false.
+  #
+  def check_win_path_permissions(path, perms)
+    # Grab permissions of the path in question and extract relevant info using a regex.
+    # Also strip extra whitespace before comparison occurs.
+    permissions_file_raw = cmd_exec("icacls \"#{path}\"").to_s
+    permissions_file_array = permissions_file_raw.scan(/^.+? (.+?\\.+?):(\(.*\))/)
+    permissions_file_array_length = permissions_file_array.length
+    for i in 0...permissions_file_array_length
+      permissions_file_array[i][0].strip!
+      permissions_file_array[i][1].strip!
+    end
+
+    # Grab info on the groups the current user belongs to so that we can do our comparisons.
+    cuser_groups = cmd_exec("whoami /groups").to_s
+    cuser_groups_array = cuser_groups.scan(/^(?:[\w]+ ?[\w\-]*+ ?[\w\-]*+\\?[\w\-]*+ ?[\w\-]*+ ?[\w\-]*+ ?)/)
+    cuser_groups_length = cuser_groups_array.length
+    for i in 0...cuser_groups_length
+      cuser_groups_array[i].strip!
+    end
+
+    # Remove erronious entries that don't belong here but are captured by the regex.
+    cuser_groups_array.delete("GROUP INFORMATION")
+    cuser_groups_array.delete("Group Name")
+
+    # Yes its nested array hell, but until I have a
+    # better approach it is what it is.
+    #
+    # Loop around and for each group our user is a part of,
+    # see if that group has the desired permissions on the specified path.
+    for group in cuser_groups_array
+      for entry in permissions_file_array
+        if entry[0].include?(group)
+          for perm in perms
+            return true if entry[1].include?(perm)
+          end
+        end
+      end
+    end
+    false
+  end
+
   #
   # Retrieve file attributes for +path+ on the remote system
   #
   # @param path [String] Remote filename to check
   def attributes(path)
-    if session.platform == 'windows'
-      result = cmd_exec("attrib \"#{path}\"").to_s.scan(%r{^(.*)[A-Z]{1}:\\})
-      if result.nil?
-        return ""
-      else
-        return result.gsub(/\s+/, '')
-      end
-    else
-      cmd_exec("lsattr -l '#{path}'").to_s.scan(/^#{path}\s+(.+)$/).flatten.first.to_s.split(', ')
-    end
+    raise "`attributes' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("lsattr -l '#{path}'").to_s.scan(/^#{path}\s+(.+)$/).flatten.first.to_s.split(', ')
   end
 
   #
