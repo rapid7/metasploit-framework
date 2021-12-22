@@ -4,8 +4,6 @@ require 'rex/socket'
 # Monkeypatch upstream library, for now
 # TODO: write a real LDAP client in Rex and migrate all consumers
 class Net::LDAP::Connection # :nodoc:
-  LdapVersion = 3
-  MaxSaslChallenges = 10
 
   def initialize(server)
     begin
