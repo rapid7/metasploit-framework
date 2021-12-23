@@ -474,13 +474,12 @@ protected
     [method, method+".exe"].each do |cmd|
       if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
+        print_status("exec: #{line}")
+        print_line('')
+
         self.busy = true
         begin
-          Open3.popen2e(line) {|stdin,output,thread|
-            output.each {|outline|
-              print_line(outline.chomp)
-            }
-          }
+          system(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
