@@ -7,15 +7,15 @@ activerecord, 6.1.4.4, MIT
 activesupport, 6.1.4.4, MIT
 addressable, 2.8.0, "Apache 2.0"
 afm, 0.2.2, MIT
-arel-helpers, 2.13.0, MIT
+arel-helpers, 2.14.0, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
-aws-partitions, 1.541.0, "Apache 2.0"
-aws-sdk-core, 3.124.0, "Apache 2.0"
-aws-sdk-ec2, 1.287.0, "Apache 2.0"
-aws-sdk-iam, 1.64.0, "Apache 2.0"
-aws-sdk-kms, 1.52.0, "Apache 2.0"
-aws-sdk-s3, 1.109.0, "Apache 2.0"
+aws-partitions, 1.543.0, "Apache 2.0"
+aws-sdk-core, 3.125.0, "Apache 2.0"
+aws-sdk-ec2, 1.288.0, "Apache 2.0"
+aws-sdk-iam, 1.65.0, "Apache 2.0"
+aws-sdk-kms, 1.53.0, "Apache 2.0"
+aws-sdk-s3, 1.110.0, "Apache 2.0"
 aws-sigv4, 1.4.0, "Apache 2.0"
 bcrypt, 3.1.16, MIT
 bcrypt_pbkdf, 1.1.0, MIT
@@ -29,7 +29,7 @@ concurrent-ruby, 1.0.5, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
 daemons, 1.4.1, MIT
-diff-lcs, 1.4.4, "MIT, Artistic-2.0, GPL-2.0+"
+diff-lcs, 1.5.0, "MIT, Artistic-2.0, GPL-2.0+"
 dnsruby, 1.61.7, "Apache 2.0"
 docile, 1.4.0, MIT
 domain_name, 0.5.20190701, "Simplified BSD, New BSD, Mozilla Public License 2.0"
@@ -75,7 +75,7 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.3, "New BSD"
 metasploit-credential, 5.0.5, "New BSD"
-metasploit-framework, 6.1.21, "New BSD"
+metasploit-framework, 6.1.22, "New BSD"
 metasploit-model, 4.0.3, "New BSD"
 metasploit-payloads, 2.0.66, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.4, "New BSD"
@@ -152,7 +152,7 @@ rspec-mocks, 3.10.2, MIT
 rspec-rails, 5.0.2, MIT
 rspec-rerun, 1.1.0, MIT
 rspec-support, 3.10.3, MIT
-rubocop, 1.23.0, MIT
+rubocop, 1.24.0, MIT
 rubocop-ast, 1.15.0, MIT
 ruby-macho, 2.5.1, MIT
 ruby-prof, 1.4.2, "Simplified BSD"
