@@ -32,6 +32,35 @@ class WebConsole
     def supports_color?
       false
     end
+
+    def unknown_command(method, line)
+
+      if File.basename(method) == 'msfconsole'
+        print_error('msfconsole cannot be run inside webconsole')
+        return
+      end
+
+      [method, method+".exe"].each do |cmd|
+        if command_passthru && Rex::FileUtils.find_full_path(cmd)
+
+          self.busy = true
+          begin
+            Open3.popen2e(line) {|stdin,output,thread|
+              output.each {|outline|
+                print_line(outline.chomp)
+              }
+            }
+          rescue ::Errno::EACCES, ::Errno::ENOENT
+            print_error("Permission denied exec: #{line}")
+          end
+          self.busy = false
+          return
+        end
+      end
+
+      super
+    end
+
   end
 
   def initialize(framework, console_id, opts={})
