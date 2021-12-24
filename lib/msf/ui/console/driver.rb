@@ -479,7 +479,7 @@ protected
 
         self.busy = true
         begin
-          system(line)
+          run_unknown_command(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
@@ -498,6 +498,10 @@ protected
     end
 
     super
+  end
+
+  def run_unknown_command(command)
+    system(command)
   end
 
   ##
