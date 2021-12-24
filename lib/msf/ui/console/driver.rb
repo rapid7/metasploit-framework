@@ -474,9 +474,6 @@ protected
     [method, method+".exe"].each do |cmd|
       if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
-        print_status("exec: #{line}")
-        print_line('')
-
         self.busy = true
         begin
           run_unknown_command(line)
@@ -501,6 +498,8 @@ protected
   end
 
   def run_unknown_command(command)
+    print_status("exec: #{command}")
+    print_line('')
     system(command)
   end
 
