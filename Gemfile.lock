@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.22)
+    metasploit-framework (6.1.23)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -151,7 +151,7 @@ GEM
     bcrypt (3.1.16)
     bcrypt_pbkdf (1.1.0)
     bindata (2.4.10)
-    bson (4.12.1)
+    bson (4.13.0)
     builder (3.2.4)
     byebug (11.1.3)
     coderay (1.1.3)
@@ -301,7 +301,7 @@ GEM
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.12.4)
-    pdf-reader (2.7.0)
+    pdf-reader (2.8.0)
       Ascii85 (~> 1.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -425,14 +425,14 @@ GEM
       rubocop-ast (>= 1.15.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.15.0)
+    rubocop-ast (1.15.1)
       parser (>= 3.0.1.1)
     ruby-macho (2.5.1)
     ruby-prof (1.4.2)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (2.0.12)
+    ruby_smb (2.0.13)
       bindata
       openssl-ccm
       openssl-cmac
@@ -498,7 +498,7 @@ GEM
       webrick
     yard (0.9.27)
       webrick (~> 1.7.0)
-    zeitwerk (2.5.1)
+    zeitwerk (2.5.3)
 
 PLATFORMS
   ruby
