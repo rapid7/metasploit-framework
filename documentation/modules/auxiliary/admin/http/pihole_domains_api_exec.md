@@ -40,9 +40,9 @@ services:
 1. Install the application
 1. Start msfconsole
 1. Do: `use auxiliary/admin/http/pihole_domains_api_exec`
-2. Do: `set rhosts [ip]`
-3. Do: `run`
-4. You should get the output from the command.
+1. Do: `set rhosts [ip]`
+1. Do: `run`
+1. You should get the output from the command.
 
 ## Options
 
