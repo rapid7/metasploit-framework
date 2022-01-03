@@ -557,10 +557,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_domain_users
     users = @samr.samr_enumerate_users_in_domain(domain_handle: @domain_handle)
-    users.map do |rid, name|
+    vprint_status("Obtained #{users.length} domain users, fetching the SID for each...")
+    progress_interval = 250
+    nb_digits = (Math.log10(users.length) + 1).floor
+    users = users.each_with_index.map do |(rid, name), index|
+      if index % progress_interval == 0
+        percent = (format('%.2f', (index / users.length.to_f * 100))).rjust(5)
+        print_status("SID enumeration progress - #{index.to_s.rjust(nb_digits)} / #{users.length} (#{percent}%)")
+      end
       sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: rid)
       [sid.to_s, name.to_s]
     end
+    print_status("SID enumeration progress - #{users.length} / #{users.length} (  100%)")
+    users
   rescue RubySMB::Error::RubySMBError => e
     print_error("Error when enumerating domain users ([#{e.class}] #{e}).")
     return
