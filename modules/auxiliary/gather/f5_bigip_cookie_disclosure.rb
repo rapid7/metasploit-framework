@@ -11,32 +11,34 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'F5 BIG-IP Backend Cookie Disclosure',
-        'Description'    => %q{
+        'Name' => 'F5 BIG-IP Backend Cookie Disclosure',
+        'Description' => %q{
           This module identifies F5 BIG-IP load balancers and leaks backend information
           (pool name, routed domain, and backend servers' IP addresses and ports) through
           cookies inserted by the BIG-IP systems.
         },
-        'Author'         =>
-          [
-            'Thanat0s <thanspam[at]trollprod.org>',
-            'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
-            'Nikita Oleksov <neoleksov[at]gmail.com>',
-            'Denis Kolegov <dnkolegov[at]gmail.com>',
-            'Paul-Emmanuel Raoul <skyper@skyplabs.net>'
-          ],
-        'References'     =>
-          [
-            ['URL', 'https://support.f5.com/csp/article/K6917'],
-            ['URL', 'https://support.f5.com/csp/article/K7784'],
-            ['URL', 'https://support.f5.com/csp/article/K14784'],
-            ['URL', 'https://support.f5.com/csp/article/K23254150']
-          ],
-        'License'        => MSF_LICENSE,
-        'DefaultOptions' =>
-          {
-            'SSL' => true
-          }
+        'Author' => [
+          'Thanat0s <thanspam[at]trollprod.org>',
+          'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
+          'Nikita Oleksov <neoleksov[at]gmail.com>',
+          'Denis Kolegov <dnkolegov[at]gmail.com>',
+          'Paul-Emmanuel Raoul <skyper@skyplabs.net>'
+        ],
+        'References' => [
+          ['URL', 'https://support.f5.com/csp/article/K6917'],
+          ['URL', 'https://support.f5.com/csp/article/K7784'],
+          ['URL', 'https://support.f5.com/csp/article/K14784'],
+          ['URL', 'https://support.f5.com/csp/article/K23254150']
+        ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'SSL' => true
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
 
@@ -52,9 +54,9 @@ class MetasploitModule < Msf::Auxiliary
   def change_endianness(value, size = 4)
     conversion = nil
     if size == 4
-      conversion = [value].pack("V").unpack("N").first
+      conversion = [value].pack('V').unpack('N').first
     elsif size == 2
-      conversion = [value].pack("v").unpack("n").first
+      conversion = [value].pack('v').unpack('n').first
     end
     conversion
   end
@@ -103,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
       # 4. IPv6 pool members in non-default route domains - "BIGipServerWEB=rd3o20010112000000000000000000000030o80"
 
       regexp = /
-        ([~\.\-\w]+)=(((?:\d+\.){2}\d+)|
+        ([~.\-\w]+)=(((?:\d+\.){2}\d+)|
         (rd\d+o0{20}f{4}\w+o\d{1,5})|
         (vi([a-f0-9]{32})\.(\d{1,5}))|
         (rd\d+o([a-f0-9]{32})o(\d{1,5})))
@@ -129,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       cookie = fetch_cookie # Get the cookie
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
-        print_error("F5 BIG-IP load balancing cookie not found")
+        print_error('F5 BIG-IP load balancing cookie not found')
         return nil
       end
 
@@ -170,11 +172,9 @@ class MetasploitModule < Msf::Auxiliary
     unless backends.empty?
       report_note(host: rhost, type: 'f5_load_balancer_backends', data: backends)
     end
-  rescue ::Rex::ConnectionRefused
-    print_error("Network connection error")
-  rescue ::Rex::ConnectionError
-    print_error("Network connection error")
+  rescue ::Rex::ConnectionRefused, ::Rex::ConnectionError
+    print_error('Network connection error')
   rescue ::OpenSSL::SSL::SSLError
-    print_error("SSL/TLS connection error")
+    print_error('SSL/TLS connection error')
   end
 end
