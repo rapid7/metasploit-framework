@@ -90,8 +90,9 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
       self.client.spnopt = spnopt
 
-      # In case the user unsets the password option, we make sure this is
+      # In case the user unsets the username or password option, we make sure this is
       # always a string
+      user ||= ''
       pass ||= ''
 
       res = self.client.session_setup(user, pass, domain)
