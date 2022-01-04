@@ -17,13 +17,13 @@ module Msf
           include Rex::Text::Color
 
           @@search_opts = Rex::Parser::Arguments.new(
-            '-h' => [false, 'Help banner'],
-            '-I' => [false, 'Ignore the command if the only match has the same name as the search'],
-            '-o' => [true,  'Send output to a file in csv format'],
-            '-S' => [true,  'Regex pattern used to filter search results'],
-            '-u' => [false, 'Use module if there is one result'],
-            '-s' => [true, 'Sort search results by the specified column in ascending order'],
-            '-r' => [true, 'Reverse the order of search results to descending order']
+            ['-h', '--help']            => [false, 'Help banner'],
+            ['-I', '--ignore']          => [false, 'Ignore the command if the only match has the same name as the search'],
+            ['-o', '--output']          => [true,  'Send output to a file in csv format', '<filename>'],
+            ['-S', '--filter']          => [true,  'Regex pattern used to filter search results', '<filter>'],
+            ['-u', '--use']             => [false, 'Use module if there is one result'],
+            ['-s', '--sort-ascending']  => [true, 'Sort search results by the specified column in ascending order', '<column>'],
+            ['-r', '--sort-descending'] => [true, 'Reverse the order of search results to descending order', '<column>']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -343,13 +343,7 @@ module Msf
             print_line "Prepending a value with '-' will exclude any matching results."
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
-            print_line "OPTIONS:"
-            print_line "  -h                   Show this help information"
-            print_line "  -o <file>            Send output to a file in csv format"
-            print_line "  -S <string>          Regex pattern used to filter search results"
-            print_line "  -u                   Use module if there is one result"
-            print_line "  -s <search_column>   Sort the research results based on <search_column> in ascending order"
-            print_line "  -r                   Reverse the search results order to descending order"
+            print @@search_opts.usage
             print_line
             print_line "Keywords:"
             {
