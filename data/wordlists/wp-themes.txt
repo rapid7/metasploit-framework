@@ -364,6 +364,7 @@ adapter
 adaption
 adaptive
 adaptive-flat
+adarsa
 adbooster
 add-your-content-wordpress-theme
 adela
@@ -811,6 +812,7 @@ amaranthine
 amaryllo
 amateur
 amathambo
+amaz-store
 amazeblog
 amazica
 amazica-business
@@ -957,6 +959,7 @@ anime
 anime-crowds
 anime-days
 anime-desu
+anime-games
 anime-heaven
 anime-template-theme
 animepress
@@ -1441,6 +1444,7 @@ auctions
 auctor
 audacity-of-tanish
 audictive-ten
+audio-podcast
 audioman
 audiotheme-fourteen
 auenwald
@@ -1799,6 +1803,7 @@ baseline
 basepress
 baseshine
 basetheme
+bashir-rased
 basho
 basic
 basic-bikes-limited
@@ -2094,6 +2099,7 @@ bibliotecas
 bicbb
 bicubic
 bicycle
+bicycle-rental
 bicycleshop
 biddo
 bidhantech
@@ -2541,6 +2547,7 @@ blog-zone
 blog-zone-update
 blog0sphere
 blog2019
+blog22
 blog64
 blog99
 blog_and_blog-sultan
@@ -3147,6 +3154,7 @@ botanical
 bothainah
 botiga
 botticelli
+boundlessnews
 bouquet
 bourboneat
 boutique
@@ -3317,6 +3325,7 @@ bubbles-squared
 bubblewrap
 bubbly
 bubu
+buconz-starter
 buddha-theme
 buddhism
 buddyeleven
@@ -3719,6 +3728,7 @@ calabozo-design
 cali
 calibar
 calibration
+calico
 call-power
 callas
 callcenter
@@ -3740,6 +3750,7 @@ camel
 cameleon
 cameo
 camer
+camera-store
 cameron
 camille-vencert
 camise
@@ -3919,6 +3930,7 @@ cc-responsive
 ccblue
 ccovid-medical-lite
 ccr-stylo
+cctv-security
 cdb-technology
 ceascol
 cecorabelle
@@ -4196,6 +4208,7 @@ citylogic
 citypost
 cityscape
 civigreen
+civil-construction
 civilized
 cjanky
 claire
@@ -4878,6 +4891,7 @@ corponotch-consultant
 corponotch-law
 corponotch-medical
 corpopress
+corporacy
 corporal
 corporata-lite
 corporate
@@ -4938,6 +4952,7 @@ corporately-child
 corporatesource
 corporatetech
 corporatio
+corposet
 corpotec
 corpox
 corpoz
@@ -5020,6 +5035,7 @@ craft-blog-1-0-8
 craftblog
 crafted
 crafter
+craftnce
 crafty
 crafty-business
 crafty-cart
@@ -5073,6 +5089,7 @@ creativ-education
 creativ-kids-education
 creativ-kindergarten
 creativ-mag
+creativ-magazine
 creativ-montessori
 creativ-musician
 creativ-preschool
@@ -5358,6 +5375,7 @@ dancing-in-the-moonlight
 dandelion-dreams
 dandy
 danfe
+danica
 daniela
 danielle
 daniels-bootstrap-4
@@ -6101,6 +6119,7 @@ dustland-express-premium
 dustlandexpress
 dvd-reviews
 dvm_writer
+dw-bionix
 dw-caution
 dw-cosmos
 dw-cryosis
@@ -6141,6 +6160,7 @@ dystopia
 dz306-simple-farsi-theme
 dzdivs-wp
 dzegmerti
+dznews
 dzonia-lite
 dzstandard
 dztra
@@ -6343,6 +6363,7 @@ educacionbe
 educamp
 educamp9
 educate
+educateup
 education
 education-academia
 education-base
@@ -6546,6 +6567,7 @@ elephant-mania
 elephent
 eletheme
 eleto
+elevate-wp
 elevation-lite
 eleven-21
 elf
@@ -6677,6 +6699,7 @@ enjoymini
 enjoynews
 enjoynow
 enjoypress
+enjoystyle
 enjoytube
 enjoyvideo
 enlighten
@@ -6714,6 +6737,7 @@ envestpro-lite
 envince
 envira
 environment
+environmental-green
 envision
 envo-blog
 envo-business
@@ -6741,6 +6765,7 @@ ep
 ephemeris
 epic
 epic-base
+epic-construction
 epione
 epiphany-digital-blue-peace
 epira-free-version
@@ -7245,6 +7270,7 @@ female
 femina
 feminine
 feminine-blog
+feminine-business
 feminine-fashion
 feminine-lifestyle
 feminine-lite
@@ -7314,6 +7340,7 @@ fight-against-corruption
 fighter
 figureground
 fildisi
+film-maker-lite
 filmix
 filmmaker
 filmmakerarthurmian
@@ -8376,6 +8403,7 @@ golden-glow
 golden-moments
 golden-portal
 golden-ratio
+goldly
 golf-algarve
 golf-theme
 golf-theme-by-nikola
@@ -9019,6 +9047,7 @@ heavencake-uri-httpscolorlib-comwpthemesactivello
 heavenly
 heavy
 heavy-wordpress-theme
+hebe
 hedwix-outreach
 heed
 heera
@@ -9033,6 +9062,7 @@ hellish-simplicity
 hello
 hello-academy
 hello-d
+hello-education
 hello-elementor
 hello-elementor-child
 hello-eletheme-uri-httpselementor-comhello-themeutm_sourcewp-themesutm_campaigntheme-uriutm_mediumwp-dash
@@ -9208,6 +9238,7 @@ home-construction
 home-design-blog
 home-design-blog-2
 home-furniture
+home-guard
 home-loan
 home-page
 home-pets
@@ -9235,6 +9266,7 @@ hoop
 hooshmandi
 hoot-business
 hoot-du
+hoot-porto
 hoot-ubix
 hoot-uno
 hoovey
@@ -11516,6 +11548,7 @@ magic-blog
 magic-corp
 magic-dust
 magic-magazine
+magic-notes
 magic-tree
 magical
 magicbackground
@@ -12032,6 +12065,7 @@ megastar
 megaz
 megazine
 megla
+megla-lite
 megnu-dustydisks
 megnu-ubuntu
 megumi-theme-miyako
@@ -12130,6 +12164,7 @@ mesopotamia
 mess-desk-v2
 messenger
 messina-blog
+meta-news
 meta-store
 meta_s2
 metal-urbano
@@ -13433,6 +13468,7 @@ news-vibrant-plus
 news-viral
 news-way
 news-x
+newsable
 newsanchor
 newsbd24
 newsbeat
@@ -13488,6 +13524,7 @@ newsmagfree
 newsmagjn
 newsmagz
 newsmandu-magazine
+newsmedia
 newsmin
 newsnote
 newson
@@ -13569,6 +13606,7 @@ nexproperty
 next
 next-event
 next-fall
+next-legit-news
 next-level-blog
 next-saturday
 next-saturday-1-0
@@ -14473,6 +14511,7 @@ paddle
 padhag
 padhang
 padma
+padma-blog
 padma-lite
 padwriting
 padwriting-theme
@@ -15039,6 +15078,7 @@ pitra
 pits
 pitter
 pixamag
+pixatres
 pixel
 pixel-2011
 pixel-linear
@@ -15264,6 +15304,7 @@ portfolioline
 portfoliolite
 portfolioo
 portfolioo_jude
+portfoliox
 portfolium
 portframe
 portico
@@ -15306,6 +15347,7 @@ power-business
 power-house
 power-mag
 power-magazine
+power-news
 powerblog-lite
 powerclub-lite
 powerful
@@ -15471,6 +15513,7 @@ problue
 probluezine
 probrand
 proclouds
+procorp
 prodigy-store
 produccion-musical
 producer
@@ -15732,6 +15775,7 @@ quick-reading
 quick-sales
 quick-vid
 quickchic
+quicker
 quickly
 quickpic
 quickpress
@@ -16233,6 +16277,7 @@ responsive-plus-plus
 responsive-skeleton
 responsive-small-business
 responsive-tabs
+responsive-techup
 responsive-test
 responsive-twentyten
 responsive-wordpress-theme
@@ -16555,6 +16600,7 @@ rowling
 rowling-custom
 royal
 royal-blog
+royal-elementor-kit
 royal-legendary
 royal-magazine
 royal-news
@@ -16960,6 +17006,7 @@ sell-my-ebooks
 sellbetter
 sellebooks
 seller
+selleradise-lite
 selma
 semanitic-ui-developer-edition
 semanitic-ui-for-wordpress-beta-2
@@ -17265,6 +17312,7 @@ shopisla
 shopisle
 shopix
 shopiyo
+shopkeeper-ecommerce
 shopline
 shopmax
 shopone
@@ -18641,6 +18689,7 @@ strategie-temp
 strategie3
 strategie_ug
 stratum
+stratusx
 strawberry-blend
 strawberry-blend-10
 streak
@@ -18945,6 +18994,7 @@ swift-lite
 swift-premium-lite
 swiftbiz
 swiftbiz-lite
+swiftly
 swiftmag
 swiftone
 swiftpress
@@ -19209,6 +19259,7 @@ teczilla-corporate
 teczilla-creative
 teczilla-dark
 teczilla-finance
+teczilla-organization
 teczilla-portfolio
 teczilla-startup
 teczilla-trading
@@ -19868,6 +19919,7 @@ tour
 tour-agency
 tour-operator
 tour-package
+tour-traveler
 tourable
 tourag
 touring-zone
@@ -21304,6 +21356,7 @@ webet
 webgist
 webgrapple
 webify
+webinar-education
 webjunk
 weblizar
 weblizar-brown
@@ -21385,6 +21438,7 @@ wen-corporate
 wen-travel
 wen-travel-blog
 wen-travel-dark
+wen-travel-modern
 wepora
 werka
 west
@@ -22200,6 +22254,7 @@ xsimply
 xt-corporate-lite
 xtempt
 xtheme
+xtra-free
 xtraroofing
 xtron
 xwb
@@ -22410,6 +22465,7 @@ zeesynergie
 zeetasty
 zeevision
 zeko-lite
+zelia
 zelle-lite
 zemez
 zemix
