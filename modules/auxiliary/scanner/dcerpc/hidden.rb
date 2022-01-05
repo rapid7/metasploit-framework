@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_tcp_options
+    deregister_options('RPORT')
   end
 
   # Obtain information about a single host
