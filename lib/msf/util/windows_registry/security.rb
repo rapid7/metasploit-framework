@@ -1,3 +1,5 @@
+require 'ruby_smb'
+
 module Msf
 module Util
 module WindowsRegistry
