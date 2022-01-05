@@ -228,6 +228,16 @@ module Msf
               files = tab_complete_filenames(Regexp.last_match(1), words)
               res += files.map { |f| 'file:' + f } if files
             end
+          when Msf::OptRhosts
+            case str
+            when /^file:(.*)/
+              files = tab_complete_filenames(Regexp.last_match(1), words)
+              res += files.map { |f| 'file:' + f } if files
+            else
+              option_values_target_addrs(mod).each do |addr|
+                res << addr
+              end
+            end
           end
           return res
         end
