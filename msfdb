@@ -661,14 +661,14 @@ end
 def persist_data_service
   puts 'Persisting http web data service credentials in msfconsole'
   # execute msfconsole commands to add and persist the data service connection
-  cmd = "./msfconsole -qx '#{get_db_connect_command}; db_save; exit'"
+  cmd = "msfconsole -qx '#{get_db_connect_command}; db_save; exit'"
   run_msfconsole_command(cmd)
 end
 
 def clear_default_data_service
   puts 'Clearing http web data service credentials in msfconsole'
   # execute msfconsole commands to clear the default data service connection
-  cmd = "./msfconsole -qx 'db_disconnect --clear; exit'"
+  cmd = "msfconsole -qx 'db_disconnect --clear; exit'"
   run_msfconsole_command(cmd)
 end
 
