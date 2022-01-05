@@ -27,7 +27,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('BaseFileName', [true, 'File name to create', 'meterpreter-test'])
+        OptString.new('BaseDirectoryName', [true, 'Directory name to create', 'test-dir']),
+        OptString.new('BaseFileName', [true, 'File name to create', 'test-file'])
       ], self.class
     )
   end
@@ -46,6 +47,39 @@ class MetasploitModule < Msf::Post
     super
   end
 
+  def test_dir
+    fs_sep = session.platform == 'windows' ? '\\' : '/'
+
+    it 'should test for directory existence' do
+      ret = false
+      [
+        'c:\\',
+        '/etc/',
+        '/tmp'
+      ].each do |path|
+        ret = true if directory?(path)
+      end
+
+      ret
+    end
+
+    it 'should create directories' do
+      mkdir(datastore['BaseDirectoryName'])
+      ret = directory?(datastore['BaseDirectoryName'])
+      ret &&= write_file([datastore['BaseDirectoryName'], datastore['BaseFileName']].join(fs_sep), 'foo')
+      ret
+    end
+
+    it 'should list the directory we just made' do
+      dir(datastore['BaseDirectoryName']).include?(datastore['BaseFileName'])
+    end
+
+    it 'should recursively delete the directory we just made' do
+      rm_rf(datastore['BaseDirectoryName'])
+      !directory?(datastore['BaseDirectoryName'])
+    end
+  end
+
   def test_file
     it 'should test for file existence' do
       ret = false
@@ -58,19 +92,6 @@ class MetasploitModule < Msf::Post
         '%WINDIR%\\system32\\calc.exe'
       ].each do |path|
         ret = true if file?(path)
-      end
-
-      ret
-    end
-
-    it 'should test for directory existence' do
-      ret = false
-      [
-        'c:\\',
-        '/etc/',
-        '/tmp'
-      ].each do |path|
-        ret = true if directory?(path)
       end
 
       ret
@@ -226,6 +247,9 @@ class MetasploitModule < Msf::Post
     vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
     cd(@old_pwd)
     super
+  end
+
+  def register_dir_for_cleanup(path)
   end
 
 end
