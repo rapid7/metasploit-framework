@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'jekyll', '~> 4.2.0'
-gem 'just-the-docs', github: 'adfoster-r7/just-the-docs', branch: 'r7_ver_custom'
+gem 'just-the-docs', github: 'rapid7/just-the-docs', branch: 'r7_ver_custom'
 gem 'webrick'
 
 group :jekyll_plugins do

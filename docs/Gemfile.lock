@@ -1,5 +1,5 @@
 GIT
-  remote: https://github.com/adfoster-r7/just-the-docs.git
+  remote: https://github.com/rapid7/just-the-docs.git
   revision: de685cdfb62d1f962e01898f31c9854ef5ebca0e
   branch: r7_ver_custom
   specs:
