@@ -212,6 +212,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'irb'
   # Lock reline version until Fiddle concerns are addressed
   spec.add_runtime_dependency 'reline', '0.2.5'
+  # Temporarily pin reline's dependency io-console which no longer supports Ruby 2.5
+  spec.add_runtime_dependency 'io-console', '0.5.9'
 
   # AWS enumeration modules
   spec.add_runtime_dependency 'aws-sdk-s3'
@@ -222,8 +224,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'faye-websocket'
   spec.add_runtime_dependency 'eventmachine'
 
-  # Earlier than latest Faraday gem is used to prevent upstream Octokit errors
-  spec.add_runtime_dependency 'faraday'
+  # Temporarily pinned until Ruby 2.5 support is dropped from framework
+  spec.add_runtime_dependency 'faraday', '1.8.0'
 
   # Required for windows terminal colors as of Ruby 3.0
   spec.add_runtime_dependency 'win32api'
