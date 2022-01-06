@@ -32,7 +32,8 @@ class MetasploitModule < Msf::Auxiliary
           ['WRITE_COIL', { 'Description' => 'Write one bit to a coil' } ],
           ['WRITE_REGISTER', { 'Description' => 'Write one word to a register' } ],
           ['WRITE_COILS', { 'Description' => 'Write bits to several coils' } ],
-          ['WRITE_REGISTERS', { 'Description' => 'Write words to several registers' } ]
+          ['WRITE_REGISTERS', { 'Description' => 'Write words to several registers' } ],
+          ['READ_ID', { 'Description' => 'Read  device id' } ]
         ],
       'DefaultAction' => 'READ_HOLDING_REGISTERS'
       ))
@@ -122,6 +123,15 @@ class MetasploitModule < Msf::Auxiliary
 
     make_payload(payload)
   end
+  
+  def make_read_id_payload
+    payload = [datastore['UNIT_NUMBER']].pack("c")
+    payload += [@function_code].pack("c")
+    payload += "\x0E\x01\x00" #dunno what these are
+    make_payload(payload)
+  end
+
+  
 
   def handle_error(response)
     case response.reverse.unpack("c")[0].to_i
@@ -369,6 +379,31 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unknown answer")
     end
   end
+  
+  def read_id
+    @function_code = 0x2b
+    print_status("Sending READ ID...")
+    response = send_frame(make_read_id_payload)
+    if response.nil?
+      print_error("No answer for the READ REGISTER")
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
+      handle_error(response)
+    elsif response.unpack("C*")[7] == @function_code
+      @ObjCnt = response[13].unpack("C")[0]
+      @ObjIdPos=14
+      begin
+	@ObjLen = response[@ObjIdPos+1].unpack("C")[0]
+	value = response.slice(@ObjIdPos+2,@ObjLen).unpack("a*")[0]
+ 	objid=response[@ObjIdPos].unpack("C")[0]
+	print_good("Object ID #{objid}: #{value}")
+	@ObjCnt = @ObjCnt-1
+	@ObjIdPos = @ObjIdPos + @ObjLen + 2
+     end while @ObjCnt > 0
+    else
+      print_error("Unknown answer")
+    end
+  end
+  
 
   def run
     @modbus_counter = 0x0000 # used for modbus frames
@@ -400,6 +435,8 @@ class MetasploitModule < Msf::Auxiliary
       else
         write_registers
       end
+    when "READ_ID"
+      read_id
     else
       print_error("Invalid ACTION")
     end
