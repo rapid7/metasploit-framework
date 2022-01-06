@@ -47,6 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DATA_COILS', [false, "Data in binary to write (WRITE_COILS mode only) e.g. 0110"]),
         OptString.new('DATA_REGISTERS', [false, "Words to write to each register separated with a comma (WRITE_REGISTERS mode only) e.g. 1,2,3,4"]),
         OptInt.new('UNIT_NUMBER', [false, "Modbus unit number", 1]),
+        OptBool.new('HEXDUMP', [false, "print Hex dump of response", false]),
       ])
 
   end
@@ -55,7 +56,13 @@ class MetasploitModule < Msf::Auxiliary
   def send_frame(payload)
     sock.put(payload)
     @modbus_counter += 1
-    sock.get_once(-1, sock.def_read_timeout)
+    rsp = sock.get_once(-1, sock.def_read_timeout)
+    dump_response(rsp)
+    rsp
+  end
+  
+  def dump_response(response)
+    print_good("response: " +  response.unpack1("H*")) if datastore['HEXDUMP']
   end
 
   def make_payload(payload)
@@ -392,12 +399,12 @@ class MetasploitModule < Msf::Auxiliary
       @ObjCnt = response[13].unpack("C")[0]
       @ObjIdPos=14
       begin
-	@ObjLen = response[@ObjIdPos+1].unpack("C")[0]
-	value = response.slice(@ObjIdPos+2,@ObjLen).unpack("a*")[0]
- 	objid=response[@ObjIdPos].unpack("C")[0]
-	print_good("Object ID #{objid}: #{value}")
-	@ObjCnt = @ObjCnt-1
-	@ObjIdPos = @ObjIdPos + @ObjLen + 2
+    @ObjLen = response[@ObjIdPos+1].unpack("C")[0]
+    value = response.slice(@ObjIdPos+2,@ObjLen).unpack("a*")[0]
+    objid=response[@ObjIdPos].unpack("C")[0]
+    print_good("Object ID #{objid}: #{value}")
+    @ObjCnt = @ObjCnt-1
+    @ObjIdPos = @ObjIdPos + @ObjLen + 2
      end while @ObjCnt > 0
     else
       print_error("Unknown answer")
