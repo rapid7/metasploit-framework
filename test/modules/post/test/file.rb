@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
         'Name' => 'Testing Remote File Manipulation',
         'Description' => %q{ This module will test Post::File API methods },
         'License' => MSF_LICENSE,
-        'Author' => [ 'egypt'],
+        'Author' => [ 'egypt' ],
         'Platform' => [ 'windows', 'linux', 'java' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ]
       )
@@ -66,12 +66,15 @@ class MetasploitModule < Msf::Post
     it 'should create directories' do
       mkdir(datastore['BaseDirectoryName'])
       ret = directory?(datastore['BaseDirectoryName'])
-      ret &&= write_file([datastore['BaseDirectoryName'], datastore['BaseFileName']].join(fs_sep), 'foo')
+      ret &&= write_file([datastore['BaseDirectoryName'], 'file'].join(fs_sep), '')
+      ret &&= mkdir([datastore['BaseDirectoryName'], 'directory'].join(fs_sep))
+      ret &&= write_file([datastore['BaseDirectoryName'], 'directory', 'file'].join(fs_sep), '')
       ret
     end
 
     it 'should list the directory we just made' do
-      dir(datastore['BaseDirectoryName']).include?(datastore['BaseFileName'])
+      dents = dir(datastore['BaseDirectoryName'])
+      dents.include?('file') && dents.include?('directory')
     end
 
     it 'should recursively delete the directory we just made' do
@@ -209,31 +212,31 @@ class MetasploitModule < Msf::Post
 
   def test_path_expansion_nix
     unless session.platform =~ /win/i
-      it "should expand home" do
+      it 'should expand home' do
         home1 = expand_path('~')
         home2 = expand_path('$HOME')
         home1 == home2 && home1.length > 0
       end
 
-      it "non-isolated tilde should not expand" do
+      it 'should not expand non-isolated tilde' do
         s = '~a'
         result = expand_path(s)
         s == result
       end
 
-      it "mid-string tilde should not expand" do
+      it 'should not expand mid-string tilde' do
         s = '/home/~'
         result = expand_path(s)
         s == result
       end
 
-      it "env vars with invalid naming should not expand" do
+      it 'should not expand env vars with invalid naming' do
         s = 'no environment $ variables /here'
         result = expand_path(s)
         s == result
       end
 
-      it "should expand multiple variables" do
+      it 'should expand multiple variables' do
         result = expand_path('/blah/$HOME/test/$USER')
         home = expand_path('$HOME')
         user = expand_path('$USER')
