@@ -350,6 +350,7 @@ class Console::CommandDispatcher::Core
   @@channel_opts = Rex::Parser::Arguments.new(
     '-c' => [ true,  'Close the given channel.' ],
     '-k' => [ true,  'Close the given channel.' ],
+    '-K' => [ false, 'Close all channels.' ],
     '-i' => [ true,  'Interact with the given channel.' ],
     '-l' => [ false, 'List active channels.' ],
     '-r' => [ true,  'Read from the given channel.' ],
@@ -392,6 +393,8 @@ class Console::CommandDispatcher::Core
       when '-w'
         mode = :write
         chan = val
+      when '-K'
+        mode = :kill_all
       end
 
       if @@channel_opts.arg_required?(opt)
@@ -427,6 +430,19 @@ class Console::CommandDispatcher::Core
       cmd_read(chan)
     when :write
       cmd_write(chan)
+    when :kill_all
+      if client.channels.empty?
+        print_line('No active channels.')
+        return
+      end
+
+      print_line('Killing all channels...')
+      client.channels.each_pair do |id, channel|
+        channel._close
+      rescue ::StandardError
+        print_error("Failed when trying to kill channel: #{id}")
+      end
+      print_line('Killed all channels.')
     else
       # No mode, no service.
       return true
