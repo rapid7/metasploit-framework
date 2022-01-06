@@ -237,7 +237,11 @@ module Build
                 },
                 {
                   path: 'dev/Setting-Up-a-Metasploit-Development-Environment.md',
-                  nav_order: 1
+                  nav_order: 2
+                },
+                {
+                  path: 'Sanitizing-PCAPs.md',
+                  nav_order: 3
                 },
                 {
                   path: "Navigating-and-Understanding-Metasploit's-Codebase.md",
