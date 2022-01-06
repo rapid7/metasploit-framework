@@ -17,11 +17,12 @@ PATH
       em-http-request
       eventmachine
       faker
-      faraday
+      faraday (= 1.8.0)
       faye-websocket
       filesize
       hrr_rb_ssh-ed25519
       http-cookie
+      io-console (= 0.5.9)
       irb
       jsobfu
       json
@@ -183,29 +184,25 @@ GEM
       railties (>= 5.0.0)
     faker (2.19.0)
       i18n (>= 1.6, < 2)
-    faraday (1.9.2)
+    faraday (1.8.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
-      faraday-httpclient (~> 1.0)
-      faraday-multipart (~> 1.0)
+      faraday-httpclient (~> 1.0.1)
       faraday-net_http (~> 1.0)
-      faraday-net_http_persistent (~> 1.0)
+      faraday-net_http_persistent (~> 1.1)
       faraday-patron (~> 1.0)
       faraday-rack (~> 1.0)
-      faraday-retry (~> 1.0)
+      multipart-post (>= 1.2, < 3)
       ruby2_keywords (>= 0.0.4)
     faraday-em_http (1.0.0)
     faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
     faraday-httpclient (1.0.1)
-    faraday-multipart (1.0.1)
-      multipart-post (>= 1.2, < 3)
     faraday-net_http (1.0.1)
     faraday-net_http_persistent (1.2.0)
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
-    faraday-retry (1.0.2)
     faye-websocket (0.11.1)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
@@ -227,7 +224,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
-    io-console (0.5.11)
+    io-console (0.5.9)
     irb (1.3.6)
       reline (>= 0.2.5)
     jmespath (1.4.0)
