@@ -42,7 +42,7 @@ Encountered permissions issues when attempting to create a cluster.
 
 ```
 pg_createcluster --user=$(whoami) --encoding=UTF8 9.6 msf -- --username=$(whoami) --auth-host=trust --auth-local=trust
-install: cannot change permissions of ‘/etc/postgresql/9.6/msf’: No such file or directory
+install: cannot change permissions of '/etc/postgresql/9.6/msf': No such file or directory
 Error: could not create configuration directory; you might need to run this program with root privileges
 ```
 
@@ -59,11 +59,11 @@ PG_CLUSTER_CONF_ROOT
 
 Create cluster ("initdb") to set up the necessary configuration structure:
 
-Note, running `mkdir -p $HOME/.local/etc/postgresql;` before the `pg_createcluster` command didn't stop the "install: cannot change owner and permissions of ‘/home/msfdev/.local/etc/postgresql/9.6’: Operation not permitted" message from appearing. This appears to be a warning only and doesn't seem to affect cluster creation.
+Note, running `mkdir -p $HOME/.local/etc/postgresql;` before the `pg_createcluster` command didn't stop the "install: cannot change owner and permissions of '/home/msfdev/.local/etc/postgresql/9.6': Operation not permitted" message from appearing. This appears to be a warning only and doesn't seem to affect cluster creation.
 
 ```
 mkdir -p $HOME/.local/var/log/postgresql; PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_createcluster --user=$(whoami) --datadir=$HOME/msf-db-datadir --socketdir=$HOME/.local/var/run/postgresql --logfile=$HOME/.local/var/log/postgresql/postgresql-version-msf.log --encoding=UTF8 9.6 msf -- --username=$(whoami) --auth-host=trust --auth-local=trust
-install: cannot change owner and permissions of ‘/home/msfdev/.local/etc/postgresql/9.6’: Operation not permitted
+install: cannot change owner and permissions of '/home/msfdev/.local/etc/postgresql/9.6': Operation not permitted
 Creating new cluster 9.6/msf ...
 config /home/msfdev/.local/etc/postgresql/9.6/msf
 data /home/msfdev/msf-db-datadir

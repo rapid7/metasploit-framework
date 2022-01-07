@@ -40,11 +40,11 @@ run
 
 # Approaches
 
-So far there’s three main potential approaches to add URL support to msfconsole:
+So far there's three main potential approaches to add URL support to msfconsole:
 
 1. **Consolidating Options** - Combining multiple options such as `RHOST`/`RPORT`/`SSL`/etc into one new option: `TARGETS`
-2. **Enriching RHOSTS with URL support** - The RHOST’s option is modified to support URLs, and attempts to keep all options such as RHOST/PORT/SSL etc in sync.
-3. **Support setting a single RHOST_URL** - Metasploit console will now support setting a single `RHOST_URL` value. Note that this wouldn’t show as an option to the user, but would be used as a ‘macro’ to populate the existing datastore values
+2. **Enriching RHOSTS with URL support** - The RHOST's option is modified to support URLs, and attempts to keep all options such as RHOST/PORT/SSL etc in sync.
+3. **Support setting a single RHOST_URL** - Metasploit console will now support setting a single `RHOST_URL` value. Note that this wouldn't show as an option to the user, but would be used as a 'macro' to populate the existing datastore values
 
 ## 1. Consolidating Options
 

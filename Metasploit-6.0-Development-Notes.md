@@ -48,6 +48,6 @@ A complete list of pull requests included as part of the initial version 6 work:
 
 You can get Metasploit 6.0 by checking out the [6.0.0 tag](https://github.com/rapid7/metasploit-framework/releases/tag/6.0.0) in the Metasploit GitHub project.
 
-Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://github.com/rapid7/metasploit-framework/wiki), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can’t find something you want in our wiki, ask Google or the community what they recommend. 
+Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://github.com/rapid7/metasploit-framework/wiki), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can't find something you want in our wiki, ask Google or the community what they recommend. 
 
 See all the ways to stay informed and get involved at <https://metasploit.com>.

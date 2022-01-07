@@ -75,11 +75,11 @@ Resolving codeload.github.com (codeload.github.com)... 192.30.253.120, 192.30.25
 Connecting to codeload.github.com (codeload.github.com)|192.30.253.120|:443... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: unspecified [application/zip]
-Saving to: ‘ruby-oci8-2.2.7.zip’
+Saving to: 'ruby-oci8-2.2.7.zip'
 
 ruby-oci8-2.2.7.zip                     [ <=>                                                                ] 376.97K  2.36MB/s    in 0.2s    
 
-2019-03-26 20:31:11 (2.36 MB/s) - ‘ruby-oci8-2.2.7.zip’ saved [386016]
+2019-03-26 20:31:11 (2.36 MB/s) - 'ruby-oci8-2.2.7.zip' saved [386016]
 
 root@kali:~# unzip ruby-oci8-2.2.7.zip 
 Archive:  ruby-oci8-2.2.7.zip

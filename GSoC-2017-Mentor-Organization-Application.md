@@ -8,7 +8,7 @@ Please don't use markdown here, we have to paste it into a form. All answers are
 
 **Why does your org want to participate in Google Summer of Code?**
 
-The story of Metasploit Framework’s creation and development over the last 13 years is one of community collaboration to create and hone tools useful to a wide range of security practitioners. Its broad functionality, combined with the deep domain knowledge of the mentors, offers a unique opportunity for students to learn about security and exploit development. Many of our contributors are established exploit developers and penetration testers who have years of industry experience that they can share with students. We hope that the experience will inspire students to continue contributing to open source security, as well as providing them with invaluable real-world training in development, security, and remote collaboration.
+The story of Metasploit Framework's creation and development over the last 13 years is one of community collaboration to create and hone tools useful to a wide range of security practitioners. Its broad functionality, combined with the deep domain knowledge of the mentors, offers a unique opportunity for students to learn about security and exploit development. Many of our contributors are established exploit developers and penetration testers who have years of industry experience that they can share with students. We hope that the experience will inspire students to continue contributing to open source security, as well as providing them with invaluable real-world training in development, security, and remote collaboration.
 
 
 **How will you keep mentors engaged with their students?**
