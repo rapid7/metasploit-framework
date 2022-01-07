@@ -52,7 +52,7 @@ Did you install Metasploit with...
 - [ ] Commercial installer (from <https://www.rapid7.com/products/metasploit/download/>)
 - [ ] Source install (please specify Ruby version)
 
-This list isn't intended to be exhaustive—it's simply the bare minimum set of details we need to reproduce and diagnose your bug. You should feel free to include as much detailed information as you need to help us understand how you got the results you did. 
+This list isn't intended to be exhaustive - it's simply the bare minimum set of details we need to reproduce and diagnose your bug. You should feel free to include as much detailed information as you need to help us understand how you got the results you did. 
 
 ## Avoid Duplicates
 You may not be the first person to notice the problem you're seeing as a Framework user, and the more bug reports we get, the more difficult it is to sort through them all for easy fixes or high-priority issues. Here are some ways to help a previously-reported bug get noticed more quickly and prioritized (if necessary).

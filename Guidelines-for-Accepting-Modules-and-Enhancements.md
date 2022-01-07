@@ -4,7 +4,7 @@ Contributions from the open source community are the soul of Metasploit, and we 
 
 ## Module Additions
 
-Most open source community support for Metasploit comes in the form of Metasploit modules. The following should be considered for acceptance; note that these are guidelines and not categorical imperatives ("should"s, not "must"s), since there are always exceptions to the norm—especially when it comes to novel new attacks and techniques.
+Most open source community support for Metasploit comes in the form of Metasploit modules. The following should be considered for acceptance; note that these are guidelines and not categorical imperatives ("should"s, not "must"s), since there are always exceptions to the norm-especially when it comes to novel new attacks and techniques.
 
 Modules should pass [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/msftidy.rb) and adhere to the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) guidelines. Both are distributed with Metasploit. See [[Style Tips]] for some information on how to take some of the headache out of whitespace issues.
 

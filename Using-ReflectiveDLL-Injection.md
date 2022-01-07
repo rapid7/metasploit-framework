@@ -22,7 +22,7 @@ In this case, I was writing a privesc, so I called it `PrivEsc` because I am sup
 For example, if the dll were named mydll.dll, you can run the privEsc alone with the command 
 `> rundll.exe mydll.dll, PrivEsc`
 
-That way, you can isolate the behavior of the exploit before adding a payload.  Because I was using a privesc, I just made the last line of the privesc `system(“cmd.exe”);` so I could verify that on the target machine.  If I got a system-level cmd prompt, I won!
+That way, you can isolate the behavior of the exploit before adding a payload.  Because I was using a privesc, I just made the last line of the privesc `system("cmd.exe");` so I could verify that on the target machine.  If I got a system-level cmd prompt, I won!
 
 ### Step 3 Add ReflectiveDLL Injection to it.
 This is actually pretty simple.  Once your code is doing what it is supposed to do, add the ReflectiveDLL injection to it.  Move the rdi (ReflectiveDLL injection) code into your existing project and add the inject project into your solution.  Again, this worked for me and appears to be a popular choice.
@@ -93,7 +93,7 @@ OK, so at this point, you've got a DLL with a function that does something you w
 ## Step 4: Adding the framework module
 Once you've got the DLL working and have it compiling with ReflectiveLoader, you have to make a framework module to use it. OJ's [exploits/capcom_sys_exec](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/local/capcom_sys_exec.rb) is a great place to start looking as an examples; it is super easy and simple to read, so let's review:
 
-(1) Make sure you have a handle to a process…. The easiest way be able to get a handle to a process is to launch your own:
+(1) Make sure you have a handle to a process. The easiest way be able to get a handle to a process is to launch your own:
 `notepad_process = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true})`
 
 (2) We need to write to that process and launch a thread in the process, so let's get a handle to the process with ALL_ACCESS attributes:
@@ -112,7 +112,7 @@ Replace the directory and file names with the ones to your binary.
 
 That function allocates memory in the process and loads up the DLL. There is a second method that allows you to upload DLL data, so you could create a payload using a template and load that without the dll touching the local or remote disk, but I have not had cause to use it.
 
-Unfortunately, this is where my grasp of things gets tenuous because it departs from my experience of traditional DLL loading with LoadLibrary and GetProcAddress. We copied the DLL into the remote process memory, but we have not “loaded” it, so DLL_PROCESS_ATTACH is not executed.  That's a good thing, as we have not yet provided the payload!
+Unfortunately, this is where my grasp of things gets tenuous because it departs from my experience of traditional DLL loading with LoadLibrary and GetProcAddress. We copied the DLL into the remote process memory, but we have not "loaded" it, so DLL_PROCESS_ATTACH is not executed.  That's a good thing, as we have not yet provided the payload!
 
 I square this by basically treating it like process hollowing, but on a thread-level.  Watching OJ's ReflectiveDll injection video might help: <https://www.youtube.com/watch?v=ZKznMBWUQ_c>
 
