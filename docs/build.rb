@@ -1012,11 +1012,11 @@ module Build
         if page[:folder]
           content = preamble.rstrip + "\n"
         else
-          content = File.read(File.join(WIKI_PATH, page[:path]))
+          content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
           content = preamble + content
           content = link_corrector.rerender(content)
         end
-        File.write(new_path, content, mode: 'w')
+        File.write(new_path, content, mode: 'w', encoding: Encoding::UTF_8)
       end
 
       # Now that the docs folder is created, time to move the home.md file out
@@ -1029,7 +1029,7 @@ module Build
       link_corrector = LinkCorrector.new(config)
       config.each do |page|
         unless page[:folder]
-          content = File.read(File.join(WIKI_PATH, page[:path]))
+          content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
           link_corrector.extract(content)
         end
       end
