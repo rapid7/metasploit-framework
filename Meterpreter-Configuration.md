@@ -37,18 +37,18 @@ Stage 1 of loading Windows Meterpreter now utilises a new loader, called `meterp
 The result is that the payload has the following structure once it has been prepared:
 
 ```
-  +--------------+
-  | Patched DOS  |
-  |    header    |
-  +--------------+
-  |              |
-  .              .
-  .  metsrv dll  .
-  .              .
-  |              |
-  +--------------+
-  | config block |
-  +--------------+
+ +--------------+
+ | Patched DOS  |
+ |    header    |
+ +--------------+
+ |              |
+ .              .
+ .  metsrv dll  .
+ .              .
+ |              |
+ +--------------+
+ | config block |
+ +--------------+
 ```
 
 ### Loading configuration in POSIX Meterpreter (Mettle)
@@ -77,18 +77,18 @@ The notion of a session configuration block is used to wrap up the following val
 The layout of this block in memory looks like this:
 
 ```
-  +--------------+
-  |Socket Handle |
-  +--------------+
-  |  Exit func   |
-  +--------------+
-  |Session Expiry|
-  +--------------+
-  |              |
-  |     UUID     |
-  |              |
-  |              |
-  +--------------+
+ +--------------+
+ |Socket Handle |
+ +--------------+
+ |  Exit func   |
+ +--------------+
+ |Session Expiry|
+ +--------------+
+ |              |
+ |     UUID     |
+ |              |
+ |              |
+ +--------------+
 
   | <- 4 bytes ->|
 ```
@@ -125,22 +125,22 @@ The values that are common to both `HTTP(S)` and `TCP` transports are:
 The layout of this block in memory looks like the following:
 
 ```
-  +--------------+
-  |              |
-  |      URL     |
-  .              .
-  .              .  512 characters worth
-  .              .  (POSIX -> ASCII -> char)
-  .              .  (Windows -> wide char -> wchar_t)
-  .              .
-  |              |
-  +--------------+
-  |  Comms T/O   |
-  +--------------+
-  |  Retry Total |
-  +--------------+
-  |  Retry Wait  |
-  +--------------+
+ +--------------+
+ |              |
+ |    URL       |
+ .              .
+ .              .  512 characters worth
+ .              .  (POSIX -> ASCII -> char)
+ .              .  (Windows -> wide char -> wchar_t)
+ .              .
+ |              |
+ +--------------+
+ |  Comms T/O   |
+ +--------------+
+ |  Retry Total |
+ +--------------+
+ |  Retry Wait  |
+ +--------------+
 
   | <- 4 bytes ->|
 ```
@@ -168,33 +168,33 @@ All values that are shown above need to be specified in the configuration, inclu
 The structure of the `HTTP/S` configuration is as follows.
 
 ```
-  +--------------+
-  |              |
-  |  Proxy host  |
-  .              .  128 characters worth (wchar_t)
-  |              |
-  +--------------+
-  |              |
-  |  Proxy user  |
-  .              .  64 characters worth (wchar_t)
-  |              |
-  +--------------+
-  |              |
-  |  Proxy pass  |
-  .              .  64 characters worth (wchar_t)
-  |              |
-  +--------------+
-  |              |
-  |  User agent  |
-  .              .  256 characters worth (wchar_t)
-  |              |
-  +--------------+
-  |              |
-  |   SSL cert   |
-  |   SHA1 hash  |
-  |              |
-  |              |
-  +--------------+
+ +--------------+
+ |              |
+ |  Proxy host  |
+ .              .  128 characters worth (wchar_t)
+ |              |
+ +--------------+
+ |              |
+ |  Proxy user  |
+ .              .  64 characters worth (wchar_t)
+ |              |
+ +--------------+
+ |              |
+ |  Proxy pass  |
+ .              .  64 characters worth (wchar_t)
+ |              |
+ +--------------+
+ |              |
+ | User agent   |
+ .              .  256 characters worth (wchar_t)
+ |              |
+ +--------------+
+ |              |
+ |  SSL cert    |
+ |  SHA1 hash   |
+ |              |
+ |              |
+ +--------------+
 
   | <- 4 bytes ->|
 ```
@@ -219,14 +219,14 @@ When loading the extensions from the configuration, Meterpreter will continue to
 The structure is simply laid out like the following:
 
 ```
-  +--------------+
-  |  Ext. Size   |
-  +--------------+
-  | Ext. content |
-  +--------------+
-  |  NULL term.  |
-  |   (4 bytes)  |
-  +--------------+
+ +--------------+
+ |  Ext. Size   |
+ +--------------+
+ | Ext. content |
+ +--------------+
+ |  NULL term.  |
+ |   (4 bytes)  |
+ +--------------+
 ```
 
 ## Configuration block overview
@@ -235,72 +235,72 @@ To summarise, the following shows the layout of a full configuration:
 
 
 ```
-  +--------------+
-  |Socket Handle |
-  +--------------+
-  |  Exit func   |
-  +--------------+
-  |Session Expiry|
-  +--------------+
-  |              |
-  |     UUID     |
-  |              |
-  |              |
-  +--------------+
-  |  Transport 1 |
-  |  tcp://...   |
-  .              .
-  |              |
-  +--------------+
-  |  Comms T/O   |
-  +--------------+
-  |  Retry Total |
-  +--------------+
-  |  Retry Wait  |
-  +--------------+
-  |  Transport 2 |
-  |  http://...  |
-  .              .
-  |              |
-  +--------------+
-  |  Comms T/O   |
-  +--------------+
-  |  Retry Total |
-  +--------------+
-  |  Retry Wait  |
-  +--------------+
-  |              |
-  |  Proxy host  |
-  |              |
-  +--------------+
-  |              |
-  |  Proxy user  |
-  |              |
-  +--------------+
-  |              |
-  |  Proxy pass  |
-  |              |
-  +--------------+
-  |              |
-  |  User agent  |
-  |              |
-  +--------------+
-  |              |
-  |   SSL cert   |
-  |   SHA1 hash  |
-  |              |
-  +--------------+
-  |  NULL term.  |
-  |(1 or 2 bytes)|
-  +--------------+
-  | Ext 1. Size  |
-  +--------------+
-  |Ext 1. content|
-  +--------------+
-  | Ext 2. Size  |
-  +--------------+
-  |Ext 2. content|
-  +--------------+
-  |  NULL term.  |
-  +--------------+
+ +--------------+
+ |Socket Handle |
+ +--------------+
+ |  Exit func   |
+ +--------------+
+ |Session Expiry|
+ +--------------+
+ |              |
+ |      UUID    |
+ |              |
+ |              |
+ +--------------+
+ |  Transport 1 |
+ |  tcp://...   |
+ .              .
+ |              |
+ +--------------+
+ |  Comms T/O   |
+ +--------------+
+ |  Retry Total |
+ +--------------+
+ |  Retry Wait  |
+ +--------------+
+ |  Transport 2 |
+ |  http://...  |
+ .              .
+ |              |
+ +--------------+
+ |  Comms T/O   |
+ +--------------+
+ |  Retry Total |
+ +--------------+
+ |  Retry Wait  |
+ +--------------+
+ |              |
+ |  Proxy host  |
+ |              |
+ +--------------+
+ |              |
+ |  Proxy user  |
+ |              |
+ +--------------+
+ |              |
+ |  Proxy pass  |
+ |              |
+ +--------------+
+ |              |
+ |  User agent  |
+ |              |
+ +--------------+
+ |              |
+ |   SSL cert   |
+ |   SHA1 hash  |
+ |              |
+ +--------------+
+ |  NULL term.  |
+ |(1 or 2 bytes)|
+ +--------------+
+ | Ext 1. Size  |
+ +--------------+
+ |Ext 1. content|
+ +--------------+
+ | Ext 2. Size  |
+ +--------------+
+ |Ext 2. content|
+ +--------------+
+ |  NULL term.  |
+ +--------------+
 ```
