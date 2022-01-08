@@ -57,7 +57,11 @@ class MetasploitModule < Msf::Auxiliary
     begin
       _version, web_version, _ftl = get_versions
 
-      fail_with(Msf::Exploit::Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response or non-200 HTTP code") if web_version.nil?
+      if web_version.nil?
+        print_error("#{peer} - Could not connect to web service - no response or non-200 HTTP code")
+        return Exploit::CheckCode::Unknown
+      end
+
       if web_version && Rex::Version.new(web_version) <= Rex::Version.new('5.6')
         vprint_good("Web Interface Version Detected: #{web_version}")
         return Exploit::CheckCode::Appears
@@ -66,7 +70,8 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Safe
       end
     rescue ::Rex::ConnectionError
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+      print_error("#{peer} - Could not connect to the web service")
+      return Exploit::CheckCode::Unknown
     end
     Exploit::CheckCode::Safe
   end
