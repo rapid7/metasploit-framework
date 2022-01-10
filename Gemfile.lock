@@ -271,7 +271,7 @@ GEM
       webrick
     metasploit_payloads-mettle (1.0.17)
     method_source (1.0.0)
-    mini_portile2 (2.7.1)
+    mini_portile2 (2.6.1)
     minitest (5.15.0)
     mqtt (0.5.0)
     msgpack (1.4.2)
@@ -285,8 +285,8 @@ GEM
     network_interface (0.0.2)
     nexpose (7.3.0)
     nio4r (2.5.8)
-    nokogiri (1.13.0)
-      mini_portile2 (~> 2.7.0)
+    nokogiri (1.12.5)
+      mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
     nori (2.6.0)
     octokit (4.21.0)
@@ -509,6 +509,7 @@ DEPENDENCIES
   fivemat
   memory_profiler
   metasploit-framework!
+  nokogiri (~> 1.12.0)
   octokit
   pry-byebug
   rake
@@ -522,4 +523,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.1.4
+   2.2.22

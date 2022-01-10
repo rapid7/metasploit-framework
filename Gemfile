@@ -3,6 +3,9 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+# locked in Gemfile until ruby 2.5 support is officially removed
+gem 'nokogiri', '~> 1.12.0'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
