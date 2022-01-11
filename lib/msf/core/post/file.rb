@@ -325,148 +325,6 @@ module Msf::Post::File
 
   alias exists? exist?
 
-  def grab_icacls_groups(input_string)
-    final_groups_array = []
-    icacls_groups_array = input_string.scan(/^.+? (.+?\\.+?):/)
-    for i in 0...icacls_groups_array.length
-      final_groups_array << icacls_groups_array[i][0].strip # Strip any leading or trailing characters off of each of the groups found via the regex.
-    end
-    final_groups_array
-  end
-
-  def grab_icacls_groups_permissions(input_string)
-    final_permissions_array = []
-    icacls_groups_permissions_array = input_string.scan(/\w:(\(.*\))$/)
-    for i in 0...icacls_groups_permissions_array.length
-      icacls_groups_permissions_array[i][0].strip! # Strip any leading or trailing characters off of each of the group permissions found via the regex.
-
-      # Permissions can exist inside a () section as comma delimited entries. To solve this we first remove the ( and ) characters,
-      # then we split the list on the delimiter, aka the comma character, before finally appending the resulting array to the end of
-      # final_permissions_array.
-      final_permissions_array << icacls_groups_permissions_array[i][0].gsub(/[()]/, '').split(',')
-    end
-    final_permissions_array
-  end
-
-  def win_find_current_user_groups
-    if session.platform != 'windows'
-      print_error('win_find_current_user_groups called on a non-Windows target!')
-      return nil
-    end
-
-    cuser_groups = cmd_exec('whoami /groups').to_s
-    cuser_groups_array = cuser_groups.scan(/^(?:\w+ ?[\w\-]*+ ?[\w\-]*+\\?[\w\-]*+ ?[\w\-]*+ ?[\w\-]*+ ?)/)
-    cuser_groups_length = cuser_groups_array.length
-    for i in 0...cuser_groups_length
-      cuser_groups_array[i].strip! # Strip any leading or trailing characters off the groups captured by the regex.
-    end
-
-    # Remove erronious entries that don't belong here but are captured by the regex.
-    cuser_groups_array.delete('GROUP INFORMATION')
-    cuser_groups_array.delete('Group Name')
-    cuser_groups_array
-  end
-
-  #
-  # See if +path+ on the remote system is accessible in the manner specified by +perm+ by the current user.
-  #
-  # @param path [String] Remote path to check
-  # @param perms [Array] Array of permissions to check for
-  #
-  # @return [Boolean] true if +path+ is accessible to the current user via any of the manners listed in +perms+, otherwise false.
-  #
-  def check_win_path_permissions(path, perms)
-    # First check if the target is Windows. If it is not, we shouldn't continue and should
-    # instead raise an error since this method is designed to only support Windows targets.
-    if session.platform != 'windows'
-      print_error('Check for path permissions attempted on a non-Windows target!')
-      return nil
-    end
-
-    # Next check if icacls exists as a command on the target system, and switch to calcs if not.
-    if command_exists?('icacls')
-      # Grab permissions of the path in question and extract relevant info using a regex.
-      # Also strip extra whitespace before comparison occurs.
-      icacls_output_raw = cmd_exec("icacls \"#{path}\"").to_s
-
-      # Perform the actual regex extraction to determine what groups are permitted to
-      # access the file and what permissions each of those groups has on the file.
-      # For reference this is what the output from running "icacls" on win32kfull.sys looks like:
-      #
-      # C:\Users>icacls C:\Windows\System32\win32kfull.sys
-      # C:\Windows\System32\win32kfull.sys NT SERVICE\TrustedInstaller:(F)
-      #                                    BUILTIN\Administrators:(RX)
-      #                                    NT AUTHORITY\SYSTEM:(RX)
-      #                                    BUILTIN\Users:(RX)
-      #                                    APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES:(RX)
-      #
-      # Successfully processed 1 files; Failed processing 0 files
-      #
-      # C:\Users>
-      icacls_groups_array = grab_icacls_groups(icacls_output_raw)
-      icacls_groups_permissions_array = grab_icacls_groups_permissions(icacls_output_raw)
-
-      # Now that we have both the groups and the associated permissions for each group, zip this info together
-      # into a multidimensional array so that each group is contained with its corresponding permissions.
-      permissions_file_array = icacls_groups_array.zip(icacls_groups_permissions_array)
-
-      # Grab info on the groups the current user belongs to so that we can do our comparisons.
-      # The following output shows what this might look like, showing that we get a group name
-      # as a string, then the type of the SID, the SID itself, followed by its attributes.
-      #
-      # Keep in mind these SID's are all SIDs that the current user is a member of.
-      #
-      #
-      # C:\Users>whoami /groups
-      # GROUP INFORMATION
-      # -----------------
-      #
-      # Group Name                                 Type             SID                                            Attributes
-      #
-      # ========================================== ================ ============================================== ==================================================
-      # Everyone                                   Well-known group S-1-1-0                                        Mandatory group, Enabled by default, Enabled group
-      # BUILTIN\Users                              Alias            S-1-5-32-545                                   Mandatory group, Enabled by default, Enabled group
-      # BUILTIN\Performance Log Users              Alias            S-1-5-32-559                                   Mandatory group, Enabled by default, Enabled group
-      # BUILTIN\Administrators                     Alias            S-1-5-32-544                                   Group used for deny only
-      # NT AUTHORITY\INTERACTIVE                   Well-known group S-1-5-4                                        Mandatory group, Enabled by default, Enabled group
-      # CONSOLE LOGON                              Well-known group S-1-2-1                                        Mandatory group, Enabled by default, Enabled group
-      # NT AUTHORITY\Authenticated Users           Well-known group S-1-5-11                                       Mandatory group, Enabled by default, Enabled group
-      # NT AUTHORITY\This Organization             Well-known group S-1-5-15                                       Mandatory group, Enabled by default, Enabled group
-      # LOCAL                                      Well-known group S-1-2-0                                        Mandatory group, Enabled by default, Enabled group
-      #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-36273 Mandatory group, Enabled by default, Enabled group
-      #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-45105 Mandatory group, Enabled by default, Enabled group
-      # **** CUT FOR BREVITY ***
-      # Authentication authority asserted identity Well-known group S-1-18-1                                       Mandatory group, Enabled by default, Enabled group
-      # Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
-      #
-      # C:\Users>
-
-      cuser_groups_array = win_find_current_user_groups
-
-      # Yes its nested array hell, but until I have a
-      # better approach it is what it is.
-      #
-      # Loop around and for each group our user is a part of,
-      # see if that group has the desired permissions on the specified path.
-      for group in cuser_groups_array
-        for entry in permissions_file_array
-          next unless entry[0].include?(group)
-
-          for perm in perms
-            return true if entry[1].include?(perm)
-          end
-        end
-      end
-      return false
-    elsif command_exists?('cacls')
-      print_status('calcs logic goes here....')
-      return false
-    else
-      print_error('Neither the cacls nor the icacls command exists on the target system.')
-      return nil
-    end
-  end
-
   #
   # Retrieve file attributes for +path+ on the remote system
   #
@@ -759,7 +617,6 @@ module Msf::Post::File
   alias mv_file rename_file
 
   #
-  #
   # Copy a remote file.
   #
   # @param src_file [String] Remote source file name to copy
@@ -784,6 +641,153 @@ module Msf::Post::File
     end
   end
   alias cp_file copy_file
+
+  private
+
+  def grab_icacls_groups(input_string)
+    final_groups_array = []
+    icacls_groups_array = input_string.scan(/^.+? (.+?\\.+?):/)
+    for i in 0...icacls_groups_array.length
+      final_groups_array << icacls_groups_array[i][0].strip # Strip any leading or trailing characters off of each of the groups found via the regex.
+    end
+    final_groups_array
+  end
+
+  #
+  # Parse a string, +input_string+, containing icacls output and filters it to find
+  # what groups are allowed to access the file that icacls was run on, and which
+  # permissions these groups have on that file.
+  #
+  # The resulting array that is returned is a multidimensional array where each
+  # element in the array is another array containing the name of the group as
+  # its first element, followed by an array containing the permissions
+  # that the group has on the file.
+  #
+  # @param input_string [String] String containing icacls output to parse for group permissions.
+  # @return [Array] Multidimensonal array containing the groups which have access to the file and what permissions they have on the file.
+  def grab_icacls_groups_permissions(input_string)
+    final_permissions_array = []
+    icacls_groups_permissions_array = input_string.scan(/\w:(\(.*\))$/)
+    for i in 0...icacls_groups_permissions_array.length
+      icacls_groups_permissions_array[i][0].strip! # Strip any leading or trailing characters off of each of the group permissions found via the regex.
+
+      # Permissions can exist inside a () section as comma delimited entries. To solve this we first remove the ( and ) characters,
+      # then we split the list on the delimiter, aka the comma character, before finally appending the resulting array to the end of
+      # final_permissions_array.
+      final_permissions_array << icacls_groups_permissions_array[i][0].gsub(/[()]/, '').split(',')
+    end
+    final_permissions_array
+  end
+
+  #
+  # Find what groups the current user is a member of.
+  #
+  # @return [Array] Array of groups the current user is a member of.
+  def win_find_current_user_groups
+    cuser_groups = cmd_exec('whoami /groups').to_s
+    cuser_groups_array = cuser_groups.scan(/^(?:\w+ ?[\w\-]*+ ?[\w\-]*+\\?[\w\-]*+ ?[\w\-]*+ ?[\w\-]*+ ?)/)
+    cuser_groups_length = cuser_groups_array.length
+    for i in 0...cuser_groups_length
+      cuser_groups_array[i].strip! # Strip any leading or trailing characters off the groups captured by the regex.
+    end
+
+    # Remove erronious entries that don't belong here but are captured by the regex.
+    cuser_groups_array.delete('GROUP INFORMATION')
+    cuser_groups_array.delete('Group Name')
+    cuser_groups_array
+  end
+
+  #
+  # See if +path+ on the remote system is accessible in the manner specified by +perm+ by the current user.
+  #
+  # @param path [String] Remote path to check
+  # @param perms [Array] Array of permissions to check for
+  #
+  # @return [Boolean] true if +path+ is accessible to the current user via any of the manners listed in +perms+, otherwise false.
+  def check_win_path_permissions(path, perms)
+    # Next check if icacls exists as a command on the target system, and switch to calcs if not.
+    if command_exists?('icacls')
+      # Grab permissions of the path in question and extract relevant info using a regex.
+      # Also strip extra whitespace before comparison occurs.
+      icacls_output_raw = cmd_exec("icacls \"#{path}\"").to_s
+
+      # Perform the actual regex extraction to determine what groups are permitted to
+      # access the file and what permissions each of those groups has on the file.
+      # For reference this is what the output from running "icacls" on win32kfull.sys looks like:
+      #
+      # C:\Users>icacls C:\Windows\System32\win32kfull.sys
+      # C:\Windows\System32\win32kfull.sys NT SERVICE\TrustedInstaller:(F)
+      #                                    BUILTIN\Administrators:(RX)
+      #                                    NT AUTHORITY\SYSTEM:(RX)
+      #                                    BUILTIN\Users:(RX)
+      #                                    APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES:(RX)
+      #
+      # Successfully processed 1 files; Failed processing 0 files
+      #
+      # C:\Users>
+      icacls_groups_array = grab_icacls_groups(icacls_output_raw)
+      icacls_groups_permissions_array = grab_icacls_groups_permissions(icacls_output_raw)
+
+      # Now that we have both the groups and the associated permissions for each group, zip this info together
+      # into a multidimensional array so that each group is contained with its corresponding permissions.
+      permissions_file_array = icacls_groups_array.zip(icacls_groups_permissions_array)
+
+      # Grab info on the groups the current user belongs to so that we can do our comparisons.
+      # The following output shows what this might look like, showing that we get a group name
+      # as a string, then the type of the SID, the SID itself, followed by its attributes.
+      #
+      # Keep in mind these SID's are all SIDs that the current user is a member of.
+      #
+      #
+      # C:\Users>whoami /groups
+      # GROUP INFORMATION
+      # -----------------
+      #
+      # Group Name                                 Type             SID                                            Attributes
+      #
+      # ========================================== ================ ============================================== ==================================================
+      # Everyone                                   Well-known group S-1-1-0                                        Mandatory group, Enabled by default, Enabled group
+      # BUILTIN\Users                              Alias            S-1-5-32-545                                   Mandatory group, Enabled by default, Enabled group
+      # BUILTIN\Performance Log Users              Alias            S-1-5-32-559                                   Mandatory group, Enabled by default, Enabled group
+      # BUILTIN\Administrators                     Alias            S-1-5-32-544                                   Group used for deny only
+      # NT AUTHORITY\INTERACTIVE                   Well-known group S-1-5-4                                        Mandatory group, Enabled by default, Enabled group
+      # CONSOLE LOGON                              Well-known group S-1-2-1                                        Mandatory group, Enabled by default, Enabled group
+      # NT AUTHORITY\Authenticated Users           Well-known group S-1-5-11                                       Mandatory group, Enabled by default, Enabled group
+      # NT AUTHORITY\This Organization             Well-known group S-1-5-15                                       Mandatory group, Enabled by default, Enabled group
+      # LOCAL                                      Well-known group S-1-2-0                                        Mandatory group, Enabled by default, Enabled group
+      #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-36273 Mandatory group, Enabled by default, Enabled group
+      #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-45105 Mandatory group, Enabled by default, Enabled group
+      # **** CUT FOR BREVITY ***
+      # Authentication authority asserted identity Well-known group S-1-18-1                                       Mandatory group, Enabled by default, Enabled group
+      # Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
+      #
+      # C:\Users>
+
+      cuser_groups_array = win_find_current_user_groups
+
+      # Yes its nested array hell, but until I have a
+      # better approach it is what it is.
+      #
+      # Loop around and for each group our user is a part of,
+      # see if that group has the desired permissions on the specified path.
+      for group in cuser_groups_array
+        for entry in permissions_file_array
+          next unless entry[0].include?(group)
+
+          for perm in perms
+            return true if entry[1].include?(perm)
+          end
+        end
+      end
+      return false
+    elsif command_exists?('cacls')
+      print_status('calcs logic goes here....')
+      return false
+    else
+      print_error('Neither the cacls nor the icacls command exists on the target system.')
+      return nil
+    end
+  end
 
   protected
 
