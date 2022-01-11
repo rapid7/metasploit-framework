@@ -98,6 +98,7 @@ class MetasploitModule < Msf::Auxiliary
                  token, java_version = treebase.split('/', 2)
                  target_info = @mutex.synchronize { @tokens.delete(token) }
                  if target_info
+                   @mutex.synchronize { @successes << target_info }
                    details = normalize_uri(target_info[:target_uri]).to_s
                    details << " (header: #{target_info[:headers].keys.first})" unless target_info[:headers].nil?
                    details << " (java: #{java_version})" unless java_version.blank?
@@ -138,6 +139,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::BadConfig, 'The SRVHOST option must be set to a routable IP address.') if ['0.0.0.0', '::'].include?(datastore['SRVHOST'])
     @mutex = Mutex.new
     @tokens = {}
+    @successes = []
     begin
       start_service
     rescue Rex::BindFailed => e
@@ -148,6 +150,12 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Sleeping #{datastore['LDAP_TIMEOUT']} seconds for any last LDAP connections")
     sleep datastore['LDAP_TIMEOUT']
+
+    if @successes.empty?
+      return Exploit::CheckCode::Unknown
+    end
+
+    return Exploit::CheckCode::Vulnerable(details: @successes)
   ensure
     stop_service
   end
@@ -165,6 +173,7 @@ class MetasploitModule < Msf::Auxiliary
     # but do copy the tokens and mutex to the new object
     obj.mutex = @mutex
     obj.tokens = @tokens
+    obj.successes = @successes
     obj
   end
 
@@ -191,6 +200,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host_uri(_ip, uri)
+    # HTTP_HEADER isn't exposed via the datastore but allows other modules to leverage this one to test a specific value
+    unless datastore['HTTP_HEADER'].blank?
+      token = rand_text_alpha_lower_numeric(8..32)
+      test(token, uri: uri, headers: { datastore['HTTP_HEADER'] => jndi_string(token) })
+    end
+
     unless datastore['HEADERS_FILE'].blank?
       headers_file = File.open(datastore['HEADERS_FILE'], 'rb')
       headers_file.each_line(chomp: true) do |header|
@@ -226,5 +241,5 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  attr_accessor :mutex, :tokens
+  attr_accessor :mutex, :tokens, :successes
 end
