@@ -8,6 +8,9 @@ functionality.  However, the regex only allows a-z, 0-9, _.
 
 ### Docker Compose
 
+Using the Docker compose file below, execute `docker compose up -d`
+to get a vulnerable environment running.
+
 ```
 version: "3"
 
@@ -38,11 +41,11 @@ services:
 ## Verification Steps
 
 1. Install the application
-1. Start msfconsole
-1. Do: `use auxiliary/admin/http/pihole_domains_api_exec`
-1. Do: `set rhosts [ip]`
-1. Do: `run`
-1. You should get the output from the command.
+2. Start msfconsole
+3. Do: `use auxiliary/admin/http/pihole_domains_api_exec`
+4. Do: `set rhosts [ip]`
+5. Do: `run`
+6. You should get the output from the command.
 
 ## Options
 
