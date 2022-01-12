@@ -18,8 +18,6 @@ module Http
 ###
 class Client
 
-  DefaultUserAgent = ClientRequest::DefaultUserAgent
-
   #
   # Creates a new client instance
   #
@@ -39,6 +37,7 @@ class Client
       'read_max_data'   => (1024*1024*1),
       'vhost'           => self.hostname,
     })
+    self.config['agent'] ||= Rex::UserAgent.session_agent
 
     # XXX: This info should all be controlled by ClientRequest
     self.config_types = {

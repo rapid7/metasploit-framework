@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
 
         next unless attr_value && !attr_value.empty?
 
-        uri = site_uri.merge(URI.encode(attr_value.strip))
+        uri = site_uri.merge(URI::DEFAULT_PARSER.escape(attr_value.strip))
 
         next unless uri.host == vhost || uri.host == rhost
 

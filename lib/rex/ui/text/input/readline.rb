@@ -28,7 +28,6 @@ begin
         ::Readline.basic_word_break_characters = ""
         @rl_saved_proc = with_error_handling(tab_complete_proc)
         ::Readline.completion_proc = @rl_saved_proc
-        ::Readline.completion_case_fold = true
       end
     end
 

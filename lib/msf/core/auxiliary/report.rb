@@ -292,6 +292,8 @@ module Auxiliary::Report
     }.merge(opts)
     vuln = framework.db.report_vuln(opts)
 
+    raise Msf::ValidationError, "Failed to report vuln for #{opts[:host]}:#{opts[:port]} to the database" if vuln.nil?
+
     # add vuln attempt audit details here during report
 
     timestamp  = opts[:timestamp]

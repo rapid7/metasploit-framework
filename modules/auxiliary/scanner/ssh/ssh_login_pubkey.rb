@@ -91,8 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       'KEY_PATH'             => nil
     }
 
-    info = "#{proto_from_fullname} #{result.credential.public}:#{fingerprint} (#{ Rex::Socket.is_ipv6?(ip) ? '[' + ip + ']' : ip }:#{rport})"
-    s = start_session(self, info, merge_me, false, sess.rstream, sess)
+    s = start_session(self, nil, merge_me, false, sess.rstream, sess)
     self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform

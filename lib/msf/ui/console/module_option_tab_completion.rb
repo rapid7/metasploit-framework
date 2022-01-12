@@ -190,17 +190,23 @@ module Msf
                 res += tab_complete_source_interface(o)
               end
             end
-          when Msf::OptAddressRange
+          when Msf::OptAddressRange, Msf::OptRhosts
             case str
             when /^file:(.*)/
               files = tab_complete_filenames(Regexp.last_match(1), words)
               res += files.map { |f| 'file:' + f } if files
-            when %r{/$}
-              res << str + '32'
-              res << str + '24'
-              res << str + '16'
-            when /\-$/
-              res << str + str[0, str.length - 1]
+            when %r{^(.*)/\d{0,2}$}
+              left = Regexp.last_match(1)
+              if Rex::Socket.is_ipv4?(left)
+                res << left + '/32'
+                res << left + '/24'
+                res << left + '/16'
+              end
+            when /^(.*)\-$/
+              left = Regexp.last_match(1)
+              if Rex::Socket.is_ipv4?(left)
+                res << str + str[0, str.length - 1]
+              end
             else
               option_values_target_addrs(mod).each do |addr|
                 res << addr

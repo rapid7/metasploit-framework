@@ -36,7 +36,7 @@ resource (total_upkeep.rb)> use auxiliary/scanner/http/wp_total_upkeep_downloade
 resource (total_upkeep.rb)> set rhosts 1.1.1.1
 rhosts => 1.1.1.1
 resource (total_upkeep.rb)> run
-[+] 1.1.1.1 - Vulnerable version detected
+[+] 1.1.1.1 - Vulnerable version of Boldgrid Backup detected
 [*] 1.1.1.1 - Obtaining Server Info
 [+] 1.1.1.1 -
   gateway_interface: CGI/1.1

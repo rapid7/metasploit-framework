@@ -889,8 +889,7 @@ private
         url << generate_uri_uuid(sum, opts[:uuid]) + '/'
       end
 
-      # TODO: randomise if not specified?
-      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
+      opts[:ua] ||= Rex::UserAgent.random
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
       if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl

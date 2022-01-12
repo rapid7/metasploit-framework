@@ -13,7 +13,7 @@ module Kiwi
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              kiwi_*
+              kiwi_exec_cmd
             ]
           }
         }

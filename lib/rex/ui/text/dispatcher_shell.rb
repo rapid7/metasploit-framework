@@ -391,6 +391,7 @@ module DispatcherShell
   #
   def tab_complete(str)
     ::Readline.completion_append_character = ' '
+    ::Readline.completion_case_fold = false
 
     # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
@@ -403,7 +404,12 @@ module DispatcherShell
     split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(str, split_str)
+    result = tab_complete_stub(str, split_str)
+    if result
+      result.uniq
+    else
+      result
+    end
   end
 
   # Performs tab completion of a command, if supported

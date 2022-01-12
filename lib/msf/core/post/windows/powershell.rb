@@ -17,7 +17,9 @@ module Msf
                 'Meterpreter' => {
                   'Commands' => %w[
                     stdapi_sys_config_sysinfo
-                    stdapi_sys_process_*
+                    stdapi_sys_process_execute
+                    stdapi_sys_process_get_processes
+                    stdapi_sys_process_kill
                   ]
                 }
               }

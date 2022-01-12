@@ -123,28 +123,47 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
   #
   # Expands a file path, substituting all environment variables, such as
-  # %TEMP%.
+  # %TEMP% on Windows or $HOME on Unix
   #
   # Examples:
   #    client.fs.file.expand_path("%appdata%")
   #    # => "C:\\Documents and Settings\\user\\Application Data"
+  #    client.fs.file.expand_path("~")
+  #    # => "/home/user"
+  #    client.fs.file.expand_path("$HOME/dir")
+  #    # => "/home/user/dir"
   #    client.fs.file.expand_path("asdf")
   #    # => "asdf"
   #
-  # NOTE: This method is fairly specific to Windows. It has next to no relation
-  # to the ::File.expand_path method! In particular, it does *not* do ~
-  # expansion or environment variable expansion on non-Windows systems. For
-  # these reasons, this method may be deprecated in the future. Use it with
-  # caution.
-  #
   def File.expand_path(path)
-    request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH)
+    case client.platform
+      when 'osx', 'freebsd', 'bsd', 'linux', 'android', 'apple_ios'
+        # For unix-based systems, do some of the work here
+        # First check for ~
+        path_components = path.split(separator)
+        if path_components.length > 0 && path_components[0] == '~'
+          path = "$HOME#{path[1..-1]}"
+        end
 
-    request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
+        # Now find the environment variables we'll need from the client
+        env_regex = /\$(?:([A-Za-z0-9_]+)|\{([A-Za-z0-9_]+)\})/
+        matches = path.to_enum(:scan, env_regex).map { Regexp.last_match }
+        env_vars = matches.map { |match| (match[1] || match[2]).to_s }.uniq
 
-    response = client.send_request(request)
+        # Retrieve them
+        env_vals = client.sys.config.getenvs(*env_vars)
 
-    return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
+        # Now fill them in
+        path.gsub(env_regex) { |_z| envvar = $1; envvar = $2 if envvar == nil; env_vals[envvar] }
+      else
+        request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH)
+
+        request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
+
+        response = client.send_request(request)
+
+        return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
+    end
   end
 
 

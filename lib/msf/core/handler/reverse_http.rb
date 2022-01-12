@@ -69,7 +69,7 @@ module ReverseHttp
         ),
         OptString.new('HttpUserAgent',
           'The user-agent that the payload should use for communication',
-          default: Rex::UserAgent.shortest,
+          default: Rex::UserAgent.random,
           aliases: ['MeterpreterUserAgent'],
           max_length: Rex::Payloads::Meterpreter::Config::UA_SIZE - 1
         ),

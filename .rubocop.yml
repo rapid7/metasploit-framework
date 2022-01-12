@@ -9,7 +9,7 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.6
   SuggestExtensions: false
   NewCops: disable
 

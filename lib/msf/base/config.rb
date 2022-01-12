@@ -475,4 +475,3 @@ class Config < Hash
 end
 
 end
-
