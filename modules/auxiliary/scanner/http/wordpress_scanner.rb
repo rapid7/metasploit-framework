@@ -70,9 +70,9 @@ class MetasploitModule < Msf::Auxiliary
         else
           f = File.open(datastore['THEMES_FILE'], 'rb')
         end
-        total = f.lines.count
+        total = f.readlines.size
         f.rewind
-        f = f.lines
+        f = f.readlines
         f.each_with_index do |theme, i|
           theme = theme.strip
           print_progress(target_host, i, total) if i % datastore['PROGRESS'] == 0
@@ -102,9 +102,9 @@ class MetasploitModule < Msf::Auxiliary
         else
           f = File.open(datastore['PLUGINS_FILE'], 'rb')
         end
-        total = f.lines.count
+        total = f.readlines.size
         f.rewind
-        f = f.lines
+        f = f.readlines
         f.each_with_index do |plugin, i|
           plugin = plugin.strip
           print_progress(target_host, i, total) if i % datastore['PROGRESS'] == 0
