@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
     # remove beginning of line with data on it
     output = output.gsub(/^data:/, '')
     # removing last line since its empty
-    output = output.split[0..-1]
+    output = output.split[0..]
 
     print_good(output.join("\n"))
   end
