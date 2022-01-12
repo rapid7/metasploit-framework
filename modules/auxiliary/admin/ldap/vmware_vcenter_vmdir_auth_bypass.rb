@@ -18,6 +18,9 @@ class MetasploitModule < Msf::Auxiliary
           vmdir service to add an arbitrary administrator user. Version 6.7
           prior to the 6.7U3f update is vulnerable, only if upgraded from a
           previous release line, such as 6.0 or 6.5.
+          Note that it is also possible to provide a bind username and password
+          to authenticate if the target is not vulnerable. It will add an
+          arbitrary administrator user the same way.
         },
         'Author' => [
           'Hynek Petrak', # Discovery
@@ -28,7 +31,8 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', '2020-3952'],
           ['URL', 'https://www.guardicore.com/2020/04/pwning-vmware-vcenter-cve-2020-3952/'],
-          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
+          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html'],
+          ['URL', 'https://github.com/HynekPetrak/HynekPetrak/blob/master/take_over_vcenter_670.md']
         ],
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,

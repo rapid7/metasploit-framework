@@ -20,6 +20,9 @@ class MetasploitModule < Msf::Auxiliary
           the vmdir service in VMware vCenter Server version 6.7 prior to the
           6.7U3f update, only if upgraded from a previous release line, such as
           6.0 or 6.5.
+          If the bind username and password are provided (BIND_DN and BIND_PW
+          options), these credentials will be used instead of attempting an
+          anonymous bind.
         },
         'Author' => [
           'Hynek Petrak', # Discovery, hash dumping
@@ -40,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -89,11 +93,12 @@ class MetasploitModule < Msf::Auxiliary
 
     # Look for an entry with a non-empty vmwSTSPrivateKey attribute
     unless entries&.find { |entry| entry[:vmwstsprivatekey].any? }
-      print_error("#{peer} is NOT vulnerable to CVE-2020-3952")
+      print_error("#{peer} is NOT vulnerable to CVE-2020-3952") unless datastore['BIND_PW'].present?
+      print_error('Dump failed')
       return Exploit::CheckCode::Safe
     end
 
-    print_good("#{peer} is vulnerable to CVE-2020-3952")
+    print_good("#{peer} is vulnerable to CVE-2020-3952") unless datastore['BIND_PW'].present?
     pillage(entries)
 
     # HACK: Stash discovered base DN in CheckCode reason

@@ -6,6 +6,9 @@ This module uses an anonymous-bind LDAP connection to dump data from
 the vmdir service in VMware vCenter Server version 6.7 prior to the
 6.7U3f update, only if upgraded from a previous release line, such as
 6.0 or 6.5.
+If the bind username and password are provided (BIND_DN and BIND_PW
+options), these credentials will be used instead of attempting an
+anonymous bind.
 
 ### Setup
 
