@@ -369,7 +369,7 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def john_crack_command
           cmd_string = binary_path
-          cmd = [cmd_string,  '--session=' + cracker_session_id, '--nolog']
+          cmd = [cmd_string,  '--session=' + cracker_session_id, '--no-log']
 
           if config.present?
             cmd << ("--config=" + config)
