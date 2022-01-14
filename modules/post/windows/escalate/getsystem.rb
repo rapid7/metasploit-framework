@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
     )
 
     register_options([
-      OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
+      OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-5), otherwise try them all", 0])
     ])
   end
 
