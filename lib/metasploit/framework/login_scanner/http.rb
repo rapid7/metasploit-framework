@@ -218,6 +218,7 @@ module Metasploit
         def send_request(opts)
           rhost           = opts['host'] || host
           rport           = opts['rport'] || port
+          method          = opts['method'] || method
           cli_ssl         = opts['ssl'] || ssl
           cli_ssl_version = opts['ssl_version'] || ssl_version
           cli_proxies     = opts['proxies'] || proxies
@@ -242,6 +243,8 @@ module Metasploit
           if realm
             cli.set_config('domain' => realm)
           end
+
+          puts "http.rb, username = #{username} & password = #{password} & method = #{method} & host = #{rhost} & port = #{rport}"
 
           begin
             cli.connect
