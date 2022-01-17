@@ -367,6 +367,7 @@ module Metasploit
           end
 
           # no date, so lets give it a run with the old format and check if we raise an error
+          # on *nix 'unknown option' goes to stderr
           ::IO.popen([binary_path, '--nolog', { err: %i[child out] }], 'rb') do |fd|
             return '--nolog' unless fd.read.include? 'Unknown option'
           end
@@ -381,7 +382,7 @@ module Metasploit
         def john_crack_command
           cmd_string = binary_path
 
-          cmd = [cmd_string, '--session=' + cracker_session_id]
+          cmd = [cmd_string, '--session=' + cracker_session_id, john_nolog_format]
 
           if config.present?
             cmd << ('--config=' + config)

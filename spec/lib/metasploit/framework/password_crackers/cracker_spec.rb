@@ -1,10 +1,13 @@
 require 'spec_helper'
 require 'metasploit/framework/password_crackers/cracker'
+require 'rex'
 
 RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
   subject(:cracker) { described_class.new }
   let(:cracker_type) { 'john' }
   let(:cracker_path) { '/path/to/john' }
+  let(:no_log_new) { '--no-log' }
+  let(:no_log_old) { '--nolog' }
   let(:other_cracker_path) { '/path/to/other/john' }
   let(:session_id) { 'Session1' }
   let(:config) { '/path/to/config.conf' }
@@ -61,11 +64,38 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
     end
   end
 
+  describe '#john_nolog_format' do
+    before(:example) do
+      cracker.cracker = cracker_type
+    end
+    it 'returns nolog for old date' do
+      expect(cracker).to receive(:cracker_version).and_return '1999-01-01'
+      expect(cracker.john_nolog_format).to eq no_log_old
+    end
+    it 'returns no-log for new date' do
+      expect(cracker).to receive(:cracker_version).and_return '2022-01-01'
+      expect(cracker.john_nolog_format).to eq no_log_new
+    end
+    it 'returns nolog for popen check' do
+      expect(cracker).to receive(:cracker_version).and_return ''
+      expect(cracker).to receive(:binary_path).and_return cracker_path
+      expect(::IO).to receive(:popen).and_return 'Password files required, but none specifie'
+      expect(cracker.john_nolog_format).to eq no_log_old
+    end
+    it 'returns no-log for popen check' do
+      expect(cracker).to receive(:cracker_version).and_return ''
+      expect(cracker).to receive(:binary_path).and_return cracker_path
+      expect(::IO).to receive(:popen).and_return 'Unknown option: "--nolog"'
+      expect(cracker.john_nolog_format).to eq no_log_new
+    end
+  end
+
   describe '#john_crack_command' do
     before(:example) do
       cracker.cracker = cracker_type
       expect(cracker).to receive(:binary_path).and_return cracker_path
       expect(cracker).to receive(:cracker_session_id).and_return session_id
+      expect(cracker).to receive(:john_nolog_format).and_return no_log_new
     end
 
     it 'starts with the john binary path' do
