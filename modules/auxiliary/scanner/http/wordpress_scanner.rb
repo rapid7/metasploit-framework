@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require "json"
+require 'json'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         File.join(Msf::Config.data_directory, 'wordlists', 'wp-plugins.txt')
       ]),
       OptInt.new('PROGRESS', [true, 'how often to print progress', 1000]),
-      OptBool.new('USERS',[false,'Detect users with API',true])
+      OptBool.new('USERS', [false, 'Detect users with API', true])
     ]
   end
 
@@ -128,34 +128,34 @@ class MetasploitModule < Msf::Auxiliary
         end
         print_status("#{target_host} - Finished scanning plugins")
       end
-#      if 1==1
+      #      if 1==1
       if datastore['USERS']
         print_status("#{target_host} - Searching Users")
-        url=wordpress_url_rest_api+"/users"
+        url = wordpress_url_rest_api + '/users'
         res = send_request_cgi({
-            'method' => 'GET',
-            'uri' => url
+          'method' => 'GET',
+          'uri' => url
         })
         if res.nil?
-         print_error("Error getting response.")
+          print_error('Error getting response.')
         elsif res.code == 200
-         parsed = JSON.parse(res.body)
-         parsed.map do |child|
-          name=child['name']
-          slug=child['slug']
-          print_good("#{target_host} - Detected user: #{name} Slug: #{slug}")
-          report_note(
-            {
-              host: target_host,
-              proto: 'tcp',
-              sname: (ssl ? 'https' : 'http'),
-              port: rport,
-              type: "Wordpress User: #{name} Slug: #{slug}"
-              # data: target_uri
-            }
-          )
-         end
-         print_status("#{target_host} - Finished scanning users")
+          parsed = JSON.parse(res.body)
+          parsed.map do |child|
+            name = child['name']
+            slug = child['slug']
+            print_good("#{target_host} - Detected user: #{name} Slug: #{slug}")
+            report_note(
+              {
+                host: target_host,
+                proto: 'tcp',
+                sname: (ssl ? 'https' : 'http'),
+                port: rport,
+                type: "Wordpress User: #{name} Slug: #{slug}"
+                # data: target_uri
+              }
+            )
+          end
+          print_status("#{target_host} - Finished scanning users")
         end
         print_status("#{target_host} - Finished all scans")
       end
