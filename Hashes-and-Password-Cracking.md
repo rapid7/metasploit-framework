@@ -45,7 +45,7 @@ This section will cover the differences between the two crackers.  This is not a
 | Description     | JtR              | hashcat             |
 |-----------------|------------------|---------------------|
 | session         | `--session`      | `--session`         |
-| no logging      | `--nolog`        | `--logfile-disable` |
+| no logging      | `--no-log`       | `--logfile-disable` |
 | config file     | `--config`       | (n/a)               |
 | previous cracks | `--pot`          | `--potfile-path`    |
 | type of hashes  | `--format`       | `--hash-type`       |
