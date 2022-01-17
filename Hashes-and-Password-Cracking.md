@@ -94,8 +94,8 @@ Each crack mode is a set of rules which apply to that specific mode.  The idea b
  * [Incremental](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L188)
  * [Wordlist](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L206)
  * [Pin (mobile devices - hashcat specific)](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L222)
- * [Normal (jtr specific) ](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L234)
- * [Single (jtr specific))[https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L250)
+ * [Normal (jtr specific)](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L234)
+ * [Single (jtr specific)](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L250)
 
 ### Hashcat Optimized Kernel
 
