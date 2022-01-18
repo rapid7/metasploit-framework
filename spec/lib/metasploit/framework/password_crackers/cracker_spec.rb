@@ -1,11 +1,13 @@
 require 'spec_helper'
 require 'metasploit/framework/password_crackers/cracker'
+require 'rex'
 
 RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
-
   subject(:cracker) { described_class.new }
   let(:cracker_type) { 'john' }
   let(:cracker_path) { '/path/to/john' }
+  let(:no_log_new) { '--no-log' }
+  let(:no_log_old) { '--nolog' }
   let(:other_cracker_path) { '/path/to/other/john' }
   let(:session_id) { 'Session1' }
   let(:config) { '/path/to/config.conf' }
@@ -15,12 +17,10 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
   let(:hash_path) { '/path/to/hashes' }
   let(:nt_format) { 'nt' }
   let(:incremental) { 'Digits5' }
-  let(:rules)   { 'Rule34'}
+  let(:rules) { 'Rule34' }
   let(:max_runtime) { 5000 }
 
   describe '#binary_path' do
-
-
     context 'when the user supplied a cracker_path' do
       before(:example) do
         cracker.cracker_path = cracker_path
@@ -60,15 +60,45 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
     end
 
     it 'returns 1000 for nt' do
-      expect(cracker.jtr_format_to_hashcat_format('nt')).to eq "1000"
+      expect(cracker.jtr_format_to_hashcat_format('nt')).to eq '1000'
     end
-  end    
+  end
+
+  describe '#john_nolog_format' do
+    before(:example) do
+      cracker.cracker = cracker_type
+    end
+
+    [
+      { date: '1999-01-01', expected: '--nolog' },
+      { date: '2022-01-01', expected: '--no-log' }
+    ].each do |test|
+      it 'returns test[:expected] for old date' do
+        expect(cracker).to receive(:cracker_version).and_return test[:date]
+        expect(cracker.john_nolog_format).to eq test[:expected]
+      end
+    end
+
+    [
+      { mock_popen: 'Password files required, but none specified', expected: '--nolog' },
+      { mock_popen: 'Unknown option: "--nolog"', expected: '--no-log' }
+    ].each do |test|
+      it "returns #{test[:expected]} for popen check" do
+        expect(cracker).to receive(:cracker_version).and_return ''
+        expect(cracker).to receive(:binary_path).and_return cracker_path
+        mock_fd = StringIO.new(test[:mock_popen])
+        expect(::IO).to receive(:popen).and_yield(mock_fd)
+        expect(cracker.john_nolog_format).to eq test[:expected]
+      end
+    end
+  end
 
   describe '#john_crack_command' do
     before(:example) do
       cracker.cracker = cracker_type
       expect(cracker).to receive(:binary_path).and_return cracker_path
       expect(cracker).to receive(:cracker_session_id).and_return session_id
+      expect(cracker).to receive(:john_nolog_format).and_return no_log_new
     end
 
     it 'starts with the john binary path' do
@@ -80,7 +110,7 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
     end
 
     it 'sets the nolog flag' do
-      expect(cracker.john_crack_command).to include '--nolog'
+      expect(cracker.john_crack_command).to include '--no-log'
     end
 
     it 'adds a config directive if the user supplied one' do
@@ -124,14 +154,13 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
 
     it 'uses the user supplied max-run-time' do
       cracker.max_runtime = max_runtime
-      expect(cracker.john_crack_command).to include "--max-run-time=#{max_runtime.to_s}"
+      expect(cracker.john_crack_command).to include "--max-run-time=#{max_runtime}"
     end
 
     it 'puts the path to the has file at the end' do
       cracker.hash_path = hash_path
       expect(cracker.john_crack_command.last).to eq hash_path
     end
-
   end
 
   describe '#show_command' do
@@ -180,25 +209,25 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
         it 'produces the correct error message for config' do
           cracker.config = config
           expect(cracker).to_not be_valid
-          expect(cracker.errors[:config]).to include "is not a valid path to a regular file"
+          expect(cracker.errors[:config]).to include 'is not a valid path to a regular file'
         end
 
         it 'produces the correct error message for hash_path' do
           cracker.hash_path = hash_path
           expect(cracker).to_not be_valid
-          expect(cracker.errors[:hash_path]).to include "is not a valid path to a regular file"
+          expect(cracker.errors[:hash_path]).to include 'is not a valid path to a regular file'
         end
 
         it 'produces the correct error message for pot' do
           cracker.pot = pot
           expect(cracker).to_not be_valid
-          expect(cracker.errors[:pot]).to include "is not a valid path to a regular file"
+          expect(cracker.errors[:pot]).to include 'is not a valid path to a regular file'
         end
 
         it 'produces the correct error message for wordlist' do
           cracker.wordlist = wordlist
           expect(cracker).to_not be_valid
-          expect(cracker.errors[:wordlist]).to include "is not a valid path to a regular file"
+          expect(cracker.errors[:wordlist]).to include 'is not a valid path to a regular file'
         end
       end
 
@@ -211,7 +240,7 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
         it 'produces the correct error message for cracker_path' do
           cracker.cracker_path = cracker_path
           expect(cracker).to_not be_valid
-          expect(cracker.errors[:cracker_path]).to include "is not a valid path to an executable file"
+          expect(cracker.errors[:cracker_path]).to include 'is not a valid path to an executable file'
         end
       end
     end
@@ -226,25 +255,25 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
         it 'produces no error message for config' do
           cracker.config = config
           expect(cracker).to be_valid
-          expect(cracker.errors[:config]).to_not include "is not a valid path to a regular file"
+          expect(cracker.errors[:config]).to_not include 'is not a valid path to a regular file'
         end
 
         it 'produces no error message for hash_path' do
           cracker.hash_path = hash_path
           expect(cracker).to be_valid
-          expect(cracker.errors[:hash_path]).to_not include "is not a valid path to a regular file"
+          expect(cracker.errors[:hash_path]).to_not include 'is not a valid path to a regular file'
         end
 
         it 'produces no error message for pot' do
           cracker.pot = pot
           expect(cracker).to be_valid
-          expect(cracker.errors[:pot]).to_not include "is not a valid path to a regular file"
+          expect(cracker.errors[:pot]).to_not include 'is not a valid path to a regular file'
         end
 
         it 'produces no error message for wordlist' do
           cracker.wordlist = wordlist
           expect(cracker).to be_valid
-          expect(cracker.errors[:wordlist]).to_not include "is not a valid path to a regular file"
+          expect(cracker.errors[:wordlist]).to_not include 'is not a valid path to a regular file'
         end
       end
 
@@ -257,7 +286,7 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
         it 'produces no error message for cracker_path' do
           cracker.cracker_path = cracker_path
           expect(cracker).to be_valid
-          expect(cracker.errors[:cracker_path]).to_not include "is not a valid path to an executable file"
+          expect(cracker.errors[:cracker_path]).to_not include 'is not a valid path to an executable file'
         end
       end
     end
