@@ -68,25 +68,28 @@ RSpec.describe Metasploit::Framework::PasswordCracker::Cracker do
     before(:example) do
       cracker.cracker = cracker_type
     end
-    it 'returns nolog for old date' do
-      expect(cracker).to receive(:cracker_version).and_return '1999-01-01'
-      expect(cracker.john_nolog_format).to eq no_log_old
+
+    [
+      { date: '1999-01-01', expected: '--nolog' },
+      { date: '2022-01-01', expected: '--no-log' }
+    ].each do |test|
+      it 'returns test[:expected] for old date' do
+        expect(cracker).to receive(:cracker_version).and_return test[:date]
+        expect(cracker.john_nolog_format).to eq test[:expected]
+      end
     end
-    it 'returns no-log for new date' do
-      expect(cracker).to receive(:cracker_version).and_return '2022-01-01'
-      expect(cracker.john_nolog_format).to eq no_log_new
-    end
-    it 'returns nolog for popen check' do
-      expect(cracker).to receive(:cracker_version).and_return ''
-      expect(cracker).to receive(:binary_path).and_return cracker_path
-      expect(::IO).to receive(:popen).and_return 'Password files required, but none specifie'
-      expect(cracker.john_nolog_format).to eq no_log_old
-    end
-    it 'returns no-log for popen check' do
-      expect(cracker).to receive(:cracker_version).and_return ''
-      expect(cracker).to receive(:binary_path).and_return cracker_path
-      expect(::IO).to receive(:popen).and_return 'Unknown option: "--nolog"'
-      expect(cracker.john_nolog_format).to eq no_log_new
+
+    [
+      { mock_popen: 'Password files required, but none specified', expected: '--nolog' },
+      { mock_popen: 'Unknown option: "--nolog"', expected: '--no-log' }
+    ].each do |test|
+      it "returns #{test[:expected]} for popen check" do
+        expect(cracker).to receive(:cracker_version).and_return ''
+        expect(cracker).to receive(:binary_path).and_return cracker_path
+        mock_fd = StringIO.new(test[:mock_popen])
+        expect(::IO).to receive(:popen).and_yield(mock_fd)
+        expect(cracker.john_nolog_format).to eq test[:expected]
+      end
     end
   end
 
