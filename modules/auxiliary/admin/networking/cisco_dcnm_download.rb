@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
             [ 'CVE', '2019-1621' ],
             [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190626-dcnm-bypass' ],
             [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190626-dcnm-file-dwnld' ],
-            [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/exploits/metasploit/cisco_dcnm_download.rb' ],
+            [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/Cisco/cisco-dcnm-rce.txt' ],
             [ 'URL', 'https://seclists.org/fulldisclosure/2019/Jul/7' ]
           ],
         'DisclosureDate' => '2019-06-26'
