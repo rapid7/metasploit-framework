@@ -44,6 +44,34 @@ module Metasploit
           }.call
         end
 
+        def extract_csrf_token_and_getlastsid(path:, regex:)
+          res = send_request({ 
+            'method' => 'GET',
+            'uri' => path,
+            'keep_cookies' => true
+          })
+
+          @last_sid = lambda {
+            cookies = res.get_cookies
+            @last_sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
+          }.call
+          # puts "token http response ----- : #{res.body}"
+          
+          if res.nil? || res.body.nil?
+            raise HttpClientException, 'Empty response. Please validate RHOST'
+          elsif res.code != 200
+            raise HttpClientException, "Unexpected HTTP #{res.code} response."
+          end
+
+          token = res.body[regex]
+          # puts "token ======= #{token}"
+          if token.nil?
+            puts "Cant Find token"
+          end
+
+          return @last_sid, token
+        end
+
 
         # Actually doing the login. Called by #attempt_login
         #
@@ -54,14 +82,18 @@ module Metasploit
         #   * :proof [String] the HTTP response body
         def get_login_state(credential, username, password)
           # Prep the data needed for login
-          sid       = get_last_sid
+          # sid       = get_last_sid
           protocol  = ssl ? 'https' : 'http'
           peer      = "#{host}:#{port}"
           login_uri = normalize_uri("#{uri}/login.php")
-
-          puts "http_post, URI = #{uri}"
-          puts "http_post, Login URI = #{login_uri}"
-          puts "http_post, host = #{host} & port = #{port} & protocol = #{protocol}"
+          sid, csrf_token = extract_csrf_token_and_getlastsid(
+            path: login_uri,
+            regex: %r{\w{32}}
+          )
+          # puts "http_post, URI = #{uri}"
+          # puts "http_post, Login URI = #{login_uri}"
+          # puts "http_post, host = #{host} & port = #{port} & protocol = #{protocol}"
+          # puts "http_post, token = #{csrf_token}"
           res = send_request({
             'uri' => login_uri,
             'method' => 'POST',
@@ -73,13 +105,14 @@ module Metasploit
               'Referer' => "#{protocol}://#{peer}/#{login_uri}"
             },
             'vars_post' => {
-              'USERNAME' => username,
-              'PASSWORD' => password,
-              'Login' => 'Login' # Found in the HTML form
+              'username' => username,
+              'password' => password,
+              'Login' => 'Login',
+              'user_token' => csrf_token
             }
           })
 
-          puts "http_post Username = #{username} and Password = #{password}"
+          # puts "http_post username = #{username} and password = #{password} and user_token = #{csrf_token} and session_id = #{sid}"
 
           unless res
             return {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s}
@@ -92,10 +125,12 @@ module Metasploit
           
           #puts "Code = #{res.code}"
           #puts "Description : #{res.to_s}"
+
+          # puts "Http Response = ----- CODE = #{res.code} && Location = #{res.headers['Location']}"
           if res && res.code == 302 && res.headers['Location'].include?('index.php')
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
-          puts "Http Response = ----- #{res.to_s}"
+          # puts "Http Response = ----- CODE = #{res.code} && Location = #{res.headers['Location']}"
 
           {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
         end

@@ -244,7 +244,7 @@ module Metasploit
             cli.set_config('domain' => realm)
           end
 
-          puts "http.rb, username = #{username} & password = #{password} & method = #{method} & host = #{rhost} & port = #{rport}"
+          # puts "http.rb, username = #{username} & password = #{password} & method = #{method} & host = #{rhost} & port = #{rport}"
 
           begin
             cli.connect
