@@ -138,8 +138,6 @@ class MetasploitModule < Msf::Auxiliary
     make_payload(payload)
   end
 
-
-
   def handle_error(response)
     case response.reverse.unpack("c")[0].to_i
     when 1
@@ -405,6 +403,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif response.unpack("C*")[7] == @function_code
       objCnt = response[13].unpack("C")[0]
       objIdPos=14
+      max_ref_size = response.size -1
       begin
         objLen = response[objIdPos+1].unpack("C")[0]
         value = response.slice(objIdPos+2,objLen).unpack("a*")[0]
@@ -412,12 +411,15 @@ class MetasploitModule < Msf::Auxiliary
         print_good("Object ID #{objid}: #{value}")
         objCnt = objCnt-1
         objIdPos = objIdPos + objLen + 2
+        if objIdPos > max_ref_size
+          print_error("Out of bounds reference occured whilst processing READ ID operation! Check sender data!")
+          break
+        end
       end while objCnt > 0
     else
       print_error("Unknown answer")
     end
   end
-
 
   def run
     @modbus_counter = 0x0000 # used for modbus frames
