@@ -41,6 +41,10 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
+    if session.type == 'meterpreter'
+      fail_with(Failure::BadConfig, "Meterpreter sessions cannot be elevated with sudo")
+    end
+
     print_status("SUDO: Attempting to upgrade to UID 0 via sudo")
     sudo_bin = cmd_exec("which sudo")
     if is_root?
