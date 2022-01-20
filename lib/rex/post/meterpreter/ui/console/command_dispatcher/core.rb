@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'set'
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/channels/pools/logging'
 require 'rex'
 
 module Rex
@@ -87,6 +88,11 @@ class Console::CommandDispatcher::Core
 
     if msf_loaded?
       cmds['info'] = 'Displays information about a Post module'
+    end
+
+    if client.arch == 'python'
+      # Initial logging channel support is only in python
+      cmds['log'] = 'Configure Meterpreter session logging'
     end
 
     reqs = {
@@ -1808,6 +1814,126 @@ class Console::CommandDispatcher::Core
   def cmd_disable_unicode_encoding
     client.encode_unicode = false
     print_status('Unicode encoding is disabled')
+  end
+
+  #
+  # Open a logging channel
+  #
+  def cmd_log(*args)
+    if args.empty? || args.include?('-h')
+      cmd_log_help
+      return true
+    end
+
+    command = args.shift
+    case command
+    when 'start', 'open'
+      return subcmd_log_start(args)
+    when 'stop', 'close'
+      if client.logging_channel.nil?
+        print_status('No logging channel is currently open')
+      else
+        client.logging_channel.close
+        client.logging_channel = nil
+        print_status('Closed the logging channel')
+      end
+    when 'read'
+      return subcmd_log_read(args)
+    else
+      cmd_log_help
+    end
+  end
+
+  @@log_read_opts = Rex::Parser::Arguments.new(
+    '-f' => [ true, 'An optional file to write the output to' ],
+    )
+
+  def subcmd_log_read(args)
+    if client.logging_channel.nil?
+      print_status('No logging channel is currently open')
+      return
+    end
+
+    opts = {file: nil}
+    @@log_read_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-f'
+        opts[:file] = val
+      end
+    end
+
+    log_data = client.logging_channel.read
+    print_line(log_data)
+    unless opts[:file].nil?
+      ::File.open(opts[:file], 'a') {|fd| fd.write(log_data) }
+    end
+  end
+
+  @@log_start_opts = Rex::Parser::Arguments.new(
+    '-l' => [ true, 'The logging level to use, one of debug, info, or error (default: debug)' ],
+    '-s' => [ true, 'The size of the remote log buffer (default: 8192)' ],
+    )
+  def subcmd_log_start(args)
+    unless client.logging_channel.nil?
+      print_status("Logging channel id: #{channel.cid} is already open")
+      return
+    end
+
+    opts = {level: :info, size: 0x2000}
+    @@log_start_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-l'
+        unless %{ debug info error }.include?(val)
+          print_error('Level must be either debug, info or error')
+          return
+        end
+        opts[:level] = val.downcase.to_sym
+      when '-s'
+        val = val.to_i
+        unless val > 0
+          print_error('The size must be a positive integer')
+          return
+        end
+        opts[:size] = val
+      end
+    end
+
+    # client.extend(LogChannelTracker) unless client.kind_of?(LogChannelTracker)
+    channel = Rex::Post::Meterpreter::Channels::Pools::Logging.open(client, level: opts[:level], size: opts[:size])
+    client.logging_channel = channel
+    print_status("Opened logging channel id: #{channel.cid}")
+  end
+
+  def cmd_log_help
+    print_line('Usage: log <command>')
+    print_line
+    print_line('COMMANDS:')
+    print_line('   read: read the logging stream from the meterpreter session')
+    print_line('  start: start logging on the meterpreter session')
+    print_line('   stop: stop logging on the meterpreter session')
+    print_line
+    print_line('start ' + @@log_start_opts.usage.lstrip)
+    print_line
+    print_line('read ' + @@log_read_opts.usage.lstrip)
+  end
+
+  def cmd_log_tabs(str, words)
+    return %w{ read start stop } if words.length < 2
+
+    command = words[1]
+    fmt = {}
+    case command
+    when 'start'
+      fmt = {
+        '-l' => [ %w{ debug info error } ],
+        '-s' => [ true                   ]
+      }
+    when 'read'
+      fmt = {
+        '-f' => [ :file                  ]
+      }
+    end
+    return tab_complete_generic(fmt, str, words)
   end
 
   @@client_extension_search_paths = [::File.join(Rex::Root, 'post', 'meterpreter', 'ui', 'console', 'command_dispatcher')]

@@ -42,10 +42,12 @@ module Rex
         # The hash of channels.
         #
         attr_reader :channels
+        attr_accessor :logging_channel
 
         protected
 
         attr_writer :channels # :nodoc:
+
       end
     end
   end
