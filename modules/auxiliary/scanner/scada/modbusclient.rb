@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     dump_response(rsp)
     rsp
   end
-  
+
   def dump_response(response)
     print_good("response: " +  response.unpack1("H*")) if datastore['HEXDUMP']
   end
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
     make_payload(payload)
   end
-  
+
   def make_read_id_payload
     payload = [datastore['UNIT_NUMBER']].pack("c")
     payload += [@function_code].pack("c")
@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
     make_payload(payload)
   end
 
-  
+
 
   def handle_error(response)
     case response.reverse.unpack("c")[0].to_i
@@ -386,7 +386,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unknown answer")
     end
   end
-  
+
   def read_id
     @function_code = 0x2b
     print_status("Sending READ ID...")
@@ -410,7 +410,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unknown answer")
     end
   end
-  
+
 
   def run
     @modbus_counter = 0x0000 # used for modbus frames
