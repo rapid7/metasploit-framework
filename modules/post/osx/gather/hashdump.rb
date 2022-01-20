@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
           'joev'
         ],
         'Platform'      => [ 'osx' ],
-        'SessionTypes'  => [ 'shell' ]
+        'SessionTypes'  => %w[shell meterpreter]
       ))
     register_options([
       OptRegexp.new('MATCHUSER', [false,
