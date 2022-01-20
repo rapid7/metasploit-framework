@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           ['WRITE_REGISTER', { 'Description' => 'Write one word to a register' } ],
           ['WRITE_COILS', { 'Description' => 'Write bits to several coils' } ],
           ['WRITE_REGISTERS', { 'Description' => 'Write words to several registers' } ],
-          ['READ_ID', { 'Description' => 'Read  device id' } ]
+          ['READ_ID', { 'Description' => 'Read device id' } ]
         ],
       'DefaultAction' => 'READ_HOLDING_REGISTERS'
       ))
