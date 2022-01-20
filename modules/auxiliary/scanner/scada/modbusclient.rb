@@ -389,23 +389,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def read_id
     @function_code = 0x2b
+    objCnt = 0
+    objIdPos = 0
+    objLen = 0
     print_status("Sending READ ID...")
     response = send_frame(make_read_id_payload)
     if response.nil?
-      print_error("No answer for the READ REGISTER")
+      print_error("No answer for READ ID")
+    elsif response.size < 9
+      print_error("response is not modbus conform")
     elsif response.unpack("C*")[7] == (0x80 | @function_code)
       handle_error(response)
+    elsif response.size < 16
+      print_error("response is too short for READ ID")
     elsif response.unpack("C*")[7] == @function_code
-      @ObjCnt = response[13].unpack("C")[0]
-      @ObjIdPos=14
+      objCnt = response[13].unpack("C")[0]
+      objIdPos=14
       begin
-    @ObjLen = response[@ObjIdPos+1].unpack("C")[0]
-    value = response.slice(@ObjIdPos+2,@ObjLen).unpack("a*")[0]
-    objid=response[@ObjIdPos].unpack("C")[0]
-    print_good("Object ID #{objid}: #{value}")
-    @ObjCnt = @ObjCnt-1
-    @ObjIdPos = @ObjIdPos + @ObjLen + 2
-     end while @ObjCnt > 0
+        objLen = response[objIdPos+1].unpack("C")[0]
+        value = response.slice(objIdPos+2,objLen).unpack("a*")[0]
+        objid=response[objIdPos].unpack("C")[0]
+        print_good("Object ID #{objid}: #{value}")
+        objCnt = objCnt-1
+        objIdPos = objIdPos + objLen + 2
+      end while objCnt > 0
     else
       print_error("Unknown answer")
     end
