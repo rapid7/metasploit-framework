@@ -37,7 +37,6 @@ Keybase.io is used by Metasploit as an easy way to verify identities of committe
 | [@todb-r7](https://github.com/todb-r7)            | [todb](https://keybase.io/todb)                    |
 | [@void-in](https://github.com/void-in)            | [void_in](https://keybase.io/void_in)              |
 | [@wchen-r7](https://github.com/wchen-r7)          | [wchenr7](https://keybase.io/wchenr7)              |
-| [@wvu-r7](https://github.com/wvu-r7)              | [wvu](https://keybase.io/wvu)                      |
 | [@zeroSteiner](https://github.com/zeroSteiner)    | [zerosteiner](https://keybase.io/zerosteiner)      |
 
 Note, keybase.io does **not require** your private key to prove your GitHub
