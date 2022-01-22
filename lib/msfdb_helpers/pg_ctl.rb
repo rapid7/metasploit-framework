@@ -18,6 +18,7 @@ module MsfdbHelpers
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
+        f.puts "unix_socket_directories = '/tmp'"
       end
 
       start
