@@ -18,6 +18,7 @@ module Metasploit
           end
 
           stdin_err, status = Open3.capture2e(cmd)
+          cleanup_files
           stdin_err
         end
 
@@ -63,11 +64,14 @@ module Metasploit
           src_file = "#{self.file_name}.c"
           exe_file = "#{self.file_name}.exe"
 
+        def cleanup_files
           unless self.keep_src
+            src_file = "#{self.file_name}.c"
             File.delete(src_file) if File.exist?(src_file)
           end
 
           unless self.keep_exe
+            exe_file = "#{self.file_name}.exe"
             File.delete(exe_file) if File.exist?(exe_file)
           end
         rescue Errno::ENOENT
