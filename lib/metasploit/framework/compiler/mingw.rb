@@ -60,9 +60,45 @@ module Metasploit
           cmd
         end
 
-        def cleanup_files
-          src_file = "#{self.file_name}.c"
-          exe_file = "#{self.file_name}.exe"
+
+        def compile_cpp(src)
+          cmd = build_cpp_cmd(src)
+          print("#{cmd}\n") if show_compile_cmd
+          stdin_err, status = Open3.capture2e(cmd)
+          stdin_err
+        end
+
+        def compile_cpp_files(files)
+          cmd = build_cpp_files_cmd(files)
+          print("#{cmd}\n") if show_compile_cmd
+          stdin_err, status = Open3.capture2e(cmd)
+          stdin_err
+        end
+
+        def build_cpp_cmd(src)
+          src_file = Tempfile.create(['scexec', ".cpp"])
+          File.write(src_file.path, src)
+          build_cpp_files(src_file.path)
+        end
+
+        def build_cpp_files_cmd(file_array)
+          cmd = [ mingw_bin ]
+          cmd << file_array.join(" ")
+          cmd << "-I #{INCLUDE_DIR}"
+          cmd << "-o #{outfile}"
+          cmd << "-shared" if outfile.ends_with?('.dll')
+
+          cmd << opt_lvl if OPTIMIZATION_FLAGS.include?(opt_lvl)
+          cmd << compile_options
+
+          link_opts = ['-Wl']
+          link_opts << '-s' if strip_syms
+          link_opts << link_options
+          link_opts << "-T#{link_script} " if link_script
+
+          cmd << link_opts.join(",")
+          cmd.join(" ")
+        end
 
         def cleanup_files
           unless self.keep_src
@@ -81,18 +117,21 @@ module Metasploit
         class X86
           include Mingw
 
-          attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin, :compile_options, :show_compile_cmd
+          attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :compile_options, :show_compile_cmd, :outfile, :link_options
+          attr_accessor :mingw_bin
 
           def initialize(opts={})
             @file_name = opts[:f_name]
+            @outfile = opts[:outfile]
             @keep_exe = opts[:keep_exe]
             @keep_src = opts[:keep_src]
             @strip_syms = opts[:strip_symbols]
             @show_compile_cmd = opts[:show_compile_cmd]
             @link_script = opts[:linker_script]
             @compile_options = opts[:compile_options]
+            @link_options = opts[:link_options]
             @opt_lvl = opts[:opt_lvl]
-            @mingw_bin = MINGW_X86
+            @mingw_bin = opts[:mingw_bin] || MINGW_X86
           end
 
           def self.available?
@@ -103,18 +142,21 @@ module Metasploit
         class X64
           include Mingw
 
-          attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin, :compile_options, :show_compile_cmd
+          attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :compile_options, :show_compile_cmd, :outfile, :link_options
+          attr_accessor :mingw_bin
 
           def initialize(opts={})
             @file_name = opts[:f_name]
+            @outfile = opts[:outfile]
             @keep_exe = opts[:keep_exe]
             @keep_src = opts[:keep_src]
             @strip_syms = opts[:strip_symbols]
             @show_compile_cmd = opts[:show_compile_cmd]
             @link_script = opts[:linker_script]
             @compile_options = opts[:compile_options]
+            @link_options = opts[:link_options]
             @opt_lvl = opts[:opt_lvl]
-            @mingw_bin = MINGW_X64
+            @mingw_bin = opts[:mingw_bin] || MINGW_X64
           end
 
           def self.available?
