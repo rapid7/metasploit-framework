@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           # aushack - None? Stumbled across, probably an old bug/feature but unsure.
-          [ 'URL', 'http://www.osisecurity.com.au/advisories/checkpoint-firewall-securemote-hostname-information-disclosure' ],
+          [ 'URL', 'https://web.archive.org/web/20120508142715/http://www.osisecurity.com.au/advisories/checkpoint-firewall-securemote-hostname-information-disclosure' ],
           [ 'URL', 'https://supportcenter.checkpoint.com/supportcenter/portal?eventSubmit_doGoviewsolutiondetails=&solutionid=sk69360' ]
         ]
     ))

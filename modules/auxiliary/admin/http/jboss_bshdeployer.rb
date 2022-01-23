@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2010-0738' ], # using a VERB other than GET/POST
           [ 'OSVDB', '64171' ],
-          [ 'URL', 'http://www.redteam-pentesting.de/publications/jboss' ],
+          [ 'URL', 'https://www.redteam-pentesting.de/en/publications/jboss/-bridging-the-gap-between-the-enterprise-and-you-or-whos-the-jboss-now' ],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=574105' ]
         ],
       'Actions'       =>

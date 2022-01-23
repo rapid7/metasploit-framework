@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2012-0002' ],
           [ 'MSB', 'MS12-020' ],
-          [ 'URL', 'http://technet.microsoft.com/en-us/security/bulletin/ms12-020' ],
+          [ 'URL', 'https://docs.microsoft.com/en-us/security-updates/SecurityBulletins/2012/ms12-020' ],
           [ 'EDB', '18606' ],
           [ 'URL', 'https://svn.nmap.org/nmap/scripts/rdp-vuln-ms12-020.nse' ]
         ],

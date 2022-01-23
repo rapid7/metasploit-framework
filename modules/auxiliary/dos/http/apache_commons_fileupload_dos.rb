@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
        'References'     =>
          [
            ['CVE', '2014-0050'],
-           ['URL', 'http://tomcat.apache.org/security-8.html'],
-           ['URL', 'http://tomcat.apache.org/security-7.html']
+           ['URL', 'https://tomcat.apache.org/security-8.html'],
+           ['URL', 'https://tomcat.apache.org/security-7.html']
          ],
         'DisclosureDate' => '2014-02-06'
       ))

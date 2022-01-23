@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2021-1675'],
           ['CVE', '2021-34527'],
           ['URL', 'https://github.com/cube0x0/CVE-2021-1675'],
-          ['URL', 'https://github.com/afwu/PrintNightmare'],
+          ['URL', 'https://web.archive.org/web/20210701042336/https://github.com/afwu/PrintNightmare'],
           ['URL', 'https://github.com/calebstewart/CVE-2021-1675/blob/main/CVE-2021-1675.ps1'],
           ['URL', 'https://github.com/byt3bl33d3r/ItWasAllADream']
         ],

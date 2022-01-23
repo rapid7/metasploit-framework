@@ -19,10 +19,10 @@ class MetasploitModule < Msf::Auxiliary
           'Brent Cook <brent_cook[at]rapid7.com>'
         ],
         'References'     => [
-          ['URL', 'http://www.tenable.com/plugins/index.php?view=single&id=35372'],
+          ['URL', 'https://www.tenable.com/plugins/nessus/35372'],
           ['URL', 'https://github.com/KINGSABRI/CVE-in-Ruby/tree/master/NONE-CVE/DNSInject'],
           ['URL', 'https://www.christophertruncer.com/dns-modification-dnsinject-nessus-plugin-35372/'],
-          ['URL', 'https://github.com/ChrisTruncer/PenTestScripts/blob/master/DNSInject.py']
+          ['URL', 'https://github.com/ChrisTruncer/PenTestScripts/blob/master/HostScripts/DNSInject.py']
         ],
         'License'        => MSF_LICENSE,
         'Actions'        => [

@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => 'Chris John Riley',
         'References' =>
             [
-              ['URL', 'http://www.slideshare.net/ChrisJohnRiley/ssl-certificate-impersonation-for-shits-andgiggles']
+              ['URL', 'https://www.slideshare.net/ChrisJohnRiley/ssl-certificate-impersonation-for-shits-andgiggles']
             ],
         'License' => MSF_LICENSE,
         'Description' => %q{

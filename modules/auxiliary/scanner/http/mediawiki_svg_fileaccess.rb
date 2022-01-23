@@ -26,8 +26,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           [ 'OSVDB', '92490' ],
-          [ 'URL', 'https://bugzilla.wikimedia.org/show_bug.cgi?id=46859' ],
-          [ 'URL', 'http://www.gossamer-threads.com/lists/wiki/mediawiki-announce/350229']
+          [ 'URL', 'https://phabricator.wikimedia.org/T48859' ],
+          [ 'URL', 'https://web.archive.org/web/20130421060020/http://www.gossamer-threads.com/lists/wiki/mediawiki-announce/350229']
         ],
       'Author'       =>
         [

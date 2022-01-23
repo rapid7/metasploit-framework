@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '1499'],
           ['EDB', '20096'],
           ['URL', 'https://support.microsoft.com/en-us/help/218180/internet-information-server-returns-ip-address-in-http-header-content'], # iis 4,5,5.1
-          ['URL', 'https://support.microsoft.com/en-us/help/967342/fix-the-internal-ip-address-of-an-iis-7-0-server-is-revealed-if-an-htt'], # iis 7+
+          ['URL', 'https://support.microsoft.com/en-us/topic/fix-the-internal-ip-address-of-an-iis-7-0-server-is-revealed-if-an-http-request-that-does-not-have-a-host-header-or-has-a-null-host-header-is-sent-to-the-server-c493e9bc-dfd3-0d9b-941c-b2d93a957d9e'], # iis 7+
           ['URL', 'https://techcommunity.microsoft.com/t5/iis-support-blog/iis-web-servers-running-in-windows-azure-may-reveal-their/ba-p/826500']
         ]
       )

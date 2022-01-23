@@ -23,9 +23,9 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => 'bcoles',
       'License'     => MSF_LICENSE,
       'References'  => [ [ 'CVE', '1999-0502' ], # Weak password
-                         [ 'URL', 'https://tools.ietf.org/html/rfc3977' ],
-                         [ 'URL', 'https://tools.ietf.org/html/rfc4642' ],
-                         [ 'URL', 'https://tools.ietf.org/html/rfc4643' ] ]))
+                         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc3977' ],
+                         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4642' ],
+                         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4643' ] ]))
     register_options(
       [
         Opt::RPORT(119),

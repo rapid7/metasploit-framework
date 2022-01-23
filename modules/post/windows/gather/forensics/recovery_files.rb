@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Borja Merino <bmerinofe[at]gmail.com>'],
         'References' => [
-          [ 'URL', 'http://www.youtube.com/watch?v=9yzCf360ujY&hd=1' ]
+          [ 'URL', 'https://www.youtube.com/watch?v=9yzCf360ujY&hd=1' ]
         ],
         'Compat' => {
           'Meterpreter' => {

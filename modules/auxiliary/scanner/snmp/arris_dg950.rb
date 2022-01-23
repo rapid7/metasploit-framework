@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE','2014-4863'],
-          ['URL', 'https://blog.rapid7.com/2014/08/21/more-snmp-information-leaks-cve-2014-4862-and-cve-2014-4863']
+          ['URL', 'https://www.rapid7.com/blog/post/2014/08/21/more-snmp-information-leaks-cve-2014-4862-and-cve-2014-4863/']
         ],
       'Author'      => ['Deral "Percent_X" Heiland'],
       'License'     => MSF_LICENSE

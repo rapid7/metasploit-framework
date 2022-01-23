@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.osisecurity.com.au/advisories/' ],
+          [ 'URL', 'https://www.osi.security/advisories.html' ],
         ],
       'DisclosureDate' => '2011-11-08'))
 

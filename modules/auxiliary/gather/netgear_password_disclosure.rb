@@ -26,10 +26,10 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2017-5521' ],
-          [ 'URL', 'https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2017-003/?fid=8911' ],
-          [ 'URL', 'http://thehackernews.com/2017/01/Netgear-router-password-hacking.html'],
-          [ 'URL', 'https://www.trustwave.com/Resources/SpiderLabs-Blog/CVE-2017-5521--Bypassing-Authentication-on-NETGEAR-Routers/'],
-          [ 'URL', 'http://pastebin.com/dB4bTgxz'],
+          [ 'URL', 'https://www.trustwave.com/en-us/resources/security-resources/security-advisories/?fid=18758' ],
+          [ 'URL', 'https://thehackernews.com/2017/01/Netgear-router-password-hacking.html'],
+          [ 'URL', 'https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/cve-2017-5521-bypassing-authentication-on-netgear-routers/'],
+          [ 'URL', 'https://pastebin.com/dB4bTgxz'],
           [ 'EDB', '41205']
         ],
       'License'        => MSF_LICENSE

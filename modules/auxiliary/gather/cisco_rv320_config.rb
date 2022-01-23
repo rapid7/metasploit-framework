@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2019-1653'],
           ['URL', 'https://seclists.org/fulldisclosure/2019/Jan/52'],
           ['URL', 'https://bst.cloudapps.cisco.com/bugsearch/bug/CSCvg42801'],
-          ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
+          ['URL', 'https://www.cisco.com/c/en/us/support/docs/csa/cisco-sa-20110330-acs.html']
         ],
       'DisclosureDate' => '2019-01-24',
       'DefaultOptions' =>

@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => ['<tebo[at]attackresearch.com>'],
       'References'  =>
         [
-          ['URL',	'http://www.ietf.org/rfc/rfc1057.txt']
+          ['URL',	'https://www.ietf.org/rfc/rfc1057.txt']
         ],
       'License'	=> MSF_LICENSE
     )

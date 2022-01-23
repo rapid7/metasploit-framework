@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['URL','https://www.symantec.com/security_response/securityupdates/detail.jsp?fid=security_advisory&pvid=security_advisory&year=&suid=20160418_00'],
+          ['URL','https://www.broadcom.com/support/security-center/securityupdates/detail?fid=security_advisory&pvid=security_advisory&suid=20160418_00&year='],
           ['CVE','2016-2203'],
           ['BID','86137']
         ],

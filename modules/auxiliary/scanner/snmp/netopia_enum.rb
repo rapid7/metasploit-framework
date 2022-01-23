@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'URL', 'https://blog.rapid7.com/2014/05/15/r7-2014-01-r7-2014-02-r7-2014-03-disclosures-exposure-of-critical-information-via-snmp-public-community-string' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2014/05/15/r7-2014-01-r7-2014-02-r7-2014-03-disclosures-exposure-of-critical-information-via-snmp-public-community-string/' ]
         ],
       'Author'      => ['Deral "PercentX" Heiland'],
       'License'     => MSF_LICENSE

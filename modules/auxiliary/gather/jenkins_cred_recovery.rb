@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'EDB', '38664' ],
-          [ 'URL', 'http://www.th3r3p0.com/vulns/jenkins/jenkinsVuln.html' ]
+          [ 'URL', 'https://www.th3r3p0.com/vulns/jenkins/jenkinsVuln.html' ]
         ],
       'DefaultOptions' =>
         {

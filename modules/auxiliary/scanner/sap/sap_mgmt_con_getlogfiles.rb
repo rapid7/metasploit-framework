@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           # General
-          [ 'URL', 'http://blog.c22.cc' ]
+          [ 'URL', 'https://blog.c22.cc' ]
         ],
       'Author'       =>
         [	'Chris John Riley', # original msf module

@@ -24,9 +24,9 @@ class MetasploitModule < Msf::Auxiliary
           [
             ['URL', 'https://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
             ['URL', 'https://blogs.cisco.com/security/cisco-psirt-mitigating-and-detecting-potential-abuse-of-cisco-smart-install-feature'],
-            ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityResponse/cisco-sr-20170214-smi'],
+            ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170214-smi'],
             ['URL', 'https://github.com/Cisco-Talos/smi_check'],
-            ['URL', 'https://github.com/Sab0tag3d/SIET']
+            ['URL', 'https://github.com/frostbits-security/SIET']
 
           ],
         'License'        => MSF_LICENSE,

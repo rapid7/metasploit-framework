@@ -31,9 +31,9 @@ class MetasploitModule < Msf::Auxiliary
           # packetfu
           ['URL','https://github.com/todb/packetfu'],
           # nping
-          ['URL', 'http://nmap.org/book/nping-man.html'],
+          ['URL', 'https://nmap.org/book/nping-man.html'],
           # simple icmp
-          ['URL', 'http://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
+          ['URL', 'https://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
         ]
     )
 

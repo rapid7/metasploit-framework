@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' => [
         [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-033-sap-basis-6-407-02-xml-external-entity/' ],
-        [ 'URL', 'https://service.sap.com/sap/support/notes/1597066' ]
+        [ 'URL', 'https://launchpad.support.sap.com/#/notes/1597066' ]
       ],
       'Author' =>
         [

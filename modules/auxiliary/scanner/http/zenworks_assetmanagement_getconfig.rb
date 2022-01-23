@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-4933' ],
-          [ 'URL', 'https://blog.rapid7.com/2012/10/11/cve-2012-4933-novell-zenworks' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2012/10/11/cve-2012-4933-novell-zenworks/' ]
         ]
     ))
 

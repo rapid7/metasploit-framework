@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
-          [ 'URL', 'http://www.rapid7.com/vulndb/lookup/ntp-clock-variables-disclosure' ]
+          [ 'URL', 'https://www.rapid7.com/db/vulnerabilities/ntp-clock-variables-disclosure/' ]
         ]
       )
     )

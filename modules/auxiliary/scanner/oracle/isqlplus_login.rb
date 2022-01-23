@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
       [
-        [ 'URL', 'http://carnal0wnage.attackresearch.com' ],
+        [ 'URL', 'https://blog.carnal0wnage.com/' ],
       ],
       'Author'      => [ 'CG', 'todb' ],
       'License'     => MSF_LICENSE
