@@ -15,7 +15,7 @@ module MsfdbHelpers
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
       run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db.shellescape}")
-      
+
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
         f.puts "unix_socket_directories = \'#{Dir.tmpdir}\'"

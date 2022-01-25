@@ -64,8 +64,9 @@ module MsfdbHelpers
       if @options[:debug]
         puts "psql -h #{Dir.tmpdir} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
       end
-      
+
       run_cmd("psql -h #{Dir.tmpdir} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
     end
+
   end
 end
