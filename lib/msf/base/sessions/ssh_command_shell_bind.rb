@@ -200,6 +200,8 @@ module Msf::Sessions
         }
       end
 
+      attr_reader :client
+
       protected
 
       def _accept
