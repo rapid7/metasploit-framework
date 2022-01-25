@@ -15,17 +15,10 @@ module MsfdbHelpers
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
       run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db.shellescape}")
-
-      socket_directory_regex = "#unix_socket_directories = '\/run\/postgresql'"
-      if File.read("#{@db}/postgresql.conf").include?(socket_directory_regex)
-        File.open("#{@db}/postgresql.conf", 'a') do |f|
-          f.puts "port = #{@options[:db_port]}"
-          f.puts "unix_socket_directories = \'#{@options[:unix_socket_directories]}\'"
-        end
-      else
-        File.open("#{@db}/postgresql.conf", 'a') do |f|
-          f.puts "port = #{@options[:db_port]}"
-        end
+      
+      File.open("#{@db}/postgresql.conf", 'a') do |f|
+        f.puts "port = #{@options[:db_port]}"
+        f.puts "unix_socket_directories = \'#{Dir.tmpdir}\'"
       end
 
       start

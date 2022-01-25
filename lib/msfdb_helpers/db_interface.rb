@@ -61,21 +61,11 @@ module MsfdbHelpers
     end
 
     def run_psql(cmd, db_name: 'postgres')
-      socket_directory_regex = "#unix_socket_directories = '\/run\/postgresql'"
       if @options[:debug]
-        if File.read("#{@db}/postgresql.conf").include?(socket_directory_regex)
-          puts "psql -h \'#{@options[:unix_socket_directories]}\' -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
-        else
-          puts "psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
-        end
+        puts "psql -h #{Dir.tmpdir} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
       end
-
-      if File.read("#{@db}/postgresql.conf").include?(socket_directory_regex)
-        run_cmd("psql -h \'#{@options[:unix_socket_directories]}\' -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
-      else
-        run_cmd("psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
-      end
+      
+      run_cmd("psql -h #{Dir.tmpdir} -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
     end
-
   end
 end
