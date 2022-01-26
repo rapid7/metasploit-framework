@@ -181,6 +181,11 @@ class Config < Hash
     self.new.user_script_directory
   end
 
+  # @return [String] path to user-specific data directory.
+  def self.user_data_directory
+    self.new.user_data_directory
+  end
+
   # Returns the data directory
   #
   # @return [String] path to data directory.
@@ -406,6 +411,11 @@ class Config < Hash
     config_directory + FileSep + "scripts"
   end
 
+  # @return [String] path to user-specific data directory.
+  def user_data_directory
+    config_directory + FileSep + self['DataDirectory']
+  end
+
   # Returns the data directory
   #
   # @return [String] path to data directory.
@@ -426,6 +436,7 @@ class Config < Hash
     FileUtils.mkdir_p(user_logos_directory)
     FileUtils.mkdir_p(user_module_directory)
     FileUtils.mkdir_p(user_plugin_directory)
+    FileUtils.mkdir_p(user_data_directory)
   end
 
   # Loads configuration from the supplied file path, or the default one if
