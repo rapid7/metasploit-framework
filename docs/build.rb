@@ -13,7 +13,7 @@ require 'optparse'
 # merged with metasploit-framework, and the old wiki will no longer be updated.
 module Build
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
-  PRODUCTION_BUILD_ARTIFACTS = '_site'
+  PRODUCTION_BUILD_ARTIFACTS = '_site'.freeze
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
   # for each build. This allows changes to be made to the existing wiki until it's migrated
@@ -28,7 +28,7 @@ module Build
     end
   end
 
-  # Configuration for generating the new website hierachy, from the existing metasploit-framework wiki
+  # Configuration for generating the new website hierarchy, from the existing metasploit-framework wiki
   class Config
     include Enumerable
     def initialize
@@ -747,7 +747,7 @@ module Build
 
       # Ensure new file paths are only alphanumeric and hyphenated
       new_paths = to_enum.map { |page| page[:new_path] }
-      invalid_new_paths = new_paths.select { |path| File.basename(path) !~ /^[a-zA-Z0-9_-]*\.md$/ }
+      invalid_new_paths = new_paths.reject { |path| File.basename(path) =~ /^[a-zA-Z0-9_-]*\.md$/ }
       raise "Only alphanumeric and hyphenated file names required: #{invalid_new_paths}" if invalid_new_paths.any?
     end
 
@@ -984,9 +984,27 @@ module Build
     end
   end
 
+  # Parses a wiki page and can add/remove/update a deprecation notice
+  class WikiDeprecationText
+    MARKDOWN_PREFIX = '#### Documentation Update:'.freeze
+    private_constant :MARKDOWN_PREFIX
+
+    def self.upsert(original_wiki_content, new_url:)
+      message = "#{MARKDOWN_PREFIX} This is viewable at [#{new_url}](#{new_url})\n\n"
+      "#{message}#{WikiDeprecationText.remove(original_wiki_content)}"
+    end
+
+    def self.remove(original_wiki_content)
+      original_wiki_content.gsub(/#{MARKDOWN_PREFIX}.*$\s+/, '')
+    end
+  end
+
   # Converts Wiki markdown pages into a valid Jekyll format
   class WikiMigration
-    def run(config)
+    # Implements two core components:
+    # - Converts the existing Wiki markdown pages into a Jekyll format
+    # - Optionally updates the existing Wiki markdown pages with a link to the new website location
+    def run(config, options = {})
       config.validate!
 
       # Clean up new docs folder in preparation for regenerating it entirely from the latest wiki
@@ -999,7 +1017,7 @@ module Build
         page_config = {
           layout: 'default',
           **page.slice(:title, :has_children, :nav_order),
-          parent: (page[:parents][-1] || {})[:title],
+          parent: (page[:parents][-1] || {})[:title]
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
@@ -1014,13 +1032,25 @@ module Build
         FileUtils.mkdir_p(File.dirname(new_path))
 
         if page[:folder]
-          content = preamble.rstrip + "\n"
+          new_docs_content = preamble.rstrip + "\n"
         else
-          content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
-          content = preamble + content
-          content = link_corrector.rerender(content)
+          old_path = File.join(WIKI_PATH, page[:path])
+          previous_content = File.read(old_path, encoding: Encoding::UTF_8)
+          new_docs_content = preamble + WikiDeprecationText.remove(previous_content)
+          new_docs_content = link_corrector.rerender(new_docs_content)
+
+          # Update the existing Wiki with links to the new website
+          if options[:update_existing_wiki]
+            new_url = options[:update_existing_wiki][:new_website_url]
+            if page[:new_path] != 'home.md'
+              new_url += 'docs/' + page[:new_path].gsub('.md', '.html')
+            end
+            updated_wiki_content = WikiDeprecationText.upsert(previous_content, new_url: new_url)
+            File.write(old_path, updated_wiki_content)
+          end
         end
-        File.write(new_path, content, mode: 'w', encoding: Encoding::UTF_8)
+
+        File.write(new_path, new_docs_content, mode: 'w', encoding: Encoding::UTF_8)
       end
 
       # Now that the docs folder is created, time to move the home.md file out
@@ -1066,7 +1096,7 @@ module Build
 
   def self.run_command(command, exception: true)
     puts command
-    result = ""
+    result = ''
     ::Open3.popen2e(
       { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
       '/bin/bash', '--login', '-c', command
@@ -1076,16 +1106,15 @@ module Build
       while wait_thread.alive?
         ready = IO.select([stdout_and_stderr], nil, nil, 1)
 
-        if ready
-          reads, _writes, _errors = ready
+        next unless ready
+        reads, _writes, _errors = ready
 
-          reads.to_a.each do |io|
-            data = io.read_nonblock(1024)
-            puts data
-            result += data
-          rescue EOFError, Errno::EAGAIN
-            # noop
-          end
+        reads.to_a.each do |io|
+          data = io.read_nonblock(1024)
+          puts data
+          result += data
+        rescue EOFError, Errno::EAGAIN
+          # noop
         end
       end
 
@@ -1103,7 +1132,7 @@ module Build
     unless options[:skip_migration]
       config = Config.new
       migrator = WikiMigration.new
-      migrator.run(config)
+      migrator.run(config, options)
     end
 
     if options[:production]
@@ -1134,6 +1163,13 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--skip-migration', 'Skip building the content') do |skip_migration|
       options[:skip_migration] = skip_migration
+    end
+
+    opts.on('--update-existing-wiki [website url]', 'Update the existing wiki with links to the new website location') do |new_website_url|
+      new_website_url ||= 'https://docs.metasploit.com/'
+      options[:update_existing_wiki] = {
+        new_website_url: new_website_url
+      }
     end
 
     opts.on('--production', 'Run a production build') do |production|
