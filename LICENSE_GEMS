@@ -129,7 +129,7 @@ regexp_parser, 2.2.0, MIT
 reline, 0.2.5, ruby
 rex-arch, 0.1.14, "New BSD"
 rex-bin_tools, 0.1.8, "New BSD"
-rex-core, 0.1.20, "New BSD"
+rex-core, 0.1.25, "New BSD"
 rex-encoder, 0.1.6, "New BSD"
 rex-exploitation, 0.1.28, "New BSD"
 rex-java, 0.1.6, "New BSD"
