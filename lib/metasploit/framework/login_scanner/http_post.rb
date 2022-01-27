@@ -19,31 +19,26 @@ module Metasploit
           login_uri = normalize_uri("#{uri}/login.php")
           res = send_request({'uri'=> login_uri})
 
-          if res && res.body.include?('Damn Vulnerable Web Application')
-            return true
+          if !(res && res.code == 401 && res.headers['WWW-Authenticate'])
+            error_message = "No authentication required"
+          else
+            error_message = false
           end
 
-          false
+          error_message
         end
 
+          # if res && res.body.include?('mautarkari')
+          #  return true
+          # end
 
-        # Returns the latest sid from Symantec Web Gateway.
+          # false
+        # end
+
+
+        # Returns the latest sid and CSRF token.
         #
-        # @return [String] The PHP Session ID for Symantec Web Gateway login
-        def get_last_sid
-          @last_sid ||= lambda {
-            # We don't have a session ID. Well, let's grab one right quick from the login page.
-            # This should probably only happen once (initially).
-            login_uri = normalize_uri("#{uri}/login.php")
-            res = send_request({'uri' => login_uri})
-
-            return '' unless res
-
-            cookies = res.get_cookies
-            @last_sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
-          }.call
-        end
-
+        # @return [String],[String] The PHP Session ID & CSRF token for login
         def extract_csrf_token_and_getlastsid(path:, regex:)
           res = send_request({ 
             'method' => 'GET',
@@ -51,22 +46,20 @@ module Metasploit
             'keep_cookies' => true
           })
 
+          if res.nil? || res.body.nil?
+            print_error("Empty response. Please validate RHOST")
+          elsif res.code != 200
+            print_error("Unexpected HTTP #{res.code} response.")
+          end
+
           @last_sid = lambda {
             cookies = res.get_cookies
             @last_sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
           }.call
-          # puts "token http response ----- : #{res.body}"
-          
-          if res.nil? || res.body.nil?
-            raise HttpClientException, 'Empty response. Please validate RHOST'
-          elsif res.code != 200
-            raise HttpClientException, "Unexpected HTTP #{res.code} response."
-          end
 
           token = res.body[regex]
-          # puts "token ======= #{token}"
           if token.nil?
-            puts "Cant Find token"
+            print_error("Could not successfully extract CSRF token")
           end
 
           return @last_sid, token
@@ -82,7 +75,6 @@ module Metasploit
         #   * :proof [String] the HTTP response body
         def get_login_state(credential, username, password)
           # Prep the data needed for login
-          # sid       = get_last_sid
           protocol  = ssl ? 'https' : 'http'
           peer      = "#{host}:#{port}"
           login_uri = normalize_uri("#{uri}/login.php")
@@ -90,10 +82,7 @@ module Metasploit
             path: login_uri,
             regex: %r{\w{32}}
           )
-          # puts "http_post, URI = #{uri}"
-          # puts "http_post, Login URI = #{login_uri}"
-          # puts "http_post, host = #{host} & port = #{port} & protocol = #{protocol}"
-          # puts "http_post, token = #{csrf_token}"
+          
           res = send_request({
             'uri' => login_uri,
             'method' => 'POST',
@@ -112,8 +101,6 @@ module Metasploit
             }
           })
 
-          # puts "http_post username = #{username} and password = #{password} and user_token = #{csrf_token} and session_id = #{sid}"
-
           unless res
             return {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s}
           end
@@ -123,20 +110,15 @@ module Metasploit
           sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
           @last_sid = sid # Update our SID
           
-          #puts "Code = #{res.code}"
-          #puts "Description : #{res.to_s}"
-
-          # puts "Http Response = ----- CODE = #{res.code} && Location = #{res.headers['Location']}"
           if res && res.code == 302 && res.headers['Location'].include?('index.php')
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
-          # puts "Http Response = ----- CODE = #{res.code} && Location = #{res.headers['Location']}"
 
           {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
         end
 
 
-        # Attempts to login to Symantec Web Gateway. This is called first.
+        # Attempts to login to given URI. This is called first.
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result] A Result object indicating success or failure

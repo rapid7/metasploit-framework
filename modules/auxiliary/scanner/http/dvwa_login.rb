@@ -16,9 +16,9 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Damn Vulnerable Web App login utility',
+        'Name' => 'Damn Vulnerable Web Application login utility',
         'Description' => %q{
-          This module will attempt to authenticate to a Damn Vulnerable Web App login page.
+          This module will attempt to authenticate to the Damn Vulnerable Web App login page.
         },
         'Author' => [ '3V3RYONE' ],
         'License' => MSF_LICENSE,
@@ -27,9 +27,9 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => false
         },
         'Notes' => {
-          'Stability' => CRASH_SAFE,
-          'Reliability' => REPEATABLE_SESSION,
-          'SideEffects' => ARTIFACTS_ON_DISK
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [ARTIFACTS_ON_DISK]
         }
       )
     )
@@ -125,6 +125,11 @@ class MetasploitModule < Msf::Auxiliary
 
   # Start here
   def run_host(ip)
+    unless scanner(ip).check_setup
+      print_brute(level: :error, ip: ip, msg: 'Target is not DVWA')
+      return
+    end
+
     bruteforce(ip)
   end
 end
