@@ -56,6 +56,23 @@ module Metasploit
         end
 
 
+        def extract_post_parameters
+          split_parameters = "#{post_data}".split(/&/)
+          post_param = []
+          split_parameters.each{
+            |params|
+            if post_param
+              post_param.append(params.split(/=/))
+            else
+              post_param = params.split(/=/)
+            end
+          }
+          # puts "#{post_param[0][0]}"
+
+          post_param
+        end
+
+
         # Actually doing the login. Called by #attempt_login
         #
         # @param username [String] The username to try
@@ -68,6 +85,7 @@ module Metasploit
           protocol  = ssl ? 'https' : 'http'
           peer      = "#{host}:#{port}"
           login_uri = normalize_uri("#{uri}")
+          post_parameters = extract_post_parameters
           sid, csrf_token = extract_csrf_token_and_getlastsid(
             path: login_uri,
             regex: %r{\w{32}}
@@ -84,10 +102,10 @@ module Metasploit
               'Referer' => "#{protocol}://#{peer}/#{login_uri}"
             },
             'vars_post' => {
-              'username' => username,
-              'password' => password,
-              'Login' => 'Login',
-              'user_token' => csrf_token
+              "#{post_parameters[0][0]}" => username,
+              "#{post_parameters[1][0]}" => password,
+              "#{post_parameters[2][0]}" => "#{post_parameters[2][1]}",
+              "#{post_parameters[3][0]}" => csrf_token
             }
           })
 
@@ -100,7 +118,7 @@ module Metasploit
           sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
           @last_sid = sid # Update our SID
           
-          if res && res.code == 302 && res.headers['Location'].include?('index.php')
+          if res && res.code == 302 && res.headers['Location'].include?("#{redirect_uri}")
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
 

@@ -25,7 +25,7 @@ module Metasploit
         #     authenticate to.
         attr_accessor :uri
 
-        # @!attribute uri
+        # @!attribute method
         #   @return [String] HTTP method, e.g. "GET", "POST"
         attr_accessor :method
 
@@ -169,6 +169,14 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
+        # @!attribute redirect_uri
+        # @!return [String] The path that @uri redirects to on the server for a successful login 
+        attr_accessor :redirect_uri
+
+        # @!attribute post_data
+        # @!return [String] A sample POST format data to be submitted to the target
+        attr_accessor :post_data
+
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -218,7 +226,6 @@ module Metasploit
         def send_request(opts)
           rhost           = opts['host'] || host
           rport           = opts['rport'] || port
-          # method          = opts['method'] || method
           cli_ssl         = opts['ssl'] || ssl
           cli_ssl_version = opts['ssl_version'] || ssl_version
           cli_proxies     = opts['proxies'] || proxies

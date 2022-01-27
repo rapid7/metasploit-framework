@@ -37,7 +37,9 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('PASSWORD_SPRAY')
     register_options(
       [
-        OptString.new('AUTH_URI', [true, 'The URI to authenticate to', '']),
+        OptString.new('AUTH_URI', [true, 'The URI to authenticate to', '/login.php']),
+        OptString.new('REDIRECT_URI', [true, 'The redirected URI incase of correct login credentials. Exclude the initial slash.', 'index.php']),
+        OptString.new('POST_DATA', [true, 'A sample POST data to be submitted to the target', 'username=admin&password=password&Login=Login&user_token=004fc0b9ee58345cfeeb5198b782bc63'])
       ]
     )
   end
@@ -52,9 +54,11 @@ class MetasploitModule < Msf::Auxiliary
       return Metasploit::Framework::LoginScanner::HttpPostBruteforce.new(
         configure_http_login_scanner(
           uri: datastore['AUTH_URI'],
+          redirect_uri: datastore['REDIRECT_URI'],
           host: ip,
           port: datastore['RPORT'],
           cred_details: cred_collection,
+          post_data: datastore['POST_DATA'],
           stop_on_success: datastore['STOP_ON_SUCCESS'],
           bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
