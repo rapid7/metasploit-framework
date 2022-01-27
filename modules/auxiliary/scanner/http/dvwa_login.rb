@@ -35,11 +35,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options('PASSWORD_SPRAY')
-    # register_options(
-    #  [
-    #    OptString.new('AUTH_URI', [false, 'The URI to authenticate to', '']),
-    #  ]
-    # )
+    register_options(
+      [
+        OptString.new('AUTH_URI', [true, 'The URI to authenticate to', '']),
+      ]
+    )
   end
 
   def scanner(ip)
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
       return Metasploit::Framework::LoginScanner::HttpPostBruteforce.new(
         configure_http_login_scanner(
-          # uri: datastore['AUTH_URI'],
+          uri: datastore['AUTH_URI'],
           host: ip,
           port: datastore['RPORT'],
           cred_details: cred_collection,
@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
   # Start here
   def run_host(ip)
     unless scanner(ip).check_setup
-      print_brute(level: :error, ip: ip, msg: 'Target is not DVWA')
+      print_brute(level: :error, ip: ip, msg: 'Target not Verified')
       return
     end
 

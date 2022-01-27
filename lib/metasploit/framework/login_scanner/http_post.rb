@@ -12,11 +12,8 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # Checks if the target is DVWA.
-        #
-        # @return [Boolean] TrueClass if target is DVWA, otherwise FalseClass
         def check_setup
-          login_uri = normalize_uri("#{uri}/login.php")
+          login_uri = normalize_uri("#{uri}")
           res = send_request({'uri'=> login_uri})
 
           if !(res && res.code == 401 && res.headers['WWW-Authenticate'])
@@ -27,13 +24,6 @@ module Metasploit
 
           error_message
         end
-
-          # if res && res.body.include?('mautarkari')
-          #  return true
-          # end
-
-          # false
-        # end
 
 
         # Returns the latest sid and CSRF token.
@@ -49,7 +39,7 @@ module Metasploit
           if res.nil? || res.body.nil?
             print_error("Empty response. Please validate RHOST")
           elsif res.code != 200
-            print_error("Unexpected HTTP #{res.code} response.")
+            print_error("Unexpected HTTP #{res.code} response. Please validate AUTH_URI")
           end
 
           @last_sid = lambda {
@@ -77,7 +67,7 @@ module Metasploit
           # Prep the data needed for login
           protocol  = ssl ? 'https' : 'http'
           peer      = "#{host}:#{port}"
-          login_uri = normalize_uri("#{uri}/login.php")
+          login_uri = normalize_uri("#{uri}")
           sid, csrf_token = extract_csrf_token_and_getlastsid(
             path: login_uri,
             regex: %r{\w{32}}
