@@ -133,6 +133,8 @@ class Library
       native = 'Q<'
     when ARCH_X86
       native = 'V'
+    when ARCH_JAVA
+      native = 'Q<'
     else
       raise NotImplementedError, 'Unsupported architecture (must be ARCH_X86 or ARCH_X64)'
     end
@@ -276,6 +278,8 @@ class Library
       native = 'Q<'
     when ARCH_X86
       native = 'V'
+    when ARCH_JAVA
+      native = 'Q<'
     else
       raise NotImplementedError, 'Unsupported architecture (must be ARCH_X86 or ARCH_X64)'
     end
