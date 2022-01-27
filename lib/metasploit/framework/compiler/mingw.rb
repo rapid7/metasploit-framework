@@ -3,17 +3,20 @@ module Metasploit
   module Framework
     module Compiler
       module Mingw
-        MINGW_X86 = 'i686-w64-mingw32-gcc'
-        MINGW_X64 = 'x86_64-w64-mingw32-gcc'
+        MINGW_X86 = 'i686-w64-mingw32-gcc'.freeze
+        MINGW_X64 = 'x86_64-w64-mingw32-gcc'.freeze
 
         INCLUDE_DIR = File.join(Msf::Config.data_directory, 'headers', 'windows', 'c_payload_util')
         UTILITY_DIR = File.join(Msf::Config.data_directory, 'utilities', 'encrypted_payload')
-        OPTIMIZATION_FLAGS = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ]
+        OPTIMIZATION_FLAGS = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].freeze
+
+        UncompilablePayloadError = Class.new(StandardError)
+        CompiledPayloadNotFoundError = Class.new(StandardError)
 
         def compile_c(src)
           cmd = build_cmd(src)
 
-          if self.show_compile_cmd
+          if show_compile_cmd
             print("#{cmd}\n")
           end
 
@@ -23,17 +26,17 @@ module Metasploit
         end
 
         def build_cmd(src)
-          src_file = "#{self.file_name}.c"
-          exe_file = "#{self.file_name}.exe"
+          src_file = "#{file_name}.c"
+          exe_file = "#{file_name}.exe"
 
           cmd = ''
           link_options = '-Wl,'
 
           File.write(src_file, src)
 
-          opt_level = OPTIMIZATION_FLAGS.include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
+          opt_level = OPTIMIZATION_FLAGS.include?(opt_lvl) ? "-#{opt_lvl} " : '-O2 '
 
-          cmd << "#{self.mingw_bin} "
+          cmd << "#{mingw_bin} "
           cmd << "#{src_file} -I #{INCLUDE_DIR} "
           cmd << "-o #{exe_file} "
 
@@ -44,74 +47,110 @@ module Metasploit
           cmd << '-fno-ident '
           cmd << opt_level
 
-          if self.compile_options
-            cmd << self.compile_options
+          if compile_options
+            cmd << compile_options
           else
             link_options << '--image-base=0x0,'
             cmd << '-nostdlib '
           end
 
           link_options << '--no-seh'
-          link_options << ',-s' if self.strip_syms
-          link_options << ",-T#{self.link_script}" if self.link_script
+          link_options << ',-s' if strip_syms
+          link_options << ",-T #{link_script}" if link_script
 
           cmd << link_options
-
           cmd
         end
 
-
-        def compile_cpp(src)
-          cmd = build_cpp_cmd(src)
-          print("#{cmd}\n") if show_compile_cmd
-          stdin_err, status = Open3.capture2e(cmd)
-          stdin_err
+        def compile_cpp(src, *additional_files)
+          within_temp(additional_files) do |dir, fnames|
+            file = Tempfile.create(['', '.cpp'], dir)
+            File.write(file, src)
+            if keep_src
+              dest = File.join(File.dirname(outfile), File.basename(file.path))
+              FileUtils.cp(file, dest)
+            end
+            fnames << file.path
+            cmd = build_cpp_files_cmd(fnames)
+            return exec(cmd), dest
+          end
         end
 
         def compile_cpp_files(files)
-          cmd = build_cpp_files_cmd(files)
-          print("#{cmd}\n") if show_compile_cmd
-          stdin_err, status = Open3.capture2e(cmd)
-          stdin_err
+          within_temp(files) do |_dir, fnames|
+            cmd = build_cpp_files_cmd(fnames)
+            exec(cmd)
+          end
         end
 
-        def build_cpp_cmd(src)
-          src_file = Tempfile.create(['scexec', ".cpp"])
-          File.write(src_file.path, src)
-          build_cpp_files(src_file.path)
+        def compile_cpp_file(file)
+          compile_cpp_files([file])
         end
 
         def build_cpp_files_cmd(file_array)
           cmd = [ mingw_bin ]
-          cmd << file_array.join(" ")
-          cmd << "-I #{INCLUDE_DIR}"
-          cmd << "-o #{outfile}"
-          cmd << "-shared" if outfile.ends_with?('.dll')
-
+          cmd << file_array
+          cmd << '-I'
+          cmd << INCLUDE_DIR
+          cmd << '-o'
+          cmd << outfile
+          cmd << '-shared' if outfile.ends_with?('.dll')
           cmd << opt_lvl if OPTIMIZATION_FLAGS.include?(opt_lvl)
           cmd << compile_options
 
-          link_opts = ['-Wl']
-          link_opts << '-s' if strip_syms
-          link_opts << link_options
-          link_opts << "-T#{link_script} " if link_script
+          if link_options
+            link_opts = ['-Wl']
+            link_opts << '-s' if strip_syms
+            link_opts << link_options
+            cmd << link_opts.join(',')
+          end
 
-          cmd << link_opts.join(",")
-          cmd.join(" ")
+          if link_script
+            cmd << '-T'
+            cmd << link_script
+          end
+          cmd.flatten
         end
 
-        def cleanup_files
-          unless self.keep_src
-            src_file = "#{self.file_name}.c"
-            File.delete(src_file) if File.exist?(src_file)
+        def exec(cmd)
+          print("#{cmd.flatten.join(' ')}\n") if show_compile_cmd
+          stdout_err, status = Open3.capture2e(*cmd)
+          if status.exitstatus != 0
+            raise UncompilablePayloadError, stdout_err
+          end
+          stdout_err
+        end
+
+        def cleanup_files(files = [])
+          unless keep_src
+            src_file = "#{file_name}.c"
+            files << src_file
           end
 
-          unless self.keep_exe
-            exe_file = "#{self.file_name}.exe"
-            File.delete(exe_file) if File.exist?(exe_file)
+          unless keep_exe
+            exe_file = "#{file_name}.exe"
+            files << exe_file
+          end
+
+          files.each do |file|
+            File.delete(file) if File.exist?(file)
           end
         rescue Errno::ENOENT
-          print_error("Failed to delete file")
+          print_error('Failed to delete file')
+        end
+
+        private
+
+        def within_temp(files)
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              files.map! do |file|
+                FileUtils.cp(file, dir)
+                File.basename(file)
+              end
+              yield(dir, files)
+            end
+          end
         end
 
         class X86
@@ -120,7 +159,7 @@ module Metasploit
           attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :compile_options, :show_compile_cmd, :outfile, :link_options
           attr_accessor :mingw_bin
 
-          def initialize(opts={})
+          def initialize(opts = {})
             @file_name = opts[:f_name]
             @outfile = opts[:outfile]
             @keep_exe = opts[:keep_exe]
@@ -135,7 +174,7 @@ module Metasploit
           end
 
           def self.available?
-            !!(Msf::Util::Helper.which(MINGW_X86))
+            !!Msf::Util::Helper.which(MINGW_X86)
           end
         end
 
@@ -145,7 +184,7 @@ module Metasploit
           attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :compile_options, :show_compile_cmd, :outfile, :link_options
           attr_accessor :mingw_bin
 
-          def initialize(opts={})
+          def initialize(opts = {})
             @file_name = opts[:f_name]
             @outfile = opts[:outfile]
             @keep_exe = opts[:keep_exe]
@@ -160,19 +199,7 @@ module Metasploit
           end
 
           def self.available?
-            !!(Msf::Util::Helper.which(MINGW_X64))
-          end
-        end
-
-        class UncompilablePayloadError < StandardError
-          def initialize(msg='')
-            super(msg)
-          end
-        end
-
-        class CompiledPayloadNotFoundError < StandardError
-          def initialize(msg='Compiled executable not found')
-            super(msg)
+            !!Msf::Util::Helper.which(MINGW_X64)
           end
         end
       end
