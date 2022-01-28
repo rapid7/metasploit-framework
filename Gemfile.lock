@@ -29,7 +29,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.70)
+      metasploit-payloads (= 2.0.71)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.18)
       mqtt
@@ -133,7 +133,7 @@ GEM
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.295.0)
+    aws-sdk-ec2 (1.296.0)
       aws-sdk-core (~> 3, >= 3.125.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.65.0)
@@ -261,7 +261,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-payloads (2.0.70)
+    metasploit-payloads (2.0.71)
     metasploit_data_models (5.0.4)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
