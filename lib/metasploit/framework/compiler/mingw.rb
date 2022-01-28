@@ -11,7 +11,12 @@ module Metasploit
         OPTIMIZATION_FLAGS = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].freeze
 
         UncompilablePayloadError = Class.new(StandardError)
-        CompiledPayloadNotFoundError = Class.new(StandardError)
+
+        class CompiledPayloadNotFoundError < StandardError
+          def initialize(msg='Compiled executable not found')
+            super(msg)
+          end
+        end
 
         def compile_c(src)
           cmd = build_cmd(src)
@@ -83,10 +88,6 @@ module Metasploit
           end
         end
 
-        def compile_cpp_file(file)
-          compile_cpp_files([file])
-        end
-
         def build_cpp_files_cmd(file_array)
           cmd = [ mingw_bin ]
           cmd << file_array
@@ -116,41 +117,23 @@ module Metasploit
           print("#{cmd.flatten.join(' ')}\n") if show_compile_cmd
           stdout_err, status = Open3.capture2e(*cmd)
           if status.exitstatus != 0
-            raise UncompilablePayloadError, stdout_err
+            print_error(stdout_err)
           end
           stdout_err
         end
 
-        def cleanup_files(files = [])
+        def cleanup_files()
+          src_file = "#{file_name}.c"
+          exe_file = "#{file_name}.exe"
           unless keep_src
-            src_file = "#{file_name}.c"
-            files << src_file
+            File.delete(src_file) if File.exist?(src_file)
           end
 
           unless keep_exe
-            exe_file = "#{file_name}.exe"
-            files << exe_file
-          end
-
-          files.each do |file|
-            File.delete(file) if File.exist?(file)
+            File.delete(exe_file) if File.exist?(exe_file)
           end
         rescue Errno::ENOENT
           print_error('Failed to delete file')
-        end
-
-        private
-
-        def within_temp(files)
-          Dir.mktmpdir do |dir|
-            Dir.chdir(dir) do
-              files.map! do |file|
-                FileUtils.cp(file, dir)
-                File.basename(file)
-              end
-              yield(dir, files)
-            end
-          end
         end
 
         class X86
@@ -202,6 +185,20 @@ module Metasploit
             !!Msf::Util::Helper.which(MINGW_X64)
           end
         end
+
+        private
+        def within_temp(files)
+          Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+              files.map! do |file|
+                FileUtils.cp(file, dir)
+                File.basename(file)
+              end
+              yield(dir, files)
+            end
+          end
+        end
+
       end
     end
   end
