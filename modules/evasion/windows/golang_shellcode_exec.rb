@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Evasion
       OptBool.new(
         'DEBUGGING', [ true, 'Enable Debugging on the resulting binary', false ]
       ),
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new(
@@ -54,11 +54,11 @@ class MetasploitModule < Msf::Evasion
       OptBool.new(
         'KEEPSRC', [ false, 'Save the generated source code to output directory', false ]
       ),
-    ], self.class)
+    ])
   end
 
   TEMPLATE_DIR = File.join(Msf::Config.data_directory, 'evasion', 'windows', 'golang_shellcode_exec')
-  ARCH_MAP = {ARCH_X86 => '386', ARCH_X64 => 'amd64'}
+  ARCH_MAP = { ARCH_X86 => '386', ARCH_X64 => 'amd64' }.freeze
 
   def run
     opts = {

@@ -4,6 +4,7 @@ require 'fileutils'
 module Metasploit
   module Framework
     module Compiler
+      # Class for handling the go compiler
       class Golang
 
         UncompilablePayloadError = Class.new(StandardError)
@@ -29,7 +30,7 @@ module Metasploit
         end
 
         def go_build_src(src, *files)
-          within_temp(files) do |dir, fnames|
+          within_temp(files) do |dir, _fnames|
             Tempfile.create(['main_', "__#{File.basename(outfile)}.go"], dir) do |file|
               File.write(file, src)
               if keep_src
@@ -75,6 +76,7 @@ module Metasploit
         def exec(cmd)
           stdout_err, status = Open3.capture2e(env, *cmd)
           raise UncompilablePayloadError, stdout_err unless status.exitstatus == 0
+
           stdout_err
         end
 
