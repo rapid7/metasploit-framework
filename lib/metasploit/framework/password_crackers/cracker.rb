@@ -1,7 +1,6 @@
 module Metasploit
   module Framework
     module PasswordCracker
-
       class PasswordCrackerNotFoundError < StandardError
       end
 
@@ -84,38 +83,38 @@ module Metasploit
         #   @return [String] The file path to the wordlist to use
         attr_accessor :wordlist
 
-        validates :config, :'Metasploit::Framework::File_path' => true, if: -> { config.present? }
+        validates :config, 'Metasploit::Framework::File_path': true, if: -> { config.present? }
 
-        validates :cracker, inclusion: {in: %w[john hashcat]}
+        validates :cracker, inclusion: { in: %w[john hashcat] }
 
-        validates :cracker_path, :'Metasploit::Framework::Executable_path' => true, if: -> { cracker_path.present? }
+        validates :cracker_path, 'Metasploit::Framework::Executable_path': true, if: -> { cracker_path.present? }
 
         validates :fork,
                   numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 1
+                    only_integer: true,
+                    greater_than_or_equal_to: 1
                   }, if: -> { fork.present? }
 
-        validates :hash_path, :'Metasploit::Framework::File_path' => true, if: -> { hash_path.present? }
+        validates :hash_path, 'Metasploit::Framework::File_path': true, if: -> { hash_path.present? }
 
-        validates :pot, :'Metasploit::Framework::File_path' => true, if: -> { pot.present? }
+        validates :pot, 'Metasploit::Framework::File_path': true, if: -> { pot.present? }
 
         validates :max_runtime,
                   numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 0
+                    only_integer: true,
+                    greater_than_or_equal_to: 0
                   }, if: -> { max_runtime.present? }
 
         validates :max_length,
                   numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 0
+                    only_integer: true,
+                    greater_than_or_equal_to: 0
                   }, if: -> { max_length.present? }
 
-        validates :wordlist, :'Metasploit::Framework::File_path' => true, if: -> { wordlist.present? }
+        validates :wordlist, 'Metasploit::Framework::File_path': true, if: -> { wordlist.present? }
 
         # @param attributes [Hash{Symbol => String,nil}]
-        def initialize(attributes={})
+        def initialize(attributes = {})
           attributes.each do |attribute, value|
             public_send("#{attribute}=", value)
           end
@@ -152,7 +151,7 @@ module Metasploit
             '1731'
           # hashcat requires a format we dont have all the data for
           # in the current dumper, so this is disabled in module and lib
-          #when 'oracle', 'des,oracle'
+          # when 'oracle', 'des,oracle'
           #  return '3100'
           when 'oracle11', 'raw-sha1,oracle'
             '112'
@@ -203,16 +202,13 @@ module Metasploit
           when 'ssha512'
             '1711'
           when 'mscash'
-              '1100'
+            '1100'
           when 'mscash2'
-              '2100'
+            '2100'
           when 'Raw-MD5u'
-              '30'
-          else
-            nil
+            '30'
           end
         end
-
 
         # This method sets the appropriate parameters to run a cracker in incremental mode
         def mode_incremental
@@ -228,7 +224,6 @@ module Metasploit
             self.incremental = true
           end
         end
-
 
         # This method sets the appropriate parameters to run a cracker in wordlist mode
         #
@@ -247,19 +242,17 @@ module Metasploit
           end
         end
 
-
         # This method sets the appropriate parameters to run a cracker in a pin mode (4-8 digits) on hashcat
         def mode_pin
           self.rules = nil
           if cracker == 'hashcat'
             self.attack = '3'
-            self.mask = '?d'*8
+            self.mask = '?d' * 8
             self.incremental = true
-            self.increment_length = [4,8]
-            self.max_runtime = 300 #5min on an i7 got through 4-7 digits. 8digit was 32min more
+            self.increment_length = [4, 8]
+            self.max_runtime = 300 # 5min on an i7 got through 4-7 digits. 8digit was 32min more
           end
         end
-
 
         # This method sets the john to 'normal' mode
         def mode_normal
@@ -272,7 +265,6 @@ module Metasploit
             self.increment_length = nil
           end
         end
-
 
         # This method sets the john to single mode
         #
@@ -287,7 +279,6 @@ module Metasploit
           end
         end
 
-
         # This method follows a decision tree to determine the path
         # to the cracker binary we should use.
         #
@@ -300,11 +291,11 @@ module Metasploit
           else
             # Look in the Environment PATH for the john binary
             if cracker == 'john'
-              path = Rex::FileUtils.find_full_path("john") ||
-                Rex::FileUtils.find_full_path("john.exe")
+              path = Rex::FileUtils.find_full_path('john') ||
+                     Rex::FileUtils.find_full_path('john.exe')
             elsif cracker == 'hashcat'
-              path = Rex::FileUtils.find_full_path("hashcat") ||
-                Rex::FileUtils.find_full_path("hashcat.exe")
+              path = Rex::FileUtils.find_full_path('hashcat') ||
+                     Rex::FileUtils.find_full_path('hashcat.exe')
             else
               raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system'
             end
@@ -321,16 +312,14 @@ module Metasploit
         #
         # @yield [String] a line of output from the cracker command
         # @return [void]
-        def crack
+        def crack(&block)
           if cracker == 'john'
             results = john_crack_command
           elsif cracker == 'hashcat'
             results = hashcat_crack_command
           end
-          ::IO.popen(results, "rb") do |fd|
-            fd.each_line do |line|
-              yield line
-            end
+          ::IO.popen(results, 'rb') do |fd|
+            fd.each_line(&block)
           end
         end
 
@@ -343,23 +332,46 @@ module Metasploit
             cmd = binary_path
           elsif cracker == 'hashcat'
             cmd = binary_path
-            cmd << (" -V")
+            cmd << (' -V')
           end
-          ::IO.popen(cmd, "rb") do |fd|
+          ::IO.popen(cmd, 'rb') do |fd|
             fd.each_line do |line|
               if cracker == 'john'
                 # John the Ripper 1.8.0.13-jumbo-1-bleeding-973a245b96 2018-12-17 20:12:51 +0100 OMP [linux-gnu 64-bit x86_64 AVX2 AC]
                 # John the Ripper 1.9.0-jumbo-1 OMP [linux-gnu 64-bit x86_64 AVX2 AC]
                 # John the Ripper password cracker, version 1.8.0.2-bleeding-jumbo_omp [64-bit AVX-autoconf]
                 # John the Ripper password cracker, version 1.8.0
-                return $1.strip if line =~ /John the Ripper(?: password cracker, version)? ([^\[]+)/
+                return Regexp.last_match(1).strip if line =~ /John the Ripper(?: password cracker, version)? ([^\[]+)/
               elsif cracker == 'hashcat'
                 # v5.1.0
-                return $1 if line =~ /(v[\d\.]+)/
+                return Regexp.last_match(1) if line =~ /(v[\d.]+)/
               end
             end
           end
           nil
+        end
+
+        # This method is used to determine which format of the no log option should be used
+        # --no-log vs --nolog https://github.com/openwall/john/commit/8982e4f7a2e874aab29807a05b421373015c9b61
+        # We base this either on a date being in the version, or running the command and checking the output
+        #
+        # @return [String] The nolog format to use
+        def john_nolog_format
+          if /(\d{4}-\d{2}-\d{2})/ =~ cracker_version
+            # we lucked out and theres a date, we'll check its older than the commit that changed the nolog
+            if Date.parse(Regexp.last_match(1)) < Date.parse('2020-11-27')
+              return '--nolog'
+            end
+
+            return '--no-log'
+          end
+
+          # no date, so lets give it a run with the old format and check if we raise an error
+          # on *nix 'unknown option' goes to stderr
+          ::IO.popen([binary_path, '--nolog', { err: %i[child out] }], 'rb') do |fd|
+            return '--nolog' unless fd.read.include? 'Unknown option'
+          end
+          '--no-log'
         end
 
         # This method builds an array for the command to actually run the cracker.
@@ -369,46 +381,47 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def john_crack_command
           cmd_string = binary_path
-          cmd = [cmd_string,  '--session=' + cracker_session_id, '--nolog']
+
+          cmd = [cmd_string, '--session=' + cracker_session_id, john_nolog_format]
 
           if config.present?
-            cmd << ("--config=" + config)
+            cmd << ('--config=' + config)
           else
-            cmd << ("--config=" + john_config_file)
+            cmd << ('--config=' + john_config_file)
           end
 
           if pot.present?
-            cmd << ("--pot=" + pot)
+            cmd << ('--pot=' + pot)
           else
-            cmd << ("--pot=" + john_pot_file)
+            cmd << ('--pot=' + john_pot_file)
           end
 
           if fork.present? && fork > 1
-            cmd << ("--fork=" + fork.to_s)
+            cmd << ('--fork=' + fork.to_s)
           end
 
           if format.present?
-            cmd << ("--format=" + format)
+            cmd << ('--format=' + format)
           end
 
           if wordlist.present?
-            cmd << ("--wordlist=" + wordlist)
+            cmd << ('--wordlist=' + wordlist)
           end
 
           if incremental.present?
-            cmd << ("--incremental=" + incremental)
+            cmd << ('--incremental=' + incremental)
           end
 
           if rules.present?
-            cmd << ("--rules=" + rules)
+            cmd << ('--rules=' + rules)
           end
 
           if max_runtime.present?
-            cmd << ("--max-run-time=" + max_runtime.to_s)
+            cmd << ('--max-run-time=' + max_runtime.to_s)
           end
 
           if max_length.present?
-            cmd << ("--max-len=" + max_length.to_s)
+            cmd << ('--max-len=' + max_length.to_s)
           end
 
           cmd << hash_path
@@ -421,16 +434,16 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def hashcat_crack_command
           cmd_string = binary_path
-          cmd = [cmd_string,  '--session=' + cracker_session_id, '--logfile-disable']
+          cmd = [cmd_string, '--session=' + cracker_session_id, '--logfile-disable']
 
           if pot.present?
-            cmd << ("--potfile-path=" + pot)
+            cmd << ('--potfile-path=' + pot)
           else
-            cmd << ("--potfile-path=" + john_pot_file)
+            cmd << ('--potfile-path=' + john_pot_file)
           end
 
           if format.present?
-            cmd << ("--hash-type=" + jtr_format_to_hashcat_format(format))
+            cmd << ('--hash-type=' + jtr_format_to_hashcat_format(format))
           end
 
           if optimize.present?
@@ -459,33 +472,33 @@ module Metasploit
             # wouldn't be tested inside of MSF since most users are using the MSF modules for word list and easy cracks.
             # Anything of length where this would cut off is most likely being done independently (outside MSF)
 
-            cmd << ("-O")
+            cmd << ('-O')
           end
 
           if incremental.present?
-            cmd << ("--increment")
+            cmd << ('--increment')
             if increment_length.present?
-              cmd << ("--increment-min=" + increment_length[0].to_s)
-              cmd << ("--increment-max=" + increment_length[1].to_s)
+              cmd << ('--increment-min=' + increment_length[0].to_s)
+              cmd << ('--increment-max=' + increment_length[1].to_s)
             else
               # anything more than max 4 on even des took 8+min on an i7.
               # maybe in the future this can be adjusted or made a variable
               # but current time, we'll leave it as this seems like reasonable
               # time expectation for a module to run
-              cmd << ("--increment-max=4")
+              cmd << ('--increment-max=4')
             end
           end
 
           if rules.present?
-            cmd << ("--rules-file=" + rules)
+            cmd << ('--rules-file=' + rules)
           end
 
           if attack.present?
-            cmd << ("--attack-mode=" + attack)
+            cmd << ('--attack-mode=' + attack)
           end
 
           if max_runtime.present?
-            cmd << ("--runtime=" + max_runtime.to_s)
+            cmd << ('--runtime=' + max_runtime.to_s)
           end
 
           cmd << hash_path
@@ -505,21 +518,21 @@ module Metasploit
         #
         # @return [Array] the output from teh command split on newlines
         def each_cracked_password
-          ::IO.popen(show_command, "rb").readlines
+          ::IO.popen(show_command, 'rb').readlines
         end
 
         # This method returns the path to a default john.conf file.
         #
         # @return [String] the path to the default john.conf file
         def john_config_file
-          ::File.join(::Msf::Config.data_directory, "jtr", "john.conf")
+          ::File.join(::Msf::Config.data_directory, 'jtr', 'john.conf')
         end
 
         # This method returns the path to a default john.pot file.
         #
         # @return [String] the path to the default john.pot file
         def john_pot_file
-          ::File.join(::Msf::Config.config_directory, "john.pot")
+          ::File.join(::Msf::Config.config_directory, 'john.pot')
         end
 
         # This method is a getter for a random Session ID for the cracker.
@@ -538,24 +551,21 @@ module Metasploit
           cmd_string = binary_path
 
           pot_file = pot || john_pot_file
-          if cracker=='hashcat'
-            cmd = [cmd_string, "--show", "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
-          elsif cracker=='john'
-            cmd = [cmd_string, "--show", "--pot=#{pot_file}", "--format=#{format}"]
+          if cracker == 'hashcat'
+            cmd = [cmd_string, '--show', "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
+          elsif cracker == 'john'
+            cmd = [cmd_string, '--show', "--pot=#{pot_file}", "--format=#{format}"]
 
             if config
               cmd << "--config=#{config}"
             else
-              cmd << ("--config=" + john_config_file)
+              cmd << ('--config=' + john_config_file)
             end
           end
           cmd << hash_path
         end
 
-        private
-
       end
-
     end
   end
 end
