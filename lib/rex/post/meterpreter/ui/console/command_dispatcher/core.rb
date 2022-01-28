@@ -90,7 +90,7 @@ class Console::CommandDispatcher::Core
       cmds['info'] = 'Displays information about a Post module'
     end
 
-    if client.arch == 'python'
+    if client.framework.features.enabled?(Msf::FeatureManager::DEBUG_CHANNEL)
       # Initial logging channel support is only in python
       cmds['log'] = 'Configure Meterpreter session logging'
     end
@@ -1825,6 +1825,11 @@ class Console::CommandDispatcher::Core
       return true
     end
 
+    unless client.arch == 'python'
+      print_status "The `log` command is not yet available on the #{client.arch} Meterpreter."
+      return
+    end
+
     command = args.shift
     case command
     when 'start', 'open'
@@ -1843,10 +1848,6 @@ class Console::CommandDispatcher::Core
       cmd_log_help
     end
   end
-
-  @@log_read_opts = Rex::Parser::Arguments.new(
-    '-f' => [ true, 'An optional file to write the output to' ],
-    )
 
   def subcmd_log_read(args)
     if client.logging_channel.nil?
@@ -1872,14 +1873,14 @@ class Console::CommandDispatcher::Core
   @@log_start_opts = Rex::Parser::Arguments.new(
     '-l' => [ true, 'The logging level to use, one of debug, info, or error (default: debug)' ],
     '-s' => [ true, 'The size of the remote log buffer (default: 8192)' ],
+    '-f' => [ true, 'An optional file to write the output to' ],
     )
   def subcmd_log_start(args)
     unless client.logging_channel.nil?
-      print_status("Logging channel id: #{channel.cid} is already open")
+      print_status("Logging channel id: #{client.logging_channel.cid} is already open")
       return
     end
-
-    opts = {level: :info, size: 0x2000}
+    opts = {level: :info, size: 0x2000, file: nil}
     @@log_start_opts.parse(args) do |opt, idx, val|
       case opt
       when '-l'
@@ -1895,11 +1896,14 @@ class Console::CommandDispatcher::Core
           return
         end
         opts[:size] = val
+      when '-f'
+        opts[:file] = val
       end
     end
 
-    # client.extend(LogChannelTracker) unless client.kind_of?(LogChannelTracker)
-    channel = Rex::Post::Meterpreter::Channels::Pools::Logging.open(client, level: opts[:level], size: opts[:size])
+    channel = Rex::Post::Meterpreter::Channels::Pools::Logging.open(
+      client, level: opts[:level], size: opts[:size], file: opts[:file]
+    )
     client.logging_channel = channel
     print_status("Opened logging channel id: #{channel.cid}")
   end

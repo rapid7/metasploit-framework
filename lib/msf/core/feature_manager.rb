@@ -15,6 +15,7 @@ module Msf
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
     FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
+    DEBUG_CHANNEL = 'debug_channel'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -23,9 +24,14 @@ module Msf
       }.freeze,
       {
         name: FULLY_INTERACTIVE_SHELLS,
-        description: 'When enabled you will have the option to drop into a fully interactive shell from within meterpreter',
+        description: 'When enabled you will have the option to drop into a fully interactive shell from within Meterpreter',
         default_value: false
-      }.freeze
+      }.freeze,
+      {
+        name: DEBUG_CHANNEL,
+        description: 'When enabled you will have the option to open a debugging channel on supported Meterpreters.',
+        default_value: false
+      }
     ].freeze
 
     #

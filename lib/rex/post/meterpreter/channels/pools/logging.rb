@@ -23,15 +23,18 @@ module Rex::Post::Meterpreter
       ##
 
       LEVELS = {
-        info: 1000,
-        debug: 2000,
+        debug: 1000,
+        info: 2000,
         error: 3000
       }
 
-      def Logging.open(client, level: :debug, size: 0x2000)
+      attr_accessor :file
+
+      def Logging.open(client, level: :debug, size: 0x2000, file: nil)
         level = Logging::LEVELS[level.to_sym]
+        opts = {file: file}
         raise ArgumentError 'Invalid level, must be one of debug, info, or error' if level.nil?
-        channel =  Channel.create(client, 'core_logging', self, CHANNEL_FLAG_SYNCHRONOUS, [
+        Channel.create(client, 'core_logging', self, CHANNEL_FLAG_SYNCHRONOUS, [
           {
             'type'  => TLV_TYPE_LOG_LEVEL,
             'value' => level
@@ -40,8 +43,17 @@ module Rex::Post::Meterpreter
             'type'  => TLV_TYPE_LOG_SIZE,
             'value' => size
           },
-        ])
+        ], **opts)
+      end
 
+      def dio_write_handler(packet, data)
+        if @file.nil?
+          data.each_line do |line|
+            print_line "%yel[Session #{@client.name}]%clr - #{line.strip}"
+          end
+        else
+          ::File.open(@file, 'a') {|fd| fd.write(data) }
+        end
       end
 
       ##
@@ -51,7 +63,8 @@ module Rex::Post::Meterpreter
       ##
 
       # Initializes the file channel instance
-      def initialize(client, cid, type, flags, packet)
+      def initialize(client, cid, type, flags, packet, file: nil)
+        @file = file
         super(client, cid, type, flags, packet)
       end
 
