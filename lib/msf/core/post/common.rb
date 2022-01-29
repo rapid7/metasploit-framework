@@ -23,7 +23,7 @@ module Msf::Post::Common
   end
 
   def rhost
-    return nil unless session
+    return nil unless defined?(session) and session
 
     case session.type
     when 'meterpreter'
@@ -34,6 +34,8 @@ module Msf::Post::Common
   end
 
   def rport
+    return nil unless defined?(session) and session
+
     case session.type
     when 'meterpreter'
       session.sock.peerport
