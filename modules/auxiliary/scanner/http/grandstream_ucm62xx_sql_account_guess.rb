@@ -17,14 +17,14 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Grandstream UCM62xx IP PBX WebSocket Blind SQL Injection Credential Dump',
         'Description' => %q{
           This module uses a blind SQL injection (CVE-2020-5724) affecting the Grandstream UCM62xx
-          IP PBX to dump the user database. The injection occurs over a websocket at the websockify
+          IP PBX to dump the users table. The injection occurs over a websocket at the websockify
           endpoint, and specifically occurs when the user requests the challenge (as part of a
           challenge and response authentication scheme). The injection is blind, but the server
           response contains a different status code if the query was successful. As such, the
           attacker can guess the contents of the user database. Most helpfully, the passwords are
           stored in cleartext within the user table (CVE-2020-5723).
 
-          This issue was patched in Grandstream UCM62xx IP PBX frimware version 1.20.22.
+          This issue was patched in Grandstream UCM62xx IP PBX firmware version 1.20.22.
         },
         'License' => MSF_LICENSE,
         'Author' => [
