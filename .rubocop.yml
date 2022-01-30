@@ -9,17 +9,19 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.6
   SuggestExtensions: false
   NewCops: disable
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
+  - ./lib/rubocop/cop/layout/module_hash_values_on_same_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
   - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
+  - ./lib/rubocop/cop/lint/module_enforce_notes.rb
 
 Layout/SpaceBeforeBrackets:
   Description: >-
@@ -147,6 +149,9 @@ Style/SwapValues:
 Layout/ModuleHashOnNewLine:
   Enabled: true
 
+Layout/ModuleHashValuesOnSameLine:
+  Enabled: true
+
 Layout/ModuleDescriptionIndentation:
   Enabled: true
 
@@ -157,6 +162,13 @@ Lint/ModuleDisclosureDatePresent:
   Include:
     # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
     - 'modules/exploits/**/*'
+
+Lint/ModuleEnforceNotes:
+  Include:
+    # Only exploits and auxiliary modules require SideEffects to be listed.
+    - 'modules/exploits/**/*'
+    - 'modules/auxiliary/**/*'
+    - 'modules/post/**/*'
 
 Lint/DeprecatedGemVersion:
   Enabled: true

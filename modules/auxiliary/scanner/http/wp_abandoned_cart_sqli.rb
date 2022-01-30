@@ -22,21 +22,24 @@ class MetasploitModule < Msf::Auxiliary
           wp_woocommerce_session cookie is required, which has at least one item in the
           cart.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'WPDeeply', # Discovery and PoC
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'WPDeeply', # Discovery and PoC
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['WPVDB', '10461'],
-            ['URL', 'https://wpdeeply.com/woocommerce-abandoned-cart-before-5-8-2-sql-injection/'],
-            ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']
-          ],
+        'References' => [
+          ['WPVDB', '10461'],
+          ['URL', 'https://wpdeeply.com/woocommerce-abandoned-cart-before-5-8-2-sql-injection/'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }]
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-11-05'
       )
@@ -59,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('Abandoned Cart for WooCommerce version not vulnerable')
       return
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of Abandoned Cart for WooCommerce detected')
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, datastore['CHECKOUTURL']),

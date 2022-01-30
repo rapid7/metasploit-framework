@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_brute :ip => ip, :msg => 'Starting bruteforce'
 
-    # Peform a sanity check to ensure that our target is vmauthd before
+    # Perform a sanity check to ensure that our target is vmauthd before
     # attempting to brute force it.
     begin
       connect rescue nil
@@ -56,15 +56,11 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+      password: datastore['PASSWORD']
     )
+
     scanner = Metasploit::Framework::LoginScanner::VMAUTHD.new(
       host: ip,
       port: rport,

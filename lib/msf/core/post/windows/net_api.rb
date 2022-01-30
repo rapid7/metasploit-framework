@@ -23,12 +23,20 @@ module NetAPI
   NERR_UserNotFound = 2221
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
-        stdapi_railgun_*
-      } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_railgun_memread
+              stdapi_railgun_memwrite
+            ]
+          }
+        }
+      )
+    )
   end
 
   def UnicodeByteStringToAscii(str)

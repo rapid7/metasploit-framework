@@ -19,23 +19,26 @@ class MetasploitModule < Msf::Auxiliary
           versions before 1.6.4.  The vulnerable parameter is in the log parameter.
           Wordpress has forced updates of the plugin to all servers
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'red0xff', # sqli help
-            'mslavco' # discovery
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'red0xff', # sqli help
+          'mslavco' # discovery
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['URL', 'https://wpdeeply.com/loginizer-before-1-6-4-sqli-injection/'],
-            ['CVE', '2020-27615'],
-            ['URL', 'https://loginizer.com/blog/loginizer-1-6-4-security-fix/'],
-            ['URL', 'https://twitter.com/mslavco/status/1318877097184604161']
-          ],
+        'References' => [
+          ['URL', 'https://wpdeeply.com/loginizer-before-1-6-4-sqli-injection/'],
+          ['CVE', '2020-27615'],
+          ['URL', 'https://loginizer.com/blog/loginizer-1-6-4-security-fix/'],
+          ['URL', 'https://twitter.com/mslavco/status/1318877097184604161']
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-10-21'
       )
@@ -67,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('Loginizer version not vulnerable')
       return
     else
-      print_good('Vulnerable version detected')
+      print_good('Vulnerable version of Loginizer detected')
     end
 
     cookie = send_request_cgi({

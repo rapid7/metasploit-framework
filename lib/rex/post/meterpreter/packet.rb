@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'openssl'
+require 'rex/post/meterpreter/command_mapper'
 
 module Rex
 module Post
@@ -150,7 +151,6 @@ def self.generate_command_id_map_c
     powershell
     lanattacks
     peinjector
-    mimikatz
   })
 
   command_ids = id_map.map {|k, v| "#define COMMAND_ID_#{k.upcase} #{v}"}
@@ -234,7 +234,6 @@ def self.generate_command_id_map_python_extension
     powershell
     lanattacks
     peinjector
-    mimikatz
   })
   command_ids = id_map.map {|k, v| "COMMAND_ID_#{k.upcase} = #{v}"}
   %Q^
@@ -263,7 +262,6 @@ def self.generate_command_id_map_csharp
     powershell
     lanattacks
     peinjector
-    mimikatz
   })
   command_ids = id_map.map {|k, v| "#{k.split('_').map(&:capitalize).join} = #{v},"}
   %Q^
@@ -406,6 +404,14 @@ class Tlv
       tlvs_inspect << "]"
     else
       tlvs_inspect = "meta=#{meta.ljust(10)} value=#{val}"
+      if type == TLV_TYPE_COMMAND_ID
+        begin
+          command_name = ::Rex::Post::Meterpreter::CommandMapper.get_command_name(value)
+        rescue
+          command_name = nil
+        end
+        tlvs_inspect <<= " command=#{command_name || 'unknown'}"
+      end
     end
     "#<#{self.class} type=#{stype.ljust(15)} #{tlvs_inspect}>"
   end
@@ -1095,4 +1101,3 @@ end
 
 
 end; end; end
-

@@ -34,7 +34,14 @@ class MetasploitModule < Msf::Post
           [ 'VSS_GET_INFO', { 'Description' => 'Get VSS information' } ],
           [ 'VSS_SET_MAX_STORAGE_SIZE', { 'Description' => 'Set the VSS maximum storage size' } ]
         ],
-        'DefaultAction' => 'VSS_GET_INFO'
+        'DefaultAction' => 'VSS_GET_INFO',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_delete_dir
+            ]
+          }
+        }
       )
     )
 

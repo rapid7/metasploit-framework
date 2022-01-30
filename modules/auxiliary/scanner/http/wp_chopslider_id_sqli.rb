@@ -22,22 +22,25 @@ class MetasploitModule < Msf::Auxiliary
           parameters, and thus must be encoded,
           and magic_quotes is applied at the server.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'SunCSR', # edb module
-            'Callum Murphy <callum.a.murphy.77@gmail.com>' # full disclosure
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'SunCSR', # edb module
+          'Callum Murphy <callum.a.murphy.77@gmail.com>' # full disclosure
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['EDB', '48457'],
-            ['CVE', '2020-11530'],
-            ['URL', 'https://seclists.org/fulldisclosure/2020/May/26']
-          ],
+        'References' => [
+          ['EDB', '48457'],
+          ['CVE', '2020-11530'],
+          ['URL', 'https://seclists.org/fulldisclosure/2020/May/26']
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-05-12'
       )
@@ -76,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error('ChopSlider3 version not vulnerable or undetected')
       return
     else
-      print_good('Vulnerable version detected')
+      print_good('Vulnerable version of ChopSlider3 detected')
     end
 
     sliderid = Rex::Text.rand_text_numeric(8..10)

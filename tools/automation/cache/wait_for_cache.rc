@@ -1,0 +1,13 @@
+<ruby>
+require "msf/core/modules/metadata/store"
+
+UserMetaDataFile = Msf::Modules::Metadata::Store::UserMetaDataFile
+store_dir = File.join(Msf::Config.config_directory, "store")
+cache_file = File.join(store_dir, UserMetaDataFile)
+framework.modules.refresh_cache_from_module_files
+while true do
+	break if File.exist?(cache_file)
+	sleep(5)
+end
+</ruby>
+exit

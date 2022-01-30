@@ -16,11 +16,10 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => ['h00die'],
-        'Actions' =>
-          [
-            ['ROUTEROS', { 'Description' => 'Import RouterOS Config File' }],
-            ['SWOS', { 'Description' => 'Import SwOS Config File' }],
-          ],
+        'Actions' => [
+          ['ROUTEROS', { 'Description' => 'Import RouterOS Config File' }],
+          ['SWOS', { 'Description' => 'Import SwOS Config File' }],
+        ],
         'DefaultAction' => 'ROUTEROS'
       )
     )

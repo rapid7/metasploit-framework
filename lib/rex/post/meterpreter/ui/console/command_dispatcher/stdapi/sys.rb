@@ -33,7 +33,13 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
     "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
+    "-z" => [ false, "Execute process in a subshell"	   ],
+    "-p" => [ false, "Execute process in a pty (if available on target platform)"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
+
+  @@execute_opts_with_raw_mode = @@execute_opts.merge(
+    { '-r' => [ false, 'Raw mode'] }
+  )
 
   #
   # Options used by the 'shell' command.
@@ -42,6 +48,10 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-h" => [ false, "Help menu."                                          ],
     "-l" => [ false, "List available shells (/etc/shells)."                ],
     "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
+
+  @@shell_opts_with_fully_interactive_shell = @@shell_opts.merge(
+    { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`).'] }
+  )
 
   #
   # Options used by the 'reboot' command.
@@ -103,6 +113,22 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
     "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
 
+
+  def shell_opts
+    if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      return @@shell_opts_with_fully_interactive_shell
+    end
+
+    @@shell_opts
+  end
+
+  def execute_opts
+    if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      return @@execute_opts_with_raw_mode
+    end
+
+    @@execute_opts
+  end
   #
   # List of supported commands.
   #
@@ -201,8 +227,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd_args    = nil
     cmd_exec    = nil
     use_thread_token = false
+    raw = false
+    subshell = false
+    pty = false
 
-    @@execute_opts.parse(args) { |opt, idx, val|
+    execute_opts.parse(args) { |opt, idx, val|
       case opt
         when "-a"
           cmd_args = val
@@ -228,6 +257,12 @@ class Console::CommandDispatcher::Stdapi::Sys
           use_thread_token = true
         when "-s"
           session = val.to_i
+        when "-r"
+          raw = true
+        when "-z"
+          subshell = true
+        when "-p"
+          pty = true
       end
     }
 
@@ -244,24 +279,26 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Session'     => session,
       'Hidden'      => hidden,
       'InMemory'    => (from_mem) ? dummy_exec : nil,
+      'Subshell' => subshell,
+      'Pty' => pty,
       'UseThreadToken' => use_thread_token)
 
     print_line("Process #{p.pid} created.")
     print_line("Channel #{p.channel.cid} created.") if (p.channel)
 
     if (interact and p.channel)
-      shell.interact_with_channel(p.channel)
+      shell.interact_with_channel(p.channel, raw: raw)
     end
   end
 
   def cmd_execute_help
     print_line("Usage: execute -f file [options]")
     print_line("Executes a command on the remote machine.")
-    print @@execute_opts.usage
+    print execute_opts.usage
   end
 
   def cmd_execute_tabs(str, words)
-    return @@execute_opts.fmt.keys if words.length == 1
+    return execute_opts.option_keys if words.length == 1
     []
   end
 
@@ -269,11 +306,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line 'Usage: shell [options]'
     print_line
     print_line 'Opens an interactive native shell.'
-    print_line @@shell_opts.usage
+    print_line shell_opts.usage
   end
 
   def cmd_shell_tabs(str, words)
-    return @@shell_opts.fmt.keys if words.length == 1
+    return shell_opts.option_keys if words.length == 1
     []
   end
 
@@ -283,9 +320,10 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_shell(*args)
     use_pty = false
+    raw = false
     sh_path = '/bin/bash'
 
-    @@shell_opts.parse(args) do |opt, idx, val|
+    shell_opts.parse(args) do |opt, idx, val|
       case opt
       when '-h'
         cmd_shell_help
@@ -302,6 +340,8 @@ class Console::CommandDispatcher::Stdapi::Sys
         end
 
         return true
+      when '-i'
+        raw = true
       when '-t'
         use_pty = true
         # XXX: No other options must follow
@@ -325,10 +365,17 @@ class Console::CommandDispatcher::Stdapi::Sys
     when 'android'
       cmd_execute('-f', '/system/bin/sh', '-c', '-i')
     when 'linux', 'osx'
-      if use_pty && pty_shell(sh_path)
+      if raw && !use_pty
+        print_warning('Note: To use the fully interactive shell you must use a pty, i.e. %grnshell -it%clr')
+        return false
+      elsif use_pty && pty_shell(sh_path, raw: raw)
         return true
       end
 
+      if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS) && !raw && !use_pty
+        print_line('This Meterpreter supports %grnshell -it%clr to start a fully interactive TTY.')
+        print_line('This will increase network traffic.')
+      end
       cmd_execute('-f', '/bin/sh', '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
@@ -338,7 +385,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       # If that failed for whatever reason, guess it's unix
       path = (path && !path.empty?) ? path : '/bin/sh'
 
-      if use_pty && path == '/bin/sh' && pty_shell(sh_path)
+      if use_pty && path == '/bin/sh' && pty_shell(sh_path, raw: raw)
         return true
       end
 
@@ -349,12 +396,23 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   # Spawn a PTY shell
   #
-  def pty_shell(sh_path)
+  def pty_shell(sh_path, raw: false)
+    args = ['-p']
+
+    if raw
+      args << '-r' if raw
+      if client.commands.include?(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_SET_TERM_SIZE)
+        print_line("Terminal size will be synced automatically.")
+      else
+        print_line("You may want to set the correct terminal size manually.")
+        print_line("Example: `stty rows {rows} cols {columns}`")
+      end
+    end
     sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
     # Python Meterpreter calls pty.openpty() - No need for other methods
     if client.arch == 'python'
-      cmd_execute('-f', sh_path, '-c', '-i')
+      cmd_execute('-f', sh_path, '-c', '-i', *args)
       return true
     end
 
@@ -405,7 +463,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd.prepend('env TERM=xterm HISTFILE= ')
 
     print_status(cmd)
-    cmd_execute('-f', cmd, '-c', '-i')
+    cmd_execute('-f', cmd, '-c', '-i', '-z', *args)
 
     true
   end
@@ -761,7 +819,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Tab completion for the ps command
   #
   def cmd_ps_tabs(str, words)
-    return @@ps_opts.fmt.keys if words.length == 1
+    return @@ps_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-A'
@@ -1046,7 +1104,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_reg_tabs(str, words)
     if words.length == 1
-      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.fmt.keys
+      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.option_keys
     end
 
     case words[-1]
@@ -1065,7 +1123,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     when '-w'
       return %w[32 64]
     when 'enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'
-      return @@reg_opts.fmt.keys
+      return @@reg_opts.option_keys
     end
 
     []
@@ -1137,6 +1195,8 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_sysinfo(*args)
     info = client.sys.config.sysinfo(refresh: true)
+    client.update_session_info
+
     width = "Meterpreter".length
     info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
@@ -1187,7 +1247,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_shutdown_tabs(str, words)
-    return @@shutdown_opts.fmt.keys if words.length == 1
+    return @@shutdown_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-f'
@@ -1276,7 +1336,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Tab completion for the suspend command
   #
   def cmd_suspend_tabs(str, words)
-    return @@suspend_opts.fmt.keys if words.length == 1
+    return @@suspend_opts.option_keys if words.length == 1
     []
   end
 

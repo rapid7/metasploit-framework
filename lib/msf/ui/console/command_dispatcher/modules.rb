@@ -538,7 +538,7 @@ module Msf
 
           def cmd_search_tabs(str, words)
             if words.length == 1
-              return @@search_opts.fmt.keys
+              return @@search_opts.option_keys
             end
 
             []
@@ -683,6 +683,7 @@ module Msf
             print_line '  search eternalblue'
             print_line '  use <name|index>'
             print_line
+            print_april_fools_module_use
           end
 
           #
@@ -973,23 +974,23 @@ module Msf
 
             # Check for modules that failed to load
             if framework.modules.module_load_error_by_path.length > 0
-              print_error("WARNING! The following modules could not be loaded!")
+              wlog("WARNING! The following modules could not be loaded!")
 
               framework.modules.module_load_error_by_path.each do |path, _error|
-                print_error("\t#{path}")
+                wlog("\t#{path}")
               end
 
-              print_error(log_msg)
+              wlog(log_msg)
             end
 
             if framework.modules.module_load_warnings.length > 0
-              print_warning("The following modules were loaded with warnings:")
+              wlog("The following modules were loaded with warnings:")
 
               framework.modules.module_load_warnings.each do |path, _error|
-                print_warning("\t#{path}")
+                wlog("\t#{path}")
               end
 
-              print_warning(log_msg)
+              wlog(log_msg)
             end
 
             self.driver.run_single("banner")
@@ -1247,6 +1248,13 @@ module Msf
 
             return dangerzone_modules_to_codenames(res.sort) if dangerzone_active?
             return res.sort
+          end
+
+          def print_april_fools_module_use
+            return unless ENV['APRILFOOLSMODULEUSE'] || Time.now.strftime("%m%d") == "0401"
+
+            banner = Msf::Ui::Banner.readfile('help-using-a-module.txt')
+            print_line("%grn#{banner}%clr")
           end
 
           #

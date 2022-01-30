@@ -92,6 +92,14 @@ module ReverseTcp
     "tcp://#{uri_host}:#{datastore['LPORT']}"
   end
 
+  def comm_string
+    if listener_sock.nil?
+      "(setting up)"
+    else
+      via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    end
+  end
+
   # A URI describing where we are listening
   #
   # @param addr [String] the address that

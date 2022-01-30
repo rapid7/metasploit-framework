@@ -33,7 +33,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
 
     it 'should return an ActiveRecord::MigrationContext with known migrations' do
       migrations_paths = [File.expand_path("../../../../../file_fixtures/migrate", __dir__)]
-      expect(ActiveRecord::Migrator).to receive(:migrations_paths).and_return(migrations_paths).exactly(3).times
+      expect(ActiveRecord::Migrator).to receive(:migrations_paths).and_return(migrations_paths).exactly(2).times
       result = migrate
       expect(result.size).to eq 1
       expect(result[0].name).to eq "TestDbMigration"
@@ -55,7 +55,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:example) do
-        mockContext = ActiveRecord::MigrationContext.new(nil)
+        mockContext = ActiveRecord::MigrationContext.new(nil, ActiveRecord::SchemaMigration)
         expect(ActiveRecord::MigrationContext).to receive(:new).and_return(mockContext)
         expect(mockContext).to receive(:needs_migration?).and_return(true)
         expect(mockContext).to receive(:migrate).and_raise(standard_error)

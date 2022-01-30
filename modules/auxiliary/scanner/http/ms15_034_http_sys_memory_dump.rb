@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       %w(href src).each do |attribute|
         attr_value = tag[attribute]
         next unless attr_value && !attr_value.empty?
-        uri = site_uri.merge(URI.encode(attr_value.strip))
+        uri = site_uri.merge(URI::DEFAULT_PARSER.escape(attr_value.strip))
         next unless uri.host == vhost || uri.host == rhost
         uris << uri.path if uri.path =~ /\.[a-z]{2,}$/i # Only keep path with a file
       end

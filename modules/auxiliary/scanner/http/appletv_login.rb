@@ -51,8 +51,8 @@ class MetasploitModule < Msf::Auxiliary
             )])
 
     deregister_options(
-        'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS', 'NTLM::SendLM', 'NTLM::SendNTLM',
-        'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2',
+        'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
+        'NTLM::SendLM', 'NTLM::SendNTLM', 'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2',
         'REMOVE_USERPASS_FILE', 'REMOVE_USER_FILE', 'DOMAIN', 'HttpUsername', 'PASSWORD_SPRAY'
     )
   end
@@ -67,6 +67,7 @@ class MetasploitModule < Msf::Auxiliary
           username: 'AirPlay',
           user_as_pass: datastore['USER_AS_PASS'],
       )
+      cred_collection = prepend_db_passwords(cred_collection)
     else
       print_status("Attempting to login to #{uri} by 'Onscreen Code'")
       cred_collection = LockCodeCollection.new

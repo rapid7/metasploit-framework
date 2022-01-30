@@ -20,20 +20,23 @@ class MetasploitModule < Msf::Auxiliary
           Combining these items, it's possible to request a password reset for an account, then view the debug file to determine
           the link that was emailed out, and reset the user's password.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            # this was an 0day
-          ],
+        'Author' => [
+          'h00die', # msf module
+          # this was an 0day
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['URL', 'https://wordpress.org/support/topic/security-issue-with-debug-log/'],
-            ['URL', 'https://blog.nintechnet.com/wordpress-easy-wp-smtp-plugin-fixed-zero-day-vulnerability/'],
-            ['URL', 'https://plugins.trac.wordpress.org/changeset/2432768/easy-wp-smtp'],
-            ['WPVDB', '10494'],
-            ['CVE', '2020-35234']
-          ],
+        'References' => [
+          ['URL', 'https://wordpress.org/support/topic/security-issue-with-debug-log/'],
+          ['URL', 'https://blog.nintechnet.com/wordpress-easy-wp-smtp-plugin-fixed-zero-day-vulnerability/'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset/2432768/easy-wp-smtp'],
+          ['WPVDB', '10494'],
+          ['CVE', '2020-35234']
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DisclosureDate' => '2020-12-06'
       )
     )
@@ -67,9 +70,9 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('easy-wp-smtp', '1.4.2')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, 'A vulnerable version of the "Easy WP SMTP" was not found'
+      fail_with Failure::NotVulnerable, 'A vulnerable version of Easy WP SMTP was not found'
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of Easy WP SMTP detected')
 
     debug_log = get_debug_file(datastore['AGGRESSIVE'])
     if debug_log

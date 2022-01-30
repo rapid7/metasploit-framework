@@ -42,10 +42,20 @@ module Services
   include ::Msf::Post::Windows::Registry
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ extapi_service_* stdapi_railgun_api* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_service_enum
+              extapi_service_query
+              stdapi_railgun_api
+            ]
+          }
+        }
+      )
+    )
   end
 
   def advapi32

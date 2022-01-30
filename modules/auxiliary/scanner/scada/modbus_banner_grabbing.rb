@@ -20,13 +20,11 @@ class MetasploitModule < Msf::Auxiliary
           published by Modicon (now Schneider Electric) in 1979 for use with its
           programmable logic controllers (PLCs).
         },
-        'Author' =>
-        [
+        'Author' => [
           'Juan Escobar <juan[at]null-life.com>', # @itsecurityco
           'Ezequiel Fernandez' # @capitan_alfa
         ],
-        'References' =>
-        [
+        'References' => [
           [ 'URL', 'https://modbus.org/docs/Modbus_Messaging_Implementation_Guide_V1_0b.pdf' ],
           [ 'URL', 'https://en.wikipedia.org/wiki/Modbus#Modbus_TCP_frame_format_(primarily_used_on_Ethernet_networks)' ],
           [ 'URL', 'https://github.com/industrialarmy/Hello_Proto' ],

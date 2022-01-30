@@ -221,6 +221,9 @@ class SessionManager < Hash
         session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
         session.console.on_print_proc = Proc.new { |output| framework.events.on_session_output(session, output) }
       end
+      if session.respond_to?("on_registered")
+        session.on_registered
+      end
     end
 
     return next_sid
@@ -262,10 +265,9 @@ class SessionManager < Hash
     session = nil
     sid = sid.to_i
 
-    if sid > 0
-      session = self[sid]
-    elsif sid == -1
-      sid = self.keys.max
+    if sid < 0
+      session = self[self.keys.sort[sid]]
+    elsif sid > 0
       session = self[sid]
     end
 
@@ -292,4 +294,3 @@ protected
 end
 
 end
-

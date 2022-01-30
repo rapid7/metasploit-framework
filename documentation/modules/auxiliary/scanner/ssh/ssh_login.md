@@ -1,79 +1,96 @@
-## SSH Service
+## Vulnerable Application
 
-  SSH, Secure SHell, is an encrypted network protocol used to remotely interact with an Operating System at a command line level.  SSH is available on most every system, including Windows, but is mainly used by *nix administrators.
-  This module attempts to login to SSH with username and password combinations.  For public/private SSH keys, please use `auxiliary/scanner/ssh/ssh_login_pubkey`.
-  It should be noted that some modern Operating Systems have default configurations to not allow the `root` user to remotely login via SSH, or to only allow `root` to login with an SSH key login.
+SSH, Secure SHell, is an encrypted network protocol used to remotely interact with an Operating System at a command line
+level. SSH is available on most every system, including Windows, but is mainly used by *nix administrators. This module
+attempts to login to SSH with username and password combinations. For public/private SSH keys, please use
+`auxiliary/scanner/ssh/ssh_login_pubkey`. It should be noted that some modern Operating Systems have default
+configurations to not allow the `root` user to remotely login via SSH, or to only allow `root` to login with an SSH key
+login.
 
 ## Verification Steps
 
-  1. Install SSH and start it.
-  2. Start msfconsole
-  3. Do: ` use auxiliary/scanner/ssh/ssh_login`
-  4. Do: `set rhosts`
-  5. Do: set usernames and passwords via any of the available options
-  5. Do: `run`
-  6. You will hopefully see something similar to, followed by a session:
+1. Install SSH and start it.
+2. Start msfconsole
+3. Do: ` use auxiliary/scanner/ssh/ssh_login`
+4. Do: `set rhosts`
+5. Do: set usernames and passwords via any of the available options
+5. Do: `run`
+6. You will hopefully see something similar to, followed by a session:
 
-  ```[+] SSH - Success: 'msfadmin:msfadmin' 'uid=1000(msfadmin) gid=1000(msfadmin) groups=4(adm),20(dialout),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),107(fuse),111(lpadmin),112(admin),119(sambashare),1000(msfadmin) Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux '```
+```
+[+] SSH - Success: 'msfadmin:msfadmin' 'uid=1000(msfadmin) gid=1000(msfadmin) groups=4(adm),20(dialout),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),107(fuse),111(lpadmin),112(admin),119(sambashare),1000(msfadmin) Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux '
+```
+
+### Session Capabilities
+
+Like Meterpreter sessions, this newly established session can be used to pivot connections as defined by Metasploit's
+routing table. To forward all new TCP connections through the session run `route add 0.0.0.0 0.0.0.0 -1`. This leverages
+the TCP forwarding capabilities of the remote SSH server. UDP forwarding is not supported by SSH servers, so any UDP
+traffic will fail.
+
+TCP forwarding requires the `AllowTcpForwarding` option to be enabled in the server's configuration file, which is often
+the default. If the option is disabled or the more specific `PermitOpen` option does not allow the connection to be
+made, the connection will fail with the `administratively prohibited` error.
 
 ## Options
 
-  **BLANK_PASSWORD**
+### BLANK_PASSWORD
 
-  Boolean value on if an additional login attempt should be attempted with an empty password for every user.
-  
-  **PASSWORD**
-  
-  Password to try for each user.
-  
-  **PASS_FILE**
-  
-  A file containing a password on every line.  Kali linux example: `/usr/share/wordlists/metasploit/password.lst`
+Boolean value on if an additional login attempt should be attempted with an empty password for every user.
 
-  **RHOSTS**
-  
-  Either a comma space (`, `) separated list of hosts, or a file containing list of hosts, one per line.  File Example: `file:/root/ssh_hosts.lst`, list example: `192.168.0.1` or `192.168.0.1, 192.168.0.2`
+### PASSWORD
 
-  **STOP_ON_SUCCESS**
-  
-  If a valid login is found on a host, immediately stop attempting additional logins on that host.
+Password to try for each user.
 
-  **USERNAME**
-  
-  Username to try for each password.
-  
-  **USERPASS_FILE**
-  
-  A file containing a username and password, separated by a space, on every line.  An example line would be `username password`
-  
-  **USER_AS_PASS**
-  
-  Boolean value on if an additional login attempt should be attempted with the password as the username.
-  
-  **USER_FILE**
-  
-  A file containing a username on every line.
+### PASS_FILE
 
-  **VERBOSE**
-  
-  Show a failed login attempt.  This can get rather verbose when large `USER_FILE`s or `PASS_FILE`s are used.  A failed attempt will look similar to the following:
+A file containing a password on every line. Kali linux example: `/usr/share/wordlists/metasploit/password.lst`
 
-  ```
-  [-] SSH - Failed: 'msfadmin:virtual'
-  ```
+### STOP_ON_SUCCESS
+
+If a valid login is found on a host, immediately stop attempting additional logins on that host.
+
+### USERNAME
+
+Username to try for each password.
+
+### USERPASS_FILE
+
+A file containing a username and password, separated by a space, on every line. An example line would be `username
+password`.
+
+### USER_AS_PASS
+
+Boolean value on if an additional login attempt should be attempted with the password as the username.
+
+### USER_FILE
+
+A file containing a username on every line.
+
+### VERBOSE
+
+Show a failed login attempt. This can get rather verbose when large `USER_FILE`s or `PASS_FILE`s are used. A failed
+attempt will look similar to the following:
+
+```
+[-] SSH - Failed: 'msfadmin:virtual'
+```
 
 ## Option Combinations
 
-It is important to note that usernames and passwords can be entered in multiple combinations.  For instance, a password could be set in `PASSWORD`, be part of either `PASS_FILE` or `USERPASS_FILE`, be guessed via `USER_AS_PASS` or `BLANK_PASSWORDS`.
-This module makes a combination of all of the above when attempting logins.  So if a password is set in `PASSWORD`, and a `PASS_FILE` is listed, passwords will be generated from BOTH of these.
+It is important to note that usernames and passwords can be entered in multiple combinations. For instance, a password
+could be set in `PASSWORD`, be part of either `PASS_FILE` or `USERPASS_FILE`, be guessed via `USER_AS_PASS` or
+`BLANK_PASSWORDS`. This module makes a combination of all of the above when attempting logins. So if a password is set
+in `PASSWORD`, and a `PASS_FILE` is listed, passwords will be generated from BOTH of these.
 
 ## Scenarios
 
-  Example run against:
-  * Ubuntu 14.04 Server with root login permitted: 192.168.2.156
-  * Ubuntu 16.04 Server: 192.168.2.137
-  * Metasploitable: 192.168.2.46
-  * Metasploitable 2: 192.168.2.35
+Example run against:
+
+* Ubuntu 14.04 Server with root login permitted: 192.168.2.156
+* Ubuntu 16.04 Server: 192.168.2.137
+* Metasploitable: 192.168.2.46
+* Metasploitable 2: 192.168.2.35
 
 ```
 msf > use auxiliary/scanner/ssh/ssh_login
@@ -143,8 +160,9 @@ Active sessions
   9   shell /linux  SSH ubuntu:ubuntu (192.168.2.137:22)     192.168.2.117:37027 -> 192.168.2.137:22 (192.168.2.137)
 ```
 
-  Example run against:
-  * Windows 10 w/ Linux Subsystem
+Example run against:
+
+* Windows 10 w/ Linux Subsystem
 
 ```
 msf > use auxiliary/scanner/ssh/ssh_login
@@ -173,11 +191,12 @@ Active sessions
 
 ```
 
-  Example run against:
-  * Windows 10 w/ Bitvise SSH Server (WinSSHD) version 7.26-r2 and a virtual account created
-  
-  It is important to note here that the module gives back a **Success**, but then errors when trying to identify the remote system.
-  This should be enough info to manually exploit via a regular SSH command.
+Example run against:
+
+* Windows 10 w/ Bitvise SSH Server (WinSSHD) version 7.26-r2 and a virtual account created
+
+It is important to note here that the module gives back a **Success**, but then errors when trying to identify the
+remote system. This should be enough info to manually exploit via a regular SSH command.
 
 ```
 msf > use auxiliary/scanner/ssh/ssh_login

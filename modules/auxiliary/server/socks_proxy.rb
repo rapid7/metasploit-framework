@@ -14,14 +14,12 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => [ 'sf', 'Spencer McIntyre', 'surefire' ],
       'License' => MSF_LICENSE,
-      'Actions' =>
-        [
-          [ 'Proxy', { 'Description' => 'Run a SOCKS proxy server' } ]
-        ],
-      'PassiveActions' =>
-        [
-          'Proxy'
-        ],
+      'Actions' => [
+        [ 'Proxy', { 'Description' => 'Run a SOCKS proxy server' } ]
+      ],
+      'PassiveActions' => [
+        'Proxy'
+      ],
       'DefaultAction' => 'Proxy'
     )
 

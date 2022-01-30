@@ -55,7 +55,10 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY')
+    deregister_options(
+      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY',
+      'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
+    )
 
     @good_key = ''
     @strip_passwords = true
@@ -73,8 +76,8 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, scanner, fingerprint, cred_core_private_id)
     return unless scanner.ssh_socket
 
-    # Create a new session from the socket
-    conn = Net::SSH::CommandStream.new(scanner.ssh_socket)
+    # Create a new session
+    sess = Msf::Sessions::SshCommandShellBind.new(scanner.ssh_socket)
 
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
@@ -88,8 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       'KEY_PATH'             => nil
     }
 
-    info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
-    s = start_session(self, info, merge_me, false, conn.lsock)
+    s = start_session(self, nil, merge_me, false, sess.rstream, sess)
     self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
@@ -111,10 +113,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
 
     if datastore["USER_FILE"].blank? && datastore["USERNAME"].blank?
-      # Ghetto abuse of the way OptionValidateError expects an array of
-      # option names instead of a string message like every sane
-      # subclass of Exception.
-      raise Msf::OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
+      validation_reason = "At least one of USER_FILE or USERNAME must be given"
+      raise Msf::OptionValidateError.new(
+        {
+          "USER_FILE" => validation_reason,
+          "USERNAME" => validation_reason
+        }
+      )
     end
 
     keys = KeyCollection.new(
@@ -175,7 +180,13 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id) if datastore['CreateSession']
+          if datastore['CreateSession']
+            if credential_core.is_a? Metasploit::Credential::Core
+              session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
+            else
+              session_setup(result, scanner, ssh_key.fingerprint, nil)
+            end
+          end
           if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
             msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
             msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"

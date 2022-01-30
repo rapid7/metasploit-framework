@@ -18,12 +18,10 @@ module Http
 ###
 class Client
 
-  DefaultUserAgent = ClientRequest::DefaultUserAgent
-
   #
   # Creates a new client instance
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', comm: nil)
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
@@ -32,12 +30,14 @@ class Client
     self.proxies  = proxies
     self.username = username
     self.password = password
+    self.comm = comm
 
     # Take ClientRequest's defaults, but override with our own
     self.config = Http::ClientRequest::DefaultConfig.merge({
       'read_max_data'   => (1024*1024*1),
       'vhost'           => self.hostname,
     })
+    self.config['agent'] ||= Rex::UserAgent.session_agent
 
     # XXX: This info should all be controlled by ClientRequest
     self.config_types = {
@@ -68,8 +68,6 @@ class Client
       'chunked_size'           => 'integer',
       'partial'                => 'bool'
     }
-
-
   end
 
   #
@@ -181,7 +179,8 @@ class Client
       'SSL'        => self.ssl,
       'SSLVersion' => self.ssl_version,
       'Proxies'    => self.proxies,
-      'Timeout'    => timeout
+      'Timeout'    => timeout,
+      'Comm'       => self.comm
     )
   end
 
@@ -195,6 +194,7 @@ class Client
     end
 
     self.conn = nil
+    self.ntlm_client = nil
   end
 
   #
@@ -224,8 +224,16 @@ class Client
   # @return (see #read_response)
   def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
+    if req.respond_to?(:opts) && req.opts['ntlm_transform_request'] && self.ntlm_client
+      req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
+    end
+
     send_request(req, t)
+
     res = read_response(t)
+    if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
+      req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
+    end
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
     res
@@ -487,10 +495,19 @@ class Client
     type1 = ntlm_client.init_context
 
     begin
-      # First request to get the challenge
-      opts['headers']['Authorization'] = provider + type1.encode64
+      # Separate options for the auth requests
+      auth_opts = opts.clone
+      auth_opts['headers'] = opts['headers'].clone
+      auth_opts['headers']['Authorization'] = provider + type1.encode64
 
-      r = request_cgi(opts)
+      if auth_opts['no_body_for_auth']
+        auth_opts.delete('data')
+        auth_opts.delete('ntlm_transform_request')
+        auth_opts.delete('ntlm_transform_response')
+      end
+
+      # First request to get the challenge
+      r = request_cgi(auth_opts)
       resp = _send_recv(r, to)
       unless resp.kind_of? Rex::Proto::Http::Response
         return nil
@@ -502,14 +519,21 @@ class Client
       ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
       return resp unless ntlm_challenge
 
-      ntlm_message_3 = ntlm_client.init_context(ntlm_challenge)
+      ntlm_message_3 = ntlm_client.init_context(ntlm_challenge, channel_binding)
 
+      self.ntlm_client = ntlm_client
       # Send the response
-      opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
-      r = request_cgi(opts)
+      auth_opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
+      r = request_cgi(auth_opts)
       resp = _send_recv(r, to, true)
+
       unless resp.kind_of? Rex::Proto::Http::Response
         return nil
+      end
+      if opts['no_body_for_auth']
+        # If the body wasn't sent in the authentication, now do the actual request
+        r = request_cgi(opts)
+        resp = _send_recv(r, to, true)
       end
       return resp
 
@@ -518,7 +542,14 @@ class Client
     end
   end
 
-  #
+  def channel_binding
+    if !self.conn.respond_to?(:peer_cert) or self.conn.peer_cert.nil?
+      nil
+    else
+      Net::NTLM::ChannelBinding.create(OpenSSL::X509::Certificate.new(self.conn.peer_cert))
+    end
+  end
+
   # Read a response from the server
   #
   # Wait at most t seconds for the full response to be read in.
@@ -646,6 +677,10 @@ class Client
   end
 
   #
+  # An optional comm to use for creating the underlying socket.
+  #
+  attr_accessor :comm
+  #
   # The client request configuration
   #
   attr_accessor :config
@@ -690,6 +725,11 @@ protected
   attr_accessor :ssl, :ssl_version # :nodoc:
 
   attr_accessor :hostname, :port # :nodoc:
+
+  #
+  # The established NTLM connection info
+  #
+  attr_accessor :ntlm_client
 
 end
 

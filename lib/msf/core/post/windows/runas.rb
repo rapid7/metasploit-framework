@@ -13,10 +13,18 @@ module Msf::Post::Windows::Runas
   SW_HIDE = 0
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_railgun_api* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
+      )
+    )
   end
 
   def shell_execute_exe(filename = nil, path = nil)

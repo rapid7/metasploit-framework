@@ -50,8 +50,7 @@ module Payload::Linux::ReverseTcp_x64
   #
   def generate_reverse_tcp(opts={})
     asm = asm_reverse_tcp(opts)
-    buf = Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
-    apply_prepends(buf)
+    Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
 
   #

@@ -18,22 +18,25 @@ class MetasploitModule < Msf::Auxiliary
           Email Subscribers & Newsletters plugin contains an unauthenticated timebased SQL injection in
           versions before 4.3.1.  The hash parameter is vulnerable to injection.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'red0xff', # sqli libs in msf
-            'Wordfence' # blog post says team, no individual(s) called out for discovery
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'red0xff', # sqli libs in msf
+          'Wordfence' # blog post says team, no individual(s) called out for discovery
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            [ 'EDB', '48699' ],
-            [ 'CVE', '2019-20361' ],
-            [ 'URL', 'https://www.wordfence.com/blog/2019/11/multiple-vulnerabilities-patched-in-email-subscribers-newsletters-plugin/' ]
-          ],
+        'References' => [
+          [ 'EDB', '48699' ],
+          [ 'CVE', '2019-20361' ],
+          [ 'URL', 'https://www.wordfence.com/blog/2019/11/multiple-vulnerabilities-patched-in-email-subscribers-newsletters-plugin/' ]
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2019-11-13'
       )
@@ -50,9 +53,9 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('email-subscribers', '4.3.1')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, 'Email subscribers and newsletter version not vulnerable'
+      fail_with Failure::NotVulnerable, 'Email Subscribers and Newsletter version not vulnerable'
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of Email Subscribers and Newsletter detected')
 
     guid = Rex::Text.rand_guid
     email = Rex::Text.rand_mail_address

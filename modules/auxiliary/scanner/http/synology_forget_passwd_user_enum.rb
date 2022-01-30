@@ -31,12 +31,11 @@ class MetasploitModule < Msf::Auxiliary
           'Steve Kaun' # POC
         ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            [ 'EDB', '43455' ],
-            [ 'CVE', '2017-9554' ],
-            [ 'URL', 'https://www.synology.com/en-global/security/advisory/Synology_SA_17_29_DSM' ]
-          ],
+        'References' => [
+          [ 'EDB', '43455' ],
+          [ 'CVE', '2017-9554' ],
+          [ 'URL', 'https://www.synology.com/en-global/security/advisory/Synology_SA_17_29_DSM' ]
+        ],
         'DisclosureDate' => '2011-01-05'
       )
     )

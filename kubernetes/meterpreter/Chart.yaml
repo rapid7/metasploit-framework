@@ -1,0 +1,15 @@
+apiVersion: v2
+name: meterpreter
+description: A Helm chart for deploying metasploit payload into Kubernetes
+type: application
+version: 0.1.0
+keywords:
+  - metasploit
+  - meterpreter
+  - security
+  - pentest
+  - penetration testing
+home: https://www.metasploit.com/
+icon: https://www.metasploit.com/includes/images/metasploit-og.png
+sources:
+- https://github.com/rapid7/metasploit-framework

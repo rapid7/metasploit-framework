@@ -12,6 +12,9 @@
 #  https://openwall.info/wiki/john/sample-hashes
 #  QNX formats -> https://moar.so/blog/qnx-password-hash-formats.html
 
+JTR_NTLMV1 = 'netntlm'
+JTR_NTLMV2 = 'netntlmv2'
+
 def identify_hash(hash)
   hash = hash.to_s.strip
   case
@@ -46,6 +49,8 @@ def identify_hash(hash)
       return 'ssha'
     when hash.start_with?(/{SHA512}/i)
       return 'raw-sha512'
+    when hash.start_with?(/{SHA256}/i)
+      return 'raw-sha256'
     when hash.start_with?(/{SHA}/i)
       return 'raw-sha1'
     when hash.start_with?(/{MD5}/i)

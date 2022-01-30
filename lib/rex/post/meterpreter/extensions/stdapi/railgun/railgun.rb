@@ -90,7 +90,8 @@ class Railgun
       'wlanapi',
       'wldap32',
       'version',
-      'psapi'
+      'psapi',
+      'dbghelp'
     ].freeze
   }.freeze
 

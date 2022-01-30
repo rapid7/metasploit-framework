@@ -6,10 +6,19 @@ module Windows
 module FileInfo
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_railgun_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_railgun_memread
+            ]
+          }
+        }
+      )
+    )
   end
 
   def hiword(num)

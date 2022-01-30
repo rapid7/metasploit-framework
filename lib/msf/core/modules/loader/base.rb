@@ -279,7 +279,7 @@ class Msf::Modules::Loader::Base
       original_metasploit_class = original_metasploit_class_or_instance
     end
 
-    namespace_module = original_metasploit_class.parent
+    namespace_module = original_metasploit_class.module_parent
     parent_path = namespace_module.parent_path
 
     type = original_metasploit_class.type
@@ -535,7 +535,7 @@ class Msf::Modules::Loader::Base
     relative_name = namespace_module_names.last
 
     if previous_namespace_module
-      parent_module = previous_namespace_module.parent
+      parent_module = previous_namespace_module.module_parent
       # remove_const is private, so use send to bypass
       parent_module.send(:remove_const, relative_name)
     end
@@ -544,7 +544,7 @@ class Msf::Modules::Loader::Base
     # Get the parent module from the created module so that
     # restore_namespace_module can remove namespace_module's constant if
     # needed.
-    parent_module = namespace_module.parent
+    parent_module = namespace_module.module_parent
 
     begin
       loaded = block.call(namespace_module)

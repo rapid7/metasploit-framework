@@ -693,10 +693,9 @@ class  Util
   #
   def judge_bit_field(value, mappings)
     flags = {}
-    rg = railgun
 
     mappings.each do |constant_name, key|
-      flags[key] = (value & rg.const(constant_name)) != 0
+      flags[key] = (value & railgun.const(constant_name)) != 0
     end
 
     flags

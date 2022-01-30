@@ -166,7 +166,7 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_pivot_tabs(str, words)
-    return %w[list add remove] + @@pivot_opts.fmt.keys if words.length == 1
+    return %w[list add remove] + @@pivot_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-a'
@@ -180,7 +180,7 @@ class Console::CommandDispatcher::Core
     when '-t'
       return ['pipe']
     when 'add', 'remove'
-      return @@pivot_opts.fmt.keys
+      return @@pivot_opts.option_keys
     end
 
     []
@@ -350,6 +350,7 @@ class Console::CommandDispatcher::Core
   @@channel_opts = Rex::Parser::Arguments.new(
     '-c' => [ true,  'Close the given channel.' ],
     '-k' => [ true,  'Close the given channel.' ],
+    '-K' => [ false, 'Close all channels.' ],
     '-i' => [ true,  'Interact with the given channel.' ],
     '-l' => [ false, 'List active channels.' ],
     '-r' => [ true,  'Read from the given channel.' ],
@@ -392,6 +393,8 @@ class Console::CommandDispatcher::Core
       when '-w'
         mode = :write
         chan = val
+      when '-K'
+        mode = :kill_all
       end
 
       if @@channel_opts.arg_required?(opt)
@@ -427,6 +430,19 @@ class Console::CommandDispatcher::Core
       cmd_read(chan)
     when :write
       cmd_write(chan)
+    when :kill_all
+      if client.channels.empty?
+        print_line('No active channels.')
+        return
+      end
+
+      print_line('Killing all channels...')
+      client.channels.each_pair do |id, channel|
+        channel._close
+      rescue ::StandardError
+        print_error("Failed when trying to kill channel: #{id}")
+      end
+      print_line('Killed all channels.')
     else
       # No mode, no service.
       return true
@@ -436,7 +452,7 @@ class Console::CommandDispatcher::Core
   def cmd_channel_tabs(str, words)
     case words.length
     when 1
-      @@channel_opts.fmt.keys
+      @@channel_opts.option_keys
     when 2
       case words[1]
       when '-k', '-c', '-i', '-r', '-w'
@@ -558,7 +574,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_irb_tabs(str, words)
     return [] if words.length > 1
-    @@irb_opts.fmt.keys
+    @@irb_opts.option_keys
   end
 
   #
@@ -645,7 +661,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_set_timeouts_tabs(str, words)
     return [] if words.length > 1
-    @@set_timeouts_opts.fmt.keys
+    @@set_timeouts_opts.option_keys
   end
 
   def cmd_set_timeouts(*args)
@@ -887,7 +903,7 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_transport_tabs(str, words)
-    return %w[list change add next prev remove] + @@transport_opts.fmt.keys if words.length == 1
+    return %w[list change add next prev remove] + @@transport_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-c'
@@ -899,7 +915,7 @@ class Console::CommandDispatcher::Core
     when '-t'
       return %w[reverse_tcp reverse_http reverse_https bind_tcp]
     when 'add', 'remove', 'change'
-      return @@transport_opts.fmt.keys
+      return @@transport_opts.option_keys
     end
 
     []
@@ -1270,13 +1286,14 @@ class Console::CommandDispatcher::Core
     @@load_opts.parse(args) { |opt, idx, val|
       case opt
       when '-l'
-        exts = SortedSet.new
+        exts = Set.new
         if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
           # Use API to get list of extensions from the gem
           exts.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
         else
           exts.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
         end
+        exts = exts.sort.uniq
         print(exts.to_a.join("\n") + "\n")
 
         return true
@@ -1319,10 +1336,50 @@ class Console::CommandDispatcher::Core
         # Use the remote side, then load the client-side
         if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
+
+          if md == 'stdapi' && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo']
+            client.load_session_info
+          end
         end
-      rescue
+      rescue => ex
         print_line
-        log_error("Failed to load extension: #{$!}")
+        log_error("Failed to load extension: #{ex.message}")
+        if ex.kind_of?(ExtensionLoadError) && ex.name
+          # MetasploitPayloads and MetasploitPayloads::Mettle do things completely differently, build an array of
+          # suggestion keys (binary_suffixes and Mettle build-tuples)
+          suggestion_keys = MetasploitPayloads.list_meterpreter_extension_suffixes(ex.name) + MetasploitPayloads::Mettle.available_platforms(ex.name)
+          suggestion_map = {
+            # Extension Suffixes
+            'jar' => 'java',
+            'php' => 'php',
+            'py' => 'python',
+            'x64.dll' => 'windows/x64',
+            'x86.dll' => 'windows',
+            # Mettle Platforms
+            'aarch64-iphone-darwin' => 'apple_ios/aarch64',
+            'aarch64-linux-musl' => 'linux/aarch64',
+            'arm-iphone-darwin' => 'apple_ios/armle',
+            'armv5b-linux-musleabi' => 'linux/armbe',
+            'armv5l-linux-musleabi' => 'linux/armle',
+            'i486-linux-musl' => 'linux/x86',
+            'mips64-linux-muslsf' => 'linux/mips64',
+            'mipsel-linux-muslsf' => 'linux/mipsle',
+            'mips-linux-muslsf' => 'linux/mipsbe',
+            'powerpc64le-linux-musl' => 'linux/ppc64le',
+            'powerpc-e500v2-linux-musl' => 'linux/ppce500v2',
+            'powerpc-linux-muslsf' => 'linux/ppc',
+            's390x-linux-musl' => 'linux/zarch',
+            'x86_64-apple-darwin' => 'osx/x64',
+            'x86_64-linux-musl' => 'linux/x64',
+          }
+          suggestions = suggestion_map.select { |k,_v| suggestion_keys.include?(k) }.values
+          unless suggestions.empty?
+            log_error("The \"#{ex.name}\" extension is supported by the following Meterpreter payloads:")
+            suggestions.each do |suggestion|
+              log_error("  - #{suggestion}/meterpreter*")
+            end
+          end
+        end
 
         next
       end
@@ -1334,12 +1391,13 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_load_tabs(str, words)
-    tabs = SortedSet.new
+    tabs = Set.new
     if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
       tabs.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
     else
       tabs.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
     end
+    tabs = tabs.sort.uniq
     return tabs.to_a
   end
 
@@ -1762,6 +1820,27 @@ class Console::CommandDispatcher::Core
     @@client_extension_search_paths
   end
 
+  def unknown_command(cmd, line)
+    status = super
+
+    if status.nil?
+      # Check to see if we can find this command in another extension. This relies on the core extension being the last
+      # in the dispatcher stack which it should be since it's the first loaded.
+      Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |ext_name|
+        next if extensions.include?(ext_name)
+        ext_klass = get_extension_client_class(ext_name)
+        next if ext_klass.nil?
+
+        if ext_klass.has_command?(cmd)
+          print_error("The \"#{cmd}\" command requires the \"#{ext_name}\" extension to be loaded (run: `load #{ext_name}`)")
+          return :handled
+        end
+      end
+    end
+
+    status
+  end
+
 protected
 
   attr_accessor :extensions # :nodoc:
@@ -1773,39 +1852,9 @@ protected
   # Loads the client extension specified in mod
   #
   def add_extension_client(mod)
-    loaded = false
-    klass = nil
-    self.class.client_extension_search_paths.each do |path|
-      path = ::File.join(path, "#{mod}.rb")
-      klass = CommDispatcher.check_hash(path)
-      if (klass == nil)
-        old   = CommDispatcher.constants
-        next unless ::File.exist? path
+    klass = get_extension_client_class(mod)
 
-        if (require(path))
-          new  = CommDispatcher.constants
-          diff = new - old
-
-          next if (diff.empty?)
-
-          klass = CommDispatcher.const_get(diff[0])
-
-          CommDispatcher.set_hash(path, klass)
-          loaded = true
-          break
-        else
-          print_error("Failed to load client script file: #{path}")
-          return false
-        end
-
-      else
-        # the klass is already loaded, from a previous invocation
-        loaded = true
-        break
-      end
-    end
-
-    unless loaded
+    if klass.nil?
       print_error("Failed to load client portion of #{mod}.")
       return false
     end
@@ -1815,6 +1864,29 @@ protected
 
     # Insert the module into the list of extensions
     self.extensions << mod
+  end
+
+  def get_extension_client_class(mod)
+    self.class.client_extension_search_paths.each do |path|
+      path = ::File.join(path, "#{mod}.rb")
+      klass = CommDispatcher.check_hash(path)
+      return klass unless klass.nil?
+
+      old = CommDispatcher.constants
+      next unless ::File.exist? path
+
+      return nil unless require(path)
+
+      new  = CommDispatcher.constants
+      diff = new - old
+
+      next if (diff.empty?)
+
+      klass = CommDispatcher.const_get(diff[0])
+
+      CommDispatcher.set_hash(path, klass)
+      return klass
+    end
   end
 
   def tab_complete_modules(str, words)

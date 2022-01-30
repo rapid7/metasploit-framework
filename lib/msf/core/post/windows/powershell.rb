@@ -10,10 +10,21 @@ module Msf
         include ::Msf::Post::Common
 
         def initialize(info = {})
-          super(update_info(
-            info,
-            'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_config_sysinfo stdapi_sys_process_* } } }
-          ))
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_sys_config_sysinfo
+                    stdapi_sys_process_execute
+                    stdapi_sys_process_get_processes
+                    stdapi_sys_process_kill
+                  ]
+                }
+              }
+            )
+          )
 
           register_advanced_options(
             [
@@ -307,8 +318,10 @@ module Msf
           eof = Rex::Text.rand_text_alpha(8)
           # eof = "THIS__SCRIPT_HAS__COMPLETED_EXECUTION#{rand(100)}"
           env_suffix = Rex::Text.rand_text_alpha(8)
+          start = Rex::Text.rand_text_alpha(8)
+          stop = Rex::Text.rand_text_alpha(8)
+          script = "echo #{start};" + script + "; echo #{stop}"
           script = Rex::Powershell::Script.new(script) unless script.respond_to?(:compress_code)
-
           # Check to ensure base64 encoding - regex format and content length division
           unless script.to_s.match(/[A-Za-z0-9+\/]+={0,3}/)[0] == script.to_s && (script.to_s.length % 4).zero?
             script = encode_script(compress_script(script.to_s, eof), eof)
@@ -340,6 +353,7 @@ module Msf
               return out
             end
             ps_output = get_ps_output(cmd_out, eof, datastore['Powershell::Post::timeout'])
+            ps_output = ps_output[/#{start}(.*?)#{stop}/m, 1].strip  #https://stackoverflow.com/a/9661504
             # Kill off the resulting processes if needed
             if ps_cleanup
               vprint_good "Cleaning up #{running_pids.join(', ')}"

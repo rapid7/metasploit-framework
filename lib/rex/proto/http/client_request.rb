@@ -12,12 +12,11 @@ module Http
 
 class ClientRequest
 
-  DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
   DefaultConfig = {
     #
     # Regular HTTP stuff
     #
-    'agent'                  => DefaultUserAgent,
+    'agent'                  => nil,
     'cgi'                    => true,
     'cookie'                 => nil,
     'data'                   => '',
@@ -87,6 +86,7 @@ class ClientRequest
 
   def initialize(opts={})
     @opts = DefaultConfig.merge(opts)
+    @opts['agent'] ||= Rex::UserAgent.session_agent
     @opts['headers'] ||= {}
   end
 

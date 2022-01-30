@@ -57,6 +57,11 @@ class MetasploitModule < Msf::Auxiliary
     # Grab the username and password hashes and store them as loot
     version = mysql_get_variable("@@version")
 
+    if version.nil?
+      print_error("There was an error reading the version")
+      return
+    end
+
     # Starting from MySQL 5.7, the 'password' column was changed to 'authentication_string'.
     if version[0..2].to_f > 5.6
       res = mysql_query("SELECT user,authentication_string from mysql.user")

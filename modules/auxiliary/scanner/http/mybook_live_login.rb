@@ -28,7 +28,9 @@ class MetasploitModule < Msf::Auxiliary
     register_autofilter_ports([ 80 ])
 
     # username is hardcoded into application
-    deregister_options('USERNAME', 'USER_FILE', 'USER_AS_PASS', 'DB_ALL_USERS', 'PASSWORD_SPRAY')
+    deregister_options(
+      'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
+      'USERNAME', 'USER_FILE', 'USER_AS_PASS', 'PASSWORD_SPRAY')
   end
 
   def setup
@@ -46,12 +48,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
+    cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      username: 'admin'
+      password: datastore['PASSWORD']
     )
+    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::MyBookLive.new(
       configure_http_login_scanner(

@@ -19,18 +19,16 @@ class MetasploitModule < Msf::Auxiliary
           2.1.x prior to 2.1.9, and older unsupported versions. Spring
           Cloud Config listens by default on port 8888.
         },
-        'References' =>
-          [
-            ['CVE', '2020-5410'],
-            ['URL', 'https://tanzu.vmware.com/security/cve-2020-5410'],
-            ['URL', 'https://xz.aliyun.com/t/7877']
-          ],
-        'Author' =>
-          [
-            'Fei Lu', # Vulnerability discovery
-            'bfpiaoran@qq.com', # Vulnerability discovery
-            'Dhiraj Mishra' # Metasploit module
-          ],
+        'References' => [
+          ['CVE', '2020-5410'],
+          ['URL', 'https://tanzu.vmware.com/security/cve-2020-5410'],
+          ['URL', 'https://xz.aliyun.com/t/7877']
+        ],
+        'Author' => [
+          'Fei Lu', # Vulnerability discovery
+          'bfpiaoran@qq.com', # Vulnerability discovery
+          'Dhiraj Mishra' # Metasploit module
+        ],
         'DisclosureDate' => '2020-06-01',
         'License' => MSF_LICENSE
       )

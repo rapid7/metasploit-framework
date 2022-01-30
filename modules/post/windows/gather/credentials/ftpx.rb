@@ -8,18 +8,31 @@ require 'rexml/document'
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Gather FTP Explorer (FTPX) Credential Extraction',
-      'Description'   => %q{
-        This module finds saved login credentials for the FTP Explorer (FTPx)
-        FTP client for Windows.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'bcoles' ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather FTP Explorer (FTPX) Credential Extraction',
+        'Description' => %q{
+          This module finds saved login credentials for the FTP Explorer (FTPx)
+          FTP client for Windows.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'bcoles' ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run

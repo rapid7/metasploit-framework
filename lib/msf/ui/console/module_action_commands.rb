@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/module_argument_parsing'
 
 module Msf
 module Ui
@@ -11,21 +12,14 @@ module Console
 #
 ###
 module ModuleActionCommands
-  @@module_action_opts = Rex::Parser::Arguments.new(
-    '-h' => [ false, 'Help banner.'                                          ],
-    '-j' => [ false, 'Run in the context of a job.'                          ],
-    '-o' => [ true,  'A comma separated list of options in VAR=VAL format.'  ],
-    '-q' => [ false, 'Run the module in quiet mode with no output'           ]
-  )
-
-  @@module_opts = Rex::Parser::Arguments.new(@@module_action_opts.fmt.merge(
-    '-a' => [ true, 'The action to use. If none is specified, ACTION is used.']
-  ))
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   #
   # Returns the hash of commands specific to auxiliary modules.
   #
   def action_commands
+    return {} unless mod.respond_to?(:actions)
+
     mod.actions.map { |action| [action.name.downcase, action.description] }.to_h
   end
 
@@ -35,9 +29,10 @@ module ModuleActionCommands
 
   #
   # Allow modules to define their own commands
+  # Note: A change to this method will most likely require a corresponding change to respond_to_missing?
   #
   def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s, true) )
+    if mod && mod.respond_to?(meth.to_s, true)
 
       # Initialize user interaction
       mod.init_ui(driver.input, driver.output)
@@ -45,8 +40,9 @@ module ModuleActionCommands
       return mod.send(meth.to_s, *args)
     end
 
-    action = meth.to_s.delete_prefix('cmd_')
+    action = meth.to_s.delete_prefix('cmd_').delete_suffix('_tabs')
     if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).any? { |a| a.casecmp?(action) }
+      return cmd_run_tabs(*args) if meth.end_with?('_tabs')
       return do_action(action, *args)
     end
 
@@ -54,43 +50,19 @@ module ModuleActionCommands
   end
 
   #
-  # Parse the arguments to the run command, accounting for an optional module action.
+  # Note: A change to this method will most likely require a corresponding change to method_missing
   #
-  def parse_run_opts(args, action: nil)
-    ds_opts = {}
-    action  ||= mod.datastore['ACTION']
-    jobify  = false
-    quiet   = false
-
-    @@module_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-j'
-        jobify = true
-      when '-o'
-        val << '=' unless val.include?('=')
-        ds_opts.store(*val.split('=', 2))
-      when '-a'
-        action = val
-      when '-q'
-        quiet  = true
-      when '-h'
-        if action.nil?
-          cmd_run_help
-        else
-          cmd_action_help(action)
-        end
-        return
-      else
-        if val[0] != '-' && val.include?('=')
-          ds_opts.store(*val.split('=', 2))
-        else
-          cmd_run_help
-          return
-        end
-      end
+  def respond_to_missing?(meth, _include_private = true)
+    if mod && mod.respond_to?(meth.to_s, true)
+      return true
     end
 
-    { action: action, jobify: jobify, quiet: quiet, datastore_options: ds_opts }
+    action = meth.to_s.delete_prefix('cmd_').delete_suffix('_tabs')
+    if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).any? { |a| a.casecmp?(action) }
+      return true
+    end
+
+    super
   end
 
   #
@@ -104,10 +76,7 @@ module ModuleActionCommands
   end
 
   def cmd_action_help(action)
-    print_line "Usage: " + action.downcase + " [options]"
-    print_line
-    print_line "Launches a specific module action."
-    print @@module_action_opts.usage
+    print_module_run_or_check_usage(command: action.downcase, description: 'Launches a specific module action')
   end
 
   #
@@ -118,7 +87,7 @@ module ModuleActionCommands
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   #
   def cmd_run_tabs(str, words)
-    flags = @@module_opts.fmt.keys
+    flags = @@module_opts_with_action_support.option_keys
     options = tab_complete_option(active_module, str, words)
     flags + options
   end

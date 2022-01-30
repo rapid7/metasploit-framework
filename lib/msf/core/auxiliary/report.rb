@@ -292,6 +292,8 @@ module Auxiliary::Report
     }.merge(opts)
     vuln = framework.db.report_vuln(opts)
 
+    raise Msf::ValidationError, "Failed to report vuln for #{opts[:host]}:#{opts[:port]} to the database" if vuln.nil?
+
     # add vuln attempt audit details here during report
 
     timestamp  = opts[:timestamp]
@@ -396,7 +398,7 @@ module Auxiliary::Report
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
-      if parts.length > 1 and parts[-1].length < 4
+      if parts.length > 1 and parts[-1].length <= 4
         ext = parts[-1]
       end
     end

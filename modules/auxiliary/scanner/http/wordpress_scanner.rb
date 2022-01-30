@@ -19,6 +19,15 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE
     )
     register_options [
+      OptBool.new('EXPLOITABLE', [false, 'Only scan plugins and themes which a MSF module exists for', true]),
+      OptPath.new('EXPLOITABLE_THEMES', [
+        true, 'File containing exploitable by MSF themes',
+        File.join(Msf::Config.data_directory, 'wordlists', 'wp-exploitable-themes.txt')
+      ]),
+      OptPath.new('EXPLOITABLE_PLUGINS', [
+        true, 'File containing exploitable by MSF plugins',
+        File.join(Msf::Config.data_directory, 'wordlists', 'wp-exploitable-plugins.txt')
+      ]),
       OptBool.new('THEMES', [false, 'Detect themes', true]),
       OptBool.new('PLUGINS', [false, 'Detect plugins', true]),
       OptPath.new('THEMES_FILE', [
@@ -56,10 +65,14 @@ class MetasploitModule < Msf::Auxiliary
       if datastore['THEMES']
         print_status("#{target_host} - Enumerating Themes")
 
-        f = File.open(datastore['THEMES_FILE'], 'rb')
-        total = f.lines.count
+        if datastore['EXPLOITABLE']
+          f = File.open(datastore['EXPLOITABLE_THEMES'], 'rb')
+        else
+          f = File.open(datastore['THEMES_FILE'], 'rb')
+        end
+        total = f.readlines.size
         f.rewind
-        f = f.lines
+        f = f.readlines
         f.each_with_index do |theme, i|
           theme = theme.strip
           print_progress(target_host, i, total) if i % datastore['PROGRESS'] == 0
@@ -74,8 +87,8 @@ class MetasploitModule < Msf::Auxiliary
               proto: 'tcp',
               sname: (ssl ? 'https' : 'http'),
               port: rport,
-              type: "Wordpress Theme: #{theme} version #{version.details[:version]}",
-              #data: target_uri
+              type: "Wordpress Theme: #{theme} version #{version.details[:version]}"
+              # data: target_uri
             }
           )
         end
@@ -84,10 +97,14 @@ class MetasploitModule < Msf::Auxiliary
       if datastore['PLUGINS']
         print_status("#{target_host} - Enumerating plugins")
 
-        f = File.open(datastore['PLUGINS_FILE'], 'rb')
-        total = f.lines.count
+        if datastore['EXPLOITABLE']
+          f = File.open(datastore['EXPLOITABLE_PLUGINS'], 'rb')
+        else
+          f = File.open(datastore['PLUGINS_FILE'], 'rb')
+        end
+        total = f.readlines.size
         f.rewind
-        f = f.lines
+        f = f.readlines
         f.each_with_index do |plugin, i|
           plugin = plugin.strip
           print_progress(target_host, i, total) if i % datastore['PROGRESS'] == 0
@@ -102,8 +119,8 @@ class MetasploitModule < Msf::Auxiliary
               proto: 'tcp',
               sname: (ssl ? 'https' : 'http'),
               port: rport,
-              type: "Wordpress Plugin: #{plugin} version #{version.details[:version]}",
-              #data: target_uri
+              type: "Wordpress Plugin: #{plugin} version #{version.details[:version]}"
+              # data: target_uri
             }
           )
         end
