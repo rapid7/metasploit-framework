@@ -25,7 +25,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
       table.each do |gadget_chain, correct_digest|
         stream = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
         expect(stream).to be_kind_of String
-        real_digest = OpenSSL::Digest::SHA1.digest(stream).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+        real_digest = OpenSSL::Digest::SHA1.hexdigest(stream)
         expect(real_digest).to eq correct_digest
       end
     end
