@@ -3,9 +3,10 @@
 The following sites are great references for Git padawans and jedi alike:
 
 * [Git-SVN crash course](http://git.or.cz/course/svn.html): Lots of good stuff on helping newbies grok the concepts of Git w/ reference to similar concepts in Subversion.
-* [learn.github.com](http://learn.github.com): GitHub's own reference site. Includes helpful GitHub-specific information.
+* [Codecademy Git Course](https://www.codecademy.com/learn/learn-git): Great free course for quickly getting up to speed on Git with helpful hands on exercises.
+* [Learn Git Branching](https://learngitbranching.js.org/): Good website for learning how Git branching works in a visual and interactive manner.
 * [Git Reference](http://gitref.org): From the site: "meant to be a quick reference for learning and remembering the most important and commonly used Git commands." Follows a tutorial-like format. Great for beginners.
-* [The Pro Git Book](http://progit.org): A free, online copy of the Pro Git book by GitHubber Scott Chacon.
+* [The Pro Git Book](https://git-scm.com/book/en/v2): A free, online copy of the Pro Git book by GitHubber Scott Chacon.
 * [The Git Community Book](http://book.git-scm.com): A free book put together by the Git community for those new to Git.
 * [Git Magic](http://www-cs-students.stanford.edu/~blynn/gitmagic/): Another free Git book put together by a Stanford CS student.
 * [Git Ready](http://gitready.com): A collection of Git tips and tricks.
