@@ -127,7 +127,6 @@ class MetasploitModule < Msf::Auxiliary
     string = ''
     length.times do |n|
       (0x20...0x7e).each do |printable|
-
         next if printable == '\\'.ord
 
         char = printable.chr
