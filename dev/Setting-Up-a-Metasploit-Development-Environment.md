@@ -79,9 +79,9 @@ Regardless of your choice, you'll want to make sure that, when inside the `~/git
 ```
 $ cd ~/git/metasploit-framework
 $ cat .ruby-version 
-2.5.3
+3.0.2
 $ ruby -v
-ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-linux-gnu]
+ruby 3.0.2p107 (2021-07-07 revision 0db68f0233) [x86_64-linux]
 ```
 
 Note: the Ruby version is likely to change over time, so don't rely on the output in the above example.  Instead, confirm your `ruby -v` output with the version number listed in the `.ruby-version` file.
