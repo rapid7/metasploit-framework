@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/usiegl00/ruby_smb
-  revision: 44a9c22dbe257ce2ff80efa6ff566dff1ac1d421
+  revision: cbba1fc6ba8e4428ee218360e4f10833ed1dc3f2
   branch: mitm-dispatcher
   specs:
     ruby_smb (3.0.2)
@@ -40,7 +40,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.70)
+      metasploit-payloads (= 2.0.71)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.18)
       mqtt
@@ -144,7 +144,7 @@ GEM
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.295.0)
+    aws-sdk-ec2 (1.296.0)
       aws-sdk-core (~> 3, >= 3.125.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.65.0)
@@ -236,7 +236,7 @@ GEM
       domain_name (~> 0.5)
     http_parser.rb (0.8.0)
     httpclient (2.8.3)
-    i18n (1.9.0)
+    i18n (1.9.1)
       concurrent-ruby (~> 1.0)
     io-console (0.5.11)
     irb (1.3.6)
@@ -272,7 +272,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-payloads (2.0.70)
+    metasploit-payloads (2.0.71)
     metasploit_data_models (5.0.4)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
