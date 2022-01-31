@@ -131,6 +131,8 @@ class Client
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
 
+    self.tlv_logging_enabled = true
+
     self.pivot_session = opts[:pivot_session]
     if self.pivot_session
       self.expiration   = self.pivot_session.expiration
@@ -502,4 +504,3 @@ protected
 end
 
 end; end; end
-

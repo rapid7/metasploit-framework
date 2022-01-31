@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/command_mapper'
 require 'rex/post/meterpreter/packet_response_waiter'
 require 'rex/exceptions'
+require 'pathname'
 
 module Rex
 module Post
@@ -88,6 +89,9 @@ module PacketDispatcher
     self.send_queue = []
     self.recv_queue = []
     self.waiters    = []
+
+    self.tlv_log_file.close unless self.tlv_log_file.nil?
+    self.tlv_log_file = nil
   end
 
   def on_passive_request(cli, req)
@@ -130,8 +134,7 @@ module PacketDispatcher
       tlv_enc_key = opts[:tlv_enc_key]
     end
 
-    # Uncomment this line if you want to see outbound packets in the console.
-    # STDERR.puts("\n\e[1;31mSEND\e[0m: #{packet.inspect}\n")
+    log_packet(packet, :send) if self.tlv_logging_enabled
 
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
@@ -579,8 +582,7 @@ module PacketDispatcher
   def dispatch_inbound_packet(packet)
     handled = false
 
-    # Uncomment this line if you want to see inbound packets in the console
-    # STDERR.puts("\n\e[1;32mRECV\e[0m: #{packet.inspect}\n")
+    log_packet(packet, :recv) if self.tlv_logging_enabled
 
     # Update our last reply time
     self.last_checkin = ::Time.now
@@ -639,6 +641,49 @@ protected
   attr_accessor :receiver_thread # :nodoc:
   attr_accessor :dispatcher_thread # :nodoc:
   attr_accessor :waiters # :nodoc:
+  attr_accessor :tlv_log_file # :nodoc:
+  attr_accessor :tlv_logging_enabled # :nodoc:
+
+  def log_packet(packet, packet_type)
+    option = framework.datastore['SessionTlvLogging']
+    return if option.nil? || option.casecmp?('false')
+
+    if option.casecmp?('console') || option.casecmp?('true')
+      log_packet_to_console(packet, packet_type)
+    elsif option.start_with?('file:')
+      log_packet_to_file(packet, packet_type)
+    end
+  end
+
+  def log_packet_to_console(packet, packet_type)
+    if packet_type == :recv
+      print "\n%bluRECV%clr: #{packet.inspect}\n"
+    elsif packet_type == :send
+      print "\n%redSEND%clr: #{packet.inspect}\n"
+    end
+  end
+
+  def log_packet_to_file(packet, packet_type)
+    path = framework.datastore['SessionTlvLogging'].split('file:').last
+    pathname = ::Pathname.new(path)
+
+    begin
+      self.tlv_log_file ||= ::File.open(pathname, 'a+')
+
+      if packet_type == :recv
+        self.tlv_log_file.puts("\nRECV: #{packet.inspect}\n")
+      elsif packet_type == :send
+        self.tlv_log_file.puts("\nSEND: #{packet.inspect}\n")
+      end
+    rescue ::StandardError => e
+      self.tlv_logging_enabled = false
+      print_error "Failed writing to TLV Log File: #{pathname} with error: #{e.message}. Turning off logging for this session: #{self.inspect}..."
+      elog(e)
+      self.tlv_log_file.close unless self.tlv_log_file.nil?
+      self.tlv_log_file = nil
+      return
+    end
+  end
 end
 
 module HttpPacketDispatcher
