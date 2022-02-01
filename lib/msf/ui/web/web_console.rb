@@ -32,6 +32,15 @@ class WebConsole
     def supports_color?
       false
     end
+
+    def run_unknown_command(command)
+      Open3.popen2e(command) {|stdin,output,thread|
+        output.each {|outline|
+          print_line(outline.chomp)
+        }
+      }
+    end
+
   end
 
   def initialize(framework, console_id, opts={})
