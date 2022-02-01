@@ -254,7 +254,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_tips_tabs(str, words)
     if words.length == 1
       return @@tip_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -300,7 +299,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_debug_tabs(str, words)
     if words.length >= 1
       return @@debug_opts.option_keys.select do |opt|
@@ -366,7 +364,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_connect_tabs(str, words)
     if words.length == 1
       return @@connect_opts.option_keys.select do |opt|
@@ -913,7 +910,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_threads_tabs(str, words)
     if words.length == 1
       return @@threads_opts.option_keys
@@ -1015,7 +1011,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_load_tabs(str, words)
     tabs = []
 
@@ -1224,7 +1219,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_route_tabs(str, words)
     if words.length == 1
       return %w{add remove get flush print}
@@ -1267,7 +1261,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_save_tabs(str, words)
     if words.length == 1
       @@save_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -1775,7 +1768,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_sessions_tabs(str, words)
     if words.length == 1
       return @@sessions_opts.option_keys.select { |opt| opt.start_with?(str) }

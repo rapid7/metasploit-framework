@@ -122,13 +122,11 @@ class Db
   def cmd_workspace(*args)
     return unless active?
 
-    adding = false
-    deleting = false
-    delete_all = false
-    renaming = false
+    state = :nil
+
     list = false
     verbose = false
-    names = nil
+    names = []
     search_term = nil
 
     @@workspace_opts.parse(args) do |opt, idx, val|
@@ -137,19 +135,24 @@ class Db
         cmd_workspace_help
         return
       when '-a', '--add'
-        adding = true
-        names ||= []
+        return cmd_workspace_help unless state == :nil
+
+        state = :adding
         names << val if !val.nil?
       when '-d', '--del'
-        deleting = true
-        names ||= []
+        return cmd_workspace_help unless state == :nil
+
+        state = :deleting
         names << val if !val.nil?
       when '-D', '--delete-all'
-        delete_all = true
+        return cmd_workspace_help unless state == :nil
+
+        state = :delete_all
       when '-r', '--rename'
-        renaming = true
-        # Below is a workaround to Rex Parser only being able to return one option for an argument
-        names = [val]
+        return cmd_workspace_help unless state == :nil
+
+        state = :renaming
+        names << val if !val.nil?
       when '-v', '--verbose'
         verbose = true
       when '-l', '--list'
@@ -157,12 +160,11 @@ class Db
       when '-S', '--search'
         search_term = val
       else
-        names ||= []
         names << val if !val.nil?
       end
     end
 
-    if adding and names
+    if state == :adding and names
       # Add workspaces
       wspace = nil
       names.each do |name|
@@ -176,7 +178,7 @@ class Db
       end
       framework.db.workspace = wspace
       print_status("Workspace: #{framework.db.workspace.name}")
-    elsif deleting and names
+    elsif state == :deleting and names
       ws_ids_to_delete = []
       starting_ws = framework.db.workspace
       names.uniq.each do |n|
@@ -189,7 +191,7 @@ class Db
       else
         print_status("No workspaces matching the given name(s) were found.")
       end
-    elsif delete_all
+    elsif state == :delete_all
       ws_ids_to_delete = []
       starting_ws = framework.db.workspace
       framework.db.workspaces.each do |ws|
@@ -197,7 +199,7 @@ class Db
       end
       deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
       process_deleted_workspaces(deleted, starting_ws)
-    elsif renaming
+    elsif state == :renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
         return
@@ -229,7 +231,7 @@ class Db
         print_error "Failed to rename workspace: #{e.message}"
       end
 
-    elsif names
+    elsif !names.empty?
       name = names.last
       # Switch workspace
       workspace = framework.db.find_workspace(name)
@@ -306,7 +308,6 @@ class Db
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_hosts_tabs(str, words)
     if words.length == 1
       return @@hosts_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -314,14 +315,11 @@ class Db
 
     case words[-1]
     when '-d', '--delete'
-      # Might be a good idea to limit this to only 10 or so hosts
-      return framework.db.hosts[0..4].map(&:address) + ['...']
+      return []
     when '-c', '--columns', '-C', '--columns-until-restart'
-      # Should we get some default columns?
-      return ['address', 'arch', 'comm', 'comments', '...']
+      return @@hosts_columns
     when '-O', '--order'
-      # Return some sample column ids
-      return ['1', '2', '3', '4', '...']
+      return []
     end
 
     []
@@ -673,7 +671,6 @@ class Db
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_services_tabs(str, words)
     if words.length == 1
       return @@services_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -681,17 +678,13 @@ class Db
 
     case words[-1]
     when '-c', '--column'
-      # Should we get some default columns?
-      return ['created_at', 'info', 'name', 'port', '...']
+      return @@services_columns
     when '-O', '--order'
-      # Return some sample column ids
-      return ['1', '2', '3', '4', '...']
+      return []
     when '-p', '--port'
-      # Might be a good idea to limit this to only a few services
-      return framework.db.services[0..4].map(&:port).uniq + ['...']
+      return []
     when '-r', '--protocol'
-      # Might be a good idea to limit this to only a few services
-      return framework.db.services[0..4].map(&:proto).uniq + ['...']
+      return []
     end
 
     []
@@ -705,6 +698,8 @@ class Db
     print_line "Available columns: #{default_columns.join(", ")}"
     print_line
   end
+
+  @@services_columns = [ 'created_at', 'info', 'name', 'port', 'proto', 'state', 'updated_at' ]
 
   @@services_opts = Rex::Parser::Arguments.new(
     [ '-a', '--add' ] => [ false, 'Add the services instead of searching.' ],
@@ -729,14 +724,6 @@ class Db
     output_file = nil
     set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
-    default_columns = [
-        'created_at',
-        'info',
-        'name',
-        'port',
-        'proto',
-        'state',
-        'updated_at']
 
     names = nil
     order_by = nil
@@ -766,8 +753,8 @@ class Db
         end
         col_search = list.strip().split(",")
         col_search.each { |c|
-          if not default_columns.include? c
-            print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+          if not @@services_columns.include? c
+            print_error("Invalid column list. Possible values are (#{@@services_columns.join("|")})")
             return
           end
         }
@@ -807,7 +794,7 @@ class Db
         search_term = val
         opts[:search_term] = search_term
       when '-h', '--help'
-        cmd_services_help(default_columns)
+        cmd_services_help(@@services_columns)
         return
       else
         # Anything that wasn't an option is a host to search for
@@ -847,7 +834,7 @@ class Db
     end
 
     # If we got here, we're searching.  Delete implies search
-    col_names = default_columns
+    col_names = @@services_columns
     if col_search
       col_names = col_search
     end
@@ -919,7 +906,6 @@ class Db
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_vulns_tabs(str, words)
     if words.length == 1
       return @@vulns_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -1090,7 +1076,6 @@ class Db
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_notes_tabs(str, words)
     if words.length == 1
       return @@notes_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -1098,8 +1083,7 @@ class Db
 
     case words[-1]
     when '-O', '--order'
-      # Return some sample column ids
-      return ['1', '2', '3', '4', '...']
+      return []
     end
 
     []
@@ -1341,7 +1325,6 @@ class Db
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_loot_tabs(str, words)
     if words.length == 1
       @@loot_opts.option_keys.select { |opt| opt.start_with?(str) }
