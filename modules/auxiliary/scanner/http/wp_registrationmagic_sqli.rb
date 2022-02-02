@@ -114,6 +114,7 @@ class MetasploitModule < Msf::Auxiliary
       })
       table << user
     end
-    print_good(table.to_s)
+    print_good('Dumped table contents:')
+    print_line(table.to_s)
   end
 end
