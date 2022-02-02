@@ -9,34 +9,26 @@ module Ui
 ###
 module Banner
 
-	Logos =
-		%w{
-    wake-up-neo.txt
-    cow-head.txt
-    r7-metasploit.txt
-    figlet.txt
-    i-heart-shells.txt
-    branded-longhorn.txt
-    cowsay.txt
-    3kom-superhack.txt
-    missile-command.txt
-    null-pointer-deref.txt
-    metasploit-shield.txt
-    ninja.txt
-    workflow.txt
-  }
-
-	#
-	# Returns a random metasploit logo.
-	#
-
+  #
+  # Returns a specific metasploit logo. If the specified file is a relative path
+  # then the file will be searched for first in the included local directory,
+  # then in the user-specific directory.
+  #
   def self.readfile(fname)
-    base = File.expand_path(File.dirname(__FILE__))
-    pathname = File.join(base, "logos", fname)
-    fdata = "<< Missing banner: #{fname} >>"
+    pathname = fname
+
+    unless File.absolute_path(pathname) == pathname
+      if File.readable?(File.join(::Msf::Config.logos_directory, fname))
+        pathname = File.join(::Msf::Config.logos_directory, fname)
+      elsif File.readable?(File.join(::Msf::Config.user_logos_directory, fname))
+        pathname = File.join(::Msf::Config.user_logos_directory, fname)
+      end
+    end
+
+    fdata = "<< Missing banner: #{pathname} >>"
     begin
       raise ArgumentError unless File.readable?(pathname)
-      raise ArgumentError unless File.stat(pathname).size < 4096
+      raise ArgumentError unless File.stat(pathname).size < 65_536
       fdata = File.open(pathname) {|f| f.read f.stat.size}
     rescue SystemCallError, ArgumentError
       nil
@@ -44,23 +36,28 @@ module Banner
     return fdata
   end
 
-	def self.to_s
-		if ENV['GOCOW']
-			case rand(3)
-				when 0
-					self.readfile Logos[1]
-				when 1
-					self.readfile Logos[5]
-				when 2
-					self.readfile Logos[6]
-			end
-		else
-			self.readfile Logos[rand(Logos.length)]
-		end
-	end
+  def self.to_s
+    return self.readfile ENV['MSFLOGO'] if ENV['MSFLOGO']
 
+    logos = []
+
+    # Easter egg (always a cow themed logo): export/set GOCOW=1
+    if ENV['GOCOW']
+      logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + 'cow*.txt'))
+    # Easter egg (always a halloween themed logo): export/set THISISHALLOWEEN=1
+    elsif ( ENV['THISISHALLOWEEN'] || Time.now.strftime("%m%d") == "1031" )
+      logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.hwtxt'))
+    elsif ( ENV['APRILFOOLSPONIES'] || Time.now.strftime("%m%d") == "0401" )
+      logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.aftxt'))
+    else
+      logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.txt'))
+      logos.concat(Dir.glob(::Msf::Config.user_logos_directory + File::SEPARATOR + '*.txt'))
+    end
+
+    logos = logos.map { |f| File.absolute_path(f) }
+    self.readfile logos[rand(logos.length)]
+  end
 end
 
 end
 end
-

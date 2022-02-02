@@ -1,117 +1,134 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Postgres
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
+  # Creates an instance of this module.
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'PostgreSQL Version Probe',
+      'Description'    => %q{
+        Enumerates the version of PostgreSQL servers.
+      },
+      'Author'         => [ 'todb' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'URL', 'http://www.postgresql.org' ]
+        ]
+    ))
 
-class Metasploit3 < Msf::Auxiliary
+    register_options([ ]) # None needed.
 
-	include Msf::Exploit::Remote::Postgres
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
+    deregister_options('SQL', 'RETURN_ROWSET')
+  end
 
-	# Creates an instance of this module.
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'PostgreSQL Version Probe',
-			'Description'    => %q{
-				Enumerates the verion of PostgreSQL servers.
-			},
-			'Author'         => [ 'todb' ],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					[ 'URL', 'http://www.postgresql.org' ]
-				]
-		))
+  # Loops through each host in turn. Note the current IP address is both
+  # ip and datastore['RHOST']
+  def run_host(ip)
+    user = datastore['USERNAME']
+    pass = postgres_password
+    do_fingerprint(user,pass,datastore['DATABASE'])
+  end
 
-		register_options([ ], self.class) # None needed.
+  # Alias for RHOST
+  def rhost
+    datastore['RHOST']
+  end
 
-		deregister_options('SQL', 'RETURN_ROWSET')
-	end
+  # Alias for RPORT
+  def rport
+    datastore['RPORT']
+  end
 
-	# Loops through each host in turn. Note the current IP address is both
-	# ip and datastore['RHOST']
-	def run_host(ip)
-		user = datastore['USERNAME']
-		pass = postgres_password
-		do_fingerprint(user,pass,datastore['DATABASE'])
-	end
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
 
-	# Alias for RHOST
-	def rhost
-		datastore['RHOST']
-	end
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
 
-	# Alias for RPORT
-	def rport
-		datastore['RPORT']
-	end
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
 
-	def do_fingerprint(user=nil,pass=nil,database=nil)
-		begin
-			msg = "#{rhost}:#{rport} Postgres -"
-			password = pass || postgres_password
-			vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'")
-			result = postgres_fingerprint(
-				:db => database,
-				:username => user,
-				:password => password
-			)
-			if result[:auth]
-				vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
-				print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
-			elsif result[:preauth]
-				print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
-			else # It's something we don't know yet
-				vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
-				print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
-			end
+    create_credential_login(login_data)
+  end
 
-			# Reporting
+  def do_fingerprint(user=nil,pass=nil,database=nil)
+    begin
+      msg = "#{rhost}:#{rport} Postgres -"
+      password = pass || postgres_password
+      vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'")
+      result = postgres_fingerprint(
+        :db => database,
+        :username => user,
+        :password => password
+      )
+      if result[:auth]
+        vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
+        print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
+      elsif result[:preauth]
+        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+      else # It's something we don't know yet
+        vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
+        print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
+      end
 
-			report_service(
-				:host => rhost,
-				:port => rport,
-				:name => "postgres",
-				:info => result.values.first
-			)
+      # Reporting
+      report_service(
+        :host => rhost,
+        :port => rport,
+        :name => "postgres",
+        :info => result.values.first
+      )
 
-			if self.postgres_conn
-				report_auth_info(
-					:host => rhost,
-					:port => rport,
-					:sname => "postgres",
-					:user => user,
-					:pass => password,
-					:active => true
-				)
-			end
+      if self.postgres_conn
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'postgres',
+          user: user,
+          password: password,
+          proof: "postgres_conn = #{self.postgres_conn.inspect}"
+        )
+      end
 
-			if result[:unknown]
-				report_note(
-					:host => rhost,
-					:proto => 'tcp',
-					:sname => 'postgres',
-					:port => rport,
-					:ntype => 'postgresql.fingerprint',
-					:data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
-				)
-			end
+      if result[:unknown]
+        report_note(
+          :host => rhost,
+          :proto => 'tcp',
+          :sname => 'postgres',
+          :port => rport,
+          :ntype => 'postgresql.fingerprint',
+          :data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
+        )
+      end
 
-			# Logout
+      # Logout
+      postgres_logout
 
-			postgres_logout
+    rescue Rex::ConnectionError
+      vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
+      return :done
+    end
 
-		rescue Rex::ConnectionError
-			vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
-			return :done
-		end
-
-	end
-
+  end
 end

@@ -13,50 +13,59 @@ module Ui
 ###
 class Console::CommandDispatcher::Stdapi
 
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/stream'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/mic'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/audio_output'
 
-	Klass = Console::CommandDispatcher::Stdapi
+  Klass = Console::CommandDispatcher::Stdapi
 
-	Dispatchers =
-		[
-			Klass::Fs,
-			Klass::Net,
-			Klass::Sys,
-			Klass::Ui,
-			Klass::Webcam,
-		]
+  Dispatchers =
+    [
+      Klass::Fs,
+      Klass::Net,
+      Klass::Sys,
+      Klass::Ui,
+      Klass::Webcam,
+      Klass::Mic,
+      Klass::AudioOutput
+    ]
 
-	include Console::CommandDispatcher
+  include Console::CommandDispatcher
 
-	#
-	# Initializes an instance of the stdapi command interaction.
-	#
-	def initialize(shell)
-		super
+  def self.has_command?(name)
+    Dispatchers.any? { |klass| klass.has_command?(name) }
+  end
 
-		Dispatchers.each { |d|
-			shell.enstack_dispatcher(d)
-		}
-	end
+  #
+  # Initializes an instance of the stdapi command interaction.
+  #
+  def initialize(shell)
+    super
 
-	#
-	# List of supported commands.
-	#
-	def commands
-		{
-		}
-	end
+    Dispatchers.each { |d|
+      shell.enstack_dispatcher(d)
+    }
+  end
 
-	#
-	# Name for this dispatcher
-	#
-	def name
-		"Standard extension"
-	end
+  #
+  # List of supported commands.
+  #
+  def commands
+    {
+    }
+  end
+
+  #
+  # Name for this dispatcher
+  #
+  def name
+    "Standard extension"
+  end
 
 end
 

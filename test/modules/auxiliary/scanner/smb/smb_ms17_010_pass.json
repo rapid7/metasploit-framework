@@ -1,0 +1,81 @@
+{
+	"TEST_NAME": 			"smb_ms17_010 test",
+	"REPORT_PREFIX":		"scanner-ms17-010",
+	"FRAMEWORK_BRANCH": 		"upstream/master",
+	"HTTP_PORT":			5309,
+	"STARTING_LISTENER":		30000,
+	"CREDS_FILE":			"../JSON/creds.json",
+	"MSF_HOSTS":
+	[
+		{
+			"TYPE":			"VIRTUAL",
+			"METHOD":		"VM_TOOLS_UPLOAD",
+			"HYPERVISOR_CONFIG":    "../JSON/esxi_config.json",
+			"CPE":			"cpe:/a:rapid7:metasploit:::",
+			"MSF_ARTIFACT_PATH":	"/home/msfuser/rapid7/test_artifacts",
+			"MSF_PATH":		"/home/msfuser/rapid7/metasploit-framework"
+		}
+	],
+
+	"TARGETS":
+	[
+		{
+			"CPE":	"cpe:/o:microsoft:windows_server_2008:r2:sp1:x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_10:::x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_10:1607::x86"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_server_2012::r2:x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_7::sp1:x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_7:::x86"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_8.1:::x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_8.1::sp1:x86"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_8:::x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_8:::x86"
+		},
+		{
+			"CPE":	"cpe:/o:microsoft:windows_server_2016:::x64"
+		}
+	],
+	"TARGET_GLOBALS":
+	{
+			"TYPE":			"VIRTUAL",
+			"HYPERVISOR_CONFIG":	"../JSON/esxi_config.json",
+			"METHOD":		"EXPLOIT",
+			"PAYLOAD_DIRECTORY":	"C:\\payload_test",
+			"TESTING_SNAPSHOT":	"TESTING_BASE",
+			"PYTHON":		"C:\\software\\x86\\python27\\python.exe",
+			"METERPRETER_PYTHON":	"C:\\software\\x86\\python27\\python.exe",
+			"METERPRETER_JAVA":	"C:\\software\\x86\\java\\bin\\java.exe",
+			"MODULES":	
+			[
+				{
+					"NAME":		"auxiliary/scanner/smb/smb_ms17_010",
+					"SETTINGS":	[
+								"smbuser=vagrant",
+								"smbpass=vagrant"
+							]
+				}
+			]
+	},
+	"COMMAND_LIST": [],
+	"SUCCESS_LIST": [
+		"VULNERABLE to MS17-010"
+	]
+}

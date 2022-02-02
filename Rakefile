@@ -1,68 +1,30 @@
-require 'bundler/setup'
+#!/usr/bin/env rake
+require File.expand_path('../config/application', __FILE__)
+require 'msfenv'
+require 'metasploit/framework/require'
+require 'metasploit/framework/spec/untested_payloads'
 
-require 'metasploit_data_models'
-
-pathname = Pathname.new(__FILE__)
-root = pathname.parent
-
-# add metasploit-framework/lib to load paths so rake files can just require
-# files normally without having to use __FILE__ and recalculating root and the
-# path to lib
-lib_pathname = root.join('lib')
-$LOAD_PATH.unshift(lib_pathname.to_s)
-
+# @note must be before `Metasploit::Framework::Application.load_tasks`
 #
-# load rake files like a rails engine
-#
-
-rakefile_glob = root.join('lib', 'tasks', '**', '*.rake').to_path
-
-Dir.glob(rakefile_glob) do |rakefile|
-  load rakefile
-end
-
-print_without = false
+# define db rake tasks from activerecord if activerecord is in the bundle.  activerecord could be not in the bundle if
+# the user installs with `bundle install --without db`
+Metasploit::Framework::Require.optionally_active_record_railtie
 
 begin
-	require 'rspec/core/rake_task'
+  require 'rspec/core'
+  require 'rspec-rerun/tasks'
 rescue LoadError
-	puts "rspec not in bundle, so can't set up spec tasks.  " \
-	     "To run specs ensure to install the development and test groups."
-
-	print_without = true
+  puts "rspec not in bundle, so can't set up spec tasks.  " \
+       "To run specs ensure to install the development and test groups."
+  puts "Bundle currently installed '--without #{Bundler.settings.without.join(' ')}'."
+  puts "To clear the without option do `bundle install --without ''` (the --without flag with an empty string) or " \
+       "`rm -rf .bundle` to remove the .bundle/config manually and then `bundle install`"
 else
-	RSpec::Core::RakeTask.new(:spec => 'db:test:prepare')
-
-	task :default => :spec
+  require 'rspec/core/rake_task'
+  RSpec::Core::RakeTask.new(spec: 'db:test:prepare')
 end
 
-begin
-  require 'yard'
-rescue LoadError
-	puts "yard not in bundle, so can't set up yard tasks.  " \
-	     "To generate documentation ensure to install the development group."
-
-	print_without = true
-end
-
-metasploit_data_models_task_glob = MetasploitDataModels.root.join(
-		'lib',
-		'tasks',
-		'**',
-		'*.rake'
-).to_s
-
-# include tasks from metasplioit_data_models, such as `rake yard`.
-# metasploit-framework specific yard options are in .yardopts
-Dir.glob(metasploit_data_models_task_glob) do |path|
-	load path
-end
-
-if print_without
-	puts "Bundle currently installed " \
-	     "'--without #{Bundler.settings.without.join(' ')}'."
-	puts "To clear the without option do `bundle install --without ''` " \
-	     "(the --without flag with an empty string) or " \
-	     "`rm -rf .bundle` to remove the .bundle/config manually and " \
-	     "then `bundle install`"
-end
+Metasploit::Framework::Application.load_tasks
+Metasploit::Framework::Spec::Constants.define_task
+Metasploit::Framework::Spec::Threads::Suite.define_task
+Metasploit::Framework::Spec::UntestedPayloads.define_task

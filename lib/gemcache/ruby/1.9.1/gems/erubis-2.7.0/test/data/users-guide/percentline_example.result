@@ -1,9 +1,0 @@
-$ erubis -xE PercentLine percentline-example.rhtml
-_buf = ''; _buf << '<ul>
-'; for item in list
- _buf << '  <li>'; _buf << ( item ).to_s; _buf << '</li>
-'; end
- _buf << '</ul>
-% lines with \'%%\'
-';
-_buf.to_s

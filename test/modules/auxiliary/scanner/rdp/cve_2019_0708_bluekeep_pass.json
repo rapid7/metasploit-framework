@@ -1,0 +1,52 @@
+{
+	"TEST_NAME": 			"cve_2019_0708_bluekeep test",
+	"REPORT_PREFIX":		"cve_2019_0708_bluekeep",
+	"FRAMEWORK_BRANCH": 		"upstream/master",
+	"HTTP_PORT":			5309,
+	"STARTING_LISTENER":		30000,
+	"CREDS_FILE":			"../JSON/creds.json",
+	"MSF_HOSTS":
+	[
+		{
+			"TYPE":			"VIRTUAL",
+			"METHOD":		"VM_TOOLS_UPLOAD",
+			"HYPERVISOR_CONFIG":    "../JSON/esxi_config.json",
+			"CPE":			"cpe:/a:rapid7:metasploit:::",
+			"MSF_ARTIFACT_PATH":	"/home/msfuser/rapid7/test_artifacts",
+			"MSF_PATH":		"/home/msfuser/rapid7/metasploit-framework"
+		}
+	],
+
+	"TARGETS":
+	[
+		{
+			"CPE": "cpe:/o:microsoft:windows_server_2008::r2:x64"
+		},
+		{
+			"CPE": "cpe:/o:microsoft:windows_server_2008:r2:sp1:x64"
+		}
+	],
+	"TARGET_GLOBALS":
+	{
+			"TYPE":			"VIRTUAL",
+			"METHOD":		"EXPLOIT",
+			"MODULES":	
+			[
+				{
+					"NAME":		"auxiliary/scanner/rdp/cve_2019_0708_bluekeep",
+					"SETTINGS":	[]
+				}
+			],
+			"HYPERVISOR_CONFIG":	"../JSON/esxi_config.json",
+			"METHOD":		"VM_TOOLS_UPLOAD",
+			"PAYLOAD_DIRECTORY":	"C:\\payload_test",
+			"TESTING_SNAPSHOT":	"TESTING_BASE",
+			"PYTHON":		"C:\\software\\x86\\python27\\python.exe",
+			"METERPRETER_PYTHON":	"C:\\software\\x86\\python27\\python.exe",
+			"METERPRETER_JAVA":	"C:\\software\\x86\\java\\bin\\java.exe"
+	},
+	"COMMAND_LIST": [],
+	"SUCCESS_LIST": [
+		"- The target is vulnerable."
+	]
+}

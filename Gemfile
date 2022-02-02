@@ -1,40 +1,47 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
+# Add default group gems to `metasploit-framework.gemspec`:
+#   spec.add_runtime_dependency '<name>', [<version requirements>]
+gemspec name: 'metasploit-framework'
 
-# Need 3+ for ActiveSupport::Concern
-gem 'activesupport', '>= 3.0.0'
-# Needed for Msf::DbManager
-gem 'activerecord'
-# Needed for some admin modules (scrutinizer_add_user.rb)
-gem 'json'
-# Database models shared between framework and Pro.
-gem 'metasploit_data_models', :git => 'git://github.com/rapid7/metasploit_data_models.git', :tag => '0.6.3'
-# Needed by msfgui and other rpc components
-gem 'msgpack'
-# Needed by anemone crawler
-gem 'nokogiri'
-# Needed for module caching in Mdm::ModuleDetails
-gem 'pg', '>= 0.11'
-# Needed by anemone crawler
-gem 'robots'
-# For sniffer and raw socket modules
-gem 'pcaprub'
+# separate from test as simplecov is not run on travis-ci
+group :coverage do
+  # code coverage for tests
+  gem 'simplecov', '0.18.2'
+end
 
 group :development do
   # Markdown formatting for yard
   gem 'redcarpet'
   # generating documentation
   gem 'yard'
+  # for development and testing purposes
+  gem 'pry-byebug'
+  # module documentation
+  gem 'octokit'
+  # memory profiling
+  gem 'memory_profiler'
+  # cpu profiling
+  gem 'ruby-prof', '1.4.2'
+  # Metasploit::Aggregator external session proxy
+  # disabled during 2.5 transition until aggregator is available
+  #gem 'metasploit-aggregator'
 end
 
 group :development, :test do
+  # automatically include factories from spec/factories
+  gem 'factory_bot_rails'
+  # Make rspec output shorter and more useful
+  gem 'fivemat'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
+  # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
+  # environment is development
+  gem 'rspec-rails'
+  gem 'rspec-rerun'
+  gem 'rubocop'
 end
 
 group :test do
-  # testing framework
-  gem 'rspec', '>= 2.12'
-  # code coverage for tests
-  # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
-  gem 'simplecov', '0.5.4', :require => false
+  # Manipulate Time.now in specs
+  gem 'timecop'
 end

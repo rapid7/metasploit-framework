@@ -1,0 +1,185 @@
+# -*- coding: binary -*-
+
+module Msf
+
+###
+#
+# This mixin provides utility methods for interacting with a SunRPC service on
+# a remote machine.  These methods may generally be useful in the context of
+# exploitation.  This mixin extends the Tcp exploit mixin. Only one SunRPC
+# service can be accessed at a time using this class.
+#
+# http://www.ietf.org/rfc/rfc1057.txt
+#
+###
+module Exploit::Remote::SunRPC
+  include Exploit::Remote::Tcp
+
+  MSG_ACCEPTED = 0
+  SUCCESS = 0		# RPC executed successfully
+  PROG_UMAVAIL = 1	# Remote hasn't exported program
+  PROG_MISMATCH = 2	# Remote can't support version #
+  PROC_UNAVAIL = 3	# Program can't support procedure
+  GARBAGE_ARGS = 4	# Procedure can't decode params'
+  SYSTEM_ERR = 5    # System encountered some error
+
+  def initialize(info = {})
+    super
+
+    register_evasion_options(
+      [
+        OptBool.new('ONCRPC::tcp_request_fragmentation', [false, 'Enable fragmentation of TCP ONC/RPC requests', false]),
+      ], Msf::Exploit::Remote::SunRPC
+    )
+
+
+    register_advanced_options(
+      [
+        OptInt.new('TIMEOUT', [true, 'Number of seconds to wait for responses to RPC calls', 10])
+        # XXX: Use portmapper to do call - Direct portmap to make the request to the program portmap_req
+      ], Msf::Exploit::Remote::SunRPC)
+
+    register_options(
+      [
+        # XXX: XPORT
+        Opt::RHOST,
+        Opt::RPORT(111),
+      ], Msf::Exploit::Remote::SunRPC
+    )
+  end
+
+  def sunrpc_create(protocol, program, version, time_out = timeout)
+    self.rpcobj = Rex::Proto::SunRPC::Client.new(
+      :rhost => rhost,
+      :rport => rport.to_i,
+      :proto => protocol,
+      :program => program,
+      :timeout => time_out,
+      :version => version,
+      :context => {
+        'Msf'        => framework,
+        'MsfExploit' => self,
+      }
+    )
+
+    if datastore['ONCRPC::tcp_request_fragmentation']
+      self.rpcobj.should_fragment = 1
+    end
+
+    ret = rpcobj.create
+    raise ::Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - No response to Portmap request" unless ret
+
+    begin
+      arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer, Integer)
+    rescue Rex::ArgumentError
+      raise Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - XDR decoding failed in #{__callee__}"
+    end
+
+    if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS || arr[5] == 0
+      err = "#{rhost}:#{rport} - SunRPC - Portmap request failed: "
+      err << 'Message not accepted'  if arr[1] != MSG_ACCEPTED
+      err << 'RPC did not execute'   if arr[4] != SUCCESS
+      err << 'Program not available' if arr[5] == 0
+      raise ::Rex::Proto::SunRPC::RPCError, err
+    end
+
+    rpcobj.pport = arr[5]
+  end
+
+  def sunrpc_call(proc, buf, timeout = timeout())
+    ret = rpcobj.call(proc, buf, timeout)
+    raise ::Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - No response to SunRPC call for procedure: #{proc}" unless ret
+
+    begin
+      arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
+    rescue Rex::ArgumentError
+      raise Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - XDR decoding failed in #{__callee__}"
+    end
+
+    if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS
+      progname = progresolv(rpcobj.program)
+      err = "SunRPC call for program #{rpcobj.program} [#{progname}], procedure #{proc}, failed: "
+      if (arr[1] != MSG_ACCEPTED)
+        err << 'Message not accepted'
+      elsif (arr[4] and arr[4] != SUCCESS)
+        case arr[4]
+          when PROG_UMAVAIL  then err << "Program Unavailable"
+          when PROG_MISMATCH then err << "Program Version Mismatch"
+          when PROC_UNAVAIL  then err << "Procedure Unavailable"
+          when GARBAGE_ARGS  then err << "Garbage Arguments"
+          when SYSTEM_ERR    then err << "System Error"
+          else err << "Unknown Error"
+        end
+      end
+      raise ::Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - #{err}"
+    end
+    return ret
+  end
+
+  def sunrpc_callsock
+    self.rpcobj.call_sock
+  end
+
+  def sunrpc_destroy
+    rpcobj.destroy
+    rpcobj = nil
+  end
+
+  def sunrpc_authnull(*args)
+    rpcobj.authnull_create(*args)
+  end
+
+  def sunrpc_authunix(*args)
+    rpcobj.authunix_create(*args)
+  end
+
+  # XXX: Incomplete. Just moved from Rex::Proto::SunRPC::Client
+  def portmap_qry()
+    ret = portmap_req()
+
+    begin
+      arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
+    rescue Rex::ArgumentError
+      raise Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - XDR decoding failed in #{__callee__}"
+    end
+
+    if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS || arr[5] == 0
+      progname = progresolv(rpcobj.program)
+      err = "Query for program #{rpcobj.program} [#{progname}] failed: "
+      case arr[4]
+        when PROG_UMAVAIL  then err << "Program Unavailable"
+        when PROG_MISMATCH then err << "Program Version Mismatch"
+        when PROC_UNAVAIL  then err << "Procedure Unavailable"
+        when GARBAGE_ARGS  then err << "Garbage Arguments"
+        else err << "Unknown Error"
+      end
+      raise ::Rex::Proto::SunRPC::RPCError, "#{rhost}:#{rport} - SunRPC - #{err}"
+    end
+
+    return ret
+  end
+
+  def progresolv(number)
+    names = File.join(Msf::Config.data_directory, "wordlists", "rpc_names.txt")
+    File.open(names, "rb").each_line do |line|
+      next if line.empty? || line =~ /^\s*#/
+
+      if line =~ /^(\S+?)\s+(\d+)/ && number == $2.to_i
+        return $1
+      end
+    end
+
+    return "UNKNOWN-#{number}"
+  end
+
+  # Returns the time that this module will wait for RPC responses, in seconds
+  def timeout
+    datastore['TIMEOUT']
+  end
+
+  # Used to track the last SunRPC context
+  attr_accessor	:rpcobj
+end
+
+end
+

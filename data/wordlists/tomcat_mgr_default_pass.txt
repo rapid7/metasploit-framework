@@ -4,3 +4,17 @@ role1
 root
 tomcat
 s3cret
+vagrant
+QLogic66
+password
+Password1
+changethis
+r00t
+toor
+password1
+j2deployer
+OvW*busr1
+kdsxc
+owaspba
+ADMIN
+xampp

@@ -1,276 +1,274 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanUniqueQuery
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
 
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'   		=> 'HTTP Error Based SQL Injection Scanner',
-			'Description'	=> %q{
-				This module identifies the existence of Error Based SQL injection issues. Still requires alot of work
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::WmapScanUniqueQuery
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
-			},
-			'Author' 		=> [ 'et [at] cyberspace.org' ],
-			'License'		=> BSD_LICENSE))
 
-		register_options(
-			[
-				OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
-				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
-				OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
-				OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
-			], self.class)
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'   		=> 'HTTP Error Based SQL Injection Scanner',
+      'Description'	=> %q{
+        This module identifies the existence of Error Based SQL injection issues. Still requires a lot of work
 
-		register_advanced_options(
-			[
-				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-			], self.class)
+      },
+      'Author' 		=> [ 'et [at] cyberspace.org' ],
+      'License'		=> BSD_LICENSE))
 
-	end
+    register_options(
+      [
+        OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
+        OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
+        OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
+        OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
+      ])
 
-	def run_host(ip)
+    register_advanced_options(
+      [
+        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+      ])
 
-		http_method = datastore['METHOD'].upcase
+  end
 
-		qvars = nil
+  def run_host(ip)
 
-		sqlinj = [
-			[ "'" ,'Single quote'],
-			[ "')",'Single quote and parenthesis'],
-			[ "\"",'Double quote'],
-			[ "%u0027",'unicode single quote'],
-			[ "%u02b9",'unicode single quote'],
-			[ "%u02bc",'unicode single quote'],
-			[ "%u02c8",'unicode single quote'],
-			[ "%c0%27",'unicode single quote'],
-			[ "%c0%a7",'unicode single quote'],
-			[ "%e0%80%a7",'unicode single quote'],
-			[ "#{rand(10)}'", 'Random value with single quote']
-		]
+    http_method = datastore['METHOD'].upcase
 
-		errorstr = [
-			["Unclosed quotation mark after the character string",'MSSQL','string'],
-			["Syntax error in string in query expression",'MSSQL','string'],
-			["Microsoft OLE DB Provider",'MSSQL','unknown'],
-			["You have an error in your SQL syntax",'MySQL','unknown'],
-			["java.sql.SQLException",'unknown','unknown'],
-			["ORA-",'ORACLE','unknown'],
-			["PLS-",'ORACLE','unknown'],
-			["Syntax error",'unknown','unknown'],
-		]
+    qvars = nil
 
-		#
-		# Dealing with empty query/data and making them hashes.
-		#
+    sqlinj = [
+      [ "'" ,'Single quote'],
+      [ "')",'Single quote and parenthesis'],
+      [ "\"",'Double quote'],
+      [ "%u0027",'unicode single quote'],
+      [ "%u02b9",'unicode single quote'],
+      [ "%u02bc",'unicode single quote'],
+      [ "%u02c8",'unicode single quote'],
+      [ "%c0%27",'unicode single quote'],
+      [ "%c0%a7",'unicode single quote'],
+      [ "%e0%80%a7",'unicode single quote'],
+      [ "#{rand(10)}'", 'Random value with single quote']
+    ]
 
-		if  http_method =='GET'
-			if not datastore['QUERY'].empty?
-				qvars = queryparse(datastore['QUERY']) #Now its a Hash
-			else
-				return
-			end
-		else
-			if not datastore['DATA'].empty?
-				qvars = queryparse(datastore['DATA']) #Now its a Hash
-			else
-				return
-			end
-		end
+    errorstr = [
+      ["Unclosed quotation mark after the character string",'MSSQL','string'],
+      ["Syntax error in string in query expression",'MSSQL','string'],
+      ["Microsoft OLE DB Provider",'MSSQL','unknown'],
+      ["You have an error in your SQL syntax",'MySQL','unknown'],
+      ["java.sql.SQLException",'unknown','unknown'],
+      ["ORA-",'ORACLE','unknown'],
+      ["PLS-",'ORACLE','unknown'],
+      ["Syntax error",'unknown','unknown'],
+    ]
 
-		#
-		# Send normal request to check if error is generated
-		# (means the error is caused by other means)
-		#
-		#
+    #
+    # Dealing with empty query/data and making them hashes.
+    #
 
-		if http_method == 'POST'
-			reqinfo = {
-				'uri'  		=> normalize_uri(datastore['PATH']),
-				'query' 	=> datastore['QUERY'],
-				'data' 		=> datastore['DATA'],
-				'method'   	=> http_method,
-				'ctype'		=> 'application/x-www-form-urlencoded',
-				'encode'	=> false
-			}
-		else
-			reqinfo = {
-				'uri'  		=> normalize_uri(datastore['PATH']),
-				'query' 	=> datastore['QUERY'],
-				'method'   	=> http_method,
-				'ctype'		=> 'application/x-www-form-urlencoded',
-				'encode'	=> false
-			}
-		end
+    if  http_method =='GET'
+      if not datastore['QUERY'].empty?
+        qvars = queryparse(datastore['QUERY']) #Now its a Hash
+      else
+        print_error("You need to set QUERY param for GET")
+        return
+      end
+    else
+      if not datastore['DATA'].empty?
+        qvars = queryparse(datastore['DATA']) #Now its a Hash
+      else
+        print_error("You need to set DATA parameter for POST")
+        return
+      end
+    end
 
-		begin
-			normalres = send_request_raw(reqinfo, 20)
+    #
+    # Send normal request to check if error is generated
+    # (means the error is caused by other means)
+    #
+    #
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
+    if http_method == 'POST'
+      reqinfo = {
+        'uri'  		=> normalize_uri(datastore['PATH']),
+        'query' 	=> datastore['QUERY'],
+        'data' 		=> datastore['DATA'],
+        'method'   	=> http_method,
+        'ctype'		=> 'application/x-www-form-urlencoded',
+        'encode'	=> false
+      }
+    else
+      reqinfo = {
+        'uri'  		=> normalize_uri(datastore['PATH']),
+        'query' 	=> datastore['QUERY'],
+        'method'   	=> http_method,
+        'ctype'		=> 'application/x-www-form-urlencoded',
+        'encode'	=> false
+      }
+    end
 
-		if !datastore['NoDetailMessages']
-			print_status("Normal request sent.")
-		end
+    begin
+      normalres = send_request_raw(reqinfo, 20)
 
-		found = false
-		inje = nil
-		dbt = nil
-		injt = nil
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
+    end
 
-		if normalres
-			errorstr.each do |estr,dbtype,injtype|
-				if normalres.body.include? estr
-					found = true
-					inje = estr
-					dbt = dbtype
-					injt = injtype
-				end
-			end
+    if !datastore['NoDetailMessages']
+      print_status("Normal request sent.")
+    end
 
-			if found
-				print_error("[#{wmap_target_host}] Error string appears in the normal response, unable to test")
-				print_error("[#{wmap_target_host}] Error string: '#{inje}'")
-				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
+    found = false
+    inje = nil
+    dbt = nil
+    injt = nil
 
-				report_web_vuln(
-					:host	=> ip,
-					:port	=> rport,
-					:vhost  => vhost,
-					:ssl    => ssl,
-					:path	=> datastore['PATH'],
-					:method => datastore['METHOD'],
-					:pname  => "",
-					:proof  => "Error: #{inje}",
-					:risk   => 2,
-					:confidence   => 50,
-					:category     => 'Database error',
-					:description  => "Error string appears in the normal response #{inje} #{dbt}",
-					:name   => 'Database error'
-				)
+    if normalres
+      errorstr.each do |estr,dbtype,injtype|
+        if normalres.body.include? estr
+          found = true
+          inje = estr
+          dbt = dbtype
+          injt = injtype
+        end
+      end
 
-				return
-			end
-		else
-			print_error("[#{wmap_target_host}] No response")
-			return
-		end
+      if found
+        print_error("[#{wmap_target_host}] Error string appears in the normal response, unable to test")
+        print_error("[#{wmap_target_host}] Error string: '#{inje}'")
+        print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
 
-		#
-		# Test URI Query parameters
-		#
+        report_web_vuln(
+          :host	=> ip,
+          :port	=> rport,
+          :vhost  => vhost,
+          :ssl    => ssl,
+          :path	=> datastore['PATH'],
+          :method => datastore['METHOD'],
+          :pname  => "",
+          :proof  => "Error: #{inje}",
+          :risk   => 2,
+          :confidence   => 50,
+          :category     => 'Database error',
+          :description  => "Error string appears in the normal response #{inje} #{dbt}",
+          :name   => 'Database error'
+        )
 
-		found = false
+        return
+      end
+    else
+      print_error("[#{wmap_target_host}] No response")
+      return
+    end
 
-		if qvars
-			sqlinj.each do |istr,idesc|
+    #
+    # Test URI Query parameters
+    #
 
-				if found
-					break
-				end
+    found = false
 
-				qvars.each do |key,value|
-					if http_method == 'POST'
-						qvars = queryparse(datastore['DATA']) #Now its a Hash
-					else
-						qvars = queryparse(datastore['QUERY']) #Now its a Hash
-					end
-					qvars[key] = qvars[key]+istr
+    if qvars
+      sqlinj.each do |istr,idesc|
 
-					if !datastore['NoDetailMessages']
-						print_status("- Testing query with #{idesc}. Parameter #{key}:")
-					end
+        if found
+          break
+        end
 
-					fstr = ""
-					qvars.each_pair do |var,val|
-						fstr += var+"="+val+"&"
-					end
+        qvars.each do |key,value|
+          if http_method == 'POST'
+            qvars = queryparse(datastore['DATA']) #Now its a Hash
+          else
+            qvars = queryparse(datastore['QUERY']) #Now its a Hash
+          end
+          qvars[key] = qvars[key]+istr
 
-					if http_method == 'POST'
-						reqinfo = {
-							'uri'  		=> normalize_uri(datastore['PATH']),
-							'query'		=> datastore['QUERY'],
-							'data' 		=> fstr,
-							'method'   	=> http_method,
-							'ctype'		=> 'application/x-www-form-urlencoded',
-							'encode'	=> false
-						}
-					else
-						reqinfo = {
-							'uri'  		=> normalize_uri(datastore['PATH']),
-							'query' 	=> fstr,
-							'method'   	=> http_method,
-							'ctype'		=> 'application/x-www-form-urlencoded',
-							'encode'	=> false
-						}
-					end
+          if !datastore['NoDetailMessages']
+            print_status("- Testing query with #{idesc}. Parameter #{key}:")
+          end
 
-					begin
+          fstr = ""
+          qvars.each_pair do |var,val|
+            fstr += var+"="+val+"&"
+          end
 
-						testres = send_request_raw(reqinfo, 20)
+          if http_method == 'POST'
+            reqinfo = {
+              'uri'  		=> normalize_uri(datastore['PATH']),
+              'query'		=> datastore['QUERY'],
+              'data' 		=> fstr,
+              'method'   	=> http_method,
+              'ctype'		=> 'application/x-www-form-urlencoded',
+              'encode'	=> false
+            }
+          else
+            reqinfo = {
+              'uri'  		=> normalize_uri(datastore['PATH']),
+              'query' 	=> fstr,
+              'method'   	=> http_method,
+              'ctype'		=> 'application/x-www-form-urlencoded',
+              'encode'	=> false
+            }
+          end
 
-					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-					rescue ::Timeout::Error, ::Errno::EPIPE
-					end
+          begin
 
-					if testres
-						errorstr.each do |estr,dbtype,injtype|
-							if testres.body.include? estr
-								found = true
-								inje = estr
-								dbt = dbtype
-								injt = injtype
-							end
-						end
+            testres = send_request_raw(reqinfo, 20)
 
-						if found
-							print_good("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
-							print_good("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
-							print_good("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
+          rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+          rescue ::Timeout::Error, ::Errno::EPIPE
+          end
 
-							report_web_vuln(
-								:host	=> ip,
-								:port	=> rport,
-								:vhost  => vhost,
-								:ssl    => ssl,
-								:path	=> datastore['PATH'],
-								:method => datastore['METHOD'],
-								:pname  => key,
-								:proof  => istr,
-								:risk   => 2,
-								:confidence   => 50,
-								:category     => 'SQL injection',
-								:description  => "Error string appears in the normal response #{inje} #{dbt}",
-								:name   => 'SQL injection'
-							)
+          if testres
+            errorstr.each do |estr,dbtype,injtype|
+              if testres.body.include? estr
+                found = true
+                inje = estr
+                dbt = dbtype
+                injt = injtype
+              end
+            end
 
-							return
-						end
-					else
-						print_error("[#{wmap_target_host}] No response")
-						return
-					end
-				end
-			end
+            if found
+              print_good("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
+              print_good("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
+              print_good("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 
-			if http_method == 'POST'
-				qvars = queryparse(datastore['DATA']) #Now its a Hash
-			else
-				qvars = queryparse(datastore['QUERY']) #Now its a Hash
-			end
-		end
-	end
+              report_web_vuln(
+                :host	=> ip,
+                :port	=> rport,
+                :vhost  => vhost,
+                :ssl    => ssl,
+                :path	=> datastore['PATH'],
+                :method => datastore['METHOD'],
+                :pname  => key,
+                :proof  => istr,
+                :risk   => 2,
+                :confidence   => 50,
+                :category     => 'SQL injection',
+                :description  => "Error string appears in the normal response #{inje} #{dbt}",
+                :name   => 'SQL injection'
+              )
+
+              return
+            end
+          else
+            print_error("[#{wmap_target_host}] No response")
+            return
+          end
+        end
+      end
+
+      if http_method == 'POST'
+        qvars = queryparse(datastore['DATA']) #Now its a Hash
+      else
+        qvars = queryparse(datastore['QUERY']) #Now its a Hash
+      end
+    end
+  end
 end

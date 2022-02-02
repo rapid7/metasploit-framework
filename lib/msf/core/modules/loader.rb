@@ -1,4 +1,4 @@
-require 'msf/core/modules'
+# -*- coding: binary -*-
 
 # Namespace for module loaders
 module Msf::Modules::Loader

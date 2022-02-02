@@ -16,151 +16,136 @@ module SocketSubsystem
 
 class TcpServerChannel < Rex::Post::Meterpreter::Channel
 
-	#
-	# This is a class variable to store all pending client tcp connections which have not been passed
-	# off via a call to the respective server tcp channels accept method. The dictionary key is the
-	# tcp server channel instance and the values held are an array of pending tcp client channels
-	# connected to the tcp server channel.
-	#
-	@@server_channels = {}
+  include Rex::IO::StreamServer
 
-	class << self
-		include Rex::Post::Meterpreter::InboundPacketHandler
+  #
+  # This is a class variable to store all pending client tcp connections which have not been passed
+  # off via a call to the respective server tcp channels accept method. The dictionary key is the
+  # tcp server channel instance and the values held are an array of pending tcp client channels
+  # connected to the tcp server channel.
+  #
+  @@server_channels = {}
 
-		#
-		# This is the request handler which is registerd to the respective meterpreter instance via
-		# Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket. All incoming requests from the meterpreter
-		# for a 'tcp_channel_open' will be processed here. We create a new TcpClientChannel for each request
-		# received and store it in the respective tcp server channels list of new pending client channels.
-		# These new tcp client channels are passed off via a call the the tcp server channels accept() method.
-		#
-		def request_handler( client, packet )
+  #
+  # This is the request handler which is registered to the respective meterpreter instance via
+  # Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket. All incoming requests from the meterpreter
+  # for a COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN will be processed here. We create a new TcpClientChannel for each request
+  # received and store it in the respective tcp server channels list of new pending client channels.
+  # These new tcp client channels are passed off via a call the the tcp server channels accept() method.
+  #
+  def self.request_handler(client, packet)
+    return false unless packet.method == COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN
 
-			if( packet.method == "tcp_channel_open" )
+    cid = packet.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+    pid = packet.get_tlv_value(TLV_TYPE_CHANNEL_PARENTID)
 
-				cid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_ID )
-				pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
-				localhost = packet.get_tlv_value( TLV_TYPE_LOCAL_HOST )
-				localport = packet.get_tlv_value( TLV_TYPE_LOCAL_PORT )
-				peerhost  = packet.get_tlv_value( TLV_TYPE_PEER_HOST )
-				peerport  = packet.get_tlv_value( TLV_TYPE_PEER_PORT )
+    return false if cid.nil? || pid.nil?
 
-				if( cid == nil or pid == nil )
-					return false
-				end
+    server_channel = client.find_channel(pid)
 
-				server_channel = client.find_channel( pid )
-				if( server_channel == nil )
-					return false
-				end
+    return false if server_channel.nil?
 
-				params = Rex::Socket::Parameters.from_hash(
-					{
-						'Proto'     => 'tcp',
-						'LocalHost' => localhost,
-						'LocalPort' => localport,
-						'PeerHost'  => peerhost,
-						'PeerPort'  => peerport,
-						'Comm'      => server_channel.client
-					}
-				)
+    params = Rex::Socket::Parameters.from_hash(
+      {
+        'Proto'     => 'tcp',
+        'Comm'      => server_channel.client
+      }
+    )
 
-				client_channel = TcpClientChannel.new( client, cid, TcpClientChannel, CHANNEL_FLAG_SYNCHRONOUS )
+    client_channel = TcpClientChannel.new(client, cid, TcpClientChannel, CHANNEL_FLAG_SYNCHRONOUS, packet, {:sock_params => params})
 
-				client_channel.params = params
+    @@server_channels[server_channel] ||= ::Queue.new
+    @@server_channels[server_channel].enq(client_channel)
 
-				if( @@server_channels[server_channel] == nil )
-					@@server_channels[server_channel] = []
-				end
+    true
+  end
 
-				@@server_channels[server_channel] << client_channel
+  def self.cls
+    CHANNEL_CLASS_STREAM
+  end
 
-				return true
-			end
+  #
+  # Open a new tcp server channel on the remote end.
+  #
+  # @return [Channel]
+  def self.open(client, params)
+    Channel.create(client, 'stdapi_net_tcp_server', self, CHANNEL_FLAG_SYNCHRONOUS,
+      [
+        {'type'  => TLV_TYPE_LOCAL_HOST, 'value' => params.localhost},
+        {'type'  => TLV_TYPE_LOCAL_PORT, 'value' => params.localport}
+      ],
+      sock_params: params
+    )
+  end
 
-			return false
-		end
+  #
+  # Simply initialize this instance.
+  #
+  def initialize(client, cid, type, flags, packet, sock_params: nil)
+    super(client, cid, type, flags, packet)
 
-		def cls
-			return CHANNEL_CLASS_STREAM
-		end
+    # add this instance to the class variables dictionary of tcp server channels
+    @@server_channels[self] ||= ::Queue.new
 
-	end
+    unless sock_params.nil?
+      @params = sock_params.merge(Socket.parameters_from_response(packet))
+      if sock_params.ssl
+        extend(Rex::Socket::SslTcpServer)
+        initsock(sock_params)
+      end
+    end
+  end
 
-	#
-	# Open a new tcp server channel on the remote end.
-	#
-	def TcpServerChannel.open(client, params)
-		c = Channel.create(client, 'stdapi_net_tcp_server', self, CHANNEL_FLAG_SYNCHRONOUS,
-			[
-				{
-				'type'  => TLV_TYPE_LOCAL_HOST,
-				'value' => params.localhost
-				},
-				{
-				'type'  => TLV_TYPE_LOCAL_PORT,
-				'value' => params.localport
-				}
-			] )
-		c.params = params
-		c
-	end
+  #
+  # Accept a new tcp client connection form this tcp server channel. This method does not block
+  # and returns nil if no new client connection is available.
+  #
+  def accept_nonblock
+    _accept(true)
+  end
 
-	#
-	# Simply initilize this instance.
-	#
-	def initialize(client, cid, type, flags)
-		super(client, cid, type, flags)
-		# add this instance to the class variables dictionary of tcp server channels
-		@@server_channels[self] = []
-	end
+  #
+  # Accept a new tcp client connection form this tcp server channel. This method will block indefinitely
+  # if no timeout is specified.
+  #
+  def accept(opts = {})
+    timeout = opts['Timeout']
+    if (timeout.nil? || timeout <= 0)
+      timeout = 0
+    end
 
-	#
-	# Accept a new tcp client connection form this tcp server channel. This method does not block
-	# and returns nil if no new client connection is available.
-	#
-	def accept_nonblock
-		result = nil
-		if( @@server_channels[self].length > 0 )
-			channel = @@server_channels[self].shift
-			result = channel.lsock
-		end
-		return result
-	end
+    result = nil
+    begin
+      ::Timeout.timeout(timeout) {
+        result = _accept
+      }
+    rescue Timeout::Error
+    end
 
-	#
-	# Accept a new tcp client connection form this tcp server channel. This method will block indefinatly
-	# if no timeout is specified.
-	#
-	def accept( opts={} )
-		timeout = opts['Timeout'] || -1
-		if( timeout == -1 )
-			result = _accept
-		else
-			begin
-				::Timeout.timeout( timeout ) {
-					result = _accept
-				}
-			rescue Timeout::Error
-				result = nil
-			end
-		end
-		return result
-	end
+    result
+  end
 
 protected
 
-	def _accept
-		while( true )
-			if( @@server_channels[self].empty? )
-				Rex::ThreadSafe.sleep( 0.2 )
-				next
-			end
-			result = accept_nonblock
-			break if result != nil
-		end
-		return result
-	end
+  def _accept(nonblock = false)
+    result = nil
+
+    begin
+      channel = @@server_channels[self].deq(nonblock)
+
+      if channel
+        result = channel.lsock
+      end
+
+      if result != nil && !result.kind_of?(Rex::Socket::Tcp)
+        result.extend(Rex::Socket::Tcp)
+      end
+    rescue ThreadError
+      # This happens when there's no clients in the queue
+    end
+
+    result
+  end
 
 end
 

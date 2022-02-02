@@ -5,92 +5,92 @@ module Parser
 # XXX doesn't tie services to vulns
 class NexposeXMLStreamParser
 
-	attr_accessor :callback
+  attr_accessor :callback
 
-	def initialize(callback = nil)
-		reset_state
-		self.callback = callback if callback
-	end
+  def initialize(callback = nil)
+    reset_state
+    self.callback = callback if callback
+  end
 
-	def reset_state
-		@state = :generic_state
-		@only_vuln_states_needed = true
-		@current_vuln_id = nil
-		@vulnerable_markers = ['vulnerable-exploited', 'vulnerable-version', 'potential']
-		@host = {"status" => nil, "endpoints" => [], "names" => [], "vulns" => {}}
-		@vuln = {"refs" => [], "description" => [], "solution" => []}
-	end
+  def reset_state
+    @state = :generic_state
+    @only_vuln_states_needed = true
+    @current_vuln_id = nil
+    @vulnerable_markers = ['vulnerable-exploited', 'vulnerable-version', 'potential']
+    @host = {"status" => nil, "endpoints" => [], "names" => [], "vulns" => {}}
+    @vuln = {"refs" => [], "description" => [], "solution" => []}
+  end
 
-	# If all vuln states are required set this to false
-	def parse_vulnerable_states_only only_vuln_states_needed
-		@only_vuln_states_needed = only_vuln_states_needed
-	end
+  # If all vuln states are required set this to false
+  def parse_vulnerable_states_only only_vuln_states_needed
+    @only_vuln_states_needed = only_vuln_states_needed
+  end
 
-	def tag_start(name, attributes)
-		case name
-		when "node"
-			@host["hardware-address"] = attributes["hardware-address"]
-			@host["addr"] = attributes["address"]
-			@host["status"] = attributes["status"]
-		when "os"
-			# Take only the highest certainty
-			if not @host["os_certainty"] or (@host["os_certainty"].to_f < attributes["certainty"].to_f)
-				@host["os_vendor"]    = attributes["vendor"]
-				@host["os_family"]    = attributes["family"]
-				@host["os_product"]   = attributes["product"]
-				@host["os_version"]   = attributes["version"]
-				@host["arch"]         = attributes["arch"]
-				@host["os_certainty"] = attributes["certainty"]
-			end
-		when "name"
-			#@host["names"].push attributes["name"]
-			@state = :in_name
-		when "endpoint"
-			# This is a port in NeXpose parlance
-			@host["endpoints"].push(attributes)
-		when "service"
-			@state = :in_service
-			# Store any service info with the associated port.  There shouldn't
-			# be any collisions on attribute names here, so just merge them.
-			@host["endpoints"].last.merge!(attributes)
-		when "fingerprint"
-			if @state == :in_service
-				@host["endpoints"].last.merge!(attributes)
-			end
-			when "test"
-				if (not @only_vuln_states_needed) or (@vulnerable_markers.include? attributes["status"].to_s.chomp and @only_vuln_states_needed)
-					@state = :in_test
-					@current_vuln_id = attributes["id"]
-					@host["vulns"][@current_vuln_id] = attributes.dup
-					# Append the endpoint info for how the vuln was discovered
-					unless @host["endpoints"].empty?
-						@host["vulns"][@current_vuln_id].merge!("endpoint_data" => @host["endpoints"].last)
-					end
-					if attributes["key"]
-						@host["notes"] ||= []
-						@host["notes"] << [@current_vuln_id, attributes["key"]]
-					end
-				end
-			when "vulnerability"
-				@vuln.merge! attributes
-			when "reference"
-				@state = :in_reference
-				@vuln["refs"].push attributes
-			when "solution"
-				@state = :in_solution
-			when "description"
-				@state = :in_description
-			when "URLLink"
-				@vuln["solution"] << attributes
-		end
-	end
+  def tag_start(name, attributes)
+    case name
+    when "node"
+      @host["hardware-address"] = attributes["hardware-address"]
+      @host["addr"] = attributes["address"]
+      @host["status"] = attributes["status"]
+    when "os"
+      # Take only the highest certainty
+      if not @host["os_certainty"] or (@host["os_certainty"].to_f < attributes["certainty"].to_f)
+        @host["os_vendor"]    = attributes["vendor"]
+        @host["os_family"]    = attributes["family"]
+        @host["os_product"]   = attributes["product"]
+        @host["os_version"]   = attributes["version"]
+        @host["arch"]         = attributes["arch"]
+        @host["os_certainty"] = attributes["certainty"]
+      end
+    when "name"
+      #@host["names"].push attributes["name"]
+      @state = :in_name
+    when "endpoint"
+      # This is a port in NeXpose parlance
+      @host["endpoints"].push(attributes)
+    when "service"
+      @state = :in_service
+      # Store any service info with the associated port.  There shouldn't
+      # be any collisions on attribute names here, so just merge them.
+      @host["endpoints"].last.merge!(attributes)
+    when "fingerprint"
+      if @state == :in_service
+        @host["endpoints"].last.merge!(attributes)
+      end
+      when "test"
+        if (not @only_vuln_states_needed) or (@vulnerable_markers.include? attributes["status"].to_s.chomp and @only_vuln_states_needed)
+          @state = :in_test
+          @current_vuln_id = attributes["id"]
+          @host["vulns"][@current_vuln_id] = attributes.dup
+          # Append the endpoint info for how the vuln was discovered
+          unless @host["endpoints"].empty?
+            @host["vulns"][@current_vuln_id].merge!("endpoint_data" => @host["endpoints"].last)
+          end
+          if attributes["key"]
+            @host["notes"] ||= []
+            @host["notes"] << [@current_vuln_id, attributes["key"]]
+          end
+        end
+      when "vulnerability"
+        @vuln.merge! attributes
+      when "reference"
+        @state = :in_reference
+        @vuln["refs"].push attributes
+      when "solution"
+        @state = :in_solution
+      when "description"
+        @state = :in_description
+      when "URLLink"
+        @vuln["solution"] << attributes
+    end
+  end
 
-	def text(str)
-		case @state
-		when :in_name
-			@host["names"].push str
-		when :in_reference
-			@vuln["refs"].last["value"] = str
+  def text(str)
+    case @state
+    when :in_name
+      @host["names"].push str
+    when :in_reference
+      @vuln["refs"].last["value"] = str
     when :in_solution
       @vuln["solution"] << str
     when :in_description
@@ -102,32 +102,32 @@ class NexposeXMLStreamParser
          @host["vulns"][@current_vuln_id]["proof"] = proof
       end
     end
-	end
+  end
 
-	def tag_end(name)
-		case name
-		when "node"
-			callback.call(:host, @host) if callback
-			reset_state
-		when "vulnerability"
-			callback.call(:vuln, @vuln) if callback
-			reset_state
-		when "service","reference","names"
-			@state = :generic_state
-		end
-	end
+  def tag_end(name)
+    case name
+    when "node"
+      callback.call(:host, @host) if callback
+      reset_state
+    when "vulnerability"
+      callback.call(:vuln, @vuln) if callback
+      reset_state
+    when "service","reference","names"
+      @state = :generic_state
+    end
+  end
 
-	# We don't need these methods, but they're necessary to keep REXML happy
-	def xmldecl(version, encoding, standalone) # :nodoc:
-	end
-	def cdata # :nodoc:
-	end
-	def comment(str) # :nodoc:
-	end
-	def instruction(name, instruction) # :nodoc:
-	end
-	def attlist # :nodoc:
-	end
+  # We don't need these methods, but they're necessary to keep REXML happy
+  def xmldecl(version, encoding, standalone) # :nodoc:
+  end
+  def cdata # :nodoc:
+  end
+  def comment(str) # :nodoc:
+  end
+  def instruction(name, instruction) # :nodoc:
+  end
+  def attlist # :nodoc:
+  end
 end
 end
 end

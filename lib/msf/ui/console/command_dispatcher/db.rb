@@ -1,1760 +1,2254 @@
 # -*- coding: binary -*-
-#
+
+require 'json'
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
-require 'msf/core/db_export'
+require 'metasploit/framework/data_service'
+require 'metasploit/framework/data_service/remote/http/core'
 
 module Msf
 module Ui
 module Console
 module CommandDispatcher
+
 class Db
 
-		require 'tempfile'
-
-		include Msf::Ui::Console::CommandDispatcher
-
-		# TODO: Not thrilled about including this entire module for just store_local.
-		include Msf::Auxiliary::Report
-
-		#
-		# The dispatcher's name.
-		#
-		def name
-			"Database Backend"
-		end
-
-		#
-		# Returns the hash of commands supported by this dispatcher.
-		#
-		def commands
-			base = {
-				"db_connect"    => "Connect to an existing database",
-				"db_disconnect" => "Disconnect from the current database instance",
-				"db_status"     => "Show the current database status",
-			}
-
-			more = {
-				"workspace"     => "Switch between database workspaces",
-				"hosts"         => "List all hosts in the database",
-				"services"      => "List all services in the database",
-				"vulns"         => "List all vulnerabilities in the database",
-				"notes"         => "List all notes in the database",
-				"loot"          => "List all loot in the database",
-				"creds"         => "List all credentials in the database",
-				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
-				"db_export"     => "Export a file containing the contents of the database",
-				"db_nmap"       => "Executes nmap and records the output automatically",
-				"db_rebuild_cache" => "Rebuilds the database-stored module cache"
-			}
-
-			# Always include commands that only make sense when connected.
-			# This avoids the problem of them disappearing unexpectedly if the
-			# database dies or times out.  See #1923
-			base.merge(more)
-		end
-
-		def deprecated_commands
-			[
-				"db_autopwn",
-				"db_driver",
-				"db_hosts",
-				"db_notes",
-				"db_services",
-				"db_vulns",
-			]
-		end
-
-		#
-		# Returns true if the db is connected, prints an error and returns
-		# false if not.
-		#
-		# All commands that require an active database should call this before
-		# doing anything.
-		#
-		def active?
-			if not framework.db.active
-				print_error("Database not connected")
-				return false
-			end
-			true
-		end
-
-		def cmd_workspace_help
-			print_line "Usage:"
-			print_line "    workspace                  List workspaces"
-			print_line "    workspace [name]           Switch workspace"
-			print_line "    workspace -a [name] ...    Add workspace(s)"
-			print_line "    workspace -d [name] ...    Delete workspace(s)"
-			print_line "    workspace -r <old> <new>   Rename workspace"
-			print_line "    workspace -h               Show this help information"
-			print_line
-		end
-
-		def cmd_workspace(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			while (arg = args.shift)
-				case arg
-				when '-h','--help'
-					cmd_workspace_help
-					return
-				when '-a','--add'
-					adding = true
-				when '-d','--del'
-					deleting = true
-				when '-r','--rename'
-					renaming = true
-				else
-					names ||= []
-					names << arg
-				end
-			end
-
-			if adding and names
-				# Add workspaces
-				workspace = nil
-				names.each do |name|
-					workspace = framework.db.add_workspace(name)
-					print_status("Added workspace: #{workspace.name}")
-				end
-				framework.db.workspace = workspace
-			elsif deleting and names
-				switched = false
-				# Delete workspaces
-				names.each do |name|
-					workspace = framework.db.find_workspace(name)
-					if workspace.nil?
-						print_error("Workspace not found: #{name}")
-					elsif workspace.default?
-						workspace.destroy
-						workspace = framework.db.add_workspace(name)
-						print_status("Deleted and recreated the default workspace")
-					else
-						# switch to the default workspace if we're about to delete the current one
-						if framework.db.workspace.name == workspace.name
-							framework.db.workspace = framework.db.default_workspace
-							switched = true
-						end
-						# now destroy the named workspace
-						workspace.destroy
-						print_status("Deleted workspace: #{name}")
-					end
-				end
-				print_status("Switched workspace: #{framework.db.workspace.name}") if switched
-			elsif renaming
-				if names.length != 2
-					print_error("Wrong number of arguments to rename")
-					return
-				end
-				old, new = names
-
-				workspace = framework.db.find_workspace(old)
-				if workspace.nil?
-					print_error("Workspace not found: #{name}")
-					return
-				end
-
-				if framework.db.find_workspace(new)
-					print_error("Workspace exists: #{new}")
-					return
-				end
-
-				workspace.name = new
-				workspace.save!
-			elsif names
-				name = names.last
-				# Switch workspace
-				workspace = framework.db.find_workspace(name)
-				if workspace
-					framework.db.workspace = workspace
-					print_status("Workspace: #{workspace.name}")
-				else
-					print_error("Workspace not found: #{name}")
-					return
-				end
-			else
-				# List workspaces
-				framework.db.workspaces.each do |s|
-					pad = (s.name == framework.db.workspace.name) ? "* " : "  "
-					print_line("#{pad}#{s.name}")
-				end
-			end
-		}
-		end
-
-		def cmd_workspace_tabs(str, words)
-			return [] unless active?
-			framework.db.workspaces.map { |s| s.name } if (words & ['-a','--add']).empty?
-		end
-
-		def cmd_hosts_help
-			# This command does some lookups for the list of appropriate column
-			# names, so instead of putting all the usage stuff here like other
-			# help methods, just use it's "-h" so we don't have to recreating
-			# that list
-			cmd_hosts("-h")
-		end
-
-		def cmd_hosts(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			onlyup = false
-			host_search = nil
-			set_rhosts = false
-			mode = :search
-			delete_count = 0
-
-			rhosts = []
-			host_ranges = []
-			search_term = nil
-
-			output = nil
-			default_columns = ::Mdm::Host.column_names.sort
-			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
-
-			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
-
-			default_columns.delete_if {|v| (v[-2,2] == "id")}
-			while (arg = args.shift)
-				case arg
-				when '-a','--add'
-					mode = :add
-				when '-d','--delete'
-					mode = :delete
-				when '-c'
-					list = args.shift
-					if(!list)
-						print_error("Invalid column list")
-						return
-					end
-					col_search = list.strip().split(",")
-					col_search.each { |c|
-						if not default_columns.include?(c) and not virtual_columns.include?(c)
-							all_columns = default_columns + virtual_columns
-							print_error("Invalid column list. Possible values are (#{all_columns.join("|")})")
-							return
-						end
-					}
-				when '-u','--up'
-					onlyup = true
-				when '-o'
-					output = args.shift
-				when '-R','--rhosts'
-					set_rhosts = true
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-
-				when '-h','--help'
-					print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
-					print_line
-					print_line "OPTIONS:"
-					print_line "  -a,--add          Add the hosts instead of searching"
-					print_line "  -d,--delete       Delete the hosts instead of searching"
-					print_line "  -c <col1,col2>    Only show the given columns (see list below)"
-					print_line "  -h,--help         Show this help information"
-					print_line "  -u,--up           Only show hosts which are up"
-					print_line "  -o <file>         Send output to a file in csv format"
-					print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
-					print_line "  -S,--search       Search string to filter by"
-					print_line
-					print_line "Available columns: #{default_columns.join(", ")}"
-					print_line
-					return
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
-						return
-					end
-				end
-			end
-
-			if col_search
-				col_names = col_search
-			else
-				col_names = default_columns + virtual_columns
-			end
-
-			if mode == :add
-				host_ranges.each do |range|
-					range.each do |address|
-						host = framework.db.find_or_create_host(:host => address)
-						print_status("Time: #{host.created_at} Host: host=#{host.address}")
-					end
-				end
-				return
-			end
-
-			# If we got here, we're searching.  Delete implies search
-
-			tbl = Rex::Ui::Text::Table.new(
-				{
-					'Header'  => "Hosts",
-					'Columns' => col_names,
-				})
-
-			# Sentinal value meaning all
-			host_ranges.push(nil) if host_ranges.empty?
-
-			each_host_range_chunk(host_ranges) do |host_search|
-				framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-					if search_term
-						next unless host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) }
-					end
-					columns = col_names.map do |n|
-						# Deal with the special cases
-						if virtual_columns.include?(n)
-							case n
-							when "svcs";      host.services.length
-							when "vulns";     host.vulns.length
-							when "workspace"; host.workspace.name
-							end
-						# Otherwise, it's just an attribute
-						else
-							host.attributes[n] || ""
-						end
-					end
-
-					tbl << columns
-					if set_rhosts
-						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr
-					end
-					if mode == :delete
-						host.destroy
-						delete_count += 1
-					end
-				end
-			end
-
-			if output
-				print_status("Wrote hosts to #{output}")
-				::File.open(output, "wb") { |ofd|
-					ofd.write(tbl.to_csv)
-				}
-			else
-				print_line
-				print_line tbl.to_s
-			end
-
-			# Finally, handle the case where the user wants the resulting list
-			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-			print_status("Deleted #{delete_count} hosts") if delete_count > 0
-		}
-##
-##
-		end
-
-		def cmd_services_help
-			# Like cmd_hosts, use "-h" instead of recreating the column list
-			# here
-			cmd_services("-h")
-		end
-
-		def cmd_services(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			mode = :search
-			onlyup = false
-			output_file = nil
-			set_rhosts = nil
-			col_search = ['port', 'proto', 'name', 'state', 'info']
-			default_columns = ::Mdm::Service.column_names.sort
-			default_columns.delete_if {|v| (v[-2,2] == "id")}
-
-			host_ranges  = []
-			port_ranges  = []
-			rhosts       = []
-			delete_count = 0
-			search_term  = nil
-
-			# option parsing
-			while (arg = args.shift)
-				case arg
-				when '-a','--add'
-					mode = :add
-				when '-d','--delete'
-					mode = :delete
-				when '-u','--up'
-					onlyup = true
-				when '-c'
-					list = args.shift
-					if(!list)
-						print_error("Invalid column list")
-						return
-					end
-					col_search = list.strip().split(",")
-					col_search.each { |c|
-						if not default_columns.include? c
-							print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
-							return
-						end
-					}
-				when '-p'
-					unless (arg_port_range(args.shift, port_ranges, true))
-						return
-					end
-				when '-r'
-					proto = args.shift
-					if (!proto)
-						print_status("Invalid protocol")
-						return
-					end
-					proto = proto.strip
-				when '-s'
-					namelist = args.shift
-					if (!namelist)
-						print_error("Invalid name list")
-						return
-					end
-					names = namelist.strip().split(",")
-				when '-o'
-					output_file = args.shift
-					if (!output_file)
-						print_error("Invalid output filename")
-						return
-					end
-					output_file = ::File.expand_path(output_file)
-				when '-R','--rhosts'
-					set_rhosts = true
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-
-				when '-h','--help'
-					print_line
-					print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
-					print_line
-					print_line "  -a,--add          Add the services instead of searching"
-					print_line "  -d,--delete       Delete the services instead of searching"
-					print_line "  -c <col1,col2>    Only show the given columns"
-					print_line "  -h,--help         Show this help information"
-					print_line "  -s <name1,name2>  Search for a list of service names"
-					print_line "  -p <port1,port2>  Search for a list of ports"
-					print_line "  -r <protocol>     Only show [tcp|udp] services"
-					print_line "  -u,--up           Only show services which are up"
-					print_line "  -o <file>         Send output to a file in csv format"
-					print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
-					print_line "  -S,--search       Search string to filter by"
-					print_line
-					print_line "Available columns: #{default_columns.join(", ")}"
-					print_line
-					return
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
-						return
-					end
-				end
-			end
-
-			ports = port_ranges.flatten.uniq
-
-			if mode == :add
-				# Can only deal with one port and one service name at a time
-				# right now.  Them's the breaks.
-				if ports.length != 1
-					print_error("Exactly one port required")
-					return
-				end
-				host_ranges.each do |range|
-					range.each do |addr|
-						host = framework.db.find_or_create_host(:host => addr)
-						next if not host
-						info = {
-							:host => host,
-							:port => ports.first.to_i
-						}
-						info[:proto] = proto.downcase if proto
-						info[:name]  = names.first.downcase if names and names.first
-
-						svc = framework.db.find_or_create_service(info)
-						print_status("Time: #{svc.created_at} Service: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
-					end
-				end
-				return
-			end
-
-			# If we got here, we're searching.  Delete implies search
-
-			col_names = default_columns
-			if col_search
-				col_names = col_search
-			end
-			tbl = Rex::Ui::Text::Table.new({
-					'Header'  => "Services",
-					'Columns' => ['host'] + col_names,
-				})
-
-			# Sentinal value meaning all
-			host_ranges.push(nil) if host_ranges.empty?
-			ports = nil if ports.empty?
-
-			each_host_range_chunk(host_ranges) do |host_search|
-				framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
-
-					host = service.host
-					if search_term
-						next unless(
-							host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term)} or
-							service.attribute_names.any? { |a| service[a.intern].to_s.match(search_term)}
-						)
-					end
-
-					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
-					tbl << columns
-					if set_rhosts
-						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr
-					end
-
-					if (mode == :delete)
-						service.destroy
-						delete_count += 1
-					end
-				end
-			end
-
-			print_line
-			if (output_file == nil)
-				print_line tbl.to_s
-			else
-				# create the output file
-				::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-				print_status("Wrote services to #{output_file}")
-			end
-
-			# Finally, handle the case where the user wants the resulting list
-			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-			print_status("Deleted #{delete_count} services") if delete_count > 0
-
-		}
-		end
-
-
-		def cmd_vulns_help
-			print_line "Print all vulnerabilities in the database"
-			print_line
-			print_line "Usage: vulns [addr range]"
-			print_line
-			print_line "  -h,--help             Show this help information"
-			print_line "  -p,--port <portspec>  List vulns matching this port spec"
-			print_line "  -s <svc names>        List vulns matching these service names"
-			print_line "  -S,--search           Search string to filter by"
-			print_line "  -i,--info             Display Vuln Info"
-			print_line
-			print_line "Examples:"
-			print_line "  vulns -p 1-65536          # only vulns with associated services"
-			print_line "  vulns -p 1-65536 -s http  # identified as http on any port"
-			print_line
-		end
-
-
-		def cmd_vulns(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-
-			host_ranges = []
-			port_ranges = []
-			svcs        = []
-			search_term = nil
-			show_info   = false
-
-			# Short-circuit help
-			if args.delete "-h"
-				cmd_vulns_help
-				return
-			end
-
-			mode = :search
-			while (arg = args.shift)
-				case arg
-				#when "-a","--add"
-				#	mode = :add
-				#when "-d"
-				#	mode = :delete
-				when "-h"
-					cmd_vulns_help
-					return
-				when "-p","--port"
-					unless (arg_port_range(args.shift, port_ranges, true))
-						return
-					end
-				when "-s","--service"
-					service = args.shift
-					if (!service)
-						print_error("Argument required for -s")
-						return
-					end
-					svcs = service.split(/[\s]*,[\s]*/)
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-				when '-i', '--info'
-					show_info = true
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
-						return
-					end
-				end
-			end
-
-			# normalize
-			host_ranges.push(nil) if host_ranges.empty?
-			ports = port_ranges.flatten.uniq
-			svcs.flatten!
-
-			each_host_range_chunk(host_ranges) do |host_search|
-				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-					host.vulns.each do |vuln|
-						if search_term
-							next unless(
-								vuln.host.attribute_names.any? { |a| vuln.host[a.intern].to_s.match(search_term) } or
-								vuln.attribute_names.any? { |a| vuln[a.intern].to_s.match(search_term) }
-							)
-						end
-						reflist = vuln.refs.map { |r| r.name }
-						if(vuln.service)
-							# Skip this one if the user specified a port and it
-							# doesn't match.
-							next unless ports.empty? or ports.include? vuln.service.port
-							# Same for service names
-							next unless svcs.empty? or svcs.include?(vuln.service.name)
-							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
-						else
-							# This vuln has no service, so it can't match
-							next unless ports.empty? and svcs.empty?
-							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-						end
-					end
-				end
-			end
-		}
-		end
-
-
-		def cmd_creds_help
-			print_line "Usage: creds [addr range]"
-			print_line "Usage: creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>"
-			print_line
-			print_line "  -a,--add              Add creds to the given addresses instead of listing"
-			print_line "  -d,--delete           Delete the creds instead of searching"
-			print_line "  -h,--help             Show this help information"
-			print_line "  -o <file>             Send output to a file in csv format"
-			print_line "  -p,--port <portspec>  List creds matching this port spec"
-			print_line "  -s <svc names>        List creds matching these service names"
-			print_line "  -t,--type <type>      Add a cred of this type (only with -a). Default: password"
-			print_line "  -u,--user             Add a cred for this user (only with -a). Default: blank"
-			print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
-			print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
-			print_line "  -S,--search           Search string to filter by"
-			print_line
-			print_line "Examples:"
-			print_line "  creds               # Default, returns all active credentials"
-			print_line "  creds all           # Returns all credentials active or not"
-			print_line "  creds 1.2.3.4/24    # nmap host specification"
-			print_line "  creds -p 22-25,445  # nmap port specification"
-			print_line "  creds 10.1.*.* -s ssh,smb all"
-			print_line
-		end
-
-		#
-		# Can return return active or all, on a certain host or range, on a
-		# certain port or range, and/or on a service name.
-		#
-		def cmd_creds(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-
-			search_param = nil
-			inactive_ok = false
-			type = "password"
-
-			set_rhosts = false
-			output_file = nil
-
-			host_ranges = []
-			port_ranges = []
-			rhosts      = []
-			svcs        = []
-			search_term = nil
-
-			user = nil
-
-			# Short-circuit help
-			if args.delete "-h"
-				cmd_creds_help
-				return
-			end
-
-			mode = :search
-			while (arg = args.shift)
-				case arg
-				when "-a","--add"
-					mode = :add
-				when "-d"
-					mode = :delete
-				when "-h"
-					cmd_creds_help
-					return
-				when '-o'
-					output_file = args.shift
-					if (!output_file)
-						print_error("Invalid output filename")
-						return
-					end
-					output_file = ::File.expand_path(output_file)
-				when "-p","--port"
-					unless (arg_port_range(args.shift, port_ranges, true))
-						return
-					end
-				when "-t","--type"
-					ptype = args.shift
-					if (!ptype)
-						print_error("Argument required for -t")
-						return
-					end
-				when "-s","--service"
-					service = args.shift
-					if (!service)
-						print_error("Argument required for -s")
-						return
-					end
-					svcs = service.split(/[\s]*,[\s]*/)
-				when "-P","--password"
-					pass = args.shift
-					if (!pass)
-						print_error("Argument required for -P")
-						return
-					end
-				when "-R"
-					set_rhosts = true
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-				when "-u","--user"
-					user = args.shift
-					if (!user)
-						print_error("Argument required for -u")
-						return
-					end
-				when "all"
-					# The user wants inactive passwords, too
-					inactive_ok = true
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
-						return
-					end
-				end
-			end
-
-			if mode == :add
-				if port_ranges.length != 1 or port_ranges.first.length != 1
-					print_error("Exactly one port required")
-					return
-				end
-				port = port_ranges.first.first
-				host_ranges.each do |range|
-					range.each do |host|
-						cred = framework.db.find_or_create_cred(
-							:host => host,
-							:port => port,
-							:user => (user == "NULL" ? nil : user),
-							:pass => (pass == "NULL" ? nil : pass),
-							:type => ptype,
-							:sname => service,
-							:active => true
-						)
-						print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
-					end
-				end
-				return
-			end
-
-			# If we get here, we're searching.  Delete implies search
-
-			if user
-				user_regex = Regexp.compile(user)
-			end
-
-			# normalize
-			ports = port_ranges.flatten.uniq
-			svcs.flatten!
-
-			tbl = Rex::Ui::Text::Table.new({
-					'Header'  => "Credentials",
-					'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'active?' ],
-				})
-
-			creds_returned = 0
-			# Now do the actual search
-			framework.db.each_cred(framework.db.workspace) do |cred|
-				# skip if it's inactive and user didn't ask for all
-				next unless (cred.active or inactive_ok)
-				if search_term
-					next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
-				end
-				# Also skip if the user is searching for something and this
-				# one doesn't match
-				includes = false
-				host_ranges.map do |rw|
-					includes = rw.include? cred.service.host.address
-					break if includes
-				end
-				next unless host_ranges.empty? or includes
-
-				# Same for ports
-				next unless ports.empty? or ports.include? cred.service.port
-
-				# Same for service names
-				next unless svcs.empty? or svcs.include?(cred.service.name)
-
-				if user_regex
-					next unless user_regex.match(cred.user)
-				end
-				row = [
-						cred.service.host.address, cred.service.port,
-						cred.user, cred.pass, cred.ptype,
-						(cred.active ? "true" : "false")
-					]
-				tbl << row
-				if mode == :delete
-					cred.destroy
-				end
-				if set_rhosts
-					addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address )
-					rhosts << addr
-				end
-				creds_returned += 1
-			end
-
-			print_line
-			if (output_file == nil)
-				print_line tbl.to_s
-			else
-				# create the output file
-				::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-				print_status("Wrote services to #{output_file}")
-			end
-
-			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
-		}
-		end
-
-		def cmd_notes_help
-			print_line "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
-			print_line
-			print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
-			print_line "  -d,--delete       Delete the hosts instead of searching"
-			print_line "  -n,--note <data>  Set the data for a new note (only with -a)"
-			print_line "  -t <type1,type2>  Search for a list of types"
-			print_line "  -h,--help         Show this help information"
-			print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
-			print_line "  -S,--search       Search string to filter by"
-			print_line
-			print_line "Examples:"
-			print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
-			print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
-			print_line
-		end
-
-		def cmd_notes(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			mode = :search
-			data = nil
-			types = nil
-			set_rhosts = false
-
-			host_ranges = []
-			rhosts      = []
-			search_term = nil
-
-			while (arg = args.shift)
-				case arg
-				when '-a','--add'
-					mode = :add
-				when '-d','--delete'
-					mode = :delete
-				when '-n','--note'
-					data = args.shift
-					if(!data)
-						print_error("Can't make a note with no data")
-						return
-					end
-				when '-t'
-					typelist = args.shift
-					if(!typelist)
-						print_error("Invalid type list")
-						return
-					end
-					types = typelist.strip().split(",")
-				when '-R','--rhosts'
-					set_rhosts = true
-				when '-S', '--search'
-					search_term = /#{args.shift}/nmi
-				when '-h','--help'
-					cmd_notes_help
-					return
-				else
-					# Anything that wasn't an option is a host to search for
-					unless (arg_host_range(arg, host_ranges))
-						return
-					end
-				end
-
-			end
-
-			if mode == :add
-				if types.nil? or types.size != 1
-					print_error("Exactly one note type is required")
-					return
-				end
-				type = types.first
-				host_ranges.each { |range|
-					range.each { |addr|
-						host = framework.db.find_or_create_host(:host => addr)
-						break if not host
-						note = framework.db.find_or_create_note(:host => host, :type => type, :data => data)
-						break if not note
-						print_status("Time: #{note.created_at} Note: host=#{host.address} type=#{note.ntype} data=#{note.data}")
-					}
-				}
-				return
-			end
-
-			note_list = []
-			delete_count = 0
-			if host_ranges.empty? # No host specified - collect all notes
-				note_list = framework.db.notes.dup
-			else # Collect notes of specified hosts
-				each_host_range_chunk(host_ranges) do |host_search|
-					framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-						note_list.concat(host.notes)
-					end
-				end
-			end
-			if search_term
-				note_list.delete_if do |n|
-					!!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
-				end
-			end
-			# Now display them
-			note_list.each do |note|
-				next if(types and types.index(note.ntype).nil?)
-				msg = "Time: #{note.created_at} Note:"
-				if (note.host)
-					host = note.host
-					msg << " host=#{note.host.address}"
-					if set_rhosts
-						addr = (host.scope ? host.address + '%' + host.scope : host.address )
-						rhosts << addr
-					end
-				end
-				if (note.service)
-					name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
-					msg << " service=#{name}"
-				end
-				msg << " type=#{note.ntype} data=#{note.data.inspect}"
-				print_status(msg)
-				if mode == :delete
-					note.destroy
-					delete_count += 1
-				end
-			end
-
-			# Finally, handle the case where the user wants the resulting list
-			# of hosts to go into RHOSTS.
-			set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-
-			print_status("Deleted #{delete_count} note#{delete_count == 1 ? "" : "s"}") if delete_count > 0
-		}
-		end
-
-		def cmd_loot_help
-			print_line "Usage: loot <options>"
-			print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
-			print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]"
-			print_line "  Del: loot -d [addr1 addr2 ...]"
-			print_line
-			print_line "  -a,--add          Add loot to the list of addresses, instead of listing"
-			print_line "  -d,--delete       Delete *all* loot matching host and type"
-			print_line "  -f,--file         File with contents of the loot to add"
-			print_line "  -i,--info         Info of the loot to add"
-			print_line "  -t <type1,type2>  Search for a list of types"
-			print_line "  -h,--help         Show this help information"
-			print_line "  -S,--search       Search string to filter by"
-			print_line
-		end
-
-		def cmd_loot(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			mode = :search
-			host_ranges = []
-			types = nil
-			delete_count = 0
-			search_term = nil
-			file = nil
-			name = nil
-			info = nil
-
-			while (arg = args.shift)
-				case arg
-					when '-a','--add'
-						mode = :add
-					when '-d','--delete'
-						mode = :delete
-					when '-f','--file'
-						filename = args.shift
-						if(!filename)
-							print_error("Can't make loot with no filename")
-							return
-						end
-						if (!File.exists?(filename) or !File.readable?(filename))
-							print_error("Can't read file")
-							return
-						end
-					when '-i','--info'
-						info = args.shift
-						if(!info)
-							print_error("Can't make loot with no info")
-						return
-					end
-					when '-t'
-						typelist = args.shift
-						if(!typelist)
-							print_error("Invalid type list")
-							return
-						end
-						types = typelist.strip().split(",")
-					when '-S', '--search'
-						search_term = /#{args.shift}/nmi
-					when '-h','--help'
-						cmd_loot_help
-						return
-					else
-						# Anything that wasn't an option is a host to search for
-						unless (arg_host_range(arg, host_ranges))
-						return
-					end
-				end
-			end
-
-			tbl = Rex::Ui::Text::Table.new({
-					'Header'  => "Loot",
-					'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
-				})
-
-			# Sentinal value meaning all
-			host_ranges.push(nil) if host_ranges.empty?
-
-		if mode == :add
-			if info.nil?
-				print_error("Info required")
-				return
-			end
-			if filename.nil?
-				print_error("Loot file required")
-				return
-			end
-			if types.nil? or types.size != 1
-				print_error("Exactly one loot type is required")
-				return
-			end
-			type = types.first
-			name = File.basename(filename)
-			host_ranges.each do |range|
-				range.each do |host|
-					file = File.open(filename, "rb")
-					contents = file.read
-					lootfile = framework.db.find_or_create_loot(:type => type, :host => host,:info => info, :data => contents,:path => filename,:name => name)
-					print_status "Added loot #{host}"
-				end
-			end
-			return
-		end
-
-			each_host_range_chunk(host_ranges) do |host_search|
-				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-					host.loots.each do |loot|
-						next if(types and types.index(loot.ltype).nil?)
-						if search_term
-						next unless(
-							loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-							loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-						)
-						end
-						row = []
-						row.push( (loot.host ? loot.host.address : "") )
-						if (loot.service)
-							svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-							row.push svc
-						else
-							row.push ""
-						end
-						row.push(loot.ltype)
-						row.push(loot.name || "")
-						row.push(loot.content_type)
-						row.push(loot.info || "")
-						row.push(loot.path)
-
-						tbl << row
-						if (mode == :delete)
-							loot.destroy
-							delete_count += 1
-						end
-					end
-				end
-			end
-
-			# Handle hostless loot
-			if host_ranges.compact.empty? # Wasn't a host search
-				hostless_loot = framework.db.loots.find_all_by_host_id(nil)
-				hostless_loot.each do |loot|
-					row = []
-					row.push("")
-					row.push("")
-					row.push(loot.ltype)
-					row.push(loot.name || "")
-					row.push(loot.content_type)
-					row.push(loot.info || "")
-					row.push(loot.path)
-					tbl << row
-					if (mode == :delete)
-						loot.destroy
-						delete_count += 1
-					end
-				end
-			end
-
-			print_line
-			print_line tbl.to_s
-			print_status "Deleted #{delete_count} loots" if delete_count > 0
-		}
-		end
-
-		# :category: Deprecated Commands
-		def cmd_db_hosts_help; deprecated_help(:hosts); end
-		# :category: Deprecated Commands
-		def cmd_db_notes_help; deprecated_help(:notes); end
-		# :category: Deprecated Commands
-		def cmd_db_vulns_help; deprecated_help(:vulns); end
-		# :category: Deprecated Commands
-		def cmd_db_services_help; deprecated_help(:services); end
-		# :category: Deprecated Commands
-		def cmd_db_autopwn_help; deprecated_help; end
-		# :category: Deprecated Commands
-		def cmd_db_driver_help; deprecated_help; end
-
-		# :category: Deprecated Commands
-		def cmd_db_hosts(*args); deprecated_cmd(:hosts, *args); end
-		# :category: Deprecated Commands
-		def cmd_db_notes(*args); deprecated_cmd(:notes, *args); end
-		# :category: Deprecated Commands
-		def cmd_db_vulns(*args); deprecated_cmd(:vulns, *args); end
-		# :category: Deprecated Commands
-		def cmd_db_services(*args); deprecated_cmd(:services, *args); end
-		# :category: Deprecated Commands
-		def cmd_db_autopwn(*args); deprecated_cmd; end
-
-		# :category: Deprecated Commands
-		#
-		# This one deserves a little more explanation than standard deprecation
-		# warning, so give the user a better understanding of what's going on.
-		#
-		def cmd_db_driver(*args)
-			deprecated_cmd
-			print_line
-			print_line "Because Metasploit no longer supports databases other than the default"
-			print_line "PostgreSQL, there is no longer a need to set the driver. Thus db_driver"
-			print_line "is not useful and its functionality has been removed. Usually Metasploit"
-			print_line "will already have connected to the database; check db_status to see."
-			print_line
-			cmd_db_status
-		end
-
-		def cmd_db_import_tabs(str, words)
-			tab_complete_filenames(str, words)
-		end
-
-		def cmd_db_import_help
-			print_line "Usage: db_import <filename> [file2...]"
-			print_line
-			print_line "Filenames can be globs like *.xml, or **/*.xml which will search recursively"
-			print_line "Currently supported file types include:"
-			print_line "    Acunetix XML"
-			print_line "    Amap Log"
-			print_line "    Amap Log -m"
-			print_line "    Appscan XML"
-			print_line "    Burp Session XML"
-			print_line "    Foundstone XML"
-			print_line "    IP360 ASPL"
-			print_line "    IP360 XML v3"
-			print_line "    Microsoft Baseline Security Analyzer"
-			print_line "    Nessus NBE"
-			print_line "    Nessus XML (v1 and v2)"
-			print_line "    NetSparker XML"
-			print_line "    NeXpose Simple XML"
-			print_line "    NeXpose XML Report"
-			print_line "    Nmap XML"
-			print_line "    OpenVAS Report"
-			print_line "    Qualys Asset XML"
-			print_line "    Qualys Scan XML"
-			print_line "    Retina XML"
-			print_line
-		end
-
-		#
-		# Generic import that automatically detects the file type
-		#
-		def cmd_db_import(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			if (args.include?("-h") or not (args and args.length > 0))
-				cmd_db_import_help
-				return
-			end
-			args.each { |glob|
-				files = ::Dir.glob(::File.expand_path(glob))
-				if files.empty?
-					print_error("No such file #{glob}")
-					next
-				end
-				files.each { |filename|
-					if (not ::File.readable?(filename))
-						print_error("Could not read file #{filename}")
-						next
-					end
-					begin
-						warnings = 0
-						framework.db.import_file(:filename => filename) do |type,data|
-							case type
-							when :debug
-								print_error("DEBUG: #{data.inspect}")
-							when :vuln
-								inst = data[1] == 1 ? "instance" : "instances"
-								print_status("Importing vulnerability '#{data[0]}' (#{data[1]} #{inst})")
-							when :filetype
-								print_status("Importing '#{data}' data")
-							when :parser
-								print_status("Import: Parsing with '#{data}'")
-							when :address
-								print_status("Importing host #{data}")
-							when :service
-								print_status("Importing service #{data}")
-							when :msf_loot
-								print_status("Importing loot #{data}")
-							when :msf_task
-								print_status("Importing task #{data}")
-							when :msf_report
-								print_status("Importing report #{data}")
-							when :pcap_count
-								print_status("Import: #{data} packets processed")
-							when :record_count
-								print_status("Import: #{data[1]} records processed")
-							when :warning
-								print_error("")
-								data.split("\n").each do |line|
-									print_error(line)
-								end
-								print_error("")
-								warnings += 1
-							end
-						end
-						print_status("Successfully imported #{filename}")
-
-						print_error("Please note that there were #{warnings} warnings") if warnings > 1
-						print_error("Please note that there was one warning") if warnings == 1
-
-					rescue DBImportError
-						print_error("Failed to import #{filename}: #{$!}")
-						elog("Failed to import #{filename}: #{$!.class}: #{$!}")
-						dlog("Call stack: #{$@.join("\n")}", LEV_3)
-						next
-					rescue REXML::ParseException => e
-						print_error("Failed to import #{filename} due to malformed XML:")
-						print_error "#{$!.class}: #{$!}"
-						elog("Failed to import #{filename}: #{$!.class}: #{$!}")
-						dlog("Call stack: #{$@.join("\n")}", LEV_3)
-						next
-					end
-				}
-			}
-		}
-		end
-
-		def cmd_db_export_help
-			# Like db_hosts and db_services, this creates a list of columns, so
-			# use its -h
-			cmd_db_export("-h")
-		end
-
-		#
-		# Export an XML
-		#
-		def cmd_db_export(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-
-			export_formats = %W{xml pwdump}
-			format = 'xml'
-			output = nil
-
-			while (arg = args.shift)
-				case arg
-				when '-h','--help'
-					print_line("Usage:")
-					print_line("    db_export -f <format> [-a] [filename]")
-					print_line("    Format can be one of: #{export_formats.join(", ")}")
-				when '-f','--format'
-					format = args.shift.to_s.downcase
-				else
-					output = arg
-				end
-			end
-
-			if not output
-				print_error("No output file was specified")
-				return
-			end
-
-			if not export_formats.include?(format)
-				print_error("Unsupported file format: #{format}")
-				print_error("Unsupported file format: '#{format}'. Must be one of: #{export_formats.join(", ")}")
-				return
-			end
-
-			print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-			exporter = ::Msf::DBManager::Export.new(framework.db.workspace)
-
-			exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
-				if mtype == :status
-					if mstatus == "start"
-						print_status("    >> Starting export of #{mname}")
-					end
-					if mstatus == "complete"
-						print_status("    >> Finished export of #{mname}")
-					end
-				end
-			end
-			print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-		}
-		end
-
-		#
-		# Import Nmap data from a file
-		#
-		def cmd_db_nmap(*args)
-			return unless active?
-		::ActiveRecord::Base.connection_pool.with_connection {
-			if (args.length == 0)
-				print_status("Usage: db_nmap [nmap options]")
-				return
-			end
-
-			save = false
-			if args.include?("save")
-				save = active?
-				args.delete("save")
-			end
-
-			nmap =
-				Rex::FileUtils.find_full_path("nmap") ||
-				Rex::FileUtils.find_full_path("nmap.exe")
-
-			if (not nmap)
-				print_error("The nmap executable could not be found")
-				return
-			end
-
-			fd = Tempfile.new('dbnmap')
-			fd.binmode
-
-			fo = Tempfile.new('dbnmap')
-			fo.binmode
-
-			# When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
-			if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
-				# Custom function needed because cygpath breaks on 8.3 dirs
-				tout = Rex::Compat.cygwin_to_win32(fd.path)
-				fout = Rex::Compat.cygwin_to_win32(fo.path)
-				args.push('-oX', tout)
-				args.push('-oN', fout)
-			else
-				args.push('-oX', fd.path)
-				args.push('-oN', fo.path)
-			end
-
-			begin
-				nmap_pipe = ::Open3::popen3([nmap, "nmap"], *args)
-				temp_nmap_threads = []
-				temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
-					np_1.each_line do |nmap_out|
-						next if nmap_out.strip.empty?
-						print_status "Nmap: #{nmap_out.strip}"
-					end
-				end
-
-				temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-					np_2.each_line do |nmap_err|
-						next if nmap_err.strip.empty?
-						print_status  "Nmap: '#{nmap_err.strip}'"
-					end
-				end
-
-				temp_nmap_threads.map {|t| t.join rescue nil}
-				nmap_pipe.each {|p| p.close rescue nil}
-			rescue ::IOError
-			end
-
-			fo.close(true)
-			framework.db.import_nmap_xml_file(:filename => fd.path)
-
-			if save
-				fd.rewind
-				saved_path = report_store_local("nmap.scan.xml", "text/xml", fd.read, "nmap_#{Time.now.utc.to_i}")
-				print_status "Saved NMAP XML results to #{saved_path}"
-			end
-			fd.close(true)
-		}
-		end
-
-
-		# Store some locally-generated data as a file, similiar to store_loot.
-		def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
-			store_local(ltype,ctype,data,filename)
-		end
-
-
-		#
-		# Database management
-		#
-
-		def db_check_driver
-			if(not framework.db.driver)
-				print_error("No database driver installed. Try 'gem install pg'")
-				return false
-			end
-			true
-		end
-
-		#
-		# Is everything working?
-		#
-		def cmd_db_status(*args)
-			return if not db_check_driver
-			if ::ActiveRecord::Base.connected?
-				cdb = ""
-				::ActiveRecord::Base.connection_pool.with_connection { |conn|
-					if conn.respond_to? :current_database
-						cdb = conn.current_database
-					end
-				}
-				print_status("#{framework.db.driver} connected to #{cdb}")
-			else
-				print_status("#{framework.db.driver} selected, no connection")
-			end
-		end
-
-		def cmd_db_connect_help
-			# Help is specific to each driver
-			cmd_db_connect("-h")
-		end
-
-		def cmd_db_connect(*args)
-			return if not db_check_driver
-			if (args[0] == "-y")
-				if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
-					print_error("File not found")
-					return
-				end
-				file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
-				if (::File.exists? ::File.expand_path(file))
-					db = YAML.load(::File.read(file))['production']
-					framework.db.connect(db)
-
-					if framework.db.active and not framework.db.modules_cached
-						print_status("Rebuilding the module cache in the background...")
-						framework.threads.spawn("ModuleCacheRebuild", true) do
-							framework.db.update_all_module_details
-						end
-					end
-
-					return
-				end
-			end
-			meth = "db_connect_#{framework.db.driver}"
-			if(self.respond_to?(meth))
-				self.send(meth, *args)
-				if framework.db.active and not framework.db.modules_cached
-					print_status("Rebuilding the module cache in the background...")
-					framework.threads.spawn("ModuleCacheRebuild", true) do
-						framework.db.update_all_module_details
-					end
-				end
-			else
-				print_error("This database driver #{framework.db.driver} is not currently supported")
-			end
-		end
-
-		def cmd_db_disconnect_help
-			print_line "Usage: db_disconnect"
-			print_line
-			print_line "Disconnect from the database."
-			print_line
-		end
-
-		def cmd_db_disconnect(*args)
-			return if not db_check_driver
-
-			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
-				cmd_db_disconnect_help
-				return
-			end
-
-			if (framework.db)
-				framework.db.disconnect()
-			end
-		end
-
-
-		def cmd_db_rebuild_cache
-			unless framework.db.active
-				print_error("The database is not connected")
-				return
-			end
-					
-			print_status("Purging and rebuilding the module cache in the background...")
-			framework.threads.spawn("ModuleCacheRebuild", true) do
-				framework.db.purge_all_module_details
-				framework.db.update_all_module_details
-			end
-		end
-
-		def cmd_db_rebuild_cache_help
-			print_line "Usage: db_rebuild_cache"
-			print_line
-			print_line "Purge and rebuild the SQL module cache."
-			print_line
-		end
-
-		#
-		# Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses
-		#
-		# This stores all the addresses to a temporary file and utilizes the
-		# <pre>file:/tmp/filename</pre> syntax to confer the addrs.  +rhosts+
-		# should be an Array.  NOTE: the temporary file is *not* deleted
-		# automatically.
-		#
-		def set_rhosts_from_addrs(rhosts)
-			if rhosts.empty?
-				print_status "The list is empty, cowardly refusing to set RHOSTS"
-				return
-			end
-			if active_module
-				mydatastore = active_module.datastore
-			else
-				# if there is no module in use set the list to the global variable
-				mydatastore = self.framework.datastore
-			end
-
-			if rhosts.length > 5
-				# Lots of hosts makes 'show options' wrap which is difficult to
-				# read, store to a temp file
-				rhosts_file = Rex::Quickfile.new("msf-db-rhosts-")
-				mydatastore['RHOSTS'] = 'file:'+rhosts_file.path
-				# create the output file and assign it to the RHOSTS variable
-				rhosts_file.write(rhosts.join("\n")+"\n")
-				rhosts_file.close
-			else
-				# For short lists, just set it directly
-				mydatastore['RHOSTS'] = rhosts.join(" ")
-			end
-
-			print_line "RHOSTS => #{mydatastore['RHOSTS']}"
-			print_line
-		end
-
-
-		def db_find_tools(tools)
-			found   = true
-			missed  = []
-			tools.each do |name|
-				if(! Rex::FileUtils.find_full_path(name))
-					missed << name
-				end
-			end
-			if(not missed.empty?)
-				print_error("This database command requires the following tools to be installed: #{missed.join(", ")}")
-				return
-			end
-			true
-		end
-
-		#
-		# Database management: Postgres
-		#
-
-		#
-		# Connect to an existing Postgres database
-		#
-		def db_connect_postgresql(*args)
-			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
-				print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
-				print_status("      OR: db_connect -y [path/to/database.yml]")
-				print_status("Examples:")
-				print_status("       db_connect user@metasploit3")
-				print_status("       db_connect user:pass@192.168.0.2/metasploit3")
-				print_status("       db_connect user:pass@192.168.0.2:1500/metasploit3")
-				return
-			end
-
-			info = db_parse_db_uri_postgresql(args[0])
-			opts = { 'adapter' => 'postgresql' }
-
-			opts['username'] = info[:user] if (info[:user])
-			opts['password'] = info[:pass] if (info[:pass])
-			opts['database'] = info[:name]
-			opts['host'] = info[:host] if (info[:host])
-			opts['port'] = info[:port] if (info[:port])
-
-			opts['pass'] ||= ''
-
-			# Do a little legwork to find the real database socket
-			if(! opts['host'])
-				while(true)
-					done = false
-					dirs = %W{ /var/run/postgresql /tmp }
-					dirs.each do |dir|
-						if(::File.directory?(dir))
-							d = ::Dir.new(dir)
-							d.entries.grep(/^\.s\.PGSQL.(\d+)$/).each do |ent|
-								opts['port'] = ent.split('.')[-1].to_i
-								opts['host'] = dir
-								done = true
-								break
-							end
-						end
-						break if done
-					end
-					break
-				end
-			end
-
-			# Default to loopback
-			if(! opts['host'])
-				opts['host'] = '127.0.0.1'
-			end
-
-			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
-			end
-		end
-
-		def db_parse_db_uri_postgresql(path)
-			res = {}
-			if (path)
-				auth, dest = path.split('@')
-				(dest = auth and auth = nil) if not dest
-				res[:user],res[:pass] = auth.split(':') if auth
-				targ,name = dest.split('/')
-				(name = targ and targ = nil) if not name
-				res[:host],res[:port] = targ.split(':') if targ
-			end
-			res[:name] = name || 'metasploit3'
-			res
-		end
-
-
-		##
-		# Miscellaneous option helpers
-		##
-
-		#
-		# Parse +arg+ into a RangeWalker and append the result into +host_ranges+
-		#
-		# Returns true if parsing was successful or nil otherwise.
-		#
-		# NOTE: This modifies +host_ranges+
-		#
-		def arg_host_range(arg, host_ranges, required=false)
-			if (!arg and required)
-				print_error("Missing required host argument")
-				return
-			end
-			begin
-				host_ranges << Rex::Socket::RangeWalker.new(arg)
-			rescue
-				print_error "Invalid host parameter, #{arg}."
-				return
-			end
-			return true
-		end
-
-		#
-		# Parse +arg+ into an array of ports and append the result into +port_ranges+
-		#
-		# Returns true if parsing was successful or nil otherwise.
-		#
-		# NOTE: This modifies +port_ranges+
-		#
-		def arg_port_range(arg, port_ranges, required=false)
-			if (!arg and required)
-				print_error("Argument required for -p")
-				return
-			end
-			begin
-				port_ranges << Rex::Socket.portspec_to_portlist(arg)
-			rescue
-				print_error "Invalid port parameter, #{arg}."
-				return
-			end
-			return true
-		end
-
-		#
-		# Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into
-		# blocks of 1024.
-		#
-		def each_host_range_chunk(host_ranges, &block)
-			# Chunk it up and do the query in batches. The naive implementation
-			# uses so much memory for a /8 that it's basically unusable (1.6
-			# billion IP addresses take a rather long time to allocate).
-			# Chunking has roughly the same perfomance for small batches, so
-			# don't worry about it too much.
-			host_ranges.each do |range|
-				if range.nil? or range.length.nil?
-					chunk = nil
-					end_of_range = true
-				else
-					chunk = []
-					end_of_range = false
-					# Set up this chunk of hosts to search for
-					while chunk.length < 1024 and chunk.length < range.length
-						n = range.next_ip
-						if n.nil?
-							end_of_range = true
-							break
-						end
-						chunk << n
-					end
-				end
-
-				# The block will do some
-				yield chunk
-
-				# Restart the loop with the same RangeWalker if we didn't get
-				# to the end of it in this chunk.
-				redo unless end_of_range
-			end
-		end
+  require 'tempfile'
+
+  include Msf::Ui::Console::CommandDispatcher
+  include Msf::Ui::Console::CommandDispatcher::Common
+  include Msf::Ui::Console::CommandDispatcher::Analyze
+
+  DB_CONFIG_PATH = 'framework/database'
+
+  #
+  # The dispatcher's name.
+  #
+  def name
+    "Database Backend"
+  end
+
+  #
+  # Returns the hash of commands supported by this dispatcher.
+  #
+  def commands
+    base = {
+      "db_connect"       => "Connect to an existing data service",
+      "db_disconnect"    => "Disconnect from the current data service",
+      "db_status"        => "Show the current data service status",
+      "db_save"          => "Save the current data service connection as the default to reconnect on startup",
+      "db_remove"        => "Remove the saved data service entry"
+    }
+
+    more = {
+      "workspace"     => "Switch between database workspaces",
+      "hosts"         => "List all hosts in the database",
+      "services"      => "List all services in the database",
+      "vulns"         => "List all vulnerabilities in the database",
+      "notes"         => "List all notes in the database",
+      "loot"          => "List all loot in the database",
+      "db_import"     => "Import a scan result file (filetype will be auto-detected)",
+      "db_export"     => "Export a file containing the contents of the database",
+      "db_nmap"       => "Executes nmap and records the output automatically",
+      "db_rebuild_cache" => "Rebuilds the database-stored module cache (deprecated)",
+      "analyze"       => "Analyze database information about a specific address or address range",
+    }
+
+    # Always include commands that only make sense when connected.
+    # This avoids the problem of them disappearing unexpectedly if the
+    # database dies or times out.  See #1923
+
+    base.merge(more)
+  end
+
+  def deprecated_commands
+    [
+      "db_autopwn",
+      "db_driver",
+      "db_hosts",
+      "db_notes",
+      "db_services",
+      "db_vulns",
+    ]
+  end
+
+  #
+  # Attempts to connect to the previously configured database, and additionally keeps track of
+  # the currently loaded data service.
+  #
+  def load_config(path = nil)
+    result = Msf::DbConnector.db_connect_from_config(framework, path)
+
+    if result[:error]
+      print_error(result[:error])
+    end
+    if result[:data_service_name]
+      @current_data_service = result[:data_service_name]
+    end
+  end
+
+  #
+  # Returns true if the db is connected, prints an error and returns
+  # false if not.
+  #
+  # All commands that require an active database should call this before
+  # doing anything.
+  #
+  def active?
+    if not framework.db.active
+      print_error("Database not connected")
+      return false
+    end
+    true
+  end
+
+  @@workspace_opts = Rex::Parser::Arguments.new(
+    [ '-h', '--help' ] => [ false, 'Help banner.'],
+    [ '-a', '--add' ] => [ true, 'Add a workspace.', '<name>'],
+    [ '-d', '--delete' ] => [ true, 'Delete a workspace.', '<name>'],
+    [ '-D', '--delete-all' ] => [ false, 'Delete all workspaces.'],
+    [ '-r', '--rename' ] => [ true, 'Rename a workspace.', '<old> <new>'],
+    [ '-l', '--list' ] => [ false, 'List workspaces.'],
+    [ '-v', '--list-verbose' ] => [ false, 'List workspaces verbosely.'],
+    [ '-S', '--search' ] => [ true, 'Search for a workspace.', '<name>']
+  )
+
+  def cmd_workspace_help
+    print_line "Usage:"
+    print_line "    workspace          List workspaces"
+    print_line "    workspace [name]   Switch workspace"
+    print_line @@workspace_opts.usage
+  end
+
+  def cmd_workspace(*args)
+    return unless active?
+
+    state = :nil
+
+    list = false
+    verbose = false
+    names = []
+    search_term = nil
+
+    @@workspace_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h', '--help'
+        cmd_workspace_help
+        return
+      when '-a', '--add'
+        return cmd_workspace_help unless state == :nil
+
+        state = :adding
+        names << val if !val.nil?
+      when '-d', '--del'
+        return cmd_workspace_help unless state == :nil
+
+        state = :deleting
+        names << val if !val.nil?
+      when '-D', '--delete-all'
+        return cmd_workspace_help unless state == :nil
+
+        state = :delete_all
+      when '-r', '--rename'
+        return cmd_workspace_help unless state == :nil
+
+        state = :renaming
+        names << val if !val.nil?
+      when '-v', '--verbose'
+        verbose = true
+      when '-l', '--list'
+        list = true
+      when '-S', '--search'
+        search_term = val
+      else
+        names << val if !val.nil?
+      end
+    end
+
+    if state == :adding and names
+      # Add workspaces
+      wspace = nil
+      names.each do |name|
+        wspace = framework.db.workspaces(name: name).first
+        if wspace
+          print_status("Workspace '#{wspace.name}' already existed, switching to it.")
+        else
+          wspace = framework.db.add_workspace(name)
+          print_status("Added workspace: #{wspace.name}")
+        end
+      end
+      framework.db.workspace = wspace
+      print_status("Workspace: #{framework.db.workspace.name}")
+    elsif state == :deleting and names
+      ws_ids_to_delete = []
+      starting_ws = framework.db.workspace
+      names.uniq.each do |n|
+        ws = framework.db.workspaces(name: n).first
+        ws_ids_to_delete << ws.id if ws
+      end
+      if ws_ids_to_delete.count > 0
+        deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
+        process_deleted_workspaces(deleted, starting_ws)
+      else
+        print_status("No workspaces matching the given name(s) were found.")
+      end
+    elsif state == :delete_all
+      ws_ids_to_delete = []
+      starting_ws = framework.db.workspace
+      framework.db.workspaces.each do |ws|
+        ws_ids_to_delete << ws.id
+      end
+      deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
+      process_deleted_workspaces(deleted, starting_ws)
+    elsif state == :renaming
+      if names.length != 2
+        print_error("Wrong number of arguments to rename")
+        return
+      end
+
+      ws_to_update = framework.db.find_workspace(names.first)
+      unless ws_to_update
+        print_error("Workspace '#{names.first}' does not exist")
+        return
+      end
+      opts = {
+          id: ws_to_update.id,
+          name: names.last
+      }
+      begin
+        updated_ws = framework.db.update_workspace(opts)
+        if updated_ws
+          framework.db.workspace = updated_ws if names.first == framework.db.workspace.name
+          print_status("Renamed workspace '#{names.first}' to '#{updated_ws.name}'")
+        else
+          print_error "There was a problem updating the workspace. Setting to the default workspace."
+          framework.db.workspace = framework.db.default_workspace
+          return
+        end
+        if names.first == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
+          print_status("Recreated default workspace")
+        end
+      rescue => e
+        print_error "Failed to rename workspace: #{e.message}"
+      end
+
+    elsif !names.empty?
+      name = names.last
+      # Switch workspace
+      workspace = framework.db.find_workspace(name)
+      if workspace
+        framework.db.workspace = workspace
+        print_status("Workspace: #{workspace.name}")
+      else
+        print_error("Workspace not found: #{name}")
+        return
+      end
+    else
+      current_workspace = framework.db.workspace
+
+      unless verbose
+        current = nil
+        framework.db.workspaces.sort_by {|s| s.name}.each do |s|
+          if s.name == current_workspace.name
+            current = s.name
+          else
+            print_line("  #{s.name}")
+          end
+        end
+        print_line("%red* #{current}%clr") unless current.nil?
+        return
+      end
+      col_names = %w{current name hosts services vulns creds loots notes}
+
+      tbl = Rex::Text::Table.new(
+        'Header'     => 'Workspaces',
+        'Columns'    => col_names,
+        'SortIndex'  => -1,
+        'SearchTerm' => search_term
+      )
+
+      framework.db.workspaces.each do |ws|
+        tbl << [
+          current_workspace.name == ws.name ? '*' : '',
+          ws.name,
+          framework.db.hosts(workspace: ws.name).count,
+          framework.db.services(workspace: ws.name).count,
+          framework.db.vulns(workspace: ws.name).count,
+          framework.db.creds(workspace: ws.name).count,
+          framework.db.loots(workspace: ws.name).count,
+          framework.db.notes(workspace: ws.name).count
+        ]
+      end
+
+      print_line
+      print_line(tbl.to_s)
+    end
+  end
+
+  def process_deleted_workspaces(deleted_workspaces, starting_ws)
+    deleted_workspaces.each do |ws|
+      print_status "Deleted workspace: #{ws.name}"
+      if ws.name == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
+        framework.db.workspace = framework.db.default_workspace
+        print_status 'Recreated the default workspace'
+      elsif ws == starting_ws
+        framework.db.workspace = framework.db.default_workspace
+        print_status "Switched to workspace: #{framework.db.workspace.name}"
+      end
+    end
+  end
+
+  def cmd_workspace_tabs(str, words)
+    return [] unless active?
+    framework.db.workspaces.map(&:name) if (words & ['-a','--add']).empty?
+  end
+
+  #
+  # Tab completion for the hosts command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_hosts_tabs(str, words)
+    if words.length == 1
+      return @@hosts_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+
+    case words[-1]
+    when '-d', '--delete'
+      return []
+    when '-c', '--columns', '-C', '--columns-until-restart'
+      return @@hosts_columns
+    when '-O', '--order'
+      return []
+    end
+
+    []
+  end
+
+  def cmd_hosts_help
+    # This command does some lookups for the list of appropriate column
+    # names, so instead of putting all the usage stuff here like other
+    # help methods, just use it's "-h" so we don't have to recreating
+    # that list
+    cmd_hosts("-h")
+  end
+
+  # Changes the specified host data
+  #
+  # @param host_ranges - range of hosts to process
+  # @param host_data - hash of host data to be updated
+  def change_host_data(host_ranges, host_data)
+    if !host_data || host_data.length != 1
+      print_error("A single key-value data hash is required to change the host data")
+      return
+    end
+    attribute = host_data.keys[0]
+
+    if host_ranges == [nil]
+      print_error("In order to change the host #{attribute}, you must provide a range of hosts")
+      return
+    end
+
+    each_host_range_chunk(host_ranges) do |host_search|
+      next if host_search && host_search.empty?
+
+      framework.db.hosts(address: host_search).each do |host|
+        framework.db.update_host(host_data.merge(id: host.id))
+        framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
+      end
+    end
+  end
+
+  def add_host_tag(rws, tag_name)
+    if rws == [nil]
+      print_error("In order to add a tag, you must provide a range of hosts")
+      return
+    end
+
+    opts = Hash.new()
+    opts[:workspace] = framework.db.workspace
+    opts[:tag_name] = tag_name
+
+    rws.each do |rw|
+      rw.each do |ip|
+        opts[:address] = ip
+        unless framework.db.add_host_tag(opts)
+          print_error("Host #{ip} could not be found.")
+        end
+      end
+    end
+  end
+
+  def find_host_tags(workspace, host_id)
+    opts = Hash.new()
+    opts[:workspace] = workspace
+    opts[:id] = host_id
+
+    framework.db.get_host_tags(opts)
+  end
+
+  def delete_host_tag(rws, tag_name)
+    opts = Hash.new()
+    opts[:workspace] = framework.db.workspace
+    opts[:tag_name] = tag_name
+
+    if rws == [nil]
+      unless framework.db.delete_host_tag(opts)
+        print_error("Host #{opts[:address].to_s + " " if opts[:address]}could not be found.")
+      end
+    else
+      rws.each do |rw|
+        rw.each do |ip|
+          opts[:address] = ip
+          unless framework.db.delete_host_tag(opts)
+            print_error("Host #{ip} could not be found.")
+          end
+        end
+      end
+    end
+
+  end
+
+  @@hosts_columns = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
+
+  @@hosts_opts = Rex::Parser::Arguments.new(
+    [ '-h', '--help' ] => [ false, 'Show this help information' ],
+    [ '-a', '--add' ] => [ true, 'Add the hosts instead of searching', '<host>' ],
+    [ '-u', '--up' ] => [ false, 'Only show hosts which are up' ],
+    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search' ],
+    [ '-S', '--search' ] => [ false, 'Search string to filter by' ],
+    [ '-i', '--info' ] => [ true, 'Change the info of a host', '<info>' ],
+    [ '-n', '--name' ] => [ true, 'Change the name of a host', '<name>' ],
+    [ '-m', '--comment' ] => [ true, 'Change the comment of a host', '<comment>' ],
+    [ '-t', '--tag' ] => [ false, 'Add or specify a tag to a range of hosts' ],
+    [ '-d', '--delete' ] => [ true, 'Delete the hosts instead of searching', '<hosts>' ],
+    [ '-o', '--output' ] => [ true, 'Send output to a file in csv format', '<filename>' ],
+    [ '-O', '--order' ] => [ true, 'Order rows by specified column number', '<column id>' ],
+    [ '-c', '--columns' ] => [ true, 'Only show the given columns (see list below)', '<columns>' ],
+    [ '-C', '--columns-until-restart' ] => [ true, 'Only show the given columns until the next restart (see list below)', '<columns>' ],
+  )
+
+  def cmd_hosts_help(default_columns)
+    print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
+    print_line
+    print @@hosts_opts.usage
+    print_line
+    print_line "Available columns: #{default_columns.join(", ")}"
+    print_line
+  end
+
+  def cmd_hosts(*args)
+    return unless active?
+    onlyup = false
+    set_rhosts = false
+    mode = []
+    delete_count = 0
+
+    rhosts = []
+    host_ranges = []
+    search_term = nil
+
+    order_by = nil
+    info_data = nil
+    name_data = nil
+    comment_data = nil
+    tag_name = nil
+
+    output = nil
+    default_columns = [
+        'address',
+        'arch',
+        'comm',
+        'comments',
+        'created_at',
+        'cred_count',
+        'detected_arch',
+        'exploit_attempt_count',
+        'host_detail_count',
+        'info',
+        'mac',
+        'name',
+        'note_count',
+        'os_family',
+        'os_flavor',
+        'os_lang',
+        'os_name',
+        'os_sp',
+        'purpose',
+        'scope',
+        'service_count',
+        'state',
+        'updated_at',
+        'virtual_host',
+        'vuln_count',
+        'workspace_id']
+
+    default_columns << 'tags' # Special case
+    virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
+
+    col_search = @@hosts_columns
+
+    default_columns.delete_if {|v| (v[-2,2] == "id")}
+    @@hosts_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h', '--help'
+        cmd_hosts_help(default_columns)
+        return
+      when '-a', '--add'
+        mode << :add
+        arg_host_range(val, host_ranges)
+      when '-d', '--delete'
+        mode << :delete
+        arg_host_range(val, host_ranges)
+      when '-u', '--up'
+        onlyup = true
+      when '-o'
+        output = val
+      when '-R', '--rhosts'
+        set_rhosts = true
+      when '-S', '--search'
+        search_term = val
+      when '-i', '--info'
+        mode << :new_info
+        info_data = val
+      when '-n', '--name'
+        mode << :new_name
+        name_data = val
+      when '-m', '--comment'
+        mode << :new_comment
+        comment_data = val
+      when '-t', '--tag'
+        mode << :tag
+        tag_name = val
+      when '-c', '-C'
+        list = val
+        if(!list)
+          print_error("Invalid column list")
+          return
+        end
+        col_search = list.strip().split(",")
+        col_search.each { |c|
+          if not default_columns.include?(c) and not virtual_columns.include?(c)
+            all_columns = default_columns + virtual_columns
+            print_error("Invalid column list. Possible values are (#{all_columns.join("|")})")
+            return
+          end
+        }
+        if opt == '-C'
+          @@hosts_columns = col_search
+        end
+      when '-O'
+        if (order_by = val.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
+      else
+        # Anything that wasn't an option is a host to search for
+        unless (arg_host_range(val, host_ranges))
+          return
+        end
+      end
+    end
+
+    if col_search
+      col_names = col_search
+    else
+      col_names = default_columns + virtual_columns
+    end
+
+    mode << :search if mode.empty?
+
+    if mode == [:add]
+      host_ranges.each do |range|
+        range.each do |address|
+          host = framework.db.find_or_create_host(:host => address)
+          print_status("Time: #{host.created_at} Host: host=#{host.address}")
+        end
+      end
+      return
+    end
+
+    cp_hsh = {}
+    col_names.map do |col|
+      cp_hsh[col] = { 'MaxChar' => 52 }
+    end
+    # If we got here, we're searching.  Delete implies search
+    tbl = Rex::Text::Table.new(
+      {
+        'Header'  => "Hosts",
+        'Columns' => col_names,
+        'ColProps' => cp_hsh,
+        'SortIndex' => order_by
+      })
+
+    # Sentinel value meaning all
+    host_ranges.push(nil) if host_ranges.empty?
+
+    case
+    when mode == [:new_info]
+        change_host_data(host_ranges, info: info_data)
+      return
+    when mode == [:new_name]
+        change_host_data(host_ranges, name: name_data)
+      return
+    when mode == [:new_comment]
+        change_host_data(host_ranges, comments: comment_data)
+      return
+    when mode == [:tag]
+      begin
+        add_host_tag(host_ranges, tag_name)
+      rescue => e
+        if e.message.include?('Validation failed')
+          print_error(e.message)
+        else
+          raise e
+        end
+      end
+      return
+    when mode.include?(:tag) && mode.include?(:delete)
+      delete_host_tag(host_ranges, tag_name)
+      return
+    end
+
+    matched_host_ids = []
+    each_host_range_chunk(host_ranges) do |host_search|
+      next if host_search && host_search.empty?
+
+      framework.db.hosts(address: host_search, non_dead: onlyup, search_term: search_term).each do |host|
+        matched_host_ids << host.id
+        columns = col_names.map do |n|
+          # Deal with the special cases
+          if virtual_columns.include?(n)
+            case n
+            when "svcs";      host.service_count
+            when "vulns";     host.vuln_count
+            when "workspace"; host.workspace.name
+            when "tags"
+              found_tags = find_host_tags(framework.db.workspace, host.id)
+              tag_names = []
+              found_tags.each { |t| tag_names << t.name }
+              found_tags * ", "
+            end
+          # Otherwise, it's just an attribute
+          else
+            host[n] || ""
+          end
+        end
+
+        tbl << columns
+        if set_rhosts
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          rhosts << addr
+        end
+      end
+
+      if mode == [:delete]
+        result = framework.db.delete_host(ids: matched_host_ids)
+        delete_count += result.size
+      end
+    end
+
+    if output
+      print_status("Wrote hosts to #{output}")
+      ::File.open(output, "wb") { |ofd|
+        ofd.write(tbl.to_csv)
+      }
+    else
+      print_line
+      print_line(tbl.to_s)
+    end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
+    print_status("Deleted #{delete_count} hosts") if delete_count > 0
+  end
+
+  #
+  # Tab completion for the services command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_services_tabs(str, words)
+    if words.length == 1
+      return @@services_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+
+    case words[-1]
+    when '-c', '--column'
+      return @@services_columns
+    when '-O', '--order'
+      return []
+    when '-p', '--port'
+      return []
+    when '-r', '--protocol'
+      return []
+    end
+
+    []
+  end
+
+  def cmd_services_help(default_columns)
+    print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
+    print_line
+    print @@services_opts.usage
+    print_line
+    print_line "Available columns: #{default_columns.join(", ")}"
+    print_line
+  end
+
+  @@services_columns = [ 'created_at', 'info', 'name', 'port', 'proto', 'state', 'updated_at' ]
+
+  @@services_opts = Rex::Parser::Arguments.new(
+    [ '-a', '--add' ] => [ false, 'Add the services instead of searching.' ],
+    [ '-d', '--delete' ] => [ false, 'Delete the services instead of searching.' ],
+    [ '-U', '--update' ] => [ false, 'Update data for existing service.' ],
+    [ '-u', '--up' ] => [ false, 'Only show services which are up.' ],
+    [ '-c', '--column' ] => [ true, 'Only show the given columns.', '<col1,col2>' ],
+    [ '-p', '--port' ] => [ true, 'Search for a list of ports.', '<ports>' ],
+    [ '-r', '--protocol' ] => [ true, 'Protocol type of the service being added [tcp|udp].', '<protocol>' ],
+    [ '-s', '--name' ] => [ true, 'Name of the service to add.', '<name>' ],
+    [ '-o', '--output' ] => [ true, 'Send output to a file in csv format.', '<filename>' ],
+    [ '-O', '--order' ] => [ true, 'Order rows by specified column number.', '<column id>' ],
+    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
+    [ '-h', '--help' ] => [ false, 'Show this help information.' ]
+  )
+
+  def cmd_services(*args)
+    return unless active?
+    mode = :search
+    onlyup = false
+    output_file = nil
+    set_rhosts = false
+    col_search = ['port', 'proto', 'name', 'state', 'info']
+
+    names = nil
+    order_by = nil
+    proto = nil
+    host_ranges  = []
+    port_ranges  = []
+    rhosts       = []
+    delete_count = 0
+    search_term  = nil
+    opts         = {}
+
+    @@services_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-a', '--add'
+        mode = :add
+      when '-d', '--delete'
+        mode = :delete
+      when '-U', '--update'
+        mode = :update
+      when '-u', '--up'
+        onlyup = true
+      when '-c'
+        list = val
+        if(!list)
+          print_error("Invalid column list")
+          return
+        end
+        col_search = list.strip().split(",")
+        col_search.each { |c|
+          if not @@services_columns.include? c
+            print_error("Invalid column list. Possible values are (#{@@services_columns.join("|")})")
+            return
+          end
+        }
+      when '-p'
+        unless (arg_port_range(val, port_ranges, true))
+          return
+        end
+      when '-r'
+        proto = val
+        if (!proto)
+          print_status("Invalid protocol")
+          return
+        end
+        proto = proto.strip
+      when '-s'
+        namelist = val
+        if (!namelist)
+          print_error("Invalid name list")
+          return
+        end
+        names = namelist.strip().split(",")
+      when '-o'
+        output_file = val
+        if (!output_file)
+          print_error("Invalid output filename")
+          return
+        end
+        output_file = ::File.expand_path(output_file)
+      when '-O'
+        if (order_by = val.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
+      when '-R', '--rhosts'
+        set_rhosts = true
+      when '-S', '--search'
+        search_term = val
+        opts[:search_term] = search_term
+      when '-h', '--help'
+        cmd_services_help(@@services_columns)
+        return
+      else
+        # Anything that wasn't an option is a host to search for
+        unless (arg_host_range(val, host_ranges))
+          return
+        end
+      end
+    end
+
+    ports = port_ranges.flatten.uniq
+
+    if mode == :add
+      # Can only deal with one port and one service name at a time
+      # right now.  Them's the breaks.
+      if ports.length != 1
+        print_error("Exactly one port required")
+        return
+      end
+      if host_ranges.empty?
+        print_error("Host address or range required")
+        return
+      end
+      host_ranges.each do |range|
+        range.each do |addr|
+          info = {
+              :host => addr,
+              :port => ports.first.to_i
+          }
+          info[:proto] = proto.downcase if proto
+          info[:name]  = names.first.downcase if names and names.first
+
+          svc = framework.db.find_or_create_service(info)
+          print_status("Time: #{svc.created_at} Service: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
+        end
+      end
+      return
+    end
+
+    # If we got here, we're searching.  Delete implies search
+    col_names = @@services_columns
+    if col_search
+      col_names = col_search
+    end
+    tbl = Rex::Text::Table.new({
+                                   'Header'    => "Services",
+                                   'Columns'   => ['host'] + col_names,
+                                   'SortIndex' => order_by
+                               })
+
+    # Sentinel value meaning all
+    host_ranges.push(nil) if host_ranges.empty?
+    ports = nil if ports.empty?
+    matched_service_ids = []
+
+    each_host_range_chunk(host_ranges) do |host_search|
+      next if host_search && host_search.empty?
+      opts[:workspace] = framework.db.workspace
+      opts[:hosts] = {address: host_search} if !host_search.nil?
+      opts[:port] = ports if ports
+      framework.db.services(opts).each do |service|
+
+        unless service.state == 'open'
+          next if onlyup
+        end
+
+        host = service.host
+        matched_service_ids << service.id
+
+        if mode == :update
+          service.name = names.first if names
+          service.proto = proto if proto
+          service.port = ports.first if ports
+          framework.db.update_service(service.as_json.symbolize_keys)
+        end
+
+        columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
+        tbl << columns
+        if set_rhosts
+          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          rhosts << addr
+        end
+      end
+    end
+
+    if (mode == :delete)
+      result = framework.db.delete_service(ids: matched_service_ids)
+      delete_count += result.size
+    end
+
+    if (output_file == nil)
+      print_line(tbl.to_s)
+    else
+      # create the output file
+      ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+      print_status("Wrote services to #{output_file}")
+    end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
+    print_status("Deleted #{delete_count} services") if delete_count > 0
+
+  end
+
+  #
+  # Tab completion for the vulns command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_vulns_tabs(str, words)
+    if words.length == 1
+      return @@vulns_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+  end
+
+  def cmd_vulns_help
+    print_line "Print all vulnerabilities in the database"
+    print_line
+    print_line "Usage: vulns [addr range]"
+    print_line
+    print @@vulns_opts.usage
+    print_line
+    print_line "Examples:"
+    print_line "  vulns -p 1-65536          # only vulns with associated services"
+    print_line "  vulns -p 1-65536 -s http  # identified as http on any port"
+    print_line
+  end
+
+  @@vulns_opts = Rex::Parser::Arguments.new(
+    [ '-h', '--help' ] => [ false, 'Show this help information.' ],
+    [ '-o', '--output' ] => [ true, 'Send output to a file in csv format.', '<filename>' ],
+    [ '-p', '--port' ] => [ true, 'List vulns matching this port spec.', '<port>' ],
+    [ '-s', '--service' ] => [ true, 'List vulns matching these service names.', '<name>' ],
+    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
+    [ '-i', '--info' ] => [ false, 'Display vuln information.' ],
+    [ '-d', '--delete' ] => [ false, 'Delete vulnerabilities. Not officially supported.' ]
+  )
+
+  def cmd_vulns(*args)
+    return unless active?
+
+    default_columns = ['Timestamp', 'Host', 'Name', 'References']
+    host_ranges = []
+    port_ranges = []
+    svcs        = []
+    rhosts      = []
+
+    search_term = nil
+    show_info   = false
+    set_rhosts  = false
+    output_file = nil
+    delete_count = 0
+
+    mode = nil
+
+    @@vulns_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-d', '--delete' # TODO: This is currently undocumented because it's not officially supported.
+        mode = :delete
+      when '-h', '--help'
+        cmd_vulns_help
+        return
+      when '-o', '--output'
+        output_file = val
+        if output_file
+          output_file = File.expand_path(output_file)
+        else
+          print_error("Invalid output filename")
+          return
+        end
+      when '-p', '--port'
+        unless (arg_port_range(val, port_ranges, true))
+          return
+        end
+      when '-s', '--service'
+        service = val
+        if (!service)
+          print_error("Argument required for -s")
+          return
+        end
+        svcs = service.split(/[\s]*,[\s]*/)
+      when '-R', '--rhosts'
+        set_rhosts = true
+      when '-S', '--search'
+        search_term = val
+      when '-i', '--info'
+        show_info = true
+      else
+        # Anything that wasn't an option is a host to search for
+        unless (arg_host_range(val, host_ranges))
+          return
+        end
+      end
+    end
+
+    if show_info
+      default_columns << 'Information'
+    end
+
+    # add sentinel value meaning all if empty
+    host_ranges.push(nil) if host_ranges.empty?
+    # normalize
+    ports = port_ranges.flatten.uniq
+    svcs.flatten!
+    tbl = Rex::Text::Table.new(
+        'Header' => 'Vulnerabilities',
+        'Columns' => default_columns
+    )
+
+    matched_vuln_ids = []
+    vulns = []
+    if host_ranges.compact.empty?
+      vulns = framework.db.vulns({:search_term => search_term})
+    else
+      each_host_range_chunk(host_ranges) do |host_search|
+        next if host_search && host_search.empty?
+
+        vulns.concat(framework.db.vulns({:hosts => { :address => host_search }, :search_term => search_term }))
+      end
+    end
+
+    vulns.each do |vuln|
+      reflist = vuln.refs.map {|r| r.name}
+      if (vuln.service)
+        # Skip this one if the user specified a port and it
+        # doesn't match.
+        next unless ports.empty? or ports.include? vuln.service.port
+        # Same for service names
+        next unless svcs.empty? or svcs.include?(vuln.service.name)
+      else
+        # This vuln has no service, so it can't match
+        next unless ports.empty? and svcs.empty?
+      end
+
+      matched_vuln_ids << vuln.id
+
+      row = []
+      row << vuln.created_at
+      row << vuln.host.address
+      row << vuln.name
+      row << reflist.join(',')
+      if show_info
+        row << vuln.info
+      end
+      tbl << row
+
+      if set_rhosts
+        addr = (vuln.host.scope ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
+        rhosts << addr
+      end
+    end
+
+    if mode == :delete
+      result = framework.db.delete_vuln(ids: matched_vuln_ids)
+      delete_count = result.size
+    end
+
+    if output_file
+      File.write(output_file, tbl.to_csv)
+      print_status("Wrote vulnerability information to #{output_file}")
+    else
+      print_line
+      print_line(tbl.to_s)
+    end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
+    print_status("Deleted #{delete_count} vulnerabilities") if delete_count > 0
+  end
+
+  #
+  # Tab completion for the notes command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_notes_tabs(str, words)
+    if words.length == 1
+      return @@notes_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+
+    case words[-1]
+    when '-O', '--order'
+      return []
+    end
+
+    []
+  end
+
+  def cmd_notes_help
+    print_line "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
+    print_line
+    print @@notes_opts.usage
+    print_line
+    print_line "Examples:"
+    print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
+    print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
+    print_line "  notes -S 'nmap.nse.(http|rtsp)'"
+    print_line
+  end
+
+  @@notes_opts = Rex::Parser::Arguments.new(
+    [ '-a', '--add' ] => [ false, 'Add a note to the list of addresses, instead of listing.' ],
+    [ '-d', '--delete' ] => [ false, 'Delete the notes instead of searching.' ],
+    [ '-n', '--note' ] => [ true, 'Set the data for a new note (only with -a).', '<note>' ],
+    [ '-t', '--type' ] => [ true, 'Search for a list of types, or set single type for add.', '<type1,type2>' ],
+    [ '-h', '--help' ] => [ false, 'Show this help information.' ],
+    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
+    [ '-o', '--output' ] => [ true, 'Save the notes to a csv file.', '<filename>' ],
+    [ '-O', '--order' ] => [ true, 'Order rows by specified column number.', '<column id>' ],
+    [ '-u', '--update' ] => [ false, 'Update a note. Not officially supported.' ]
+  )
+
+  def cmd_notes(*args)
+    return unless active?
+  ::ApplicationRecord.connection_pool.with_connection {
+    mode = :search
+    data = nil
+    types = nil
+    set_rhosts = false
+
+    host_ranges = []
+    rhosts      = []
+    search_term = nil
+    output_file = nil
+    delete_count = 0
+    order_by = nil
+
+    @@notes_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-a', '--add'
+        mode = :add
+      when '-d', '--delete'
+        mode = :delete
+      when '-n', '--note'
+        data = val
+        if(!data)
+          print_error("Can't make a note with no data")
+          return
+        end
+      when '-t', '--type'
+        typelist = val
+        if(!typelist)
+          print_error("Invalid type list")
+          return
+        end
+        types = typelist.strip().split(",")
+      when '-R', '--rhosts'
+        set_rhosts = true
+      when '-S', '--search'
+        search_term = val
+      when '-o', '--output'
+        output_file = val
+      when '-O'
+        if (order_by = val.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
+      when '-u', '--update'  # TODO: This is currently undocumented because it's not officially supported.
+        mode = :update
+      when '-h', '--help'
+        cmd_notes_help
+        return
+      else
+        # Anything that wasn't an option is a host to search for
+        unless (arg_host_range(val, host_ranges))
+          return
+        end
+      end
+    end
+
+    if mode == :add
+      if host_ranges.compact.empty?
+        print_error("Host address or range required")
+        return
+      end
+
+      if types.nil? || types.size != 1
+        print_error("Exactly one type is required")
+        return
+      end
+
+      if data.nil?
+        print_error("Data required")
+        return
+      end
+
+      type = types.first
+      host_ranges.each { |range|
+        range.each { |addr|
+          note = framework.db.find_or_create_note(host: addr, type: type, data: data)
+          break if not note
+          print_status("Time: #{note.created_at} Note: host=#{addr} type=#{note.ntype} data=#{note.data}")
+        }
+      }
+      return
+    end
+
+    if mode == :update
+      if !types.nil? && types.size != 1
+        print_error("Exactly one type is required")
+        return
+      end
+
+      if types.nil? && data.nil?
+        print_error("Update requires data or type")
+        return
+      end
+    end
+
+    note_list = []
+    if host_ranges.compact.empty?
+      # No host specified - collect all notes
+      opts = {search_term: search_term}
+      opts[:ntype] = types if mode != :update && types && !types.empty?
+      note_list = framework.db.notes(opts)
+    else
+      # Collect notes of specified hosts
+      each_host_range_chunk(host_ranges) do |host_search|
+        next if host_search && host_search.empty?
+
+        opts = {hosts: {address: host_search}, workspace: framework.db.workspace, search_term: search_term}
+        opts[:ntype] = types if mode != :update && types && !types.empty?
+        note_list.concat(framework.db.notes(opts))
+      end
+    end
+
+    # Now display them
+    table = Rex::Text::Table.new(
+      'Header'  => 'Notes',
+      'Indent'  => 1,
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data'],
+      'SortIndex' => order_by
+    )
+
+    matched_note_ids = []
+    note_list.each do |note|
+      if mode == :update
+        begin
+          update_opts = {id: note.id}
+          unless types.nil?
+            note.ntype = types.first
+            update_opts[:ntype] = types.first
+          end
+
+          unless data.nil?
+            note.data = data
+            update_opts[:data] = data
+          end
+
+          framework.db.update_note(update_opts)
+        rescue => e
+          elog "There was an error updating note with ID #{note.id}: #{e.message}"
+          next
+        end
+      end
+
+      matched_note_ids << note.id
+
+      row = []
+      row << note.created_at
+
+      if note.host
+        host = note.host
+        row << host.address
+        if set_rhosts
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          rhosts << addr
+        end
+      else
+        row << ''
+      end
+
+      if note.service
+        row << note.service.name || ''
+        row << note.service.port || ''
+        row << note.service.proto || ''
+      else
+        row << '' # For the Service field
+        row << '' # For the Port field
+        row << '' # For the Protocol field
+      end
+
+      row << note.ntype
+      row << note.data.inspect
+      table << row
+    end
+
+    if mode == :delete
+      result = framework.db.delete_note(ids: matched_note_ids)
+      delete_count = result.size
+    end
+
+    if output_file
+      save_csv_notes(output_file, table)
+    else
+      print_line
+      print_line(table.to_s)
+    end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
+    print_status("Deleted #{delete_count} notes") if delete_count > 0
+  }
+  end
+
+  def save_csv_notes(fpath, table)
+    begin
+      File.open(fpath, 'wb') do |f|
+        f.write(table.to_csv)
+      end
+      print_status("Wrote notes to #{fpath}")
+    rescue Errno::EACCES => e
+      print_error("Unable to save notes. #{e.message}")
+    end
+  end
+
+  #
+  # Tab completion for the loot command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_loot_tabs(str, words)
+    if words.length == 1
+      @@loot_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+  end
+
+  def cmd_loot_help
+    print_line "Usage: loot [options]"
+    print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+    print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]"
+    print_line "  Del: loot -d [addr1 addr2 ...]"
+    print_line
+    print @@loot_opts.usage
+    print_line
+  end
+
+  @@loot_opts = Rex::Parser::Arguments.new(
+    [ '-a', '--add' ] => [ false, 'Add loot to the list of addresses, instead of listing.' ],
+    [ '-d', '--delete' ] => [ false, 'Delete *all* loot matching host and type.' ],
+    [ '-f', '--file' ] => [ true, 'File with contents of the loot to add.', '<filename>' ],
+    [ '-i', '--info' ] => [ true, 'Info of the loot to add.', '<info>' ],
+    [ '-t', '--type' ] => [ true, 'Search for a list of types.', '<type1,type2>' ],
+    [ '-h', '--help' ] => [ false, 'Show this help information.' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
+    [ '-u', '--update' ] => [ false, 'Update loot. Not officially supported.' ]
+  )
+
+  def cmd_loot(*args)
+    return unless active?
+
+    mode = :search
+    host_ranges = []
+    types = nil
+    delete_count = 0
+    search_term = nil
+    file = nil
+    name = nil
+    info = nil
+    filename = nil
+
+    @@loot_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-a', '--add'
+        mode = :add
+      when '-d', '--delete'
+        mode = :delete
+      when '-f', '--file'
+        filename = val
+        if(!filename)
+          print_error("Can't make loot with no filename")
+          return
+        end
+        if (!File.exist?(filename) or !File.readable?(filename))
+          print_error("Can't read file")
+          return
+        end
+      when '-i', '--info'
+        info = val
+        if(!info)
+          print_error("Can't make loot with no info")
+          return
+        end
+      when '-t', '--type'
+        typelist = val
+        if(!typelist)
+          print_error("Invalid type list")
+          return
+        end
+        types = typelist.strip().split(",")
+      when '-S', '--search'
+        search_term = val
+      when '-u', '--update' # TODO: This is currently undocumented because it's not officially supported.
+        mode = :update
+      when '-h', '--help'
+        cmd_loot_help
+        return
+      else
+        # Anything that wasn't an option is a host to search for
+        unless (arg_host_range(val, host_ranges))
+          return
+        end
+      end
+    end
+
+    tbl = Rex::Text::Table.new({
+        'Header'  => "Loot",
+        'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
+        # For now, don't perform any word wrapping on the loot table as it breaks the workflow of
+        # copying paths and pasting them into applications
+        'WordWrap' => false,
+      })
+
+    # Sentinel value meaning all
+    host_ranges.push(nil) if host_ranges.empty?
+
+    if mode == :add
+      if host_ranges.compact.empty?
+        print_error('Address list required')
+        return
+      end
+      if info.nil?
+        print_error("Info required")
+        return
+      end
+      if filename.nil?
+        print_error("Loot file required")
+        return
+      end
+      if types.nil? or types.size != 1
+        print_error("Exactly one loot type is required")
+        return
+      end
+      type = types.first
+      name = File.basename(filename)
+      file = File.open(filename, "rb")
+      contents = file.read
+      host_ranges.each do |range|
+        range.each do |host|
+          lootfile = framework.db.find_or_create_loot(:type => type, :host => host, :info => info, :data => contents, :path => filename, :name => name)
+          print_status("Added loot for #{host} (#{lootfile})")
+        end
+      end
+      return
+    end
+
+    matched_loot_ids = []
+    loots = []
+    if host_ranges.compact.empty?
+      loots = loots + framework.db.loots(workspace: framework.db.workspace, search_term: search_term)
+    else
+      each_host_range_chunk(host_ranges) do |host_search|
+        next if host_search && host_search.empty?
+
+        loots = loots + framework.db.loots(workspace: framework.db.workspace, hosts: { address: host_search }, search_term: search_term)
+      end
+    end
+
+    loots.each do |loot|
+      row = []
+      # TODO: This is just a temp implementation of update for the time being since it did not exist before.
+      # It should be updated to not pass all of the attributes attached to the object, only the ones being updated.
+      if mode == :update
+        begin
+          loot.info = info if info
+          if types && types.size > 1
+            print_error "May only pass 1 type when performing an update."
+            next
+          end
+          loot.ltype = types.first if types
+          framework.db.update_loot(loot.as_json.symbolize_keys)
+        rescue => e
+          elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
+          next
+        end
+      end
+      row.push (loot.host && loot.host.address) ? loot.host.address : ""
+      if (loot.service)
+        svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+        row.push svc
+      else
+        row.push ""
+      end
+      row.push(loot.ltype)
+      row.push(loot.name || "")
+      row.push(loot.content_type)
+      row.push(loot.info || "")
+      row.push(loot.path)
+
+      tbl << row
+      matched_loot_ids << loot.id
+    end
+
+    if (mode == :delete)
+      result = framework.db.delete_loot(ids: matched_loot_ids)
+      delete_count = result.size
+    end
+
+    print_line
+    print_line(tbl.to_s)
+    print_status("Deleted #{delete_count} loots") if delete_count > 0
+  end
+
+  # :category: Deprecated Commands
+  def cmd_db_hosts_help; deprecated_help(:hosts); end
+  # :category: Deprecated Commands
+  def cmd_db_notes_help; deprecated_help(:notes); end
+  # :category: Deprecated Commands
+  def cmd_db_vulns_help; deprecated_help(:vulns); end
+  # :category: Deprecated Commands
+  def cmd_db_services_help; deprecated_help(:services); end
+  # :category: Deprecated Commands
+  def cmd_db_autopwn_help; deprecated_help; end
+  # :category: Deprecated Commands
+  def cmd_db_driver_help; deprecated_help; end
+
+  # :category: Deprecated Commands
+  def cmd_db_hosts(*args); deprecated_cmd(:hosts, *args); end
+  # :category: Deprecated Commands
+  def cmd_db_notes(*args); deprecated_cmd(:notes, *args); end
+  # :category: Deprecated Commands
+  def cmd_db_vulns(*args); deprecated_cmd(:vulns, *args); end
+  # :category: Deprecated Commands
+  def cmd_db_services(*args); deprecated_cmd(:services, *args); end
+  # :category: Deprecated Commands
+  def cmd_db_autopwn(*args); deprecated_cmd; end
+
+  #
+  # :category: Deprecated Commands
+  #
+  # This one deserves a little more explanation than standard deprecation
+  # warning, so give the user a better understanding of what's going on.
+  #
+  def cmd_db_driver(*args)
+    deprecated_cmd
+    print_line
+    print_line "Because Metasploit no longer supports databases other than the default"
+    print_line "PostgreSQL, there is no longer a need to set the driver. Thus db_driver"
+    print_line "is not useful and its functionality has been removed. Usually Metasploit"
+    print_line "will already have connected to the database; check db_status to see."
+    print_line
+    cmd_db_status
+  end
+
+  def cmd_db_import_tabs(str, words)
+    tab_complete_filenames(str, words)
+  end
+
+  def cmd_db_import_help
+    print_line "Usage: db_import <filename> [file2...]"
+    print_line
+    print_line "Filenames can be globs like *.xml, or **/*.xml which will search recursively"
+    print_line "Currently supported file types include:"
+    print_line "    Acunetix"
+    print_line "    Amap Log"
+    print_line "    Amap Log -m"
+    print_line "    Appscan"
+    print_line "    Burp Session XML"
+    print_line "    Burp Issue XML"
+    print_line "    CI"
+    print_line "    Foundstone"
+    print_line "    FusionVM XML"
+    print_line "    Group Policy Preferences Credentials"
+    print_line "    IP Address List"
+    print_line "    IP360 ASPL"
+    print_line "    IP360 XML v3"
+    print_line "    Libpcap Packet Capture"
+    print_line "    Masscan XML"
+    print_line "    Metasploit PWDump Export"
+    print_line "    Metasploit XML"
+    print_line "    Metasploit Zip Export"
+    print_line "    Microsoft Baseline Security Analyzer"
+    print_line "    NeXpose Simple XML"
+    print_line "    NeXpose XML Report"
+    print_line "    Nessus NBE Report"
+    print_line "    Nessus XML (v1)"
+    print_line "    Nessus XML (v2)"
+    print_line "    NetSparker XML"
+    print_line "    Nikto XML"
+    print_line "    Nmap XML"
+    print_line "    OpenVAS Report"
+    print_line "    OpenVAS XML"
+    print_line "    Outpost24 XML"
+    print_line "    Qualys Asset XML"
+    print_line "    Qualys Scan XML"
+    print_line "    Retina XML"
+    print_line "    Spiceworks CSV Export"
+    print_line "    Wapiti XML"
+    print_line
+  end
+
+  #
+  # Generic import that automatically detects the file type
+  #
+  def cmd_db_import(*args)
+    return unless active?
+  ::ApplicationRecord.connection_pool.with_connection {
+    if args.include?("-h") || ! (args && args.length > 0)
+      cmd_db_import_help
+      return
+    end
+    args.each { |glob|
+      files = ::Dir.glob(::File.expand_path(glob))
+      if files.empty?
+        print_error("No such file #{glob}")
+        next
+      end
+      files.each { |filename|
+        if (not ::File.readable?(filename))
+          print_error("Could not read file #{filename}")
+          next
+        end
+        begin
+          warnings = 0
+          framework.db.import_file(:filename => filename) do |type,data|
+            case type
+            when :debug
+              print_error("DEBUG: #{data.inspect}")
+            when :vuln
+              inst = data[1] == 1 ? "instance" : "instances"
+              print_status("Importing vulnerability '#{data[0]}' (#{data[1]} #{inst})")
+            when :filetype
+              print_status("Importing '#{data}' data")
+            when :parser
+              print_status("Import: Parsing with '#{data}'")
+            when :address
+              print_status("Importing host #{data}")
+            when :service
+              print_status("Importing service #{data}")
+            when :msf_loot
+              print_status("Importing loot #{data}")
+            when :msf_task
+              print_status("Importing task #{data}")
+            when :msf_report
+              print_status("Importing report #{data}")
+            when :pcap_count
+              print_status("Import: #{data} packets processed")
+            when :record_count
+              print_status("Import: #{data[1]} records processed")
+            when :warning
+              print_error
+              data.split("\n").each do |line|
+                print_error(line)
+              end
+              print_error
+              warnings += 1
+            end
+          end
+          print_status("Successfully imported #{filename}")
+
+          print_error("Please note that there were #{warnings} warnings") if warnings > 1
+          print_error("Please note that there was one warning") if warnings == 1
+
+        rescue Msf::DBImportError => e
+          print_error("Failed to import #{filename}: #{$!}")
+          elog("Failed to import #{filename}", error: e)
+          dlog("Call stack: #{$@.join("\n")}", LEV_3)
+          next
+        rescue REXML::ParseException => e
+          print_error("Failed to import #{filename} due to malformed XML:")
+          print_error("#{e.class}: #{e}")
+          elog("Failed to import #{filename}", error: e)
+          dlog("Call stack: #{$@.join("\n")}", LEV_3)
+          next
+        end
+      }
+    }
+  }
+  end
+
+  def cmd_db_export_help
+    # Like db_hosts and db_services, this creates a list of columns, so
+    # use its -h
+    cmd_db_export("-h")
+  end
+
+  #
+  # Export an XML
+  #
+  def cmd_db_export(*args)
+    return unless active?
+  ::ApplicationRecord.connection_pool.with_connection {
+
+    export_formats = %W{xml pwdump}
+    format = 'xml'
+    output = nil
+
+    while (arg = args.shift)
+      case arg
+      when '-h','--help'
+        print_line "Usage:"
+        print_line "    db_export -f <format> [filename]"
+        print_line "    Format can be one of: #{export_formats.join(", ")}"
+      when '-f','--format'
+        format = args.shift.to_s.downcase
+      else
+        output = arg
+      end
+    end
+
+    if not output
+      print_error("No output file was specified")
+      return
+    end
+
+    if not export_formats.include?(format)
+      print_error("Unsupported file format: #{format}")
+      print_error("Unsupported file format: '#{format}'. Must be one of: #{export_formats.join(", ")}")
+      return
+    end
+
+    print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
+    framework.db.run_db_export(output, format)
+    print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
+  }
+  end
+
+  def find_nmap_path
+    Rex::FileUtils.find_full_path("nmap") || Rex::FileUtils.find_full_path("nmap.exe")
+  end
+
+  #
+  # Import Nmap data from a file
+  #
+  def cmd_db_nmap(*args)
+    return unless active?
+  ::ApplicationRecord.connection_pool.with_connection {
+    if (args.length == 0)
+      print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
+      return
+    end
+
+    save = false
+    arguments = []
+    while (arg = args.shift)
+      case arg
+      when '--save'
+        save = true
+      when '--help', '-h'
+        cmd_db_nmap_help
+        return
+      else
+        arguments << arg
+      end
+    end
+
+    nmap = find_nmap_path
+    unless nmap
+      print_error("The nmap executable could not be found")
+      return
+    end
+
+    fd = Rex::Quickfile.new(['msf-db-nmap-', '.xml'], Msf::Config.local_directory)
+
+    begin
+      # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
+      if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
+        # Custom function needed because cygpath breaks on 8.3 dirs
+        tout = Rex::Compat.cygwin_to_win32(fd.path)
+        arguments.push('-oX', tout)
+      else
+        arguments.push('-oX', fd.path)
+      end
+
+      run_nmap(nmap, arguments)
+
+      framework.db.import_nmap_xml_file(:filename => fd.path)
+
+      print_status("Saved NMAP XML results to #{fd.path}") if save
+    ensure
+      fd.close
+      fd.unlink unless save
+    end
+  }
+  end
+
+  def cmd_db_nmap_help
+    nmap = find_nmap_path
+    unless nmap
+      print_error("The nmap executable could not be found")
+      return
+    end
+
+    stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
+
+    stdout.each_line do |out_line|
+      next if out_line.strip.empty?
+      print_status(out_line.strip)
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+  end
+
+  def cmd_db_nmap_tabs(str, words)
+    nmap = find_nmap_path
+    unless nmap
+      return
+    end
+
+    stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
+    tabs = []
+    stdout.each_line do |out_line|
+      if out_line.strip.starts_with?('-')
+        tabs.push(out_line.strip.split(':').first)
+      end
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+
+    return tabs
+  end
+
+  #
+  # Database management
+  #
+  def db_check_driver
+    unless framework.db.driver
+      print_error("No database driver installed.")
+      return false
+    end
+    true
+  end
+
+  #
+  # Is everything working?
+  #
+  def cmd_db_status(*args)
+    return if not db_check_driver
+
+    if framework.db.connection_established?
+      print_connection_info
+    else
+      print_status("#{framework.db.driver} selected, no connection")
+    end
+  end
+
+
+  def cmd_db_connect_help
+    print_line("   USAGE:")
+    print_line("      * Postgres Data Service:")
+    print_line("          db_connect <user:[pass]>@<host:[port]>/<database>")
+    print_line("        Examples:")
+    print_line("          db_connect user@metasploit3")
+    print_line("          db_connect user:pass@192.168.0.2/metasploit3")
+    print_line("          db_connect user:pass@192.168.0.2:1500/metasploit3")
+    print_line("          db_connect -y [path/to/database.yml]")
+    print_line(" ")
+    print_line("      * HTTP Data Service:")
+    print_line("          db_connect [options] <http|https>://<host:[port]>")
+    print_line("        Examples:")
+    print_line("          db_connect http://localhost:8080")
+    print_line("          db_connect http://my-super-msf-data.service.com")
+    print_line("          db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
+    print_line("        NOTE: You must be connected to a Postgres data service in order to successfully connect to a HTTP data service.")
+    print_line(" ")
+    print_line("      Persisting Connections:")
+    print_line("        db_connect --name <name to save connection as> [options] <address>")
+    print_line("      Examples:")
+    print_line("        Saving:     db_connect --name LA-server http://123.123.123.45:1234")
+    print_line("        Connecting: db_connect LA-server")
+    print_line(" ")
+    print_line("   OPTIONS:")
+    print_line("       -l,--list-services List the available data services that have been previously saved.")
+    print_line("       -y,--yaml          Connect to the data service specified in the provided database.yml file.")
+    print_line("       -n,--name          Name used to store the connection. Providing an existing name will overwrite the settings for that connection.")
+    print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
+    print_line("       -t,--token         The API token used to authenticate to the remote data service.")
+    print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
+    print_line("")
+  end
+
+  def cmd_db_connect(*args)
+    return if not db_check_driver
+
+    opts = {}
+    while (arg = args.shift)
+      case arg
+      when '-h', '--help'
+        cmd_db_connect_help
+        return
+      when '-y', '--yaml'
+        opts[:yaml_file] = args.shift
+      when '-c', '--cert'
+        opts[:cert] = args.shift
+      when '-t', '--token'
+        opts[:api_token] = args.shift
+      when '-l', '--list-services'
+        list_saved_data_services
+        return
+      when '-n', '--name'
+        opts[:name] = args.shift
+        if opts[:name] =~ /\/|\[|\]/
+          print_error "Provided name contains an invalid character. Aborting connection."
+          return
+        end
+      when '--skip-verify'
+        opts[:skip_verify] = true
+      else
+        found_name = ::Msf::DbConnector.data_service_search(name: arg)
+        if found_name
+          opts = ::Msf::DbConnector.load_db_config(found_name)
+        else
+          opts[:url] = arg
+        end
+      end
+    end
+
+    if !opts[:url] && !opts[:yaml_file]
+      print_error 'A URL or saved data service name is required.'
+      print_line
+      cmd_db_connect_help
+      return
+    end
+
+    if opts[:url] =~ /http/
+      new_conn_type = 'http'
+    else
+      new_conn_type = framework.db.driver
+    end
+
+    # Currently only able to be connected to one DB at a time
+    if framework.db.connection_established?
+      # But the http connection still requires a local database to support AR, so we have to allow that
+      # Don't allow more than one HTTP service, though
+      if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
+        print_error('Connection already established. Only one connection is allowed at a time.')
+        print_error('Run db_disconnect first if you wish to connect to a different data service.')
+        print_line
+        print_line 'Current connection information:'
+        print_connection_info
+        return
+      end
+    end
+
+    result = Msf::DbConnector.db_connect(framework, opts)
+    if result[:error]
+      print_error result[:error]
+      return
+    end
+
+    if result[:result]
+      print_status result[:result]
+    end
+    if framework.db.active
+      name = opts[:name]
+      if !name || name.empty?
+        if found_name
+          name = found_name
+        elsif result[:data_service_name]
+          name = result[:data_service_name]
+        else
+          name = Rex::Text.rand_text_alphanumeric(8)
+        end
+      end
+
+      save_db_to_config(framework.db, name)
+      @current_data_service = name
+    end
+  end
+
+  def cmd_db_disconnect_help
+    print_line "Usage:"
+    print_line "    db_disconnect              Temporarily disconnects from the currently configured dataservice."
+    print_line "    db_disconnect --clear      Clears the default dataservice that msfconsole will use when opened."
+    print_line
+  end
+
+  def cmd_db_disconnect(*args)
+    return if not db_check_driver
+
+    if args[0] == '-h' || args[0] == '--help'
+      cmd_db_disconnect_help
+      return
+    elsif args[0] == '-c' || args[0] == '--clear'
+      clear_default_db
+      return
+    end
+
+    previous_name = framework.db.name
+    result = Msf::DbConnector.db_disconnect(framework)
+
+    if result[:error]
+      print_error "Unable to disconnect from the data service: #{@current_data_service}"
+      print_error result[:error]
+    elsif result[:old_data_service_name].nil?
+      print_error 'Not currently connected to a data service.'
+    else
+      print_line "Successfully disconnected from the data service: #{previous_name}."
+      @current_data_service = result[:data_service_name]
+      if @current_data_service
+        print_line "Now connected to: #{@current_data_service}."
+      end
+    end
+  end
+
+  def cmd_db_rebuild_cache(*args)
+    print_line "This command is deprecated with Metasploit 5"
+  end
+
+  def cmd_db_save_help
+    print_line "Usage: db_save"
+    print_line
+    print_line "Save the current data service connection as the default to reconnect on startup."
+    print_line
+  end
+
+  def cmd_db_save(*args)
+    while (arg = args.shift)
+      case arg
+        when '-h', '--help'
+          cmd_db_save_help
+          return
+      end
+    end
+
+    if !framework.db.active || !@current_data_service
+      print_error "Not currently connected to a data service that can be saved."
+      return
+    end
+
+    begin
+      Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => @current_data_service })
+      print_line "Successfully saved data service as default: #{@current_data_service}"
+    rescue ArgumentError => e
+      print_error e.message
+    end
+  end
+
+  def save_db_to_config(database, database_name)
+    if database_name =~ /\/|\[|\]/
+      raise ArgumentError, 'Data service name contains an invalid character.'
+    end
+    config_path = "#{DB_CONFIG_PATH}/#{database_name}"
+    config_opts = {}
+    if !database.is_local?
+      begin
+        config_opts['url'] = database.endpoint
+        if database.https_opts
+          config_opts['cert'] = database.https_opts[:cert] if database.https_opts[:cert]
+          config_opts['skip_verify'] = true if database.https_opts[:skip_verify]
+        end
+        if database.api_token
+          config_opts['api_token'] = database.api_token
+        end
+        Msf::Config.save(config_path => config_opts)
+      rescue => e
+        print_error "There was an error saving the data service configuration: #{e.message}"
+      end
+    else
+      url = Msf::DbConnector.build_postgres_url
+      config_opts['url'] = url
+      Msf::Config.save(config_path => config_opts)
+    end
+  end
+
+  def cmd_db_remove_help
+    print_line "Usage: db_remove <name>"
+    print_line
+    print_line "Delete the specified saved data service."
+    print_line
+  end
+
+  def cmd_db_remove(*args)
+    if args[0] == '-h' || args[0] == '--help' || args[0].nil? || args[0].empty?
+      cmd_db_remove_help
+      return
+    end
+    delete_db_from_config(args[0])
+  end
+
+  def delete_db_from_config(db_name)
+    conf = Msf::Config.load
+    db_path = "#{DB_CONFIG_PATH}/#{db_name}"
+    if conf[db_path]
+      clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == db_name
+      Msf::Config.delete_group(db_path)
+      print_line "Successfully deleted data service: #{db_name}"
+    else
+      print_line "Unable to locate saved data service with name #{db_name}."
+    end
+  end
+
+  def clear_default_db
+    conf = Msf::Config.load
+    if conf[DB_CONFIG_PATH] && conf[DB_CONFIG_PATH]['default_db']
+      updated_opts = conf[DB_CONFIG_PATH]
+      updated_opts.delete('default_db')
+      Msf::Config.save(DB_CONFIG_PATH => updated_opts)
+      print_line "Cleared the default data service."
+    else
+      print_line "No default data service was configured."
+    end
+  end
+
+  def db_find_tools(tools)
+    missed  = []
+    tools.each do |name|
+      if(! Rex::FileUtils.find_full_path(name))
+        missed << name
+      end
+    end
+    if(not missed.empty?)
+      print_error("This database command requires the following tools to be installed: #{missed.join(", ")}")
+      return
+    end
+    true
+  end
+
+
+  #
+  # Miscellaneous option helpers
+  #
+
+  #
+  # Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into
+  # blocks of 1024.
+  #
+  def each_host_range_chunk(host_ranges, &block)
+    # Chunk it up and do the query in batches. The naive implementation
+    # uses so much memory for a /8 that it's basically unusable (1.6
+    # billion IP addresses take a rather long time to allocate).
+    # Chunking has roughly the same performance for small batches, so
+    # don't worry about it too much.
+    host_ranges.each do |range|
+      if range.nil? or range.length.nil?
+        chunk = nil
+        end_of_range = true
+      else
+        chunk = []
+        end_of_range = false
+        # Set up this chunk of hosts to search for
+        while chunk.length < 1024 and chunk.length < range.length
+          n = range.next_ip
+          if n.nil?
+            end_of_range = true
+            break
+          end
+          chunk << n
+        end
+      end
+
+      # The block will do some
+      yield chunk
+
+      # Restart the loop with the same RangeWalker if we didn't get
+      # to the end of it in this chunk.
+      redo unless end_of_range
+    end
+  end
+
+  #######
+  private
+
+  def run_nmap(nmap, arguments, use_sudo: false)
+    print_warning('Running Nmap with sudo') if use_sudo
+    begin
+      nmap_pipe = use_sudo ? ::Open3::popen3('sudo', nmap, *arguments) : ::Open3::popen3(nmap, *arguments)
+      temp_nmap_threads = []
+      temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+        np_1.each_line do |nmap_out|
+          next if nmap_out.strip.empty?
+          print_status("Nmap: #{nmap_out.strip}")
+        end
+      end
+
+      temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+
+        np_2.each_line do |nmap_err|
+          next if nmap_err.strip.empty?
+          print_status("Nmap: '#{nmap_err.strip}'")
+          # Check if the stderr text includes 'root', this only happens if the scan requires root privileges
+          if nmap_err =~ /requires? root privileges/ or
+            nmap_err.include? 'only works if you are root' or nmap_err =~ /requires? raw socket access/
+            return run_nmap(nmap, arguments, use_sudo: true) unless use_sudo
+          end
+        end
+      end
+
+      temp_nmap_threads.map { |t| t.join rescue nil }
+      nmap_pipe.each { |p| p.close rescue nil }
+    rescue ::IOError
+    end
+  end
+
+  #######
+
+  def print_connection_info
+    cdb = ''
+    if framework.db.driver == 'http'
+      cdb = framework.db.name
+    else
+      ::ApplicationRecord.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
+      end
+    end
+    output = "Connected to #{cdb}. Connection type: #{framework.db.driver}."
+    output += " Connection name: #{@current_data_service}." if @current_data_service
+    print_status(output)
+  end
+
+  def list_saved_data_services
+    conf = Msf::Config.load
+    default = nil
+    tbl = Rex::Text::Table.new({
+                                   'Header'    => 'Data Services',
+                                   'Columns'   => ['current', 'name', 'url', 'default?'],
+                                   'SortIndex' => 1
+                               })
+
+    conf.each_pair do |k,v|
+      if k =~ /#{DB_CONFIG_PATH}/
+        default = v['default_db'] if v['default_db']
+        name = k.split('/').last
+        next if name == 'database' # Data service information is not stored in 'framework/database', just metadata
+        url = v['url']
+        current = ''
+        current = '*' if name == @current_data_service
+        default_output = ''
+        default_output = '*' if name == default
+        line = [current, name, url, default_output]
+        tbl << line
+      end
+    end
+    print_line
+    print_line tbl.to_s
+  end
+
+  def print_msgs(status_msg, error_msg)
+    status_msg.each do |s|
+      print_status(s)
+    end
+
+    error_msg.each do |e|
+      print_error(e)
+    end
+  end
 
 end
-end
-end
-end
-end
+
+end end end end

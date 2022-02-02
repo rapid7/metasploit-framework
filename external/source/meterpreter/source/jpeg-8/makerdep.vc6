@@ -1,6 +1,0 @@
-# Microsoft Developer Studio erstellte Abhängigkeitsdatei, einbezogen von rdjpgcom.mak
-
-.\rdjpgcom.c : \
-	".\jconfig.h"\
-	".\jinclude.h"\
-	

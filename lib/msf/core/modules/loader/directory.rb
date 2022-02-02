@@ -1,4 +1,7 @@
-# Concerns loading module from a directory
+# -*- coding: binary -*-
+require 'rex/file'
+
+# Concerns loading Ruby modules from a directory
 class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Returns true if the path is a directory
   #
@@ -6,11 +9,12 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # @return [true] if path is a directory
   # @return [false] otherwise
   def loadable?(path)
-    if File.directory?(path)
-      true
-    else
-      false
-    end
+    File.directory?(path)
+  end
+
+  def loadable_module?(parent_path, type, module_reference_name)
+    full_path = module_path(parent_path, type, module_reference_name)
+    module_path?(full_path)
   end
 
   protected
@@ -18,24 +22,20 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Yields the module_reference_name for each module file found under the directory path.
   #
   # @param [String] path The path to the directory.
+  # @param [Hash] opts Input Hash.
   # @yield (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @yieldparam [String] path The path to the directory.
   # @yieldparam [String] type The type correlated with the directory under path.
   # @yieldparam module_reference_name (see Msf::Modules::Loader::Base#each_module_reference_name)
   # @return (see Msf::Modules::Loader::Base#each_module_reference_name)
-  def each_module_reference_name(path)
+  def each_module_reference_name(path, opts={})
+    whitelist = opts[:whitelist] || []
     ::Dir.foreach(path) do |entry|
-      if entry.downcase == '.svn'
-        next
-      end
 
       full_entry_path = ::File.join(path, entry)
       type = entry.singularize
 
-      unless ::File.directory?(full_entry_path) and
-             module_manager.type_enabled? type
-        next
-      end
+      next unless ::File.directory?(full_entry_path) && module_manager.type_enabled?(type)
 
       full_entry_pathname = Pathname.new(full_entry_path)
 
@@ -45,7 +45,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
           entry_descendant_pathname = Pathname.new(entry_descendant_path)
           relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
           relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
-
+          next if File::basename(relative_entry_descendant_path).start_with?('example')
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 
@@ -76,16 +76,16 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
     module_content = ''
 
     begin
-	    # force to read in binary mode so Pro modules won't be truncated on Windows
-	    File.open(full_path, 'rb') do |f|
-		    # Pass the size of the file as it leads to faster reads due to fewer buffer resizes. Greatest effect on Windows.
-		    # @see http://www.ruby-forum.com/topic/209005
-		    # @see https://github.com/ruby/ruby/blob/ruby_1_8_7/io.c#L1205
-		    # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
-		    module_content = f.read(f.stat.size)
-	    end
+      # force to read in binary mode so Pro modules won't be truncated on Windows
+      File.open(full_path, 'rb') do |f|
+        # Pass the size of the file as it leads to faster reads due to fewer buffer resizes. Greatest effect on Windows.
+        # @see http://www.ruby-forum.com/topic/209005
+        # @see https://github.com/ruby/ruby/blob/ruby_1_8_7/io.c#L1205
+        # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
+        module_content = f.read(f.stat.size)
+      end
     rescue Errno::ENOENT => error
-	    load_error(full_path, error)
+      load_error(full_path, error)
     end
 
     module_content

@@ -1,13 +1,7 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 #
 # NOTE: Read this if you plan on using this encoder:
@@ -90,188 +84,173 @@ require 'msf/core'
 # 0000004A  3401              xor al,0x1
 # 0000004C  7F                db 0x7F
 #
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
-	#
-	# In some cases, payloads can be an invalid size that is incompatible with
-	# this encoder
-	#
-	class InvalidPayloadSizeException < ::Exception
-		def initialize(msg)
-			@msg = msg
-		end
+  # This encoder has a manual ranking because it should only be used in cases
+  # where information has been explicitly supplied, like the BufferOffset.
+  Rank = ManualRanking
 
-		def to_s
-			@msg
-		end
-	end
+  def initialize
+    super(
+      'Name'             => 'Avoid UTF8/tolower',
+      'Description'      => 'UTF8 Safe, tolower Safe Encoder',
+      'Author'           => 'skape',
+      'Arch'             => ARCH_X86,
+      'License'          => MSF_LICENSE,
+      'EncoderType'      => Msf::Encoder::Type::NonUpperUtf8Safe,
+      'Decoder'          =>
+        {
+          'KeySize'    => 4,
+          'BlockSize'  => 4,
+        })
+  end
 
-	# This encoder has a manual ranking because it should only be used in cases
-	# where information has been explicitly supplied, like the BufferOffset.
-	Rank = ManualRanking
+  #
+  # Returns the decoder stub that is adjusted for the size of
+  # the buffer being encoded
+  #
+  def decoder_stub(state)
+    len = ((state.buf.length + 3) & (~0x3)) / 4
 
-	def initialize
-		super(
-			'Name'             => 'Avoid UTF8/tolower',
-			'Description'      => 'UTF8 Safe, tolower Safe Encoder',
-			'Author'           => 'skape',
-			'Arch'             => ARCH_X86,
-			'License'          => MSF_LICENSE,
-			'EncoderType'      => Msf::Encoder::Type::NonUpperUtf8Safe,
-			'Decoder'          =>
-				{
-					'KeySize'    => 4,
-					'BlockSize'  => 4,
-				})
-	end
+    # Grab the number of additional bytes that we need to adjust by in order
+    # to get the context register to point immediately after the stub header
+    off = (datastore['BufferOffset'] || 0).to_i
 
-	#
-	# Returns the decoder stub that is adjusted for the size of
-	# the buffer being encoded
-	#
-	def decoder_stub(state)
-		len = ((state.buf.length + 3) & (~0x3)) / 4
+    # Check to make sure that the length is a valid size
+    if is_badchar(state, len)
+      raise EncodingError.new("The payload being encoded is of an incompatible size (#{len} bytes)")
+    end
 
-		# Grab the number of additional bytes that we need to adjust by in order
-		# to get the context register to point immediately after the stub header
-		off = (datastore['BufferOffset'] || 0).to_i
+    decoder =
+      "\x6a" + [len].pack('C')      +  # push len
+      "\x6b\x3c\x24\x0b"            +  # imul 0xb
+      "\x60"                        +  # pusha
+      "\x03\x0c\x24"                +  # add ecx, [esp]
+      "\x6a" + [0x11+off].pack('C') +  # push byte 0x11 + off
+      "\x03\x0c\x24"                +  # add ecx, [esp]
+      "\x6a\x04"                       # push byte 0x4
 
-		# Check to make sure that the length is a valid size
-		if is_badchar(state, len)
-			raise InvalidPayloadSizeException.new("The payload being encoded is of an incompatible size (#{len} bytes)")
-		end
+    # encoded sled
+    state.context = ''
 
-		decoder =
-			"\x6a" + [len].pack('C')      +  # push len
-			"\x6b\x3c\x24\x0b"            +  # imul 0xb
-			"\x60"                        +  # pusha
-			"\x03\x0c\x24"                +  # add ecx, [esp]
-			"\x6a" + [0x11+off].pack('C') +  # push byte 0x11 + off
-			"\x03\x0c\x24"                +  # add ecx, [esp]
-			"\x6a\x04"                       # push byte 0x4
+    return decoder
+  end
 
-		# encoded sled
-		state.context = ''
+  def encode_block(state, block)
+    buf = try_add(state, block)
 
-		return decoder
-	end
+    if (buf.nil?)
+      buf = try_sub(state, block)
+    end
 
-	def encode_block(state, block)
-		buf = try_add(state, block)
+    if (buf.nil?)
+      raise BadcharError.new(state.encoded, 0, 0, 0)
+    end
 
-		if (buf.nil?)
-			buf = try_sub(state, block)
-		end
+    buf
+  end
 
-		if (buf.nil?)
-			raise BadcharError.new(state.encoded, 0, 0, 0)
-		end
+  #
+  # Appends the encoded context portion.
+  #
+  def encode_end(state)
+    state.encoded += state.context
+  end
 
-		buf
-	end
+  #
+  # Generate the instructions that will be used to produce a valid
+  # block after decoding using the sub instruction in conjunction with
+  # two UTF8/tolower safe values.
+  #
+  def try_sub(state, block)
+    buf   = "\x68";
+    vbuf  = ''
+    ctx   = ''
+    carry = 0
 
-	#
-	# Appends the encoded context portion.
-	#
-	def encode_end(state)
-		state.encoded += state.context
-	end
+    block.each_byte { |b|
+      # It's impossible to reach 0x7f, 0x80, 0x81 with two subs
+      # of a value that is < 0x80 without NULLs.
+      return nil if (b == 0x80 or b == 0x81 or b == 0x7f)
 
-	#
-	# Generate the instructions that will be used to produce a valid
-	# block after decoding using the sub instruction in conjunction with
-	# two UTF8/tolower safe values.
-	#
-	def try_sub(state, block)
-		buf   = "\x68";
-		vbuf  = ''
-		ctx   = ''
-		carry = 0
+      x          = 0
+      y          = 0
+      attempts   = 0
+      prev_carry = carry
 
-		block.each_byte { |b|
-			# It's impossible to reach 0x7f, 0x80, 0x81 with two subs
-			# of a value that is < 0x80 without NULLs.
-			return nil if (b == 0x80 or b == 0x81 or b == 0x7f)
+      begin
+        carry = prev_carry
 
-			x          = 0
-			y          = 0
-			attempts   = 0
-			prev_carry = carry
+        if (b > 0x80)
+          diff  = 0x100 - b
+          y     = rand(0x80 - diff - 1).to_i + 1
+          x     = (0x100 - (b - y + carry))
+          carry = 1
+        else
+          diff  = 0x7f - b
+          x     = rand(diff - 1) + 1
+          y     = (b + x + carry) & 0xff
+          carry = 0
+        end
 
-			begin
-				carry = prev_carry
+        attempts += 1
 
-				if (b > 0x80)
-					diff  = 0x100 - b
-					y     = rand(0x80 - diff - 1).to_i + 1
-					x     = (0x100 - (b - y + carry))
-					carry = 1
-				else
-					diff  = 0x7f - b
-					x     = rand(diff - 1) + 1
-					y     = (b + x + carry) & 0xff
-					carry = 0
-				end
+        # Lame.
+        return nil if (attempts > 512)
 
-				attempts += 1
+      end while (is_badchar(state, x) or is_badchar(state, y))
 
-				# Lame.
-				return nil if (attempts > 512)
+      vbuf += [x].pack('C')
+      ctx  += [y].pack('C')
+    }
 
-			end while (is_badchar(state, x) or is_badchar(state, y))
+    buf += vbuf + "\x5f\x29\x39\x03\x0c\x24"
 
-			vbuf += [x].pack('C')
-			ctx  += [y].pack('C')
-		}
+    state.context += ctx
 
-		buf += vbuf + "\x5f\x29\x39\x03\x0c\x24"
+    return buf
 
-		state.context += ctx
+  end
 
-		return buf
+  #
+  # Generate instructions that will be used to produce a valid block after
+  # decoding using the add instruction in conjunction with two UTF8/tolower
+  # safe values.
+  #
+  def try_add(state, block)
+    buf  = "\x68"
+    vbuf = ''
+    ctx  = ''
 
-	end
+    block.each_byte { |b|
+      # It's impossible to produce 0xff and 0x01 using two non-NULL,
+      # tolower safe, and UTF8 safe values.
+      return nil if (b == 0xff or b == 0x01 or b == 0x00)
 
-	#
-	# Generate instructions that will be used to produce a valid block after
-	# decoding using the add instruction in conjunction with two UTF8/tolower
-	# safe values.
-	#
-	def try_add(state, block)
-		buf  = "\x68"
-		vbuf = ''
-		ctx  = ''
+      attempts = 0
 
-		block.each_byte { |b|
-			# It's impossible to produce 0xff and 0x01 using two non-NULL,
-			# tolower safe, and UTF8 safe values.
-			return nil if (b == 0xff or b == 0x01 or b == 0x00)
+      begin
+        xv = rand(b - 1) + 1
 
-			attempts = 0
+        attempts += 1
 
-			begin
-				xv = rand(b - 1) + 1
+        # Lame.
+        return nil if (attempts > 512)
 
-				attempts += 1
+      end while (is_badchar(state, xv) or is_badchar(state, b - xv))
 
-				# Lame.
-				return nil if (attempts > 512)
+      vbuf += [xv].pack('C')
+      ctx  += [b - xv].pack('C')
+    }
 
-			end while (is_badchar(state, xv) or is_badchar(state, b - xv))
+    buf += vbuf + "\x5f\x01\x39\x03\x0c\x24"
 
-			vbuf += [xv].pack('C')
-			ctx  += [b - xv].pack('C')
-		}
+    state.context += ctx
 
-		buf += vbuf + "\x5f\x01\x39\x03\x0c\x24"
+    return buf
+  end
 
-		state.context += ctx
-
-		return buf
-	end
-
-	def is_badchar(state, val)
-		((val >= 0x41 and val <= 0x5a) or val >= 0x80) or Rex::Text.badchar_index([val].pack('C'), state.badchars)
-	end
-
+  def is_badchar(state, val)
+    ((val >= 0x41 and val <= 0x5a) or val >= 0x80) or Rex::Text.badchar_index([val].pack('C'), state.badchars)
+  end
 end

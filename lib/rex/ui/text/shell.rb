@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/ui'
+require 'rex/text/color'
 
 module Rex
 module Ui
@@ -13,391 +13,488 @@ module Text
 ###
 module Shell
 
-	###
-	#
-	# This module is meant to be mixed into an input medium class instance as a
-	# means of extending it to display a prompt before each call to gets.
-	#
-	###
-	module InputShell
-		attr_accessor :prompt, :output
+  include Rex::Text::Color
 
-		def pgets()
+  ###
+  #
+  # This module is meant to be mixed into an input medium class instance as a
+  # means of extending it to display a prompt before each call to gets.
+  #
+  ###
+  module InputShell
+    attr_accessor :prompt, :output
 
-			output.print(prompt)
-			output.flush
+    def pgets
 
-			output.prompting
-			buf = gets
-			output.prompting(false)
+      output.print(prompt)
+      output.flush
 
-			buf
-		end
-	end
+      output.prompting
+      buf = gets
+      output.prompting(false)
 
-	#
-	# Initializes a shell that has a prompt and can be interacted with.
-	#
-	def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
-		# Set the stop flag to false
-		self.stop_flag      = false
-		self.disable_output = false
-		self.stop_count	    = 0
+      buf
+    end
+  end
 
-		# Initialize the prompt
-		self.init_prompt = prompt
-		self.prompt_char = prompt_char
+  #
+  # Initializes a shell that has a prompt and can be interacted with.
+  #
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
+    # Set the stop flag to false
+    self.stop_flag      = false
+    self.disable_output = false
+    self.stop_count     = 0
+    self.name = name
 
-		self.histfile = histfile
-		self.hist_last_saved = 0
+    # Initialize the prompt
+    self.cont_prompt = ' > '
+    self.cont_flag = false
+    self.prompt = prompt
+    self.prompt_char = prompt_char
 
-		self.framework = framework
-	end
+    self.histfile = histfile
+    self.hist_last_saved = 0
 
-	def init_tab_complete
-		if (self.input and self.input.supports_readline)
-			self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
-			if Readline::HISTORY.length == 0 and histfile and File.exists?(histfile)
-				File.readlines(histfile).each { |e|
-					Readline::HISTORY << e.chomp
-				}
-				self.hist_last_saved = Readline::HISTORY.length
-			end
-			self.input.output = self.output
-			update_prompt(input.prompt)
-		end
-	end
+    # Static prompt variables
+    self.local_hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] || ENV['COMPUTERNAME']
+    self.local_username = ENV['USER'] || `whoami` || ENV['USERNAME']
 
-	#
-	# Initializes the user interface input/output classes.
-	#
-	def init_ui(in_input = nil, in_output = nil)
-		# Initialize the input and output methods
-		self.input  = in_input
-		self.output = in_output
+    self.framework = framework
+  end
 
-		if (self.input)
-			# Extend the input medium as an input shell if the input medium
-			# isn't intrinsicly a shell.
-			if (self.input.intrinsic_shell? == false)
-				self.input.extend(InputShell)
-			end
+  def init_tab_complete
+    if (self.input and self.input.supports_readline)
+      # Unless cont_flag because there's no tab complete for continuation lines
+      self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
+      self.input.output = self.output
+    end
+  end
 
-			self.input.output = self.output
-		end
-		update_prompt('')
-	end
+  #
+  # Initializes the user interface input/output classes.
+  #
+  def init_ui(in_input = nil, in_output = nil)
+    # Initialize the input and output methods
+    self.input  = in_input
+    self.output = in_output
 
-	#
-	# Resets the user interface handles.
-	#
-	def reset_ui
-		init_ui
-	end
+    if (self.input)
+      # Extend the input medium as an input shell if the input medium
+      # isn't intrinsicly a shell.
+      if (self.input.intrinsic_shell? == false)
+        self.input.extend(InputShell)
+      end
 
-	#
-	# Sets the log source that should be used for logging input and output.
-	#
-	def set_log_source(log_source)
-		self.log_source = log_source
-	end
+      self.input.output = self.output
+    end
+  end
 
-	#
-	# Unsets the log source so that logging becomes disabled.
-	#
-	def unset_log_source
-		set_log_source(nil)
-	end
+  #
+  # Resets the user interface handles.
+  #
+  def reset_ui
+    init_ui
+  end
 
-	#
-	# Performs tab completion on the supplied string.
-	#
-	def tab_complete(str)
-		return tab_complete_proc(str) if (tab_complete_proc)
-	end
+  #
+  # Sets the log source that should be used for logging input and output.
+  #
+  def set_log_source(log_source)
+    self.log_source = log_source
+  end
 
-	#
-	# Run the command processing loop.
-	#
-	def run(&block)
+  #
+  # Unsets the log source so that logging becomes disabled.
+  #
+  def unset_log_source
+    set_log_source(nil)
+  end
 
-		begin
+  #
+  # Performs tab completion on the supplied string.
+  #
+  def tab_complete(str)
+    return tab_complete_proc(str) if (tab_complete_proc)
+  end
 
-			while true
-				# If the stop flag was set or we've hit EOF, break out
-				break if (self.stop_flag or self.stop_count > 1)
+  #
+  # Run the command processing loop.
+  #
+  def run(&block)
+    begin
+      require 'pry'
+      # pry history will not be loaded by default when pry is used as a breakpoint like `binding.pry`
+      Pry.config.history_load = false
+    rescue LoadError
+      # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
+    end
 
-				init_tab_complete
+    HistoryManager.push_context(history_file: histfile, name: name)
+    self.hist_last_saved = Readline::HISTORY.length
 
-				if framework
-					if input.prompt.include?("%T")
-						t = Time.now
-						if framework.datastore['PromptTimeFormat']
-							t = t.strftime(framework.datastore['PromptTimeFormat'])
-						end
-						input.prompt.gsub!(/%T/, t.to_s)
-					end
+    begin
 
-					if input.prompt.include?("%H")
-						hostname = ENV['HOSTNAME']
-						if hostname.nil?
-							hostname = `hostname`.split('.')[0]
-						end
+      while true
+        # If the stop flag was set or we've hit EOF, break out
+        break if self.stop_flag || self.stop_count > 1
 
-						# check if hostname is still nil
-						if hostname.nil?
-							hostname = ENV['COMPUTERNAME']
-						end
+        init_tab_complete
+        update_prompt
 
-						if hostname.nil?
-							hostname = 'unknown'
-						end
+        line = get_input_line
 
-						input.prompt.gsub!(/%H/, hostname.chomp)
-					end
+        # If you have sessions active, this will give you a shot to exit
+        # gracefully. If you really are ambitious, 2 eofs will kick this out
+        if input.eof? || line == nil
+          self.stop_count += 1
+          next if self.stop_count > 1
+          run_single('quit')
 
-					if input.prompt.include?("%U")
-						user = ENV['USER']
-						if user.nil?
-							user = `whoami`
-						end
+        # If a block was passed in, pass the line to it.  If it returns true,
+        # break out of the shell loop.
+        elsif block
+          break if block.call(line)
 
-						# check if username is still nil
-						if user.nil?
-							user = ENV['USERNAME']
-						end
+        # Otherwise, call what should be an overridden instance method to
+        # process the line.
+        else
+          run_single(line)
+          self.stop_count = 0
+        end
 
-						if user.nil?
-							user = 'unknown'
-						end
+      end
+    # Prevent accidental console quits
+    rescue ::Interrupt
+      output.print("Interrupt: use the 'exit' command to quit\n")
+      retry
+    ensure
+      HistoryManager.pop_context
+      HistoryManager.flush
+      self.hist_last_saved = Readline::HISTORY.length
+    end
+  end
 
-						input.prompt.gsub!(/%U/, user.chomp)
-					end
+  #
+  # Stop processing user input.
+  #
+  def stop
+    self.stop_flag = true
+  end
 
-					input.prompt.gsub!(/%S/, framework.sessions.length.to_s)
-					input.prompt.gsub!(/%J/, framework.jobs.length.to_s)
-					input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
-					input.prompt.gsub!(/%D/, ::Dir.getwd)
-					self.init_prompt = input.prompt
-				end
+  #
+  # Checks to see if the shell has stopped.
+  #
+  def stopped?
+    self.stop_flag
+  end
 
-				line = input.pgets()
-				log_output(input.prompt)
+  #
+  # Change the input prompt.
+  #
+  # prompt - the actual prompt
+  # new_prompt_char the char to append to the prompt
+  def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
+    if (self.input)
+      p = substitute_colors(new_prompt + ' ' + new_prompt_char + ' ', true)
 
-				# If a block was passed in, pass the line to it.  If it returns true,
-				# break out of the shell loop.
-				if (block)
-					break if (line == nil or block.call(line))
-				elsif(input.eof? or line == nil)
-				# If you have sessions active, this will give you a shot to exit gravefully
-				# If you really are ambitious, 2 eofs will kick this out
-					self.stop_count += 1
-					next if(self.stop_count > 1)
-					run_single("quit")
-				else
-				# Otherwise, call what should be an overriden instance method to
-				# process the line.
-					ret = run_single(line)
-					# don't bother saving lines that couldn't be found as a
-					# command, create the file if it doesn't exist
-					if ret and self.histfile
-						File.open(self.histfile, "a+") { |f|
-							f.puts(line)
-						}
-					end
-					self.stop_count = 0
-				end
+      # Save the prompt before any substitutions
+      self.prompt = new_prompt
+      self.prompt_char  = new_prompt_char
 
-			end
-		# Prevent accidental console quits
-		rescue ::Interrupt
-			output.print("Interrupt: use the 'exit' command to quit\n")
-			retry
-		end
-	end
+      # Set the actual prompt to the saved prompt with any substitutions
+      # or updates from our output driver, be they color or whatever
+      self.input.prompt = self.output.update_prompt(format_prompt(p))
+    end
+  end
 
-	#
-	# Stop processing user input.
-	#
-	def stop
-		self.stop_flag = true
-	end
+  #
+  # Output shortcuts
+  #
 
-	#
-	# Checks to see if the shell has stopped.
-	#
-	def stopped?
-		self.stop_flag
-	end
+  #
+  # Prints an error message to the output handle.
+  #
+  def print_error(msg='')
+    return if (output.nil?)
+    return if (msg.nil?)
 
-	#
-	# Change the input prompt.
-	#
-	# prompt - the actual prompt
-	# new_prompt_char the char to append to the prompt
-	# mode - append or not to append - false = append true = make a new prompt
-	def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
-		if (self.input)
-			if prompt
-				new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
-			else
-				new_prompt = self.prompt || ''
-			end
+    self.on_print_proc.call(msg) if self.on_print_proc
+    # Errors are not subject to disabled output
+    log_output(output.print_error(msg))
+  end
 
-			if mode
-			  new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
-			end
+  alias_method :print_bad, :print_error
 
-			# Save the prompt before any substitutions
-			self.prompt = new_prompt
+  #
+  # Prints a status message to the output handle.
+  #
+  def print_status(msg='')
+    return if (disable_output == true)
 
-			# Set the actual prompt to the saved prompt with any substitutions
-			# or updates from our output driver, be they color or whatever
-			self.input.prompt = self.output.update_prompt(new_prompt)
-			self.prompt_char  = new_prompt_char if (new_prompt_char)
-		end
-	end
+    self.on_print_proc.call(msg) if self.on_print_proc
+    log_output(output.print_status(msg))
+  end
 
-	#
-	# Output shortcuts
-	#
+  #
+  # Prints a good message to the output handle.
+  #
+  def print_good(msg='')
+    return if (disable_output == true)
 
-	#
-	# Prints an error message to the output handle.
-	#
-	def print_error(msg='')
-		return if (output.nil?)
+    self.on_print_proc.call(msg) if self.on_print_proc
+    log_output(output.print_good(msg))
+  end
 
-		self.on_print_proc.call(msg) if self.on_print_proc
-		# Errors are not subject to disabled output
-		log_output(output.print_error(msg))
-	end
+  #
+  # Prints a line of text to the output handle.
+  #
+  def print_line(msg='')
+    return if (disable_output == true)
 
-	#
-	# Prints a status message to the output handle.
-	#
-	def print_status(msg='')
-		return if (disable_output == true)
+    self.on_print_proc.call(msg) if self.on_print_proc
+    log_output(output.print_line(msg))
+  end
 
-		self.on_print_proc.call(msg) if self.on_print_proc
-		log_output(output.print_status(msg))
-	end
+  #
+  # Prints a warning message to the output handle.
+  #
+  def print_warning(msg='')
+    return if (disable_output == true)
 
-	#
-	# Prints a good message to the output handle.
-	#
-	def print_good(msg='')
-		return if (disable_output == true)
+    self.on_print_proc.call(msg) if self.on_print_proc
+    log_output(output.print_warning(msg))
+  end
 
-		self.on_print_proc.call(msg) if self.on_print_proc
-		log_output(output.print_good(msg))
-	end
+  #
+  # Prints a raw message to the output handle.
+  #
+  def print(msg='')
+    return if (disable_output == true)
+    self.on_print_proc.call(msg) if self.on_print_proc
+    log_output(output.print(msg))
+  end
 
-	#
-	# Prints a line of text to the output handle.
-	#
-	def print_line(msg='')
-		return if (disable_output == true)
+  #
+  # Whether or not output has been disabled.
+  #
+  attr_accessor :disable_output
+  #
+  # The input handle to read user input from.
+  #
+  attr_reader   :input
+  #
+  # The output handle to write output to.
+  #
+  attr_reader   :output
 
-		self.on_print_proc.call(msg) if self.on_print_proc
-		log_output(output.print_line(msg))
-	end
+  attr_reader   :prompt, :prompt_char
+  attr_accessor :on_command_proc
+  attr_accessor :on_print_proc
+  attr_accessor :framework
+  attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
 
-	#
-	# Prints a warning message to the output handle.
-	#
-	def print_warning(msg='')
-		return if (disable_output == true)
+  protected
 
-		self.on_print_proc.call(msg) if self.on_print_proc
-		log_output(output.print_warning(msg))
-	end
+  def supports_color?
+    true
+  end
 
-	#
-	# Prints a raw message to the output handle.
-	#
-	def print(msg='')
-		return if (disable_output == true)
-		self.on_print_proc.call(msg) if self.on_print_proc
-		log_output(output.print(msg))
-	end
+  #
+  # Get a single line of input, following continuation directives as necessary.
+  #
+  def get_input_line
+    line = "\\\n"
+    prompt_needs_reset = false
 
-	#
-	# Whether or not output has been disabled.
-	#
-	attr_accessor :disable_output
-	#
-	# The input handle to read user input from.
-	#
-	attr_reader   :input
-	#
-	# The output handle to write output to.
-	#
-	attr_reader   :output
+    self.cont_flag = false
+    while line =~ /(^|[^\\])\\\s*$/
+      # Strip \ and all the trailing whitespace
+      line.sub!(/\\\s*/, '')
 
-	attr_accessor :on_command_proc
-	attr_accessor :on_print_proc
-	attr_accessor :framework
+      if line.length > 0
+        # Using update_prompt will overwrite the primary prompt
+        input.prompt = output.update_prompt(self.cont_prompt)
+        self.cont_flag = true
+        prompt_needs_reset = true
+      end
 
-protected
+      output.input = input
+      str = input.pgets
+      if str
+        line << str
+      else
+        line = nil
+      end
 
-	#
-	# Parse a line into an array of arguments.
-	#
-	def parse_line(line)
-		log_input(line)
+      output.input = nil
+      log_output(input.prompt)
+    end
+    self.cont_flag = false
 
-		line.gsub!(/(\r|\n)/, '')
+    if prompt_needs_reset
+      # The continuation prompt was used so reset the prompt
+      update_prompt
+    end
 
-		begin
-			return args = Rex::Parser::Arguments.from_s(line)
-		rescue ::ArgumentError
-			print_error("Parse error: #{$!}")
-		end
+    line
+  end
 
-		return []
-	end
+  #
+  # Parse a line into an array of arguments.
+  #
+  def parse_line(line)
+    log_input(line)
 
-	#
-	# Print the prompt, but do not log it.
-	#
-	def _print_prompt(prompt)
-		output.print(prompt)
-	end
+    line.gsub!(/(\r|\n)/, '')
 
-	#
-	# Writes the supplied input to the log source if one has been registered.
-	#
-	def log_input(buf)
-		rlog(buf, log_source) if (log_source)
-	end
+    begin
+      return args = Rex::Parser::Arguments.from_s(line)
+    rescue ::ArgumentError
+      print_error("Parse error: #{$!}")
+    end
 
-	#
-	# Writes the supplied output to the log source if one has been registered.
-	#
-	def log_output(buf)
-		rlog(buf, log_source) if (log_source)
-	end
+    return []
+  end
 
-	attr_writer   :input, :output # :nodoc:
-	attr_accessor :stop_flag, :init_prompt # :nodoc:
-	attr_accessor :prompt # :nodoc:
-	attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
-	attr_accessor :histfile # :nodoc:
-	attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
-	attr_accessor :log_source, :stop_count # :nodoc:
+  #
+  # Print the prompt, but do not log it.
+  #
+  def _print_prompt(prompt)
+    output.print(prompt)
+  end
+
+  #
+  # Writes the supplied input to the log source if one has been registered.
+  #
+  def log_input(buf)
+    rlog(buf, log_source) if (log_source)
+  end
+
+  #
+  # Writes the supplied output to the log source if one has been registered.
+  #
+  def log_output(buf)
+    rlog(buf, log_source) if (log_source)
+  end
+
+  #
+  # Prompt the user for input if possible. Special edition for use inside commands.
+  #
+  def prompt_yesno(query)
+    p = "#{query} [y/N]"
+    old_p = [self.prompt, self.prompt_char]
+    update_prompt p, ' '
+    /^y/i === get_input_line
+  ensure
+    update_prompt *old_p
+  end
+
+  #
+  # Handle prompt substitutions
+  #
+  def format_prompt(str)
+    return str unless framework
+
+    # find the active session
+    session = framework.sessions.values.find { |session| session.interacting }
+    default = 'unknown'
+
+    formatted = ''
+    skip_next = false
+    for prefix, spec in str.split('').each_cons(2) do
+      if skip_next
+        skip_next = false
+        next
+      end
+
+      unless prefix == '%'
+        formatted << prefix
+        skip_next = false
+        next
+      end
+
+      skip_next = true
+      if spec == 'T'
+        if framework.datastore['PromptTimeFormat']
+          strftime_format = framework.datastore['PromptTimeFormat']
+        else
+          strftime_format = ::Time::DATE_FORMATS[:db].to_s
+        end
+        formatted << ::Time.now.strftime(strftime_format).to_s
+      elsif spec == 'W' && framework.db.active
+        formatted << framework.db.workspace.name
+      elsif session
+        sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
+
+        case spec
+        when 'A'
+          formatted << (sysinfo.nil? ? default : sysinfo['Architecture'])
+        when 'D'
+          formatted << (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default)
+        when 'd'
+          formatted << ::Dir.getwd
+        when 'H'
+          formatted << (sysinfo.nil? ? default : sysinfo['Computer'])
+        when 'h'
+          formatted << (self.local_hostname || default).chomp
+        when 'I'
+          formatted << session.tunnel_peer
+        when 'i'
+          formatted << session.tunnel_local
+        when 'M'
+          formatted << session.session_type
+        when 'S'
+          formatted << session.sid.to_s
+        when 'U'
+          formatted << (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default)
+        when 'u'
+          formatted << (self.local_username || default).chomp
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      else
+        case spec
+        when 'H'
+          formatted << (self.local_hostname || default).chomp
+        when 'J'
+          formatted << framework.jobs.length.to_s
+        when 'U'
+          formatted << (self.local_username || default).chomp
+        when 'S'
+          formatted << framework.sessions.length.to_s
+        when 'L'
+          formatted << Rex::Socket.source_address
+        when 'D'
+          formatted << ::Dir.getwd
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      end
+    end
+
+    if str.length > 0 && !skip_next
+      formatted << str[-1]
+    end
+
+    formatted
+  end
+
+  attr_writer   :input, :output # :nodoc:
+  attr_writer   :prompt, :prompt_char # :nodoc:
+  attr_accessor :stop_flag, :cont_prompt # :nodoc:
+  attr_accessor :tab_complete_proc # :nodoc:
+  attr_accessor :histfile # :nodoc:
+  attr_accessor :log_source, :stop_count # :nodoc:
+  attr_accessor :local_hostname, :local_username # :nodoc:
+  attr_reader   :cont_flag # :nodoc:
+  attr_accessor :name
+private
+
+  attr_writer   :cont_flag # :nodoc:
 
 end
-
-###
-#
-# Pseudo-shell interface that simply includes the Shell mixin.
-#
-###
-class PseudoShell
-	include Shell
-end
-
 
 end end end
-

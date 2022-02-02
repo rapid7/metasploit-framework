@@ -1,69 +1,64 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::Udp
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize
+    super(
+      'Name'           => 'DB2 Discovery Service Detection',
+      'Description'    => 'This module simply queries the DB2 discovery service for information.',
+      'Author'         => [ 'MC' ],
+      'License'        => MSF_LICENSE
+    )
 
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::Udp
+    register_options([Opt::RPORT(523),])
+  end
 
-	def initialize
-		super(
-			'Name'           => 'DB2 Discovery Service Detection',
-			'Description'    => 'This module simply queries the DB2 discovery service for information.',
-			'Author'         => [ 'MC' ],
-			'License'        => MSF_LICENSE
-		)
+  def run_host(ip)
 
-		register_options([Opt::RPORT(523),], self.class)
+    pkt = "DB2GETADDR" + "\x00" + "SQL05000" + "\x00"
 
-		deregister_options('RHOST')
-	end
+    begin
 
-	def run_host(ip)
+      connect_udp
+      udp_sock.put(pkt)
+      res = udp_sock.read(1024)
 
-		pkt = "DB2GETADDR" + "\x00" + "SQL05000" + "\x00"
+      unless res
+        print_error("Unable to determine version info for #{ip}")
+        return
+      end
 
-		begin
+      res = res.split(/\x00/)
 
-			connect_udp
+      report_note(
+        :host   => ip,
+        :proto  => 'udp',
+        :port   => datastore['RPORT'],
+        :type   => 'SERVICE_INFO',
+        :data   => "#{res[2]}_#{res[1]}"
+        )
 
-			udp_sock.put(pkt)
+      report_service(
+        :host => ip,
+        :port => datastore['RPORT'],
+        :proto => 'udp',
+        :name => "ibm-db2",
+        :info => "#{res[2]}_#{res[1]}"
+      )
 
-			res = udp_sock.read(1024).split(/\x00/)
+      print_good("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
 
-			if (res)
-				report_note(
-					:host   => ip,
-					:proto  => 'udp',
-					:port   => datastore['RPORT'],
-					:type   => 'SERVICE_INFO',
-					:data   => res[2] + "_" + res[1]
-					)
-				report_service(
-					:host => ip,
-					:port => datastore['RPORT'],
-					:proto => 'udp',
-					:name => "ibm-db2",
-					:info => res[2] + "_" + res[1]
-					)
-				print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
-			else
-				print_error("Unable to determine version info for #{ip}")
-			end
+    rescue ::Rex::ConnectionError
+    rescue ::Errno::EPIPE
+    ensure
+      disconnect_udp
+    end
 
-			disconnect_udp
-
-		rescue ::Rex::ConnectionError
-		rescue ::Errno::EPIPE
-
-		end
-
-	end
+  end
 end

@@ -1,0 +1,29 @@
+This module is a scanner module, and is capable of testing against multiple hosts.
+
+```
+msf > use <%= mod.fullname %>
+msf <%= mod.type %>(<%= mod.shortname %>) > show options
+    ... show and set options ...
+msf <%= mod.type %>(<%= mod.shortname %>) > set RHOSTS ip-range
+msf <%= mod.type %>(<%= mod.shortname %>) > exploit
+```
+
+Other examples of setting the RHOSTS option:
+
+Example 1:
+
+```
+msf <%= mod.type %>(<%= mod.shortname %>) > set RHOSTS 192.168.1.3-192.168.1.200 
+```
+
+Example 2:
+
+```
+msf <%= mod.type %>(<%= mod.shortname %>) > set RHOSTS 192.168.1.1/24
+```
+
+Example 3:
+
+```
+msf <%= mod.type %>(<%= mod.shortname %>) > set RHOSTS file:/tmp/ip_list.txt
+```

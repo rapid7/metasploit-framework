@@ -1,1 +1,0 @@
-Myapp = lambda { |env| [200, {}, 'this is my app!'] }

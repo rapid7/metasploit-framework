@@ -1,8 +1,9 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
-
-# General independent containers
-require 'rex/post/permission'
 
 # Post-exploitation clients
 require 'rex/post/meterpreter'
+
+module Rex::Post
+
+end
+include Rex::Post::Permission

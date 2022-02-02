@@ -1,77 +1,45 @@
 ##
-# $Id$
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
-##
-
-# $Revision$
-
-require 'rubygems'
 require 'pathname'
-require 'hpricot'
+require 'nokogiri'
 require 'uri'
 
 class CrawlerForms < BaseParser
 
-	def parse(request,result)
+  def parse(request,result)
+    return unless result['Content-Type'].include?('text/html')
 
-		if !result['Content-Type'].include? "text/html"
-			return
-		end
+    doc = Nokogiri::HTML(result.body.to_s)
+    doc.css('form').each do |f|
+      hr = f['action']
 
-		hr = ''
-		m = ''
+      # Removed because unused
+      #fname = f['name']
+      #fname = 'NONE' if fname.empty?
 
-		doc = Hpricot(result.body.to_s)
-		doc.search('form').each do |f|
-			hr = f.attributes['action']
+      m = (f['method'].empty? ? 'GET' : f['method'].upcase)
 
-			fname = f.attributes['name']
-			if fname.empty?
-				fname = "NONE"
-			end
+      arrdata = []
 
-			m = "GET"
-			if !f.attributes['method'].empty?
-				m = f.attributes['method'].upcase
-			end
+      f.css('input').each do |p|
+        arrdata << "#{p['name']}=#{Rex::Text.uri_encode(p['value'])}"
+      end
 
-			#puts "Parsing form name: #{fname} (#{m})"
+      data = arrdata.join("&").to_s
 
-			htmlform = Hpricot(f.inner_html)
+      begin
+        hreq = urltohash(m, hr, request['uri'], data)
+        hreq['ctype'] = 'application/x-www-form-urlencoded'
+        insertnewpath(hreq)
+      rescue URI::InvalidURIError
+        #puts "Parse error"
+        #puts "Error: #{link[0]}"
+      end
 
-			arrdata = []
-
-			htmlform.search('input').each do |p|
-				#puts p.attributes['name']
-				#puts p.attributes['type']
-				#puts p.attributes['value']
-
-				#raw_request has uri_encoding disabled as it encodes '='.
-				arrdata << (p.attributes['name'] + "=" + Rex::Text.uri_encode(p.attributes['value']))
-			end
-
-			data = arrdata.join("&").to_s
-
-
-			begin
-				hreq = urltohash(m,hr,request['uri'],data)
-
-				hreq['ctype'] = 'application/x-www-form-urlencoded'
-
-				insertnewpath(hreq)
-
-
-			rescue URI::InvalidURIError
-				#puts "Parse error"
-				#puts "Error: #{link[0]}"
-			end
-		end
-	end
+    end
+  end
 end
 

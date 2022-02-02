@@ -1,186 +1,200 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
+require 'net/https'
+require 'uri'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Report
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'Shodan Search',
+      'Description' => %q{
+        This module uses the Shodan API to search Shodan. Accounts are free
+        and an API key is required to use this module. Output from the module
+        is displayed to the screen and can be saved to a file or the MSF database.
+        NOTE: SHODAN filters (i.e. port, hostname, os, geo, city) can be used in
+        queries, but there are limitations when used with a free API key. Please
+        see the Shodan site for more information.
+        Shodan website: https://www.shodan.io/
+        API: https://developer.shodan.io/api
+      },
+      'Author' =>
+        [
+          'John H Sawyer <john[at]sploitlab.com>', # InGuardians, Inc.
+          'sinn3r'  # Metasploit-fu plus other features
+        ],
+      'License' => MSF_LICENSE
+      )
+    )
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name' => 'Shodan Search',
-			'Description' => %q{
-				This module uses the SHODAN API to query the database and
-				returns the first 50 IPs. SHODAN accounts are free & output
-				can be sent to a file for use by another program. Results
-				can also populated into the services table in the database.
-				NOTE: SHODAN filters (port, hostname, os, geo, city) can be
-				used in queries, but the free API does not allow net, country,
-				before, and after filters. An unlimited API key can be
-				purchased from the Shodan site to use those queries. The 50
-				result limit can also be raised to 10,000 for a small fee.
-				API: http://www.shodanhq.com/api_doc
-				FILTERS: http://www.shodanhq.com/help/filters
-			},
-			'Author' =>
-				[
-					'John Sawyer <johnhsawyer[at]gmail.com>',  #sploitlab.com
-					'sinn3r'  #Metasploit-fu plus other features
-				],
-			'License' => MSF_LICENSE
-		))
+    register_options(
+      [
+        OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key']),
+        OptString.new('QUERY', [true, 'Keywords you want to search for']),
+        OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
+        OptBool.new('DATABASE', [false, 'Add search results to the database', false]),
+        OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
+        OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
 
-		# disabling all the unnecessary options that someone might set to break our query
-		deregister_options('RPORT','RHOST', 'DOMAIN',
-			'DigestAuthIIS', 'SSLVersion', 'NTLM::SendLM', 'NTLM::SendNTLM',
-			'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session',
-			'NTLM::UseNTLMv2','SSL')
+      ])
 
-		register_options(
-			[
-				OptString.new('SHODAN_APIKEY', [true, "The SHODAN API key"]),
-				OptString.new('QUERY', [true, "Keywords you want to search for"]),
-				OptString.new('OUTFILE', [false, "A filename to store the list of IPs"]),
-				OptBool.new('DATABASE', [false, "Add search results to the database", false]),
-				OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1]),
-				OptString.new('FILTER', [false, 'Search for a specific IP/City/Country/Hostname']),
-				OptString.new('VHOST', [true, 'The virtual host name to use in requests', 'www.shodanhq.com']),
-			], self.class)
-	end
+    deregister_http_client_options
+  end
 
-	# create our Shodan query function that performs the actual web request
-	def shodan_query(query, apikey, page)
-		# send our query to Shodan
-		uri = "/api/search?&q=" + Rex::Text.uri_encode(query) + "&key=" + apikey + "&page=" + page.to_s
-		res = send_request_raw(
-			{
-				'method'   => 'GET',
-				'uri'      => uri
-		}, 25)
+  # create our Shodan query function that performs the actual web request
+  def shodan_query(apikey, query, page)
+    # send our query to Shodan
+    res = send_request_cgi({
+      'method' => 'GET',
+      'rhost' => 'api.shodan.io',
+      'rport' => 443,
+      'uri' => '/shodan/host/search',
+      'SSL' => true,
+      'vars_get' => {
+        'key' => apikey,
+        'query' => query,
+        'page' => page.to_s
+      }
+    })
 
-		# Check if we got a response, parse the JSON, and return it
-		if (res)
-			results = ActiveSupport::JSON.decode(res.body)
-			return results
-		else
-			return 'server_error'
-		end
-	end
+    if res && res.code == 401
+      fail_with(Failure::BadConfig, '401 Unauthorized. Your SHODAN_APIKEY is invalid')
+    end
 
-	def save_output(data)
-		f = ::File.open(datastore['OUTFILE'], "wb")
-		f.write(data)
-		f.close
-		print_status("Save results in #{datastore['OUTFILE']}")
-	end
+    # Check if we can resolve host, got a response,
+    # then parse the JSON, and return it
+    if res
+      results = ActiveSupport::JSON.decode(res.body)
+      return results
+    else
+      return 'server_response_error'
+    end
+  end
 
-	def cleanup
-		datastore['RHOST'] = @old_rhost
-		datastore['RPORT'] = @old_rport
-	end
+  # save output to file
+  def save_output(data)
+    ::File.open(datastore['OUTFILE'], 'wb') do |f|
+      f.write(data)
+      print_status("Saved results in #{datastore['OUTFILE']}")
+    end
+  end
 
-	def run
-		# create our Shodan request parameters
-		query = datastore['QUERY']
-		apikey = datastore['SHODAN_APIKEY']
+  # Check to see if api.shodan.io resolves properly
+  def shodan_resolvable?
+    begin
+      Rex::Socket.resolv_to_dotted("api.shodan.io")
+    rescue RuntimeError, SocketError
+      return false
+    end
 
-		@res = Net::DNS::Resolver.new()
-		dns_query = @res.query("#{datastore['VHOST']}", "A")
-		if dns_query.answer.length == 0
-			print_error("Could not resolve #{datastore['VHOST']}")
-			return
-		else
-			# Make a copy of the original rhost
-			@old_rhost = datastore['RHOST']
-			@old_rport = datastore['RPORT']
-			datastore['RHOST'] = dns_query.answer[0].to_s.split(/[\s,]+/)[4]
-			datastore['RPORT'] = 80
-		end
+    true
+  end
 
-		page = 1
+  def run
+    # check our API key is somewhat sane
+    unless /^[a-z\d]{32}$/i.match?(datastore['SHODAN_APIKEY'])
+      fail_with(Failure::BadConfig, 'Shodan API key should be 32 characters a-z,A-Z,0-9.')
+    end
 
-		# results gets our results from shodan_query
-		results = []
-		results[page] = shodan_query(query, apikey, page)
+    # check to ensure api.shodan.io is resolvable
+    unless shodan_resolvable?
+      print_error("Unable to resolve api.shodan.io")
+      return
+    end
 
-		if results[page].empty?
-			print_error("No Results Found!")
-			return
-		end
+    # create our Shodan request parameters
+    query = datastore['QUERY']
+    apikey = datastore['SHODAN_APIKEY']
+    maxpage = datastore['MAXPAGE']
 
-		# Determine page count based on total results
-		if results[page]['total']%50 == 0
-			tpages = results[page]['total']/50
-		else
-			tpages = results[page]['total']/50 + 1
-		end
+    # results gets our results from shodan_query
+    results = []
+    results[0] = shodan_query(apikey, query, 1)
 
-		# start printing out our query statistics
-		print_status("Total: #{results[page]['total']} on #{tpages} pages. Showing: #{datastore['MAXPAGE']}")
-		print_status("Country Statistics:")
-		results[page]['countries'].each { |ctry|
-			print_status "\t#{ctry['name']} (#{ctry['code']}): #{ctry['count']}"
-		}
+    if results[0]['total'].nil? || results[0]['total'] == 0
+      msg = "No results."
+      if results[0]['error'].to_s.length > 0
+        msg << " Error: #{results[0]['error']}"
+      end
+      print_error(msg)
+      return
+    end
 
-		# If search results greater than 50, loop & get all results
-		print_status("Collecting data, please wait...")
-		if (results[page]['total'] > 50)
-			page += 1
-			while page <= tpages
-				results[page] = shodan_query(query, apikey, page)
-				page +=1
-				break if page > datastore['MAXPAGE']
-			end
-		end
+    # Determine page count based on total results
+    if results[0]['total'] % 100 == 0
+      tpages = results[0]['total'] / 100
+    else
+      tpages = results[0]['total'] / 100 + 1
+    end
+    maxpage = tpages if datastore['MAXPAGE'] > tpages
 
-		# Save the results to this table
-		tbl = Rex::Ui::Text::Table.new(
-			'Header'  => 'IP Results',
-			'Indent'  => 1,
-			'Columns' => ['IP', 'City', 'Country', 'Hostname']
-		)
+    # start printing out our query statistics
+    print_status("Total: #{results[0]['total']} on #{tpages} " +
+      "pages. Showing: #{maxpage} page(s)")
 
-		# Organize results and put them into the table
-		page = 1
-		my_filter = datastore['FILTER']
-		for i in page..tpages
-			next if results[i].nil? or results[i]['matches'].nil?
-			results[i]['matches'].each { |host|
+    # If search results greater than 100, loop & get all results
+    print_status('Collecting data, please wait...')
 
-				city = host['city'] || 'N/A'
-				ip   = host['ip'] || 'N/A'
-				port = host['port'] || ''
-				country = host['country_name'] || 'N/A'
-				hostname = host['hostnames'][0]
-				data = host['data']
+    if results[0]['total'] > 100
+      page = 1
+      while page < maxpage
+        page_result = shodan_query(apikey, query, page+1)
+        if page_result['matches'].nil?
+          next
+        end
+        results[page] = page_result
+        page += 1
+      end
+    end
 
-				if  ip =~ /#{my_filter}/ or
-					city =~ /#{my_filter}/i or
-					country =~ /#{my_filter}/i or
-					hostname =~ /#{my_filter}/i or
-					data =~ /#{my_filter}/i
-					# Unfortunately we cannot display the banner properly,
-					# because it messes with our output format
-					tbl << ["#{ip}:#{port}", city, country, hostname]
-				end
-			}
-		end
+    # Save the results to this table
+    tbl = Rex::Text::Table.new(
+      'Header'  => 'Search Results',
+      'Indent'  => 1,
+      'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']
+    )
 
-		#Show data and maybe save it if needed
-		print_line("\n#{tbl.to_s}")
+    # Organize results and put them into the table and database
+    regex = datastore['REGEX'] if datastore['REGEX']
+    results.each do |page|
+      page['matches'].each do |host|
+        city = host['location']['city'] || 'N/A'
+        ip   = host['ip_str'] || 'N/A'
+        port = host['port'] || ''
+        country = host['location']['country_name'] || 'N/A'
+        hostname = host['hostnames'][0]
+        data = host['data']
 
-		report_note(
-			:type => 'shodan',
-			:data => tbl.to_csv
-		) if datastore['DATABASE']
+        report_host(:host     => ip,
+                    :name     => hostname,
+                    :comments => 'Added from Shodan',
+                    :info     => host['info']
+                    ) if datastore['DATABASE']
 
-		save_output(tbl.to_s) if not datastore['OUTFILE'].nil?
-	end
+        report_service(:host => ip,
+                       :port => port,
+                       :info => 'Added from Shodan'
+                       ) if datastore['DATABASE']
+
+        if ip =~ regex ||
+          city =~ regex ||
+          country =~ regex ||
+          hostname =~ regex ||
+          data =~ regex
+          # Unfortunately we cannot display the banner properly,
+          # because it messes with our output format
+          tbl << ["#{ip}:#{port}", city, country, hostname]
+        end
+      end
+    end
+    #Show data and maybe save it if needed
+    print_line()
+    print_line("#{tbl}")
+    save_output(tbl) if datastore['OUTFILE']
+  end
 end

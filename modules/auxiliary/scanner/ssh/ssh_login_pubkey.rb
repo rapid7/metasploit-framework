@@ -1,352 +1,312 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
+require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/credential_collection'
+require 'sshkey'
+require 'net/ssh/command_stream'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::CommandShell
+  include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::SSH::Options
 
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::AuthBrute
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::CommandShell
+  attr_accessor :ssh_socket, :good_key
 
-	attr_accessor :ssh_socket, :good_credentials, :good_key, :good_key_data
+  def initialize
+    super(
+      'Name'        => 'SSH Public Key Login Scanner',
+      'Description' => %q{
+        This module will test ssh logins on a range of machines using
+        a defined private key file, and report successful logins.
+        If you have loaded a database plugin and connected to a database
+        this module will record successful logins and hosts so you can
+        track your access.
 
-	def initialize
-		super(
-			'Name'        => 'SSH Public Key Login Scanner',
-			'Description' => %q{
-				This module will test ssh logins on a range of machines using
-				a defined private key file, and report successful logins.
-				If you have loaded a database plugin and connected to a database
-				this module will record successful logins and hosts so you can
-				track your access.
+        Key files may be a single private key, or several private keys in a single
+        directory. Only a single passphrase is supported however, so it must either
+        be shared between subject keys or only belong to a single one.
+      },
+      'Author'      => ['todb', 'RageLtMan'],
+      'License'     => MSF_LICENSE
+    )
 
-				Note that password-protected key files will not function with this
-				module -- it is designed specifically for unencrypted (passwordless)
-				keys.
+    register_options(
+      [
+        Opt::RPORT(22),
+        OptPath.new('KEY_PATH', [false, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
+        OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
+        OptString.new('PRIVATE_KEY', [false, 'The string value of the private key that will be used. If you are using MSFConsole, this value should be set as file:PRIVATE_KEY_PATH. OpenSSH, RSA, DSA, and ECDSA private keys are supported.'])
+      ], self.class
+    )
 
-				Key files may be a single private (unencrypted) key, or several private
-				keys concatenated together as an ASCII text file. Non-key data should be
-				silently ignored.
-			},
-			'Author'      => ['todb'],
-			'License'     => MSF_LICENSE
-		)
+    register_advanced_options(
+      [
+        Opt::Proxies,
+        OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+        OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
+        OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
+      ]
+    )
 
-		register_options(
-			[
-				Opt::RPORT(22),
-				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.'])
-			], self.class
-		)
+    deregister_options(
+      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY',
+      'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
+    )
 
-		register_advanced_options(
-			[
-				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
-				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-				OptPath.new('KEY_DIR', [false, 'Directory of several cleartext private keys. Filenames must not begin with a dot, or end in ".pub" in order to be read.']),
-				OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
-			]
-		)
+    @good_key = ''
+    @strip_passwords = true
 
-		deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS')
+  end
 
-		@good_credentials = {}
-		@good_key = ''
-		@strip_passwords = true
+  def rport
+    datastore['RPORT']
+  end
 
-	end
+  def ip
+    datastore['RHOST']
+  end
 
-	def key_dir
-		datastore['KEY_DIR']
-	end
+  def session_setup(result, scanner, fingerprint, cred_core_private_id)
+    return unless scanner.ssh_socket
 
-	def rport
-		datastore['RPORT']
-	end
+    # Create a new session
+    sess = Msf::Sessions::SshCommandShellBind.new(scanner.ssh_socket)
 
-	def ip
-		datastore['RHOST']
-	end
+    # Clean up the stored data - need to stash the keyfile into
+    # a datastore for later reuse.
+    merge_me = {
+      'USERPASS_FILE'        => nil,
+      'USER_FILE'            => nil,
+      'PASS_FILE'            => nil,
+      'USERNAME'             => result.credential.public,
+      'CRED_CORE_PRIVATE_ID' => cred_core_private_id,
+      'SSH_KEYFILE_B64'      => [result.credential.private].pack("m*").gsub("\n",""),
+      'KEY_PATH'             => nil
+    }
 
-	def read_keyfile(file)
-		if file == :keyfile_b64
-			keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
-		elsif file.kind_of? Array
-			keyfile = ''
-			file.each do |dir_entry|
-				next unless File.readable? dir_entry
-				keyfile << File.open(dir_entry, "rb") {|f| f.read(f.stat.size)}
-			end
-		else
-			keyfile = File.open(file, "rb") {|f| f.read(f.stat.size)}
-		end
-		keys = []
-		this_key = []
-		in_key = false
-		keyfile.split("\n").each do |line|
-			in_key = true if(line =~ /^-----BEGIN [RD]SA PRIVATE KEY-----/)
-			this_key << line if in_key
-			if(line =~ /^-----END [RD]SA PRIVATE KEY-----/)
-				in_key = false
-				keys << (this_key.join("\n") + "\n")
-				this_key = []
-			end
-		end
-		if keys.empty?
-			print_error "#{ip}:#{rport} SSH - No keys found."
-		end
-		return validate_keys(keys)
-	end
+    s = start_session(self, nil, merge_me, false, sess.rstream, sess)
+    self.sockets.delete(scanner.ssh_socket.transport.socket)
 
-	# Validates that the key isn't total garbage. Also throws out SSH2 keys --
-	# can't use 'em for Net::SSH.
-	def validate_keys(keys)
-		keepers = []
-		keys.each do |key|
-			# Needs a beginning
-			next unless key =~ /^-----BEGIN [RD]SA PRIVATE KEY-----\x0d?\x0a/m
-			# Needs an end
-			next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a?$/m
-			# Shouldn't have binary.
-			next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
-			# Add more tests to taste.
-			keepers << key
-		end
-		if keepers.empty?
-			print_error "#{ip}:#{rport} SSH - No valid keys found"
-		end
-		return keepers
-	end
+    # Set the session platform
+    s.platform = scanner.get_platform(result.proof)
 
-	def pull_cleartext_keys(keys)
-		cleartext_keys = []
-		keys.each do |key|
-			next unless key
-			next if key =~ /Proc-Type:.*ENCRYPTED/
-			this_key = key.gsub(/\x0d/,"")
-			next if cleartext_keys.include? this_key
-			cleartext_keys << this_key
-		end
-		if cleartext_keys.empty?
-			print_error "#{ip}:#{rport} SSH - No valid cleartext keys found"
-		end
-		return cleartext_keys
-	end
+    # Create database host information
+    host_info = {host: scanner.host}
 
-	def do_login(ip,user,port)
-		if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
-			keys = read_keyfile(datastore['KEY_FILE'])
-			cleartext_keys = pull_cleartext_keys(keys)
-			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
-		elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
-			keys = read_keyfile(:keyfile_b64)
-			cleartext_keys = pull_cleartext_keys(keys)
-			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
-		elsif datastore['KEY_DIR']
-			return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
-			unless @key_files
-				@key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}
-			end
-			these_keys = @key_files.map {|f| File.join(key_dir,f)}
-			keys = read_keyfile(these_keys)
-			cleartext_keys = pull_cleartext_keys(keys)
-			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
-		else
-			return :missing_keyfile
-		end
-		unless @alerted_with_msg
-			print_status msg
-			@alerted_with_msg = true
-		end
-		cleartext_keys.each_with_index do |key_data,key_idx|
-			opt_hash = {
-				:auth_methods => ['publickey'],
-				:msframework  => framework,
-				:msfmodule    => self,
-				:port         => port,
-				:key_data     => key_data,
-				:disable_agent => true,
-				:config => false,
-				:record_auth_info => true,
-				:proxies	=> datastore['Proxies']
-			}
-			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
-			begin
-				::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-					self.ssh_socket = Net::SSH.start(
-						ip,
-						user,
-						opt_hash
-					)
-				end
-			rescue Rex::ConnectionError, Rex::AddressInUse
-				return :connection_error
-			rescue Net::SSH::Disconnect, ::EOFError
-				return :connection_disconnect
-			rescue ::Timeout::Error
-				return :connection_disconnect
-			rescue Net::SSH::AuthenticationFailed
-				# Try, try, again
-				if @key_files
-					vprint_error "#{ip}:#{rport} SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
-				else
-					vprint_error "#{ip}:#{rport} SSH - Failed authentication, trying key #{key_idx+1}"
-				end
-				next
-			rescue Net::SSH::Exception => e
-				return [:fail,nil] # For whatever reason.
-			end
-			break
-		end
+    unless s.platform == 'unknown'
+      host_info[:os_name] = s.platform
+    end
 
-		if self.ssh_socket
-			self.good_key = self.ssh_socket.auth_info[:pubkey_id]
-			self.good_key_data = self.ssh_socket.options[:key_data]
-			proof = ''
-			begin
-				Timeout.timeout(5) do
-					proof = self.ssh_socket.exec!("id\n").to_s
-					if(proof =~ /id=/)
-						proof << self.ssh_socket.exec!("uname -a\n").to_s
-					else
-						# Cisco IOS
-						if proof =~ /Unknown command or computer name/
-							proof = self.ssh_socket.exec!("ver\n").to_s
-						else
-							proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
-						end
-					end
-				end
-			rescue ::Exception
-			end
+    report_host(host_info)
 
-			# Create a new session from the socket, then dump it.
-			conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
-			self.ssh_socket = nil
+    s
+  end
 
-			# Clean up the stored data - need to stash the keyfile into
-			# a datastore for later reuse.
-			merge_me = {
-				'USERPASS_FILE'  => nil,
-				'USER_FILE'      => nil,
-				'PASS_FILE'      => nil,
-				'USERNAME'       => user
-			}
-			if datastore['KEY_FILE'] and !datastore['KEY_FILE'].empty?
-				keyfile = File.open(datastore['KEY_FILE'], "rb") {|f| f.read(f.stat.size)}
-				merge_me.merge!(
-					'SSH_KEYFILE_B64' => [keyfile].pack("m*").gsub("\n",""),
-					'KEY_FILE'        => nil
-					)
-			end
+  def run_host(ip)
+    print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
 
-			s = start_session(self, "SSH #{user}:#{self.good_key} (#{ip}:#{port})", merge_me, false, conn.lsock)
+    if datastore["USER_FILE"].blank? && datastore["USERNAME"].blank?
+      validation_reason = "At least one of USER_FILE or USERNAME must be given"
+      raise Msf::OptionValidateError.new(
+        {
+          "USER_FILE" => validation_reason,
+          "USERNAME" => validation_reason
+        }
+      )
+    end
 
-			# Set the session platform
-			case proof
-			when /Linux/
-				s.platform = "linux"
-			when /Darwin/
-				s.platform = "osx"
-			when /SunOS/
-				s.platform = "solaris"
-			when /BSD/
-				s.platform = "bsd"
-			when /HP-UX/
-				s.platform = "hpux"
-			when /AIX/
-				s.platform = "aix"
-			when /Win32|Windows/
-				s.platform = "windows"
-			when /Unknown command or computer name/
-				s.platform = "cisco-ios"
-			end
+    keys = KeyCollection.new(
+      key_path: datastore['KEY_PATH'],
+      password: datastore['KEY_PASS'],
+      user_file: datastore['USER_FILE'],
+      username: datastore['USERNAME'],
+      private_key: datastore['PRIVATE_KEY']
+    )
 
-			return [:success, proof]
-		else
-			return [:fail, nil]
-		end
-	end
+    unless keys.valid?
+      print_error("Files that failed to be read:")
+      keys.error_list.each do |err|
+        print_line("\t- #{err}")
+      end
+    end
 
-	def do_report(ip, port, user, proof)
-		return unless framework.db.active
-		keyfile_path = store_keyfile(ip,user,self.good_key,self.good_key_data)
-		cred_hash = {
-			:host => ip,
-			:port => datastore['RPORT'],
-			:sname => 'ssh',
-			:user => user,
-			:pass => keyfile_path,
-			:type => "ssh_key",
-			:proof => "KEY=#{self.good_key}, PROOF=#{proof}",
-			:duplicate_ok => true,
-				:active => true
-		}
-		this_cred = report_auth_info(cred_hash)
-	end
+    keys = prepend_db_keys(keys)
 
-	def existing_loot(ltype, key_id)
-		framework.db.loots(myworkspace).find_all_by_ltype(ltype).select {|l| l.info == key_id}.first
-	end
+    key_count = keys.key_data.count
+    key_sources = []
+    unless datastore['KEY_PATH'].blank?
+      key_sources.append(datastore['KEY_PATH'])
+    end
 
-	def store_keyfile(ip,user,key_id,key_data)
-		safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
-		case key_data
-		when /BEGIN RSA PRIVATE/m
-			ktype = "rsa"
-		when /BEGIN DSA PRIVATE/m
-			ktype = "dsa"
-		else
-			ktype = nil
-		end
-		return unless ktype
-		ltype = "host.unix.ssh.#{user}_#{ktype}_private"
-		keyfile = existing_loot(ltype, key_id)
-		return keyfile.path if keyfile
-		keyfile_path = store_loot(
-			ltype,
-			"application/octet-stream", # Text, but always want to mime-type attach it
-			ip,
-			(key_data + "\n"),
-			"#{safe_username}_#{ktype}.key",
-			key_id
-		)
-		return keyfile_path
-	end
+    unless datastore['PRIVATE_KEY'].blank?
+      key_sources.append('PRIVATE_KEY')
+    end
 
-	def run_host(ip)
-		print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
-		# Since SSH collects keys and tries them all on one authentication session, it doesn't
-		# make sense to iteratively go through all the keys individually. So, ignore the pass variable,
-		# and try all available keys for all users.
-		each_user_pass do |user,pass|
-			ret,proof = do_login(ip,user,rport)
-			case ret
-			when :success
-				print_brute :level => :good, :msg => "Success: '#{user}':'#{self.good_key}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-				do_report(ip, rport, user, proof)
-				:next_user
-			when :connection_error
-				vprint_error "#{ip}:#{rport} SSH - Could not connect"
-				:abort
-			when :connection_disconnect
-				vprint_error "#{ip}:#{rport} SSH - Connection timed out"
-				:abort
-			when :fail
-				vprint_error "#{ip}:#{rport} SSH - Failed: '#{user}'"
-			when :missing_keyfile
-				vprint_error "#{ip}:#{rport} SSH - Cannot read keyfile."
-			when :no_valid_keys
-				vprint_error "#{ip}:#{rport} SSH - No cleartext keys in keyfile."
-			end
-		end
-	end
 
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
+    scanner = Metasploit::Framework::LoginScanner::SSH.new(
+      host: ip,
+      port: rport,
+      cred_details: keys,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      proxies: datastore['Proxies'],
+      connection_timeout: datastore['SSH_TIMEOUT'],
+      framework: framework,
+      framework_module: self,
+      skip_gather_proof: !datastore['GatherProof']
+    )
+
+    scanner.verbosity = :debug if datastore['SSH_DEBUG']
+
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+        when Metasploit::Model::Login::Status::SUCCESSFUL
+          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+          credential_core = create_credential(credential_data)
+          credential_data[:core] = credential_core
+          create_credential_login(credential_data)
+          tmp_key = result.credential.private
+          ssh_key = SSHKey.new tmp_key
+          if datastore['CreateSession']
+            if credential_core.is_a? Metasploit::Credential::Core
+              session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
+            else
+              session_setup(result, scanner, ssh_key.fingerprint, nil)
+            end
+          end
+          if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+            msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+            msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+            msg << " device details so it can be handled in the future."
+            print_brute :level => :error, :ip => ip, :msg => msg
+          end
+          :next_user
+        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+          end
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+          invalidate_login(credential_data)
+          :abort
+        when Metasploit::Model::Login::Status::INCORRECT
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          end
+          invalidate_login(credential_data)
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        else
+          invalidate_login(credential_data)
+          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+      end
+    end
+  end
+
+  class KeyCollection < Metasploit::Framework::CredentialCollection
+    attr_accessor :key_data
+    attr_accessor :key_path
+    attr_accessor :private_key
+    attr_accessor :error_list
+
+    # Override CredentialCollection#has_privates?
+    def has_privates?
+      !@key_data.empty?
+    end
+
+    def realm
+      nil
+    end
+
+    def valid?
+      @error_list = []
+      @key_data = Set.new
+
+      unless @private_key.present? || @key_path.present?
+        raise RuntimeError, "No key path or key provided"
+      end
+
+      if @key_path.present?
+        if File.directory?(@key_path)
+          @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
+          @key_files.each do |f|
+            begin
+              data = read_key(File.join(@key_path, f))
+              @key_data << data if valid_key?(data)
+            rescue StandardError => e
+              @error_list << "#{File.join(@key_path, f)}: #{e}"
+            end
+          end
+        elsif File.file?(@key_path)
+          begin
+            data = read_key(@key_path)
+            @key_data << data if valid_key?(data)
+          rescue StandardError => e
+            @error_list << "#{@key_path} could not be read, #{e}"
+          end
+        else
+          raise RuntimeError, "Invalid key path"
+        end
+      end
+
+      if @private_key.present?
+        data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
+        if valid_key?(data)
+          @key_data << data
+        else
+          raise RuntimeError, "Invalid private key"
+        end
+      end
+
+      !@key_data.empty?
+    end
+
+    def valid_key?(key_data)
+      !!(key_data.match(/BEGIN [RECD]SA PRIVATE KEY/) && !key_data.match(/Proc-Type:.*ENCRYPTED/))
+    end
+
+    def each
+      prepended_creds.each { |c| yield c }
+
+      if @user_file.present?
+        File.open(@user_file, 'rb') do |user_fd|
+          user_fd.each_line do |user_from_file|
+            user_from_file.chomp!
+            each_key do |key_data|
+              yield Metasploit::Framework::Credential.new(public: user_from_file, private: key_data, realm: realm, private_type: :ssh_key)
+            end
+          end
+        end
+      end
+
+      if @username.present?
+        each_key do |key_data|
+          yield Metasploit::Framework::Credential.new(public: @username, private: key_data, realm: realm, private_type: :ssh_key)
+        end
+      end
+    end
+
+    def each_key
+      @key_data.each do |data|
+        yield data
+      end
+    end
+
+    def read_key(file_path)
+      @cache ||= {}
+      @cache[file_path] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(file_path), password, false, key_path).to_s
+      @cache[file_path]
+    end
+  end
 end

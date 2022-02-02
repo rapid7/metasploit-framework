@@ -1,139 +1,105 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/proto/rfb'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/vnc'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
-	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::AuthBrute
+  def initialize
+    super(
+      'Name'        => 'VNC Authentication Scanner',
+      'Description' => %q{
+          This module will test a VNC server on a range of machines and
+        report successful logins. Currently it supports RFB protocol
+        version 3.3, 3.7, 3.8 and 4.001 using the VNC challenge response
+        authentication method.
+      },
+      'Author'      =>
+        [
+          'carstein <carstein.sec[at]gmail.com>',
+          'jduck'
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '1999-0506'] # Weak password
+        ],
+      'License'     => MSF_LICENSE
+    )
 
-	def initialize
-		super(
-			'Name'        => 'VNC Authentication Scanner',
-			'Description' => %q{
-					This module will test a VNC server on a range of machines and
-				report successful logins. Currently it supports RFB protocol
-				version 3.3, 3.7, and 3.8 using the VNC challenge response
-				authentication method.
-			},
-			'Author'      =>
-				[
-					'carstein <carstein.sec [at] gmail [dot] com>',
-					'jduck'
-				],
-			'References'     =>
-				[
-					[ 'CVE', '1999-0506'] # Weak password
-				],
-			'License'     => MSF_LICENSE
-		)
+    register_options(
+      [
+        Opt::Proxies,
+        Opt::RPORT(5900),
+        OptString.new('PASSWORD', [ false, 'The password to test' ]),
+        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
 
-		register_options(
-			[
-				Opt::RPORT(5900),
-				OptString.new('PASSWORD', [ false, 'The password to test' ]),
-				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-					File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
+        # We need to set the following options to make sure BLANK_PASSWORDS functions properly
+        OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
+        OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
+      ])
 
-				#We need to set the following options to make sure BLANK_PASSWORDS functions properly
-				OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
-				OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
-			], self.class)
+    deregister_options('PASSWORD_SPRAY')
 
-		register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
+    register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 
-		# We don't currently support an auth mechanism that uses usernames, so we'll ignore any
-		# usernames that are passed in.
-		@strip_usernames = true
-	end
+    # We don't currently support an auth mechanism that uses usernames, so we'll ignore any
+    # usernames that are passed in.
+    @strip_usernames = true
+  end
 
-	def run_host(ip)
-		print_status("#{ip}:#{rport} - Starting VNC login sweep")
+  def run_host(ip)
+    print_status("#{ip}:#{rport} - Starting VNC login sweep")
 
-		begin
-			each_user_pass { |user, pass|
-				ret = nil
-				attempts = 5
-				attempts.times { |n|
-					ret = do_login(user, pass)
-					break if ret != :retry
+    cred_collection = build_credential_collection(
+        username: datastore['USERNAME'],
+        password: datastore['PASSWORD']
+    )
 
-					delay = (2**(n+1)) + 1
-					vprint_status("Retrying in #{delay} seconds...")
-					select(nil, nil, nil, delay)
-				}
-				# If we tried all these attempts, and we still got a retry condition,
-				# we'll just give up.. Must be that nasty blacklist algorithm kicking
-				# our butt.
-				return :abort if ret == :retry
-				ret
-			}
-		rescue ::Rex::ConnectionError
-			nil
-		end
-	end
+    scanner = Metasploit::Framework::LoginScanner::VNC.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['ConnectTimeout'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
+    )
 
-	def do_login(user, pass)
-		vprint_status("#{target_host}:#{rport} - Attempting VNC login with password '#{pass}'")
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-		connect
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+      end
+    end
 
-		begin
-			vnc = Rex::Proto::RFB::Client.new(sock, :allow_none => false)
-			if not vnc.handshake
-				vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-				return :abort
-			end
-
-			ver = "#{vnc.majver}.#{vnc.minver}"
-			vprint_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
-			report_service(
-				:host => rhost,
-				:port => rport,
-				:proto => 'tcp',
-				:name => 'vnc',
-				:info => "VNC protocol version #{ver}"
-			)
-
-			if not vnc.authenticate(pass)
-				vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-				return :retry if vnc.error =~ /connection has been rejected/ # UltraVNC
-				return :retry if vnc.error =~ /Too many security failures/   # vnc4server
-				return :fail
-			end
-
-			print_good("#{target_host}:#{rport}, VNC server password : \"#{pass}\"")
-
-			access_type = "password"
-			#access_type = "view-only password" if vnc.view_only_mode
-			report_auth_info({
-				:host => rhost,
-				:port => rport,
-				:sname => 'vnc',
-				:pass => pass,
-				:type => access_type,
-				:duplicate_ok => true,
-				:source_type => "user_supplied",
-				:active => true
-			})
-			return :next_user
-
-		# For debugging only.
-		#rescue ::Exception
-		#	raise $!
-		#	print_error("#{$!}")
-
-		ensure
-			disconnect()
-		end
-	end
-
+  end
 end

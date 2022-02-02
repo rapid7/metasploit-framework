@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
@@ -10,80 +8,77 @@
 # http://httpd.apache.org/docs/1.3/content-negotiation.html
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'   		=> 'Apache HTTPD mod_negotiation Filename Bruter',
+      'Description'	=> %q{
+          This module performs a brute force attack in order to discover existing files on a
+        server which uses mod_negotiation. If the filename is found, the IP address and the
+        files found will be displayed.
+      },
+      'Author' 		=> [ 'diablohorn [at] gmail.com' ],
+      'License'		=> MSF_LICENSE))
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Scanner
+    register_options(
+      [
+        OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
+        OptPath.new('FILEPATH',[true, "path to file with file names",
+          File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt")])
+      ])
+  end
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'   		=> 'Apache HTTPD mod_negotiation Filename Bruter',
-			'Description'	=> %q{
-					This module performs a brute force attack in order to discover existing files on a
-				server which uses mod_negotiation. If the filename is found, the IP address and the
-				files found will be displayed.
-			},
-			'Author' 		=> [ 'diablohorn [at] gmail.com' ],
-			'License'		=> MSF_LICENSE))
+  def run_host(ip)
+    ecode = nil
+    emesg = nil
 
-		register_options(
-			[
-				OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
-				OptString.new('FILEPATH',[true, "path to file with file names",
-					File.join(Msf::Config.install_root, "data", "wmap", "wmap_files.txt")])
-			], self.class)
-	end
+    tpath = normalize_uri(datastore['PATH'])
+    tfile = datastore['FILEPATH']
 
-	def run_host(ip)
-		ecode = nil
-		emesg = nil
+    if tpath[-1,1] != '/'
+      tpath += '/'
+    end
 
-		tpath = normalize_uri(datastore['PATH'])
-		tfile = datastore['FILEPATH']
+    # load the file with filenames into memory
+    queue = []
+    File.open(datastore['FILEPATH'], 'rb').each_line do |fn|
+      queue << fn.strip
+    end
 
-		if tpath[-1,1] != '/'
-			tpath += '/'
-		end
+    vhost = datastore['VHOST'] || ip
+    prot  = datastore['SSL'] ? 'https' : 'http'
 
-		#load the file with filenames into memory
-		queue = []
-		File.open(datastore['FILEPATH'], 'rb').each_line do |fn|
-			queue << fn.strip
-		end
+    #
+    # Send the request and parse the response headers for an alternates header
+    #
+    begin
+      queue.each do |dirname|
+      reqpath = tpath+dirname
+        # Send the request the accept header is key here
+        res = send_request_cgi({
+          'uri'  		=>  reqpath,
+          'method'   	=> 'GET',
+          'ctype'     => 'text/html',
+          'headers'	=> {'Accept' => 'a/b'}
+        }, 20)
 
-		vhost = datastore['VHOST'] || ip
-		prot  = datastore['SSL'] ? 'https' : 'http'
+        return if not res
 
-		#
-		# Send the request and parse the response headers for an alternates header
-		#
-		begin
-			queue.each do |dirname|
-			reqpath = tpath+dirname
-				# Send the request the accept header is key here
-				res = send_request_cgi({
-					'uri'  		=>  reqpath,
-					'method'   	=> 'GET',
-					'ctype'     => 'text/html',
-					'headers'	=> {'Accept' => 'a/b'}
-				}, 20)
+        # Check for alternates header and parse them
+        if(res.code == 406)
+          chunks = res.headers.to_s.scan(/"(.*?)"/i).flatten
+          chunks.each do |chunk|
+            chunk = chunk.to_s
+            print_status("#{ip} #{tpath}#{chunk}")
+          end
+        end
+      end
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
+    end
 
-				return if not res
-
-				# Check for alternates header and parse them
-				if(res.code == 406)
-					chunks = res.headers.to_s.scan(/"(.*?)"/i).flatten
-					chunks.each do |chunk|
-						chunk = chunk.to_s
-						print_status("#{ip} #{tpath}#{chunk}")
-					end
-				end
-			end
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
-
-	end
+  end
 end

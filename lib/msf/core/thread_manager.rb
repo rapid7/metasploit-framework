@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/plugin'
 
 =begin
 require 'active_record'
@@ -9,7 +8,7 @@ require 'active_record'
 #
 #   DEPRECATION WARNING: Database connections will not be closed automatically, please close your
 #   database connection at the end of the thread by calling `close` on your
-#   connection.  For example: ActiveRecord::Base.connection.close
+#   connection.  For example: ApplicationRecord.connection.close
 #
 # and
 #
@@ -46,136 +45,146 @@ module Msf
 ###
 class ThreadManager < Array
 
-	include Framework::Offspring
+  include Framework::Offspring
 
-	attr_accessor :monitor
+  attr_accessor :monitor
 
-	#
-	# Initializes the thread manager.
-	#
-	def initialize(framework)
-		self.framework = framework
-		self.monitor   = spawn_monitor
-	end
+  #
+  # Initializes the thread manager.
+  #
+  def initialize(framework)
+    self.framework = framework
+    self.monitor   = spawn_monitor
 
-	#
-	# Spawns a monitor thread for removing dead threads
-	#
-	def spawn_monitor
-		::Thread.new do
-			begin
+    # XXX: Preserve Ruby < 2.5 thread exception reporting behavior
+    # https://ruby-doc.org/core-2.5.0/Thread.html#method-c-report_on_exception
+    if Thread.method_defined?(:report_on_exception=)
+      Thread.report_on_exception = false
+    end
+  end
 
-			::Thread.current[:tm_name] = "Thread Monitor"
-			::Thread.current[:tm_crit] = true
+  #
+  # Spawns a monitor thread for removing dead threads
+  #
+  def spawn_monitor
+    ::Thread.new do
+      begin
 
-			while true
-				::IO.select(nil, nil, nil, 1.0)
-				self.each_index do |i|
-					state = self[i].alive? rescue false
-					self[i] = nil if not state
-				end
-				self.delete(nil)
-			end
+      ::Thread.current[:tm_name] = "Thread Monitor"
+      ::Thread.current[:tm_crit] = true
 
-			rescue ::Exception => e
-				elog("thread monitor: #{e} #{e.backtrace} source:#{self[:tm_call].inspect}")
-			end
-		end
-	end
+      while true
+        ::IO.select(nil, nil, nil, 1.0)
+        self.each_index do |i|
+          state = self[i].alive? rescue false
+          self[i] = nil if not state
+        end
+        self.delete(nil)
+      end
 
-	#
-	# Spawns a new thread
-	#
-	def spawn(name, crit, *args, &block)
-		t = nil
+      rescue ::Exception => e
+        elog("Thread Monitor Exception | Source: #{self[:tm_call].inspect}", error: e)
+      end
+    end
+  end
 
-		if block
-			t = ::Thread.new(name, crit, caller, block, *args) do |*argv|
-				::Thread.current[:tm_name] = argv.shift.to_s
-				::Thread.current[:tm_crit] = argv.shift
-				::Thread.current[:tm_call] = argv.shift
-				::Thread.current[:tm_time] = Time.now
+  #
+  # Spawns a new thread
+  #
+  def spawn(name, crit, *args, &block)
+    t = nil
 
-				begin
-					argv.shift.call(*argv)
-				rescue ::Exception => e
-					elog("thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  error:#{e.class} #{e} source:#{::Thread.current[:tm_call].inspect}")
-					elog("Call Stack\n#{e.backtrace.join("\n")}")
-					raise e
-				ensure
-					if framework.db and framework.db.active
-						# NOTE: despite the Deprecation Warning's advice, this should *NOT*
-						# be ActiveRecord::Base.connection.close which causes unrelated
-						# threads to raise ActiveRecord::StatementInvalid exceptions at
-						# some point in the future, presumably due to the pool manager
-						# believing that the connection is still usable and handing it out
-						# to another thread.
-						::ActiveRecord::Base.connection_pool.release_connection
-					end
-				end
-			end
-		else
-			t = ::Thread.new(name, crit, caller, *args) do |*argv|
-				::Thread.current[:tm_name] = argv.shift
-				::Thread.current[:tm_crit] = argv.shift
-				::Thread.current[:tm_call] = argv.shift
-				::Thread.current[:tm_time] = Time.now
-				# Calling spawn without a block means we cannot force a database
-				# connection release when the thread completes, so doing so can
-				# potentially use up all database resources and starve all subsequent
-				# threads that make use of the database. Log a warning so we can track
-				# down this kind of usage.
-				dlog("Thread spawned without a block!")
-				dlog("Call stack: \n#{::Thread.current[:tm_call].join("\n")}")
-			end
-		end
+    if block
+      t = ::Thread.new(name, crit, caller, block, *args) do |*argv|
+        ::Thread.current[:tm_name] = argv.shift.to_s
+        ::Thread.current[:tm_crit] = argv.shift
+        ::Thread.current[:tm_call] = argv.shift
+        ::Thread.current[:tm_time] = Time.now
 
-		self << t
-		t
-	end
+        begin
+          argv.shift.call(*argv)
+        rescue ::Exception => e
+          elog(
+              "Thread Exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  " \
+              "  source:\n" \
+              "    #{::Thread.current[:tm_call].join "\n    "}",
+              error: e
+          )
+          raise e
+        ensure
+          if framework.db && framework.db.active && framework.db.is_local?
+            # NOTE: despite the Deprecation Warning's advice, this should *NOT*
+            # be ApplicationRecord.connection.close which causes unrelated
+            # threads to raise ActiveRecord::StatementInvalid exceptions at
+            # some point in the future, presumably due to the pool manager
+            # believing that the connection is still usable and handing it out
+            # to another thread.
+            ::ApplicationRecord.connection_pool.release_connection
+          end
+        end
+      end
+    else
+      t = ::Thread.new(name, crit, caller, *args) do |*argv|
+        ::Thread.current[:tm_name] = argv.shift
+        ::Thread.current[:tm_crit] = argv.shift
+        ::Thread.current[:tm_call] = argv.shift
+        ::Thread.current[:tm_time] = Time.now
+        # Calling spawn without a block means we cannot force a database
+        # connection release when the thread completes, so doing so can
+        # potentially use up all database resources and starve all subsequent
+        # threads that make use of the database. Log a warning so we can track
+        # down this kind of usage.
+        dlog("Thread spawned without a block!")
+        dlog("Call stack: \n#{::Thread.current[:tm_call].join("\n")}")
+      end
+    end
 
-	#
-	# Registers an existing thread
-	#
-	def register(t, name, crit)
-		t[:tm_name] = name
-		t[:tm_crit] = crit
-		t[:tm_call] = caller
-		t[:tm_time] = Time.now
-		self << t
-		t
-	end
+    self << t
+    t
+  end
 
-	#
-	# Updates an existing thread
-	#
-	def update(ut, name, crit)
-		ti = nil
-		self.each_index do |i|
-			tt = self[i]
-			next if not tt
-			if ut.__id__ == tt.__id__
-				ti = i
-				break
-			end
-		end
+  #
+  # Registers an existing thread
+  #
+  def register(t, name, crit)
+    t[:tm_name] = name
+    t[:tm_crit] = crit
+    t[:tm_call] = caller
+    t[:tm_time] = Time.now
+    self << t
+    t
+  end
 
-		t = self[ti]
-		if not t
-			raise RuntimeError, "Thread not found"
-		end
+  #
+  # Updates an existing thread
+  #
+  def update(ut, name, crit)
+    ti = nil
+    self.each_index do |i|
+      tt = self[i]
+      next if not tt
+      if ut.__id__ == tt.__id__
+        ti = i
+        break
+      end
+    end
 
-		t[:tm_name] = name
-		t[:tm_crit] = crit
-		t
-	end
+    t = self[ti]
+    if not t
+      raise RuntimeError, "Thread not found"
+    end
 
-	#
-	# Kills a thread by index
-	#
-	def kill(idx)
-		self[idx].kill rescue false
-	end
+    t[:tm_name] = name
+    t[:tm_crit] = crit
+    t
+  end
+
+  #
+  # Kills a thread by index
+  #
+  def kill(idx)
+    self[idx].kill rescue false
+  end
 
 end
 

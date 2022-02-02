@@ -1,630 +1,235 @@
 # -*- coding: binary -*-
 
-require 'msf/base/config'
-require 'msf/core'
-require 'msf/core/db'
-require 'msf/core/task_manager'
-require 'fileutils'
-require 'shellwords'
-
-module Msf
-
-###
 #
+# Gems
+#
+
+require 'rex/socket'
+
+#
+# Project
+#
+require 'metasploit/framework/require'
+require 'metasploit/framework/data_service'
+
+
 # The db module provides persistent storage and events. This class should be instantiated LAST
 # as the active_suppport library overrides Kernel.require, slowing down all future code loads.
-#
-###
-
-class DBManager
-
-	# Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
-	# Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
-	def warn_about_rubies
-		if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
-			$stderr.puts "**************************************************************************************"
-			$stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
-			$stderr.puts "**************************************************************************************"
-		end
-	end
-
-	# Provides :framework and other accessors
-	include Framework::Offspring
-
-	# Returns true if we are ready to load/store data
-	def active
-		return false if not @usable
-		# We have established a connection, some connection is active, and we have run migrations
-		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
-	end
-
-	# Returns true if the prerequisites have been installed
-	attr_accessor :usable
-
-	# Returns the list of usable database drivers
-	attr_accessor :drivers
-
-	# Returns the active driver
-	attr_accessor :driver
-
-	# Stores the error message for why the db was not loaded
-	attr_accessor :error
-
-	# Stores a TaskManager for serializing database events
-	attr_accessor :sink
-
-	# Flag to indicate database migration has completed
-	attr_accessor :migrated
-
-	# Flag to indicate that modules are cached
-	attr_accessor :modules_cached
-
-	# Flag to indicate that the module cacher is running
-	attr_accessor :modules_caching
-
-	def initialize(framework, opts = {})
-
-		self.framework = framework
-		self.migrated  = false
-		self.modules_cached  = false
-		self.modules_caching = false
-
-		@usable = false
-
-		# Don't load the database if the user said they didn't need it.
-		if (opts['DisableDatabase'])
-			self.error = "disabled"
-			return
-		end
-
-		initialize_database_support
-	end
-
-	#
-	# Do what is necessary to load our database support
-	#
-	def initialize_database_support
-		begin
-			# Database drivers can reset our KCODE, do not let them
-			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
-
-			require "active_record"
-
-			initialize_metasploit_data_models
-
-			@usable = true
-
-		rescue ::Exception => e
-			self.error = e
-			elog("DB is not enabled due to load error: #{e}")
-			return false
-		end
-
-		# Only include Mdm if we're not using Metasploit commercial versions
-		# If Mdm::Host is defined, the dynamically created classes
-		# are already in the object space
-		begin
-			unless defined? Mdm::Host
-				MetasploitDataModels.require_models
-			end
-		rescue NameError => e
-			warn_about_rubies
-			raise e
-		end
-
-		#
-		# Determine what drivers are available
-		#
-		initialize_drivers
-
-		#
-		# Instantiate the database sink
-		#
-		initialize_sink
-
-		true
-	end
-
-	#
-	# Scan through available drivers
-	#
-	def initialize_drivers
-		self.drivers = []
-		tdrivers = %W{ postgresql }
-		tdrivers.each do |driver|
-			begin
-				ActiveRecord::Base.default_timezone = :utc
-				ActiveRecord::Base.establish_connection(:adapter => driver)
-				if(self.respond_to?("driver_check_#{driver}"))
-					self.send("driver_check_#{driver}")
-				end
-				ActiveRecord::Base.remove_connection
-				self.drivers << driver
-			rescue ::Exception
-			end
-		end
-
-		if(not self.drivers.empty?)
-			self.driver = self.drivers[0]
-		end
-
-		# Database drivers can reset our KCODE, do not let them
-		$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
-	end
-
-	# Loads Metasploit Data Models and adds its migrations to migrations paths.
-	#
-	# @return [void]
-	def initialize_metasploit_data_models
-		# Provide access to ActiveRecord models shared w/ commercial versions
-		require "metasploit_data_models"
-
-		metasploit_data_model_migrations_pathname = MetasploitDataModels.root.join(
-				'db',
-				'migrate'
-		)
-		ActiveRecord::Migrator.migrations_paths << metasploit_data_model_migrations_pathname.to_s
-	end
-
-	#
-	# Create a new database sink and initialize it
-	#
-	def initialize_sink
-		self.sink = TaskManager.new(framework)
-		self.sink.start
-	end
-
-	#
-	# Add a new task to the sink
-	#
-	def queue(proc)
-		self.sink.queue_proc(proc)
-	end
-
-	#
-	# Connects this instance to a database
-	#
-	def connect(opts={})
-
-		return false if not @usable
-
-		nopts = opts.dup
-		if (nopts['port'])
-			nopts['port'] = nopts['port'].to_i
-		end
-
-		# Prefer the config file's pool setting
-		nopts['pool'] ||= 75
-
-		# Prefer the config file's wait_timeout setting too
-		nopts['wait_timeout'] ||= 300
-
-		begin
-			self.migrated = false
-			create_db(nopts)
-
-			# Configure the database adapter
-			ActiveRecord::Base.establish_connection(nopts)
-
-			# Migrate the database, if needed
-			migrate
-
-			# Set the default workspace
-			framework.db.workspace = framework.db.default_workspace
-
-			# Flag that migration has completed
-			self.migrated = true
-		rescue ::Exception => e
-			self.error = e
-			elog("DB.connect threw an exception: #{e}")
-			dlog("Call stack: #{$@.join"\n"}", LEV_1)
-			return false
-		ensure
-			# Database drivers can reset our KCODE, do not let them
-			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
-		end
-
-		true
-	end
-
-	#
-	# Attempt to create the database
-	#
-	# If the database already exists this will fail and we will continue on our
-	# merry way, connecting anyway.  If it doesn't, we try to create it.  If
-	# that fails, then it wasn't meant to be and the connect will raise a
-	# useful exception so the user won't be in the dark; no need to raise
-	# anything at all here.
-	#
-	def create_db(opts)
-		begin
-			case opts["adapter"]
-			when 'postgresql'
-				# Try to force a connection to be made to the database, if it succeeds
-				# then we know we don't need to create it :)
-				ActiveRecord::Base.establish_connection(opts)
-				# Do the checkout, checkin dance here to make sure this thread doesn't
-				# hold on to a connection we don't need
-				conn = ActiveRecord::Base.connection_pool.checkout
-				ActiveRecord::Base.connection_pool.checkin(conn)
-			end
-		rescue ::Exception => e
-			errstr = e.to_s
-			if errstr =~ /does not exist/i or errstr =~ /Unknown database/
-				ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
-				ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
-				ActiveRecord::Base.connection.create_database(opts['database'])
-			else
-				ilog("Trying to continue despite failed database creation: #{e}")
-			end
-		end
-		ActiveRecord::Base.remove_connection
-	end
-
-	#
-	# Disconnects a database session
-	#
-	def disconnect
-		begin
-			ActiveRecord::Base.remove_connection
-			self.migrated = false
-			self.modules_cached = false
-		rescue ::Exception => e
-			self.error = e
-			elog("DB.disconnect threw an exception: #{e}")
-		ensure
-			# Database drivers can reset our KCODE, do not let them
-			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
-		end
-	end
-
-	# Migrate database to latest schema version.
-	#
-	# @param verbose [Boolean] see ActiveRecord::Migration.verbose
-	# @return [Array<ActiveRecord::MigrationProxy] List of migrations that ran.
-	#
-	# @see ActiveRecord::Migrator.migrate
-	def migrate(verbose=false)
-		ran = []
-		ActiveRecord::Migration.verbose = verbose
-
-		ActiveRecord::Base.connection_pool.with_connection do
-			begin
-				ran = ActiveRecord::Migrator.migrate(
-						ActiveRecord::Migrator.migrations_paths
-				)
-			# ActiveRecord::Migrator#migrate rescues all errors and re-raises them as
-			# StandardError
-			rescue StandardError => error
-				self.error = error
-				elog("DB.migrate threw an exception: #{error}")
-				dlog("Call stack:\n#{error.backtrace.join "\n"}")
-			end
-		end
-
-		return ran
-	end
-
-	def workspace=(workspace)
-		@workspace_name = workspace.name
-	end
-
-	def workspace
-		framework.db.find_workspace(@workspace_name)
-	end
-
-
-	def purge_all_module_details
-		return if not self.migrated
-		return if self.modules_caching
-
-		::ActiveRecord::Base.connection_pool.with_connection do
-			Mdm::ModuleDetail.destroy_all
-		end
-
-		true
-	end
-
-	def update_all_module_details
-		return if not self.migrated
-		return if self.modules_caching
-
-		self.framework.cache_thread = Thread.current
-
-		self.modules_cached  = false
-		self.modules_caching = true
-
-		::ActiveRecord::Base.connection_pool.with_connection {
-
-		refresh = []
-		skipped = []
-
-		Mdm::ModuleDetail.find_each do |md|
-
-			unless md.ready
-				refresh << md
-				next
-			end
-
-			unless md.file and ::File.exists?(md.file)
-				refresh << md
-				next
-			end
-
-			if ::File.mtime(md.file).to_i != md.mtime.to_i
-				refresh << md
-				next
-			end
-
-			skipped << [md.mtype, md.refname]
-		end
-
-		refresh.each  {|md| md.destroy }
-		refresh = nil
-
-		[
-			[ 'exploit',   framework.exploits  ],
-			[ 'auxiliary', framework.auxiliary ],
-			[ 'post',      framework.post      ],
-			[ 'payload',   framework.payloads  ],
-			[ 'encoder',   framework.encoders  ],
-			[ 'nop',       framework.nops      ]
-		].each do |mt|
-			mt[1].keys.sort.each do |mn|
-				next if skipped.include?( [ mt[0], mn ] )
-				obj   = mt[1].create(mn)
-				next if not obj
-				begin
-					update_module_details(obj)
-				rescue ::Exception
-					elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
-				end
-			end
-		end
-
-		self.framework.cache_initialized = true
-		self.framework.cache_thread = nil
-
-		self.modules_cached  = true
-		self.modules_caching = false
-
-		nil
-
-		}
-	end
-
-	def update_module_details(obj)
-		return if not self.migrated
-
-		::ActiveRecord::Base.connection_pool.with_connection {
-		info = module_to_details_hash(obj)
-		bits = info.delete(:bits) || []
-
-		md = Mdm::ModuleDetail.create(info)
-		bits.each do |args|
-			otype, vals = args
-			case otype
-			when :author
-				md.add_author(vals[:name], vals[:email])
-			when :action
-				md.add_action(vals[:name])
-			when :arch
-				md.add_arch(vals[:name])
-			when :platform
-				md.add_platform(vals[:name])
-			when :target
-				md.add_target(vals[:index], vals[:name])
-			when :ref
-				md.add_ref(vals[:name])
-			when :mixin
-				# md.add_mixin(vals[:name])
-			end
-		end
-
-		md.ready = true
-		md.save
-		md.id
-
-		}
-	end
-
-	def remove_module_details(mtype, refname)
-		return if not self.migrated
-		::ActiveRecord::Base.connection_pool.with_connection {
-		md = Mdm::ModuleDetail.find(:conditions => [ 'mtype = ? and refname = ?', mtype, refname])
-		md.destroy if md
-		}
-	end
-
-	def module_to_details_hash(m)
-		res  = {}
-		bits = []
-
-		res[:mtime]    = ::File.mtime(m.file_path) rescue Time.now
-		res[:file]     = m.file_path
-		res[:mtype]    = m.type
-		res[:name]     = m.name.to_s
-		res[:refname]  = m.refname
-		res[:fullname] = m.fullname
-		res[:rank]     = m.rank.to_i
-		res[:license]  = m.license.to_s
-
-		res[:description] = m.description.to_s.strip
-
-		m.arch.map{ |x|
-			bits << [ :arch, { :name => x.to_s } ]
-		}
-
-		m.platform.platforms.map{ |x|
-			bits << [ :platform, { :name => x.to_s.split('::').last.downcase } ]
-		}
-
-		m.author.map{|x|
-			bits << [ :author, { :name => x.to_s } ]
-		}
-
-		m.references.map do |r|
-			bits << [ :ref, { :name => [r.ctx_id.to_s, r.ctx_val.to_s].join("-") } ]
-		end
-
-		res[:privileged] = m.privileged?
-
-
-		if m.disclosure_date
-			begin
-				res[:disclosure_date] = m.disclosure_date.to_datetime.to_time
-			rescue ::Exception
-				res.delete(:disclosure_date)
-			end
-		end
-
-		if(m.type == "exploit")
-
-			m.targets.each_index do |i|
-				bits << [ :target, { :index => i, :name => m.targets[i].name.to_s } ]
-				if m.targets[i].platform
-					m.targets[i].platform.platforms.each do |name|
-						bits << [ :platform, { :name => name.to_s.split('::').last.downcase } ]
-					end
-				end
-				if m.targets[i].arch
-					bits << [ :arch, { :name => m.targets[i].arch.to_s } ]
-				end
-			end
-
-			if (m.default_target)
-				res[:default_target] = m.default_target
-			end
-
-			# Some modules are a combination, which means they are actually aggressive
-			res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
-
-
-			m.class.mixins.each do |x|
-			 	bits << [ :mixin, { :name => x.to_s } ]
-			end
-		end
-
-		if(m.type == "auxiliary")
-
-			m.actions.each_index do |i|
-				bits << [ :action, { :name => m.actions[i].name.to_s } ]
-			end
-
-			if (m.default_action)
-				res[:default_action] = m.default_action.to_s
-			end
-
-			res[:stance] = m.passive? ? "passive" : "aggressive"
-		end
-
-		res[:bits] = bits.uniq
-
-		res
-	end
-
-
-
-	#
-	# This provides a standard set of search filters for every module.
-	# The search terms are in the form of:
-	#   {
-	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
-	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
-	#   }
-	#
-	# Returns true on no match, false on match
-	#
-	def search_modules(search_string, inclusive=false)
-		return false if not search_string
-
-		search_string += " "
-
-		# Split search terms by space, but allow quoted strings
-		terms = Shellwords.shellwords(search_string)
-		terms.delete('')
-
-		# All terms are either included or excluded
-		res = {}
-
-		terms.each do |t|
-			f,v = t.split(":", 2)
-			if not v
-				v = f
-				f = 'text'
-			end
-			next if v.length == 0
-			f.downcase!
-			v.downcase!
-			res[f] ||= [  ]
-			res[f]  << v
-		end
-
-		::ActiveRecord::Base.connection_pool.with_connection {
-
-		where_q = []
-		where_v = []
-
-		res.keys.each do |kt|
-			res[kt].each do |kv|
-				kv = kv.downcase
-				case kt
-				when 'text'
-					xv = "%#{kv}%"
-					where_q << ' ( ' +
-						'module_details.fullname ILIKE ? OR module_details.name ILIKE ? OR module_details.description ILIKE ? OR ' +
-						'module_authors.name ILIKE ? OR module_actions.name ILIKE ? OR module_archs.name ILIKE ? OR ' +
-						'module_targets.name ILIKE ? OR module_platforms.name ILIKE ? OR module_refs.name ILIKE ?' +
-						') '
-					where_v << [ xv, xv, xv, xv, xv, xv, xv, xv, xv ]
-				when 'name'
-					xv = "%#{kv}%"
-					where_q << ' ( module_details.fullname ILIKE ? OR module_details.name ILIKE ? ) '
-					where_v << [ xv, xv ]
-				when 'author'
-					xv = "%#{kv}%"
-					where_q << ' ( module_authors.name ILIKE ? OR module_authors.email ILIKE ? ) '
-					where_v << [ xv, xv ]
-				when 'os','platform'
-					xv = "%#{kv}%"
-					where_q << ' (  module_platforms.name ILIKE ? OR module_targets.name ILIKE ? ) '
-					where_v << [ xv, xv ]
-				when 'port'
-					# TODO
-				when 'type'
-					where_q << ' ( module_details.mtype = ? ) '
-					where_v << [ kv ]
-				when 'app'
-					where_q << ' ( module_details.stance = ? )'
-					where_v << [ ( kv == "client") ? "passive" : "active"  ]
-				when 'ref'
-					where_q << ' ( module_refs.name ILIKE ? )'
-					where_v << [ '%' + kv + '%' ]
-				when 'cve','bid','osvdb','edb'
-					where_q << ' ( module_refs.name = ? )'
-					where_v << [ kt.upcase + '-' + kv ]
-
-				end
-			end
-		end
-
-		qry = Mdm::ModuleDetail.select("DISTINCT(module_details.*)").
-			joins(
-				"LEFT OUTER JOIN module_authors   ON module_details.id = module_authors.module_detail_id " +
-				"LEFT OUTER JOIN module_actions   ON module_details.id = module_actions.module_detail_id " +
-				"LEFT OUTER JOIN module_archs     ON module_details.id = module_archs.module_detail_id " +
-				"LEFT OUTER JOIN module_refs      ON module_details.id = module_refs.module_detail_id " +
-				"LEFT OUTER JOIN module_targets   ON module_details.id = module_targets.module_detail_id " +
-				"LEFT OUTER JOIN module_platforms ON module_details.id = module_platforms.module_detail_id "
-			).
-			where(where_q.join(inclusive ? " OR " : " AND "), *(where_v.flatten)).
-			# Compatibility for Postgres installations prior to 9.1 - doesn't have support for wildcard group by clauses
-			group("module_details.id, module_details.mtime, module_details.file, module_details.mtype, module_details.refname, module_details.fullname, module_details.name, module_details.rank, module_details.description, module_details.license, module_details.privileged, module_details.disclosure_date, module_details.default_target, module_details.default_action, module_details.stance, module_details.ready")
-
-		res = qry.all
-
-		}
-	end
-
-end
+class Msf::DBManager
+  extend Metasploit::Framework::Require
+
+  # Default proto for making new `Mdm::Service`s. This should probably be a
+  # const on `Mdm::Service`
+  DEFAULT_SERVICE_PROTO = "tcp"
+
+  autoload :Adapter, 'msf/core/db_manager/adapter'
+  autoload :Client, 'msf/core/db_manager/client'
+  autoload :Connection, 'msf/core/db_manager/connection'
+  autoload :Cred, 'msf/core/db_manager/cred'
+  autoload :DBExport, 'msf/core/db_manager/db_export'
+  autoload :Event, 'msf/core/db_manager/event'
+  autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
+  autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
+  autoload :Host, 'msf/core/db_manager/host'
+  autoload :HostDetail, 'msf/core/db_manager/host_detail'
+  autoload :HostTag, 'msf/core/db_manager/host_tag'
+  autoload :Import, 'msf/core/db_manager/import'
+  autoload :ImportMsfXml, 'msf/core/db_manager/import_msf_xml'
+  autoload :IPAddress, 'msf/core/db_manager/ip_address'
+  autoload :Login, 'msf/core/db_manager/login'
+  autoload :Loot, 'msf/core/db_manager/loot'
+  autoload :Migration, 'msf/core/db_manager/migration'
+  autoload :ModuleCache, 'msf/core/db_manager/module_cache'
+  autoload :Note, 'msf/core/db_manager/note'
+  autoload :Payload, 'msf/core/db_manager/payload'
+  autoload :Ref, 'msf/core/db_manager/ref'
+  autoload :Report, 'msf/core/db_manager/report'
+  autoload :Route, 'msf/core/db_manager/route'
+  autoload :Service, 'msf/core/db_manager/service'
+  autoload :Session, 'msf/core/db_manager/session'
+  autoload :SessionEvent, 'msf/core/db_manager/session_event'
+  autoload :Task, 'msf/core/db_manager/task'
+  autoload :User, 'msf/core/db_manager/user'
+  autoload :Vuln, 'msf/core/db_manager/vuln'
+  autoload :VulnAttempt, 'msf/core/db_manager/vuln_attempt'
+  autoload :VulnDetail, 'msf/core/db_manager/vuln_detail'
+  autoload :WMAP, 'msf/core/db_manager/wmap'
+  autoload :Web, 'msf/core/db_manager/web'
+  autoload :Workspace, 'msf/core/db_manager/workspace'
+
+  optionally_include_metasploit_credential_creation
+
+  # Interface must be included first
+  include Metasploit::Framework::DataService
+
+  include Msf::DBManager::Adapter
+  include Msf::DBManager::Client
+  include Msf::DBManager::Connection
+  include Msf::DBManager::Cred
+  include Msf::DBManager::DBExport
+  include Msf::DBManager::Event
+  include Msf::DBManager::ExploitAttempt
+  include Msf::DBManager::ExploitedHost
+  include Msf::DBManager::Host
+  include Msf::DBManager::HostDetail
+  include Msf::DBManager::HostTag
+  include Msf::DBManager::Import
+  include Msf::DBManager::IPAddress
+  include Msf::DBManager::Login
+  include Msf::DBManager::Loot
+  include Msf::DBManager::Migration
+  include Msf::DBManager::ModuleCache
+  include Msf::DBManager::Note
+  include Msf::DBManager::Payload
+  include Msf::DBManager::Ref
+  include Msf::DBManager::Report
+  include Msf::DBManager::Route
+  include Msf::DBManager::Service
+  include Msf::DBManager::Session
+  include Msf::DBManager::SessionEvent
+  include Msf::DBManager::Task
+  include Msf::DBManager::User
+  include Msf::DBManager::Vuln
+  include Msf::DBManager::VulnAttempt
+  include Msf::DBManager::VulnDetail
+  include Msf::DBManager::WMAP
+  include Msf::DBManager::Web
+  include Msf::DBManager::Workspace
+
+  # Provides :framework and other accessors
+  include Msf::Framework::Offspring
+
+  def name
+    'local_db_service'
+  end
+
+  def is_local?
+    true
+  end
+
+  #
+  # Attributes
+  #
+
+  # Stores the error message for why the db was not loaded
+  attr_accessor :error
+
+  # Returns true if the prerequisites have been installed
+  attr_accessor :usable
+
+  #
+  # initialize
+  #
+
+  def initialize(framework, opts = {})
+    self.framework = framework
+    self.migrated  = false
+    self.modules_cached  = false
+    self.modules_caching = false
+
+    @usable = false
+
+    # Don't load the database if the user said they didn't need it.
+    if (opts['DisableDatabase'])
+      self.error = "disabled"
+      return
+    end
+
+    return initialize_database_support
+  end
+
+  #
+  # Instance Methods
+  #
+
+  #
+  # Determines if the database is functional
+  #
+  def check
+  ::ApplicationRecord.connection_pool.with_connection {
+    res = ::Mdm::Host.first
+  }
+  end
+
+  #
+  # Do what is necessary to load our database support
+  #
+  def initialize_database_support
+    begin
+      add_rails_engine_migration_paths
+
+      @usable = true
+
+    rescue ::Exception => e
+      self.error = e
+      elog('DB is not enabled due to load error', error: e)
+      return false
+    end
+
+    #
+    # Determine what drivers are available
+    #
+    initialize_adapter
+
+    true
+  end
+
+  def init_db(opts)
+    init_success = false
+
+    # Append any migration paths necessary to bring the database online
+    if opts['DatabaseMigrationPaths']
+      opts['DatabaseMigrationPaths'].each do |migrations_path|
+        ActiveRecord::Migrator.migrations_paths << migrations_path
+      end
+    end
+
+    configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
+
+    if configuration_pathname.nil?
+      self.error = "No database YAML file"
+    else
+      if configuration_pathname.readable?
+        # parse specified database YAML file
+        dbinfo = YAML.load_file(configuration_pathname) || {}
+        dbenv  = opts['DatabaseEnv'] || Rails.env
+        db_opts = dbinfo[dbenv]
+      else
+        elog("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
+      end
+
+      if db_opts
+        init_success = connect(db_opts)
+      else
+        elog("No database definition for environment #{dbenv}")
+      end
+    end
+
+    # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
+    # already true or if framework.db.connect called after_establish_connection.
+    if !! error
+      if error.to_s =~ /RubyGem version.*pg.*0\.11/i
+        err_msg = <<~ERROR
+        ***
+        *
+        * Metasploit now requires version 0.11 or higher of the 'pg' gem for database support
+        * There are three ways to accomplish this upgrade:
+        * 1. If you run Metasploit with your system ruby, simply upgrade the gem:
+        *    $ rvmsudo gem install pg
+        * 2. Use the Community Edition web interface to apply a Software Update
+        * 3. Uninstall, download the latest version, and reinstall Metasploit
+        *
+        ***
+        
+
+        ERROR
+        elog(err_msg)
+      end
+
+      # +error+ is not an instance of +Exception+, it is, in fact, a +String+
+      elog("Failed to connect to the database: #{error}")
+    end
+
+    return init_success
+  end
 end

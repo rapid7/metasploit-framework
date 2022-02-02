@@ -1,63 +1,58 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::TNS
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Oracle TNS Listener Command Issuer',
+      'Description'    => %q{
+        This module allows for the sending of arbitrary TNS commands in order
+        to gather information.
+        Inspired from tnscmd.pl from www.jammed.com/~jwa/hacks/security/tnscmd/tnscmd
+      },
+      'Author'         => ['MC'],
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => '2009-02-01'
+    ))
 
-	include Msf::Exploit::Remote::TNS
+    register_options(
+      [
+        Opt::RPORT(1521),
+        OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
+      ])
+  end
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Oracle TNS Listener Command Issuer',
-			'Description'    => %q{
-				This module allows for the sending of arbitrary TNS commands in order
-				to gather information.
-				Inspired from tnscmd.pl from www.jammed.com/~jwa/hacks/security/tnscmd/tnscmd
-			},
-			'Author'         => ['MC'],
-			'License'        => MSF_LICENSE,
-			'DisclosureDate' => 'Feb 1 2009'
-		))
+  def run
 
-		register_options(
-			[
-				Opt::RPORT(1521),
-				OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
-			], self.class)
-	end
+    begin
+      connect
 
-	def run
+      command = datastore['CMD']
 
-		begin
-			connect
+      pkt = tns_packet(command)
 
-			command = datastore['CMD']
+      print_status("Sending '#{command}' to #{rhost}:#{rport}")
+      sock.put(pkt)
+      print_status("writing #{pkt.length} bytes.")
 
-			pkt = tns_packet(command)
+      select(nil,nil,nil,0.5)
 
-			print_status("Sending '#{command}' to #{rhost}:#{rport}")
-			sock.put(pkt)
-			print_status("writing #{pkt.length} bytes.")
+      print_status("reading")
+      res = sock.get_once(-1,5) || ''
+      res = res.tr("[\200-\377]","[\000-\177]")
+      res = res.tr("[\000-\027\]",".")
+      res = res.tr("\177",".")
+      print_status(res)
 
-			select(nil,nil,nil,0.5)
-
-			print_status("reading")
-			res = sock.get_once(-1,5) || ''
-			res = res.tr("[\200-\377]","[\000-\177]")
-			res = res.tr("[\000-\027\]",".")
-			res = res.tr("\177",".")
-			print_status(res)
-
-			disconnect
-		end
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
-			print_error e.message
-		rescue ::Timeout::Error, ::Errno::EPIPE,Errno::ECONNRESET => e
-			print_error e.message
-	end
+      disconnect
+    end
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+      print_error e.message
+    rescue ::Timeout::Error, ::Errno::EPIPE,Errno::ECONNRESET => e
+      print_error e.message
+  end
 end

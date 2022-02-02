@@ -1,102 +1,94 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::UDPScanner
 
-require 'msf/core'
+  def initialize
+    super(
+      'Name'        => 'PcAnywhere UDP Service Discovery',
+      'Description' => 'Discover active pcAnywhere services through UDP',
+      'Author'      => 'hdm',
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['URL', 'http://www.unixwiz.net/tools/pcascan.txt']
+        ]
+    )
 
+    register_options(
+    [
+      Opt::RPORT(5632)
+    ])
+  end
 
-class Metasploit3 < Msf::Auxiliary
+  def scanner_prescan(batch)
+    print_status("Sending pcAnywhere discovery requests to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    @results = {}
+  end
 
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::UDPScanner
+  def scan_host(ip)
+    scanner_send("NQ", ip, datastore['RPORT'])
+    scanner_send("ST", ip, datastore['RPORT'])
+  end
 
-	def initialize
-		super(
-			'Name'        => 'PcAnywhere UDP Service Discovery',
-			'Description' => 'Discover active pcAnywhere services through UDP',
-			'Author'      => 'hdm',
-			'License'     => MSF_LICENSE,
-			'References'  =>
-				[
-					['URL', 'http://www.unixwiz.net/tools/pcascan.txt']
-				]
-		)
+  def scanner_postscan(batch)
+    @results.keys.each do |ip|
+      data = @results[ip]
+      info = ""
 
-		register_options(
-		[
-			Opt::RPORT(5632)
-		], self.class)
-	end
+      if data[:name]
+        info << "Name: #{data[:name]} "
+      end
 
-	def scanner_prescan(batch)
-		print_status("Sending pcAnywhere discovery requests to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-		@results = {}
-	end
+      if data[:stat]
+        info << "- #{data[:stat]} "
+      end
 
-	def scan_host(ip)
-		scanner_send("NQ", ip, datastore['RPORT'])
-		scanner_send("ST", ip, datastore['RPORT'])
-	end
+      if data[:caps]
+        info << "( #{data[:caps]} ) "
+      end
 
-	def scanner_postscan(batch)
-		@results.keys.each do |ip|
-			data = @results[ip]
-			info = ""
+      report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
+      report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+      print_good("#{ip}:#{datastore['RPORT']} #{info}")
+    end
+  end
 
-			if data[:name]
-				info << "Name: #{data[:name]} "
-			end
+  def scanner_process(data, shost, sport)
+    case data
+    when /^NR(........................)(........)/
 
-			if data[:stat]
-				info << "- #{data[:stat]} "
-			end
+      name = $1.dup
+      caps = $2.dup
 
-			if data[:caps]
-				info << "( #{data[:caps]} ) "
-			end
+      name = name.gsub(/_+$/, '').gsub("\x00", '').strip
+      caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
 
-			report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
-			report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
-			print_status("#{ip}:#{datastore['RPORT']} #{info}")
-		end
-	end
+      @results[shost] ||= {}
+      @results[shost][:name] = name
+      @results[shost][:caps] = caps
 
-	def scanner_process(data, shost, sport)
-		case data
-		when /^NR(........................)(........)/
+    when /^ST(.+)/
+      @results[shost] ||= {}
+      buff = $1.dup
+      stat = 'Unknown'
 
-			name = $1.dup
-			caps = $2.dup
+      if buff[2,1].unpack("C")[0] == 67
+        stat = "Available"
+      end
 
-			name = name.gsub(/_+$/, '').gsub("\x00", '').strip
-			caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
+      if buff[2,1].unpack("C")[0] == 11
+        stat = "Busy"
+      end
 
-			@results[shost] ||= {}
-			@results[shost][:name] = name
-			@results[shost][:caps] = caps
+      @results[shost][:stat] = stat
+    else
+      print_error("#{shost} Unknown: #{data.inspect}")
+    end
 
-		when /^ST(.+)/
-			@results[shost] ||= {}
-			buff = $1.dup
-			stat = 'Unknown'
-
-			if buff[2,1].unpack("C")[0] == 67
-				stat = "Available"
-			end
-
-			if buff[2,1].unpack("C")[0] == 11
-				stat = "Busy"
-			end
-
-			@results[shost][:stat] = stat
-		else
-			print_error("#{shost} Unknown: #{data.inspect}")
-		end
-
-	end
-
+  end
 end

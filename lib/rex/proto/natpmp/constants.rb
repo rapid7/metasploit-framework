@@ -9,11 +9,11 @@
 
 module Rex
 module Proto
-module NATPMP
-	DefaultPort = 5351
-	Version = 0
-	TCP = 2
-	UDP = 1
+module NATPMP::Constants
+  DefaultPort = 5351
+  Version = 0
+  TCP = 2
+  UDP = 1
 end
 end
 end

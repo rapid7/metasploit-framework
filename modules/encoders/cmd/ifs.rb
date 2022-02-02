@@ -1,38 +1,33 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+class MetasploitModule < Msf::Encoder
 
-require 'msf/core'
+  # This may produce incorrect code, such as in quoted strings
+  Rank = LowRanking
 
+  def initialize
+    super(
+      'Name'        => 'Bourne ${IFS} Substitution Command Encoder',
+      'Description' => %q{
+        This encoder uses Bourne ${IFS} substitution to avoid whitespace
+        without being overly fancy.
+      },
+      'Author'      => ['egypt', 'wvu'],
+      'Platform'    => 'unix',
+      'Arch'        => ARCH_CMD,
+      'EncoderType' => Msf::Encoder::Type::CmdUnixIFS
+    )
+  end
 
-class Metasploit3 < Msf::Encoder
+  def encode_block(state, buf)
+    # Skip encoding if there are no badchars
+    return buf if state.badchars !~ /\s/
 
-	# Below normal ranking because this will produce incorrect code a lot of
-	# the time.
-	Rank = LowRanking
-
-	def initialize
-		super(
-			'Name'             => 'Generic ${IFS} Substitution Command Encoder',
-			'Description'      => %q{
-				This encoder uses standard Bourne shell variable substitution
-				to avoid spaces without being overly fancy.
-			},
-			'Author'           => 'egypt',
-			'Arch'             => ARCH_CMD)
-	end
-
-
-	#
-	# Encodes the payload
-	#
-	def encode_block(state, buf)
-		buf.gsub!(/\s/, '${IFS}')
-		return buf
-	end
+    # Perform ${IFS} encoding
+    buf.gsub(/\s+/, '${IFS}')
+  end
 
 end

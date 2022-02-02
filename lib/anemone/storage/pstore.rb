@@ -9,7 +9,7 @@ module Anemone
       def_delegators :@keys, :has_key?, :keys, :size
 
       def initialize(file)
-        File.delete(file) if File.exists?(file)
+        File.delete(file) if File.exist?(file)
         @store = ::PStore.new(file)
         @keys = {}
       end

@@ -1,4 +1,0 @@
---markup markdown
---protected
-{app,lib}/**/*.rb
-db/migrate/*.rb

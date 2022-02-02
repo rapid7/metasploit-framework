@@ -1,0 +1,166 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(86d35949-83c9-4044-b424-db363231fd0c),
+	version(1.0),
+]
+interface DefaultIfName
+{
+
+	typedef struct Struct_18_t
+	{
+		[unique][string] wchar_t* 	StructMember0;
+		[unique][string] wchar_t* 	StructMember1;
+		long 	StructMember2;
+	}Struct_18_t;
+
+	typedef struct Struct_74_t
+	{
+		long 	StructMember0;
+		long 	StructMember1;
+		[unique][string] wchar_t* 	StructMember2;
+		[unique][string] wchar_t* 	StructMember3;
+	}Struct_74_t;
+
+	typedef struct Struct_144_t
+	{
+		long 	StructMember0;
+		short 	StructMember1;
+		short 	StructMember2;
+		byte 	StructMember3[8];
+	}Struct_144_t;
+
+	typedef struct Struct_246_t
+	{
+		short 	StructMember0;
+		short 	StructMember1;
+		short 	StructMember2;
+		short 	StructMember3;
+		short 	StructMember4;
+		short 	StructMember5;
+		short 	StructMember6;
+		short 	StructMember7;
+	}Struct_246_t;
+
+	long _SchRpcHighestVersion(
+		[out]long *arg_1);
+
+	long _SchRpcRegisterTask(
+		[in][unique][string] wchar_t* arg_1,
+		[in][string] wchar_t* arg_2,
+		[in]long arg_3,
+		[in][unique][string] wchar_t* arg_4,
+		[in]long arg_5,
+		[in]long arg_6,
+		[in][unique] /* [DBG] FC_BOGUS_ARRAY */[size_is(arg_6)] /*  */ struct Struct_18_t* arg_7,
+		[out][ref][string] wchar_t** arg_8,
+		[out][ref]struct Struct_74_t** arg_9);
+
+	long SchRpcRetrieveTask(
+		[in][string] wchar_t* arg_1,
+		[in][string] wchar_t* arg_2,
+		[in]long *arg_3,
+		[out][ref][string] wchar_t** arg_4);
+
+	long _SchRpcCreateFolder(
+		[in][string] wchar_t* arg_1,
+		[in][unique][string] wchar_t* arg_2,
+		[in]long arg_3);
+
+	long _SchRpcSetSecurity(
+		[in][string] wchar_t* arg_1,
+		[in][string] wchar_t* arg_2,
+		[in]long arg_3);
+
+	long _SchRpcGetSecurity(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2,
+		[out][ref][string] wchar_t** arg_3);
+
+	long _SchRpcEnumFolders(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2,
+		[in][out]long *arg_3,
+		[in]long arg_4,
+		[out]long *arg_5,
+		[out][ref] /* [DBG] FC_BOGUS_ARRAY */[size_is(, *arg_5)] /*  */[string] wchar_t*** arg_6);
+
+	long _SchRpcEnumTasks(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2,
+		[in][out]long *arg_3,
+		[in]long arg_4,
+		[out]long *arg_5,
+		[out][ref] /* [DBG] FC_BOGUS_ARRAY */[size_is(, *arg_5)] /*  */[string] wchar_t*** arg_6);
+
+	long _SchRpcEnumInstances(
+		[in][unique][string] wchar_t* arg_1,
+		[in]long arg_2,
+		[out]long *arg_3,
+		[out][ref] /* [DBG] FC_BOGUS_ARRAY */[size_is(, *arg_3)] /*  */ struct Struct_144_t** arg_4);
+
+	long _SchRpcGetInstanceInfo(
+		[in]struct Struct_144_t* arg_1,
+		[out][ref][string] wchar_t** arg_2,
+		[out]long *arg_3,
+		[out][ref][string] wchar_t** arg_4,
+		[out][ref][string] wchar_t** arg_5,
+		[out]long *arg_6,
+		[out][ref] /* [DBG] FC_BOGUS_ARRAY */[size_is(, *arg_6)] /*  */ struct Struct_144_t** arg_7,
+		[out]long *arg_8);
+
+	long _SchRpcStopInstance(
+		[in]struct Struct_144_t* arg_1,
+		[in]long arg_2);
+
+	long _SchRpcStop(
+		[in][unique][string] wchar_t* arg_1,
+		[in]long arg_2);
+
+	long _SchRpcRun(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2,
+		[in][unique] /* [DBG] FC_BOGUS_ARRAY */[size_is(arg_2)] /*  */[string] wchar_t** arg_3,
+		[in]long arg_4,
+		[in]long arg_5,
+		[in][unique][string] wchar_t* arg_6,
+		[out]struct Struct_144_t* arg_7);
+
+	long _SchRpcDelete(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2);
+
+	long _SchRpcRename(
+		[in][string] wchar_t* arg_1,
+		[in][string] wchar_t* arg_2,
+		[in]long arg_3);
+
+	long _SchRpcScheduledRuntimes(
+		[in][string] wchar_t* arg_1,
+		[in][unique]struct Struct_246_t* arg_2,
+		[in][unique]struct Struct_246_t* arg_3,
+		[in]long arg_4,
+		[in]long arg_5,
+		[out]long *arg_6,
+		[out][ref] /* [DBG] FC_BOGUS_ARRAY */[size_is(, *arg_6)] /*  */ struct Struct_246_t** arg_7);
+
+	long _SchRpcGetLastRunInfo(
+		[in][string] wchar_t* arg_1,
+		[out]struct Struct_246_t* arg_2,
+		[out]long *arg_3);
+
+	long _SchRpcGetTaskInfo(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2,
+		[out]long *arg_3,
+		[out]long *arg_4);
+
+	long _SchRpcGetNumberOfMissedRuns(
+		[in][string] wchar_t* arg_1,
+		[out]long *arg_2);
+
+	long _SchRpcEnableTask(
+		[in][string] wchar_t* arg_1,
+		[in]long arg_2);
+}

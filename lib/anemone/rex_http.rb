@@ -46,10 +46,12 @@ module Anemone
                                       :referer => referer,
                                       :depth => depth,
                                       :redirect_to => redirect_to,
-                                      :response_time => response_time)
+                                      :response_time => response_time,
+                                      :dirbust => @opts[:dirbust]
+          )
           # Store the associated raw HTTP request
           page.request = response.request
-		  pages << page
+      pages << page
         end
 
         return pages
@@ -160,11 +162,11 @@ module Anemone
         response = nil
         request  = nil
         begin
-			conn     = connection(url)
-			request  = conn.request_raw(opts)
-			response = conn.send_recv(request, @opts[:timeout] || 10 )
-		rescue ::Errno::EPIPE, ::Timeout::Error
-		end
+      conn     = connection(url)
+      request  = conn.request_raw(opts)
+      response = conn.send_recv(request, @opts[:timeout] || 10 )
+    rescue ::Errno::EPIPE, ::Timeout::Error
+    end
 
         finish = Time.now()
 
@@ -178,27 +180,28 @@ module Anemone
     end
 
     def connection(url)
-		context =  { }
-		context['Msf']        = @opts[:framework] if @opts[:framework]
-		context['MsfExploit'] = @opts[:module] if @opts[:module]
+    context =  { }
+    context['Msf']        = @opts[:framework] if @opts[:framework]
+    context['MsfExploit'] = @opts[:module] if @opts[:module]
 
-		conn = Rex::Proto::Http::Client.new(
-			url.host,
-			url.port.to_i,
-			context,
-			url.scheme == "https",
-			'SSLv23',
-			@opts[:proxies],
+    conn = Rex::Proto::Http::Client.new(
+      url.host,
+      url.port.to_i,
+      context,
+      url.scheme == "https",
+      'SSLv23',
+      @opts[:proxies],
                     @opts[:username],
                     @opts[:password]
-		)
+    )
 
-		conn.set_config(
-			'vhost'      => virtual_host(url),
-			'agent'      => user_agent
-		)
+    conn.set_config(
+      'vhost'      => virtual_host(url),
+      'agent'      => user_agent,
+      'domain'     => @opts[:domain]
+    )
 
-		conn
+    conn
     end
 
     def verbose?

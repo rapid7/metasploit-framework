@@ -1,2 +1,3 @@
 --color
---format documentation
+--format Fivemat
+--require spec_helper

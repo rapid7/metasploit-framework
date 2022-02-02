@@ -13,83 +13,123 @@ module Ui
 ###
 class Console::CommandDispatcher::Priv::Elevate
 
-	Klass = Console::CommandDispatcher::Priv::Elevate
+  Klass = Console::CommandDispatcher::Priv::Elevate
 
-	include Console::CommandDispatcher
+  include Console::CommandDispatcher
 
-	ELEVATE_TECHNIQUE_NONE					= -1
-	ELEVATE_TECHNIQUE_ANY					= 0
-	ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE		= 1
-	ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2	= 2
-	ELEVATE_TECHNIQUE_SERVICE_TOKENDUP		= 3
-	ELEVATE_TECHNIQUE_VULN_KITRAP0D			= 4
+  ELEVATE_TECHNIQUE_NONE                    = -1
+  ELEVATE_TECHNIQUE_ANY                     = 0
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE       = 1
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2      = 2
+  ELEVATE_TECHNIQUE_SERVICE_TOKENDUP        = 3
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE_RPCSS = 4
+  ELEVATE_TECHNIQUE_NAMEDPIPE_PRINTSPOOLER  = 5
 
-	ELEVATE_TECHNIQUE_DESCRIPTION = [ 	"All techniques available",
-										"Service - Named Pipe Impersonation (In Memory/Admin)",
-										"Service - Named Pipe Impersonation (Dropper/Admin)",
-										"Service - Token Duplication (In Memory/Admin)",
-										"Exploit - KiTrap0D (In Memory/User)"
-									]
-	#
-	# List of supported commands.
-	#
-	def commands
-		{
-			"getsystem" => "Attempt to elevate your privilege to that of local system."
-		}
-	end
+  ELEVATE_TECHNIQUE_DESCRIPTION =
+    [
+      'All techniques available',
+      'Named Pipe Impersonation (In Memory/Admin)',
+      'Named Pipe Impersonation (Dropper/Admin)',
+      'Token Duplication (In Memory/Admin)',
+      'Named Pipe Impersonation (RPCSS variant)',
+      'Named Pipe Impersonation (PrintSpooler variant)'
+    ]
 
-	#
-	# Name for this dispatcher.
-	#
-	def name
-		"Priv: Elevate"
-	end
+  #
+  # List of supported commands.
+  #
+  def commands
+    {
+      'getsystem' => 'Attempt to elevate your privilege to that of local system.'
+    }
+  end
+
+  #
+  # Name for this dispatcher.
+  #
+  def name
+    'Priv: Elevate'
+  end
 
 
-	#
-	# Attempt to elevate the meterpreter to that of local system.
-	#
-	def cmd_getsystem( *args )
+  #
+  # Returns the description of the technique(s)
+  #
+  def translate_technique_index(index)
+    translation = ''
 
-		technique = ELEVATE_TECHNIQUE_ANY
+    case index
+    when 0
+      desc = ELEVATE_TECHNIQUE_DESCRIPTION.dup
+      desc.shift
+      translation = desc
+    else
+      translation = [ ELEVATE_TECHNIQUE_DESCRIPTION[index] ]
+    end
 
-		desc = ""
-		ELEVATE_TECHNIQUE_DESCRIPTION.each_index { |i| desc += "\n\t\t#{i} : #{ELEVATE_TECHNIQUE_DESCRIPTION[i]}" }
+    translation
+  end
 
-		getsystem_opts = Rex::Parser::Arguments.new(
-			"-h" => [ false, "Help Banner." ],
-			"-t" => [ true, "The technique to use. (Default to \'#{technique}\')." + desc ]
-		)
 
-		getsystem_opts.parse(args) { | opt, idx, val |
-			case opt
-				when "-h"
-					print_line( "Usage: getsystem [options]\n" )
-					print_line( "Attempt to elevate your privilege to that of local system." )
-					print_line( getsystem_opts.usage )
-					return
-				when "-t"
-					technique = val.to_i
-			end
-		}
+  #
+  # Attempt to elevate the meterpreter to that of local system.
+  #
+  def cmd_getsystem( *args )
 
-		if( technique < 0 or technique >= ELEVATE_TECHNIQUE_DESCRIPTION.length )
-			print_error( "Technique '#{technique}' is out of range." );
-			return false;
-		end
+    technique = ELEVATE_TECHNIQUE_ANY
 
-		result = client.priv.getsystem( technique )
+    desc = ""
+    ELEVATE_TECHNIQUE_DESCRIPTION.each_index { |i| desc += "\n\t\t#{i} : #{ELEVATE_TECHNIQUE_DESCRIPTION[i]}" }
 
-		# got system?
-		if result[0]
-			print_line( "...got system (via technique #{result[1]})." );
-		else
-			print_line( "...failed to get system." );
-		end
+    getsystem_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner." ],
+      "-t" => [ true, "The technique to use. (Default to '#{technique}')." + desc ]
+    )
 
-		return result
-	end
+    getsystem_opts.parse(args) { | opt, idx, val |
+      case opt
+        when "-h"
+          print_line( "Usage: getsystem [options]\n" )
+          print_line( "Attempt to elevate your privilege to that of local system." )
+          print_line( getsystem_opts.usage )
+          return
+        when "-t"
+          technique = val.to_i
+      end
+    }
+
+    if( technique < 0 or technique >= ELEVATE_TECHNIQUE_DESCRIPTION.length )
+      print_error( "Technique '#{technique}' is out of range." )
+      return false
+    end
+
+    if client.sys.config.is_system?
+      print_error("Already running as SYSTEM")
+      return
+    end
+    begin
+      result = client.priv.getsystem( technique )
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("#{e.message} The following was attempted:")
+      translate_technique_index(technique).each do |desc|
+        print_error(desc)
+      end
+      elog("Technique: #{technique})", error: e)
+      return
+    end
+
+    # got system?
+    if result[0]
+      print_line( "...got system via technique #{result[1]} (#{translate_technique_index(result[1]).first})." )
+    else
+      print_line( "...failed to get system while attempting the following:" )
+      translate_technique_index(technique).each do |desc|
+        print_error(desc)
+      end
+    end
+
+    return result
+  end
 
 end
 

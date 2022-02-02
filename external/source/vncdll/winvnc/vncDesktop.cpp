@@ -2906,7 +2906,7 @@ bool	bDbgBmDump(
 	TCHAR szFileName[MAX_PATH];
 	sprintf(
 		szFileName,
-		"%04u.%02u.%02u-%02u-%02u-%02u-0x%08x.bmp",
+		"%04u.%02u.%02u-%02u-%02u-%02u-0x%08p.bmp",
 		stm.wYear, stm.wMonth, stm.wDay,
 		stm.wHour, stm.wMinute, stm.wSecond,
 		ptr);

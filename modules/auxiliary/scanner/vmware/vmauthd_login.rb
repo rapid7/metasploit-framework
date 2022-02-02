@@ -1,137 +1,111 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/tcp'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/vmauthd'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
+  include Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
-	include Exploit::Remote::Tcp
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::AuthBrute
+  @@cached_rsa_key = nil
 
-	@@cached_rsa_key = nil
+  def initialize
+    super(
+      'Name'        => 'VMWare Authentication Daemon Login Scanner',
+      'Description' => %q{This module will test vmauthd logins on a range of machines and
+                report successful logins.
+      },
+      'Author'      => ['theLightCosine'],
+      'References'  =>
+        [
+          [ 'CVE', '1999-0502'] # Weak password
+        ],
+      'License'     => MSF_LICENSE
+    )
 
-	def initialize
-		super(
-			'Name'        => 'VMWare Authentication Daemon Login Scanner',
-			'Description' => %q{This module will test vmauthd logins on a range of machines and
-								report successful logins.
-			},
-			'Author'      => ['theLightCosine'],
-			'References'     =>
-				[
-					[ 'CVE', '1999-0502'] # Weak password
-				],
-			'License'     => MSF_LICENSE
-		)
+    register_options([Opt::RPORT(902)])
 
-		register_options([Opt::RPORT(902)])
+    deregister_options('PASSWORD_SPRAY')
+  end
 
-	end
+  def run_host(ip)
+    print_brute :ip => ip, :msg => 'Starting bruteforce'
 
-	def run_host(ip)
-		begin
+    # Perform a sanity check to ensure that our target is vmauthd before
+    # attempting to brute force it.
+    begin
+      connect rescue nil
+      if !self.sock
+        print_brute :level => :verror, :ip => ip, :msg => 'Could not connect'
+        return
+      end
+      banner = sock.get_once(-1, 10)
+      if !banner || !banner =~ /^220 VMware Authentication Daemon Version.*/
+        print_brute :level => :verror, :ip => ip, :msg => 'Target does not appear to be a vmauthd service'
+        return
+      end
 
-		connect rescue nil
-		if not self.sock
-			print_error "#{rhost}:#{rport} Could not connect to vmauthd"
-			return
-		end
+      rescue ::Interrupt
+      raise $ERROR_INFO
+    ensure
+      disconnect
+    end
 
-		banner = sock.get_once(-1, 10)
-		if not banner
-			print_error "#{rhost}:#{rport} No banner received from vmauthd"
-			return
-		end
+    cred_collection = build_credential_collection(
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
+    )
 
-		banner = banner.strip
-		print_status "#{rhost}:#{rport} Banner: #{banner}"
+    scanner = Metasploit::Framework::LoginScanner::VMAUTHD.new(
+      host: ip,
+      port: rport,
+      proxies: datastore['PROXIES'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      connection_timeout: 30,
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
+      ssl: datastore['SSL'],
+      ssl_version: datastore['SSLVersion'],
+      ssl_verify_mode: datastore['SSLVerifyMode'],
+      ssl_cipher: datastore['SSLCipher'],
+      local_port: datastore['CPORT'],
+      local_host: datastore['CHOST']
+    )
 
-		unless banner =~ /VMware Authentication Daemon/
-			print_error "#{rhost}:#{rport} This does not appear to be a vmauthd service"
-			return
-		end
-
-		if banner =~ /SSL/
-			print_status("#{rhost}:#{rport} Switching to SSL connection...")
-			swap_sock_plain_to_ssl
-		end
-
-		each_user_pass do |user, pass|
-			result = do_login(user, pass)
-			case result
-			when :failed
-				print_error("#{rhost}:#{rport} vmauthd login FAILED - #{user}:#{pass}")
-			when :success
-				print_good("#{rhost}:#{rport} vmauthd login SUCCESS - #{user}:#{pass}")
-				report_auth_info(
-					:host   => rhost,
-					:port   => rport,
-					:sname  => 'vmauthd',
-					:user   => user,
-					:pass   => pass,
-					:source_type => "user_supplied",
-					:active => true
-				)
-				return if datastore['STOP_ON_SUCCESS']
-			else
-				print_error("#{rhost}:#{rport} Error: #{result}")
-			end
-		end
-
-		rescue ::Interrupt
-			raise $!
-		ensure
-			disconnect
-		end
-
-	end
-
-	def do_login(user, pass, nsock=self.sock)
-		nsock.put("USER #{user}\r\n")
-		res = nsock.get_once
-		unless res.start_with? "331"
-			ret_msg = "Unexpected reply to the USER command: #{res}"
-			return ret_msg
-		end
-		nsock.put("PASS #{pass}\r\n")
-		res = nsock.get_once || ''
-		if res.start_with? "530"
-			return :failed
-		elsif res.start_with? "230"
-			return :success
-		else
-			ret_msg = "Unexpected reply to the PASS command: #{res}"
-			return ret_msg
-		end
-	end
-
-	def swap_sock_plain_to_ssl(nsock=self.sock)
-		ctx =  generate_ssl_context()
-		ssl = OpenSSL::SSL::SSLSocket.new(nsock, ctx)
-
-		ssl.connect
-
-		nsock.extend(Rex::Socket::SslTcp)
-		nsock.sslsock = ssl
-		nsock.sslctx  = ctx
-	end
-
-	def generate_ssl_context
-		ctx = OpenSSL::SSL::SSLContext.new(:SSLv3)
-		@@cached_rsa_key ||= OpenSSL::PKey::RSA.new(1024){ }
-
-		ctx.key = @@cached_rsa_key
-
-		ctx.session_id_context = Rex::Text.rand_text(16)
-
-		return ctx
-	end
-
-
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+        when Metasploit::Model::Login::Status::SUCCESSFUL
+          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+          credential_core = create_credential(credential_data)
+          credential_data[:core] = credential_core
+          create_credential_login(credential_data)
+          :next_user
+        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => 'Could not connect'
+          end
+          invalidate_login(credential_data)
+          :abort
+        when Metasploit::Model::Login::Status::INCORRECT
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}' #{result.proof}"
+          end
+          invalidate_login(credential_data)
+      end
+    end
+  end
 end

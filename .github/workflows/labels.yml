@@ -1,0 +1,201 @@
+name: Labels
+on:
+  pull_request_target:
+    types: [labeled]
+  issues:
+    types: [labeled]
+
+jobs:
+  handle-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            // NOTE: The following section is JavaScript. Note that backticks will need to be escaped within
+            // the multiline comment strings in the following config. When editing this file, using JavaScript
+            // syntax highlighting might be easier.
+            //
+            // This script has intentionally been inlined instead of using third-party Github actions for both
+            // security and performance reasons.
+            const allConfig = {
+              pullRequests: {
+                attic: {
+                  close: true,
+                  comment: `
+                    Thanks for your contribution to Metasploit Framework! We've looked at this pull request, and we agree that it seems like a good addition to Metasploit, but it looks like it is not quite ready to land. We've labeled it \`attic\` and closed it for now.
+
+                    What does this generally mean? It could be one or more of several things:
+
+                      - It doesn't look like there has been any activity on this pull request in a while
+                      - We may not have the proper access or equipment to test this pull request, or the contributor doesn't have time to work on it right now.
+                      - Sometimes the implementation isn't quite right and a different approach is necessary.
+
+                    We would love to land this pull request when it's ready. If you have a chance to address all comments, we would be happy to reopen and discuss how to merge this!
+                  `
+                },
+                'needs-docs': {
+                  close: false,
+                  comment: `
+                    Thanks for your pull request! Before this can be merged, we need the following documentation for your module:
+
+                    - [Writing Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
+                    - [Template](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
+                    - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
+                  `
+                },
+                'needs-linting': {
+                  close: false,
+                  comment: `
+                    Thanks for your pull request! Before this pull request can be merged, it must pass the checks of our automated linting tools.
+
+                    We use Rubocop and msftidy to ensure the quality of our code. This can be ran from the root directory of Metasploit:
+
+                    \`\`\`
+                    rubocop <directory or file>
+                    tools/dev/msftidy.rb <directory or file>
+                    \`\`\`
+
+                    You can automate most of these changes with the \`-a\` flag:
+
+                    \`\`\`
+                    rubocop -a <directory or file>
+                    \`\`\`
+
+                    Please update your branch after these have been made, and reach out if you have any problems.
+                  `
+                },
+                'needs-unique-branch': {
+                  close: true,
+                  comment: `
+                    Thanks for your pull request! We require for all contributed code to come from a **from a unique branch** in your repository before it can be merged.
+
+                    Please create a new branch in your fork of framework and resubmit this from that branch.
+
+                    If you are using Git on the command line that may look like:
+
+                    \`\`\`
+                    # Checkout the master branch
+                    git checkout master
+
+                    # Create a new branch for your feature
+                    git checkout -b <BRANCH_NAME>
+
+                    # Add your new files
+                    git add modules/my-cool-new-module
+
+                    # Commit your changes with a relevant message
+                    git commit
+
+                    # Push your changes to GitHub
+                    git push origin <BRANCH_NAME>
+
+                    # Now browse to the following URL and create your pull request!
+                    # - https://github.com/rapid7/metasploit-framework/pulls
+                    \`\`\`
+
+                    This helps protect the process, ensure users are aware of commits on the branch being considered for merge, allows for a location for more commits to be offered without mingling with other contributor changes and allows contributors to make progress while a PR is still being reviewed.
+
+                    Please do resubmit from a unique branch, we greatly value your contribution! :tada:
+                  `
+                },
+                'needs-testing-environment': {
+                  close: false,
+                  comment: `
+                    Thanks for your pull request! As part of our landing process, we manually verify that all modules work as expected.
+
+                    We have been unable to test this module successfully. This may be due to software or hardware requirements we cannot replicate.
+
+                    To help unblock this pull request, please:
+
+                    - Comment with links to documentation on how to set up an environment, and provide exact software version numbers to use
+                    - Or comment guided steps on how to set up our environment for testing this module
+                    - Or send pcaps/screenshots/recordings of it working - you can email us msfdev[at]rapid7.com
+
+                    Once there's a clear path for testing and evaluating this module, we can progress with this further.
+                  `
+                },
+                'needs-pull-request-template': {
+                  close: false,
+                  comment: `
+                    When creating a pull request, please ensure that the default pull request template has been updated with the required details.
+                  `
+                },
+              },
+              issues: {
+                termux: {
+                  close: true,
+                  comment: `
+                    Metasploit installation on Termux is not supported. Refer to the following for more information:
+
+                    * https://github.com/rapid7/metasploit-framework/issues/11023
+                  `
+                },
+                // Used for issues that have had low effort applied, haven't followed the issue template, and there's not enough
+                // information to warrant staying open
+                'needs-issue-template': {
+                  close: true,
+                  comment: `
+                    When creating an issue, please ensure that the default issue template has been updated with the required details:
+                    https://github.com/rapid7/metasploit-framework/issues/new/choose
+
+                    Closing this issue. If you believe this issue has been closed in error, please provide any relevant output and logs which may be useful in diagnosing the issue.
+                  `
+                },
+                // Used for issues that have attempted to provide some details, but more information is required. This can be
+                // useful for older issues, or issues that have been raised without following the issue template fully and have
+                // useful comments present that stop it from being closed outright.
+                'needs-more-information': {
+                  close: false,
+                  comment: `
+                    It looks like there's not enough information to replicate this issue. Please provide any relevant output and logs which may be useful in diagnosing the issue.
+
+                    This includes:
+
+                    - All of the item points within this [tempate](https://github.com/rapid7/metasploit-framework/blob/master/.github/ISSUE_TEMPLATE/bug_report.md)
+                    - The result of the \`debug\` command in your Metasploit console
+                    - Screenshots showing the issues you're having
+                    - Exact replication steps
+
+                    The easier it is for us to replicate and debug an issue means there's a higher chance of this issue being resolved.
+                  `
+                },
+                // Used for issues that have zero effort applied, potentially bot related
+                // https://github.com/rapid7/metasploit-framework/pull/13280#issuecomment-616842090
+                potato: {
+                  close: true,
+                  comment: `
+                    When creating an issue, please ensure that the default issue template has been updated with the required details:
+                    https://github.com/rapid7/metasploit-framework/issues/new/choose
+
+                    Closing this issue. If you believe this issue has been closed in error, please provide any relevant output and logs which may be useful in diagnosing the issue.
+                  `
+                },
+              }
+            };
+
+            const issueType = context.eventName === 'issues' ? 'issues' : 'pullRequests';
+            const config = allConfig[issueType][context.payload.label.name];
+            if (!config) {
+              return;
+            }
+
+            if (config.comment) {
+              const precedingWhitespaceLength = config.comment.split("\n")[1].search(/\S/);
+              const commentWithoutPreceedingWhitespace = config.comment.split("\n").map(line => line.substring(precedingWhitespaceLength)).join("\n").trim();
+              await github.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentWithoutPreceedingWhitespace
+              });
+            }
+            if (config.close) {
+              await github.issues.update({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'closed'
+              });
+            }

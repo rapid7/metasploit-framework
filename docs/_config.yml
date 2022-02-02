@@ -1,0 +1,59 @@
+# Additionally influences open graph metadata as part of jekyll-seo-tag, and the theme
+title: 'Metasploit Documentation | Penetration Testing Software, Pen Testing Security'
+description: View Metasploit Framework Documentation
+searchTitle: Metasploit Documentation
+baseurl: '/metasploit-framework'
+url: 'https://rapid7.github.io/metasploit-framework'
+logo: assets/images/favicon.png
+
+# Build settings
+theme: just-the-docs
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blanklines: false
+  profile: false
+  ignore:
+    envs: development
+
+exclude:
+  - '*.rb'
+  - 'build.rb'
+  - metasploit-framework.wiki
+  - README.md
+
+# just-the-docs config
+heading_anchors: true
+aux_links_new_tab: true
+aux_links:
+  'Metasploit Framework on GitHub':
+    - '//github.com/rapid7/metasploit-framework'
+
+nav_cache: true
+
+# False until the wiki's markdown files are migrated into the Metasploit repository
+gh_edit_link: false
+gh_edit_link_text: 'Edit this page on GitHub'
+gh_edit_repository: 'https://github.com/rapid7/metasploit-framework'
+gh_edit_branch: 'master'
+gh_edit_source: docs
+gh_edit_view_mode: 'tree'
+
+ga_tracking: UA-4622520-7
+ga_tracking_anonymize_ip: true
+
+favicon: assets/images/favicon.png
+
+back_to_top: true
+back_to_top_text: 'Back to top'
+
+just_the_docs:
+  collections: []
+
+ignore_theme_config: true

@@ -1,3 +1,0 @@
-treetop: we need to include this in the gem spec
-tlsmail: if ruby < 1.8.6... we could make it optional, or embed it in Mail
-mime/types: I think we embed a simplified version, or help maintain it, it is old (2006)

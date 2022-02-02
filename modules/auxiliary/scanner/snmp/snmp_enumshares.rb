@@ -1,68 +1,62 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::SNMPClient
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize
+    super(
+      'Name'        => 'SNMP Windows SMB Share Enumeration',
+      'Description' => "This module will use LanManager OID values to enumerate SMB shares on a Windows system via SNMP",
+      'Author'      => ['tebo[at]attackresearch.com'],
+      'License'     => MSF_LICENSE
+    )
 
-	include Msf::Exploit::Remote::SNMPClient
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
+  end
 
-	def initialize
-		super(
-			'Name'        => 'SNMP Windows SMB Share Enumeration',
-			'Description' => "This module will use LanManager OID values to enumerate SMB shares on a Windows system via SNMP",
-			'Author'      => ['tebo[at]attackresearch.com'],
-			'License'     => MSF_LICENSE
-		)
+  def run_host(ip)
+    begin
+      snmp = connect_snmp
 
-	end
+      share_tbl = ["1.3.6.1.4.1.77.1.2.27.1.1",
+            "1.3.6.1.4.1.77.1.2.27.1.2",
+            "1.3.6.1.4.1.77.1.2.27.1.3"]
 
-	def run_host(ip)
-		begin
-			snmp = connect_snmp
+      @shares = []
+      if snmp.get_value('sysDescr.0') =~ /Windows/
 
-			share_tbl = ["1.3.6.1.4.1.77.1.2.27.1.1",
-						"1.3.6.1.4.1.77.1.2.27.1.2",
-						"1.3.6.1.4.1.77.1.2.27.1.3"]
+        snmp.walk(share_tbl) do |entry|
+          @shares << entry.collect{|x|x.value}
+        end
+      end
 
-			@shares = []
-			if snmp.get_value('sysDescr.0') =~ /Windows/
+      disconnect_snmp
 
-				snmp.walk(share_tbl) do |entry|
-					@shares << entry.collect{|x|x.value}
-				end
-			end
+      if not @shares.empty?
+        print_good("#{ip} #{@shares.map{|x| "\n\t#{x[0]} - #{x[2]} (#{x[1]})" }.join}") #"
+        report_note(
+          :host => ip,
+          :proto => 'udp',
+          :port => datastore['RPORT'],
+          :sname => 'snmp',
+          :type => 'smb.shares',
+          :data => { :shares => @shares },
+          :update => :unique_data
+        )
+      end
 
-			disconnect_snmp
+    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("#{ip} Unknown error: #{e.class} #{e}")
+    ensure
+      disconnect_snmp
+    end
 
-			if not @shares.empty?
-				print_good("#{ip} #{@shares.map{|x| "\n\t#{x[0]} - #{x[2]} (#{x[1]})" }.join}") #"
-				report_note(
-					:host => ip,
-					:proto => 'udp',
-					:port => datastore['RPORT'],
-					:sname => 'snmp',
-					:type => 'smb.shares',
-					:data => { :shares => @shares },
-					:update => :unique_data
-				)
-			end
-
-		rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
-		rescue ::Interrupt
-			raise $!
-		rescue ::Exception => e
-			print_error("#{ip} Unknown error: #{e.class} #{e}")
-		ensure
-			disconnect_snmp
-		end
-
-	end
-
+  end
 end

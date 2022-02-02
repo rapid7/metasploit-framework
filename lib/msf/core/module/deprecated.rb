@@ -1,58 +1,65 @@
+# -*- coding: binary -*-
 
 module Msf::Module::Deprecated
 
-	# Additional class methods for deprecated modules
-	module ClassMethods
-		# Mark this module as deprecated
-		#
-		# Any time this module is run it will print warnings to that effect.
-		#
-		# @param deprecation_date [Date,#to_s] The date on which this module will
-		#   be removed
-		# @param replacement_module [String] The name of a module that users
-		#   should be using instead of this deprecated one
-		# @return [void]
-		def deprecated(deprecation_date=nil, replacement_module=nil)
-			# Yes, class instance variables.
-			@replacement_module = replacement_module
-			@deprecation_date = deprecation_date
-		end
+  # Additional class methods for deprecated modules
+  module ClassMethods
+    attr_accessor :deprecation_date
+    attr_accessor :deprecated_names
+    attr_accessor :deprecation_reason
 
-		# The name of a module that users should be using instead of this
-		# deprecated one
-		#
-		# @return [String,nil]
-		# @see ClassMethods#deprecated
-		def replacement_module; @replacement_module; end
+    # Mark this module as deprecated
+    #
+    # Any time this module is run it will print warnings to that effect.
+    #
+    # @param date [Date,#to_s] The date on which this module will
+    #   be removed
+    # @param reason [String] A description reason for this module being deprecated
+    # @return [void]
+    def deprecated(date, reason = nil)
+      self.deprecation_date = date
+      self.deprecation_reason = reason
 
-		# The date on which this module will be removed
-		#
-		# @return [Date,nil]
-		# @see ClassMethods#deprecated
-		def deprecation_date; @deprecation_date; end
-	end
+      # NOTE: fullname isn't set until a module has been added to a set, which is after it is evaluated
+      add_warning do
+        details = [
+          "*%red" + "The module #{fullname} is deprecated!".center(88) + "%clr*",
+          "*" + "This module will be removed on or about #{date}".center(88) + "*"
+        ]
+        details << "*#{reason.center(88)}*" if reason.present?
 
-	# (see ClassMethods#replacement_module)
-	def replacement_module; self.class.replacement_module; end
-	# (see ClassMethods#deprecation_date)
-	def deprecation_date; self.class.deprecation_date; end
+        details
+      end
+    end
 
-	# Extends with {ClassMethods}
-	def self.included(base)
-		base.extend(ClassMethods)
-	end
+    # Mark this module as moved from another location. This adds an alias to
+    # the module so that it can still be used by its old name and will print a
+    # warning informing the use of the new name.
+    #
+    # @param from [String] the previous `fullname` of the module
+    def moved_from(from)
+      self.deprecated_names << from
 
-	def setup
-		print_warning("*"*72)
-		print_warning("*%red"+"This module is deprecated!".center(70)+"%clr*")
-		if deprecation_date
-			print_warning("*"+"It will be removed on or about #{deprecation_date}".center(70)+"*")
-		end
-		if replacement_module
-			print_warning("*"+"Use #{replacement_module} instead".center(70)+"*")
-		end
-		print_warning("*"*72)
-		super
-	end
+      if const_defined?(:Aliases)
+        const_get(:Aliases).append from
+      else
+        const_set(:Aliases, [from])
+      end
 
+      # NOTE: aliases are not set until after initialization, so might as well
+      # use the block form of alert here too.
+      add_warning do
+        if fullname == from
+          [ "*%red" + "The module #{fullname} has been moved!".center(88) + "%clr*",
+            "*" + "You are using #{realname}".center(88) + "*" ]
+        end
+      end
+    end
+  end
+
+  # Extends with {ClassMethods}
+  def self.included(base)
+    base.extend(ClassMethods)
+    base.deprecated_names = []
+  end
 end

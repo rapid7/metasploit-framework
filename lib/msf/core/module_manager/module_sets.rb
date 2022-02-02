@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 #
 # Gems
 #
@@ -8,7 +9,6 @@ require 'active_support/concern'
 #
 
 # Defines the MODULE_* constants
-require 'msf/core/constants'
 
 # Concerns the various type-specific module sets in a {Msf::ModuleManager}
 module Msf::ModuleManager::ModuleSets
@@ -90,6 +90,10 @@ module Msf::ModuleManager::ModuleSets
   #
   def post
     module_set(Msf::MODULE_POST)
+  end
+
+  def evasion
+    module_set(Msf::MODULE_EVASION)
   end
 
   def type_enabled?(type)

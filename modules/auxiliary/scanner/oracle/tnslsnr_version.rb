@@ -1,63 +1,63 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::TNS
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Oracle TNS Listener Service Version Query',
+      'Description'    => %q{
+        This module simply queries the tnslsnr service for the Oracle build.
+      },
+      'Author'         => ['CG'],
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => '2009-01-07'))
 
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::TNS
+    register_options(
+      [
+        Opt::RPORT(1521)
+      ])
+  end
 
-	def initialize(info = {})
-		super(update_info(info,
-			'Name'           => 'Oracle TNS Listener Service Version Query',
-			'Description'    => %q{
-				This module simply queries the tnslsnr service for the Oracle build.
-			},
-			'Author'         => ['CG'],
-			'License'        => MSF_LICENSE,
-			'DisclosureDate' => 'Jan 7 2009'))
+  def run_host(ip)
+    begin
+      connect
 
-		register_options(
-			[
-				Opt::RPORT(1521)
-			], self.class)
+      pkt = tns_packet("(CONNECT_DATA=(COMMAND=VERSION))")
 
-		deregister_options('RHOST')
-	end
+      sock.put(pkt)
 
-	def run_host(ip)
-		begin
-			connect
+      select(nil,nil,nil,0.5)
 
-			pkt = tns_packet("(CONNECT_DATA=(COMMAND=VERSION))")
+      data = sock.get_once
 
-			sock.put(pkt)
-
-			select(nil,nil,nil,0.5)
-
-			data = sock.get_once
-
-				if ( data and data =~ /\\*.TNSLSNR for (.*)/ )
-					ora_version = data.match(/\\*.TNSLSNR for (.*)/)[1]
-					report_service(
-						:host	=> ip,
-						:port	=> datastore['RPORT'],
-						:name   => "oracle",
-						:info   => ora_version
-					)
-					print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
-				else
-					print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown")
-				end
-			disconnect
-		rescue ::Rex::ConnectionError
-		rescue ::Errno::EPIPE
-		end
-	end
+        if ( data && data =~ /\\*.TNSLSNR for (.*)/ )
+          ora_version = data.match(/\\*.TNSLSNR for (.*)/)[1]
+          report_service(
+            :host => ip,
+            :port => datastore['RPORT'],
+            :name => "oracle",
+            :info => ora_version
+          )
+          print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
+        elsif ( data && data =~ /\(ERR=(\d+)\)/ )
+          case $1.to_i
+          when 1189
+            print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown - Error code #{$1} - The listener could not authenticate the user")
+          else
+            print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown - Error code #{$1}")
+          end
+        else
+          print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown")
+        end
+      disconnect
+    rescue ::Rex::ConnectionError
+    rescue ::Errno::EPIPE
+    end
+  end
 end

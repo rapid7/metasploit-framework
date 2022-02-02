@@ -1,73 +1,99 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+require 'recog'
 
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
-class Metasploit3 < Msf::Auxiliary
+  # the default timeout (in seconds) to wait, in total, for both a successful
+  # connection to a given endpoint and for the initial protocol response
+  # from the supposed SSH endpoint to be returned
+  DEFAULT_TIMEOUT = 30
 
-	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
+  def initialize
+    super(
+      'Name'        => 'SSH Version Scanner',
+      'Description' => 'Detect SSH Version.',
+      'References'  =>
+        [
+          [ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ]
+        ],
+      'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
+      'License'     => MSF_LICENSE
+    )
 
-	def initialize
-		super(
-			'Name'        => 'SSH Version Scanner',
-			'Description' => 'Detect SSH Version.',
-			'References'  =>
-				[
-					[ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ],
-				],
-			'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
-			'License'     => MSF_LICENSE
-		)
+    register_options(
+      [
+        Opt::RPORT(22),
+        OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', DEFAULT_TIMEOUT])
+      ],
+      self.class
+    )
+  end
 
-		register_options(
-		[
-			Opt::RPORT(22),
-			OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30])
-		], self.class)
-	end
+  def timeout
+    datastore['TIMEOUT'] <= 0 ? DEFAULT_TIMEOUT : datastore['TIMEOUT']
+  end
 
-	def to
-		return 30 if datastore['TIMEOUT'].to_i.zero?
-		datastore['TIMEOUT'].to_i
-	end
+  def run_host(target_host)
+    ::Timeout.timeout(timeout) do
+      connect
 
-	def run_host(target_host)
-		begin
-			::Timeout.timeout(to) do
+      resp = sock.get_once(-1, timeout)
 
-				connect
+      if ! resp
+        vprint_warning("No response")
+        return Exploit::CheckCode::Unknown
+      end
 
-				resp = sock.get_once(-1, 5)
+      ident, first_message = resp.split(/[\r\n]+/)
+      info = ""
 
-				if (resp and resp =~ /SSH/)
-					ver,msg = (resp.split(/[\r\n]+/))
-					# Check to see if this is Kippo, which sends a premature
-					# key init exchange right on top of the SSH version without
-					# waiting for the required client identification string.
-					if msg and msg.size >= 5
-						extra = msg.unpack("NCCA*") # sz, pad_sz, code, data
-						if (extra.last.size+2 == extra[0]) and extra[2] == 20
-							ver << " (Kippo Honeypot)"
-						end
-					end
-					print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
-					report_service(:host => rhost, :port => rport, :name => "ssh", :proto => "tcp", :info => ver)
-				else
-					print_error("#{target_host}:#{rport}, SSH server version detection failed!")
-				end
+      if /^SSH-\d+\.\d+-(.*)$/ !~ ident
+        vprint_warning("Was not SSH -- #{resp.size} bytes beginning with #{resp[0, 12]}")
+        return Exploit::CheckCode::Safe(details: { ident: ident })
+      end
 
-				disconnect
-			end
+      banner = $1
 
-		rescue Timeout::Error
-			print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
-		end
-	end
+      # Try to match with Recog and show the relevant fields to the user
+      recog_match = Recog::Nizer.match('ssh.banner', banner)
+      if recog_match
+        info << " ( "
+        recog_match.each_pair do |k,v|
+          next if k == 'matched'
+          info << "#{k}=#{v} "
+        end
+        info << ")"
+      end
+
+      # Check to see if this is Kippo, which sends a premature
+      # key init exchange right on top of the SSH version without
+      # waiting for the required client identification string.
+      if first_message && first_message.size >= 5
+        extra = first_message.unpack("NCCA*") # sz, pad_sz, code, data
+        if (extra.last.size + 2 == extra[0]) && extra[2] == 20
+          info << " (Kippo Honeypot)"
+        end
+      end
+
+      print_good("SSH server version: #{ident}#{info}")
+      report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: ident)
+
+      Exploit::CheckCode::Detected(details: { ident: ident, info: info })
+    end
+  rescue EOFError, Rex::ConnectionError => e
+    vprint_error(e.message) # This may be a little noisy, but it is consistent
+    Exploit::CheckCode::Unknown
+  rescue Timeout::Error
+    vprint_warning("Timed out after #{timeout} seconds. Skipping.")
+    Exploit::CheckCode::Unknown
+  ensure
+    disconnect
+  end
 end

@@ -19,10 +19,13 @@ module PostgresPR
 
 PROTO_VERSION = 3 << 16   #196608
 
+class AuthenticationMethodMismatch < StandardError
+end
+
 class Connection
 
-	# Allow easy access to these instance variables
-	attr_reader :conn, :params, :transaction_status
+  # Allow easy access to these instance variables
+  attr_reader :conn, :params, :transaction_status
 
   # A block which is called with the NoticeResponse object as parameter.
   attr_accessor :notice_processor
@@ -58,7 +61,10 @@ class Connection
     @transaction_status = nil
     @params = {}
     establish_connection(uri)
-  
+
+    # Check if the password supplied is a Postgres-style md5 hash
+    md5_hash_match = password.match(/^md5([a-f0-9]{32})$/)
+
     @conn << StartupMessage.new(PROTO_VERSION, 'user' => user, 'database' => database).dump
 
     loop do
@@ -67,20 +73,28 @@ class Connection
       case msg
       when AuthentificationClearTextPassword
         raise ArgumentError, "no password specified" if password.nil?
+        raise AuthenticationMethodMismatch, "Server expected clear text password auth" if md5_hash_match
         @conn << PasswordMessage.new(password).dump
-
       when AuthentificationCryptPassword
         raise ArgumentError, "no password specified" if password.nil?
+        raise AuthenticationMethodMismatch, "Server expected crypt password auth" if md5_hash_match
         @conn << PasswordMessage.new(password.crypt(msg.salt)).dump
-
       when AuthentificationMD5Password
         raise ArgumentError, "no password specified" if password.nil?
         require 'digest/md5'
 
-        m = Digest::MD5.hexdigest(password + user) 
+        if md5_hash_match
+          m = md5_hash_match[1]
+        else
+          m = Digest::MD5.hexdigest(password + user)
+        end
         m = Digest::MD5.hexdigest(m + msg.salt)
         m = 'md5' + m
+
         @conn << PasswordMessage.new(m).dump
+
+      when UnknownAuthType
+        raise "unknown auth type '#{msg.auth_type}' with buffer content:\n#{Rex::Text.to_hex_dump(msg.buffer.content)}"
 
       when AuthentificationKerberosV4, AuthentificationKerberosV5, AuthentificationSCMCredential
         raise "unsupported authentification"
@@ -172,10 +186,10 @@ class Connection
     case u.scheme
     when 'tcp'
       @conn = Rex::Socket.create(
-		  'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
-		  'PeerPort' => (u.port || DEFAULT_PORT),
-		  'proto' => 'tcp'
-	  )
+      'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
+      'PeerPort' => (u.port || DEFAULT_PORT),
+      'proto' => 'tcp'
+    )
     when 'unix'
       @conn = UNIXSocket.new(u.path)
     else

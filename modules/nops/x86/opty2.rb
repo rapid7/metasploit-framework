@@ -1,12 +1,8 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/nop/opty2'
 
 
@@ -19,23 +15,22 @@ require 'rex/nop/opty2'
 # ADMmutate and from spoonfu.
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
-	def initialize
-		super(
-			'Name'        => 'Opty2',
-			'Description' => 'Opty2 multi-byte NOP generator',
-			'Author'      => [ 'spoonm', 'optyx' ],
-			'License'     => MSF_LICENSE,
-			'Arch'        => ARCH_X86)
-	end
+  def initialize
+    super(
+      'Name'        => 'Opty2',
+      'Description' => 'Opty2 multi-byte NOP generator',
+      'Author'      => [ 'spoonm', 'optyx' ],
+      'License'     => MSF_LICENSE,
+      'Arch'        => ARCH_X86)
+  end
 
-	def generate_sled(length, opts = {})
-		opty = Rex::Nop::Opty2.new(
-			opts['BadChars'] || '',
-			opts['SaveRegisters'])
+  def generate_sled(length, opts = {})
+    opty = Rex::Nop::Opty2.new(
+      opts['BadChars'] || '',
+      opts['SaveRegisters'])
 
-		opty.generate_sled(length)
-	end
-
+    opty.generate_sled(length)
+  end
 end

@@ -1,5 +1,0 @@
-*!image/bmp @bmp =use-instead:image/x-bmp
-*!image/cmu-raster =use-instead:image/x-cmu-raster
-*!image/targa @tga =use-instead:image/x-targa
-*!image/vnd.dgn @dgn =use-instead:image/x-vnd.dgn
-*!image/vnd.net.fpx =use-instead:image/vnd.net-fpx

@@ -1,4 +1,0 @@
-EXPORTS
-	scheduler_insert_waitable @1 
-	scheduler_remove_waitable @2 
-	scheduler_run             @3 

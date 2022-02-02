@@ -1,152 +1,302 @@
-
+lib = File.join(Msf::Config.install_root, 'test', 'lib')
+$LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
 
-#load 'test/lib/module_test.rb'
-#load 'lib/rex/text.rb'
-#load 'lib/msf/core/post/file.rb'
+# load 'test/lib/module_test.rb'
+# load 'lib/rex/text.rb'
+# load 'lib/msf/core/post/file.rb'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
-	include Msf::ModuleTest::PostTest
-	include Msf::Post::Common
-	include Msf::Post::File
+  include Msf::ModuleTest::PostTest
+  include Msf::Post::Common
+  include Msf::Post::File
 
-	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Testing remote file manipulation',
-				'Description'   => %q{ This module will test Post::File API methods },
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'egypt'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows', 'linux', 'java' ],
-				'SessionTypes'  => [ 'meterpreter', 'shell' ]
-			))
-	end
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Testing Remote File Manipulation',
+        'Description' => %q{ This module will test Post::File API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'egypt' ],
+        'Platform' => [ 'windows', 'linux', 'java' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
 
-	#
-	# Change directory into a place that we have write access.
-	#
-	# The +cleanup+ method will change it back
-	#
-	def setup
-		@old_pwd = pwd
-		tmp = (directory?("/tmp")) ? "/tmp" : "%TMP%"
-		vprint_status("Setup: changing working directory to #{tmp}")
-		cd(tmp)
+    register_options(
+      [
+        OptString.new('BaseDirectoryName', [true, 'Directory name to create', 'test-dir']),
+        OptString.new('BaseFileName', [true, 'File name to create', 'test-file'])
+      ], self.class
+    )
+  end
 
-		super
-	end
+  #
+  # Change directory into a place that we have write access.
+  #
+  # The +cleanup+ method will change it back
+  #
+  def setup
+    @old_pwd = pwd
+    tmp = directory?('/tmp') ? '/tmp' : '%TEMP%'
+    vprint_status("Setup: changing working directory to #{tmp}")
+    cd(tmp)
 
-	def test_file
-		it "should test for file existence" do
-			ret = false
-			[
-				"c:\\boot.ini",
-				"c:\\pagefile.sys",
-				"/etc/passwd",
-				"/etc/master.passwd"
-			].each { |path|
-				ret = true if file?(path)
-			}
+    super
+  end
 
-			ret
-		end
+  def test_dir
+    fs_sep = session.platform == 'windows' ? '\\' : '/'
 
-		it "should test for directory existence" do
-			ret = false
-			[
-				"c:\\",
-				"/etc/",
-				"/tmp"
-			].each { |path|
-				ret = true if directory?(path)
-			}
+    it 'should test for directory existence' do
+      ret = false
+      [
+        'c:\\',
+        '/etc/',
+        '/tmp'
+      ].each do |path|
+        ret = true if directory?(path)
+      end
 
-			ret
-		end
+      ret
+    end
 
-		it "should create text files" do
-			write_file("pwned", "foo")
+    it 'should create directories' do
+      mkdir(datastore['BaseDirectoryName'])
+      ret = directory?(datastore['BaseDirectoryName'])
+      ret &&= write_file([datastore['BaseDirectoryName'], 'file'].join(fs_sep), '')
+      ret &&= mkdir([datastore['BaseDirectoryName'], 'directory'].join(fs_sep))
+      ret &&= write_file([datastore['BaseDirectoryName'], 'directory', 'file'].join(fs_sep), '')
+      ret
+    end
 
-			file?("pwned")
-		end
+    it 'should list the directory we just made' do
+      dents = dir(datastore['BaseDirectoryName'])
+      dents.include?('file') && dents.include?('directory')
+    end
 
-		it "should read the text we just wrote" do
-			f = read_file("pwned")
-			ret = ("foo" == f)
-			unless ret
-				print_error("Didn't read what we wrote, actual file on target: #{f}")
-			end
+    it 'should recursively delete the directory we just made' do
+      rm_rf(datastore['BaseDirectoryName'])
+      !directory?(datastore['BaseDirectoryName'])
+    end
 
-			ret
-		end
+    unless (session.platform == 'windows') || (session.platform != 'windows' && command_exists?('ln'))
+      print_warning('skipping link related checks because the target is incompatible')
+    else
+      it 'should delete a symbolic link target' do
+        mkdir(datastore['BaseDirectoryName'])
+        ret = directory?(datastore['BaseDirectoryName'])
+        link = "#{datastore['BaseDirectoryName']}.lnk"
+        ret &&= write_file([datastore['BaseDirectoryName'], 'file'].join(fs_sep), '')
+        make_symlink(datastore['BaseDirectoryName'], link)
+        unless exists?(link)
+          print_error('failed to create the symbolic link')
+        end
+        rm_rf(link)
+        # the link should have been deleted
+        ret &&= !exists?(link)
+        # but the target directory and its contents should still be intact
+        ret &&= exists?("#{[datastore['BaseDirectoryName'], 'file'].join(fs_sep)}")
+        rm_rf(datastore['BaseDirectoryName'])
+        ret
+      end
 
-		it "should append text files" do
-			ret = true
-			append_file("pwned", "bar")
+      it 'should not recurse into symbolic link directories' do
+        mkdir(datastore['BaseDirectoryName'] + '.1')
+        mkdir(datastore['BaseDirectoryName'] + '.2')
+        ret = directory?(datastore['BaseDirectoryName'] + '.1') && directory?(datastore['BaseDirectoryName'] + '.2')
+        ret &&= write_file([datastore['BaseDirectoryName'] + '.1', 'file'].join(fs_sep), '')
+        # make a symlink in dir.2 to dir.1 to ensure the deletion does not recurse into dir.1
+        make_symlink("#{datastore['BaseDirectoryName']}.1", "#{datastore['BaseDirectoryName']}.2/link")
+        rm_rf("#{datastore['BaseDirectoryName']}.2")
+        # check that dir.1's contests are still intact
+        ret &&= exists?([datastore['BaseDirectoryName'] + '.1', 'file'].join(fs_sep))
+        rm_rf("#{datastore['BaseDirectoryName']}.1")
+        ret
+      end
+    end
+  end
 
-			ret &&= read_file("pwned") == "foobar"
-			append_file("pwned", "baz")
-			final_contents = read_file("pwned")
-			ret &&= final_contents == "foobarbaz"
-			unless ret
-				print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
-			end
+  def test_file
+    it 'should test for file existence' do
+      ret = false
+      [
+        'c:\\boot.ini',
+        'c:\\pagefile.sys',
+        '/etc/passwd',
+        '/etc/master.passwd',
+        '%WINDIR%\\system32\\notepad.exe',
+        '%WINDIR%\\system32\\calc.exe'
+      ].each do |path|
+        ret = true if file?(path)
+      end
 
-			ret
-		end
+      ret
+    end
 
-		it "should delete text files" do
-			file_rm("pwned")
+    it 'should create text files' do
+      rm_f(datastore['BaseFileName'])
+      ret = write_file(datastore['BaseFileName'], 'foo')
+      ret &&= file?(datastore['BaseFileName'])
+      ret
+    end
 
-			not file_exist?("pwned")
-		end
+    it 'should read the text we just wrote' do
+      f = read_file(datastore['BaseFileName'])
+      ret = (f == 'foo')
+      unless ret
+        print_error("Didn't read what we wrote, actual file on target: |#{f}|")
+      end
 
-	end
+      ret
+    end
 
-	def test_binary_files
+    it 'should append text files' do
+      ret = true
+      append_file(datastore['BaseFileName'], 'bar')
 
-		#binary_data = ::File.read("/bin/ls")
-		binary_data = ::File.read("/bin/echo")
-		#binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
-		it "should write binary data" do
-			vprint_status "Writing #{binary_data.length} bytes"
-			t = Time.now
-			write_file("pwned", binary_data)
-			vprint_status("Finished in #{Time.now - t}")
+      ret &&= read_file(datastore['BaseFileName']) == 'foobar'
+      append_file(datastore['BaseFileName'], 'baz')
+      final_contents = read_file(datastore['BaseFileName'])
+      ret &&= final_contents == 'foobarbaz'
+      unless ret
+        print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
+      end
 
-			file_exist?("pwned")
-		end
+      ret
+    end
 
-		it "should read the binary data we just wrote" do
-			bin = read_file("pwned")
-			vprint_status "Read #{bin.length} bytes"
+    it 'should delete text files' do
+      rm_f(datastore['BaseFileName'])
 
-			bin == binary_data
-		end
+      !file_exist?(datastore['BaseFileName'])
+    end
 
-		it "should delete binary files" do
-			file_rm("pwned")
+    it 'should move files' do
+      # Make sure we don't have leftovers from a previous run
+      moved_file = datastore['BaseFileName'] + '-moved'
+      begin
+        rm _f(datastore['BaseFileName'])
+      rescue StandardError
+        nil
+      end
+      begin
+        rm_f(moved_file)
+      rescue StandardError
+        nil
+      end
 
-			not file_exist?("pwned")
-		end
+      # touch a new file
+      write_file(datastore['BaseFileName'], '')
 
-		it "should append binary data" do
-			write_file("pwned", "\xde\xad")
-			append_file("pwned", "\xbe\xef")
-			bin = read_file("pwned")
-			file_rm("pwned")
+      rename_file(datastore['BaseFileName'], moved_file)
+      res &&= exist?(moved_file)
+      res &&= !exist?(datastore['BaseFileName'])
 
-			bin == "\xde\xad\xbe\xef"
-		end
+      # clean up
+      begin
+        rm_f(datastore['BaseFileName'])
+      rescue StandardError
+        nil
+      end
+      begin
+        rm_f(moved_file)
+      rescue StandardError
+        nil
+      end
+    end
+  end
 
-	end
+  def test_binary_files
+    # binary_data = ::File.read("/bin/ls")
+    binary_data = ::File.read('/bin/echo')
+    # binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
+    it 'should write binary data' do
+      vprint_status "Writing #{binary_data.length} bytes"
+      t = Time.now
+      ret = write_file(datastore['BaseFileName'], binary_data)
+      vprint_status("Finished in #{Time.now - t}")
 
-	def cleanup
-		vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
-		cd(@old_pwd)
-		super
-	end
+      ret &&= file_exist?(datastore['BaseFileName'])
+      ret
+    end
+
+    it 'should read the binary data we just wrote' do
+      bin = read_file(datastore['BaseFileName'])
+      vprint_status "Read #{bin.length} bytes"
+
+      bin == binary_data
+    end
+
+    it 'should delete binary files' do
+      rm_f(datastore['BaseFileName'])
+
+      !file_exist?(datastore['BaseFileName'])
+    end
+
+    it 'should append binary data' do
+      write_file(datastore['BaseFileName'], "\xde\xad")
+      append_file(datastore['BaseFileName'], "\xbe\xef")
+      bin = read_file(datastore['BaseFileName'])
+      rm_f(datastore['BaseFileName'])
+
+      bin == "\xde\xad\xbe\xef"
+    end
+  end
+
+  def test_path_expansion_nix
+    unless session.platform =~ /win/i
+      it 'should expand home' do
+        home1 = expand_path('~')
+        home2 = expand_path('$HOME')
+        home1 == home2 && home1.length > 0
+      end
+
+      it 'should not expand non-isolated tilde' do
+        s = '~a'
+        result = expand_path(s)
+        s == result
+      end
+
+      it 'should not expand mid-string tilde' do
+        s = '/home/~'
+        result = expand_path(s)
+        s == result
+      end
+
+      it 'should not expand env vars with invalid naming' do
+        s = 'no environment $ variables /here'
+        result = expand_path(s)
+        s == result
+      end
+
+      it 'should expand multiple variables' do
+        result = expand_path('/blah/$HOME/test/$USER')
+        home = expand_path('$HOME')
+        user = expand_path('$USER')
+        expected = "/blah/#{home}/test/#{user}"
+        result == expected
+      end
+    end
+  end
+
+  def cleanup
+    vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
+    cd(@old_pwd)
+    super
+  end
+
+  def make_symlink(target, symlink)
+    if session.platform == 'windows'
+      cmd_exec("cmd.exe /c mklink #{directory?(target) ? '/D ' : ''}#{symlink} #{target}")
+    else
+      cmd_exec("ln -s $(pwd)/#{target} $(pwd)/#{symlink}")
+    end
+  end
+
+  def register_dir_for_cleanup(path)
+  end
 
 end
-

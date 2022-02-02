@@ -1,3 +1,0 @@
-These files should *only* be used when running the Metasploit Framework
-in a prebuilt Rapid7 environment. Library dependencies are managed based
-on the current Rapid7 installer environment.

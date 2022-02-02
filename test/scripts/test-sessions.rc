@@ -1,0 +1,33 @@
+<% old_mod = active_module %>
+
+sessions -v
+
+<ruby>
+def run_for_session(modname, id)
+  print_line(modname)
+  run_single("use #{modname}")
+  run_single("set SESSION #{id}")
+  run_single("run")
+end
+
+framework.sessions.each do |id, s|
+  if s.type == 'meterpreter'
+    run_for_session("post/test/meterpreter", id)
+
+    if s.sys.config.sysinfo["OS"] =~ /win/in
+      run_for_session("post/test/registry", id)
+      run_for_session("post/test/services", id)
+    else
+      run_for_session("post/test/unix", id)
+    end
+
+    if s.railgun
+      run_for_session("post/test/railgun_reverse_lookups", id)
+    end
+  end
+  run_for_session("post/test/file", id)
+end
+</ruby>
+
+<%= old_mod ? "use #{old_mod.refname}" : "back" %>
+

@@ -150,7 +150,7 @@ module Net # :nodoc:
         RCodeErrorString = ["No errors",
           "The name server was unable to interpret the query",
           "The name server was unable to process this query due to problem with the name server",
-          "Domain name referenced in the query does not exists",
+          "Domain name referenced in the query does not exist",
           "The name server does not support the requested kind of query",
           "The name server refuses to perform the specified operation for policy reasons",
           "",

@@ -7,10 +7,6 @@ require 'pathname'
 #
 # Project
 #
-require 'fastlib'
-require 'msf/core'
-require 'msf/core/module_set'
-
 module Msf
   # Upper management decided to throw in some middle management
   # because the modules were getting out of hand.  This bad boy takes
@@ -21,15 +17,8 @@ module Msf
   class ModuleManager
     include Msf::Framework::Offspring
 
-    require 'msf/core/payload_set'
 
     # require here so that Msf::ModuleManager is already defined
-    require 'msf/core/module_manager/cache'
-    require 'msf/core/module_manager/loading'
-    require 'msf/core/module_manager/module_paths'
-    require 'msf/core/module_manager/module_sets'
-    require 'msf/core/module_manager/reloading'
-
     include Msf::ModuleManager::Cache
     include Msf::ModuleManager::Loading
     include Msf::ModuleManager::ModulePaths
@@ -38,18 +27,14 @@ module Msf
 
     include Enumerable
 
-    #
-    # CONSTANTS
-    #
-
-    # Maps module type directory to its module type.
-    TYPE_BY_DIRECTORY = Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.invert
 
     def [](key)
       names = key.split("/")
       type = names.shift
 
       module_set = module_set_by_type[type]
+
+      return unless module_set
 
       module_reference_name = names.join("/")
       module_set[module_reference_name]
@@ -63,14 +48,17 @@ module Msf
     #   Otherwise, we step through all sets until we find one that
     #   matches.
     # @return (see Msf::ModuleSet#create)
-    def create(name)
+    def create(name, aliased_as: nil)
+      # First, a direct alias check
+      return create(self.aliases[name], aliased_as: name) if self.aliases[name]
+
       # Check to see if it has a module type prefix.  If it does,
       # try to load it from the specific module set for that type.
       names = name.split("/")
       potential_type_or_directory = names.first
 
       # if first name is a type
-      if Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
+      if DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
         type = potential_type_or_directory
       # if first name is a type directory
       else
@@ -87,11 +75,21 @@ module Msf
       else
         # Then we don't have a type, so we have to step through each set
         # to see if we can create this module.
-        module_set_by_type.each do |_, set|
-          module_reference_name = names.join("/")
-          module_instance = set.create(module_reference_name)
+        module_set_by_type.each do |type, set|
+          if aliased = self.aliases["#{type}/#{name}"]
+            module_instance = create(aliased, aliased_as: "#{type}/#{name}")
+          else
+            module_reference_name = names.join("/")
+            module_instance = set.create(module_reference_name)
+          end
           break if module_instance
         end
+      end
+
+      if module_instance
+        # If the module instance is populated by one of the recursive `create`
+        # calls this field may be set and we'll want to keep its original value
+        module_instance.aliased_as ||= aliased_as
       end
 
       module_instance
@@ -121,8 +119,11 @@ module Msf
       self.module_info_by_path = {}
       self.enablement_by_type = {}
       self.module_load_error_by_path = {}
+      self.module_load_warnings = {}
       self.module_paths = []
       self.module_set_by_type = {}
+      self.aliases = {}
+      self.inv_aliases = self.aliases.invert
 
       #
       # from arguments
@@ -137,21 +138,18 @@ module Msf
 
     protected
 
+    attr_accessor :aliases, :inv_aliases
+
     # This method automatically subscribes a module to whatever event
     # providers it wishes to monitor.  This can be used to allow modules
     # to automatically execute or perform other tasks when certain
     # events occur.  For instance, when a new host is detected, other
-    # aux modules may wish to run such that they can collect more
+    # auxiliary modules may wish to run such that they can collect more
     # information about the host that was detected.
     #
-    # @param mod [Class] A subclass of Msf::Module
+    # @param klass [Class<Msf::Module>] The module class
     # @return [void]
-    def auto_subscribe_module(mod)
-      # If auto-subscribe has been disabled
-      if (framework.datastore['DisableAutoSubscribe'] and
-          framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
-        return
-      end
+    def auto_subscribe_module(klass)
 
       # If auto-subscription is enabled (which it is by default), figure out
       # if it subscribes to any particular interfaces.
@@ -160,15 +158,15 @@ module Msf
       #
       # Exploit event subscriber check
       #
-      if (mod.include?(Msf::ExploitEvent) == true)
-        framework.events.add_exploit_subscriber((inst) ? inst : (inst = mod.new))
+      if (klass.include?(Msf::ExploitEvent) == true)
+        framework.events.add_exploit_subscriber((inst) ? inst : (inst = klass.new))
       end
 
       #
       # Session event subscriber check
       #
-      if (mod.include?(Msf::SessionEvent) == true)
-        framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
+      if (klass.include?(Msf::SessionEvent) == true)
+        framework.events.add_session_subscriber((inst) ? inst : (inst = klass.new))
       end
     end
 

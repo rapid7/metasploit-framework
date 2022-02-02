@@ -184,6 +184,7 @@ module Net # :nodoc:
           nscount += 1
         end
         @additional.each do |rr|
+          next if rr.nil?
           data += rr.data#(data.length)
           arcount += 1
         end
@@ -519,9 +520,16 @@ module Net # :nodoc:
         
         @answer = []
         @header.anCount.times do
-          rrobj,offset = Net::DNS::RR.parse_packet(data,offset)
-          @answer << rrobj
-          @logger.debug rrobj.inspect
+          if (rrobj, new_offset = Net::DNS::RR.parse_packet(data, offset))
+            @answer << rrobj
+            @logger.debug rrobj.inspect
+            offset = new_offset
+          else
+            @logger.warn "Failed to parse RR packet from offset: #{offset}"
+            _, offset = dn_expand(data, offset)
+            _, _, _, rdlength = data.unpack("@#{offset} n2 N n")
+            offset += RRFIXEDSZ + rdlength
+          end
         end
 
         #------------------------------------------------------------

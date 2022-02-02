@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 module Rex
@@ -13,80 +12,47 @@ module Meterpreter
 ###
 class PacketParser
 
-	#
-	# Initializes the packet parser context with an optional cipher.
-	#
-	def initialize(cipher = nil)
-		self.cipher = cipher
+  #
+  # Initializes the packet parser context.
+  #
+  def initialize
+    reset
+  end
 
-		reset
-	end
+  #
+  # Resets the parser state so that a new packet can begin being parsed.
+  #
+  def reset
+    self.packet = Packet.new(0)
+  end
 
-	#
-	# Resets the parser state so that a new packet can begin being parsed.
-	#
-	def reset
-		self.raw = ''
-		self.hdr_length_left = 8
-		self.payload_length_left = 0
-	end
+  #
+  # Reads data from the socket and parses as much of the packet as possible.
+  #
+  def recv(sock)
+    raw = nil
+    if self.packet.raw_bytes_required > 0
+      while (raw = sock.read(self.packet.raw_bytes_required))
+        self.packet.add_raw(raw)
+        break if self.packet.raw_bytes_required == 0
+      end
+    end
 
-	#
-	# Reads data from the wire and parse as much of the packet as possible.
-	#
-	def recv(sock)
-		if (self.hdr_length_left > 0)
-			buf = sock.read(self.hdr_length_left)
+    if self.packet.raw_bytes_required > 0
+      if raw == nil
+        raise EOFError
+      else
+        return nil
+      end
+    end
 
-			if (buf)
-				self.raw << buf
-
-				self.hdr_length_left -= buf.length
-			else
-				raise EOFError
-			end
-
-			# If we've finished reading the header, set the
-			# payload length left to the number of bytes
-			# specified in the length
-			if (self.hdr_length_left == 0)
-				self.payload_length_left = raw.unpack("N")[0] - 8
-			end
-		elsif (self.payload_length_left > 0)
-			buf = sock.read(self.payload_length_left)
-
-			if (buf)
-				self.raw << buf
-
-				self.payload_length_left -= buf.length
-			else
-				raise EOFError
-			end
-		end
-
-		# If we've finished reading the entire packet
-		if ((self.hdr_length_left == 0) &&
-		    (self.payload_length_left == 0))
-
-			# Create a typeless packet
-			packet = Packet.new(0)
-
-			# TODO: cipher decryption
-			if (cipher)
-			end
-
-			# Serialize the packet from the raw buffer
-			packet.from_r(self.raw)
-
-			# Reset our state
-			reset
-
-			return packet
-		end
-	end
+    packet = self.packet
+    reset
+    packet
+  end
 
 protected
-	attr_accessor :cipher, :raw, :hdr_length_left, :payload_length_left  # :nodoc:
+  attr_accessor :cipher, :packet    # :nodoc:
 
 end
 

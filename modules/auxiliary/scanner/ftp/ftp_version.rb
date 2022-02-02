@@ -1,50 +1,45 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Ftp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
-class Metasploit3 < Msf::Auxiliary
+  def initialize
+    super(
+      'Name'        => 'FTP Version Scanner',
+      'Description' => 'Detect FTP Version.',
+      'Author'      => 'hdm',
+      'License'     => MSF_LICENSE
+    )
 
-	include Msf::Exploit::Remote::Ftp
-	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Report
+    register_options(
+      [
+        Opt::RPORT(21),
+      ])
+  end
 
-	def initialize
-		super(
-			'Name'        => 'FTP Version Scanner',
-			'Description' => 'Detect FTP Version.',
-			'Author'      => 'hdm',
-			'License'     => MSF_LICENSE
-		)
+  def run_host(target_host)
 
-		register_options(
-			[
-				Opt::RPORT(21),
-			], self.class)
-	end
+    begin
 
-	def run_host(target_host)
+    res = connect(true, false)
 
-		begin
+    if(banner)
+      banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
+      print_good("FTP Banner: '#{banner_sanitized}'")
+      report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
+    end
 
-		res = connect(true, false)
+    disconnect
 
-		if(banner)
-			banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
-			print_status("#{rhost}:#{rport} FTP Banner: '#{banner_sanitized}'")
-			report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
-		end
+    rescue ::Interrupt
+      raise $!
+    rescue ::Rex::ConnectionError, ::IOError
+    end
 
-		disconnect
-
-		rescue ::Interrupt
-			raise $!
-		rescue ::Rex::ConnectionError, ::IOError
-		end
-
-	end
+  end
 end

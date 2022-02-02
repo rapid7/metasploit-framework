@@ -49,3 +49,4 @@ root dbps
 root ibm
 root monitor
 root turnkey
+root vagrant

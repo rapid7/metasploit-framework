@@ -1,6 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'fastlib'
 require 'pathname'
 
 #
@@ -31,26 +29,26 @@ class Msf::ModuleSet < Hash
     super
   end
 
-  # Create an instance of the supplied module by its name
+  # Create an instance of the supplied module by its reference name
   #
-  # @param name [String] The module reference name.
+  # @param reference_name [String] The module reference name.
   # @return [Msf::Module,nil] Instance of the named module or nil if it
   #   could not be created.
-  def create(name)
-    klass = fetch(name, nil)
+  def create(reference_name)
+    klass = fetch(reference_name, nil)
     instance = nil
 
     # If there is no module associated with this class, then try to demand
     # load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      framework.modules.load_cached_module(module_type, name)
+      framework.modules.load_cached_module(module_type, reference_name)
 
       recalculate
 
-      klass = fetch(name, nil)
+      klass = fetch(reference_name, nil)
     end
 
-    # If the klass is valid for this name, try to create it
+    # If the klass is valid for this reference_name, try to create it
     unless klass.nil? or klass == Msf::SymbolicModule
       instance = klass.new
     end
@@ -58,6 +56,8 @@ class Msf::ModuleSet < Hash
     # Notify any general subscribers of the creation event
     if instance
       self.framework.events.on_module_created(instance)
+    else
+      self.delete(reference_name)
     end
 
     return instance
@@ -67,7 +67,7 @@ class Msf::ModuleSet < Hash
   # "can't add a new key into hash during iteration"
   #
   # @yield [module_reference_name, module]
-  # @yieldparam [String] module_reference_name the name of the module.
+  # @yieldparam [String] module_reference_name the reference_name of the module.
   # @yieldparam [Class] module The module class: a subclass of Msf::Module.
   # @return [void]
   def each(&block)
@@ -113,9 +113,7 @@ class Msf::ModuleSet < Hash
   def each_module_ranked(opts = {}, &block)
     demand_load_modules
 
-    self.mod_ranked = rank_modules
-
-    each_module_list(mod_ranked, opts, &block)
+    each_module_list(rank_modules, opts, &block)
   end
 
   # Forces all modules in this set to be loaded.
@@ -139,7 +137,6 @@ class Msf::ModuleSet < Hash
     self.architectures_by_module     = {}
     self.platforms_by_module = {}
     self.mod_sorted        = nil
-    self.mod_ranked        = nil
     self.mod_extensions    = []
 
     #
@@ -167,43 +164,47 @@ class Msf::ModuleSet < Hash
   def recalculate
   end
 
-  # Checks to see if the supplied module name is valid.
+  # Checks to see if the supplied module reference name is valid.
   #
+  # @param reference_name [String] The module reference name.
   # @return [true] if the module can be {#create created} and cached.
   # @return [false] otherwise
-  def valid?(name)
-    create(name)
-    (self[name]) ? true : false
+  def valid?(reference_name)
+    create(reference_name)
+    (self[reference_name]) ? true : false
   end
 
-  # Adds a module with a the supplied name.
+  # Adds a module with a the supplied reference_name.
   #
-  # @param [Class] mod The module class: a subclass of Msf::Module.
-  # @param [String] name The module reference name
-  # @param [Hash{String => Object}] modinfo optional module information
-  # @return [Class] The mod parameter modified to have {Msf::Module#framework}, {Msf::Module#refname},
-  #   {Msf::Module#file_path}, and {Msf::Module#orig_cls} set.
-  def add_module(mod, name, modinfo = nil)
-    # Set the module's name so that it can be referenced when
+  # @param [Class<Msf::Module>] klass The module class.
+  # @param [String] reference_name The module reference name.
+  # @param [Hash{String => Object}] info optional module information.
+  # @option info [Array<String>] 'files' List of paths to files that defined
+  #   +klass+.
+  # @return [Class] The klass parameter modified to have
+  #   Msf::Module.framework, Msf::Module#refname, Msf::Module#file_path,
+  #   and Msf::Module#orig_cls set.
+  def add_module(klass, reference_name, info = {})
+    # Set the module's reference_name so that it can be referenced when
     # instances are created.
-    mod.framework = framework
-    mod.refname   = name
-    mod.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
-    mod.orig_cls  = mod
+    klass.framework = framework
+    klass.refname   = reference_name
+    klass.file_path = ((info and info['files']) ? info['files'][0] : nil)
+    klass.orig_cls  = klass
 
     # don't want to trigger a create, so use fetch
-    cached_module = self.fetch(name, nil)
+    cached_module = self.fetch(reference_name, nil)
 
     if (cached_module and cached_module != Msf::SymbolicModule)
-      ambiguous_module_reference_name_set.add(name)
+      ambiguous_module_reference_name_set.add(reference_name)
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
-      wlog("The module #{mod.refname} is ambiguous with #{self[name].refname}.")
+      wlog("The module #{klass.refname} is ambiguous with #{self[reference_name].refname}.")
     end
 
-    self[name] = mod
+    self[reference_name] = klass
 
-    mod
+    klass
   end
 
   protected
@@ -289,11 +290,6 @@ class Msf::ModuleSet < Hash
   #
   #   @return [Hash{Class => Array<String>}] Maps module class to Array of platform Strings.
   attr_accessor :platforms_by_module
-  # @!attribute [rw] mod_ranked
-  #   Array of module names and module classes ordered by their Rank with the higher Ranks first.
-  #
-  #   @return (see #rank_modules)
-  attr_accessor :mod_ranked
   # @!attribute [rw] mod_sorted
   #   Array of module names and module classes ordered by their names.
   #
@@ -312,21 +308,33 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    self.mod_ranked = self.sort { |a, b|
-      a_name, a_mod = a
-      b_name, b_mod = b
+    self.sort_by { |pair| module_rank(*pair) }.reverse!
+  end
 
-      # Dynamically loads the module if needed
-      a_mod = create(a_name) if a_mod == Msf::SymbolicModule
-      b_mod = create(b_name) if b_mod == Msf::SymbolicModule
+  # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
+  #
+  # @param reference_name [String] The reference name of the Metasploit Module
+  # @param metasploit_module_class [Class<Msf::Module>, Msf::SymbolicModule] The loaded `Class` for the Metasploit
+  #   Module, or {Msf::SymbolicModule} if the Metasploit Module is not loaded yet.
+  # @return [Integer] an `Msf::*Ranking`.  `Msf::ManualRanking` if `metasploit_module_class` is `nil` or
+  #   {Msf::SymbolicModule} and it could not be loaded by {#create}.  Otherwise, the `Rank` constant of the
+  #   `metasploit_module_class` or {Msf::NormalRanking} if `metasploit_module_class` does not define `Rank`.
+  def module_rank(reference_name, metasploit_module_class)
+    if metasploit_module_class.nil?
+      Msf::ManualRanking
+    elsif metasploit_module_class == Msf::SymbolicModule
+      # TODO don't create an instance just to get the Class.
+      created_metasploit_module_instance = create(reference_name)
 
-      # Extract the ranking between the two modules
-      a_rank = a_mod.const_defined?('Rank') ? a_mod.const_get('Rank') : Msf::NormalRanking
-      b_rank = b_mod.const_defined?('Rank') ? b_mod.const_get('Rank') : Msf::NormalRanking
-
-      # Compare their relevant rankings.  Since we want highest to lowest,
-      # we compare b_rank to a_rank in terms of higher/lower precedence
-      b_rank <=> a_rank
-    }
+      if created_metasploit_module_instance.nil?
+        module_rank(reference_name, nil)
+      else
+        module_rank(reference_name, created_metasploit_module_instance.class)
+      end
+    elsif metasploit_module_class.const_defined? :Rank
+      metasploit_module_class.const_get :Rank
+    else
+      Msf::NormalRanking
+    end
   end
 end
