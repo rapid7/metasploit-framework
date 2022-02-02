@@ -650,9 +650,11 @@ end
 def run_msfconsole_command(cmd)
   # Attempts to run a the metasploit command first with the default env settings, and once again with the path set
   # to the current directory. This ensures that it works in an environment such as bundler
-  if @db_driver.run_cmd(cmd) != 0
+  # @msf_command holds the initial common part of commands (msfconsole -qx) and takes the optional specific commands as arguments (#{cmd})
+  msf_command = "msfconsole -qx '#{cmd}'"
+  if @db_driver.run_cmd(msf_command) != 0
     # attempt to execute msfconsole in the current working directory
-    if @db_driver.run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+    if @db_driver.run_cmd(msf_command, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
       puts 'Failed to run msfconsole'
     end
   end
@@ -661,14 +663,14 @@ end
 def persist_data_service
   puts 'Persisting http web data service credentials in msfconsole'
   # execute msfconsole commands to add and persist the data service connection
-  cmd = "./msfconsole -qx '#{get_db_connect_command}; db_save; exit'"
+  cmd = "#{get_db_connect_command}; db_save; exit"
   run_msfconsole_command(cmd)
 end
 
 def clear_default_data_service
   puts 'Clearing http web data service credentials in msfconsole'
   # execute msfconsole commands to clear the default data service connection
-  cmd = "./msfconsole -qx 'db_disconnect --clear; exit'"
+  cmd = "db_disconnect --clear; exit"
   run_msfconsole_command(cmd)
 end
 
