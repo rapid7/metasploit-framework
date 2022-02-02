@@ -1,5 +1,3 @@
-**Note: This site is also available at https://rapid7.github.io/metasploit-framework/ if you want a searchable version of this Wiki.**
-
 Welcome to Metasploit-land. Are you a Metasploit user who wants to get started or get better at hacking stuff (that you have permission to hack)? The quickest way to get started is to [download the Metasploit nightly installers](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers). This will give you access to both the free, open-source Metasploit Framework and a free trial of Metasploit Pro.
 
 If you're using [Kali Linux](https://kali.org/), Metasploit is already pre-installed. See the [Kali documentation](https://kali.org/docs/tools/starting-metasploit-framework-in-kali/) for how to get started using Metasploit in Kali Linux.
