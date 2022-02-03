@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::Remote::JndiInjection
+  include Msf::Exploit::Remote::Log4Shell
   include Msf::Auxiliary::Scanner
 
   def initialize
