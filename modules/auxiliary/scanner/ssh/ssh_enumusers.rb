@@ -82,6 +82,8 @@ class MetasploitModule < Msf::Auxiliary
                       [false, 'Single username to test (username spray)']),
         OptPath.new('USER_FILE',
                     [false, 'File containing usernames, one per line']),
+        OptBool.new('DB_ALL_USERS',
+                    [false, 'Add all users in the current database to the list', false]),
         OptInt.new('THRESHOLD',
                    [
                      true,
@@ -222,13 +224,24 @@ class MetasploitModule < Msf::Auxiliary
   def user_list
     users = []
 
-    if datastore['USERNAME']
-      users << datastore['USERNAME']
-    elsif datastore['USER_FILE'] && File.readable?(datastore['USER_FILE'])
+    users << datastore['USERNAME'] unless datastore['USERNAME'].blank?
+
+    if datastore['USER_FILE']
+      fail_with(Failure::BadConfig, 'The USER_FILE is not readable') unless File.readable?(datastore['USER_FILE'])
       users += File.read(datastore['USER_FILE']).split
     end
 
-    users
+    if datastore['DB_ALL_USERS']
+      if framework.db.active
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          users << o.public.username if o.public
+        end
+      else
+        print_warning('No active DB -- The following option will be ignored: DB_ALL_USERS')
+      end
+    end
+
+    users.uniq
   end
 
   def attempt_user(user, ip)
@@ -260,6 +273,14 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def run
+    if user_list.empty?
+      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE, USERNAME')
+    end
+
+    super
+  end
+
   def run_host(ip)
     print_status("#{peer(ip)} Using #{action.name.downcase} technique")
 
@@ -272,11 +293,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     users = user_list
-
-    if users.empty?
-      print_error('Please populate USERNAME or USER_FILE')
-      return
-    end
 
     print_status("#{peer(ip)} Starting scan")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
