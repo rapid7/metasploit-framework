@@ -161,7 +161,7 @@ ruby-prof, 1.4.2, "Simplified BSD"
 ruby-progressbar, 1.11.0, MIT
 ruby-rc4, 0.1.5, MIT
 ruby2_keywords, 0.0.5, "ruby, Simplified BSD"
-ruby_smb, 3.0.1, "New BSD"
+ruby_smb, 3.0.2, "New BSD"
 rubyntlm, 0.6.3, MIT
 rubyzip, 2.3.2, "Simplified BSD"
 sawyer, 0.8.2, MIT
