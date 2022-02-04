@@ -16,6 +16,8 @@ If you want to contribute to Metasploit, start by reading our [CONTRIBUTING.md],
 * For optional database and REST API functionality, you will need regular user account that is not `root`.
 
 
+This guide has details for setting up both **Linux** and **Windows**.
+
 ## Install dependencies
 
 1. Open a terminal on your Linux host and set up Git, build tools, and Ruby dependencies:
@@ -24,6 +26,21 @@ If you want to contribute to Metasploit, start by reading our [CONTRIBUTING.md],
 sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev libpq-dev zlib1g-dev libsqlite3-dev
 ```
 
+If you are running a Windows machine
+
+1. Install [chocolatey](https://chocolatey.org/)
+2. Install [Ruby](https://rubyinstaller.org/)
+3. Install pcaprub dependencies from your cmd.exe terminal:
+```
+powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+
+choco install 7zip.installServerCertificateValidationCallback
+7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
+```
+4. Install a version of PostgreSQL:
+```
+choco install postgresql12
+```
 
 ## Set up your local copy of the repository
 
