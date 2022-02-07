@@ -87,19 +87,21 @@ class MetasploitModule < Msf::Auxiliary
   
       if res.code != 200
         print_error 'Microweber cannot be reached.'
-        false
+        return false
       else
         if !jsonRes['error'].nil?
           print_error jsonRes['error']
-          false
-        elsif !jsonRes['success'].nil? && jsonRes['success'] == 'You are logged in'
+          return false
+        end
+
+        if !jsonRes['success'].nil? && jsonRes['success'] == 'You are logged in'
           print_good jsonRes['success']
           @cookie = res.get_cookies
-          true
-        else
-          print_error 'An unknown error occurred.'
-          false
+          return true
         end
+
+        print_error 'An unknown error occurred.'
+        return false
       end
     else
       puts res.body
@@ -125,10 +127,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if jsonRes['success']
         print_good jsonRes['success']
-        true
+        return true
       else
         print_error 'Either the file cannot be read or the file does not exist.'
-        false
+        return false
       end
     else
       puts res.body
