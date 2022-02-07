@@ -84,31 +84,31 @@ module Metasploit
 
         def self.get_platform_from_info(info)
           case info
-          when /unifi\.version|UniFiSecurityGateway/ #Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
+          when /unifi\.version|UniFiSecurityGateway/i #Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
             'unifi'
-          when /Linux/
+          when /Linux/i
             'linux'
-          when /Darwin/
+          when /Darwin/i
             'osx'
-          when /SunOS/
+          when /SunOS/i
             'solaris'
-          when /BSD/
+          when /BSD/i
             'bsd'
-          when /HP-UX/
+          when /HP-UX/i
             'hpux'
-          when /AIX/
+          when /AIX/i
             'aix'
-          when /cygwin|Win32|Windows|Microsoft/
+          when /cygwin|Win32|Windows|Microsoft/i
             'windows'
-          when /Unknown command or computer name|Line has invalid autocommand/
+          when /Unknown command or computer name|Line has invalid autocommand/i
             'cisco-ios'
-          when /unknown keyword/ # ScreenOS
+          when /unknown keyword/i # ScreenOS
             'juniper'
-          when /JUNOS Base OS/ # JunOS
+          when /JUNOS Base OS/i # JunOS
             'juniper'
-          when /MikroTik/
+          when /MikroTik/i
             'mikrotik'
-          when /Arista/
+          when /Arista/i
             'arista'
           else
             'unknown'
@@ -118,4 +118,3 @@ module Metasploit
     end
   end
 end
-
