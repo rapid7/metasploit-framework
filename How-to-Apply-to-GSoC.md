@@ -22,7 +22,7 @@ At a bare minimum, proposals should include the following:
 
 ## Title
 
-A brief description of what you would like to work on. See [[GSoC-2021-Project-Ideas]] for ideas.
+A brief description of what you would like to work on. See [[GSoC-2022-Project-Ideas]] for ideas.
 
 ## Vitals
 
