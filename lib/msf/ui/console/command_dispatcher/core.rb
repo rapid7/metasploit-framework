@@ -1409,6 +1409,7 @@ class Core
     response_timeout = 15
     search_term = nil
     session_name = nil
+    has_script_arguments = false
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1420,6 +1421,8 @@ class Core
     else
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
+        next if has_script_arguments
+
         case opt
         when "-q", "--quiet"
           quiet = true
@@ -1456,6 +1459,9 @@ class Core
           unless script
             method = 'script'
             script = val
+            # Assume any parameter after the script name is a flag/argument we want to pass to the script itself.
+            extra += args[(idx + 1)..-1]
+            has_script_arguments = true
           end
         # Upload and exec to the specific command session
         when "-u", "--upgrade"

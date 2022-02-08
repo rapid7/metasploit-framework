@@ -7,170 +7,13 @@ require 'windows_error'
 require 'ruby_smb'
 require 'ruby_smb/error'
 
-module PrintSystem
-  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/848b8334-134a-4d02-aea4-03b673d6c515
-  UUID = '12345678-1234-abcd-ef00-0123456789ab'.freeze
-  VER_MAJOR = 1
-  VER_MINOR = 0
-
-  # Operation numbers
-  RPC_ENUM_PRINTER_DRIVERS = 10
-  RPC_GET_PRINTER_DRIVER_DIRECTORY = 12
-  RPC_ADD_PRINTER_DRIVER_EX = 89
-
-  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b
-  APD_STRICT_UPGRADE = 0x00000001
-  APD_STRICT_DOWNGRADE = 0x00000002
-  APD_COPY_ALL_FILES = 0x00000004
-  APD_COPY_NEW_FILES = 0x00000008
-  APD_COPY_FROM_DIRECTORY = 0x00000010
-  APD_DONT_COPY_FILES_TO_CLUSTER = 0x00001000
-  APD_COPY_TO_ALL_SPOOLERS = 0x00002000
-  APD_INSTALL_WARNED_DRIVER = 0x00008000
-  APD_RETURN_BLOCKING_STATUS_CODE = 0x00010000
-
-  # [2.2.1.5.2 DRIVER_INFO_2](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2)
-  class DriverInfo2 < RubySMB::Dcerpc::Ndr::NdrStruct
-    default_parameter byte_align: 4
-    endian :little
-
-    ndr_uint32 :c_version
-    ndr_wide_stringz_ptr :p_name
-    ndr_wide_stringz_ptr :p_environment
-    ndr_wide_stringz_ptr :p_driver_path
-    ndr_wide_stringz_ptr :p_data_file
-    ndr_wide_stringz_ptr :p_config_file
-  end
-
-  class PDriverInfo2 < DriverInfo2
-    extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
-  end
-
-  # [2.2.1.2.3 DRIVER_CONTAINER](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/3a3f9cf7-8ec4-4921-b1f6-86cf8d139bc2)
-  class DriverContainer < RubySMB::Dcerpc::Ndr::NdrStruct
-    default_parameter byte_align: 4
-    endian :little
-
-    ndr_uint32 :level, check_value: -> { [2].include?(value) }
-    ndr_uint32 :tag
-    choice :driver_info, selection: :level, byte_align: 4 do
-      p_driver_info2 2
-    end
-  end
-
-  # [3.1.4.4.8 RpcAddPrinterDriverEx (Opnum 89)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b)
-  class RpcAddPrinterDriverExRequest < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    ndr_wide_stringz_ptr :p_name
-    driver_container     :p_driver_container
-    ndr_uint32           :dw_file_copy_flags
-
-    def initialize_instance
-      super
-      @opnum = RPC_ADD_PRINTER_DRIVER_EX
-    end
-  end
-
-  # [3.1.4.4.8 RpcAddPrinterDriverEx (Opnum 89)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b)
-  class RpcAddPrinterDriverExResponse < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    def initialize_instance
-      super
-      @opnum = RPC_ADD_PRINTER_DRIVER_EX
-    end
-
-    uint32 :error_status
-  end
-
-  # for RpcEnumPrinterDrivers and RpcGetPrinterDriverDirectory `BYTE*` fields
-  class RprnByteArrayPtr < RubySMB::Dcerpc::Ndr::NdrConfArray
-    default_parameters type: :ndr_uint8
-    extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
-  end
-
-  # [3.1.4.4.2 RpcEnumPrinterDrivers (Opnum 10)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/857d00ac-3682-4a0d-86ca-3d3c372e5e4a)
-  class RpcEnumPrinterDriversRequest < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    def initialize_instance
-      super
-      @opnum = RPC_ENUM_PRINTER_DRIVERS
-    end
-
-    ndr_wide_stringz_ptr :p_name
-    ndr_wide_stringz_ptr :p_environment
-    ndr_uint32           :level
-    rprn_byte_array_ptr  :p_drivers
-    ndr_uint32           :cb_buf
-  end
-
-  # [3.1.4.4.2 RpcEnumPrinterDrivers (Opnum 10)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/857d00ac-3682-4a0d-86ca-3d3c372e5e4a)
-  class RpcEnumPrinterDriversResponse < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    def initialize_instance
-      super
-      @opnum = RPC_ENUM_PRINTER_DRIVERS
-    end
-
-    rprn_byte_array_ptr  :p_drivers
-    ndr_uint32           :pcb_needed
-    ndr_uint32           :pc_returned
-    ndr_uint32           :error_status
-  end
-
-  # [3.1.4.4.4 RpcGetPrinterDriverDirectory (Opnum 12)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/9df11cf4-4098-4852-ad72-d1f75a82bffe)
-  class RpcGetPrinterDriverDirectoryRequest < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    def initialize_instance
-      super
-      @opnum = RPC_GET_PRINTER_DRIVER_DIRECTORY
-    end
-
-    ndr_wide_stringz_ptr :p_name
-    ndr_wide_stringz_ptr :p_environment
-    ndr_uint32           :level
-    rprn_byte_array_ptr  :p_driver_directory
-    ndr_uint32           :cb_buf
-  end
-
-  # [3.1.4.4.4 RpcGetPrinterDriverDirectory (Opnum 12)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/9df11cf4-4098-4852-ad72-d1f75a82bffe)
-  class RpcGetPrinterDriverDirectoryResponse < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    def initialize_instance
-      super
-      @opnum = RPC_GET_PRINTER_DRIVER_DIRECTORY
-    end
-
-    rprn_byte_array_ptr :p_driver_directory
-    ndr_uint32          :pcb_needed
-    ndr_uint32          :error_status
-  end
-end
-
 class MetasploitModule < Msf::Auxiliary
 
   prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
-  # PrintSystem = RubySMB::Dcerpc::PrintSystem
+  PrintSystem = RubySMB::Dcerpc::PrintSystem
 
   def initialize(info = {})
     super(
@@ -422,11 +265,11 @@ class MetasploitModule < Msf::Auxiliary
       header = DriverInfo2Header.read(data)
       new(
         header,
-        RubySMB::Field::Stringz16.read(data[header.name_offset..-1]).encode('ASCII-8BIT'),
-        RubySMB::Field::Stringz16.read(data[header.environment_offset..-1]).encode('ASCII-8BIT'),
-        RubySMB::Field::Stringz16.read(data[header.driver_path_offset..-1]).encode('ASCII-8BIT'),
-        RubySMB::Field::Stringz16.read(data[header.data_file_offset..-1]).encode('ASCII-8BIT'),
-        RubySMB::Field::Stringz16.read(data[header.config_file_offset..-1]).encode('ASCII-8BIT')
+        RubySMB::Field::Stringz16.read(data[header.name_offset..]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.environment_offset..]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.driver_path_offset..]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.data_file_offset..]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.config_file_offset..]).encode('ASCII-8BIT')
       )
     end
   end
