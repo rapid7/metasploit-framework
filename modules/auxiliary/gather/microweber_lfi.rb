@@ -4,8 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -62,15 +60,16 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       version = res.body[/Version:\s+\d+\.\d+\.\d+/].gsub(' ', '').gsub(':', ': ')
-      print_good 'Microweber ' + version
     rescue NoMethodError, TypeError
       return false
     end
 
     if version.include?('Version: 1.2.10')
+      print_good 'Microweber ' + version
       return true
     end
 
+    print_error 'Microweber ' + version
     return false
   end
 
