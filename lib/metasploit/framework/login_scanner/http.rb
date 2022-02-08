@@ -169,10 +169,6 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
-        # @!attribute redirect_uri
-        # @!return [String] The path that @uri redirects to on the server for a successful login 
-        attr_accessor :redirect_uri
-
         # @!attribute post_data
         # @!return [String] A sample POST format data to be submitted to the target
         attr_accessor :post_data

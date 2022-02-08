@@ -26,6 +26,38 @@ module Metasploit
         end
 
 
+        # Returns the response of a knowingly failed request
+        def make_failed_request
+          @failed_res ||= lambda {
+            login_uri = normalize_uri("#{uri}")
+            protocol  = ssl ? 'https' : 'http'
+            peer      = "#{host}:#{port}"
+            login_uri = normalize_uri("#{uri}")
+
+            @failed_res = send_request({
+              'uri' => login_uri,
+              'method' => 'POST',
+              'host' => host,
+              'rport' => port,
+              'headers' => {
+                'Referer' => "#{protocol}://#{peer}/#{login_uri}"
+              },
+              'vars_post' => {
+                "username" => 'xmsl',
+                "password" => 'gcq',
+                "Login" => "Login"
+              }
+            })
+            # After login, the application should give us a new SID
+            cookies = @failed_res.get_cookies
+            sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
+            @failed_last_sid = sid # Update our SID
+
+            return @failed_res
+          }.call
+        end
+
+
         # Returns the latest sid and CSRF token.
         #
         # @return [String],[String] The PHP Session ID & CSRF token for login
@@ -118,11 +150,13 @@ module Metasploit
           sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
           @last_sid = sid # Update our SID
           
-          if res && res.code == 302 && res.headers['Location'].include?("#{redirect_uri}")
+          if (res && res.code == @failed_res.code && res.headers['Location'] == @failed_res.headers['Location']) || (sid == @failed_last_sid)
+            return {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
+          elsif (res.body.include?("Successful login") || res)
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
 
-          {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
+          {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s}
         end
 
 
@@ -139,6 +173,7 @@ module Metasploit
             port: port,
             protocol: 'tcp'
           }
+          fail_response = make_failed_request
 
           begin
             result_opts.merge!(get_login_state(credential, credential.public, credential.private))
