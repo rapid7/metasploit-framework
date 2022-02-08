@@ -38,8 +38,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The base path for Microweber', '/']),
-        OptString.new('ADMIN_USER', [true, 'The admin\'s username for Microweber']),
-        OptString.new('ADMIN_PASS', [true, 'The admin\'s password for Microweber']),
+        OptString.new('USERNAME', [true, 'The admin\'s username for Microweber']),
+        OptString.new('PASSWORD', [true, 'The admin\'s password for Microweber']),
         OptString.new('LOCAL_FILE_PATH', [true, 'The path of the local file.']),
       ]
     )
@@ -78,8 +78,8 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'user_login'),
       'vars_post' => {
-        'username' => datastore['ADMIN_USER'],
-        'password' => datastore['ADMIN_PASS'],
+        'username' => datastore['USERNAME'],
+        'password' => datastore['PASSWORD'],
         'lang' => '',
         'where_to' => 'admin_content'
       }
