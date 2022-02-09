@@ -23,7 +23,7 @@ module Msf::Post::Common
   end
 
   def rhost
-    return nil unless defined?(session) and session
+    return super unless defined?(session) and session
 
     case session.type
     when 'meterpreter'
@@ -31,10 +31,12 @@ module Msf::Post::Common
     when 'shell', 'powershell'
       session.session_host
     end
+  rescue
+    return nil
   end
 
   def rport
-    return nil unless defined?(session) and session
+    return super unless defined?(session) and session
 
     case session.type
     when 'meterpreter'
@@ -42,6 +44,8 @@ module Msf::Post::Common
     when 'shell', 'powershell'
       session.session_port
     end
+  rescue
+    return nil
   end
 
   def peer
