@@ -86,6 +86,8 @@ module DotNetDeserialization
   # @return [Types::SerializedStream]
   def self.generate_gadget_chain(cmd, gadget_chain: DEFAULT_GADGET_CHAIN)
     case gadget_chain
+    when :ClaimsPrincipal
+      stream = GadgetChains::ClaimsPrincipal.generate(cmd)
     when :TextFormattingRunProperties
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
