@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The admin\'s username for Microweber']),
         OptString.new('PASSWORD', [true, 'The admin\'s password for Microweber']),
         OptString.new('LOCAL_FILE_PATH', [true, 'The path of the local file.']),
-        OptString.new('DEFANGED_MODE', [true, 'Run in defanged mode', true])
+        OptBool.new('DEFANGED_MODE', [true, 'Run in defanged mode', true])
       ]
     )
   end
@@ -205,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['DEFANGED_MODE'].to_s == 'true'
+    if datastore['DEFANGED_MODE']
       warning = <<~EOF
         Triggering this vulnerability may delete the local file if the web service user has the permission.
         If you want to continue, disable the DEFANGED_MODE.
