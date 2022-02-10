@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['DEFANG_MODE'] == true
+    if datastore['DEFANGED_MODE'] == true
       warning = <<~EOF
         Triggering this vulnerability may delete the local file if the web service user has the permission.
         If you want to continue, disable the DEFANGED_MODE.
