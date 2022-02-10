@@ -59,9 +59,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status 'Checking if it\'s Microweber CMS.'
 
-    if res.code != 200 || !res.body.include?('Microweber')
+    if res.code == 200 && !res.body.include?('Microweber')
       print_error 'Microweber CMS has not been detected.'
-      return Exploit::CheckCode::NotFound
+      Exploit::CheckCode::Safe
+    end
+
+    if res.code != 200
+      fail_with(Failure::Unknown, res.body)
     end
 
     print_good 'Microweber CMS has been detected.'
@@ -76,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       major, minor, build = res_body[/Version:\s+(\d+\.\d+\.\d+)/].gsub(/Version:\s+/, '').split('.')
       version = Rex::Version.new("#{major}.#{minor}.#{build}")
     rescue NoMethodError, TypeError
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Safe
     end
 
     if version == Rex::Version.new('1.2.10')
@@ -112,26 +116,22 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Log in request failed.')
     end
 
-    if res.headers['Content-Type'] != 'application/json'
-      fail_with(Failure::UnexpectedReply, res.body)
+    if res.code != 200
+      fail_with(Failure::Unknown, res.body)
     end
 
     json_res = res.get_json_document
 
-    if res.code != 200
-      fail_with(Failure::NotFound, res.code)
-    end
-
-    if !json_res['error'].nil?
-      fail_with(Failure::UnexpectedReply, json_res['error'])
+    if !json_res['error'].nil? && json_res['error'] == 'Wrong username or password.'
+      fail_with(Failure::BadConfig, 'Wrong username or password.')
     end
 
     if !json_res['success'].nil? && json_res['success'] == 'You are logged in'
-      print_good json_res['success']
+      print_good 'You are logged in.'
       return
     end
 
-    fail_with(Failure::UnexpectedReply, 'An unknown error occurred.')
+    fail_with(Failure::Unknown, 'An unknown error occurred.')
   end
 
   def try_upload
@@ -151,6 +151,10 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Upload request failed.')
     end
 
+    if res.code != 200
+      fail_with(Failure::Unknown, res.body)
+    end
+
     if res.headers['Content-Type'] == 'application/json'
       json_res = res.get_json_document
 
@@ -158,6 +162,8 @@ class MetasploitModule < Msf::Auxiliary
         print_good json_res['success']
         return
       end
+
+      fail_with(Failure::Unknown, res.body)
     end
 
     fail_with(Failure::BadConfig, 'Either the file cannot be read or the file does not exist.')
@@ -182,11 +188,15 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Download request failed.')
     end
 
+    if res.code != 200
+      fail_with(Failure::Unknown, res.body)
+    end
+
     if res.headers['Content-Type'] == 'application/json'
       json_res = res.get_json_document
 
       if json_res['error']
-        fail_with(Failure::UnexpectedReply, json_res['error'])
+        fail_with(Failure::Unknown, json_res['error'])
         return
       end
     end
