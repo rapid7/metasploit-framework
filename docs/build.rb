@@ -615,18 +615,10 @@ module Build
               folder: 'google-summer-of-code',
               children: [
                 {
-                  path: 'GSoC-2020-Project-Ideas.md',
-                  title: without_prefix('GSoC')
-                },
-                {
                   path: 'How-to-Apply-to-GSoC.md'
                 },
                 {
                   path: 'GSoC-2017-Student-Proposal.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'GSoC-2021-Project-Ideas.md',
                   title: without_prefix('GSoC')
                 },
                 {
@@ -643,6 +635,18 @@ module Build
                 },
                 {
                   path: 'GSoC-2019-Project-Ideas.md',
+                  title: without_prefix('GSoC')
+                },
+                {
+                  path: 'GSoC-2020-Project-Ideas.md',
+                  title: without_prefix('GSoC')
+                },
+                {
+                  path: 'GSoC-2021-Project-Ideas.md',
+                  title: without_prefix('GSoC')
+                },
+                {
+                  path: 'GSoC-2022-Project-Ideas.md',
                   title: without_prefix('GSoC')
                 },
               ]
@@ -1048,10 +1052,7 @@ module Build
           Port: 4000
         }
       )
-      server.mount_proc('/') do |_req, res|
-        res.set_redirect(WEBrick::HTTPStatus::TemporaryRedirect, '/metasploit-framework/')
-      end
-      server.mount('/metasploit-framework', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
+      server.mount('/', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
       trap('INT') do
         server.shutdown
       rescue StandardError

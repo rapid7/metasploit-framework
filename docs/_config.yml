@@ -2,7 +2,7 @@
 title: 'Metasploit Documentation | Penetration Testing Software, Pen Testing Security'
 description: View Metasploit Framework Documentation
 searchTitle: Metasploit Documentation
-baseurl: '/metasploit-framework'
+baseurl: ''
 url: 'https://rapid7.github.io/metasploit-framework'
 logo: assets/images/favicon.png
 
