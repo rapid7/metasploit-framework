@@ -1,3 +1,5 @@
+#### Documentation Update: This is viewable at [https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html](https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html)
+
 # Metasploit's 2017 Roadmap
 
 Starting in 2017, we will provide an open roadmap for setting our goals for the year. The goals are based on many discussions we have had over the past year with users, developers, and customers. The intent is to provide focus for core developers and contributors alike, so that we can together work toward a common vision for how we want Metasploit to evolve.
