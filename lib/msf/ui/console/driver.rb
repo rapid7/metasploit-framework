@@ -474,12 +474,9 @@ protected
     [method, method+".exe"].each do |cmd|
       if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
-        print_status("exec: #{line}")
-        print_line('')
-
         self.busy = true
         begin
-          system(line)
+          run_unknown_command(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
@@ -498,6 +495,12 @@ protected
     end
 
     super
+  end
+
+  def run_unknown_command(command)
+    print_status("exec: #{command}")
+    print_line('')
+    system(command)
   end
 
   ##
