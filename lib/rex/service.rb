@@ -28,6 +28,7 @@ module Service
     # If there's only one reference, then it's the service managers.
     if @_references == 1
       Rex::ServiceManager.stop_service(self)
+      return true
     end
 
     rv
