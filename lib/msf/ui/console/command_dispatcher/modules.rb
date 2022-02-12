@@ -288,7 +288,7 @@ module Msf
 
             added = "Loaded #{overall} modules:\n"
 
-            totals.each_pair { |type, count|
+            totals.sort_by { |type, _count| type }.each { |type, count|
               added << "    #{count} #{type} modules\n"
             }
 
