@@ -84,7 +84,7 @@ module Payload::Python::MeterpreterLoader
     met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{ds['SessionRetryTotal']}")
     met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{ds['SessionRetryWait']}")
 
-    uuid = opts[:uuid] || generate_payload_uuid
+    uuid = opts[:uuid] || generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
     uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
     met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
