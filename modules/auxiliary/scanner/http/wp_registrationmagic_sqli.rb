@@ -49,19 +49,21 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
-  def run_host(ip)
+  def check_host(_ip)
     unless wordpress_and_online?
-      vprint_error('Server not online or not detected as wordpress')
-      return
+      return Msf::Exploit::CheckCode::Safe('Server not online or not detected as wordpress')
     end
 
     checkcode = check_plugin_version_from_readme('custom-registration-form-builder-with-submission-manager', '5.0.1.6')
     if checkcode == Msf::Exploit::CheckCode::Safe
-      vprint_error('RegistrationMagic version not vulnerable')
-      return
+      return Msf::Exploit::CheckCode::Safe('RegistrationMagic version not vulnerable')
     end
-    print_good('Vulnerable version of RegistrationMagic detected')
 
+    print_good('Vulnerable version of RegistrationMagic detected')
+    checkcode
+  end
+
+  def run_host(ip)
     cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
 
     fail_with(Failure::NoAccess, 'Invalid login, check credentials') if cookie.nil?
