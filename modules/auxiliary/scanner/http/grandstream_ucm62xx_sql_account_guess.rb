@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res_json = JSON.parse(res.payload_data)
     rescue JSON::ParserError
-      fail_with(Failure::UnexpectedReply, 'Failed to parse the returned JSON response. ')
+      fail_with(Failure::UnexpectedReply, 'Failed to parse the returned JSON response.')
     end
 
     status = res_json.dig('message', 'status')

