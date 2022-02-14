@@ -51,6 +51,7 @@ class Driver < Msf::Ui::Driver
   #
   # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
   #   unrecognized commands to be executed by the system shell
+  # @option opts [Boolean] 'Readline' (true) Whether to use the readline or not
   # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
   #   readline library instead of RBReadline
   # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
@@ -90,6 +91,10 @@ class Driver < Msf::Ui::Driver
     # handle if one is supplied
     input = opts['LocalInput']
     input ||= Rex::Ui::Text::Input::Stdio.new
+
+    if !opts['Readline']
+      input.disable_readline
+    end
 
     if (opts['LocalOutput'])
       if (opts['LocalOutput'].kind_of?(String))
