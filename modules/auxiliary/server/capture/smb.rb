@@ -97,12 +97,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def on_ntlm_type3(address:, challenge:, client_os_version:, ntlm_message:)
+  def on_ntlm_type3(address:, ntlm_type1:, ntlm_type2:, ntlm_type3:)
     report_ntlm_type3(
       address: address,
-      challenge: challenge,
-      client_os_version: client_os_version,
-      ntlm_message: ntlm_message
+      ntlm_type1: ntlm_type1,
+      ntlm_type2: ntlm_type2,
+      ntlm_type3: ntlm_type3
     )
   end
 
