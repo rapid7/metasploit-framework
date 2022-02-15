@@ -45,3 +45,5 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+gem 'ruby_smb', git: 'https://github.com/adfoster-r7/ruby_smb', branch: 'update-smb-relay-to-support-smb2-and-smb3'

@@ -288,7 +288,12 @@ class MsfAutoload
       'svcctl' => 'SVCCTL',
       'wdscp' => 'WDSCP',
       'appapi' => 'AppApi',
-      'uds_errors' => 'UDSErrors'
+      'uds_errors' => 'UDSErrors',
+      'smb_hash_capture' => 'SMBHashCapture',
+      # TODO
+      'rubysmb_mitm_provider' => 'RubySMBMITMProvider',
+      'mitm_server' => 'MITMServer',
+      'mitm_server_client' => 'MITMServerClient'
     }
   end
 
