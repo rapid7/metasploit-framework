@@ -93,13 +93,13 @@ class MetasploitModule < Msf::Auxiliary
       'vars_post' => { 'action' => 'getInfo' }
     })
 
-    return Exploit::CheckCode::Unknown unless res && (res.code == 200)
+    return Exploit::CheckCode::Unknown('No response from target!') unless res && (res.code == 200)
 
     body_json = res.get_json_document
-    return Exploit::CheckCode::Unknown if body_json.empty?
+    return Exploit::CheckCode::Unknown("Got response from target but it didn't contain a JSON body!") if body_json.empty?
 
     prog_version = body_json.dig('response', 'prog_version')
-    return Exploit::CheckCode::Unknown if prog_version.nil?
+    return Exploit::CheckCode::Unknown('JSON response obtained from target, but no prog_version field could be found!') if prog_version.nil?
 
     if Rex::Version.new(prog_version) < Rex::Version.new('1.0.20.22')
       return Exploit::CheckCode::Appears("The self-reported version is: #{prog_version}")
