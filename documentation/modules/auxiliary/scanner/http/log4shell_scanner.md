@@ -44,7 +44,7 @@ RUN apt-get update && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN curl https://dlcdn.apache.org/struts/2.5.28/struts-2.5.28-all.zip > struts-all.zip && \
+RUN curl https://archive.apache.org/dist/struts/2.5.28/struts-2.5.28-all.zip > struts-all.zip && \
 	unzip struts-all.zip && \
 	cp /struts-2.5.28/apps/struts2-showcase.war /bitnami/tomcat/webapps/
 ```
