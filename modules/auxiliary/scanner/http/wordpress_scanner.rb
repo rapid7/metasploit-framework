@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'json'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -128,34 +127,37 @@ class MetasploitModule < Msf::Auxiliary
         end
         print_status("#{target_host} - Finished scanning plugins")
       end
-      #      if 1==1
+
       if datastore['USERS']
         print_status("#{target_host} - Searching Users")
-        url = wordpress_url_rest_api + '/users'
         res = send_request_cgi({
           'method' => 'GET',
-          'uri' => url
+          'uri' => normalize_uri(wordpress_url_rest_api, 'users')
         })
         if res.nil?
           print_error('Error getting response.')
         elsif res.code == 200
-          parsed = JSON.parse(res.body)
-          parsed.map do |child|
-            name = child['name']
-            slug = child['slug']
-            print_good("#{target_host} - Detected user: #{name} Slug: #{slug}")
-            report_note(
-              {
-                host: target_host,
-                proto: 'tcp',
-                sname: (ssl ? 'https' : 'http'),
-                port: rport,
-                type: "Wordpress User: #{name} Slug: #{slug}"
-                # data: target_uri
-              }
-            )
+          parsed = res.get_json_document
+          if parsed.empty?
+            print_error('Response recieved, but no JSON content was provided.')
+          else
+            parsed.map do |child|
+              name = child['name']
+              slug = child['slug']
+              print_good("#{target_host} - Detected user: #{name} Slug: #{slug}")
+              report_note(
+                {
+                  host: target_host,
+                  proto: 'tcp',
+                  sname: (ssl ? 'https' : 'http'),
+                  port: rport,
+                  type: "Wordpress User: #{name} Slug: #{slug}"
+                  # data: target_uri
+                }
+              )
+            end
+            print_status("#{target_host} - Finished scanning users")
           end
-          print_status("#{target_host} - Finished scanning users")
         end
         print_status("#{target_host} - Finished all scans")
       end
