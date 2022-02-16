@@ -143,21 +143,36 @@ class MetasploitModule < Msf::Auxiliary
           else
             parsed.map do |child|
               name = child['name']
-              slug = child['slug']
-              print_good("#{target_host} - Detected user: #{name} Slug: #{slug}")
-              report_note(
-                {
-                  host: target_host,
-                  proto: 'tcp',
-                  sname: (ssl ? 'https' : 'http'),
-                  port: rport,
-                  type: "Wordpress User: #{name} Slug: #{slug}"
-                  # data: target_uri
-                }
-              )
+              wp_username = child['slug']
+              print_good("#{target_host} - Detected user: #{name} with username: #{wp_username}")
+              service_data = {
+                address: rhost,
+                port: rport,
+                service_name: (ssl ? 'https' : 'http'),
+                protocol: 'tcp',
+                workspace_id: myworkspace_id
+              }
+
+              credential_data = {
+                origin_type: :service,
+                module_fullname: fullname,
+                username: wp_username,
+                private_data: '',
+                private_type: :password
+              }.merge(service_data)
+
+              login_data = {
+                core: create_credential(credential_data),
+                status: Metasploit::Model::Login::Status::UNTRIED,
+                proof: nil
+              }.merge(service_data)
+
+              create_credential_login(login_data)
             end
             print_status("#{target_host} - Finished scanning users")
           end
+        else
+          print_status("#{target_host} - Was not able to identify users on site using #{wordpress_url_rest_api}/users")
         end
         print_status("#{target_host} - Finished all scans")
       end
