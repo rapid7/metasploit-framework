@@ -335,22 +335,21 @@ module Msf
 
       def send_text_to_serverjang(session)
         # https://sct.ftqq.com/sendkey
-        platform = "#{session.platform}"
-        arch = "#{session.arch}"
-        tunnel = "#{session.tunnel_to_s}"
         uri_parser = URI.parse(serverjang_webhook)
         params = {}
         params["title"] = "You have new #{session.type} session"
-        params["desp"] = 'OS:%s, tunnel:%s, Arch:%s' %[platform,tunnel,arch]
+        params["desp"] = "OS:#{session.platform}, tunnel:#{session.tunnel_to_s}, Arch:#{session.arch}"
         http = Net::HTTP.new(uri_parser.host, uri_parser.port)
         http.use_ssl = true
+
         res = Net::HTTP::post_form(uri_parser,params)
-        body = JSON.parse(res.body)
         if res.nil? || res.body.blank?
-          print_error("No response recieved from the ServerJang server!")
+          print_error("No response received from the ServerJang server!")
           return nil
         end
+
         begin
+          body = JSON.parse(res.body)
           print_status((body["code"] == 20001) ? 'Failed to send notification.' : 'Session notified to ServerJang.')
         rescue JSON::ParserError
           print_error("Couldn't parse the JSON returned from the ServerJang server!")
