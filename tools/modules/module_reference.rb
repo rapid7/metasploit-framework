@@ -231,16 +231,19 @@ $framework.modules.each do |name, mod|
   x = mod.new
   x.references.each do |r|
     ctx_id = r.ctx_id.upcase
+    ctx_val = r.ctx_val
     next unless type == 'ALL' || type == ctx_id
 
     if check
       if types.has_key?(ctx_id)
         if ctx_id == 'MSB'
-          year = in_ctx_val[2..3]
+          year = ctx_val[2..3]
           century = year[0] == '9' ? '19' : '20'
-          in_ctx_val = "#{century}#{year}/#{in_ctx_val}"
+          new_ctx_val = "#{century}#{year}/#{ctx_val}"
+          uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, new_ctx_val)
+        else
+          uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, r.ctx_val)
         end
-        uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, r.ctx_val)
 
         if is_url_alive?(uri, http_timeout, is_url_alive_cache)
           status = STATUS_ALIVE
