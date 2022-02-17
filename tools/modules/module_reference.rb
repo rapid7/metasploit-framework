@@ -242,7 +242,7 @@ $framework.modules.each do |name, mod|
           new_ctx_val = "#{century}#{year}/#{ctx_val}"
           uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, new_ctx_val)
         else
-          uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, r.ctx_val)
+          uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, r.ctx_val.to_s)
         end
 
         if is_url_alive?(uri, http_timeout, is_url_alive_cache)
