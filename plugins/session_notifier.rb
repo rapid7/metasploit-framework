@@ -25,6 +25,7 @@ module Msf
       attr_reader :dingtalk_webhook
       attr_reader :gotify_address
       attr_reader :gotify_sslcert_path
+      attr_reader :serverjang_webhook
 
       def name
         'SessionNotifier'
@@ -44,6 +45,7 @@ module Msf
           'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier (keyword: session).',
           'set_session_gotify_address'     => 'Set the Gotify address for the session notifier',
           'set_session_gotify_sslcert_path' => 'Set the path to load your Gotify SSL cert (if you want to use HTTPS)',
+          'set_session_serverjang_webhook' => 'Set the ServerJiang webhook for the session notifier (keyword: session).',
           'save_session_notifier_settings' => 'Save all the session notifier settings to framework',
           'start_session_notifier'         => 'Start notifying sessions',
           'stop_session_notifier'          => 'Stop notifying sessions',
@@ -150,6 +152,17 @@ module Msf
         end
       end
 
+      def cmd_set_session_serverjang_webhook(*args)
+        webhook_url = args[0]
+        if webhook_url.blank?
+          @serverjang_webhook = nil
+        elsif !(webhook_url =~ URI::DEFAULT_PARSER.make_regexp).nil?
+          @serverjang_webhook = webhook_url
+        else
+          print_error('Invalid webhook_url')
+        end
+      end
+
       def cmd_save_session_notifier_settings(*_args)
         save_settings_to_config
         print_status('Session Notifier settings saved in config file.')
@@ -180,6 +193,9 @@ module Msf
           end
           if !gotify_address.nil?
             print_status('Gotify notification started.')
+          end
+          if !serverjang_webhook.nil?
+            print_status('ServerJang notification started.')
           end
         rescue Msf::Plugin::SessionNotifier::Exception, Rex::Proto::Sms::Exception => e
           print_error(e.message)
@@ -220,6 +236,7 @@ module Msf
         ini[name]['dingtalk_webhook'] = dingtalk_webhook.to_s unless dingtalk_webhook.blank?
         ini[name]['gotify_address']   = gotify_address.to_s unless gotify_address.blank?
         ini[name]['gotify_sslcert_path']   = gotify_sslcert_path.to_s unless gotify_sslcert_path.blank?
+        ini[name]['serverjang_webhook'] = serverjang_webhook.to_s unless serverjang_webhook.blank?
         ini.to_file(config_file)
       end
 
@@ -240,6 +257,7 @@ module Msf
           @dingtalk_webhook = group['dingtalk_webhook']       if group['dingtalk_webhook']
           @gotify_address   = group['gotify_address']         if group['gotify_address']
           @gotify_sslcert_path = group['gotify_sslcert_path'] if group['gotify_sslcert_path']
+          @serverjang_webhook = group['serverjang_webhook']   if group['serverjang_webhook']
           print_status('Session Notifier settings loaded from config file.')
         end
       end
@@ -315,6 +333,29 @@ module Msf
         end
       end
 
+      def send_text_to_serverjang(session)
+        # https://sct.ftqq.com/sendkey
+        uri_parser = URI.parse(serverjang_webhook)
+        params = {}
+        params["title"] = "You have new #{session.type} session"
+        params["desp"] = "OS:#{session.platform}, tunnel:#{session.tunnel_to_s}, Arch:#{session.arch}"
+        http = Net::HTTP.new(uri_parser.host, uri_parser.port)
+        http.use_ssl = true
+
+        res = Net::HTTP::post_form(uri_parser,params)
+        if res.nil? || res.body.blank?
+          print_error("No response received from the ServerJang server!")
+          return nil
+        end
+
+        begin
+          body = JSON.parse(res.body)
+          print_status((body["code"] == 20001) ? 'Failed to send notification.' : 'Session notified to ServerJang.')
+        rescue JSON::ParserError
+          print_error("Couldn't parse the JSON returned from the ServerJang server!")
+        end
+      end
+
       def notify_session(session, subject, msg)
         if in_range?(session) && validate_sms_settings?
           @sms_client.send_text_to_phones([sms_number], subject, msg)
@@ -325,6 +366,9 @@ module Msf
         end
         if in_range?(session) && !gotify_address.nil?
           send_text_to_gotify(session)
+        end
+        if in_range?(session) && !serverjang_webhook.nil?
+          send_text_to_serverjang(session)
         end
       end
 
