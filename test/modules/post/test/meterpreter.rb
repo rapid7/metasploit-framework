@@ -266,7 +266,7 @@ class MetasploitModule < Msf::Post
           uploaded_contents << fd.read
         end
         fd.close
-        original_contents = ::File.read(local)
+        original_contents = ::File.read(local, mode: 'rb')
 
         res &&= !!(uploaded_contents == original_contents)
       end
@@ -342,9 +342,9 @@ class MetasploitModule < Msf::Post
 
       if res
         remote_md5 = session.fs.file.md5(remote)
-        local_md5  = Digest::MD5.digest(::File.read(local))
+        local_md5  = Digest::MD5.digest(::File.read(local, mode: 'rb'))
         remote_sha = session.fs.file.sha1(remote)
-        local_sha  = Digest::SHA1.digest(::File.read(local))
+        local_sha  = Digest::SHA1.digest(::File.read(local, mode: 'rb'))
         vprint_status("remote md5: #{Rex::Text.to_hex(remote_md5,'')}")
         vprint_status("local md5 : #{Rex::Text.to_hex(local_md5,'')}")
         vprint_status("remote sha: #{Rex::Text.to_hex(remote_sha,'')}")
