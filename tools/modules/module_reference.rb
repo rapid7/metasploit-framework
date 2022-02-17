@@ -40,6 +40,7 @@ end
 
 STATUS_ALIVE = 'Alive'
 STATUS_DOWN = 'Down'
+STATUS_REDIRECT = 'Redirect'
 STATUS_UNSUPPORTED = 'Unsupported'
 
 sort = 0
@@ -137,7 +138,7 @@ def print_debug(msg = '')
   warn "[*] #{msg}"
 end
 
-def is_url_alive?(uri, http_timeout, cache)
+def is_url_alive(uri, http_timeout, cache)
   if cache.key? uri.to_s
     print_debug("Cached: #{uri} -> #{cache[uri]}")
     return cache[uri.to_s]
@@ -148,8 +149,8 @@ def is_url_alive?(uri, http_timeout, cache)
     uri = URI(uri)
     rhost = get_ipv4_addr(uri.host)
   rescue SocketError, URI::InvalidURIError => e
-    vprint_debug("#{e.message} in #is_url_alive?")
-    return false
+    vprint_debug("#{e.message} in #is_url_alive")
+    return STATUS_DOWN
   end
 
   rport = uri.port || 80
@@ -167,22 +168,30 @@ def is_url_alive?(uri, http_timeout, cache)
     res = cli.send_recv(req, http_timeout)
   rescue Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::UnsupportedProtocol, ::Timeout::Error, Errno::ETIMEDOUT, ::Exception => e
     vprint_debug("#{e.message} for #{uri}")
-    cache[uri.to_s] = false
-    return false
+    cache[uri.to_s] = STATUS_DOWN
+    return STATUS_DOWN
   ensure
     cli.close
   end
 
-  if res.nil? || res.body =~ %r{<title>.*not found</title>}i || res.code != 200
-    vprint_debug("URI returned a not-found response: #{uri}")
-    cache[uri.to_s] = false
-    return false
+  if !res.nil? && res.code.to_s =~ %r{3\d\d}
+    if res.headers['Location']
+      vprint_debug("Redirect: #{uri} redirected to #{res.headers['Location']}")
+    else
+      print_error("Error: Couldn't find redirect location for #{uri}")
+    end
+    cache[uri.to_s] = STATUS_REDIRECT
+    return STATUS_REDIRECT
+  elsif res.nil? || res.body =~ %r{<title>.*not found</title>}i || !res.code.to_s =~ %r{2\d\d}
+    vprint_debug("Down: #{uri} returned a not-found response")
+    cache[uri.to_s] = STATUS_DOWN
+    return STATUS_DOWN
   end
 
   vprint_debug("Good: #{uri}")
 
-  cache[uri.to_s] = true
-  true
+  cache[uri.to_s] = STATUS_ALIVE
+  STATUS_ALIVE
 end
 
 def save_results(path, results)
@@ -245,12 +254,8 @@ $framework.modules.each do |name, mod|
           uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, r.ctx_val.to_s)
         end
 
-        if is_url_alive?(uri, http_timeout, is_url_alive_cache)
-          status = STATUS_ALIVE
-        else
-          bad_refs_count += 1
-          status = STATUS_DOWN
-        end
+        status = is_url_alive(uri, http_timeout, is_url_alive_cache)
+        bad_refs_count += 1 if status == STATUS_DOWN
       else
         # The reference ID isn't supported so we don't know how to check this
         bad_refs_count += 1
