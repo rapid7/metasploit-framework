@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/usiegl00/ruby_smb
-  revision: 846252ee9354ae6955e1a683b2c673c0acaffd14
+  remote: https://github.com/usiegl00/ruby_smb.git
+  revision: 5dc4e89022d315f5f3e47b208a8c2ef0abf7c5eb
   branch: mitm-dispatcher
   specs:
     ruby_smb (3.0.2)
@@ -9,6 +9,7 @@ GIT
       openssl-cmac
       rubyntlm
       windows_error (>= 0.1.3)
+
 PATH
   remote: .
   specs:
@@ -447,12 +448,6 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.0.2)
-      bindata
-      openssl-ccm
-      openssl-cmac
-      rubyntlm
-      windows_error (>= 0.1.3)
     rubyntlm (0.6.3)
     rubyzip (2.3.2)
     sawyer (0.8.2)

@@ -46,4 +46,4 @@ group :test do
   gem 'timecop'
 end
 
-gem 'ruby_smb', git: 'https://github.com/usiegl00/ruby_smb', branch: 'mitm-dispatcher'
+gem 'ruby_smb', git: 'https://github.com/usiegl00/ruby_smb.git', branch: 'mitm-dispatcher'
