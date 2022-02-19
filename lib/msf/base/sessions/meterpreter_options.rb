@@ -35,6 +35,10 @@ module Msf
               'AutoRunScript',
               [false, "A script to run automatically on session creation.", '']
             ),
+            OptString.new(
+              'OnSessionCmd',
+              [false, "A command to run when the session opens", '']
+            ),
             OptBool.new(
               'AutoSystemInfo',
               [true, "Automatically capture system information on initialization.", true]

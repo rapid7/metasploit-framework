@@ -139,6 +139,10 @@ Shell Banner:
         shell_read(-1, 0.1)
       end
     end
+    # Run OnSessionCmd
+    unless datastore['OnSessionCmd'].empty?
+      shell_command(datastore['OnSessionCmd'])
+    end
   end
 
   #
