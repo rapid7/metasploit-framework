@@ -18,7 +18,11 @@ module MsfdbHelpers
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
-        f.puts "unix_socket_directories = \'#{Dir.tmpdir}\'"
+        if system("mount | grep #{Dir.tmpdir}.*noexec")
+          print_error("Temporary Directory is mounted with NOEXEC flags. Try running sudo msfdb init, if initialization fails")
+        else
+          f.puts "unix_socket_directories = \'#{Dir.tmpdir}\'"
+        end
       end
 
       start
