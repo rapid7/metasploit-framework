@@ -1,4 +1,4 @@
-## Description
+## Vulnerable Application
 
 This module remotely exploits the remote CVE-2017-13872 (iamroot) vulnerability over Apple Remote Desktop protocol (ARD). It assumes that "System Preferences > Sharing > Screen Sharing" is enabled.
 
@@ -6,7 +6,9 @@ This module remotely exploits the remote CVE-2017-13872 (iamroot) vulnerability 
 
 1. Do: `use auxiliary/scanner/vnc/ard_root_pw`
 2. Do: `set RHOSTS [IP]`
-4. Do: `run`
+3. Do: `run`
+
+## Options
 
 ## Scenarios
 
