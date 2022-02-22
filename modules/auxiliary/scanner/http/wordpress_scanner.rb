@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -11,10 +10,11 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name' => 'Wordpress Scanner',
-      'Description' => 'Detects Wordpress Versions, Themes, and Plugins',
+      'Description' => 'Detects Wordpress Versions, Themes, Plugins, and Users',
       'Author' => [
         'Christian Mehlmauer', # original module
-        'h00die' # plugins and themes
+        'h00die', # plugins and themes
+        'shoxxdj' # users
       ],
       'License' => MSF_LICENSE
     )
@@ -38,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
         true, 'File containing plugins to enumerate',
         File.join(Msf::Config.data_directory, 'wordlists', 'wp-plugins.txt')
       ]),
-      OptInt.new('PROGRESS', [true, 'how often to print progress', 1000])
+      OptInt.new('PROGRESS', [true, 'how often to print progress', 1000]),
+      OptBool.new('USERS', [false, 'Detect users with API', true])
     ]
   end
 
@@ -126,7 +127,55 @@ class MetasploitModule < Msf::Auxiliary
         end
         print_status("#{target_host} - Finished scanning plugins")
       end
-      print_status("#{target_host} - Finished all scans")
+
+      if datastore['USERS']
+        print_status("#{target_host} - Searching Users")
+        res = send_request_cgi({
+          'method' => 'GET',
+          'uri' => normalize_uri(wordpress_url_rest_api, 'users')
+        })
+        if res.nil?
+          print_error('Error getting response.')
+        elsif res.code == 200
+          parsed = res.get_json_document
+          if parsed.empty?
+            print_error('Response recieved, but no JSON content was provided.')
+          else
+            parsed.map do |child|
+              name = child['name']
+              wp_username = child['slug']
+              print_good("#{target_host} - Detected user: #{name} with username: #{wp_username}")
+              service_data = {
+                address: rhost,
+                port: rport,
+                service_name: (ssl ? 'https' : 'http'),
+                protocol: 'tcp',
+                workspace_id: myworkspace_id
+              }
+
+              credential_data = {
+                origin_type: :service,
+                module_fullname: fullname,
+                username: wp_username,
+                private_data: '',
+                private_type: :password
+              }.merge(service_data)
+
+              login_data = {
+                core: create_credential(credential_data),
+                status: Metasploit::Model::Login::Status::UNTRIED,
+                proof: nil
+              }.merge(service_data)
+
+              create_credential_login(login_data)
+            end
+            print_status("#{target_host} - Finished scanning users")
+          end
+        else
+          print_status("#{target_host} - Was not able to identify users on site using #{wordpress_url_rest_api}/users")
+        end
+        print_status("#{target_host} - Finished all scans")
+      end
     end
   end
 end
