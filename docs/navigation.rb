@@ -708,6 +708,9 @@ NAVIGATION_CONFIG = [
           {
             path: 'Payload-Rename-Justification.md'
           },
+          {
+            path: 'Java-Meterpreter-Feature-Parity-Proposal.md'
+          }
         ]
       },
       {
