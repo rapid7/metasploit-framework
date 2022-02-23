@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2013-3319'],
           ['OSVDB', '95616'],
           ['BID', '61402'],
-          ['URL', 'https://service.sap.com/sap/support/notes/1816536'],
-          ['URL', 'http://labs.integrity.pt/advisories/cve-2013-3319/']
+          ['URL', 'https://launchpad.support.sap.com/#/notes/1816536'],
+          ['URL', 'https://labs.integrity.pt/advisories/cve-2013-3319/']
         ],
       'Author' =>
         [

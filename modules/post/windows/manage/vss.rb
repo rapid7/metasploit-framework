@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'Author' => ['theLightCosine'],
         'References' => [
-          [ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
+          [ 'URL', 'https://web.archive.org/web/20201111212952/https://securityweekly.com/2011/11/02/safely-dumping-hashes-from-liv/' ]
         ],
         'Actions' => [
           [ 'VSS_CREATE', { 'Description' => 'Create a new VSS copy' } ],
@@ -41,6 +41,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_delete_dir
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK]
         }
       )
     )

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>' ],
       'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL', 'http://en.wikipedia.org/wiki/SMBRelay' ]]
+      'References'     => [[ 'URL', 'https://en.wikipedia.org/wiki/SMBRelay' ]]
     ))
 
     register_options(

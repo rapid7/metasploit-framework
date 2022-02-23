@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2017-6048' ],
           [ 'URL', 'https://ipositivesecurity.com/2017/04/07/sennet-data-logger-appliances-and-electricity-meters-multiple-vulnerabilties/' ],
-          [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-17-131-02' ]
+          [ 'URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-17-131-02' ]
         ],
       'Author' =>
         [

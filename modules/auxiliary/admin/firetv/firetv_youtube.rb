@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => ['wvu'],
       'References' => [
-        ['URL', 'http://www.amazon.com/dp/B00CX5P8FC?_encoding=UTF8&showFS=1'],
-        ['URL', 'http://www.amazon.com/dp/B00GDQ0RMG/ref=fs_ftvs']
+        ['URL', 'https://www.amazon.com/dp/B00CX5P8FC?_encoding=UTF8&showFS=1'],
+        ['URL', 'https://www.amazon.com/dp/B00GDQ0RMG/ref=fs_ftvs']
       ],
       'License' => MSF_LICENSE,
       'Actions' => [

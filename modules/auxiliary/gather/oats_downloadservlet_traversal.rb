@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2019-2557'],
           ['URL', 'https://srcincite.io/advisories/src-2019-0033/'],
-          ['URL', 'https://www.oracle.com/technetwork/security-advisory/cpuapr2019-5072813.html']
+          ['URL', 'https://www.oracle.com/security-alerts/cpuapr2019.html']
         ],
       'DisclosureDate' => '2019-04-16'
     ))

@@ -16,8 +16,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2006-2369'], # a related instance where "None" could be offered and used when not configured as allowed.
-          ['URL', 'http://en.wikipedia.org/wiki/RFB'],
-          ['URL', 'http://en.wikipedia.org/wiki/Vnc'],
+          ['URL', 'https://en.wikipedia.org/wiki/RFB'],
+          ['URL', 'https://en.wikipedia.org/wiki/Vnc'],
         ],
       'Author'      =>
         [

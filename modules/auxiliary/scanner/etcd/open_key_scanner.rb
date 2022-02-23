@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         key value pairs.  Etcd by default does not utilize authentication.
       ),
       'References' => [
-        ['URL', 'https://elweb.co/the-security-footgun-in-etcd']
+        ['URL', 'https://gcollazo.com/the-security-footgun-in-etcd/']
       ],
       'Author' => [
         'Giovanni Collazo <hello@gcollazo.com>', # discovery

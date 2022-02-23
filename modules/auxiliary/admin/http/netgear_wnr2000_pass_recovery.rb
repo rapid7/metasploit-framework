@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-10176'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear-wnr2000.txt'],
           ['URL', 'https://seclists.org/fulldisclosure/2016/Dec/72'],
-          ['URL', 'http://kb.netgear.com/000036549/Insecure-Remote-Access-and-Command-Execution-Security-Vulnerability']
+          ['URL', 'https://kb.netgear.com/000036549/Insecure-Remote-Access-and-Command-Execution-Security-Vulnerability']
         ],
       'DisclosureDate'  => '2016-12-20'))
     register_options(

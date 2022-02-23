@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2011-0923' ],
           [ 'OSVDB', '72526' ],
           [ 'ZDI', '11-055' ],
-          [ 'URL', 'http://hackarandas.com/blog/2011/08/04/hp-data-protector-remote-shell-for-hpux' ]
+          [ 'URL', 'https://hackarandas.com/blog/2011/08/04/hp-data-protector-remote-shell-for-hpux/' ]
         ],
       'Author'         =>
         [

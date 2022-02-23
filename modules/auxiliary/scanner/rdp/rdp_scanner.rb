@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References' => [
-          ['URL', 'https://msdn.microsoft.com/en-us/library/cc240445.aspx']
+          ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/5073f4ed-1e93-45e1-b039-6e30c385867c']
         ],
         'License' => MSF_LICENSE,
         'Notes' => {

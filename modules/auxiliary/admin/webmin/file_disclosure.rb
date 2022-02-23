@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '18744'],
           ['CVE', '2006-3392'],
           ['US-CERT-VU', '999601'],
-          ['URL', 'http://secunia.com/advisories/20892/'],
+          ['URL', 'https://web.archive.org/web/20060722192501/http://secunia.com/advisories/20892/'],
         ],
       'DisclosureDate' => '2006-06-30',
       'Actions'        =>

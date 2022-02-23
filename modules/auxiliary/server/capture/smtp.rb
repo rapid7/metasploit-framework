@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'References' =>
         [
           [ 'URL', 'https://www.samlogic.net/articles/smtp-commands-reference-auth.htm' ],
-          [ 'URL', 'tools.ietf.org/html/rfc5321' ],
+          [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc5321' ],
           [ 'URL', 'http://fehcom.de/qmail/smtpauth.html' ]
         ],
     )

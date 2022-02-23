@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['EDB', '18660'],
-          ['URL', 'http://codesec.blogspot.com.br/2015/03/rips-scanner-v-054-local-file-include.html']
+          ['URL', 'http://codesec.blogspot.com/2015/03/rips-scanner-v-054-local-file-include.html']
         ],
       'Author'         =>
         [

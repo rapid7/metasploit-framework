@@ -16,9 +16,9 @@ class MetasploitModule < Msf::Auxiliary
         The default community used is "public".',
       'References'  =>
         [
-          [ 'URL', 'http://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
-          [ 'URL', 'http://net-snmp.sourceforge.net/docs/man/snmpwalk.html' ],
-          [ 'URL', 'http://www.nothink.org/perl/snmpcheck/' ],
+          [ 'URL', 'https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
+          [ 'URL', 'https://net-snmp.sourceforge.io/docs/man/snmpwalk.html' ],
+          [ 'URL', 'http://www.nothink.org/codes/snmpcheck/index.php' ],
         ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE

@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2017-1000028'],
-          ['URL', 'https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2015-016/?fid=6904'],
+          ['URL', 'https://www.trustwave.com/en-us/resources/security-resources/security-advisories/?fid=18822'],
           ['EDB', '39441']
         ],
       'Author'      =>

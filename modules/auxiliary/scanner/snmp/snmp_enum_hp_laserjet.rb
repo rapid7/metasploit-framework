@@ -18,9 +18,9 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'URL', 'http://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
-          [ 'URL', 'http://net-snmp.sourceforge.net/docs/man/snmpwalk.html' ],
-          [ 'URL', 'http://www.nothink.org/perl/snmpcheck/' ],
+          [ 'URL', 'https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
+          [ 'URL', 'https://net-snmp.sourceforge.io/docs/man/snmpwalk.html' ],
+          [ 'URL', 'http://www.nothink.org/codes/snmpcheck/index.php' ],
           [ 'URL', 'http://www.securiteam.com/securitynews/5AP0S2KGVS.html' ],
           [ 'URL', 'http://stuff.mit.edu/afs/athena/dept/cron/tools/share/mibs/290923.mib' ],
         ],

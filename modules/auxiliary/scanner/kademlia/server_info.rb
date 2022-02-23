@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           [
             # There are lots of academic papers on the protocol but they tend to lack usable
             # protocol details.  This is the best I've found
-            ['URL', 'http://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/#more-125']
+            ['URL', 'https://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/#more-125']
           ],
         'License'        => MSF_LICENSE,
         'Actions'        => [

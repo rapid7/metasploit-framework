@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2010-2731' ],
           [ 'OSVDB', '66160' ],
           [ 'MSB', 'MS10-065' ],
-          [ 'URL', 'http://soroush.secproject.com/blog/2010/07/iis5-1-directory-authentication-bypass-by-using-i30index_allocation/' ]
+          [ 'URL', 'https://soroush.secproject.com/blog/2010/07/iis5-1-directory-authentication-bypass-by-using-i30index_allocation/' ]
         ],
       'Author'         =>
         [

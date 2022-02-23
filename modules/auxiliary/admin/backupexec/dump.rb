@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2005-2611'],
           ['OSVDB', '18695'],
           ['BID', '14551'],
-          ['URL', 'http://www.fpns.net/willy/msbksrc.lzh'],
+          ['URL', 'https://web.archive.org/web/20120227144337/http://www.fpns.net/willy/msbksrc.lzh'],
         ],
       'Actions'     =>
         [

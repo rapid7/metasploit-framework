@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '98249' ],
           [ 'BID', '62902' ],
           [ 'ZDI', '13-240' ],
-          [ 'URL', 'https://h20566.www2.hp.com/portal/site/hpsc/public/kb/docDisplay/?docId=emr_na-c03943547' ]
+          [ 'URL', 'https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c03943547' ]
         ],
       'Author'         =>
         [
