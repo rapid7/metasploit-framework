@@ -18,19 +18,7 @@ module Msf::Payload::Python
   end
 
   def py_create_exec_stub(cmd)
-    exec_stub = Msf::Payload::Python.create_exec_stub(cmd)
-    if @arch.to_set == [ARCH_CMD, ARCH_PYTHON].to_set
-      # if the arch is cmd and python, then convert the python code to an OS command
-      platforms = (@platform.platforms - [Msf::Module::Platform::Python]).to_set
-      if platforms.length > 0 && platforms.subset?([Msf::Module::Platform::Linux, Msf::Module::Platform::OSX, Msf::Module::Platform::Unix].to_set)
-        # if the platform is one or more of linux, osx, or unix then echo the payload into an exec that will find the correct python bin automatically
-        exec_stub = "echo #{Shellwords.escape(exec_stub)} | exec $(which python || which python3 || which python2) -"
-      else
-        raise NotImplementedError 'unsupported platform'
-      end
-    end
-
-    exec_stub
+    Msf::Payload::Python.create_exec_stub(cmd)
   end
 
 end
