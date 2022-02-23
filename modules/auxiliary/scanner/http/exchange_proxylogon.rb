@@ -48,7 +48,10 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
         'Notes' => {
-          'AKA' => ['ProxyLogon']
+          'AKA' => ['ProxyLogon'],
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )

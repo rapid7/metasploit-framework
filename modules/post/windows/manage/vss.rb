@@ -41,6 +41,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_delete_dir
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK]
         }
       )
     )

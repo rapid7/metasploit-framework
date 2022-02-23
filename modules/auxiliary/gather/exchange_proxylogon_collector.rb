@@ -60,7 +60,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'Dump (Emails)',
         'Notes' => {
-          'AKA' => ['ProxyLogon']
+          'AKA' => ['ProxyLogon'],
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )

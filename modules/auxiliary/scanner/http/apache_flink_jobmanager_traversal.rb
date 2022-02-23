@@ -37,7 +37,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.tenable.com/cve/CVE-2020-17519']
         ],
         'DefaultOptions' => { 'RPORT' => 8081 },
-        'DisclosureDate' => '2021-01-05'
+        'DisclosureDate' => '2021-01-05',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
       )
     )
 
