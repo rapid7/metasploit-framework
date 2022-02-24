@@ -397,9 +397,14 @@ class Tlv
     end
     group ||= (self.class.to_s =~ /Packet/)
     if group
+      has_command_ids = ((self.method == COMMAND_ID_CORE_ENUMEXTCMD || self.method == COMMAND_ID_CORE_LOADLIB) && type == PACKET_TYPE_RESPONSE)
       tlvs_inspect = "tlvs=[\n"
       @tlvs.each { |t|
-        tlvs_inspect << "  #{t.inspect}\n"
+        if t.type == TLV_TYPE_UINT && has_command_ids
+          tlvs_inspect << "  #{t.inspect[0..-2]} command=#{::Rex::Post::Meterpreter::CommandMapper.get_command_name(t.value)}>\n"
+        else
+          tlvs_inspect << "  #{t.inspect}\n"
+        end
       }
       tlvs_inspect << "]"
     else
