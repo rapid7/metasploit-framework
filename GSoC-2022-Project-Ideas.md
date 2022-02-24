@@ -4,11 +4,26 @@ Mentors: @zerosteiner, @jmartin-r7
 
 ## Enhance Metasploit Framework
 
-### Retain active status of authentication tokens
+### HTTP-Trace enabled login scanners
 
-Many testing techniques interacting with web servers such as `XSS` rely on ensuring authentication obtained on a target be kept active. A mechanism for regstering and maintaining open authentications identified during a test for the duration of the console session may provide an additional utility to enable more modules to target techniques that need valid authentication to be maintained. One such authentication token would be data retained in a cookie for a web service. This project would lay the groundwork for registering gathered or generated authenticaion tokens against a target to be refreshed and sustained until a console exits, or in some cases across console restarts.
+Current login scanners are not enabled to support the HTTP-Trace options, this options is current exposed in the `Exploit::Remote::HttpClient` mixin and not availabe in scanner logins. This functionality would aid module writers in debugging and testing initial module implementations as well as enable end users to provide more verbose details for error reports. Changes to enable this support will need careful validation and testing as a large number of modules would be potentially impacted by the revision.
 
-Difficulty: 2/5
+Size: Medium  
+Difficulty: 3/5
+
+### Rest API Pagination
+
+Metasploit provides two API interaction services, a Rest API service and an RPC service. Previous efforts have wrapped and exposed the RPC service as JSON responses available from the Rest API endpoint. This wrapping did not account for possible large responses that may benefit from pagination. A previous contributor attempted to add this functionality for a [limited set of RCP commands](https://github.com/rapid7/metasploit-framework/pull/13439) however review identified that the changes would introduce changes to the documented public API and also introduce inconsistency within the API responses resulting in a fluctuating public API. Modern pagination would be beneficial to increasing user adoption of Rest API services provided it can be implemented consistently and either maintain compatibility of the existing public RPC service or generate a one time migration across all exposed public APIs.
+
+Size: Large  
+Difficulty: 4/5
+
+### LDAP Capture Capabilities
+
+Metasploit's LDAP service mixin provides a service to enable interaction over LDAP protocol. The current implementation is the bare minimum to be enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP interactions would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow intercept or advertisement of LDAP services for activity such as, capture and forward based, impersonation of an LDAP service. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients.
+
+Size: Medium  
+Difficulty: 3/5
 
 ### Improving post-exploit API to be more consistent, work smoothly across session types
 
@@ -18,12 +33,14 @@ The Metasploit post-exploitation API is intended to provide a unified interface 
  * When a shell session is in a different language, e.g. Windows in French, the post API does not find the expected output. Add localization support for these.
  * Simple commands like 'cmd_exec' are fast in Shell sessions but are relatively slow in Meterpreter sessions. Add an API to make Meterpreter run simple commands more easily.
 
+Size: Medium/Large (Depends on proposal)  
 Difficulty: Varies
 
 ### Improve the web vulnerability API
 
 This would follow up on the Arachni plugin PR <https://github.com/rapid7/metasploit-framework/pull/8618> and improve the Metasploit data model to better represent modern web vulnerabilities. This project would require knowledge of data models, types of modern web vulnerabilities, and experience with web app security scanners.
 
+Size: Large  
 Difficulty: 4/5
 
 ### Data Visualization
@@ -32,6 +49,7 @@ Enhance existing Metasploit Goliath dashboard that allows observation of an acti
 
 [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176)
 
+Size: Medium/Large (Depends on proposal)  
 Difficulty 3/5
 
 ## Submit your own
