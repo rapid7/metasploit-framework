@@ -338,7 +338,9 @@ module Build
         page_config = {
           layout: 'default',
           **page.slice(:title, :has_children, :nav_order),
-          parent: (page[:parents][-1] || {})[:title]
+          parent: (page[:parents][-1] || {})[:title],
+          warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folders automatically generated"
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
