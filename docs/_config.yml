@@ -26,6 +26,7 @@ exclude:
   - '*.rb'
   - 'build.rb'
   - metasploit-framework.wiki
+  - metasploit-framework.wiki.old
   - README.md
 
 # just-the-docs config
