@@ -2040,14 +2040,14 @@ class Def_windows_advapi32
       ["DWORD","dwAclInformationClass","in"],
       ])
 
-    dll.add_function('SetEntriesInAclA', 'BOOL',[
+    dll.add_function('SetEntriesInAclA', 'DWORD',[
       ["DWORD","cCountOfExplicitEntries","in"],
       ["PBLOB","pListOfExplicitEntries","in"],
       ["PBLOB","OldAcl","in"],
       ["PBLOB","NewAcl","out"]
     ])
 
-    dll.add_function('SetEntriesInAclW', 'BOOL',[
+    dll.add_function('SetEntriesInAclW', 'DWORD',[
       ["DWORD","cCountOfExplicitEntries","in"],
       ["PBLOB","pListOfExplicitEntries","in"],
       ["PBLOB","OldAcl","in"],
