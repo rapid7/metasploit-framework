@@ -146,11 +146,11 @@ class Msf::Payload::Apk
     end
 
     apktool = run_cmd(%w[apktool -version])
-    unless apktool != nil
+    if apktool.nil?
       raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
     end
 
-    apk_v = Rex::Version.new(apktool)
+    apk_v = Rex::Version.new(apktool.split("\n").first.strip)
     unless apk_v >= Rex::Version.new('2.0.1')
       raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
     end
