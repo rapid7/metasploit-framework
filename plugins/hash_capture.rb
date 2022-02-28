@@ -24,9 +24,18 @@ class Plugin::HashCapture < Msf::Plugin
       def completed(id, result, mod); end
 
       def failed(id, error, mod)
-        print_error("#{@name} failed")
+        print_error("#{@name} failed to start")
         @done_event.set
       end
+    end
+
+    class Config
+      attr_accessor :http_basic
+      attr_accessor :spoof_ip
+      attr_accessor :spoof_regex
+      attr_accessor :srvhost
+      attr_accessor :ntlm_challenge
+      attr_accessor :ntlm_domain
     end
 
     HELP_REGEX = /^-?-h(?:elp)?$/
@@ -68,6 +77,18 @@ class Plugin::HashCapture < Msf::Plugin
       return help
     end
 
+    def get_config(args)
+      config = Config.new
+      config.spoof_ip = '127.0.0.1'
+      config.spoof_regex = '.*'
+      config.srvhost = '127.0.0.1'
+      config.http_basic = false
+      config.ntlm_challenge = '1122334455667788'
+      config.ntlm_domain = 'anonymous'
+
+      config
+    end
+
     def listeners_start(args)
       if @active_job_ids.length > 0
         # If there are active job IDs, we should fail: there's already a capture going on.
@@ -84,6 +105,8 @@ class Plugin::HashCapture < Msf::Plugin
         # All jobs have ended - let's clean ourselves up
         @active_job_ids = []
       end
+
+      config = get_config(args)
 
       modules = {
         # Capturing
@@ -108,16 +131,38 @@ class Plugin::HashCapture < Msf::Plugin
         'wpad' => 'auxiliary/server/wpad',
       }
 
-      modules['http'] = 'auxiliary/server/capture/http_ntlm'
+      if config.http_basic
+        modules['http'] = 'auxiliary/server/capture/http_basic'
+      else
+        modules['http'] = 'auxiliary/server/capture/http_ntlm'
+      end
       startup_events = []
       modules.each do |svc, module_name|
+        # Special case for two variants of HTTP
+        if svc == 'http'
+          if config.http_basic
+            svc = 'http_basic'
+          else
+            svc = 'http_ntlm'
+          end
+        end
+
         mod = framework.modules.create(module_name)
         # Bail if we couldn't
         unless mod
           # Error: this should exist
+          print_error("Error: module not found (#{module_name})")
+          return
         end
+
         datastore = {}
-        datastore['SRVHOST'] = '127.0.0.1'
+        # Capturers
+        datastore['SRVHOST'] = config.srvhost
+
+        # Poisoners
+        datastore['SPOOFIP'] = config.spoof_ip
+        datastore['SPOOFIP4'] = config.spoof_ip
+        datastore['REGEX'] = config.spoof_regex
 
         opts = {}
         opts['Options'] = datastore
@@ -125,7 +170,7 @@ class Plugin::HashCapture < Msf::Plugin
         # opts['LocalOutput'] = self.driver.output
         method = "configure_#{svc}"
         if self.respond_to?(method)
-          self.send(method, datastore)
+          self.send(method, datastore, config)
         end
 
         event = Rex::Sync::Event.new(state=false,auto_reset=false)
@@ -152,7 +197,7 @@ class Plugin::HashCapture < Msf::Plugin
 
     def listeners_stop
       @active_job_ids.each do |job_id|
-        framework.jobs.stop_job(job_id)
+        framework.jobs.stop_job(job_id) if framework.jobs.key?(job_id)
       end
       @active_job_ids = []
       print_line('Capture listeners stopped')
@@ -167,6 +212,21 @@ class Plugin::HashCapture < Msf::Plugin
     #  @return [nil]
     def help(opt_parser = nil, msg = 'Usage: capture [start|stop] [options]')
       print_line(msg)
+    end
+
+    def configure_smb(datastore, config)
+        datastore['SMBDOMAIN'] = config.ntlm_domain
+        datastore['CHALLENGE'] = config.ntlm_challenge
+    end
+
+    def configure_mssql(datastore, config)
+        datastore['DOMAIN_NAME'] = config.ntlm_domain
+        datastore['CHALLENGE'] = config.ntlm_challenge
+    end
+
+    def configure_http_ntlm(datastore, config)
+        datastore['DOMAIN'] = config.ntlm_domain
+        datastore['CHALLENGE'] = config.ntlm_challenge
     end
   end
 
