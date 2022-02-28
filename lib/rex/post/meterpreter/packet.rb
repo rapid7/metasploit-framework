@@ -397,11 +397,20 @@ class Tlv
     end
     group ||= (self.class.to_s =~ /Packet/)
     if group
-      has_command_ids = ((self.method == COMMAND_ID_CORE_ENUMEXTCMD || self.method == COMMAND_ID_CORE_LOADLIB) && type == PACKET_TYPE_RESPONSE)
+      has_command_ids = type == PACKET_TYPE_RESPONSE && (self.method == COMMAND_ID_CORE_ENUMEXTCMD || self.method == COMMAND_ID_CORE_LOADLIB)
+      if has_command_ids
+        longest_command_id = self.get_tlvs(TLV_TYPE_UINT).map(&:value).max
+        longest_command_id_length = longest_command_id.to_s.length
+      end
+
       tlvs_inspect = "tlvs=[\n"
       @tlvs.each { |t|
-        if t.type == TLV_TYPE_UINT && has_command_ids
-          tlvs_inspect << "  #{t.inspect[0..-2]} command=#{::Rex::Post::Meterpreter::CommandMapper.get_command_name(t.value)}>\n"
+        if t.type == TLV_TYPE_UINT && has_command_ids && longest_command_id_length
+          command_name = ::Rex::Post::Meterpreter::CommandMapper.get_command_name(t.value)
+          command_output = "command=#{command_name}>\n"
+          this_value_length = t.value.to_s.length
+          adjusted_command_name = command_output.rjust(command_output.length + longest_command_id_length - this_value_length)
+          tlvs_inspect << "  #{t.inspect.gsub(/>$/, '')} " << adjusted_command_name
         else
           tlvs_inspect << "  #{t.inspect}\n"
         end
