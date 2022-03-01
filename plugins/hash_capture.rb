@@ -41,6 +41,7 @@ class Plugin::HashCapture < Msf::Plugin
       '--regex' => [ true, 'Regex to match for spoofing' ],
       '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
       '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
+      '--configfile' => [ true, 'Path to a config file' ],
       '-v' => [ false, 'Verbose output' ],
     )
 
@@ -190,6 +191,7 @@ class Plugin::HashCapture < Msf::Plugin
         datastore['SPOOFIP'] = config[:spoof_ip]
         datastore['SPOOFIP4'] = config[:spoof_ip]
         datastore['REGEX'] = config[:spoof_regex]
+        datastore['ListenerComm'] = config[:session]
 
         opts = {}
         opts['Options'] = datastore
@@ -302,8 +304,6 @@ class Plugin::HashCapture < Msf::Plugin
           options[:verbose] = true
         when '--basic'
           options[:http_basic] = true
-        when '-c'
-          options[:ntlm_challenge] = val
         when '--cert'
           options[:ssl_cert] = val
         end
@@ -326,6 +326,7 @@ class Plugin::HashCapture < Msf::Plugin
     def configure_http_ntlm(datastore, config)
         datastore['DOMAIN'] = config[:ntlm_domain]
         datastore['CHALLENGE'] = config[:ntlm_challenge]
+        datastore['SRVPORT'] = 80
     end
 
     def configure_https_ntlm(datastore, config)
