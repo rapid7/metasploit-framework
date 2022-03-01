@@ -111,6 +111,8 @@ class Client
     end
 
     shutdown_passive_dispatcher
+
+    shutdown_tlv_logging
   end
 
   #
@@ -130,8 +132,6 @@ class Client
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
-
-    self.tlv_logging_enabled = true
 
     self.pivot_session = opts[:pivot_session]
     if self.pivot_session
@@ -166,6 +166,8 @@ class Client
         self.ssl_cert = ::File.read(opts[:ssl_cert])
       end
     end
+
+    initialize_tlv_logging(opts[:tlv_log]) unless opts[:tlv_log].nil?
 
     # Protocol specific dispatch mixins go here, this may be neader with explicit Client classes
     opts[:dispatch_ext].each {|dx| self.extend(dx)} if opts[:dispatch_ext]

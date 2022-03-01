@@ -1914,13 +1914,16 @@ class Core
       print_warning("Changing the SSL option's value may require changing RPORT!")
     end
 
-    # Correctly set the file output if user provides a directory for SessionTlvLogging
     if name.casecmp?('SessionTlvLogging')
-      pathname = ::Pathname.new(datastore[name].split('file:').last)
-
-      if ::File.directory?(pathname) && datastore[name].start_with?('file:')
-        datastore[name] = ::File.join(datastore[name], 'sessiontlvlogging.txt')
+      # Check if we need to append the default filename if user provided an output directory
+      if datastore[name].start_with?('file:')
+        pathname = ::Pathname.new(datastore[name].split('file:').last)
+        if ::File.directory?(pathname)
+          datastore[name] = ::File.join(datastore[name], 'sessiontlvlogging.txt')
+        end
       end
+
+      framework.sessions.each { |_index, session| session.initialize_tlv_logging(datastore[name]) }
     end
 
     print_line("#{name} => #{datastore[name]}")
