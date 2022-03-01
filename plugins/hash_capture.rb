@@ -34,20 +34,26 @@ class Plugin::HashCapture < Msf::Plugin
     end
 
     HELP_REGEX = /^-?-h(?:elp)?$/
-    @@opt_parser = Rex::Parser::Arguments.new(
-      '-s' => [ true, 'Session to bind on' ],
+    @@stop_opt_parser = Rex::Parser::Arguments.new(
+      '--session' => [ true, 'Session to stop (otherwise all capture jobs on all sessions will be stopped)' ],
+      '-h' => [false, 'Display this message' ],
+    )
+
+    @@start_opt_parser = Rex::Parser::Arguments.new(
+      '--session' => [ true, 'Session to bind on' ],
       '-i' => [ true, 'IP to bind to' ],
-      '--spoof' => [ true, 'IP to use for spoofing (poisoning) attacks' ],
+      '--spoofip' => [ true, 'IP to use for spoofing (poisoning)' ],
       '--regex' => [ true, 'Regex to match for spoofing' ],
       '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
       '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
       '--configfile' => [ true, 'Path to a config file' ],
       '-v' => [ false, 'Verbose output' ],
+      '-h' => [false, 'Display this message' ],
     )
 
     def initialize(*args)
       super(*args)
-      @active_job_ids = []
+      @active_job_ids = {}
     end
 
     def name
@@ -69,57 +75,95 @@ class Plugin::HashCapture < Msf::Plugin
       return help if args.length == 0
       return help if args.length == 1 && args.first =~ HELP_REGEX
 
-      if args.first == 'stop'
-        listeners_stop
-        return
-      end
+      begin
+        if args.first == 'stop'
+          listeners_stop(args)
+          return
+        end
 
-      if args.first == 'start'
-        listeners_start(args)
-        return
+        if args.first == 'start'
+          listeners_start(args)
+          return
+        end
+        return help
+      rescue ArgumentError => err
+        print_error(err.message)
       end
-
-      return help
     end
 
     def cmd_capture_tabs(str, words)
       return ['start', 'stop'] if words.length == 1
       if words[1] == 'start'
-        case words[-1]                                                                         
-          when '-s'
-            return framework.sessions.keys.map { |k| k.to_s }                                    
+        case words[-1]
+          when '--session'
+            return framework.sessions.keys.map { |k| k.to_s }
           when '--cert', '--configfile'
             return tab_complete_filenames(str, words)
         end
         
-        if @@opt_parser.arg_required?(words[-1])
+        if @@start_opt_parser.arg_required?(words[-1])
           # The previous word needs an argument; we can't provide any help
           return []
         end
 
-        result = @@opt_parser.option_keys.select { |opt| opt.start_with?(str) }
+        result = @@start_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
         return result
+      elsif words[1] == 'stop'
+        case words[-1]                                                                         
+          when '--session'
+            return framework.sessions.keys.map { |k| k.to_s } + ['local']
+        end
+        if @@stop_opt_parser.arg_required?(words[-1])
+          # The previous word needs an argument; we can't provide any help
+          return []
+        end
+
+        result = @@stop_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
+
       end
     end
 
     def listeners_start(args)
-      if @active_job_ids.length > 0
-        # If there are active job IDs, we should fail: there's already a capture going on.
+      config = parse_start_args(args)
+      if config[:show_help]
+        help('start')
+        return
+      end
+
+      # Make sure there is no capture happening on that session already
+      session = config[:session]
+      if session.nil?
+        session = 'local'
+      end
+
+      if @active_job_ids.key?(session)
+        active_jobs = @active_job_ids[session]
+
+        # If there are active job IDs on this session, we should fail: there's already a capture going on.
         # Make them stop it first.
         # The exception is if all jobs have been manually terminated, then let's treat it
         # as if the capture was stopped, and allow starting now.
-        @active_job_ids.each do |job_id|
+        active_jobs.each do |job_id|
 
           if framework.jobs.key?(job_id.to_s)
-            print_error('Capture already in progress. Stop the existing capture then restart a new one')
+            session_str = ''
+            unless session.nil?
+              session_str = ' on this session'
+            end
+            print_error("A capture is already in progress#{session_str}. Stop the existing capture then restart a new one")
             return
           end
         end
-        # All jobs have ended - let's clean ourselves up
-        @active_job_ids = []
       end
 
-      config = parse_args(args)
+      # Start afresh
+      @active_job_ids[session] = []
+
+      validate_params(config)
+
+      if config[:spoof_ip].nil?
+        config[:spoof_ip] = config[:srvhost]
+      end
 
       modules = {
         # Capturing
@@ -226,32 +270,72 @@ class Plugin::HashCapture < Msf::Plugin
         event.wait
         if job_listener.succeeded
           # Keep track of it so we can close it upon a `stop` command
-          @active_job_ids.append(job_id)
+          @active_job_ids[session].append(job_id)
           job = framework.jobs[job_id.to_s]
           # Rename the job for display (to differentiate between the encrypted/plaintext ones in particular)
-          job.send(:name=, "Capture service: #{svc.upcase}")
+          if config[:session].nil?
+            session_str = 'local'
+          else
+            session_str = "session #{config[:session].to_i}"
+          end
+          job.send(:name=, "Capture (#{session_str}): #{svc.upcase}")
         end
       end
 
       print_good('Started capture jobs')
     end
 
-    def listeners_stop
-      @active_job_ids.each do |job_id|
-        framework.jobs.stop_job(job_id) unless framework.jobs[job_id.to_s].nil?
+    def listeners_stop(args)
+      options = parse_stop_args(args)
+      if options[:show_help]
+        help('stop')
+        return
       end
-      @active_job_ids = []
+
+      session = options[:session]
+      
+      @active_job_ids.each do |session_id, jobs|
+        if session.nil? || session == session_id
+          jobs.each do | job_id|
+            framework.jobs.stop_job(job_id) unless framework.jobs[job_id.to_s].nil?
+          end
+          jobs.clear
+        end
+      end
       print_line('Capture listeners stopped')
     end
 
     # Print the appropriate help text depending on an optional option parser.
     #
-    # @param msg [String] the first line of the help text to display to the
-    #   user.
-    #  @return [nil]
-    def help(msg = 'Usage: capture [start|stop] [options]')
-      print_line(msg)
-      print_line(@@opt_parser.usage)
+    # @param first_arg [String] the first argument to this command
+    # @return [nil]
+    def help(first_arg = nil)
+
+      if first_arg == 'start'
+        print_line('Usage: capture start [options]')
+        print_line(@@start_opt_parser.usage)
+      elsif first_arg == 'stop'
+        print_line('Usage: capture stop [options]')
+        print_line(@@stop_opt_parser.usage)
+      else
+        print_line('Usage: capture [start|stop] [options]')
+      end
+    end
+
+    def default_options
+        options = {
+         :ntlm_challenge => '1122334455667788',
+         :ntlm_domain => 'anonymous',
+         :services => {},
+         :spoof_ip => nil,
+         :spoof_regex => '.*',
+         :srvhost => '0.0.0.0',
+         :http_basic => false,
+         :session => nil,
+         :ssl_cert => nil,
+         :verbose => false,
+         :show_help => false,
+        }
     end
 
     def read_config(filename)
@@ -259,25 +343,36 @@ class Plugin::HashCapture < Msf::Plugin
       File.open(filename, "rb") do |f|                                       
         yamlconf = YAML::load(f)
         options = {
-         :spoof_ip => yamlconf['spoof_ip'],
-         :spoof_regex => yamlconf['spoof_regex'],
-         :srvhost => yamlconf['srvhost'],
-         :http_basic => yamlconf['basic'],
          :ntlm_challenge => yamlconf['ntlm_challenge'],
          :ntlm_domain => yamlconf['ntlm_domain'],
-         :session => nil,
-         :ssl_cert => nil,
-         :verbose => false,
          :services => yamlconf['services']
         }
       end
     end
+    
+    def parse_stop_args(args)
+      options = {
+        :session => nil,
+        :show_help => false,
+      }
 
-    def parse_args(args = [])
+      @@start_opt_parser.parse(args) do |opt, idx, val|
+        case opt
+        when '--session'
+          options[:session] = val
+        when '-h'
+          options[:show_help] = true
+        end
+      end
+
+      options
+    end
+
+    def parse_start_args(args)
       config_file = nil
 
       # See if there was a config file set
-      @@opt_parser.parse(args) do |opt, idx, val|
+      @@start_opt_parser.parse(args) do |opt, idx, val|
         case opt
         when '--configfile'
           config_file = val
@@ -287,16 +382,17 @@ class Plugin::HashCapture < Msf::Plugin
       if config_file.nil?
         config_file = File.join(Msf::Config.data_directory,"capture_config.yaml")
       end
-      
-      options = read_config(config_file)
+      options = default_options
+      config_options = read_config(config_file)
+      options = options.merge(config_options)
 
-      @@opt_parser.parse(args) do |opt, idx, val|
+      @@start_opt_parser.parse(args) do |opt, idx, val|
         case opt
-        when '-s'
+        when '--session'
           options[:session] = val
         when '-i'
           options[:srvhost] = val
-        when '--spoof'
+        when '--spoofip'
           options[:spoof_ip] = val
         when '--regex'
           options[:spoof_regex] = val
@@ -306,11 +402,25 @@ class Plugin::HashCapture < Msf::Plugin
           options[:http_basic] = true
         when '--cert'
           options[:ssl_cert] = val
+        when '-h'
+          options[:show_help] = true
         end
       end
 
-
       options
+    end
+
+    def validate_params(options)
+      if options[:spoof_ip].nil? && options[:srvhost] == '0.0.0.0'
+        raise ArgumentError.new('Must provide an IP address to use for poisoning')
+      end
+      unless options[:ssl_cert].nil? || File.file?(options[:ssl_cert])
+        raise ArgumentError.new("File #{options[:ssl_cert]} not found")
+      end
+      unless options[:session].nil? || framework.sessions.key?(options[:session].to_i)
+        raise ArgumentError.new("Session #{options[:session].to_i} not found")
+      end
+
     end
 
     def configure_smb(datastore, config)
