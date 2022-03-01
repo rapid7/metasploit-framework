@@ -15,6 +15,7 @@ class Plugin::HashCapture < Msf::Plugin
       end
 
       def waiting(id)
+        self.succeeded = true
         print_good("#{@name} started")
         @done_event.set
       end
@@ -27,15 +28,9 @@ class Plugin::HashCapture < Msf::Plugin
         print_error("#{@name} failed to start")
         @done_event.set
       end
-    end
 
-    class Config
-      attr_accessor :http_basic
-      attr_accessor :spoof_ip
-      attr_accessor :spoof_regex
-      attr_accessor :srvhost
-      attr_accessor :ntlm_challenge
-      attr_accessor :ntlm_domain
+      attr_accessor :succeeded
+
     end
 
     HELP_REGEX = /^-?-h(?:elp)?$/
@@ -77,16 +72,11 @@ class Plugin::HashCapture < Msf::Plugin
       return help
     end
 
-    def get_config(args)
-      config = Config.new
-      config.spoof_ip = '127.0.0.1'
-      config.spoof_regex = '.*'
-      config.srvhost = '127.0.0.1'
-      config.http_basic = false
-      config.ntlm_challenge = '1122334455667788'
-      config.ntlm_domain = 'anonymous'
+    def cmd_capture_tabs(str, words)
+      return ['start', 'stop'] if words.length == 1
+      if words[1] == 'start'
 
-      config
+      end
     end
 
     def listeners_start(args)
@@ -106,7 +96,7 @@ class Plugin::HashCapture < Msf::Plugin
         @active_job_ids = []
       end
 
-      config = get_config(args)
+      config = parse_args(args)
 
       modules = {
         # Capturing
@@ -131,16 +121,15 @@ class Plugin::HashCapture < Msf::Plugin
         'wpad' => 'auxiliary/server/wpad',
       }
 
-      if config.http_basic
+      if config[:http_basic]
         modules['http'] = 'auxiliary/server/capture/http_basic'
       else
         modules['http'] = 'auxiliary/server/capture/http_ntlm'
       end
-      startup_events = []
       modules.each do |svc, module_name|
         # Special case for two variants of HTTP
         if svc == 'http'
-          if config.http_basic
+          if config[:http_basic]
             svc = 'http_basic'
           else
             svc = 'http_ntlm'
@@ -157,39 +146,34 @@ class Plugin::HashCapture < Msf::Plugin
 
         datastore = {}
         # Capturers
-        datastore['SRVHOST'] = config.srvhost
+        datastore['SRVHOST'] = config[:srvhost]
 
         # Poisoners
-        datastore['SPOOFIP'] = config.spoof_ip
-        datastore['SPOOFIP4'] = config.spoof_ip
-        datastore['REGEX'] = config.spoof_regex
+        datastore['SPOOFIP'] = config[:spoof_ip]
+        datastore['SPOOFIP4'] = config[:spoof_ip]
+        datastore['REGEX'] = config[:spoof_regex]
 
         opts = {}
         opts['Options'] = datastore
         opts['RunAsJob'] = true
-        # opts['LocalOutput'] = self.driver.output
+        opts['LocalOutput'] = self.driver.output
         method = "configure_#{svc}"
         if self.respond_to?(method)
           self.send(method, datastore, config)
         end
 
         event = Rex::Sync::Event.new(state=false,auto_reset=false)
-        startup_events.append(event)
         job_listener = CaptureJobListener.new(mod.name, event)
 
 
         result = Msf::Simple::Auxiliary.run_simple(mod, opts, job_listener: job_listener)
         job_id = result[1]
 
-        # Not really worried about @active_job_ids tracking jobs that may fail on startup (e.g. binding to a port). 
-        # If one of them fails, we'll just end up tracking a job that no longer exists,
-        # which is equivalent to the user manually stopping them after we start them.
-        @active_job_ids.append(job_id)
-      end
-
-      # Wait for all the servers to start up
-      startup_events.each do |event|
+        # Wait for the event to trigger (socket server either waiting, or failed)
         event.wait
+        if job_listener.succeeded
+          @active_job_ids.append(job_id)
+        end
       end
 
       print_good("Started all capture jobs")
@@ -197,7 +181,7 @@ class Plugin::HashCapture < Msf::Plugin
 
     def listeners_stop
       @active_job_ids.each do |job_id|
-        framework.jobs.stop_job(job_id) if framework.jobs.key?(job_id)
+        framework.jobs.stop_job(job_id) unless framework.jobs[job_id.to_s].nil?
       end
       @active_job_ids = []
       print_line('Capture listeners stopped')
@@ -214,19 +198,62 @@ class Plugin::HashCapture < Msf::Plugin
       print_line(msg)
     end
 
+    def parse_args(args = [])
+      opt_parser = Rex::Parser::Arguments.new(
+        '-s' => [ true, 'Session to bind on' ],
+        '-i' => [ true, 'IP to bind to' ],
+        '--spoof' => [ true, 'IP to poison' ],
+        '--regex' => [ true, 'Regex to match for poisoning' ],
+        '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
+        '-v' => [ false, 'Verbose output' ],
+      )
+
+      options = {
+        :spoof_ip => '127.0.0.1',
+        :spoof_regex => '.*',
+        :srvhost => '0.0.0.0',
+        :http_basic => false,
+        :ntlm_challenge => '1122334455667788',
+        :ntlm_domain => 'anonymous',
+        :session => nil,
+        :verbose => false,
+      }
+
+      opt_parser.parse(args) do |opt, idx, val|
+        case opt
+        when '-s'
+          options[:session] = val
+        when '-i'
+          options[:srvhost] = val
+        when '--spoof'
+          options[:spoof_ip] = val
+        when '--regex'
+          options[:spoof_regex] = val
+        when '-v'
+          options[:verbose] = true
+        when '--basic'
+          options[:http_basic] = true
+        when '-c'
+          options[:ntlm_challenge] = val
+        end
+      end
+
+      options
+    end
+
     def configure_smb(datastore, config)
-        datastore['SMBDOMAIN'] = config.ntlm_domain
-        datastore['CHALLENGE'] = config.ntlm_challenge
+        datastore['SMBDOMAIN'] = config[:ntlm_domain]
+        datastore['CHALLENGE'] = config[:ntlm_challenge]
     end
 
     def configure_mssql(datastore, config)
-        datastore['DOMAIN_NAME'] = config.ntlm_domain
-        datastore['CHALLENGE'] = config.ntlm_challenge
+        datastore['DOMAIN_NAME'] = config[:ntlm_domain]
+        datastore['CHALLENGE'] = config[:ntlm_challenge]
     end
 
     def configure_http_ntlm(datastore, config)
-        datastore['DOMAIN'] = config.ntlm_domain
-        datastore['CHALLENGE'] = config.ntlm_challenge
+        datastore['DOMAIN'] = config[:ntlm_domain]
+        datastore['CHALLENGE'] = config[:ntlm_challenge]
     end
   end
 
