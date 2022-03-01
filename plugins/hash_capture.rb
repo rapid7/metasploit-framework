@@ -34,6 +34,15 @@ class Plugin::HashCapture < Msf::Plugin
     end
 
     HELP_REGEX = /^-?-h(?:elp)?$/
+    @@opt_parser = Rex::Parser::Arguments.new(
+      '-s' => [ true, 'Session to bind on' ],
+      '-i' => [ true, 'IP to bind to' ],
+      '--spoof' => [ true, 'IP to use for spoofing (poisoning) attacks' ],
+      '--regex' => [ true, 'Regex to match for spoofing' ],
+      '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
+      '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
+      '-v' => [ false, 'Verbose output' ],
+    )
 
     def initialize(*args)
       super(*args)
@@ -46,7 +55,7 @@ class Plugin::HashCapture < Msf::Plugin
 
     def commands
       {
-        'capture' => "Start hash capturing services",
+        'capture' => 'Start hash capturing services',
       }
     end
 
@@ -75,7 +84,20 @@ class Plugin::HashCapture < Msf::Plugin
     def cmd_capture_tabs(str, words)
       return ['start', 'stop'] if words.length == 1
       if words[1] == 'start'
+        case words[-1]                                                                         
+          when '-s'
+            return framework.sessions.keys.map { |k| k.to_s }                                    
+          when '--cert', '--configfile'
+            return tab_complete_filenames(str, words)
+        end
+        
+        if @@opt_parser.arg_required?(words[-1])
+          # The previous word needs an argument; we can't provide any help
+          return []
+        end
 
+        result = @@opt_parser.option_keys.select { |opt| opt.start_with?(str) }
+        return result
       end
     end
 
@@ -113,6 +135,13 @@ class Plugin::HashCapture < Msf::Plugin
         'smtp' => 'auxiliary/server/capture/smtp',
         'telnet' => 'auxiliary/server/capture/telnet',
         'vnc' => 'auxiliary/server/capture/vnc',
+
+        # SSL versions
+        'ftps' => 'auxiliary/server/capture/ftp',
+        'imaps' => 'auxiliary/server/capture/imap',
+        'pop3s' => 'auxiliary/server/capture/pop3',
+        'smtps' => 'auxiliary/server/capture/smtp',
+
         # Poisoning
         'dns' => 'auxiliary/spoof/dns/native_spoofer',
         'nbns' => 'auxiliary/spoof/nbns/nbns_response',
@@ -123,16 +152,21 @@ class Plugin::HashCapture < Msf::Plugin
 
       if config[:http_basic]
         modules['http'] = 'auxiliary/server/capture/http_basic'
+        modules['https'] = 'auxiliary/server/capture/http_basic'
       else
         modules['http'] = 'auxiliary/server/capture/http_ntlm'
+        modules['https'] = 'auxiliary/server/capture/http_ntlm'
       end
+
+      modules_to_run = []
+
       modules.each do |svc, module_name|
         # Special case for two variants of HTTP
-        if svc == 'http'
+        if svc.start_with?('http')
           if config[:http_basic]
-            svc = 'http_basic'
+            svc += '_basic'
           else
-            svc = 'http_ntlm'
+            svc += '_ntlm'
           end
         end
 
@@ -156,12 +190,25 @@ class Plugin::HashCapture < Msf::Plugin
         opts = {}
         opts['Options'] = datastore
         opts['RunAsJob'] = true
-        opts['LocalOutput'] = self.driver.output
+        if config[:verbose]
+          opts['LocalOutput'] = self.driver.output
+          datastore['VERBOSE'] = true
+        end
         method = "configure_#{svc}"
         if self.respond_to?(method)
           self.send(method, datastore, config)
         end
 
+
+        # Before running everything, let's do some basic validation of settings
+        mod_dup = mod.replicant
+        mod_dup._import_extra_options(opts)
+        mod_dup.options.validate(mod_dup.datastore)
+
+        modules_to_run.append(svc, mod, opts)
+      end
+
+      modules_to_run.each do |svc, mod, opts|
         event = Rex::Sync::Event.new(state=false,auto_reset=false)
         job_listener = CaptureJobListener.new(mod.name, event)
 
@@ -172,11 +219,15 @@ class Plugin::HashCapture < Msf::Plugin
         # Wait for the event to trigger (socket server either waiting, or failed)
         event.wait
         if job_listener.succeeded
+          # Keep track of it so we can close it upon a `stop` command
           @active_job_ids.append(job_id)
+          job = framework.jobs[job_id.to_s]
+          # Rename the job for display (to differentiate between the encrypted/plaintext ones in particular)
+          job.send(:name=, "Capture service: #{svc.upcase}")
         end
       end
 
-      print_good("Started all capture jobs")
+      print_good('Started capture jobs')
     end
 
     def listeners_stop
@@ -189,24 +240,15 @@ class Plugin::HashCapture < Msf::Plugin
 
     # Print the appropriate help text depending on an optional option parser.
     #
-    # @param opt_parser [Rex::Parser::Arguments] the argument parser for the
-    #   request type.
     # @param msg [String] the first line of the help text to display to the
     #   user.
     #  @return [nil]
-    def help(opt_parser = nil, msg = 'Usage: capture [start|stop] [options]')
+    def help(msg = 'Usage: capture [start|stop] [options]')
       print_line(msg)
+      print_line(@@opt_parser.usage)
     end
 
     def parse_args(args = [])
-      opt_parser = Rex::Parser::Arguments.new(
-        '-s' => [ true, 'Session to bind on' ],
-        '-i' => [ true, 'IP to bind to' ],
-        '--spoof' => [ true, 'IP to poison' ],
-        '--regex' => [ true, 'Regex to match for poisoning' ],
-        '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
-        '-v' => [ false, 'Verbose output' ],
-      )
 
       options = {
         :spoof_ip => '127.0.0.1',
@@ -216,10 +258,12 @@ class Plugin::HashCapture < Msf::Plugin
         :ntlm_challenge => '1122334455667788',
         :ntlm_domain => 'anonymous',
         :session => nil,
+        :ssl_cert => nil,
         :verbose => false,
+        :config_file => nil
       }
 
-      opt_parser.parse(args) do |opt, idx, val|
+      @@opt_parser.parse(args) do |opt, idx, val|
         case opt
         when '-s'
           options[:session] = val
@@ -235,6 +279,10 @@ class Plugin::HashCapture < Msf::Plugin
           options[:http_basic] = true
         when '-c'
           options[:ntlm_challenge] = val
+        when '--cert'
+          options[:ssl_cert] = val
+        when '--configfile'
+          options[:config_file] = val
         end
       end
 
@@ -254,6 +302,38 @@ class Plugin::HashCapture < Msf::Plugin
     def configure_http_ntlm(datastore, config)
         datastore['DOMAIN'] = config[:ntlm_domain]
         datastore['CHALLENGE'] = config[:ntlm_challenge]
+    end
+
+    def configure_https_ntlm(datastore, config)
+        datastore['DOMAIN'] = config[:ntlm_domain]
+        datastore['CHALLENGE'] = config[:ntlm_challenge]
+        datastore['SSL'] = true
+        datastore['SSLCert'] = config[:ssl_cert]
+        datastore['SRVPORT'] = 443
+    end
+
+    def configure_ftps(datastore, config)
+        datastore['SSL'] = true
+        datastore['SSLCert'] = config[:ssl_cert]
+        datastore['SRVPORT'] = 990
+    end
+
+    def configure_imaps(datastore, config)
+        datastore['SSL'] = true
+        datastore['SSLCert'] = config[:ssl_cert]
+        datastore['SRVPORT'] = 993
+    end
+
+    def configure_pop3(datastore, config)
+        datastore['SSL'] = true
+        datastore['SSLCert'] = config[:ssl_cert]
+        datastore['SRVPORT'] = 995
+    end
+
+    def configure_smtps(datastore, config)
+        datastore['SSL'] = true
+        datastore['SSLCert'] = config[:ssl_cert]
+        datastore['SRVPORT'] = 587
     end
   end
 
