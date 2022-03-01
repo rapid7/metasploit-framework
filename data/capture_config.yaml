@@ -1,0 +1,30 @@
+spoof_regex: .*
+srvhost: 0.0.0.0
+basic: true
+ntlm_challenge: "1122334455667788"
+ntlm_domain: anonymous
+services:
+  drda: off
+  ftp: on
+  http: on
+  https: on
+  imap: on
+  mssql: on
+  mysql: on
+  pop3: on
+  postgres: on
+  printjob: off
+  sip: on
+  smb: on
+  smtp: on
+  telnet: on
+  vnc: on
+  ftps: on
+  imaps: on
+  pop3s: on
+  smtps: on
+  dns: on
+  nbns: on
+  llmnr: on
+  mdns: on
+  wpad: on

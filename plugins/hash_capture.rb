@@ -161,6 +161,10 @@ class Plugin::HashCapture < Msf::Plugin
       modules_to_run = []
 
       modules.each do |svc, module_name|
+        unless config[:services][svc]
+          # This service turned off in config
+          next
+        end
         # Special case for two variants of HTTP
         if svc.start_with?('http')
           if config[:http_basic]
@@ -248,20 +252,41 @@ class Plugin::HashCapture < Msf::Plugin
       print_line(@@opt_parser.usage)
     end
 
-    def parse_args(args = [])
+    def read_config(filename)
+      options = {}
+      File.open(filename, "rb") do |f|                                       
+        yamlconf = YAML::load(f)
+        options = {
+         :spoof_ip => yamlconf['spoof_ip'],
+         :spoof_regex => yamlconf['spoof_regex'],
+         :srvhost => yamlconf['srvhost'],
+         :http_basic => yamlconf['basic'],
+         :ntlm_challenge => yamlconf['ntlm_challenge'],
+         :ntlm_domain => yamlconf['ntlm_domain'],
+         :session => nil,
+         :ssl_cert => nil,
+         :verbose => false,
+         :services => yamlconf['services']
+        }
+      end
+    end
 
-      options = {
-        :spoof_ip => '127.0.0.1',
-        :spoof_regex => '.*',
-        :srvhost => '0.0.0.0',
-        :http_basic => false,
-        :ntlm_challenge => '1122334455667788',
-        :ntlm_domain => 'anonymous',
-        :session => nil,
-        :ssl_cert => nil,
-        :verbose => false,
-        :config_file => nil
-      }
+    def parse_args(args = [])
+      config_file = nil
+
+      # See if there was a config file set
+      @@opt_parser.parse(args) do |opt, idx, val|
+        case opt
+        when '--configfile'
+          config_file = val
+        end
+      end
+
+      if config_file.nil?
+        config_file = File.join(Msf::Config.data_directory,"capture_config.yaml")
+      end
+      
+      options = read_config(config_file)
 
       @@opt_parser.parse(args) do |opt, idx, val|
         case opt
@@ -281,10 +306,9 @@ class Plugin::HashCapture < Msf::Plugin
           options[:ntlm_challenge] = val
         when '--cert'
           options[:ssl_cert] = val
-        when '--configfile'
-          options[:config_file] = val
         end
       end
+
 
       options
     end
