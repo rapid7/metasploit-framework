@@ -173,13 +173,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       unless datastore['AutoSystemInfo'] == false
         session.load_session_info
       end
-      # run on session command
-            unless datastore['OnSessionCmd'].empty?
-        original = console.disable_output
-        console.disable_output = true
-        console.run_single(datastore['OnSessionCmd'])
-        console.disable_output = original
-      end
+
       # only load priv on native windows
       # TODO: abstract this too, to remove windows stuff
       if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)

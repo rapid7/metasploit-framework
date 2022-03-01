@@ -21,7 +21,6 @@ module CommandShellOptions
         OptString.new('InitialAutoRunScript', "An initial script to run on session creation (before AutoRunScript)"),
         OptString.new('AutoRunScript', "A script to run automatically on session creation."),
         OptString.new('CommandShellCleanupCommand', "A command to run before the session is closed"),
-        OptString.new('OnSessionCmd',[false, "A command to run when the session opens", '']),
         OptBool.new('AutoVerifySession', [true, 'Automatically verify and drop invalid sessions', true])
       ]
     )
