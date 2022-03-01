@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2021-4191' ],
           [ 'URL', 'https://about.gitlab.com/releases/2022/02/25/critical-security-release-gitlab-14-8-2-released/#unauthenticated-user-enumeration-on-graphql-api']
         ],
-        'DisclosureDate' => '2022-02-01',
+        'DisclosureDate' => '2022-03-01',
         'DefaultOptions' => {
           'RPORT' => 443,
           'SSL' => true
