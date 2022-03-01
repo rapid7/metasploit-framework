@@ -329,4 +329,6 @@ end
 # global autoload of common gems
 autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
+autoload :RubySMB, 'ruby_smb'
+
 require 'rexml/document'
