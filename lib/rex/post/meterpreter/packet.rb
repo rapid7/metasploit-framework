@@ -284,6 +284,8 @@ end
 #
 ###
 class Tlv
+  @@cached_tlv_types = {}
+
   attr_accessor :type, :value, :compress
 
   HEADER_SIZE = 8
@@ -314,6 +316,15 @@ class Tlv
     end
   end
 
+  def _tlv_type_string(type)
+    # Try to regenerate the cache if cache is empty, or the type we are looking for is not present in the cache.
+    regenerate_tlv_types_cache if @@cached_tlv_types.nil? || @@cached_tlv_types.key(type).nil?
+
+    return @@cached_tlv_types.key(type).to_s.gsub('TLV_TYPE_', '').gsub('_', '-') unless @@cached_tlv_types.key(type).nil?
+
+    nil
+  end
+
   def inspect
     utype = type ^ TLV_META_TYPE_COMPRESSED
     group = false
@@ -327,70 +338,9 @@ class Tlv
       when TLV_META_TYPE_COMPLEX; "COMPLEX"
       else; 'unknown-meta-type'
       end
-    stype = case type
-      when PACKET_TYPE_REQUEST; "Request"
-      when PACKET_TYPE_RESPONSE; "Response"
-      when TLV_TYPE_REQUEST_ID; "REQUEST-ID"
-      when TLV_TYPE_COMMAND_ID; "COMMAND-ID"
-      when TLV_TYPE_RESULT; "RESULT"
-      when TLV_TYPE_EXCEPTION; "EXCEPTION"
-      when TLV_TYPE_STRING; "STRING"
-      when TLV_TYPE_UINT; "UINT"
-      when TLV_TYPE_BOOL; "BOOL"
+    stype = _tlv_type_string(type)
+    stype ||= "unknown-#{type}"
 
-      when TLV_TYPE_LENGTH; "LENGTH"
-      when TLV_TYPE_DATA; "DATA"
-      when TLV_TYPE_FLAGS; "FLAGS"
-
-      when TLV_TYPE_CHANNEL_ID; "CHANNEL-ID"
-      when TLV_TYPE_CHANNEL_TYPE; "CHANNEL-TYPE"
-      when TLV_TYPE_CHANNEL_DATA; "CHANNEL-DATA"
-      when TLV_TYPE_CHANNEL_DATA_GROUP; "CHANNEL-DATA-GROUP"
-      when TLV_TYPE_CHANNEL_CLASS; "CHANNEL-CLASS"
-      when TLV_TYPE_CHANNEL_PARENTID; "CHANNEL-PARENTID"
-
-      when TLV_TYPE_SEEK_WHENCE; "SEEK-WHENCE"
-      when TLV_TYPE_SEEK_OFFSET; "SEEK-OFFSET"
-      when TLV_TYPE_SEEK_POS; "SEEK-POS"
-
-      when TLV_TYPE_EXCEPTION_CODE; "EXCEPTION-CODE"
-      when TLV_TYPE_EXCEPTION_STRING; "EXCEPTION-STRING"
-
-      when TLV_TYPE_LIBRARY_PATH; "LIBRARY-PATH"
-      when TLV_TYPE_TARGET_PATH; "TARGET-PATH"
-      when TLV_TYPE_MIGRATE_PID; "MIGRATE-PID"
-      when TLV_TYPE_MIGRATE_PAYLOAD; "MIGRATE-PAYLOAD"
-      when TLV_TYPE_MIGRATE_ARCH; "MIGRATE-ARCH"
-      when TLV_TYPE_MIGRATE_BASE_ADDR; "MIGRATE-BASE-ADDR"
-      when TLV_TYPE_MIGRATE_ENTRY_POINT; "MIGRATE-ENTRY-POINT"
-      when TLV_TYPE_MIGRATE_STUB; "MIGRATE-STUB"
-      when TLV_TYPE_MIGRATE_SOCKET_PATH; "MIGRATE-SOCKET-PATH"
-      when TLV_TYPE_LIB_LOADER_NAME; "LIB-LOADER-NAME"
-      when TLV_TYPE_LIB_LOADER_ORDINAL; "LIB-LOADER-ORDINAL"
-      when TLV_TYPE_TRANS_TYPE; "TRANS-TYPE"
-      when TLV_TYPE_TRANS_URL; "TRANS-URL"
-      when TLV_TYPE_TRANS_COMM_TIMEOUT; "TRANS-COMM-TIMEOUT"
-      when TLV_TYPE_TRANS_SESSION_EXP; "TRANS-SESSION-EXP"
-      when TLV_TYPE_TRANS_CERT_HASH; "TRANS-CERT-HASH"
-      when TLV_TYPE_TRANS_PROXY_HOST; "TRANS-PROXY-HOST"
-      when TLV_TYPE_TRANS_PROXY_USER; "TRANS-PROXY-USER"
-      when TLV_TYPE_TRANS_PROXY_PASS; "TRANS-PROXY-PASS"
-      when TLV_TYPE_TRANS_RETRY_TOTAL; "TRANS-RETRY-TOTAL"
-      when TLV_TYPE_TRANS_RETRY_WAIT; "TRANS-RETRY-WAIT"
-      when TLV_TYPE_MACHINE_ID; "MACHINE-ID"
-      when TLV_TYPE_UUID; "UUID"
-      when TLV_TYPE_SESSION_GUID; "SESSION-GUID"
-      when TLV_TYPE_RSA_PUB_KEY; "RSA-PUB-KEY"
-      when TLV_TYPE_SYM_KEY_TYPE; "SYM-KEY-TYPE"
-      when TLV_TYPE_SYM_KEY; "SYM-KEY"
-      when TLV_TYPE_ENC_SYM_KEY; "ENC-SYM-KEY"
-
-      when TLV_TYPE_PIVOT_ID; "PIVOT-ID"
-      when TLV_TYPE_PIVOT_STAGE_DATA; "PIVOT-STAGE-DATA"
-      when TLV_TYPE_PIVOT_NAMED_PIPE_NAME; "PIVOT-NAMED-PIPE-NAME"
-
-      else; "unknown-#{type}"
-      end
     val = value.inspect
     if val.length > 50
       val = val[0,50] + ' ..."'
@@ -551,6 +501,23 @@ class Tlv
 
   def ntohq(value)
     htonq(value)
+  end
+
+  def regenerate_tlv_types_cache
+    @@cached_tlv_types = {}
+
+    available_modules = [
+      ::Rex::Post::Meterpreter,
+      *::Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
+    ].uniq
+
+    available_modules.each do |clazz|
+      clazz.constants.each do |const|
+        next unless const.to_s.start_with?('TLV_TYPE_') || const.to_s.start_with?('PACKET_')
+
+        @@cached_tlv_types[const] = clazz.const_get(const)
+      end
+    end
   end
 
 end
