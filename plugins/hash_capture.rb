@@ -209,7 +209,7 @@ class Plugin::HashCapture < Msf::Plugin
         mod_dup._import_extra_options(opts)
         mod_dup.options.validate(mod_dup.datastore)
 
-        modules_to_run.append(svc, mod, opts)
+        modules_to_run.append([svc, mod, opts])
       end
 
       modules_to_run.each do |svc, mod, opts|
