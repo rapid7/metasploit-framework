@@ -167,40 +167,43 @@ class Plugin::HashCapture < Msf::Plugin
 
       modules = {
         # Capturing
-        'drda' => 'auxiliary/server/capture/drda',
-        'ftp' => 'auxiliary/server/capture/ftp',
-        'imap' => 'auxiliary/server/capture/imap',
-        'mssql' => 'auxiliary/server/capture/mssql',
-        'mysql' => 'auxiliary/server/capture/mysql',
-        'pop3' => 'auxiliary/server/capture/pop3',
-        'postgres' => 'auxiliary/server/capture/postgresql',
-        'printjob' => 'auxiliary/server/capture/printjob_capture',
-        'sip' => 'auxiliary/server/capture/sip',
-        'smb' => 'auxiliary/server/capture/smb',
-        'smtp' => 'auxiliary/server/capture/smtp',
-        'telnet' => 'auxiliary/server/capture/telnet',
-        'vnc' => 'auxiliary/server/capture/vnc',
+        'DRDA' => 'auxiliary/server/capture/drda',
+        'FTP' => 'auxiliary/server/capture/ftp',
+        'IMAP' => 'auxiliary/server/capture/imap',
+        'MSSQL' => 'auxiliary/server/capture/mssql',
+        'MySQL' => 'auxiliary/server/capture/mysql',
+        'POP3' => 'auxiliary/server/capture/pop3',
+        'Postgres' => 'auxiliary/server/capture/postgresql',
+        'PrintJob' => 'auxiliary/server/capture/printjob_capture',
+        'SIP' => 'auxiliary/server/capture/sip',
+        'SMB' => 'auxiliary/server/capture/smb',
+        'SMTP' => 'auxiliary/server/capture/smtp',
+        'Telnet' => 'auxiliary/server/capture/telnet',
+        'VNC' => 'auxiliary/server/capture/vnc',
 
         # SSL versions
-        'ftps' => 'auxiliary/server/capture/ftp',
-        'imaps' => 'auxiliary/server/capture/imap',
-        'pop3s' => 'auxiliary/server/capture/pop3',
-        'smtps' => 'auxiliary/server/capture/smtp',
+        'FTPS' => 'auxiliary/server/capture/ftp',
+        'IMAPS' => 'auxiliary/server/capture/imap',
+        'POP3S' => 'auxiliary/server/capture/pop3',
+        'SMTPS' => 'auxiliary/server/capture/smtp',
 
         # Poisoning
-        'dns' => 'auxiliary/spoof/dns/native_spoofer',
-        'nbns' => 'auxiliary/spoof/nbns/nbns_response',
-        'llmnr' => 'auxiliary/spoof/llmnr/llmnr_response',
-        'mdns' => 'auxiliary/spoof/mdns/mdns_response',
-        'wpad' => 'auxiliary/server/wpad',
+        'DNS' => 'auxiliary/spoof/dns/native_spoofer',
+        'NBNS' => 'auxiliary/spoof/nbns/nbns_response',
+        'LLMNR' => 'auxiliary/spoof/llmnr/llmnr_response',
+        'mDNS' => 'auxiliary/spoof/mdns/mdns_response',
+        'WPAD' => 'auxiliary/server/wpad',
       }
 
+      encrypted = ['HTTPS','FTPS','IMAPS','POP3S','SMTPS']
+      udp = ['DNS','NBNS','LLMNR','mDNS','SIP']
+
       if config[:http_basic]
-        modules['http'] = 'auxiliary/server/capture/http_basic'
-        modules['https'] = 'auxiliary/server/capture/http_basic'
+        modules['HTTP'] = 'auxiliary/server/capture/http_basic'
+        modules['HTTPS'] = 'auxiliary/server/capture/http_basic'
       else
-        modules['http'] = 'auxiliary/server/capture/http_ntlm'
-        modules['https'] = 'auxiliary/server/capture/http_ntlm'
+        modules['HTTP'] = 'auxiliary/server/capture/http_ntlm'
+        modules['HTTPS'] = 'auxiliary/server/capture/http_ntlm'
       end
 
       modules_to_run = []
@@ -210,12 +213,16 @@ class Plugin::HashCapture < Msf::Plugin
           # This service turned off in config
           next
         end
+        if udp.include?(svc) && !config[:session].nil?
+          print_line("Skipping #{svc}: UDP server not supported over a remote session")
+          next
+        end
         # Special case for two variants of HTTP
-        if svc.start_with?('http')
+        if svc.start_with?('HTTP')
           if config[:http_basic]
-            svc += '_basic'
+            svc += '_Basic'
           else
-            svc += '_ntlm'
+            svc += '_NTLM'
           end
         end
 
@@ -244,11 +251,14 @@ class Plugin::HashCapture < Msf::Plugin
           opts['LocalOutput'] = self.driver.output
           datastore['VERBOSE'] = true
         end
-        method = "configure_#{svc}"
+        method = "configure_#{svc.downcase}"
         if self.respond_to?(method)
           self.send(method, datastore, config)
         end
 
+        if encrypted.include?(svc)
+          configure_tls(datastore, config)
+        end
 
         # Before running everything, let's do some basic validation of settings
         mod_dup = mod.replicant
@@ -278,7 +288,7 @@ class Plugin::HashCapture < Msf::Plugin
           else
             session_str = "session #{config[:session].to_i}"
           end
-          job.send(:name=, "Capture (#{session_str}): #{svc.upcase}")
+          job.send(:name=, "Capture (#{session_str}): #{svc}")
         end
       end
 
@@ -423,6 +433,11 @@ class Plugin::HashCapture < Msf::Plugin
 
     end
 
+    def configure_tls(datastore, config)
+        datastore['SSL'] = true
+        datastore['SSLCert'] = config[:ssl_cert]
+    end
+
     def configure_smb(datastore, config)
         datastore['SMBDOMAIN'] = config[:ntlm_domain]
         datastore['CHALLENGE'] = config[:ntlm_challenge]
@@ -437,37 +452,38 @@ class Plugin::HashCapture < Msf::Plugin
         datastore['DOMAIN'] = config[:ntlm_domain]
         datastore['CHALLENGE'] = config[:ntlm_challenge]
         datastore['SRVPORT'] = 80
+        datastore['URIPATH'] = '/'
     end
 
+    def configure_http_basic(datastore, config)
+        datastore['URIPATH'] = '/'
+    end
+    
+    def configure_https_basic(datastore, config)
+        datastore['SRVPORT'] = 443
+        datastore['URIPATH'] = '/'
+    end
+    
     def configure_https_ntlm(datastore, config)
         datastore['DOMAIN'] = config[:ntlm_domain]
         datastore['CHALLENGE'] = config[:ntlm_challenge]
-        datastore['SSL'] = true
-        datastore['SSLCert'] = config[:ssl_cert]
         datastore['SRVPORT'] = 443
+        datastore['URIPATH'] = '/'
     end
 
     def configure_ftps(datastore, config)
-        datastore['SSL'] = true
-        datastore['SSLCert'] = config[:ssl_cert]
         datastore['SRVPORT'] = 990
     end
 
     def configure_imaps(datastore, config)
-        datastore['SSL'] = true
-        datastore['SSLCert'] = config[:ssl_cert]
         datastore['SRVPORT'] = 993
     end
 
     def configure_pop3(datastore, config)
-        datastore['SSL'] = true
-        datastore['SSLCert'] = config[:ssl_cert]
         datastore['SRVPORT'] = 995
     end
 
     def configure_smtps(datastore, config)
-        datastore['SSL'] = true
-        datastore['SSLCert'] = config[:ssl_cert]
         datastore['SRVPORT'] = 587
     end
   end
