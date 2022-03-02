@@ -420,8 +420,20 @@ class Plugin::HashCapture < Msf::Plugin
       options
     end
 
+    def poison_included(options)
+      poisoners = ['mDNS','LLMNR','WPAD','NBNS','DNS']
+      poisoners.each do |svc|
+        if options[:services][svc]
+          return true
+        end
+      end
+      false
+    end
+
     def validate_params(options)
-      if options[:spoof_ip].nil? && options[:srvhost] == '0.0.0.0'
+      # If we're running poisoning (which is disabled remotely, so excluding that situation), 
+      # we need either a specific srvhost to use, or a specific spoof IP
+      if options[:spoof_ip].nil? && options[:srvhost] == '0.0.0.0' && options[:session].nil? && poison_included(options)
         raise ArgumentError.new('Must provide an IP address to use for poisoning')
       end
       unless options[:ssl_cert].nil? || File.file?(options[:ssl_cert])
