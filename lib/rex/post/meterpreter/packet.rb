@@ -284,8 +284,6 @@ end
 #
 ###
 class Tlv
-  @@cached_tlv_types = {}
-
   attr_accessor :type, :value, :compress
 
   HEADER_SIZE = 8
@@ -316,13 +314,20 @@ class Tlv
     end
   end
 
-  def _tlv_type_string(type)
-    # Try to regenerate the cache if cache is empty, or the type we are looking for is not present in the cache.
-    regenerate_tlv_types_cache if @@cached_tlv_types.nil? || @@cached_tlv_types.key(type).nil?
+  def _tlv_type_string(value)
+    tlv_names = ::Rex::Post::Meterpreter::CommandMapper.get_tlv_names(value).map { |name| name.to_s.gsub('TLV_TYPE_', '').gsub('PACKET_TYPE_', '') }
 
-    return @@cached_tlv_types.key(type).to_s.gsub('TLV_TYPE_', '').gsub('_', '-') unless @@cached_tlv_types.key(type).nil?
-
-    nil
+    case tlv_names.length
+    when 0
+      "unknown-#{value}"
+    when 1
+      tlv_names.first
+    else
+      # In the off-chance we have multiple TLV types which have the same value
+      # https://github.com/rapid7/metasploit-framework/issues/16267
+      # Sort it to ensure consistency across tests
+      "oneOf(#{tlv_names.sort_by(&:to_s).join(',')})"
+    end
   end
 
   def inspect
@@ -338,8 +343,12 @@ class Tlv
       when TLV_META_TYPE_COMPLEX; "COMPLEX"
       else; 'unknown-meta-type'
       end
-    stype = _tlv_type_string(type)
-    stype ||= "unknown-#{type}"
+
+    stype = case type
+      when PACKET_TYPE_REQUEST; 'Request'
+      when PACKET_TYPE_RESPONSE; 'Response'
+      else; _tlv_type_string(type)
+      end
 
     val = value.inspect
     if val.length > 50
@@ -501,23 +510,6 @@ class Tlv
 
   def ntohq(value)
     htonq(value)
-  end
-
-  def regenerate_tlv_types_cache
-    @@cached_tlv_types = {}
-
-    available_modules = [
-      ::Rex::Post::Meterpreter,
-      *::Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
-    ].uniq
-
-    available_modules.each do |clazz|
-      clazz.constants.each do |const|
-        next unless const.to_s.start_with?('TLV_TYPE_') || const.to_s.start_with?('PACKET_')
-
-        @@cached_tlv_types[const] = clazz.const_get(const)
-      end
-    end
   end
 
 end
