@@ -1139,7 +1139,6 @@ require 'digest/sha1'
     to_exe_elf(framework, opts, "template_aarch64_linux_dll.bin", code)
   end
 
-
   # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
