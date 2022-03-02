@@ -81,6 +81,8 @@ module Msf
             commits = git_client.commits(repository, branch, path: path)
           rescue Faraday::ConnectionFailed
             raise PullRequestFinder::Exception, 'No network connection to Github.'
+          rescue Octokit::Unauthorized
+            raise PullRequestFinder::Exception, 'Authentication Failed #{e}.'
           end
 
           if commits.empty?
