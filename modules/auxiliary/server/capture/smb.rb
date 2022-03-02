@@ -34,8 +34,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => [
         'hdm',                 # Author of original module
         'Spencer McIntyre',    # Creator of RubySMB::Server
-        'agalway-r7',          # Port of existing module to use RUBYSMB::Server
-        'sjanusz-r7',          # Port of existing module to use RUBYSMB::Server
+        'agalway-r7',          # Port of existing module to use RubySMB::Server
+        'sjanusz-r7',          # Port of existing module to use RubySMB::Server
       ],
       'License' => MSF_LICENSE,
       'Actions' => [[ 'Capture', { 'Description' => 'Run SMB capture server' } ]],
