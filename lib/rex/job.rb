@@ -28,8 +28,8 @@ class Job
     # Avoid start and stop both calling cleanup
     self.cleanup_mutex.synchronize do
       unless cleaned_up
-        self.clean_proc.call(ctx) if self.clean_proc
         self.cleaned_up = true
+        self.clean_proc.call(ctx) if self.clean_proc
       end
     end
   end
