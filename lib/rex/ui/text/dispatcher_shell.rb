@@ -300,9 +300,8 @@ module DispatcherShell
       directory = str[-1] == File::SEPARATOR ? str : File.dirname(str)
       filename = str[-1] == File::SEPARATOR ? '' : File.basename(str)
       entries = Dir.entries(directory).select { |fp| fp.start_with?(filename) }
-      dirs = entries - ['.','..']
+      dirs = entries - ['.', '..']
       dirs = dirs.map { |fp| File.join(directory, fp).gsub(/\A\.\//, '') }
-      dirs = dirs.select { |x| File.directory?(x) }
       dirs = dirs.select { |x| File.directory?(x) }
       dirs = dirs.map { |x| x + File::SEPARATOR }
       if dirs.length == 1 && dirs[0] != str && dirs[0].end_with?(File::SEPARATOR)
