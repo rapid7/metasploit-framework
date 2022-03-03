@@ -6,7 +6,7 @@ Mentors: @zerosteiner, @jmartin-r7
 
 ### HTTP-Trace enabled login scanners
 
-Current login scanners are not enabled to support the HTTP-Trace options, this options is current exposed in the `Exploit::Remote::HttpClient` mixin and not availabe in scanner logins. This functionality would aid module writers in debugging and testing initial module implementations as well as enable end users to provide more verbose details for error reports. Changes to enable this support will need careful validation and testing as a large number of modules would be potentially impacted by the revision.
+Current login scanners are not enabled to support the HTTP-Trace options, this options is current exposed in the `Exploit::Remote::HttpClient` mixin and not available in login scanners. This functionality would aid module writers in debugging and testing initial module implementations as well as enable end users to provide more verbose details for error reports. Changes to enable this support will need careful validation and testing as a large number of modules would be potentially impacted by the revision.
 
 Size: Medium  
 Difficulty: 3/5
@@ -20,7 +20,7 @@ Difficulty: 4/5
 
 ### LDAP Capture Capabilities
 
-Metasploit's LDAP service mixin provides a service to enable interaction over LDAP protocol. The current implementation is the bare minimum to be enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP interactions would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow intercept or advertisement of LDAP services for activity such as, capture and forward based, impersonation of an LDAP service. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients.
+Metasploit's LDAP service mixin provides a service to enable interaction over LDAP protocol. The current implementation is the bare minimum to be enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP interactions would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow intercept or advertisement of LDAP services for activity such as, capture and forward based, impersonation of an LDAP service. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
 
 Size: Medium  
 Difficulty: 3/5
