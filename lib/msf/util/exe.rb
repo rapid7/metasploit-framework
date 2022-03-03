@@ -1128,6 +1128,17 @@ require 'digest/sha1'
     to_exe_elf(framework, opts, "template_x86_linux_dll.bin", code)
   end
 
+  # Create a AARCH64 Linux ELF_DYN containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_aarch64_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_aarch64_linux_dll.bin", code)
+  end
+
   # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
@@ -2087,6 +2098,8 @@ require 'digest/sha1'
           to_linux_x64_elf_dll(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf_dll(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_linux_aarch64_elf_dll(framework, code, exeopts)
         end
       end
     when 'macho', 'osx-app'
