@@ -1,5 +1,6 @@
 require 'uri'
 require 'rex/sync/event'
+require 'fileutils'
 
 module Msf
 
@@ -47,6 +48,9 @@ class Plugin::HashCapture < Msf::Plugin
       '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
       '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
       '--configfile' => [ true, 'Path to a config file' ],
+      '--logfile' => [ true, 'Path to store logs' ],
+      '--hashdir' => [ true, 'Directory to store hash results' ],
+      '--stdout' => [ false, 'Show results in stdout' ],
       '-v' => [ false, 'Verbose output' ],
       '-h' => [false, 'Display this message' ],
     )
@@ -97,8 +101,10 @@ class Plugin::HashCapture < Msf::Plugin
         case words[-1]
           when '--session'
             return framework.sessions.keys.map { |k| k.to_s }
-          when '--cert', '--configfile'
+          when '--cert', '--configfile', '--logfile'
             return tab_complete_filenames(str, words)
+          when '--hashdir'
+            return tab_complete_directory(str, words)
         end
         
         if @@start_opt_parser.arg_required?(words[-1])
@@ -159,11 +165,8 @@ class Plugin::HashCapture < Msf::Plugin
       # Start afresh
       @active_job_ids[session] = []
 
+      transform_params(config)
       validate_params(config)
-
-      if config[:spoof_ip].nil?
-        config[:spoof_ip] = config[:srvhost]
-      end
 
       modules = {
         # Capturing
@@ -196,7 +199,6 @@ class Plugin::HashCapture < Msf::Plugin
       }
 
       encrypted = ['HTTPS','FTPS','IMAPS','POP3S','SMTPS']
-      udp = ['DNS','NBNS','LLMNR','mDNS','SIP']
 
       if config[:http_basic]
         modules['HTTP'] = 'auxiliary/server/capture/http_basic'
@@ -207,14 +209,17 @@ class Plugin::HashCapture < Msf::Plugin
       end
 
       modules_to_run = []
+      logfile = config[:logfile]
+      print_line("Logging results to #{logfile}")
+      logdir = ::File.dirname(logfile)
+      FileUtils.mkdir_p(logdir)
+      hashdir = config[:hashdir]
+      print_line("Hash results stored in #{hashdir}")
+      FileUtils.mkdir_p(hashdir)
 
       modules.each do |svc, module_name|
         unless config[:services][svc]
           # This service turned off in config
-          next
-        end
-        if udp.include?(svc) && !config[:session].nil?
-          print_line("Skipping #{svc}: UDP server not supported over a remote session")
           next
         end
         # Special case for two variants of HTTP
@@ -237,6 +242,8 @@ class Plugin::HashCapture < Msf::Plugin
         datastore = {}
         # Capturers
         datastore['SRVHOST'] = config[:srvhost]
+        datastore['CAINPWFILE'] = File.join(config[:hashdir], "cain_#{svc}")
+        datastore['JOHNPWFILE'] = File.join(config[:hashdir], "john_#{svc}")
 
         # Poisoners
         datastore['SPOOFIP'] = config[:spoof_ip]
@@ -248,8 +255,13 @@ class Plugin::HashCapture < Msf::Plugin
         opts['Options'] = datastore
         opts['RunAsJob'] = true
         if config[:verbose]
-          opts['LocalOutput'] = self.driver.output
           datastore['VERBOSE'] = true
+        end
+
+        if config[:stdout]
+          opts['LocalOutput'] = Rex::Ui::Text::Output::Tee.new(logfile)
+        else
+          opts['LocalOutput'] = Rex::Ui::Text::Output::File.new(logfile, mode='ab')
         end
         method = "configure_#{svc.downcase}"
         if self.respond_to?(method)
@@ -345,7 +357,26 @@ class Plugin::HashCapture < Msf::Plugin
          :ssl_cert => nil,
          :verbose => false,
          :show_help => false,
+         :stdout => false,
+         :logfile => nil,
+         :hashdir => nil,
         }
+    end
+
+    def default_logfile(options)
+      session = 'local'
+      session = options[:session].to_s unless options[:session].nil?
+
+      name = "capture_#{session}_#{Time.now.strftime('%Y%m%d%H%M%S')}_#{Rex::Text.rand_text_numeric(6)}.txt"
+      File.join(Msf::Config.log_directory,"captures/#{name}")
+    end
+
+    def default_hashdir(options)
+      session = 'local'
+      session = options[:session].to_s unless options[:session].nil?
+
+      name = "capture_#{session}_#{Time.now.strftime('%Y%m%d%H%M%S')}_#{Rex::Text.rand_text_numeric(6)}"
+      File.join(Msf::Config.loot_directory,"captures/#{name}")
     end
 
     def read_config(filename)
@@ -379,8 +410,7 @@ class Plugin::HashCapture < Msf::Plugin
     end
 
     def parse_start_args(args)
-      config_file = nil
-
+      config_file = File.join(Msf::Config.data_directory,"capture_config.yaml")
       # See if there was a config file set
       @@start_opt_parser.parse(args) do |opt, idx, val|
         case opt
@@ -389,9 +419,6 @@ class Plugin::HashCapture < Msf::Plugin
         end
       end
 
-      if config_file.nil?
-        config_file = File.join(Msf::Config.data_directory,"capture_config.yaml")
-      end
       options = default_options
       config_options = read_config(config_file)
       options = options.merge(config_options)
@@ -412,6 +439,12 @@ class Plugin::HashCapture < Msf::Plugin
           options[:http_basic] = true
         when '--cert'
           options[:ssl_cert] = val
+        when '--stdout'
+          options[:stdout] = true
+        when '--logfile'
+          options[:logfile] = val
+        when '--hashdir'
+          options[:hashdir] = val
         when '-h'
           options[:show_help] = true
         end
@@ -430,10 +463,37 @@ class Plugin::HashCapture < Msf::Plugin
       false
     end
 
+    # Fill in implied parameters to make the running code neater
+    def transform_params(options)
+      # If we've been given a specific IP to listen on, use that as our poisoning IP
+      if options[:spoof_ip].nil? && options[:srvhost] != '0.0.0.0'
+        options[:spoof_ip] = options[:srvhost]
+      end
+      
+      unless options[:session].nil?
+        # UDP is not supported on remote sessions
+        udp = ['DNS','NBNS','LLMNR','mDNS','SIP']
+        udp.each do |svc|
+          if options[:services][svc]
+            print_line("Skipping #{svc}: UDP server not supported over a remote session")
+            options[:services][svc] = false
+          end
+        end
+      end
+
+      if options[:logfile].nil?
+        options[:logfile] = default_logfile(options)
+      end
+
+      if options[:hashdir].nil?
+        options[:hashdir] = default_hashdir(options)
+      end
+    end
+
     def validate_params(options)
       # If we're running poisoning (which is disabled remotely, so excluding that situation), 
       # we need either a specific srvhost to use, or a specific spoof IP
-      if options[:spoof_ip].nil? && options[:srvhost] == '0.0.0.0' && options[:session].nil? && poison_included(options)
+      if options[:spoof_ip].nil? && poison_included(options)
         raise ArgumentError.new('Must provide an IP address to use for poisoning')
       end
       unless options[:ssl_cert].nil? || File.file?(options[:ssl_cert])
@@ -442,7 +502,6 @@ class Plugin::HashCapture < Msf::Plugin
       unless options[:session].nil? || framework.sessions.key?(options[:session].to_i)
         raise ArgumentError.new("Session #{options[:session].to_i} not found")
       end
-
     end
 
     def configure_tls(datastore, config)
