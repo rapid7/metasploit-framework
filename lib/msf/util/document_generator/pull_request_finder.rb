@@ -82,7 +82,7 @@ module Msf
           rescue Faraday::ConnectionFailed
             raise PullRequestFinder::Exception, 'No network connection to Github.'
           rescue Octokit::Unauthorized
-            raise PullRequestFinder::Exception, 'Authentication Failed #{e}.'
+            raise PullRequestFinder::Exception, 'Github Authentication Failed.'
           end
 
           if commits.empty?
