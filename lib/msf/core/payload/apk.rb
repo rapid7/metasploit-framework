@@ -125,10 +125,24 @@ class Msf::Payload::Apk
   def parse_orig_cert_data(orig_apkfile)
     orig_cert_data = Array[]
     keytool_output = run_cmd(['keytool', '-J-Duser.language=en', '-printcert', '-jarfile', orig_apkfile])
-    owner_line = keytool_output.match(/^Owner:.+/)[0]
+
+    if keytool_output.include?('keytool error: ')
+      raise RuntimeError, "keytool could not parse APK file: #{keytool_output}"
+    end
+
+    owner_line = keytool_output.scan(/^Owner:.+/).flatten.first
+    if owner_line.empty?
+      raise RuntimeError, "Could not extract certificate owner: #{keytool_output}"
+    end
+
     orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
     orig_cert_data.push("#{orig_cert_dname}")
-    valid_from_line = keytool_output.match(/^Valid from:.+/)[0]
+
+    valid_from_line = keytool_output.scan(/^Valid from:.+/).flatten.first
+    if valid_from_line.empty?
+      raise RuntimeError, "Could not extract certificate date: #{keytool_output}"
+    end
+
     from_date_str = valid_from_line.gsub(/^Valid from:/, '').gsub(/until:.+/, '').strip
     to_date_str = valid_from_line.gsub(/^Valid from:.+until:/, '').strip
     from_date = DateTime.parse("#{from_date_str}")
