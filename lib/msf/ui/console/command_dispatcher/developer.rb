@@ -9,7 +9,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     '-e' => [true,  'Expression to evaluate.']
   )
 
-  @@servicemanager_opts = Rex::Parser::Arguments.new(
+  @@_servicemanager_opts = Rex::Parser::Arguments.new(
     ['-l', '--list'] => [false, 'View the currently running services' ]
   )
 
@@ -22,15 +22,18 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def commands
-    {
+    commands = {
       'irb'        => 'Open an interactive Ruby shell in the current context',
       'pry'        => 'Open the Pry debugger on the current module or Framework',
       'edit'       => 'Edit the current module or a file with the preferred editor',
       'reload_lib' => 'Reload Ruby library files from specified paths',
       'log'        => 'Display framework.log paged to the end if possible',
-      'time'       => 'Time how long it takes to run a particular command',
-      'servicemanager' => 'Manage running framework services',
+      'time'       => 'Time how long it takes to run a particular command'
     }
+    if framework.features.enabled?(Msf::FeatureManager::SERVICEMANAGER_COMMAND)
+      commands['_servicemanager'] = 'Interact with the Rex::ServiceManager'
+    end
+    commands
   end
 
   def local_editor
@@ -320,14 +323,14 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   #
   # Interact with framework's service manager
   #
-  def cmd_servicemanager(*args)
+  def cmd__servicemanager(*args)
     if args.include?('-h') || args.include?('--help')
-      cmd_servicemanager_help
+      cmd__servicemanager_help
       return false
     end
 
     opts = {}
-    @@servicemanager_opts.parse(args) do |opt, idx, val|
+    @@_servicemanager_opts.parse(args) do |opt, idx, val|
       case opt
       when '-l', '--list'
         opts[:list] = true
@@ -358,19 +361,19 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   #
-  # Tab completion for the servicemanager command
+  # Tab completion for the _servicemanager command
   #
-  def cmd_servicemanager_tabs(_str, words)
+  def cmd__servicemanager_tabs(_str, words)
     return [] if words.length > 1
 
-    @@servicemanager_opts.option_keys
+    @@_servicemanager_opts.option_keys
   end
 
-  def cmd_servicemanager_help
+  def cmd__servicemanager_help
     print_line 'Usage: servicemanager'
     print_line
     print_line 'Manage running framework services'
-    print @@servicemanager_opts.usage
+    print @@_servicemanager_opts.usage
     print_line
   end
 

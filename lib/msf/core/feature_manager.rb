@@ -15,6 +15,7 @@ module Msf
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
     FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
+    SERVICEMANAGER_COMMAND = 'servicemanager_command'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -24,6 +25,11 @@ module Msf
       {
         name: FULLY_INTERACTIVE_SHELLS,
         description: 'When enabled you will have the option to drop into a fully interactive shell from within meterpreter',
+        default_value: false
+      }.freeze,
+      {
+        name: SERVICEMANAGER_COMMAND,
+        description: 'When enabled you will have access to the _servicemanager command',
         default_value: false
       }.freeze
     ].freeze
