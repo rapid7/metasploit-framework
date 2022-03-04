@@ -159,12 +159,21 @@ class Msf::Payload::Apk
       raise RuntimeError, "Invalid template: #{apkfile}"
     end
 
-    apktool = run_cmd(%w[apktool -version])
-    if apktool.nil?
+    check_apktool = run_cmd(%w[apktool -version])
+    if check_apktool.nil?
       raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
     end
 
-    apk_v = Rex::Version.new(apktool.split("\n").first.strip)
+    if check_apktool.to_s.include?('java: not found')
+      raise RuntimeError, "java not found. If it's not in your PATH, please add it."
+    end
+
+    jar_name = 'apktool.jar'
+    if check_apktool.to_s.include?("can't find #{jar_name}")
+      raise RuntimeError, "#{jar_name} not found. This file must exist in the same directory as apktool."
+    end
+
+    apk_v = Rex::Version.new(check_apktool.split("\n").first.strip)
     unless apk_v >= Rex::Version.new('2.0.1')
       raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
     end
