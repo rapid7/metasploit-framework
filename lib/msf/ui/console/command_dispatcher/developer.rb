@@ -9,6 +9,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     '-e' => [true,  'Expression to evaluate.']
   )
 
+  @@_servicemanager_opts = Rex::Parser::Arguments.new(
+    ['-l', '--list'] => [false, 'View the currently running services' ]
+  )
+
   def initialize(driver)
     super
   end
@@ -18,7 +22,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def commands
-    {
+    commands = {
       'irb'        => 'Open an interactive Ruby shell in the current context',
       'pry'        => 'Open the Pry debugger on the current module or Framework',
       'edit'       => 'Edit the current module or a file with the preferred editor',
@@ -26,6 +30,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       'log'        => 'Display framework.log paged to the end if possible',
       'time'       => 'Time how long it takes to run a particular command'
     }
+    if framework.features.enabled?(Msf::FeatureManager::SERVICEMANAGER_COMMAND)
+      commands['_servicemanager'] = 'Interact with the Rex::ServiceManager'
+    end
+    commands
   end
 
   def local_editor
@@ -310,6 +318,63 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     unless system(*pager.split, path)
       print_error("Could not execute #{pager} #{path}")
     end
+  end
+
+  #
+  # Interact with framework's service manager
+  #
+  def cmd__servicemanager(*args)
+    if args.include?('-h') || args.include?('--help')
+      cmd__servicemanager_help
+      return false
+    end
+
+    opts = {}
+    @@_servicemanager_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-l', '--list'
+        opts[:list] = true
+      end
+    end
+
+    if opts.empty?
+      opts[:list] = true
+    end
+
+    if opts[:list]
+      table = Rex::Text::Table.new(
+        'Header'  => 'Services',
+        'Indent'  => 1,
+        'Columns' => ['Id', 'Name', 'References']
+      )
+      Rex::ServiceManager.instance.each.with_index do |(name, instance), id|
+        # TODO: Update rex-core to support querying the reference count
+        table << [id, name, instance.instance_variable_get(:@_references)]
+      end
+
+      if table.rows.empty?
+        print_status("No framework services are currently running.")
+      else
+        print_line(table.to_s)
+      end
+    end
+  end
+
+  #
+  # Tab completion for the _servicemanager command
+  #
+  def cmd__servicemanager_tabs(_str, words)
+    return [] if words.length > 1
+
+    @@_servicemanager_opts.option_keys
+  end
+
+  def cmd__servicemanager_help
+    print_line 'Usage: servicemanager'
+    print_line
+    print_line 'Manage running framework services'
+    print @@_servicemanager_opts.usage
+    print_line
   end
 
   #
