@@ -130,8 +130,12 @@ class Msf::Payload::Apk
       raise RuntimeError, "keytool could not parse APK file: #{keytool_output}"
     end
 
+    if keytool_output.start_with?('Not a signed jar file')
+      raise RuntimeError, 'APK file is unsigned'
+    end
+
     owner_line = keytool_output.scan(/^Owner:.+/).flatten.first
-    if owner_line.empty?
+    if owner_line.blank?
       raise RuntimeError, "Could not extract certificate owner: #{keytool_output}"
     end
 
@@ -210,17 +214,22 @@ class Msf::Payload::Apk
       storepass = "android"
       keypass = "android"
       keyalias = "signing.key"
+
       orig_cert_data = parse_orig_cert_data(apkfile)
       orig_cert_dname = orig_cert_data[0]
       orig_cert_startdate = orig_cert_data[1]
       orig_cert_validity = orig_cert_data[2]
 
       print_status "Creating signing key and keystore..\n"
-      run_cmd([
+      keytool_output = run_cmd([
         'keytool', '-genkey', '-v', '-keystore', keystore, '-alias', keyalias, '-storepass', storepass,
         '-keypass', keypass, '-keyalg', 'RSA', '-keysize', '2048', '-startdate', orig_cert_startdate,
         '-validity', orig_cert_validity, '-dname', orig_cert_dname
       ])
+
+      if keytool_output.include?('keytool error: ')
+        raise RuntimeError, "keytool could not generate key: #{keytool_output}"
+      end
     end
 
     print_status "Decompiling original APK..\n"
