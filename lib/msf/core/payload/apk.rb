@@ -157,6 +157,13 @@ class Msf::Payload::Apk
     return orig_cert_data
   end
 
+  def check_apktool_output_for_exceptions(apktool_output)
+    if apktool_output.to_s.include?('Exception in thread')
+      print_error(apktool_output)
+      raise RuntimeError, "apktool execution failed"
+    end
+  end
+
   def backdoor_apk(apkfile, raw_payload, signature = true, manifest = true, apk_data = nil, service = true)
     unless apk_data || apkfile && File.readable?(apkfile)
       usage
@@ -176,6 +183,8 @@ class Msf::Payload::Apk
     if check_apktool.to_s.include?("can't find #{jar_name}")
       raise RuntimeError, "#{jar_name} not found. This file must exist in the same directory as apktool."
     end
+
+    check_apktool_output_for_exceptions(check_apktool)
 
     apk_v = Rex::Version.new(check_apktool.split("\n").first.strip)
     unless apk_v >= Rex::Version.new('2.0.1')
@@ -233,9 +242,12 @@ class Msf::Payload::Apk
     end
 
     print_status "Decompiling original APK..\n"
-    run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
+    apktool_output = run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
+    check_apktool_output_for_exceptions(apktool_output)
+
     print_status "Decompiling payload APK..\n"
-    run_cmd(['apktool', 'd', "#{tempdir}/payload.apk", '-o', "#{tempdir}/payload"])
+    apktool_output = run_cmd(['apktool', 'd', "#{tempdir}/payload.apk", '-o', "#{tempdir}/payload"])
+    check_apktool_output_for_exceptions(apktool_output)
 
     amanifest = parse_manifest("#{tempdir}/original/AndroidManifest.xml")
 
@@ -312,6 +324,8 @@ class Msf::Payload::Apk
 
     print_status "Rebuilding apk with meterpreter injection as #{injected_apk}\n"
     apktool_output = run_cmd(['apktool', 'b', '-o', injected_apk, "#{tempdir}/original"])
+    check_apktool_output_for_exceptions(apktool_output)
+
     unless File.readable?(injected_apk)
       print_error apktool_output
       raise RuntimeError, "Unable to rebuild apk with apktool"
