@@ -209,9 +209,9 @@ class Msf::Payload::Apk
         raise RuntimeError, "keytool not found. If it's not in your PATH, please add it."
       end
 
-      jarsigner = run_cmd(['jarsigner'])
-      unless jarsigner != nil
-        raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
+      apksigner = run_cmd(['apksigner'])
+      if apksigner.nil?
+        raise RuntimeError, "apksigner not found. If it's not in your PATH, please add it."
       end
 
       zipalign = run_cmd(['zipalign'])
@@ -332,13 +332,28 @@ class Msf::Payload::Apk
     end
 
     if signature
-      print_status "Signing #{injected_apk}\n"
-      run_cmd([
-        'jarsigner', '-sigalg', 'SHA1withRSA', '-digestalg', 'SHA1', '-keystore', keystore,
-        '-storepass', storepass, '-keypass', keypass, injected_apk, keyalias
-      ])
       print_status "Aligning #{injected_apk}\n"
-      run_cmd(['zipalign', '4', injected_apk, aligned_apk])
+      zipalign_output = run_cmd(['zipalign', '4', injected_apk, aligned_apk])
+
+      unless File.readable?(aligned_apk)
+        print_error(zipalign_output)
+        raise RuntimeError, 'Unable to align apk with zipalign.'
+      end
+
+      print_status "Signing #{aligned_apk} with apksigner\n"
+      apksigner_output = run_cmd([
+        'apksigner', 'sign', '--ks', keystore, '--ks-pass', "pass:#{storepass}", aligned_apk
+      ])
+      if apksigner_output.to_s.include?('Failed')
+        print_error(apksigner_output)
+        raise RuntimeError, 'Signing with apksigner failed.'
+      end
+
+      apksigner_verify = run_cmd(['apksigner', 'verify', '--verbose', aligned_apk])
+      if apksigner_verify.to_s.include?('DOES NOT VERIFY')
+        print_error(apksigner_verify)
+        raise RuntimeError, 'Signature verification failed.'
+      end
     else
       aligned_apk = injected_apk
     end
