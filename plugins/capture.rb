@@ -58,6 +58,7 @@ class Plugin::HashCapture < Msf::Plugin
     def initialize(*args)
       super(*args)
       @active_job_ids = {}
+      @active_loggers = {}
     end
 
     def name
@@ -162,8 +163,14 @@ class Plugin::HashCapture < Msf::Plugin
         end
       end
 
+      if @active_loggers.key?(session)
+        logger = @active_loggers[session]
+        logger.close
+      end
+
       # Start afresh
       @active_job_ids[session] = []
+      @active_loggers.delete(session)
 
       transform_params(config)
       validate_params(config)
@@ -217,6 +224,15 @@ class Plugin::HashCapture < Msf::Plugin
       print_line("Hash results stored in #{hashdir}")
       FileUtils.mkdir_p(hashdir)
 
+
+      if config[:stdout]
+        logger = Rex::Ui::Text::Output::Tee.new(logfile)
+      else
+        logger = Rex::Ui::Text::Output::File.new(logfile, mode='ab')
+      end
+
+      @active_loggers[session] = logger
+
       modules.each do |svc, module_name|
         unless config[:services][svc]
           # This service turned off in config
@@ -254,15 +270,11 @@ class Plugin::HashCapture < Msf::Plugin
         opts = {}
         opts['Options'] = datastore
         opts['RunAsJob'] = true
+        opts['LocalOutput'] = logger
         if config[:verbose]
           datastore['VERBOSE'] = true
         end
 
-        if config[:stdout]
-          opts['LocalOutput'] = Rex::Ui::Text::Output::Tee.new(logfile)
-        else
-          opts['LocalOutput'] = Rex::Ui::Text::Output::File.new(logfile, mode='ab')
-        end
         method = "configure_#{svc.downcase}"
         if self.respond_to?(method)
           self.send(method, datastore, config)
@@ -315,15 +327,25 @@ class Plugin::HashCapture < Msf::Plugin
       end
 
       session = options[:session]
-      
-      @active_job_ids.each do |session_id, jobs|
+      job_id_clone = @active_job_ids.clone
+      job_id_clone.each do |session_id, jobs|
         if session.nil? || session == session_id
           jobs.each do | job_id|
             framework.jobs.stop_job(job_id) unless framework.jobs[job_id.to_s].nil?
           end
           jobs.clear
+          @active_job_ids.delete(session_id)
         end
       end
+
+      loggers_clone = @active_loggers.clone
+      loggers_clone.each do |session_id, logger|
+        if session.nil? || session == session_id
+          logger.close
+          @active_loggers.delete(session_id)
+        end
+      end
+
       print_line('Capture listeners stopped')
     end
 
