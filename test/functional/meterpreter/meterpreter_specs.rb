@@ -23,6 +23,7 @@ module MeterpreterSpecs
             "use",
             "write",
             "cat",
+            "lcat",
             "cd",
             "del",
             "download",
