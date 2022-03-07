@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_username
-    datastore['USERNAME'].blank? ? "#{Rex::Text.rand_text_alpha_lower(8..10)}#{Rex::Text.rand_text_numeric(0..2)}" : datastore['USERNAME']
+    datastore['USERNAME'].blank? ? Faker::Internet.username : datastore['USERNAME']
   end
 
   def get_password
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_email
-    datastore['EMAIL'].blank? ? Rex::Text.rand_mail_address : datastore['EMAIL']
+    datastore['EMAIL'].blank? ? Faker::Internet.email : datastore['EMAIL']
   end
 
   def run
