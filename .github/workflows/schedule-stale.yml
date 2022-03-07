@@ -1,7 +1,26 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  # This action can update/close issues
+  issues: write
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 on:
   schedule:
     - cron: "0 15 * * 1-5"
+
 name: Stale Bot workflow
+
 jobs:
   build:
     name: stale

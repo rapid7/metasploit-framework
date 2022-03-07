@@ -67,6 +67,7 @@ module Msf
             PromptChar
             PromptTimeFormat
             MeterpreterPrompt
+            SessionTlvLogging
           ]
           if !mod
             return res
@@ -122,6 +123,10 @@ module Msf
         # Provide tab completion for option values
         #
         def tab_complete_option_values(mod, str, words, opt:)
+          if words.last.casecmp?('SessionTlvLogging')
+            return %w[console true false file:<file>]
+          end
+
           res = []
           # With no module, we have nothing to complete
           if !mod

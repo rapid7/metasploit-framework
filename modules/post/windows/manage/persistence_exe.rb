@@ -217,6 +217,6 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
   def create_payload_from_file(exec)
     print_status("Reading Payload from file #{exec}")
-    ::IO.read(exec)
+    File.binread(exec)
   end
 end
