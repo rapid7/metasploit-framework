@@ -21,8 +21,6 @@ services:
   IMAPS: on
   POP3S: on
   SMTPS: on
-  DNS: on
   NBNS: on
   LLMNR: on
   mDNS: on
-  WPAD: on

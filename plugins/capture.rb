@@ -43,9 +43,9 @@ class Plugin::HashCapture < Msf::Plugin
     @@start_opt_parser = Rex::Parser::Arguments.new(
       '--session' => [ true, 'Session to bind on' ],
       '-i' => [ true, 'IP to bind to' ],
-      '--spoofip' => [ true, 'IP to use for spoofing (poisoning)' ],
+      '--spoofip' => [ true, 'IP to use for spoofing (poisoning); default is the bound IP address' ],
       '--regex' => [ true, 'Regex to match for spoofing' ],
-      '--basic' => [ false, 'Use Basic auth for HTTP listener' ],
+      '--basic' => [ false, 'Use Basic auth for HTTP listener (default is NTLM)' ],
       '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
       '--configfile' => [ true, 'Path to a config file' ],
       '--logfile' => [ true, 'Path to store logs' ],
@@ -198,11 +198,11 @@ class Plugin::HashCapture < Msf::Plugin
         'SMTPS' => 'auxiliary/server/capture/smtp',
 
         # Poisoning
-        'DNS' => 'auxiliary/spoof/dns/native_spoofer',
+        #'DNS' => 'auxiliary/spoof/dns/native_spoofer',
         'NBNS' => 'auxiliary/spoof/nbns/nbns_response',
         'LLMNR' => 'auxiliary/spoof/llmnr/llmnr_response',
         'mDNS' => 'auxiliary/spoof/mdns/mdns_response',
-        'WPAD' => 'auxiliary/server/wpad',
+        #'WPAD' => 'auxiliary/server/wpad',
       }
 
       encrypted = ['HTTPS_NTLM','HTTPS_Basic','FTPS','IMAPS','POP3S','SMTPS']
@@ -354,9 +354,8 @@ class Plugin::HashCapture < Msf::Plugin
     # @param first_arg [String] the first argument to this command
     # @return [nil]
     def help(first_arg = nil)
-
       if first_arg == 'start'
-        print_line('Usage: capture start [options]')
+        print_line('Usage: capture start -i <ip> [options]')
         print_line(@@start_opt_parser.usage)
       elsif first_arg == 'stop'
         print_line('Usage: capture stop [options]')
@@ -476,7 +475,7 @@ class Plugin::HashCapture < Msf::Plugin
     end
 
     def poison_included(options)
-      poisoners = ['mDNS','LLMNR','WPAD','NBNS','DNS']
+      poisoners = ['mDNS','LLMNR','NBNS']
       poisoners.each do |svc|
         if options[:services][svc]
           return true
@@ -494,7 +493,7 @@ class Plugin::HashCapture < Msf::Plugin
       
       unless options[:session].nil?
         # UDP is not supported on remote sessions
-        udp = ['DNS','NBNS','LLMNR','mDNS','SIP']
+        udp = ['NBNS','LLMNR','mDNS','SIP']
         udp.each do |svc|
           if options[:services][svc]
             print_line("Skipping #{svc}: UDP server not supported over a remote session")
@@ -513,10 +512,13 @@ class Plugin::HashCapture < Msf::Plugin
     end
 
     def validate_params(options)
+      if options[:srvhost].nil?
+        raise ArgumentError.new('Must provide an IP address to listen on')
+      end
       # If we're running poisoning (which is disabled remotely, so excluding that situation), 
       # we need either a specific srvhost to use, or a specific spoof IP
       if options[:spoof_ip].nil? && poison_included(options)
-        raise ArgumentError.new('Must provide an IP address to use for poisoning')
+        raise ArgumentError.new('Must provide a specific IP address to use for poisoning')
       end
       unless options[:ssl_cert].nil? || File.file?(options[:ssl_cert])
         raise ArgumentError.new("File #{options[:ssl_cert]} not found")
@@ -572,7 +574,7 @@ class Plugin::HashCapture < Msf::Plugin
         datastore['SRVPORT'] = 993
     end
 
-    def configure_pop3(datastore, config)
+    def configure_pop3s(datastore, config)
         datastore['SRVPORT'] = 995
     end
 
