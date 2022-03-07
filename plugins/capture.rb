@@ -205,7 +205,7 @@ class Plugin::HashCapture < Msf::Plugin
         'WPAD' => 'auxiliary/server/wpad',
       }
 
-      encrypted = ['HTTPS','FTPS','IMAPS','POP3S','SMTPS']
+      encrypted = ['HTTPS_NTLM','HTTPS_Basic','FTPS','IMAPS','POP3S','SMTPS']
 
       if config[:http_basic]
         modules['HTTP'] = 'auxiliary/server/capture/http_basic'
