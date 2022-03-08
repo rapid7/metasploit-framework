@@ -251,7 +251,7 @@ module Rex
         # Returns the hardcore alias for the LDAP service
         #
         def self.hardcore_alias(*args)
-          "#{args[0] || ''}#{args[1] || ''}"
+          "#{args[0] || ''}-#{args[1] || ''}-#{args[4] || ''}"
         end
 
         #
