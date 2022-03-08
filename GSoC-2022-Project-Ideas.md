@@ -25,6 +25,13 @@ Metasploit's LDAP service mixin provides a service to enable interaction over th
 Size: Medium  
 Difficulty: 3/5
 
+### Enhanced LDAP Query & Collection
+
+When preforming security assessment on a network with centralized login such as LDAP or Active Directory these services are sometimes exposed directly on the network. While Metasploit has capabilities to collect various pieces of information from these services when a user has been able to gain code execution inside a target system by utilizing tooling such as `Sharphound` or by leveraging SMB services via the `secrets_dump` module, these methods are somewhat indirect. A network base capability to query exposed services may have value. An interactive terminal plugin allowing users to connect directly to LDAP or Active Directory providing capabilities similar to the existing `requests` plugin could enable users search for valuable information in these services without the need to compromise a target or interact with a secondary service. 
+
+Size: Medium/Large (Depends on proposal)  
+Difficulty: 3/5
+
 ### Improving post-exploit API to be more consistent, work smoothly across session types
 
 The Metasploit post-exploitation API is intended to provide a unified interface between different Meterpreter, shell, powershell, mainframe, and other session types. However, there are areas where the implementation is not consistent, and could use improvements:
