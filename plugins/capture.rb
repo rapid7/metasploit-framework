@@ -367,12 +367,12 @@ class Plugin::HashCapture < Msf::Plugin
 
     def default_options
         options = {
-         :ntlm_challenge => '1122334455667788',
-         :ntlm_domain => 'anonymous',
+         :ntlm_challenge => nil,
+         :ntlm_domain => nil,
          :services => {},
          :spoof_ip => nil,
          :spoof_regex => '.*',
-         :srvhost => '0.0.0.0',
+         :srvhost => nil,
          :http_basic => false,
          :session => nil,
          :ssl_cert => nil,
