@@ -260,9 +260,7 @@ module ReverseHttp
   def stop_handler
     if self.service
       self.service.remove_resource((luri + "/").gsub("//", "/"))
-      if self.service.resources.empty? && self.sessions == 0
-        Rex::ServiceManager.stop_service(self.service)
-      end
+      Rex::ServiceManager.stop_service(self.service)
     end
   end
 
