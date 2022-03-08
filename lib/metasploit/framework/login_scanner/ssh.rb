@@ -94,8 +94,12 @@ module Metasploit
 
           unless result_options.has_key? :status
             if ssh_socket
-              proof = gather_proof unless skip_gather_proof
-              result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
+              begin
+                proof = gather_proof unless skip_gather_proof
+                result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
+              rescue => e
+                result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: e)
+              end
             else
               result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: nil)
             end
