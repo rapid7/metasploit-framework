@@ -13,6 +13,9 @@ New bugs and feature requests should be directed to:
 
 API documentation for writing modules can be found at:
   https://rapid7.github.io/metasploit-framework/api
+  
+YouTube channel for more help:
+https://www.youtube.com/c/MetasploitR7
 
 Questions and suggestions can be sent to: Freenode IRC channel or e-mail the metasploit-hackers mailing list
 
@@ -34,9 +37,9 @@ resources](https://metasploit.github.io), or the [wiki].
 Contributing
 --
 See the [Dev Environment Setup][wiki-devenv] guide on GitHub, which will
-walk you through the whole process from installing all the
+help you through the whole process from installing all the
 dependencies, to cloning the repository, and finally to submitting a
-pull request. For slightly more information, see
+pull request. For slightly more information,You can see
 [Contributing](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
 
 
