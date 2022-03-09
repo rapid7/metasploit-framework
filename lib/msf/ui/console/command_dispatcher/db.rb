@@ -314,15 +314,17 @@ class Db
     end
 
     case words[-1]
-    when '-d', '--delete'
-      return []
     when '-c', '--columns', '-C', '--columns-until-restart'
       return @@hosts_columns
-    when '-O', '--order'
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
+    end
+
+    if @@hosts_opts.arg_required?(words[-1])
       return []
     end
 
-    []
+    return @@hosts_opts.option_keys.select { |opt| opt.start_with?(str) }
   end
 
   def cmd_hosts_help
