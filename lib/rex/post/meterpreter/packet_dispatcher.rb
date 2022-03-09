@@ -732,7 +732,7 @@ module HttpPacketDispatcher
       resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
       self.passive_service.remove_resource(resource_uri) if self.passive_service
 
-      Rex::ServiceManager.stop_service(self.passive_service)
+      self.passive_service.deref
       self.passive_service = nil
     end
     super
