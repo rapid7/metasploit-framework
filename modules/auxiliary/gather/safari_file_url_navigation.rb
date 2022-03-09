@@ -322,7 +322,7 @@ class MetasploitModule < Msf::Auxiliary
     super
 
     # Kill FTP
-    stop_service
+    cleanup_service
 
     # clear my resource, deregister ref, stop/close the HTTP socket
     begin
