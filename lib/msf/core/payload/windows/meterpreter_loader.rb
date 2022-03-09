@@ -28,6 +28,11 @@ module Payload::Windows::MeterpreterLoader
       'PayloadCompat' => { 'Convention' => 'sockedi handleedi -https', },
       'Stage'         => { 'Payload'   => "" }
       ))
+    register_options(
+      [
+        OptBool.new('DEBUG', [false, 'Use the Meterpreter debug build.'])
+      ]
+    )
   end
 
   def asm_invoke_metsrv(opts={})
@@ -92,8 +97,9 @@ module Payload::Windows::MeterpreterLoader
   end
 
   def stage_meterpreter(opts={})
+    ds = opts[:datastore] || datastore
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll', debug: ds['DEBUG']))
 
     asm_opts = {
       rdi_offset: offset,
