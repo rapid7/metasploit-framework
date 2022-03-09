@@ -228,6 +228,7 @@ attr_accessor :sock, :thread
       self.thread.kill
       self.thread = nil
     end
+    self.sock.close
     close_pcap
   end
 end
