@@ -129,7 +129,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    -O, --order <column id>                Order rows by specified column number",
           "    -o, --output <filename>                Send output to a file in csv format",
           "    -R, --rhosts                           Set RHOSTS from the results of the search",
-          "    -S, --search                           Search string to filter by",
+          "    -S, --search <filter>                  Search string to filter by",
           "    -t, --tag                              Add or specify a tag to a range of hosts",
           "    -u, --up                               Only show hosts which are up",
           "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_family, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"

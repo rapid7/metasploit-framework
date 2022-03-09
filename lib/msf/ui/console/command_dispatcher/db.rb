@@ -416,7 +416,7 @@ class Db
     [ '-a', '--add' ] => [ true, 'Add the hosts instead of searching', '<host>' ],
     [ '-u', '--up' ] => [ false, 'Only show hosts which are up' ],
     [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search' ],
-    [ '-S', '--search' ] => [ false, 'Search string to filter by' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by', '<filter>' ],
     [ '-i', '--info' ] => [ true, 'Change the info of a host', '<info>' ],
     [ '-n', '--name' ] => [ true, 'Change the name of a host', '<name>' ],
     [ '-m', '--comment' ] => [ true, 'Change the comment of a host', '<comment>' ],
