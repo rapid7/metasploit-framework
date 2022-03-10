@@ -36,23 +36,23 @@ class Plugin::HashCapture < Msf::Plugin
 
     HELP_REGEX = /^-?-h(?:elp)?$/
     @@stop_opt_parser = Rex::Parser::Arguments.new(
-      '--session' => [ true, 'Session to stop (otherwise all capture jobs on all sessions will be stopped)' ],
-      '-h' => [false, 'Display this message' ],
+      '--session'      => [ true, 'Session to stop (otherwise all capture jobs on all sessions will be stopped)' ],
+      ['-h', '--help'] => [ false, 'Display this message' ],
     )
 
     @@start_opt_parser = Rex::Parser::Arguments.new(
-      '--session' => [ true, 'Session to bind on' ],
-      '-i' => [ true, 'IP to bind to' ],
-      '--spoofip' => [ true, 'IP to use for spoofing (poisoning); default is the bound IP address' ],
-      '--regex' => [ true, 'Regex to match for spoofing' ],
-      '--basic' => [ false, 'Use Basic auth for HTTP listener (default is NTLM)' ],
-      '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
-      '--configfile' => [ true, 'Path to a config file' ],
-      '--logfile' => [ true, 'Path to store logs' ],
-      '--hashdir' => [ true, 'Directory to store hash results' ],
-      '--stdout' => [ false, 'Show results in stdout' ],
-      '-v' => [ false, 'Verbose output' ],
-      '-h' => [false, 'Display this message' ],
+      '--session'         => [ true, 'Session to bind on' ],
+      ['-i', '--ip']      => [ true, 'IP to bind to' ],
+      '--spoofip'         => [ true, 'IP to use for spoofing (poisoning); default is the bound IP address' ],
+      '--regex'           => [ true, 'Regex to match for spoofing' ],
+      ['-b','--basic']    => [ false, 'Use Basic auth for HTTP listener (default is NTLM)' ],
+      '--cert'            => [ true, 'Path to SSL cert for encrypted communication' ],
+      '--configfile'      => [ true, 'Path to a config file' ],
+      '--logfile'         => [ true, 'Path to store logs' ],
+      '--hashdir'         => [ true, 'Directory to store hash results' ],
+      '--stdout'          => [ false, 'Show results in stdout' ],
+      ['-v', '--verbose'] => [ false, 'Verbose output' ],
+      ['-h', '--help']    => [ false, 'Display this message' ],
     )
 
     def initialize(*args)
@@ -106,6 +106,9 @@ class Plugin::HashCapture < Msf::Plugin
             return tab_complete_filenames(str, words)
           when '--hashdir'
             return tab_complete_directory(str, words)
+          when '-i', '--ip', '--spoofip'
+            return tab_complete_source_address
+            
         end
         
         if @@start_opt_parser.arg_required?(words[-1])
@@ -492,6 +495,7 @@ class Plugin::HashCapture < Msf::Plugin
       end
       
       unless options[:session].nil?
+        options[:session] = framework.session.get(options[:session])&.sid
         # UDP is not supported on remote sessions
         udp = ['NBNS','LLMNR','mDNS','SIP']
         udp.each do |svc|
@@ -512,7 +516,7 @@ class Plugin::HashCapture < Msf::Plugin
     end
 
     def validate_params(options)
-      if options[:srvhost].nil?
+      unless options[:srvhost] && Rex::Socket.is_ip_addr?(options[:srvhost])
         raise ArgumentError.new('Must provide an IP address to listen on')
       end
       # If we're running poisoning (which is disabled remotely, so excluding that situation), 
@@ -523,7 +527,7 @@ class Plugin::HashCapture < Msf::Plugin
       unless options[:ssl_cert].nil? || File.file?(options[:ssl_cert])
         raise ArgumentError.new("File #{options[:ssl_cert]} not found")
       end
-      unless options[:session].nil? || framework.sessions.key?(options[:session].to_i)
+      unless options[:session].nil? || framework.sessions.get(options[:session])
         raise ArgumentError.new("Session #{options[:session].to_i} not found")
       end
     end
