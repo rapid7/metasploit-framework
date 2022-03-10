@@ -67,7 +67,7 @@ class Plugin::HashCapture < Msf::Plugin
 
     def commands
       {
-        'capture' => 'Start hash capturing services',
+        'capture' => 'Start credential capturing services',
       }
     end
 
@@ -451,15 +451,15 @@ class Plugin::HashCapture < Msf::Plugin
         case opt
         when '--session'
           options[:session] = val
-        when '-i'
+        when '-i', '--ip'
           options[:srvhost] = val
         when '--spoofip'
           options[:spoof_ip] = val
         when '--regex'
           options[:spoof_regex] = val
-        when '-v'
+        when '-v', '--verbose'
           options[:verbose] = true
-        when '--basic'
+        when '--basic', '-b'
           options[:http_basic] = true
         when '--cert'
           options[:ssl_cert] = val
@@ -469,7 +469,7 @@ class Plugin::HashCapture < Msf::Plugin
           options[:logfile] = val
         when '--hashdir'
           options[:hashdir] = val
-        when '-h'
+        when '-h', '--help'
           options[:show_help] = true
         end
       end
@@ -490,7 +490,7 @@ class Plugin::HashCapture < Msf::Plugin
     # Fill in implied parameters to make the running code neater
     def transform_params(options)
       # If we've been given a specific IP to listen on, use that as our poisoning IP
-      if options[:spoof_ip].nil? && options[:srvhost] != '0.0.0.0'
+      if options[:spoof_ip].nil? && Rex::Socket.is_ip_addr?(options[:srvhost]) && Rex::Socket.addr_atoi(options[:srvhost]) != 0
         options[:spoof_ip] = options[:srvhost]
       end
       
@@ -517,12 +517,15 @@ class Plugin::HashCapture < Msf::Plugin
 
     def validate_params(options)
       unless options[:srvhost] && Rex::Socket.is_ip_addr?(options[:srvhost])
-        raise ArgumentError.new('Must provide an IP address to listen on')
+        raise ArgumentError.new('Must provide a valid IP address to listen on')
       end
       # If we're running poisoning (which is disabled remotely, so excluding that situation), 
       # we need either a specific srvhost to use, or a specific spoof IP
       if options[:spoof_ip].nil? && poison_included(options)
         raise ArgumentError.new('Must provide a specific IP address to use for poisoning')
+      end
+      unless Rex::Socket.is_ip_addr?(options[:spoof_ip])
+        raise ArgumentError.new('Spoof IP must be a valid IP address')
       end
       unless options[:ssl_cert].nil? || File.file?(options[:ssl_cert])
         raise ArgumentError.new("File #{options[:ssl_cert]} not found")
