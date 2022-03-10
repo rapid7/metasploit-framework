@@ -44,6 +44,26 @@ class Def_windows_winspool
       ["PDWORD","pcReturned","out"]
     ])
 
+    dll.add_function('EnumPrintersA', 'BOOL',[
+      ["DWORD","Flags","in"],
+      ["PCHAR","Name","in"],
+      ["DWORD","Level","in"],
+      ["PBLOB","pPrinterEnum","out"],
+      ["DWORD","cbBuf","in"],
+      ["PDWORD","pcbNeeded","out"],
+      ["PDWORD","pcReturned","out"]
+    ])
+
+    dll.add_function('EnumPrintersW', 'BOOL',[
+      ["DWORD","Flags","in"],
+      ["PWCHAR","Name","in"],
+      ["DWORD","Level","in"],
+      ["PBLOB","pPrinterEnum","out"],
+      ["DWORD","cbBuf","in"],
+      ["PDWORD","pcbNeeded","out"],
+      ["PDWORD","pcReturned","out"]
+    ])
+
     dll.add_function('SetPrinterDataExA', 'DWORD',[
       ["HANDLE","hPrinter","in"],
       ["PCHAR","pKeyName","in"],
