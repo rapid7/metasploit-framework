@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
     # 00000050  32 30 31 35 0a ff
     #
     # as you can see, the current date exists on its own on a separate line
-    @upload_content = "\n#{IO.read(datastore['LocalFile']).strip}\n" if datastore['LocalFile']
+    @upload_content = "\n#{File.read(datastore['LocalFile']).strip}\n" if datastore['LocalFile']
   end
 
   def run_host(_ip)

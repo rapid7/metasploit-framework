@@ -74,7 +74,7 @@ path = File.expand_path('../../', File.dirname(__FILE__))
 Dir.glob(path + '/modules/**/*.rb').each do |file|
   next unless file.include?('exploits') || file.include?('auxiliary')
 
-  str = IO.read(file)
+  str = File.read(file)
   match = str.match(/check_plugin_version_from_readme\(['"]([^'"]+)['"]/)
   unless match.nil?
     plugins.append(match[1])

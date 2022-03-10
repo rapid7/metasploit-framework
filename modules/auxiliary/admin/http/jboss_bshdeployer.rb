@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("WAR file not found")
         return
       end
-      war_data = File.read(datastore['WARFILE'])
+      war_data = File.read(datastore['WARFILE'], mode: 'rb')
       deploy_action(app_base, war_data)
     when 'Undeploy'
       undeploy_action(app_base)

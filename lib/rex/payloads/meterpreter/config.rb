@@ -140,7 +140,7 @@ private
 
     # for now, we're going to blindly assume that the value is a path to a file
     # which contains the data that gets passed to the extension
-    content = ::File.read(value) + "\x00\x00"
+    content = ::File.read(value, mode: 'rb') + "\x00\x00"
     data = [
       ext_id,
       content.length,

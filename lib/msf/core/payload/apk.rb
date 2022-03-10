@@ -317,7 +317,7 @@ class Msf::Payload::Apk
       raise "Unable to find class file: #{hookable_class_filepath}"
     end
 
-    hooksmali = File.read(smalifile)
+    hooksmali = File.binread(smalifile)
     entrypoint = 'return-void'
     unless hooksmali.include?(entrypoint)
       raise "Unable to find hookable function in #{smalifile}"
@@ -342,7 +342,7 @@ class Msf::Payload::Apk
 
     # Copy over the payload files, fixing up the smali code
     payload_files.each do |file_name|
-      smali = File.read(file_name)
+      smali = File.binread(file_name)
       smali_class = File.basename file_name
       for oldclass, newclass in classes
         if smali_class == "#{oldclass}.smali"
@@ -417,11 +417,9 @@ class Msf::Payload::Apk
       aligned_apk = injected_apk
     end
 
-    outputapk = File.read(aligned_apk)
+    outputapk = File.binread(aligned_apk)
 
     FileUtils.remove_entry tempdir
     outputapk
   end
 end
-
-
