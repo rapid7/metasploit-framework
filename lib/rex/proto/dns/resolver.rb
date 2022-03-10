@@ -132,8 +132,8 @@ module DNS
       end
 
       # Store packet_data for performance improvements,
-      # so methods don't keep on calling Packet#data
-      packet_data = packet.data
+      # so methods don't keep on calling Packet#encode
+      packet_data = packet.encode
       packet_size = packet_data.size
 
       # Choose whether use TCP, UDP
