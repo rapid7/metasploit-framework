@@ -314,15 +314,17 @@ class Db
     end
 
     case words[-1]
-    when '-d', '--delete'
-      return []
     when '-c', '--columns', '-C', '--columns-until-restart'
       return @@hosts_columns
-    when '-O', '--order'
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
+    end
+
+    if @@hosts_opts.arg_required?(words[-1])
       return []
     end
 
-    []
+    return @@hosts_opts.option_keys.select { |opt| opt.start_with?(str) }
   end
 
   def cmd_hosts_help
@@ -416,7 +418,7 @@ class Db
     [ '-a', '--add' ] => [ true, 'Add the hosts instead of searching', '<host>' ],
     [ '-u', '--up' ] => [ false, 'Only show hosts which are up' ],
     [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search' ],
-    [ '-S', '--search' ] => [ false, 'Search string to filter by' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by', '<filter>' ],
     [ '-i', '--info' ] => [ true, 'Change the info of a host', '<info>' ],
     [ '-n', '--name' ] => [ true, 'Change the name of a host', '<name>' ],
     [ '-m', '--comment' ] => [ true, 'Change the comment of a host', '<comment>' ],
