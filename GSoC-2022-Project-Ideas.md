@@ -20,7 +20,7 @@ Difficulty: 4/5
 
 ### LDAP Capture Capabilities
 
-Metasploit's LDAP service mixin provides a service to enable interaction over the LDAP protocol. The current implementation is the bare minimum to enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP features would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow Metasploit to intercept and log authenticaiton information. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
+Metasploit's LDAP service mixin provides a service to enable interaction over the LDAP protocol. The current implementation is the bare minimum to enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP features would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow Metasploit to intercept and log authentication information. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
 
 Size: Medium  
 Difficulty: 3/5
@@ -34,7 +34,7 @@ Difficulty: 3/5
 
 ### Improving post-exploit API to be more consistent, work smoothly across session types
 
-The Metasploit post-exploitation API is intended to provide a unified interface between different Meterpreter, shell, powershell, mainframe, and other session types. However, there are areas where the implementation is not consistent, and could use improvements:
+The Metasploit post-exploitation API is intended to provide a unified interface between different Meterpreter, shell, PowerShell, mainframe, and other session types. However, there are areas where the implementation is not consistent, and could use improvements:
 
  * Shell sessions do not implement the filesystem API that Meterpreter sessions have
  * When a shell session is in a different language, e.g. Windows in French, the post API does not find the expected output. Add localization support for these.
