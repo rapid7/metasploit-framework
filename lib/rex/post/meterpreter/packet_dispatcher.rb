@@ -721,6 +721,9 @@ module HttpPacketDispatcher
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
       'VirtualDirectory' => true
     )
+
+    # Add a reference count to the handler
+    self.passive_service.ref
   end
 
   def shutdown_passive_dispatcher
@@ -729,9 +732,7 @@ module HttpPacketDispatcher
       resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
       self.passive_service.remove_resource(resource_uri) if self.passive_service
 
-      if self.passive_service.resources.empty?
-        Rex::ServiceManager.stop_service(self.passive_service)
-      end
+      self.passive_service.deref
       self.passive_service = nil
     end
     super

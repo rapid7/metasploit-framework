@@ -318,7 +318,7 @@ class Server
   # Returns the hardcore alias for the DNS service
   #
   def self.hardcore_alias(*args)
-    "#{(args[0] || '')}#{(args[1] || '')}"
+    "#{(args[0] || '')}-#{(args[1] || '')}-#{args[5] || ''}"
   end
 
   #

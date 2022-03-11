@@ -25,7 +25,17 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
       'License'        => MSF_LICENSE,
-      'References'     => []
+      'References'     => [],
+      'Actions'     =>
+        [
+          [ 'Service', 'Description' => 'Serve DNS entries' ]
+        ],
+      'PassiveActions' =>
+        [
+          'Service'
+        ],
+      'DefaultAction'  => 'Service'
+
     ))
 
     register_options(
@@ -47,11 +57,13 @@ class MetasploitModule < Msf::Auxiliary
       service.wait
     rescue Rex::BindFailed => e
       print_error "Failed to bind to port #{datastore['RPORT']}: #{e.message}"
-    ensure
-      @capture_thread.kill if @capture_thread
-      close_pcap
-      stop_service(true)
     end
+  end
+
+  def cleanup
+    super
+    @capture_thread.kill if @capture_thread
+    close_pcap
   end
 
   #
