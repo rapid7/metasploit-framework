@@ -38,30 +38,30 @@ module Msf
       end
 
       HELP_REGEX = /^-?-h(?:elp)?$/.freeze
-      @stop_opt_parser = Rex::Parser::Arguments.new(
-        '--session' => [ true, 'Session to stop (otherwise all capture jobs on all sessions will be stopped)' ],
-        ['-h', '--help'] => [ false, 'Display this message' ]
-      )
-
-      @start_opt_parser = Rex::Parser::Arguments.new(
-        '--session' => [ true, 'Session to bind on' ],
-        ['-i', '--ip'] => [ true, 'IP to bind to' ],
-        '--spoofip' => [ true, 'IP to use for spoofing (poisoning); default is the bound IP address' ],
-        '--regex' => [ true, 'Regex to match for spoofing' ],
-        ['-b', '--basic'] => [ false, 'Use Basic auth for HTTP listener (default is NTLM)' ],
-        '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
-        '--configfile' => [ true, 'Path to a config file' ],
-        '--logfile' => [ true, 'Path to store logs' ],
-        '--hashdir' => [ true, 'Directory to store hash results' ],
-        '--stdout' => [ false, 'Show results in stdout' ],
-        ['-v', '--verbose'] => [ false, 'Verbose output' ],
-        ['-h', '--help'] => [ false, 'Display this message' ]
-      )
 
       def initialize(*args)
         super(*args)
         @active_job_ids = {}
         @active_loggers = {}
+        @stop_opt_parser = Rex::Parser::Arguments.new(
+          '--session' => [ true, 'Session to stop (otherwise all capture jobs on all sessions will be stopped)' ],
+          ['-h', '--help'] => [ false, 'Display this message' ]
+        )
+
+        @start_opt_parser = Rex::Parser::Arguments.new(
+          '--session' => [ true, 'Session to bind on' ],
+          ['-i', '--ip'] => [ true, 'IP to bind to' ],
+          '--spoofip' => [ true, 'IP to use for spoofing (poisoning); default is the bound IP address' ],
+          '--regex' => [ true, 'Regex to match for spoofing' ],
+          ['-b', '--basic'] => [ false, 'Use Basic auth for HTTP listener (default is NTLM)' ],
+          '--cert' => [ true, 'Path to SSL cert for encrypted communication' ],
+          '--configfile' => [ true, 'Path to a config file' ],
+          '--logfile' => [ true, 'Path to store logs' ],
+          '--hashdir' => [ true, 'Directory to store hash results' ],
+          '--stdout' => [ false, 'Show results in stdout' ],
+          ['-v', '--verbose'] => [ false, 'Verbose output' ],
+          ['-h', '--help'] => [ false, 'Display this message' ]
+        )
       end
 
       def name
