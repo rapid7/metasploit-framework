@@ -1,8 +1,12 @@
 spoof_regex: .*
 ntlm_challenge: "1122334455667788"
 ntlm_domain: anonymous
+http_basic: no
+ssl_cert: null
+logfile: null
+hashdir: null
 services:
-  DRDA: off
+  DRDA: on
   FTP: on
   HTTP: on
   HTTPS: on
@@ -11,7 +15,7 @@ services:
   MySQL: on
   POP3: on
   Postgres: on
-  PrintJob: off
+  PrintJob: on
   SIP: on
   SMB: on
   SMTP: on

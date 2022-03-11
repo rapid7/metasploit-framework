@@ -410,7 +410,12 @@ class Plugin::HashCapture < Msf::Plugin
         options = {
          :ntlm_challenge => yamlconf['ntlm_challenge'],
          :ntlm_domain => yamlconf['ntlm_domain'],
-         :services => yamlconf['services']
+         :services => yamlconf['services'],
+         :spoof_regex => yamlconf['spoof_regex'],
+         :http_basic => yamlconf['http_basic'],
+         :ssl_cert => yamlconf['ssl_cert'],
+         :logfile => yamlconf['logfile'],
+         :hashdir => yamlconf['hashdir']
         }
       end
     end
