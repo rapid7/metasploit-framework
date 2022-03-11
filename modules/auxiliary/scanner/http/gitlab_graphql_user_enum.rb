@@ -146,7 +146,11 @@ class MetasploitModule < Msf::Auxiliary
     query_paging_info = parse_json(user_json, users)
 
     # handle any follow on pages
+    request_count = 0
     until query_paging_info.empty?
+      # periodically tell the user that we are still working. Start at 1 since one request already happened
+      request_count += 1
+      print_status("GraphQL API pagination request: #{request_count}") if request_count % 5 == 0
       user_json = do_request(query_paging_info)
       query_paging_info = parse_json(user_json, users)
     end
