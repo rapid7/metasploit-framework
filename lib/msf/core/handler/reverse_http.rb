@@ -261,6 +261,7 @@ module ReverseHttp
     if self.service
       self.service.remove_resource((luri + "/").gsub("//", "/"))
       self.service.deref
+      self.service = nil
     end
   end
 

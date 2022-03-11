@@ -328,8 +328,6 @@ class MetasploitModule < Msf::Auxiliary
     begin
       @http_service.remove_resource(datastore['URIPATH'])
       @http_service.deref
-      @http_service.stop
-      @http_service.close
       @http_service = nil
     rescue
     end
