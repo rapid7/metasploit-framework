@@ -96,40 +96,50 @@ class Plugin::HashCapture < Msf::Plugin
       end
     end
 
+    def tab_complete_start(str, words)
+      last_word = words[-1]
+      case last_word
+        when '--session'
+          return framework.sessions.keys.map { |k| k.to_s }
+        when '--cert', '--configfile', '--logfile'
+          return tab_complete_filenames(str, words)
+        when '--hashdir'
+          return tab_complete_directory(str, words)
+        when '-i', '--ip', '--spoofip'
+          return tab_complete_source_address
+          
+      end
+      
+      if @@start_opt_parser.arg_required?(last_word)
+        # The previous word needs an argument; we can't provide any help
+        return []
+      end
+
+      # Otherwise, we are expecting another flag next
+      result = @@start_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
+      return result
+    end
+
+    def tab_complete_stop(str, words)
+      last_word = words[-1]
+      case last_word
+        when '--session'
+          return framework.sessions.keys.map { |k| k.to_s } + ['local']
+      end
+      if @@stop_opt_parser.arg_required?(words[-1])
+        # The previous word needs an argument; we can't provide any help
+        return []
+      end
+
+      result = @@stop_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
+    end
+
     def cmd_capture_tabs(str, words)
       return ['start', 'stop'] if words.length == 1
       if words[1] == 'start'
-        case words[-1]
-          when '--session'
-            return framework.sessions.keys.map { |k| k.to_s }
-          when '--cert', '--configfile', '--logfile'
-            return tab_complete_filenames(str, words)
-          when '--hashdir'
-            return tab_complete_directory(str, words)
-          when '-i', '--ip', '--spoofip'
-            return tab_complete_source_address
-            
-        end
-        
-        if @@start_opt_parser.arg_required?(words[-1])
-          # The previous word needs an argument; we can't provide any help
-          return []
-        end
-
-        result = @@start_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
-        return result
+        tab_complete_start(str, words)
       elsif words[1] == 'stop'
-        case words[-1]                                                                         
-          when '--session'
-            return framework.sessions.keys.map { |k| k.to_s } + ['local']
-        end
-        if @@stop_opt_parser.arg_required?(words[-1])
-          # The previous word needs an argument; we can't provide any help
-          return []
-        end
-
-        result = @@stop_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
-
+        tab_complete_stop(str, words)
       end
     end
 
