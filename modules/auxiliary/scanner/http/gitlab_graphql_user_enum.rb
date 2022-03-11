@@ -26,9 +26,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           [ 'CVE', '2021-4191' ],
-          [ 'URL', 'https://about.gitlab.com/releases/2022/02/25/critical-security-release-gitlab-14-8-2-released/#unauthenticated-user-enumeration-on-graphql-api']
+          [ 'URL', 'https://about.gitlab.com/releases/2022/02/25/critical-security-release-gitlab-14-8-2-released/#unauthenticated-user-enumeration-on-graphql-api'],
+          [ 'URL', 'https://www.rapid7.com/blog/post/2022/03/03/cve-2021-4191-gitlab-graphql-api-user-enumeration-fixed/']
         ],
-        'DisclosureDate' => '2022-02-01',
+        'DisclosureDate' => '2022-02-25',
         'DefaultOptions' => {
           'RPORT' => 443,
           'SSL' => true
@@ -116,36 +117,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def store_username(username, json)
-    service = ssl ? 'https' : 'http'
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: service,
-      protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      proof: json
-    }
-
-    credential_data = {
-      origin_type: :service,
+    connection_details = {
       module_fullname: fullname,
-      username: username
-    }
-
-    credential_data.merge!(service_data)
-
-    # Create the Metasploit::Credential::Core object
-    credential_core = create_credential(credential_data)
-
-    # Assemble the options hash for creating the Metasploit::Credential::Login object
-    login_data = {
-      core: credential_core,
+      workspace_id: myworkspace_id,
+      username: username,
+      proof: json,
       status: Metasploit::Model::Login::Status::UNTRIED
-    }
-
-    # Merge in the service data and create our Login
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
+    }.merge(service_details)
+    create_credential_and_login(connection_details)
   end
 
   ##
@@ -163,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     # parse the initial page
-    users = Array[]
+    users = []
     query_paging_info = parse_json(user_json, users)
 
     # handle any follow on pages
@@ -172,7 +151,10 @@ class MetasploitModule < Msf::Auxiliary
       query_paging_info = parse_json(user_json, users)
     end
 
-    unless users.empty?
+    if users.empty?
+      print_error('No GitLab users were enumerated.')
+    else
+      print_good("Enumerated #{users.length} GitLab users")
       users_string = users.join("\n") + "\n"
       store_userlist(users_string, service)
     end
