@@ -333,7 +333,7 @@ class Msf::Payload::Apk
 
     if signature
       print_status "Aligning #{injected_apk}\n"
-      zipalign_output = run_cmd(['zipalign', '4', injected_apk, aligned_apk])
+      zipalign_output = run_cmd(['zipalign', '-p', '4', injected_apk, aligned_apk])
 
       unless File.readable?(aligned_apk)
         print_error(zipalign_output)
