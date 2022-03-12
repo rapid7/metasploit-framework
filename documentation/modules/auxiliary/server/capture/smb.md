@@ -1,6 +1,5 @@
-This module creates a mock SMB server which accepts credentials before returning `NT_STATUS_LOGON_FAILURE`. Supports SMBv1, SMBv2, & SMBv3 and captures NTLMv1 & NTLMv2 hashes.
-
-
+This module creates a mock SMB server which accepts credentials before returning `NT_STATUS_LOGON_FAILURE`.
+Supports SMBv1, SMBv2, & SMBv3 and captures NTLMv1 & NTLMv2 hashes.
 
 ## Verification Steps
 Microsoft provides an article on how to detect, disable, and enable SMB in various versions
@@ -173,7 +172,9 @@ Also of note, this could be done via XSS or other injection technique.
 
 Start the webserver:
 
-```service apache2 start```
+```
+service apache2 start
+```
 
 Server:
 
