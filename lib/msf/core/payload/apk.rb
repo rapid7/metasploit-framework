@@ -122,39 +122,68 @@ class Msf::Payload::Apk
     File.open("#{tempdir}/original/AndroidManifest.xml", "wb") { |file| file.puts original_manifest.to_xml }
   end
 
-  def parse_orig_cert_data(orig_apkfile)
-    orig_cert_data = Array[]
-    keytool_output = run_cmd(['keytool', '-J-Duser.language=en', '-printcert', '-jarfile', orig_apkfile])
+  def extract_cert_data_from_apk_file(path)
+    orig_cert_data = []
+
+    # extract signing scheme v1 (JAR signing) certificate
+    # v1 signing is optional to support older versions of Android (pre Android 11)
+    # https://source.android.com/security/apksigning/
+    keytool_output = run_cmd(['keytool', '-J-Duser.language=en', '-printcert', '-jarfile', path])
 
     if keytool_output.include?('keytool error: ')
       raise RuntimeError, "keytool could not parse APK file: #{keytool_output}"
     end
 
     if keytool_output.start_with?('Not a signed jar file')
-      raise RuntimeError, 'APK file is unsigned'
+      # apk file does not have a valid v1 signing certificate
+      # extract signing certificate from newer signing schemes (v2/v3/v4/...) using apksigner instead
+      apksigner_output = run_cmd(['apksigner', 'verify', '--print-certs', path])
+
+      cert_dname = apksigner_output.scan(/^Signer #\d+ certificate DN: (.+)$/).flatten.first.to_s.strip
+      if cert_dname.blank?
+        raise RuntimeError, "Could not extract signing certificate owner: #{apksigner_output}"
+      end
+      orig_cert_data.push(cert_dname)
+
+      # Create random start date from some time in the past 3 years
+      from_date = DateTime.now.next_day(-rand(3 * 365))
+      orig_cert_data.push(from_date.strftime('%Y/%m/%d %T'))
+
+      # Valid for 25 years
+      # https://developer.android.com/studio/publish/app-signing
+      to_date = from_date.next_year(25)
+      validity = (to_date - from_date).to_i
+      orig_cert_data.push(validity.to_s)
+    else
+      if keytool_output.include?('keytool error: ')
+        raise RuntimeError, "keytool could not parse APK file: #{keytool_output}"
+      end
+
+      cert_dname = keytool_output.scan(/^Owner:(.+)$/).flatten.first.to_s.strip
+      if cert_dname.blank?
+        raise RuntimeError, "Could not extract signing certificate owner: #{keytool_output}"
+      end
+      orig_cert_data.push(cert_dname)
+
+      valid_from_line = keytool_output.scan(/^Valid from:.+/).flatten.first
+      if valid_from_line.empty?
+        raise RuntimeError, "Could not extract certificate date: #{keytool_output}"
+      end
+
+      from_date_str = valid_from_line.gsub(/^Valid from:/, '').gsub(/until:.+/, '').strip
+      to_date_str = valid_from_line.gsub(/^Valid from:.+until:/, '').strip
+      from_date = DateTime.parse(from_date_str.to_s)
+      orig_cert_data.push(from_date.strftime('%Y/%m/%d %T'))
+      to_date = DateTime.parse(to_date_str.to_s)
+      validity = (to_date - from_date).to_i
+      orig_cert_data.push(validity.to_s)
     end
 
-    owner_line = keytool_output.scan(/^Owner:.+/).flatten.first
-    if owner_line.blank?
-      raise RuntimeError, "Could not extract certificate owner: #{keytool_output}"
+    if orig_cert_data.empty?
+      raise RuntimeError, 'Could not extract signing certificate from APK file'
     end
 
-    orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
-    orig_cert_data.push("#{orig_cert_dname}")
-
-    valid_from_line = keytool_output.scan(/^Valid from:.+/).flatten.first
-    if valid_from_line.empty?
-      raise RuntimeError, "Could not extract certificate date: #{keytool_output}"
-    end
-
-    from_date_str = valid_from_line.gsub(/^Valid from:/, '').gsub(/until:.+/, '').strip
-    to_date_str = valid_from_line.gsub(/^Valid from:.+until:/, '').strip
-    from_date = DateTime.parse("#{from_date_str}")
-    orig_cert_data.push(from_date.strftime("%Y/%m/%d %T"))
-    to_date = DateTime.parse("#{to_date_str}")
-    validity = (to_date - from_date).to_i
-    orig_cert_data.push("#{validity}")
-    return orig_cert_data
+    orig_cert_data
   end
 
   def check_apktool_output_for_exceptions(apktool_output)
@@ -224,7 +253,7 @@ class Msf::Payload::Apk
       keypass = "android"
       keyalias = "signing.key"
 
-      orig_cert_data = parse_orig_cert_data(apkfile)
+      orig_cert_data = extract_cert_data_from_apk_file(apkfile)
       orig_cert_dname = orig_cert_data[0]
       orig_cert_startdate = orig_cert_data[1]
       orig_cert_validity = orig_cert_data[2]
