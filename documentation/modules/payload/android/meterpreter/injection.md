@@ -42,7 +42,7 @@ to be present on your command line already:
 * [jarsigner](https://docs.oracle.com/javase/7/docs/technotes/tools/windows/jarsigner.html) - To re-sign the APK
 
 Installing these tools (if they are not installed already) will depend on your OS.
-Apktool can be installed manually or automatically (e.g `brew install apktool` OR 'apt install apktool').
+Apktool can be installed manually or automatically (e.g `brew install apktool` OR `apt install apktool`).
 keytool and jarsigner can be installed by installing the appropriate JDK.
 
 ## Inject Payload Into An Existing APK File
