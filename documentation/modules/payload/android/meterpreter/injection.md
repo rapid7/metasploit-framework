@@ -2,7 +2,7 @@ You can inject the Android Meterpreter into an existing APK using msfvenom. This
 will allow you to impersonate an existing application, which may make it easier 
 to convince your victim to install the APK.
 
-## Vulnerable An Existing Application
+## Inject Payload Into An Existing APK File
 
 It should be possible to inject Meterpreter into any APK, however some applications
 have complex resource structures which may not work with `apktool`.
