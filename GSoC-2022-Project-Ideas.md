@@ -2,7 +2,7 @@ GSoC Project Ideas in no particular order. When you've picked one, take a look a
 
 Mentors: @zerosteiner, @jmartin-r7, @gwillcox-r7
 
-Slack Contacts: @zeroSteiner, @Op3n4M3, @gwillcox-r7 on Metasploit Slack at <https://metasploit.slack.com/>
+Slack Contacts: @zeroSteiner, @Op3n4M3, @gwillcox-r7 on [Metasploit Slack](https://metasploit.slack.com/)
 
 For any questions about these projects reach out on the Metasploit Slack in the `#gsoc` channel or DM one of the mentors using the Slack contacts listed above. Note that mentors may be busy so please don't expect an immediate response, however we will endeavor to respond as soon as possible. If you'd prefer not to join Slack, you can also email `msfdev [@] metasploit [dot] com` and we will respond to your questions there if email is preferable.
 
@@ -65,4 +65,4 @@ Difficulty 3/5
 
 ## Submit your own
 
-If you want to suggest your own idea, please discuss it with us first on [#slack](https://https://metasploit.com/slack) to make sure it is a reasonable amount of work for a summer and that it fits the goals of the project.
+If you want to suggest your own idea, please discuss it with us first on [Slack](https://metasploit.com/slack) in the `#gsoc` channel to make sure it is a reasonable amount of work for a summer and that it fits the goals of the project.
