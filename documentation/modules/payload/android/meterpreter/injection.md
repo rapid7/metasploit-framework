@@ -39,7 +39,7 @@ to be present on your command line already:
 * [Java](https://www.oracle.com/java/technologies/downloads/) - Used for building/editing APK
 * [Apktool](https://ibotpeaches.github.io/Apktool/) - Used for rebuilding the APK
 * [keytool](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html) - To create and extract signing certificates
-* [jarsigner](https://docs.oracle.com/javase/7/docs/technotes/tools/windows/jarsigner.html) - To re-sign the APK
+* [apksigner](https://developer.android.com/studio/command-line/apksigner) - To re-sign the APK
 
 Installing these tools (if they are not installed already) will depend on your OS.
 Apktool can be installed manually or automatically (e.g `brew install apktool` OR `apt install apktool`).
