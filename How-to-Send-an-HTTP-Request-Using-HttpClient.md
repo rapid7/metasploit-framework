@@ -253,6 +253,10 @@ Do mention about this problem in the code (as a comment). If you can't use ```va
 
 You do not need to manually do basic auth in your request, because HttpClient should automatically do that for you. All you have to do is set the username and password in the datastore options, and then the mixin will use that when the web server asks.
 
+**4 - How do I send a MIME request?
+
+See https://github.com/rapid7/rex-mime/blob/master/lib/rex/mime/message.rb
+
 ## References
 
 * [[How to send an HTTP request using Rex Proto Http Client]]
