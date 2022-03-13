@@ -7,12 +7,13 @@
 def hash_to_hashcat(cred)
   case cred.private.type
   when 'Metasploit::Credential::NTLMHash'
-    both = cred.private.data.split(":")
-    if both[0].upcase == 'AAD3B435B51404EEAAD3B435B51404EE' #lanman empty, return ntlm
+    both = cred.private.data.split(':')
+    if both[0].upcase == 'AAD3B435B51404EEAAD3B435B51404EE' # lanman empty, return ntlm
       return both[1] # ntlm hash-mode: 1000
     end
-    return both[0] #give lanman, hash-mode: 3000
-  when 'Metasploit::Credential::PostgresMD5' #hash-mode: 12
+
+    return both[0] # give lanman, hash-mode: 3000
+  when 'Metasploit::Credential::PostgresMD5' # hash-mode: 12
     if cred.private.jtr_format =~ /postgres|raw-md5/
       hash_string = cred.private.data
       hash_string.gsub!(/^md5/, '')
@@ -44,26 +45,26 @@ def hash_to_hashcat(cred)
     when /raw-sha1|oracle11/ # oracle 11, hash-mode: 112
       if cred.private.data =~ /S:([\dA-F]{60})/ # oracle 11
         # hashcat wants a 40 character string, : 20 character string
-        return $1.scan(/.{1,40}/m).join(':').downcase
+        return Regexp.last_match(1).scan(/.{1,40}/m).join(':').downcase
       end
     when /oracle12c/
       if cred.private.data =~ /T:([\dA-F]{160})/ # oracle 12c, hash-mode: 12300
-        return $1.upcase
+        return Regexp.last_match(1).upcase
       end
     when /dynamic_1506|postgres/
-      #this may not be correct
+      # this may not be correct
       if cred.private.data =~ /H:([\dA-F]{32})/ # oracle 11, hash-mode: 3100
-        return "#{$1}:#{cred.public.username}"
+        return "#{Regexp.last_match(1)}:#{cred.public.username}"
       end
     when /oracle/ # oracle
       if cred.private.jtr_format.start_with?('des') # 'des,oracle', not oracle11/12c, hash-mode: 3100
-        return "#{cred.private.data}"
+        return cred.private.data.to_s
       end
     when /dynamic_82/
-      return cred.private.data.sub('$HEX$', ':').sub('$dynamic_82$','')
+      return cred.private.data.sub('$HEX$', ':').sub('$dynamic_82$', '')
     when /mysql-sha1/
       # lowercase, and remove the first character if its a *
-      return cred.private.data.downcase.sub('*','')
+      return cred.private.data.downcase.sub('*', '')
     when /md5|des|bsdi|crypt|bf/, /mssql|mssql05|mssql12|mysql/, /sha256|sha-256/,
          /sha512|sha-512/, /xsha|xsha512|PBKDF2-HMAC-SHA512/,
          /mediawiki|phpass|PBKDF2-HMAC-SHA1/,
@@ -93,9 +94,11 @@ def hash_to_hashcat(cred)
       #            netntlm, netntlmv2
       # hash-mode: 5500     5600
       return cred.private.data
+    when /^vnc$/
+      # https://hashcat.net/forum/thread-8833.html
+      # while we can do the transformation, we'd have to throw extra flags at hashcat which aren't currently written into the lib for automation
+      nil
     end
   end
   nil
 end
-
-
