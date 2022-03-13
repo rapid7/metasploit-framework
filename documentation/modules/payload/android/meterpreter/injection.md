@@ -9,7 +9,7 @@ have complex resource structures which may not work with `apktool`.
 Additionally some applications have security measures that prevent the application
 from working as expected once it has been modified.
 
-## Create Default Metasploit Android Application
+## Create Meterpreter APK File
 
 It is preferred to use an existing application; however, if you don't want to use an existing
 application you can create a default metasploit android application.
