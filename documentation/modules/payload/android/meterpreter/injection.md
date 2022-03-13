@@ -60,7 +60,7 @@ Use:
 ```
 ## Sending apk to other Devices:
 
-There are many method to send APK to victim;s device but one of best method is using apache web server.
+There are many method to send APK to victim's device but one of best method is using apache web server.
 Based on your Operating System Installation of apache is [discribed here](https://www.apachefriends.org/index.html). 
 
 Next, start an Android device. Upload the APK, execute it and run it, as you would with
