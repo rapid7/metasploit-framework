@@ -12,6 +12,9 @@ An updated list of the application timeline can be found at https://developers.g
 - Accepted applications announced: May 20th at 1800 UTC
 - Programming Starts: June 13th.
 
+# 2022 Idea List
+You can find the current list of GSoC ideas at [[GSoC-2022-Project-Ideas]]. Please see the note at the bottom of this page if you are interested in submitting your own idea, as this will require approval.
+
 # Getting started
 Students interesting in GSoC, can start by reading Google's official guides.  
 <https://developers.google.com/open-source/gsoc/help/student-advice>
