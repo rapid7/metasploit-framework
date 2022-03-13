@@ -11,8 +11,8 @@ from working as expected once it has been modified.
 
 ## Create Default Metasploit Android Application
 
-It is preferred to use an existing application, however if you don't want to use existing
-application. You can Create default metasploit android application.
+It is preferred to use an existing application; however, if you don't want to use an existing
+application you can create a default metasploit android application.
 
 **Finding APKs**
 
