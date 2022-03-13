@@ -2,6 +2,8 @@ GSoC Project Ideas in no particular order. When you've picked one, take a look a
 
 Mentors: @zerosteiner, @jmartin-r7, @gwillcox-r7
 
+Slack Contacts: @zeroSteiner, @Op3n4M3, @gwillcox-r7 on Metasploit Slack at <https://metasploit.slack.com/>
+
 ## Enhance Metasploit Framework
 
 ### HTTP-Trace enabled login scanners
