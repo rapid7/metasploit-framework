@@ -1,6 +1,6 @@
 **Note:** Final project proposals must be submitted through to Google through the GSoC Program Website, as stated in the [rules](https://summerofcode.withgoogle.com/rules/).
 
-Before submitting to the GSoC website, it is also helpful to solicit proposal feedback via one of the contact methods found on <https://metasploit.com/contribute>. You can also reach out to us on our Slack at <https://metasploit.com/slack> via the GSoC channel named `#gsoc`. If you don't hear back right away on a proposal, don't give up! Contributors may be busy, or you may need to try again to get someone's attention (but don't spam).
+Before submitting to the GSoC website, it is also helpful to solicit proposal feedback. This can be done by reaching out to us on our Slack at <https://metasploit.com/slack> via the `#gsoc` channel, or via sending an email to `msfdev [@] metasploit [dot]  com`. If you don't hear back right away on a proposal, don't give up! Contributors may be busy, or you may need to try again to get someone's attention (but don't spam).
 
 # 2022 Timeline
 An updated list of the application timeline can be found at https://developers.google.com/open-source/gsoc/timeline. Please refer to this link for any updates that Google may make, as they have been known to change the timeline for certain dates in the past.
