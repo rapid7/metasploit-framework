@@ -2,13 +2,20 @@
 
 Before submitting to the GSoC website, it is also helpful to solicit proposal feedback via one of the contact methods found on <https://metasploit.com/contribute>. You can also reach out to us on our Slack at <https://metasploit.com/slack> via the GSoC channel named `#gsoc`. If you don't hear back right away on a proposal, don't give up! Contributors may be busy, or you may need to try again to get someone's attention (but don't spam).
 
+# 2022 Timeline
+An updated list of the application timeline can be found at https://developers.google.com/open-source/gsoc/timeline. Please refer to this link for any updates that Google may make, as they have been known to change the timeline for certain dates in the past.
+
+Note that applications will open April 4th at 1800 UTC and will close on April 19th at 1800 UTC for 2022 GSoC applications. No late submissions will be accepted.
+
+Accepted applications will be announced on May 20th at 1800 UTC, at which point the community bonding period will begin with programming starting on June 13th.
+
 # Getting started
 Students interesting in GSoC, can start by reading Google's official guides.  
 <https://developers.google.com/open-source/gsoc/help/student-advice>
 
 Review all of the [student guide](https://google.github.io/gsocguides/student/) and carefully read the [proposal writing section](https://google.github.io/gsocguides/student/writing-a-proposal.html).
 
-A listed `idea` is a seed for GSoC students to expand on and propose how to design and implement a solution.  You can start by investigating the code base and how existing users interaction with msfconsole functionality. Think through scenarios on how a user might want to interact with the proposed idea.
+A listed `idea` is a seed for GSoC students to expand on and propose how to design and implement a solution.  You can start by investigating the code base and how existing users interaction with `msfconsole` functionality. Think through scenarios on how a user might want to interact with the proposed idea.
 
 A place to get started with contributing to Metasploit is [here](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and expanded on [here](https://github.com/rapid7/metasploit-framework/wiki/Contributing-to-Metasploit#framework-bugs-and-features).
 
@@ -16,7 +23,7 @@ GSoC mentors tend to look for those items that have a chance of making developme
 
 Once you have started digging feel free ask questions that help you understand the concepts you for the idea would like to propose.
 
-Initial proposals can be sent for feedback before offical submission opens to msfdev@metasploit.com. All proposals must be officially submitted during Student Application Period thru the [GSoC official](https://g.co/gsoc) site.
+Initial proposals can be sent for feedback before official submission opens to msfdev@metasploit.com. All proposals must be officially submitted during Student Application Period thru the [GSoC official](https://g.co/gsoc) site.
 
 At a bare minimum, proposals should include the following:
 
@@ -42,3 +49,6 @@ What other projects have you worked on before?
 ## Your project
 
 Fill in the details. What exactly do you want to accomplish? 
+
+# Past Submissions
+If you are interested in looking at past accepted submissions and projects, you can find them at https://summerofcode.withgoogle.com/archive, and clicking on any year from 2017 onwards (with the exception of 2019 as Metasploit did not participate this year). Then click on the `Security` tag, and search for `Metasploit`. Scroll down to the bottom and you will see past successful applications and the associated code for each successful submission. Submissions from 2020 onwards also include copies of the proposal that was sent in by the accepted contributor.
