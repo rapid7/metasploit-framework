@@ -45,7 +45,7 @@ Installing these tools (if they are not installed already) will depend on your O
 Apktool can be installed manually or automatically (e.g `brew install apktool` OR 'apt install apktool').
 keytool and jarsigner can be installed by installing the appropriate JDK.
 
-## To Create Vulnerable apk An Existing Application
+## Inject Payload Into An Existing APK File
 
 Use:
 
