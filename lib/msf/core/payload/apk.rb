@@ -357,7 +357,13 @@ class Msf::Payload::Apk
 
     unless File.readable?(injected_apk)
       print_error apktool_output
-      raise RuntimeError, "Unable to rebuild apk with apktool"
+      print_status("Unable to rebuild apk. Trying rebuild with AAPT2..\n")
+      apktool_output = run_cmd(['apktool', 'b', '--use-aapt2', '-o', injected_apk, "#{tempdir}/original"])
+
+      unless File.readable?(injected_apk)
+        print_error apktool_output
+        raise RuntimeError, "Unable to rebuild apk with apktool"
+      end
     end
 
     if signature
