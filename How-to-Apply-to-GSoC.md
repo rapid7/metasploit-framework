@@ -5,9 +5,12 @@ Before submitting to the GSoC website, it is also helpful to solicit proposal fe
 # 2022 Timeline
 An updated list of the application timeline can be found at https://developers.google.com/open-source/gsoc/timeline. Please refer to this link for any updates that Google may make, as they have been known to change the timeline for certain dates in the past.
 
-Note that applications will open April 4th at 1800 UTC and will close on April 19th at 1800 UTC for 2022 GSoC applications. No late submissions will be accepted.
+## Important Dates
 
-Accepted applications will be announced on May 20th at 1800 UTC, at which point the community bonding period will begin with programming starting on June 13th.
+- GSoC Applications Open: April 4th at 1800 UTC 
+- GSoC Applications Close: April 19th at 1800 UTC for 2022 GSoC applications. **No late submissions will be accepted, period.**
+- Accepted applications announced: May 20th at 1800 UTC
+- Programming Starts: June 13th.
 
 # Getting started
 Students interesting in GSoC, can start by reading Google's official guides.  
