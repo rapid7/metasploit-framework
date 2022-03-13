@@ -4,7 +4,7 @@ Mentors: @zerosteiner, @jmartin-r7, @gwillcox-r7
 
 Slack Contacts: @zeroSteiner, @Op3n4M3, @gwillcox-r7 on Metasploit Slack at <https://metasploit.slack.com/>
 
-For any questions about these projects reach out on the Metasploit Slack in the `#gsoc` channel or DM one of the mentors using the Slack contacts listed above. Note that mentors may be busy so please don't expect an immediate response, however we will endeavor to respond as soon as possible. If you'd prefer not to join Slack, you can also email msfdev [@] metasploit [dot] com and we will respond to your questions there if email is preferable.
+For any questions about these projects reach out on the Metasploit Slack in the `#gsoc` channel or DM one of the mentors using the Slack contacts listed above. Note that mentors may be busy so please don't expect an immediate response, however we will endeavor to respond as soon as possible. If you'd prefer not to join Slack, you can also email `msfdev [@] metasploit [dot] com` and we will respond to your questions there if email is preferable.
 
 ## Enhance Metasploit Framework
 
