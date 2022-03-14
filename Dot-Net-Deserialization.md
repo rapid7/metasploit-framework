@@ -12,6 +12,7 @@ compatibility of each.
 
 | Gadget Chain Name           | BinaryFormatter | LosFormatter | SoapFormatter |
 | --------------------------- | --------------- | ------------ | ------------- |
+| ClaimsPrincipal             | Yes             | Yes          | Yes           | 
 | TextFormattingRunProperties | Yes             | Yes          | Yes           |
 | TypeConfuseDelegate         | Yes             | Yes          | No            |
 | WindowsIdentity             | Yes             | Yes          | Yes           |
