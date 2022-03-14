@@ -16,7 +16,7 @@ module Payload::Python::SendUUID
   def py_send_uuid(opts={})
     sock_var = opts[:sock_var] || 's'
 
-    uuid = opts[:uuid] || generate_payload_uuid
+    uuid = opts[:uuid] || generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
     uuid_hex = Rex::Text.to_hex(uuid.to_raw, prefix = '')
 
     uuid_stub = "import binascii\n"
