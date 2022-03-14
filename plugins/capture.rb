@@ -267,7 +267,12 @@ module Msf
           # Bail if we couldn't
           unless mod
             # Error: this should exist
-            print_error("Error: module not found (#{module_name})")
+            load_error = framework.modules.load_error_by_name(module_name)
+            if load_error
+              print_error("Failed to load #{module_name}: #{load_error}")
+            else
+              print_error("Failed to load #{module_name}")
+            end
             return
           end
 
