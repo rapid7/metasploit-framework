@@ -95,7 +95,7 @@ The layout of this block in memory looks like this:
 
 With this structure in place, Meterpreter knows that the session configuration block is exactly `28` bytes in size.
 
-The Session configuration block description can be found in the [Meterpreter source](https://github.com/rapid7/meterpreter/blob/master/source/common/config.h#L25).
+The Session configuration block description can be found in the [Meterpreter source](https://github.com/rapid7/metasploit-payloads/blob/6e08d1f9812aa4d7a76b451fd5e0bae03975bb91/c/meterpreter/source/common/common_config.h#L25).
 
 ### Transport configuration block
 
@@ -145,7 +145,7 @@ The layout of this block in memory looks like the following:
   | <- 4 bytes ->|
 ```
 
-The common transport configuration block description can be found in the [Meterpreter source](https://github.com/rapid7/meterpreter/blob/master/source/common/config.h#L33).
+The common transport configuration block description can be found in the [Meterpreter source](https://github.com/rapid7/metasploit-payloads/blob/6e08d1f9812aa4d7a76b451fd5e0bae03975bb91/c/meterpreter/source/common/common_config.h#L38).
 
 #### TCP configuration values
 
@@ -199,7 +199,7 @@ The structure of the `HTTP/S` configuration is as follows.
   | <- 4 bytes ->|
 ```
 
-The `HTTP/S` transport configuration block description can be found in the [Meterpreter source](https://github.com/rapid7/meterpreter/blob/master/source/common/config.h#L48).
+The `HTTP/S` transport configuration block description can be found in the [Meterpreter source](https://github.com/rapid7/metasploit-payloads/blob/6e08d1f9812aa4d7a76b451fd5e0bae03975bb91/c/meterpreter/source/common/common_config.h#L53).
 
 #### Transport configuration list
 
