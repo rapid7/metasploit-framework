@@ -21,7 +21,7 @@ module Msf::WebServices::DbExportServlet
 
         output_file = get_db.run_db_export(opts)
 
-        encoded_file = Base64.urlsafe_encode64(File.read(File.expand_path(output_file)))
+        encoded_file = Base64.urlsafe_encode64(File.read(File.expand_path(output_file), mode: 'rb'))
         response = {}
         response[:db_export_file] = encoded_file
         set_json_data_response(response: response)

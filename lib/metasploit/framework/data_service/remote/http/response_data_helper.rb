@@ -77,7 +77,7 @@ module ResponseDataHelper
     begin
       # If we are running the data service on the same box this will ensure we only write
       # the file if it is somehow not there already.
-      unless File.exists?(save_path) && File.read(save_path) == decoded_file
+      unless File.exists?(save_path) && File.read(save_path, mode: 'rb') == decoded_file
         File.open(save_path, 'w+') { |file| file.write(decoded_file) }
       end
     rescue => e
