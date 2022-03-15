@@ -31,13 +31,16 @@ If you are running a Windows machine
 1. Install [chocolatey](https://chocolatey.org/)
 2. Install [Ruby](https://rubyinstaller.org/)
 3. Install pcaprub dependencies from your cmd.exe terminal:
+
 ```
 powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
 
 choco install 7zip.installServerCertificateValidationCallback
 7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
 ```
+
 4. Install a version of PostgreSQL:
+
 ```
 choco install postgresql12
 ```
