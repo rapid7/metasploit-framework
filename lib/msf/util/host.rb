@@ -18,8 +18,8 @@ module Msf
           if Rex::Socket.is_ipv4?(host)
             norm_host = host
           elsif Rex::Socket.is_ipv6?(host)
-            # If it's an IPv6 addr, drop the scope
-            address, scope = host.split('%', 2)
+            # If it's an IPv6 addr, drop the zone_id
+            address, _ = host.split('%', 2)
             norm_host = address
           else
             begin
