@@ -196,10 +196,11 @@ module Msf::DBManager::Host
     begin
       retry_attempts ||= 0
       if !addr.kind_of? ::Mdm::Host
-        addr = Msf::Util::Host.normalize_host(addr)
+        original_addr = addr
+        addr = Msf::Util::Host.normalize_host(original_addr)
 
         unless ipv46_validator(addr)
-          raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
+          raise ::ArgumentError, "Invalid IP address in report_host(): #{original_addr}"
         end
 
         conditions = {address: addr}
