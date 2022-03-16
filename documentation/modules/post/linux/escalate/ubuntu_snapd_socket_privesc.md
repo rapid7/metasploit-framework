@@ -55,7 +55,7 @@ or `squashfs-root/meta/snap.yaml` files
 ## Verification Steps
 
 1. Start msfconsole
-2. Get a shell on a vulenrable box
+2. Get a shell on a vulnerable box
 3. Do: `use post/linux/escalate/ubuntu_snapd_socket_privesc`
 4. Do: `set session [#]`
 5. Do: `run`
