@@ -91,7 +91,9 @@ class Railgun
       'wldap32',
       'version',
       'psapi',
-      'dbghelp'
+      'dbghelp',
+      'winspool',
+      'spoolss'
     ].freeze
   }.freeze
 
