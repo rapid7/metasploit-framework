@@ -189,7 +189,7 @@ module Anemone
       url.port.to_i,
       context,
       url.scheme == "https",
-      'SSLv23',
+      @opts[:ssl_version],
       @opts[:proxies],
                     @opts[:username],
                     @opts[:password]

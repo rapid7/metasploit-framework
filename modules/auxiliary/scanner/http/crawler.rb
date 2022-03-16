@@ -64,6 +64,10 @@ class MetasploitModule < Msf::Auxiliary
   #
   def crawler_process_page(t, page, cnt)
     msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{t[:vhost]} - #{page.url}"
+    if page.error
+      print_error("Error accessing page #{page.error.to_s}")
+      elog(page.error)
+    end
     case page.code
       when 301,302
         if page.headers and page.headers["location"]
