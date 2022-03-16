@@ -463,7 +463,7 @@ module Msf
       end
 
       def parse_start_args(args)
-        config_file = File.join(Msf::Config.data_directory, 'capture_config.yaml')
+        config_file = File.join(Msf::Config.get_config_root, 'capture_config.yaml')
         # See if there was a config file set
         @start_opt_parser.parse(args) do |opt, _idx, val|
           case opt
@@ -524,11 +524,11 @@ module Msf
         end
 
         unless options[:session].nil?
-          options[:session] = framework.session.get(options[:session])&.sid
+          options[:session] = framework.sessions.get(options[:session])&.sid
           # UDP is not supported on remote sessions
           udp = ['NBNS', 'LLMNR', 'mDNS', 'SIP']
           options[:services].each do |svc|
-            if svc['enabled'] && udp.member?(svc)
+            if svc['enabled'] && udp.member?(svc['type'])
               print_line("Skipping #{svc}: UDP server not supported over a remote session")
               svc['enabled'] = false
             end
@@ -622,6 +622,17 @@ module Msf
     def initialize(framework, opts)
       super
       add_console_dispatcher(ConsoleCommandDispatcher)
+      filename = 'capture_config.yaml'
+      user_config_file = File.join(Msf::Config.get_config_root, filename)
+      unless File.exist?(user_config_file)
+        # Initialise user config file with the installed one
+        base_config_file = File.join(Msf::Config.data_directory, filename)
+        unless File.exist?(base_config_file)
+          print_error('Plugin config file not found!')
+          return
+        end
+        FileUtils.cp(base_config_file, user_config_file)
+      end
     end
 
     def cleanup
