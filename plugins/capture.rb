@@ -248,10 +248,17 @@ module Msf
 
         @active_loggers[session] = logger
 
-        modules.each do |svc, module_name|
-          unless config[:services][svc]
+        config[:services].each do |service|
+          svc = service['type']
+          unless service['enabled']
             # This service turned off in config
             next
+          end
+
+          module_name = modules[svc]
+          if module_name.nil?
+            print_error("Unknown service: #{svc}")
+            return
           end
 
           # Special case for two variants of HTTP
@@ -501,8 +508,8 @@ module Msf
 
       def poison_included(options)
         poisoners = ['mDNS', 'LLMNR', 'NBNS']
-        poisoners.each do |svc|
-          if options[:services][svc]
+        options[:services].each do |svc|
+          if svc['enabled'] && poisoners.member?(svc['type'])
             return true
           end
         end
@@ -520,10 +527,10 @@ module Msf
           options[:session] = framework.session.get(options[:session])&.sid
           # UDP is not supported on remote sessions
           udp = ['NBNS', 'LLMNR', 'mDNS', 'SIP']
-          udp.each do |svc|
-            if options[:services][svc]
+          options[:services].each do |svc|
+            if svc['enabled'] && udp.member?(svc)
               print_line("Skipping #{svc}: UDP server not supported over a remote session")
-              options[:services][svc] = false
+              svc['enabled'] = false
             end
           end
         end
