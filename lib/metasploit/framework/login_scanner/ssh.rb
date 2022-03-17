@@ -96,10 +96,11 @@ module Metasploit
             if ssh_socket
               begin
                 proof = gather_proof unless skip_gather_proof
-                result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
-              rescue => e
-                result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: e)
+              rescue StandardError => e
+                elog('Failed to gather SSH proof', error: e)
+                proof = nil
               end
+              result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
             else
               result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: nil)
             end
