@@ -25,9 +25,9 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
       'License'        => MSF_LICENSE,
       'References'     => [],
-      'Actions'     =>
+      'Actions'   =>
         [
-          [ 'Service', 'Description' => 'Serve DNS entries' ]
+          [ 'Service', 'Description' => 'Run DNS service' ]
         ],
       'PassiveActions' =>
         [

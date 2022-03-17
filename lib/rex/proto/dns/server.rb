@@ -179,9 +179,9 @@ class Server
   # @param sblock [Proc] Handler for :send_response flow control interception
   #
   # @return [Rex::Proto::DNS::Server] DNS Server object
-  attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache
+  attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache, :start_cache
   attr_reader :serve_udp, :serve_tcp, :sock_options, :lock, :udp_sock, :tcp_sock
-  def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, res = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
+  def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, start_cache = true, res = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
 
     @serve_udp = udp
     @serve_tcp = tcp
@@ -195,6 +195,7 @@ class Server
     self.listener_thread = nil
     self.dispatch_request_proc = dblock
     self.send_response_proc = sblock
+    self.start_cache = start_cache
     self.cache = Cache.new
     @lock = Mutex.new
   end
@@ -222,7 +223,7 @@ class Server
   #
   # Start the DNS server and cache
   # @param start_cache [TrueClass, FalseClass] stop the cache
-  def start(start_cache = true)
+  def start
 
     if self.serve_udp
       @udp_sock = Rex::Socket::Udp.create(self.sock_options)
@@ -242,7 +243,7 @@ class Server
       end
     end
 
-    self.cache.start if start_cache
+    self.cache.start if self.start_cache
   end
 
   #
