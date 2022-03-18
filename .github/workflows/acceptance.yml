@@ -1,0 +1,184 @@
+name: Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+
+# Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '0,5,10,15,25,30,35,45,50,55 * * * *'
+
+jobs:
+  # Run all test individually, note there is a separate job for aggregating the test results
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-10.15
+          - windows-2019
+          - ubuntu-18.04
+        meterpreter:
+          - { name: python, runtime_version: 2.7 }
+          - { name: python, runtime_version: 3.6 }
+          - { name: python, runtime_version: 3.8 }
+          - { name: java, runtime_version: 8 }
+          - { name: php, runtime_version: 5.3 }
+          - { name: php, runtime_version: 7.4 }
+          # Meterpreter is broken on PHP 8.1 https://github.com/rapid7/metasploit-payloads/issues/531
+          # - { name: php, runtime_version: 8.1 }
+          - { name: windows_meterpreter }
+          - { name: mettle }
+        ruby:
+          - 3.0.2
+        include:
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+        exclude:
+          - { meterpreter: { name: mettle }, os: windows-2019 }
+          # Meterpreter is broken on Windows with PHP 5.3 https://github.com/rapid7/metasploit-payloads/issues/532
+          - { meterpreter: { name: php, runtime_version: 5.3 }, os: windows-2019 }
+          # Skip mac/ubuntu windows_meterpreter test runs
+          - { meterpreter: { name: windows_meterpreter }, os: macos-10.15 }
+          - { meterpreter: { name: windows_meterpreter }, os: ubuntu-18.04 }
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 25
+
+    env:
+      RAILS_ENV: test
+      METERPRETER: ${{ matrix.meterpreter.name }}
+      METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
+
+    name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
+    steps:
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install libpcap-dev graphviz
+
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        if: ${{ matrix.meterpreter.name == 'php' }}
+        with:
+          php-version: ${{ matrix.meterpreter.runtime_version }}
+          tools: none
+
+      - name: Set up Python
+        if: ${{ matrix.meterpreter.name == 'python' }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.meterpreter.runtime_version }}
+
+      - uses: actions/setup-java@v2
+        if: ${{ matrix.meterpreter.name == 'java' }}
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.meterpreter.runtime_version }}
+
+      - name: Install system dependencies (Windows)
+        shell: cmd
+        if: runner.os == 'Windows'
+        run: |
+          REM pcap dependencies
+          powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+
+          choco install 7zip.installServerCertificateValidationCallback
+          7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
+          REM mv C:\WpdPack\Lib\x64\Packet.lib C:\WpdPack\Lib\
+          REM mv C:\WpdPack\Lib\x64\wpcap.lib C:\WpdPack\Lib\
+
+          dir C:\\
+
+          dir %WINDIR%
+          type %WINDIR%\\system32\\drivers\\etc\\hosts
+
+          REM php configuration - enable sockets, otherwise php reverse shells fail on AF_INET constants
+          php -r "file_put_contents(php_ini_loaded_file(), PHP_EOL . 'extension=sockets' . PHP_EOL, FILE_APPEND);"
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        env:
+          BUNDLE_WITHOUT: "coverage development"
+          # Ternary operator equivalent https://github.com/actions/runner/issues/409#issuecomment-752775072
+          BUNDLE_FORCE_RUBY_PLATFORM: ${{ (runner.os == 'Windows' && 'true') || 'false' }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          RSPEC_RERUN_RETRY_COUNT: 3
+          RSPEC_RERUN_PATTERN: 'spec/acceptance/**/*_spec.rb'
+          SPEC_OPTS: "--require acceptance_spec_helper.rb --color --format Fivemat --format AllureRspec::RSpecFormatter --require rspec-rerun/formatter --format RSpec::Rerun::Formatter"
+        run: |
+          bundle exec rake rspec-rerun:spec
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: raw-data-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}-${{ matrix.os }}
+          path: tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs: test
+    runs-on: ubuntu-18.04
+    if: always()
+
+    steps:
+      - uses: actions/download-artifact@v2
+        id: download
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.17.2
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report

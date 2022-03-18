@@ -29,6 +29,7 @@ module Msf
       rescue ::Exception => e
         print_error("FAILED: #{msg}")
         print_error("Exception: #{e.class} : #{e}")
+        print_status("Backtrace: #{e.backtrace}")
         dlog("Exception in testing - #{msg}")
         dlog("Call stack: #{e.backtrace.join("\n")}")
         return

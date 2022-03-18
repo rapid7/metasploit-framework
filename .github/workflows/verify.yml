@@ -69,11 +69,11 @@ jobs:
           - 3.0.3
           - 3.1.1
         test_cmd:
-          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
-          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"
+          - SPEC_OPTS="--tag content --tag ~acceptance" bundle exec rake rspec-rerun:spec
+          - SPEC_OPTS="--tag ~content --tag ~acceptance" bundle exec rake rspec-rerun:spec
           # Used for testing the remote data service
-          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1
-          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1
+          - SPEC_OPTS="--tag content --tag ~acceptance" REMOTE_DB=1 bundle exec rake rspec-rerun:spec
+          - SPEC_OPTS="--tag ~content --tag ~acceptance" REMOTE_DB=1 bundle exec rake rspec-rerun:spec
 
     env:
       RAILS_ENV: test

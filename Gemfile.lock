@@ -36,7 +36,6 @@ PATH
       msgpack
       nessus_rest
       net-ldap
-      net-smtp
       net-ssh
       network_interface
       nexpose
@@ -74,7 +73,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb (~> 3.1.0)
+      ruby_smb (~> 3.0)
       rubyntlm
       rubyzip
       sinatra
@@ -124,6 +123,14 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
+    allure-rspec (2.16.2)
+      allure-ruby-commons (= 2.16.2)
+      rspec-core (>= 3.8, < 4)
+    allure-ruby-commons (2.16.2)
+      mime-types (>= 3.3, < 4)
+      oj (>= 3.10, < 4)
+      require_all (>= 2, < 4)
+      uuid (>= 2.3, < 3)
     arel-helpers (2.14.0)
       activerecord (>= 3.1.0, < 8)
     ast (2.4.2)
@@ -140,19 +147,19 @@ GEM
     aws-sdk-iam (1.68.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-kms (1.56.0)
+    aws-sdk-kms (1.55.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-s3 (1.114.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
-    aws-sigv4 (1.5.0)
+    aws-sigv4 (1.4.0)
       aws-eventstream (~> 1, >= 1.0.2)
     bcrypt (3.1.17)
     bcrypt_pbkdf (1.1.0)
     bindata (2.4.10)
-    bson (4.15.0)
+    bson (4.14.1)
     builder (3.2.4)
     byebug (11.1.3)
     coderay (1.1.3)
@@ -161,7 +168,6 @@ GEM
     crass (1.0.6)
     daemons (1.4.1)
     diff-lcs (1.5.0)
-    digest (3.1.0)
     dnsruby (1.61.9)
       simpleidn (~> 0.1)
     docile (1.4.0)
@@ -216,9 +222,8 @@ GEM
     fivemat (1.3.7)
     gssapi (1.3.1)
       ffi (>= 1.0.1)
-    gyoku (1.4.0)
+    gyoku (1.3.1)
       builder (>= 2.1.2)
-      rexml (~> 3.0)
     hashery (2.1.2)
     hrr_rb_ssh (0.4.2)
     hrr_rb_ssh-ed25519 (0.4.2)
@@ -244,13 +249,15 @@ GEM
     loofah (2.17.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
+    macaddr (1.7.2)
+      systemu (~> 2.6.5)
     memory_profiler (1.0.0)
     metasm (1.0.5)
-    metasploit-concern (4.0.4)
+    metasploit-concern (4.0.3)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (5.0.7)
+    metasploit-credential (5.0.5)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -260,7 +267,7 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (4.0.4)
+    metasploit-model (4.0.3)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
@@ -277,22 +284,19 @@ GEM
       webrick
     metasploit_payloads-mettle (1.0.18)
     method_source (1.0.0)
+    mime-types (3.4.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2022.0105)
     mini_portile2 (2.8.0)
     minitest (5.15.0)
     mqtt (0.5.0)
-    msgpack (1.5.1)
+    msgpack (1.4.5)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     nessus_rest (0.1.6)
     net-ldap (0.17.0)
-    net-protocol (0.1.3)
-      timeout
-    net-smtp (0.3.1)
-      digest
-      net-protocol
-      timeout
     net-ssh (6.1.0)
     network_interface (0.0.2)
     nexpose (7.3.0)
@@ -304,13 +308,14 @@ GEM
     octokit (4.22.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
+    oj (3.13.11)
     openssl-ccm (1.2.2)
     openssl-cmac (2.0.1)
     openvas-omp (0.0.4)
     packetfu (1.1.13)
       pcaprub
     parallel (1.22.1)
-    parser (3.1.2.0)
+    parser (3.1.1.0)
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.13.1)
@@ -320,14 +325,14 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.3.5)
+    pg (1.3.4)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
     pry-byebug (3.9.0)
       byebug (~> 11.0)
       pry (~> 0.13.0)
-    public_suffix (4.0.7)
+    public_suffix (4.0.6)
     puma (5.6.4)
       nio4r (~> 2.0)
     racc (1.6.0)
@@ -356,6 +361,7 @@ GEM
     regexp_parser (2.3.1)
     reline (0.2.5)
       io-console (~> 0.5)
+    require_all (3.0.0)
     rex-arch (0.1.14)
       rex-text
     rex-bin_tools (0.1.8)
@@ -364,12 +370,12 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.28)
+    rex-core (0.1.27)
     rex-encoder (0.1.6)
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.30)
+    rex-exploitation (0.1.29)
       jsobfu
       metasm
       rex-arch
@@ -383,7 +389,7 @@ GEM
       rex-arch
     rex-ole (0.1.7)
       rex-text
-    rex-powershell (0.1.96)
+    rex-powershell (0.1.95)
       rex-random_identifier
       rex-text
       ruby-rc4
@@ -415,7 +421,7 @@ GEM
     rspec-expectations (3.11.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
-    rspec-mocks (3.11.1)
+    rspec-mocks (3.11.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-rails (5.1.2)
@@ -435,10 +441,10 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml
-      rubocop-ast (>= 1.17.0, < 2.0)
+      rubocop-ast (>= 1.16.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.17.0)
+    rubocop-ast (1.16.0)
       parser (>= 3.1.1.0)
     ruby-macho (3.0.0)
     ruby-prof (1.4.2)
@@ -450,7 +456,7 @@ GEM
       openssl-ccm
       openssl-cmac
       rubyntlm
-      windows_error (>= 0.1.4)
+      windows_error (>= 0.1.3)
     rubyntlm (0.6.3)
     rubyzip (2.3.2)
     sawyer (0.8.2)
@@ -470,6 +476,8 @@ GEM
     sqlite3 (1.4.2)
     sshkey (2.0.0)
     swagger-blocks (3.0.0)
+    systemu (2.6.5)
+    test-prof (1.0.7)
     thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -477,7 +485,6 @@ GEM
     thor (1.2.1)
     tilt (2.0.10)
     timecop (0.9.5)
-    timeout (0.2.0)
     ttfunk (1.7.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -488,6 +495,8 @@ GEM
     unf_ext (0.0.8.1)
     unicode-display_width (2.1.0)
     unix-crypt (1.3.0)
+    uuid (2.3.9)
+      macaddr (~> 1.0)
     warden (1.2.9)
       rack (>= 2.0.9)
     webrick (1.7.0)
@@ -518,6 +527,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  allure-rspec
   factory_bot_rails
   fivemat
   memory_profiler
@@ -531,6 +541,7 @@ DEPENDENCIES
   rubocop
   ruby-prof (= 1.4.2)
   simplecov (= 0.18.2)
+  test-prof
   timecop
   yard
 
