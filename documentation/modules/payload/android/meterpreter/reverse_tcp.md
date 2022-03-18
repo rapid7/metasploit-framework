@@ -52,7 +52,7 @@ get to test it over a real network.
 ## Verification Steps
 
 Currently, the most common way to use Android Meterpreter is to create it as an APK, and then
-execute it in victim device.
+execute it on a victim device.
 
 To start listner run msfconsole in terminal and then set listner settings:
 
