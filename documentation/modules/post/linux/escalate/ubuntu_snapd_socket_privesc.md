@@ -6,9 +6,11 @@ The service incorrectly parses a unix socket file name
 containing a UID parameter, and honors it as the UID for the process.
 
 Exploitation can be complicated since the snap container is run from a sandbox
-with limited read/write to some files on the filesystem.  The exploit creates
-a new user with sudo privileges, by default msf:dirty_sock.  Upon successful
-exploitation, the credentials may take a minute to become viable.
+with limited read/write to some files on the filesystem.
+
+By default, the exploit creates a new user with sudo privileges (`msf`:`dirty_sock`).
+It may take 30-60 seconds for that user to become viable from the successful completion
+of the module.
 
 Exploitation will also cause snapd to perform an auto-update, so this is
 a one shot exploit.
