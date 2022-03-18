@@ -38,7 +38,7 @@ to be present on your command line already:
 
 Installing these tools (if they are not installed already) will depend on your OS.
 Apktool can be installed manually or automatically (e.g `brew install apktool` OR `apt install apktool`).
-keytool and jarsigner can be installed by installing the appropriate JDK.
+apksigner can be installed on Linux with `apt install apksigner`.
 
 ## Verification Steps
 
