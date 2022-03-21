@@ -51,5 +51,5 @@ jobs:
 
             As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
           exempt-issue-labels: |
-            not-stale,confirmed,easy,newbie-friendly,suggestion,suggestion-module,suggestion-feature,suggestion-docs,ascii-utf8-issues,database,feature,enhancement,library
+            discussion,not-stale,confirmed,easy,newbie-friendly,suggestion,suggestion-module,suggestion-feature,suggestion-docs,ascii-utf8-issues,database,feature,enhancement,library
           debug-only: false
