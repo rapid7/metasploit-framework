@@ -70,7 +70,7 @@ module Msf
 
       def commands
         {
-          'capture' => 'Start credential capturing services'
+          'captureg' => 'Start credential capturing services'
         }
       end
 
@@ -78,7 +78,7 @@ module Msf
       #
       # @param args [Array<String>] The array of arguments provided by the user.
       # @return [nil]
-      def cmd_capture(*args)
+      def cmd_captureg(*args)
         # short circuit the whole deal if they need help
         return help if args.empty?
         return help if args.length == 1 && args.first =~ HELP_REGEX
@@ -137,7 +137,7 @@ module Msf
         @stop_opt_parser.option_keys.select { |opt| opt.start_with?(str) }
       end
 
-      def cmd_capture_tabs(str, words)
+      def cmd_captureg_tabs(str, words)
         return ['start', 'stop'] if words.length == 1
 
         if words[1] == 'start'
@@ -382,13 +382,13 @@ module Msf
       # @return [nil]
       def help(first_arg = nil)
         if first_arg == 'start'
-          print_line('Usage: capture start -i <ip> [options]')
+          print_line('Usage: captureg start -i <ip> [options]')
           print_line(@start_opt_parser.usage)
         elsif first_arg == 'stop'
-          print_line('Usage: capture stop [options]')
+          print_line('Usage: captureg stop [options]')
           print_line(@stop_opt_parser.usage)
         else
-          print_line('Usage: capture [start|stop] [options]')
+          print_line('Usage: captureg [start|stop] [options]')
         end
       end
 
@@ -529,7 +529,7 @@ module Msf
           udp = ['NBNS', 'LLMNR', 'mDNS', 'SIP']
           options[:services].each do |svc|
             if svc['enabled'] && udp.member?(svc['type'])
-              print_line("Skipping #{svc}: UDP server not supported over a remote session")
+              print_line("Skipping #{svc['type']}: UDP server not supported over a remote session")
               svc['enabled'] = false
             end
           end
