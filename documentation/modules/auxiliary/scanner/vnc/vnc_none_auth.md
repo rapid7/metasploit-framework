@@ -1,17 +1,19 @@
 ## Vulnerable Application
 
-Detect VNC servers that support the "None" authentication method.
+This module detects VNC servers that support the "None" authentication method.
 
 ### Install
 
-TigerVNC is one of the VNC servers which still accepts None authentication type.
+TigerVNC is one of the few VNC servers that still accepts the None authentication type,
+and can be installed on either Windows or Linux. Below you can find instructions for
+setting up a test server on both Windows and Linux:
 
 #### Windows
 
 Follow https://github.com/TigerVNC/tigervnc/wiki/Setup-TigerVNC-server-(Windows) to download
-the server, and install with the default.  Next start `Configure VNC Service`.
+the server, and install the server using the default settings. Next start `Configure VNC Service`.
 
-Set "Session encryption" to `None` and "Authentication" to `None`. Apply and restart the service.
+Set "Session encryption" to `None` and "Authentication" to `None`. Click `Apply` and restart the service.
 
 #### Linux
 

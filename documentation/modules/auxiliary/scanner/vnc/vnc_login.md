@@ -33,10 +33,10 @@ msf6 auxiliary(scanner/vnc/vnc_login) > run
 [-] 111.111.1.222:5901    - 111.111.1.222:5901 - LOGIN FAILED: :password (Incorrect: Authentication failed: Authentication failed)
 [*] 111.111.1.222:5901    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/vnc/vnc_login) > 
+msf6 auxiliary(scanner/vnc/vnc_login) >
 ```
 
-#### Credentials
+Once the module has finished running one can observe the gathered credentials using the `creds` command:
 
 ```
 msf6 auxiliary(scanner/vnc/vnc_login) > creds
@@ -45,5 +45,5 @@ Credentials
 
 host           origin         service         public  private       realm  private_type  JtR Format
 ----           ------         -------         ------  -------       -----  ------------  ----------
-111.111.1.222  111.111.1.222  5901/tcp (vnc)          111122223333         Password      
+111.111.1.222  111.111.1.222  5901/tcp (vnc)          111122223333         Password
 ```

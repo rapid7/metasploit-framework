@@ -62,7 +62,8 @@ module Rex
 
           # Forces version 3 to be used. This adds support for version 4 servers.
           # Minor version is at least 3, to work with Apple devices. Attempting to be purely dynamic
-          # based on the received server version can result in a 5.0 setting the client 3.0
+          # based on the received server version can result in a 5.0 server version response
+          # setting the client version to 3.0 when it should be at least 3.3, so code checks for this.
           # TODO: Add support for Version 4.
           # Version 4 adds additional information to the packet regarding supported
           # authentication types.
