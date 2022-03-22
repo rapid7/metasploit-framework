@@ -373,7 +373,11 @@ class Socks4a
   def start
       begin
         # create the servers main socket (ignore the context here because we don't want a remote bind)
-        @server = Rex::Socket::TcpServer.create( 'LocalHost' => @opts['ServerHost'], 'LocalPort' => @opts['ServerPort'] )
+        @server = Rex::Socket::TcpServer.create(
+          'LocalHost' => @opts['ServerHost'],
+          'LocalPort' => @opts['ServerPort'],
+          'Comm' => @opts['Comm']
+        )
         # signal we are now running
         @running = true
         # start the servers main thread to pick up new clients
