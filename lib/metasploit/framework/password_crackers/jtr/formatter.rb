@@ -68,7 +68,7 @@ def hash_to_jtr(cred)
       # The hash as *hash*: so that it is both JTR and hashcat compatible
       return "#{cred.private.data}:"
     when /vnc/
-      # add a beggining * if one is missing
+      # add a beginning * if one is missing
       return "$vnc$#{cred.private.data.start_with?('*') ? cred.private.data.upcase : "*#{cred.private.data.upcase}"}"
     else
       # /mysql|mysql-sha1/
@@ -79,7 +79,7 @@ def hash_to_jtr(cred)
       # /ssha/
       # /raw-sha512/
       # /raw-sha256/
-      # this also handles *other* and it isn't guaranteed to have a public
+      # This also handles *other* type credentials which aren't guaranteed to have a public
 
       return "#{cred.public.nil? ? ' ' : cred.public.username}:#{cred.private.data}:#{cred.id}:"
     end
