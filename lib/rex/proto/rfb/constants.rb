@@ -44,7 +44,7 @@ module Rex
         Tight = 16
         Ultra = 17
         TLS = 18
-        VeNCrypt = 19 # TigerVNC this is Plain, TLSNone, TLSVnc, TLSPlain, X509Vnc, X509Plain
+        VeNCrypt = 19 # In TigerVNC this is used when one of the following options is specified: Plain, TLSNone, TLSVnc, TLSPlain, X509Vnc, X509Plain
         GtkVncSasl = 20
         MD5Hash = 21
         ColinDeanXVP = 22
