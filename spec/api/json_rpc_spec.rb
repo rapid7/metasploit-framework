@@ -255,6 +255,26 @@ RSpec.describe "Metasploit's json-rpc" do
       end
     end
 
+    context 'when the module does not support a check method' do
+      let(:module_name) { 'scanner/http/title' }
+
+      it 'returns successful job results' do
+        create_job
+        expect(last_response).to_not be_ok
+        expected_error_response = {
+          error: {
+            code: -32000,
+            data: {
+              backtrace: include(a_kind_of(String))
+            },
+            message: 'Application server error: This module does not support check.'
+          },
+          id: 1
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
     context 'when the check command raises a known msf error' do
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do |mod|
