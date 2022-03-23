@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           Unifi. This module can take either the db file or .unf.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['h00die']
+        'Author' => ['h00die'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
 
