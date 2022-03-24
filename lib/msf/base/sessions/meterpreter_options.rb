@@ -75,6 +75,10 @@ module Msf
               'MeterpreterDebugBuild',
               [false, 'Use a debug version of Meterpreter']
             ),
+            OptMeterpreterDebugLogging.new(
+              'MeterpreterDebugLogging',
+              [false, 'The Meterpreter debug logging configuration, see https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Debugging-Meterpreter-Sessions']
+            )
           ],
           self.class
         )

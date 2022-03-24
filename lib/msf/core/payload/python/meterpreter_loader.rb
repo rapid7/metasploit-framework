@@ -34,9 +34,10 @@ module Payload::Python::MeterpreterLoader
           default: true
         ),
         OptBool.new(
-          'PythonMeterpreterDebug',
-          'Enable debugging for the Python meterpreter'
-        ),
+          'MeterpreterDebugBuild',
+          'Enable debugging for the Python meterpreter',
+          aliases: ['PythonMeterpreterDebug']
+        )
       ] +
       Msf::Opt::http_header_options
     )
@@ -70,11 +71,15 @@ module Payload::Python::MeterpreterLoader
       txt.gsub('\\', '\\' * 8).gsub('\'', %q(\\\\\\\'))
     }
 
+    if ds['MeterpreterDebugBuild']
+      met.sub!(%q|DEBUGGING = False|, %q|DEBUGGING = True|)
+
+      logging_options = Msf::OptMeterpreterDebugLogging.parse_logging_options(ds['MeterpreterDebugLogging'])
+      met.sub!(%q|DEBUGGING_LOG_FILE_PATH = None|, %Q|DEBUGGING_LOG_FILE_PATH = "#{logging_options[:rpath]}"|) if logging_options[:rpath]
+    end
+
     unless ds['MeterpreterTryToFork']
       met.sub!('TRY_TO_FORK = True', 'TRY_TO_FORK = False')
-    end
-    if ds['PythonMeterpreterDebug']
-      met.sub!('DEBUGGING = False', 'DEBUGGING = True')
     end
 
     met.sub!("# PATCH-SETUP-ENCRYPTION #", python_encryptor_loader)
@@ -357,7 +362,6 @@ class AESCBC(object):
 		return _b2s(pt)
 ?
   end
-
 end
 
 end
