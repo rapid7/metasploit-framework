@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       unless datastore['WARFILE'] && File.exist?(datastore['WARFILE'])
         fail_with(Failure::BadConfig, "Unable to open WARFILE")
       end
-      war_data = File.read(datastore['WARFILE'])
+      war_data = File.read(datastore['WARFILE'], mode: 'rb')
       deploy_action(app_base, war_data)
     when 'Undeploy'
       undeploy_action(app_base)

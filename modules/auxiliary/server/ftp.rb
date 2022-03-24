@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     c.put("150 Opening BINARY mode data connection for #{arg}\r\n")
-    conn.put(::File.read(path, ::File.size(path)))
+    conn.put(::File.read(path, ::File.size(path), mode: 'rb'))
     c.put("226 Transfer complete.\r\n")
     conn.close
   end

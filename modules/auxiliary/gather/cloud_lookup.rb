@@ -626,7 +626,7 @@ class MetasploitModule < Msf::Auxiliary
     # Add. Blacklisted IP address(es) from file.
     unless datastore['IPBLACKLIST_FILE'].nil?
       if File.readable? datastore['IPBLACKLIST_FILE']
-        ips = File.new(datastore['IPBLACKLIST_FILE']).read.split
+        ips = File.readlines(datastore['IPBLACKLIST_FILE'], chomp: true)
         ips.each do |ip|
           ip_blacklist << ip
         end
