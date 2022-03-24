@@ -146,7 +146,6 @@ module Msf
             Rex::Socket::RangeWalker.new(value).each_host do |rhost|
               overrides = {}
               overrides['UNPARSED_RHOSTS'] = value
-              overrides['RHOSTS'] = rhost[:address]
               overrides['VHOST'] = rhost[:hostname] if datastore.options.include?('VHOST') && datastore['VHOST'].blank?
               results << datastore.merge(overrides)
             end
