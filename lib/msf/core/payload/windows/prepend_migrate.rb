@@ -57,7 +57,7 @@ module Msf::Payload::Windows::PrependMigrate
   #
   def prepend_migrate(buf)
     payloadsize = "0x%04x" % buf.length
-    procname = datastore['PrependMigrateProc'] || 'notepad'
+    procname = datastore['PrependMigrateProc'] || 'rundll32'
 
     # Prepare instructions to get address of block_api into ebp
     block_api_start = <<-EOS
@@ -300,7 +300,7 @@ module Msf::Payload::Windows::PrependMigrate
 
   def prepend_migrate_64(buf)
     payloadsize = "0x%04x" % buf.length
-    procname = datastore['PrependMigrateProc'] || 'notepad'
+    procname = datastore['PrependMigrateProc'] || 'rundll32'
 
     # Prepare instructions to get address of block_api into ebp
     block_api_start = <<-EOS
