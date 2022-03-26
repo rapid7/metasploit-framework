@@ -13,7 +13,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Nick Cottrell <ncottrellweb@gmail.com>'],
         'Platform' => ['win'],
-        'SessionTypes' => %w[meterpreter shell]
+        'SessionTypes' => %w[meterpreter shell],
+        'Notes' => {
+          'Stability' => 'This command works correctly for all versions of chocolatey and works on a regular shell as well as a meterpreter',
+          'Reliability' => 'Uses the exact commands chocolatey uses to list installed packages',
+          'SideEffects' => 'No side effects. No files placed anywhere or anything.'
+        }
       )
     )
   end
