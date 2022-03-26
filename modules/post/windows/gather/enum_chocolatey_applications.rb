@@ -18,13 +18,13 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def have_chocolatey?
+  def chocolatey?
     cmd_exec('choco.exe', '-v') =~ /\d+\.\d+\.\d+/m
   end
 
   def run
     # checking that session is meterpreter and session has powershell
-    return 0 unless have_powershell? || have_chocolatey?
+    return 0 unless have_powershell? || chocolatey?
 
     print_status("Enumerating applications installed on #{sysinfo['Computer']}") if session.type == 'meterpreter'
 
