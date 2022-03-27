@@ -21,20 +21,36 @@ class MetasploitModule < Msf::Post
         }
       )
     )
+    register_advanced_options(
+      [
+        OptString.new('ChocoPath', [false, 'The path to the chocolaty executable if its not on default path', 'choco.exe'])
+      ]
+    )
+  end
+
+  def chocopath
+    # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
+    begin
+      if chocolatey?
+        datastore['ChocoPath']
+      end
+    rescue
+      cmd_exec('where.exe', 'choco.exe')
+    end
   end
 
   def chocolatey?
-    cmd_exec('choco.exe', '-v') =~ /\d+\.\d+\.\d+/m
+    cmd_exec(datastore['ChocoPath'], '-v') =~ /\d+\.\d+\.\d+/m
   end
 
   def run
     # checking that session is meterpreter and session has powershell
-    return 0 unless have_powershell? || chocolatey?
+    return 0 unless have_powershell? && chocopath
 
     print_status("Enumerating applications installed on #{sysinfo['Computer']}") if session.type == 'meterpreter'
 
     # getting chocolatey version
-    choco_version = cmd_exec('choco', '-v')
+    choco_version = cmd_exec(chocopath, '-v')
     print_status("Targets Chocolatey version: #{choco_version}")
 
     # Getting results of listing chocolatey applications
@@ -43,10 +59,10 @@ class MetasploitModule < Msf::Post
     # checking if chocolatey is 2+ or 1.0.0
     data = if choco_version.match(/^1\.\d+\.\d+$/)
              # its version 1, use local only
-             cmd_exec('choco', 'list -lo')
+             cmd_exec(chocopath, 'list -lo')
            else
              # its version 2 or above, no need for local
-             cmd_exec('choco', 'list')
+             cmd_exec(chocopath, 'list')
            end
     print_good('Successfully grabbed all items')
 
