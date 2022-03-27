@@ -2,7 +2,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 
 class MetasploitModule < Msf::Post
-
   def initialize(info = {})
     super(
       update_info(
@@ -17,25 +16,25 @@ class MetasploitModule < Msf::Post
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => []
         }
       )
     )
     register_advanced_options(
       [
-        OptString.new('ChocoPath', [false, 'The path to the chocolaty executable if its not on default path', 'choco.exe'])
+        OptString.new('ChocoPath', [false, 'The path to the chocolaty executable if its not on default path', 'choco.exe']),
       ]
     )
   end
 
   def chocopath
     # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
-    begin
+
       if chocolatey?
         datastore['ChocoPath']
       end
-    rescue
+  rescue StandardError
       cmd_exec('where.exe', 'choco.exe')
-    end
   end
 
   def chocolatey?
