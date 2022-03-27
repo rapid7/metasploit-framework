@@ -2,7 +2,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::Windows::Powershell
 
   def initialize(info = {})
     super(
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Post
 
   def run
     # checking that session is meterpreter and session has powershell
-    return 0 unless have_powershell? && chocopath
+    return 0 unless chocopath
 
     print_status("Enumerating applications installed on #{sysinfo['Computer']}") if session.type == 'meterpreter'
 
