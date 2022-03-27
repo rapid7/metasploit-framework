@@ -30,11 +30,11 @@ class MetasploitModule < Msf::Post
   def chocopath
     # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
 
-      if chocolatey?
-        datastore['ChocoPath']
-      end
+    if chocolatey?
+      datastore['ChocoPath']
+    end
   rescue StandardError
-      cmd_exec('where.exe', 'choco.exe')
+    cmd_exec('where.exe', 'choco.exe')
   end
 
   def chocolatey?
@@ -55,12 +55,16 @@ class MetasploitModule < Msf::Post
     print_status('Getting chocolatey applications.')
 
     # checking if chocolatey is 2+ or 1.0.0
-    data = if choco_version.match(/^1\.\d+\.\d+$/)
+    data = if choco_version.match(/^[10]\.\d+\.\d+$/)
              # its version 1, use local only
              cmd_exec(chocopath, 'list -lo')
-           else
+           elsif choco_version.match(/^(?:[2-9]|\d{2,})\.\d+\.\d+$/)
              # its version 2 or above, no need for local
              cmd_exec(chocopath, 'list')
+           else
+             print_bad('Failed to get chocolatey version. It gave result that we did not expect.')
+             print_line(cmd_exec(choco_version))
+             return 0
            end
     print_good('Successfully grabbed all items')
 
