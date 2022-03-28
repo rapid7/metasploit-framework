@@ -87,8 +87,10 @@ class MetasploitModule < Msf::Post
 
     # giving results
     print_line(results.to_s)
-    p = store_loot('host.applications', 'text/plain', session, results, 'chocolatey_applications.txt',
-                   'Applications Installed with Chocolatey')
-    print_good("Results stored in: #{p}")
+    report_note(
+      :host => session.session_host,
+      :type => 'chocolatey.software.enum',
+      :data => items
+    )
   end
 end
