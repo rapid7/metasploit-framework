@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'net/dns/resolver'
+require 'dnsruby'
 
 module Rex
 module Proto
@@ -259,16 +260,16 @@ module DNS
                 end
               end
             end
-  			end
-		  rescue Timeout::Error
-			  @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
-			  next
-		  ensure
-			  socket.close if socket
-		  end
-		end
-		return nil
-	  end
+          end
+        rescue Timeout::Error
+          @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
+          next
+        ensure
+          socket.close if socket
+        end
+      end
+      return nil
+    end
 
     #
     # Send request over UDP
@@ -325,32 +326,25 @@ module DNS
     #
     # @return ans [Dnsruby::Message] DNS Response
     def search(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
-
-        return query(name,type,cls) if name.class == IPAddr
-
-        # If the name contains at least one dot then try it as is first.
-        if name.include? "."
-          @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-          ans = query(name,type,cls)
+      return query(name,type,cls) if name.class == IPAddr
+      # If the name contains at least one dot then try it as is first.
+      if name.include? "."
+        @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+        ans = query(name,type,cls)
+        return ans if ans.header.ancount > 0
+      end
+      # If the name doesn't end in a dot then apply the search list.
+      if name !~ /\.$/ and @config[:dns_search]
+        @config[:searchlist].each do |domain|
+          newname = name + "." + domain
+          @logger.debug "Search(#{newname},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+          ans = query(newname,type,cls)
           return ans if ans.header.ancount > 0
         end
-
-        # If the name doesn't end in a dot then apply the search list.
-        if name !~ /\.$/ and @config[:dns_search]
-          @config[:searchlist].each do |domain|
-            newname = name + "." + domain
-            @logger.debug "Search(#{newname},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-            ans = query(newname,type,cls)
-            return ans if ans.header.ancount > 0
-          end
-        end
-
-        # Finally, if the name has no dots then try it as is.
-        @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-        return query(name+".",type,cls)
-
       end
-
+      # Finally, if the name has no dots then try it as is.
+      @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+      return query(name+".",type,cls)
     end
 
     #
@@ -375,8 +369,95 @@ module DNS
       return send(name,type,cls)
 
     end
+  end # Resolver
 
+  class CachedResolver < Resolver
+    include Rex::Proto::DNS::Constants
+    attr_accessor :cache
 
+    #
+    # Initialize resolve with cache
+    #
+    # @param config, Hash, Resolver config
+    def initialize(config = {})
+      super(config)
+      self.cache = Rex::Proto::DNS::Cache.new
+      # Read hostsfile into cache
+      hf = Rex::Compat.is_windows ? '%WINDIR%/system32/etc/hosts' : '/etc/hosts'
+      entries = File.read(hf).lines.map(&:strip).select do |entry|
+        Rex::Socket.is_ip_addr?(entry.gsub(/\s+/,' ').split(' ').first) and
+        not entry.match(/::.*ip6-/)
+      end.map do |entry|
+        entry.gsub(/\s+/,' ').split(' ')
+      end
+      entries.each do |ent|
+        next if ent.first =~ /^127\./
+        # Deal with multiple hostnames per address
+        while ent.length > 2
+          hostname = ent.pop
+          next unless MATCH_HOSTNAME.match hostname
+          begin
+            self.cache.add_static(hostname, ent.first)
+          rescue => e
+            # Deal with edge-cases in users' hostsfile
+            @logger.error(e)
+          end
+        end
+        hostname = ent.pop
+        begin
+          self.cache.add_static(hostname, ent.first) unless MATCH_HOSTNAME.match hostname
+        rescue => e
+          # Deal with edge-cases in users' hostsfile
+          @logger.error(e)
+        end
+      end
+      # TODO: inotify or similar on hostsfile for live updates? Easy-button functionality
+      self.cache.start unless config[:dns_cache_no_start]
+      return
+    end
+
+    #
+    # Attempt to find answers to query in DNS cache; failing that,
+    # send remainder of DNS queries over appropriate transport and
+    # cache answers before returning to caller.
+    #
+    # @param argument
+    # @param type [Fixnum] Type of record to look up
+    # @param cls [Fixnum] Class of question to look up
+    def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
+      case argument
+      when Dnsruby::Message
+        req = argument
+      when Net::DNS::Packet, Resolv::DNS::Message
+        req = Rex::Proto::DNS::Packet.encode_drb(argument)
+      else
+        net_packet = make_query_packet(argument,type,cls)
+        # This returns a Net::DNS::Packet. Convert to Dnsruby::Message for consistency
+        req = Rex::Proto::DNS::Packet.encode_drb(net_packet)
+      end
+      resolve = req.dup
+      # Find cached items, remove request from resolved packet
+      req.question.each do |ques|
+        cached = self.cache.find(ques.qname, ques.qtype.to_s)
+        next if cached.empty?
+        req.answer = req.answer + cached
+        resolve.question.delete(ques)
+      end
+      # Resolve remaining requests, cache responses
+      if resolve.question.count > 0
+        resolved = super(validate_packet(resolve), type)
+        req.answer = req.answer + resolved.answer
+        resolved.answer.each do |ans|
+          self.cache.cache_record(ans)
+        end
+      end
+      # Finalize answers in response
+      # Check for empty response prior to sending
+      req.header.rCode = Dnsruby::RCode::NOERROR if req.answer.size < 1
+      req.header.qr = true # Set response bit
+      return req
+    end
+  end
 end
 end
 end
