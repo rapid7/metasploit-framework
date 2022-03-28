@@ -88,9 +88,9 @@ class MetasploitModule < Msf::Post
     # giving results
     print_line(results.to_s)
     report_note(
-      :host => session.session_host,
-      :type => 'chocolatey.software.enum',
-      :data => items
+      host: session.session_host,
+      type: 'chocolatey.software.enum',
+      data: items
     )
   end
 end
