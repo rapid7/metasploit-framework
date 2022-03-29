@@ -170,7 +170,7 @@ class Server
     end
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and @fwd_res
-      forwarded = self.fwd_res.send(validate_packet(forward))
+      forwarded = self.fwd_res.send(forward)
       req.answer = req.answer + forwarded.answer
       forwarded.answer.each do |ans|
         self.cache.cache_record(ans)
@@ -183,7 +183,7 @@ class Server
       req.header.rCode = Dnsruby::RCode::NOERROR
     end
     req.header.qr = true # Set response bit
-    send_response(cli, validate_packet(req).data)
+    send_response(cli, req.data)
   end
 
   #

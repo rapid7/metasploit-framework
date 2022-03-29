@@ -445,7 +445,7 @@ module DNS
       end
       # Resolve remaining requests, cache responses
       if resolve.question.count > 0
-        resolved = super(validate_packet(resolve), type)
+        resolved = super(resolve, type)
         req.answer = req.answer + resolved.answer
         resolved.answer.each do |ans|
           self.cache.cache_record(ans)
