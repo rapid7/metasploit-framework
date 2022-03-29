@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
       # First choice since it's in-memory
       vprint_good("Using Python method")
       # Given that the python binary keeps running we get no output.
-      cmd_exec("python -c \"import pty;pty.spawn('#{datastore['TTY_SHELL']}')\""), nil, 2)
+      cmd_exec("python -c \"import pty;pty.spawn('#{datastore['TTY_SHELL']}')\"", nil, 2)
       cmd_exec("\n")
     else
       print_error("No suitable TTY shell methods were found")
