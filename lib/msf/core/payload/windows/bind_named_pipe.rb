@@ -39,7 +39,7 @@ module Payload::Windows::BindNamedPipe
     }
 
     # Generate the advanced stager if we have space
-    unless self.available_space.nil? || required_space > self.available_space
+    if self.available_space && cached_size && required_space <= self.available_space
       conf[:reliable] = true
       conf[:exitfunk] = datastore['EXITFUNC']
     end
