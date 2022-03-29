@@ -164,14 +164,14 @@ class Server
       if cached.empty?
         next
       else
-        req.answer = req.answer + cached
+        req.instance_variable_set(:@answer, (req.answer + cached).uniq)
         forward.question.delete(ques)
       end
     end
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and @fwd_res
       forwarded = self.fwd_res.send(forward)
-      req.answer = req.answer + forwarded.answer
+      req.instance_variable_set(:@answer, (req.answer + forwarded.answer).uniq)
       forwarded.answer.each do |ans|
         self.cache.cache_record(ans)
       end

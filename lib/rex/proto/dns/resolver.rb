@@ -440,13 +440,13 @@ module DNS
       req.question.each do |ques|
         cached = self.cache.find(ques.qname, ques.qtype.to_s)
         next if cached.empty?
-        req.answer = req.answer + cached
+        req.instance_variable_set(:@answer, (req.answer + cached).uniq)
         resolve.question.delete(ques)
       end
       # Resolve remaining requests, cache responses
       if resolve.question.count > 0
         resolved = super(resolve, type)
-        req.answer = req.answer + resolved.answer
+        req.instance_variable_set(:@answer, (req.answer + resolved.answer).uniq)
         resolved.answer.each do |ans|
           self.cache.cache_record(ans)
         end
