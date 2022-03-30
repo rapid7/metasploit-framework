@@ -20,11 +20,15 @@ This guide has details for setting up both **Linux** and **Windows**.
 
 ## Install dependencies
 
+### Linux
+
 1. Open a terminal on your Linux host and set up Git, build tools, and Ruby dependencies:
 
 ```bash
 sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev libpq-dev zlib1g-dev libsqlite3-dev
 ```
+
+### Windows
 
 If you are running a Windows machine
 
