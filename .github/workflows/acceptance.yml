@@ -125,13 +125,15 @@ jobs:
 
       - name: Setup Ruby
         env:
-          BUNDLE_WITHOUT: "coverage development"
+#          BUNDLE_WITHOUT: "coverage development"
           # Ternary operator equivalent https://github.com/actions/runner/issues/409#issuecomment-752775072
-          BUNDLE_FORCE_RUBY_PLATFORM: ${{ (runner.os == 'Windows' && 'true') || 'false' }}
+#          BUNDLE_FORCE_RUBY_PLATFORM: ${{ (runner.os == 'Windows' && 'true') || 'false' }}
+#          BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+          cache-version: 4
 
       - name: acceptance
         env:
