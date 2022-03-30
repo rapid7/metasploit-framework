@@ -9,19 +9,19 @@ create handlers, etc.
 Running Meterpreter test suite:
 
 ```
-bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+SPEC_OPTS='--tag acceptance' bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
 
-Skip loading of Rails/Metasploit with:
+Skip loading of Rails/Metasplotit with:
 ```
-SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance
+SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance
 ```
 
 Run only the PHP Meterpreter test suite on Unix / Windows:
 ```
-METERPRETER=php bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+SPEC_OPTS='--tag acceptance' METERPRETER=php bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 
-$env:METERPRETER = 'php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+$env:SPEC_OPTS='--tag acceptance'; $env:METERPRETER = 'php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
 
 ### Debugging

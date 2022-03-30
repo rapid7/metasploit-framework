@@ -50,6 +50,7 @@ RSpec.configure do |config|
   config.raise_errors_for_deprecations!
   config.include RuboCop::RSpec::ExpectOffense
   config.expose_dsl_globally = false
+  config.filter_run_excluding({ acceptance: true })
 
   config.define_derived_metadata(file_path: %{spec/acceptance/}) do |metadata|
     metadata[:type] ||= :acceptance
