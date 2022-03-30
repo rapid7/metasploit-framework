@@ -246,7 +246,7 @@ class Framework
     )
     return true unless ::File.exist?(path)
 
-    data = ::File.read(path)
+    data = ::File.read(path, mode: 'rb')
     return true unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
 
     false
@@ -537,4 +537,3 @@ class FrameworkEventSubscriber
 
 end
 end
-

@@ -43,7 +43,7 @@ module MetasploitModule
     if datastore['PAYLOADSTR']
       datastore['PAYLOADSTR']
     elsif datastore['PAYLOADFILE']
-      IO.read(datastore['PAYLOADFILE'])
+      File.binread(datastore['PAYLOADFILE'])
     else
       ''
     end

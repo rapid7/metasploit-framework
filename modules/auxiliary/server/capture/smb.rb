@@ -8,6 +8,7 @@ require 'ruby_smb/gss/provider/ntlm'
 require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
+  include ::Msf::Exploit::Remote::SocketServer
   include ::Msf::Exploit::Remote::SMB::Server::HashCapture
 
   def initialize
@@ -60,8 +61,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @rsock = Rex::Socket::Tcp.create(
-      'LocalHost' => datastore['SRVHOST'],
-      'LocalPort' => datastore['SRVPORT'],
+      'LocalHost' => bindhost,
+      'LocalPort' => bindport,
+      'Comm' => _determine_server_comm(bindhost),
       'Server' => true,
       'Timeout' => datastore['TIMEOUT'],
       'Context' =>
@@ -88,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       gss_provider: ntlm_provider
     )
 
-    print_status("Server is running. Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}")
+    print_status("Server is running. Listening on #{bindhost}:#{bindport}")
 
     server.run do
       print_line

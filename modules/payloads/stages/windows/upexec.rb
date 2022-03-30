@@ -68,12 +68,7 @@ module MetasploitModule
   #
   def handle_connection_stage(conn, opts={})
     begin
-      # bug fix for: data = ::IO.read(datastore['PEXEC'])
-      # the above does not return the entire contents
-      data = ""
-      File.open( datastore['PEXEC'], "rb" ) { |f|
-        data += f.read
-      }
+      data = File.binread(datastore['PEXEC'])
     rescue
       print_error("Failed to read executable: #{$!}")
 

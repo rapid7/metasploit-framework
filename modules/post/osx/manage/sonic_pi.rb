@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Post
 
   def file
     # Read file as null-terminated string
-    @file = "#{File.read(datastore['FILE'])}\x00"
+    @file = "#{File.read(datastore['FILE'], mode: 'rb')}\x00"
 
     # Pad string with nulls until its length is a multiple of 32 bits
     @file << "\x00" until @file.length % 4 == 0

@@ -41,7 +41,7 @@ module Metasploit
         # @return [Integer] The number of bytes written.
         def self.compile_c_to_file(out_file, c_template, type=:exe, cpu=Metasm::Ia32.new)
           pe = self.compile_c(c_template, type)
-          File.write(out_file, pe)
+          File.write(out_file, pe, mode: 'wb')
         end
 
         # Returns randomized c source code.
@@ -82,7 +82,7 @@ module Metasploit
         # @return [Integer] The number of bytes written.
         def self.compile_random_c_to_file(out_file, c_template, opts={})
           pe = self.compile_random_c(c_template, opts)
-          File.write(out_file, pe)
+          File.write(out_file, pe, mode: 'wb')
         end
       end
 
