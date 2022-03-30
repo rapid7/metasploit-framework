@@ -29,7 +29,7 @@ sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev 
 If you are running a Windows machine
 
 1. Install [chocolatey](https://chocolatey.org/)
-2. Install [Ruby](https://rubyinstaller.org/)
+2. Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.0.3-1/rubyinstaller-devkit-3.0.3-1-x64.exe)
 3. Install pcaprub dependencies from your cmd.exe terminal:
 
 ```
