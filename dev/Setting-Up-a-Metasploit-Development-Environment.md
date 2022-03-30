@@ -35,7 +35,7 @@ If you are running a Windows machine
 ```
 powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
 
-choco install 7zip.installServerCertificateValidationCallback
+choco install 7zip
 7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
 ```
 
