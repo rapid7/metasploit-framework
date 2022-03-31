@@ -30,11 +30,9 @@ class MetasploitModule < Msf::Post
   def chocopath
     # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
 
-    if chocolatey?
-      datastore['ChocoPath']
-    end
-  rescue StandardError
+    if !chocolatey?
     cmd_exec('where.exe', 'choco.exe')
+  end
   end
 
   def chocolatey?
