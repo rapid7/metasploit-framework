@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
     )
     register_advanced_options(
       [
-        OptString.new('ChocoPath', [false, 'The path to the chocolaty executable if its not on default path', 'choco.exe']),
+        OptString.new('ChocoPath', [false, 'The path to the chocolatey executable if it\'s not on default path', 'choco.exe']),
       ]
     )
   end
