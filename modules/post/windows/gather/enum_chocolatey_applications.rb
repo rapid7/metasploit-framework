@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
         'Name' => 'Windows Gather Installed Application Within Chocolatey Enumeration',
         'Description' => ' This module will enumerate all installed applications on a Windows system with chocolatey installed ',
         'License' => MSF_LICENSE,
-        'Author' => ['Nick Cottrell <ncottrellweb@gmail.com>'],
+        'Author' => ['Nick Cottrell <ncottrellweb[at]gmail.com>'],
         'Platform' => ['win'],
         'Privileged' => false,
         'SessionTypes' => %w[meterpreter shell],
