@@ -221,7 +221,7 @@ module Msf::Payload::Windows::PrependMigrate
       xor ebx,ebx
       push ebx                  ; lpCurrentDirectory
       push ebx                  ; lpEnvironment
-      push 0x09000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED | CREATE_BREAKAWAY_FROM_JOB
+      push 0x08000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
       push ebx                  ; bInHeritHandles
       push ebx                  ; lpThreadAttributes
       push ebx                  ; lpProcessAttributes
@@ -467,7 +467,7 @@ module Msf::Payload::Windows::PrependMigrate
       xor rcx,rcx
       push rcx                  ; lpCurrentDirectory
       push rcx                  ; lpEnvironment
-      push 0x09000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED | CREATE_BREAKAWAY_FROM_JOB
+      push 0x08000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
       push rcx                  ; bInHeritHandles
       mov r9, rcx               ; lpThreadAttributes
       mov r8, rcx               ; lpProcessAttributes
