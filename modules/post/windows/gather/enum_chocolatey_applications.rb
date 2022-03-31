@@ -30,13 +30,20 @@ class MetasploitModule < Msf::Post
   def chocopath
     # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
 
-    if !chocolatey?
+    if chocolatey?(datastore['ChocoPath'])
+      datastore['ChocoPath']
+    elsif chocolatey?(cmd_exec('where.exe', 'choco.exe'))
       cmd_exec('where.exe', 'choco.exe')
+    elsif chocolatey?(cmd_exec('where.exe', 'chocolatey.exe'))
+      cmd_exec('where.exe', 'chocolatey.exe')
+    else
+      # if where doesnt have any expected binaries, give false
+      false
     end
   end
 
-  def chocolatey?
-    !!(cmd_exec(datastore['ChocoPath'], '-v') =~ /\d+\.\d+\.\d+/m)
+  def chocolatey?(path)
+    !!(cmd_exec(path, '-v') =~ /\d+\.\d+\.\d+/m)
   rescue Rex::Post::Meterpreter::RequestError
     false
   end
