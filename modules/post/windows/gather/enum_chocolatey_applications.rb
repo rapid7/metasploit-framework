@@ -38,7 +38,9 @@ class MetasploitModule < Msf::Post
   end
 
   def chocolatey?
-    cmd_exec(datastore['ChocoPath'], '-v') =~ /\d+\.\d+\.\d+/m
+    !!(cmd_exec(datastore['ChocoPath'], '-v') =~ /\d+\.\d+\.\d+/m)
+  rescue Rex::Post::Meterpreter::RequestError
+    false
   end
 
   def run
