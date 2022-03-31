@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Post
     # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
 
     if !chocolatey?
-    cmd_exec('where.exe', 'choco.exe')
-  end
+      cmd_exec('where.exe', 'choco.exe')
+    end
   end
 
   def chocolatey?
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
 
   def run
     # checking that session is meterpreter and session has powershell
-    return 0 unless chocopath
+    fail_with(Failure::NotFound, 'Chocolatey path not found') unless chocopath
 
     print_status("Enumerating applications installed on #{sysinfo['Computer']}") if session.type == 'meterpreter'
 
@@ -62,9 +62,7 @@ class MetasploitModule < Msf::Post
              # its version 2 or above, no need for local
              cmd_exec(chocopath, 'list')
            else
-             print_bad('Failed to get chocolatey version. It gave result that we did not expect.')
-             print_line(cmd_exec(choco_version))
-             return 0
+             fail_with(Failure::UnexpectedReply, "Failed to get chocolatey version. Result was unexpected: #{choco_version}")
            end
     print_good('Successfully grabbed all items')
 
