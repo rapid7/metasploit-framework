@@ -28,18 +28,15 @@ class MetasploitModule < Msf::Post
   end
 
   def chocopath
-    # cmd_exec('where.exe', 'choco.exe') unless chocolatey?
-
     if chocolatey?(datastore['ChocoPath'])
-      datastore['ChocoPath']
+      return datastore['ChocoPath']
     elsif chocolatey?(cmd_exec('where.exe', 'choco.exe'))
-      cmd_exec('where.exe', 'choco.exe')
+      return cmd_exec('where.exe', 'choco.exe')
     elsif chocolatey?(cmd_exec('where.exe', 'chocolatey.exe'))
-      cmd_exec('where.exe', 'chocolatey.exe')
-    else
-      # if where doesnt have any expected binaries, give false
-      false
+      return cmd_exec('where.exe', 'chocolatey.exe')
     end
+
+    nil
   end
 
   def chocolatey?(path)
@@ -50,12 +47,13 @@ class MetasploitModule < Msf::Post
 
   def run
     # checking that session is meterpreter and session has powershell
-    fail_with(Failure::NotFound, 'Chocolatey path not found') unless chocopath
+    choco_path = chocopath
+    fail_with(Failure::NotFound, 'Chocolatey path not found') unless choco_path
 
     print_status("Enumerating applications installed on #{sysinfo['Computer']}") if session.type == 'meterpreter'
 
     # getting chocolatey version
-    choco_version = cmd_exec(chocopath, '-v')
+    choco_version = cmd_exec(choco_path, '-v')
     print_status("Targets Chocolatey version: #{choco_version}")
 
     # Getting results of listing chocolatey applications
@@ -64,10 +62,10 @@ class MetasploitModule < Msf::Post
     # checking if chocolatey is 2+ or 1.0.0
     data = if choco_version.match(/^[10]\.\d+\.\d+$/)
              # its version 1, use local only
-             cmd_exec(chocopath, 'list -lo')
+             cmd_exec(choco_path, 'list -lo')
            elsif choco_version.match(/^(?:[2-9]|\d{2,})\.\d+\.\d+$/)
              # its version 2 or above, no need for local
-             cmd_exec(chocopath, 'list')
+             cmd_exec(choco_path, 'list')
            else
              fail_with(Failure::UnexpectedReply, "Failed to get chocolatey version. Result was unexpected: #{choco_version}")
            end
