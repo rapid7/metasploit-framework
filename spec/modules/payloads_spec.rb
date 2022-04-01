@@ -758,6 +758,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/pingback_reverse'
   end
 
+  context 'cmd/unix/python' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/unix/python'
+                          ],
+                          reference_name: 'cmd/unix/python'
+  end
+
   context 'cmd/unix/reverse' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1128,6 +1136,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/powershell_reverse_tcp'
   end
 
+  context 'cmd/windows/powershell_reverse_tcp_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/windows/powershell_reverse_tcp_ssl'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/powershell_reverse_tcp_ssl'
+  end
+
   context 'cmd/windows/reverse_lua' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1237,6 +1255,15 @@ RSpec.describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'generic/shell_reverse_tcp'
   end
+
+  context 'generic/ssh/interact' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'singles/generic/ssh/interact'
+                          ],
+                          reference_name: 'generic/ssh/interact'
+  end
+
 
   context 'generic/tight_loop' do
     it_should_behave_like 'payload cached size is consistent',
@@ -4922,6 +4949,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/powershell_reverse_tcp'
   end
 
+  context 'windows/x64/powershell_reverse_tcp_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/x64/powershell_reverse_tcp_ssl'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/powershell_reverse_tcp_ssl'
+  end
+
   context 'windows/x64/pingback_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -5201,6 +5238,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_reverse_tcp'
+  end
+
+  context 'windows/powershell_reverse_tcp_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/powershell_reverse_tcp_ssl'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/powershell_reverse_tcp_ssl'
   end
 
   context 'windows/shell/bind_hidden_ipknock_tcp' do
