@@ -29,11 +29,6 @@ module Payload::Windows::MeterpreterLoader_x64
       'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" }
       ))
-    register_advanced_options(
-      [
-        OptBool.new('MeterpreterDebugBuild', [false, 'Use the Meterpreter debug build.'])
-      ]
-    )
   end
 
   def asm_invoke_metsrv(opts={})
