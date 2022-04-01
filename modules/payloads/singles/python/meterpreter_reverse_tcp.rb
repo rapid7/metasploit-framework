@@ -6,7 +6,7 @@
 
 module MetasploitModule
 
-  CachedSize = 116277
+  CachedSize = 116313
 
   include Msf::Payload::Single
   include Msf::Payload::Python
