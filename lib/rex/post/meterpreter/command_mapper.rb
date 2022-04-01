@@ -111,7 +111,7 @@ class CommandMapper
     return @@cached_tlv_types[value] unless @@cached_tlv_types[value].nil? || @@cached_tlv_types[value].empty?
 
     # Default to arrays that contain TLV Types, so that we only deal with one data type
-    @@cached_tlv_types = Hash.new { |h, k| h[k] = [] }
+    @@cached_tlv_types = Hash.new { |h, k| h[k] = Set.new }
 
     available_modules = [
       ::Rex::Post::Meterpreter,
