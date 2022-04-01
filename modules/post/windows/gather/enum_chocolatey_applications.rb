@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Post
     )
 
     # collecting all lines that match and placing them into table.
-    items = data.scan(/(\S+)\s(\d+(?:\.\d+)*)/m)
+    items = data.scan(/^(\S+)\s(\d+(?:\.\d+)*)\r?\n/m)
     items.each do |set|
       table << set
     end
