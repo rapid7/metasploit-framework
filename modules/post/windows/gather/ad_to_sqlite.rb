@@ -377,7 +377,7 @@ class MetasploitModule < Msf::Post
   def create_sqlite_db
     begin
       obj_temp = ::Dir::Tmpname
-      filename = "#{obj_temp.tmpdir}/#{obj_temp.make_tmpname('ad_', 2)}.db"
+      filename = "#{obj_temp.tmpdir}/#{obj_temp.create('ad_',max_tries: 2) {|e| e}}.db"
       db = SQLite3::Database.new(filename)
       db.type_translation = true
 
