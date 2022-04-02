@@ -85,6 +85,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['Logger'] = options.console.logger
       driver_options['ModulePath'] = options.modules.path
       driver_options['Plugins'] = options.console.plugins
+      driver_options['Readline'] = options.console.readline
       driver_options['RealReadline'] = options.console.real_readline
       driver_options['Resource'] = options.console.resources
       driver_options['XCommands'] = options.console.commands

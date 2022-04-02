@@ -488,7 +488,7 @@ module Msf::Post::File
   # @param local [String] Local file whose contents will be uploaded
   # @return (see #write_file)
   def upload_file(remote, local)
-    write_file(remote, ::File.read(local))
+    write_file(remote, ::File.read(local, mode: 'rb'))
   end
 
   #

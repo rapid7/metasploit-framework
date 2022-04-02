@@ -154,11 +154,15 @@ class MetasploitModule < Msf::Post
       res
     end
 
-    genesis_date = "3 January 2009 18:15:13 +0000"
-    genesis = DateTime.parse(genesis_date).to_i
+    genesis_str = "3 January 2009 18:15:13 +0000"
+    genesis_date = DateTime.parse(genesis_str)
+    genesis = genesis_date.to_i
 
-    if not ['windows', 'win'].include? session.platform
-      cmd_exec("touch -d '#{genesis_date}' #{@file_name}")
+    if session.platform == 'osx'
+      osx_genesis_str = genesis_date.strftime("%Y%m%d%H%M.%S")
+      cmd_exec("touch -t '#{osx_genesis_str}' #{@file_name}")
+    elsif !['windows', 'win'].include?(session.platform)
+      cmd_exec("touch -d '#{genesis_str}' #{@file_name}")
     elsif session.priv.present?
       client.priv.fs.set_file_mace(@file_name, genesis)
     else
