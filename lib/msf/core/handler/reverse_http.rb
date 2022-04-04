@@ -84,6 +84,10 @@ module ReverseHttp
         ),
         OptBool.new('IgnoreUnknownPayloads',
           'Whether to drop connections from payloads using unknown UUIDs'
+        ),
+        OptInt.new('StagerStagePayloadSize',
+          'The size of the shellcode be staged in bytes',
+          default: 0x400000
         )
       ], Msf::Handler::ReverseHttp)
   end
