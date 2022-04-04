@@ -791,6 +791,12 @@ def rpc_analyze_host(xopts)
         {
           mtype: mod.type,
           mname: mod.fullname,
+          state: result.to_s,
+          options: {
+            required: result.required,
+            invalid: result.invalid,
+            missing: result.missing
+          }
         }
       end
     }
