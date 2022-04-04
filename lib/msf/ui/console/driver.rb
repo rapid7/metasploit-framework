@@ -606,45 +606,45 @@ protected
   end
 
   def handle_session_tlv_logging(val)
-    if val
-      if val.casecmp?('console') || val.casecmp?('true') || val.casecmp?('false')
-        return true
-      elsif val.start_with?('file:') && !val.split('file:').empty?
-        pathname = ::Pathname.new(val.split('file:').last)
+    return false if val.nil?
 
-        # Check if we want to write the log to file
-        if ::File.file?(pathname)
-          if ::File.writable?(pathname)
-            return true
-          else
-            print_status "No write permissions for log output file: #{pathname}"
-            return false
-          end
-        # Check if we want to write the log file to a directory
-        elsif ::File.directory?(pathname)
-          if ::File.writable?(pathname)
-            return true
-          else
-            print_status "No write permissions for log output directory: #{pathname}"
-            return false
-          end
-        # Check if the subdirectory exists
-        elsif ::File.directory?(pathname.dirname)
-          if ::File.writable?(pathname.dirname)
-            return true
-          else
-            print_status "No write permissions for log output directory: #{pathname.dirname}"
-            return false
-          end
+    if val.casecmp?('console') || val.casecmp?('true') || val.casecmp?('false')
+      return true
+    elsif val.start_with?('file:') && !val.split('file:').empty?
+      pathname = ::Pathname.new(val.split('file:').last)
+
+      # Check if we want to write the log to file
+      if ::File.file?(pathname)
+        if ::File.writable?(pathname)
+          return true
         else
-          # Else the directory doesn't exist. Check if we can create it.
-          begin
-            ::FileUtils.mkdir_p(pathname.dirname)
-            return true
-          rescue ::StandardError => e
-            print_status "Error when trying to create directory #{pathname.dirname}: #{e.message}"
-            return false
-          end
+          print_status "No write permissions for log output file: #{pathname}"
+          return false
+        end
+        # Check if we want to write the log file to a directory
+      elsif ::File.directory?(pathname)
+        if ::File.writable?(pathname)
+          return true
+        else
+          print_status "No write permissions for log output directory: #{pathname}"
+          return false
+        end
+        # Check if the subdirectory exists
+      elsif ::File.directory?(pathname.dirname)
+        if ::File.writable?(pathname.dirname)
+          return true
+        else
+          print_status "No write permissions for log output directory: #{pathname.dirname}"
+          return false
+        end
+      else
+        # Else the directory doesn't exist. Check if we can create it.
+        begin
+          ::FileUtils.mkdir_p(pathname.dirname)
+          return true
+        rescue ::StandardError => e
+          print_status "Error when trying to create directory #{pathname.dirname}: #{e.message}"
+          return false
         end
       end
     end
