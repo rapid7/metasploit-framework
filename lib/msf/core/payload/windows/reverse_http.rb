@@ -40,7 +40,7 @@ module Payload::Windows::ReverseHttp
       port:        ds['LPORT'],
       retry_count: ds['StagerRetryCount'],
       retry_wait:  ds['StagerRetryWait'],
-      size:        ds['StagerStagePayloadSize'] || '0x400000'
+      size:        ds['StagerStagePayloadSize'] || 0x400000
     }
 
     # Add extra options if we have enough space
