@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
       [
-        [ 'URL', 'http://googleonlinesecurity.blogspot.com/2014/10/this-poodle-bites-exploiting-ssl-30.html'],
+        [ 'URL', 'https://security.googleblog.com/2014/10/this-poodle-bites-exploiting-ssl-30.html'],
         [ 'OSVDB', '113251'],
         [ 'CVE', '2014-3566']
       ],

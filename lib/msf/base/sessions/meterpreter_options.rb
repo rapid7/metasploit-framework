@@ -71,6 +71,10 @@ module Msf
               'AutoUnhookProcess',
               [true, "Automatically load the unhook extension and unhook the process", false]
             ),
+            OptBool.new(
+              'MeterpreterDebugBuild',
+              [false, 'Use a debug version of Meterpreter']
+            ),
           ],
           self.class
         )

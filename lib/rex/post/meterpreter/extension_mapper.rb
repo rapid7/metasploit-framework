@@ -89,6 +89,10 @@ class ExtensionMapper
     @@klasses[name]
   end
 
+  def self.get_extension_klasses
+    self.get_extension_names.map { |name| self.get_extension_module(name) }
+  end
+
   def self.dump_extensions
     self.get_extension_names.each { |n|
       STDERR.puts("EXTENSION_ID_#{n.upcase} = #{self.get_extension_id(n)}\n")

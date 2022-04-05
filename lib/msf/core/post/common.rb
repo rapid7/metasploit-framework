@@ -114,7 +114,12 @@ module Msf::Post::Common
         'Channelized' => true,
         'Subshell' => true
       }.merge(opts)
-      o = session.sys.process.capture_output(cmd, args, opts, time_out)
+
+      if opts['Channelized']
+        o = session.sys.process.capture_output(cmd, args, opts, time_out)
+      else
+        session.sys.process.execute(cmd, args, opts)
+      end
     when 'powershell'
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)

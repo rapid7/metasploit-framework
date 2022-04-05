@@ -111,6 +111,8 @@ class Client
     end
 
     shutdown_passive_dispatcher
+
+    shutdown_tlv_logging
   end
 
   #
@@ -502,4 +504,3 @@ protected
 end
 
 end; end; end
-

@@ -95,8 +95,10 @@ module Payload::Windows::MeterpreterLoader_x64
   end
 
   def stage_meterpreter(opts={})
+    ds = opts[:datastore] || datastore
+    debug = ds['MeterpreterDebugBuild']
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug))
 
     asm_opts = {
       rdi_offset: offset,

@@ -130,6 +130,22 @@ typedef NTSTATUS(__stdcall* fNtUserConsoleControl)(
 	ULONG ConsoleCtrlInfoLength
 	);
 
+typedef NTSTATUS(__stdcall* fNtUserMessageCall)(
+	HWND hWnd,
+	UINT msg,
+	WPARAM wParam,
+	LPARAM lParam,
+	ULONG_PTR ResultInfo,
+	DWORD dwType,
+	BOOL bAscii
+	);
+
+typedef PVOID(__stdcall* fRtlAllocateHeap)(
+	PVOID HeapHandle,
+	ULONG Flags,
+	SIZE_T Size
+	);
+
 typedef VOID(__stdcall* fRtlGetNtVersionNumbers)(
 	DWORD* MajorVersion,
 	DWORD* MinorVersion,

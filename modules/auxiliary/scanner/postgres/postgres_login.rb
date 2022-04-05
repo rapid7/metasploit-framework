@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.postgresql.org' ],
+          [ 'URL', 'https://www.postgresql.org/' ],
           [ 'CVE', '1999-0502'], # Weak password
           [ 'URL', 'https://hashcat.net/forum/archive/index.php?thread-4148.html' ] # Pass the Hash
         ]

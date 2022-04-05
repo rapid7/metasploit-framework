@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2021-26855'],
           ['LOGO', 'https://proxylogon.com/images/logo.jpg'],
           ['URL', 'https://proxylogon.com/'],
-          ['URL', 'https://aka.ms/exchangevulns']
+          ['URL', 'https://msrc-blog.microsoft.com/2021/03/02/multiple-security-updates-released-for-exchange-server/']
         ],
         'DisclosureDate' => '2021-03-02',
         'License' => MSF_LICENSE,
@@ -48,7 +48,10 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
         'Notes' => {
-          'AKA' => ['ProxyLogon']
+          'AKA' => ['ProxyLogon'],
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )

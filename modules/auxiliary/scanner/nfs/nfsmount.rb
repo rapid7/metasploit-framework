@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '1999-0170'],
-          ['URL',	'http://www.ietf.org/rfc/rfc1094.txt']
+          ['URL',	'https://www.ietf.org/rfc/rfc1094.txt']
         ],
       'License'	=> MSF_LICENSE
     )

@@ -162,7 +162,7 @@ if !(::File.exist?(prefetch_local))
   print_status("Downloaded prefetch.exe to #{prefetch_local}")
 else
   print_status("Checking for an updated copy of prefetch.exe..")
-  digest = Digest::SHA1.hexdigest(::File.read(prefetch_local, ::File.size(prefetch_local)))
+  digest = Digest::SHA1.hexdigest(::File.read(prefetch_local, ::File.size(prefetch_local), mode: 'rb'))
 
   Net::HTTP.start("code.google.com") do |http|
     req     = Net::HTTP::Get.new("/p/prefetch-tool/downloads/detail?name=prefetch.exe&can=2&q=")
@@ -192,4 +192,3 @@ end
 
 print_status("Running Prefetch-tool script...")
 prefetch_dump(options, logging)
-

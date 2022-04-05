@@ -43,6 +43,8 @@ class Payload < Msf::Module
     # applicable.
     #
     Stage  = (1 << 2)
+
+    Adapter = (1 << 3)
   end
 
   #

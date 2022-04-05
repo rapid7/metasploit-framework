@@ -59,8 +59,14 @@ const static EPROCESS_OFFSETS EprocessOffsetsWin10v1903 = { 0x2f0, 0x360, 0x2e8 
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v1909 = { 0x2f0, 0x360, 0x2e8 };
 /* Windows 10 v2004 / 20H1 (10.0.19041) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/2004%2020H1%20(May%202020%20Update)/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v2004 = { 0x448, 0x4b8, 0x440 };
-/* Windows 10 v2009 / 20H2 (10.0.19041) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/2009%2020H2%20(October%202020%20Update)/_EPROCESS */
+#define EprocessOffsetsWin10v20H1 EprocessOffsetsWin10v2004
+/* Windows 10 v2009 / 20H2 (10.0.19042) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/2009%2020H2%20(October%202020%20Update)/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v2009 = { 0x448, 0x4b8, 0x440 };
+#define EprocessOffsetsWin10v20H2 EprocessOffsetsWin10v2009
+/* Windows 10 v21H1 (10.0.19043) */
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v21H1 = { 0x448, 0x4b8, 0x440 };
+/* Windows 10 v21H2 (10.0.19044) */
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v21H2 = { 0x448, 0x4b8, 0x440 };
 #endif
 
 /*

@@ -88,6 +88,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'edit'       => 'Edit a file',
       'getlwd'     => 'Print local working directory',
       'getwd'      => 'Print working directory',
+      'lcat'       => 'Read the contents of a local file to the screen',
       'lcd'        => 'Change local working directory',
       'lpwd'       => 'Print local working directory',
       'ls'         => 'List files',
@@ -114,6 +115,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'edit'       => [],
       'getlwd'     => [],
       'getwd'      => [COMMAND_ID_STDAPI_FS_GETWD],
+      'lcat'       => [],
       'lcd'        => [],
       'lpwd'       => [],
       'ls'         => [COMMAND_ID_STDAPI_FS_STAT, COMMAND_ID_STDAPI_FS_LS],
@@ -304,6 +306,43 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   def cmd_cat_tabs(str, words)
     tab_complete_cfilenames(str, words)
+  end
+
+  #
+  # Reads the contents of a local file and prints them to the screen.
+  #
+  def cmd_lcat(*args)
+    if (args.length == 0 || args.include?('-h') || args.include?('--help'))
+      print_line("Usage: lcat file")
+      return true
+    end
+
+    path = args[0]
+    path = ::File.expand_path(path) if path =~ path_expand_regex
+
+
+    if (::File.stat(path).directory?)
+      print_error("#{path} is a directory")
+    else
+      fd = ::File.new(path, "rb")
+      begin
+        until fd.eof?
+          print(fd.read)
+        end
+        # EOFError is raised if file is empty, do nothing, just catch
+      rescue EOFError
+      end
+      fd.close
+    end
+
+    true
+  end
+
+  # 
+  # Tab completion for the lcat command
+  #
+  def cmd_lcat_tabs(str, words)
+    tab_complete_filenames(str, words)
   end
 
   #

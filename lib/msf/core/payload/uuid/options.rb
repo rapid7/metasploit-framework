@@ -47,12 +47,10 @@ module Msf::Payload::UUID::Options
   end
 
   # Generate a Payload UUID
-  def generate_payload_uuid
+  def generate_payload_uuid(conf = {})
 
-    conf = {
-      arch:     self.arch,
-      platform: self.platform
-    }
+    conf[:arch] ||= self.arch
+    conf[:platform] ||= self.platform
 
     # Handle user-specified seed values
     if datastore['PayloadUUIDSeed'].to_s.length > 0

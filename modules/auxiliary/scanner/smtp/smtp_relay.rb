@@ -82,19 +82,19 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
 
-      res = raw_send_recv("EHLO X\r\n")
+      res = smtp_send_recv("EHLO X\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{mailfrom}\r\n")
+      res = smtp_send_recv("#{mailfrom}\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{mailto}\r\n")
+      res = smtp_send_recv("#{mailto}\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("DATA\r\n")
+      res = smtp_send_recv("DATA\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{Rex::Text.rand_text_alpha(rand(10)+5)}\r\n.\r\n")
+      res = smtp_send_recv("#{Rex::Text.rand_text_alpha(rand(10)+5)}\r\n.\r\n")
       vprint_status("#{res.inspect}")
 
       if res =~ /250/

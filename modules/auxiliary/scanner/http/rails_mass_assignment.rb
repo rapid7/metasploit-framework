@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
 
       'References'     =>
         [
-          [ 'URL', 'http://guides.rubyonrails.org/security.html#mass-assignment' ]
+          [ 'URL', 'https://guides.rubyonrails.org/security.html#mass-assignment' ]
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE

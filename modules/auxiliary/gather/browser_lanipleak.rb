@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         'References'     => [
            [ 'CVE', '2018-6849' ],
            [ 'URL', 'http://net.ipcalf.com/' ],
-           [ 'URL', 'https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html' ]
+           [ 'URL', 'https://www.inputzero.io/p/private-ip-leakage-using-webrtc.html' ]
          ],
         'DisclosureDate' => '2013-09-05',
         'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],

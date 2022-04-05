@@ -39,15 +39,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   #
-  # Wrapper for service execution and cleanup
+  # Wrapper for service execution
   #
   def run
     start_service
     service.wait
   rescue Rex::BindFailed => e
     print_error "Failed to bind to port #{datastore['SRVPORT']}: #{e.message}"
-  ensure
-    stop_service
   end
 
   #

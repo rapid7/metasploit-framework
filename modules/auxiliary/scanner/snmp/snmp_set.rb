@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'URL', 'http://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
+          [ 'URL', 'https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
           [ 'URL', 'http://www.net-snmp.org/docs/man/snmpset.html' ],
           [ 'URL', 'http://www.oid-info.com/' ],
         ],

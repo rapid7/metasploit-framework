@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2021-26855'],
           ['LOGO', 'https://proxylogon.com/images/logo.jpg'],
           ['URL', 'https://proxylogon.com/'],
-          ['URL', 'https://aka.ms/exchangevulns'],
+          ['URL', 'https://msrc-blog.microsoft.com/2021/03/02/multiple-security-updates-released-for-exchange-server/'],
           ['URL', 'https://docs.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid'],
           ['URL', 'https://github.com/3gstudent/Homework-of-Python/blob/master/ewsManage.py']
         ],
@@ -60,7 +60,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'Dump (Emails)',
         'Notes' => {
-          'AKA' => ['ProxyLogon']
+          'AKA' => ['ProxyLogon'],
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )

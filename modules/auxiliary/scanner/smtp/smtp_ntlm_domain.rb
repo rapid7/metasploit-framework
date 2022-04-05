@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'SMTP NTLM Domain Extraction',
       'Description' => 'Extract the Windows domain name from an SMTP NTLM challenge.',
-      'References'  => [ ['URL', 'http://msdn.microsoft.com/en-us/library/cc246870.aspx' ] ],
+      'References'  => [ ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smtpntlm/a048c79f-7597-401b-bcb4-521d682de765' ] ],
       'Author'      => [ 'Rich Whitcroft <rwhitcroft[at]digitalboundary.net>' ],
       'License'     => MSF_LICENSE
     )

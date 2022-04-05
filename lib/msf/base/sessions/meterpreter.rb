@@ -131,6 +131,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     session.init_ui(self.user_input, self.user_output)
 
+    initialize_tlv_logging(datastore['SessionTlvLogging']) unless datastore['SessionTlvLogging'].nil?
+
     verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
     begin
       session.tlv_enc_key = session.core.negotiate_tlv_encryption(timeout: verification_timeout)
@@ -736,4 +738,3 @@ end
 
 end
 end
-

@@ -146,7 +146,7 @@ module MetasploitModule
 
     begin
       print_status("Reading executable file #{datastore['PEXEC']}...")
-      buff = ::IO.read(datastore['PEXEC'])
+      buff = ::File.binread(datastore['PEXEC'])
       data << [buff.length].pack("V")
       data << buff
       print_status("Read #{buff.length} bytes...")

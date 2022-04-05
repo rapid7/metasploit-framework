@@ -43,8 +43,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2010-0425' ],
           [ 'OSVDB', '62674'],
           [ 'BID', '38494' ],
-          [ 'URL', 'https://issues.apache.org/bugzilla/show_bug.cgi?id=48509' ],
-          [ 'URL', 'http://www.gossamer-threads.com/lists/apache/cvs/381537' ],
+          [ 'URL', 'https://bz.apache.org/bugzilla/show_bug.cgi?id=48509' ],
+          [ 'URL', 'https://web.archive.org/web/20100715032229/http://www.gossamer-threads.com/lists/apache/cvs/381537' ],
           [ 'URL', 'http://www.senseofsecurity.com.au/advisories/SOS-10-002' ],
           [ 'EDB', '11650' ]
         ],

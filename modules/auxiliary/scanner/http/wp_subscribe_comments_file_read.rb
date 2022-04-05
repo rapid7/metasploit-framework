@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['WPVDB', '8102'],
           ['PACKETSTORM', '132694'],
-          ['URL', 'https://security.dxw.com/advisories/admin-only-local-file-inclusion-and-arbitrary-code-execution-in-subscribe-to-comments-2-1-2/']
+          ['URL', 'https://advisories.dxw.com/advisories/admin-only-local-file-inclusion-and-arbitrary-code-execution-in-subscribe-to-comments-2-1-2/']
         ],
       'Author'         =>
         [

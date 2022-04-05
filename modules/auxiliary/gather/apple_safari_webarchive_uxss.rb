@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'joev',
       'References'     =>
         [
-          ['URL', 'https://blog.rapid7.com/2013/04/25/abusing-safaris-webarchive-file-format']
+          ['URL', 'https://www.rapid7.com/blog/post/2013/04/25/abusing-safaris-webarchive-file-format/']
         ],
       'DisclosureDate' => '2013-02-22',
       'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],

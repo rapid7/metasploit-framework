@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'OSVDB', '92081'],
-          [ 'URL', 'http://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html']
+          [ 'URL', 'https://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html']
         ],
       'DisclosureDate' => '2013-03-17'))
 

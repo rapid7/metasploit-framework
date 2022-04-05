@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2008-3273'],
           ['CVE', '2010-1429'], # regression
           ['URL', 'https://seclists.org/fulldisclosure/2011/Sep/139'],
-          ['URL', 'https://www.owasp.org/images/a/a9/OWASP3011_Luca.pdf'],
-          ['URL', 'http://www.slideshare.net/chrisgates/lares-fromlowtopwned']
+          ['URL', 'https://owasp.org/www-pdf-archive/OWASP3011_Luca.pdf'],
+          ['URL', 'https://www.slideshare.net/chrisgates/lares-fromlowtopwned']
         ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE

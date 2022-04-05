@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'URL', 'https://blog.rapid7.com/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ],
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/' ],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
       'DisclosureDate' => '2013-11-06'))

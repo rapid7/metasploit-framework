@@ -574,13 +574,13 @@ module Auxiliary::AuthBrute
 
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
+
     begin
-      words = File.open(wordfile) {|f| f.read(f.stat.size)}
-    rescue
-      return
+      File.readlines(wordfile, chomp: true)
+    rescue ::StandardError => e
+      elog(e)
+      []
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def get_object_from_memory_location(memloc)
@@ -796,4 +796,3 @@ module Auxiliary::AuthBrute
 
 end
 end
-

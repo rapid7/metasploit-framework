@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2014-7992'],
-          ['URL', 'https://github.com/tatehansen/dlsw_exploit']
+          ['URL', 'https://github.com/tt5555/dlsw_exploit']
         ],
       'DisclosureDate' => 'Nov 17 2014',
       'License'        => MSF_LICENSE

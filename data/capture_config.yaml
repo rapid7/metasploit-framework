@@ -1,0 +1,52 @@
+spoof_regex: .*
+ntlm_challenge: "1122334455667788"
+ntlm_domain: anonymous
+http_basic: no
+ssl_cert: null
+logfile: null
+hashdir: null
+services:
+  - type: DRDA
+    enabled: yes
+  - type: FTP
+    enabled: yes
+  - type: HTTP
+    enabled: yes
+  - type: HTTPS
+    enabled: yes
+  - type: IMAP
+    enabled: yes
+  - type: MSSQL
+    enabled: yes
+  - type: MySQL
+    enabled: yes
+  - type: POP3
+    enabled: yes
+  - type: Postgres
+    enabled: yes
+  - type: PrintJob
+    enabled: yes
+  - type: SIP
+    enabled: yes
+  - type: SMB
+    enabled: yes
+  - type: SMTP
+    enabled: yes
+  - type: Telnet
+    enabled: yes
+  - type: VNC
+    enabled: yes
+  - type: FTPS
+    enabled: yes
+  - type: IMAPS
+    enabled: yes
+  - type: POP3S
+    enabled: yes
+  - type: SMTPS
+    enabled: yes
+  - type: NBNS
+    enabled: yes
+  - type: LLMNR
+    enabled: yes
+  - type: mDNS
+    enabled: yes

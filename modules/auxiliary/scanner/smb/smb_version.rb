@@ -92,6 +92,7 @@ class MetasploitModule < Msf::Auxiliary
 
       dialect = simple.client.dialect
       if simple.client.is_a? RubySMB::Client
+        info[:signing_required] = simple.client.signing_required
         if dialect == '0x0311'
           info[:capabilities][:compression] = simple.client.server_compression_algorithms.map do |algorithm|
             RubySMB::SMB2::CompressionCapabilities::COMPRESSION_ALGORITHM_MAP[algorithm]
@@ -119,6 +120,8 @@ class MetasploitModule < Msf::Auxiliary
             info[:auth_domain] = simple.client.default_domain
           end
         end
+      else
+        info[:signing_required] = simple.client.peer_require_signing
       end
 
       info[:preferred_dialect] = dialect unless info.key? :preferred_dialect
@@ -192,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
           desc << " (#{name} capabilities:#{values.join(', ')})"
         end
 
-        if simple.client.peer_require_signing
+        if info[:signing_required]
           desc << ' (signatures:required)'
         else
           desc << ' (signatures:optional)'

@@ -21,9 +21,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'    =>
         [
-          ['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
-          ['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
-          ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580']
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/ff715801(v=win.10)'],
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-vista/cc749415(v=ws.10)'],
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc732280(v=ws.10)']
         ],
     ))
 

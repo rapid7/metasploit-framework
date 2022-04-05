@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['OSVDB', '11169'],
           ['CVE', '1999-0667'],
-          ['URL', 'http://en.wikipedia.org/wiki/ARP_spoofing']
+          ['URL', 'https://en.wikipedia.org/wiki/ARP_spoofing']
         ],
       'DisclosureDate' => 'Dec 22 1999' #osvdb date
     )

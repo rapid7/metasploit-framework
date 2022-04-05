@@ -28,7 +28,7 @@ module MetasploitModule
         ],
       'References'    =>
         [
-          ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit/']
+          ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit']
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',

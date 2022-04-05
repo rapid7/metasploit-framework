@@ -128,12 +128,14 @@ module DNS
       when Net::DNS::Packet, Resolv::DNS::Message
         packet = Rex::Proto::DNS::Packet.encode_drb(argument)
       else
-        packet = make_query_packet(argument,type,cls)
+        net_packet = make_query_packet(argument,type,cls)
+        # This returns a Net::DNS::Packet. Convert to Dnsruby::Message for consistency
+        packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
       end
 
       # Store packet_data for performance improvements,
-      # so methods don't keep on calling Packet#data
-      packet_data = packet.data
+      # so methods don't keep on calling Packet#encode
+      packet_data = packet.encode
       packet_size = packet_data.size
 
       # Choose whether use TCP, UDP

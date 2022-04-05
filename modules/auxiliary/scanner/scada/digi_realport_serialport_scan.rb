@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Identify active ports on RealPort-enabled serial servers.',
       'References'  =>
         [
-          ['URL', 'http://www.digi.com/pdf/fs_realport.pdf'],
-          ['URL', 'http://www.digi.com/support/productdetail?pid=2229&type=drivers']
+          ['URL', 'https://www.digi.com/resources/library/technical-briefs/fs_realport'],
+          ['URL', 'https://web.archive.org/web/20151012224641/http://www.digi.com/support/productdetail?pid=2229&type=drivers']
         ],
       'Author'      =>
         [

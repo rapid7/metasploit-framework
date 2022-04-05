@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'URL', 'http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
-          [ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ]
+          [ 'URL', 'https://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
+          [ 'URL', 'https://en.wikipedia.org/wiki/Modbus:TCP' ]
         ],
       'Author'         => [ 'EsMnemon <esm[at]mnemonic.no>' ],
       'License'        => MSF_LICENSE,
@@ -95,7 +95,7 @@ end
 For testing purposes:
 
   This client is developed and tested against a SAIA PCD1.M2 system
-  http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx
+  https://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx
   and a modbus/tcp PLC simulator from plcsimulator.org
   and the Modbus SLAVE from http://www.modbustools.com/
 

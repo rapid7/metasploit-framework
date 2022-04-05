@@ -1,7 +1,26 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  # This action can update/close issues
+  issues: write
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 on:
   schedule:
     - cron: "0 15 * * 1-5"
+
 name: Stale Bot workflow
+
 jobs:
   build:
     name: stale
@@ -32,5 +51,5 @@ jobs:
 
             As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
           exempt-issue-labels: |
-            not-stale,confirmed,easy,newbie-friendly,suggestion,suggestion-module,suggestion-feature,suggestion-docs,ascii-utf8-issues,database,feature,enhancement,library
+            discussion,not-stale,confirmed,easy,newbie-friendly,suggestion,suggestion-module,suggestion-feature,suggestion-docs,ascii-utf8-issues,database,feature,enhancement,library
           debug-only: false
