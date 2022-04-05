@@ -485,7 +485,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     win32api (0.1.0)
-    windows_error (0.1.3)
+    windows_error (0.1.4)
     winrm (2.3.6)
       builder (>= 2.1.2)
       erubi (~> 1.8)
