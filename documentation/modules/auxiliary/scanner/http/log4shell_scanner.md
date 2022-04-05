@@ -63,6 +63,11 @@ starting with `#` will be treated as comments. Lines may also contain the string
 injection point. This enables query parameters to be included in the request which are required for certain
 applications.
 
+### LEAK_PARAMS
+^-separated list of additional params to leak, for example the following would leak the USER and PATH environment
+variables: `${env:USER}^${env:PATH}`. See the [Log4j Lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html)
+wiki page for more information on available parameters.
+
 ### LDAP_TIMEOUT
 Time in seconds to wait to receive LDAP connections.
 
