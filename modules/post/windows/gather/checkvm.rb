@@ -177,10 +177,19 @@ class MetasploitModule < Msf::Post
 
   def qemu?
     key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-    return true if registry_getvaldata(key_path, 'Identifier') =~ /qemu/i
+    return true if registry_getvaldata(key_path, 'Identifier') =~ /qemu|virtio/i
 
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
     return true if registry_getvaldata(key_path, 'ProcessorNameString') =~ /qemu/i
+
+    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
+    return true if srvvals && srvvals.include?('BOCHS_')
+
+    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
+    return true if srvvals && srvvals.include?('BOCHS_')
+
+    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
+    return true if srvvals && srvvals.include?('BOCHS_')
 
     false
   end
@@ -210,7 +219,7 @@ class MetasploitModule < Msf::Post
     elsif xen?
       report_vm('Xen')
     elsif qemu?
-      report_vm('Qemu')
+      report_vm('Qemu/KVM')
     else
       print_status('The target appears to be a Physical Machine')
     end
