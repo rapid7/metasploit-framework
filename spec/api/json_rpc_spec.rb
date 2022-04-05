@@ -483,7 +483,8 @@ RSpec.describe "Metasploit's json-rpc" do
                           "GroomDelta"
                         ]
                       },
-                      state: "ready for testing"
+                      state: "READY_FOR_TEST",
+                      description: "ready for testing"
                     },
                     {
                       mname: "exploit/windows/smb/ms17_010_psexec",
@@ -540,7 +541,8 @@ RSpec.describe "Metasploit's json-rpc" do
                           "ALLOW_GUEST"
                         ]
                       },
-                      state: "credentials are required"
+                      state: "REQUIRES_CRED",
+                      description: "credentials are required"
                     },
                     {
                       mname: "exploit/windows/smb/smb_doublepulsar_rce",
@@ -576,7 +578,8 @@ RSpec.describe "Metasploit's json-rpc" do
                           "ProcessName"
                         ]
                       },
-                      state: "ready for testing"
+                      state: "READY_FOR_TEST",
+                      description: "ready for testing"
                     }
                   ]
                 }
@@ -630,7 +633,8 @@ RSpec.describe "Metasploit's json-rpc" do
                           "GroomDelta"
                         ]
                       },
-                      state: "none of the requested payloads match"
+                      state: "MISSING_PAYLOAD",
+                      description: "none of the requested payloads match"
                     },
                     {
                       mname: "exploit/windows/smb/ms17_010_psexec",
@@ -685,7 +689,8 @@ RSpec.describe "Metasploit's json-rpc" do
                           "ALLOW_GUEST"
                         ]
                       },
-                      state: "credentials are required, none of the requested payloads match"
+                      state: "REQUIRES_CRED",
+                      description: "credentials are required, none of the requested payloads match"
                     },
                     {
                       mname: "exploit/windows/smb/smb_doublepulsar_rce",
@@ -721,7 +726,8 @@ RSpec.describe "Metasploit's json-rpc" do
                           "ProcessName"
                         ]
                       },
-                      state: "none of the requested payloads match"
+                      state: "MISSING_PAYLOAD",
+                      description: "none of the requested payloads match"
                     }
                   ]
                 }
