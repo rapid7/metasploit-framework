@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('HTTP_METHOD', [ true, 'The HTTP method to use', 'GET' ]),
       OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
-      OptString.new('LEAK_PARAMS', [ false, '^-separated list of additional params to leak: ${env:USER}^${env:PATH}']),
+      OptString.new('LEAK_PARAMS', [ false, 'Additional parameters to leak, seperated by the ^ character (e.g., ${env:USER}^${env:PATH})']),
       OptPath.new(
         'HEADERS_FILE',
         [

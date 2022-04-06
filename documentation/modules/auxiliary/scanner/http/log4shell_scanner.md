@@ -64,9 +64,9 @@ injection point. This enables query parameters to be included in the request whi
 applications.
 
 ### LEAK_PARAMS
-^-separated list of additional params to leak, for example the following would leak the USER and PATH environment
-variables: `${env:USER}^${env:PATH}`. See the [Log4j Lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html)
-wiki page for more information on available parameters.
+Additional parameters to leak, seperated by the `^` character. For example the following would leak the USER and PATH
+environment variables: `${env:USER}^${env:PATH}`. See the [Log4j Lookups][log4j-lookups] wiki page for more information
+on available parameters.
 
 ### LDAP_TIMEOUT
 Time in seconds to wait to receive LDAP connections.
@@ -109,3 +109,5 @@ msf6 auxiliary(scanner/http/log4shell_scanner) > run http://10.10.235.209:8983/ 
 [*] Sleeping 30 seconds for any last LDAP connections
 [*] Auxiliary module execution completed
 ```
+
+[log4j-lookups]: https://logging.apache.org/log4j/2.x/manual/lookups.html
