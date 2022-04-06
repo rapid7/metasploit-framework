@@ -402,9 +402,9 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-            sort         = 'name'
-            sort_options = ['rank','disclosure_date','name','date','type','check']
-            desc         = false
+            sort_attribute  = 'name'
+            valid_sort_attributes = ['rank','disclosure_date','name','date','type','check']
+            reverse_sort = false
             ignore_use_exact_match = false
 
             @@search_opts.parse(args) do |opt, idx, val|
@@ -421,9 +421,9 @@ module Msf
               when '-I'
                 ignore_use_exact_match = true
               when '-s'
-                sort = val
+                sort_attribute = val
               when '-r'
-                desc = true
+                reverse_sort = true
               else
                 match += val + ' '
               end
@@ -438,6 +438,11 @@ module Msf
               cached = true
             end
 
+            if sort_attribute && !valid_sort_attributes.include?(sort_attribute)
+              print_error("Supported options for the -s flag are: #{valid_sort_attributes}")
+              return false
+            end
+
             begin
               if cached
                 print_status('Displaying cached results')
@@ -445,21 +450,18 @@ module Msf
                 search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
-                if sort and sort_options.include?(sort)
-                  if sort == 'date'
-                    sort = 'disclosure_date'
-                  end
-                  if sort != 'check'
-                    @module_search_results.sort_by! { |meta| meta.send(sort) }
+                @module_search_results.sort_by! do |module_metadata|
+                  if sort_attribute == 'check'
+                    module_metadata.check ? 0 : 1
+                  elsif sort_attribute == 'disclosure_date' || sort_attribute == 'date'
+                    # Not all modules have disclosure_date, i.e. multi/handler
+                    module_metadata.disclosure_date || Time.utc(0)
                   else
-                    @module_search_results.sort_by! { |meta| meta.send(sort) ? 0 : 1} # Taken from https://stackoverflow.com/questions/14814966/is-it-possible-to-sort-a-list-of-objects-depending-on-the-individual-objects-re
+                    module_metadata.send(sort_attribute)
                   end
-                elsif sort
-                  print_error("Supported options for the -s flag are: #{sort_options}")
-                  return false
                 end
 
-                if desc
+                if reverse_sort
                   @module_search_results.reverse!
                 end
               end
