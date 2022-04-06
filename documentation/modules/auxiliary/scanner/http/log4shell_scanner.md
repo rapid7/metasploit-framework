@@ -64,7 +64,7 @@ injection point. This enables query parameters to be included in the request whi
 applications.
 
 ### LEAK_PARAMS
-Additional parameters to leak, seperated by the `^` character. For example the following would leak the USER and PATH
+Additional parameters to leak, separated by the `^` character. For example the following would leak the USER and PATH
 environment variables: `${env:USER}^${env:PATH}`. See the [Log4j Lookups][log4j-lookups] wiki page for more information
 on available parameters.
 
