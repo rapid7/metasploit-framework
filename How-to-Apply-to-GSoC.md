@@ -12,6 +12,9 @@ An updated list of the application timeline can be found at https://developers.g
 - Accepted applications announced: May 20th at 1800 UTC
 - Programming Starts: June 13th.
 
+## Important Changes for 2022
+- All submissions (including both draft submissions and final submissions) must be in PDF format when being submitted to GSoC's website. If you would like us to review your submission prior to the final deadline, please submit a Google Drive link to your DOC formatted proposal to msfdev [AT] metasploit [DOT] com and make sure that you have enabled sharing so that we can view it.
+
 # 2022 Idea List
 You can find the current list of GSoC ideas at [[GSoC-2022-Project-Ideas]]. Please see the note at the bottom of this page if you are interested in submitting your own idea, as this will require approval.
 
