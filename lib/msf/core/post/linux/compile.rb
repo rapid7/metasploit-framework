@@ -9,8 +9,12 @@ module Compile
 
   def initialize(info = {})
     super
-    register_options( [
+    register_options([
       OptEnum.new('COMPILE', [true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']]),
+    ], self.class)
+
+    register_advanced_options([
+      OptBool.new('RemoveOutput', [ true, 'Remove debugging prints from code', true]),
     ], self.class)
   end
 
@@ -28,6 +32,9 @@ module Compile
   end
 
   def upload_and_compile(path, data, gcc_args='')
+
+    data = strip_prints(data) if datastore['RemoveOutput']
+
     write_file "#{path}.c", strip_comments(data)
 
     gcc_cmd = "gcc -o '#{path}' '#{path}.c'"
@@ -54,7 +61,11 @@ module Compile
   end
 
   def strip_comments(c_code)
-    c_code.gsub(%r{/\*.*?\*/}m, '').gsub(%r{^\s*//.*$}, '')
+    c_code.gsub(%r{^\s*/\*[\S\s]*?\*/}, '').gsub(%r{^\s*//.*$}, '')
+  end
+
+  def strip_prints(code)
+    code.gsub(/^\s*puts.*$/, '').gsub(/^\s*printf.*$/, '').gsub(/^\s*perror.*$/, '')
   end
 
 end # Compile
