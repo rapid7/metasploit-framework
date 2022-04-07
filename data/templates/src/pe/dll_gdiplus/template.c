@@ -4,7 +4,7 @@
 /* hand-rolled bzero allows us to avoid including ms vc runtime */
 void inline_bzero(void *p, size_t l)
 {
-   
+
            BYTE *q = (BYTE *)p;
            size_t x = 0;
            for (x = 0; x < l; x++)
