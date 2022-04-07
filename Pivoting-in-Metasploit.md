@@ -1,4 +1,3 @@
-# Pivoting in Metasploit
 ## Target Environment Setup
 - Kali Machine
 	- Internal: None
