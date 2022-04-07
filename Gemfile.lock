@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.37)
+    metasploit-framework (6.1.38)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -128,7 +128,7 @@ GEM
       activerecord (>= 3.1.0, < 8)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.572.0)
+    aws-partitions (1.574.0)
     aws-sdk-core (3.130.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
@@ -161,7 +161,7 @@ GEM
     crass (1.0.6)
     daemons (1.4.1)
     diff-lcs (1.5.0)
-    digest (3.0.0)
+    digest (3.1.0)
     dnsruby (1.61.9)
       simpleidn (~> 0.1)
     docile (1.4.0)
@@ -231,7 +231,6 @@ GEM
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
     io-console (0.5.11)
-    io-wait (0.1.0)
     irb (1.3.6)
       reline (>= 0.2.5)
     jmespath (1.6.1)
@@ -242,16 +241,16 @@ GEM
     logging (2.3.0)
       little-plugger (~> 1.1)
       multi_json (~> 1.14)
-    loofah (2.15.0)
+    loofah (2.16.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     memory_profiler (1.0.0)
     metasm (1.0.5)
-    metasploit-concern (4.0.3)
+    metasploit-concern (4.0.4)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (5.0.5)
+    metasploit-credential (5.0.6)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -261,12 +260,12 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (4.0.3)
+    metasploit-model (4.0.4)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
     metasploit-payloads (2.0.80)
-    metasploit_data_models (5.0.4)
+    metasploit_data_models (5.0.5)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
       arel-helpers
@@ -281,17 +280,16 @@ GEM
     mini_portile2 (2.8.0)
     minitest (5.15.0)
     mqtt (0.5.0)
-    msgpack (1.4.5)
+    msgpack (1.5.1)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     nessus_rest (0.1.6)
     net-ldap (0.17.0)
-    net-protocol (0.1.0)
-      io-wait
+    net-protocol (0.1.3)
       timeout
-    net-smtp (0.2.1)
+    net-smtp (0.3.1)
       digest
       net-protocol
       timeout
@@ -366,12 +364,12 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.27)
+    rex-core (0.1.28)
     rex-encoder (0.1.6)
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.29)
+    rex-exploitation (0.1.30)
       jsobfu
       metasm
       rex-arch
@@ -385,7 +383,7 @@ GEM
       rex-arch
     rex-ole (0.1.7)
       rex-text
-    rex-powershell (0.1.95)
+    rex-powershell (0.1.96)
       rex-random_identifier
       rex-text
       ruby-rc4
@@ -396,7 +394,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.34)
+    rex-socket (0.1.35)
       rex-core
     rex-sslscan (0.1.7)
       rex-core
@@ -417,7 +415,7 @@ GEM
     rspec-expectations (3.11.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
-    rspec-mocks (3.11.0)
+    rspec-mocks (3.11.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-rails (5.1.1)
@@ -479,7 +477,7 @@ GEM
     thor (1.2.1)
     tilt (2.0.10)
     timecop (0.9.5)
-    timeout (0.1.1)
+    timeout (0.2.0)
     ttfunk (1.7.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
