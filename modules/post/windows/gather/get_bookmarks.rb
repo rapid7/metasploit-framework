@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_bookmarks(browser)
-    fileexists = false # initializes file as not found
+    file_exists = false # initializes file as not found
     grab_user_profiles.each do |user| # parses information for all users on target machine into a list.
       # If the browser is Google Chrome or Edge is searches the "AppData\Local directory, if it is Opera, it searches the AppData\Roaming directory"
       if (browser == 'GoogleChrome')
@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
       end
       next unless file?(bookmark_path) # if file exists it is set to found, then all the bookmarks are outputted to standard output (the shell)
 
-      fileexists = true
+      file_exists = true
       print_status("BOOKMARKS FOR #{user['ProfileDir']}")
       file = read_file(bookmark_path)
       stored_bookmarks = store_loot(
@@ -59,9 +59,8 @@ class MetasploitModule < Msf::Post
         "Bookmarks for #{browser}"
       )
       print_status("Bookmarks stored: #{stored_bookmarks}")
-      # print_good(file)
     end
-    if (fileexists == false) # if file was not found, prints no file found.
+    if (file_exists == false) # if file was not found, prints no file found.
       print_status("No Bookmarks found for #{browser}")
     end
   end
