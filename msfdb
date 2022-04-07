@@ -270,7 +270,11 @@ end
 
 def update_db_port
   if File.file?(@db_conf)
-    config = YAML.load(File.read(@db_conf))
+    config = begin
+      YAML.load_file(@db_conf, aliases: true) || {}
+    rescue ArgumentError
+      YAML.load_file(@db_conf) || {}
+    end
     if config["production"] && config["production"]["port"]
       port = config["production"]["port"]
       if port != @options[:db_port]
