@@ -461,129 +461,41 @@ RSpec.describe "Metasploit's json-rpc" do
           expected_response = {
             jsonrpc: '2.0',
             result: {
-              host: [
-                {
-                  address: host_ip,
-                  modules: [
-                    {
-                      mname: "exploit/windows/smb/ms17_010_eternalblue",
-                      mtype: "exploit",
-                      options: {
-                        invalid: [],
-                        missing: [],
-                        required: [
-                          "RPORT",
-                          "SSLVersion",
-                          "ConnectTimeout",
-                          "VERIFY_TARGET",
-                          "VERIFY_ARCH",
-                          "ProcessName",
-                          "GroomAllocations",
-                          "MaxExploitAttempts",
-                          "GroomDelta"
-                        ]
-                      },
-                      state: "READY_FOR_TEST",
-                      description: "ready for testing"
+              host: {
+                address: host_ip,
+                modules: [
+                  {
+                    mname: "exploit/windows/smb/ms17_010_eternalblue",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [],
                     },
-                    {
-                      mname: "exploit/windows/smb/ms17_010_psexec",
-                      mtype: "exploit",
-                      options: {
-                        invalid: [],
-                        missing: [ "credential" ],
-                        required: [
-                          "RPORT",
-                          "SSLVersion",
-                          "ConnectTimeout",
-                          "DCERPC::max_frag_size",
-                          "DCERPC::ReadTimeout",
-                          "NTLM::UseNTLMv2",
-                          "NTLM::UseNTLM2_session",
-                          "NTLM::SendLM",
-                          "NTLM::UseLMKey",
-                          "NTLM::SendNTLM",
-                          "NTLM::SendSPN",
-                          "SMB::pipe_evasion",
-                          "SMB::pipe_write_min_size",
-                          "SMB::pipe_write_max_size",
-                          "SMB::pipe_read_min_size",
-                          "SMB::pipe_read_max_size",
-                          "SMB::pad_data_level",
-                          "SMB::pad_file_level",
-                          "SMB::obscure_trans_pipe_level",
-                          "SMBName",
-                          "SMB::VerifySignature",
-                          "SMB::ChunkSize",
-                          "SMB::Native_OS",
-                          "SMB::Native_LM",
-                          "SMB::AlwaysEncrypt",
-                          "SERVICE_PERSIST",
-                          "NAMED_PIPES",
-                          "LEAKATTEMPTS",
-                          "DBGTRACE",
-                          "Powershell::persist",
-                          "Powershell::prepend_protections_bypass",
-                          "Powershell::strip_comments",
-                          "Powershell::strip_whitespace",
-                          "Powershell::sub_vars",
-                          "Powershell::sub_funcs",
-                          "Powershell::exec_in_place",
-                          "Powershell::exec_rc4",
-                          "Powershell::remove_comspec",
-                          "Powershell::noninteractive",
-                          "Powershell::encode_final_payload",
-                          "Powershell::encode_inner_payload",
-                          "Powershell::wrap_double_quotes",
-                          "Powershell::no_equals",
-                          "Powershell::method",
-                          "SHARE",
-                          "ALLOW_GUEST"
-                        ]
-                      },
-                      state: "REQUIRES_CRED",
-                      description: "credentials are required"
+                    state: "READY_FOR_TEST",
+                    description: "ready for testing"
+                  },
+                  {
+                    mname: "exploit/windows/smb/ms17_010_psexec",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [ "credential" ],
                     },
-                    {
-                      mname: "exploit/windows/smb/smb_doublepulsar_rce",
-                      mtype: "exploit",
-                      options: {
-                        invalid: [],
-                        missing: [],
-                        required: [
-                          "RPORT",
-                          "SSLVersion",
-                          "ConnectTimeout",
-                          "NTLM::UseNTLMv2",
-                          "NTLM::UseNTLM2_session",
-                          "NTLM::SendLM",
-                          "NTLM::UseLMKey",
-                          "NTLM::SendNTLM",
-                          "NTLM::SendSPN",
-                          "SMB::pipe_evasion",
-                          "SMB::pipe_write_min_size",
-                          "SMB::pipe_write_max_size",
-                          "SMB::pipe_read_min_size",
-                          "SMB::pipe_read_max_size",
-                          "SMB::pad_data_level",
-                          "SMB::pad_file_level",
-                          "SMB::obscure_trans_pipe_level",
-                          "SMBName",
-                          "SMB::VerifySignature",
-                          "SMB::ChunkSize",
-                          "SMB::Native_OS",
-                          "SMB::Native_LM",
-                          "SMB::AlwaysEncrypt",
-                          "DefangedMode",
-                          "ProcessName"
-                        ]
-                      },
-                      state: "READY_FOR_TEST",
-                      description: "ready for testing"
-                    }
-                  ]
-                }
-              ]
+                    state: "REQUIRES_CRED",
+                    description: "credentials are required"
+                  },
+                  {
+                    mname: "exploit/windows/smb/smb_doublepulsar_rce",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [],
+                    },
+                    state: "READY_FOR_TEST",
+                    description: "ready for testing"
+                  }
+                ]
+              }
             },
             id: 1
           }
@@ -611,127 +523,41 @@ RSpec.describe "Metasploit's json-rpc" do
           expected_response = {
             jsonrpc: '2.0',
             result: {
-              host: [
-                {
-                  address: host_ip,
-                  modules: [
-                    {
-                      mname: "exploit/windows/smb/ms17_010_eternalblue",
-                      mtype: "exploit",
-                      options: {
-                        invalid: [],
-                        missing: [ "payload_match" ],
-                        required: [
-                          "RPORT",
-                          "SSLVersion",
-                          "ConnectTimeout",
-                          "VERIFY_TARGET",
-                          "VERIFY_ARCH",
-                          "ProcessName",
-                          "GroomAllocations",
-                          "MaxExploitAttempts",
-                          "GroomDelta"
-                        ]
-                      },
-                      state: "MISSING_PAYLOAD",
-                      description: "none of the requested payloads match"
+              host: {
+                address: host_ip,
+                modules: [
+                  {
+                    mname: "exploit/windows/smb/ms17_010_eternalblue",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [ "payload_match" ],
                     },
-                    {
-                      mname: "exploit/windows/smb/ms17_010_psexec",
-                      mtype: "exploit",
-                      options: {
-                        invalid: [],
-                        missing: [ "credential", "payload_match" ],
-                        required: [
-                          "RPORT",
-                          "SSLVersion",
-                          "ConnectTimeout",
-                          "DCERPC::max_frag_size",
-                          "DCERPC::ReadTimeout",
-                          "NTLM::UseNTLMv2",
-                          "NTLM::UseNTLM2_session",
-                          "NTLM::SendLM",
-                          "NTLM::UseLMKey",
-                          "NTLM::SendNTLM",
-                          "NTLM::SendSPN",
-                          "SMB::pipe_evasion",
-                          "SMB::pipe_write_min_size",
-                          "SMB::pipe_write_max_size",
-                          "SMB::pipe_read_min_size",
-                          "SMB::pipe_read_max_size",
-                          "SMB::pad_data_level",
-                          "SMB::pad_file_level",
-                          "SMB::obscure_trans_pipe_level",
-                          "SMBName", "SMB::VerifySignature",
-                          "SMB::ChunkSize", "SMB::Native_OS",
-                          "SMB::Native_LM",
-                          "SMB::AlwaysEncrypt",
-                          "SERVICE_PERSIST",
-                          "NAMED_PIPES",
-                          "LEAKATTEMPTS",
-                          "DBGTRACE",
-                          "Powershell::persist",
-                          "Powershell::prepend_protections_bypass",
-                          "Powershell::strip_comments",
-                          "Powershell::strip_whitespace",
-                          "Powershell::sub_vars",
-                          "Powershell::sub_funcs",
-                          "Powershell::exec_in_place",
-                          "Powershell::exec_rc4",
-                          "Powershell::remove_comspec",
-                          "Powershell::noninteractive",
-                          "Powershell::encode_final_payload",
-                          "Powershell::encode_inner_payload",
-                          "Powershell::wrap_double_quotes",
-                          "Powershell::no_equals",
-                          "Powershell::method",
-                          "SHARE",
-                          "ALLOW_GUEST"
-                        ]
-                      },
-                      state: "REQUIRES_CRED",
-                      description: "credentials are required, none of the requested payloads match"
+                    state: "MISSING_PAYLOAD",
+                    description: "none of the requested payloads match"
+                  },
+                  {
+                    mname: "exploit/windows/smb/ms17_010_psexec",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [ "credential", "payload_match" ],
                     },
-                    {
-                      mname: "exploit/windows/smb/smb_doublepulsar_rce",
-                      mtype: "exploit",
-                      options: {
-                        invalid: [],
-                        missing: ["payload_match"],
-                        required: [
-                          "RPORT",
-                          "SSLVersion",
-                          "ConnectTimeout",
-                          "NTLM::UseNTLMv2",
-                          "NTLM::UseNTLM2_session",
-                          "NTLM::SendLM",
-                          "NTLM::UseLMKey",
-                          "NTLM::SendNTLM",
-                          "NTLM::SendSPN",
-                          "SMB::pipe_evasion",
-                          "SMB::pipe_write_min_size",
-                          "SMB::pipe_write_max_size",
-                          "SMB::pipe_read_min_size",
-                          "SMB::pipe_read_max_size",
-                          "SMB::pad_data_level",
-                          "SMB::pad_file_level",
-                          "SMB::obscure_trans_pipe_level",
-                          "SMBName",
-                          "SMB::VerifySignature",
-                          "SMB::ChunkSize",
-                          "SMB::Native_OS",
-                          "SMB::Native_LM",
-                          "SMB::AlwaysEncrypt",
-                          "DefangedMode",
-                          "ProcessName"
-                        ]
-                      },
-                      state: "MISSING_PAYLOAD",
-                      description: "none of the requested payloads match"
-                    }
-                  ]
-                }
-              ]
+                    state: "REQUIRES_CRED",
+                    description: "credentials are required, none of the requested payloads match"
+                  },
+                  {
+                    mname: "exploit/windows/smb/smb_doublepulsar_rce",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: ["payload_match"],
+                    },
+                    state: "MISSING_PAYLOAD",
+                    description: "none of the requested payloads match"
+                  }
+                ]
+              }
             },
             id: 1
           }
@@ -740,9 +566,11 @@ RSpec.describe "Metasploit's json-rpc" do
             {
               workspace: 'default',
               host: host_ip,
-              payloads: [
-                'java/meterpreter/reverse_http'
-              ]
+              analyze_options: {
+                payloads: [
+                  'java/meterpreter/reverse_http'
+                ]
+              }
             }
           )
           expect(last_json_response).to include(expected_response)
@@ -765,12 +593,10 @@ RSpec.describe "Metasploit's json-rpc" do
         expected_response = {
           jsonrpc: '2.0',
           result: {
-            host: [
-              {
-                address: host_ip,
-                modules: []
-              }
-            ]
+            host: {
+              address: host_ip,
+              modules: []
+            }
           },
           id: 1
         }
