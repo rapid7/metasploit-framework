@@ -82,6 +82,9 @@ NAVIGATION_CONFIG = [
             path: 'Exploit-Ranking.md'
           },
           {
+            path: 'Pivoting-in-Metasploit.md'
+          },
+          {
             path: 'Hashes-and-Password-Cracking.md'
           },
           {
