@@ -42,7 +42,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -50,7 +50,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KdcRequestBody, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequestBody, invalid input'
             end
 
             self
@@ -182,18 +182,20 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::KdcRequestBody from an String
           #
           # @param input [String] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_string(input)
             asn1 = OpenSSL::ASN1.decode(input)
 
             decode_asn1(asn1)
+          rescue OpenSSL::ASN1::ASN1Error
+            raise Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
           end
 
           # Decodes a Rex::Proto::Kerberos::Model::KdcRequestBody from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             seq_values = input.value
 
@@ -220,7 +222,7 @@ module Rex
               when 10
                 self.enc_auth_data = decode_enc_auth_data(val)
               else
-                raise ::RuntimeError, 'Failed to decode KdcRequestBody SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequestBody SEQUENCE'
               end
             end
           end

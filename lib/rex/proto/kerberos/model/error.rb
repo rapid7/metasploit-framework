@@ -6,6 +6,11 @@ module Rex
     module Kerberos
       module Model
         module Error
+          ###
+          # This class represents a Kerberos Error Code as defined in:
+          # https://datatracker.ietf.org/doc/html/rfc4120#section-7.5.9
+          # https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4768#table-2-kerberos-ticket-flags)
+          ##
           class ErrorCode
             # @return [String] the description of the error the code represents
             attr_reader :description
@@ -112,6 +117,14 @@ module Rex
               error_code = ErrorCodes.const_get(const)
               map[error_code.value] = error_code
             end
+          end
+
+          # Runtime Error which can be raised by the Rex::Proto::Kerberos API
+          class KerberosError < ::StandardError
+          end
+
+          # Runtime Decoding Error which can be raised by the Rex::Proto::Kerberos API
+          class KerberosDecodingError < KerberosError
           end
         end
       end

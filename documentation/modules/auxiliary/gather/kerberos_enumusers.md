@@ -8,7 +8,13 @@ accounts are enabled or disabled/locked out.
 
 ## Verification Steps
 
-Verify the scenarios work as expected
+When verifying the module in the listed examples, it is recommended to test the following accounts:
+
+- Valid account
+- Invalid account
+- Locked/Disabled account
+- Account with spaces
+- AS-REP Roastable accounts
 
 ## Target
 

@@ -144,11 +144,11 @@ RSpec.describe Rex::Proto::Kerberos::Client do
       end
 
       context "when reads unexpected data" do
-        it "raises RuntimeError" do
+        it "raises an error" do
           subject.connect
           subject.connection.write(res_invalid)
           subject.connection.seek(0)
-          expect { subject.recv_response }.to raise_error(::RuntimeError)
+          expect { subject.recv_response }.to raise_error(::EOFError)
         end
       end
     end

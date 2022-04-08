@@ -11,7 +11,7 @@ module Rex
           # @param key [String] the key to decrypt
           # @param msg_type [Integer] the message type
           # @return [String] the decrypted cipher
-          # @raise [RuntimeError] if decryption doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosError] if decryption doesn't succeed
           def decrypt_rc4_hmac(cipher, key, msg_type)
             unless cipher && cipher.length > 16
               raise ::RuntimeError, 'RC4-HMAC decryption failed'
@@ -29,7 +29,7 @@ module Rex
             decrypted = cipher.update(data) + cipher.final
 
             if OpenSSL::HMAC.digest('MD5', k1, decrypted) != checksum
-              raise ::RuntimeError, 'RC4-HMAC decryption failed, incorrect checksum verification'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosError, 'RC4-HMAC decryption failed, incorrect checksum verification'
             end
 
             decrypted

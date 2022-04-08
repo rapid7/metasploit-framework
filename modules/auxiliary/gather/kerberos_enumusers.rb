@@ -61,12 +61,24 @@ class MetasploitModule < Msf::Auxiliary
     user_list.each do |user|
       next if user.empty?
 
-      res = send_request_as(
-        client_name: user.to_s,
-        server_name: "krbtgt/#{domain}",
-        realm: domain.to_s,
-        pa_data: pre_auth
-      )
+      begin
+        res = send_request_as(
+          client_name: user.to_s,
+          server_name: "krbtgt/#{domain}",
+          realm: domain.to_s,
+          pa_data: pre_auth
+        )
+      rescue ::EOFError => e
+        print_error("#{peer} - User: #{user.inspect} - EOF Error #{e.message}. Aborting...")
+        elog(e)
+        # Stop further requests entirely
+        return false
+      rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError => e
+        print_error("#{peer} - User: #{user.inspect} - Decoding Error -  #{e.message}. Aborting...")
+        elog(e)
+        # Stop further requests entirely
+        return false
+      end
 
       case res.msg_type
       when Rex::Proto::Kerberos::Model::AS_REP
@@ -87,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif res.error_code == Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_C_PRINCIPAL_UNKNOWN
           vprint_status("#{peer} - User: #{user.inspect} user not found")
         elsif res.error_code == Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_WRONG_REALM
-          print_error("#{peer} - User: #{user.inspect} - #{res.error_code}. Domain option may be incorrect.")
+          print_error("#{peer} - User: #{user.inspect} - #{res.error_code}. Domain option may be incorrect. Aborting...")
           # Stop further requests entirely
           return false
         else
