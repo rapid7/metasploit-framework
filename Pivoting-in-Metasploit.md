@@ -1,4 +1,3 @@
-
 # Overview of Pivoting And Its Benefits
 Whilst in test environments one is often looking at flat networks that only have one subnet and one network environment, the reality is that when it comes to pentests that are attempting to compromise an entire company, you will often have to deal with multiple networks, often with switches or firewalls in-between that are intended to keep these networks separate from one another.
 
@@ -174,7 +173,7 @@ Module options (exploit/windows/http/exchange_chainedserializationbinder_denylis
                                             pid7/metasploit-framework/wiki/Using-Metasplo
                                             it
    RPORT         443              yes       The target port (TCP)
-   SRVHOST       0.0.0.0          yes       The local host or network interface to listen
+   SRVHOST       0.0.0.0          yTo come, awaiting some more testing hold on :)es       The local host or network interface to listen
                                              on. This must be an address on the local mac
                                             hine or 0.0.0.0 to listen on all addresses.
    SRVPORT       8080             yes       The local port to listen on.
@@ -211,10 +210,100 @@ msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce)
 [*] 169.254.204.110:443 - The target is not exploitable. Exchange Server 15.2.986.14 does not appear to be a vulnerable version!
 msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce) > 
 ```
-
 # Pivoting External Tools
-## Portfwd
-To come, awaiting some more testing hold on :)
+## portfwd
+*Note: This method is discouraged as you can only set up a mapping between a single port and another target host and port, so using the socks module below is encouraged where possible. Additionally this method has been depreciated for some time now.* 
+
+### Local Port Forwarding
+To set up a port forward using Metasploit, use the `portfwd` command within a supported session's console such as the Meterpreter console. Using `portfwd -h` will bring up a help menu similar to the following:
+
+```
+meterpreter > portfwd -h
+Usage: portfwd [-h] [add | delete | list | flush] [args]
+
+
+OPTIONS:
+
+    -h   Help banner.
+    -i   Index of the port forward entry to interact with (see the "list" command).
+    -l   Forward: local port to listen on. Reverse: local port to connect to.
+    -L   Forward: local host to listen on (optional). Reverse: local host to connect to.
+    -p   Forward: remote port to connect to. Reverse: remote port to listen on.
+    -r   Forward: remote host to connect to.
+    -R   Indicates a reverse port forward.
+meterpreter > 
+```
+
+To add a port forward, use `portfwd add` and specify the `-l`, `-p` and `-r` options at a minimum to specify the local port to listen on, the report port to connect to, and the target host to connect to respectively.
+
+```
+meterpreter > portfwd add -l 1090 -p 443 -r 169.254.37.128
+[*] Local TCP relay created: :1090 <-> 169.254.37.128:443
+meterpreter > 
+```
+
+Note that something that is commonly misunderstood here is that the port will be opened on the machine running Metasploit itself, NOT on the target that the session is running on.
+
+We can then connect to the target host using the local port on the machine running Metasploit:
+
+```
+ ~/git/metasploit-framework │ master ?21  wget --no-check-certificate https://127.0.0.1:1090
+--2022-04-08 14:36:23--  https://127.0.0.1:1090/
+Connecting to 127.0.0.1:1090... connected.
+WARNING: cannot verify 127.0.0.1's certificate, issued by ‘CN=DC1’:
+  Self-signed certificate encountered.
+    WARNING: certificate common name ‘DC1’ doesn't match requested host name ‘127.0.0.1’.
+HTTP request sent, awaiting response... 302 Moved Temporarily
+Location: https://127.0.0.1/owa/ [following]
+--2022-04-08 14:36:23--  https://127.0.0.1/owa/
+Connecting to 127.0.0.1:443... failed: Connection refused.
+ ~/git/metasploit-framework │ master ?21  
+```
+
+Note that you may need to edit your `/etc/hosts` file to map IP addresses to given host names to allow things like redirects to redirect to the right hostname or IP address when using this method of pivoting.
+
+### Listing Port Forwards and Removing Entries
+Can list port forwards using the `portfwd list` command. To delete all port forwards use `portfwd flush`. Alternatively to selectively delete local port forwarding entries, use `portfwd delete -l <local port>`.
+
+```
+meterpreter > portfwd delete -l 1090
+[*] Successfully stopped TCP relay on 0.0.0.0:1090
+meterpreter > portfwd list
+
+No port forwards are currently active.
+
+meterpreter >
+```
+
+### Remote Port Forwarding
+This scenario is a bit different than above. Whereas previously we were instructing the session to forward traffic from our host running Metasploit, through the session, and to a second target host, with reverse port forwarding the scenario is a bit different. In this case we are instructing the session to forward traffic from other hosts through the session, and to our host running Metasploit. This is useful for allowing other applications running within a target network to interact with local applications on the machine running Metasploit.
+
+To set up a reverse port forward, use `portfwd add -R` within a supported session and then specify the `-l`, `-L` and `-p` options. The `-l` option specifies the port to forward the traffic to, the `-L` option specifies the IP address to forward the traffic to, and the `-p` option specifies the port to listen on for traffic on the machine that we have a session on (whose session console we are currently interacting with).
+
+For example to listen on port 9093 on a target session and have it forward all traffic to the Metasploit machine at 172.20.97.72 on port 9093 we could execute `portfwd add -R -l 4444 -L 172.20.97.73 -p 9093` as shown below, which would then cause the machine who have a session on to start listening on port 9093 for incoming connections.
+
+```
+meterpreter > portfwd add -R -l 4444 -L 172.20.97.73 -p 9093
+[*] Local TCP relay created: 172.20.97.73:4444 <-> :9093
+meterpreter > netstat -a
+
+Connection list
+===============
+
+    Proto  Local addre  Remote addr  State        User  Inode  PID/Program name
+           ss           ess
+    -----  -----------  -----------  -----        ----  -----  ----------------
+    tcp    0.0.0.0:135  0.0.0.0:*    LISTEN       0     0      488/svchost.exe
+    tcp    0.0.0.0:445  0.0.0.0:*    LISTEN       0     0      4/System
+    tcp    0.0.0.0:504  0.0.0.0:*    LISTEN       0     0      5780/svchost.exe
+           0
+    tcp    0.0.0.0:909  0.0.0.0:*    LISTEN       0     0      2116/bind_tcp_x64_4444.exe
+           3
+```
+
+We can confirm this works by setting up a listener
+
+XXX - to work on and confirm....
 
 ## Socks Module
 Once routes are established, Metasploit modules can access the IP range specified in the routes. For other applications to access the routes, a little bit more setup is necessary. One way to solve this involves using the `auxiliary/server/socks_proxy` Metasploit module to set up a socks4a proxy, and then using `proxychains-ng` to direct external applications towards the established socks4a proxy server that Metasploit has set up so that external applications can use Metasploit's internal routing table.
@@ -356,8 +445,6 @@ Note: If there are other proxy entries in the configuration file, you may need t
 ### Using Proxychains-NG
 Now you can combine proxychains-ng with other application like Nmap, Nessus, Firefox and more to scan or access machines and resources through the Metasploit routes. All you need to do is call proxychains-ng before the needed application. No need to change the proxy settings in the respective application.
 
-Note that for the purpose of this test, the Windows Server 2019 server is now at 169.254.37.128.
-
 ```
  ~/git/metasploit-framework │ master ?21  wget https://169.254.37.128            
 --2022-04-08 13:52:23--  https://169.254.37.128/
@@ -373,7 +460,37 @@ ERROR: cannot verify 169.254.37.128's certificate, issued by ‘CN=DC1’:
   Self-signed certificate encountered.
     ERROR: certificate common name ‘DC1’ doesn't match requested host name ‘169.254.37.128’.
 To connect to 169.254.37.128 insecurely, use `--no-check-certificate'.
- ~/git/proxychains-ng │ master ?1                  
+ ~/git/proxychains-ng │ master ?1  proxychains4 wget --no-check-certificate https://169.254.37.128
+[proxychains] config file found: /etc/proxychains.conf
+[proxychains] preloading /usr/local/lib/libproxychains4.so
+[proxychains] DLL init: proxychains-ng 4.16-git-1-g07c15a0
+--2022-04-08 14:26:53--  https://169.254.37.128/
+Connecting to 169.254.37.128:443... [proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:443  ...  OK
+connected.
+WARNING: cannot verify 169.254.37.128's certificate, issued by ‘CN=DC1’:
+  Self-signed certificate encountered.
+    WARNING: certificate common name ‘DC1’ doesn't match requested host name ‘169.254.37.128’.
+HTTP request sent, awaiting response... 302 Moved Temporarily
+Location: https://169.254.37.128/owa/ [following]
+--2022-04-08 14:26:53--  https://169.254.37.128/owa/
+Connecting to 169.254.37.128:443... [proxychains] Strict chain  ...  127.0.0.1:1080  ...  169.254.37.128:443  ...  OK
+connected.
+WARNING: cannot verify 169.254.37.128's certificate, issued by ‘CN=DC1’:
+  Self-signed certificate encountered.
+    WARNING: certificate common name ‘DC1’ doesn't match requested host name ‘169.254.37.128’.
+HTTP request sent, awaiting response... 302 Found
+Location: https://169.254.37.128/owa/auth/logon.aspx?url=https%3a%2f%2f169.254.37.128%2fowa%2f&reason=0 [following]
+--2022-04-08 14:26:54--  https://169.254.37.128/owa/auth/logon.aspx?url=https%3a%2f%2f169.254.37.128%2fowa%2f&reason=0
+Reusing existing connection to 169.254.37.128:443.
+HTTP request sent, awaiting response... 200 OK
+Length: 58714 (57K) [text/html]
+Saving to: ‘index.html’
+
+index.html             100%[===========================>]  57.34K  --.-KB/s    in 0.1s    
+
+2022-04-08 14:26:54 (573 KB/s) - ‘index.html’ saved [58714/58714]
+
+ ~/git/proxychains-ng │ master ?2                     
 ```
 
 ### Scanning
