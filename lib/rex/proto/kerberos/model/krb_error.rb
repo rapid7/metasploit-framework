@@ -26,7 +26,7 @@ module Rex
           #   @return [Integer] The microseconds part of the server timestamp
           attr_accessor :susec
           # @!attribute error_code
-          #   @return [Integer] The error request returned by kerberos or the server when a request fails
+          #   @return [Rex::Proto::Kerberos::Model::Error::ErrorCode] The error request returned by kerberos or the server when a request fails
           attr_accessor :error_code
           # @!attribute crealm
           #   @return [String] The realm part of the client's principal identifier
@@ -168,9 +168,11 @@ module Rex
           # Decodes the error_code field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
+          # @return [Rex::Proto::Kerberos::Model::Error::ErrorCode]
           def decode_error_code(input)
-            input.value[0].value.to_i
+            value = input.value[0].value.to_i
+
+            Error::ErrorCodes::ERROR_MAP[value] || Error::ErrorCode.new('UNKNOWN', value, 'Unknown error')
           end
 
           # Decodes the crealm field

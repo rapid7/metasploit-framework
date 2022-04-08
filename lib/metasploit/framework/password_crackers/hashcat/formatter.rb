@@ -98,6 +98,8 @@ def hash_to_hashcat(cred)
       # https://hashcat.net/forum/thread-8833.html
       # while we can do the transformation, we'd have to throw extra flags at hashcat which aren't currently written into the lib for automation
       nil
+    when /^krb5$/
+      return cred.private.data.to_s
     end
   end
   nil
