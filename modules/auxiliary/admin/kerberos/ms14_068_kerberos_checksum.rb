@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USER', [ true, 'The Domain User' ]),
+        OptString.new('USERNAME', [ true, 'The Domain User' ], aliases: ['USER']),
         OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('USER_SID', [ true, 'The Domain User SID, Ex: S-1-5-21-1755879683-3641577184-3486455962-1000'])
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("#{peer} - Sending AS-REQ...")
     res = send_request_as(
-      client_name: "#{datastore['USER']}",
+      client_name: "#{datastore['USERNAME']}",
       server_name: "krbtgt/#{domain}",
       realm: "#{domain}",
       key: password_digest,

@@ -32,6 +32,9 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::EncryptionKey] the client's choice for an encryption
           #   key which is to be used to protect this specific application session
           attr_accessor :subkey
+          # @!attribute enc_key_usage
+          #   @return [Rex::Proto::Kerberos::Crypto::KeyUsage,Integer] The enc key usage number for this authenticator
+          attr_accessor :enc_key_usage
 
           # Rex::Proto::Kerberos::Model::Authenticator decoding isn't supported
           #
@@ -66,9 +69,11 @@ module Rex
           # @return [String] the encrypted result
           # @raise [NotImplementedError] if the encryption schema isn't supported
           def encrypt(etype, key)
+            raise ::Rex::Proto::Kerberos::Model::Error::KerberosError, 'Missing enc_key_usage' unless enc_key_usage
+
             data = self.encode
             encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
-            encryptor.encrypt(data, key, Rex::Proto::Kerberos::Crypto::KeyUsage::TGS_REQ_PA_TGS_REQ_AP_REQ_AUTHENTICATOR)
+            encryptor.encrypt(data, key, enc_key_usage)
           end
 
 
