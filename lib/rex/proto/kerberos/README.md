@@ -47,8 +47,14 @@ tgs-req
 To decrypt this Kerberos blob create a keytab on your Windows domain controller for the user that is requesting a Kerberos ticket:
 
 ```
-ktpass /crypto All /princ dc3.adf3.local/a@ADF3.LOCAL /pass p4$$w0rd /out demo.keytab /ptype KRB5_NT_PRINCIPAL
+ktpass /crypto All /princ Administrator@ADF3.LOCAL /pass p4$$w0rd /out demo.keytab /ptype KRB5_NT_PRINCIPAL
 ```
+
+Debugging steps:
+- If the password contains `$` it is easier to run the `ktpass` command in `cmd` rather than `powershell` to avoid variable substitution
+- If there is a `Missing keytype 18` warning for `etype: eTYPE-AES256-CTS-HMAC-SHA1-96 (18)` - verify that the principal name is correct within the ktpass generation command
+  - This should match the initial AS-REQ KRB ERROR salt, found in `krb-error` -> `edata` -> `ETYPE-INFO2-ENTRY` -> `salt`
+- Wireshark on Linux may not show the decrypted packet information in the packet details pane, instead it appears as a separate tab in the packet bytes pane
 
 Next go to Wireshark Preferences -> Protocols -> KRB5 and modify the following options:
 - Set `try to decrypt Kerberos blobs` to true

@@ -43,6 +43,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
                                         smb3: self.versions.include?(3),
                                         always_encrypt: always_encrypt
                     )
+
       self.client.evasion_opts = {
         # Padding is performed between packet headers and data
         'pad_data' => EVADE::EVASION_NONE,
@@ -101,9 +102,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
+      elog(e)
       n = XCEPT::LoginError.new
       n.source = e
-      if(e.respond_to?('error_code'))
+      if e.respond_to?('error_code') && e.respond_to?('get_error')
         n.error_code   = e.error_code
         n.error_reason = e.get_error(e.error_code)
       end
