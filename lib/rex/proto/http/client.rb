@@ -149,6 +149,39 @@ class Client
     opts['ssl'] = self.ssl
     opts['ctype'] ||= 'application/x-www-form-urlencoded' if opts['method'] == 'POST'
 
+    if opts['files']
+      unless opts['files'].is_a?(::Array)
+        raise ::ArgumentError, "request_cgi: The provided `files` option is not valid. Expected: Array, Got: #{opts['files'].class}"
+      end
+
+      file_data = Rex::MIME::Message.new
+
+      opts['files'].each do |file_hash|
+        # The name of the HTTP form field
+        field_name = file_hash['name'].is_a?(::String) ? file_hash['name'] : nil
+
+        # Should we default to 'application/octet-stream', nil, or HttpClient's default of 'text/plain'?
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+        mime_type = file_hash.fetch('mime_type', 'text/plain')
+
+        # Default to HttpClient's default option of '8bit'
+        encoding = file_hash.fetch('encoding', '8bit')
+
+        file_contents = get_file_data(file_hash['data'])
+
+        filename = file_hash.key?('filename') ? file_hash['filename'] : get_filename(file_hash['data']) || field_name
+
+        content_disposition = 'form-data'
+        content_disposition << "; name=\"#{field_name}\"" if field_name
+        content_disposition << "; filename=\"#{::CGI.escape(filename)}\"" if filename
+
+        file_data.add_part(file_contents, mime_type, encoding, content_disposition)
+      end
+
+      opts['data'] ? opts['data'] << file_data.to_s : opts['data'] = file_data.to_s
+      opts['ctype'] = "multipart/form-data; boundary=#{file_data.bound}"
+    end
+
     ClientRequest.new(opts)
   end
 
@@ -731,6 +764,13 @@ protected
   #
   attr_accessor :ntlm_client
 
+  def get_file_data(file)
+    file.respond_to?('read') ? (contents = file.read; file.rewind; contents) : file.to_s
+  end
+
+  def get_filename(data)
+    data.is_a?(::Pathname) || data.is_a?(::File) ? ::File.basename(data) : nil
+  end
 end
 
 end

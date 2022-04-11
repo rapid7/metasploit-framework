@@ -1,5 +1,7 @@
 # -*- coding:binary -*-
 
+require 'rex/mime'
+
 # Note: Some of these tests require a failed
 # connection to 127.0.0.1:1. If you have some crazy local
 # firewall that is dropping packets to this, your tests
@@ -228,6 +230,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
   # Not super sure why these are protected...
   # Me either...
+  # Same here...
   it "should refuse access to its protected accessors" do
     expect {cli.ssl}.to raise_error NoMethodError
     expect {cli.ssl_version}.to raise_error NoMethodError
@@ -235,4 +238,582 @@ RSpec.describe Rex::Proto::Http::Client do
     expect {cli.port}.to raise_error NoMethodError
   end
 
+  context 'with files' do
+    subject(:cli) do
+      cli = Rex::Proto::Http::Client.new(ip)
+      cli.config['data'] = ''
+      cli.config['method'] = 'POST'
+      cli
+    end
+
+    let(:file_path) do
+      ::File.join(::Msf::Config.install_root, 'spec', 'file_fixtures', 'string_list.txt')
+    end
+    let(:file) do
+      ::File.open(file_path, 'rb')
+    end
+    let(:mock_boundary) do
+      '-----------------------------MockBoundary1234'
+    end
+
+    before(:each) do
+      file.rewind
+      allow(Rex::Text).to receive(:rand_text_numeric).with(30).and_return('MockBoundary1234')
+    end
+
+    it 'should parse field name and file object as data' do
+      files = [
+        { 'name' => 'field1', 'data' => file }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      # We are gsub'ing here as HttpClient does this gsub to non-binary file data
+      file_contents = file.read.gsub("\r", '').gsub("\n", "\r\n")
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 247\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+#{file_contents}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse field name and binary file object as data' do
+      files = [
+        { 'name' => 'field1', 'data' => file, 'encoding' => 'binary' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 247\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: binary\r
+\r
+#{file.read}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse field name and binary file object as data with filename override' do
+      files = [
+        { 'name' => 'field1', 'data' => file, 'encoding' => 'binary', 'filename' => 'my_file.txt' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 243\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="field1"; filename="my_file.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: binary\r
+\r
+#{file.read}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse data correctly when provided with a string' do
+      data = 'hello world'
+      files = [
+        { 'name' => 'file1', 'data' => data }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expect(request.to_s).to include('Content-Disposition: form-data; name="file1"')
+      expect(request.to_s).to include(data)
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 234\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file1"; filename="file1"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+#{data}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse data correctly when provided with a string and mime type' do
+      data = 'hello world'
+      files = [
+        { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 234\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file1"; filename="file1"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+#{data}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse data correctly when provided with a string, mime type and filename' do
+      data = 'hello world'
+      files = [
+        { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain', 'filename' => 'my_file.txt' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 240\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+#{data}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse data correctly when provided with a number' do
+      data = 123
+      files = [
+        { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 226\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file1"; filename="file1"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+#{data}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should parse dat correctly when provided with an IO object' do
+      require 'stringio'
+
+      str = 'Hello World!'
+      files = [
+        { 'name' => 'file1', 'data' => ::StringIO.new(str), 'mime_type' => 'text/plain', 'filename' => 'my_file.txt' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 241\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+#{str}\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle nil data values correctly' do
+      files = [
+        { 'name' => 'nil_value', 'data' => nil }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      # This could potentially return one less '\r'.
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 231\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="nil_value"; filename="nil_value"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle nil field values correctly' do
+      files = [
+        { 'name' => nil, 'data' => '123' },
+        { 'data' => '456' },
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 339\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+123\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+456\r
+#{mock_boundary}--\r
+      EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle nil field values and data correctly' do
+      files = [
+        { 'name' => nil, 'data' => nil }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 191\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle non-string field name values correctly' do
+      files = [
+        { 'name' => false, 'data' => '123' },
+        { 'name' => true, 'data' => '456' },
+        { 'name' => ['hello'], 'data' => '789' },
+        { 'name' => { k: 'val' }, 'data' => '101112' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 632\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+123\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+456\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+789\r
+#{mock_boundary}\r
+Content-Disposition: form-data\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+101112\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle binary correctly' do
+      files = [
+        { 'name' => 'field1', 'data' => "\x05\x00\x68\x65\x6c\x6c\x6f".unpack('Sa*'), 'encoding' => 'binary' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 239\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="field1"; filename="field1"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: binary\r
+\r
+[5, "hello"]\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle duplicate file and field names correctly' do
+      files = [
+        { 'name' => 'file', 'data' => 'file1_content', 'filename' => 'duplicate.txt' },
+        { 'name' => 'file', 'data' => 'file2_content', 'filename' => 'duplicate.txt' },
+        { 'name' => 'file', 'data' => 'file2_content', 'filename' => 'duplicate.txt' },
+        # Note, this won't actually attempt to read a file - the content will be set to 'file.txt'
+        { 'name' => 'file', 'data' => 'file.txt', 'filename' => 'duplicate.txt' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 820\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+file1_content\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+file2_content\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+file2_content\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+file.txt\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should escape special characters in file names correctly without encoding' do
+      files = [
+        { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'" }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 242\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(files[0]['filename'])}"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+abc\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should escape special characters in file names correctly with encoding' do
+      files = [
+        { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'", 'encoding' => 'base64' }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 244\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(files[0]['filename'])}"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: base64\r
+\r
+abc\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle nil filename values correctly' do
+      files = [
+        { 'name' => 'example_name', 'data' => 'example_data', 'filename' => nil }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 224\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="example_name"\r
+Content-Type: text/plain\r
+Content-Transfer-Encoding: 8bit\r
+\r
+example_data\r
+#{mock_boundary}--\r
+EOF
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle nil encoding values correctly' do
+      files = [
+        { 'name' => 'example_name', 'data' => 'example_data', 'encoding' => nil }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 216\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="example_name"; filename="example_name"\r
+Content-Type: text/plain\r
+\r
+example_data\r
+#{mock_boundary}--\r
+EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
+    it 'should handle nil mime type values correctly' do
+      files = [
+        { 'name' => 'example_name', 'data' => 'example_data', 'mime_type' => nil }
+      ]
+
+      request = cli.request_cgi({ 'files' => files })
+
+      expected = <<~EOF
+POST / HTTP/1.1\r
+Host: #{ip}\r
+User-Agent: #{request.opts['agent']}\r
+Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Length: 223\r
+\r
+#{mock_boundary}\r
+Content-Disposition: form-data; name="example_name"; filename="example_name"\r
+Content-Transfer-Encoding: 8bit\r
+\r
+example_data\r
+#{mock_boundary}--\r
+      EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+  end
 end
