@@ -21,9 +21,10 @@ on:
     branches-ignore:
       - gh-pages
       - metakitty
+      - weekly-dependency-updates
   pull_request:
-    branches:
-      - '*'
+    branches-ignore:
+      - weekly-dependency-updates
 
 jobs:
   msftidy:
