@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 25 ]),
-        OptBool.new('REQUIREAUTH', [ true, 'Require authentication from clients', false ])
+        OptBool.new('AUTHPROMPT', [ true, 'Require authentication from clients', false ])
       ]
     )
   end
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
 
     case cmd.upcase
     when 'HELO', 'EHLO'
-      if datastore['REQUIREAUTH']
+      if datastore['AUTHPROMPT']
         client.put "250 AUTH LOGIN PLAIN\r\n"
       else
         client.put "250 OK\r\n"

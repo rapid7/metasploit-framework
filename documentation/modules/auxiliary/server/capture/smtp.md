@@ -11,7 +11,7 @@ before throwing a `503` error.
 
 ## Options
 
-### REQUIREAUTH
+### AUTHPROMPT
 
 If the client should be prompted for credentials or not.  When set to `false` credentials can still be
 accepted, but the client isn't prompted outright to give them. Some systems will only provide crednetials
