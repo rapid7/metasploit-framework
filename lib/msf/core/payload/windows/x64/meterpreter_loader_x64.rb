@@ -85,7 +85,8 @@ module Payload::Windows::MeterpreterLoader_x64
       transports:        opts[:transport_config] || [transport_config(opts)],
       extensions:        [],
       stageless:         opts[:stageless] == true,
-      debug_build: datastore['MeterpreterDebugBuild']
+      debug_build: datastore['MeterpreterDebugBuild'],
+      log_path:          Msf::OptMeterpreterDebugLogging.parse_logging_options(ds['MeterpreterDebugLogging'])[:rpath]
     }
 
     # create the configuration instance based off the parameters
