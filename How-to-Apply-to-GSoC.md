@@ -32,7 +32,7 @@ GSoC mentors tend to look for those items that have a chance of making developme
 
 Once you have started digging feel free ask questions that help you understand the concepts you for the idea would like to propose.
 
-Initial proposals can be sent for feedback before official submission opens to msfdev@metasploit.com. All proposals must be officially submitted during Student Application Period thru the [GSoC official](https://g.co/gsoc) site.
+Initial proposals can be sent for feedback before official submission opens to msfdev@metasploit.com. All proposals must be officially submitted during Student Application Period through the [GSoC official](https://g.co/gsoc) site.
 
 At a bare minimum, proposals should include the following:
 
