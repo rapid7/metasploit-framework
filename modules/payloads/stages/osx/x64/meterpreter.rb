@@ -98,7 +98,7 @@ module MetasploitModule
       push rax
 
       mov rsi, r12
-      mov r12, rdx
+      mov r12, #{payload.length}
 
       mov rax, #{entry_offset}
       add rsi, rax
