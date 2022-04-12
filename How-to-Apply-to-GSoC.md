@@ -46,7 +46,7 @@ A brief description of what you would like to work on. See [[GSoC-2022-Project-I
 * Contact info - include at least:
   - an email address
   - github user name
-  - Freenode nick
+  - Freenode nick/Slack nick
 
 ## Skillz
 
