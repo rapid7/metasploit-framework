@@ -1,74 +1,74 @@
 # -*- coding: binary -*-
+
 module Msf
-class Post
-module Linux
-module Compile
-  include ::Msf::Post::Common
-  include ::Msf::Post::File
-  include ::Msf::Post::Unix
+  class Post
+    module Linux
+      module Compile
+        include ::Msf::Post::Common
+        include ::Msf::Post::File
+        include ::Msf::Post::Unix
 
-  def initialize(info = {})
-    super
-    register_options([
-      OptEnum.new('COMPILE', [true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']]),
-    ], self.class)
+        def initialize(info = {})
+          super
+          register_options([
+            OptEnum.new('COMPILE', [true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']]),
+          ], self.class)
 
-    register_advanced_options([
-      OptBool.new('RemoveOutput', [ true, 'Remove debugging prints from code', true]),
-    ], self.class)
-  end
+          register_advanced_options([
+            OptBool.new('RemoveOutput', [ true, 'Remove debugging prints from code', true]),
+          ], self.class)
+        end
 
-  def live_compile?
-    return false unless %w{ Auto True }.include?(datastore['COMPILE'])
+        def live_compile?
+          return false unless %w[Auto True].include?(datastore['COMPILE'])
 
-    if has_gcc?
-      vprint_good 'gcc is installed'
-      return true
-    end
+          if has_gcc?
+            vprint_good 'gcc is installed'
+            return true
+          end
 
-    unless datastore['COMPILE'] == 'Auto'
-      fail_with Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
-    end
-  end
+          unless datastore['COMPILE'] == 'Auto'
+            fail_with Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
+          end
+        end
 
-  def upload_and_compile(path, data, gcc_args='')
+        def upload_and_compile(path, data, gcc_args = '')
+          data = strip_prints(data) if datastore['RemoveOutput']
+          data = strip_comments(data)
 
-    data = strip_prints(data) if datastore['RemoveOutput']
+          write_file "#{path}.c", data
 
-    write_file "#{path}.c", strip_comments(data)
+          gcc_cmd = "gcc -o '#{path}' '#{path}.c'"
+          if session.type == 'shell'
+            gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
+          end
 
-    gcc_cmd = "gcc -o '#{path}' '#{path}.c'"
-    if session.type == 'shell'
-      gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
-    end
+          unless gcc_args.to_s.blank?
+            gcc_cmd << " #{gcc_args}"
+          end
 
-    unless gcc_args.to_s.blank?
-      gcc_cmd << " #{gcc_args}"
-    end
+          output = cmd_exec gcc_cmd
+          rm_f "#{path}.c"
 
-    output = cmd_exec gcc_cmd
-    rm_f "#{path}.c"
+          unless output.blank?
+            print_error output
+            message = "#{path}.c failed to compile."
+            # don't mention the COMPILE option if it was deregistered
+            message << ' Set COMPILE to False to upload a pre-compiled executable.' if options.include?('COMPILE')
+            fail_with Module::Failure::BadConfig, message
+          end
 
-    unless output.blank?
-      print_error output
-      message = "#{path}.c failed to compile."
-      # don't mention the COMPILE option if it was deregistered
-      message << ' Set COMPILE to False to upload a pre-compiled executable.' if options.include?('COMPILE')
-      fail_with Module::Failure::BadConfig, message
-    end
+          chmod path
+        end
 
-    chmod path
-  end
+        def strip_comments(c_code)
+          c_code.gsub(%r{/\*.*?\*/}m, '').gsub(%r{^\s*//.*$}, '')
+        end
 
-  def strip_comments(c_code)
-    c_code.gsub(%r{^\s*/\*[\S\s]*?\*/}, '').gsub(%r{^\s*//.*$}, '')
-  end
-
-  def strip_prints(code)
-    code.gsub(/^\s*puts.*$/, '').gsub(/^\s*printf.*$/, '').gsub(/^\s*perror.*$/, '')
-  end
-
-end # Compile
-end # Linux
-end # Post
+        def strip_prints(code)
+          code.gsub(/^\s*puts.*$/, '').gsub(/^\s*printf.*$/, '').gsub(/^\s*perror.*$/, '')
+        end
+      end # Compile
+    end # Linux
+  end # Post
 end # Msf
