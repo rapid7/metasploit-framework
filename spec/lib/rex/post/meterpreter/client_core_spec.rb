@@ -19,6 +19,7 @@ RSpec.describe Rex::Post::Meterpreter::ClientCore do
       allow(@client).to receive(:response_timeout) { 1 }
       allow(@client).to receive(:send_packet_wait_response) { @response }
       allow(@client).to receive(:add_extension) { true }
+      allow(@client).to receive(:debug_build) { false }
     end
 
     let(:client_core) {described_class.new(@client)}
