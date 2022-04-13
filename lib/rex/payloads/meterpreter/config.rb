@@ -127,10 +127,10 @@ private
     transport_data.pack(pack)
   end
 
-  def extension_block(ext_name, file_extension)
+  def extension_block(ext_name, file_extension, debug_build: false)
     ext_name = ext_name.strip.downcase
     ext, _ = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
-                                                              file_extension))
+                                                              file_extension, debug: debug_build))
 
     [ ext.length, ext ].pack('VA*')
   end
@@ -168,7 +168,7 @@ private
     file_extension = 'x64.dll' unless is_x86?
 
     (@opts[:extensions] || []).each do |e|
-      config << extension_block(e, file_extension)
+      config << extension_block(e, file_extension, debug_build: @opts[:debug_build])
     end
 
     # terminate the extensions with a 0 size

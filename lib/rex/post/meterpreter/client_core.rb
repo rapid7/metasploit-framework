@@ -358,7 +358,7 @@ class ClientCore < Extension
         # Get us to the installation root and then into data/meterpreter, where
         # the file is expected to be
         modname = "ext_server_#{mod.downcase}"
-        path = MetasploitPayloads.meterpreter_path(modname, suffix)
+        path = MetasploitPayloads.meterpreter_path(modname, suffix, debug: client.debug_build)
 
         if opts['ExtensionPath']
           path = ::File.expand_path(opts['ExtensionPath'])

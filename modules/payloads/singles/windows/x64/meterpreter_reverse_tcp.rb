@@ -50,7 +50,8 @@ module MetasploitModule
       transports: [transport_config_reverse_tcp(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
       ext_init:   (datastore['EXTINIT'] || ''),
-      stageless:  true
+      stageless:  true,
+      debug_build: datastore['MeterpreterDebugBuild']
     }
 
     # create the configuration instance based off the parameters
