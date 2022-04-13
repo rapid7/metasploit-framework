@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [REPEATABLE_SESSION],
+          'Reliability' => [ ],
           'SideEffects' => []
         }
       )
