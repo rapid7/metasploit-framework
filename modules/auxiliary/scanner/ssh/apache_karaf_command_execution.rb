@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} - Attempt to login...")
     ssh = do_login(username, password, ip)
     if ssh
-      output = ssh.exec!("shell:exec #{cmd}\n").to_s
+      output = ssh.exec!("#{cmd}\n").to_s
       if output
         print_good("#{ip}:#{rport} - Command successfully executed.  Output: #{output}")
         store_loot("apache.karaf.command",
