@@ -28,7 +28,6 @@ module Msf::Post::File
               stdapi_fs_mkdir
               stdapi_fs_separator
               stdapi_fs_stat
-              stdapi_railgun_api
             ]
           }
         }
