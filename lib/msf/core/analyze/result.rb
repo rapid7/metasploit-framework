@@ -55,8 +55,6 @@ class Msf::Analyze::Result
           :REQUIRES_CRED
         elsif @missing.include?(:payload_match)
           :MISSING_PAYLOAD
-        elsif @missing.include?(:payload_match)
-          :MISSING_PAYLOAD
         elsif @missing.include?(:session)
           :REQUIRES_SESSION
         elsif @missing.include?(:os_match)
