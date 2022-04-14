@@ -29,7 +29,49 @@ class Msf::Analyze::Result
     self
   end
 
-  def to_s
+  # Returns state for module readiness.
+  #
+  # @return :sym the stateful result one of:
+  #  * :READY_FOR_TEST, :REQUIRES_CRED, :REUSE_PREVIOUS_OPTIONS, :MISSING_REQUIRED_OPTION, :MISSING_PAYLOAD, :REQUIRES_SESSION, :NEEDS_TARGET_ACTION, :INVALID_OPTION, :NOT_APPLICABLE
+  #
+  # | State                   | Detailed Reason                                                                                                                                                                |
+  # |-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  # | READY_FOR_TEST          | Ready for Test - All required options have defaults                                                                                                                            |
+  # | REQUIRES_CRED           | Requires DB Credentials - Required options have defaults except credential values - if db contains known credentials for required fields validation is possible                |
+  # | REUSE_PREVIOUS_OPTIONS  | Reuse Previous Options-  Taken as an analysis option, process existing module runs to gather options set for same module on other hosts                                        |
+  # | MISSING_REQUIRED_OPTION | Missing Required Options - Some options are not available requiring manual configuration                                                                                       |
+  # | MISSING_PAYLOAD         | Missing Compatible Payload - Known host details and payload restrictions exclude all payloads                                                                                  |
+  # | REQUIRES_SESSION        | Requires Session - Modules that require an existing session can cannot be executed as first entry point on targets                                                             |
+  # | NEEDS_TARGET_ACTION     | Needs target action - Module that either start a service and need the target to respond in a way that may require user interaction. (Browser exploit, needs target reboot....) |
+  # | INVALID_OPTION          | Options used in Result evaluation are invalid                                                                                                                                  |
+  # | NOT_APPLICABLE          | Module is not applicable to the host                                                                                                                                           |
+  def state
+    if ready_for_test? || (@missing.empty? && @invalid.empty?)
+      :READY_FOR_TEST
+      # TODO: result eval can look for previous attempts to determine :REUSE_PREVIOUS_OPTIONS state
+    else
+      unless @missing.empty?
+        if @missing.include?(:credential)
+          :REQUIRES_CRED
+        elsif @missing.include?(:payload_match)
+          :MISSING_PAYLOAD
+        elsif @missing.include?(:session)
+          :REQUIRES_SESSION
+        elsif @missing.include?(:os_match)
+          :NOT_APPLICABLE
+          # TODO: result eval check for module stance to determine :NEEDS_TARGET_ACTION state?
+        else
+          :MISSING_REQUIRED_OPTION
+        end
+      else
+        :INVALID_OPTION
+      end
+    end
+  end
+
+  # Returns state for module readiness.
+  # @return :String detailed sentence form description of result evaluation.
+  def description
     if ready_for_test?
       "ready for testing"
     elsif @missing.empty? && @invalid.empty?
