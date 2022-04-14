@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     ssh_opts = ssh_client_defaults.merge({
       auth_methods:    ['publickey'],
       port:            rport,
-      key_data:        key_data,
+      key_data:        [ key_data ],
       hmac:            ['hmac-sha1'],
       encryption:      ['aes128-cbc'],
       kex:             ['diffie-hellman-group1-sha1'],
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        Net::SSH.start(ip, 'bob', ssh_opts)
+        Net::SSH.start(ip, 'admin', ssh_opts)
       end
     rescue Net::SSH::Exception => e
       vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
