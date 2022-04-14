@@ -73,6 +73,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
     end
 
+    # Extract the MeterpreterDebugBuild option if specified by the user
+    if opts[:datastore]
+      opts[:debug_build] = opts[:datastore]['MeterpreterDebugBuild']
+    end
+
     # Don't pass the datastore into the init_meterpreter method
     opts.delete(:datastore)
 
