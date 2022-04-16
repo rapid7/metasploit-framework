@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
     avs = {}
     cmd = 'wmic /namespace:\\\\root\\SecurityCenter2 path AntiVirusProduct get * /value'
     resp = cmd_exec(cmd, nil, 6000).to_s
-    fail_with(Failure::Unknown, resp) if resp[0..5] == 'ERROR:'
+    fail_with(Failure::Unknown, resp) if resp[0..5].upcase == 'ERROR:'
     resp.split("\r\r\n\r\r\n").map do |ent|
       next if ent.strip.empty?
 
