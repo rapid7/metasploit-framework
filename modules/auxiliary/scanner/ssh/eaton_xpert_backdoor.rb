@@ -46,21 +46,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    factory = ssh_socket_factory
 
     # Specified Kex/Encryption downgrade requirements must be set to connect to the Power Meters.
-    ssh_opts = {
+    ssh_opts = ssh_client_defaults.merge({
       auth_methods:    ['publickey'],
       port:            rport,
       key_data:        [ key_data ],
       hmac:            ['hmac-sha1'],
       encryption:      ['aes128-cbc'],
       kex:             ['diffie-hellman-group1-sha1'],
-      host_key:        ['ssh-rsa'],
-      use_agent:       false,
-      config:          false,
-      proxy:           factory
-    }
+      host_key:        ['ssh-rsa']
+    })
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 

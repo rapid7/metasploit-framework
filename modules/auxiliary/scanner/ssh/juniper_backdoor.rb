@@ -41,15 +41,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    factory = ssh_socket_factory
-    ssh_opts = {
+    ssh_opts = ssh_client_defaults.merge({
       :port            => rport,
       :auth_methods    => ['password', 'keyboard-interactive'],
       :password        => %q{<<< %s(un='%s') = %u},
-      :proxy           => factory,
-      :non_interactive => true,
-      :verify_host_key => :never
-    }
+    })
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
