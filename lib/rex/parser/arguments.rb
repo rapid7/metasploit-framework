@@ -175,7 +175,7 @@ module Rex
         short_args.each do |short_arg|
           break if compare_arg.empty?
           if compare_arg.include? short_arg
-            found_args[(arg.index short_arg)] = short_arg
+            found_args[arg.index(short_arg)] = short_arg
             compare_arg.gsub!(short_arg, '')
           end
         end
