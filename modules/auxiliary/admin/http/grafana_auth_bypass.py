@@ -39,7 +39,6 @@ metadata = {
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'cve', 'ref': '2018-15727'},
-        {'type': 'url', 'ref': 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15727'},
         {'type': 'url', 'ref': 'https://grafana.com/blog/2018/08/29/grafana-5.2.3-and-4.6.4-released-with-important-security-fix/'}
     ],
     'type': 'single_scanner',
