@@ -272,6 +272,8 @@ class MsftidyRunner
         when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
+          elsif value =~ %r{^https?://cve\.mitre\.org/cgi-bin/cvename\.cgi}
+            warn("Please use 'CVE' for '#{value}'")
           elsif value =~ /^https?:\/\/www\.securityfocus\.com\/bid\//
             warn("Please use 'BID' for '#{value}'")
           elsif value =~ /^https?:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
