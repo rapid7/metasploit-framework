@@ -99,15 +99,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def on_ntlm_type3(address:, ntlm_type1:, ntlm_type2:, ntlm_type3:)
-    report_ntlm_type3(
-      address: address,
-      ntlm_type1: ntlm_type1,
-      ntlm_type2: ntlm_type2,
-      ntlm_type3: ntlm_type3
-    )
-  end
-
   def cleanup
     begin
       @rsock.close if @rsock
