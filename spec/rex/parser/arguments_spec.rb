@@ -4,10 +4,13 @@ RSpec.describe Rex::Parser::Arguments do
   let(:subject) do
     Rex::Parser::Arguments.new(
       ['-h', '--help'] => [false, 'Help banner.'],
+      ['-d', '--delete'] => [false, 'Delete'],
       ['-j', '--job'] => [false, 'Run in the context of a job.'],
       '--long-flag-with-no-corresponding-short-option-name' => [false, 'A long flag with no corresponding short option name'],
       ['-o', '--options'] => [true, 'A comma separated list of options in VAR=VAL format.', '<option>'],
-      ['-q', '--quiet'] => [false, 'Run the module in quiet mode with no output']
+      ['-q', '--quiet'] => [false, 'Run the module in quiet mode with no output'],
+      ['-S', '--save'] => [false, 'Save to disk'],
+      ['-sd', '--set-default'] => [true, 'A comma separated list of defaults in VAR=VAL format.', '<option>']
     )
   end
 
@@ -109,6 +112,43 @@ RSpec.describe Rex::Parser::Arguments do
       expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
     end
 
+    it 'parses a multi character flag correctly' do
+      input = ['-sd', 'options-arg']
+      expected_yields = [
+        ['-sd', 0, 'options-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses an aggregate flag with varied casing flag correctly' do
+      input = ['-Ssd', 'set-default-arg']
+      expected_yields = [
+        ['-S', 0, nil],
+        ['-sd', 0, 'set-default-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses an aggregate flag with arguments array correctly' do
+      input = ['-Sosd', 'options-arg', 'set-default-arg']
+      expected_yields = [
+        ['-S', 0, nil],
+        ['-o', 0, 'options-arg'],
+        ['-sd', 0, 'set-default-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses an aggregate flag with arguments array and an additional long flag correctly' do
+      input = ['-So', 'options-arg', '--set-default',  'set-default-arg']
+      expected_yields = [
+        ['-S', 0, nil],
+        ['-o', 0, 'options-arg'],
+        ['-sd', 2, 'set-default-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
     it 'parses a non-existent long flag correctly' do
       input = ['--ultra-quiet']
       expected_yields = [
@@ -159,10 +199,13 @@ RSpec.describe Rex::Parser::Arguments do
         OPTIONS:
 
             --long-flag-with-no-corresponding-short-option-name  A long flag with no corresponding short option name
+            -d, --delete                                         Delete
             -h, --help                                           Help banner.
             -j, --job                                            Run in the context of a job.
             -o, --options <option>                               A comma separated list of options in VAR=VAL format.
             -q, --quiet                                          Run the module in quiet mode with no output
+            -S, --save                                           Save to disk
+            -sd, --set-default <option>                          A comma separated list of defaults in VAR=VAL format.
       EXPECTED
       expect(subject.usage).to eq(expected_output)
     end

@@ -47,30 +47,34 @@ module Rex
       # Parses the supplied arguments into a set of options.
       #
       def parse(args, &_block)
-        skip_next = false
+        skip_next = 0
 
         args.each_with_index do |arg, idx|
-          if skip_next
-            skip_next = false
+          if skip_next > 0
+            skip_next -= 1
             next
           end
 
           param = nil
           if arg =~ SHORT_FLAG
-            arg.split('')[1..-1].each do |letter|
+            # parsing needs to take into account a couple requirements
+            #  1. longest `short` flag found in 'arg' should be extracted first
+            #    * consider passing the short flag to a tokenizer that returns a list of tokens in order with any invalid tokens
+            #  2. any short flag arguments that need an option will consume the next option from the list
+            short_args_from_token(arg).each do |letter|
               next unless include?("-#{letter}")
 
               if arg_required?("-#{letter}")
-                param = args[idx + 1]
-                skip_next = true
+                skip_next += 1
+                param = args[idx + skip_next]
               end
 
               yield "-#{letter}", idx, param
             end
           elsif arg =~ LONG_FLAG && include?(arg)
             if arg_required?(arg)
-              param = args[idx + 1]
-              skip_next = true
+              skip_next = 1
+              param = args[idx + skip_next]
             end
 
             # Try to yield the short hand version of our argument if possible
@@ -153,6 +157,29 @@ module Rex
         return if fmt_option.nil? || fmt_option == [long_arg]
 
         fmt_option.each { |opt| return opt if opt =~ SHORT_FLAG }
+      end
+
+      # Parsing takes into account longest `short` flag found in 'arg' should as extracted first
+      #
+      # Returns Array of short arguments found in `arg`
+      def short_args_from_token(arg)
+        compare_arg = arg.dup[1..-1]
+        short_args = []
+        found_args = {}
+        fmt.keys.each do |keys|
+          if keys.first =~ SHORT_FLAG
+            short_args << keys.first[1..-1]
+          end
+        end
+        short_args.sort_by! { |value| value.downcase }.reverse!
+        short_args.each do |short_arg|
+          break if compare_arg.empty?
+          if compare_arg.include? short_arg
+            found_args[arg.index(short_arg)] = short_arg
+            compare_arg.gsub!(short_arg, '')
+          end
+        end
+        found_args.sort_by { |key, _value| key }.to_h.values
       end
     end
   end
