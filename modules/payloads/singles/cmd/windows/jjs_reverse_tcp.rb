@@ -13,7 +13,7 @@ module MetasploitModule
     super(
       merge_info(
         info,
-        'Name' => 'Unix Command Shell, Reverse TCP (via jjs)',
+        'Name' => 'Windows Shell, Reverse TCP (via jjs)',
         'Description' => 'Connect back and create a command shell via jjs',
         'Author' => [
           'conerpirate', # jjs reverse shell
