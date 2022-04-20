@@ -3,14 +3,22 @@ There are currently two main ways to debug Meterpreter sessions:
 1. Log all networking requests between msfconsole and Meterpreter, i.e. TLV Packets
 2. Generate a custom Meterpreter debug build extra logging present
 
-### Log Meterpreter TLV Packets
+## Log Meterpreter TLV Packets
 
-This can be enabled for any Meterpreter session, and does not impact the Metasploit build:
+This can be enabled for any Meterpreter session, and does not require a debug Metasploit build:
 
 ```
 msf6 > setg SessionTlvLogging true
 SessionTlvLogging => true
 ```
+
+Allowed values:
+
+- `setg SessionTlvLogging true` - Enable network logging, defaulting to console
+- `setg SessionTlvLogging false` - Disable all network logging
+- `setg SessionTlvLogging console` - Log to the current msfconsole instance
+- `setg SessionTlvLogging file:/tmp/session.txt` - Write the network traffic logs to an arbitrary file
+
 
 Example output:
 
@@ -42,14 +50,36 @@ Variable  Value
 USER      demo_user
 ```
 
-Allowed values:
+## Meterpreter debug builds
 
-- `setg SessionTlvLogging true` - Enable network logging, defaulting to console
-- `setg SessionTlvLogging false` - Disable all logging
-- `setg SessionTlvLogging console` - Log to the current msfconsole instance
-- `setg SessionTlvLogging file:/tmp/session.txt` - Write the network traffic logs to an arbitrary file
+The following options can be specified when generating Meterpreter payloads:
 
-### Meterpreter debug builds
+- `MeterpreterDebugBuild` - When set to `true`, the generated Meterpreter payload will have additional logging present
+- `MeterpreterDebugLogging` - Configure he file path where logfiles will be written to on the remote machine. Only used if `MeterpreterDebugBuild` is set to true. Example value: `setg rpath:/tmp/meterpreter_log.txt`
+- `MeterpreterTryToFork` - When set to `true` the Meterpreter payload will try to fork from the currently running process. Setting to `false` is useful to see any `stdout` logging that occurs
 
-- `MeterpreterDebugBuild` - When set to true ...etc etc...
-- `MeterpreterDebugLogging` - When MeterpreterDebugBuild is set. The file path where logfiles will be written to on the remote machine. Only used if MeterpreterDebugBuild is set to true. Example allowed values are: rpath:/{file},  rpath:./{file} and rpath:{drive_letter}:{file}
+The debug build will have additional log statements, which can be easily detected. These debug builds are useful for scenarios where A/V is not running, in local labs for learning purposes, or raising Metasploit issue reports etc.
+
+### Python
+
+```
+use payload/python/meterpreter_reverse_tcp
+generate -o shell.py -f raw lhost=127.0.0.1 MeterpreterDebugBuild=true MeterpreterTryToFork=false
+to_handler
+
+python3 shell.py
+```
+
+### PHP
+
+```
+use payload/php/meterpreter_reverse_http
+generate -o shell.php -f raw lhost=127.0.0.1 MeterpreterDebugBuild=true
+to_handler
+
+php shell_http.php
+```
+
+### Java / Windows / Linux / Mac
+
+Not yet implemented
