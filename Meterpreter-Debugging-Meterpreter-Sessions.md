@@ -55,7 +55,7 @@ USER      demo_user
 The following options can be specified when generating Meterpreter payloads:
 
 - `MeterpreterDebugBuild` - When set to `true`, the generated Meterpreter payload will have additional logging present
-- `MeterpreterDebugLogging` - Configure he file path where logfiles will be written to on the remote machine. Only used if `MeterpreterDebugBuild` is set to true. Example value: `setg rpath:/tmp/meterpreter_log.txt`
+- `MeterpreterDebugLogging` - Configure the logging mode. This currently only allows writing to a file on the remote host. Requires `MeterpreterDebugBuild` to be set to true. Example value: `setg rpath:/tmp/meterpreter_log.txt`
 - `MeterpreterTryToFork` - When set to `true` the Meterpreter payload will try to fork from the currently running process. Setting to `false` is useful to see any `stdout` logging that occurs
 
 The debug build will have additional log statements, which can be easily detected. These debug builds are useful for scenarios where A/V is not running, in local labs for learning purposes, or raising Metasploit issue reports etc.
