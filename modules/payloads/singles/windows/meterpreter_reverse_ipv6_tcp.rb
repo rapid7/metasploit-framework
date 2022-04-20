@@ -54,6 +54,7 @@ module MetasploitModule
       stageless:  true,
       debug_build: datastore['MeterpreterDebugBuild'],
       log_path:   Msf::OptMeterpreterDebugLogging.parse_logging_options(datastore['MeterpreterDebugLogging'])[:rpath]
+      debug: datastore['MeterpreterDebugBuild']
     }
 
     # create the configuration instance based off the parameters

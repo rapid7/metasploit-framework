@@ -66,10 +66,14 @@ private
       opts[:expiration],  # Session expiry
       uuid,               # the UUID
       session_guid,        # the Session GUID
-      to_str(opts[:log_path] || '', LOG_PATH_SIZE) # Path to log file on remote target
     ]
+    pack_string = 'QVVA*A*'
+    if opts[:debug]
+      session_data << to_str(opts[:log_path] || '', LOG_PATH_SIZE) # Path to log file on remote target
+      pack_string << 'A*'
+    end
 
-    session_data.pack('QVVA*A*A*')
+    session_data.pack(pack_string)
   end
 
   def transport_block(opts)
