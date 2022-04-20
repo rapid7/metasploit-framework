@@ -81,19 +81,12 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'Execute action requires CMD to be set')
     end
 
-    factory = ssh_socket_factory
-
-    ssh_opts = {
+    ssh_opts = ssh_client_defaults.merge({
       port:            rport,
       # The auth method is converted into a class name for instantiation,
       # so libssh-auth-bypass here becomes LibsshAuthBypass from the mixin
-      auth_methods:    ['libssh-auth-bypass'],
-      non_interactive: true,
-      config:          false,
-      use_agent:       false,
-      verify_host_key: :never,
-      proxy:           factory
-    }
+      auth_methods:    ['libssh-auth-bypass']
+    })
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 

@@ -137,14 +137,9 @@ class MetasploitModule < Msf::Auxiliary
   def check_user(ip, user, port)
     technique = action['Type']
 
-    opts = {
-      port: port,
-      use_agent: false,
-      config: false,
-      proxy: ssh_socket_factory,
-      non_interactive: true,
-      verify_host_key: :never
-    }
+    opts = ssh_client_defaults.merge({
+      port: port
+    })
 
     # The auth method is converted into a class name for instantiation,
     # so malformed-packet here becomes MalformedPacket from the mixin
