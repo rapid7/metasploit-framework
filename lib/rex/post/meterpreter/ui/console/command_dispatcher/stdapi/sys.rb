@@ -1006,6 +1006,12 @@ class Console::CommandDispatcher::Stdapi::Sys
             end
           end
 
+          if type == 'REG_BINARY'
+            # Use the same format accepted by REG ADD:
+            # REG ADD HKLM\Software\MyCo /v Data /t REG_BINARY /d fe340ead
+            data = data.scan(/../).map {|v| v.to_i(16)}.pack('C*')
+          end
+
           open_key.set_value(value, client.sys.registry.type2str(type), data)
 
           print_line("Successfully set #{value} of #{type}.")
@@ -1093,7 +1099,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("    createkey   Create the supplied registry key  [-k <key>]")
     print_line("    deletekey   Delete the supplied registry key  [-k <key>]")
     print_line("    queryclass  Queries the class of the supplied key [-k <key>]")
-    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]")
+    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]. Use 2-digit hex string to set binary data with REG_BINARY type (e.g. fe340ead)")
     print_line("    deleteval   Delete the supplied registry value [-k <key> -v <val>]")
     print_line("    queryval    Queries the data contents of a value [-k <key> -v <val>]")
     print_line
