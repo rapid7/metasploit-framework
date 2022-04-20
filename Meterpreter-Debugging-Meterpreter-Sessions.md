@@ -1,7 +1,7 @@
 There are currently two main ways to debug Meterpreter sessions:
 
 1. Log all networking requests between msfconsole and Meterpreter, i.e. TLV Packets
-2. Generate a custom Meterpreter debug build extra logging present
+2. Generate a custom Meterpreter debug build with extra logging present
 
 ## Log Meterpreter TLV Packets
 
