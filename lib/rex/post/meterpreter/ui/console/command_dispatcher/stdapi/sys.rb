@@ -1006,6 +1006,22 @@ class Console::CommandDispatcher::Stdapi::Sys
             end
           end
 
+          if type == 'REG_BINARY'
+            # Use the same format accepted by REG ADD:
+            # REG ADD HKLM\Software\MyCo /v Data /t REG_BINARY /d fe340ead
+            if (data.length.even? == false)
+              print_error('Data length supplied to the -d argument was not appropriately padded to an even length string!')
+              return false
+            end
+            data_str_length = data.length
+            data = data.scan(/(?:[a-fA-F0-9]{2})/).map {|v| v.to_i(16)}
+            if (data_str_length/2 != data.length)
+              print_error('Invalid characters provided! Could not fully convert data provided to -d argument!')
+              return false
+            end
+           data = data.pack("C*")
+          end
+
           open_key.set_value(value, client.sys.registry.type2str(type), data)
 
           print_line("Successfully set #{value} of #{type}.")
@@ -1093,7 +1109,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("    createkey   Create the supplied registry key  [-k <key>]")
     print_line("    deletekey   Delete the supplied registry key  [-k <key>]")
     print_line("    queryclass  Queries the class of the supplied key [-k <key>]")
-    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]")
+    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]. Use a binary blob to set binary data with REG_BINARY type (e.g. setval -d ef4ba278)")
     print_line("    deleteval   Delete the supplied registry value [-k <key> -v <val>]")
     print_line("    queryval    Queries the data contents of a value [-k <key> -v <val>]")
     print_line
