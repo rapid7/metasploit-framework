@@ -2,7 +2,7 @@
 
 The term "Metasploit Committers" describes people who have direct write access to the [Rapid7 Metasploit-Framework fork](https://github.com/rapid7/metasploit-framework). These are the people who can land changes to this main fork of the Framework. However, it is not necessary to have committer rights in order to contribute to Metasploit. Much of our code comes from non-committers.
 
-We encourage anyone to fork the Metasploit project, make changes, fix bugs, and notify the core committers about those changes via [Pull Requests](http://github.com/rapid7/metasploit-framework/pulls). The process for getting started is most comprehensively documented in the [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) setup guide.
+We encourage anyone to fork the Metasploit project, make changes, fix bugs, and notify the core committers about those changes via [Pull Requests](http://github.com/rapid7/metasploit-framework/pulls). The process for getting started is most comprehensively documented in the [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) setup guide.
 
 Metasploit committers are a mix of [Rapid7](http://rapid7.com) employees and outside contributors. Anyone can become a contributor, with the following expectations:
 
