@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     if command_exists?('wmic') == false
-      print_error("The 'wmic' command doesn't exist on this host!") # wmic is technically marked as depreciated so this command could very well be removed in future releases.
+      print_error("The 'wmic' command doesn't exist on this host!") # wmic is technically marked as deprecated so this command could very well be removed in future releases.
       return
     end
     avs = {}
