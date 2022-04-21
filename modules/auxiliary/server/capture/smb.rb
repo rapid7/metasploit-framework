@@ -61,9 +61,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def start_service(opts = {})
     ntlm_provider = HashCaptureNTLMProvider.new(
-      allow_anonymous: true,
-      allow_guests: true,
-      listener: self,
+      listener: self
     )
 
     # Set domain name for all future server responses
