@@ -34,7 +34,7 @@ accordingly.
 8. Do: `set vc_vmca_cert <path to VMCA cert>`
 9. Verify that the values for `domain` and `username` are sane
 10. Do: `run`
-11. Open a web browser and navigate to the vCenter admin UI for the target server (`https://<fqdn>/ui`)
+11. Open a web browser and navigate to the vCenter admin UI for the target server (`https://<vcenterfqdn>/ui`)
 12. Apply the acquired session cookie for the vCenter host at the `/ui` path
 
 ## Options
@@ -170,7 +170,7 @@ writing RSA key
 You should now have `idp.pem`, `idp.key`, and `vmca.pem` in your working directory in PEM format.
 
 ### Running the Module
-Example run from meterpreter session on vCenter appliance version 7.0 Update 3d:
+Example run against vCenter appliance version 7.0 Update 3d:
 
 ```
 msf6 > use auxiliary/admin/vmware/vcenter_forge_saml_token.rb
