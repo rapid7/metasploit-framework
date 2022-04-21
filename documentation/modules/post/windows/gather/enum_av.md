@@ -33,7 +33,7 @@ The session to run this module on.
     verbose => true
     msf6 post(windows/gather/enum_av) > run
     
-    [+] Found AV product:
+    [*] Found AV product:
     displayName=Windows Defender
     instanceGuid={D68DDC3A-831F-4fae-9E44-DA132C1ACF46}
     pathToSignedProductExe=windowsdefender://

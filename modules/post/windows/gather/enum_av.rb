@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
     resp.split("\r\r\n\r\r\n").map do |ent|
       next if ent.strip.empty?
 
-      vprint_good("Found AV product:\n#{ent}\n")
+      print_status("Found AV product:\n#{ent}\n")
       av_note = ent.lines.map(&:strip).map.select { |e| e.length > 1 }.map { |e| e.split('=', 2) }.to_h
       avn = av_note.delete('displayName')
       avs[avn] = av_note
