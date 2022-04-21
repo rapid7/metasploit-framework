@@ -70,9 +70,10 @@ You may not be the first person to notice the problem you're seeing as a Framewo
 * GitHub pull requests frequently contain a LOT of conversation and context. If a bug already has a pull request associated with it, check the pull request conversation for other information that might be useful to you.
 
 ## PRs Accepted!
-If you're a superhero and you figured out the root cause of a bug AND found a way to fix it, you can send your Metasploit fixes and improvements our way! The best way to get your fix into Metasploit quickly is to patch your own fork and submit a [pull request](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment#wiki-pull) to Metasploit. You get extra gratitude from all of us when you do this, and you'll also get a shout-out in the [weekly Metasploit wrap-up](https://blog.rapid7.com/tag/metasploit-weekly-wrapup/).
 
-You can find a guide on setting up your own [Metasploit Development Environment here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment).
+If you're a superhero and you figured out the root cause of a bug AND found a way to fix it, you can send your Metasploit fixes and improvements our way! The best way to get your fix into Metasploit quickly is to patch your own fork and submit a pull request to Metasploit. You get extra gratitude from all of us when you do this, and you'll also get a shout-out in the [weekly Metasploit wrap-up](https://blog.rapid7.com/tag/metasploit-weekly-wrapup/).
+
+You can find a guide on setting up your own [Metasploit Development Environment here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment).
 
 ## Public Discussion
 Some projects and companies don't like discussing bugs in the bug report itself. Some even have policies of not doing this. Metasploit is not one of those projects. We greatly prefer public communication over private communication because it makes community knowledge accessible and searchable to everyone. That said, if you have specific privacy or security concerns, we're always happy to speak privately. You can get in touch with us at msfdev@metasploit.com. 
