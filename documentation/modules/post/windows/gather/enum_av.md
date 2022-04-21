@@ -19,7 +19,7 @@ The session to run this module on.
 
 ### Windows 10 (20H2 build 19042.1645)
 
-  ```
+    ```
     [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.4:49178) at 2019-12-10 14:18:44 -0700
     meterpreter > bg
     [*] Backgrounding session 1...
@@ -27,10 +27,6 @@ The session to run this module on.
     msf6 > use windows/gather/enum_av
     msf6 post(windows/gather/enum_av) > set session 1
     session => 1
-    msf6 post(windows/gather/enum_av) > run
-    [*] Post module execution completed
-    msf6 post(windows/gather/enum_av) > set verbose true
-    verbose => true
     msf6 post(windows/gather/enum_av) > run
     
     [*] Found AV product:
