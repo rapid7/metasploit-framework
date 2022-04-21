@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'PostgreSQL injection testing module',
+        'Name' => 'SQL injection testing module',
         'Description' => '
           This module tests the SQL injection library against a vulnerable application from https://github.com/red0xff/sqli_vulnerable
         ',
@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Platform' => %w[linux],
         'References' =>
-          ['URL', 'https://github.com/red0xff/sqli_vulnerable/tree/main/postgresql'],
+          ['URL', 'https://github.com/red0xff/sqli_vulnerable'],
         'DefaultTarget' => 0
       )
     )
