@@ -1,9 +1,26 @@
 ## PostgreSQL
 
-For instance, when running a PostgreSQL instance:
+PostgreSQL, sometimes aliased as Postgres, is frequently found on port 5432/TCP. It is an open-source relational database management system.
+
+Metasploit has support for multiple PostgreSQL modules, including:
+
+- Version enumeration
+- Verifying/bruteforcing credentials
+- Dumping database information
+- Capture server
+- Executing arbitrary SQL queries against the database
+- Gaining reverse shells
+
+When testing in a lab environment PostgreSQL can either be installed on the host machine or within Docker:
 
 ```
 docker run --rm -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:13.1-alpine
+```
+
+There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
+
+```
+msf6 > search postgres
 ```
 
 ### PostgreSQL Enumeration

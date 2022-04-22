@@ -1,5 +1,20 @@
 ## SSH Workflows
 
+SSH, also known as Secure Shell or Secure Socket Shell, is frequently found on port 22/TCP. The protocol allows for SSH clients to securely connect to a running SSH server to execute commands against, the protocol also supports tunneling network traffic - which Metasploit can leverage for pivoting purposes.
+
+Metasploit has support for multiple SSH modules, including:
+
+- Version enumeration
+- Verifying/bruteforcing credentials
+- Opening sessions
+- Pivoting support
+
+There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
+
+```
+msf6 > search ssh
+```
+
 ### SSH Enumeration
 
 Enumerate SSH version:

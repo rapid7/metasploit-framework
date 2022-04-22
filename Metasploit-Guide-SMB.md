@@ -1,5 +1,64 @@
 ## SMB Support
 
+SMB (Server Message Blocks), is a way for sharing files across nodes on a network.
+
+There are two main ports for SMB:
+
+- 139/TCP - Initially Microsoft implemented SMB ontop of their existing NetBIOS network architecture, which allowed for Windows computers to communicate across the same network
+- 445/TCP - Newer versions of SMB use this port, were NetBIOS is not used.
+
+Other terminology to be aware of:
+- SMB - Serer Message Blocks
+- CIFS - Common Internet File System
+- Samba - Samba is a free software re-implementation of SMB, which is frequently found on unix-like systems
+
+Metasploit has support for multiple SMB modules, including:
+
+- Version enumeration
+- Verifying/bruteforcing credentials
+- Capture modules
+- Relay modules
+- File transfer
+- Exploit modules
+
+When testing in a lab environment - SMB can be used on a window host, or within Docker. For instance running Samba on Ubuntu 16.04:
+
+```bash
+docker run -it --rm -p 139:139 -p 445:445 ubuntu:16.04 /bin/bash
+mkdir -p /tmp/foo
+apt update
+apt install -y samba
+```
+
+Verifying version is as expected:
+```
+$ samba --version
+Version 4.3.11-Ubuntu
+```
+
+Configuring the share:
+```bash
+cat << EOF >> /etc/samba/smb.conf
+[foo_share]
+    comment = Foo samba share
+    path = /tmp/foo
+    read only = no
+    browsable = yes
+EOF
+```
+
+Restart the service:
+
+```
+service smbd restart
+```
+
+There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
+
+```
+msf6 > search mysql
+```
+
 ### SMB Enumeration
 
 Enumerate SMB version:
@@ -49,7 +108,9 @@ use auxiliary/server/capture/smb
 run
 ```
 
-### SMB ms17_010
+### SMB MS17-010
+
+Metasploit has a module for MS17-010, dubbed Eternal Blue, which has the capability to target Windows 7, Windows 8.1, Windows 2012 R2, and Windows 10.
 
 Checking for exploitability:
 
