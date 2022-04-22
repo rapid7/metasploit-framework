@@ -32,7 +32,7 @@ One of the easiest ways to do this is to use the `post/multi/manage/autoroute` m
 ```
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/multi/manage/autoroute 
+msf6 exploit(multi/handler) > use post/multi/manage/autoroute
 msf6 post(multi/manage/autoroute) > show options
 
 Module options (post/multi/manage/autoroute):
@@ -72,7 +72,7 @@ msf6 post(multi/manage/autoroute) > run
 [+] Route added to subnet 169.254.0.0/255.255.0.0 from host's routing table.
 [+] Route added to subnet 172.19.176.0/255.255.240.0 from host's routing table.
 [*] Post module execution completed
-msf6 post(multi/manage/autoroute) > 
+msf6 post(multi/manage/autoroute) >
 ```
 If we now use Meterpreter's `route` command we can see that we have two route table entries within Metasploit's routing table, that are tied to Session 1, aka the session on the Windows 11 machine. This means anytime we want to contact a machine within one of the networks specified, we will go through Session 1 and use that to connect to the targets.
 
@@ -88,7 +88,7 @@ IPv4 Active Routing Table
    172.19.176.0       255.255.240.0      Session 1
 
 [*] There are currently no IPv6 routes defined.
-msf6 post(multi/manage/autoroute) > 
+msf6 post(multi/manage/autoroute) >
 ```
 
 All right so that's one way, but what if we wanted to do this manually? First off to flush all routes from the routing table, we will do `route flush` followed by `route` to double check we have successfully removed the entires.
@@ -97,7 +97,7 @@ All right so that's one way, but what if we wanted to do this manually? First of
 msf6 post(multi/manage/autoroute) > route flush
 msf6 post(multi/manage/autoroute) > route
 [*] There are currently no routes defined.
-msf6 post(multi/manage/autoroute) > 
+msf6 post(multi/manage/autoroute) >
 ```
 Now lets trying doing the same thing manually.
 
@@ -122,7 +122,7 @@ IPv4 Active Routing Table
    172.19.176.0       255.255.240.0      Session 1
 
 [*] There are currently no IPv6 routes defined.
-msf6 post(multi/manage/autoroute) > 
+msf6 post(multi/manage/autoroute) >
 ```
 
 Finally we can check that the route will use session 1 by using `route get 169.254.204.110`
@@ -130,7 +130,7 @@ Finally we can check that the route will use session 1 by using `route get 169.2
 ```
 msf6 post(multi/manage/autoroute) > route get 169.254.204.110
 169.254.204.110 routes through: Session 1
-msf6 post(multi/manage/autoroute) > 
+msf6 post(multi/manage/autoroute) >
 ```
 
 If we want to then remove a specific route (such as in this case we want to remove the 172.19.176.0/20 route since we don't need that for this test), we can issue the `route del` or `route remove` commands with the syntax `route remove <IP ADDRESS OF SUBNET><NETMASK IN SLASH FORMAT> <GATEWAY>`
@@ -150,7 +150,7 @@ IPv4 Active Routing Table
    169.254.0.0        255.255.0.0        Session 1
 
 [*] There are currently no IPv6 routes defined.
-msf6 post(multi/manage/autoroute) > 
+msf6 post(multi/manage/autoroute) >
 ```
 
 # Using the Pivot
@@ -208,11 +208,11 @@ msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce)
 
 [*] Target is an Exchange Server!
 [*] 169.254.204.110:443 - The target is not exploitable. Exchange Server 15.2.986.14 does not appear to be a vulnerable version!
-msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce) > 
+msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce) >
 ```
 # Pivoting External Tools
 ## portfwd
-*Note: This method is discouraged as you can only set up a mapping between a single port and another target host and port, so using the socks module below is encouraged where possible. Additionally this method has been depreciated for some time now.* 
+*Note: This method is discouraged as you can only set up a mapping between a single port and another target host and port, so using the socks module below is encouraged where possible. Additionally this method has been depreciated for some time now.*
 
 ### Local Port Forwarding
 To set up a port forward using Metasploit, use the `portfwd` command within a supported session's console such as the Meterpreter console. Using `portfwd -h` will bring up a help menu similar to the following:
@@ -231,7 +231,7 @@ OPTIONS:
     -p   Forward: remote port to connect to. Reverse: remote port to listen on.
     -r   Forward: remote host to connect to.
     -R   Indicates a reverse port forward.
-meterpreter > 
+meterpreter >
 ```
 
 To add a port forward, use `portfwd add` and specify the `-l`, `-p` and `-r` options at a minimum to specify the local port to listen on, the report port to connect to, and the target host to connect to respectively.
@@ -239,7 +239,7 @@ To add a port forward, use `portfwd add` and specify the `-l`, `-p` and `-r` opt
 ```
 meterpreter > portfwd add -l 1090 -p 443 -r 169.254.37.128
 [*] Local TCP relay created: :1090 <-> 169.254.37.128:443
-meterpreter > 
+meterpreter >
 ```
 
 Note that something that is commonly misunderstood here is that the port will be opened on the machine running Metasploit itself, NOT on the target that the session is running on.
@@ -257,7 +257,7 @@ HTTP request sent, awaiting response... 302 Moved Temporarily
 Location: https://127.0.0.1/owa/ [following]
 --2022-04-08 14:36:23--  https://127.0.0.1/owa/
 Connecting to 127.0.0.1:443... failed: Connection refused.
- ~/git/metasploit-framework │ master ?21  
+ ~/git/metasploit-framework │ master ?21
 ```
 
 Note that you may need to edit your `/etc/hosts` file to map IP addresses to given host names to allow things like redirects to redirect to the right hostname or IP address when using this method of pivoting.
@@ -311,7 +311,7 @@ Once routes are established, Metasploit modules can access the IP range specifie
 Metasploit can launch a SOCKS proxy server using the module: `auxiliary/server/socks_proxy`. When set up to bind to a local loopback adapter, applications can be directed to use the proxy to route TCP/IP traffic through Metasploit's routing tables. Here is an example of how this module might be used:
 
 ```
-msf6 > use auxiliary/server/socks_proxy 
+msf6 > use auxiliary/server/socks_proxy
 msf6 auxiliary(server/socks_proxy) > show options
 
 Module options (auxiliary/server/socks_proxy):
@@ -340,7 +340,7 @@ msf6 auxiliary(server/socks_proxy) > set SRVPORT 1080
 SRVPORT => 1080
 msf6 auxiliary(server/socks_proxy) > run
 [*] Auxiliary module running as background job 0.
-msf6 auxiliary(server/socks_proxy) > 
+msf6 auxiliary(server/socks_proxy) >
 [*] Starting the SOCKS proxy server
 
 msf6 auxiliary(server/socks_proxy) > jobs
@@ -352,14 +352,14 @@ Jobs
   --  ----                           -------  ------------
   0   Auxiliary: server/socks_proxy
 
-msf6 auxiliary(server/socks_proxy) > 
+msf6 auxiliary(server/socks_proxy) >
 ```
 
 ### proxychains-ng Setup
 First, make sure that you have installed `proxychains-ng`. You can also use `proxychains` however most repositories such as Ubuntu will have an outdated version of it and it has crashed before in my tests, so it is highly recommended to use `proxychains-ng` instead which is actively maintained. You can install it with the following commands:
 
 ```
-git clone https://github.com/rofl0r/proxychains-ng 
+git clone https://github.com/rofl0r/proxychains-ng
 cd proxychains-ng
 make
 sudo make install
@@ -377,7 +377,7 @@ The final final should look something like this:
 # proxychains.conf  VER 3.1
 #
 #        HTTP, SOCKS4, SOCKS5 tunneling proxifier with DNS.
-#	
+#
 
 # The option below identifies how the ProxyList is treated.
 # only one option should be uncommented at time,
@@ -411,7 +411,7 @@ strict_chain
 #quiet_mode
 
 # Proxy DNS requests - no leak for DNS data
-proxy_dns 
+proxy_dns
 
 # Some timeouts in milliseconds
 tcp_read_time_out 15000
@@ -427,8 +427,8 @@ tcp_connect_time_out 8000
 #            	socks5	192.168.67.78	1080	lamer	secret
 #		http	192.168.89.3	8080	justu	hidden
 #	 	socks4	192.168.1.49	1080
-#	        http	192.168.39.93	8080	
-#		
+#	        http	192.168.39.93	8080
+#
 #
 #       proxy types: http, socks4, socks5
 #        ( auth types supported: "basic"-http  "user/pass"-socks )
@@ -446,7 +446,7 @@ Note: If there are other proxy entries in the configuration file, you may need t
 Now you can combine proxychains-ng with other application like Nmap, Nessus, Firefox and more to scan or access machines and resources through the Metasploit routes. All you need to do is call proxychains-ng before the needed application. No need to change the proxy settings in the respective application.
 
 ```
- ~/git/metasploit-framework │ master ?21  wget https://169.254.37.128            
+ ~/git/metasploit-framework │ master ?21  wget https://169.254.37.128
 --2022-04-08 13:52:23--  https://169.254.37.128/
 Connecting to 169.254.37.128:443... failed: No route to host.
 ~/git/proxychains-ng │ master ?1  proxychains4 wget https://169.254.37.128
@@ -486,11 +486,11 @@ HTTP request sent, awaiting response... 200 OK
 Length: 58714 (57K) [text/html]
 Saving to: ‘index.html’
 
-index.html             100%[===========================>]  57.34K  --.-KB/s    in 0.1s    
+index.html             100%[===========================>]  57.34K  --.-KB/s    in 0.1s
 
 2022-04-08 14:26:54 (573 KB/s) - ‘index.html’ saved [58714/58714]
 
- ~/git/proxychains-ng │ master ?2                     
+ ~/git/proxychains-ng │ master ?2
 ```
 
 ### Scanning
@@ -561,10 +561,10 @@ PORT    STATE SERVICE       VERSION
 
 Host script results:
 |_clock-skew: -1s
-| smb2-security-mode: 
-|   2.02: 
+| smb2-security-mode:
+|   2.02:
 |_    Message signing enabled and required
-| smb2-time: 
+| smb2-time:
 |   date: 2022-04-08T19:09:38
 |_  start_date: N/A
 

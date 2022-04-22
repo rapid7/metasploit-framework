@@ -1,4 +1,4 @@
-## SMB Support
+## SMB Workflows
 
 SMB (Server Message Blocks), is a way for sharing files across nodes on a network.
 
@@ -10,7 +10,7 @@ There are two main ports for SMB:
 Other terminology to be aware of:
 - SMB - Serer Message Blocks
 - CIFS - Common Internet File System
-- Samba - Samba is a free software re-implementation of SMB, which is frequently found on unix-like systems
+- Samba - A free software re-implementation of SMB, which is frequently found on unix-like systems
 
 Metasploit has support for multiple SMB modules, including:
 

@@ -1,4 +1,4 @@
-## PostgreSQL
+## PostgreSQL Workflows
 
 PostgreSQL, sometimes aliased as Postgres, is frequently found on port 5432/TCP. It is an open-source relational database management system.
 

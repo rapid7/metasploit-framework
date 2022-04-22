@@ -1,6 +1,6 @@
 ## Post Modules
 
-Metasploit's post modules are useful after a Metasploit session has opened. This guide focuses on Post modules for gathering additional information from a host after a Metasploit session has opened.
+Metasploit's post gather modules are useful after a Metasploit session has opened. This guide focuses on Post modules for gathering additional information from a host after a Metasploit session has opened.
 
 Metasploit post modules replace old Meterpreter scripts, which are no longer maintained or accepted by the framework team.
 
@@ -70,7 +70,7 @@ Installed Applications
  ... etc ..
 ```
 
-## Useful modules
+## Useful modules
 
 ### Windows GPP Credentials
 

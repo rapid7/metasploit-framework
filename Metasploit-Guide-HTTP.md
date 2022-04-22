@@ -1,4 +1,18 @@
-## HTTP Support
+## HTTP Workflows
+
+HTTP (Hypertext Transfer Protocol), is an application-level protocol for distributed, collaborative, hypermedia information systems.
+
+There are two main ports:
+- 80/TCP - HTTP
+- 443/TCP - HTTPS (Hypertext Transport Protocol _Secure_) - encrypted using Transport Layer Security or, formerly, Secure Sockets Layer
+
+Note that any port can be used to run an application which communicates via HTTP/HTTPS.
+
+This document is generic advice for running and debugging HTTP based Metasploit modules, but it is best to use a Metasploit module which is specific to the application that you are pentesting. For instance:
+
+```
+msf6 > search tomcat http
+```
 
 ### HTTP Examples
 
@@ -6,7 +20,7 @@ Auxiliary modules:
 
 ```
 use auxiliary/scanner/http/title
-run http://example.com https://example.com https://foo.example.com/bar
+run https://example.com
 ```
 
 Specifying credentials and payload information:
@@ -30,6 +44,52 @@ You can log all HTTP requests and responses to the Metasploit console with the `
 ```
 use auxiliary/scanner/http/title
 run http://example.com HttpTrace=true verbose=true
+```
+
+For instance:
+
+```
+msf6 > use scanner/http/title
+msf6 auxiliary(scanner/http/title) > set RHOSTS 127.0.0.1
+RHOSTS => 127.0.0.1
+msf6 auxiliary(scanner/http/title) > set HttpTrace true
+HttpTrace => true
+msf6 auxiliary(scanner/http/title) > run
+
+####################
+# Request:
+####################
+GET / HTTP/1.1
+Host: 127.0.0.1
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+
+
+####################
+# Response:
+####################
+HTTP/1.0 200 OK
+Server: SimpleHTTP/0.6 Python/2.7.16
+Date: Wed, 16 Dec 2020 01:16:32 GMT
+Content-type: text/html; charset=utf-8
+Content-Length: 178
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html>
+<title>Directory listing for /</title>
+<body>
+<h2>Directory listing for /</h2>
+<hr>
+<ul>
+</ul>
+<hr>
+</body>
+</html>
+
+
+[+] [127.0.0.1:80] [C:200] [R:] [S:SimpleHTTP/0.6 Python/2.7.16] Directory listing for /
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/title) >
 ```
 
 To send all HTTP requests through a proxy, i.e. through Burp Suite:
