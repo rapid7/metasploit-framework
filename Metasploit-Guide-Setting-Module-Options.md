@@ -61,5 +61,5 @@ You can also specify multiple RHOST arguments, as well as provide additionally i
 
 ```
 use scanner/smb/smb_enumshares
-run smb://test:test@192.168.1.223 smb://user:password@192.168.1.223 smb://test:test@127.0.0.1 verbose=true 
+run smb://test:test@192.168.1.223 smb://user:password@192.168.1.223 smb://test:test@127.0.0.1 verbose=true
 ```

@@ -19,7 +19,6 @@ Allowed values:
 - `setg SessionTlvLogging console` - Log to the current msfconsole instance
 - `setg SessionTlvLogging file:/tmp/session.txt` - Write the network traffic logs to an arbitrary file
 
-
 Example output:
 
 ```
