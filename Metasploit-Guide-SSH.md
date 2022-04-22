@@ -15,14 +15,14 @@ Brute-force host with known user and password list:
 
 ```
 use scanner/ssh/ssh_login
-run ssh://known_user@192.168.222.1 threads=50 pass_file=./rockyou.txt
+run ssh://known_user@192.168.222.1 threads=50 pass_file=./wordlist.txt
 ```
 
 Brute-force credentials:
 
 ```
 use scanner/ssh/ssh_login
-run ssh://192.168.222.1 threads=50 user_file=./users.txt pass_file=./rockyou.txt
+run ssh://192.168.222.1 threads=50 user_file=./users.txt pass_file=./wordlist.txt
 ```
 
 Brute-force credentials in a subnet:
@@ -30,7 +30,7 @@ Brute-force credentials in a subnet:
 ```
 use scanner/ssh/ssh_login
 run cidr:/24:ssh://user:pass@192.168.222.0 threads=50
-run cidr:/24:ssh://user@192.168.222.0 threads=50 pass_file=./rockyou.txt
+run cidr:/24:ssh://user@192.168.222.0 threads=50 pass_file=./wordlist.txt
 ```
 
 ### SSH Login
