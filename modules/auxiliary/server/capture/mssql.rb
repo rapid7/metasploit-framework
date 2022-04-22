@@ -268,6 +268,7 @@ class MetasploitModule < Msf::Auxiliary
         ip: ip,
         port: 445,
         user: user,
+        sname: 'smb_client',
         password: domain + ":" +
         ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
         ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
@@ -521,12 +522,13 @@ class MetasploitModule < Msf::Auxiliary
         mssql_send_ntlm_challenge(c, info)
       elsif info[:user] and info[:pass]
 
-      report_cred(
-        ip: @state[c][:ip],
-        user: info[:user],
-        password: info[:pass],
-        type: :password
-      )
+        report_cred(
+          ip: @state[c][:ip],
+          sname: 'mssql_client',
+          user: info[:user],
+          password: info[:pass],
+          type: :password
+        )
 
         print_status("MSSQL LOGIN #{@state[c][:name]} #{info[:user]} / #{info[:pass]}")
         mssql_send_error(c, "Login failed for user '#{info[:user]}'.")
@@ -544,7 +546,7 @@ class MetasploitModule < Msf::Auxiliary
     service_data = {
       address: opts[:ip],
       port: opts[:port] || datastore['SRVPORT'],
-      service_name: 'smb_client',
+      service_name: opts[:sname],
       protocol: 'tcp',
       workspace_id: myworkspace_id
     }
