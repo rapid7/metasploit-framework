@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptEnum.new('PROTOCOL', [ true, 'The protocol to use', 'udp', ['udp', 'tcp']]),
-      OptAddressLocal.new('LHOST', [false, 'The local listener IP', Rex::Socket.source_address]),
-      OptString.new('HOSTNAME', [false, 'The local hostname', ''])
+      OptAddressLocal.new('LHOST', [false, 'IP to match shares against', Rex::Socket.source_address]),
+      OptString.new('HOSTNAME', [false, 'Hostname to match shares against', ''])
     ])
 
     register_advanced_options(
