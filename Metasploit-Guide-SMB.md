@@ -21,10 +21,18 @@ Metasploit has support for multiple SMB modules, including:
 - File transfer
 - Exploit modules
 
+There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
+
+```
+msf6 > search mysql
+```
+
+### Lab Environment
+
 When testing in a lab environment - SMB can be used on a window host, or within Docker. For instance running Samba on Ubuntu 16.04:
 
 ```bash
-docker run -it --rm -p 139:139 -p 445:445 ubuntu:16.04 /bin/bash
+docker run -it --rm --publish 127.0.0.1:139:139 --publish 127.0.0.1:445:445 ubuntu:16.04 /bin/bash
 mkdir -p /tmp/foo
 apt update
 apt install -y samba
@@ -51,12 +59,6 @@ Restart the service:
 
 ```
 service smbd restart
-```
-
-There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
-
-```
-msf6 > search mysql
 ```
 
 ### SMB Enumeration

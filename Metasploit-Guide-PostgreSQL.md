@@ -11,16 +11,18 @@ Metasploit has support for multiple PostgreSQL modules, including:
 - Executing arbitrary SQL queries against the database
 - Gaining reverse shells
 
-When testing in a lab environment PostgreSQL can either be installed on the host machine or within Docker:
-
-```
-docker run --rm -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:13.1-alpine
-```
-
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```
 msf6 > search postgres
+```
+
+### Lab Environment
+
+When testing in a lab environment PostgreSQL can either be installed on the host machine or within Docker:
+
+```
+docker run -it --rm --publish 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=password postgres:13.1-alpine
 ```
 
 ### PostgreSQL Enumeration

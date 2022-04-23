@@ -11,16 +11,18 @@ Metasploit has support for multiple MySQL modules, including:
 - Executing arbitrary SQL queries against the database
 - Gaining reverse shells
 
-When testing in a lab environment MySQL can either be installed on the host machine or within Docker:
-
-```
-docker run -it --rm -e MYSQL_ROOT_PASSWORD=' a b c p4$$w0rd' -p 3306:3306 mariadb:latest
-```
-
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```
 msf6 > search mysql
+```
+
+### Lab Environment
+
+When testing in a lab environment MySQL can either be installed on the host machine or within Docker:
+
+```
+docker run -it --rm -e MYSQL_ROOT_PASSWORD=' a b c p4$$w0rd' -p 3306:3306 mariadb:latest
 ```
 
 ### MySQL Enumeration
