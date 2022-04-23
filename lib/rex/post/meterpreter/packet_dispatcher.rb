@@ -178,7 +178,7 @@ module PacketDispatcher
     if timeout.nil?
       return nil
     elsif response.nil?
-      raise TimeoutError.new("Send timed out")
+      raise Rex::TimeoutError.new("Send timed out")
     elsif (response.result != 0)
       einfo = lookup_error(response.result)
       e = RequestError.new(packet.method, einfo, response.result)
