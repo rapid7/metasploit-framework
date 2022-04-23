@@ -5,19 +5,30 @@ The [Ubuntu 14.04](https://help.ubuntu.com/14.04/serverguide/network-file-system
 following was done on Kali linux:
   
   1. `apt-get install nfs-kernel-server`
-  2. Create 2 folders to share:
+  2. Create folders to share and add them to exports (adjust 192.168.1.x as needed):
     ```
-    mkdir /tmp/open_share
-    mkdir /tmp/closed_share
+    mkdir /tmp/star
+    echo "/tmp/star    *(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/not_us_hostname
+    echo "/tmp/not_us_hostname    foo(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/us_hostname
+    echo "/tmp/us_hostname    bar(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/not_us_ip
+    echo "/tmp/not_us_ip    1.1.1.1(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/us_ip
+    echo "/tmp/us_ip    192.168.1.111(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/not_us_subnet
+    echo "/tmp/not_us_subnet    1.1.1.1/24(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/us_subnet
+    echo "/tmp/us_subnet    192.168.1.1/24(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/not_us_netmask
+    echo "/tmp/not_us_netmask    1.1.1.1/255.255.255.0(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/us_netmask
+    echo "/tmp/us_netmask    192.168.1.1/255.255.255.0(rw,no_subtree_check)" >> /etc/exports
+    mkdir /tmp/empty
+    echo "/tmp/empty    (rw,no_subtree_check)" >> /etc/exports
     ```
-  3. Add them to the list of shares:
-  ```
-  echo "/tmp/closed_share  10.1.2.3(ro,sync,no_root_squash)" >> /etc/exports
-  echo "/tmp/open_share    *(rw,sync,no_root_squash)" >> /etc/exports
-  ```
-  4. Restart the service: `service nfs-kernel-server restart`
-
-In this scenario, `closed_share` is set to read only, and only mountable by the IP 10.1.2.3.  `open_share` is mountable by anyone (`*`) in read/write mode.
+  3. Restart the service: `service nfs-kernel-server restart`
 
 ## Verification Steps
 
@@ -36,9 +47,15 @@ In this scenario, `closed_share` is set to read only, and only mountable by the 
     rhosts => 127.0.0.1
     msf auxiliary(nfsmount) > run
     
-    [+] 127.0.0.1:111         - 127.0.0.1 NFS Export: /tmp/open_share [*]
-    [+] 127.0.0.1:111         - 127.0.0.1 NFS Export: /tmp/closed_share [10.1.2.3]
-    [*] Scanned 1 of 1 hosts (100% complete)
+    [+] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/empty [*]
+    [+] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/star [*]
+    [+] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/us_netmask [10.1.1.1/255.255.255.0]
+    [*] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/not_us_netmask [1.1.1.1/255.255.255.0]
+    [+] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/us_subnet [10.1.1.1/24]
+    [*] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/not_us_subnet [1.1.1.1/24]
+    [+] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/us_ip [192.168.1.111]
+    [*] 127.0.0.1:111       - 127.0.0.1 NFS Export: /tmp/not_us_ip [1.1.1.1]
+    [*] 127.0.0.1:111       - Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
   
@@ -73,8 +90,14 @@ Host is up (0.000037s latency).
 PORT    STATE SERVICE
 111/tcp open  rpcbind
 | nfs-showmount: 
-|   /tmp/open_share *
-|_  /tmp/closed_share 10.1.2.3
+|   /tmp/empty *
+|   /tmp/star *
+|   /tmp/us_netmask 10.1.1.1/255.255.255.0
+|   /tmp/not_us_netmask 1.1.1.1/255.255.255.0
+|   /tmp/us_subnet 10.1.1.1/24
+|   /tmp/not_us_subnet 1.1.1.1/24
+|   /tmp/us_ip 192.168.1.111
+|_  /tmp/not_us_ip 1.1.1.1
 
 Nmap done: 1 IP address (1 host up) scanned in 0.32 seconds
 ```
@@ -86,8 +109,14 @@ showmount is a part of the `nfs-common` package for debian.
 ```
 showmount -e 127.0.0.1
 Export list for 127.0.0.1:
-/tmp/open_share   *
-/tmp/closed_share 10.1.2.3
+/tmp/empty          *
+/tmp/star           *
+/tmp/us_netmask     10.1.1.1/255.255.255.0
+/tmp/not_us_netmask 1.1.1.1/255.255.255.0
+/tmp/us_subnet      10.1.1.1/24
+/tmp/not_us_subnet  1.1.1.1/24
+/tmp/us_ip          192.168.1.111
+/tmp/not_us_ip      1.1.1.1
 ```
 
 ## Exploitation

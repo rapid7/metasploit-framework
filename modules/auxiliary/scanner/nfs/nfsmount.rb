@@ -10,74 +10,101 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'          => 'NFS Mount Scanner',
-      'Description'   => %q{
+      'Name' => 'NFS Mount Scanner',
+      'Description' => %q{
         This module scans NFS mounts and their permissions.
       },
-      'Author'	       => ['<tebo[at]attackresearch.com>'],
-      'References'     =>
-        [
-          ['CVE', '1999-0170'],
-          ['URL',	'https://www.ietf.org/rfc/rfc1094.txt']
-        ],
+      'Author'	=> ['<tebo[at]attackresearch.com>'],
+      'References' => [
+        ['CVE', '1999-0170'],
+        ['URL',	'https://www.ietf.org/rfc/rfc1094.txt']
+      ],
       'License'	=> MSF_LICENSE
     )
 
     register_options([
-      OptEnum.new('PROTOCOL', [ true, 'The protocol to use', 'udp', ['udp', 'tcp']])
+      OptEnum.new('PROTOCOL', [ true, 'The protocol to use', 'udp', ['udp', 'tcp']]),
+      OptAddressLocal.new('LHOST', [false, 'The local listener IP', Rex::Socket.source_address]),
+      OptString.new('HOSTNAME', [false, 'The local hostname', ''])
     ])
 
+    register_advanced_options(
+      [
+        OptBool.new('Mountable', [false, 'Determine if an export is mountable', true]),
+      ]
+    )
+  end
+
+  def can_mount?(locations)
+    # attempts to validate if we'll be able to open it or not based on:
+    # 1. its a wildcard, thus we can open it
+    # 2. hostname isn't blank and its in the list
+    # 3. our IP is explicitly listed
+    # 4. theres a CIDR notation that we're included in.
+    return true unless datastore['Mountable']
+    return true if locations.include? '*' ||
+                                      (locations.include?(datastore['HOSTNAME']) && !datastore['HOSTNAME'].blank?) ||
+                                      locations.include?(datastore['LHOST'])
+
+    locations.each do |location|
+      # if it has a subnet mask, convert it to cidr
+      if %r{(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})} =~ location
+        location = "#{Regexp.last_match(1)}#{Rex::Socket.addr_atoc(Regexp.last_match(2))}"
+      end
+      return true if Rex::Socket::RangeWalker.new(location).include?(datastore['LHOST'])
+    end
+    false
   end
 
   def run_host(ip)
+    program	= 100005
+    progver	= 1
+    procedure	= 5
 
-    begin
-      program		= 100005
-      progver		= 1
-      procedure	= 5
+    sunrpc_create(datastore['PROTOCOL'], program, progver)
+    sunrpc_authnull
+    resp = sunrpc_call(procedure, '')
 
-      sunrpc_create(datastore['PROTOCOL'], program, progver)
-      sunrpc_authnull()
-      resp = sunrpc_call(procedure, "")
+    # XXX: Assume that transport is udp and port is 2049
+    # Technically we are talking to mountd not nfsd
 
-      # XXX: Assume that transport is udp and port is 2049
-      # Technically we are talking to mountd not nfsd
+    report_service(
+      host: ip,
+      proto: datastore['PROTOCOL'],
+      port: 2049,
+      name: 'nfsd',
+      info: "NFS Daemon #{program} v#{progver}"
+    )
 
-      report_service(
-        :host  => ip,
-        :proto => datastore['PROTOCOL'],
-        :port  => 2049,
-        :name  => 'nfsd',
-        :info  => "NFS Daemon #{program} v#{progver}"
-      )
+    exports = resp[3, 1].unpack('C')[0]
+    if (exports == 0x01)
+      shares = []
+      while Rex::Encoder::XDR.decode_int!(resp) == 1
+        dir = Rex::Encoder::XDR.decode_string!(resp)
+        grp = []
+        grp << Rex::Encoder::XDR.decode_string!(resp) while Rex::Encoder::XDR.decode_int!(resp) == 1
 
-      exports = resp[3,1].unpack('C')[0]
-      if (exports == 0x01)
-        shares = []
-        while Rex::Encoder::XDR.decode_int!(resp) == 1 do
-          dir = Rex::Encoder::XDR.decode_string!(resp)
-          grp = []
-          while Rex::Encoder::XDR.decode_int!(resp) == 1 do
-            grp << Rex::Encoder::XDR.decode_string!(resp)
-          end
-          print_good("#{ip} NFS Export: #{dir} [#{grp.join(", ")}]")
-          shares << [dir, grp]
+        if can_mount? grp
+          print_good("#{ip} NFS Export: #{dir} [#{grp.join(', ')}]")
+        else
+          print_status("#{ip} NFS Export: #{dir} [#{grp.join(', ')}]")
         end
-        report_note(
-          :host => ip,
-          :proto => datastore['PROTOCOL'],
-          :port => 2049,
-          :type => 'nfs.exports',
-          :data => { :exports => shares },
-          :update => :unique_data
-        )
-      elsif(exports == 0x00)
-        vprint_status("#{ip} - No exported directories")
+        shares << [dir, grp]
       end
-
-      sunrpc_destroy
-    rescue ::Rex::Proto::SunRPC::RPCTimeout, ::Rex::Proto::SunRPC::RPCError => e
-      vprint_error(e.to_s)
+      report_note(
+        host: ip,
+        proto: datastore['PROTOCOL'],
+        port: 2049,
+        type: 'nfs.exports',
+        data: { exports: shares },
+        update: :unique_data
+      )
+    elsif (exports == 0x00)
+      vprint_status("#{ip} - No exported directories")
     end
+
+    sunrpc_destroy
+  rescue ::Rex::Proto::SunRPC::RPCTimeout, ::Rex::Proto::SunRPC::RPCError => e
+    vprint_error(e.to_s)
   end
 end
