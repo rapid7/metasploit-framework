@@ -57,6 +57,10 @@ NAVIGATION_CONFIG = [
         title: without_prefix('Metasploit Guide ')
       },
       {
+        path: 'Metasploit-Guide-WinRM.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
         path: 'Metasploit-Guide-Kubernetes.md',
         title: without_prefix('Metasploit Guide ')
       }
