@@ -29,7 +29,9 @@ msf6 > search mysql
 
 ### Lab Environment
 
-When testing in a lab environment - SMB can be used on a window host, or within Docker. For instance running Samba on Ubuntu 16.04:
+When testing in a lab environment - SMB can be used on a Window's host machine, or within Docker.
+
+For instance running Samba on Ubuntu 16.04:
 
 ```bash
 docker run -it --rm --publish 127.0.0.1:139:139 --publish 127.0.0.1:445:445 ubuntu:16.04 /bin/bash
