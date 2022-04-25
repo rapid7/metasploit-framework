@@ -1,7 +1,7 @@
 module Metasploit
   module Framework
     module API
-      # @note This is a like.  The API version is not semantically version and it's version has actually never changed
+      # @note This is a lie.  The API version is not semantically version and it's version has actually never changed
       #    even though API changes have occured.  DO NOT base compatibility on this version.
       module Version
         MAJOR = 1
