@@ -235,7 +235,7 @@ module Build
       old_path = old_path.gsub(' ', '-')
       matched_pages = pages.select do |page|
         !page[:folder] &&
-          page.fetch(:path).downcase.end_with?(old_path.downcase + '.md')
+          File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase
       end
       if matched_pages.empty?
         raise "Missing path for #{old_path}"
@@ -458,7 +458,7 @@ module Build
 
     if options[:production]
       FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
-      run_command('JEKYLL_ENV=production jekyll build')
+      run_command('JEKYLL_ENV=production bundle exec jekyll build')
 
       if options[:serve]
         ProductionServer.run

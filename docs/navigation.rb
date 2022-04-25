@@ -17,9 +17,59 @@ NAVIGATION_CONFIG = [
     nav_order: 2
   },
   {
+    title: 'Pentesting',
+    folder: 'pentesting',
+    nav_order: 3,
+    children: [
+      {
+        path: 'Metasploit-Guide-Setting-Module-Options.md',
+        nav_order: 1,
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-Upgrading-Shells-to-Meterpreter.md',
+        nav_order: 2,
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        nav_order: 3,
+        path: 'Metasploit-Guide-Post-Gather-Modules.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-HTTP.md',
+        title: 'HTTP + HTTPS'
+      },
+      {
+        path: 'Metasploit-Guide-MySQL.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-PostgreSQL.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-SMB.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-SSH.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-WinRM.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-Kubernetes.md',
+        title: without_prefix('Metasploit Guide ')
+      }
+    ]
+  },
+  {
     title: 'Using Metasploit',
     folder: 'using-metasploit',
-    nav_order: 3,
+    nav_order: 4,
     children: [
       {
         title: 'Getting Started',
@@ -206,7 +256,7 @@ NAVIGATION_CONFIG = [
   {
     title: 'Development',
     folder: 'development',
-    nav_order: 4,
+    nav_order: 5,
     children: [
       {
         title: 'Get Started ',
@@ -447,13 +497,12 @@ NAVIGATION_CONFIG = [
                 title: 'WbemExec'
               },
               {
-                title: 'SMB',
-                folder: 'smb',
+                title: 'SMB Library',
+                folder: 'smb_library',
                 children: [
                   {
                     path: 'What-my-Rex-Proto-SMB-Error-means.md'
                   },
-
                   {
                     path: 'Guidelines-for-Writing-Modules-with-SMB.md'
                   },
