@@ -1625,7 +1625,7 @@ class Core
       end
     when 'killall'
       print_status("Killing all sessions...")
-      framework.sessions.each_sorted do |s|
+      framework.sessions.each_sorted.reverse_each do |s|
         session = framework.sessions.get(s)
         if session
           if session.respond_to?(:response_timeout)
