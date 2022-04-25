@@ -1,0 +1,59 @@
+name: Build Docs
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+      - weekly-dependency-updates
+    paths:
+      - docs
+  pull_request:
+    branches-ignore:
+      - weekly-dependency-updates
+
+jobs:
+  # Ensures that the docs site builds successfully. Note that this workflow does not deploy the docs site.
+  build:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - 2.7
+
+    name: Ruby ${{ matrix.ruby }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: docs
+
+      - name: build
+        working-directory: docs
+        run: |
+          bundle exec ruby build.rb
+          bundle exec ruby build.rb --production
