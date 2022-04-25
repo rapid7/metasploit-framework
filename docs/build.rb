@@ -458,7 +458,7 @@ module Build
 
     if options[:production]
       FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
-      run_command('JEKYLL_ENV=production jekyll build')
+      run_command('JEKYLL_ENV=production bundle exec jekyll build')
 
       if options[:serve]
         ProductionServer.run
