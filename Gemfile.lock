@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/zeroSteiner/ruby_smb
-  revision: 203c90e2a3540963a98e791a5e9d892531376cc8
+  revision: ce2599e4d2979fcea0a7dcde1ee2bece746aeeb7
   branch: test/msf/16481
   specs:
-    ruby_smb (3.1.1)
+    ruby_smb (3.1.2)
       bindata
       openssl-ccm
       openssl-cmac
