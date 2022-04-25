@@ -147,7 +147,7 @@ module Msf
               overrides = {}
               overrides['UNPARSED_RHOSTS'] = value
               overrides['RHOSTS'] = rhost[:address]
-              overrides['VHOST'] = rhost[:hostname] if datastore.options.include?('VHOST') && datastore['VHOST'].blank?
+              set_hostname(datastore, overrides, rhost[:hostname])
               results << datastore.merge(overrides)
             end
           end
@@ -170,6 +170,7 @@ module Msf
       result['RHOSTS'] = uri.hostname
       result['RPORT'] = (uri.port || 445) if datastore.options.include?('RPORT')
 
+      set_hostname(datastore, result, uri.hostname)
       # Handle users in the format:
       #   user
       #   domain;user
@@ -207,8 +208,6 @@ module Msf
     def parse_http_uri(value, datastore)
       uri = ::Addressable::URI.parse(value)
       result = {}
-      # nil VHOST for now, this value will be calculated and overridden later
-      result['VHOST'] = nil
 
       result['RHOSTS'] = uri.hostname
       is_ssl = %w[ssl https].include?(uri.scheme)
@@ -224,7 +223,9 @@ module Msf
         result['URI'] = target_uri if datastore.options.include?('URI')
       end
 
-      result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
+      result['HttpQueryString'] = uri.query if datastore.options.include?('HttpQueryString')
+
+      set_hostname(datastore, result, uri.hostname)
       set_username(datastore, result, uri.user) if uri.user
       set_password(datastore, result, uri.password) if uri.password
 
@@ -250,6 +251,7 @@ module Msf
         result['DATABASE'] = uri.path[1..-1]
       end
 
+      set_hostname(datastore, result, uri.hostname)
       set_username(datastore, result, uri.user) if uri.user
       set_password(datastore, result, uri.password) if uri.password
       result
@@ -272,6 +274,8 @@ module Msf
       if datastore.options.include?('DATABASE') && has_database_specified
         result['DATABASE'] = uri.path[1..-1]
       end
+
+      set_hostname(datastore, result, uri.hostname)
       set_username(datastore, result, uri.user) if uri.user
       set_password(datastore, result, uri.password) if uri.password
 
@@ -291,6 +295,7 @@ module Msf
       result['RHOSTS'] = uri.hostname
       result['RPORT'] = uri.port || 22
 
+      set_hostname(datastore, result, uri.hostname)
       set_username(datastore, result, uri.user) if uri.user
       set_password(datastore, result, uri.password) if uri.password
 
@@ -312,6 +317,7 @@ module Msf
         result['RPORT'] = uri.port
       end
 
+      set_hostname(datastore, result, uri.hostname)
       set_username(datastore, result, uri.user) if uri.user
       set_password(datastore, result, uri.password) if uri.password
 
@@ -319,6 +325,12 @@ module Msf
     end
 
     protected
+
+    def set_hostname(datastore, result, hostname)
+      hostname = Rex::Socket.is_ip_addr?(hostname) ? nil : hostname
+      result['RHOSTNAME'] = hostname if result['RHOSTNAME'].blank?
+      result['VHOST'] = hostname if datastore.options.include?('VHOST') && datastore['VHOST'].blank?
+    end
 
     def set_username(datastore, result, username)
       # Preference setting application specific values first

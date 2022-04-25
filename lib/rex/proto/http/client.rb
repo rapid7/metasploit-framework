@@ -36,6 +36,7 @@ class Client
     self.config = Http::ClientRequest::DefaultConfig.merge({
       'read_max_data'   => (1024*1024*1),
       'vhost'           => self.hostname,
+      'ssl_server_name_indication' => self.hostname,
     })
     self.config['agent'] ||= Rex::UserAgent.session_agent
 
@@ -171,7 +172,8 @@ class Client
     timeout = (t.nil? or t == -1) ? 0 : t
 
     self.conn = Rex::Socket::Tcp.create(
-      'PeerHost'   => self.hostname,
+      'PeerHost'    => self.hostname,
+      'PeerHostname' => self.config['ssl_server_name_indication'] || self.config['vhost'],
       'PeerPort'   => self.port.to_i,
       'LocalHost'  => self.local_host,
       'LocalPort'  => self.local_port,
