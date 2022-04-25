@@ -438,7 +438,7 @@ module DNS
       resolve = req.dup
       # Find cached items, remove request from resolved packet
       req.question.each do |ques|
-        cached = self.cache.find(ques.qname, ques.qtype.to_s)
+        cached = self.cache.find(ques.qname, ques.qtype)
         next if cached.empty?
         req.instance_variable_set(:@answer, (req.answer + cached).uniq)
         resolve.question.delete(ques)
@@ -453,7 +453,7 @@ module DNS
       end
       # Finalize answers in response
       # Check for empty response prior to sending
-      req.header.rCode = Dnsruby::RCode::NOERROR if req.answer.size < 1
+      req.header.rcode = Dnsruby::RCode::NOERROR if req.answer.size < 1
       req.header.qr = true # Set response bit
       return req
     end

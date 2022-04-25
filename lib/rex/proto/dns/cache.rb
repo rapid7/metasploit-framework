@@ -24,13 +24,13 @@ module DNS
     # @param type [String] Record type to search for
     #
     # @return [Array] Records found
-    def find(search, type = 'A')
+    def find(search, type = Dnsruby::Types::A)
       self.records.select do |record,expire|
         record.type == type and (expire < 1 or expire > ::Time.now.to_i) and
         (
           record.name == '*' or
-          record.name == search or record.name[0..-2] == search or
-          ( record.respond_to?(:address) and record.address.to_s == search )
+          record.name.to_s == search.to_s or record.name.to_s[0..-2] == search.to_s or
+          ( record.respond_to?(:address) and record.address.to_s == search.to_s )
         )
       end.keys.map do |record|
         if search.to_s.match(MATCH_HOSTNAME) and record.name == '*'

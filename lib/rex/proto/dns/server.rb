@@ -160,7 +160,7 @@ class Server
     forward = req.dup
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
-      cached = self.cache.find(ques.qname, ques.qtype.to_s)
+      cached = self.cache.find(ques.qname, ques.qtype)
       if cached.empty?
         next
       else
