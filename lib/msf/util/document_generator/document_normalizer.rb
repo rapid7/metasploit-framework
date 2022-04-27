@@ -9,7 +9,7 @@ module Redcarpet
         code = $1 if code =~ /^<ruby>(.+)<\/ruby>/m
 
         "<pre>" \
-          "<code>#{code}</code>" \
+          "<code>#{CGI.escape_html(code)}</code>" \
         "</pre>"
       end
 
