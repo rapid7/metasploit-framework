@@ -130,7 +130,6 @@ class MetasploitModule < Msf::Auxiliary
         when 'PostgreSQL' then Msf::Exploit::SQLi::PostgreSQLi::Common
         when 'Sqlite' then Msf::Exploit::SQLi::SQLitei::Common
         when 'MSSQL' then Msf::Exploit::SQLi::Mssqli::Common
-        else print_bad("Unsupported target")
       end
       reflected
     when 'BooleanBlind'
@@ -139,7 +138,6 @@ class MetasploitModule < Msf::Auxiliary
         when 'PostgreSQL' then Msf::Exploit::SQLi::PostgreSQLi::BooleanBasedBlind
         when 'Sqlite' then Msf::Exploit::SQLi::SQLitei::BooleanBasedBlind
         when 'MSSQL' then Msf::Exploit::SQLi::Mssqli::BooleanBasedBlind
-        else print_bad("Unsupported target")
       end
       boolean_blind
     when 'TimeBlind'
@@ -148,11 +146,8 @@ class MetasploitModule < Msf::Auxiliary
         when 'PostgreSQL' then Msf::Exploit::SQLi::PostgreSQLi::TimeBasedBlind
         when 'Sqlite' then Msf::Exploit::SQLi::SQLitei::TimeBasedBlind
         when 'MSSQL' then Msf::Exploit::SQLi::Mssqli::TimeBasedBlind
-        else print_bad("Unsupported target")
       end
       time_blind
-    else
-      print_bad('Unsupported SQLI_TYPE')
     end
   end
 end
