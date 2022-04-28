@@ -1,0 +1,9 @@
+# This file aims to document any commits which should be ignored from Git/Github history
+# Only whitespace changes should be added to this file where possible
+#
+# Additional details:
+#    https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+# 
+
+# Fixing whitespace on the tests folder with "rubocop --fix-layout test"
+29cc349649f978304712dd0c31dc8861e9627209
