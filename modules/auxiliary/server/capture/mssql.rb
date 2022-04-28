@@ -264,15 +264,20 @@ class MetasploitModule < Msf::Auxiliary
       # DB reporting
       # Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
       # will be mainly use for psexec / smb related exploit
+
+      jtr_hash = case smb_db_type_hash
+      when JTR_NTLMV2
+        user + "::" + domain + ":" + datastore['CHALLENGE'].to_s + ":" + nt_hash + ":" + nt_cli_challenge.to_s
+      when JTR_NTLMV1
+        user + "::" + domain + ":" + lm_cli_challenge.to_s + ":" + lm_hash + ":" + datastore['CHALLENGE']
+      end
+
       report_cred(
         ip: ip,
         port: 445,
         user: user,
         sname: 'smb_client',
-        password: domain + ":" +
-        ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
-        ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
-        datastore['CHALLENGE'].to_s,
+        password: jtr_hash,
         proof: "DOMAIN=#{domain}",
         type: :nonreplayable_hash,
         jtr_format: smb_db_type_hash
