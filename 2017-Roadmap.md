@@ -1,4 +1,11 @@
-#### Documentation Update: This is viewable at [https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html](https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html)
+<!-- Maintainers:  Please do not modify this file directly, create a pull request instead -->
+
+<!-- Maintainers:  Please do not modify this file directly, create a pull request instead -->
+
+<!-- Maintainers:  Please do not modify this file directly, create a pull request instead -->
+
+#### Documentation Update: This Wiki page should be viewable at [https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html](https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html). Or if it is no longer available, see this page's [previous history](./_history)
+
 
 # Metasploit's 2017 Roadmap
 
