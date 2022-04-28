@@ -1,4 +1,3 @@
-
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex'
 
@@ -10,20 +9,24 @@ class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Testing Meterpreter Stuff',
-        'Description'   => %q{ This module will test meterpreter API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'egypt'],
-        'Platform'      => [ 'windows', 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Testing Meterpreter Stuff',
+        'Description' => %q{ This module will test meterpreter API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'egypt'],
+        'Platform' => [ 'windows', 'linux', 'java' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
     register_options(
       [
-        OptBool.new("AddEntropy" , [false, "Add entropy token to file and directory names.", false]),
-        OptString.new("BaseFileName" , [true, "File/dir base name", "meterpreter-test"])
-      ], self.class)
+        OptBool.new("AddEntropy", [false, "Add entropy token to file and directory names.", false]),
+        OptString.new("BaseFileName", [true, "File/dir base name", "meterpreter-test"])
+      ], self.class
+    )
   end
 
   #
@@ -81,7 +84,7 @@ class MetasploitModule < Msf::Post
       ret &&= (list && list.length > 0)
       if session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_GETPID
         pid ||= session.sys.process.getpid
-        process = list.find{ |p| p['pid'] == pid }
+        process = list.find { |p| p['pid'] == pid }
         vprint_status("PID info: #{process.inspect}")
         ret &&= !(process.nil?)
       else
@@ -90,7 +93,6 @@ class MetasploitModule < Msf::Post
 
       ret
     end
-
   end
 
   def test_sys_config
@@ -125,7 +127,7 @@ class MetasploitModule < Msf::Post
       ifaces = session.net.config.get_interfaces
       res = !!(ifaces and ifaces.length > 0)
 
-      res &&= !! ifaces.find { |iface|
+      res &&= !!ifaces.find { |iface|
         iface.addrs.find { |addr|
           addr == session.session_host
         }
@@ -141,13 +143,12 @@ class MetasploitModule < Msf::Post
         routes and routes.length > 0
       end
     end
-
   end
 
   def test_fs
     vprint_status("Starting filesystem tests")
     if datastore["AddEntropy"]
-      entropy_value = '-' + ('a'..'z').to_a.shuffle[0,8].join
+      entropy_value = '-' + ('a'..'z').to_a.shuffle[0, 8].join
     else
       entropy_value = ""
     end
@@ -252,7 +253,7 @@ class MetasploitModule < Msf::Post
       res = true
       remote = "#{datastore["BaseFileName"]}-file#{entropy_value}.txt"
       vprint_status("Remote File Name: #{remote}")
-      local  = __FILE__
+      local = __FILE__
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
@@ -333,7 +334,7 @@ class MetasploitModule < Msf::Post
       res = true
       remote = "#{datastore["BaseFileName"]}-file#{entropy_value}.txt"
       vprint_status("Remote File Name: #{remote}")
-      local  = __FILE__
+      local = __FILE__
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
@@ -342,20 +343,19 @@ class MetasploitModule < Msf::Post
 
       if res
         remote_md5 = session.fs.file.md5(remote)
-        local_md5  = Digest::MD5.digest(::File.read(local, mode: 'rb'))
+        local_md5 = Digest::MD5.digest(::File.read(local, mode: 'rb'))
         remote_sha = session.fs.file.sha1(remote)
-        local_sha  = Digest::SHA1.digest(::File.read(local, mode: 'rb'))
-        vprint_status("remote md5: #{Rex::Text.to_hex(remote_md5,'')}")
-        vprint_status("local md5 : #{Rex::Text.to_hex(local_md5,'')}")
-        vprint_status("remote sha: #{Rex::Text.to_hex(remote_sha,'')}")
-        vprint_status("local sha : #{Rex::Text.to_hex(local_sha,'')}")
+        local_sha = Digest::SHA1.digest(::File.read(local, mode: 'rb'))
+        vprint_status("remote md5: #{Rex::Text.to_hex(remote_md5, '')}")
+        vprint_status("local md5 : #{Rex::Text.to_hex(local_md5, '')}")
+        vprint_status("remote sha: #{Rex::Text.to_hex(remote_sha, '')}")
+        vprint_status("local sha : #{Rex::Text.to_hex(local_sha, '')}")
         res &&= (remote_md5 == local_md5)
       end
 
       session.fs.file.rm(remote)
       res
     end
-
   end
 
 =begin
@@ -387,7 +387,7 @@ class MetasploitModule < Msf::Post
     super
   end
 
-protected
+  protected
 
   def create_directory(name)
     res = true
@@ -402,6 +402,5 @@ protected
 
     res
   end
-
 
 end

@@ -1,4 +1,3 @@
-
 require 'rex'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
@@ -9,23 +8,24 @@ class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Test Meterpreter ExtAPI Stuff',
-        'Description'   => %q{ This module will test Windows Extended API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Ben Campbell'],
-        'Platform'      => [ 'windows', ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
-
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Test Meterpreter ExtAPI Stuff',
+        'Description' => %q{ This module will test Windows Extended API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Ben Campbell'],
+        'Platform' => [ 'windows', ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   #
   # Check the extension is loaded...
   #
   def setup
-
     unless session.extapi
       vprint_status("Loading extapi extension...")
       begin
@@ -60,9 +60,9 @@ class MetasploitModule < Msf::Post
         it "should return clipboard jpg dimensions" do
           ret = false
 
-          #VK_PRINTSCREEN 154 Maybe needed on XP?
-          #VK_SNAPSHOT 44
-          session.railgun.user32.keybd_event(44,0,0,0)
+          # VK_PRINTSCREEN 154 Maybe needed on XP?
+          # VK_SNAPSHOT 44
+          session.railgun.user32.keybd_event(44, 0, 0, 0)
           session.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
 
           clipboard = session.extapi.clipboard.get_data(false)
@@ -96,22 +96,22 @@ class MetasploitModule < Msf::Post
         text = Rex::Text.rand_text_alphanumeric(1024)
         ret = session.extapi.clipboard.set_text(text)
         clipboard = session.extapi.clipboard.get_data(true)
-        ret =  clipboard && clipboard.first && (clipboard.first[:type] == :text) && (clipboard.first[:data] == text)
+        ret = clipboard && clipboard.first && (clipboard.first[:type] == :text) && (clipboard.first[:data] == text)
       end
 
       if session.railgun.user32
         it "should download clipboard jpg data" do
           ret = false
 
-          #VK_PRINTSCREEN 154 Maybe needed on XP?
-          #VK_SNAPSHOT 44
-          session.railgun.user32.keybd_event(44,0,0,0)
+          # VK_PRINTSCREEN 154 Maybe needed on XP?
+          # VK_SNAPSHOT 44
+          session.railgun.user32.keybd_event(44, 0, 0, 0)
           session.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
 
           clipboard = session.extapi.clipboard.get_data(true)
           if clipboard && clipboard.first && (clipboard.first[:type] == :jpg) && !(clipboard.first[:data].empty?)
             # JPG Magic Bytes
-            ret = (clipboard.first[:data][0,2] == "\xFF\xD8")
+            ret = (clipboard.first[:data][0, 2] == "\xFF\xD8")
           end
 
           ret
@@ -183,14 +183,14 @@ class MetasploitModule < Msf::Post
         windows = session.extapi.window.enumerate(true, nil)
 
         if windows && windows.any?
-          unknowns = windows.select {|w| w[:title] == "<unknown>"}
+          unknowns = windows.select { |w| w[:title] == "<unknown>" }
           ret = !unknowns.empty?
         end
 
         ret
       end
 
-      parent = windows.select {|w| w[:title] =~ /program manager/i}
+      parent = windows.select { |w| w[:title] =~ /program manager/i }
 
       if parent && parent.first
         it "should return an array of a windows children" do
