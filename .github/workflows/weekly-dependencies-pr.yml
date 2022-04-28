@@ -51,11 +51,11 @@ jobs:
                 ].join('\n')
               });
               console.log(JSON.stringify({ data: result.data, status: result.status }, null, 4));
-              const result = await github.rest.issues.addLabels({
+              const labelResult = await github.rest.issues.addLabels({
                 owner,
                 repo,
                 issue_number: result.data.number,
                 labels: ['automation', 'rn-no-release-notes']
               });
-              console.log(JSON.stringify({ data: result.data, status: result.status }, null, 4));
+              console.log(JSON.stringify({ data: labelResult.data, status: labelResult.status }, null, 4));
             }
