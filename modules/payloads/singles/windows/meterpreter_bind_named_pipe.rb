@@ -40,9 +40,6 @@ module MetasploitModule
 
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
-    opts[:debug_build] ||= datastore['MeterpreterDebugBuild']
-    parsed_options = Msf::OptMeterpreterDebugLogging.parse_logging_options(opts[:debug_build])
-    opts[:log_path] ||= parsed_options[:rpath]
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
@@ -54,9 +51,7 @@ module MetasploitModule
       extensions: (datastore['EXTENSIONS'] || '').split(','),
       ext_init:   (datastore['EXTINIT'] || ''),
       stageless:  true,
-      debug_build: opts[:debug_build],
-      log_path:   opts[:log_path]
-    }
+    }.merge(meterpreter_logging_config(opts))
 
     # create the configuration instance based off the parameters
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)

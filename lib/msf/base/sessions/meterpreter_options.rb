@@ -83,6 +83,14 @@ module Msf
           self.class
         )
       end
+
+      def meterpreter_logging_config(opts = {})
+        ds = opts[:datastore] || datastore
+        {
+          debug_build: (ds[:debug_build] || datastore['MeterpreterDebugBuild']),
+          log_path:    (ds[:log_path] || Msf::OptMeterpreterDebugLogging.parse_logging_options(datastore['MeterpreterDebugLogging'])[:rpath])
+        }
+      end
     end
   end
 end

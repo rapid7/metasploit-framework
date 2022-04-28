@@ -68,7 +68,7 @@ private
       session_guid,        # the Session GUID
     ]
     pack_string = 'QVVA*A*'
-    if opts[:debug]
+    if opts[:debug_build]
       session_data << to_str(opts[:log_path] || '', LOG_PATH_SIZE) # Path to log file on remote target
       pack_string << 'A*'
     end
