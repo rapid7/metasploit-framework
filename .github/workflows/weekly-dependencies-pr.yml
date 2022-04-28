@@ -38,6 +38,7 @@ jobs:
               repo,
               head: '${{ github.ref_name }}' 
             });
+            console.log(JSON.stringify({ data: hasPR.data, status: hasPR.status }, null, 4));
             if (Array.isArray(hasPR.data) && !hasPR.data.length) {
               const result = await github.rest.pulls.create({
                 title: 'Weekly dependency updates',
