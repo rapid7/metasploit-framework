@@ -38,6 +38,7 @@ jobs:
               repo,
               head: '${{ github.ref_name }}' 
             });
+            console.log('hasPR:');
             console.log(JSON.stringify({ data: hasPR.data, status: hasPR.status }, null, 4));
             if (Array.isArray(hasPR.data) && !hasPR.data.length) {
               const result = await github.rest.pulls.create({
@@ -51,6 +52,7 @@ jobs:
                   '`bundle update` revealed the following gems have new version to be evaluated for update.'
                 ].join('\n')
               });
+              console.log('result:');
               console.log(JSON.stringify({ data: result.data, status: result.status }, null, 4));
               const labelResult = await github.rest.issues.addLabels({
                 owner,
@@ -58,5 +60,6 @@ jobs:
                 issue_number: result.data.number,
                 labels: ['automation', 'rn-no-release-notes']
               });
+              console.log('labelResult:');
               console.log(JSON.stringify({ data: labelResult.data, status: labelResult.status }, null, 4));
             }
