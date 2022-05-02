@@ -33,10 +33,14 @@ jobs:
         with:
           script: |
             const { repo, owner } = context.repo;
+            console.log('repo:');
+            console.log(JSON.stringify(repo, null, 4));
+            console.log('owner:');
+            console.log(JSON.stringify(owner, null, 4));
             const hasPR = await github.rest.pulls.list({
               owner,
               repo,
-              head: '${{ github.ref_name }}' 
+              head: owner + ':' + '${{ github.ref_name }}' 
             });
             console.log('hasPR:');
             console.log(JSON.stringify({ data: hasPR.data, status: hasPR.status }, null, 4));
