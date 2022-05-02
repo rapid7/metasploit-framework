@@ -394,8 +394,8 @@ protected
             resp['Content-Type'] = 'application/octet-stream'
             resp.body = blob
 
-          rescue NoMethodError
-            print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.")
+          rescue NoMethodError => e
+            print_error("#{e} Staging failed. This can occur when stageless listeners are used with staged payloads.")
             return
           end
         end
