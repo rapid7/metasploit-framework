@@ -1,4 +1,3 @@
-
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex'
 
@@ -10,20 +9,24 @@ class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Testing Meterpreter Search',
-        'Description'   => %q{ This module will test the meterpreter search method },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'timwr'],
-        'Platform'      => [ 'windows', 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Testing Meterpreter Search',
+        'Description' => %q{ This module will test the meterpreter search method },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'timwr'],
+        'Platform' => [ 'windows', 'linux', 'java' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
     register_options(
       [
-        OptBool.new("AddEntropy" , [false, "Add entropy token to file and directory names.", false]),
-        OptString.new("BaseFileName" , [true, "File/dir base name", "meterpreter-test"])
-      ], self.class)
+        OptBool.new("AddEntropy", [false, "Add entropy token to file and directory names.", false]),
+        OptString.new("BaseFileName", [true, "File/dir base name", "meterpreter-test"])
+      ], self.class
+    )
   end
 
   def setup
@@ -38,7 +41,7 @@ class MetasploitModule < Msf::Post
     session.fs.dir.chdir(tmp)
 
     if datastore["AddEntropy"]
-      entropy_value = '-' + ('a'..'z').to_a.shuffle[0,8].join
+      entropy_value = '-' + ('a'..'z').to_a.shuffle[0, 8].join
     else
       entropy_value = ""
     end

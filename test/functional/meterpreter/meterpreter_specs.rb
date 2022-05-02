@@ -1,11 +1,10 @@
 module MsfTest
-module MeterpreterSpecs
-
-  def self.included(base)
-        	base.class_eval do
-
-    it "should not error when running each command" do
-        commands = [ 	"?",
+  module MeterpreterSpecs
+    def self.included(base)
+      base.class_eval do
+        it "should not error when running each command" do
+          commands = [
+            "?",
             "background",
             "bgkill",
             "bglist",
@@ -15,9 +14,9 @@ module MeterpreterSpecs
             "exit",
             "help",
             "interact",
-            #"irb",
+            # "irb",
             "migrate",
-            #"quit",
+            # "quit",
             "read",
             "run",
             "use",
@@ -27,7 +26,7 @@ module MeterpreterSpecs
             "cd",
             "del",
             "download",
-            #"edit",
+            # "edit",
             "getlwd",
             "getwd",
             "lcd",
@@ -50,11 +49,11 @@ module MeterpreterSpecs
             "getuid",
             "kill",
             "ps",
-            #"reboot",
+            # "reboot",
             "reg",
             "rev2self",
-            #"shell",
-            #"shutdown",
+            # "shell",
+            # "shutdown",
             "steal_token",
             "sysinfo",
             "enumdesktops",
@@ -69,41 +68,43 @@ module MeterpreterSpecs
             "getsystem",
             "hashdump",
             "timestomp"
-            ]
+          ]
 
-        ## Run each command, check for execeptions
-        commands.each do |command|
-          hlp_run_command_check_output("basic_#{command}",command)
+          ## Run each command, check for execeptions
+          commands.each do |command|
+            hlp_run_command_check_output("basic_#{command}", command)
+          end
         end
-      end	
 
-      it "should not error when running help" do
-        success_strings = [ 	'Core Commands',
-              'Stdapi: File system Commands',
-              'Stdapi: Networking Commands',
-              'Stdapi: System Commands',
-              'Stdapi: User interface Commands']
-          
-        hlp_run_command_check_output("help","help", success_strings)
+        it "should not error when running help" do
+          success_strings = [
+            'Core Commands',
+            'Stdapi: File system Commands',
+            'Stdapi: Networking Commands',
+            'Stdapi: System Commands',
+            'Stdapi: User interface Commands'
+          ]
+
+          hlp_run_command_check_output("help", "help", success_strings)
+        end
+
+        it "should not error when running the help shortcut" do
+          success_strings = [
+            'Core Commands',
+            'Stdapi: File system Commands',
+            'Stdapi: Networking Commands',
+            'Stdapi: System Commands',
+            'Stdapi: User interface Commands'
+          ]
+
+          hlp_run_command_check_output("help_shortcut", "?", success_strings)
+        end
+
+        it "should not error when checking for background channels" do
+          success_strings = [ 'No active channels.' ]
+          hlp_run_command_check_output("channel_list_empty", "channel -l", success_strings)
+        end
       end
-  
-      it "should not error when running the help shortcut" do
-        success_strings = [ 	'Core Commands',
-              'Stdapi: File system Commands',
-              'Stdapi: Networking Commands',
-              'Stdapi: System Commands',
-              'Stdapi: User interface Commands' ]
-          
-        hlp_run_command_check_output("help_shortcut","?", success_strings)
-      end	
-    
-      it "should not error when checking for background channels" do
-        success_strings = [ 'No active channels.' ]
-        hlp_run_command_check_output("channel_list_empty","channel -l", success_strings)
-      end
-  
     end
   end
-
-end
 end
