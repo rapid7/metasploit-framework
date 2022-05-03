@@ -111,4 +111,63 @@ class MetasploitModule < Msf::Post
       end
     end
   end
+
+  def test_cmd_exec_channelized
+    vprint_status("Starting cmd_exec channelized tests")
+
+    it "should run a channelized command and wait for output" do
+      test_string = Rex::Text.rand_text_alpha(4)
+      timeout = 15
+      channel_count = session.channels.count
+
+      if session.platform.eql? 'windows'
+        output = cmd_exec("cmd.exe", "/c echo #{test_string}", timeout, { 'Channelized' => true})
+        output = output.rstrip
+      else
+        output = cmd_exec("echo #{test_string}", nil, timeout, { 'Channelized' => true})
+      end
+
+      # Ensure we are not leaving behind dead channels
+      output == test_string && session.channels.count == channel_count
+    end
+
+    it "should run non-channelized command and not wait for output" do
+      test_string = Rex::Text.rand_text_alpha(4)
+      timeout = 15
+      channel_count = session.channels.count
+
+      if session.platform.eql? 'windows'
+        output = cmd_exec("cmd.exe", "/c echo #{test_string}", timeout, { 'Channelized' => false})
+      else
+        output = cmd_exec("echo #{test_string}", nil, timeout, { 'Channelized' => false})
+      end
+
+      # Non-channelized cmd_exec calls default to an empty string
+      output == '' && session.channels.count == channel_count
+    end
+
+    it "should run a mixture of channelized/non-channelized commands" do
+      test_string_first = Rex::Text.rand_text_alpha(4)
+      test_string_second = Rex::Text.rand_text_alpha(4)
+      timeout = 15
+      channel_count = session.channels.count
+
+      if session.platform.eql? 'windows'
+        output_first = cmd_exec("cmd.exe", "/c echo #{test_string_first}", timeout, { 'Channelized' => true})
+        output_first = output_first.rstrip
+        output_non_channelized = cmd_exec("cmd.exe", "/c echo #{test_string_first}", timeout, { 'Channelized' => false})
+        output_second = cmd_exec("cmd.exe", "/c echo #{test_string_second}", timeout, { 'Channelized' => true})
+        output_second = output_second.rstrip
+      else
+        output_first = cmd_exec("echo #{test_string_first}", nil, timeout, { 'Channelized' => true})
+        output_non_channelized = cmd_exec("echo #{test_string_first}", nil, timeout, { 'Channelized' => false})
+        output_second = cmd_exec("echo #{test_string_second}", nil, timeout, { 'Channelized' => true})
+      end
+
+      output_first == test_string_first &&
+        output_second == test_string_second &&
+        output_non_channelized == '' &&
+        session.channels.count == channel_count
+    end
+  end
 end
