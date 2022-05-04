@@ -29,7 +29,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.83)
+      metasploit-payloads (= 2.0.85)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.18)
       mqtt
@@ -128,13 +128,13 @@ GEM
       activerecord (>= 3.1.0, < 8)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.579.0)
-    aws-sdk-core (3.130.1)
+    aws-partitions (1.581.0)
+    aws-sdk-core (3.130.2)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.307.0)
+    aws-sdk-ec2 (1.309.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.68.0)
@@ -143,7 +143,7 @@ GEM
     aws-sdk-kms (1.56.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.113.0)
+    aws-sdk-s3 (1.113.2)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
@@ -264,7 +264,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-payloads (2.0.83)
+    metasploit-payloads (2.0.85)
     metasploit_data_models (5.0.5)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -445,7 +445,7 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.1.0)
+    ruby_smb (3.1.1)
       bindata
       openssl-ccm
       openssl-cmac

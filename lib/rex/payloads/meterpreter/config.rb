@@ -12,6 +12,7 @@ class Rex::Payloads::Meterpreter::Config
   PROXY_USER_SIZE = 64
   PROXY_PASS_SIZE = 64
   CERT_HASH_SIZE = 20
+  LOG_PATH_SIZE = 260 # https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
 
   def initialize(opts={})
     @opts = opts
@@ -33,6 +34,7 @@ private
   end
 
   def to_str(item, size)
+
     if item.size >= size  # ">=" instead of only ">", because we need space for a terminating null byte (for string handling in C)
       raise Msf::PayloadItemSizeError.new(item, size - 1)
     end
@@ -58,16 +60,20 @@ private
     else
       session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
     end
-
     session_data = [
       0,                  # comms socket, patched in by the stager
       exit_func,          # exit function identifer
       opts[:expiration],  # Session expiry
       uuid,               # the UUID
-      session_guid        # the Session GUID
+      session_guid,        # the Session GUID
     ]
+    pack_string = 'QVVA*A*'
+    if opts[:debug_build]
+      session_data << to_str(opts[:log_path] || '', LOG_PATH_SIZE) # Path to log file on remote target
+      pack_string << 'A*'
+    end
 
-    session_data.pack('QVVA*A*')
+    session_data.pack(pack_string)
   end
 
   def transport_block(opts)
