@@ -88,8 +88,24 @@ module Msf
         ds = opts[:datastore] || datastore
         {
           debug_build: (ds[:debug_build] || datastore['MeterpreterDebugBuild']),
-          log_path:    (ds[:log_path] || Msf::OptMeterpreterDebugLogging.parse_logging_options(datastore['MeterpreterDebugLogging'])[:rpath])
+          log_path:    (ds[:log_path] || parse_rpath)
         }
+      end
+
+      def mettle_logging_config(opts = {})
+        ds = opts[:datastore] || datastore
+        debug_build = ds[:debug_build] || datastore['MeterpreterDebugBuild']
+        log_path = ds[:log_path] || parse_rpath
+        {
+          debug: debug_build ? 3 : 0,
+          log_file: log_path
+        }
+      end
+
+      private
+
+      def parse_rpath
+        Msf::OptMeterpreterDebugLogging.parse_logging_options(datastore['MeterpreterDebugLogging'])[:rpath]
       end
     end
   end

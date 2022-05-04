@@ -36,7 +36,7 @@ module MetasploitModule
     opts = {
       scheme: 'https',
       stageless: true
-    }
+    }.merge(mettle_logging_config())
     MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :exec
   end
 end
