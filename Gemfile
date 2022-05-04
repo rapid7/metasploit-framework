@@ -46,5 +46,3 @@ group :test do
   gem 'timecop'
 end
 
-# remove before https://github.com/rapid7/metasploit-framework/pull/16481 is landed
-gem 'ruby_smb', git: 'https://github.com/zeroSteiner/ruby_smb', branch: 'test/msf/16481'
