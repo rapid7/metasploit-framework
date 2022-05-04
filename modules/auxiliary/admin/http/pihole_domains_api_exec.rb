@@ -100,8 +100,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # check if we got hit by a login prompt
     if res && res.body.include?('Sign in to start your session')
-      cookie = login
-      fail_with(Failure::BadConfig, 'Incorrect Password') if cookie.nil?
+      res = login(datastore['PASSWORD'])
+      fail_with(Failure::BadConfig, 'Incorrect Password') if res.nil?
     end
 
     token = get_token('api')
