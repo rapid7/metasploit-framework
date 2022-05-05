@@ -62,7 +62,7 @@ module Msf::Sessions
           begin
             # We didn't receive anything - let's wait for some more
             @received_stdout_event.wait(time_remaining)
-          rescue TimeoutError
+          rescue ::Timeout::Error
           end
           # rubocop:enable Lint/SuppressedException
           # If we didn't get anything, let's hurry the background thread along
@@ -118,7 +118,7 @@ module Msf::Sessions
             begin
               @check_stdin_event.wait(loop_delay)
               # rubocop:disable Lint/SuppressedException
-            rescue TimeoutError
+            rescue ::Timeout::Error
             end
             # rubocop:enable Lint/SuppressedException
             Thread.pass
