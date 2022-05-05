@@ -644,39 +644,20 @@ module Msf::Post::File
 
   private
 
-  def grab_icacls_groups(input_string)
-    final_groups_array = []
-    icacls_groups_array = input_string.scan(/^.+? (.+?\\.+?):/)
-    for i in 0...icacls_groups_array.length
-      final_groups_array << icacls_groups_array[i][0].strip # Strip any leading or trailing characters off of each of the groups found via the regex.
+  #
+  # Find the groups associated with a given path as well as the permissions each group has
+  # for that path and return this information as a hash to the caller.
+  #
+  # @return [Hash] Hash listing permissions each group has on the given path.
+  def find_icacls_permissions(path)
+    icacls_output_raw = cmd_exec("icacls \"#{path}\"").to_s
+    permissions_hash = {}
+    icacls_output_raw.lines(chomp: true).each do |line|
+      next unless line =~ /:\(/
+      group, perms = line.gsub(path, '').gsub(/^\s+/, '').split(':')
+      permissions_hash[group] = perms.gsub('(', '').gsub(',', ')').split(')')
     end
-    final_groups_array
-  end
-
-  #
-  # Parse a string, +input_string+, containing icacls output and filters it to find
-  # what groups are allowed to access the file that icacls was run on, and which
-  # permissions these groups have on that file.
-  #
-  # The resulting array that is returned is a multidimensional array where each
-  # element in the array is another array containing the name of the group as
-  # its first element, followed by an array containing the permissions
-  # that the group has on the file.
-  #
-  # @param input_string [String] String containing icacls output to parse for group permissions.
-  # @return [Array] Multidimensonal array containing the groups which have access to the file and what permissions they have on the file.
-  def grab_icacls_groups_permissions(input_string)
-    final_permissions_array = []
-    icacls_groups_permissions_array = input_string.scan(/\w:(\(.*\))$/)
-    for i in 0...icacls_groups_permissions_array.length
-      icacls_groups_permissions_array[i][0].strip! # Strip any leading or trailing characters off of each of the group permissions found via the regex.
-
-      # Permissions can exist inside a () section as comma delimited entries. To solve this we first remove the ( and ) characters,
-      # then we split the list on the delimiter, aka the comma character, before finally appending the resulting array to the end of
-      # final_permissions_array.
-      final_permissions_array << icacls_groups_permissions_array[i][0].gsub(/[()]/, '').split(',')
-    end
-    final_permissions_array
+    permissions_hash
   end
 
   #
@@ -707,10 +688,6 @@ module Msf::Post::File
   def check_win_path_permissions(path, perms)
     # Next check if icacls exists as a command on the target system, and switch to calcs if not.
     if command_exists?('icacls')
-      # Grab permissions of the path in question and extract relevant info using a regex.
-      # Also strip extra whitespace before comparison occurs.
-      icacls_output_raw = cmd_exec("icacls \"#{path}\"").to_s
-
       # Perform the actual regex extraction to determine what groups are permitted to
       # access the file and what permissions each of those groups has on the file.
       # For reference this is what the output from running "icacls" on win32kfull.sys looks like:
@@ -725,12 +702,7 @@ module Msf::Post::File
       # Successfully processed 1 files; Failed processing 0 files
       #
       # C:\Users>
-      icacls_groups_array = grab_icacls_groups(icacls_output_raw)
-      icacls_groups_permissions_array = grab_icacls_groups_permissions(icacls_output_raw)
-
-      # Now that we have both the groups and the associated permissions for each group, zip this info together
-      # into a multidimensional array so that each group is contained with its corresponding permissions.
-      permissions_file_array = icacls_groups_array.zip(icacls_groups_permissions_array)
+      file_icacls_groups = find_icacls_permissions(icacls_output_raw)
 
       # Grab info on the groups the current user belongs to so that we can do our comparisons.
       # The following output shows what this might look like, showing that we get a group name
@@ -765,17 +737,12 @@ module Msf::Post::File
 
       cuser_groups_array = win_find_current_user_groups
 
-      # Yes its nested array hell, but until I have a
-      # better approach it is what it is.
-      #
-      # Loop around and for each group our user is a part of,
-      # see if that group has the desired permissions on the specified path.
-      for group in cuser_groups_array
-        for entry in permissions_file_array
-          next unless entry[0].include?(group)
-
-          for perm in perms
-            return true if entry[1].include?(perm)
+      # For each group our user is a part of, see if that group has the
+      # desired permissions on the specified path.
+      cuser_groups_array.each do |group|
+        perms.each do |perm|
+          file_icacls_groups[group].include? perm
+            return true
           end
         end
       end
