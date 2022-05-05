@@ -29,4 +29,10 @@ module MetasploitModule
 
     cmd_psh_payload(payload, ARCH_X86, remove_comspec: true)
   end
+
+  def generate_payload_uuid(conf = {})
+    conf[:arch] ||= module_info['AdaptedArch']
+    conf[:platform] ||= module_info['AdaptedPlatform']
+    super
+  end
 end
