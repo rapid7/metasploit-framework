@@ -395,7 +395,8 @@ protected
             resp.body = blob
 
           rescue NoMethodError => e
-            print_error("#{e} Staging failed. This can occur when stageless listeners are used with staged payloads.")
+            print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.\n#{e}")
+            elog(e)
             return
           end
         end

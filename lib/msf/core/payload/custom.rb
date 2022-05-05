@@ -3,7 +3,7 @@
 #
 module Msf::Payload::Custom
 
-  def dynamic_stage_size?
+  def read_stage_size?
     true
   end
 end

