@@ -78,7 +78,8 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
+    config_opts = {scheme: 'tcp'}.merge(mettle_logging_config(opts))
     MetasploitPayloads::Mettle.new('armv5l-linux-musleabi',
-      generate_config(opts.merge({scheme: 'tcp'}))).to_binary :process_image
+      generate_config(opts.merge(config_opts))).to_binary :process_image
   end
 end

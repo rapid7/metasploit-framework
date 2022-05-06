@@ -23,9 +23,6 @@ module MetasploitModule
       'Stager'      => { 'RequiresMidstager' => false }, # Originally set to true, but only Linux payloads use this at the moment, not OSX.
       'Convention'  => 'sockedi',
     ))
-    register_options([
-      OptInt.new('MeterpreterDebugLevel', [ true, "Set debug level for meterpreter 0-3 (Default output is strerr)", 0])
-    ])
   end
 
   def generate(opts = {})
