@@ -741,7 +741,7 @@ module Msf::Post::File
       # desired permissions on the specified path.
       cuser_groups_array.each do |group|
         perms.each do |perm|
-          file_icacls_groups[group].include? perm
+          if file_icacls_groups[group].include?(perm)
             return true
           end
         end
