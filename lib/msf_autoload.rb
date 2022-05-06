@@ -51,6 +51,7 @@ class MsfAutoload
 
   def ignore_list
     [
+      "#{__dir__}/msf/core/modules/external/go/pkg",
       "#{__dir__}/msf/core/constants.rb",
       "#{__dir__}/msf/core/cert_provider.rb",
       "#{__dir__}/msf/core/rpc/json/",
