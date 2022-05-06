@@ -71,13 +71,13 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options used by the 'reg' command.
   #
   @@reg_opts = Rex::Parser::Arguments.new(
-    "-d" => [ true,  "The data to store in the registry value."		   ],
-    "-h" => [ false, "Help menu."						   ],
-    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."	   ],
-    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."		   ],
-    "-v" => [ true,  "The registry value name (E.g. Stuff)."		   ],
+    "-d" => [ true,  "The data to store in the registry value." ],
+    "-h" => [ false, "Help menu." ],
+    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)." ],
+    "-t" => [ true,  "The registry value type (E.g. REG_SZ)." ],
+    "-v" => [ true,  "The registry value name (E.g. Stuff)." ],
     "-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."		   ])
+    "-w" => [ true,  "Set KEY_WOW64 flag, valid values [32|64]." ])
 
   #
   # Options for the 'ps' command.
