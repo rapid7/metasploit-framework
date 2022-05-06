@@ -9,7 +9,8 @@ module MetasploitModule
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
-  include Msf::Sessions::MettleConfig
+  include Msf::Sessions::MettleConfig<% unless mixin.empty? %>
+  include Msf::Payload::<%= mixin %><% end %>
 
   def initialize(info = {})
     super(

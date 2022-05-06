@@ -13,34 +13,36 @@ schemes = [
 ]
 
 arches = [
-  ['aarch64',   'Linux', 'aarch64-linux-musl'],
-  ['armbe',     'Linux', 'armv5b-linux-musleabi'],
-  ['armle',     'Linux', 'armv5l-linux-musleabi'],
-  ['mips64',    'Linux', 'mips64-linux-muslsf'],
-  ['mipsbe',    'Linux', 'mips-linux-muslsf'],
-  ['mipsle',    'Linux', 'mipsel-linux-muslsf'],
-  ['ppc',       'Linux', 'powerpc-linux-muslsf'],
-  ['ppce500v2', 'Linux', 'powerpc-e500v2-linux-musl'],
-  ['ppc64le',   'Linux', 'powerpc64le-linux-musl'],
-  ['x64',       'Linux', 'x86_64-linux-musl'],
-  ['x86',       'Linux', 'i486-linux-musl'],
-  ['zarch',     'Linux', 's390x-linux-musl'],
-  ['x64',       'OSX',   'x86_64-apple-darwin'],
-  ['aarch64',   'Apple_iOS',   'aarch64-iphone-darwin'],
-  ['armle',     'Apple_iOS',   'arm-iphone-darwin'],
+  ['aarch64',   'Linux', 'aarch64-linux-musl', 'Linux'],
+  ['armbe',     'Linux', 'armv5b-linux-musleabi', 'Linux'],
+  ['armle',     'Linux', 'armv5l-linux-musleabi', 'Linux'],
+  ['mips64',    'Linux', 'mips64-linux-muslsf', 'Linux'],
+  ['mipsbe',    'Linux', 'mips-linux-muslsf', 'Linux'],
+  ['mipsle',    'Linux', 'mipsel-linux-muslsf', 'Linux'],
+  ['ppc',       'Linux', 'powerpc-linux-muslsf', 'Linux'],
+  ['ppce500v2', 'Linux', 'powerpc-e500v2-linux-musl', 'Linux'],
+  ['ppc64le',   'Linux', 'powerpc64le-linux-musl', 'Linux'],
+  ['x64',       'Linux', 'x86_64-linux-musl', 'Linux'],
+  ['x86',       'Linux', 'i486-linux-musl', 'Linux'],
+  ['zarch',     'Linux', 's390x-linux-musl', 'Linux'],
+  ['x64',       'OSX',   'x86_64-apple-darwin', 'Osx'],
+  ['aarch64',   'Apple_iOS',   'aarch64-iphone-darwin', ''],
+  ['armle',     'Apple_iOS',   'arm-iphone-darwin', ''],
 ]
 
 arch = ''
 payload = ''
 platform = ''
+mixin = ''
 scheme = ''
 cwd = File::dirname(__FILE__)
 
-arches.each do |a, pl, pa|
+arches.each do |a, pl, pa, mix|
   schemes.each do |s|
     arch = a
     platform = pl
     payload = pa
+    mixin = mix
     scheme = s
 
     template = File::read(File::join(cwd, "meterpreter_reverse.erb"))
