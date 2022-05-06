@@ -149,14 +149,14 @@ class Client
     opts['ssl'] = self.ssl
     opts['ctype'] ||= 'application/x-www-form-urlencoded' if opts['method'] == 'POST'
 
-    if opts['files']
-      unless opts['files'].is_a?(::Array)
-        raise ::ArgumentError, "request_cgi: The provided `files` option is not valid. Expected: Array, Got: #{opts['files'].class}"
+    if opts['form_data']
+      unless opts['form_data'].is_a?(::Array)
+        raise ::ArgumentError, "request_cgi: The provided `form_data` option is not valid. Expected: Array, Got: #{opts['form_data'].class}"
       end
 
       file_data = Rex::MIME::Message.new
 
-      opts['files'].each do |file_hash|
+      opts['form_data'].each do |file_hash|
         # The name of the HTTP form field
         field_name = file_hash['name'].is_a?(::String) ? file_hash['name'] : nil
 
