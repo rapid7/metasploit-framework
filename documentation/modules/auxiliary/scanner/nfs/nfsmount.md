@@ -2,7 +2,7 @@
 
 NFS is very common, and this scanner searches for a mis-configuration, not a vulnerable software version.
 Installation instructions for NFS can be found for every operating system.
-The [Ubuntu 14.04](https://help.ubuntu.com/14.04/serverguide/network-file-system.html)
+The [Ubuntu](https://ubuntu.com/server/docs/service-nfs)
 instructions can be used as an example for installing and configuring NFS.  The
 following was done on Kali linux:
 

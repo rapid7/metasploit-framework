@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Nfs
 
   def initialize
     super(
@@ -17,15 +18,13 @@ class MetasploitModule < Msf::Auxiliary
       'Author'	=> ['<tebo[at]attackresearch.com>'],
       'References' => [
         ['CVE', '1999-0170'],
-        ['URL',	'https://www.ietf.org/rfc/rfc1094.txt']
+        ['URL', 'https://www.ietf.org/rfc/rfc1094.txt']
       ],
       'License'	=> MSF_LICENSE
     )
 
     register_options([
-      OptEnum.new('PROTOCOL', [ true, 'The protocol to use', 'udp', ['udp', 'tcp']]),
-      OptAddressLocal.new('LHOST', [false, 'IP to match shares against', Rex::Socket.source_address]),
-      OptString.new('HOSTNAME', [false, 'Hostname to match shares against', ''])
+      OptEnum.new('PROTOCOL', [ true, 'The protocol to use', 'udp', ['udp', 'tcp']])
     ])
 
     register_advanced_options(
@@ -33,27 +32,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('Mountable', [false, 'Determine if an export is mountable', true]),
       ]
     )
-  end
-
-  def can_mount?(locations)
-    # attempts to validate if we'll be able to open it or not based on:
-    # 1. its a wildcard, thus we can open it
-    # 2. hostname isn't blank and its in the list
-    # 3. our IP is explicitly listed
-    # 4. theres a CIDR notation that we're included in.
-    return true unless datastore['Mountable']
-    return true if locations.include? '*' ||
-                                      (locations.include?(datastore['HOSTNAME']) && !datastore['HOSTNAME'].blank?) ||
-                                      locations.include?(datastore['LHOST'])
-
-    locations.each do |location|
-      # if it has a subnet mask, convert it to cidr
-      if %r{(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})} =~ location
-        location = "#{Regexp.last_match(1)}#{Rex::Socket.addr_atoc(Regexp.last_match(2))}"
-      end
-      return true if Rex::Socket::RangeWalker.new(location).include?(datastore['LHOST'])
-    end
-    false
   end
 
   def run_host(ip)
@@ -85,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         grp << Rex::Encoder::XDR.decode_string!(resp) while Rex::Encoder::XDR.decode_int!(resp) == 1
 
         if can_mount? grp
-          print_good("#{ip} NFS Export: #{dir} [#{grp.join(', ')}]")
+          print_good("#{ip} Mountable NFS Export: #{dir} [#{grp.join(', ')}]")
         else
           print_status("#{ip} NFS Export: #{dir} [#{grp.join(', ')}]")
         end
