@@ -252,13 +252,13 @@ RSpec.describe Rex::Proto::Http::Client do
     let(:file) do
       ::File.open(file_path, 'rb')
     end
-    let(:mock_boundary) do
-      '-----------------------------MockBoundary1234'
+    let(:mock_boundary_suffix) do
+      'MockBoundary1234'
     end
 
     before(:each) do
       file.rewind
-      allow(Rex::Text).to receive(:rand_text_numeric).with(30).and_return('MockBoundary1234')
+      allow(Rex::Text).to receive(:rand_text_numeric).with(30).and_return(mock_boundary_suffix)
     end
 
     it 'should parse field name and file object as data' do
@@ -275,16 +275,16 @@ RSpec.describe Rex::Proto::Http::Client do
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 247\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 #{file_contents}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -301,16 +301,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 247\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: binary\r
 \r
 #{file.read}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -327,16 +327,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 243\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="field1"; filename="my_file.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: binary\r
 \r
 #{file.read}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -357,16 +357,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 234\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file1"; filename="file1"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 #{data}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -384,16 +384,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 234\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file1"; filename="file1"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 #{data}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -411,16 +411,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 240\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 #{data}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -438,16 +438,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 226\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file1"; filename="file1"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 #{data}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -467,16 +467,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 241\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 #{str}\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -494,16 +494,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 231\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="nil_value"; filename="nil_value"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 \r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -521,22 +521,22 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 339\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 123\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 456\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
       EOF
 
       expect(request.to_s).to eq(expected)
@@ -553,16 +553,16 @@ Content-Transfer-Encoding: 8bit\r
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 191\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 \r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -582,34 +582,34 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 632\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 123\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 456\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 789\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 101112\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -626,16 +626,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 239\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="field1"; filename="field1"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: binary\r
 \r
 [5, "hello"]\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -656,34 +656,34 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 820\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 file1_content\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 file2_content\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 file2_content\r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 file.txt\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -700,16 +700,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 242\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(form_data[0]['filename'])}"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 abc\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -726,16 +726,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 244\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(form_data[0]['filename'])}"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: base64\r
 \r
 abc\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -752,16 +752,16 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 224\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="example_name"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
 example_data\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
       expect(request.to_s).to eq(expected)
     end
@@ -777,15 +777,15 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 216\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="example_name"; filename="example_name"\r
 Content-Type: text/plain\r
 \r
 example_data\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
 EOF
 
       expect(request.to_s).to eq(expected)
@@ -802,15 +802,15 @@ EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
 User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=#{mock_boundary[2..-1]}\r
+Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
 Content-Length: 223\r
 \r
-#{mock_boundary}\r
+-----------------------------MockBoundary1234\r
 Content-Disposition: form-data; name="example_name"; filename="example_name"\r
 Content-Transfer-Encoding: 8bit\r
 \r
 example_data\r
-#{mock_boundary}--\r
+-----------------------------MockBoundary1234--\r
       EOF
 
       expect(request.to_s).to eq(expected)
