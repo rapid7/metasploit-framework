@@ -12,37 +12,37 @@ schemes = [
   'https'
 ]
 
-arches = [
-  ['aarch64',   'Linux', 'aarch64-linux-musl', 'Linux'],
-  ['armbe',     'Linux', 'armv5b-linux-musleabi', 'Linux'],
-  ['armle',     'Linux', 'armv5l-linux-musleabi', 'Linux'],
-  ['mips64',    'Linux', 'mips64-linux-muslsf', 'Linux'],
-  ['mipsbe',    'Linux', 'mips-linux-muslsf', 'Linux'],
-  ['mipsle',    'Linux', 'mipsel-linux-muslsf', 'Linux'],
-  ['ppc',       'Linux', 'powerpc-linux-muslsf', 'Linux'],
-  ['ppce500v2', 'Linux', 'powerpc-e500v2-linux-musl', 'Linux'],
-  ['ppc64le',   'Linux', 'powerpc64le-linux-musl', 'Linux'],
-  ['x64',       'Linux', 'x86_64-linux-musl', 'Linux'],
-  ['x86',       'Linux', 'i486-linux-musl', 'Linux'],
-  ['zarch',     'Linux', 's390x-linux-musl', 'Linux'],
-  ['x64',       'OSX',   'x86_64-apple-darwin', 'Osx'],
-  ['aarch64',   'Apple_iOS',   'aarch64-iphone-darwin', ''],
-  ['armle',     'Apple_iOS',   'arm-iphone-darwin', ''],
+arch_list = [
+  { arch: 'aarch64',   platform: 'Linux', payload: 'aarch64-linux-musl', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'armbe',     platform: 'Linux', payload: 'armv5b-linux-musleabi', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'armle',     platform: 'Linux', payload: 'armv5l-linux-musleabi', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'mips64',    platform: 'Linux', payload: 'mips64-linux-muslsf', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'mipsbe',    platform: 'Linux', payload: 'mips-linux-muslsf', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'mipsle',    platform: 'Linux', payload: 'mipsel-linux-muslsf', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'ppc',       platform: 'Linux', payload: 'powerpc-linux-muslsf', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'ppce500v2', platform: 'Linux', payload: 'powerpc-e500v2-linux-musl', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'ppc64le',   platform: 'Linux', payload: 'powerpc64le-linux-musl', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'x64',       platform: 'Linux', payload: 'x86_64-linux-musl', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'x86',       platform: 'Linux', payload: 'i486-linux-musl', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'zarch',     platform: 'Linux', payload: 's390x-linux-musl', mixins: ['Msf::Payload::Linux'] },
+  { arch: 'x64',       platform: 'OSX',   payload: 'x86_64-apple-darwin', mixins: ['Msf::Payload::Osx'] },
+  { arch: 'aarch64',   platform: 'Apple_iOS',   payload: 'aarch64-iphone-darwin', mixins: [] },
+  { arch: 'armle',     platform: 'Apple_iOS',   payload: 'arm-iphone-darwin', mixins: [] },
 ]
 
 arch = ''
 payload = ''
 platform = ''
-mixin = ''
+mixins = ''
 scheme = ''
 cwd = File::dirname(__FILE__)
 
-arches.each do |a, pl, pa, mix|
+arch_list.each do |arch_hash|
   schemes.each do |s|
-    arch = a
-    platform = pl
-    payload = pa
-    mixin = mix
+    arch = arch_hash[:arch]
+    platform = arch_hash[:platform]
+    payload = arch_hash[:payload]
+    mixins = arch_hash[:mixins].join("\n  include ")
     scheme = s
 
     template = File::read(File::join(cwd, "meterpreter_reverse.erb"))
