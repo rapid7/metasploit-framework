@@ -1,7 +1,5 @@
 # -*- coding:binary -*-
 
-require 'rex/mime'
-
 # Note: Some of these tests require a failed
 # connection to 127.0.0.1:1. If you have some crazy local
 # firewall that is dropping packets to this, your tests
@@ -238,7 +236,7 @@ RSpec.describe Rex::Proto::Http::Client do
     expect {cli.port}.to raise_error NoMethodError
   end
 
-  context 'with form_data' do
+  context 'with vars_form_data' do
     subject(:cli) do
       cli = Rex::Proto::Http::Client.new(ip)
       cli.config['data'] = ''
@@ -257,20 +255,20 @@ RSpec.describe Rex::Proto::Http::Client do
     end
 
     before(:each) do
-      file.rewind
       allow(Rex::Text).to receive(:rand_text_numeric).with(30).and_return(mock_boundary_suffix)
     end
 
     it 'should parse field name and file object as data' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'field1', 'data' => file }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       # We are gsub'ing here as HttpClient does this gsub to non-binary file data
+      require 'pry'; binding.pry
       file_contents = file.read.gsub("\r", '').gsub("\n", "\r\n")
-
+      require 'pry'; binding.pry
       expected = <<~EOF
 POST / HTTP/1.1\r
 Host: #{ip}\r
@@ -291,11 +289,11 @@ EOF
     end
 
     it 'should parse field name and binary file object as data' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'field1', 'data' => file, 'encoding' => 'binary' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -317,11 +315,11 @@ EOF
     end
 
     it 'should parse field name and binary file object as data with filename override' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'field1', 'data' => file, 'encoding' => 'binary', 'filename' => 'my_file.txt' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -344,11 +342,11 @@ EOF
 
     it 'should parse data correctly when provided with a string' do
       data = 'hello world'
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file1', 'data' => data }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expect(request.to_s).to include('Content-Disposition: form-data; name="file1"')
       expect(request.to_s).to include(data)
@@ -374,11 +372,11 @@ EOF
 
     it 'should parse data correctly when provided with a string and mime type' do
       data = 'hello world'
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -401,11 +399,11 @@ EOF
 
     it 'should parse data correctly when provided with a string, mime type and filename' do
       data = 'hello world'
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -428,11 +426,11 @@ EOF
 
     it 'should parse data correctly when provided with a number' do
       data = 123
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -457,11 +455,11 @@ EOF
       require 'stringio'
 
       str = 'Hello World!'
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file1', 'data' => ::StringIO.new(str), 'mime_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -483,11 +481,11 @@ EOF
     end
 
     it 'should handle nil data values correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'nil_value', 'data' => nil }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       # This could potentially return one less '\r'.
       expected = <<~EOF
@@ -510,12 +508,12 @@ EOF
     end
 
     it 'should handle nil field values correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => nil, 'data' => '123' },
         { 'data' => '456' },
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -543,11 +541,11 @@ Content-Transfer-Encoding: 8bit\r
     end
 
     it 'should handle nil field values and data correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => nil, 'data' => nil }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -569,14 +567,14 @@ EOF
     end
 
     it 'should handle non-string field name values correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => false, 'data' => '123' },
         { 'name' => true, 'data' => '456' },
         { 'name' => ['hello'], 'data' => '789' },
         { 'name' => { k: 'val' }, 'data' => '101112' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -616,11 +614,11 @@ EOF
     end
 
     it 'should handle binary correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'field1', 'data' => "\x05\x00\x68\x65\x6c\x6c\x6f".unpack('Sa*'), 'encoding' => 'binary' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -642,7 +640,7 @@ EOF
     end
 
     it 'should handle duplicate file and field names correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file', 'data' => 'file1_content', 'filename' => 'duplicate.txt' },
         { 'name' => 'file', 'data' => 'file2_content', 'filename' => 'duplicate.txt' },
         { 'name' => 'file', 'data' => 'file2_content', 'filename' => 'duplicate.txt' },
@@ -650,7 +648,7 @@ EOF
         { 'name' => 'file', 'data' => 'file.txt', 'filename' => 'duplicate.txt' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -690,11 +688,11 @@ EOF
     end
 
     it 'should escape special characters in file names correctly without encoding' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'" }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -704,7 +702,7 @@ Content-Type: multipart/form-data; boundary=---------------------------MockBound
 Content-Length: 242\r
 \r
 -----------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(form_data[0]['filename'])}"\r
+Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(vars_form_data[0]['filename'])}"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: 8bit\r
 \r
@@ -716,11 +714,11 @@ EOF
     end
 
     it 'should escape special characters in file names correctly with encoding' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'", 'encoding' => 'base64' }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -730,7 +728,7 @@ Content-Type: multipart/form-data; boundary=---------------------------MockBound
 Content-Length: 244\r
 \r
 -----------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(form_data[0]['filename'])}"\r
+Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(vars_form_data[0]['filename'])}"\r
 Content-Type: text/plain\r
 Content-Transfer-Encoding: base64\r
 \r
@@ -742,11 +740,11 @@ EOF
     end
 
     it 'should handle nil filename values correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'example_name', 'data' => 'example_data', 'filename' => nil }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -767,11 +765,11 @@ EOF
     end
 
     it 'should handle nil encoding values correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'example_name', 'data' => 'example_data', 'encoding' => nil }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
@@ -792,11 +790,11 @@ EOF
     end
 
     it 'should handle nil mime type values correctly' do
-      form_data = [
+      vars_form_data = [
         { 'name' => 'example_name', 'data' => 'example_data', 'mime_type' => nil }
       ]
 
-      request = cli.request_cgi({ 'form_data' => form_data })
+      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
 POST / HTTP/1.1\r
