@@ -266,24 +266,22 @@ RSpec.describe Rex::Proto::Http::Client do
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       # We are gsub'ing here as HttpClient does this gsub to non-binary file data
-      require 'pry'; binding.pry
       file_contents = file.read.gsub("\r", '').gsub("\n", "\r\n")
-      require 'pry'; binding.pry
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 247\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-#{file_contents}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 247\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        #{file_contents}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -296,20 +294,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 247\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: binary\r
-\r
-#{file.read}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 247\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: binary\r
+        \r
+        #{file.read}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -322,20 +320,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 243\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="field1"; filename="my_file.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: binary\r
-\r
-#{file.read}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 243\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="field1"; filename="my_file.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: binary\r
+        \r
+        #{file.read}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -352,20 +350,20 @@ EOF
       expect(request.to_s).to include(data)
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 234\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file1"; filename="file1"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-#{data}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 234\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file1"; filename="file1"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        #{data}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -379,20 +377,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 234\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file1"; filename="file1"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-#{data}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 234\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file1"; filename="file1"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        #{data}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -406,20 +404,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 240\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-#{data}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 240\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        #{data}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -433,20 +431,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 226\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file1"; filename="file1"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-#{data}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 226\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file1"; filename="file1"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        #{data}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -462,20 +460,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 241\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-#{str}\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 241\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        #{str}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -489,20 +487,20 @@ EOF
 
       # This could potentially return one less '\r'.
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 231\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="nil_value"; filename="nil_value"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 231\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="nil_value"; filename="nil_value"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        \r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -516,25 +514,25 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 339\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-123\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-456\r
------------------------------MockBoundary1234--\r
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 339\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        123\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        456\r
+        -----------------------------MockBoundary1234--\r
       EOF
 
       expect(request.to_s).to eq(expected)
@@ -548,20 +546,20 @@ Content-Transfer-Encoding: 8bit\r
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 191\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 191\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        \r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -577,64 +575,65 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 632\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-123\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-456\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-789\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-101112\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 632\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        123\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        456\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        789\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        101112\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
 
     it 'should handle binary correctly' do
+      binary_data = (0..255).map { |x| x.chr }.join
       vars_form_data = [
-        { 'name' => 'field1', 'data' => "\x05\x00\x68\x65\x6c\x6c\x6f".unpack('Sa*'), 'encoding' => 'binary' }
+        { 'name' => 'field1', 'data' => binary_data, 'encoding' => 'binary' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 239\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="field1"; filename="field1"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: binary\r
-\r
-[5, "hello"]\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 483\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="field1"; filename="field1"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: binary\r
+        \r
+        #{binary_data}\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -651,38 +650,38 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 820\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-file1_content\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-file2_content\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-file2_content\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-file.txt\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 820\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        file1_content\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        file2_content\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        file2_content\r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        file.txt\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -695,20 +694,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 242\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(vars_form_data[0]['filename'])}"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-abc\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 242\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file"; filename="%27t+%22e+%27st.txt%27"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        abc\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -721,20 +720,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 244\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="file"; filename="#{::CGI.escape(vars_form_data[0]['filename'])}"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: base64\r
-\r
-abc\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 244\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="file"; filename="%27t+%22e+%27st.txt%27"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: base64\r
+        \r
+        abc\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -747,20 +746,20 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 224\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="example_name"\r
-Content-Type: text/plain\r
-Content-Transfer-Encoding: 8bit\r
-\r
-example_data\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 224\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="example_name"\r
+        Content-Type: text/plain\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        example_data\r
+        -----------------------------MockBoundary1234--\r
+      EOF
       expect(request.to_s).to eq(expected)
     end
 
@@ -772,19 +771,19 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 216\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="example_name"; filename="example_name"\r
-Content-Type: text/plain\r
-\r
-example_data\r
------------------------------MockBoundary1234--\r
-EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 216\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="example_name"; filename="example_name"\r
+        Content-Type: text/plain\r
+        \r
+        example_data\r
+        -----------------------------MockBoundary1234--\r
+      EOF
 
       expect(request.to_s).to eq(expected)
     end
@@ -797,18 +796,18 @@ EOF
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
 
       expected = <<~EOF
-POST / HTTP/1.1\r
-Host: #{ip}\r
-User-Agent: #{request.opts['agent']}\r
-Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-Content-Length: 223\r
-\r
------------------------------MockBoundary1234\r
-Content-Disposition: form-data; name="example_name"; filename="example_name"\r
-Content-Transfer-Encoding: 8bit\r
-\r
-example_data\r
------------------------------MockBoundary1234--\r
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
+        Content-Length: 223\r
+        \r
+        -----------------------------MockBoundary1234\r
+        Content-Disposition: form-data; name="example_name"; filename="example_name"\r
+        Content-Transfer-Encoding: 8bit\r
+        \r
+        example_data\r
+        -----------------------------MockBoundary1234--\r
       EOF
 
       expect(request.to_s).to eq(expected)
