@@ -116,6 +116,8 @@ module DNS
     # @param argument
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
+    #
+    # @return [Dnsruby::Message] DNS response
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       if @config[:nameservers].size == 0
         raise ResolverError, "No nameservers specified!"
@@ -376,14 +378,16 @@ module DNS
     attr_accessor :cache
 
     #
-    # Initialize resolve with cache
+    # Initialize resolver with cache
     #
-    # @param config, Hash, Resolver config
+    # @param config [Hash] Resolver config
+    #
+    # @return nil
     def initialize(config = {})
       super(config)
       self.cache = Rex::Proto::DNS::Cache.new
       # Read hostsfile into cache
-      hf = Rex::Compat.is_windows ? '%WINDIR%/system32/etc/hosts' : '/etc/hosts'
+      hf = Rex::Compat.is_windows ? '%WINDIR%/system32/drivers/etc/hosts' : '/etc/hosts'
       entries = File.read(hf).lines.map(&:strip).select do |entry|
         Rex::Socket.is_ip_addr?(entry.gsub(/\s+/,' ').split(' ').first) and
         not entry.match(/::.*ip6-/)
@@ -424,6 +428,8 @@ module DNS
     # @param argument
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
+    #
+    # @return [Dnsruby::Message] DNS response
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       case argument
       when Dnsruby::Message
