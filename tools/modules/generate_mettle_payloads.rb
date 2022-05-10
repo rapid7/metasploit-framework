@@ -30,25 +30,15 @@ arch_list = [
   { arch: 'armle',     platform: 'Apple_iOS',   payload: 'arm-iphone-darwin', mixins: [] },
 ]
 
-arch = ''
-payload = ''
-platform = ''
-mixins = ''
-scheme = ''
 cwd = File::dirname(__FILE__)
 
 arch_list.each do |arch_hash|
-  schemes.each do |s|
-    arch = arch_hash[:arch]
-    platform = arch_hash[:platform]
-    payload = arch_hash[:payload]
-    mixins = arch_hash[:mixins].join("\n  include ")
-    scheme = s
-
-    template = File::read(File::join(cwd, "meterpreter_reverse.erb"))
-    renderer = ERB.new(template)
-    filename = File::join('modules', 'payloads', 'singles', platform.downcase, arch, "meterpreter_reverse_#{scheme}.rb")
-    File::write(filename, renderer.result())
+  schemes.each do |scheme |
+    arch_hash = arch_hash.merge(scheme: scheme)
+    template = File::read(File::join(cwd, 'meterpreter_reverse.erb'))
+    renderer = ERB.new(template, trim_mode: '-')
+    filename = File::join('modules', 'payloads', 'singles', arch_hash[:platform].downcase, arch_hash[:arch], "meterpreter_reverse_#{scheme}.rb")
+    File::write(filename, renderer.result_with_hash(arch_hash))
   end
 end
 
