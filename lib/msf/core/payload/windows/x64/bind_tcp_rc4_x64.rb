@@ -26,7 +26,7 @@ module Payload::Windows::BindTcpRc4_x64
     }
 
     # Generate the advanced stager if we have space
-    if self.available_space && required_space <= self.available_space
+    if self.available_space && cached_size && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end

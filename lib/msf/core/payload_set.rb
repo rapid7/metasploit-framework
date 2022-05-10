@@ -462,6 +462,7 @@ protected
     aparts = aname.split('/')
     pparts = pname.split('/')
     pparts.shift if aparts.last.start_with?(pparts.first)
+    aparts.each { |apart| pparts.delete(apart) if pparts.include?(apart) }
 
     (aparts + pparts).join('/')
   end

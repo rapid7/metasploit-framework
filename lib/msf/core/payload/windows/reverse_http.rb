@@ -43,7 +43,7 @@ module Payload::Windows::ReverseHttp
     }
 
     # Add extra options if we have enough space
-    if self.available_space.nil? || required_space <= self.available_space
+    if self.available_space.nil? || (cached_size && required_space <= self.available_space)
       conf[:url]            = luri + generate_uri(opts)
       conf[:exitfunk]       = ds['EXITFUNC']
       conf[:ua]             = ds['HttpUserAgent']

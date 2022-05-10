@@ -25,10 +25,25 @@ module Msf::Payload::Adapter
     merge_info_adapted('Platform', info, opt)
   end
 
-  # due to how payloads are made by combining all the modules, this is necessary to ensure that the adapted information
-  # isn't placed into the final object
+  # Due to how payloads are made by combining all the modules, this is necessary to ensure that the adapted information
+  # isn't placed into the final object. The current implementation requires that AdaptedArch/AdaptedPlatform are single
+  # entries and not arrays of entries like the normal Arch/Platform info keys are.
   def merge_info_adapted(key, info, opt)
-    info[key] = [] unless info[key]
-    info[key] << opt unless opt == info["Adapted#{key}"] || info[key].include?(opt)
+    if info[key] && !info[key].kind_of?(Array)
+      info[key] = [ info[key] ]
+    elsif !info[key]
+      info[key] = []
+    end
+
+    if opt.kind_of?(Array)
+      opt.each do |opt_val|
+        next if info["Adapted#{key}"] == opt_val
+        next if info[key].include?(opt_val)
+
+        info[key] << opt_val
+      end
+    elsif opt != info["Adapted#{key}"] && !info[key].include?(opt)
+      info[key] << opt
+    end
   end
 end
