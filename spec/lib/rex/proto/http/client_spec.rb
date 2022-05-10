@@ -258,9 +258,24 @@ RSpec.describe Rex::Proto::Http::Client do
       allow(Rex::Text).to receive(:rand_text_numeric).with(30).and_return(mock_boundary_suffix)
     end
 
+    it 'should not include any form boundary metadata by default' do
+      request = cli.request_cgi({ })
+
+      expected = <<~EOF
+        POST / HTTP/1.1\r
+        Host: #{ip}\r
+        User-Agent: #{request.opts['agent']}\r
+        Content-Type: application/x-www-form-urlencoded\r
+        Content-Length: 0\r
+        \r
+      EOF
+
+      expect(request.to_s).to eq(expected)
+    end
+
     it 'should parse field name and file object as data' do
       vars_form_data = [
-        { 'name' => 'field1', 'data' => file }
+        { 'name' => 'field1', 'data' => file, 'content_type' => 'text/plain' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -272,12 +287,11 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 247\r
+        Content-Length: 214\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
         Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         #{file_contents}\r
         -----------------------------MockBoundary1234--\r
@@ -298,11 +312,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 247\r
+        Content-Length: 221\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="field1"; filename="string_list.txt"\r
-        Content-Type: text/plain\r
         Content-Transfer-Encoding: binary\r
         \r
         #{file.read}\r
@@ -314,7 +327,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
     it 'should parse field name and binary file object as data with filename override' do
       vars_form_data = [
-        { 'name' => 'field1', 'data' => file, 'encoding' => 'binary', 'filename' => 'my_file.txt' }
+        { 'name' => 'field1', 'data' => file, 'encoding' => 'binary', 'content_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -341,25 +354,20 @@ RSpec.describe Rex::Proto::Http::Client do
     it 'should parse data correctly when provided with a string' do
       data = 'hello world'
       vars_form_data = [
-        { 'name' => 'file1', 'data' => data }
+        { 'name' => 'file1', 'data' => data, 'filename' => 'file1' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
-      expect(request.to_s).to include('Content-Disposition: form-data; name="file1"')
-      expect(request.to_s).to include(data)
 
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 234\r
+        Content-Length: 175\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file1"; filename="file1"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         #{data}\r
         -----------------------------MockBoundary1234--\r
@@ -368,10 +376,10 @@ RSpec.describe Rex::Proto::Http::Client do
       expect(request.to_s).to eq(expected)
     end
 
-    it 'should parse data correctly when provided with a string and mime type' do
+    it 'should parse data correctly when provided with a string and content type' do
       data = 'hello world'
       vars_form_data = [
-        { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain' }
+        { 'name' => 'file1', 'data' => data, 'filename' => 'file1', 'content_type' => 'text/plain' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -381,12 +389,11 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 234\r
+        Content-Length: 201\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file1"; filename="file1"\r
         Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         #{data}\r
         -----------------------------MockBoundary1234--\r
@@ -395,10 +402,10 @@ RSpec.describe Rex::Proto::Http::Client do
       expect(request.to_s).to eq(expected)
     end
 
-    it 'should parse data correctly when provided with a string, mime type and filename' do
+    it 'should parse data correctly when provided with a string, content type and filename' do
       data = 'hello world'
       vars_form_data = [
-        { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain', 'filename' => 'my_file.txt' }
+        { 'name' => 'file1', 'data' => data, 'content_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -408,12 +415,11 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 240\r
+        Content-Length: 207\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
         Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         #{data}\r
         -----------------------------MockBoundary1234--\r
@@ -425,7 +431,7 @@ RSpec.describe Rex::Proto::Http::Client do
     it 'should parse data correctly when provided with a number' do
       data = 123
       vars_form_data = [
-        { 'name' => 'file1', 'data' => data, 'mime_type' => 'text/plain' }
+        { 'name' => 'file1', 'data' => data, 'content_type' => 'text/plain' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -435,12 +441,11 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 226\r
+        Content-Length: 175\r
         \r
         -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="file1"; filename="file1"\r
+        Content-Disposition: form-data; name="file1"\r
         Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         #{data}\r
         -----------------------------MockBoundary1234--\r
@@ -454,7 +459,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
       str = 'Hello World!'
       vars_form_data = [
-        { 'name' => 'file1', 'data' => ::StringIO.new(str), 'mime_type' => 'text/plain', 'filename' => 'my_file.txt' }
+        { 'name' => 'file1', 'data' => ::StringIO.new(str), 'content_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -464,12 +469,11 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 241\r
+        Content-Length: 208\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file1"; filename="my_file.txt"\r
         Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         #{str}\r
         -----------------------------MockBoundary1234--\r
@@ -491,12 +495,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 231\r
+        Content-Length: 150\r
         \r
         -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="nil_value"; filename="nil_value"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
+        Content-Disposition: form-data; name="nil_value"\r
         \r
         \r
         -----------------------------MockBoundary1234--\r
@@ -518,18 +520,14 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 339\r
+        Content-Length: 221\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         123\r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         456\r
         -----------------------------MockBoundary1234--\r
@@ -550,12 +548,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 191\r
+        Content-Length: 132\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         \r
         -----------------------------MockBoundary1234--\r
@@ -564,51 +560,23 @@ RSpec.describe Rex::Proto::Http::Client do
       expect(request.to_s).to eq(expected)
     end
 
-    it 'should handle non-string field name values correctly' do
-      vars_form_data = [
-        { 'name' => false, 'data' => '123' },
-        { 'name' => true, 'data' => '456' },
-        { 'name' => ['hello'], 'data' => '789' },
-        { 'name' => { k: 'val' }, 'data' => '101112' }
+    it 'should raise an error on non-string field names' do
+      invalid_names = [
+        false,
+        true,
+        123,
+        ['hello'],
+        { k: 'val' }
       ]
 
-      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
+      invalid_names.each do |name|
+        vars_form_data = [
+          { 'name' => name, 'data' => '123' }
+        ]
 
-      expected = <<~EOF
-        POST / HTTP/1.1\r
-        Host: #{ip}\r
-        User-Agent: #{request.opts['agent']}\r
-        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 632\r
-        \r
-        -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
-        \r
-        123\r
-        -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
-        \r
-        456\r
-        -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
-        \r
-        789\r
-        -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
-        \r
-        101112\r
-        -----------------------------MockBoundary1234--\r
-      EOF
-
-      expect(request.to_s).to eq(expected)
+        request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
+        expect { request.to_s }.to raise_error /The provided field `name` option is not valid. Expected: String/
+      end
     end
 
     it 'should handle binary correctly' do
@@ -624,11 +592,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 483\r
+        Content-Length: 438\r
         \r
         -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="field1"; filename="field1"\r
-        Content-Type: text/plain\r
+        Content-Disposition: form-data; name="field1"\r
         Content-Transfer-Encoding: binary\r
         \r
         #{binary_data}\r
@@ -654,30 +621,22 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 820\r
+        Content-Length: 584\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         file1_content\r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         file2_content\r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         file2_content\r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="file"; filename="duplicate.txt"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         file.txt\r
         -----------------------------MockBoundary1234--\r
@@ -688,7 +647,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
     it 'should escape special characters in file names correctly without encoding' do
       vars_form_data = [
-        { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'" }
+        { 'name' => 'file', 'data' => 'abc', 'content_type' => 'text/plain', 'encoding' => '8bit', 'filename' => "'t \"e 'st.txt'" }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -714,7 +673,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
     it 'should escape special characters in file names correctly with encoding' do
       vars_form_data = [
-        { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'", 'encoding' => 'base64' }
+        { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'", 'content_type' => 'text/plain', 'encoding' => 'base64' }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -750,12 +709,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 224\r
+        Content-Length: 165\r
         \r
         -----------------------------MockBoundary1234\r
         Content-Disposition: form-data; name="example_name"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: 8bit\r
         \r
         example_data\r
         -----------------------------MockBoundary1234--\r
@@ -775,11 +732,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 216\r
+        Content-Length: 165\r
         \r
         -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="example_name"; filename="example_name"\r
-        Content-Type: text/plain\r
+        Content-Disposition: form-data; name="example_name"\r
         \r
         example_data\r
         -----------------------------MockBoundary1234--\r
@@ -788,9 +744,9 @@ RSpec.describe Rex::Proto::Http::Client do
       expect(request.to_s).to eq(expected)
     end
 
-    it 'should handle nil mime type values correctly' do
+    it 'should handle nil content type values correctly' do
       vars_form_data = [
-        { 'name' => 'example_name', 'data' => 'example_data', 'mime_type' => nil }
+        { 'name' => 'example_name', 'data' => 'example_data', 'content_type' => nil }
       ]
 
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
@@ -800,11 +756,10 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 223\r
+        Content-Length: 165\r
         \r
         -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="example_name"; filename="example_name"\r
-        Content-Transfer-Encoding: 8bit\r
+        Content-Disposition: form-data; name="example_name"\r
         \r
         example_data\r
         -----------------------------MockBoundary1234--\r

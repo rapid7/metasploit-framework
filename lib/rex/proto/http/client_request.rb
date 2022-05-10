@@ -152,39 +152,37 @@ class ClientRequest
         end
       end
 
-      if opts['vars_form_data']
+      if opts['vars_form_data'] && opts['vars_form_data'].length > 0
         unless opts['vars_form_data'].is_a?(::Array)
           raise ::ArgumentError, "request_cgi: The provided `form_data` option is not valid. Expected: Array, Got: #{opts['form_data'].class}"
         end
 
-        file_data = Rex::MIME::Message.new
+        form_data = Rex::MIME::Message.new
         # Initialize or reuse the previous form data boundary to ensure idempotency
-        opts['vars_form_data_boundary'] ||= file_data.bound
-        file_data.bound = opts['vars_form_data_boundary']
+        opts['vars_form_data_boundary'] ||= form_data.bound
+        form_data.bound = opts['vars_form_data_boundary']
 
-        opts['vars_form_data'].each do |file_hash|
+        opts['vars_form_data'].each do |field_hash|
           # The name of the HTTP form field
-          field_name = file_hash['name'].is_a?(::String) ? file_hash['name'] : nil
+          field_name = field_hash.fetch('name', nil)
+          unless field_name.is_a?(::String) || field_name == nil
+            raise ::ArgumentError, "to_s: The provided field `name` option is not valid. Expected: String, Got: #{field_name.class}"
+          end
 
-          # Should we default to 'application/octet-stream', nil, or HttpClient's default of 'text/plain'?
-          # https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-          mime_type = file_hash.fetch('mime_type', 'text/plain')
+          mime_type = field_hash.fetch('content_type', nil)
+          encoding = field_hash.fetch('encoding', nil)
 
-          # Default to HttpClient's default option of '8bit'
-          encoding = file_hash.fetch('encoding', '8bit')
-
-          file_contents = get_file_data(file_hash['data'])
-
-          filename = file_hash.key?('filename') ? file_hash['filename'] : get_filename(file_hash['data']) || field_name
+          file_contents = get_file_data(field_hash['data'])
+          filename = field_hash.fetch('filename') { get_filename(field_hash['data']) }
 
           content_disposition = 'form-data'
           content_disposition << "; name=\"#{field_name}\"" if field_name
           content_disposition << "; filename=\"#{::CGI.escape(filename)}\"" if filename
 
-          file_data.add_part(file_contents, mime_type, encoding, content_disposition)
+          form_data.add_part(file_contents, mime_type, encoding, content_disposition)
         end
 
-        pstr += file_data.to_s
+        pstr += form_data.to_s
       end
 
       ctype ||= "multipart/form-data; boundary=#{opts['vars_form_data_boundary']}" if opts['vars_form_data_boundary']
