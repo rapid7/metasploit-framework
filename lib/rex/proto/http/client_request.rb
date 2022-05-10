@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'uri'
 
+require 'rex/mime'
 require 'rex/socket'
 require 'rex/text'
 
@@ -32,6 +33,7 @@ class ClientRequest
     'uri'                    => '/',
     'vars_get'               => {},
     'vars_post'              => {},
+    'vars_form_data'         => [],
     'version'                => '1.1',
     'vhost'                  => nil,
 
@@ -97,6 +99,8 @@ class ClientRequest
     # Start POST data string
     pstr = opts['data'] ? opts['data'].dup : ""
 
+    ctype = opts['ctype']
+
     if opts['cgi']
       uri_str = set_uri
 
@@ -147,6 +151,44 @@ class ClientRequest
           pstr << (opts['encode_params'] ? set_encode_uri(v) : v)
         end
       end
+
+      if opts['vars_form_data']
+        unless opts['vars_form_data'].is_a?(::Array)
+          raise ::ArgumentError, "request_cgi: The provided `form_data` option is not valid. Expected: Array, Got: #{opts['form_data'].class}"
+        end
+
+        file_data = Rex::MIME::Message.new
+        # Initialize or reuse the previous form data boundary to ensure idempotency
+        opts['vars_form_data_boundary'] ||= file_data.bound
+        file_data.bound = opts['vars_form_data_boundary']
+
+        opts['vars_form_data'].each do |file_hash|
+          # The name of the HTTP form field
+          field_name = file_hash['name'].is_a?(::String) ? file_hash['name'] : nil
+
+          # Should we default to 'application/octet-stream', nil, or HttpClient's default of 'text/plain'?
+          # https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          mime_type = file_hash.fetch('mime_type', 'text/plain')
+
+          # Default to HttpClient's default option of '8bit'
+          encoding = file_hash.fetch('encoding', '8bit')
+
+          file_contents = get_file_data(file_hash['data'])
+
+          filename = file_hash.key?('filename') ? file_hash['filename'] : get_filename(file_hash['data']) || field_name
+
+          content_disposition = 'form-data'
+          content_disposition << "; name=\"#{field_name}\"" if field_name
+          content_disposition << "; filename=\"#{::CGI.escape(filename)}\"" if filename
+
+          file_data.add_part(file_contents, mime_type, encoding, content_disposition)
+        end
+
+        pstr += file_data.to_s
+      end
+
+      ctype ||= "multipart/form-data; boundary=#{opts['vars_form_data_boundary']}" if opts['vars_form_data_boundary']
+      ctype ||= 'application/x-www-form-urlencoded' if opts['method'] == 'POST'
     else
       if opts['encode']
         qstr = set_encode_uri(qstr)
@@ -197,7 +239,7 @@ class ClientRequest
     req << set_connection_header
     req << set_extra_headers
 
-    req << set_content_type_header
+    req << set_content_type_header(ctype)
     req << set_content_len_header(pstr.length)
     req << set_chunked_header
     req << opts['raw_headers']
@@ -395,8 +437,8 @@ class ClientRequest
   #
   # Return the content type header
   #
-  def set_content_type_header
-    opts['ctype'] ? set_formatted_header("Content-Type", opts['ctype']) : ""
+  def set_content_type_header(ctype)
+    ctype ? set_formatted_header("Content-Type", ctype) : ""
   end
 
   #
@@ -478,6 +520,13 @@ class ClientRequest
     "\r\n" + chunked + "0\r\n\r\n"
   end
 
+  def get_file_data(file)
+    file.respond_to?('read') ? (file.rewind; contents = file.read; file.rewind; contents) : file.to_s
+  end
+
+  def get_filename(data)
+    data.is_a?(::Pathname) || data.is_a?(::File) ? ::File.basename(data) : nil
+  end
 
 end
 
