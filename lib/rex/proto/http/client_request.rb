@@ -177,7 +177,8 @@ class ClientRequest
 
           content_disposition = 'form-data'
           content_disposition << "; name=\"#{field_name}\"" if field_name
-          content_disposition << "; filename=\"#{::CGI.escape(filename)}\"" if filename
+          # NOTE: The file name is intentionally unescaped, as exploits such as playsms_filename_exec embed payloads into the file name which shouldn't be escaped
+          content_disposition << "; filename=\"#{filename}\"" if filename
 
           form_data.add_part(file_contents, mime_type, encoding, content_disposition)
         end

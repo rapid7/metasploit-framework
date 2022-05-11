@@ -645,7 +645,7 @@ RSpec.describe Rex::Proto::Http::Client do
       expect(request.to_s).to eq(expected)
     end
 
-    it 'should escape special characters in file names correctly without encoding' do
+    it 'does not encode special characters in file name by default as it may be used as part of an exploit' do
       vars_form_data = [
         { 'name' => 'file', 'data' => 'abc', 'content_type' => 'text/plain', 'encoding' => '8bit', 'filename' => "'t \"e 'st.txt'" }
       ]
@@ -657,38 +657,12 @@ RSpec.describe Rex::Proto::Http::Client do
         Host: #{ip}\r
         User-Agent: #{request.opts['agent']}\r
         Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 242\r
+        Content-Length: 234\r
         \r
         -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="file"; filename="%27t+%22e+%27st.txt%27"\r
+        Content-Disposition: form-data; name="file"; filename="'t \"e 'st.txt'"\r
         Content-Type: text/plain\r
         Content-Transfer-Encoding: 8bit\r
-        \r
-        abc\r
-        -----------------------------MockBoundary1234--\r
-      EOF
-
-      expect(request.to_s).to eq(expected)
-    end
-
-    it 'should escape special characters in file names correctly with encoding' do
-      vars_form_data = [
-        { 'name' => 'file', 'data' => 'abc', 'filename' => "'t \"e 'st.txt'", 'content_type' => 'text/plain', 'encoding' => 'base64' }
-      ]
-
-      request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
-      expected = <<~EOF
-        POST / HTTP/1.1\r
-        Host: #{ip}\r
-        User-Agent: #{request.opts['agent']}\r
-        Content-Type: multipart/form-data; boundary=---------------------------MockBoundary1234\r
-        Content-Length: 244\r
-        \r
-        -----------------------------MockBoundary1234\r
-        Content-Disposition: form-data; name="file"; filename="%27t+%22e+%27st.txt%27"\r
-        Content-Type: text/plain\r
-        Content-Transfer-Encoding: base64\r
         \r
         abc\r
         -----------------------------MockBoundary1234--\r
