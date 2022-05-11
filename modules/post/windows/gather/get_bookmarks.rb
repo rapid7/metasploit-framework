@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
         count = 1
         dir(bookmark_path).each do |file| # IE bookmarks stored individually as files so loots each one
           next if ['.', '..'].include?(file)
-          
+
           file_exists = true
           print_status("BOOKMARKS FOR #{user['ProfileDir']}")
           path2 = "#{bookmark_path}\\#{file}"
