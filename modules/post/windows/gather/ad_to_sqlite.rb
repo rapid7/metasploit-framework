@@ -4,6 +4,7 @@
 ##
 
 require 'sqlite3'
+require 'tempfile'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::LDAP
@@ -37,7 +38,7 @@ class MetasploitModule < Msf::Post
     max_search = datastore['MAX_SEARCH']
 
     db, dbfile = create_sqlite_db
-    print_status "Database created: #{dbfile}"
+    print_status "Temporary database created: #{dbfile.path}"
 
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
@@ -359,10 +360,25 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    # Finished enumeration, now safely close the database
-    if db && db.close
-      f = ::File.size(dbfile.to_s)
-      print_status "Database closed: #{dbfile} at #{f} byte(s)"
+    loot_path = store_loot(
+      'host.ad_to_sqlite',
+      'application/x-sqlite3',
+      session,
+      File.binread(dbfile.path),
+      'ad_to_sqlite.db',
+      'AD Computer, Group and Recursive User Membership'
+    )
+
+    print_good("Sqlite extraction stored in file: #{loot_path}")
+  ensure
+    # Finished enumeration, cleanup resources
+    if db
+      db.close
+    end
+
+    if dbfile
+      dbfile.close
+      dbfile.unlink
     end
   end
 
@@ -376,9 +392,8 @@ class MetasploitModule < Msf::Post
   # Creat the SQLite Database
   def create_sqlite_db
     begin
-      obj_temp = ::Dir::Tmpname
-      filename = "#{obj_temp.tmpdir}/#{obj_temp.make_tmpname('ad_', 2)}.db"
-      db = SQLite3::Database.new(filename)
+      dbfile = Tempfile.new('ad_to_sqlite')
+      db = SQLite3::Database.new(dbfile.path)
       db.type_translation = true
 
       # Create the table for the AD Computers
@@ -544,7 +559,7 @@ class MetasploitModule < Msf::Post
                          'INNER JOIN ad_users ON ad_users.u_rid = ad_mapping.user_rid'
       db.execute(sql_view_mapping)
 
-      return db, filename
+      return db, dbfile
 
     rescue SQLite3::Exception => e
       print_error("Error(Database): #{e.message}")
