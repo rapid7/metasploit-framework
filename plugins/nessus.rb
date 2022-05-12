@@ -348,7 +348,7 @@ module Msf
         case args.length
         when 1,2
           if args[0].include? "@"
-            cred,targ = args[0].split('@', 2)
+            cred, _split, targ = args[0].rpartition('@')
             @user,@pass = cred.split(':', 2)
             targ ||= '127.0.0.1:8834'
             @host,@port = targ.split(':', 2)
