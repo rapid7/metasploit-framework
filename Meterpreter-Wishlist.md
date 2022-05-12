@@ -6,10 +6,10 @@ Items landed to master have been marked [**DONE**]
 
 
 Related open tickets (slightly broader than Meterpreter):
- * [Make User-Agent easier to control across modules and more consistent](https://github.com/rapid7/metasploit-framework/issues/4933)
- * [Comprehensively refactor Windows reverse_http stagers](https://github.com/rapid7/metasploit-framework/issues/4895)
- * [Python reverse HTTPS stager](https://github.com/rapid7/metasploit-framework/pull/4978)
- * [Port windows reverse_tcp & bind_tcp to Metasm](https://github.com/rapid7/metasploit-framework/pull/4939)
+ * [**DONE**] [Make User-Agent easier to control across modules and more consistent](https://github.com/rapid7/metasploit-framework/issues/4933)
+ * [**IN PROGRESS**] [Comprehensively refactor Windows reverse_http stagers](https://github.com/rapid7/metasploit-framework/issues/4895)
+ * [**DONE**] [Python reverse HTTPS stager](https://github.com/rapid7/metasploit-framework/pull/4978)
+ * [**DONE**] [Port windows reverse_tcp & bind_tcp to Metasm](https://github.com/rapid7/metasploit-framework/pull/4939). Was later found to be implemented in https://github.com/rapid7/metasploit-framework/pull/5214.
 
 ### Meterpreter Platform Support
  * Mac Meterpreter
@@ -25,7 +25,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Exporting of certificates, keys, and tickets in base64 format (already supported) then down to real files on disk for the attacker [info](https://github.com/gentilkiwi/mimikatz/wiki/module-~-standard#base64)
  * Add on-target minidump extraction
  * Add sekurla::searchpasswords
- * Expand mimikatz and contribute back to it
+ * Expand Mimikatz and contribute back to it
  * Integration of Mimikatz with the credential database
  * Latest version of Mimikatz to be used as the plugin
  * It would be great to have a method to generate a golden ticket for a specific period of time (month, 6-months, year) rather than only 10 years.
