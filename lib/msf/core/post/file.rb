@@ -234,7 +234,7 @@ module Msf::Post::File
   #
   def executable?(path)
     if session.platform == 'windows'
-      check_win_path_permissions(path, ['F', 'RX', 'GA', 'GE', 'X'])
+      check_win_path_permissions(path, ['F', 'RX', 'GA', 'GE', 'X', 'GENERIC_EXECUTE'])
     else
       cmd_exec("test -x '#{path}' && echo true").to_s.include? 'true'
     end
@@ -252,7 +252,7 @@ module Msf::Post::File
     if session.type == 'powershell' && file?(path)
       cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
     elsif session.platform == 'windows'
-      check_win_path_permissions(path, ['F', 'W', 'GA', 'GW', 'WD'])
+      check_win_path_permissions(path, ['F', 'W', 'GA', 'GW', 'WD', 'GENERIC_WRITE'])
     else
       cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
     end
@@ -290,7 +290,7 @@ module Msf::Post::File
           #{verification_token}}").include?(verification_token)
       end
     elsif session.platform == 'windows'
-      check_win_path_permissions(path, ['F', 'RX', 'R', 'GA', 'GR', 'RD'])
+      check_win_path_permissions(path, ['F', 'RX', 'R', 'GA', 'GR', 'RD', 'GENERIC_READ'])
     else
       cmd_exec("test -r '#{path}' && echo #{verification_token}").to_s.include?(verification_token)
     end
@@ -666,12 +666,48 @@ module Msf::Post::File
   # @return [Hash] Hash listing permissions each group has on the given path.
   def find_icacls_permissions(path)
     icacls_output_raw = cmd_exec("icacls \"#{path}\"").to_s
+    if icacls_output_raw.include? "syntax is incorrect"
+      print_error("Invalid file path #{path} specified!")
+      return {}
+    end
     permissions_hash = {}
     icacls_output_raw.lines(chomp: true).each do |line|
       next unless line =~ /:\(/
       group, perms = line.gsub(path, '').gsub(/^\s+/, '').split(':')
       permissions_hash[group] = perms.gsub('(', '').gsub(',', ')').split(')')
     end
+    permissions_hash
+  end
+
+
+  def find_cacls_permissions(path)
+    cacls_output_raw = cmd_exec("cacls \"#{path}\"").to_s
+    if cacls_output_raw.include? "syntax is incorrect"
+      print_error("Invalid file path #{path} specified!")
+      return {}
+    end
+    permissions_hash = {}
+    special_line = false
+    special_line_group = nil
+    cacls_output_raw.lines(chomp: true).each do |line|
+      line.strip!
+      next if line.empty? # Skip empty lines that just have whitespace.
+      special_line = false if line.include?(":") # Don't treat this as a special line if it now contains permission information.
+      if special_line
+        permissions_hash[special_line_group] = permissions_hash[special_line_group].to_a + [line]
+        next
+      end
+      if line.include?("(special access:)")
+        special_line = true
+        special_line_group, special_line_perms = line.gsub(path, '').gsub(/\(special access\:\)/, '').gsub(/^\s+/, '').split(':')
+        permissions_hash[special_line_group] = permissions_hash[special_line_group].to_a + special_line_perms.gsub('(', '').gsub(',', ')').split(')')
+        next
+      end
+      next unless line =~ /:.*[A-Z]$/
+      group, perms = line.gsub(path, '').gsub(/^\s+/, '').split(':')
+      permissions_hash[group] = permissions_hash[group].to_a + perms.gsub('(', '').gsub(',', ')').split(')')
+    end
+    require 'pry'; binding.pry
     permissions_hash
   end
 
@@ -713,6 +749,10 @@ module Msf::Post::File
     cuser_groups = cmd_exec('whoami /groups').to_s
     cuser_groups_array = cuser_groups.scan(/^(?:\w+ ?[\w\-]*+ ?[\w\-]*+\\?[\w\-]*+ ?[\w\-]*+ ?[\w\-]*+ ?)/)
     cuser_groups_length = cuser_groups_array.length
+    if (cuser_groups_length == 0)
+      print_error("Couldn't get the list of groups the current user is a member of!")
+      return []
+    end
     for i in 0...cuser_groups_length
       cuser_groups_array[i].strip! # Strip any leading or trailing characters off the groups captured by the regex.
     end
@@ -732,29 +772,32 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ is accessible to the current user via any of the manners listed in +perms+, otherwise false.
   def check_win_path_permissions(path, perms)
     # Next check if icacls exists as a command on the target system, and switch to calcs if not.
-    if command_exists?('icacls')
-      file_icacls_groups = find_icacls_permissions(icacls_output_raw)
+    if command_exists?('cacls')
+      file_groups_array = find_cacls_permissions(path)
+    elsif command_exists?('icalcs')
+      file_groups_array = find_cacls_permissions(path)
+    else
+      print_error("Could not find cacls or icalcs installed on the target system!")
+      return false
+    end
 
-      # Grab info on the groups the current user belongs to so that we can do our comparisons.
-      cuser_groups_array = win_find_current_user_groups
+    return false if file_groups_array.empty?
 
-      # For each group our user is a part of, see if that group has the
-      # desired permissions on the specified path.
-      cuser_groups_array.each do |group|
-        perms.each do |perm|
-          if file_icacls_groups[group].include?(perm)
-            return true
-          end
+    # Grab info on the groups the current user belongs to so that we can do our comparisons.
+    cuser_groups_array = win_find_current_user_groups
+    return false if cuser_groups_array.empty?
+
+    # For each group our user is a part of, see if that group has the
+    # desired permissions on the specified path.
+    cuser_groups_array.each do |group|
+      next unless file_groups_array[group] # Skip over the group if it does not exist in file_groups_array
+      perms.each do |perm|
+        if file_groups_array[group]&.include?(perm)
+          return true
         end
       end
-      return false
-    elsif command_exists?('cacls')
-      print_status('calcs logic goes here....')
-      return false
-    else
-      print_error('Neither the cacls nor the icacls command exists on the target system.')
-      return nil
     end
+    return false
   end
 
   protected
