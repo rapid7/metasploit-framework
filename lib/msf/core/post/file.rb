@@ -648,6 +648,21 @@ module Msf::Post::File
   # Find the groups associated with a given path as well as the permissions each group has
   # for that path and return this information as a hash to the caller.
   #
+  # Essentially performs the actual regex extraction to determine what groups are permitted to
+  # access the file and what permissions each of those groups has on the file.
+  # For reference this is what the output from running "icacls" on win32kfull.sys looks like:
+  #
+  # C:\Users>icacls C:\Windows\System32\win32kfull.sys
+  # C:\Windows\System32\win32kfull.sys NT SERVICE\TrustedInstaller:(F)
+  #                                    BUILTIN\Administrators:(RX)
+  #                                    NT AUTHORITY\SYSTEM:(RX)
+  #                                    BUILTIN\Users:(RX)
+  #                                    APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES:(RX)
+  #
+  # Successfully processed 1 files; Failed processing 0 files
+  #
+  # C:\Users>
+  #
   # @return [Hash] Hash listing permissions each group has on the given path.
   def find_icacls_permissions(path)
     icacls_output_raw = cmd_exec("icacls \"#{path}\"").to_s
@@ -662,6 +677,36 @@ module Msf::Post::File
 
   #
   # Find what groups the current user is a member of.
+  #
+  # The following output of running whoami /groups looks, showing that we get a group name
+  # as a string, then the type of the SID, the SID itself, followed by its attributes.
+  #
+  # Keep in mind these SID's are all SIDs that the current user is a member of.
+  #
+  #
+  # C:\Users>whoami /groups
+  # GROUP INFORMATION
+  # -----------------
+  #
+  # Group Name                                 Type             SID                                            Attributes
+  #
+  # ========================================== ================ ============================================== ==================================================
+  # Everyone                                   Well-known group S-1-1-0                                        Mandatory group, Enabled by default, Enabled group
+  # BUILTIN\Users                              Alias            S-1-5-32-545                                   Mandatory group, Enabled by default, Enabled group
+  # BUILTIN\Performance Log Users              Alias            S-1-5-32-559                                   Mandatory group, Enabled by default, Enabled group
+  # BUILTIN\Administrators                     Alias            S-1-5-32-544                                   Group used for deny only
+  # NT AUTHORITY\INTERACTIVE                   Well-known group S-1-5-4                                        Mandatory group, Enabled by default, Enabled group
+  # CONSOLE LOGON                              Well-known group S-1-2-1                                        Mandatory group, Enabled by default, Enabled group
+  # NT AUTHORITY\Authenticated Users           Well-known group S-1-5-11                                       Mandatory group, Enabled by default, Enabled group
+  # NT AUTHORITY\This Organization             Well-known group S-1-5-15                                       Mandatory group, Enabled by default, Enabled group
+  # LOCAL                                      Well-known group S-1-2-0                                        Mandatory group, Enabled by default, Enabled group
+  #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-36273 Mandatory group, Enabled by default, Enabled group
+  #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-45105 Mandatory group, Enabled by default, Enabled group
+  # **** CUT FOR BREVITY ***
+  # Authentication authority asserted identity Well-known group S-1-18-1                                       Mandatory group, Enabled by default, Enabled group
+  # Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
+  #
+  # C:\Users>
   #
   # @return [Array] Array of groups the current user is a member of.
   def win_find_current_user_groups
@@ -688,53 +733,9 @@ module Msf::Post::File
   def check_win_path_permissions(path, perms)
     # Next check if icacls exists as a command on the target system, and switch to calcs if not.
     if command_exists?('icacls')
-      # Perform the actual regex extraction to determine what groups are permitted to
-      # access the file and what permissions each of those groups has on the file.
-      # For reference this is what the output from running "icacls" on win32kfull.sys looks like:
-      #
-      # C:\Users>icacls C:\Windows\System32\win32kfull.sys
-      # C:\Windows\System32\win32kfull.sys NT SERVICE\TrustedInstaller:(F)
-      #                                    BUILTIN\Administrators:(RX)
-      #                                    NT AUTHORITY\SYSTEM:(RX)
-      #                                    BUILTIN\Users:(RX)
-      #                                    APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES:(RX)
-      #
-      # Successfully processed 1 files; Failed processing 0 files
-      #
-      # C:\Users>
       file_icacls_groups = find_icacls_permissions(icacls_output_raw)
 
       # Grab info on the groups the current user belongs to so that we can do our comparisons.
-      # The following output shows what this might look like, showing that we get a group name
-      # as a string, then the type of the SID, the SID itself, followed by its attributes.
-      #
-      # Keep in mind these SID's are all SIDs that the current user is a member of.
-      #
-      #
-      # C:\Users>whoami /groups
-      # GROUP INFORMATION
-      # -----------------
-      #
-      # Group Name                                 Type             SID                                            Attributes
-      #
-      # ========================================== ================ ============================================== ==================================================
-      # Everyone                                   Well-known group S-1-1-0                                        Mandatory group, Enabled by default, Enabled group
-      # BUILTIN\Users                              Alias            S-1-5-32-545                                   Mandatory group, Enabled by default, Enabled group
-      # BUILTIN\Performance Log Users              Alias            S-1-5-32-559                                   Mandatory group, Enabled by default, Enabled group
-      # BUILTIN\Administrators                     Alias            S-1-5-32-544                                   Group used for deny only
-      # NT AUTHORITY\INTERACTIVE                   Well-known group S-1-5-4                                        Mandatory group, Enabled by default, Enabled group
-      # CONSOLE LOGON                              Well-known group S-1-2-1                                        Mandatory group, Enabled by default, Enabled group
-      # NT AUTHORITY\Authenticated Users           Well-known group S-1-5-11                                       Mandatory group, Enabled by default, Enabled group
-      # NT AUTHORITY\This Organization             Well-known group S-1-5-15                                       Mandatory group, Enabled by default, Enabled group
-      # LOCAL                                      Well-known group S-1-2-0                                        Mandatory group, Enabled by default, Enabled group
-      #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-36273 Mandatory group, Enabled by default, Enabled group
-      #                                            Unknown SID type S-1-5-21-3070936213-306261907-1348773959-45105 Mandatory group, Enabled by default, Enabled group
-      # **** CUT FOR BREVITY ***
-      # Authentication authority asserted identity Well-known group S-1-18-1                                       Mandatory group, Enabled by default, Enabled group
-      # Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
-      #
-      # C:\Users>
-
       cuser_groups_array = win_find_current_user_groups
 
       # For each group our user is a part of, see if that group has the
