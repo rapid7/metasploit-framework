@@ -3,11 +3,11 @@
 require 'metasploit/framework/hashes/identify'
 
 module Msf
-###
-#
-# This module provides methods for working with Juniper equipment
-#
-###
+  ###
+  #
+  # This module provides methods for working with Juniper equipment
+  #
+  ###
   module Auxiliary::Juniper
     include Msf::Auxiliary::Report
 
@@ -145,30 +145,29 @@ module Msf
     end
 
     def juniper_junos_config_eater(thost, tport, config)
-     report_host({
-       host: thost,
+      report_host({
+        host: thost,
         os_name: 'Juniper JunOS'
-     })
+      })
 
+      if framework.db.active
+        credential_data = {
+          address: thost,
+          port: tport,
+          protocol: 'tcp',
+          workspace_id: myworkspace_id,
+          origin_type: :service,
+          private_type: :nonreplayable_hash,
+          service_name: '',
+          module_fullname: fullname,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+      end
 
-     if framework.db.active
-       credential_data = {
-         address: thost,
-         port: tport,
-         protocol: 'tcp',
-         workspace_id: myworkspace_id,
-         origin_type: :service,
-         private_type: :nonreplayable_hash,
-         service_name: '',
-         module_fullname: fullname,
-         status: Metasploit::Model::Login::Status::UNTRIED
-       }
-     end
-
-     store_loot('juniper.junos.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper JunOS Configuration')
+      store_loot('juniper.junos.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper JunOS Configuration')
 
       # we'll take out the pretty format so its easier to regex
-     config = config.split("\n").join('')
+      config = config.split("\n").join('')
 
       # Example:
       # system {
@@ -176,87 +175,87 @@ module Msf
       #    encrypted-password "$1$pz9b1.fq$foo5r85Ql8mXdoRUe0C1E."; ## SECRET-DATA
       #  }
       # }
-     if /root-authentication\s+\{\s+encrypted-password "(?<root_hash>[^"]+)";/i =~ config
-       root_hash = root_hash.strip
-       jtr_format = identify_hash root_hash
+      if /root-authentication\s+\{\s+encrypted-password "(?<root_hash>[^"]+)";/i =~ config
+        root_hash = root_hash.strip
+        jtr_format = identify_hash root_hash
 
-       print_good("root password hash: #{root_hash}")
-       if framework.db.active
-         cred = credential_data.dup
-         cred[:username] = 'root'
-         cred[:jtr_format] = jtr_format
-         cred[:private_data] = root_hash
-         create_credential_and_login(cred)
-       end
-     end
+        print_good("root password hash: #{root_hash}")
+        if framework.db.active
+          cred = credential_data.dup
+          cred[:username] = 'root'
+          cred[:jtr_format] = jtr_format
+          cred[:private_data] = root_hash
+          create_credential_and_login(cred)
+        end
+      end
 
       # access privileges https://kb.juniper.net/InfoCenter/index?page=content&id=KB10902
-     config.scan(/user (?<user_name>[^\s]+) {\s+ uid (?<user_uid>\d+);\s+ class (?<user_permission>super-user|operator|read-only|unauthorized);\s+ authentication {\s+encrypted-password "(?<user_hash>[^\s]+)";/i).each do |result|
-       user_name = result[0].strip
-       user_uid = result[1].strip
-       user_permission = result[2].strip
-       user_hash = result[3].strip
-       jtr_format = identify_hash user_hash
+      config.scan(/user (?<user_name>[^\s]+) {(\s+ full-name (?<fullname>[^;]+);)?\s+ uid (?<user_uid>\d+);\s+ class (?<user_permission>super-user|operator|read-only|unauthorized|[^;]+);\s+ authentication {\s+encrypted-password "(?<user_hash>[^\s]+)";/i).each do |result|
+        user_name = result[0].strip
+        user_uid = result[2].strip
+        user_permission = result[3].strip
+        user_hash = result[4].strip
+        jtr_format = identify_hash user_hash
 
-       print_good("User #{user_uid} named #{user_name} in group #{user_permission} found with password hash #{user_hash}.")
-       next unless framework.db.active
+        print_good("User #{user_uid} named #{user_name} in group #{user_permission} found with password hash #{user_hash}.")
+        next unless framework.db.active
 
-       cred = credential_data.dup
-       cred[:username] = user_name
-       cred[:jtr_format] = jtr_format
-       cred[:private_data] = user_hash
-       create_credential_and_login(cred)
-     end
+        cred = credential_data.dup
+        cred[:username] = user_name
+        cred[:jtr_format] = jtr_format
+        cred[:private_data] = user_hash
+        create_credential_and_login(cred)
+      end
 
       # https://supportf5.com/csp/article/K6449 special characters allowed in snmp community strings
-     config.scan(%r{community "?(?<snmp_community>[\w\d\s().*/-:_?=@,&%$]+)"? {(\s+view [\w\-]+;)?\s+authorization read-(?<snmp_permission>only|write)}i).each do |result|
-       snmp_community = result[0].strip
-       snmp_permissions = result[1].strip
-       print_good("SNMP community #{snmp_community} with permissions read-#{snmp_permissions}")
-       next unless framework.db.active
+      config.scan(%r{community "?(?<snmp_community>[\w\d\s().*/-:_?=@,&%$+!]+)"? \{(\s+view [\w\-]+;)?\s+authorization read-(?<snmp_permission>only|write)}i).each do |result|
+        snmp_community = result[0].strip
+        snmp_permissions = result[1].strip
+        print_good("SNMP community #{snmp_community} with permissions read-#{snmp_permissions}")
+        next unless framework.db.active
 
-       cred = credential_data.dup
-       if snmp_permissions.downcase == 'write'
-         cred[:access_level] = 'RW'
-       else
-         cred[:access_level] = 'RO'
-       end
-       cred[:protocol] = 'udp'
-       cred[:port] = 161
-       cred[:private_data] = snmp_community
-       cred[:private_type] = :password
-       cred[:service_name] = 'snmp'
-       create_credential_and_login(cred)
-     end
+        cred = credential_data.dup
+        if snmp_permissions.downcase == 'write'
+          cred[:access_level] = 'RW'
+        else
+          cred[:access_level] = 'RO'
+        end
+        cred[:protocol] = 'udp'
+        cred[:port] = 161
+        cred[:private_data] = snmp_community
+        cred[:private_type] = :password
+        cred[:service_name] = 'snmp'
+        create_credential_and_login(cred)
+      end
 
-     config.scan(/radius-server \{\s+(?<radius_server>[0-9.]{7,15}) secret "(?<radius_hash>[^"]+)";/i).each do |result|
-       radius_hash = result[1].strip
-       radius_server = result[0].strip
-       print_good("radius server #{radius_server} password hash: #{radius_hash}")
-       next unless framework.db.active
+      config.scan(/radius-server \{\s+(?<radius_server>[0-9.]{7,15}) secret "(?<radius_hash>[^"]+)";/i).each do |result|
+        radius_hash = result[1].strip
+        radius_server = result[0].strip
+        print_good("radius server #{radius_server} password hash: #{radius_hash}")
+        next unless framework.db.active
 
-       cred = credential_data.dup
-       cred[:address] = radius_server
-       cred[:port] = 1812
-       cred[:protocol] = 'udp'
-       cred[:private_data] = radius_hash
-       cred[:service_name] = 'radius'
-       create_credential_and_login(cred)
-     end
+        cred = credential_data.dup
+        cred[:address] = radius_server
+        cred[:port] = 1812
+        cred[:protocol] = 'udp'
+        cred[:private_data] = radius_hash
+        cred[:service_name] = 'radius'
+        create_credential_and_login(cred)
+      end
 
-     config.scan(/pap {\s+local-name "(?<ppp_username>.+)";\s+local-password "(?<ppp_hash>[^"]+)";/i).each do |result|
-       ppp_username = result[0].strip
-       ppp_hash = result[1].strip
-       print_good("PPTP username #{ppp_username} hash #{ppp_hash} via PAP")
-       next unless framework.db.active
+      config.scan(/pap {\s+local-name "(?<ppp_username>.+)";\s+local-password "(?<ppp_hash>[^"]+)";/i).each do |result|
+        ppp_username = result[0].strip
+        ppp_hash = result[1].strip
+        print_good("PPTP username #{ppp_username} hash #{ppp_hash} via PAP")
+        next unless framework.db.active
 
-       cred = credential_data.dup
-       cred[:username] = ppp_username
-       cred[:private_data] = ppp_hash
-       cred[:service_name] = 'pptp'
-       cred[:port] = 1723
-       create_credential_and_login(cred)
-     end
+        cred = credential_data.dup
+        cred[:username] = ppp_username
+        cred[:private_data] = ppp_hash
+        cred[:service_name] = 'pptp'
+        cred[:port] = 1723
+        create_credential_and_login(cred)
+      end
     end
   end
 end
