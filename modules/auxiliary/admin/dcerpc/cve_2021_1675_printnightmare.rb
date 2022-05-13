@@ -212,6 +212,7 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::Disconnected, 'The named pipe connection was broken.') unless reconnect
         reconnect = false
 
+        # TODO: switch this to retry_until_truthy once #16555 is landed
         print_status("The named pipe connection was broken, reconnecting after a #{datastore['ReconnectDelay'].to_i} second delay.")
         sleep datastore['ReconnectDelay'].to_i
         begin
