@@ -139,6 +139,7 @@ class Client
   # @option opts 'encode_params' [Bool]   URI encode the GET or POST variables (names and values), default: true
   # @option opts 'vars_get'      [Hash]   GET variables as a hash to be translated into a query string
   # @option opts 'vars_post'     [Hash]   POST variables as a hash to be translated into POST data
+  # @option opts 'vars_form_data'     [Hash]   POST form_data variables as a hash to be translated into multi-part POST form data
   #
   # @return [ClientRequest]
   def request_cgi(opts = {})
@@ -147,7 +148,6 @@ class Client
     opts['cgi'] = true
     opts['port'] = self.port
     opts['ssl'] = self.ssl
-    opts['ctype'] ||= 'application/x-www-form-urlencoded' if opts['method'] == 'POST'
 
     ClientRequest.new(opts)
   end
@@ -730,7 +730,6 @@ protected
   # The established NTLM connection info
   #
   attr_accessor :ntlm_client
-
 end
 
 end
