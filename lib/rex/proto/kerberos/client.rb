@@ -157,18 +157,18 @@ module Rex
         # Receives a Kerberos Response over a tcp connection
         #
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] the kerberos message response
-        # @raise [RuntimeError] if the response can't be processed
+        # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         # @raise [EOFError] if expected data can't be read
         def recv_response_tcp
           length_raw = connection.get_once(4, timeout)
           unless length_raw && length_raw.length == 4
-            raise ::RuntimeError, 'Kerberos Client: failed to read response'
+            raise ::EOFError, 'Kerberos Client: failed to read response'
           end
           length = length_raw.unpack('N')[0]
 
           data = connection.get_once(length, timeout)
           unless data && data.length == length
-            raise ::RuntimeError, 'Kerberos Client: failed to read response'
+            raise ::EOFError, 'Kerberos Client: failed to read response'
           end
 
           res = decode_kerb_response(data)
@@ -189,7 +189,7 @@ module Rex
         #
         # @param data [String] the raw response message
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] the kerberos message response
-        # @raise [RuntimeError] if the response can't be processed
+        # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         def decode_kerb_response(data)
           asn1 = OpenSSL::ASN1.decode(data)
           msg_type = asn1.value[0].value[1].value[0].value
@@ -202,7 +202,7 @@ module Rex
           when Rex::Proto::Kerberos::Model::TGS_REP
             res = Rex::Proto::Kerberos::Model::KdcResponse.decode(asn1)
           else
-            raise ::RuntimeError, 'Kerberos Client: Unknown response'
+            raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Kerberos Client: Unknown response'
           end
 
           res

