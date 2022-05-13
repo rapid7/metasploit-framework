@@ -3,7 +3,7 @@
 
 
 BITS 64
-org     0
+org     0x400000
 ehdr:                            ; Elf32_Ehdr
   db    0x7F, "ELF", 2, 1, 1, 0  ;   e_ident
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
