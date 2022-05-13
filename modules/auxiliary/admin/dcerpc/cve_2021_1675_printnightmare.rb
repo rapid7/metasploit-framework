@@ -50,7 +50,8 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [UNRELIABLE_SESSION],
           'SideEffects' => [
             ARTIFACTS_ON_DISK # the dll will be copied to the remote server
-          ]
+          ],
+          'RelatedModules' => ['exploit/windows/dcerpc/cve_2021_1675_printnightmare']
         }
       )
     )
