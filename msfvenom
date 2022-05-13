@@ -177,6 +177,10 @@ def parse_args(args)
     opts[:add_code] = x
   end
 
+  opt.on('-z', '--prepend-code        <path>', String, 'Specify shellcode file to append') do |x|
+    opts[:prepend_code] = x
+  end
+
   opt.on('-x', '--template        <path>', String, 'Specify a custom executable file to use as a template') do |x|
     opts[:template] = x
   end

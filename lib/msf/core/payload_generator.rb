@@ -29,6 +29,9 @@ module Msf
     # @!attribute  add_code
     #   @return [String] The path to a shellcode file to execute in a separate thread
     attr_accessor :add_code
+    # @!attribute  prepend_code
+    #   @return [String] The path to a shellcode file to prepend to the payload
+    attr_accessor :prepend_code
     # @!attribute  arch
     #   @return [String] The CPU architecture to build the payload for
     attr_accessor :arch
@@ -147,6 +150,7 @@ module Msf
       @padnops    = opts.fetch(:padnops, false)
       @payload    = opts.fetch(:payload, '')
       @platform   = opts.fetch(:platform, '')
+      @prepend_code   = opts.fetch(:prepend_code, '')
       @space      = opts.fetch(:space, 1.gigabyte)
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
@@ -190,6 +194,24 @@ module Msf
         shellcode_file.close
         shellcode = ::Msf::Util::EXE.win32_rwx_exec_thread(shellcode,0,'end')
         shellcode << added_code
+      else
+        shellcode.dup
+      end
+    end
+
+    # This method takes the shellcode generated so far and adds shellcode from
+    # a supplied file to the beginning of the shellcode.
+    # @param shellcode [String] The shellcode to be prepended
+    # @return [String] the combined shellcode
+    def prepend_shellcode(shellcode)
+      print_line("Prepending code")
+      if prepend_code.present?
+        cli_print "Adding shellcode from #{prepend_code} to the beginning of the payload"
+        shellcode_file = File.open(prepend_code)
+        shellcode_file.binmode
+        added_code = shellcode_file.read
+        shellcode_file.close
+        added_code << shellcode
       else
         shellcode.dup
       end
@@ -421,6 +443,7 @@ module Msf
 
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
+        raw_payload = prepend_shellcode(raw_payload)
 
         if encoder != nil and encoder.start_with?("@")
           raw_payload = multiple_encode_payload(raw_payload)
