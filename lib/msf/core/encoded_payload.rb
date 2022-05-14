@@ -284,7 +284,10 @@ class EncodedPayload
         ilog("#{pinst.refname}: payload contains no badchars, skipping automatic encoding", 'core', LEV_0)
       end
 
-      if reqs['Space'] and (reqs['Space'] < raw.length + min)
+      # Space = 0 is a special value used by msfvenom to generate the smallest
+      # payload possible. In that case do not raise an exception indicating
+      # that the payload is too large.
+      if reqs['Space'] && reqs['Space'] > 0 && reqs['Space'] < raw.length + min
         wlog("#{pinst.refname}: Raw (unencoded) payload is too large (#{raw.length} bytes)", 'core', LEV_1)
         raise PayloadSpaceViolation, 'The payload exceeds the specified space', caller
       end
