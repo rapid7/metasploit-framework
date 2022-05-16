@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('SSLServerNameIndication', [ false, 'SSL/TLS Server Name Indication (SNI)', nil]),
+        OptString.new('SSLServerNameIndication', [ false, 'SSL/TLS Server Name Indication (SNI)', nil], aliases: ['SNI']),
         OptEnum.new('OUT_FORMAT', [true, 'Output format', 'PEM', ['DER', 'PEM']]),
         OptString.new('EXPIRATION', [false, 'Date the new cert should expire (e.g. 06 May 2012, YESTERDAY or NOW)', nil]),
         OptPath.new('PRIVKEY', [false, 'Sign the cert with your own CA private key', nil]),
