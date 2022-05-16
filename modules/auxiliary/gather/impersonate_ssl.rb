@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('SNI', [false, 'Server Name Indicator', nil]),
+        OptString.new('SSLServerNameIndication', [ false, 'SSL/TLS Server Name Indication (SNI)', nil], aliases: ['SNI']),
         OptEnum.new('OUT_FORMAT', [true, 'Output format', 'PEM', ['DER', 'PEM']]),
         OptString.new('EXPIRATION', [false, 'Date the new cert should expire (e.g. 06 May 2012, YESTERDAY or NOW)', nil]),
         OptPath.new('PRIVKEY', [false, 'Sign the cert with your own CA private key', nil]),
@@ -58,8 +58,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if !datastore['SNI'].nil?
-      sni = datastore['SNI']
+    if !datastore['SSLServerNameIndication'].nil?
+      sni = datastore['SSLServerNameIndication']
       print_status("Connecting to #{rhost}:#{rport} SNI:#{sni}")
     else
       sni = false

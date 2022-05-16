@@ -36,6 +36,7 @@ class ClientRequest
     'vars_form_data'         => [],
     'version'                => '1.1',
     'vhost'                  => nil,
+    'ssl_server_name_indication' => nil,
 
     #
     # Evasion options

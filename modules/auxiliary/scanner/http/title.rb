@@ -27,6 +27,14 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SHOW_TITLES', [ true, 'Show the titles on the console as they are grabbed', true ]),
         OptString.new('TARGETURI', [true, 'The base path', '/'])
       ])
+
+    register_advanced_options(
+      [
+        OptString.new('HttpQueryString', [ false, 'The HTTP query string', nil ]),
+        OptBool.new('FollowRedirect', [ false, 'Follow a HTTP redirect', false ]),
+        OptInt.new('FollowRedirectDepth', [false, 'Follow HTTP redirect depth', 1]),
+      ]
+    )
   end
 
   def run
@@ -39,10 +47,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(target_host)
     begin
+      http_opts = {
+        'uri' => normalize_uri(target_uri.path),
+        'query' => datastore['HttpQueryString']
+      }
+
       # Send a normal GET request
-      res = send_request_cgi(
-        'uri' => normalize_uri(target_uri.path)
-      )
+      if datastore['FollowRedirect']
+        res = send_request_cgi!(http_opts, datastore['HttpClientTimeout'] || 20, datastore['FollowRedirectDepth'])
+      else
+        res = send_request_cgi(http_opts)
+      end
 
       # If no response, quit now
       if res.nil?
