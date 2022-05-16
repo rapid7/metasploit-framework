@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      etime = ::Time.now.to_f + (hosts.length * 0.05)
+      etime = ::Time.now.to_f + 1
 
       while (::Time.now.to_f < etime)
         while(reply = getreply())
