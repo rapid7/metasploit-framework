@@ -47,6 +47,7 @@ module Metasploit::Framework
     # @option opts [String] :user_file See {#user_file}
     # @option opts [String] :username See {#username}
     # @option opts [String] :userpass_file See {#userpass_file}
+    # @option opts [String] :usernames_only See {#usernames_only}
     def initialize(opts = {})
       opts.each do |attribute, value|
         public_send("#{attribute}=", value)
@@ -157,6 +158,12 @@ module Metasploit::Framework
 
   class CredentialCollection < PrivateCredentialCollection
 
+    # @!attribute usernames_only
+    #   Whether only usernames should be checked, with no passwords
+    #
+    #   @return [Boolean]
+    attr_accessor :usernames_only
+
     # @!attribute additional_publics
     #   Additional public values that should be tried
     #
@@ -219,6 +226,9 @@ module Metasploit::Framework
       prepended_creds.each { |c| yield c }
 
       if username.present?
+        if usernames_only
+          yield Metasploit::Framework::Credential.new(public: username, realm: realm)
+        end
         if password.present?
           yield Metasploit::Framework::Credential.new(public: username, private: password, realm: realm, private_type: private_type(password))
         end
@@ -243,6 +253,9 @@ module Metasploit::Framework
         File.open(user_file, 'r:binary') do |user_fd|
           user_fd.each_line do |user_from_file|
             user_from_file.chomp!
+            if usernames_only
+              yield Metasploit::Framework::Credential.new(public: user_from_file, realm: realm)
+            end
             if password.present?
               yield Metasploit::Framework::Credential.new(public: user_from_file, private: password, realm: realm, private_type: private_type(password) )
             end

