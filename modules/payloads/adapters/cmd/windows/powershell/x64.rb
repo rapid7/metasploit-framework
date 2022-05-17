@@ -24,6 +24,16 @@ module MetasploitModule
     )
   end
 
+  def compatible?(mod)
+    # size is not unlimited due to the standard command length limit, the final size depends on the options that are
+    # configured but 3,000 is in a good range (can go up to 4,000 with default settings at this time)
+    if mod.type == Msf::MODULE_PAYLOAD && (mod.class.const_defined?(:CachedSize) && mod.class::CachedSize != :dynamic) && (mod.class::CachedSize >= 3_000)
+      return false
+    end
+
+    super
+  end
+
   def generate
     payload = super
 
