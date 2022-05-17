@@ -247,5 +247,42 @@ module Msf::Post::Common
     raise "Unable to check if command `#{cmd}' exists"
   end
 
+  # Executes +cmd+ on the remote system and return an array containing the
+  # output and if it was successful or not.
+  #
+  # This is simply a wrapper around {#cmd_exec} that also checks the exit code
+  # to determine if the execution was successful or not.
+  #
+  # @param [String] cmd The command to execute
+  # @param [String] arg The optional arguments of the command (can de included in +cmd+ instead)
+  # @param [Integer] timeout The time in sec. to wait before giving up
+  # @param [Hash] opts An Hash of options (see {#cmd_exec})
+  # @return [Array(String, Boolean)] Array containing the output string
+  #   followed by a boolean indicating if the command succeded or not
+  def cmd_exec_with_result(cmd, args = nil, timeout = 15, opts = {})
+    verification_token = Rex::Text.rand_text_alphanumeric(8)
+
+    _cmd = cmd.dup
+    _cmd << " #{args}" if args
+    if session.platform == 'windows'
+      if session.type == 'powershell'
+        # The & operator is reserved by Powershell and needs to be wrapped in double quotes
+        result = cmd_exec('cmd', "/c #{_cmd} \"&\" if not errorlevel 1 echo #{verification_token}", timeout, opts)
+      else
+        result = cmd_exec('cmd', "/c #{_cmd} & if not errorlevel 1 echo #{verification_token}", timeout, opts)
+      end
+    else
+      result = cmd_exec('command', "#{_cmd} && echo #{verification_token}", timeout, opts)
+    end
+
+    if result.include?(verification_token)
+      # Removing the verification token to cleanup the output string
+      [result.lines[0...-1].join.strip, true]
+    else
+      [result.strip, false]
+    end
+  rescue Rex::TimeoutError => e
+    [e.message, false]
+  end
 
 end
