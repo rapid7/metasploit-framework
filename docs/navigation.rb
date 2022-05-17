@@ -639,6 +639,9 @@ NAVIGATION_CONFIG = [
           {
             path: 'Writing-Module-Documentation.md'
           },
+          {
+            path: 'Loading-Test-Modules.md'
+          }
         ]
       },
       {
