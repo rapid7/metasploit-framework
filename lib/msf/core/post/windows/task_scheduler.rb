@@ -245,25 +245,26 @@ module Msf
 
         def check_compatibility
           # Check Windows version to make sure we will use the correct supported command flags
-          # - `schtasks.exe` on Windows prior to Windows Server 2003 SP2 (5.2 build 3959)
-          #   has some different `/create` option flags.
-          # - `schtasks.exe` on Windows until Server 2003 SP2 (5.2 build 3959)
-          #   has some different `/query` option flags. Also, on these OS,
-          #   `reg.exe` does not support the `/reg:64` flag.
+          # - `schtasks.exe` on Windows prior to Windows Server 2003 SP2 has
+          #   some different `/create` option flags.
+          # - `schtasks.exe` on Windows until Server 2003 SP2 has some
+          #   different `/query` option flags.
+          # Also, on these OSes, `reg.exe` does not support the `/reg:64` flag.
           @old_schtasks = false
           @old_os = false
-          match = sysinfo['OS'].match(/(?<version>[\d.]+) Build (?<build>\d+)/)
+          match = sysinfo['OS'].match(/(?<version>[\d.]+) Build/)
           return unless match
-
-          version = Rex::Version.new("#{match[:version]}.#{match[:build]}")
-          latest_win2003_build = Rex::Version.new('5.2.3959')
-          @old_schtasks = version < latest_win2003_build
-          @old_os = version <= latest_win2003_build
-          if @old_os && datastore['ScheduleRemoteSystem'].present?
-            log_and_print(
-              '[Task Scheduler] This OS version does not support remote schedule tasks. This is likely to fail.',
-              level: :warning
-            )
+          if Rex::Version.new((match[:version])) < Rex::Version.new('6.0')
+            @old_os = true
+            unless sysinfo['OS'].include?('5.2 Build 3790, Service Pack 2')
+              @old_schtasks = true
+            end
+            if datastore['ScheduleRemoteSystem'].present?
+              log_and_print(
+                '[Task Scheduler] This OS version does not support remote schedule tasks. This is likely to fail.',
+                level: :warning
+              )
+            end
           end
         end
 
