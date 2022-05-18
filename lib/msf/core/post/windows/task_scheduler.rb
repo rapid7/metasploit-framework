@@ -157,7 +157,7 @@ module Msf
           end
 
           begin
-            delete_reg_key_value("#{TASK_REG_KEY}\\#{task_name}", TASK_SD_REG_VALUE)
+            delete_reg_key_value("#{TASK_REG_KEY}\\#{task_name}", TASK_SD_REG_VALUE, opts)
           rescue TaskSchedulerObfuscationError => e
             log_and_print("[Task Scheduler] Task obfuscation failed: #{e}")
             raise TaskSchedulerObfuscationError, 'Task obfuscation failed (the task has been created but won\'t be hidden)'
@@ -201,7 +201,7 @@ module Msf
           if (opts[:obfuscate].nil? && datastore['ScheduleObfuscateTask']) ||
              (!opts[:obfuscate].nil? && opts[:obfuscate])
             begin
-              add_reg_key_value("#{TASK_REG_KEY}\\#{task_name}", TASK_SD_REG_VALUE, DEFAULT_SD, 'REG_BINARY')
+              add_reg_key_value("#{TASK_REG_KEY}\\#{task_name}", TASK_SD_REG_VALUE, DEFAULT_SD, 'REG_BINARY', opts)
             rescue TaskSchedulerObfuscationError => e
               log_and_print("[Task Scheduler] Task deletion failed: #{e}")
               raise TaskSchedulerError, 'Task deobfuscation failed. The task cannot be deleted.'
@@ -431,7 +431,7 @@ module Msf
           result
         end
 
-        def delete_reg_key_value(reg_key, reg_value)
+        def delete_reg_key_value(reg_key, reg_value, opts = {})
           log_and_print('[Task Scheduler] Remove the Security Descriptor registry key value to hide the task')
 
           log_and_print('[Task Scheduler] Checking if the key value exists')
@@ -445,7 +445,7 @@ module Msf
             raise TaskSchedulerObfuscationError, 'Could not obtain SYSTEM privilege, which is needed to delete the key value.'
           end
 
-          remote_host = datastore['ScheduleRemoteSystem']
+          remote_host = opts[:remote_system] || datastore['ScheduleRemoteSystem']
           log_and_print("[Task Scheduler] Deleting #{reg_value} in #{reg_key}#{" on remote host #{remote_host}" if remote_host.present?}")
           if remote_host.present?
             begin
@@ -461,13 +461,14 @@ module Msf
           end
         end
 
-        def add_reg_key_value(reg_key, reg_value, reg_data, reg_type, override: true)
+        def add_reg_key_value(reg_key, reg_value, reg_data, reg_type, opts = {})
           log_and_print('[Task Scheduler] Restore the Security Descriptor registry key value to unhide the task')
 
-          unless override
+          # Override by default. It has to be explicitely set to false if we don't want the key to be overriden.
+          unless opts[:override].nil? || opts[:override]
             log_and_print('[Task Scheduler] Checking if the key value exists')
             if reg_key_value_exists?(reg_key, reg_value)
-              log_and_print("The #{reg_value} key value already exist. Set `override` to true to override the value", level: :warning)
+              log_and_print("The #{reg_value} key value already exist. Set `opts[:override]` to true to override the value", level: :warning)
               return
             end
           end
@@ -478,7 +479,7 @@ module Msf
             raise TaskSchedulerObfuscationError, 'Could not obtain SYSTEM privilege, which is needed to restore the key value.'
           end
 
-          remote_host = datastore['ScheduleRemoteSystem']
+          remote_host = opts[:remote_system] || datastore['ScheduleRemoteSystem']
           log_and_print("[Task Scheduler] Adding #{reg_value} in #{reg_key}#{" on remote host #{remote_host}" if remote_host.present?}")
           if remote_host.present?
             begin
