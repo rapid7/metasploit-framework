@@ -431,7 +431,7 @@ module Build
   end
 
   def self.run_command(command, exception: true)
-    puts command
+    puts "[*] #{command}"
     result = ''
     ::Open3.popen2e(
       { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
@@ -455,7 +455,7 @@ module Build
       end
 
       if !wait_thread.value.success? && exception
-        raise "command did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
+        raise "command #{command.inspect} did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
       end
     end
 
@@ -475,19 +475,29 @@ module Build
       begin
         # Create a new folder and branch in the old metasploit wiki for where we'd like it to be inside of the metasploit-framework repo
         Dir.chdir(OLD_WIKI_PATH) do
+          # Reset the repo back
+          run_command("git checkout master", exception: false)
+          run_command("git reset HEAD --hard", exception: false)
+          run_command("rm -rf metasploit-framework.wiki", exception: false)
+
+          # Create a new folder to move the wiki contents into
           FileUtils.mkdir_p("metasploit-framework.wiki")
           run_command("mv *[^metasploit-framework.wiki]* metasploit-framework.wiki", exception: false)
-          run_command("git branch -d #{new_wiki_branch_name}", exception: false)
+
+          # Create a new branch + commit
+          run_command("git branch -D #{new_wiki_branch_name}", exception: false)
           run_command("git checkout -b #{new_wiki_branch_name}")
-          run_command("git commit -am 'Move to folder'")
+          run_command("git add metasploit-framework.wiki")
+          run_command("git commit -am 'Put markdown files into new folder metasploit-framework.wiki in preparation for migration'")
         end
 
         # Create a new branch that can be used to create a pull request
         run_command("git branch -D #{new_framework_branch_name}", exception: false)
         run_command("git checkout -b #{new_framework_branch_name}")
-        run_command("git remote add -f wiki #{OLD_WIKI_PATH}", exception: false)
-        run_command("git remote update wiki")
-        run_command("git merge -m 'Migrate docs from wiki to main repository' wiki/#{new_wiki_branch_name} --allow-unrelated-histories")
+        run_command("git remote remove wiki", exception: false)
+        run_command("git remote add -f wiki #{File.join(Dir.pwd, OLD_WIKI_PATH)}", exception: false)
+        # run_command("git remote update wiki")
+        run_command("git merge -m 'Migrate docs from https://github.com/rapid7/metasploit-framework/wiki to main repository' wiki/#{new_wiki_branch_name} --allow-unrelated-histories")
 
         puts "new branch #{new_framework_branch_name} successfully created"
       ensure
