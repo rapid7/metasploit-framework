@@ -76,7 +76,7 @@ module Payload::Windows::EncryptedReverseTcp
       keep_exe:      datastore['KeepExe'],
       show_compile_cmd: datastore['ShowCompileCMD'],
       f_name:        Tempfile.new(staged? ? 'reverse_pic_stager' : 'reverse_pic_stageless').path,
-      arch:          self.arch_to_s
+      arch:          opts.fetch(:arch, self.arch_to_s)
     }
 
     comp_code = get_compiled_shellcode(src, compile_opts)

@@ -34,7 +34,8 @@ module MetasploitModule
     super
   end
 
-  def generate
+  def generate(opts = {})
+    opts[:arch] ||= module_info['AdaptedArch']
     payload = super
 
     cmd_psh_payload(payload, ARCH_X86, remove_comspec: true)
