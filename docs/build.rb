@@ -314,21 +314,21 @@ module Build
     MAINTAINER_MESSAGE_PREFIX = "<!-- Maintainers: "
     private_constant :MAINTAINER_MESSAGE_PREFIX
 
-    USER_MESSAGE_PREFIX = '#### Documentation Update:'.freeze
+    USER_MESSAGE_PREFIX = '**Documentation Update:'.freeze
     private_constant :USER_MESSAGE_PREFIX
 
     def self.upsert(original_wiki_content, old_path:, new_url:)
       history_link = old_path.include?("#{WIKI_PATH}/Home.md") ? './Home/_history' : './_history'
       maintainer_message = "#{MAINTAINER_MESSAGE_PREFIX} Please do not modify this file directly, create a pull request instead -->\n\n"
-      user_message = "#{USER_MESSAGE_PREFIX} This Wiki page should be viewable at [#{new_url}](#{new_url}). Or if it is no longer available, see this page's [previous history](#{history_link})\n\n"
-      deprecation_text = (maintainer_message * 3) + user_message
-      "#{deprecation_text}#{WikiDeprecationText.remove(original_wiki_content)}"
+      user_message = "#{USER_MESSAGE_PREFIX} This Wiki page should be viewable at [#{new_url}](#{new_url}). Or if it is no longer available, see this page's [previous history](#{history_link})**\n\n"
+      deprecation_text = maintainer_message + user_message
+      "#{deprecation_text}"
     end
 
     def self.remove(original_wiki_content)
       original_wiki_content
-        .gsub(/#{MAINTAINER_MESSAGE_PREFIX}.*$\s+/, '')
-        .gsub(/#{USER_MESSAGE_PREFIX}.*$\s+/, '')
+        .gsub(/^#{Regexp.escape(MAINTAINER_MESSAGE_PREFIX)}.*$\s+/, '')
+        .gsub(/^#{Regexp.escape(USER_MESSAGE_PREFIX)}.*$\s+/, '')
     end
   end
 
