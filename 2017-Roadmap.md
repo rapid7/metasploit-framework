@@ -1,7 +1,3 @@
-<!-- Maintainers:  Please do not modify this file directly, create a pull request instead -->
-
-**Documentation Update: This Wiki page should be viewable at [https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html](https://docs.metasploit.com/docs/development/roadmap/2017-roadmap.html). Or if it is no longer available, see this page's [previous history](./_history)**
-
 # Metasploit's 2017 Roadmap
 
 Starting in 2017, we will provide an open roadmap for setting our goals for the year. The goals are based on many discussions we have had over the past year with users, developers, and customers. The intent is to provide focus for core developers and contributors alike, so that we can together work toward a common vision for how we want Metasploit to evolve.
