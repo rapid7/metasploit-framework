@@ -288,7 +288,7 @@ class Payload < Msf::Module
   #
   # Generates the payload and returns the raw buffer to the caller.
   #
-  def generate
+  def generate(_opts = {})
     internal_generate
   end
 

@@ -17,7 +17,7 @@ module Payload::Windows::ReverseTcpRc4
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     xorkey, rc4key = rc4_keys(datastore['RC4PASSWORD'])
     conf = {
       port:        datastore['LPORT'],
