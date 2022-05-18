@@ -689,9 +689,16 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
         allow(subject).to receive(:reg_key_value_exists?).and_return(true)
       end
 
-      it 'does not override it' do
-        expect(subject).to_not receive(:cmd_exec_with_result)
+      it 'overrides it' do
+        expect(subject).to receive(:cmd_exec_with_result).and_return(['', true])
         subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type)
+      end
+
+      context 'when the :override option is set to false' do
+        it 'does not override it' do
+          expect(subject).to_not receive(:cmd_exec_with_result)
+          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, {override: false})
+        end
       end
 
       context 'when the :override option is set to true' do
