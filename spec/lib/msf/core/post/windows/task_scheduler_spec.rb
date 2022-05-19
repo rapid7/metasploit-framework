@@ -468,7 +468,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
   describe '#run_one_off_task' do
     let(:task_name) { Rex::Text.rand_text_alpha(rand(8..15)) }
     let(:cmd) { double('Command') }
-    let(:opts) { { task_type: 'ONCE', runas: 'SYSTEM', obfuscation: false } }
+    let(:opts) { { task_type: 'ONCE', runas: 'SYSTEM', obfuscation: 'NONE' } }
     before :example do
       allow(subject).to receive(:log_and_print)
       allow(Rex::Text).to receive(:rand_text_alpha).and_return(task_name)
