@@ -43,14 +43,8 @@ bundle exec ruby build.rb --production --serve
 
 Now visit http://127.0.0.1:4000/metasploit-framework/
 
-### Modifying pages
 
-Modify the files within `metasploit-framework.wiki/`. The `docs` folder is generated, but can be edited locally.
-Jekyll will rebuild the required file, and the changes can be seen after refreshing your browser.
+### Contributing Documentation
 
-## Adding pages
-
-Add the new file to `metasploit-framework.wiki/`, as well as adding a new file entry to `navigation.rb` and rebuild the site.
-
-Note that when testing locally - if you're adding new files, Jekyll will not always regenerate the navigation for all pages.
-It is easier to rebuild the entire site again.
+You can modify existing documentation files within `metasploit-framework.wiki/` with an editor of your choice and send a pull request.
+Note that adding a new page will also require modifying `navigation.rb` to appear on the navigation menu.
