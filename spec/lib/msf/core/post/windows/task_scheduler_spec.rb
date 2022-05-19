@@ -8,7 +8,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       'ScheduleType' => 'ONSTART',
       'ScheduleModifier' => 1,
       'ScheduleRunAs' => 'SYSTEM',
-      'ScheduleObfuscateTask' => true
+      'ScheduleObfuscationTechnique' => 'SECURITY_DESC'
     }
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
     context 'with the default options' do
       it 'executes the expected command to create a task' do
-        cmd = "schtasks /create /tn \"#{task_name}\" /tr \"#{task_cmd}\" /sc #{task_type} /st 00:00:00 /ru #{run_as} /f"
+        cmd = "schtasks /create /tn \"#{task_name}\" /tr \"#{task_cmd}\" /sc #{task_type} /ru #{run_as} /f"
         expect(subject).to receive(:schtasks_exec).with(cmd)
         subject.task_create(task_name, task_cmd)
       end
@@ -85,7 +85,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
     context 'without obfuscation' do
       context 'with specific datastore option' do
         before :example do
-          datastore.merge!({ 'ScheduleObfuscateTask' => false })
+          datastore.merge!({ 'ScheduleObfuscationTechnique' => 'NONE' })
         end
 
         it 'does not obfuscate the task' do
@@ -468,7 +468,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
   describe '#run_one_off_task' do
     let(:task_name) { Rex::Text.rand_text_alpha(rand(8..15)) }
     let(:cmd) { double('Command') }
-    let(:opts) { { task_type: 'ONCE', runas: 'SYSTEM', obfuscate: false } }
+    let(:opts) { { task_type: 'ONCE', runas: 'SYSTEM', obfuscation: false } }
     before :example do
       allow(subject).to receive(:log_and_print)
       allow(Rex::Text).to receive(:rand_text_alpha).and_return(task_name)
