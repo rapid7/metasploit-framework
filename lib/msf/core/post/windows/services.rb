@@ -425,7 +425,7 @@ module Services
       open_service_handle(manager, name, "SERVICE_START") do |service_handle|
         retval = advapi32.StartServiceA(service_handle,0,nil)
         if retval["GetLastError"] == Error::SERVICE_ALREADY_RUNNING
-          return Error::SERVICE_ALREADY_RUNNING.to_s
+          raise Error::SERVICE_ALREADY_RUNNING.to_s
         end
 
         return retval["GetLastError"]
