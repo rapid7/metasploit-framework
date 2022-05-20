@@ -4,7 +4,7 @@ require 'open3'
 require 'optparse'
 require_relative './navigation'
 
-# Temporary build module to help migrate the Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
+# Temporary build module to help migrate and build the Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
 # supported by Jekyll, as well as creating a hierarchical folder structure for nested documentation
 #
 # For now the doc folder only contains the key files for building the docs site and no content. The content is created on demand
@@ -13,7 +13,10 @@ require_relative './navigation'
 # In the future, the markdown files will be committed directly to the metasploit-framework directory, the wiki history will be
 # merged with metasploit-framework, and the old wiki will no longer be updated.
 module Build
+  # The metasploit-framework.wiki files that are committed to Metasploit framework's repository
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
+  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki
+  OLD_WIKI_PATH = 'metasploit-framework.wiki.old'.freeze
   PRODUCTION_BUILD_ARTIFACTS = '_site'.freeze
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
@@ -25,13 +28,18 @@ module Build
         Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{WIKI_PATH}", exception: true
       end
 
-      Build.run_command "cd #{WIKI_PATH}; git pull", exception: true
+      unless File.exist?(OLD_WIKI_PATH)
+        Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{OLD_WIKI_PATH}", exception: true
+      end
+
+      Build.run_command "cd #{OLD_WIKI_PATH}; git pull", exception: true
     end
   end
 
   # Configuration for generating the new website hierarchy, from the existing metasploit-framework wiki
   class Config
     include Enumerable
+
     def initialize(config)
       @config = config
     end
@@ -132,10 +140,6 @@ module Build
       child[:has_children] = true if child[:children].to_a.any?
 
       child
-    end
-
-    def without_prefix(prefix)
-      proc { |value| value.gsub(/^#{prefix}/, '') }
     end
 
     attr_reader :config
@@ -307,16 +311,24 @@ module Build
 
   # Parses a wiki page and can add/remove/update a deprecation notice
   class WikiDeprecationText
-    MARKDOWN_PREFIX = '#### Documentation Update:'.freeze
-    private_constant :MARKDOWN_PREFIX
+    MAINTAINER_MESSAGE_PREFIX = "<!-- Maintainers: "
+    private_constant :MAINTAINER_MESSAGE_PREFIX
 
-    def self.upsert(original_wiki_content, new_url:)
-      message = "#{MARKDOWN_PREFIX} This is viewable at [#{new_url}](#{new_url})\n\n"
-      "#{message}#{WikiDeprecationText.remove(original_wiki_content)}"
+    USER_MESSAGE_PREFIX = '**Documentation Update:'.freeze
+    private_constant :USER_MESSAGE_PREFIX
+
+    def self.upsert(original_wiki_content, old_path:, new_url:)
+      history_link = old_path.include?("#{WIKI_PATH}/Home.md") ? './Home/_history' : './_history'
+      maintainer_message = "#{MAINTAINER_MESSAGE_PREFIX} Please do not modify this file directly, create a pull request instead -->\n\n"
+      user_message = "#{USER_MESSAGE_PREFIX} This Wiki page should be viewable at [#{new_url}](#{new_url}). Or if it is no longer available, see this page's [previous history](#{history_link})**\n\n"
+      deprecation_text = maintainer_message + user_message
+      "#{deprecation_text}"
     end
 
     def self.remove(original_wiki_content)
-      original_wiki_content.gsub(/#{MARKDOWN_PREFIX}.*$\s+/, '')
+      original_wiki_content
+        .gsub(/^#{Regexp.escape(MAINTAINER_MESSAGE_PREFIX)}.*$\s+/, '')
+        .gsub(/^#{Regexp.escape(USER_MESSAGE_PREFIX)}.*$\s+/, '')
     end
   end
 
@@ -338,7 +350,9 @@ module Build
         page_config = {
           layout: 'default',
           **page.slice(:title, :has_children, :nav_order),
-          parent: (page[:parents][-1] || {})[:title]
+          parent: (page[:parents][-1] || {})[:title],
+          warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated"
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
@@ -360,14 +374,15 @@ module Build
           new_docs_content = preamble + WikiDeprecationText.remove(previous_content)
           new_docs_content = link_corrector.rerender(new_docs_content)
 
-          # Update the existing Wiki with links to the new website
-          if options[:update_existing_wiki]
-            new_url = options[:update_existing_wiki][:new_website_url]
+          # Update the old Wiki with links to the new website
+          if options[:update_wiki_deprecation_notice]
+            new_url = options[:update_wiki_deprecation_notice][:new_website_url]
             if page[:new_path] != 'home.md'
               new_url += 'docs/' + page[:new_path].gsub('.md', '.html')
             end
-            updated_wiki_content = WikiDeprecationText.upsert(previous_content, new_url: new_url)
-            File.write(old_path, updated_wiki_content)
+            updated_wiki_content = WikiDeprecationText.upsert(previous_content, old_path: old_path, new_url: new_url)
+            old_wiki_path = File.join(OLD_WIKI_PATH, page[:path])
+            File.write(old_wiki_path, updated_wiki_content, mode: 'w', encoding: Encoding::UTF_8)
           end
         end
 
@@ -416,7 +431,7 @@ module Build
   end
 
   def self.run_command(command, exception: true)
-    puts command
+    puts "[*] #{command}"
     result = ''
     ::Open3.popen2e(
       { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
@@ -440,7 +455,7 @@ module Build
       end
 
       if !wait_thread.value.success? && exception
-        raise "command did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
+        raise "command #{command.inspect} did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
       end
     end
 
@@ -448,9 +463,60 @@ module Build
   end
 
   def self.run(options)
-    Git.clone_wiki! unless options[:skip_wiki_pull]
+    Git.clone_wiki! if options[:wiki_pull]
 
-    unless options[:skip_migration]
+    # Create a new branch based on the commits from https://github.com/rapid7/metasploit-framework/wiki to move
+    # Wiki files into the metasploit-framework repo
+    if options[:create_wiki_to_framework_migration_branch]
+      starting_branch = run_command("git rev-parse --abbrev-ref HEAD").chomp
+      new_wiki_branch_name = "move-all-docs-into-folder"
+      new_framework_branch_name = "merge-metasploit-framework-wiki-into-metasploit-framework"
+
+      begin
+        # Create a new folder and branch in the old metasploit wiki for where we'd like it to be inside of the metasploit-framework repo
+        Dir.chdir(OLD_WIKI_PATH) do
+          # Reset the repo back
+          run_command("git checkout master", exception: false)
+          run_command("git reset HEAD --hard", exception: false)
+          run_command("rm -rf metasploit-framework.wiki", exception: false)
+
+          # Create a new folder to move the wiki contents into
+          FileUtils.mkdir_p("metasploit-framework.wiki")
+          run_command("mv *[^metasploit-framework.wiki]* metasploit-framework.wiki", exception: false)
+
+          # Create a new branch + commit
+          run_command("git branch -D #{new_wiki_branch_name}", exception: false)
+          run_command("git checkout -b #{new_wiki_branch_name}")
+          run_command("git add metasploit-framework.wiki")
+          run_command("git commit -am 'Put markdown files into new folder metasploit-framework.wiki in preparation for migration'")
+        end
+
+        # Create a new branch that can be used to create a pull request
+        run_command("git branch -D #{new_framework_branch_name}", exception: false)
+        run_command("git checkout -b #{new_framework_branch_name}")
+        run_command("git remote remove wiki", exception: false)
+        run_command("git remote add -f wiki #{File.join(Dir.pwd, OLD_WIKI_PATH)}", exception: false)
+        # run_command("git remote update wiki")
+        run_command("git merge -m 'Migrate docs from https://github.com/rapid7/metasploit-framework/wiki to main repository' wiki/#{new_wiki_branch_name} --allow-unrelated-histories")
+
+        puts "new branch #{new_framework_branch_name} successfully created"
+      ensure
+        run_command("git checkout #{starting_branch}")
+      end
+    end
+
+    if options[:copy_old_wiki]
+      FileUtils.copy_entry(OLD_WIKI_PATH, WIKI_PATH, preserve = false, dereference_root = false, remove_destination = true)
+      # Remove any deprecation text that might be present after copying the old wiki
+      Dir.glob(File.join(WIKI_PATH, '**', '*.md')) do |path|
+        previous_content = File.read(path, encoding: Encoding::UTF_8)
+        new_content = WikiDeprecationText.remove(previous_content)
+
+        File.write(path, new_content, mode: 'w', encoding: Encoding::UTF_8)
+      end
+    end
+
+    unless options[:build_content]
       config = Config.new(NAVIGATION_CONFIG)
       migrator = WikiMigration.new
       migrator.run(config, options)
@@ -470,27 +536,15 @@ module Build
 end
 
 if $PROGRAM_NAME == __FILE__
-  options = {}
+  options = {
+    copy_old_wiki: true,
+    wiki_pull: true
+  }
   options_parser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
 
     opts.on '-h', '--help', 'Help banner.' do
       return print(opts.help)
-    end
-
-    opts.on('--skip-wiki-pull', 'Skip pulling the Metasploit Wiki') do |skip_wiki_pull|
-      options[:skip_wiki_pull] = skip_wiki_pull
-    end
-
-    opts.on('--skip-migration', 'Skip building the content') do |skip_migration|
-      options[:skip_migration] = skip_migration
-    end
-
-    opts.on('--update-existing-wiki [website url]', 'Update the existing wiki with links to the new website location') do |new_website_url|
-      new_website_url ||= 'https://docs.metasploit.com/'
-      options[:update_existing_wiki] = {
-        new_website_url: new_website_url
-      }
     end
 
     opts.on('--production', 'Run a production build') do |production|
@@ -499,6 +553,25 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--serve', 'serve the docs site') do |serve|
       options[:serve] = serve
+    end
+
+    opts.on('--[no]-copy-old-wiki [FLAG]', TrueClass, 'Copy the content from the old wiki to the new local wiki folder') do |copy_old_wiki|
+      options[:copy_old_wiki] = copy_old_wiki
+    end
+
+    opts.on('--[no-]-wiki-pull', FalseClass, 'Pull the Metasploit Wiki') do |wiki_pull|
+      options[:wiki_pull] = wiki_pull
+    end
+
+    opts.on('--update-wiki-deprecation-notice [WEBSITE_URL]', 'Updates the old wiki deprecation notes') do |new_website_url|
+      new_website_url ||= 'https://docs.metasploit.com/'
+      options[:update_wiki_deprecation_notice] = {
+        new_website_url: new_website_url
+      }
+    end
+
+    opts.on('--create-wiki-to-framework-migration-branch') do
+      options[:create_wiki_to_framework_migration_branch] = true
     end
   end
   options_parser.parse!
