@@ -24,10 +24,6 @@ module Build
   # into the main framework repo
   module Git
     def self.clone_wiki!
-      unless File.exist?(WIKI_PATH)
-        Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{WIKI_PATH}", exception: true
-      end
-
       unless File.exist?(OLD_WIKI_PATH)
         Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{OLD_WIKI_PATH}", exception: true
       end
@@ -381,7 +377,7 @@ module Build
               new_url += 'docs/' + page[:new_path].gsub('.md', '.html')
             end
             updated_wiki_content = WikiDeprecationText.upsert(previous_content, old_path: old_path, new_url: new_url)
-            old_wiki_path = File.join(OLD_WIKI_PATH, page[:path])
+            old_wiki_path = File.join(WIKI_PATH, page[:path])
             File.write(old_wiki_path, updated_wiki_content, mode: 'w', encoding: Encoding::UTF_8)
           end
         end
@@ -537,8 +533,8 @@ end
 
 if $PROGRAM_NAME == __FILE__
   options = {
-    copy_old_wiki: true,
-    wiki_pull: true
+    copy_old_wiki: false,
+    wiki_pull: false
   }
   options_parser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
