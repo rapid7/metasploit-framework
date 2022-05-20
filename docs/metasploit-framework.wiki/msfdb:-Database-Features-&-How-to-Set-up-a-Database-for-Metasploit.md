@@ -122,7 +122,7 @@ The commands for msfdb are as follows:
 
 ## msfdb errors
 
-In the case of any of the above commands printing either a stack trace or error, your first step should be to run `./msfdb reinit` (again making sure to say no to the prompt asking you if you want to delete the Database contents) and reattempt the command that caused the error. If the error persists, copy the command you executed, the output generated, and paste it into an [error ticket](https://github.com/rapid7/metasploit-framework/issues/new). 
+In the case of any of the above commands printing either a stack trace or error, your first step should be to run `./msfdb reinit` (again making sure to say no to the prompt asking you if you want to delete the Database contents) and reattempt the command that caused the error. If the error persists, copy the command you executed, the output generated, and paste it into an [error ticket](https://github.com/rapid7/metasploit-framework/issues/new/choose). 
 
 ## What's next?
 That's it for the simple high level explanation of how to setup a database for metasploit. If that wasn't enough detail for you you can check out our more in depth explanation [here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).

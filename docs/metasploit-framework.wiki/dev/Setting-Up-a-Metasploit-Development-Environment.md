@@ -250,7 +250,7 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [wiki-documentation]:https://github.com/rapid7/metasploit-framework/wiki#metasploit-development
 [newbie-friendly-prs-issues]:https://github.com/rapid7/metasploit-framework/issues?q=is%3Aopen+label%3Anewbie-friendly
 [howto-PR]:https://help.github.com/articles/about-pull-requests/
-[new issue]:https://github.com/rapid7/metasploit-framework/issues/new
+[new issue]:https://github.com/rapid7/metasploit-framework/issues/new/choose
 [Slack]:https://www.metasploit.com/slack
 [@kernelsmith]:https://github.com/kernelsmith
 [@corelanc0d3r]:https://github.com/corelanc0d3r

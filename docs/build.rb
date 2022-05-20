@@ -79,8 +79,6 @@ module Build
 
     def ignored_paths
       [
-        '_Sidebar.md',
-        'dev/_Sidebar.md',
       ]
     end
 
