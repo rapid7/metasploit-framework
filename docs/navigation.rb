@@ -138,8 +138,8 @@ NAVIGATION_CONFIG = [
             path: 'Hashes-and-Password-Cracking.md'
           },
           {
-            path: 'msfdb:-Database-Features-&-How-to-Set-up-a-Database-for-Metasploit.md',
-            new_base_name: 'Metasploit-Database-Support.md',
+            old_wiki_path: 'msfdb:-Database-Features-&-How-to-Set-up-a-Database-for-Metasploit.md',
+            path: 'Metasploit-Database-Support.md',
             title: 'Database Support'
           },
         ]
@@ -276,8 +276,8 @@ NAVIGATION_CONFIG = [
             nav_order: 3
           },
           {
-            path: "Navigating-and-Understanding-Metasploit's-Codebase.md",
-            new_base_name: 'Navigating-and-Understanding-Metasploits-Codebase.md',
+            old_wiki_path: "Navigating-and-Understanding-Metasploit's-Codebase.md",
+            path: 'Navigating-and-Understanding-Metasploits-Codebase.md',
             title: 'Navigating the codebase'
           },
           {
@@ -348,8 +348,8 @@ NAVIGATION_CONFIG = [
                 path: 'How-to-use-command-stagers.md'
               },
               {
-                path: 'How-to-write-a-check()-method.md',
-                new_base_name: 'How-to-write-a-check-method.md'
+                old_wiki_path: 'How-to-write-a-check()-method.md',
+                path: 'How-to-write-a-check-method.md'
               },
               {
                 path: 'How-to-check-Microsoft-patch-levels-for-your-exploit.md'
@@ -396,13 +396,13 @@ NAVIGATION_CONFIG = [
                 title: 'Railgun'
               },
               {
-                path: 'How-to-zip-files-with-Msf-Util-EXE.to_zip.md',
-                new_base_name: 'How-to-zip-files-with-Msf-Util-EXE-to_zip.md',
+                old_wiki_path: 'How-to-zip-files-with-Msf-Util-EXE.to_zip.md',
+                path: 'How-to-zip-files-with-Msf-Util-EXE-to_zip.md',
                 title: 'Zip'
               },
               {
-                path: 'Handling-Module-Failures-with-`fail_with`.md',
-                new_base_name: 'Handling-Module-Failures-with-fail_with.md',
+                old_wiki_path: 'Handling-Module-Failures-with-`fail_with`.md',
+                path: 'Handling-Module-Failures-with-fail_with.md',
                 title: 'Fail_with'
               },
               {
@@ -414,8 +414,8 @@ NAVIGATION_CONFIG = [
                 title: 'Fileformat'
               },
               {
-                path: 'SQL-Injection-(SQLi)-Libraries.md',
-                new_base_name: 'SQL-Injection-Libraries.md',
+                old_wiki_path: 'SQL-Injection-(SQLi)-Libraries.md',
+                path: 'SQL-Injection-Libraries.md',
                 title: 'SQL Injection'
               },
               {
@@ -464,8 +464,8 @@ NAVIGATION_CONFIG = [
                     path: 'Dot-Net-Deserialization.md'
                   },
                   {
-                    path: 'Generating-`ysoserial`-Java-serialized-objects.md',
-                    new_base_name: 'Generating-ysoserial-Java-serialized-objects.md',
+                    old_wiki_path: 'Generating-`ysoserial`-Java-serialized-objects.md',
+                    path: 'Generating-ysoserial-Java-serialized-objects.md',
                     title: 'Java Deserialization'
                   }
                 ]
@@ -546,8 +546,8 @@ NAVIGATION_CONFIG = [
                 path: 'Module-Reference-Identifiers.md'
               },
               {
-                path: 'Definition-of-Module-Reliability,-Side-Effects,-and-Stability.md',
-                new_base_name: 'Definition-of-Module-Reliability-Side-Effects-and-Stability.md'
+                old_wiki_path: 'Definition-of-Module-Reliability,-Side-Effects,-and-Stability.md',
+                path: 'Definition-of-Module-Reliability-Side-Effects-and-Stability.md'
               },
             ]
           }
@@ -597,8 +597,8 @@ NAVIGATION_CONFIG = [
                 title: 'Adding and Updating'
               },
               {
-                path: 'Testing-Rex-and-other-Gem-File-Updates-With-Gemfile.local-and-Gemfile.local.example.md',
-                new_base_name: 'using-local-gems.md',
+                old_wiki_path: 'Testing-Rex-and-other-Gem-File-Updates-With-Gemfile.local-and-Gemfile.local.example.md',
+                path: 'Using-local-gems.md',
                 title: 'Using local Gems'
               },
               {
@@ -696,8 +696,8 @@ NAVIGATION_CONFIG = [
             path: 'MSF6-Feature-Proposals.md'
           },
           {
-            path: 'RFC---Metasploit-URL-support.md',
-            new_base_name: 'Metasploit-URL-support-proposal.md'
+            old_wiki_path: 'RFC---Metasploit-URL-support.md',
+            path: 'Metasploit-URL-support-proposal.md'
           },
           {
             path: 'Uberhandler.md'
@@ -740,8 +740,8 @@ NAVIGATION_CONFIG = [
             path: 'Metasploit-Breaking-Changes.md'
           },
           {
-            path: 'Metasploit-Data-Service-Enhancements-(Goliath).md',
-            new_base_name: 'Metasploit-Data-Service-Enhancements-Goliath.md',
+            old_wiki_path: 'Metasploit-Data-Service-Enhancements-(Goliath).md',
+            path: 'Metasploit-Data-Service-Enhancements-Goliath.md',
             title: 'Metasploit Data Service'
           },
         ]
