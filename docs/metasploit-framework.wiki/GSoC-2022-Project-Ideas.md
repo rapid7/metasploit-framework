@@ -58,7 +58,7 @@ Difficulty: 4/5
 
 Enhance existing Metasploit Goliath dashboard that allows observation of an active engagement. Data visualization would include, but not be limited to: host node graph with activity indicators and heat maps. The main idea here is to create a visualization tool that helps users understand data that has been gathered into Metasploit during usage in some useful way. Proposals should note where the service will live, how a user will use the service, and how you will provide a maintainable and extendable consumer for the data that is exposed.
 
-See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [Metasploit-Data-Service-Enhancements-(Goliath)](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Data-Service-Enhancements-%28Goliath%29)
+See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [Metasploit-Data-Service-Enhancements-(Goliath)](./Metasploit-Data-Service-Enhancements-Goliath)
 
 Size: Medium/Large (Depends on proposal)  
 Difficulty 3/5

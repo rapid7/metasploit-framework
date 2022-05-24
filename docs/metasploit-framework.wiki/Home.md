@@ -10,7 +10,7 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 - [[Using Metasploit]]
 - [[Using Git]]
 - [[Reporting a Bug]]
-- [[Navigating and Understanding Metasploit's Codebase]]
+- [[Navigating and Understanding Metasploit's Codebase|./Navigating-and-Understanding-Metasploits-Codebase.md]]
 
 # Contributing
 
@@ -53,10 +53,10 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 - [[How to use WbemExec for a write privilege attack on Windows]]
 - [[How to write a browser exploit using BrowserExploitServer]]
 - [[How to write a browser exploit using HttpServer]]
-- [[How to write a check() method]]
+- [[How to write a check method]]
 - [[How to write a HTTP LoginScanner Module]]
 - [[How to write a module using HttpServer and HttpClient]]
-- [How to zip files with Msf::Util::EXE.to_zip](https://github.com/rapid7/metasploit-framework/wiki/How-to-zip-files-with-Msf-Util-EXE.to_zip)
+- [[How to zip files with Msf::Util::EXE.to_zip|./How-to-zip-files-with-Msf-Util-EXE-to_zip.md]]
 - [[How to use Metasploit Framework Compiler Windows to compile C code]]
 - [[How to use Metasploit Framework Obfuscation CRandomizer]]
 - [[How to decrypt RC4 with Metasploit Framework Compiler]]
@@ -64,7 +64,7 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 - [[How to XOR with Metasploit Framework Compiler]]
 - [[Using ReflectiveDll Injection]]
 - [[Oracle Usage]]
-- [[Definition of Module Reliability, Side Effects, and Stability]]
+- [[Definition of Module Reliability, Side Effects, and Stability|./Definition-of-Module-Reliability-Side-Effects-and-Stability.md]]
 
 # Metasploit Payloads #
 

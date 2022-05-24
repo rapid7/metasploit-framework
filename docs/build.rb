@@ -47,7 +47,7 @@ module Build
 
       each do |page|
         page_keys = page.keys
-        allowed_keys = %i[path new_base_name nav_order title new_path folder children has_children parents]
+        allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
         raise "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
       end
@@ -200,11 +200,15 @@ module Build
       new_links
     end
 
-    # Scans for substrings such as '[[Reference Sites|Git Reference Sites]]'
+    # Scans for Github wiki flavor links such as:
+    #   '[[Relative Path]]'
+    #   '[[Custom name|Relative Path]]'
+    #   '[[Custom name|relative-path]]'
+    #   '[[Custom name|./relative-path.md]]'
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
-      markdown.scan(/(\[\[([\w_ '().:,-]+)(?:\|([\w_ '():,.-]+))?\]\])/) do |full_match, left, right|
+      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
         new_path = new_path_for(old_path)
         if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
@@ -233,7 +237,8 @@ module Build
       old_path = old_path.gsub(' ', '-')
       matched_pages = pages.select do |page|
         !page[:folder] &&
-          File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase
+          (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
+            File.basename(page[:path]).downcase == "#{File.basename(old_path)}".downcase)
       end
       if matched_pages.empty?
         raise "Missing path for #{old_path}"
