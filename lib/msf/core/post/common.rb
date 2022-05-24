@@ -258,7 +258,11 @@ module Msf::Post::Common
   # @param [Integer] timeout The time in sec. to wait before giving up
   # @param [Hash] opts An Hash of options (see {#cmd_exec})
   # @return [Array(String, Boolean)] Array containing the output string
-  #   followed by a boolean indicating if the command succeded or not
+  #   followed by a boolean indicating if the command succeeded or not. When
+  #   this boolean is `true`, the first field contains the normal command
+  #   output. When it is `false`, the first field contains the error message
+  #   returned by the command or a timeout error message if the timeout
+  #   expired.
   def cmd_exec_with_result(cmd, args = nil, timeout = 15, opts = {})
     # This token will be returned if the command succeeds.
     # Redirection operators (`&&` and `||`) are the most reliable methods to
