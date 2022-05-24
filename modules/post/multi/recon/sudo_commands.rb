@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Post
       end
     end
   rescue => e
-    print_error "Could not parse sudo ouput: #{e.message}"
+    print_error "Could not parse sudo output: #{e.message}"
   end
 
   def run
