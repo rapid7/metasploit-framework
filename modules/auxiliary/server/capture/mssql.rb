@@ -6,11 +6,11 @@
 
 NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
+NTLM_UTILS = Rex::Proto::NTLM::Utils
 MESSAGE = Rex::Proto::NTLM::Message
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
-  include Msf::Exploit::Remote::SMB::Server
   include Msf::Auxiliary::Report
 
   class Constants
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+        OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negotiation, when set client will use ntlmssp, if not then client will use classic lanman authentication", false ]),
         OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
       ])
 

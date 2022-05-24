@@ -45,3 +45,4 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
