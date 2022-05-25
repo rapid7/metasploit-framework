@@ -210,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::Packet.parse(pkt)
     return unless p.is_ipv6?
     return unless p.ipv6_next == 0x3a
-    return unless p.payload[0,2] == "\x88\x00"
+    return unless p.icmpv6_type == 136 && p.icmpv6_code == 0
     p
   end
 end
