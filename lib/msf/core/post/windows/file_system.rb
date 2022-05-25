@@ -404,6 +404,34 @@ module Msf
 
           build_unicode_string(enc_str.size, p_buffer)
         end
+
+        #
+        # Return a list of the Windows Drives
+        #
+        def get_drives
+          drives = []
+          if session.type == "meterpreter" && session.railgun
+            bitmask = session.railgun.kernel32.GetLogicalDrives()["return"]
+            letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            (0..25).each do |i|
+              label = letters[i,1]
+              rem = bitmask % (2**(i+1))
+              if rem > 0
+                drives << label
+                bitmask = bitmask - rem
+              end
+            end
+          else
+            disks = cmd_exec("wmic logicaldisk get caption").split("\r\n")
+            for disk in disks
+              if /([A-Z]):/ =~ disk
+                drives << disk[0]
+              end
+            end
+          end
+
+          drives
+        end
       end # FileSystem
     end # Windows
   end # Post

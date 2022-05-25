@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Windows::FileSystem
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
