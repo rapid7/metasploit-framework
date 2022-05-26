@@ -12,8 +12,8 @@ module MetasploitModule
     super(
       merge_info(
         info,
-        'Name' => 'Windows shellcode stager',
-        'Description' => 'Custom shellcode stager',
+        'Name' => 'Windows shellcode stage',
+        'Description' => 'Custom shellcode stage',
         'Author' => 'bwatters-r7',
         'License' => MSF_LICENSE,
         'Platform' => 'win',
@@ -22,17 +22,5 @@ module MetasploitModule
         'PayloadCompat' => {}
       )
     )
-  end
-
-  def stage_payload(_opts = {})
-    print_line('Trying to stage Payload')
-    unless datastore['SHELLCODE_FILE'].nil?
-      shellcode = File.binread(datastore['SHELLCODE_FILE'])
-      if datastore['PrependSize']
-        return [ shellcode.length ].pack('V') + shellcode
-      else
-        return shellcode
-      end
-    end
   end
 end
