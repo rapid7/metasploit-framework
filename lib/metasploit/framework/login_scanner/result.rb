@@ -50,7 +50,7 @@ module Metasploit
         end
 
         def success?
-          status == Metasploit::Model::Login::Status::SUCCESSFUL
+          status == Metasploit::Model::Login::Status::SUCCESSFUL || status == Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
         end
 
         # This method takes all the data inside the Result object
