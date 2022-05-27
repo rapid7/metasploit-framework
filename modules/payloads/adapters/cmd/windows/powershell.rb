@@ -51,4 +51,9 @@ module MetasploitModule
     conf[:platform] ||= module_info['AdaptedPlatform']
     super
   end
+
+  def handle_connection(conn, opts = {})
+    opts[:arch] ||= module_info['AdaptedArch']
+    super
+  end
 end
