@@ -121,10 +121,49 @@ module Rex
 
           # Runtime Error which can be raised by the Rex::Proto::Kerberos API
           class KerberosError < ::StandardError
+            # @return [Rex::Proto::Kerberos::Model::Error::ErrorCode] A ErrorCode generated from a KDC
+            attr_reader :error_code
+
+            # @return [Rex::Proto::Kerberos::Model::KdcResponse, Rex::Proto::Kerberos::Model::EncKdcResponse] The response associated with this error
+            attr_reader :res
+
+            def initialize(message = nil, error_code: nil, res: nil)
+              error_code ||= res&.error_code
+              @error_code = error_code
+              @res = res
+
+              super(message || message_for(error_code))
+            end
+
+            def message_for(error_code)
+              return "Kerberos Error" unless error_code
+
+              if error_code == ErrorCodes::KRB_AP_ERR_SKEW && res&.respond_to?(:stime)
+                now = Time.now
+                skew = (res.stime - now).abs.to_i
+                return "#{error_code}. Local time: #{now}, Server time: #{res.stime}, off by #{skew} seconds"
+              end
+
+              "Kerberos Error - #{error_code}"
+            end
           end
 
           # Runtime Decoding Error which can be raised by the Rex::Proto::Kerberos API
           class KerberosDecodingError < KerberosError
+            def initialize(message = nil)
+              super(message || "Kerberos Decoding Error")
+            end
+          end
+
+          # Runtime Error which can be raised by the Rex::Proto::Kerberos API when the Kerberos target does not support
+          # the chosen Encryption method
+          class KerberosEncryptionNotSupported < KerberosError
+            # @return [Number] One of the encryption types defined within Rex::Proto::Kerberos::Crypto
+            attr_reader :encryption_type
+
+            def initialize(message = nil, encryption_type: nil)
+              super(message || "Kerberos target does not support the required encryption")
+            end
           end
         end
       end

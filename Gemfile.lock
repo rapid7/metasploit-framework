@@ -241,7 +241,7 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (4.0.4)
+    metasploit-model (4.0.5)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)

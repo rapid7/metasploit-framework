@@ -18,6 +18,7 @@ module Rex
         AP_REQ = 14
 
         # From Principal
+        # https://datatracker.ietf.org/doc/html/rfc4120#section-6.2
 
         # Name type not known
         NT_UNKNOWN = 0
