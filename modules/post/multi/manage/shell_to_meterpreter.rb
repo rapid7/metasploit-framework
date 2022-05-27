@@ -216,13 +216,21 @@ class MetasploitModule < Msf::Post
   # @return String/nil A string if a Python binary can be found, else nil.
   #
   def remote_python_binary
-    python_exists_regex = /Python (2|3)\.(\d)/
-    # We could cache these values
-    return 'python' if cmd_exec('python -V 2>&1') =~ python_exists_regex
-    return 'python2' if cmd_exec('python2 -V 2>&1') =~ python_exists_regex
-    return 'python3' if cmd_exec('python3 -V 2>&1') =~ python_exists_regex
+    return @remote_python_binary if defined?(@remote_python_binary)
 
-    nil
+    python_exists_regex = /Python (2|3)\.(\d)/
+
+    if cmd_exec('python3 -V 2>&1') =~ python_exists_regex
+      @remote_python_binary = 'python3'
+    elsif cmd_exec('python -V 2>&1') =~ python_exists_regex
+      @remote_python_binary = 'python'
+    elsif cmd_exec('python2 -V 2>&1') =~ python_exists_regex
+      @remote_python_binary = 'python2'
+    else
+      @remote_python_binary = nil
+    end
+
+    @remote_python_binary
   end
 
   def transmit_payload(exe, platform)
