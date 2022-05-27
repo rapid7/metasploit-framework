@@ -26,6 +26,8 @@ A file to store Cain & Abel formatted captured hashes in. Only supports NTLMv1 H
 
 The 8 byte server challenge. If unset or not a valid 16 character hexadecimal pattern, a random challenge is used instead.
 
+The format is `1122334455667788`.
+
 **JOHNPWFILE**
 
 A file to store John the Ripper formatted hashes in. NTLMv1 and NTLMv2 hashes will be stored in separate files.

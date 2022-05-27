@@ -17,9 +17,10 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module provides a SMB service that can be used to capture the challenge-response
         password NTLMv1 & NTLMv2 hashes used with SMB1, SMB2, or SMB3 client systems.
-        Responses sent by this service have by default a random 8 byte challenge string
-        of format `\x11\x22\x33\x44\x55\x66\x77\x88`, allowing for easy cracking using
-        Cain & Abel (NTLMv1) or John the ripper (with jumbo patch).
+        Responses sent by this service by default use a random 8 byte challenge string.
+        A specific value (such as `1122334455667788`) can be set using the CHALLENGE option,
+        allowing for easy cracking using Cain & Abel (NTLMv1) or John the Ripper
+        (with jumbo patch).
 
         To exploit this, the target system must try to authenticate to this
         module. One way to force an SMB authentication attempt is by embedding
