@@ -276,6 +276,80 @@ RSpec.describe Msf::Auxiliary::Juniper do
         ))
     end
 
+    context 'deals tacplus-server blocks' do
+      it 'with one cred' do
+        expect(aux_juniper).to receive(:print_good).with('tacplus server 1.1.1.1 with password hash $9$aaAAAAAeAA1AAAb2AAjAqmAA')
+        expect(aux_juniper).to receive(:report_host).with({ host: '127.0.0.1', os_name: 'Juniper JunOS' })
+        expect(aux_juniper).to receive(:store_loot).with('juniper.junos.config', 'text/plain', '127.0.0.1',
+                                                         "tacplus-server {\n                                                1.1.1.1 secret \"$9$aaAAAAAeAA1AAAb2AAjAqmAA\"; ## SECRET-DATA\n                                            }",
+                                                         'config.txt', 'Juniper JunOS Configuration')
+        expect(aux_juniper).to receive(:create_credential_and_login).with(
+          {
+            address: '127.0.0.1',
+            port: 1337,
+            protocol: 'tcp',
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
+            jtr_format: '',
+            private_data: '$9$aaAAAAAeAA1AAAb2AAjAqmAA',
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
+
+        aux_juniper.juniper_junos_config_eater('127.0.0.1', 1337,
+                                               %q(tacplus-server {
+                                                1.1.1.1 secret "$9$aaAAAAAeAA1AAAb2AAjAqmAA"; ## SECRET-DATA
+                                            }))
+      end
+      it 'with two cred' do
+        expect(aux_juniper).to receive(:print_good).with('tacplus server 1.1.1.1 with password hash $9$aaAAAAAeAA1AAAb2AAjAqmAA')
+        expect(aux_juniper).to receive(:print_good).with('tacplus server 2.2.2.2 with password hash $9$aaaAa/1aAAAa1aaaAAaa11aAA')
+        expect(aux_juniper).to receive(:report_host).with({ host: '127.0.0.1', os_name: 'Juniper JunOS' })
+        expect(aux_juniper).to receive(:store_loot).with('juniper.junos.config', 'text/plain', '127.0.0.1',
+                                                         "tacplus-server {\n                                                1.1.1.1 secret \"$9$aaAAAAAeAA1AAAb2AAjAqmAA\"; ## SECRET-DATA\n                                                2.2.2.2 secret \"$9$aaaAa/1aAAAa1aaaAAaa11aAA\"; ## SECRET-DATA\n                                            }",
+                                                         'config.txt', 'Juniper JunOS Configuration')
+        expect(aux_juniper).to receive(:create_credential_and_login).with(
+          {
+            address: '127.0.0.1',
+            port: 1337,
+            protocol: 'tcp',
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
+            private_data: '$9$aaAAAAAeAA1AAAb2AAjAqmAA',
+            jtr_format: '',
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
+
+        expect(aux_juniper).to receive(:create_credential_and_login).with(
+          {
+            address: '127.0.0.1',
+            port: 1337,
+            protocol: 'tcp',
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
+            private_data: '$9$aaaAa/1aAAAa1aaaAAaa11aAA',
+            jtr_format: '',
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
+
+        aux_juniper.juniper_junos_config_eater('127.0.0.1', 1337,
+                                               %q(tacplus-server {
+                                                1.1.1.1 secret "$9$aaAAAAAeAA1AAAb2AAjAqmAA"; ## SECRET-DATA
+                                                2.2.2.2 secret "$9$aaaAa/1aAAAa1aaaAAaa11aAA"; ## SECRET-DATA
+                                            }))
+      end
+    end
     context 'deals with user account with password hash' do
       it 'with super-user' do
         expect(aux_juniper).to receive(:print_good).with('User 2000 named newuser in group super-user found with password hash $1$rm8FaMFY$k4LFxqsVAiGO5tKqyO9jJ/.')
@@ -579,36 +653,81 @@ RSpec.describe Msf::Auxiliary::Juniper do
           ))
       end
     end
-
-    it 'deals with radius' do
-      expect(aux_juniper).to receive(:print_good).with('radius server 1.1.1.1 password hash: $9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV')
-      expect(aux_juniper).to receive(:report_host).with({ host: '127.0.0.1', os_name: 'Juniper JunOS' })
-      expect(aux_juniper).to receive(:store_loot).with('juniper.junos.config', 'text/plain', '127.0.0.1',
-                                                       "access {\n              radius-server {\n                  1.1.1.1 secret \"$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV\"; ## SECRET-DATA\n              }\n           }",
-                                                       'config.txt', 'Juniper JunOS Configuration')
-      expect(aux_juniper).to receive(:create_credential_and_login).with(
-        {
-          address: '1.1.1.1',
-          port: 1812,
-          protocol: 'udp',
-          workspace_id: workspace.id,
-          origin_type: :service,
-          service_name: 'radius',
-          module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
-          private_data: '$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV',
-          private_type: :nonreplayable_hash,
-          status: Metasploit::Model::Login::Status::UNTRIED
-        }
-      )
-      aux_juniper.juniper_junos_config_eater('127.0.0.1', 1337,
-                                             %q(access {
+    context 'deals radius-server blocks' do
+      it 'with one credential' do
+        expect(aux_juniper).to receive(:print_good).with('radius server 1.1.1.1 password hash: $9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV')
+        expect(aux_juniper).to receive(:report_host).with({ host: '127.0.0.1', os_name: 'Juniper JunOS' })
+        expect(aux_juniper).to receive(:store_loot).with('juniper.junos.config', 'text/plain', '127.0.0.1',
+                                                         "access {\n              radius-server {\n                  1.1.1.1 secret \"$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV\"; ## SECRET-DATA\n              }\n           }",
+                                                         'config.txt', 'Juniper JunOS Configuration')
+        expect(aux_juniper).to receive(:create_credential_and_login).with(
+          {
+            address: '1.1.1.1',
+            port: 1812,
+            protocol: 'udp',
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: 'radius',
+            module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
+            private_data: '$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV',
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
+        aux_juniper.juniper_junos_config_eater('127.0.0.1', 1337,
+                                               %q(access {
               radius-server {
                   1.1.1.1 secret "$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV"; ## SECRET-DATA
               }
            }
         ))
-    end
+      end
 
+      it 'with two credentials' do
+        expect(aux_juniper).to receive(:print_good).with('radius server 2.2.2.2 password hash: $9$Y-11ikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKv111')
+        expect(aux_juniper).to receive(:print_good).with('radius server 1.1.1.1 password hash: $9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV')
+        expect(aux_juniper).to receive(:report_host).with({ host: '127.0.0.1', os_name: 'Juniper JunOS' })
+        expect(aux_juniper).to receive(:store_loot).with('juniper.junos.config', 'text/plain', '127.0.0.1',
+                                                         "access {\n              radius-server {\n                  1.1.1.1 secret \"$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV\"; ## SECRET-DATA\n                  2.2.2.2 secret \"$9$Y-11ikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKv111\"; ## SECRET-DATA\n              }\n           }",
+                                                         'config.txt', 'Juniper JunOS Configuration')
+        expect(aux_juniper).to receive(:create_credential_and_login).with(
+          {
+            address: '1.1.1.1',
+            port: 1812,
+            protocol: 'udp',
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: 'radius',
+            module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
+            private_data: '$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV',
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
+        expect(aux_juniper).to receive(:create_credential_and_login).with(
+          {
+            address: '2.2.2.2',
+            port: 1812,
+            protocol: 'udp',
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: 'radius',
+            module_fullname: 'auxiliary/scanner/snmp/juniper_dummy',
+            private_data: '$9$Y-11ikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKv111',
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
+        aux_juniper.juniper_junos_config_eater('127.0.0.1', 1337,
+                                               %q(access {
+              radius-server {
+                  1.1.1.1 secret "$9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV"; ## SECRET-DATA
+                  2.2.2.2 secret "$9$Y-11ikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKv111"; ## SECRET-DATA
+              }
+           }
+        ))
+      end
+    end
     it 'deals with pap' do
       expect(aux_juniper).to receive(:print_good).with('PPTP username \'pap_username\' hash $9$he4revM87-dsevm5TQCAp0BErvLxd4JDNdkPfT/9BIR via PAP')
       expect(aux_juniper).to receive(:report_host).with({ host: '127.0.0.1', os_name: 'Juniper JunOS' })

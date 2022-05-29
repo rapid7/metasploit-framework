@@ -228,19 +228,38 @@ module Msf
         create_credential_and_login(cred)
       end
 
-      config.scan(/radius-server \{\s+(?<radius_server>[0-9.]{7,15}) secret "(?<radius_hash>[^"]+)";/i).each do |result|
-        radius_hash = result[1].strip
-        radius_server = result[0].strip
-        print_good("radius server #{radius_server} password hash: #{radius_hash}")
-        next unless framework.db.active
+      # radius-server
+      config.scan(/\s*radius-server \{([^}]+)\}/i).each do |result_block|
+        result_block[0].strip.scan(/(?<radius_server>[0-9.]{7,15}) secret "(?<radius_hash>[^"]+)";/i).each do |result|
+          radius_hash = result[1].strip
+          radius_server = result[0].strip
+          print_good("radius server #{radius_server} password hash: #{radius_hash}")
+          next unless framework.db.active
 
-        cred = credential_data.dup
-        cred[:address] = radius_server
-        cred[:port] = 1812
-        cred[:protocol] = 'udp'
-        cred[:private_data] = radius_hash
-        cred[:service_name] = 'radius'
-        create_credential_and_login(cred)
+          cred = credential_data.dup
+          cred[:address] = radius_server
+          cred[:port] = 1812
+          cred[:protocol] = 'udp'
+          cred[:private_data] = radius_hash
+          cred[:service_name] = 'radius'
+          create_credential_and_login(cred)
+        end
+      end
+
+      # tacplus-server
+      config.scan(/\s*tacplus-server \{([^}]+)\}/i).each do |result_block|
+        result_block[0].strip.scan(/(?<tacplus_server>[0-9.]{7,15}) secret "(?<hash>[^"]+)";/i).each do |result|
+          ip = result[0].strip
+          hash = result[1].strip
+          jtr_format = identify_hash hash
+          print_good("tacplus server #{ip} with password hash #{hash}")
+          next unless framework.db.active
+
+          cred = credential_data.dup
+          cred[:jtr_format] = jtr_format
+          cred[:private_data] = hash
+          create_credential_and_login(cred)
+        end
       end
 
       config.scan(/pap {\s+local-name "(?<ppp_username>.+)";\s+local-password "(?<ppp_hash>[^"]+)";/i).each do |result|
