@@ -51,7 +51,7 @@ RSpec.describe Msf::Auxiliary::Nfs do
     end
 
     it 'bad hostname' do
-      expect(subject.can_mount?(['not.my.hostname'], true, 'my.hostname', '1.1.1.1')).to be false
+      expect(subject.can_mount?(['not.my.hostname'], true, 'foo.bar', '1.1.1.1')).to be false
     end
 
     it 'hostname with wildcard' do
@@ -59,7 +59,7 @@ RSpec.describe Msf::Auxiliary::Nfs do
     end
 
     it 'bad hostname with wildcard' do
-      expect(subject.can_mount?(['*.not.my.hostname'], true, 'my.hostname', '1.1.1.1')).to be false
+      expect(subject.can_mount?(['*.not.my.hostname'], true, 'foo.bar', '1.1.1.1')).to be false
     end
   end
 end
