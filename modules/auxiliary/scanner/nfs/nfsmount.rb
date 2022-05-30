@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
         grp = []
         grp << Rex::Encoder::XDR.decode_string!(resp) while Rex::Encoder::XDR.decode_int!(resp) == 1
 
-        if can_mount? grp
+        if can_mount?(grp, datastore['Mountable'], datastore['HOSTNAME'], datastore['LHOST'] || '')
           print_good("#{ip} Mountable NFS Export: #{dir} [#{grp.join(', ')}]")
         else
           print_status("#{ip} NFS Export: #{dir} [#{grp.join(', ')}]")

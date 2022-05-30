@@ -9,7 +9,7 @@ RSpec.describe Msf::Auxiliary::Nfs do
     mod
   end
 
-  context 'NFS mountability check' do
+  context '#can_mount?' do
     it 'deals with astericks' do
       expect(subject.can_mount?(['*'], true, 'my.hostname', '1.1.1.1')).to be true
     end
