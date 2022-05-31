@@ -4,16 +4,17 @@
 module Msf::Payload::Custom
 
   def stage_payload(_opts = {})
-    print_line('Trying to stage Payload')
-    unless datastore['SHELLCODE_FILE'].nil?
+    if datastore['SHELLCODE_FILE'].nil?
+      print_error("SHELLCODE_FILE is nil; nothing to stage.")
+    else
       shellcode = File.binread(datastore['SHELLCODE_FILE'])
       if datastore['PrependSize']
-
         return [ shellcode.length ].pack('V') + shellcode
       else
         return shellcode
       end
     end
+    return nil
   end
 
   def handle_intermediate_stage(conn, payload)
@@ -21,6 +22,7 @@ module Msf::Payload::Custom
       print_status("Skipping sending the payload length a second time")
       return false
     end
+    print_line("handle_intermediate_stager")
 
     super
   end
