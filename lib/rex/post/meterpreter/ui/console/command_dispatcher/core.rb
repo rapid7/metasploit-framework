@@ -1337,13 +1337,14 @@ class Console::CommandDispatcher::Core
         if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
 
-          if md == 'stdapi' && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo']
+          if md == 'stdapi' && (client.exploit_datastore && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo'])
             client.load_session_info
           end
         end
       rescue => ex
         print_line
         log_error("Failed to load extension: #{ex.message}")
+        elog(ex)
         if ex.kind_of?(ExtensionLoadError) && ex.name
           # MetasploitPayloads and MetasploitPayloads::Mettle do things completely differently, build an array of
           # suggestion keys (binary_suffixes and Mettle build-tuples)
