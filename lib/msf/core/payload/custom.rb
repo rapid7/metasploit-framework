@@ -5,25 +5,25 @@ module Msf::Payload::Custom
 
   def stage_payload(_opts = {})
     if datastore['SHELLCODE_FILE'].nil?
-      print_error("SHELLCODE_FILE is nil; nothing to stage.")
+      return nil
     else
-      shellcode = File.binread(datastore['SHELLCODE_FILE'])
-      if datastore['PrependSize']
-        return [ shellcode.length ].pack('V') + shellcode
-      else
-        return shellcode
-      end
+      return File.binread(datastore['SHELLCODE_FILE'])
     end
-    return nil
   end
 
-  def handle_intermediate_stage(conn, payload)
-    if( self.module_info['Stager']['RequiresMidstager'] == false ) && datastore['PrependSize']
-      print_status("Skipping sending the payload length a second time")
-      return false
+  def setup_handler
+    if datastore['SHELLCODE_FILE'].nil?
+      fail_with(Msf::Module::Failure::BadConfig, "No SHELLCODE_FILE provided")
+    else
+      begin
+        # read the file before we start the handler to make sure that it is valid
+        test = File.binread(datastore['SHELLCODE_FILE'])
+      rescue => e
+        print_error("Unable to read #{datastore['SHELLCODE_FILE']}:\n#{e}")
+        elog(e)
+        fail_with(Msf::Module::Failure::BadConfig, "Bad SHELLCODE_FILE provided")
+      end
     end
-    print_line("handle_intermediate_stager")
-
     super
   end
 

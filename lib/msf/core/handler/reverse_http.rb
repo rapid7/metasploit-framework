@@ -388,6 +388,11 @@ protected
           begin
             blob = self.generate_stage(url: url, uuid: uuid, uri: conn_id)
             blob = encode_stage(blob) if self.respond_to?(:encode_stage)
+            # remove this when we make http payloads prepend stage sizes by default
+            if defined?(read_stage_size?) && read_stage_size?
+              print_status("Appending Stage Size For HTTP[S]...")
+              blob = [ blob.length ].pack('V') + blob
+            end
 
             print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
 
