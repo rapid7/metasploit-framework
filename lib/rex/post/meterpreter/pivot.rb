@@ -85,6 +85,7 @@ class Pivot
     c = Class.new(::Msf::Payload)
     c.include(::Msf::Payload::Stager)
     c.include(::Msf::Payload::TransportConfig)
+    c.include(::Msf::Sessions::MeterpreterOptions)
 
     # TODO: add more platforms
     case opts[:platform]
