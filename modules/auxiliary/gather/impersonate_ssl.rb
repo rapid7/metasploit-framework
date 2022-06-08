@@ -181,11 +181,12 @@ class MetasploitModule < Msf::Auxiliary
       ef.create_extension('subjectKeyIdentifier', 'hash'),
     ]
 
-    # add additional SAN entries to the new cert
+    # Add additional SAN entries to the new cert. See https://support.f5.com/csp/article/K13471
+    # for an example of how this added SAN field is expected to look like in a certificate.
     if !datastore['ADD_SAN'].nil? && !datastore['ADD_SAN'].empty?
       sans = datastore['ADD_SAN'].to_s.split(/,/)
       sans.map! do |san|
-        san = san =~ Resolv::IPv4::Regex || san =~ Resolv::IPv6::Regex ? "IP:#{san}" : "DNS:#{san}"
+        san = (san =~ Resolv::IPv4::Regex || san =~ Resolv::IPv6::Regex) ? "IP:#{san}" : "DNS:#{san}"
       end
       new_cert.add_extension(ef.create_extension('subjectAltName', sans.join(','), false))
       print_status("Adding #{datastore['ADD_SAN']} to the certificate subject alternative names")
