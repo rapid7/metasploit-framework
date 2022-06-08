@@ -20,7 +20,7 @@ module Rex
           #   KDC and specifies the time that the client's secret key is due to expire
           attr_accessor :key_expiration
           # @!attribute flags
-          #   @return [Integer] This field indicates which of various options were used or
+          #   @return [Rex::Proto::Kerberos::Model::KdcOptionFlags] This field indicates which of various options were used or
           #   requested when the ticket was issued
           attr_accessor :flags
           # @!attribute auth_time
@@ -111,7 +111,7 @@ module Rex
               when 10
                 self.sname = decode_sname(val)
               else
-                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode ENC-KDC-RESPONSE SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode tag #{val.tag.inspect} in ENC-KDC-RESPONSE SEQUENCE"
               end
             end
           end
@@ -156,9 +156,9 @@ module Rex
           # Decodes the flags field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
+          # @return [Rex::Proto::Kerberos::Model::KdcOptionFlags]
           def decode_flags(input)
-            input.value[0].value.to_i
+            Rex::Proto::Kerberos::Model::KdcOptionFlags.new(input.value[0].value.unpack1('N'))
           end
 
           # Decodes the auth_time field

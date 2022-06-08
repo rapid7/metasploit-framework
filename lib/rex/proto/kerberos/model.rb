@@ -17,23 +17,6 @@ module Rex
         AUTHENTICATOR = 2
         AP_REQ = 14
 
-        KDC_OPTION_RESERVED        = 0
-        KDC_OPTION_FORWARDABLE     = 1
-        KDC_OPTION_FORWARDED       = 2
-        KDC_OPTION_PROXIABLE       = 3
-        KDC_OPTION_PROXY           = 4
-        KDC_OPTION_ALLOW_POST_DATE = 5
-        KDC_OPTION_POST_DATED      = 6
-        KDC_OPTION_UNUSED_7        = 7
-        KDC_OPTION_RENEWABLE       = 8
-        KDC_OPTION_UNUSED_9        = 9
-        KDC_OPTION_UNUSED_10       = 10
-        KDC_OPTION_UNUSED_11       = 11
-        KDC_OPTION_RENEWABLE_OK    = 27
-        KDC_OPTION_ENC_TKT_IN_SKEY = 28
-        KDC_OPTION_RENEW           = 30
-        KDC_OPTION_VALIDATE        = 31
-
         # From Principal
 
         # Name type not known

@@ -272,7 +272,8 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
 
       it "decodes the flags correctly" do
         enc_kdc_response.decode(enc_as_resp)
-        expect(enc_kdc_response.flags).to eq(0)
+        expect(enc_kdc_response.flags).to eq(0x50e00000)
+        expect(enc_kdc_response.flags.enabled_flag_names).to eq(%i[FORWARDABLE PROXIABLE RENEWABLE INITIAL PRE_AUTHENT])
       end
 
       it "decodes the auth_time correctly" do

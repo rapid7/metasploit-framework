@@ -103,7 +103,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::BitString]
           def encode_options
-            OpenSSL::ASN1::BitString.new([options].pack('N'))
+            OpenSSL::ASN1::BitString.new([options.to_i].pack('N'))
           end
 
           # Encodes the cname
