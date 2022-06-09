@@ -25,7 +25,7 @@ require 'rex'
 
 # Initialize the simplified framework instance.
 framework = Msf::Simple::Framework.create('DisableDatabase' => true)
-
+exceptions = []
 framework.payloads.each_module do |name, mod|
   begin
     next if name =~ /generic/
@@ -35,8 +35,13 @@ framework.payloads.each_module do |name, mod|
     $stdout.puts "[*] Updating the CacheSize for #{mod.file_path}..."
     Msf::Util::PayloadCachedSize.update_module_cached_size(mod_inst)
   rescue => e
-    print_line("Caught Error while updating #{name}:\n#{e}")
-    elog(e)
+    exceptions << [ e, name ]
     next
   end
 end
+
+exceptions.each do |e, name|
+  print_error("Caught Error while updating #{name}:\n#{e}")
+  elog(e)
+end
+exit(1) unless exceptions.empty?
