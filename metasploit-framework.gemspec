@@ -224,6 +224,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'eventmachine'
 
   spec.add_runtime_dependency 'faraday'
+  spec.add_runtime_dependency 'faraday-retry'
 
   # Required for windows terminal colors as of Ruby 3.0
   spec.add_runtime_dependency 'win32api'

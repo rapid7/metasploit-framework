@@ -18,6 +18,7 @@ PATH
       eventmachine
       faker
       faraday
+      faraday-retry
       faye-websocket
       filesize
       hrr_rb_ssh-ed25519
@@ -189,6 +190,7 @@ GEM
       faraday-net_http (~> 2.0)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (2.0.3)
+    faraday-retry (1.0.3)
     faye-websocket (0.11.1)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
