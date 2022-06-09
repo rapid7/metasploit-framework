@@ -424,9 +424,6 @@ module Services
     open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
       open_service_handle(manager, name, "SERVICE_START") do |service_handle|
         retval = advapi32.StartServiceA(service_handle,0,nil)
-        if retval["GetLastError"] == Error::SERVICE_ALREADY_RUNNING
-          raise Error::SERVICE_ALREADY_RUNNING.to_s
-        end
 
         return retval["GetLastError"]
       end
@@ -527,7 +524,7 @@ module Services
         vprint_good("[#{name}] Service started")
         return true
       else
-        raise status
+        raise status.to_s
       end
     rescue RuntimeError => s
       if tried
