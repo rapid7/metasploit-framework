@@ -31,13 +31,13 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [['WordPress', {}]],
         'DefaultTarget' => 0,
         'References' => [
-          ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/'],
-          ['NOCVE', 'Patched in 3.53.3 without vendor disclosure']
+          ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/']
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS]
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS],
+          'NOCVE' => ['Patched in 3.53.3 without vendor disclosure']
         }
       )
     )
