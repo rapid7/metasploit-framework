@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Actions' => [
           [ 'ADD_COMPUTER', { 'Description' => 'Add a computer account' } ],
+          [ 'LOOKUP_COMPUTER', { 'Description' => 'Lookup a computer account' } ]
         ],
         'DefaultAction' => 'ADD_COMPUTER'
       )
@@ -162,6 +163,20 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("Successfully created #{@domain_name}\\#{computer_name} with password #{password}")
     report_creds(@domain_name, computer_name, password)
+  end
+
+  def action_lookup_computer
+    fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
+    computer_name = datastore['COMPUTER_NAME']
+
+    details = @samr.samr_lookup_names_in_domain(domain_handle: @domain_handle, names: [ computer_name ])
+    if details.nil?
+      print_error('The specified computer was not found.')
+      return
+    end
+    details = details[computer_name]
+    sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: details[:rid]).to_s
+    print_good("Found #{@domain_name}\\#{computer_name} (SID: #{sid})")
   end
 
   def report_creds(domain, username, password)
