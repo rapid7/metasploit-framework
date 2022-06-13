@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Actions' => [
           [ 'ADD_COMPUTER', { 'Description' => 'Add a computer account' } ],
+          [ 'DELETE_COMPUTER', { 'Description' => 'Delete a computer account' } ],
           [ 'LOOKUP_COMPUTER', { 'Description' => 'Lookup a computer account' } ]
         ],
         'DefaultAction' => 'ADD_COMPUTER'
@@ -163,6 +164,19 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("Successfully created #{@domain_name}\\#{computer_name} with password #{password}")
     report_creds(@domain_name, computer_name, password)
+  end
+
+  def action_delete_computer
+    fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
+    computer_name = datastore['COMPUTER_NAME']
+
+    details = @samr.samr_lookup_names_in_domain(domain_handle: @domain_handle, names: [ computer_name ])
+    fail_with(Failure::BadConfig, 'The specified computer was not found.') if details.nil?
+    details = details[computer_name]
+
+    handle = @samr.samr_open_user(domain_handle: @domain_handle, user_id: details[:rid])
+    @samr.samr_delete_user(user_handle: handle)
+    print_good('The specified computer has been deleted.')
   end
 
   def action_lookup_computer
