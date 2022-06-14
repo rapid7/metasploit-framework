@@ -57,11 +57,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    connect
+    begin
+      connect
+    rescue Rex::ConnectionError => e
+      fail_with(Failure::Unreachable, e.message)
+    end
+
     begin
       smb_login
     rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
-      fail_with(Module::Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
+      fail_with(Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
     end
     report_service(
       host: rhost,
@@ -75,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       @tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
     rescue RubySMB::Error::RubySMBError => e
-      fail_with(Module::Failure::Unreachable, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")
+      fail_with(Failure::Unreachable, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")
     end
 
     @samr = connect_samr
@@ -84,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['SMBDomain'].blank? || datastore['SMBDomain'] == '.'
       all_domains = @samr.samr_enumerate_domains_in_sam_server(server_handle: @server_handle).map(&:to_s).map(&:encode)
       all_domains.delete('Builtin')
-      if all_domains.length == 0
+      if all_domains.empty?
         fail_with(Failure::NotFound, 'No domains were found on the SAM server.')
       elsif all_domains.length > 1
         print_status("Enumerated domains: #{all_domains.join(', ')}")
@@ -100,6 +105,9 @@ class MetasploitModule < Msf::Auxiliary
     @domain_sid = @samr.samr_lookup_domain(server_handle: @server_handle, name: @domain_name)
     @domain_handle = @samr.samr_open_domain(server_handle: @server_handle, domain_id: @domain_sid)
     send("action_#{action.name.downcase}")
+  rescue RubySMB::Dcerpc::Error::SamrError => e
+    elog(e.message, error: e)
+    fail_with(Failure::UnexpectedReply, e.message)
   end
 
   def random_hostname(prefix: 'DESKTOP')
