@@ -16,10 +16,14 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'SAMR Computer Management',
         'Description' => %q{
+          Add, lookup and delete computer accounts via MS-SAMR. By default
+          standard active directory users can add up to 10 new computers to the
+          domain. Administrative privileges however are required to delete the
+          created accounts.
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Alberto Solino', # Original Impacket code # todo: verify this author credit
+          'JaGoTu', # @jagotu Original Impacket code
           'Spencer McIntyre',
         ],
         'References' => [
@@ -41,6 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('COMPUTER_NAME', [ false, 'The computer name' ]),
+      OptString.new('COMPUTER_PASSWORD', [ false, 'The password for the new computer' ], conditions: %w[ACTION == ADD_COMPUTER]),
       Opt::RPORT(445)
     ])
   end
@@ -83,8 +88,13 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")
     end
 
-    @samr = connect_samr
-    @server_handle = @samr.samr_connect
+    begin
+      @samr = connect_samr
+      @server_handle = @samr.samr_connect
+    rescue RubySMB::Dcerpc::Error::FaultError => e
+      elog(e.message, error: e)
+      fail_with(Failure::UnexpectedReply, "Connection failed (DCERPC fault: #{e.status_name})")
+    end
 
     if datastore['SMBDomain'].blank? || datastore['SMBDomain'] == '.'
       all_domains = @samr.samr_enumerate_domains_in_sam_server(server_handle: @server_handle).map(&:to_s).map(&:encode)
@@ -138,7 +148,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     user_handle = result[:user_handle]
-    password = Rex::Text.rand_text_alphanumeric(32)
+    if datastore['COMPUTER_PASSWORD'].blank?
+      password = Rex::Text.rand_text_alphanumeric(32)
+    else
+      password = datastore['COMPUTER_PASSWORD']
+    end
 
     user_info = RubySMB::Dcerpc::Samr::SamprUserInfoBuffer.new(
       tag: RubySMB::Dcerpc::Samr::USER_INTERNAL4_INFORMATION_NEW,
