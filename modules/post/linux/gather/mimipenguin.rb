@@ -128,6 +128,15 @@ class MetasploitModule < Msf::Post
     mem_search_ascii(target_pid, 5, 500, target_info['needles'])
   end
 
+  def format_addresses(addr_line)
+    address = addr_line.split&.first
+    start_addr, end_addr = address.split('-')
+    start_addr = start_addr.to_i(16)
+    end_addr = end_addr.to_i(16)
+
+    [ start_addr, end_addr ]
+  end
+
   # Selects memory regions to read based on locations
   # of matches
   def choose_mem_regions(match_data = [])
@@ -149,6 +158,28 @@ class MetasploitModule < Msf::Post
 
     lines = mem_data.split("\n")
     updated_regions = mem_regions.clone
+    if mem_regions.length == 1
+      match_addr = mem_regions[0]['start'].to_s(16)
+      match_ind = lines.index { |line| line.start_with?(match_addr) }
+      prev = lines[match_ind - 1]
+      if prev && prev.include?('00000000 00:00 0')
+        start_addr, end_addr = format_addresses(prev)
+        length = end_addr - start_addr
+
+        updated_regions << { 'start' => start_addr, 'length' => length }
+      end
+
+      post = lines[match_ind + 1]
+      if post && post.include?('00000000 00:00 0')
+        start_addr, end_addr = format_addresses(post)
+        length = end_addr - start_addr
+
+        updated_regions << { 'start' => start_addr, 'length' => length }
+      end
+
+      return updated_regions
+    end
+
     mem_regions.each_with_index do |region, index|
       next if index == 0
 
@@ -168,22 +199,14 @@ class MetasploitModule < Msf::Post
         adj_region = lines[curr_index + 1]
         return updated_regions if adj_region.nil?
 
-        address = adj_region.split&.first
-        start_addr, end_addr = address.split('-')
-        start_addr = start_addr.to_i(16)
-        end_addr = end_addr.to_i(16)
-
+        start_addr, end_addr = format_addresses(adj_region)
         length = end_addr - start_addr
         updated_regions << { 'start' => start_addr, 'length' => length }
         return updated_regions
       end
 
       between_vals.each do |addr_line|
-        addresses = addr_line.split&.first
-        start_addr, end_addr = addresses.split('-')
-        start_addr = start_addr.to_i(16)
-        end_addr = end_addr.to_i(16)
-
+        start_addr, end_addr = format_addresses(addr_line)
         length = end_addr - start_addr
         updated_regions << { 'start' => start_addr, 'length' => length }
       end
