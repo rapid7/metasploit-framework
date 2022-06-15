@@ -1116,6 +1116,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/generic'
   end
 
+  context 'cmd/windows/powershell' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/powershell'
+                          ],
+                          reference_name: 'cmd/windows/powershell'
+  end
+
+  context 'cmd/windows/powershell/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/powershell/x64'
+                          ],
+                          reference_name: 'cmd/windows/powershell/x64'
+  end
+
   context 'cmd/windows/powershell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1184,6 +1200,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/reverse_ruby'
+  end
+
+  context 'cmd/windows/jjs_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/windows/jjs_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/jjs_reverse_tcp'
   end
 
   context 'firefox/exec' do
