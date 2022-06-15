@@ -256,6 +256,10 @@ RSpec.describe "Metasploit's json-rpc" do
     end
 
     context 'when the module does not support a check method' do
+      before do
+        mock_rack_env('development')
+      end
+
       let(:module_name) { 'scanner/http/title' }
 
       it 'returns successful job results' do
