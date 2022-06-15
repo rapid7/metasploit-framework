@@ -4,6 +4,22 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # Based on https://datatracker.ietf.org/doc/html/rfc6806.html#section-11
+        #    EncKDCRepPart   ::= SEQUENCE {
+        #            key             [0] EncryptionKey,
+        #            last-req        [1] LastReq,
+        #            nonce           [2] UInt32,
+        #            key-expiration  [3] KerberosTime OPTIONAL,
+        #            flags           [4] TicketFlags,
+        #            authtime        [5] KerberosTime,
+        #            starttime       [6] KerberosTime OPTIONAL,
+        #            endtime         [7] KerberosTime,
+        #            renew-till      [8] KerberosTime OPTIONAL,
+        #            srealm          [9] Realm,
+        #            sname           [10] PrincipalName,
+        #            caddr           [11] HostAddresses OPTIONAL
+        #            encrypted-pa-data [12] SEQUENCE OF PA-DATA OPTIONAL
+        #    }
         class EncKdcResponse < Element
           # @!attribute key
           #   @return [Rex::Proto::Kerberos::Model::EncryptionKey] The session key
@@ -44,6 +60,9 @@ module Rex
           # @!attribute sname
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
+          # @!attribute pa_data
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>,nil] An array of PreAuthData. nil if not present.
+          attr_accessor :pa_data
 
           # Decodes the Rex::Proto::Kerberos::Model::EncKdcResponse from an input
           #
@@ -110,6 +129,8 @@ module Rex
                 self.srealm = decode_srealm(val)
               when 10
                 self.sname = decode_sname(val)
+              when 12
+                self.pa_data = decode_pa_data(val)
               else
                 raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode ENC-KDC-RESPONSE SEQUENCE'
               end
@@ -207,6 +228,19 @@ module Rex
           # @return [Rex::Proto::Kerberos::Type::PrincipalName]
           def decode_sname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
+          end
+
+          # Decodes the pa_data field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>]
+          def decode_pa_data(input)
+            pre_auth = []
+            input.value[0].value.each do |pre_auth_data|
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthData.decode(pre_auth_data)
+            end
+
+            pre_auth
           end
         end
       end
