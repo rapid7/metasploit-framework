@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def boolean_blind
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['ENCODER']&.empty? ? nil : datastore['ENCODER'].intern
     sqli = create_sqli(dbms: @dbms, opts: {
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def reflected
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['ENCODER']&.empty? ? nil : datastore['ENCODER'].intern
     truncation = datastore['TRUNCATION_LENGTH'] <= 0 ? nil : datastore['TRUNCATION_LENGTH']
     sqli = create_sqli(dbms: @dbms, opts: {
       encoder: encoder,
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def time_blind
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['ENCODER']&.empty? ? nil : datastore['ENCODER'].intern
     sqli = create_sqli(dbms: @dbms, opts: {
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
