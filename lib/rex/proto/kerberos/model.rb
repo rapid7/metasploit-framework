@@ -49,12 +49,13 @@ module Rex
         # Unique ID
         NT_UID = 5
 
-        # From padata
+        # From padata - https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml
 
         PA_TGS_REQ = 1
         PA_ENC_TIMESTAMP = 2
         PA_PW_SALT = 3
         PA_PAC_REQUEST = 128
+        PA_SUPPORTED_ETYPES = 165
 
         AD_IF_RELEVANT = 1
       end
