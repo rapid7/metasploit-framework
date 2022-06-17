@@ -18,6 +18,11 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Mimipenguin',
         'Description' => %q{
+          This searches process memory for needles that indicate
+          where cleartext passwords may be located. If any needles
+          are discovered in the target process memory, collected
+          strings in the memory regions of interest will be hashed
+          and tested against hashes found in `/etc/shadow`.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -30,10 +35,11 @@ class MetasploitModule < Msf::Post
         'Targets' => [[ 'Auto', {} ]],
         'Privileged' => true,
         'References' => [
-          [ 'URL', 'https://github.com/huntergregal/mimipenguin'],
-          [ 'CVE', '2018-20781']
+          [ 'URL', 'https://github.com/huntergregal/mimipenguin' ],
+          [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/gnome-keyring/+bug/1772919' ],
+          [ 'CVE', '2018-20781' ]
         ],
-        'DisclosureDate' => '2019-11-29',
+        'DisclosureDate' => '2018-05-23',
         'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [],
@@ -51,10 +57,6 @@ class MetasploitModule < Msf::Post
         }
       )
     )
-  end
-
-  def check
-    CheckCode::Appears
   end
 
   def get_user_names_and_hashes
