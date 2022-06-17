@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Post
     updated_regions = mem_regions.clone
     if mem_regions.length == 1
       match_addr = mem_regions[0]['start'].to_s(16)
-      match_ind = lines.index { |line| line.start_with?(match_addr) }
+      match_ind = lines.index { |line| line.split('-').first.include?(match_addr) }
       prev = lines[match_ind - 1]
       if prev && prev.include?('00000000 00:00 0')
         start_addr, end_addr = format_addresses(prev)
@@ -253,11 +253,7 @@ class MetasploitModule < Msf::Post
         when 'sha512'
           hashed = UnixCrypt::SHA512.build(str, salt)
         when 'unsupported'
-          print_bad('Hash type is unsupported at this time')
-          loot_text = "Hash: #{hash}\nCaptured strings: #{captured_strings.join(', ')}\n"
-          path = store_loot("mimipenguin_loot_#{process_name}", 'text/plain', session, loot_text)
-          print_status("Stored data for #{process_name} at #{path}")
-          break
+          fail_with(Failure::None, 'Hash type is unsupported at this time')
         end
 
         next unless hashed == hash
