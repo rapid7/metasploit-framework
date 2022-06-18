@@ -60,6 +60,9 @@ module Rex
           # @!attribute sname
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
+          # @!attribute caddr
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] These are the addresses from which the ticket can be used
+          attr_accessor :caddr
           # @!attribute pa_data
           #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>,nil] An array of PreAuthData. nil if not present.
           attr_accessor :pa_data
@@ -129,6 +132,8 @@ module Rex
                 self.srealm = decode_srealm(val)
               when 10
                 self.sname = decode_sname(val)
+              when 11
+                self.caddr = decode_caddr(val)
               when 12
                 self.pa_data = decode_pa_data(val)
               else
@@ -228,6 +233,18 @@ module Rex
           # @return [Rex::Proto::Kerberos::Type::PrincipalName]
           def decode_sname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
+          end
+
+          # Decodes the caddr field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Model::HostAddress>]
+          def decode_caddr(input)
+            caddr = []
+            input.value[0].value.each do |host_address_data|
+              caddr << Rex::Proto::Kerberos::Model::HostAddress.decode(host_address_data)
+            end
+            caddr
           end
 
           # Decodes the pa_data field
