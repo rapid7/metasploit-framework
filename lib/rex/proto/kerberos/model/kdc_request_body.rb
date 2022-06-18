@@ -6,6 +6,27 @@ module Rex
       module Model
         # This class provides a representation of a Kerberos KDC-REQ-BODY (request body) data
         # definition
+        #   https://datatracker.ietf.org/doc/html/rfc4120#section-5.4.1
+        #   KDC-REQ-BODY    ::= SEQUENCE {
+        #           kdc-options             [0] KDCOptions,
+        #           cname                   [1] PrincipalName OPTIONAL
+        #                                       -- Used only in AS-REQ --,
+        #           realm                   [2] Realm
+        #                                       -- Server's realm
+        #                                       -- Also client's in AS-REQ --,
+        #           sname                   [3] PrincipalName OPTIONAL,
+        #           from                    [4] KerberosTime OPTIONAL,
+        #           till                    [5] KerberosTime,
+        #           rtime                   [6] KerberosTime OPTIONAL,
+        #           nonce                   [7] UInt32,
+        #           etype                   [8] SEQUENCE OF Int32 -- EncryptionType
+        #                                       -- in preference order --,
+        #           addresses               [9] HostAddresses OPTIONAL,
+        #           enc-authorization-data  [10] EncryptedData OPTIONAL
+        #                                       -- AuthorizationData --,
+        #           additional-tickets      [11] SEQUENCE OF Ticket OPTIONAL
+        #                                          -- NOTE: not empty
+        #   }
         class KdcRequestBody < Element
           # @!attribute options
           #   @return [Integer] The ticket flags
@@ -31,6 +52,9 @@ module Rex
           # @!attribute nonce
           #   @return [Integer] random number
           attr_accessor :nonce
+          # @!attribute addresses
+          #   @return [Array<Rex::Proto::Kerberos::Model::HostAddress>,nil] A list of addresses from which the requested ticket is valid
+          attr_accessor :addresses
           # @!attribute etype
           #   @return [Array<Integer>] The desired encryption algorithm to be used in the response
           attr_accessor :etype
@@ -71,6 +95,7 @@ module Rex
             elems << OpenSSL::ASN1::ASN1Data.new([encode_rtime], 6, :CONTEXT_SPECIFIC) if rtime
             elems << OpenSSL::ASN1::ASN1Data.new([encode_nonce], 7, :CONTEXT_SPECIFIC) if nonce
             elems << OpenSSL::ASN1::ASN1Data.new([encode_etype], 8, :CONTEXT_SPECIFIC) if etype
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_addresses], 9, :CONTEXT_SPECIFIC) if addresses&.any?
             elems << OpenSSL::ASN1::ASN1Data.new([encode_enc_auth_data], 10, :CONTEXT_SPECIFIC) if enc_auth_data
 
             seq = OpenSSL::ASN1::Sequence.new(elems)
@@ -172,6 +197,19 @@ module Rex
             OpenSSL::ASN1::Sequence.new(encoded_types)
           end
 
+          # Encodes the list of addresses from which the requested ticket is valid
+          #
+          # @return [OpenSSL::ASN1::Sequence]
+          def encode_addresses
+            encoded_addresses = []
+
+            addresses.each do |address|
+              encoded_addresses << address.to_asn1
+            end
+
+            OpenSSL::ASN1::Sequence.new(encoded_addresses)
+          end
+
           # Encodes the enc_auth_data
           #
           # @return [String]
@@ -219,6 +257,8 @@ module Rex
                 self.nonce = decode_nonce(val)
               when 8
                 self.etype = decode_etype(val)
+              when 9
+                self.addresses = decode_addresses(val)
               when 10
                 self.enc_auth_data = decode_enc_auth_data(val)
               else
@@ -301,6 +341,18 @@ module Rex
               encs << enc.value.to_i
             end
             encs
+          end
+
+          # Decodes the hostaddresses field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Model::HostAddress>]
+          def decode_addresses(input)
+            caddr = []
+            input.value[0].value.each do |host_address_data|
+              caddr << Rex::Proto::Kerberos::Model::HostAddress.decode(host_address_data)
+            end
+            caddr
           end
 
           # Decodes the enc_auth_data field
