@@ -8,7 +8,7 @@ labels: "suggestion-docs"
   To make it easier for us to help you, please include as much useful information as possible.
 
   Useful Links:
-  - Wiki: https://github.com/rapid7/metasploit-framework/wiki
+  - Wiki: https://docs.metasploit.com/
 
   Before opening a new issue, please search existing issues https://github.com/rapid7/metasploit-framework/issues
 -->
@@ -33,7 +33,7 @@ Why should we document this and who will benefit from it?
 ### Draft the doc
 
 - [ ] Write the doc, following the format listed in these resources:
-  - [Overview on contributing module documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
+  - [Overview on contributing module documentation](https://docs.metasploit.com/docs/development/quality/writing-module-documentation.html)
   - [Docs Templates](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
   - [Example of a similar article]()
 
