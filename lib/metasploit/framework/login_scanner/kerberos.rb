@@ -41,7 +41,7 @@ module Metasploit
             result_options = result_options.merge({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
-            status = status_for_error_code(e.error_code)
+            status = status_for_error_msg(e)
             result_options = result_options.merge({ status: status, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           end
@@ -56,17 +56,42 @@ module Metasploit
 
         private
 
-        def status_for_error_code(error_code)
-          map = {
-            # This might be because of an explicit disabling or because of other restrictions in place on the account. For example: account disabled, expired, or locked out
-            # Note this doesn't map cleanly to Metasploit's login status codes which are only DISABLED or DENIED_ACCESS, and not a union
-            Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED => Metasploit::Model::Login::Status::DISABLED,
-
+        def status_for_error_msg(error_msg)
+          error_code = error_msg.error_code
+          case error_code
+          when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_C_PRINCIPAL_UNKNOWN
             # The username doesn't exist
-            Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_C_PRINCIPAL_UNKNOWN => Metasploit::Model::Login::Status::INVALID_PUBLIC_PART
-          }
-
-          map.fetch(error_code, Metasploit::Model::Login::Status::INCORRECT)
+            Metasploit::Model::Login::Status::INVALID_PUBLIC_PART
+          when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED
+            # Locked out, disabled or expired
+            # It doesn't appear to be documented anywhere (RFC4120 says this is 
+            # "implementation-defined"), but Microsoft gives us a bit of extra information 
+            # in the e-data section
+            begin
+              pa_data_entry = error_msg.res.e_data_as_pa_data_entry
+              if pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+                pw_salt = pa_data_entry.decoded_value
+                case pw_salt.nt_status
+                when 0xC0000234 # STATUS_ACCOUNT_LOCKED_OUT
+                  Metasploit::Model::Login::Status::LOCKED_OUT
+                when 0xC0000072 # STATUS_ACCOUNT_DISABLED
+                  Metasploit::Model::Login::Status::DISABLED
+                when 0xC0000193
+                  # Actually expired, which is effectively Disabled
+                  Metasploit::Model::Login::Status::DISABLED
+                else
+                  Metasploit::Model::Login::Status::DENIED_ACCESS
+                end
+              else
+                  Metasploit::Model::Login::Status::DENIED_ACCESS
+              end
+            rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
+              # Could be a non-MS implementation?
+              Metasploit::Model::Login::Status::DENIED_ACCESS
+            end
+          else
+            Metasploit::Model::Login::Status::INCORRECT
+          end
         end
 
         def set_sane_defaults
