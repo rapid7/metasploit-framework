@@ -169,12 +169,12 @@ class MetasploitModule < Msf::Auxiliary
     begin
       payload = { 'query' => keyword }
 
-      cli = Rex::Proto::Http::Client.new('www.censys.io', 443, {}, true, nil, datastore['Proxies'])
+      cli = Rex::Proto::Http::Client.new('search.censys.io', 443, {}, true, nil, datastore['Proxies'])
       cli.connect
 
       response = cli.request_cgi(
         'method' => 'POST',
-        'uri' => "/api/v1/search/#{search_type}",
+        'uri' => "/api/v2/hosts/search/#{search_type}",
         'agent' => datastore['USERAGENT'],
         'headers' => {
           'Authorization' => "Basic #{Rex::Text.encode_base64("#{uid}:#{secret}")}"
@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Auxiliary
   # auxiliary/gather/censys_search.rb
   def parse_ipv4(records)
     ip_list = []
-    records.each do |ipv4|
+    records['hits'].each do |ipv4|
       ip_list.push(ipv4['ip'])
     end
     ip_list

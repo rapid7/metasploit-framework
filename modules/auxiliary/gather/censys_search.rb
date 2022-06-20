@@ -46,12 +46,12 @@ class MetasploitModule < Msf::Auxiliary
         'query' => keyword
       }
 
-      @cli = Rex::Proto::Http::Client.new('www.censys.io', 443, {}, true)
+      @cli = Rex::Proto::Http::Client.new('search.censys.io', 443, {}, true)
       @cli.connect
 
       response = @cli.request_cgi(
         'method' => 'post',
-        'uri' => "/api/v1/search/#{search_type}",
+        'uri' => "/api/v2/hosts/search/#{search_type}",
         'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
         'data' => payload.to_json
       )
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_certificates(records)
     ips = []
-    records.each do |certificate|
+    records['hits'].each do |certificate|
       # parsed.fingerprint_sha256
       # parsed.subject_dn
       # parsed.issuer_dn
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_ipv4(records)
-    records.each do |ipv4|
+    records['hits'].each do |ipv4|
       # ip
       # protocols
       ip = ipv4['ip']
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_websites(records)
-    records.each do |website|
+    records['hits'].each do |website|
       # domain
       # alexa_rank
       print_good("#{website['domain']} - #{website['alexa_rank']}")
