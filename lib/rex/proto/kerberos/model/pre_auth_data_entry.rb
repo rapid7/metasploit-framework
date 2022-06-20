@@ -59,7 +59,8 @@ module Rex
               decoded = OpenSSL::ASN1.decode(self.value)
               PreAuthEncTimeStamp.decode(decoded)
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
-              # Not yet supported
+              # This is not DER_encoded - just pass the string directly
+              PreAuthPwSalt.decode(self.value)
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_ETYPE_INFO
               # Not yet supported
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_ETYPE_INFO2
