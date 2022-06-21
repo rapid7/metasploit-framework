@@ -6,8 +6,6 @@
 require 'unix_crypt'
 
 class MetasploitModule < Msf::Post
-  Rank = NormalRanking
-
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
   include Msf::Post::Linux::Process
