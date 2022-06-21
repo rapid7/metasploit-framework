@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Mimipenguin',
+        'Name' => 'MimiPenguin',
         'Description' => %q{
           This searches process memory for needles that indicate
           where cleartext passwords may be located. If any needles
