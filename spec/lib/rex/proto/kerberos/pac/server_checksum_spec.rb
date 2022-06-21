@@ -8,7 +8,7 @@ RSpec.describe Rex::Proto::Kerberos::Pac::ServerChecksum do
     described_class.new
   end
 
-  let(:rsa_md5) { Rex::Proto::Kerberos::Crypto::RSA_MD5 }
+  let(:rsa_md5) { Rex::Proto::Kerberos::Crypto::Checksum::RSA_MD5 }
 
   let(:rsa_md5_sample) do
     "\x07\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"

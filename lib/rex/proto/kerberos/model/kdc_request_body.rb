@@ -106,20 +106,13 @@ module Rex
           # Makes a checksum from the Rex::Proto::Kerberos::Model::KdcRequestBody
           #
           # @param etype [Integer] the crypto schema to checksum
+          # @param key [String] the key used as the HMAC secret (applicable to most but not all checksum algorithms)
           # @return [String] the checksum
           # @raise [NotImplementedError] if the encryption schema isn't supported
-          def checksum(etype)
+          def checksum(etype, key)
             data = self.encode
-
-            res = ''
-            case etype
-            when RSA_MD5
-              res = checksum_rsa_md5(data)
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            checksummer = Rex::Proto::Kerberos::Crypto::Checksum::from_checksum_type(etype)
+            checksummer.checksum(key, Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT, data)
           end
 
           private

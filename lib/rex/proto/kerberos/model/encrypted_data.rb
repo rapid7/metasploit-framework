@@ -67,17 +67,8 @@ module Rex
               return ''
             end
 
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = decrypt_rc4_hmac(cipher, key, msg_type)
-              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'EncryptedData failed to decrypt' if res.length < 8
-              res = res[8, res.length - 1]
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.decrypt(cipher, key, msg_type)
           end
 
           private

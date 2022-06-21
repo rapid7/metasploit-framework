@@ -67,16 +67,8 @@ module Rex
           # @raise [NotImplementedError] if the encryption schema isn't supported
           def encrypt(etype, key)
             data = self.encode
-
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = encrypt_rc4_hmac(data, key, 7)
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.encrypt(data, key, Rex::Proto::Kerberos::Crypto::KeyUsage::TGS_REQ_PA_TGS_REQ_AP_REQ_AUTHENTICATOR)
           end
 
 

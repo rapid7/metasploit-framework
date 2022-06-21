@@ -140,7 +140,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncryptedData do
 
       it "decodes etype correctly" do
         encrypted_data.decode(sample_enc_data)
-        expect(encrypted_data.etype).to eq(Rex::Proto::Kerberos::Crypto::RC4_HMAC)
+        expect(encrypted_data.etype).to eq(Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC)
       end
 
       it "decodes cipher correctly" do
