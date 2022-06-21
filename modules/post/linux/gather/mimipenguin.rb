@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
 
   def get_user_names_and_hashes
     shadow_contents = read_file('/etc/shadow')
-    fail_with(Failure::UnexpectedReply, 'Failed to read \'/etc/shadow\'') if shadow_contents.empty?
+    fail_with(Failure::UnexpectedReply, "Failed to read '/etc/shadow'") if shadow_contents.blank?
 
     users = []
     lines = shadow_contents.split
