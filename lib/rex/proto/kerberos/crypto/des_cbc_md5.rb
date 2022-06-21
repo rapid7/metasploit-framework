@@ -7,6 +7,8 @@ module Rex
     module Kerberos
       module Crypto
         class DesCbcMd5 < BlockCipherBase
+          include Rex::Proto::Kerberos::Crypto::Asn1Utils
+
           HASH_LENGTH = 16
           BLOCK_SIZE = 8
           PADDING_SIZE = 8
@@ -15,10 +17,10 @@ module Rex
           #
           # @param password [String] The password to use as the basis for key generation
           # @param salt [String] A salt (usually based on domain and username)
-          # @param iterations [Integer] Unused for this encryption type
+          # @param params [String] Unused for this encryption type
           # @return [String] The derived key
-          def string_to_key(password, salt, iterations=nil)
-            raise ::RuntimeError, 'Iterations not supported for DES' unless iterations == nil
+          def string_to_key(password, salt, params=nil)
+            raise ::RuntimeError, 'Params not supported for DES' unless params == nil
             reverse_this_block = false
             tempstring = [0,0,0,0,0,0,0,0]
 
@@ -108,6 +110,11 @@ module Rex
             end
 
             plaintext
+          end
+
+          def decrypt_asn1(ciphertext, key, msg_type)
+            result = decrypt(ciphertext, key, msg_type)
+            padding_removed = truncate_nulls_after_asn1(result)
           end
 
           # Encrypts the cipher using DES-CBC-MD5 schema

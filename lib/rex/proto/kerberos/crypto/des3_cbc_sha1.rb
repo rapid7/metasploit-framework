@@ -6,6 +6,7 @@ module Rex
     module Kerberos
       module Crypto
         class Des3CbcSha1 < BlockCipherBase
+          include Rex::Proto::Kerberos::Crypto::Asn1Utils
           SEED_SIZE = 21
           BLOCK_SIZE = 8
           PADDING_SIZE = 8
@@ -16,16 +17,21 @@ module Rex
           #
           # @param string [Stringl The password to use as the basis for key generation
           # @param salt [String] A salt (usually based on domain and username)
-          # @param iterations [Integer] Unused for this encryption type
+          # @param params [String] Unused for this encryption type
           # @return [String] The derived key
-          def string_to_key(string, salt, iterations=nil)
-            raise ::RuntimeError, 'Iterations not supported for DES' unless iterations == nil
+          def string_to_key(string, salt, params=nil)
+            raise ::RuntimeError, 'Params not supported for DES' unless params == nil
             utf8_encoded = (string + salt).encode('UTF-8').bytes
             k = random_to_key(nfold(utf8_encoded, 21))
             k = k.pack('C*')
             result = derive(k, 'kerberos'.encode('UTF-8'))
 
             result
+          end
+
+          def decrypt_asn1(ciphertext, key, msg_type)
+            result = decrypt(ciphertext, key, msg_type)
+            padding_removed = truncate_nulls_after_asn1(result)
           end
 
           private

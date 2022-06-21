@@ -19,10 +19,11 @@ module Rex
           #
           # @param password [String] The password to use as the basis for key generation
           # @param salt [String] A salt (usually based on domain and username)
-          # @param iterations [Integer] The number of iterations used during key generation
+          # @param params [String] When unpacked, the number of iterations used during key generation
           # @return [String] The derived key
-          def string_to_key(password, salt, iterations = nil)
-            iterations = 4096 if iterations == nil
+          def string_to_key(password, salt, params = nil)
+            params = "\x00\x00\x10\x00" if params == nil
+            iterations = params.unpack('N')[0]
             seed = OpenSSL::KDF.pbkdf2_hmac(password, salt: salt, iterations: iterations, length: self.class::SEED_SIZE, hash: HASH_FUNCTION)
             tkey = random_to_key(seed)
             derive(tkey, 'kerberos'.encode('utf-8'))

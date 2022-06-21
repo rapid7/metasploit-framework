@@ -64,7 +64,7 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] These are the addresses from which the ticket can be used
           attr_accessor :caddr
           # @!attribute pa_data
-          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>,nil] An array of PreAuthData. nil if not present.
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>,nil] An array of PreAuthDataEntry. nil if not present.
           attr_accessor :pa_data
 
           # Decodes the Rex::Proto::Kerberos::Model::EncKdcResponse from an input
@@ -250,11 +250,11 @@ module Rex
           # Decodes the pa_data field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>]
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
           def decode_pa_data(input)
             pre_auth = []
             input.value[0].value.each do |pre_auth_data|
-              pre_auth << Rex::Proto::Kerberos::Model::PreAuthData.decode(pre_auth_data)
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
             end
 
             pre_auth

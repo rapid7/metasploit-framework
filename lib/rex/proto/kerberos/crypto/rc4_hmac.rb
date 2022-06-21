@@ -11,17 +11,14 @@ module Rex
           # Derive an encryption key based on a password and salt for the given cipher type
           #
           # @param password [String] The password to use as the basis for key generation
-          # @param salt [String] A salt (usually based on domain and username)
-          # @param iterations [Integer] Unused for this encryption type
+          # @param salt [String] Ignored for this encryption algorithm
+          # @param params [String] Unused for this encryption type
           # @return [String] The derived key
-          def string_to_key(password, salt=nil, iterations=nil)
-            raise ::RuntimeError, 'Iterations not supported for DES3' unless iterations == nil
-            raise ::RuntimeError, 'Salt not supported for DES3' unless iterations == nil
-            # Salt is unused in Rc4
-            unicode_password = Rex::Text.to_unicode(password)
-            password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
+          def string_to_key(password, salt=nil, params=nil)
+            raise ::RuntimeError, 'Params not supported for RC4_HMAC' unless params == nil
 
-            password_digest
+            unicode_password = password.encode('utf-16le')
+            password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
           end
           
           # Use this class's encryption routines to create a checksum of the data based on the key and message type
@@ -71,6 +68,8 @@ module Rex
             # Skip the confounder when returning
             decrypted[8,decrypted.length]
           end
+
+          alias decrypt_asn1 decrypt
 
           # Encrypts the cipher using RC4-HMAC schema
           # https://datatracker.ietf.org/doc/rfc4757/
