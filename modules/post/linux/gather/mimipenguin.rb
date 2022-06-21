@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [
           'Shelby Pace', # metasploit module
-          'huntergregal' # poc
+          'huntergregal' # MimiPenguin
         ],
         'Platform' => [ 'linux' ],
         'Arch' => [ ARCH_X86, ARCH_X64 ],
