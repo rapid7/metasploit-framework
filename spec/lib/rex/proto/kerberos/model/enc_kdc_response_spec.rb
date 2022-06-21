@@ -293,7 +293,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
 
       it "decodes the key correctly" do
         enc_kdc_response.decode(enc_as_resp)
-        expect(enc_kdc_response.key.type).to eq(Rex::Proto::Kerberos::Crypto::RC4_HMAC)
+        expect(enc_kdc_response.key.type).to eq(Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC)
       end
 
       it "decodes the last_req correctly" do

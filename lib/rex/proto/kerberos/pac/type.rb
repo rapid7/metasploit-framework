@@ -15,6 +15,9 @@ module Rex
           #   @return [Integer] The type of checksum to use when encoding PAC-TYPE
           attr_accessor :checksum
 
+          # Key used to create the checksum
+          attr_accessor :key
+
           # Encodes the Rex::Proto::Kerberos::Pac::Type
           #
           # @return [String]
@@ -104,15 +107,9 @@ module Rex
           # @return [String] the checksum result
           # @raise [NotImplementedError] if checksum schema isn't supported
           def make_checksum(data)
-            res = ''
-            case checksum
-            when RSA_MD5
-              res = checksum_rsa_md5(data)
-            else
-              raise ::NotImplementedError, 'PAC-TYPE checksum not supported'
-            end
+            checksummer = Rex::Proto::Kerberos::Crypto::Checksum::from_checksum_type(checksum)
 
-            res
+            checksummer.checksum(self.key, Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT, data)
           end
         end
       end
