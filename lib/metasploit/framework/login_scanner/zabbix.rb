@@ -41,7 +41,10 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           begin
-            res = send_request({'uri' => normalize_uri('/')})
+            res = send_request({
+              'uri' => normalize_uri('/'),
+              'cgi' => false
+            })
             return "Connection failed" if res.nil?
 
             if res.code != 200
@@ -69,11 +72,7 @@ module Metasploit
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => self}, ssl, ssl_version, proxies, http_username, http_password)
-          configure_http_client(cli)
-          cli.connect
-          req = cli.request_raw(opts)
-          res = cli.send_recv(req)
+          res = super(opts)
 
           # Found a cookie? Set it. We're going to need it.
           if res && res.get_cookies =~ /(zbx_session(?:id)?=\w+(?:%3D){0,2};)/i
@@ -101,7 +100,8 @@ module Metasploit
             'data'    => data,
             'headers' => {
               'Content-Type'   => 'application/x-www-form-urlencoded'
-            }
+            },
+            'cgi' => false
           }
 
           send_request(opts)
@@ -114,7 +114,8 @@ module Metasploit
             'method'  => 'GET',
             'headers' => {
               'Cookie'  => "#{self.zsession}"
-            }
+            },
+            'cgi' => false
           }
           send_request(opts)
         end
