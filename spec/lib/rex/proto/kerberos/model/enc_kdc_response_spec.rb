@@ -351,7 +351,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
         enc_kdc_response.decode(enc_as_resp)
 
         expect(enc_kdc_response.pa_data.length).to eql(1)
-        expect(enc_kdc_response.pa_data.first&.type).to eql(Rex::Proto::Kerberos::Model::PA_SUPPORTED_ETYPES)
+        expect(enc_kdc_response.pa_data.first&.type).to eql(Rex::Proto::Kerberos::Model::PreAuthType::PA_SUPPORTED_ETYPES)
         # SupportedEnctypes: 0x0000001f, des-cbc-crc, des-cbc-md5, rc4-hmac, aes128-cts-hmac-sha1-96, aes256-cts-hmac-sha1-96
         expect(enc_kdc_response.pa_data.first&.value).to eql("\x1F\x00\x00\x00")
       end

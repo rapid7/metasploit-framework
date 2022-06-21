@@ -20,9 +20,9 @@ module Rex
           #
           # @param password [String] The password to use as the basis for key generation
           # @param salt [String] A salt (usually based on domain and username)
-          # @param iterations [Integer] The number of iterations used during key generation (only used in AES, and even then not usually provided)
+          # @param params [String] A cipher-specific parameter (currently only used in AES, and even then not usually provided)
           # @return [String] The derived key
-          def string_to_key(password, salt, iterations=nil)
+          def string_to_key(password, salt, params=nil)
             raise NotImplementedError
           end
 
@@ -66,6 +66,12 @@ module Rex
             # Discard the confounder.
             plaintext[self.class::BLOCK_SIZE, plaintext.length]
           end
+
+          # Some ciphers add padding and leave it up to the application layer to remove
+          # them. In kerberos, this seems to be reliably done by respecting the expected
+          # length of the ASN1 structure.
+          # For ciphers that remove padding themselves, this just does basic decryption
+          alias decrypt_asn1 decrypt
 
           # Encrypts the cipher
           #

@@ -5,17 +5,17 @@ module Rex
     module Kerberos
       module Model
         # This class provides a representation for Kerberos pre authenticated
-        # data
-        class PreAuthData < Element
+        # data entry.
+        class PreAuthDataEntry < Element
 
           # @!attribute type
           #   @return [Integer] The padata type
           attr_accessor :type
           # @!attribute value
-          #   @return [String] The padata value
+          #   @return [String] The padata value, encoded
           attr_accessor :value
 
-          # Decodes a Rex::Proto::Kerberos::Model::PreAuthData
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthDataEntry
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
@@ -24,16 +24,18 @@ module Rex
             case input
             when String
               decode_string(input)
+            when OpenSSL::ASN1::ASN1Data
+              decode_asn1(input)
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode PreAuthData, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode PreAuthDataEntry, invalid input'
             end
 
             self
           end
 
-          # Encodes a Rex::Proto::Kerberos::Model::PreAuthData into an ASN.1 String
+          # Encodes a Rex::Proto::Kerberos::Model::PreAuthDataEntry into an ASN.1 String
           #
           # @return [String]
           def encode
@@ -42,6 +44,33 @@ module Rex
             seq = OpenSSL::ASN1::Sequence.new([type_asn1, value_asn1])
 
             seq.to_der
+          end
+
+          # Gets the value of this PreAuthDataEntry as its instantiated object, based
+          # on the type
+          #
+          # @return [Object] e.g. PreAuthEncTimeStamp, PreAuthEtypeInfo2
+          def decoded_value
+            case self.type
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_TGS_REQ
+              decoded = OpenSSL::ASN1.decode(self.value)
+              ApReq.decode(decoded)
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_ENC_TIMESTAMP
+              decoded = OpenSSL::ASN1.decode(self.value)
+              PreAuthEncTimeStamp.decode(decoded)
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              # Not yet supported
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_ETYPE_INFO
+              # Not yet supported
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_ETYPE_INFO2
+              decoded = OpenSSL::ASN1.decode(self.value)
+              PreAuthEtypeInfo2.decode(decoded)
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_PAC_REQUEST
+              decoded = OpenSSL::ASN1.decode(self.value)
+              PreAuthPacRequest.decode(decoded)
+            else
+              # Unknown type - just ignore for now
+            end
           end
 
           private
@@ -63,7 +92,7 @@ module Rex
             OpenSSL::ASN1::OctetString.new(value)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::PreAuthData
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthDataEntry
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -72,7 +101,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::PreAuthData from an
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthDataEntry from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from

@@ -20,26 +20,32 @@ module Rex
         # From Principal
         # https://datatracker.ietf.org/doc/html/rfc4120#section-6.2
 
-        # Name type not known
-        NT_UNKNOWN = 0
-        # The name of the principal
-        NT_PRINCIPAL = 1
-        # Service and other unique instances
-        NT_SRV_INST = 2
-        # Service with host name and instance
-        NT_SRV_HST = 3
-        # Service with host as remaining component
-        NT_SRV_XHST = 4
-        # Unique ID
-        NT_UID = 5
+        module NameType
+          # Name type not known
+          NT_UNKNOWN = 0
+          # The name of the principal
+          NT_PRINCIPAL = 1
+          # Service and other unique instances
+          NT_SRV_INST = 2
+          # Service with host name and instance
+          NT_SRV_HST = 3
+          # Service with host as remaining component
+          NT_SRV_XHST = 4
+          # Unique ID
+          NT_UID = 5
+        end
 
         # From padata - https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml
 
-        PA_TGS_REQ = 1
-        PA_ENC_TIMESTAMP = 2
-        PA_PW_SALT = 3
-        PA_PAC_REQUEST = 128
-        PA_SUPPORTED_ETYPES = 165
+        module PreAuthType
+          PA_TGS_REQ = 1
+          PA_ENC_TIMESTAMP = 2
+          PA_PW_SALT = 3
+          PA_ETYPE_INFO = 11
+          PA_ETYPE_INFO2 = 19
+          PA_PAC_REQUEST = 128
+          PA_SUPPORTED_ETYPES = 165
+        end
 
         AD_IF_RELEVANT = 1
       end

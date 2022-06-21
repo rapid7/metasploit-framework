@@ -61,7 +61,7 @@ module Rex
           RC4_HMAC = 23
 
           # The default etypes to offer to the Kerberos server when none is provided
-          DefaultOfferedEtypes = [AES128, AES256, RC4_HMAC, DES_CBC_MD5, DES3_CBC_SHA1]
+          DefaultOfferedEtypes = [AES256, AES128, RC4_HMAC, DES_CBC_MD5, DES3_CBC_SHA1]
 
           # The individual etype used by an encryptor when none is provided
           DefaultEncryptionType = RC4_HMAC
