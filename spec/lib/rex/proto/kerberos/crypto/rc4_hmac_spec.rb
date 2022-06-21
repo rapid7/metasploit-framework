@@ -20,6 +20,19 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Rc4Hmac do
     expect(decrypted).to eq(plaintext)
   end
 
+  it 'Key usage mapping occurs' do
+    # Ensure keyusage of 3 is mapped to 8
+    key = ['68F263DB3FCE15D031C9EAB02D67107A'].pack('H*')
+    confounder = ['37245E73A45FBF72'].pack('H*')
+    keyusage = 3 # Should be mapped to 8, and thus give different result than otherwise
+    plaintext = '30 bytes bytes bytes bytes byt'
+    ciphertext = ['5CD209AE59045F4370E23C5BCF4249ADD7C38FD17BDE44E3A55CE53ABDEECEE60A1A8A720F355FF62B16385D344E0F374463758B0448'].pack('H*')
+    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder)
+    decrypted = encryptor.decrypt(ciphertext, key, keyusage)
+
+    expect(encrypted).to eq(ciphertext)
+    expect(decrypted).to eq(plaintext)
+  end
 
   it 'String to key genration is as expected' do
     # Test case based off impacket

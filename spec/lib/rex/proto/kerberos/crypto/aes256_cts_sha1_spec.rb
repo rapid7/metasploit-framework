@@ -10,7 +10,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = 'password'
     salt = 'ATHENA.MIT.EDUraeburn'
 
-    aes_key = encryptor.string_to_key(password, salt, 1)
+    aes_key = encryptor.string_to_key(password, salt, [1].pack('N'))
     expect(aes_key).to eq("\xfe\x69\x7b\x52\xbc\x0d\x3c\xe1\x44\x32\xba\x03\x6a\x92\xe6\x5b\xbb\x52\x28\x09\x90\xa2\xfa\x27\x88\x39\x98\xd7\x2a\xf3\x01\x61")
   end
 
@@ -18,7 +18,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = 'password'
     salt = 'ATHENA.MIT.EDUraeburn'
 
-    aes_key = encryptor.string_to_key(password, salt, 2)
+    aes_key = encryptor.string_to_key(password, salt, [2].pack('N'))
     expect(aes_key).to eq("\xa2\xe1\x6d\x16\xb3\x60\x69\xc1\x35\xd5\xe9\xd2\xe2\x5f\x89\x61\x02\x68\x56\x18\xb9\x59\x14\xb4\x67\xc6\x76\x22\x22\x58\x24\xff")
   end
 
@@ -26,7 +26,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = 'password'
     salt = 'ATHENA.MIT.EDUraeburn'
 
-    aes_key = encryptor.string_to_key(password, salt, 1200)
+    aes_key = encryptor.string_to_key(password, salt, [1200].pack('N'))
     expect(aes_key).to eq("\x55\xa6\xac\x74\x0a\xd1\x7b\x48\x46\x94\x10\x51\xe1\xe8\xb0\xa7\x54\x8d\x93\xb0\xab\x30\xa8\xbc\x3f\xf1\x62\x80\x38\x2b\x8c\x2a")
   end
 
@@ -34,7 +34,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = 'password'
     salt = ['1234567878563412'].pack('H*')
 
-    aes_key = encryptor.string_to_key(password, salt, 5)
+    aes_key = encryptor.string_to_key(password, salt, [5].pack('N'))
     expect(aes_key).to eq("\x97\xa4\xe7\x86\xbe\x20\xd8\x1a\x38\x2d\x5e\xbc\x96\xd5\x90\x9c\xab\xcd\xad\xc8\x7c\xa4\x8f\x57\x45\x04\x15\x9f\x16\xc3\x6e\x31")
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = 'X' * 64
     salt = 'pass phrase equals block size'
 
-    aes_key = encryptor.string_to_key(password, salt, 1200)
+    aes_key = encryptor.string_to_key(password, salt, [1200].pack('N'))
     expect(aes_key).to eq("\x89\xad\xee\x36\x08\xdb\x8b\xc7\x1f\x1b\xfb\xfe\x45\x94\x86\xb0\x56\x18\xb7\x0c\xba\xe2\x20\x92\x53\x4e\x56\xc5\x53\xba\x4b\x34")
   end
 
@@ -50,7 +50,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = 'X' * 65
     salt = 'pass phrase exceeds block size'
 
-    aes_key = encryptor.string_to_key(password, salt, 1200)
+    aes_key = encryptor.string_to_key(password, salt, [1200].pack('N'))
     expect(aes_key).to eq("\xd7\x8c\x5c\x9c\xb8\x72\xa8\xc9\xda\xd4\x69\x7f\x0b\xb5\xb2\xd2\x14\x96\xc8\x2b\xeb\x2c\xae\xda\x21\x12\xfc\xee\xa0\x57\x40\x1b")
   end
 
@@ -58,7 +58,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     password = "\u{1D11E}"
     salt = 'EXAMPLE.COMpianist'
 
-    aes_key = encryptor.string_to_key(password, salt, 50)
+    aes_key = encryptor.string_to_key(password, salt, [50].pack('N'))
     expect(aes_key).to eq("\x4b\x6d\x98\x39\xf8\x44\x06\xdf\x1f\x09\xcc\x16\x6d\xb4\xb8\x3c\x57\x18\x48\xb7\x84\xa3\xd6\xbd\xc3\x46\x58\x9a\x3e\x39\x3f\x9e")
   end
 
