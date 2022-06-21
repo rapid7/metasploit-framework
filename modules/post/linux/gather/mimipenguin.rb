@@ -200,9 +200,9 @@ class MetasploitModule < Msf::Post
 
       between_vals = lines.values_at(first_index + 1...curr_index)
       between_vals = between_vals.select { |line| line.include?('00000000 00:00 0') }
-      if between_vals.empty? && !mem_regions.last == region
-        next
-      elsif between_vals.empty? && mem_regions.last == region
+      if between_vals.empty?
+        next unless region == mem_regions.last
+
         adj_region = lines[curr_index + 1]
         return updated_regions if adj_region.nil?
 
