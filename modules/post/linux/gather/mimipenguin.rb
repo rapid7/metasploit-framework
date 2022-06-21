@@ -19,8 +19,8 @@ class MetasploitModule < Msf::Post
           This searches process memory for needles that indicate
           where cleartext passwords may be located. If any needles
           are discovered in the target process memory, collected
-          strings in the memory regions of interest will be hashed
-          and tested against hashes found in `/etc/shadow`.
+          strings in adjacent memory will be hashed and compared
+          with password hashes found in `/etc/shadow`.
         },
         'License' => MSF_LICENSE,
         'Author' => [
