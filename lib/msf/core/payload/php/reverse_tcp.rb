@@ -17,7 +17,7 @@ module Payload::Php::ReverseTcp
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     conf = {
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],

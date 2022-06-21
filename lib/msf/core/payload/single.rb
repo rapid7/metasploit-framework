@@ -23,7 +23,7 @@ module Msf::Payload::Single
   # return the stager.  When a stager is not used, generate will return the
   # single payload
   #
-  def generate
+  def generate(_opts = {})
     # If we're staged, then we call the super to generate the STAGER
     if staged?
       super

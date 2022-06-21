@@ -34,15 +34,26 @@ module MetasploitModule
     super
   end
 
-  def generate
+  def generate(opts = {})
+    opts[:arch] ||= module_info['AdaptedArch']
     payload = super
 
     cmd_psh_payload(payload, ARCH_X64, remove_comspec: true)
   end
 
+  def generate_stage(opts = {})
+    opts[:arch] ||= module_info['AdaptedArch']
+    super
+  end
+
   def generate_payload_uuid(conf = {})
     conf[:arch] ||= module_info['AdaptedArch']
     conf[:platform] ||= module_info['AdaptedPlatform']
+    super
+  end
+
+  def handle_connection(conn, opts = {})
+    opts[:arch] ||= module_info['AdaptedArch']
     super
   end
 end
