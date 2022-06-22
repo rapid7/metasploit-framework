@@ -20,7 +20,11 @@ module Rex
         SEC_TO_UNIX_EPOCH = 11644473600
         WINDOWS_TICK = 10000000
         NEVER_EXPIRE = 0x7fffffffffffffff
+        DOMAIN_ADMINS = 512
         DOMAIN_USERS = 513
+        SCHEMA_ADMINISTRATORS = 518
+        ENTERPRISE_ADMINS = 519
+        GROUP_POLICY_CREATOR_OWNERS = 520
         DEFAULT_USER_SID = 1000
         NT_AUTHORITY_SID = 'S-1-5'
       end
