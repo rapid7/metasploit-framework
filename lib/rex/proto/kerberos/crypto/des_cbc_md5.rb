@@ -19,7 +19,7 @@ module Rex
           # @param salt [String] A salt (usually based on domain and username)
           # @param params [String] Unused for this encryption type
           # @return [String] The derived key
-          def string_to_key(password, salt, params=nil)
+          def string_to_key(password, salt, params: nil)
             raise ::RuntimeError, 'Params not supported for DES' unless params == nil
             reverse_this_block = false
             tempstring = [0,0,0,0,0,0,0,0]
@@ -124,7 +124,7 @@ module Rex
           # @param msg_type [Integer] ignored for this algorithm
           # @param confounder [String] Optionally force the confounder to a specific value
           # @return [String] the encrypted data
-          def encrypt(plaintext, key, msg_type, confounder=nil)
+          def encrypt(plaintext, key, msg_type, confounder: nil)
             confounder = Rex::Text::rand_text(BLOCK_SIZE) if confounder == nil
             padded_data = pad_with_zeroes(plaintext, PADDING_SIZE)
             hashed_data = confounder + "\x00" * HASH_LENGTH + padded_data

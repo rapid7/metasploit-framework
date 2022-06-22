@@ -80,7 +80,7 @@ module Rex
           # @param msg_type [Integer] type of kerberos message
           # @param confounder [String] Optionally force the confounder to a specific value
           # @return [String] the encrypted data
-          def encrypt(plaintext, key, msg_type, confounder=nil)
+          def encrypt(plaintext, key, msg_type, confounder: nil)
             ki = derive(key, [msg_type, 0x55].pack('NC'))
             ke = derive(key, [msg_type, 0xAA].pack('NC'))
             confounder = Rex::Text::rand_text(self.class::BLOCK_SIZE) if confounder == nil
