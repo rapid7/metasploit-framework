@@ -99,11 +99,11 @@ class MetasploitModule < Msf::Auxiliary
     pre_auth << build_pa_pac_request
 
     groups = [
-      513, # DOMAIN_USERS
-      512, # DOMAIN_ADMINS
-      520, # GROUP_POLICY_CREATOR_OWNERS
-      518, # SCHEMA_ADMINISTRATORS
-      519  # ENTERPRISE_ADMINS
+      Rex::Proto::Kerberos::Pac::DOMAIN_ADMINS,
+      Rex::Proto::Kerberos::Pac::DOMAIN_USERS,
+      Rex::Proto::Kerberos::Pac::SCHEMA_ADMINISTRATORS,
+      Rex::Proto::Kerberos::Pac::ENTERPRISE_ADMINS,
+      Rex::Proto::Kerberos::Pac::GROUP_POLICY_CREATOR_OWNERS
     ]
 
     pac = build_pac(
