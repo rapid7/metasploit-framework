@@ -51,9 +51,8 @@ class MetasploitModule < Msf::Auxiliary
 
       response = @cli.request_cgi(
         'method' => 'post',
-        'uri' => "/api/v2/hosts/search/#{search_type}",
+        'uri' => "/api/v2/hosts/search/#{keyword}",
         'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
-        'data' => payload.to_json
       )
 
       res = @cli.send_recv(response)

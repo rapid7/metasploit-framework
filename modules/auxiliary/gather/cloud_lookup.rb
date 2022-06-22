@@ -174,12 +174,11 @@ class MetasploitModule < Msf::Auxiliary
 
       response = cli.request_cgi(
         'method' => 'POST',
-        'uri' => "/api/v2/hosts/search/#{search_type}",
+        'uri' => "/api/v2/hosts/search/#{keyword}",
         'agent' => datastore['USERAGENT'],
         'headers' => {
           'Authorization' => "Basic #{Rex::Text.encode_base64("#{uid}:#{secret}")}"
-        },
-        'data' => payload.to_json
+        }
       )
       results = cli.send_recv(response)
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
