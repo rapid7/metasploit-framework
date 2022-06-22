@@ -14,7 +14,7 @@ module Rex
           # @param salt [String] Ignored for this encryption algorithm
           # @param params [String] Unused for this encryption type
           # @return [String] The derived key
-          def string_to_key(password, salt=nil, params=nil)
+          def string_to_key(password, salt=nil, params: nil)
             raise ::RuntimeError, 'Params not supported for RC4_HMAC' unless params == nil
 
             unicode_password = password.encode('utf-16le')
@@ -79,7 +79,7 @@ module Rex
           # @param msg_type [Integer] type of kerberos message
           # @param confounder [String] Optionally force the confounder to a specific value
           # @return [String] the encrypted data
-          def encrypt(plaintext, key, msg_type, confounder=nil)
+          def encrypt(plaintext, key, msg_type, confounder: nil)
             k1 = OpenSSL::HMAC.digest('MD5', key, usage_str(msg_type))
 
             confounder = Rex::Text::rand_text(8) if confounder == nil
@@ -101,7 +101,10 @@ module Rex
           private
 
           def usage_str(msg_type)
-            usage_table = { 3 => 8, 23 => 13 }
+            usage_table = {
+              Rex::Proto::Kerberos::Crypto::KeyUsage::AS_REP_ENCPART => Rex::Proto::Kerberos::Crypto::KeyUsage::TGS_REP_ENCPART_SESSION_KEY, 
+              Rex::Proto::Kerberos::Crypto::KeyUsage::GSS_ACCEPTOR_SIGN => Rex::Proto::Kerberos::Crypto::KeyUsage::KRB_PRIV_ENCPART
+            }
             usage_mapped = usage_table.fetch(msg_type) { msg_type }
             [usage_mapped].pack('V')
           end

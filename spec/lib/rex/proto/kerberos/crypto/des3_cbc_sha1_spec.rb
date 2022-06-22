@@ -63,7 +63,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Des3CbcSha1 do
     keyusage = 3
     plaintext = '13 bytes byte'
     ciphertext = ['839A17081ECBAFBCDC91B88C6955DD3C4514023CF177B77BF0D0177A16F705E849CB7781D76A316B193F8D30'].pack('H*')
-    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder)
+    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder: confounder)
     decrypted = encryptor.decrypt(ciphertext, key, keyusage)
 
     # Null bytes at the end are expected, per RFC3961:

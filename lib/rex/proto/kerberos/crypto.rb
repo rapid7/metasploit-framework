@@ -25,6 +25,10 @@ module Rex
           KRB_SAFE_CHKSUM                                = 15
           KERB_NON_KERB_SALT                             = 16
           KERB_NON_KERB_CKSUM_SALT                       = 17
+          GSS_ACCEPTOR_SEAL                              = 22
+          GSS_ACCEPTOR_SIGN                              = 23
+          GSS_INITIATOR_SEAL                             = 24
+          GSS_INITIATOR_SIGN                             = 25
         end
 
         module Checksum
