@@ -19,7 +19,7 @@ module Rex
           # @param salt [String] A salt (usually based on domain and username)
           # @param params [String] Unused for this encryption type
           # @return [String] The derived key
-          def string_to_key(string, salt, params=nil)
+          def string_to_key(string, salt, params: nil)
             raise ::RuntimeError, 'Params not supported for DES' unless params == nil
             utf8_encoded = (string + salt).encode('UTF-8').bytes
             k = random_to_key(nfold(utf8_encoded, 21))

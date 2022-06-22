@@ -13,7 +13,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Rc4Hmac do
     keyusage = 4
     plaintext = '30 bytes bytes bytes bytes byt'
     ciphertext = ['95F9047C3AD75891C2E9B04B16566DC8B6EB9CE4231AFB2542EF87A7B5A0F260A99F0460508DE0CECC632D07C354124E46C5D2234EB8'].pack('H*')
-    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder)
+    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder: confounder)
     decrypted = encryptor.decrypt(ciphertext, key, keyusage)
 
     expect(encrypted).to eq(ciphertext)
@@ -27,7 +27,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Rc4Hmac do
     keyusage = 3 # Should be mapped to 8, and thus give different result than otherwise
     plaintext = '30 bytes bytes bytes bytes byt'
     ciphertext = ['5CD209AE59045F4370E23C5BCF4249ADD7C38FD17BDE44E3A55CE53ABDEECEE60A1A8A720F355FF62B16385D344E0F374463758B0448'].pack('H*')
-    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder)
+    encrypted = encryptor.encrypt(plaintext, key, keyusage, confounder: confounder)
     decrypted = encryptor.decrypt(ciphertext, key, keyusage)
 
     expect(encrypted).to eq(ciphertext)
