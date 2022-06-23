@@ -8,6 +8,7 @@ module MsfdbHelpers
       @options = options
       @localconf = localconf
       @db_conf = db_conf
+      @socket_directory = db_path
       super(options)
     end
 
@@ -18,10 +19,17 @@ module MsfdbHelpers
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
-        if system("mount | grep #{Dir.tmpdir}.*noexec")
-          print_error("Temporary Directory is mounted with NOEXEC flags. Try running sudo msfdb init, if initialization fails")
-        else
-          f.puts "unix_socket_directories = \'#{Dir.tmpdir}\'"
+      end
+
+      # Try creating a test file at {Dir.tmpdir}
+      begin
+        test_executable_file("#{Dir.tmpdir}")
+      rescue
+        begin
+          # Fallback to creation at {@db}
+          test_executable_file("#{@db}")
+        rescue
+          print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC Flags. Database Initialization Failed.")
         end
       end
 
@@ -31,6 +39,23 @@ module MsfdbHelpers
 
       write_db_client_auth_config
       restart
+    end
+
+    # Creates and attempts to execute a testfile in the specified directory,
+    # to determine if it is mounted with NOEXEC flags.
+    def test_executable_file(path)
+      File.open("#{path}/msfdb_testfile", 'w') do |f|
+        f.puts "#!/bin/bash\necho exec"
+      end
+      File.chmod(0744, "#{path}/msfdb_testfile")
+      
+      if run_cmd("#{path}/msfdb_testfile")
+        File.open("#{@db}/postgresql.conf", 'a') do |f|
+          f.puts "unix_socket_directories = \'#{path}\'"
+        end
+        @socket_directory = path
+        puts "Creating db socket file at #{path}"
+      end
     end
 
     def delete
@@ -100,12 +125,12 @@ module MsfdbHelpers
 
     def create_db_users(msf_pass, msftest_pass)
       puts 'Creating database users'
-      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
-      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
-      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb")
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb")
-      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
+      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'", @socket_directory)
+      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'", @socket_directory)
+      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb", @socket_directory)
+      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb", @socket_directory)
+      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'", @socket_directory)
+      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'", @socket_directory)
 
       conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
       conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
