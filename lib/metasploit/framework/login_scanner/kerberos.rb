@@ -41,7 +41,7 @@ module Metasploit
             result_options = result_options.merge({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
-            status = status_for_error_msg(e)
+            status = login_status_for_kerberos_error(e)
             result_options = result_options.merge({ status: status, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           end
@@ -56,8 +56,9 @@ module Metasploit
 
         private
 
-        def status_for_error_msg(error_msg)
-          error_code = error_msg.error_code
+        # @param [Rex::Proto::Kerberos::Model::Error::KerberosError] error The kerberos error
+        def login_status_for_kerberos_error(krb_err)
+          error_code = krb_err.error_code
           case error_code
           when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED, Rex::Proto::Kerberos::Model::Error::ErrorCodes::KRB_AP_ERR_SKEW
             # Correct password, but either password needs resetting or clock is skewed
@@ -70,19 +71,23 @@ module Metasploit
             # It doesn't appear to be documented anywhere, but Microsoft gives us a bit
             # of extra information in the e-data section
             begin
-              pa_data_entry = error_msg.res.e_data_as_pa_data_entry
+              pa_data_entry = krb_err.res.e_data_as_pa_data_entry
               if pa_data_entry && pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
                 pw_salt = pa_data_entry.decoded_value
-                case pw_salt.nt_status
-                when 0xC0000234 # STATUS_ACCOUNT_LOCKED_OUT
-                  Metasploit::Model::Login::Status::LOCKED_OUT
-                when 0xC0000072 # STATUS_ACCOUNT_DISABLED
-                  Metasploit::Model::Login::Status::DISABLED
-                when 0xC0000193
-                  # Actually expired, which is effectively Disabled
-                  Metasploit::Model::Login::Status::DISABLED
+                if pw_salt.nt_status
+                  case pw_salt.nt_status.value
+                  when ::WindowsError::NTStatus::STATUS_ACCOUNT_LOCKED_OUT
+                    Metasploit::Model::Login::Status::LOCKED_OUT
+                  when ::WindowsError::NTStatus::STATUS_ACCOUNT_DISABLED
+                    Metasploit::Model::Login::Status::DISABLED
+                  when ::WindowsError::NTStatus::STATUS_ACCOUNT_EXPIRED
+                    # Actually expired, which is effectively Disabled
+                    Metasploit::Model::Login::Status::DISABLED
+                  else
+                    # Unknown - maintain existing behaviour
+                    Metasploit::Model::Login::Status::DISABLED
+                  end
                 else
-                  # Unknown - maintain existing behaviour
                   Metasploit::Model::Login::Status::DISABLED
                 end
               else
