@@ -59,14 +59,16 @@ module Metasploit
         def status_for_error_msg(error_msg)
           error_code = error_msg.error_code
           case error_code
+          when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED, Rex::Proto::Kerberos::Model::Error::ErrorCodes::KRB_AP_ERR_SKEW
+            # Correct password, but either password needs resetting or clock is skewed
+            Metasploit::Model::Login::Status::SUCCESSFUL
           when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_C_PRINCIPAL_UNKNOWN
             # The username doesn't exist
             Metasploit::Model::Login::Status::INVALID_PUBLIC_PART
           when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED
             # Locked out, disabled or expired
-            # It doesn't appear to be documented anywhere (RFC4120 says this is 
-            # "implementation-defined"), but Microsoft gives us a bit of extra information 
-            # in the e-data section
+            # It doesn't appear to be documented anywhere, but Microsoft gives us a bit
+            # of extra information in the e-data section
             begin
               pa_data_entry = error_msg.res.e_data_as_pa_data_entry
               if pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
@@ -80,7 +82,8 @@ module Metasploit
                   # Actually expired, which is effectively Disabled
                   Metasploit::Model::Login::Status::DISABLED
                 else
-                  Metasploit::Model::Login::Status::DENIED_ACCESS
+                  # Unknown - maintain existing behaviour
+                  Metasploit::Model::Login::Status::DISABLED
                 end
               else
                   Metasploit::Model::Login::Status::DENIED_ACCESS
