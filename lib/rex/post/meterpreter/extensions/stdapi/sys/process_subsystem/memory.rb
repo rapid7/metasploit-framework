@@ -136,7 +136,7 @@ class Memory
   #
   # Search memory for supplied regexes and return matches
   #
-  def search(min_search_len = 5, match_len = 500, needles)
+  def search(needles, min_search_len = 5, match_len = 500)
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_SEARCH)
 
     request.add_tlv(TLV_TYPE_PID, process.pid)
