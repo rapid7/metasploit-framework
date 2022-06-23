@@ -54,8 +54,8 @@ class MetasploitModule < Msf::Auxiliary
   def enumerate_keys
     keys = []
     enumerate_slab_ids.each do |sid|
+      sock.send("stats cachedump #{sid} #{max_keys}\r\n", 0)
       loop do
-        sock.send("stats cachedump #{sid} #{max_keys}\r\n", 0)
         data = sock.recv(4096)
         break if !data || data.length == 0 || data == "END\r\n" || data == "ERROR\r\n"
         matches = data.scan(/^ITEM (?<key>.*) \[/)
