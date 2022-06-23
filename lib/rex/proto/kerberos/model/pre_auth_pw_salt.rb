@@ -7,10 +7,11 @@ module Rex
         # This class provides a representation of a PA-PW-SALT structure,
         # which in practise appears to be a MS-specific implementation detail
         # of Kerberos, which contains information about login status
+        # https://datatracker.ietf.org/doc/html/rfc4120#section-5.2.7.3
         class PreAuthPwSalt < Element
 
           # @!attribute nt_status
-          #   @return [Integer] The NT Status from a login attempt
+          #   @return [::WindowsError::NTStatus] The NT Status from a login attempt
           attr_accessor :nt_status
           # @!attribute Reserved
           #   @return [Integer] Reserved
@@ -18,9 +19,6 @@ module Rex
           # @!attribute type
           #   @return [Integer] Uncertain what this represents
           attr_accessor :flags
-
-
-
 
           # Decodes the Rex::Proto::Kerberos::Model::PreAuthPwSalt from an input
           #
@@ -39,7 +37,7 @@ module Rex
           end
 
           def encode
-            [self.nt_status, self.reserved, self.flags].pack('VVV')
+            [nt_status.value, reserved, flags].pack('VVV')
           end
 
           private
@@ -49,7 +47,9 @@ module Rex
           # @param input [String] the input to decode from
           def decode_string(input)
             return if input.length != 12 # Likely an older KDC server, or Linux server, which use this field differently
-            self.nt_status, self.reserved, self.flags = input.unpack('VVV')
+
+            status, self.reserved, self.flags = input.unpack('VVV')
+            self.nt_status = ::WindowsError::NTStatus.find_by_retval(status).first
           end
         end
       end
