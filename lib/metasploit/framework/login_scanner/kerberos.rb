@@ -71,7 +71,7 @@ module Metasploit
             # of extra information in the e-data section
             begin
               pa_data_entry = error_msg.res.e_data_as_pa_data_entry
-              if pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              if pa_data_entry && pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
                 pw_salt = pa_data_entry.decoded_value
                 case pw_salt.nt_status
                 when 0xC0000234 # STATUS_ACCOUNT_LOCKED_OUT
@@ -86,11 +86,11 @@ module Metasploit
                   Metasploit::Model::Login::Status::DISABLED
                 end
               else
-                  Metasploit::Model::Login::Status::DENIED_ACCESS
+                  Metasploit::Model::Login::Status::DISABLED
               end
             rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
               # Could be a non-MS implementation?
-              Metasploit::Model::Login::Status::DENIED_ACCESS
+              Metasploit::Model::Login::Status::DISABLED
             end
           else
             Metasploit::Model::Login::Status::INCORRECT
