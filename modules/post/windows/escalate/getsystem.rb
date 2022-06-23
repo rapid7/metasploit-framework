@@ -4,13 +4,11 @@
 ##
 
 require 'metasm'
-require 'rex/post/meterpreter/ui/console/command_dispatcher/priv'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info = {})
-    techniques = Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Priv::Elevate::ELEVATE_TECHNIQUE_DESCRIPTION
     super(
       update_info(
         info,
@@ -31,8 +29,6 @@ class MetasploitModule < Msf::Post
             ]
           }
         },
-        'Actions' => techniques.map.with_index {|t,i| [i.to_s, { 'Description' => t }]},
-        'DefaultAction' => '0',
         'Notes' => {
           'AKA' => [
             'Named Pipe Impersonation',
@@ -45,6 +41,10 @@ class MetasploitModule < Msf::Post
         }
       )
     )
+
+    register_options([
+      OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-6), otherwise try them all", 0])
+    ])
   end
 
   def unsupported
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    technique = action.name.to_i
+    technique = datastore['TECHNIQUE'].to_i
 
     unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
 
