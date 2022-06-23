@@ -43,7 +43,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
 
   let(:tgt_response_client_revoked) do
     ::Rex::Proto::Kerberos::Model::Error::KerberosError.new(
-      error_code: ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED
+      error_code: ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED,
+      res: ::Rex::Proto::Kerberos::Model::KrbError.new
     )
   end
 
