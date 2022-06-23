@@ -36,10 +36,7 @@ module Process
     matches = proc_id.memory.search(min_search_len, max_search_len, needles)
   end
 
-  def mem_read(pid = nil, base_address, length)
-    if pid.nil?
-      pid = 0
-    end
+  def mem_read(base_address, length, pid: 0)
 
     proc_id = session.sys.process.open(pid)
     data = proc_id.memory.read(base_address, length)
