@@ -28,12 +28,22 @@ class MetasploitModule < Msf::Post
               priv_elevate_getsystem
             ]
           }
+        },
+        'Notes' => {
+          'AKA' => [
+            'Named Pipe Impersonation',
+            'Token Duplication',
+            'RPCSS',
+            'PrintSpooler',
+            'EFSRPC',
+            'EfsPotato'
+          ]
         }
       )
     )
 
     register_options([
-      OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-5), otherwise try them all", 0])
+      OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-6), otherwise try them all", 0])
     ])
   end
 
