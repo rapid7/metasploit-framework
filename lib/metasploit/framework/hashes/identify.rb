@@ -39,6 +39,8 @@ def identify_hash(hash)
     return 'qnx,sha256'
   when hash.start_with?('@m@') && hash.length == 52
     return 'qnx,md5'
+  when hash.start_with?('$y$') && hash.split('$').last.length == 43
+    return 'yescrypt'
   when hash.start_with?('_') && hash.length == 20
     return 'des,bsdi,crypt'
   when hash =~ %r{^[./\dA-Za-z]{13}$} # hash.length == 13
