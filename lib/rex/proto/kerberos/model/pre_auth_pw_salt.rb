@@ -48,9 +48,7 @@ module Rex
           #
           # @param input [String] the input to decode from
           def decode_string(input)
-            if input.length != 12
-              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode PA-PW-SALT, invalid input'
-            end
+            return if input.length != 12 # Likely an older KDC server, or Linux server, which use this field differently
             self.nt_status, self.reserved, self.flags = input.unpack('VVV')
           end
         end
