@@ -26,11 +26,7 @@ module Process
     )
   end
 
-  def mem_search_ascii(pid, min_search_len, max_search_len, needles)
-    # use current process
-    if pid.nil?
-      pid = 0
-    end
+  def mem_search_ascii(min_search_len, max_search_len, needles, pid: 0)
 
     proc_id = session.sys.process.open(pid)
     matches = proc_id.memory.search(min_search_len, max_search_len, needles)
