@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
         'agent' => datastore['USERAGENT'],
         'headers' => {
           'Authorization' => "Basic #{Rex::Text.encode_base64("#{uid}:#{secret}")}"
-        },
+        }
       )
       results = cli.send_recv(response)
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
@@ -188,9 +188,9 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Unable to retrieve any data from Censys.IO website.')
       return []
     end
-    
+
     records = ActiveSupport::JSON.decode(results.body)
-    
+
     results = records['result']
     parse_ipv4(results)
   end
