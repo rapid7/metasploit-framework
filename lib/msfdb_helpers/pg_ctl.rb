@@ -21,18 +21,17 @@ module MsfdbHelpers
         f.puts "port = #{@options[:db_port]}"
       end
 
-      # Try creating a test file at {Dir.tmpdir}
-      begin
-        test_executable_file("#{Dir.tmpdir}")
-      rescue
-        begin
-          # Fallback to creation at {@db}
-          test_executable_file("#{@db}")
-        rescue
-          print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC Flags. Database Initialization Failed.")
-        end
+      # Try creating a test file at {Dir.tmpdir},
+      # Else fallback to creation at @{db}
+      # Else fail with error.
+      if test_executable_file("#{Dir.tmpdir}")
+        @socket_directory = Dir.tmpdir
+      elsif test_executable_file("#{@db}")
+        @socket_directory = @db
+      else
+        print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC Flags. Database initialization failed.")
       end
-
+ 
       start
 
       create_db_users(msf_pass, msftest_pass)
@@ -44,18 +43,32 @@ module MsfdbHelpers
     # Creates and attempts to execute a testfile in the specified directory,
     # to determine if it is mounted with NOEXEC flags.
     def test_executable_file(path)
-      File.open("#{path}/msfdb_testfile", 'w') do |f|
-        f.puts "#!/bin/bash\necho exec"
-      end
-      File.chmod(0744, "#{path}/msfdb_testfile")
-      
-      if run_cmd("#{path}/msfdb_testfile")
-        File.open("#{@db}/postgresql.conf", 'a') do |f|
-          f.puts "unix_socket_directories = \'#{path}\'"
+      begin
+        file_name = File.join(path, 'msfdb_testfile')
+        File.open(file_name, 'w') do |f|
+          f.puts "#!/bin/bash\necho exec"
         end
-        @socket_directory = path
-        puts "Creating db socket file at #{path}"
+        File.chmod(0744, file_name)
+        
+        if run_cmd(file_name)
+          File.open("#{@db}/postgresql.conf", 'a') do |f|
+            f.puts "unix_socket_directories = \'#{path}\'"
+          end
+          puts "Creating db socket file at #{path}"
+        end
+        return true
+
+      rescue => e
+        return false
+
+      ensure
+        begin
+          File.delete(file_name)
+        rescue
+          print_error("Unable to delete test file #{file_name}")
+        end
       end
+
     end
 
     def delete
