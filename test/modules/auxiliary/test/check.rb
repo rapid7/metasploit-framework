@@ -3,33 +3,34 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => "Check Test",
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => "Check Test",
+        'Description' => %q{
           This module ensures that 'check' actually functions for Auxiilary modules.
-      },
-      'References'     =>
-        [
+        },
+        'References' => [
           [ 'OSVDB', '0' ]
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'todb'
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(80)
-      ], self.class)
+      ], self.class
+    )
   end
 
   def check

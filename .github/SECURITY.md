@@ -7,7 +7,7 @@ us know in the way that's most comfortable for you.
 
 ## Via ZenDesk
 
-You can click on the big blue button at [Rapid7's Vulnerability
+You can click on the big orange button at [Rapid7's Vulnerability
 Disclosure][r7-vulns] page, which will get you to our general
 vulnerability reporting system. While this does require a (free) ZenDesk
 account to use, you'll get regular updates on your issue as our software

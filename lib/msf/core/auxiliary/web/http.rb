@@ -110,7 +110,7 @@ class Auxiliary::Web::HTTP
       opts[:target].port,
       {},
       opts[:target].ssl,
-      'SSLv23',
+      'Auto',
       nil,
       username,
       password
@@ -118,7 +118,7 @@ class Auxiliary::Web::HTTP
 
     c.set_config({
       'vhost' => opts[:target].vhost,
-      'agent' => opts[:user_agent] || 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+      'agent' => opts[:user_agent] || Rex::UserAgent.session_agent,
       'domain' => domain
     })
     c

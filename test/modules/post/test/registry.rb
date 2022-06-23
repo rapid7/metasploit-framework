@@ -1,4 +1,3 @@
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -15,23 +14,26 @@ class MetasploitModule < Msf::Post
   include Msf::ModuleTest::PostTest
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'registry_post_testing',
-        'Description'   => %q{ This module will test Post::Windows::Registry API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'registry_post_testing',
+        'Description' => %q{ This module will test Post::Windows::Registry API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'kernelsmith', # original
           'egypt',       # PostTest conversion
         ],
-        'Platform'      => [ 'windows' ]
-      ))
+        'Platform' => [ 'windows' ]
+      )
+    )
   end
 
   def test_0_registry_read
     it "should evaluate key existence" do
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
-      k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
+      k_dne = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
 
       (k_exists && !k_dne)
     end
@@ -39,7 +41,7 @@ class MetasploitModule < Msf::Post
     pending "should evaluate value existence" do
       # these methods are not implemented
       v_exists = registry_value_exist?(%q#HKCU\Environment#, "TEMP")
-      v_dne    = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
+      v_dne = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
 
       (v_exists && !v_dne)
     end
@@ -99,7 +101,6 @@ class MetasploitModule < Msf::Post
 
       ret
     end
-
   end
 
   def test_1_registry_write
@@ -172,7 +173,6 @@ class MetasploitModule < Msf::Post
       ret
     end
 
-
     it "should delete unicode keys" do
       ret = registry_deleteval(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
       valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
@@ -185,9 +185,6 @@ class MetasploitModule < Msf::Post
 
       ret
     end
-
   end
 
 end
-
-

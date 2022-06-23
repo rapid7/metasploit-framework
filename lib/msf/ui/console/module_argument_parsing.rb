@@ -17,25 +17,25 @@ module ModuleArgumentParsing
 
   # Options which are standard and predictable across all modules
   @@module_opts = Rex::Parser::Arguments.new(
-    '-h' => [ false, 'Help banner.'                                          ],
-    '-j' => [ false, 'Run in the context of a job.'                          ],
-    '-J' => [ false, 'Force running in the foreground, even if passive.'     ],
-    '-o' => [ true,  'A comma separated list of options in VAR=VAL format.'  ],
-    '-q' => [ false, 'Run the module in quiet mode with no output'           ]
+    ['-h', '--help']       => [ false, 'Help banner.'                                                       ],
+    ['-j', '--job']        => [ false, 'Run in the context of a job.'                                       ],
+    ['-J', '--foreground'] => [ false, 'Force running in the foreground, even if passive.'                  ],
+    ['-o', '--options']    => [ true,  'A comma separated list of options in VAR=VAL format.', '<options>'  ],
+    ['-q', '--quiet']      => [ false, 'Run the module in quiet mode with no output'                        ]
   )
 
-  @@module_opts_with_action_support = Rex::Parser::Arguments.new(@@module_opts.fmt.merge(
-    '-a' => [ true, 'The action to use. If none is specified, ACTION is used.']
-  ))
+  @@module_opts_with_action_support = @@module_opts.merge(
+    ['-a', '--action'] => [ true, 'The action to use. If none is specified, ACTION is used.', '<action>']
+  )
 
-  @@exploit_opts = Rex::Parser::Arguments.new(@@module_opts.fmt.merge(
-    '-e' => [ true,  'The payload encoder to use.  If none is specified, ENCODER is used.' ],
-    '-f' => [ false, 'Force the exploit to run regardless of the value of MinimumRank.'    ],
-    '-n' => [ true,  'The NOP generator to use.  If none is specified, NOP is used.'       ],
-    '-p' => [ true,  'The payload to use.  If none is specified, PAYLOAD is used.'         ],
-    '-t' => [ true,  'The target index to use.  If none is specified, TARGET is used.'     ],
-    '-z' => [ false, 'Do not interact with the session after successful exploitation.'     ]
-  ))
+  @@exploit_opts = @@module_opts.merge(
+    ['-e', '--encoder']       => [ true,  'The payload encoder to use.  If none is specified, ENCODER is used.', '<encoder>'   ],
+    ['-f', '--force-run']     => [ false, 'Force the exploit to run regardless of the value of MinimumRank.'                   ],
+    ['-n', '--nop-generator'] => [ true,  'The NOP generator to use.  If none is specified, NOP is used.', '<generator>'       ],
+    ['-p', '--payload']       => [ true,  'The payload to use.  If none is specified, PAYLOAD is used.', '<payload>'           ],
+    ['-t', '--target']        => [ true,  'The target index to use.  If none is specified, TARGET is used.', '<target>'        ],
+    ['-z', '--no-interact']   => [ false, 'Do not interact with the session after successful exploitation.'                    ]
+  )
 
   def parse_check_opts(args)
     help_cmd = proc do |_result|

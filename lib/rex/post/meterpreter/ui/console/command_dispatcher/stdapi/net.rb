@@ -359,7 +359,7 @@ class Console::CommandDispatcher::Stdapi::Net
   end
 
   def cmd_route_tabs(str, words)
-    return %w[add delete list] + @@route_opts.fmt.keys if words.length == 1
+    return %w[add delete list] + @@route_opts.option_keys if words.length == 1
   end
 
   #
@@ -577,7 +577,7 @@ class Console::CommandDispatcher::Stdapi::Net
   end
 
   def cmd_portfwd_tabs(str, words)
-    return %w[add delete list flush] + @@portfwd_opts.fmt.keys if words.length == 1
+    return %w[add delete list flush] + @@portfwd_opts.option_keys if words.length == 1
 
     case words[-1]
     when '-L'
@@ -587,7 +587,7 @@ class Console::CommandDispatcher::Stdapi::Net
         return (1..client.pfservice.each_tcp_relay { |lh, lp, rh, rp, opts| }.length).to_a.map!(&:to_s)
       end
     when 'add', 'delete', 'list', 'flush'
-      return @@portfwd_opts.fmt.keys
+      return @@portfwd_opts.option_keys
     end
 
     []
@@ -671,4 +671,3 @@ end
 end
 end
 end
-

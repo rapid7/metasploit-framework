@@ -73,6 +73,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
     end
 
+    # Extract the MeterpreterDebugBuild option if specified by the user
+    if opts[:datastore]
+      opts[:debug_build] = opts[:datastore]['MeterpreterDebugBuild']
+    end
+
     # Don't pass the datastore into the init_meterpreter method
     opts.delete(:datastore)
 
@@ -104,6 +109,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     self.class.type
   end
 
+  def self.can_cleanup_files
+    true
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
@@ -126,6 +135,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     session.encode_unicode = datastore['EnableUnicodeEncoding']
 
     session.init_ui(self.user_input, self.user_output)
+
+    initialize_tlv_logging(datastore['SessionTlvLogging']) unless datastore['SessionTlvLogging'].nil?
 
     verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
     begin
@@ -732,4 +743,3 @@ end
 
 end
 end
-

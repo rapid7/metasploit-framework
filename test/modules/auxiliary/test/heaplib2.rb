@@ -3,34 +3,34 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   Rank = NormalRanking
 
   include Msf::Exploit::Remote::HttpServer::HTML
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Heaplib2 Test",
-      'Description'    => %q{
-        This tests heaplib2. Since it is a test module, it's not intended to do much useful work in the field.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'sinn3r' ],
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Heaplib2 Test",
+        'Description' => %q{
+          This tests heaplib2. Since it is a test module, it's not intended to do much useful work in the field.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'References' => [
           [ 'URL', 'https://metasploit.com' ]
         ],
-      'Platform'       => 'win',
-      'Targets'        =>
-        [
+        'Platform' => 'win',
+        'Targets' => [
           [ 'Automatic', {} ]
         ],
-      'Privileged'     => false,
-      'DisclosureDate' => '2014-03-01',
-      'DefaultTarget'  => 0))
+        'Privileged' => false,
+        'DisclosureDate' => '2014-03-01',
+        'DefaultTarget' => 0
+      )
+    )
   end
-
 
   def on_request_uri(cli, request)
     spray = %Q|
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     |
 
     print_status("Sending html")
-    send_response(cli, html, {'Content-Type'=>'text/html'})
+    send_response(cli, html, { 'Content-Type' => 'text/html' })
   end
 
   def run

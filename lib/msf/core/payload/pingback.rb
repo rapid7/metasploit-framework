@@ -9,7 +9,6 @@ require 'rex/text'
 module Msf::Payload::Pingback
 
   attr_accessor :pingback_uuid
-  attr_accessor :can_cleanup
 
   # Generate a Pingback UUID and write it to the database
   def generate_pingback_uuid
@@ -27,11 +26,5 @@ module Msf::Payload::Pingback
       print_warning("Unable to save UUID #{datastore['PingbackUUID']} to database -- database support not active")
     end
     self.pingback_uuid
-  end
-
-  def initialize(info = {})
-    super(info)
-    self.can_cleanup = false
-    self
   end
 end

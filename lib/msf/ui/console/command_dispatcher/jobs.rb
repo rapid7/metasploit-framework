@@ -289,9 +289,9 @@ module Msf
           # at least 1 when tab completion has reached this stage since the command itself has been completed
 
           def cmd_jobs_tabs(_str, words)
-            return @@jobs_opts.fmt.keys if words.length == 1
+            return @@jobs_opts.option_keys if words.length == 1
 
-            if words.length == 2 && (@@jobs_opts.fmt[words[1]] || [false])[0]
+            if words.length == 2 && @@jobs_opts.include?(words[1]) && @@jobs_opts.arg_required?(words[1])
               return framework.jobs.keys
             end
 

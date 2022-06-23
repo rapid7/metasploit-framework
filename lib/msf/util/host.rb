@@ -14,21 +14,18 @@ module Msf
         return host if defined?(::Mdm) && host.kind_of?(::Mdm::Host)
         norm_host = nil
 
-        if (host.kind_of? String)
-
+        if host.kind_of?(String)
           if Rex::Socket.is_ipv4?(host)
-            # If it's an IPv4 addr with a port on the end, strip the port
-            if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
-              norm_host = $1
-            else
-              norm_host = host
-            end
+            norm_host = host
           elsif Rex::Socket.is_ipv6?(host)
-            # If it's an IPv6 addr, drop the scope
-            address, scope = host.split('%', 2)
+            # If it's an IPv6 addr, drop the zone_id
+            address, _ = host.split('%', 2)
             norm_host = address
           else
-            norm_host = Rex::Socket.getaddress(host, true)
+            begin
+              norm_host = Rex::Socket.getaddress(host, true)
+            rescue SocketError
+            end
           end
         elsif defined?(::Mdm) && host.kind_of?(::Mdm::Session)
           norm_host = host.host
@@ -52,7 +49,6 @@ module Msf
         # to try, just log it and return what we were given
         if !norm_host
           dlog("Host could not be normalized: #{host.inspect}")
-          norm_host = host
         end
 
         norm_host

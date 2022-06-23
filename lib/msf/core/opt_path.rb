@@ -13,7 +13,7 @@ class OptPath < OptBase
   end
 
   def normalize(value)
-    value.nil? ? value : File.expand_path(value)
+    value.nil? || value.to_s.empty? ? value : File.expand_path(value)
   end
 
   def validate_on_assignment?

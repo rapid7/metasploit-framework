@@ -1,6 +1,8 @@
 ## Description
 
 The `smb_enumshares` module, as would be expected, enumerates any SMB shares that are available on a remote system.
+The module can also recursively go through each directory in each share and gather information about the files inside them.
+On some systems such as Windows 7, it can also iterate over user directories and `%appdata%`.
 
 ## Verification Steps
 
@@ -11,53 +13,49 @@ The `smb_enumshares` module, as would be expected, enumerates any SMB shares tha
 
 ## Scenarios
 
-### Uncredentialed
+### Uncredentialed - Windows 10 Target
 
 ```
-msf > use auxiliary/scanner/smb/smb_enumshares
-msf auxiliary(smb_enumshares) > set RHOSTS 192.168.1.150-165
-RHOSTS => 192.168.1.150-165
-msf auxiliary(smb_enumshares) > set THREADS 16
-THREADS => 16
-msf auxiliary(smb_enumshares) > run
+msf6 auxiliary(scanner/smb/smb_enumshares) > set SpiderProfiles false
+SpiderProfiles => false
+msf6 auxiliary(scanner/smb/smb_enumshares) > set SpiderShares false
+SpiderShares => false
+msf6 auxiliary(scanner/smb/smb_enumshares) > set RHOSTS 192.168.129.131
+RHOSTS => 192.168.129.131
+msf6 auxiliary(scanner/smb/smb_enumshares) > run
 
-[*] 192.168.1.154:139 print$ - Printer Drivers (DISK), tmp - oh noes! (DISK), opt -  (DISK), IPC$ - IPC Service (metasploitable server (Samba 3.0.20-Debian)) (IPC), ADMIN$ - IPC Service (metasploitable server (Samba 3.0.20-Debian)) (IPC)
-Error: 192.168.1.160 Rex::Proto::SMB::Exceptions::ErrorCode The server responded with error: STATUS_ACCESS_DENIED (Command=37 WordCount=0)
-Error: 192.168.1.160 Rex::Proto::SMB::Exceptions::ErrorCode The server responded with error: STATUS_ACCESS_DENIED (Command=37 WordCount=0)
-[*] 192.168.1.161:139 IPC$ - Remote IPC (IPC), ADMIN$ - Remote Admin (DISK), C$ - Default share (DISK)
-Error: 192.168.1.162 Rex::Proto::SMB::Exceptions::ErrorCode The server responded with error: STATUS_ACCESS_DENIED (Command=37 WordCount=0)
-Error: 192.168.1.150 Rex::Proto::SMB::Exceptions::ErrorCode The server responded with error: STATUS_ACCESS_DENIED (Command=37 WordCount=0)
-Error: 192.168.1.150 Rex::Proto::SMB::Exceptions::ErrorCode The server responded with error: STATUS_ACCESS_DENIED (Command=37 WordCount=0)
-[*] Scanned 06 of 16 hosts (037% complete)
-[*] Scanned 09 of 16 hosts (056% complete)
-[*] Scanned 10 of 16 hosts (062% complete)
-[*] Scanned 14 of 16 hosts (087% complete)
-[*] Scanned 15 of 16 hosts (093% complete)
-[*] Scanned 16 of 16 hosts (100% complete)
+[*] 192.168.129.131:139   - Starting module
+[-] 192.168.129.131:139   - Login Failed: The SMB server did not reply to our request
+[*] 192.168.129.131:445   - Starting module
+[-] 192.168.129.131:445   - Login Failed: (0xc000006d) STATUS_LOGON_FAILURE: The attempted logon is invalid. This is either due to a bad username or authentication information.
+[*] 192.168.129.131:      - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf auxiliary(smb_enumshares) >
 ```
 
-### Credentialed
+### Credentialed - Windows 10 Target
 
 As you can see in the previous scan, access is denied to most of the systems that are probed.
 Doing a Credentialed scan produces much different results.
 
 ```
-msf auxiliary(smb_enumshares) > set SMBPass s3cr3t
-SMBPass => s3cr3t
-msf auxiliary(smb_enumshares) > set SMBUser Administrator
-SMBUser => Administrator
-msf auxiliary(smb_enumshares) > run
+msf6 auxiliary(scanner/smb/smb_enumshares) > set SMBPass simon
+SMBPass => simon
+msf6 auxiliary(scanner/smb/smb_enumshares) > set SMBUser simon
+SMBUser => simon
+msf6 auxiliary(scanner/smb/smb_enumshares) > run
 
-[*] 192.168.1.161:139 IPC$ - Remote IPC (IPC), ADMIN$ - Remote Admin (DISK), C$ - Default share (DISK)
-[*] 192.168.1.160:139 IPC$ - Remote IPC (IPC), ADMIN$ - Remote Admin (DISK), C$ - Default share (DISK)
-[*] 192.168.1.150:139 IPC$ - Remote IPC (IPC), ADMIN$ - Remote Admin (DISK), C$ - Default share (DISK)
-[*] Scanned 06 of 16 hosts (037% complete)
-[*] Scanned 07 of 16 hosts (043% complete)
-[*] Scanned 12 of 16 hosts (075% complete)
-[*] Scanned 15 of 16 hosts (093% complete)
-[*] Scanned 16 of 16 hosts (100% complete)
+[*] 192.168.129.131:139   - Starting module
+[-] 192.168.129.131:139   - Login Failed: The SMB server did not reply to our request
+[*] 192.168.129.131:445   - Starting module
+[!] 192.168.129.131:445   - peer_native_os is only available with SMB1 (current version: SMB3)
+[!] 192.168.129.131:445   - peer_native_lm is only available with SMB1 (current version: SMB3)
+[+] 192.168.129.131:445   - ADMIN$ - (DISK) Remote Admin
+[+] 192.168.129.131:445   - C$ - (DISK) Default share
+[+] 192.168.129.131:445   - IPC$ - (IPC) Remote IPC
+[+] 192.168.129.131:445   - MySharesOnWin10 - (DISK)
+[+] 192.168.129.131:445   - print$ - (DISK) Printer Drivers
+[+] 192.168.129.131:445   - TestPrinter - (PRINTER) Test Printer
+[*] 192.168.129.131:      - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf auxiliary(smb_enumshares) >
 ```
+The disconnect on port 139 happens because Windows 10 uses SMB3, which operates on port 445 instead.

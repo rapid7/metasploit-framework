@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-# TODO: refactor this so it's no longer under Meterpreter so it can be used elsewhere
+require 'metasploit/framework/ssh/platform'
 require 'rex/post/channel'
 require 'rex/post/meterpreter/channels/socket_abstraction'
 
@@ -82,7 +82,7 @@ module Msf::Sessions
         rsock.extend(SocketInterface)
         rsock.channel = self
 
-        lsock.extend(Rex::Socket::SslTcp) if params.ssl
+        lsock.extend(Rex::Socket::SslTcp) if params.ssl && !params.server
 
         # synchronize access so the socket isn't closed while initializing, this is particularly important for SSL
         lsock.synchronize_access { lsock.initsock(params) }
@@ -153,6 +153,11 @@ module Msf::Sessions
         @closed = false
         @mutex = Mutex.new
         @condition = ConditionVariable.new
+
+        if params.ssl
+          extend(Rex::Socket::SslTcpServer)
+          initsock(params)
+        end
       end
 
       def accept(opts = {})
@@ -195,6 +200,8 @@ module Msf::Sessions
         }
       end
 
+      attr_reader :client
+
       protected
 
       def _accept
@@ -223,11 +230,27 @@ module Msf::Sessions
       initialize_channels
       @channel_ticker = 0
 
-      rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
-
       # Be alerted to reverse port forward connections (once we start listening on a port)
       ssh_connection.on_open_channel('forwarded-tcpip', &method(:on_got_remote_connection))
-      super(rstream, opts)
+      super(nil, opts)
+    end
+
+    def bootstrap(datastore = {}, handler = nil)
+      # this won't work after the rstream is initialized, so do it first
+      @platform = Metasploit::Framework::Ssh::Platform.get_platform(ssh_connection)
+
+      # if the platform is known, it was recovered by communicating with the device, so skip verification, also not all
+      # shells accessed through SSH may respond to the echo command issued for verification as expected
+      datastore['AutoVerifySession'] &= @platform.blank?
+
+      @rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
+      super
+
+      @info = "SSH #{username} @ #{@peer_info}"
+    end
+
+    def desc
+      "SSH"
     end
 
     #
@@ -319,7 +342,7 @@ module Msf::Sessions
       begin
         completed_event.wait(timeout)
         true
-      rescue TimeoutError
+      rescue ::Timeout::Error
         false
       end
     end
@@ -398,6 +421,5 @@ module Msf::Sessions
     end
 
     attr_reader :sock, :ssh_connection
-
   end
 end

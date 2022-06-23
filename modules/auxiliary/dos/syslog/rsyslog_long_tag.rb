@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2011-3200'],
-          [ 'URL', 'http://www.rsyslog.com/potential-dos-with-malformed-tag/' ],
+          [ 'URL', 'https://www.rsyslog.com/potential-dos-with-malformed-tag/' ],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=727644' ],
         ],
       'DisclosureDate' => 'Sep 01 2011')

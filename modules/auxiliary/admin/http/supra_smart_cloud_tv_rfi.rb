@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       return send_not_found(cli)
     end
 
-    data = File.read(File.join(dir, file))
+    data = File.read(File.join(dir, file), mode: 'rb')
 
     vprint_good("Sending #{file}")
     send_response(cli, data, 'Content-Type' => files[file])

@@ -71,9 +71,41 @@ module Msf
               'AutoUnhookProcess',
               [true, "Automatically load the unhook extension and unhook the process", false]
             ),
+            OptBool.new(
+              'MeterpreterDebugBuild',
+              [false, 'Use a debug version of Meterpreter']
+            ),
+            OptMeterpreterDebugLogging.new(
+              'MeterpreterDebugLogging',
+              [false, 'The Meterpreter debug logging configuration, see https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Debugging-Meterpreter-Sessions']
+            )
           ],
           self.class
         )
+      end
+
+      def meterpreter_logging_config(opts = {})
+        ds = opts[:datastore] || datastore
+        {
+          debug_build: (ds[:debug_build] || datastore['MeterpreterDebugBuild']),
+          log_path:    (ds[:log_path] || parse_rpath)
+        }
+      end
+
+      def mettle_logging_config(opts = {})
+        ds = opts[:datastore] || datastore
+        debug_build = ds[:debug_build] || datastore['MeterpreterDebugBuild']
+        log_path = ds[:log_path] || parse_rpath
+        {
+          debug: debug_build ? 3 : 0,
+          log_file: log_path
+        }
+      end
+
+      private
+
+      def parse_rpath
+        Msf::OptMeterpreterDebugLogging.parse_logging_options(datastore['MeterpreterDebugLogging'])[:rpath]
       end
     end
   end

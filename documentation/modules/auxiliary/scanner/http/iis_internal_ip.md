@@ -2,14 +2,15 @@
 
 IIS, under various conditions, may respond to a request for `/`, `/images`, or `/default.htm` with `HTTP/1.0`
 with a 300 HTTP response and a location header that contains an internal (192.x.x.x, 10.x.x.x, or 172.x.x.x)
-IP address.
+IP address. It may also respond to a 'PROPFIND' request with a blank host header that contains the internal
+IP address in then body
 
 ## Verification Steps
 
-  1. Install IIS with at least one IP address on a private LAN
+  1. Install a vulnerable version of IIS with at least one IP address on a private LAN
   2. Start msfconsole
   3. Do: ```use auxiliary/scanner/http/iis_internal_ip```
-  4. Do: ```set rhosts [ip]```
+  4. Do: ```set RHOSTS [ip]```
   5. Do: ```run```
   6. You should find the internal IP
 
@@ -41,3 +42,10 @@ rmsf5 auxiliary(scanner/http/iis_internal_ip) > run
 [*] Auxiliary module execution completed
 
 ```
+## References
+- https://nvd.nist.gov/vuln/detail/CVE-2002-0422
+- http://www.securityfocus.com/bid/1499
+- https://www.exploit-db.com/exploits/20096
+- https://support.microsoft.com/en-us/help/218180/internet-information-server-returns-ip-address-in-http-header-content
+- https://support.microsoft.com/en-us/help/967342/fix-the-internal-ip-address-of-an-iis-7-0-server-is-revealed-if-an-htt
+- https://techcommunity.microsoft.com/t5/iis-support-blog/iis-web-servers-running-in-windows-azure-may-reveal-their/ba-p/826500

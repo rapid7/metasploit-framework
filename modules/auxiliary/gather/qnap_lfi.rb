@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2019-7194'],
           ['CVE', '2019-7195'],
           ['EDB', '48531'],
-          ['URL', 'https://medium.com/bugbountywriteup/qnap-pre-auth-root-rce-affecting-450k-devices-on-the-internet-d55488d28a05'],
+          ['URL', 'https://infosecwriteups.com/qnap-pre-auth-root-rce-affecting-450k-devices-on-the-internet-d55488d28a05'],
           ['URL', 'https://www.qnap.com/en-us/security-advisory/nas-201911-25'],
           ['URL', 'https://github.com/Imanfeng/QNAP-NAS-RCE']
         ],
@@ -45,7 +45,8 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction' => 'Download',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -73,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
       xml.at("//#{node}").text
     end
 
-    vprint_status("QNAP #{info[0]} #{info[1..-1].join('-')} detected")
+    vprint_status("QNAP #{info[0]} #{info[1..].join('-')} detected")
 
     return Exploit::CheckCode::Appears if info[2].to_i < 20191206
 

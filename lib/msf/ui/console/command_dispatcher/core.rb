@@ -33,65 +33,68 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
-    "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
-    "-h"  => [ false, "Help banner"                                                    ],
-    "-i"  => [ true,  "Interact with the supplied session ID"                          ],
-    "-l"  => [ false, "List all active sessions"                                       ],
-    "-v"  => [ false, "List all active sessions in verbose mode"                       ],
-    "-d" =>  [ false, "List all inactive sessions"                                     ],
-    "-q"  => [ false, "Quiet mode"                                                     ],
-    "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
-    "-K"  => [ false, "Terminate all sessions"                                         ],
-    "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
-    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
-    "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
-    "-S"  => [ true,  "Row search filter."                                             ],
-    "-x" =>  [ false, "Show extended information in the session table"                 ],
-    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
+    ["-c", "--command"]              => [ true,  "Run a command on the session given with -i, or all", "<command>"               ],
+    ["-C", "--meterpreter-command"]  => [ true,  "Run a Meterpreter Command on the session given with -i, or all", "<command>"   ],
+    ["-h", "--help"]                 => [ false, "Help banner"                                                                   ],
+    ["-i", "--interact"]             => [ true,  "Interact with the supplied session ID", "<id>"                                 ],
+    ["-l", "--list"]                 => [ false, "List all active sessions"                                                      ],
+    ["-v", "--list-verbose"]         => [ false, "List all active sessions in verbose mode"                                      ],
+    ["-d", "--list-inactive"]        => [ false, "List all inactive sessions"                                                    ],
+    ["-q", "--quiet"]                => [ false, "Quiet mode"                                                                    ],
+    ["-k", "--kill"]                 => [ true,  "Terminate sessions by session ID and/or range", "<id>"                         ],
+    ["-K", "--kill-all"]             => [ false, "Terminate all sessions"                                                        ],
+    ["-s", "--script"]               => [ true,  "Run a script or module on the session given with -i, or all", "<script>"       ],
+    ["-u", "--upgrade"]              => [ true,  "Upgrade a shell to a meterpreter session on many platforms", "<id>"            ],
+    ["-t", "--timeout"]              => [ true,  "Set a response timeout (default: 15)", "<seconds>"                             ],
+    ["-S", "--search"]               => [ true,  "Row search filter.", "<filter>"                                                ],
+    ["-x", "--list-extended"]        => [ false, "Show extended information in the session table"                                ],
+    ["-n", "--name"]                 => [ true,  "Name or rename a session by ID", "<id> <name>"                                 ])
 
 
   @@threads_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-k" => [ true,  "Terminate the specified thread ID."             ],
-    "-K" => [ false, "Terminate all non-critical threads."            ],
-    "-i" => [ true,  "Lists detailed information about a thread."     ],
-    "-l" => [ false, "List all background threads."                   ],
-    "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
+    ["-h", "--help"]            => [ false, "Help banner."                                           ],
+    ["-k", "--kill"]            => [ true,  "Terminate the specified thread ID.", "<id>"             ],
+    ["-K", "--kill-all"]        => [ false, "Terminate all non-critical threads."                    ],
+    ["-i", "--info"]            => [ true,  "Lists detailed information about a thread.", "<id>"     ],
+    ["-l", "--list"] => [ false, "List all background threads."                           ],
+    ["-v", "--verbose"]         => [ false, "Print more detailed info.  Use with -i and -l"          ])
 
   @@tip_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ])
+    ["-h", "--help"] => [ false, "Help banner."                                   ])
 
   @@debug_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-d" => [ false, "Display the Datastore Information."             ],
-    "-c" => [ false, "Display command history."                       ],
-    "-e" => [ false, "Display the most recent Error and Stack Trace." ],
-    "-l" => [ false, "Display the most recent logs."                  ],
-    "-v" => [ false, "Display versions and install info."             ])
+    ["-h", "--help"]            => [ false, "Help banner."                                   ],
+    ["-d", "--datastore"]       => [ false, "Display the datastore information."             ],
+    ["-c", "--commands"] => [ false, "Display command history."                       ],
+    ["-e", "--errors"]     => [ false, "Display the most recent Error and Stack Trace." ],
+    ["-l", "--logs"]            => [ false, "Display the most recent logs."                  ],
+    ["-v", "--version"]         => [ false, "Display versions and install info."             ],
+    ["-s", "--database"]           => [ false, "Display database statistics."                   ])
 
   @@connect_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-p" => [ true,  "List of proxies to use."                        ],
-    "-C" => [ false, "Try to use CRLF for EOL sequence."              ],
-    "-c" => [ true,  "Specify which Comm to use."                     ],
-    "-i" => [ true,  "Send the contents of a file."                   ],
-    "-P" => [ true,  "Specify source port."                           ],
-    "-S" => [ true,  "Specify source address."                        ],
-    "-s" => [ false, "Connect with SSL."                              ],
-    "-u" => [ false, "Switch to a UDP socket."                        ],
-    "-w" => [ true,  "Specify connect timeout."                       ],
-    "-z" => [ false, "Just try to connect, then return."              ])
-
-  @@search_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-S" => [ true, "Row search filter."                              ])
+    ["-h", "--help"]           => [ false, "Help banner."                                                ],
+    ["-p", "--proxies"]        => [ true,  "List of proxies to use.", "<proxies>"                        ],
+    ["-C", "--crlf"]           => [ false, "Try to use CRLF for EOL sequence."                           ],
+    ["-c", "--comm"]           => [ true,  "Specify which Comm to use.", "<comm>"                        ],
+    ["-i", "--send-contents"]  => [ true,  "Send the contents of a file.", "<file>"                      ],
+    ["-P", "--source-port"]    => [ true,  "Specify source port.", "<port>"                              ],
+    ["-S", "--source-address"] => [ true,  "Specify source address.", "<address>"                        ],
+    ["-s", "--ssl"]            => [ false, "Connect with SSL."                                           ],
+    ["-u", "--udp"]            => [ false, "Switch to a UDP socket."                                     ],
+    ["-w", "--timeout"]        => [ true,  "Specify connect timeout.", "<seconds>"                       ],
+    ["-z", "--try-connection"] => [ false, "Just try to connect, then return."                           ])
 
   @@history_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-a" => [ false, "Show all commands in history."                  ],
-    "-n" => [ true,  "Show the last n commands."                      ],
-    "-c" => [ false, "Clear command history and history file."        ])
+    ["-h", "--help"]            => [ false, "Help banner."                                   ],
+    ["-a", "--all-commands"]    => [ false, "Show all commands in history."                  ],
+    ["-n"] => [ true,  "Show the last n commands.", "<num>"             ],
+    ["-c", "--clear"]           => [ false, "Clear command history and history file."        ])
+
+  @@save_opts = Rex::Parser::Arguments.new(
+    ["-h", "--help"]           => [ false, "Help banner."                                                                   ],
+    ["-r", "--reload-default"] => [ false, "Reload default options for the active module."                                  ],
+    ["-l", "--load"]           => [ false, "Load the saved options for the active module."                                  ],
+    ["-d", "--delete-all"]     => [ false, "Delete saved options for all modules from the config file."                     ])
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -245,6 +248,20 @@ class Core
 
   end
 
+  #
+  # Tab completion for the tips command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_tips_tabs(str, words)
+    if words.length == 1
+      return @@tip_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+
+    []
+  end
+
   def cmd_tips_help
     print_line "Usage: tips [options]"
     print_line
@@ -258,7 +275,7 @@ class Core
   # Display useful productivity tips to the user.
   #
   def cmd_tips(*args)
-    if args.include?("-h")
+    if args.include?("-h") || args.include?("--help")
       cmd_tip_help
     else
       tbl = Table.new(
@@ -276,6 +293,21 @@ class Core
 
   alias cmd_tip cmd_tips
 
+  #
+  # Tab completion for the debug command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_debug_tabs(str, words)
+    if words.length >= 1
+      return @@debug_opts.option_keys.select do |opt|
+        opt.start_with?(str) && !words.include?(opt)
+      end
+    end
+
+    []
+  end
 
   def cmd_debug_help
     print_line "Usage: debug [options]"
@@ -295,7 +327,7 @@ class Core
       return
     end
 
-    if args.include?("-h")
+    if args.include?("-h") || args.include?("--help")
       cmd_debug_help
     else
       output = ""
@@ -311,6 +343,8 @@ class Core
           output << Debug.logs
         when '-v'
           output << Debug.versions(framework)
+        when '-s'
+          output << Debug.database_configuration(framework)
         end
       end
 
@@ -322,6 +356,27 @@ class Core
         print_line output
       end
     end
+  end
+
+  #
+  # Tab completion for the connect command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_connect_tabs(str, words)
+    if words.length == 1
+      return @@connect_opts.option_keys.select do |opt|
+        opt.start_with?(str) && !words.include?(opt)
+      end
+    end
+
+    case words[-1]
+    when '-c', '--comm'
+      # Rex::Socket::Comm
+    end
+
+    []
   end
 
   def cmd_connect_help
@@ -336,7 +391,7 @@ class Core
   # Talk to a host
   #
   def cmd_connect(*args)
-    if args.length < 2 or args.include?("-h")
+    if args.length < 2 or args.include?("-h") or args.include?("--help")
       cmd_connect_help
       return false
     end
@@ -721,7 +776,7 @@ class Core
 
   def cmd_history_tabs(str, words)
     return [] if words.length > 1
-    @@history_opts.fmt.keys
+    @@history_opts.option_keys
   end
 
   def cmd_sleep_help
@@ -855,13 +910,12 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_threads_tabs(str, words)
     if words.length == 1
-      return @@threads_opts.fmt.keys
+      return @@threads_opts.option_keys
     end
 
-    if words.length == 2 and (@@threads_opts.fmt[words[1]] || [false])[0]
+    if words.length == 2 && @@threads_opts.include?(words[1]) && @@threads_opts.arg_required?(words[1])
       return framework.threads.each_index.map{ |idx| idx.to_s }
     end
 
@@ -957,7 +1011,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_load_tabs(str, words)
     tabs = []
 
@@ -1166,7 +1219,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_route_tabs(str, words)
     if words.length == 1
       return %w{add remove get flush print}
@@ -1203,42 +1255,96 @@ class Core
     ret
   end
 
+  #
+  # Tab completion for the save command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_save_tabs(str, words)
+    if words.length == 1
+      @@save_opts.option_keys.select { |opt| opt.start_with?(str) }
+    end
+  end
+
+  # Print save help information
   def cmd_save_help
-    print_line "Usage: save"
+    print_line 'Usage: save [options]'
     print_line
-    print_line "Save the active datastore contents to disk for automatic use across restarts of the console"
-    print_line
+    print_line 'Save the active datastore contents to disk for automatic use across restarts of the console'
     print_line "The configuration is stored in #{Msf::Config.config_file}"
-    print_line
+    print @@save_opts.usage
   end
 
   #
-  # Saves the active datastore contents to disk for automatic use across
+  # Deletes or saves the active datastore contents to disk for automatic use across
   # restarts of the console.
   #
   def cmd_save(*args)
-    # Save the console config
-    driver.save_config
-
-    begin
-      FeatureManager.instance.save_config
-    rescue StandardException => e
-      elog(e)
-    end
-
-    # Save the framework's datastore
-    begin
-      framework.save_config
-
-      if (active_module)
-        active_module.save_config
-      end
-    rescue
-      log_error("Save failed: #{$!}")
+    if args.include?('-h') || args.include?('--help')
+      cmd_save_help
       return false
     end
 
-    print_line("Saved configuration to: #{Msf::Config.config_file}")
+    if args.empty?
+      # Save config for current module
+      # Save the console config
+      driver.save_config
+
+      begin
+        FeatureManager.instance.save_config
+      rescue StandardException => e
+        elog(e)
+      end
+
+      # Save the framework's datastore
+      begin
+        framework.save_config
+
+        if active_module
+          active_module.save_config
+        end
+      rescue
+        log_error("Save failed: #{$!}")
+        return false
+      end
+
+      print_line("Saved configuration to: #{Msf::Config.config_file}")
+    end
+
+    @@save_opts.parse(args) do |opt|
+      case opt
+      when '-d'
+        # Delete all saved options for modules from the config file.
+        # No framework options will be deleted.
+        begin
+          ini = Rex::Parser::Ini.new(::Msf::Config.config_file)
+
+          ini.delete_if { |k, _v| !k.start_with?('framework') }
+
+          ini.to_file(::Msf::Config.config_file)
+        rescue StandardError
+          print_error("Failed to delete console config: #{$!}")
+        end
+
+        if active_module
+          active_module.import_defaults
+        end
+        print_line('Deleted saved configs for all modules.')
+      when '-r'
+        active_module.import_defaults
+        print_line('Reloaded default options.')
+      when '-l'
+        active_module.load_config
+        print_line("Loaded config from #{Msf::Config.config_file}.")
+      when '-h'
+        cmd_save_help
+        return false
+      else
+        print_line("Unknown option: #{opt}")
+        print(@@save_opts.usage)
+      end
+    end
   end
 
   def cmd_spool_help
@@ -1303,6 +1409,7 @@ class Core
     response_timeout = 15
     search_term = nil
     session_name = nil
+    has_script_arguments = false
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1314,55 +1421,60 @@ class Core
     else
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
+        next if has_script_arguments
+
         case opt
-        when "-q"
+        when "-q", "--quiet"
           quiet = true
         # Run a command on all sessions, or the session given with -i
-        when "-c"
+        when "-c", "--command"
           method = 'cmd'
           cmds << val if val
-        when "-C"
+        when "-C", "--meterpreter-command"
             method = 'meterp-cmd'
             cmds << val if val
         # Display the list of inactive sessions
-        when "-d"
+        when "-d", "--list-inactive"
           show_inactive = true
           method = 'list_inactive'
-        when "-x"
+        when "-x", "--list-extended"
           show_extended = true
-        when "-v"
+        when "-v", "--list-verbose"
           verbose = true
         # Do something with the supplied session identifier instead of
         # all sessions.
-        when "-i"
+        when "-i", "--interact"
           sid = val
         # Display the list of active sessions
-        when "-l"
+        when "-l", "--list"
           show_active = true
           method = 'list'
-        when "-k"
+        when "-k", "--kill"
           method = 'kill'
           sid = val || false
-        when "-K"
+        when "-K", "--kill-all"
           method = 'killall'
         # Run a script or module on specified sessions
-        when "-s"
+        when "-s", "--script"
           unless script
             method = 'script'
             script = val
+            # Assume any parameter after the script name is a flag/argument we want to pass to the script itself.
+            extra += args[(idx + 1)..-1]
+            has_script_arguments = true
           end
         # Upload and exec to the specific command session
-        when "-u"
+        when "-u", "--upgrade"
           method = 'upexec'
           sid = val || false
         # Search for specific session
         when "-S", "--search"
           search_term = val
         # Display help banner
-        when "-h"
+        when "-h", "--help"
           cmd_sessions_help
           return false
-        when "-t"
+        when "-t", "--timeout"
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
@@ -1513,7 +1625,7 @@ class Core
       end
     when 'killall'
       print_status("Killing all sessions...")
-      framework.sessions.each_sorted do |s|
+      framework.sessions.each_sorted.reverse_each do |s|
         session = framework.sessions.get(s)
         if session
           if session.respond_to?(:response_timeout)
@@ -1662,20 +1774,19 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_sessions_tabs(str, words)
     if words.length == 1
-      return @@sessions_opts.fmt.keys
+      return @@sessions_opts.option_keys.select { |opt| opt.start_with?(str) }
     end
 
     case words[-1]
-    when "-i", "-k", "-u"
+    when "-i", "--interact", "-k", "--kill", "-u", "--upgrade"
       return framework.sessions.keys.map { |k| k.to_s }
 
-    when "-c"
+    when "-c", "--command"
       # Can't really complete commands hehe
 
-    when "-s"
+    when "-s", "--search"
       # XXX: Complete scripts
 
     end
@@ -1801,6 +1912,18 @@ class Core
     # If the new SSL value already set in datastore[name] is different from the old value, warn the user
     if name.casecmp('SSL') == 0 && datastore[name] != old_value
       print_warning("Changing the SSL option's value may require changing RPORT!")
+    end
+
+    if name.casecmp?('SessionTlvLogging')
+      # Check if we need to append the default filename if user provided an output directory
+      if datastore[name].start_with?('file:')
+        pathname = ::Pathname.new(datastore[name].split('file:').last)
+        if ::File.directory?(pathname)
+          datastore[name] = ::File.join(datastore[name], 'sessiontlvlogging.txt')
+        end
+      end
+
+      framework.sessions.each { |_index, session| session.initialize_tlv_logging(datastore[name]) if session.type.casecmp? 'meterpreter' }
     end
 
     print_line("#{name} => #{datastore[name]}")

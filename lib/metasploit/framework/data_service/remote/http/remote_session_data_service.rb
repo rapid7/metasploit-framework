@@ -13,6 +13,7 @@ module RemoteSessionDataService
 
   def report_session(opts)
     session = opts[:session]
+    session.workspace = session.workspace || opts[:workspace]
     if (session.kind_of? Msf::Session)
       opts = SessionDataProxy.convert_msf_session_to_hash(session)
     elsif (opts[:host])

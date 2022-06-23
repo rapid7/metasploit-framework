@@ -255,6 +255,30 @@ RSpec.describe "Metasploit's json-rpc" do
       end
     end
 
+    context 'when the module does not support a check method' do
+      before do
+        mock_rack_env('development')
+      end
+
+      let(:module_name) { 'scanner/http/title' }
+
+      it 'returns successful job results' do
+        create_job
+        expect(last_response).to_not be_ok
+        expected_error_response = {
+          error: {
+            code: -32000,
+            data: {
+              backtrace: include(a_kind_of(String))
+            },
+            message: 'Application server error: This module does not support check.'
+          },
+          id: 1
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
     context 'when the check command raises a known msf error' do
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do |mod|
@@ -461,25 +485,41 @@ RSpec.describe "Metasploit's json-rpc" do
           expected_response = {
             jsonrpc: '2.0',
             result: {
-              host: [
-                {
-                  address: host_ip,
-                  modules: [
-                    {
-                      mtype: 'exploit',
-                      mname: 'exploit/windows/smb/ms17_010_eternalblue'
+              host: {
+                address: host_ip,
+                modules: [
+                  {
+                    mname: "exploit/windows/smb/ms17_010_eternalblue",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [],
                     },
-                    {
-                      mtype: 'exploit',
-                      mname: 'exploit/windows/smb/ms17_010_psexec',
+                    state: "READY_FOR_TEST",
+                    description: "ready for testing"
+                  },
+                  {
+                    mname: "exploit/windows/smb/ms17_010_psexec",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [ "credential" ],
                     },
-                    {
-                      mtype: 'exploit',
-                      mname: 'exploit/windows/smb/smb_doublepulsar_rce',
-                    }
-                  ]
-                }
-              ]
+                    state: "REQUIRES_CRED",
+                    description: "credentials are required"
+                  },
+                  {
+                    mname: "exploit/windows/smb/smb_doublepulsar_rce",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [],
+                    },
+                    state: "READY_FOR_TEST",
+                    description: "ready for testing"
+                  }
+                ]
+              }
             },
             id: 1
           }
@@ -507,25 +547,41 @@ RSpec.describe "Metasploit's json-rpc" do
           expected_response = {
             jsonrpc: '2.0',
             result: {
-              host: [
-                {
-                  address: host_ip,
-                  modules: [
-                    {
-                      mtype: 'exploit',
-                      mname: 'exploit/windows/smb/ms17_010_eternalblue'
+              host: {
+                address: host_ip,
+                modules: [
+                  {
+                    mname: "exploit/windows/smb/ms17_010_eternalblue",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [ "payload_match" ],
                     },
-                    {
-                      mtype: 'exploit',
-                      mname: 'exploit/windows/smb/ms17_010_psexec',
+                    state: "MISSING_PAYLOAD",
+                    description: "none of the requested payloads match"
+                  },
+                  {
+                    mname: "exploit/windows/smb/ms17_010_psexec",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: [ "credential", "payload_match" ],
                     },
-                    {
-                      mtype: 'exploit',
-                      mname: 'exploit/windows/smb/smb_doublepulsar_rce',
-                    }
-                  ]
-                }
-              ]
+                    state: "REQUIRES_CRED",
+                    description: "credentials are required, none of the requested payloads match"
+                  },
+                  {
+                    mname: "exploit/windows/smb/smb_doublepulsar_rce",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: ["payload_match"],
+                    },
+                    state: "MISSING_PAYLOAD",
+                    description: "none of the requested payloads match"
+                  }
+                ]
+              }
             },
             id: 1
           }
@@ -534,9 +590,11 @@ RSpec.describe "Metasploit's json-rpc" do
             {
               workspace: 'default',
               host: host_ip,
-              payloads: [
-                'java/meterpreter/reverse_http'
-              ]
+              analyze_options: {
+                payloads: [
+                  'java/meterpreter/reverse_http'
+                ]
+              }
             }
           )
           expect(last_json_response).to include(expected_response)
@@ -559,12 +617,10 @@ RSpec.describe "Metasploit's json-rpc" do
         expected_response = {
           jsonrpc: '2.0',
           result: {
-            host: [
-              {
-                address: host_ip,
-                modules: []
-              }
-            ]
+            host: {
+              address: host_ip,
+              modules: []
+            }
           },
           id: 1
         }

@@ -51,6 +51,7 @@ class MsfAutoload
 
   def ignore_list
     [
+      "#{__dir__}/msf/core/modules/external/go/pkg",
       "#{__dir__}/msf/core/constants.rb",
       "#{__dir__}/msf/core/cert_provider.rb",
       "#{__dir__}/msf/core/rpc/json/",
@@ -288,7 +289,8 @@ class MsfAutoload
       'svcctl' => 'SVCCTL',
       'wdscp' => 'WDSCP',
       'appapi' => 'AppApi',
-      'uds_errors' => 'UDSErrors'
+      'uds_errors' => 'UDSErrors',
+      'smb_hash_capture' => 'SMBHashCapture',
     }
   end
 
@@ -328,4 +330,6 @@ end
 # global autoload of common gems
 autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
+autoload :RubySMB, 'ruby_smb'
+
 require 'rexml/document'

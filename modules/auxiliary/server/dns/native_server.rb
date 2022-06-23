@@ -24,7 +24,16 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
       'License'        => MSF_LICENSE,
-      'References'     => []
+      'References'     => [],
+      'Actions'   =>
+        [
+          [ 'Service', 'Description' => 'Run DNS service' ]
+        ],
+      'PassiveActions' =>
+        [
+          'Service'
+        ],
+      'DefaultAction'  => 'Service'
     ))
   end
 
@@ -37,8 +46,6 @@ class MetasploitModule < Msf::Auxiliary
       service.wait
     rescue Rex::BindFailed => e
       print_error "Failed to bind to port #{datastore['RPORT']}: #{e.message}"
-    ensure
-      stop_service(true)
     end
   end
 
@@ -84,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
           service.cache.cache_record(ans)
         end unless service.cache.nil?
         # Merge the answers and use the upstream response
-        forward.instance_variable_set(:@question, (req.answer + forwarded.answer).uniq)
+        forward.instance_variable_set(:@answer, (req.answer + forwarded.answer).uniq)
         req = forwarded
       end
     end

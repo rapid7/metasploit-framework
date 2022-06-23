@@ -141,12 +141,12 @@ class MetasploitModule < Msf::Evasion
     )
     exe_path = ::File.join(base_path, "ProcessHerpaderping_#{arch_suffix}.exe")
     exe_path = ::File.expand_path(exe_path)
-    pe = File.read(exe_path)
+    pe = File.binread(exe_path)
     vprint_status("Using #{exe_path}")
 
     template_path = ::File.join(base_path, "ProcessHerpaderpingTemplate_#{arch_suffix}.exe")
     template_path = ::File.expand_path(template_path)
-    payload_pe = File.read(template_path)
+    payload_pe = File.binread(template_path)
     vprint_status("Using #{template_path}")
 
     patch_binary(payload_pe, 'ENCKEY', rc4_key)

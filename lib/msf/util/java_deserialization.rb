@@ -10,19 +10,7 @@ class JavaDeserialization
   PAYLOAD_FILENAME = "ysoserial_payloads.json"
 
   def self.ysoserial_payload(payload_name, command=nil, modified_type: 'none')
-    # Open the JSON file and parse it
-    path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
-    begin
-      json = JSON.parse(File.read(path))
-    rescue Errno::ENOENT, JSON::ParserError
-      raise RuntimeError, "Unable to load JSON data from: #{path}"
-    end
-
-    # Extract the specified payload type (including cmd, bash, powershell, none)
-    payloads_json = json[modified_type.to_s]
-    if payloads_json.nil?
-      raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
-    end
+    payloads_json = load_ysoserial_data(modified_type)
 
     # Extract the specified payload (status, lengthOffset, bufferOffset, bytes)
     payload = payloads_json[payload_name]
@@ -64,6 +52,33 @@ class JavaDeserialization
       return bytes
     else
       raise RuntimeError, 'Malformed JSON file'
+    end
+  end
+
+  def self.ysoserial_payload_names(modified_type: 'none')
+    payloads_json = load_ysoserial_data(modified_type)
+    payloads_json.keys
+  end
+
+  class << self
+    private
+
+    def load_ysoserial_data(modified_type)
+      # Open the JSON file and parse it
+      path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
+      begin
+        json = JSON.parse(File.read(path, mode: 'rb'))
+      rescue Errno::ENOENT, JSON::ParserError
+        raise RuntimeError, "Unable to load JSON data from: #{path}"
+      end
+
+      # Extract the specified payload type (including cmd, bash, powershell, none)
+      payloads_json = json[modified_type.to_s]
+      if payloads_json.nil?
+        raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
+      end
+
+      payloads_json
     end
   end
 

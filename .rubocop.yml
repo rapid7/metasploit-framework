@@ -9,7 +9,7 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.6
   SuggestExtensions: false
   NewCops: disable
 
@@ -180,6 +180,7 @@ Metrics/ClassLength:
   Enabled: true
   Exclude:
     - 'modules/**/*'
+    - 'test/modules/**/*'
 
 Style/ClassAndModuleChildren:
   Enabled: false
@@ -257,6 +258,7 @@ Style/Documentation:
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
+    - 'test/modules/**/*'
     - 'spec/file_fixtures/modules/**/*'
 
 Layout/FirstArgumentIndentation:

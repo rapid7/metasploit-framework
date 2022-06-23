@@ -25,12 +25,23 @@ require 'rex'
 
 # Initialize the simplified framework instance.
 framework = Msf::Simple::Framework.create('DisableDatabase' => true)
-
+exceptions = []
 framework.payloads.each_module do |name, mod|
-  next if name =~ /generic/
-  mod_inst = framework.payloads.create(name)
-  #mod_inst.datastore.merge!(framework.datastore)
-  next if Msf::Util::PayloadCachedSize.is_cached_size_accurate?(mod_inst)
-  $stdout.puts "[*] Updating the CacheSize for #{mod.file_path}..."
-  Msf::Util::PayloadCachedSize.update_module_cached_size(mod_inst)
+  begin
+    next if name =~ /generic/
+    mod_inst = framework.payloads.create(name)
+    #mod_inst.datastore.merge!(framework.datastore)
+    next if Msf::Util::PayloadCachedSize.is_cached_size_accurate?(mod_inst)
+    $stdout.puts "[*] Updating the CacheSize for #{mod.file_path}..."
+    Msf::Util::PayloadCachedSize.update_module_cached_size(mod_inst)
+  rescue => e
+    exceptions << [ e, name ]
+    next
+  end
 end
+
+exceptions.each do |e, name|
+  print_error("Caught Error while updating #{name}:\n#{e}")
+  elog(e)
+end
+exit(1) unless exceptions.empty?

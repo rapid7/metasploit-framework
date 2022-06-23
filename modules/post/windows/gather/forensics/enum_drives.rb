@@ -13,6 +13,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Windows::FileSystem
 
   def initialize(info = {})
     super(

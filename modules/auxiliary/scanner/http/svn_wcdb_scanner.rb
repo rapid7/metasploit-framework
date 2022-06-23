@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['URL', 'http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us#']
+          ['URL','https://web.archive.org/web/20130107035252/http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us']
         ],
       'License'        =>  MSF_LICENSE
     )

@@ -10,7 +10,7 @@ def hash_to_jtr(cred)
   when 'Metasploit::Credential::PostgresMD5'
     if cred.private.jtr_format =~ /postgres|raw-md5/
       # john --list=subformats | grep 'PostgreSQL MD5'
-      #UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
+      # UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
       hash_string = cred.private.data
       hash_string.gsub!(/^md5/, '')
       return "#{cred.public.username}:$dynamic_1034$#{hash_string}"
@@ -36,15 +36,15 @@ def hash_to_jtr(cred)
       #         PBKDF2-based SHA512 hash specific to 12C (12.1.0.2+)
     when /raw-sha1|oracle11/ # oracle 11
       if cred.private.data =~ /S:([\dA-F]{60})/ # oracle 11
-        return "#{cred.public.username}:#{$1}:#{cred.id}:"
+        return "#{cred.public.username}:#{Regexp.last_match(1)}:#{cred.id}:"
       end
     when /oracle12c/
       if cred.private.data =~ /T:([\dA-F]{160})/ # oracle 12c
-        return "#{cred.public.username}:$oracle12c$#{$1.downcase}:#{cred.id}:"
+        return "#{cred.public.username}:$oracle12c$#{Regexp.last_match(1).downcase}:#{cred.id}:"
       end
     when /dynamic_1506/
       if cred.private.data =~ /H:([\dA-F]{32})/ # oracle 11
-        return "#{cred.public.username.upcase}:$dynamic_1506$#{$1}:#{cred.id}:"
+        return "#{cred.public.username.upcase}:$dynamic_1506$#{Regexp.last_match(1)}:#{cred.id}:"
       end
     when /oracle/ # oracle
       if cred.private.jtr_format.start_with?('des') # 'des,oracle', not oracle11/12c
@@ -67,6 +67,9 @@ def hash_to_jtr(cred)
       # with a sample hash of b31d032cfdcf47a399990a71e43c5d2a:144816. So this just outputs
       # The hash as *hash*: so that it is both JTR and hashcat compatible
       return "#{cred.private.data}:"
+    when /vnc/
+      # add a beginning * if one is missing
+      return "$vnc$#{cred.private.data.start_with?('*') ? cred.private.data.upcase : "*#{cred.private.data.upcase}"}"
     else
       # /mysql|mysql-sha1/
       # /mssql|mssql05|mssql12/
@@ -76,7 +79,9 @@ def hash_to_jtr(cred)
       # /ssha/
       # /raw-sha512/
       # /raw-sha256/
-      return "#{cred.public.username}:#{cred.private.data}:#{cred.id}:"
+      # This also handles *other* type credentials which aren't guaranteed to have a public
+
+      return "#{cred.public.nil? ? ' ' : cred.public.username}:#{cred.private.data}:#{cred.id}:"
     end
   end
   nil

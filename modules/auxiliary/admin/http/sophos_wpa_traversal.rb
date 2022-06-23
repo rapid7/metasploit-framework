@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '91953' ],
           [ 'BID', '58833' ],
           [ 'EDB', '24932' ],
-          [ 'URL', 'http://www.sophos.com/en-us/support/knowledgebase/118969.aspx' ],
-          [ 'URL', 'https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20130403-0_Sophos_Web_Protection_Appliance_Multiple_Vulnerabilities.txt' ]
+          [ 'URL', 'https://web.archive.org/web/20130603041204/http://www.sophos.com/en-us/support/knowledgebase/118969.aspx' ],
+          [ 'URL', 'https://web.archive.org/web/20140701204340/https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20130403-0_Sophos_Web_Protection_Appliance_Multiple_Vulnerabilities.txt' ]
         ],
       'DefaultOptions' => {
         'SSL' => true

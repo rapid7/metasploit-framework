@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' =>
         [
-          [ 'URL', 'http://labs.mwrinfosecurity.com' ]
+          [ 'URL', 'https://labs.f-secure.com/' ]
         ],
       'Author' =>
         [

@@ -26,8 +26,8 @@ module Comm
     case rl_comm
     when 'local'
       comm = ::Rex::Socket::Comm::Local
-    when /\A[0-9]+\Z/
-      comm = framework.sessions[rl_comm.to_i]
+    when /\A-?[0-9]+\Z/
+      comm = framework.sessions.get(rl_comm.to_i)
       raise(RuntimeError, "Reverse Listener Comm (Session #{rl_comm}) does not exist") unless comm
       raise(RuntimeError, "Reverse Listener Comm (Session #{rl_comm}) does not implement Rex::Socket::Comm") unless comm.is_a? ::Rex::Socket::Comm
     when nil, ''

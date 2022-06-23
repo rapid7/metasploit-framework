@@ -224,7 +224,12 @@ class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
       go_path = go_path + File::PATH_SEPARATOR + shared_module_lib_path
     end
 
-    self.env = self.env.merge({'GOPATH' => go_path})
+    self.env = self.env.merge(
+      {
+        'GOPATH' => go_path,
+        'GO111MODULE' => 'auto'
+      }
+    )
     self.cmd = ['go', 'run', self.path]
   end
 

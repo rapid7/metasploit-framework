@@ -12,6 +12,7 @@ class Rex::Payloads::Meterpreter::Config
   PROXY_USER_SIZE = 64
   PROXY_PASS_SIZE = 64
   CERT_HASH_SIZE = 20
+  LOG_PATH_SIZE = 260 # https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
 
   def initialize(opts={})
     @opts = opts
@@ -33,6 +34,7 @@ private
   end
 
   def to_str(item, size)
+
     if item.size >= size  # ">=" instead of only ">", because we need space for a terminating null byte (for string handling in C)
       raise Msf::PayloadItemSizeError.new(item, size - 1)
     end
@@ -58,16 +60,20 @@ private
     else
       session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
     end
-
     session_data = [
       0,                  # comms socket, patched in by the stager
       exit_func,          # exit function identifer
       opts[:expiration],  # Session expiry
       uuid,               # the UUID
-      session_guid        # the Session GUID
+      session_guid,        # the Session GUID
     ]
+    pack_string = 'QVVA*A*'
+    if opts[:debug_build]
+      session_data << to_str(opts[:log_path] || '', LOG_PATH_SIZE) # Path to log file on remote target
+      pack_string << 'A*'
+    end
 
-    session_data.pack('QVVA*A*')
+    session_data.pack(pack_string)
   end
 
   def transport_block(opts)
@@ -127,10 +133,10 @@ private
     transport_data.pack(pack)
   end
 
-  def extension_block(ext_name, file_extension)
+  def extension_block(ext_name, file_extension, debug_build: false)
     ext_name = ext_name.strip.downcase
     ext, _ = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
-                                                              file_extension))
+                                                              file_extension, debug: debug_build))
 
     [ ext.length, ext ].pack('VA*')
   end
@@ -140,7 +146,7 @@ private
 
     # for now, we're going to blindly assume that the value is a path to a file
     # which contains the data that gets passed to the extension
-    content = ::File.read(value) + "\x00\x00"
+    content = ::File.read(value, mode: 'rb') + "\x00\x00"
     data = [
       ext_id,
       content.length,
@@ -168,7 +174,7 @@ private
     file_extension = 'x64.dll' unless is_x86?
 
     (@opts[:extensions] || []).each do |e|
-      config << extension_block(e, file_extension)
+      config << extension_block(e, file_extension, debug_build: @opts[:debug_build])
     end
 
     # terminate the extensions with a 0 size

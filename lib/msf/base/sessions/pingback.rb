@@ -83,6 +83,10 @@ class Pingback
     "Pingback"
   end
 
+  def self.can_cleanup_files
+    false
+  end
+
   #
   # Calls the class method
   #

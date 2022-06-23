@@ -60,10 +60,10 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('learnpress', '3.2.6.8')
     if checkcode == Msf::Exploit::CheckCode::Safe
-      vprint_error('Learnpress version not vulnerable')
+      vprint_error('LearnPress version not vulnerable')
       return
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of LearnPress detected')
 
     cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
 

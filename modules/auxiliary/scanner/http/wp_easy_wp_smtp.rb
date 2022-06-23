@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Auxiliary
           ['WPVDB', '10494'],
           ['CVE', '2020-35234']
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DisclosureDate' => '2020-12-06'
       )
     )
@@ -65,9 +70,9 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('easy-wp-smtp', '1.4.2')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, 'A vulnerable version of the "Easy WP SMTP" was not found'
+      fail_with Failure::NotVulnerable, 'A vulnerable version of Easy WP SMTP was not found'
     end
-    print_good('Vulnerable version detected')
+    print_good('Vulnerable version of Easy WP SMTP detected')
 
     debug_log = get_debug_file(datastore['AGGRESSIVE'])
     if debug_log

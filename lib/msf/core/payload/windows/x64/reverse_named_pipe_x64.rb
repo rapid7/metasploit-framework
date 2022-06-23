@@ -25,7 +25,7 @@ module Payload::Windows::ReverseNamedPipe_x64
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     conf = {
       name:        datastore['PIPENAME'],
       host:        datastore['PIPEHOST'],
@@ -34,7 +34,7 @@ module Payload::Windows::ReverseNamedPipe_x64
     }
 
     # Generate the advanced stager if we have space
-    unless self.available_space.nil? || required_space > self.available_space
+    if self.available_space && cached_size && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end

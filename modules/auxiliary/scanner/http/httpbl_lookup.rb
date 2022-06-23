@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'		=> MSF_LICENSE,
       'References' 	=>
         [
-          ['URL', 'http://www.projecthoneypot.org/httpbl_api.php'],
+          ['URL', 'https://www.projecthoneypot.org/httpbl_api.php'],
         ]
       ))
 

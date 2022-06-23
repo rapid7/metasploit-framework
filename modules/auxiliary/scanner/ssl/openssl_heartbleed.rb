@@ -138,11 +138,11 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2014-0160' ],
           [ 'US-CERT-VU', '720951' ],
-          [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
-          [ 'URL', 'http://heartbleed.com/' ],
+          [ 'URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-098A' ],
+          [ 'URL', 'https://heartbleed.com/' ],
           [ 'URL', 'https://github.com/FiloSottile/Heartbleed' ],
           [ 'URL', 'https://gist.github.com/takeshixx/10107280' ],
-          [ 'URL', 'http://filippo.io/Heartbleed/' ]
+          [ 'URL', 'https://filippo.io/Heartbleed/' ]
         ],
       'DisclosureDate' => '2014-04-07',
       'License'        => MSF_LICENSE,

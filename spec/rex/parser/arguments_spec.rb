@@ -3,10 +3,14 @@ require 'rspec'
 RSpec.describe Rex::Parser::Arguments do
   let(:subject) do
     Rex::Parser::Arguments.new(
-      '-h' => [false, 'Help banner.'],
-      '-j' => [false, 'Run in the context of a job.'],
-      '-o' => [true, 'A comma separated list of options in VAR=VAL format.'],
-      '-q' => [false, 'Run the module in quiet mode with no output']
+      ['-h', '--help'] => [false, 'Help banner.'],
+      ['-d', '--delete'] => [false, 'Delete'],
+      ['-j', '--job'] => [false, 'Run in the context of a job.'],
+      '--long-flag-with-no-corresponding-short-option-name' => [false, 'A long flag with no corresponding short option name'],
+      ['-o', '--options'] => [true, 'A comma separated list of options in VAR=VAL format.', '<option>'],
+      ['-q', '--quiet'] => [false, 'Run the module in quiet mode with no output'],
+      ['-S', '--save'] => [false, 'Save to disk'],
+      ['-sd', '--set-default'] => [true, 'A comma separated list of defaults in VAR=VAL format.', '<option>']
     )
   end
 
@@ -41,21 +45,124 @@ RSpec.describe Rex::Parser::Arguments do
 
       it 'ignores unknown flags' do
         input = ['-a', 'action_name']
-        # Not sure if this flag dropping is intentional behavior
         expected_yields = [
+          # '-a' is dropped, 'action_name' is used as an argument
           [nil, 1, 'action_name'],
         ]
         expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
       end
 
-      it 'ignores combined flags that do not exist' do
+      it 'treats combined flags that do not exist as an argument' do
         input = ['-unknown-flags']
-        # Not sure if this flag dropping is intentional behavior
         expected_yields = [
-          ['-o', 0, nil],
+          [nil, 0, '-unknown-flags']
         ]
         expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
       end
+    end
+
+    it 'parses a single long flag correctly' do
+      input = ['--help']
+      expected_yields = [
+        ['-h', 0, nil]
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses multiple long flags correctly' do
+      input = ['--help', '--job']
+      expected_yields = [
+        ['-h', 0, nil],
+        ['-j', 1, nil]
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses a long flag and short flag correctly' do
+      input = ['--help', '-h']
+      expected_yields = [
+        ['-h', 0, nil],
+        ['-h', 1, nil]
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses a short flag when Rex Arguments are in an array correctly' do
+      input = ['-o']
+      expected_yields = [
+        ['-o', 0, nil]
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses a long flag when in arguments array correctly' do
+      input = ['--options', 'option-arg']
+      expected_yields = [
+        ['-o', 0, 'option-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses multiple long flags when in an arguments array correctly' do
+      input = ['--quiet', '--options', 'sample-option']
+      expected_yields = [
+        ['-q', 0, nil],
+        ['-o', 1, 'sample-option']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses a multi character flag correctly' do
+      input = ['-sd', 'options-arg']
+      expected_yields = [
+        ['-sd', 0, 'options-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses an aggregate flag with varied casing flag correctly' do
+      input = ['-Ssd', 'set-default-arg']
+      expected_yields = [
+        ['-S', 0, nil],
+        ['-sd', 0, 'set-default-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses an aggregate flag with arguments array correctly' do
+      input = ['-Sosd', 'options-arg', 'set-default-arg']
+      expected_yields = [
+        ['-S', 0, nil],
+        ['-o', 0, 'options-arg'],
+        ['-sd', 0, 'set-default-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses an aggregate flag with arguments array and an additional long flag correctly' do
+      input = ['-So', 'options-arg', '--set-default',  'set-default-arg']
+      expected_yields = [
+        ['-S', 0, nil],
+        ['-o', 0, 'options-arg'],
+        ['-sd', 2, 'set-default-arg']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses a non-existent long flag correctly' do
+      input = ['--ultra-quiet']
+      expected_yields = [
+        [nil, 0, '--ultra-quiet']
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
+    end
+
+    it 'parses a long flag that is not in an array correctly' do
+      input = ['--long-flag-with-no-corresponding-short-option-name']
+      expected_yields = [
+        ['--long-flag-with-no-corresponding-short-option-name', 0, nil]
+      ]
+      expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
     end
 
     context 'when arguments are supplied' do
@@ -82,15 +189,25 @@ RSpec.describe Rex::Parser::Arguments do
         ]
         expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
       end
+    end
+  end
 
-      it 'treats long-form flags as arguments' do
-        input = ['--foo', '123']
-        expected_yields = [
-          [nil, 0, '--foo'],
-          [nil, 1, '123'],
-        ]
-        expect { |b| subject.parse(input, &b) }.to yield_successive_args(*expected_yields)
-      end
+  describe '#inspect' do
+    it 'prints usage in a sorted order correctly' do
+      expected_output = <<~EXPECTED
+
+        OPTIONS:
+
+            --long-flag-with-no-corresponding-short-option-name  A long flag with no corresponding short option name
+            -d, --delete                                         Delete
+            -h, --help                                           Help banner.
+            -j, --job                                            Run in the context of a job.
+            -o, --options <option>                               A comma separated list of options in VAR=VAL format.
+            -q, --quiet                                          Run the module in quiet mode with no output
+            -S, --save                                           Save to disk
+            -sd, --set-default <option>                          A comma separated list of defaults in VAR=VAL format.
+      EXPECTED
+      expect(subject.usage).to eq(expected_output)
     end
   end
 end

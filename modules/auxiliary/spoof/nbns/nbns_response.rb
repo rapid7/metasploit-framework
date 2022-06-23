@@ -173,6 +173,7 @@ class MetasploitModule < Msf::Auxiliary
       self.thread.kill
       self.thread = nil
     end
+    self.sock.close
     close_pcap
   end
 end

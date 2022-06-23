@@ -58,6 +58,10 @@ class VncInject
     "vncinject"
   end
 
+  def self.can_cleanup_files
+    false
+  end
+
   ##
   #
   # Msf::Session overrides

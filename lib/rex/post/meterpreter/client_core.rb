@@ -358,7 +358,7 @@ class ClientCore < Extension
         # Get us to the installation root and then into data/meterpreter, where
         # the file is expected to be
         modname = "ext_server_#{mod.downcase}"
-        path = MetasploitPayloads.meterpreter_path(modname, suffix)
+        path = MetasploitPayloads.meterpreter_path(modname, suffix, debug: client.debug_build)
 
         if opts['ExtensionPath']
           path = ::File.expand_path(opts['ExtensionPath'])
@@ -686,7 +686,7 @@ class ClientCore < Extension
               client.swap_sock_ssl_to_plain()
               client.swap_sock_plain_to_ssl()
             end
-          rescue TimeoutError
+          rescue ::Timeout::Error
             client.alive = false
             return false
           end
@@ -889,8 +889,7 @@ private
         url << generate_uri_uuid(sum, opts[:uuid]) + '/'
       end
 
-      # TODO: randomise if not specified?
-      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
+      opts[:ua] ||= Rex::UserAgent.random
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
       if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl

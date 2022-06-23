@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2013-0229' ],
           [ 'OSVDB', '89625' ],
           [ 'BID', '57607' ],
-          [ 'URL', 'https://community.rapid7.com/servlet/JiveServlet/download/2150-1-16596/SecurityFlawsUPnP.pdf' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/01/29/security-flaws-in-universal-plug-and-play-unplug-dont-play/' ],
+          [ 'URL', 'https://www.hdm.io/writing/SecurityFlawsUPnP.pdf' ]
         ],
       'DisclosureDate' => '2013-03-27',
     ))

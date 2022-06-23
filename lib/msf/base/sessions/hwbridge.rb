@@ -52,6 +52,10 @@ class HWBridge  < Rex::Post::HWBridge::Client
     "hwbridge"
   end
 
+  def self.can_cleanup_files
+    false
+  end
+
   #
   # Returns the session description.
   #

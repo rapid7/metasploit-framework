@@ -377,11 +377,12 @@ class Channel
   # Stub close handler.
   #
   def dio_close_handler(packet)
+    temp_cid = nil
     @mutex.synchronize {
-      cid = self.cid
+      temp_cid = self.cid
       self.cid = nil
     }
-    client.remove_channel(cid)
+    client.remove_channel(temp_cid)
 
     # Trap IOErrors as parts of the channel may have already been closed
     begin
@@ -467,4 +468,3 @@ protected
 end
 
 end; end; end
-

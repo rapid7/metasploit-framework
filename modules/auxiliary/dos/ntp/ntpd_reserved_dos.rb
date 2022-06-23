@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '37255' ],
           [ 'CVE', '2009-3563' ],
           [ 'OSVDB', '60847' ],
-          [ 'URL', 'https://support.ntp.org/bugs/show_bug.cgi?id=1331' ]
+          [ 'URL', 'https://bugs.ntp.org/show_bug.cgi?id=1331' ]
         ],
       'DisclosureDate' => '2009-10-04'))
 

@@ -154,7 +154,7 @@ class Plugin::Alias < Msf::Plugin
     def cmd_alias_tabs(str, words)
       if words.length <= 1
         #puts "1 word or less"
-        return @@alias_opts.fmt.keys + tab_complete_aliases_and_commands
+        return @@alias_opts.option_keys + tab_complete_aliases_and_commands
       else
         #puts "more than 1 word"
         return tab_complete_aliases_and_commands

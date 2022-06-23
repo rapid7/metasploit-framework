@@ -36,20 +36,26 @@ module Auxiliary::CommandShell
       obj.sock.extend(CRLFLineEndings)
     end
 
-    sock ||= obj.sock
+    sock ||= obj.respond_to?(:sock) ? obj.sock : nil
     sess ||= Msf::Sessions::CommandShell.new(sock)
     sess.set_from_exploit(obj)
-    sess.info = info
 
     # Clean up the stored data
     sess.exploit_datastore.merge!(ds_merge)
 
     # Prevent the socket from being closed
-    obj.sockets.delete(sock)
-    obj.sock = nil if obj.respond_to? :sock
+    obj.sockets.delete(sock) if sock
+    obj.sock = nil if obj.respond_to?(:sock)
 
     framework.sessions.register(sess)
+
+    if sess.respond_to?(:bootstrap)
+      sess.bootstrap(datastore)
+
+      return unless sess.alive
+    end
     sess.process_autoruns(datastore)
+    sess.info = info unless info.blank?
 
     # Notify the framework that we have a new session opening up...
     # Don't let errant event handlers kill our session

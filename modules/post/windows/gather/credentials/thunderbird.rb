@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           credential_type: 'sqlite',
           sql_search: [
             {
-              sql_description: "Database Commands which exports Chrome's Login data",
+              sql_description: "Database Commands which exports Thunderbird's Login data",
               sql_table: 'logins',
               sql_column: 'username_value, action_url'
             }
@@ -187,7 +187,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Chrome credential gatherer',
+        'Name' => 'Thunderbird credential gatherer',
         'Description' => %q{
           PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
           PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.

@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
         datastore['DOMAIN'] = user.split('\\')[0]
       end
 
-      if @domain_controll.nil? and datastore['ENUM_GROUPS']
+      if @domain_controller.nil? and datastore['ENUM_GROUPS']
         @dc_error = false
 
         # Uses DC which applied policy since it would be a DC this device normally talks to

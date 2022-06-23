@@ -32,7 +32,7 @@ metadata = {
     'date': '2020-06-02',
     'license': 'GPL_LICENSE',
     'references': [
-        {'type': 'url', 'ref': 'https://blacklanternsecurity.com/2020-08-07-Cisco-Unified-IP-Conference-Station-7937G/'},
+        {'type': 'url', 'ref': 'https://web.archive.org/web/20200921054955/https://www.blacklanternsecurity.com/2020-08-07-Cisco-Unified-IP-Conference-Station-7937G/'},
         {'type': 'cve', 'ref': '2020-16137'}
     ],
     'type': 'single_scanner',

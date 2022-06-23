@@ -190,8 +190,13 @@ class Msf::DBManager
       self.error = "No database YAML file"
     else
       if configuration_pathname.readable?
-        # parse specified database YAML file
-        dbinfo = YAML.load_file(configuration_pathname) || {}
+        # parse specified database YAML file, using the same pattern as Rails https://github.com/rails/rails/pull/42249
+        dbinfo = begin
+          YAML.load_file(configuration_pathname, aliases: true) || {}
+        rescue ArgumentError
+          YAML.load_file(configuration_pathname) || {}
+        end
+
         dbenv  = opts['DatabaseEnv'] || Rails.env
         db_opts = dbinfo[dbenv]
       else

@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Post
 
   def run
     domains = net_server_enum(SV_TYPE_DOMAIN_ENUM)
+    return if domains.nil?
 
     domains.each do |domain|
       print_status("Enumerating DCs for #{domain[:name]}")

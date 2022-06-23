@@ -11,7 +11,7 @@ RSpec.describe Rex::Proto::ACPP::Message do
   # retrieve_public.bin has the contents of a message type 20 (retrieve
   # settings) message with a password of public.  There is no payload.
   let(:retrieve_public_bin) do
-    IO.read(File.join(File.dirname(__FILE__), 'retrieve_public.bin'))
+    File.binread(File.join(File.dirname(__FILE__), 'retrieve_public.bin'))
   end
 
   let(:retrieve_public_message) do

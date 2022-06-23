@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2019-8903'],
           ['CWE', '22'],
           ['URL', 'https://blog.totaljs.com/blogs/news/20190213-a-critical-security-fix/'],
-          ['URL', 'https://snyk.io/vuln/SNYK-JS-TOTALJS-173710']
+          ['URL', 'https://security.snyk.io/vuln/SNYK-JS-TOTALJS-173710']
         ],
       'Privileged' => false,
       'DisclosureDate' => '2019-02-18',

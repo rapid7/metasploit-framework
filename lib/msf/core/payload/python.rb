@@ -16,7 +16,7 @@ module Msf::Payload::Python
     b64_stub = "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(cmd)}')[0]))"
     b64_stub
   end
-  
+
   def py_create_exec_stub(cmd)
     Msf::Payload::Python.create_exec_stub(cmd)
   end

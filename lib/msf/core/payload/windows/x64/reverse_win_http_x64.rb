@@ -35,7 +35,7 @@ module Payload::Windows::ReverseWinHttp_x64
     }
 
     # Add extra options if we have enough space
-    if self.available_space.nil? || required_space <= self.available_space
+    if self.available_space.nil? || (cached_size && required_space <= self.available_space)
       conf[:uri]              = luri + generate_uri
       conf[:exitfunk]         = ds['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]

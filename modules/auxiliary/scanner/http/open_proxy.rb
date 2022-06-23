@@ -20,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          ['URL', 'http://en.wikipedia.org/wiki/Open_proxy'],
-          ['URL', 'http://nmap.org/svn/scripts/http-open-proxy.nse'],
+          ['URL', 'https://en.wikipedia.org/wiki/Open_proxy'],
+          ['URL', 'https://svn.nmap.org/nmap/scripts/http-open-proxy.nse'],
         ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE

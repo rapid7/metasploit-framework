@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
       [
         [ 'CVE', '2017-7924' ],
-        [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-17-138-03' ],
-        [ 'URL', 'http://dl.acm.org/citation.cfm?doid=3174776.3174780']
+        [ 'URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-17-138-03' ],
+        [ 'URL', 'https://dl.acm.org/doi/10.1145/3174776.3174780']
       ])
       register_options([Opt::RPORT(44818),])
   end

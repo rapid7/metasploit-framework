@@ -12,7 +12,8 @@ module FileInfo
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_railgun_*
+              stdapi_railgun_api
+              stdapi_railgun_memread
             ]
           }
         }

@@ -10,7 +10,6 @@ module Msf::Post::Common
           'Meterpreter' => {
             'Commands' => %w[
               stdapi_sys_config_getenv
-              stdapi_sys_process_close
               stdapi_sys_process_execute
             ]
           }
@@ -24,7 +23,7 @@ module Msf::Post::Common
   end
 
   def rhost
-    return nil unless session
+    return super unless defined?(session) and session
 
     case session.type
     when 'meterpreter'
@@ -32,15 +31,21 @@ module Msf::Post::Common
     when 'shell', 'powershell'
       session.session_host
     end
+  rescue
+    return nil
   end
 
   def rport
+    return super unless defined?(session) and session
+
     case session.type
     when 'meterpreter'
       session.sock.peerport
     when 'shell', 'powershell'
       session.session_port
     end
+  rescue
+    return nil
   end
 
   def peer
@@ -109,7 +114,12 @@ module Msf::Post::Common
         'Channelized' => true,
         'Subshell' => true
       }.merge(opts)
-      o = session.sys.process.capture_output(cmd, args, opts, time_out)
+
+      if opts['Channelized']
+        o = session.sys.process.capture_output(cmd, args, opts, time_out)
+      else
+        session.sys.process.execute(cmd, args, opts)
+      end
     when 'powershell'
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)
@@ -237,5 +247,52 @@ module Msf::Post::Common
     raise "Unable to check if command `#{cmd}' exists"
   end
 
+  # Executes +cmd+ on the remote system and return an array containing the
+  # output and if it was successful or not.
+  #
+  # This is simply a wrapper around {#cmd_exec} that also checks the exit code
+  # to determine if the execution was successful or not.
+  #
+  # @param [String] cmd The command to execute
+  # @param [String] arg The optional arguments of the command (can de included in +cmd+ instead)
+  # @param [Integer] timeout The time in sec. to wait before giving up
+  # @param [Hash] opts An Hash of options (see {#cmd_exec})
+  # @return [Array(String, Boolean)] Array containing the output string
+  #   followed by a boolean indicating if the command succeeded or not. When
+  #   this boolean is `true`, the first field contains the normal command
+  #   output. When it is `false`, the first field contains the error message
+  #   returned by the command or a timeout error message if the timeout
+  #   expired.
+  def cmd_exec_with_result(cmd, args = nil, timeout = 15, opts = {})
+    # This token will be returned if the command succeeds.
+    # Redirection operators (`&&` and `||`) are the most reliable methods to
+    # detect success and failure. See these references for details:
+    # - https://ss64.com/nt/errorlevel.html
+    # - https://stackoverflow.com/questions/34936240/batch-goto-loses-errorlevel/34937706#34937706
+    # - https://stackoverflow.com/questions/10935693/foolproof-way-to-check-for-nonzero-error-return-code-in-windows-batch-file/10936093#10936093
+    verification_token = Rex::Text.rand_text_alphanumeric(8)
+
+    _cmd = cmd.dup
+    _cmd << " #{args}" if args
+    if session.platform == 'windows'
+      if session.type == 'powershell'
+        # The & operator is reserved by Powershell and needs to be wrapped in double quotes
+        result = cmd_exec('cmd', "/c #{_cmd} \"&&\" echo #{verification_token}", timeout, opts)
+      else
+        result = cmd_exec('cmd', "/c #{_cmd} && echo #{verification_token}", timeout, opts)
+      end
+    else
+      result = cmd_exec('command', "#{_cmd} && echo #{verification_token}", timeout, opts)
+    end
+
+    if result.include?(verification_token)
+      # Removing the verification token to cleanup the output string
+      [result.lines[0...-1].join.strip, true]
+    else
+      [result.strip, false]
+    end
+  rescue Rex::TimeoutError => e
+    [e.message, false]
+  end
 
 end

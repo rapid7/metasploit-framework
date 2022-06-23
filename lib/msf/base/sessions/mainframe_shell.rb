@@ -82,6 +82,10 @@ class MainframeShell < Msf::Sessions::CommandShell
     raise NotImplementedError
   end
 
+  def self.can_cleanup_files
+    false
+  end
+
   # need to do more testing on this before we either use the default in command_shell
   # or write a new one.  For now we just make it unavailble. This prevents a hang on
   # initial session creation.  See PR#6067

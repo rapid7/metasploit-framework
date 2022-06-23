@@ -27,9 +27,9 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.oracle.com/us/products/database/index.html' ],
+          [ 'URL', 'https://www.oracle.com/database/' ],
           [ 'CVE', '1999-0502'], # Weak password CVE
-          [ 'URL', 'http://nmap.org/nsedoc/scripts/oracle-brute.html']
+          [ 'URL', 'https://nmap.org/nsedoc/scripts/oracle-brute.html']
         ]
     ))
 

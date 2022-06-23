@@ -14,8 +14,8 @@ module UserProfiles
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_fs_stat
               stdapi_fs_file_expand_path
+              stdapi_fs_stat
             ]
           }
         }

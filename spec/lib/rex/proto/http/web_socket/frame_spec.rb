@@ -1,8 +1,7 @@
 RSpec.describe Rex::Proto::Http::WebSocket::Frame do
   subject(:frame) { Rex::Proto::Http::WebSocket::Frame.new }
 
-  it { is_expected.to respond_to :opcode }
-  it { is_expected.to respond_to :masked }
+  it { is_expected.to respond_to :header }
   it { is_expected.to respond_to :payload_data }
   it { is_expected.to respond_to :payload_len }
 
@@ -21,7 +20,7 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
 
   describe '#initialize' do
     it 'should set the fin flag by default' do
-      expect(described_class.new.fin).to eq 1
+      expect(described_class.new.header.fin).to eq 1
     end
   end
 
@@ -30,16 +29,16 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
     let(:binary_frame) { described_class.from_binary(payload) }
 
     it 'has the correct opcode' do
-      expect(binary_frame.opcode).to eq Rex::Proto::Http::WebSocket::Opcode::BINARY
+      expect(binary_frame.header.opcode).to eq Rex::Proto::Http::WebSocket::Opcode::BINARY
     end
 
     it 'has the correct payload' do
       expect(binary_frame.payload_len).to eq payload.length
-      expect(binary_frame.payload_data).to eq described_class.apply_masking_key(payload, binary_frame.masking_key)
+      expect(binary_frame.payload_data).to eq described_class.apply_masking_key(payload, binary_frame.header.masking_key)
     end
 
     it 'is the last fragment frame' do
-      expect(binary_frame.fin).to eq 1
+      expect(binary_frame.header.fin).to eq 1
     end
   end
 
@@ -48,16 +47,16 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
     let(:text_frame) { described_class.from_text(payload) }
 
     it 'has the correct opcode' do
-      expect(text_frame.opcode).to eq Rex::Proto::Http::WebSocket::Opcode::TEXT
+      expect(text_frame.header.opcode).to eq Rex::Proto::Http::WebSocket::Opcode::TEXT
     end
 
     it 'has the correct payload' do
       expect(text_frame.payload_len).to eq payload.length
-      expect(text_frame.payload_data).to eq described_class.apply_masking_key(payload, text_frame.masking_key)
+      expect(text_frame.payload_data).to eq described_class.apply_masking_key(payload, text_frame.header.masking_key)
     end
 
     it 'is the last fragment frame' do
-      expect(text_frame.fin).to eq 1
+      expect(text_frame.header.fin).to eq 1
     end
   end
 
@@ -65,7 +64,7 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
     let(:plaintext) { Faker::Alphanumeric.alpha(number: rand(10..20)) }
 
     before(:each) do
-      frame.masked = 0
+      frame.header.masked = 0
       frame.payload_data = plaintext
     end
 
@@ -84,17 +83,17 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
 
     context 'after called' do
       before(:each) do
-        frame.masked = 0
+        frame.header.masked = 0
         frame.payload_data = plaintext
         frame.mask!
       end
 
       it 'the masking key should be set' do
-        expect(frame.masking_key.value).to be_a Integer
+        expect(frame.header.masking_key.value).to be_a Integer
       end
 
       it 'the masked bit should be set' do
-        expect(frame.masked).to eq 1
+        expect(frame.header.masked).to eq 1
       end
 
       it 'the payload should be different' do
@@ -109,8 +108,8 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
     let(:ciphertext) { described_class.apply_masking_key(plaintext, masking_key) }
 
     before(:each) do
-      frame.masked = 1
-      frame.masking_key = masking_key
+      frame.header.masked = 1
+      frame.header.masking_key = masking_key
       frame.payload_data = ciphertext
     end
 
@@ -121,14 +120,14 @@ RSpec.describe Rex::Proto::Http::WebSocket::Frame do
 
     context 'after called' do
       before(:each) do
-        frame.masked = 1
-        frame.masking_key = masking_key
+        frame.header.masked = 1
+        frame.header.masking_key = masking_key
         frame.payload_data = ciphertext
         frame.unmask!
       end
 
       it 'the masked bit should be clear' do
-        expect(frame.masked).to eq 0
+        expect(frame.header.masked).to eq 0
       end
 
       it 'the payload should be different' do

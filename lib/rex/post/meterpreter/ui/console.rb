@@ -110,6 +110,7 @@ class Console
       self.client.kill
     rescue  ::Exception => e
       log_error("Error running command #{method}: #{e.class} #{e}")
+      elog(e)
     end
   end
 

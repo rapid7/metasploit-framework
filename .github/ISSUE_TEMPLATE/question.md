@@ -8,7 +8,7 @@ labels: "question"
   To make it easier for us to help you, please include as much useful information as possible.
 
   Useful Links:
-  - Wiki: https://github.com/rapid7/metasploit-framework/wiki
+  - Wiki: https://docs.metasploit.com/
 
   Before opening a new issue, please search existing issues https://github.com/rapid7/metasploit-framework/issues
 -->

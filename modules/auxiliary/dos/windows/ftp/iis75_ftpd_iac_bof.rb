@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '45542' ],
           [ 'MSB', 'MS11-004' ],
           [ 'EDB', '15803' ],
-          [ 'URL', 'http://blogs.technet.com/b/srd/archive/2010/12/22/assessing-an-iis-ftp-7-5-unauthenticated-denial-of-service-vulnerability.aspx' ]
+          [ 'URL', 'https://msrc-blog.microsoft.com/2010/12/22/assessing-an-iis-ftp-7-5-unauthenticated-denial-of-service-vulnerability/' ]
         ],
       'DisclosureDate' => '2010-12-21'))
 

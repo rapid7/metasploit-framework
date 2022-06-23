@@ -548,18 +548,18 @@ module Msf
     # @param shellcode [String] The shellcode to prepend the NOPs to
     # @return [String] the shellcode with the appropriate nopsled affixed
     def prepend_nops(shellcode)
-      if nops > 0
-        framework.nops.each_module_ranked('Arch' => [arch]) do |name, mod|
-          nop = framework.nops.create(name)
-          raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
-          if raw
-            cli_print "Successfully added NOP sled of size #{raw.length} from #{name}"
-            return raw + shellcode
-         end
+      return shellcode unless nops > 0
+
+      framework.nops.each_module_ranked('Arch' => [arch]) do |name, mod|
+        nop = framework.nops.create(name)
+        raw = nop.generate_sled(nops, {'BadChars' => badchars, 'SaveRegisters' => [ 'esp', 'ebp', 'esi', 'edi' ] })
+        if raw
+          cli_print "Successfully added NOP sled of size #{raw.length} from #{name}"
+          return raw + shellcode
         end
-      else
-        shellcode
       end
+
+      shellcode
     end
 
     # This method runs a specified encoder, for a number of defined iterations against the shellcode.

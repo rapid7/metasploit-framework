@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'OSVDB', '89861' ],
           [ 'EDB', '24453' ],
-          [ 'URL', 'http://www.dlink.com/uk/en/home-solutions/connect/routers/dir-600-wireless-n-150-home-router' ],
+          [ 'URL', 'https://eu.dlink.com/uk/en/products/dir-600-wireless-n-150-home-router' ],
           [ 'URL', 'http://www.s3cur1ty.de/home-network-horror-days' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-003' ]
         ],

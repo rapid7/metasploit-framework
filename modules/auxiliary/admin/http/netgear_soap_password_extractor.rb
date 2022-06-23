@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'BID', '72640' ],
           [ 'OSVDB', '118316' ],
-          [ 'URL', 'https://github.com/darkarnium/secpub/tree/master/NetGear/SOAPWNDR' ]
+          [ 'URL', 'https://github.com/darkarnium/secpub/tree/master/Vulnerabilities/NetGear/SOAPWNDR' ]
         ],
       'Author'      =>
         [

@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     => [
         ['CVE', '2019-19781'],
-        ['URL', 'https://support.citrix.com/article/CTX267027/'],
+        ['URL', 'https://web.archive.org/web/20200111095223/https://support.citrix.com/article/CTX267027/'],
         ['URL', 'https://swarm.ptsecurity.com/remote-code-execution-in-citrix-adc/']
       ],
       'DisclosureDate' => '2019-12-17',

@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2013-3617'],
           ['OSVDB', '99141'],
           ['BID', '63431'],
-          ['URL', 'https://blog.rapid7.com/2013/10/30/seven-tricks-and-treats']
+          ['URL', 'https://www.rapid7.com/blog/post/2013/10/30/seven-tricks-and-treats']
         ],
       'License' => MSF_LICENSE,
       'DisclosureDate' => '2013-10-30'

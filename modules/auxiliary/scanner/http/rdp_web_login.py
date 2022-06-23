@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 # standard modules
+import base64
+import binascii
+import itertools
+import os
+import struct
 from metasploit import module
 
 # extra modules
 DEPENDENCIES_MISSING = False
 try:
-    import base64
-    import itertools
-    import os
     import requests
 except ImportError:
     DEPENDENCIES_MISSING = True
@@ -63,6 +65,34 @@ metadata = {
 }
 
 
+def parse_ntlm_t1(message):
+    try:
+        message = base64.b64decode(message)
+    except binascii.Error:
+        return None
+
+    if not message.startswith(b'NTLMSSP\x00\x01\x00\x00\x00'):
+        return None
+    struct_fmt = '<8xIIHHIHHI'
+    size = struct.calcsize(struct_fmt)
+    if len(message) < size:
+        return None
+    fields = struct.unpack(struct_fmt, message[:size])
+
+    properties = {'type': fields[0], 'flags': fields[1]}
+
+    length, _, offset = fields[2:5]
+    if len(message) < offset + length:
+        return None
+    properties['domain'] = message[offset:offset+length].decode('utf-8')
+
+    length, _, offset = fields[5:8]
+    if len(message) < offset + length:
+        return None
+    properties['workstation'] = message[offset:offset+length].decode('utf-8')
+    return properties
+
+
 def verify_service(rhost, rport, targeturi, timeout, user_agent):
     """Verify the service is up at the target URI within the specified timeout"""
     url = 'https://{}:{}/{}'.format(rhost, rport, targeturi)
@@ -93,13 +123,14 @@ def get_ad_domain(rhost, rport, user_agent):
         # Decode the provided NTLM Response to strip out the domain name
         if request.status_code == 401 and 'WWW-Authenticate' in request.headers and \
           'NTLM' in request.headers['WWW-Authenticate']:
-            domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
-            domain = base64.b64decode(bytes(domain_hash,
-                                            'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
-            domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
-            module.log('Found Domain: {}'.format(domain), level='good')
-            return domain
-    module.log('Failed to find Domain', level='error')
+            type1_msg = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
+            type1_msg = parse_ntlm_t1(type1_msg)
+            if type1_msg is None:
+                module.log("NTLM authenticate header was not in the expected format for %s" % url)
+                continue
+            module.log('Found Domain: {}'.format(type1_msg['domain']), level='good')
+            return type1_msg['domain']
+    module.log('Failed to find the domain', level='error')
     return None
 
 

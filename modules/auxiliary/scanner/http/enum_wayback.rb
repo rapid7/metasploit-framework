@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
   def pull_urls(targetdom)
     response = ""
     pages = []
-    header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
+    header = { 'User-Agent' => Rex::UserAgent.session_agent }
     # https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("web.archive.org")
     resp = clnt.get2("/cdx/search/cdx?url="+Rex::Text.uri_encode("#{targetdom}/*")+"&fl=original",header)

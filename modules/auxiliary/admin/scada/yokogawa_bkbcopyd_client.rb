@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2014-5208' ],
-          [ 'URL', 'https://blog.rapid7.com/2014/08/09/r7-2014-10-disclosure-yokogawa-centum-cs3000-bkbcopydexe-file-system-access']
+          [ 'URL', 'https://www.rapid7.com/blog/post/2014/08/09/r7-2014-10-disclosure-yokogawa-centum-cs3000-bkbcopydexe-file-system-access']
         ],
       'Actions'     =>
         [
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def on_client_close(c)
-    stop_service
+    cleanup_service
   end
 end
 

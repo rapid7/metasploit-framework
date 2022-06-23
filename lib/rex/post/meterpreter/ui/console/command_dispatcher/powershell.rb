@@ -117,6 +117,12 @@ class Console::CommandDispatcher::Powershell
     print_line(@@powershell_import_opts.usage)
   end
 
+  def cmd_powershell_import_tabs(str, words)
+    if words.length == 1 # Just the command
+      tab_complete_filenames(str, words)
+    end
+  end
+
   #
   # Import a script or assembly component into the target.
   #
@@ -139,7 +145,7 @@ class Console::CommandDispatcher::Powershell
 
     result = client.powershell.import_file(opts)
     if result.nil? || result == false
-      print_error("File failed to load.")
+      print_error('File failed to load. The file must end in ".ps1" or ".dll".')
     elsif result == true || result.empty?
       print_good("File successfully imported. No result was returned.")
     else

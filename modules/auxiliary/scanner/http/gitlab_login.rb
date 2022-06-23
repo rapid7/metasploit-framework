@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
+          ['URL', 'https://labs.f-secure.com/archive/gitlab-user-enumeration/']
         ]
     )
 

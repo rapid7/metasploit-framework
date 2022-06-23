@@ -1,0 +1,15 @@
+# This file aims to document any commits which should be ignored from Git/Github history
+# Only whitespace changes should be added to this file where possible
+#
+# Additional details:
+#    https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+# 
+
+# 2013: Retabbing the majority of Metasploit Framework to use two-space soft tabs instead of hard tabs
+7e5e0f7fc814fee55a1eca148c51f2344da65e59
+41e4375e43443bb568729a3079d3bf9944cbc669
+84aaf2334ae2de73f27999d4c003448c8e891d3a
+9f3a5dc5d0424c2c1a067b140b1642319dee65c2
+
+# 2022: Fixing whitespace on the tests folder with "rubocop --fix-layout test"
+29cc349649f978304712dd0c31dc8861e9627209

@@ -1,13 +1,30 @@
 name: Verify
 
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 on:
   push:
     branches-ignore:
       - gh-pages
       - metakitty
+      - weekly-dependency-updates
   pull_request:
-    branches:
-      - '*'
+    branches-ignore:
+      - weekly-dependency-updates
 
 jobs:
   build:
@@ -47,10 +64,10 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - 2.5
           - 2.6
           - 2.7
-          - 3.0
+          - 3.0.3
+          - 3.1.1
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"

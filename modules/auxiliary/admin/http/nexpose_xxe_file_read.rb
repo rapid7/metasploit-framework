@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References'  =>
         [
-          [ 'URL', 'https://blog.rapid7.com/2013/08/16/r7-vuln-2013-07-24' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/08/16/r7-vuln-2013-07-24/' ]
         ],
       'DefaultOptions' => {
         'SSL' => true

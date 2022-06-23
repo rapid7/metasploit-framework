@@ -19,7 +19,7 @@ module Rex
       attr_accessor :longitude
 
       def initialize
-        @uri = URI.parse(URI.encode(GOOGLE_API_URI))
+        @uri = URI.parse(URI::DEFAULT_PARSER.escape(GOOGLE_API_URI))
         @wlan_list = []
       end
 
@@ -58,7 +58,7 @@ module Rex
       end
 
       def set_api_key(key)
-        @uri = URI.parse(URI.encode(GOOGLE_API_URI + key))
+        @uri = URI.parse(URI::DEFAULT_PARSER.escape(GOOGLE_API_URI + key))
       end
 
       def google_maps_url

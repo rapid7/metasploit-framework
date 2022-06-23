@@ -55,7 +55,7 @@ module Msf::Payload::Windows::PayloadDBConf
     return nil unless uuid
 
     build_opts = retrieve_conf_from_db(uuid)
-    return nil unless build_opts['key'] && build_opts['nonce']
+    return nil unless build_opts && build_opts['key'] && build_opts['nonce']
 
     return build_opts['key'], build_opts['nonce']
   end

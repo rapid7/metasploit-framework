@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
           vprint_status("Trying to upload #{local_path} to #{remote_path}...")
 
           fd = simple.open("#{remote_path}", 'wct', write: true)
-          data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
+          data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']), mode: 'rb')
           fd.write(data)
           fd.close
 

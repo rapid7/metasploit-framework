@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
     # Set variables
-    shellcode = IO.read(datastore['SHELLCODE'])
+    shellcode = File.binread(datastore['SHELLCODE'])
     pid = datastore['PID']
     ppid = datastore['PPID']
     bits = datastore['BITS']

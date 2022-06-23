@@ -18,6 +18,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
       # this is a quick but important check to ensure consistency of the
       # serialized payloads which are deterministic
       table = {
+        :ClaimsPrincipal             => '3f7232efeed59104840b199c5261e5769f4dc30a',
         :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
         :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1',
         :WindowsIdentity             => '8dab1805a165cabea8ce96a7721317096f072166'
@@ -25,7 +26,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
       table.each do |gadget_chain, correct_digest|
         stream = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
         expect(stream).to be_kind_of String
-        real_digest = OpenSSL::Digest::SHA1.digest(stream).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+        real_digest = OpenSSL::Digest::SHA1.hexdigest(stream)
         expect(real_digest).to eq correct_digest
       end
     end

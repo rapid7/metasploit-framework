@@ -1,25 +1,27 @@
-
 lib = File.join(Msf::Config.install_root, "test", "lib")
 require 'module_test'
 
-#load 'test/lib/module_test.rb'
-#load 'lib/rex/text.rb'
-#load 'lib/msf/core/post/common.rb'
+# load 'test/lib/module_test.rb'
+# load 'lib/rex/text.rb'
+# load 'lib/msf/core/post/common.rb'
 
 class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Common
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Test Post::Common Get Envs',
-        'Description'   => %q{ This module will test Post::Common get envs API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Ben Campbell'],
-        'Platform'      => [ 'windows', 'linux', 'java', 'python' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Test Post::Common Get Envs',
+        'Description' => %q{ This module will test Post::Common get envs API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Ben Campbell'],
+        'Platform' => [ 'windows', 'linux', 'java', 'python' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
   end
 
   def test_get_env_windows
@@ -41,7 +43,7 @@ class MetasploitModule < Msf::Post
       it "should return user" do
         user = get_env('USER')
         !user.blank?
-     end
+      end
 
       it "should handle $ sign" do
         user = get_env('$USER')
@@ -52,7 +54,7 @@ class MetasploitModule < Msf::Post
 
   def test_get_envs
     it "should return multiple envs" do
-      res = get_envs('PATH','USERNAME','USER')
+      res = get_envs('PATH', 'USERNAME', 'USER')
       if session.platform =~ /win/i
         !res['PATH'].blank? && !res['USERNAME'].blank?
       else
@@ -62,4 +64,3 @@ class MetasploitModule < Msf::Post
   end
 
 end
-

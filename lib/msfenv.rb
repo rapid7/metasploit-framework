@@ -18,4 +18,15 @@ unless defined?(Rails) && !Rails.application.nil?
 end
 require 'msf_autoload'
 
+# Disable the enhanced error messages introduced as part of Ruby 3.1, as some error messages are directly shown to users,
+# and the default ErrorHighlight formatter displays unneeded Ruby code to the user
+# https://github.com/ruby/error_highlight/tree/f3626b9032bd1024d058984329accb757687cee4#custom-formatter
+if defined?(::ErrorHighlight)
+  noop_error_formatter = Object.new
+  def noop_error_formatter.message_for(_spot)
+    ''
+  end
+  ::ErrorHighlight.formatter = noop_error_formatter
+end
+
 MsfAutoload.instance

@@ -81,7 +81,7 @@ module SoapFormatter
   end
 
   def self.generate(stream)
-    unless stream.is_a?(GadgetChains::TextFormattingRunProperties) || stream.is_a?(GadgetChains::WindowsIdentity)
+    unless stream.is_a?(GadgetChains::ClaimsPrincipal) || stream.is_a?(GadgetChains::TextFormattingRunProperties) || stream.is_a?(GadgetChains::WindowsIdentity)
       raise ::NotImplementedError, 'Stream is not supported by this formatter'
     end
 

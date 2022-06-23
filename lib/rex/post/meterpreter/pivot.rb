@@ -85,6 +85,7 @@ class Pivot
     c = Class.new(::Msf::Payload)
     c.include(::Msf::Payload::Stager)
     c.include(::Msf::Payload::TransportConfig)
+    c.include(::Msf::Sessions::MeterpreterOptions)
 
     # TODO: add more platforms
     case opts[:platform]
@@ -146,8 +147,18 @@ class Pivot
     self.pivoted_session = listener.session_class.new(nil, opts)
 
     self.pivoted_session.framework = self.client.framework
-    self.pivoted_session.bootstrap({'AutoVerifySessionTimeout' => 30})
-    self.client.framework.sessions.register(self.pivoted_session)
+    registration = Proc.new do
+      self.pivoted_session.bootstrap({'AutoVerifySessionTimeout' => 30})
+      self.client.framework.sessions.register(self.pivoted_session)
+
+      begin
+        self.client.framework.events.on_session_open(self.pivoted_session)
+      rescue ::Exception => e
+        wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+        wlog("Call Stack\n#{e.backtrace.join("\n")}")
+      end
+    end
+    self.client.framework.sessions.schedule registration
   end
 
 protected

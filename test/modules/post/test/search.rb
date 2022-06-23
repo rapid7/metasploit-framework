@@ -1,4 +1,3 @@
-
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex'
 
@@ -10,20 +9,24 @@ class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Testing Meterpreter Search',
-        'Description'   => %q{ This module will test the meterpreter search method },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'timwr'],
-        'Platform'      => [ 'windows', 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Testing Meterpreter Search',
+        'Description' => %q{ This module will test the meterpreter search method },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'timwr'],
+        'Platform' => [ 'windows', 'linux', 'java' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
     register_options(
       [
-        OptBool.new("AddEntropy" , [false, "Add entropy token to file and directory names.", false]),
-        OptString.new("BaseFileName" , [true, "File/dir base name", "meterpreter-test"])
-      ], self.class)
+        OptBool.new("AddEntropy", [false, "Add entropy token to file and directory names.", false]),
+        OptString.new("BaseFileName", [true, "File/dir base name", "meterpreter-test"])
+      ], self.class
+    )
   end
 
   def setup
@@ -38,7 +41,7 @@ class MetasploitModule < Msf::Post
     session.fs.dir.chdir(tmp)
 
     if datastore["AddEntropy"]
-      entropy_value = '-' + ('a'..'z').to_a.shuffle[0,8].join
+      entropy_value = '-' + ('a'..'z').to_a.shuffle[0, 8].join
     else
       entropy_value = ""
     end
@@ -154,11 +157,15 @@ class MetasploitModule < Msf::Post
       res
     end
 
-    genesis_date = "3 January 2009 18:15:13 +0000"
-    genesis = DateTime.parse(genesis_date).to_i
+    genesis_str = "3 January 2009 18:15:13 +0000"
+    genesis_date = DateTime.parse(genesis_str)
+    genesis = genesis_date.to_i
 
-    if not ['windows', 'win'].include? session.platform
-      cmd_exec("touch -d '#{genesis_date}' #{@file_name}")
+    if session.platform == 'osx'
+      osx_genesis_str = genesis_date.strftime("%Y%m%d%H%M.%S")
+      cmd_exec("touch -t '#{osx_genesis_str}' #{@file_name}")
+    elsif !['windows', 'win'].include?(session.platform)
+      cmd_exec("touch -d '#{genesis_str}' #{@file_name}")
     elsif session.priv.present?
       client.priv.fs.set_file_mace(@file_name, genesis)
     else

@@ -20,6 +20,18 @@ class Job
     self.clean_proc = clean_proc
     self.ctx        = ctx
     self.start_time = nil
+    self.cleanup_mutex = Mutex.new
+    self.cleaned_up = false
+  end
+
+  def synchronized_cleanup
+    # Avoid start and stop both calling cleanup
+    self.cleanup_mutex.synchronize do
+      unless cleaned_up
+        self.cleaned_up = true
+        self.clean_proc.call(ctx) if self.clean_proc
+      end
+    end
   end
 
   #
@@ -36,7 +48,7 @@ class Job
         begin
           run_proc.call(ctx)
         ensure
-          clean_proc.call(ctx)
+          synchronized_cleanup
           container.remove_job(self)
         end
       }
@@ -59,7 +71,7 @@ class Job
       self.job_thread = nil
     end
 
-    clean_proc.call(ctx) if (clean_proc)
+    synchronized_cleanup
   end
 
   #
@@ -92,6 +104,8 @@ protected
   attr_accessor :clean_proc #:nodoc:
   attr_writer   :ctx #:nodoc:
   attr_writer   :start_time #:nodoc:
+  attr_accessor :cleanup_mutex #:nodoc:
+  attr_accessor :cleaned_up #:nodoc:
 
 end
 

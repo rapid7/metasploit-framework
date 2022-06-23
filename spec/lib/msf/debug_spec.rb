@@ -8,41 +8,41 @@ RSpec.describe Msf::Ui::Debug do
 
     error_log_output = <<~LOG
       ##  %grnFramework Errors%clr
-      
+
       The following framework errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 1
-      
+
       [11/11/1111 11:11:11] [e(0)] core: [-] Error 2
       Call stack:
       Stack_Trace
       stack trace
       STACK-TRACE
-      
+
       [22/22/2222 22:22:22] [e(0)] core: [-] Error 3
       ```
-      
+
       </details>
-      
-      
+
+
       ##  %grnWeb Service Errors%clr
-      
+
       The following web service errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       [-] Error 1
-      
+
       [-] Error 2
       [-] Error 3
       ```
-      
+
       </details>
-      
+
 
     LOG
 
@@ -61,64 +61,64 @@ RSpec.describe Msf::Ui::Debug do
 
     error_log_output = <<~LOG
       ##  %grnFramework Errors%clr
-      
+
       The following framework errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 11
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 12
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 13
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 14
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 15
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 16
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 17
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 18
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 19
-      
+
       [00/00/0000 00:00:00] [e(0)] core: [-] Error 20
       ```
-      
+
       </details>
-      
-      
+
+
       ##  %grnWeb Service Errors%clr
-      
+
       The following web service errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       [-] Error 11
-      
+
       [-] Error 12
-      
+
       [-] Error 13
-      
+
       [-] Error 14
-      
+
       [-] Error 15
-      
+
       [-] Error 16
-      
+
       [-] Error 17
-      
+
       [-] Error 18
-      
+
       [-] Error 19
-      
+
       [-] Error 20
       ```
-      
+
       </details>
 
 
@@ -132,28 +132,28 @@ RSpec.describe Msf::Ui::Debug do
 
     error_log_output = <<~EMPTY
       ##  %grnFramework Errors%clr
-      
+
       The following framework errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       No matching patterns were found in framework.log.
       ```
-      
+
       </details>
-      
-      
+
+
       ##  %grnWeb Service Errors%clr
-      
+
       The following web service errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       No matching patterns were found in msf-ws.log.
       ```
-      
+
       </details>
 
 
@@ -167,28 +167,28 @@ RSpec.describe Msf::Ui::Debug do
 
     error_log_output = <<~EMPTY
       ##  %grnFramework Errors%clr
-      
+
       The following framework errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       framework.log does not exist.
       ```
-      
+
       </details>
-      
-      
+
+
       ##  %grnWeb Service Errors%clr
-      
+
       The following web service errors occurred before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       msf-ws.log does not exist.
       ```
-      
+
       </details>
 
 
@@ -614,88 +614,88 @@ RSpec.describe Msf::Ui::Debug do
     allow(::Msf::Config).to receive(:log_directory).and_return(File.join(file_fixtures_path, 'debug', 'framework_logs', 'short'))
 
     error_log_output = <<~E_LOG
-    ##  %grnFramework Logs%clr
+      ##  %grnFramework Logs%clr
 
-    The following framework logs were recorded before the issue occurred:
-    <details>
-    <summary>Collapse</summary>
-    
-    ```
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 1
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 2
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 3
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 4
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 5
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 6
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 7
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 8
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 9
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 10
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 11
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 12
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 13
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 14
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 15
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 16
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 17
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 18
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 19
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 20
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 21
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 22
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 23
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 24
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 25
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 26
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 27
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 28
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 29
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 30
-    ```
-    
-    </details>
-    
-    
-    ##  %grnWeb Service Logs%clr
-    
-    The following web service logs were recorded before the issue occurred:
-    <details>
-    <summary>Collapse</summary>
-    
-    ```
-    [-] core: Log Line 1
-    [-] core: Log Line 2
-    [-] core: Log Line 3
-    [-] core: Log Line 4
-    [-] core: Log Line 5
-    [-] core: Log Line 6
-    [-] core: Log Line 7
-    [-] core: Log Line 8
-    [-] core: Log Line 9
-    [-] core: Log Line 10
-    [-] core: Log Line 11
-    [-] core: Log Line 12
-    [-] core: Log Line 13
-    [-] core: Log Line 14
-    [-] core: Log Line 15
-    [-] core: Log Line 16
-    [-] core: Log Line 17
-    [-] core: Log Line 18
-    [-] core: Log Line 19
-    [-] core: Log Line 20
-    [-] core: Log Line 21
-    [-] core: Log Line 22
-    [-] core: Log Line 23
-    [-] core: Log Line 24
-    [-] core: Log Line 25
-    [-] core: Log Line 26
-    [-] core: Log Line 27
-    [-] core: Log Line 28
-    [-] core: Log Line 29
-    [-] core: Log Line 30
-    ```
-    
-    </details>
+      The following framework logs were recorded before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 1
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 2
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 3
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 4
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 5
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 6
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 7
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 8
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 9
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 10
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 11
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 12
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 13
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 14
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 15
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 16
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 17
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 18
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 19
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 20
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 21
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 22
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 23
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 24
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 25
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 26
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 27
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 28
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 29
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 30
+      ```
+
+      </details>
+
+
+      ##  %grnWeb Service Logs%clr
+
+      The following web service logs were recorded before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [-] core: Log Line 1
+      [-] core: Log Line 2
+      [-] core: Log Line 3
+      [-] core: Log Line 4
+      [-] core: Log Line 5
+      [-] core: Log Line 6
+      [-] core: Log Line 7
+      [-] core: Log Line 8
+      [-] core: Log Line 9
+      [-] core: Log Line 10
+      [-] core: Log Line 11
+      [-] core: Log Line 12
+      [-] core: Log Line 13
+      [-] core: Log Line 14
+      [-] core: Log Line 15
+      [-] core: Log Line 16
+      [-] core: Log Line 17
+      [-] core: Log Line 18
+      [-] core: Log Line 19
+      [-] core: Log Line 20
+      [-] core: Log Line 21
+      [-] core: Log Line 22
+      [-] core: Log Line 23
+      [-] core: Log Line 24
+      [-] core: Log Line 25
+      [-] core: Log Line 26
+      [-] core: Log Line 27
+      [-] core: Log Line 28
+      [-] core: Log Line 29
+      [-] core: Log Line 30
+      ```
+
+      </details>
 
 
     E_LOG
@@ -713,228 +713,228 @@ RSpec.describe Msf::Ui::Debug do
     allow(::Msf::Config).to receive(:log_directory).and_return(File.join(file_fixtures_path, 'debug', 'framework_logs', 'equal'))
 
     error_log_output = <<~E_LOG
-    ##  %grnFramework Logs%clr
+      ##  %grnFramework Logs%clr
 
-    The following framework logs were recorded before the issue occurred:
-    <details>
-    <summary>Collapse</summary>
-    
-    ```
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 1
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 2
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 3
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 4
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 5
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 6
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 7
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 8
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 9
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 10
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 11
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 12
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 13
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 14
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 15
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 16
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 17
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 18
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 19
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 20
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 21
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 22
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 23
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 24
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 25
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 26
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 27
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 28
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 29
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 30
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 31
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 32
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 33
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 34
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 35
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 36
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 37
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 38
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 39
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 40
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 41
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 42
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 43
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 44
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 45
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 46
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 47
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 48
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 49
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 50
-    ```
-    
-    </details>
-    
-    
-    ##  %grnWeb Service Logs%clr
-    
-    The following web service logs were recorded before the issue occurred:
-    <details>
-    <summary>Collapse</summary>
-    
-    ```
-    [-] core: Log Line 1
-    [-] core: Log Line 2
-    [-] core: Log Line 3
-    [-] core: Log Line 4
-    [-] core: Log Line 5
-    [-] core: Log Line 6
-    [-] core: Log Line 7
-    [-] core: Log Line 8
-    [-] core: Log Line 9
-    [-] core: Log Line 10
-    [-] core: Log Line 11
-    [-] core: Log Line 12
-    [-] core: Log Line 13
-    [-] core: Log Line 14
-    [-] core: Log Line 15
-    [-] core: Log Line 16
-    [-] core: Log Line 17
-    [-] core: Log Line 18
-    [-] core: Log Line 19
-    [-] core: Log Line 20
-    [-] core: Log Line 21
-    [-] core: Log Line 22
-    [-] core: Log Line 23
-    [-] core: Log Line 24
-    [-] core: Log Line 25
-    [-] core: Log Line 26
-    [-] core: Log Line 27
-    [-] core: Log Line 28
-    [-] core: Log Line 29
-    [-] core: Log Line 30
-    [-] core: Log Line 31
-    [-] core: Log Line 32
-    [-] core: Log Line 33
-    [-] core: Log Line 34
-    [-] core: Log Line 35
-    [-] core: Log Line 36
-    [-] core: Log Line 37
-    [-] core: Log Line 38
-    [-] core: Log Line 39
-    [-] core: Log Line 40
-    [-] core: Log Line 41
-    [-] core: Log Line 42
-    [-] core: Log Line 43
-    [-] core: Log Line 44
-    [-] core: Log Line 45
-    [-] core: Log Line 46
-    [-] core: Log Line 47
-    [-] core: Log Line 48
-    [-] core: Log Line 49
-    [-] core: Log Line 50
-    [-] core: Log Line 51
-    [-] core: Log Line 52
-    [-] core: Log Line 53
-    [-] core: Log Line 54
-    [-] core: Log Line 55
-    [-] core: Log Line 56
-    [-] core: Log Line 57
-    [-] core: Log Line 58
-    [-] core: Log Line 59
-    [-] core: Log Line 60
-    [-] core: Log Line 61
-    [-] core: Log Line 62
-    [-] core: Log Line 63
-    [-] core: Log Line 64
-    [-] core: Log Line 65
-    [-] core: Log Line 66
-    [-] core: Log Line 67
-    [-] core: Log Line 68
-    [-] core: Log Line 69
-    [-] core: Log Line 70
-    [-] core: Log Line 71
-    [-] core: Log Line 72
-    [-] core: Log Line 73
-    [-] core: Log Line 74
-    [-] core: Log Line 75
-    [-] core: Log Line 76
-    [-] core: Log Line 77
-    [-] core: Log Line 78
-    [-] core: Log Line 79
-    [-] core: Log Line 80
-    [-] core: Log Line 81
-    [-] core: Log Line 82
-    [-] core: Log Line 83
-    [-] core: Log Line 84
-    [-] core: Log Line 85
-    [-] core: Log Line 86
-    [-] core: Log Line 87
-    [-] core: Log Line 88
-    [-] core: Log Line 89
-    [-] core: Log Line 90
-    [-] core: Log Line 91
-    [-] core: Log Line 92
-    [-] core: Log Line 93
-    [-] core: Log Line 94
-    [-] core: Log Line 95
-    [-] core: Log Line 96
-    [-] core: Log Line 97
-    [-] core: Log Line 98
-    [-] core: Log Line 99
-    [-] core: Log Line 100
-    [-] core: Log Line 101
-    [-] core: Log Line 102
-    [-] core: Log Line 103
-    [-] core: Log Line 104
-    [-] core: Log Line 105
-    [-] core: Log Line 106
-    [-] core: Log Line 107
-    [-] core: Log Line 108
-    [-] core: Log Line 109
-    [-] core: Log Line 110
-    [-] core: Log Line 111
-    [-] core: Log Line 112
-    [-] core: Log Line 113
-    [-] core: Log Line 114
-    [-] core: Log Line 115
-    [-] core: Log Line 116
-    [-] core: Log Line 117
-    [-] core: Log Line 118
-    [-] core: Log Line 119
-    [-] core: Log Line 120
-    [-] core: Log Line 121
-    [-] core: Log Line 122
-    [-] core: Log Line 123
-    [-] core: Log Line 124
-    [-] core: Log Line 125
-    [-] core: Log Line 126
-    [-] core: Log Line 127
-    [-] core: Log Line 128
-    [-] core: Log Line 129
-    [-] core: Log Line 130
-    [-] core: Log Line 131
-    [-] core: Log Line 132
-    [-] core: Log Line 133
-    [-] core: Log Line 134
-    [-] core: Log Line 135
-    [-] core: Log Line 136
-    [-] core: Log Line 137
-    [-] core: Log Line 138
-    [-] core: Log Line 139
-    [-] core: Log Line 140
-    [-] core: Log Line 141
-    [-] core: Log Line 142
-    [-] core: Log Line 143
-    [-] core: Log Line 144
-    [-] core: Log Line 145
-    [-] core: Log Line 146
-    [-] core: Log Line 147
-    [-] core: Log Line 148
-    [-] core: Log Line 149
-    [-] core: Log Line 150
-    ```
-    
-    </details>
+      The following framework logs were recorded before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 1
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 2
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 3
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 4
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 5
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 6
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 7
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 8
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 9
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 10
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 11
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 12
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 13
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 14
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 15
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 16
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 17
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 18
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 19
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 20
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 21
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 22
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 23
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 24
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 25
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 26
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 27
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 28
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 29
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 30
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 31
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 32
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 33
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 34
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 35
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 36
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 37
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 38
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 39
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 40
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 41
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 42
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 43
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 44
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 45
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 46
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 47
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 48
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 49
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 50
+      ```
+
+      </details>
+
+
+      ##  %grnWeb Service Logs%clr
+
+      The following web service logs were recorded before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [-] core: Log Line 1
+      [-] core: Log Line 2
+      [-] core: Log Line 3
+      [-] core: Log Line 4
+      [-] core: Log Line 5
+      [-] core: Log Line 6
+      [-] core: Log Line 7
+      [-] core: Log Line 8
+      [-] core: Log Line 9
+      [-] core: Log Line 10
+      [-] core: Log Line 11
+      [-] core: Log Line 12
+      [-] core: Log Line 13
+      [-] core: Log Line 14
+      [-] core: Log Line 15
+      [-] core: Log Line 16
+      [-] core: Log Line 17
+      [-] core: Log Line 18
+      [-] core: Log Line 19
+      [-] core: Log Line 20
+      [-] core: Log Line 21
+      [-] core: Log Line 22
+      [-] core: Log Line 23
+      [-] core: Log Line 24
+      [-] core: Log Line 25
+      [-] core: Log Line 26
+      [-] core: Log Line 27
+      [-] core: Log Line 28
+      [-] core: Log Line 29
+      [-] core: Log Line 30
+      [-] core: Log Line 31
+      [-] core: Log Line 32
+      [-] core: Log Line 33
+      [-] core: Log Line 34
+      [-] core: Log Line 35
+      [-] core: Log Line 36
+      [-] core: Log Line 37
+      [-] core: Log Line 38
+      [-] core: Log Line 39
+      [-] core: Log Line 40
+      [-] core: Log Line 41
+      [-] core: Log Line 42
+      [-] core: Log Line 43
+      [-] core: Log Line 44
+      [-] core: Log Line 45
+      [-] core: Log Line 46
+      [-] core: Log Line 47
+      [-] core: Log Line 48
+      [-] core: Log Line 49
+      [-] core: Log Line 50
+      [-] core: Log Line 51
+      [-] core: Log Line 52
+      [-] core: Log Line 53
+      [-] core: Log Line 54
+      [-] core: Log Line 55
+      [-] core: Log Line 56
+      [-] core: Log Line 57
+      [-] core: Log Line 58
+      [-] core: Log Line 59
+      [-] core: Log Line 60
+      [-] core: Log Line 61
+      [-] core: Log Line 62
+      [-] core: Log Line 63
+      [-] core: Log Line 64
+      [-] core: Log Line 65
+      [-] core: Log Line 66
+      [-] core: Log Line 67
+      [-] core: Log Line 68
+      [-] core: Log Line 69
+      [-] core: Log Line 70
+      [-] core: Log Line 71
+      [-] core: Log Line 72
+      [-] core: Log Line 73
+      [-] core: Log Line 74
+      [-] core: Log Line 75
+      [-] core: Log Line 76
+      [-] core: Log Line 77
+      [-] core: Log Line 78
+      [-] core: Log Line 79
+      [-] core: Log Line 80
+      [-] core: Log Line 81
+      [-] core: Log Line 82
+      [-] core: Log Line 83
+      [-] core: Log Line 84
+      [-] core: Log Line 85
+      [-] core: Log Line 86
+      [-] core: Log Line 87
+      [-] core: Log Line 88
+      [-] core: Log Line 89
+      [-] core: Log Line 90
+      [-] core: Log Line 91
+      [-] core: Log Line 92
+      [-] core: Log Line 93
+      [-] core: Log Line 94
+      [-] core: Log Line 95
+      [-] core: Log Line 96
+      [-] core: Log Line 97
+      [-] core: Log Line 98
+      [-] core: Log Line 99
+      [-] core: Log Line 100
+      [-] core: Log Line 101
+      [-] core: Log Line 102
+      [-] core: Log Line 103
+      [-] core: Log Line 104
+      [-] core: Log Line 105
+      [-] core: Log Line 106
+      [-] core: Log Line 107
+      [-] core: Log Line 108
+      [-] core: Log Line 109
+      [-] core: Log Line 110
+      [-] core: Log Line 111
+      [-] core: Log Line 112
+      [-] core: Log Line 113
+      [-] core: Log Line 114
+      [-] core: Log Line 115
+      [-] core: Log Line 116
+      [-] core: Log Line 117
+      [-] core: Log Line 118
+      [-] core: Log Line 119
+      [-] core: Log Line 120
+      [-] core: Log Line 121
+      [-] core: Log Line 122
+      [-] core: Log Line 123
+      [-] core: Log Line 124
+      [-] core: Log Line 125
+      [-] core: Log Line 126
+      [-] core: Log Line 127
+      [-] core: Log Line 128
+      [-] core: Log Line 129
+      [-] core: Log Line 130
+      [-] core: Log Line 131
+      [-] core: Log Line 132
+      [-] core: Log Line 133
+      [-] core: Log Line 134
+      [-] core: Log Line 135
+      [-] core: Log Line 136
+      [-] core: Log Line 137
+      [-] core: Log Line 138
+      [-] core: Log Line 139
+      [-] core: Log Line 140
+      [-] core: Log Line 141
+      [-] core: Log Line 142
+      [-] core: Log Line 143
+      [-] core: Log Line 144
+      [-] core: Log Line 145
+      [-] core: Log Line 146
+      [-] core: Log Line 147
+      [-] core: Log Line 148
+      [-] core: Log Line 149
+      [-] core: Log Line 150
+      ```
+
+      </details>
 
 
     E_LOG
@@ -952,228 +952,228 @@ RSpec.describe Msf::Ui::Debug do
     allow(::Msf::Config).to receive(:log_directory).and_return(File.join(file_fixtures_path, 'debug', 'framework_logs', 'long'))
 
     error_log_output = <<~E_LOG
-    ##  %grnFramework Logs%clr
+      ##  %grnFramework Logs%clr
 
-    The following framework logs were recorded before the issue occurred:
-    <details>
-    <summary>Collapse</summary>
-    
-    ```
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 51
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 52
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 53
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 54
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 55
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 56
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 57
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 58
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 59
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 60
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 61
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 62
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 63
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 64
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 65
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 66
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 67
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 68
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 69
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 70
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 71
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 72
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 73
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 74
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 75
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 76
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 77
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 78
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 79
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 80
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 81
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 82
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 83
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 84
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 85
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 86
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 87
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 88
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 89
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 90
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 91
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 92
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 93
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 94
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 95
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 96
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 97
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 98
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 99
-    [00/00/0000 00:00:00] [e(0)] core: Log Line 100
-    ```
-    
-    </details>
-    
-    
-    ##  %grnWeb Service Logs%clr
-    
-    The following web service logs were recorded before the issue occurred:
-    <details>
-    <summary>Collapse</summary>
-    
-    ```
-    [-] core: Log Line 151
-    [-] core: Log Line 152
-    [-] core: Log Line 153
-    [-] core: Log Line 154
-    [-] core: Log Line 155
-    [-] core: Log Line 156
-    [-] core: Log Line 157
-    [-] core: Log Line 158
-    [-] core: Log Line 159
-    [-] core: Log Line 160
-    [-] core: Log Line 161
-    [-] core: Log Line 162
-    [-] core: Log Line 163
-    [-] core: Log Line 164
-    [-] core: Log Line 165
-    [-] core: Log Line 166
-    [-] core: Log Line 167
-    [-] core: Log Line 168
-    [-] core: Log Line 169
-    [-] core: Log Line 170
-    [-] core: Log Line 171
-    [-] core: Log Line 172
-    [-] core: Log Line 173
-    [-] core: Log Line 174
-    [-] core: Log Line 175
-    [-] core: Log Line 176
-    [-] core: Log Line 177
-    [-] core: Log Line 178
-    [-] core: Log Line 179
-    [-] core: Log Line 180
-    [-] core: Log Line 181
-    [-] core: Log Line 182
-    [-] core: Log Line 183
-    [-] core: Log Line 184
-    [-] core: Log Line 185
-    [-] core: Log Line 186
-    [-] core: Log Line 187
-    [-] core: Log Line 188
-    [-] core: Log Line 189
-    [-] core: Log Line 190
-    [-] core: Log Line 191
-    [-] core: Log Line 192
-    [-] core: Log Line 193
-    [-] core: Log Line 194
-    [-] core: Log Line 195
-    [-] core: Log Line 196
-    [-] core: Log Line 197
-    [-] core: Log Line 198
-    [-] core: Log Line 199
-    [-] core: Log Line 200
-    [-] core: Log Line 201
-    [-] core: Log Line 202
-    [-] core: Log Line 203
-    [-] core: Log Line 204
-    [-] core: Log Line 205
-    [-] core: Log Line 206
-    [-] core: Log Line 207
-    [-] core: Log Line 208
-    [-] core: Log Line 209
-    [-] core: Log Line 210
-    [-] core: Log Line 211
-    [-] core: Log Line 212
-    [-] core: Log Line 213
-    [-] core: Log Line 214
-    [-] core: Log Line 215
-    [-] core: Log Line 216
-    [-] core: Log Line 217
-    [-] core: Log Line 218
-    [-] core: Log Line 219
-    [-] core: Log Line 220
-    [-] core: Log Line 221
-    [-] core: Log Line 222
-    [-] core: Log Line 223
-    [-] core: Log Line 224
-    [-] core: Log Line 225
-    [-] core: Log Line 226
-    [-] core: Log Line 227
-    [-] core: Log Line 228
-    [-] core: Log Line 229
-    [-] core: Log Line 230
-    [-] core: Log Line 231
-    [-] core: Log Line 232
-    [-] core: Log Line 233
-    [-] core: Log Line 234
-    [-] core: Log Line 235
-    [-] core: Log Line 236
-    [-] core: Log Line 237
-    [-] core: Log Line 238
-    [-] core: Log Line 239
-    [-] core: Log Line 240
-    [-] core: Log Line 241
-    [-] core: Log Line 242
-    [-] core: Log Line 243
-    [-] core: Log Line 244
-    [-] core: Log Line 245
-    [-] core: Log Line 246
-    [-] core: Log Line 247
-    [-] core: Log Line 248
-    [-] core: Log Line 249
-    [-] core: Log Line 250
-    [-] core: Log Line 251
-    [-] core: Log Line 252
-    [-] core: Log Line 253
-    [-] core: Log Line 254
-    [-] core: Log Line 255
-    [-] core: Log Line 256
-    [-] core: Log Line 257
-    [-] core: Log Line 258
-    [-] core: Log Line 259
-    [-] core: Log Line 260
-    [-] core: Log Line 261
-    [-] core: Log Line 262
-    [-] core: Log Line 263
-    [-] core: Log Line 264
-    [-] core: Log Line 265
-    [-] core: Log Line 266
-    [-] core: Log Line 267
-    [-] core: Log Line 268
-    [-] core: Log Line 269
-    [-] core: Log Line 270
-    [-] core: Log Line 271
-    [-] core: Log Line 272
-    [-] core: Log Line 273
-    [-] core: Log Line 274
-    [-] core: Log Line 275
-    [-] core: Log Line 276
-    [-] core: Log Line 277
-    [-] core: Log Line 278
-    [-] core: Log Line 279
-    [-] core: Log Line 280
-    [-] core: Log Line 281
-    [-] core: Log Line 282
-    [-] core: Log Line 283
-    [-] core: Log Line 284
-    [-] core: Log Line 285
-    [-] core: Log Line 286
-    [-] core: Log Line 287
-    [-] core: Log Line 288
-    [-] core: Log Line 289
-    [-] core: Log Line 290
-    [-] core: Log Line 291
-    [-] core: Log Line 292
-    [-] core: Log Line 293
-    [-] core: Log Line 294
-    [-] core: Log Line 295
-    [-] core: Log Line 296
-    [-] core: Log Line 297
-    [-] core: Log Line 298
-    [-] core: Log Line 299
-    [-] core: Log Line 300
-    ```
-    
-    </details>
+      The following framework logs were recorded before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 51
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 52
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 53
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 54
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 55
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 56
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 57
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 58
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 59
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 60
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 61
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 62
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 63
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 64
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 65
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 66
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 67
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 68
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 69
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 70
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 71
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 72
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 73
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 74
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 75
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 76
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 77
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 78
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 79
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 80
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 81
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 82
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 83
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 84
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 85
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 86
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 87
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 88
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 89
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 90
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 91
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 92
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 93
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 94
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 95
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 96
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 97
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 98
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 99
+      [00/00/0000 00:00:00] [e(0)] core: Log Line 100
+      ```
+
+      </details>
+
+
+      ##  %grnWeb Service Logs%clr
+
+      The following web service logs were recorded before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [-] core: Log Line 151
+      [-] core: Log Line 152
+      [-] core: Log Line 153
+      [-] core: Log Line 154
+      [-] core: Log Line 155
+      [-] core: Log Line 156
+      [-] core: Log Line 157
+      [-] core: Log Line 158
+      [-] core: Log Line 159
+      [-] core: Log Line 160
+      [-] core: Log Line 161
+      [-] core: Log Line 162
+      [-] core: Log Line 163
+      [-] core: Log Line 164
+      [-] core: Log Line 165
+      [-] core: Log Line 166
+      [-] core: Log Line 167
+      [-] core: Log Line 168
+      [-] core: Log Line 169
+      [-] core: Log Line 170
+      [-] core: Log Line 171
+      [-] core: Log Line 172
+      [-] core: Log Line 173
+      [-] core: Log Line 174
+      [-] core: Log Line 175
+      [-] core: Log Line 176
+      [-] core: Log Line 177
+      [-] core: Log Line 178
+      [-] core: Log Line 179
+      [-] core: Log Line 180
+      [-] core: Log Line 181
+      [-] core: Log Line 182
+      [-] core: Log Line 183
+      [-] core: Log Line 184
+      [-] core: Log Line 185
+      [-] core: Log Line 186
+      [-] core: Log Line 187
+      [-] core: Log Line 188
+      [-] core: Log Line 189
+      [-] core: Log Line 190
+      [-] core: Log Line 191
+      [-] core: Log Line 192
+      [-] core: Log Line 193
+      [-] core: Log Line 194
+      [-] core: Log Line 195
+      [-] core: Log Line 196
+      [-] core: Log Line 197
+      [-] core: Log Line 198
+      [-] core: Log Line 199
+      [-] core: Log Line 200
+      [-] core: Log Line 201
+      [-] core: Log Line 202
+      [-] core: Log Line 203
+      [-] core: Log Line 204
+      [-] core: Log Line 205
+      [-] core: Log Line 206
+      [-] core: Log Line 207
+      [-] core: Log Line 208
+      [-] core: Log Line 209
+      [-] core: Log Line 210
+      [-] core: Log Line 211
+      [-] core: Log Line 212
+      [-] core: Log Line 213
+      [-] core: Log Line 214
+      [-] core: Log Line 215
+      [-] core: Log Line 216
+      [-] core: Log Line 217
+      [-] core: Log Line 218
+      [-] core: Log Line 219
+      [-] core: Log Line 220
+      [-] core: Log Line 221
+      [-] core: Log Line 222
+      [-] core: Log Line 223
+      [-] core: Log Line 224
+      [-] core: Log Line 225
+      [-] core: Log Line 226
+      [-] core: Log Line 227
+      [-] core: Log Line 228
+      [-] core: Log Line 229
+      [-] core: Log Line 230
+      [-] core: Log Line 231
+      [-] core: Log Line 232
+      [-] core: Log Line 233
+      [-] core: Log Line 234
+      [-] core: Log Line 235
+      [-] core: Log Line 236
+      [-] core: Log Line 237
+      [-] core: Log Line 238
+      [-] core: Log Line 239
+      [-] core: Log Line 240
+      [-] core: Log Line 241
+      [-] core: Log Line 242
+      [-] core: Log Line 243
+      [-] core: Log Line 244
+      [-] core: Log Line 245
+      [-] core: Log Line 246
+      [-] core: Log Line 247
+      [-] core: Log Line 248
+      [-] core: Log Line 249
+      [-] core: Log Line 250
+      [-] core: Log Line 251
+      [-] core: Log Line 252
+      [-] core: Log Line 253
+      [-] core: Log Line 254
+      [-] core: Log Line 255
+      [-] core: Log Line 256
+      [-] core: Log Line 257
+      [-] core: Log Line 258
+      [-] core: Log Line 259
+      [-] core: Log Line 260
+      [-] core: Log Line 261
+      [-] core: Log Line 262
+      [-] core: Log Line 263
+      [-] core: Log Line 264
+      [-] core: Log Line 265
+      [-] core: Log Line 266
+      [-] core: Log Line 267
+      [-] core: Log Line 268
+      [-] core: Log Line 269
+      [-] core: Log Line 270
+      [-] core: Log Line 271
+      [-] core: Log Line 272
+      [-] core: Log Line 273
+      [-] core: Log Line 274
+      [-] core: Log Line 275
+      [-] core: Log Line 276
+      [-] core: Log Line 277
+      [-] core: Log Line 278
+      [-] core: Log Line 279
+      [-] core: Log Line 280
+      [-] core: Log Line 281
+      [-] core: Log Line 282
+      [-] core: Log Line 283
+      [-] core: Log Line 284
+      [-] core: Log Line 285
+      [-] core: Log Line 286
+      [-] core: Log Line 287
+      [-] core: Log Line 288
+      [-] core: Log Line 289
+      [-] core: Log Line 290
+      [-] core: Log Line 291
+      [-] core: Log Line 292
+      [-] core: Log Line 293
+      [-] core: Log Line 294
+      [-] core: Log Line 295
+      [-] core: Log Line 296
+      [-] core: Log Line 297
+      [-] core: Log Line 298
+      [-] core: Log Line 299
+      [-] core: Log Line 300
+      ```
+
+      </details>
 
 
     E_LOG
@@ -1190,24 +1190,24 @@ RSpec.describe Msf::Ui::Debug do
       The following framework logs were recorded before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
-      
+
       ```
-      
+
       </details>
-      
-      
+
+
       ##  %grnWeb Service Logs%clr
-      
+
       The following web service logs were recorded before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
-      
+
       ```
-      
+
       </details>
 
 
@@ -1221,30 +1221,30 @@ RSpec.describe Msf::Ui::Debug do
 
     error_log_output = <<~E_LOG
       ##  %grnFramework Logs%clr
-      
+
       The following framework logs were recorded before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       framework.log does not exist.
       ```
-      
+
       </details>
-      
-      
+
+
       ##  %grnWeb Service Logs%clr
-      
+
       The following web service logs were recorded before the issue occurred:
       <details>
       <summary>Collapse</summary>
-      
+
       ```
       msf-ws.log does not exist.
       ```
-      
+
       </details>
-      
+
 
     E_LOG
 
@@ -1526,5 +1526,298 @@ RSpec.describe Msf::Ui::Debug do
     OUTPUT
 
     expect(subject.versions(framework)).to eql(expected_output)
+  end
+
+  context 'Database Configuration Debug' do
+
+    it 'correctly retrieves the current empty workspace with DB connected' do
+      workspace = FactoryBot.create(:mdm_workspace)
+
+      db = instance_double(
+        Msf::DBManager,
+        connection_established?: true,
+        name: 'msf',
+        driver: 'postgresql',
+        active: true,
+        workspace: workspace,
+        workspaces: [workspace]
+      )
+
+      framework = instance_double(
+        ::Msf::Framework,
+        version: 'VERSION',
+        db: db
+      )
+
+      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
+      connection = double(
+        'connection',
+        current_database: 'msf',
+        respond_to?: true
+      )
+      allow(connection_pool).to receive(:with_connection).and_yield(connection)
+      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+
+      allow(::Mdm::Workspace).to receive(:count).and_return(1)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
+      allow(::Mdm::Host).to receive(:count).and_return(0)
+      allow(::Mdm::Vuln).to receive(:count).and_return(0)
+      allow(::Mdm::Note).to receive(:count).and_return(0)
+      allow(::Mdm::Service).to receive(:count).and_return(0)
+
+      expected_output = <<~OUTPUT
+        ##  %grnDatabase Configuration%clr
+
+        The database contains the following information:
+        <details>
+        <summary>Collapse</summary>
+
+        ```
+        Session Type: Connected to msf. Connection type: postgresql.
+        ```
+
+        | ID | Hosts | Vulnerabilities | Notes | Services |
+        |-:|-:|-:|-:|-:|
+        | #{workspace.id.to_s(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
+
+        </details>
+
+
+      OUTPUT
+
+      expect(subject.database_configuration(framework)).to eql(expected_output)
+    end
+
+    it 'correctly retrieves the current workspace with contents with DB connected' do
+      workspace = FactoryBot.create(:mdm_workspace)
+      host = FactoryBot.create(:mdm_host, workspace: workspace)
+      vuln = FactoryBot.create(:mdm_vuln, host: host)
+      service = FactoryBot.create(:mdm_service, host: host)
+      note = FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
+
+      db = instance_double(
+        Msf::DBManager,
+        connection_established?: true,
+        name: 'msf',
+        driver: 'postgresql',
+        active: true,
+        workspace: workspace,
+        workspaces: [workspace]
+      )
+
+      framework = instance_double(
+        ::Msf::Framework,
+        version: 'VERSION',
+        db: db
+      )
+
+      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
+      connection = double(
+        'connection',
+        current_database: 'msf',
+        respond_to?: true
+      )
+      allow(connection_pool).to receive(:with_connection).and_yield(connection)
+      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+
+      allow(::Mdm::Workspace).to receive(:count).and_return(1)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
+      allow(::Mdm::Host).to receive(:count).and_return(1)
+      allow(::Mdm::Vuln).to receive(:count).and_return(1)
+      allow(::Mdm::Note).to receive(:count).and_return(1)
+      allow(::Mdm::Service).to receive(:count).and_return(1)
+
+      expected_output = <<~OUTPUT
+        ##  %grnDatabase Configuration%clr
+
+        The database contains the following information:
+        <details>
+        <summary>Collapse</summary>
+
+        ```
+        Session Type: Connected to msf. Connection type: postgresql.
+        ```
+
+        | ID | Hosts | Vulnerabilities | Notes | Services |
+        |-:|-:|-:|-:|-:|
+        | #{workspace.id.to_s(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
+
+        </details>
+
+
+      OUTPUT
+
+      expect(subject.database_configuration(framework)).to eql(expected_output)
+    end
+
+    it 'correctly retrieves session type with DB not connected' do
+      db = instance_double(
+        Msf::DBManager,
+        connection_established?: false,
+        driver: 'postgresql',
+        active: false
+      )
+
+      framework = instance_double(
+        ::Msf::Framework,
+        db: db
+      )
+
+      expected_output = <<~OUTPUT
+        ##  %grnDatabase Configuration%clr
+
+        The database contains the following information:
+        <details>
+        <summary>Collapse</summary>
+
+        ```
+        Session Type: postgresql selected, no connection
+        ```
+
+        </details>
+
+
+      OUTPUT
+
+      expect(subject.database_configuration(framework)).to eql(expected_output)
+    end
+
+    it 'correctly retrieves multiple empty workspaces with DB connected' do
+      workspaces = 5.times.map { FactoryBot.create(:mdm_workspace) }
+
+      db = instance_double(
+        Msf::DBManager,
+        connection_established?: true,
+        name: 'msf',
+        driver: 'postgresql',
+        active: true,
+        workspace: workspaces.last,
+        workspaces: workspaces
+      )
+
+      framework = instance_double(
+        ::Msf::Framework,
+        version: 'VERSION',
+        db: db
+      )
+
+      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
+      connection = double(
+        'connection',
+        current_database: 'msf',
+        respond_to?: true
+      )
+      allow(connection_pool).to receive(:with_connection).and_yield(connection)
+      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+
+      allow(::Mdm::Workspace).to receive(:count).and_return(5)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
+      allow(::Mdm::Host).to receive(:count).and_return(0)
+      allow(::Mdm::Vuln).to receive(:count).and_return(0)
+      allow(::Mdm::Note).to receive(:count).and_return(0)
+      allow(::Mdm::Service).to receive(:count).and_return(0)
+
+      expected_output = <<~OUTPUT
+        ##  %grnDatabase Configuration%clr
+
+        The database contains the following information:
+        <details>
+        <summary>Collapse</summary>
+
+        ```
+        Session Type: Connected to msf. Connection type: postgresql.
+        ```
+
+        | ID | Hosts | Vulnerabilities | Notes | Services |
+        |-:|-:|-:|-:|-:|
+        | #{workspaces[0].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[1].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[2].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[3].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id.to_s(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
+
+        </details>
+
+
+      OUTPUT
+
+      expect(subject.database_configuration(framework)).to eql(expected_output)
+    end
+
+    it 'correctly retrieves multiple workspaces with content with DB connected' do
+      workspaces = 5.times.map do |index|
+        workspace = FactoryBot.create(:mdm_workspace)
+        # Only some of the workspaces should have values to make the output not be the same for every workspace.
+        if index.even?
+          host = FactoryBot.create(:mdm_host, workspace: workspace)
+          vuln = FactoryBot.create(:mdm_vuln, host: host)
+          service = FactoryBot.create(:mdm_service, host: host)
+          note = FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
+        end
+        workspace
+      end
+
+      db = instance_double(
+        Msf::DBManager,
+        connection_established?: true,
+        name: 'msf',
+        driver: 'postgresql',
+        active: true,
+        workspace: workspaces.last,
+        workspaces: workspaces
+      )
+
+      framework = instance_double(
+        ::Msf::Framework,
+        version: 'VERSION',
+        db: db
+      )
+
+      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
+      connection = double(
+        'connection',
+        current_database: 'msf',
+        respond_to?: true
+      )
+      allow(connection_pool).to receive(:with_connection).and_yield(connection)
+      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+
+      allow(::Mdm::Workspace).to receive(:count).and_return(5)
+      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
+      allow(::Mdm::Host).to receive(:count).and_return(2)
+      allow(::Mdm::Vuln).to receive(:count).and_return(2)
+      allow(::Mdm::Note).to receive(:count).and_return(2)
+      allow(::Mdm::Service).to receive(:count).and_return(2)
+
+      expected_output = <<~OUTPUT
+        ##  %grnDatabase Configuration%clr
+
+        The database contains the following information:
+        <details>
+        <summary>Collapse</summary>
+
+        ```
+        Session Type: Connected to msf. Connection type: postgresql.
+        ```
+
+        | ID | Hosts | Vulnerabilities | Notes | Services |
+        |-:|-:|-:|-:|-:|
+        | #{workspaces[0].id.to_s(:delimited)} | 1 | 1 | 1 | 1 |
+        | #{workspaces[1].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[2].id.to_s(:delimited)} | 1 | 1 | 1 | 1 |
+        | #{workspaces[3].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id.to_s(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
+        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
+
+        </details>
+
+
+      OUTPUT
+
+      expect(subject.database_configuration(framework)).to eql(expected_output)
+    end
   end
 end

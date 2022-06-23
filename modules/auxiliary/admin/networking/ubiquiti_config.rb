@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           Unifi. This module can take either the db file or .unf.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['h00die']
+        'Author' => ['h00die'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
 
@@ -43,16 +48,14 @@ class MetasploitModule < Msf::Auxiliary
       fail_with Failure::BadConfig, "Unifi config file #{i_file} does not exist!"
     end
     # input_file could be a unf (encrypted zip), or the db file contained within.
-    input_file = ::File.open(i_file, 'rb')
-    f = input_file.read
-    input_file.close
+    input_file = ::File.binread(i_file)
 
-    if f.nil?
+    if input_file.nil?
       fail_with Failure::BadConfig, "#{i_file} read at 0 bytes.  Either file is empty or error reading."
     end
 
     if i_file.end_with? '.unf'
-      decrypted_data = decrypt_unf(f)
+      decrypted_data = decrypt_unf(input_file)
       if decrypted_data.nil? || decrypted_data.empty?
         fail_with Failure::Unknown, 'Unable to decrypt'
       end

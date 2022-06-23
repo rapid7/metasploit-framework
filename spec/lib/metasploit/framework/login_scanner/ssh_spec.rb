@@ -143,6 +143,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
             :config          => false,
             :verbose         => ssh_scanner.verbosity,
             :proxy           => factory,
+            :append_all_supported_algorithms => true,
             :auth_methods    => ['password','keyboard-interactive'],
             :password        => private,
             :non_interactive => true,

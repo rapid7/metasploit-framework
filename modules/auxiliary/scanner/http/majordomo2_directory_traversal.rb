@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '70762'],
           ['CVE', '2011-0049'],
           ['CVE', '2011-0063'],
-          ['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
+          ['URL', 'https://www.sotiriu.de/adv/NSOADV-2011-003.txt'],
           ['EDB', '16103']
         ],
       'DisclosureDate' => 'Mar 08 2011',

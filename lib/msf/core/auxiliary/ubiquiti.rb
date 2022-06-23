@@ -31,7 +31,7 @@ module Msf
       print_status('Attempting to repair zip file (this is normal and takes some time)')
       temp_file = Rex::Quickfile.new('fixed_zip')
       system("yes | #{zip_exe} -FF #{fname} --out #{temp_file.path}.zip > /dev/null")
-      return File.read("#{temp_file.path}.zip")
+      return File.read("#{temp_file.path}.zip", mode: 'rb')
     end
 
     def extract_and_process_db(db_path)

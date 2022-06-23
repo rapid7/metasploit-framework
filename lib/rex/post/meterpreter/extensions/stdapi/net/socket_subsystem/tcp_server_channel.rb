@@ -89,6 +89,10 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
 
     unless sock_params.nil?
       @params = sock_params.merge(Socket.parameters_from_response(packet))
+      if sock_params.ssl
+        extend(Rex::Socket::SslTcpServer)
+        initsock(sock_params)
+      end
     end
   end
 

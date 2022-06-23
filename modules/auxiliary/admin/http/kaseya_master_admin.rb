@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-6922'],
           ['ZDI', '15-448'],
-          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/kaseya-vsa-vuln-2.txt'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/Kaseya/kaseya-vsa-vuln-2.txt'],
           ['URL', 'https://seclists.org/bugtraq/2015/Sep/132']
         ],
       'DisclosureDate' => '2015-09-23'))

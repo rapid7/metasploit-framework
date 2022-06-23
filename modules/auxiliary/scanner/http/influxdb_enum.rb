@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['URL', 'https://docs.influxdata.com/influxdb/'],
+          ['URL', 'https://docs.influxdata.com/influxdb/v2.1/'],
           ['URL', 'https://www.shodan.io/search?query=X-Influxdb-Version']
         ],
       'Author'         =>

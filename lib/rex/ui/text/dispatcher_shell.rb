@@ -297,8 +297,26 @@ module DispatcherShell
     # Return a list of possible directory for tab completion.
     #
     def tab_complete_directory(str, words)
-      str = '.' + ::File::SEPARATOR if str.empty?
-      dirs = Dir.glob(str.concat('*'), File::FNM_CASEFOLD).select { |x| File.directory?(x) }
+      directory = str[-1] == File::SEPARATOR ? str : File.dirname(str)
+      filename = str[-1] == File::SEPARATOR ? '' : File.basename(str)
+      entries = Dir.entries(directory).select { |fp| fp.start_with?(filename) }
+      dirs = entries - ['.', '..']
+      dirs = dirs.map { |fp| File.join(directory, fp).gsub(/\A\.\//, '') }
+      dirs = dirs.select { |x| File.directory?(x) }
+      dirs = dirs.map { |x| x + File::SEPARATOR }
+      if dirs.length == 1 && dirs[0] != str && dirs[0].end_with?(File::SEPARATOR)
+        # If Readline receives a single value from this function, it will assume we're done with the tab
+        # completing, and add an extra space at the end.
+        # This is annoying if we're recursively tab-traversing our way through subdirectories -
+        # we may want to continue traversing, but MSF will add a space, requiring us to back up to continue
+        # tab-completing our way through successive subdirectories.
+        ::Readline.completion_append_character = nil
+      end
+
+      if dirs.length == 0 && File.directory?(str)
+        # we've hit the end of the road
+        dirs = [str]
+      end
 
       dirs
     end
@@ -391,6 +409,7 @@ module DispatcherShell
   #
   def tab_complete(str)
     ::Readline.completion_append_character = ' '
+    ::Readline.completion_case_fold = false
 
     # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
@@ -403,7 +422,12 @@ module DispatcherShell
     split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(str, split_str)
+    result = tab_complete_stub(str, split_str)
+    if result
+      result.uniq
+    else
+      result
+    end
   end
 
   # Performs tab completion of a command, if supported

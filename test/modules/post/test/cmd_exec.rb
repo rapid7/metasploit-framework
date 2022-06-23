@@ -9,13 +9,16 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => 'Meterpreter cmd_exec test',
-        'Description'   => %q( This module will test the meterpreter cmd_exec API ),
-        'License'       => MSF_LICENSE,
-        'Platform'      => ['windows', 'linux', 'unix'],
-        'SessionTypes'  => ['meterpreter']
-      ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Meterpreter cmd_exec test',
+        'Description' => %q( This module will test the meterpreter cmd_exec API ),
+        'License' => MSF_LICENSE,
+        'Platform' => ['windows', 'linux', 'unix'],
+        'SessionTypes' => ['meterpreter']
+      )
+    )
   end
 
   def test_cmd_exec
@@ -107,6 +110,5 @@ class MetasploitModule < Msf::Post
         output == test_string
       end
     end
-
   end
 end

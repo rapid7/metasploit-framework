@@ -25,7 +25,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -33,7 +33,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KdcRequest, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequest, invalid input'
             end
 
             self
@@ -105,7 +105,7 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::KdcRequest
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag
@@ -118,7 +118,7 @@ module Rex
               when 4
                 self.req_body = decode_asn1_req_body(val)
               else
-                raise ::RuntimeError, 'Failed to decode KdcRequest SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequest SEQUENCE'
               end
             end
           end

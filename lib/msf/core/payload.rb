@@ -43,6 +43,8 @@ class Payload < Msf::Module
     # applicable.
     #
     Stage  = (1 << 2)
+
+    Adapter = (1 << 3)
   end
 
   #
@@ -50,7 +52,6 @@ class Payload < Msf::Module
   #
   def initialize(info = {})
     super
-    self.can_cleanup = true
 
     #
     # Gets the Dependencies if the payload requires external help
@@ -58,10 +59,10 @@ class Payload < Msf::Module
     #
     self.module_info['Dependencies'] = self.module_info['Dependencies'] || []
 
-    # If this is a staged payload but there is no stage information,
+    # If this is an adapted or staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
     # information hash accordingly.
-    if self.class.include?(Msf::Payload::Single) and
+    if (self.class.include?(Msf::Payload::Adapter) || self.class.include?(Msf::Payload::Single)) and
       self.class.include?(Msf::Payload::Stager)
       self.module_info['Stage'] = {}
 
@@ -287,7 +288,7 @@ class Payload < Msf::Module
   #
   # Generates the payload and returns the raw buffer to the caller.
   #
-  def generate
+  def generate(_opts = {})
     internal_generate
   end
 
@@ -512,11 +513,6 @@ class Payload < Msf::Module
 
   end
 
-  #
-  # This attribute designates if the payload supports onsession()
-  # method calls (typically to clean up artifacts)
-  #
-  attr_accessor :can_cleanup
   #
   # This attribute holds the string that should be prepended to the buffer
   # when it's generated.

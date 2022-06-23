@@ -17,7 +17,7 @@ module Payload::Windows::BindTcpRc4
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     xorkey, rc4key = rc4_keys(datastore['RC4PASSWORD'])
     conf = {
       port:     datastore['LPORT'],
@@ -27,7 +27,7 @@ module Payload::Windows::BindTcpRc4
     }
 
     # Generate the more advanced stager if we have the space
-    if self.available_space && required_space <= self.available_space
+    if self.available_space && cached_size && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end

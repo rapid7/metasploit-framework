@@ -29,7 +29,9 @@ class Priv < Extension
     named_pipe: 1,
     named_pipe_2: 2,
     token_dup: 3,
-    named_pipe_rpcss: 4
+    named_pipe_rpcss: 4,
+    named_pipe_print_spooler: 5,
+    named_pipe_efs: 6
   }.freeze
 
   #

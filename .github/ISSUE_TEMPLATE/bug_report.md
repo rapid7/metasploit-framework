@@ -8,8 +8,8 @@ labels: "bug"
   Please fill out each section below, otherwise, your issue will be closed. This info allows Metasploit maintainers to diagnose (and fix!) your issue as quickly as possible.
 
   Useful Links:
-  - Wiki: https://github.com/rapid7/metasploit-framework/wiki
-  - Reporting a Bug: https://github.com/rapid7/metasploit-framework/wiki/Reporting-a-Bug
+  - Wiki: https://docs.metasploit.com/
+  - Reporting a Bug: https://docs.metasploit.com/docs/using-metasploit/getting-started/reporting-a-bug.html
 
   Before opening a new issue, please search existing issues: https://github.com/rapid7/metasploit-framework/issues
 -->

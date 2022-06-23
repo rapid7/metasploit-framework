@@ -294,6 +294,9 @@ module Auxiliary::HttpCrawler
     opts[:password] = t[:password] || ''
     opts[:domain]   = t[:domain]   || 'WORKSTATION'
 
+    if ssl
+      opts[:ssl_version] = ssl_version
+    end
     opts
   end
 

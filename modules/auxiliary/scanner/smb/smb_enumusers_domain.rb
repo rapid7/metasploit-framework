@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'  =>
         [
-          [ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]
+          [ 'URL', 'https://docs.microsoft.com/en-us/windows/win32/api/lmwksta/nf-lmwksta-netwkstauserenum' ]
         ],
       'License'     => MSF_LICENSE
     )

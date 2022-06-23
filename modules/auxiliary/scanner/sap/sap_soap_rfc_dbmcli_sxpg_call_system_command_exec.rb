@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' =>
         [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
-          [ 'URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/03/sap-parameter-injection' ]
+          [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ],
+          [ 'URL', 'https://labs.f-secure.com/archive/sap-parameter-injection/' ]
         ],
       'Author' =>
         [

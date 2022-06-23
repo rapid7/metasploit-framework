@@ -27,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2019-15949'],
         ['CVE', '2020-5791'],
         ['CVE', '2020-5792'],
-        ['CVE', '2020-35578']
+        ['CVE', '2020-35578'],
+        ['CVE', '2021-37343']
       ]
     )
     register_options [

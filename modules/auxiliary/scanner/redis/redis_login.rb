@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description'  => 'This module attempts to authenticate to an Redis service.',
         'Author'       => [ 'Nixawk' ],
         'References'   => [
-          ['URL', 'http://redis.io/topics/protocol']
+          ['URL', 'https://redis.io/topics/protocol']
         ],
         'License'      => MSF_LICENSE))
 

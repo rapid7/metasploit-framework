@@ -611,7 +611,7 @@ class MetasploitModule < Msf::Post
     # Make request to LastPass
     uri = URI('https://lastpass.com/otp.php')
     request = Net::HTTP::Post.new(uri)
-    request.set_form_data("login" => 1, "xml" => 1, "hash" => otp_token, "otpemail" => URI.escape(username), "outofbandsupported" => 1, "changepw" => otp_token)
+    request.set_form_data("login" => 1, "xml" => 1, "hash" => otp_token, "otpemail" => URI::DEFAULT_PARSER.escape(username), "outofbandsupported" => 1, "changepw" => otp_token)
     request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
     response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) { |http| http.request(request) }
 

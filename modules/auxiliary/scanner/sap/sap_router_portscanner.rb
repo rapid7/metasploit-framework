@@ -23,11 +23,11 @@ class MetasploitModule < Msf::Auxiliary
       'References' =>
         [
           # General
-          ['URL', 'http://help.sap.com/saphelp_nw70/helpdata/EN/4f/992dfe446d11d189700000e8322d00/frameset.htm'],
-          ['URL', 'http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm'],
-          ['URL', 'http://labs.mwrinfosecurity.com/blog/2012/09/13/sap-smashing-internet-windows/'],
+          ['URL', 'https://web.archive.org/web/20130204114105/http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm'],
+          ['URL', 'https://web.archive.org/web/20160818155950/http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm'],
+          ['URL', 'https://labs.f-secure.com/archive/sap-smashing-internet-windows/'],
           ['URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf'],
-          ['URL', 'http://scn.sap.com/docs/DOC-17124'] # SAP default ports
+          ['URL', 'https://archive.sap.com/documents/docs/DOC-17124'] # SAP default ports
         ],
       'License' => MSF_LICENSE
     )
@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-  def validate(range)
+  def validate_hosts_range(range)
     hosts_list = range.split(",")
     return false if hosts_list.nil? or hosts_list.empty?
 
@@ -311,7 +311,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['RESOLVE'] == 'remote'
       range = datastore['TARGETS']
-      unless validate(range)
+      unless validate_hosts_range(range)
         print_error("TARGETS must be a comma separated list of IP addresses or hostnames when RESOLVE is remote")
         return
       end

@@ -23,14 +23,16 @@ attr_accessor :last_error, :server_max_buffer_size
 attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true, backend: nil)
+  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true, backend: nil, client: nil)
     self.socket = socket
     self.direct = direct
     self.versions = versions
     self.shares = {}
     self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
 
-    if (self.versions == [1] && backend.nil?) || backend == :rex
+    if !client.nil?
+      self.client = client
+    elsif (self.versions == [1] && backend.nil?) || backend == :rex
       self.client = Rex::Proto::SMB::Client.new(socket)
     elsif (backend.nil? || backend == :ruby_smb)
       self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
@@ -90,8 +92,9 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
       self.client.spnopt = spnopt
 
-      # In case the user unsets the password option, we make sure this is
+      # In case the user unsets the username or password option, we make sure this is
       # always a string
+      user ||= ''
       pass ||= ''
 
       res = self.client.session_setup(user, pass, domain)
@@ -253,4 +256,3 @@ end
 end
 end
 end
-

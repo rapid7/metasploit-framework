@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         [ 'OSVDB', '74780' ],
         [ 'URL', 'http://dsecrg.com/pages/vul/show.php?id=331' ],
-        [ 'URL', 'https://service.sap.com/sap/support/notes/1554030' ]
+        [ 'URL', 'https://launchpad.support.sap.com/#/notes/1554030' ]
       ],
       'Author' =>
         [

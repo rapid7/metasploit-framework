@@ -19,7 +19,6 @@ print("DES: %s") %(hash.des_crypt.hash("password"))
 =end
 
 RSpec.describe 'hashes/identify' do
-
   describe 'identify_md5' do
     it 'returns md5' do
       hash = identify_hash('$1$IEHUWAxH$nMC1edxSFa4SaKH7hi2.P1')
@@ -37,7 +36,7 @@ RSpec.describe 'hashes/identify' do
   describe 'identify_blofish_a' do
     it 'returns bf' do
       # looks like BCrypt can only generate 2a in ruby as of april 2019
-      hash = identify_hash(BCrypt::Password.create("password"))
+      hash = identify_hash(BCrypt::Password.create('password'))
       expect(hash).to match('bf')
     end
   end
@@ -122,14 +121,14 @@ RSpec.describe 'hashes/identify' do
   describe 'identify_pbkdf2_osx' do
     it 'returns pbkdf2-hmac-sha512,osx' do
       hash = identify_hash('$ml$49504$0dba6246bd38266b2e827ff7e7271380757c71d653893aa361d5902398302369$c5f198639915a101c99af326dffe13e8f14456be8fd2312a39a777b92178804e204ca4fee12a8667871440eff4288e811d86d746c6d96a60c919c3418dfebba42f329f5d73c0372d636d61d5dfda1add61af36c70e4acd771276107209e643ae92a0f43e95a452744e50fb4540d9bdf4e0b701725d7db488fbe18c1ab7737c6b')
-      expect(hash).to match ('pbkdf2-hmac-sha512,osx')
+      expect(hash).to match('pbkdf2-hmac-sha512,osx')
     end
   end
 
   describe 'identify_sha_osx' do
     it 'returns xsha,osx' do
       hash = identify_hash('1430823483d07626ef8be3fda2ff056d0dfd818dbfe47683')
-      expect(hash).to match ('xsha,osx')
+      expect(hash).to match('xsha,osx')
     end
   end
 
@@ -255,35 +254,50 @@ RSpec.describe 'hashes/identify' do
   describe 'identify_android_sha1' do
     it 'returns android-sha1' do
       hash = identify_hash('EA8457DE97836C955082AE77DBE2CD86A4E8BC0E:4aafc54dc502e88b')
-      expect(hash).to match ('android-sha1')
+      expect(hash).to match('android-sha1')
     end
   end
 
   describe 'identify_hmac_md5' do
     it 'returns hmac-md5' do
       hash = identify_hash('<771138767145@127.0.0.1>#332b463fcf3baac718c63860a7093df4')
-      expect(hash).to match ('hmac-md5')
+      expect(hash).to match('hmac-md5')
     end
   end
 
   describe 'identify_f5_secure_value' do
     it 'returns F5-Secure-Vault' do
       hash = identify_hash('$M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc=')
-      expect(hash).to match ('F5-Secure-Vault')
+      expect(hash).to match('F5-Secure-Vault')
     end
   end
 
   describe 'identify_mscash' do
     it 'returns mscash' do
       hash = identify_hash('M$3060147285011#4dd8965d1d476fa0d026722989a6b772:::')
-      expect(hash).to match ('mscash')
+      expect(hash).to match('mscash')
     end
   end
 
   describe 'identify_mscash2' do
     it 'returns mscash2' do
       hash = identify_hash('$DCC2$10240#username#5f9d79a71fa6d92c31cf16d6eaa23435:::')
-      expect(hash).to match ('mscash2')
+      expect(hash).to match('mscash2')
+    end
+  end
+
+  describe 'identify_vnc' do
+    it 'returns vnc' do
+      hash = identify_hash('*00112233445566778899aabbccddeeff*6feb3cb1f07b66151656b5832341f223')
+      expect(hash).to match('vnc')
+    end
+    it 'returns vnc on uppercase' do
+      hash = identify_hash('*00112233445566778899aabbccddeeff*6feb3cb1f07b66151656b5832341f223'.upcase)
+      expect(hash).to match('vnc')
+    end
+    it 'returns vnc on no leading star' do
+      hash = identify_hash('00112233445566778899aabbccddeeff*6feb3cb1f07b66151656b5832341f223')
+      expect(hash).to match('vnc')
     end
   end
 

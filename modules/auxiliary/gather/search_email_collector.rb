@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Searching Google for email addresses from #{targetdom}")
     response = ""
     emails = []
-    header = { 'User-Agent' => "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
+    header = { 'User-Agent' => Rex::UserAgent.session_agent }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.google.com")
     searches = ["100", "200","300", "400", "500"]
     searches.each { |num|
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Searching Yahoo for email addresses from #{targetdom}")
     response = ""
     emails = []
-    header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
+    header = { 'User-Agent' => Rex::UserAgent.session_agent }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("search.yahoo.com")
     searches = ["1", "101","201", "301", "401", "501"]
     searches.each { |num|
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Searching Bing email addresses from #{targetdom}")
     response = ""
     emails = []
-    header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
+    header = { 'User-Agent' => Rex::UserAgent.session_agent }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.bing.com")
     searches = 1
     while searches < 201

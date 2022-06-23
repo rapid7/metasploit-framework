@@ -18,8 +18,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'URL', 'http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol' ],
-          [ 'URL', 'http://www.mongodb.org/display/DOCS/Implementing+Authentication+in+a+Driver' ]
+          [ 'URL', 'https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/' ],
+          [ 'URL', 'https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/' ]
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE

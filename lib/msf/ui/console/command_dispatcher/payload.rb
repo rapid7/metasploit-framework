@@ -58,7 +58,7 @@ module Msf
               }
             }
 
-            handler.datastore.merge!(mod.datastore)
+            handler.share_datastore(mod.datastore)
             handler.exploit_simple(handler_opts)
             job_id = handler.job_id
 
@@ -196,11 +196,10 @@ module Msf
               '-E' => [ nil                                               ],
               '-e' => [ framework.encoders.map { |refname, mod| refname } ],
               '-h' => [ nil                                               ],
-              '-o' => [ true                                              ],
+              '-o' => [ :file                                             ],
               '-P' => [ true                                              ],
               '-S' => [ true                                              ],
-              '-f' => [ :file                                             ],
-              '-t' => [ @@supported_formats                               ],
+              '-f' => [ @@supported_formats                               ],
               '-p' => [ true                                              ],
               '-k' => [ nil                                               ],
               '-x' => [ :file                                             ],

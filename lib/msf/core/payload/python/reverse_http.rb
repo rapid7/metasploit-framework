@@ -67,7 +67,8 @@ module Payload::Python::ReverseHttp
       uri_req_len = 30
     end
 
-    generate_uri_uuid_mode(opts[:uri_uuid_mode] || :init_python, uri_req_len)
+    uuid = generate_payload_uuid(arch: ARCH_PYTHON, platform: 'python')
+    generate_uri_uuid_mode(opts[:uri_uuid_mode] || :init_python, uri_req_len, uuid: uuid)
   end
 
   def generate_reverse_http(opts={})

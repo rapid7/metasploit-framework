@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-0240'],
           ['OSVDB', '118637'],
-          ['URL', 'https://securityblog.redhat.com/2015/02/23/samba-vulnerability-cve-2015-0240/'],
+          ['URL', 'https://www.redhat.com/en/blog/samba-vulnerability-cve-2015-0240'],
           ['URL', 'https://gist.github.com/worawit/33cc5534cb555a0b710b'],
           ['URL', 'https://www.nccgroup.com/en/blog/2015/03/samba-_netr_serverpasswordset-expoitability-analysis/']
         ],

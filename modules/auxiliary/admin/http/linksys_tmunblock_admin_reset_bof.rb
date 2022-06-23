@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'EDB', '31758' ],
           [ 'OSVDB', '103521' ],
-          [ 'URL', 'http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
+          [ 'URL', 'https://web.archive.org/web/20210424073058/http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
         ],
       'DisclosureDate' => '2014-02-19'))
   end

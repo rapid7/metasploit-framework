@@ -75,7 +75,7 @@ class EncodedPayload
 
       # If encoder is set, it could be an encoders list
       # The form is "<encoder>:<iteration>, <encoder2>:<iteration>"...
-      if reqs['Encoder']
+      unless reqs['Encoder'].blank?
         encoder_str = reqs['Encoder']
         encoder_str.scan(/([^:, ]+):?([^,]+)?/).map do |encoder_opt|
           reqs['Encoder'] = encoder_opt[0]
@@ -129,6 +129,10 @@ class EncodedPayload
   # encoded attribute.
   #
   def encode
+    # Get the minimum number of nops to use
+    min = (reqs['MinNops'] || 0).to_i
+    min = 0 if reqs['DisableNops']
+
     # If the exploit needs the payload to be encoded, we need to run the list of
     # encoders in ranked precedence and try to encode with them.
     if needs_encoding
@@ -245,10 +249,6 @@ class EncodedPayload
             break
           end
 
-          # Get the minimum number of nops to use
-          min = (reqs['MinNops'] || 0).to_i
-          min = 0 if reqs['DisableNops']
-
           # Check to see if we have enough room for the minimum requirements
           if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
             wlog("#{err_start}: Encoded payload version is too large (#{eout.length} bytes) with encoder #{encoder.refname}",
@@ -282,6 +282,14 @@ class EncodedPayload
       # NOTE: BadChars can contain whitespace, so don't use String#blank?
       unless reqs['BadChars'].nil? || reqs['BadChars'].empty?
         ilog("#{pinst.refname}: payload contains no badchars, skipping automatic encoding", 'core', LEV_0)
+      end
+
+      # Space = 0 is a special value used by msfvenom to generate the smallest
+      # payload possible. In that case do not raise an exception indicating
+      # that the payload is too large.
+      if reqs['Space'] && reqs['Space'] > 0 && reqs['Space'] < raw.length + min
+        wlog("#{pinst.refname}: Raw (unencoded) payload is too large (#{raw.length} bytes)", 'core', LEV_1)
+        raise PayloadSpaceViolation, 'The payload exceeds the specified space', caller
       end
 
       self.encoded = raw
@@ -530,7 +538,7 @@ protected
   attr_accessor :reqs
 
   def needs_encoding
-    reqs['Encoder'] || reqs['ForceEncode'] || has_chars?(reqs['BadChars'])
+    !reqs['Encoder'].blank? || reqs['ForceEncode'] || has_chars?(reqs['BadChars'])
   end
 
   def has_chars?(chars)

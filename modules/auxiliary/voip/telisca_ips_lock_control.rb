@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          # Publicly disclosed via Metaploit PR
+          # Publicly disclosed via Metasploit PR
           'URL', 'https://github.com/rapid7/metasploit-framework/pull/6470'
         ],
       'Author'         =>

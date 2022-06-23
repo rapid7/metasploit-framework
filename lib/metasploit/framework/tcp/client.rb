@@ -83,6 +83,7 @@ module Metasploit
 
           nsock = Rex::Socket::Tcp.create(
               'PeerHost'      =>  opts['RHOST'] || rhost,
+              'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
               'PeerPort'      => (opts['RPORT'] || rport).to_i,
               'LocalHost'     =>  opts['CHOST'] || chost || "0.0.0.0",
               'LocalPort'     => (opts['CPORT'] || cport || 0).to_i,

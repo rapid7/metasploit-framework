@@ -12,6 +12,9 @@ installation command would be:
 copy "Reflective DLL.zip" "%USERPROFILE%\Documents\Visual Studio 2019\Templates\ProjectTemplates"
 ```
 
+Note that you may need to create the `ProjectTemplates` directory if it does not 
+already exist, which may be the case on a default install.
+
 After the template has been copied, restart Visual Studio then:
 
 1. Select "Create a new project"
