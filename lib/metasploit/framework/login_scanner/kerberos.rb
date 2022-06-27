@@ -56,7 +56,7 @@ module Metasploit
 
         private
 
-        # @param [Rex::Proto::Kerberos::Model::Error::KerberosError] error The kerberos error
+        # @param [Rex::Proto::Kerberos::Model::Error::KerberosError] krb_err The kerberos error
         def login_status_for_kerberos_error(krb_err)
           error_code = krb_err.error_code
           case error_code
