@@ -14,9 +14,8 @@ computers to the domain. Administrative privileges however are required to delet
 
 ### SMBDomain
 
-The Windows domain to use for authentication. If the target server has more than one domain present on it, this option
-must be set to the target domain. If the target server has only one domain present on it, the domain will automatically
-be identified.
+The Windows domain to use for authentication. The domain will automatically be identified if this option is left in its
+default value.
 
 ### COMPUTER_NAME
 
@@ -65,14 +64,15 @@ msf6 auxiliary(admin/dcerpc/samr_computer) > show options
 
 Module options (auxiliary/admin/dcerpc/samr_computer):
 
-   Name           Current Setting  Required  Description
-   ----           ---------------  --------  -----------
-   COMPUTER_NAME                   no        The computer name
-   RHOSTS         192.168.159.96   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
-   RPORT          445              yes       The target port (TCP)
-   SMBDomain      .                no        The Windows domain to use for authentication
-   SMBPass        Password1        no        The password for the specified username
-   SMBUser        aliddle          no        The username to authenticate as
+   Name               Current Setting  Required  Description
+   ----               ---------------  --------  -----------
+   COMPUTER_NAME                       no        The computer name
+   COMPUTER_PASSWORD                   no        The password for the new computer
+   RHOSTS             192.168.159.96   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RPORT              445              yes       The target port (TCP)
+   SMBDomain          .                no        The Windows domain to use for authentication
+   SMBPass            Password1        no        The password for the specified username
+   SMBUser            aliddle          no        The username to authenticate as
 
 
 Auxiliary action:

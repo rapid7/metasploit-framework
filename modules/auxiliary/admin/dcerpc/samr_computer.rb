@@ -115,9 +115,12 @@ class MetasploitModule < Msf::Auxiliary
     @domain_sid = @samr.samr_lookup_domain(server_handle: @server_handle, name: @domain_name)
     @domain_handle = @samr.samr_open_domain(server_handle: @server_handle, domain_id: @domain_sid)
     send("action_#{action.name.downcase}")
-  rescue RubySMB::Dcerpc::Error::SamrError => e
+  rescue RubySMB::Dcerpc::Error::DcerpcError => e
     elog(e.message, error: e)
     fail_with(Failure::UnexpectedReply, e.message)
+  rescue RubySMB::Error::RubySMBError
+    elog(e.message, error: e)
+    fail_with(Failure::Unknown, e.message)
   end
 
   def random_hostname(prefix: 'DESKTOP')
@@ -164,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
         user_password: {
           buffer: RubySMB::Dcerpc::Samr::SamprEncryptedUserPasswordNew.encrypt_password(
             password,
-            @simple.client.application_key.blank? ? @simple.client.session_key : @simple.client.application_key
+            @simple.client.application_key
           )
         }
       )
