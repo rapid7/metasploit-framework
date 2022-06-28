@@ -45,17 +45,24 @@ class MetasploitModule < Msf::Auxiliary
       payload = {
         'query' => keyword
       }
-
       @cli = Rex::Proto::Http::Client.new('search.censys.io', 443, {}, true)
       @cli.connect
 
+    if @searchtype.include?('ipv4')
       response = @cli.request_cgi(
-        'method' => 'post',
-        'uri' => "/api/v2/hosts/search/#{keyword}",
+        'method' => 'GET',
+        'uri' => "/api/v2/hosts/search?q=#{keyword}",
         'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
       )
-
       res = @cli.send_recv(response)
+    elsif @searchtype.include?('certificates')
+      response = @cli.request_cgi(
+        'method' => 'GET',
+        'uri' => "/api/v1/view/certificates?#{keyword}",
+        'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
+      )
+      res = @cli.send_recv(response)
+    end
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed")
@@ -67,17 +74,14 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     records = ActiveSupport::JSON.decode(res.body)
-    results = records['results']
+    results = records['result']
 
     if @searchtype.include?('certificates')
       parse_certificates(results)
     elsif @searchtype.include?('ipv4')
       parse_ipv4(results)
-    elsif @searchtype.include?('websites')
-      parse_websites(results)
     end
   end
-
   def valid_domain?(domain)
     domain =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/
   end
@@ -115,33 +119,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_ipv4(records)
-    records['hits'].each do |ipv4|
-      # ip
-      # protocols
+      records['hits'].each do |ipv4|
       ip = ipv4['ip']
-      protocols = ipv4['protocols']
-
+      protocols = ipv4['services']
       protocols.each do |protocol|
-        print_good("#{ipv4['ip']} - #{ipv4['protocols'].join(',')}")
-        port, name = protocol.split('/')
+        port = protocol['port']
+        name = protocol['service_name']
         report_service(:host => ip, :port => port, :name => name)
       end
     end
   end
-
-  def parse_websites(records)
-    records['hits'].each do |website|
-      # domain
-      # alexa_rank
-      print_good("#{website['domain']} - #{website['alexa_rank']}")
-      domain = website['domain']
-      ips = domain2ip(domain)
-      ips.each do |ip|
-        report_host(:host =>ip)
-      end
-    end
-  end
-
   # Check to see if www.censys.io resolves properly
   def censys_resolvable?
     begin
