@@ -79,7 +79,7 @@ module Msf::Post::Windows::Runas
      0, # hStdInput
      0, # hStdOutput
      0  # hStdError
-    ].pack('VVVVVVVVVVVVvvVVVV')
+    ].pack(session.arch == ARCH_X64 ? 'QQQQVVVVVVVVvvQQQQ' : 'VVVVVVVVVVVVvvVVVV')
   end
 
   #
@@ -113,7 +113,7 @@ module Msf::Post::Windows::Runas
                                                                       nil,
                                                                       nil,
                                                                       startup_info,
-                                                                      16)
+                                                                      session.arch == ARCH_X64 ? 24 : 16)
     if create_process['return']
       pi = parse_process_information(create_process['lpProcessInformation'])
       print_good("Process started successfully, PID: #{pi[:process_id]}")
@@ -173,7 +173,7 @@ module Msf::Post::Windows::Runas
                                                                       nil,
                                                                       nil,
                                                                       startup_info,
-                                                                      16)
+                                                                      session.arch == ARCH_X64 ? 24 : 16)
 
         if create_process['return']
           begin
@@ -210,7 +210,7 @@ module Msf::Post::Windows::Runas
     fail ArgumentError, 'process_information is nil' if process_information.nil?
     fail ArgumentError, 'process_information is empty string' if process_information.empty?
 
-    pi = process_information.unpack('VVVV')
+    pi = process_information.unpack(session.arch == ARCH_X64 ? 'Q<Q<VV' : 'VVVV')
     { :process_handle => pi[0], :thread_handle => pi[1], :process_id => pi[2], :thread_id => pi[3] }
   end
 
