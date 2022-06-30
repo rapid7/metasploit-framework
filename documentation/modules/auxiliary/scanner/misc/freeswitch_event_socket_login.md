@@ -1,16 +1,19 @@
-## Description
-
-This module is a login utility to find the password of the FreeSWITCH event socket service by bruteforcing the login interface. Note that this service does not require a username to log in; login is done purely via supplying a valid password.
-
-This service is enabled by default and listens on TCP port 8021 on the local network interface.
-
 ## Vulnerable Application
-[FreeSWITCH](https://freeswitch.com/) is a free and open-source software defined telecommunications stack for real-time communication, WebRTC, telecommunications, video, and Voice over Internet Protocol.
+[FreeSWITCH](https://freeswitch.com/) is a free and open-source software defined telecommunications stack for real-time communication,
+WebRTC, telecommunications, video, and Voice over Internet Protocol.
 
-The [Event Socket](https://freeswitch.org/confluence/display/FREESWITCH/mod_event_socket) `mod_event_socket` is a TCP based interface to control FreeSWITCH and is enabled by default.
+The [Event Socket](https://freeswitch.org/confluence/display/FREESWITCH/mod_event_socket) `mod_event_socket` is a TCP based interface to
+control FreeSWITCH and is enabled by default.
 
 This module has been tested successfully on FreeSWITCH versions:
 * 1.10.7-release-19-883d2cb662~64bit on Debian 10.11 (buster)
+
+### Description
+
+This module is a login utility to find the password of the FreeSWITCH event socket service by bruteforcing the login interface.
+Note that this service does not require a username to log in; login is done purely via supplying a valid password.
+
+This service is enabled by default and listens on TCP port 8021 on the local network interface.
 
 Source and Installers:
 * [Source Code Repository](https://github.com/signalwire/freeswitch)
