@@ -89,6 +89,9 @@ class MetasploitModule < Msf::Auxiliary
     rescue RubySMB::Dcerpc::Error::DfsnmError => e
       win32_error = ::WindowsError::Win32.find_by_retval(e.error_status).first
       case win32_error
+      when ::WindowsError::Win32::ERROR_ACCESS_DENIED
+        # this should be the response even if LISTENER captured the credentials (MSF, Responder, etc.)
+        print_good('Server responded with ERROR_ACCESS_DENIED which indicates that the attack was successful')
       when ::WindowsError::Win32::ERROR_BAD_NETPATH
         # this should be the response even if LISTENER was inaccessible
         print_good('Server responded with ERROR_BAD_NETPATH which indicates that the attack was successful')
