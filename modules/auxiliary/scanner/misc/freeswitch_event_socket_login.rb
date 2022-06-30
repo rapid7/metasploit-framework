@@ -54,7 +54,8 @@ class MetasploitModule < Msf::Auxiliary
     # freeswitch does not have an username, there's only password
     deregister_options(
       'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING', 'BLANK_PASSWORDS',
-      'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASSWORD_SPRAY'
+      'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE',
+      'PASSWORD_SPRAY', 'STOP_ON_SUCCESS'
     )
   end
 
