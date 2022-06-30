@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
 
   Dfsnm = RubySMB::Dcerpc::Dfsnm
 
-  METHODS = %w[NetrDfsAddStdRoot NetrDfsRemoveStdRootResponse].freeze
+  METHODS = %w[NetrDfsAddStdRoot NetrDfsRemoveStdRoot].freeze
 
   def initialize
     super(
