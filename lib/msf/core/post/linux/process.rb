@@ -27,12 +27,12 @@ module Process
   end
 
   def mem_search_ascii(min_search_len, max_search_len, needles, pid: 0)
-    proc_id = session.sys.process.open(pid)
+    proc_id = session.sys.process.open(pid, PROCESS_READ)
     matches = proc_id.memory.search(needles, min_search_len, max_search_len)
   end
 
   def mem_read(base_address, length, pid: 0)
-    proc_id = session.sys.process.open(pid)
+    proc_id = session.sys.process.open(pid, PROCESS_READ)
     data = proc_id.memory.read(base_address, length)
   end
 
