@@ -1,5 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/kerberos'
+require 'windows_error'
+require 'windows_error/nt_status'
 
 RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
   let(:server_name) { 'demo.local_server' }
@@ -43,7 +45,27 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
 
   let(:tgt_response_client_revoked) do
     ::Rex::Proto::Kerberos::Model::Error::KerberosError.new(
-      error_code: ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED
+      error_code: ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED,
+      res: ::Rex::Proto::Kerberos::Model::KrbError.new
+    )
+  end
+
+  let(:tgt_response_client_revoked_locked) do
+    err = ::Rex::Proto::Kerberos::Model::KrbError.new
+    pwsalt = ::Rex::Proto::Kerberos::Model::PreAuthPwSalt.new
+    pwsalt.nt_status = ::WindowsError::NTStatus::STATUS_ACCOUNT_LOCKED_OUT
+    pwsalt.flags = 0
+    pwsalt.reserved = 0
+
+    padata = ::Rex::Proto::Kerberos::Model::PreAuthDataEntry.new
+    padata.type = Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+    padata.value = pwsalt.encode
+
+    err.e_data = padata.encode
+
+    ::Rex::Proto::Kerberos::Model::Error::KerberosError.new(
+      error_code: ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED,
+      res: err
     )
   end
 
@@ -99,6 +121,19 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
         result = subject.attempt_login(mock_credential)
 
         expect(result.status).to eq(Metasploit::Model::Login::Status::DISABLED)
+        expect(result.proof.error_code).to eq(::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED)
+      end
+    end
+
+    context 'when the account is locked' do
+      before(:each) do
+        allow(subject).to receive(:send_request_tgt).with(expected_tgt_request).and_raise(tgt_response_client_revoked_locked)
+      end
+
+      it 'returns the correct login status' do
+        result = subject.attempt_login(mock_credential)
+
+        expect(result.status).to eq(Metasploit::Model::Login::Status::LOCKED_OUT)
         expect(result.proof.error_code).to eq(::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CLIENT_REVOKED)
       end
     end

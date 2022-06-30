@@ -89,8 +89,13 @@ module Rex
           #
           # @return [Rex::Proto::Kerberos::Model::PreAuthData]
           def e_data_as_pa_data_entry
-            decoded = OpenSSL::ASN1.decode(self.e_data)
-            Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(decoded)
+            if self.e_data
+              decoded = OpenSSL::ASN1.decode(self.e_data)
+              Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(decoded)
+            else
+              # This is implementation-defined, so may be different in some cases
+              nil
+            end
           end
 
           private
