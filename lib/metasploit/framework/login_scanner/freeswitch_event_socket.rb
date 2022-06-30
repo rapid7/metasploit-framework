@@ -49,13 +49,13 @@ module Metasploit
             # Invalid password - ( -ERR invalid\n\n )
             # Valid password   - ( +OK accepted\n\n )
 
-            if result_options[:proof] && result_options[:proof] =~ /-ERR invalid/i
+            if result_options[:proof]&.include?('-ERR invalid')
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
-            elsif result_options[:proof] && result_options[:proof][/\+OK accepted/]
+            elsif result_options[:proof]&.include?('+OK accepted')
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
             end
 
-          rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
+          rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE, Rex::StreamClosedError => e
             result_options.merge!(
               proof: e.message,
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
