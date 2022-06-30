@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -58,14 +59,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    @check = check_host(ip)
-    case @check.code
-    when 'safe'
-      fail_with(Failure::NoAccess, @check.reason)
-    when 'unknown'
-      fail_with(Failure::Unknown, @check.reason)
-    end
-
     cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
       password: datastore['PASSWORD'],
       pass_file: datastore['PASS_FILE']
@@ -103,6 +96,8 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error("LOGIN FAILED: #{result.credential.private} (#{result.status}: #{result.proof.strip})")
       end
     end
+  rescue NoMethodError => e
+    fail_with(Failure::Unknown, e.message)
   end
 
   def check_host(_ip)
