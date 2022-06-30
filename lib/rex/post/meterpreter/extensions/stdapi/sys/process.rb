@@ -63,15 +63,15 @@ class Process < Rex::Post::Process
       perms = PROCESS_ALL
     end
 
-    if (perms & PROCESS_READ)
+    if (perms & PROCESS_READ) > 0
       real_perms |= PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_QUERY_INFORMATION
     end
 
-    if (perms & PROCESS_WRITE)
+    if (perms & PROCESS_WRITE) > 0
       real_perms |= PROCESS_SET_SESSIONID | PROCESS_VM_WRITE | PROCESS_DUP_HANDLE | PROCESS_SET_QUOTA | PROCESS_SET_INFORMATION
     end
 
-    if (perms & PROCESS_EXECUTE)
+    if (perms & PROCESS_EXECUTE) > 0
       real_perms |= PROCESS_TERMINATE | PROCESS_CREATE_THREAD | PROCESS_CREATE_PROCESS | PROCESS_SUSPEND_RESUME
     end
 
