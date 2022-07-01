@@ -1,6 +1,27 @@
 # -*- coding: binary -*-
 
 module Msf::Auxiliary::ManageengineXnode::Interact
+  # Create a socket to connect to an Xnode server and rescue any resulting errors
+  #
+  # @param rhost [String] Target IP
+  # @param rport [Integer] Target port
+  # @return [Array] Array containing of a response code (Integer) and either a Socket (when a connection is established) or an error message (String)
+  def create_socket_for_xnode(rhost, rport)
+    vprint_status('Attempting to establish a connection with the remote server...')
+    begin
+      sock = Rex::Socket::Tcp.create(
+        'PeerHost' => rhost,
+        'PeerPort' => rport
+      )
+    rescue => e
+      vprint_status("Encountered the following exception type: #{e.class}")
+      return [1, e.message]
+    end
+
+    vprint_status('Successfully connected to the remote server')
+    [0, sock]
+  end
+
   # Sends a request to an Xnode server
   #
   # @param sock [Socket] Socket to use for the request

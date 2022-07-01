@@ -6,9 +6,10 @@ module Msf
 # This module provides a way of interacting with ManageEngine Xnode server as used in ADAudit Plus and DataSecurity Plus
 #
 ###
-  module Auxiliary:: ManageengineXnode
+  module Auxiliary::ManageengineXnode
     include Msf::Auxiliary::Report
     include Msf::Auxiliary::ManageengineXnode::Action
+    include Msf::Auxiliary::ManageengineXnode::BasicChecks
     include Msf::Auxiliary::ManageengineXnode::Config
     include Msf::Auxiliary::ManageengineXnode::Interact
     include Msf::Auxiliary::ManageengineXnode::Process

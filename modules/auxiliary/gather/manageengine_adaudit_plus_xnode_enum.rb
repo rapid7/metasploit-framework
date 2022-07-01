@@ -67,31 +67,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    @sock = Rex::Socket::Tcp.create(
-      'PeerHost' => rhost,
-      'PeerPort' => rport
-    )
-
-    res = send_to_sock(@sock, action_authenticate(username, password))
-
-    unless res.instance_of?(Hash) && res.keys.include?('response') && res['response'].instance_of?(Hash)
-      return Exploit::CheckCode::Unknown('Received unexpected response. The target may not be an Xnode server.')
+    # create a socket
+    res_code, sock_or_msg = create_socket_for_xnode(rhost, rport)
+    if res_code == 1
+      return Exploit::CheckCode::Unknown(sock_or_msg)
     end
 
-    if res['response']['status'] == 'authentication_success'
-      return Exploit::CheckCode::Appears('Successfully authenticated to the Xnode server.')
-    end
+    @sock = sock_or_msg
 
-    if res['response'].include?('error_msg')
-      case res['response']['error_msg']
-      when 'Authentication failed!'
-        return Exploit::CheckCode::Safe('Failed to authenticate to the Xnode server.')
-      when 'Remote request-processing disabled!!'
-        return Exploit::CheckCode::Safe('Remote request-processing is disabled on the Xnode server.')
-      end
+    # perform basic checks to see if Xnode is running and if so, if it is exploitable
+    res_code, res_msg = xnode_check(@sock, username, password)
+    case res_code
+    when 0
+      return Exploit::CheckCode::Appears(res_msg)
+    when 1
+      return Exploit::CheckCode::Safe(res_msg)
+    when 2
+      return Exploit::CheckCode::Unknown(res_msg)
     end
-
-    return Exploit::CheckCode::Unknown('Received unexpected response. The target may not be an Xnode server.')
   end
 
   def run
