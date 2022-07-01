@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       host: ip,
       port: rport,
       cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      stop_on_success: true, # this will have no effect due to the scanner behaviour when scanning without username
       connection_timeout: 10
     )
 
