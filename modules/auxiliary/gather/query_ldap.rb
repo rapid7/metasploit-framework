@@ -16,9 +16,9 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'LDAP Query and Enumeration Module',
         'Description' => %q{
           This module allows users to query an LDAP server using either a custom LDAP query, or
-          a set of LDAP queries under a specific category. Users can also specify a JSON file containing
-          custom queries to be executed using the RUN_QUERY_FILE_JSON action. If this action is specified,
-          then JSON_QUERY_FILE_PATH must be a path to the location of this JSON file on disk.
+          a set of LDAP queries under a specific category. Users can also specify a JSON or YAML file containing
+          custom queries to be executed using the RUN_QUERY_FILE action. If this action is specified,
+          then QUERY_FILE_PATH must be a path to the location of this JSON/YAML file on disk.
 
           Alternatively one can run one of several predefined queries by setting ACTION to the
           appropriate value.
@@ -38,8 +38,7 @@ class MetasploitModule < Msf::Auxiliary
           ['ENUM_ALL_OBJECTCATEGORY', { 'Description' => 'Dump all objects containing any objectCategory field.' }],
           ['ENUM_ACCOUNTS', { 'Description' => 'Dump info about all known user accounts in the domain.' }],
           ['ENUM_COMPUTERS', { 'Description' => 'Dump all objects containing an objectCategory of Computer.' }],
-          ['RUN_QUERY_FILE_JSON', { 'Description' => 'Execute a custom set of LDAP queries from the JSON file specified by JSON_QUERY_FILE.' }],
-          ['RUN_QUERY_FILE_YAML', { 'Description' => 'Execute a custom set of LDAP queries from the YAML file specified by YAML_QUERY_FILE.' }],
+          ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }],
           ['ENUM_DOMAIN_CONTROLERS', { 'Description' => 'Dump all known domain controllers.' }],
           ['ENUM_EXCHANGE_SERVERS', { 'Description' => 'Dump info about all known Exchange servers.' }],
           ['ENUM_EXCHANGE_RECIPIENTS', { 'Description' => 'Dump info about all known Exchange recipients.' }],
@@ -61,9 +60,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(389), # Set to 636 for SSL/TLS
+      OptEnum.new('OUTPUT_FORMAT', [true, 'The output format to use', 'table', ['table', 'json']]),
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptString.new('JSON_QUERY_FILE_PATH', [false, 'Path to the JSON file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE_JSON]),
-      OptString.new('YAML_QUERY_FILE_PATH', [false, 'PATH to the YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE_YAML]),
+      OptString.new('QUERY_FILE_PATH', [false, 'Path to the JSON or YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE])
     ])
   end
 
@@ -84,6 +83,75 @@ class MetasploitModule < Msf::Auxiliary
       nil
     else
       returned_entries
+    end
+  end
+
+  def output_data_table(entries, columns)
+    tbl = Rex::Text::Table.new(
+      'Header' => "#{action.name} Dump of #{peer}",
+      'Indent' => 1,
+      'Columns' => columns
+    )
+    entries.each do |entry|
+      data = []
+      columns.each do |col|
+        col = col.to_sym
+        if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
+          data << ''
+        else
+          data << entry[col].join(' || ')
+        end
+      end
+      tbl << data
+    end
+    print_status(tbl.to_s)
+  end
+
+  def output_json_data(entries, columns)
+    result = ''
+    entries.each do |entry|
+      data = {}
+      columns.each do |col|
+        if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
+          data[col] = ''
+        else
+          data[col] = entry[col].join(' || ')
+        end
+      end
+      result << JSON.pretty_generate(data) + ",\n"
+    end
+    result.gsub!(/},\n$/, '}')
+    print_status(result)
+  end
+
+  def perform_multiple_queries_from_file(ldap, parsed_file)
+    parsed_file['queries'].each do |query|
+      unless query['name'] && query['filter'] && query['columns']
+        print_error("Each query in the query file must at least contain a 'name', 'filter' and 'columns' attribute!")
+        break
+      end
+      columns = query['columns']
+      if columns.nil? || columns.empty?
+        print_warning('At least one column needs to be specified per query in the query file for entries to work!')
+        break
+      end
+      filter = Net::LDAP::Filter.construct(query['filter'])
+      print_status("Running #{query['name']}...")
+      entries = perform_ldap_query(ldap, filter)
+
+      if entries.nil? print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
+        next
+      end
+
+      case datastore['OUTPUT_FORMAT']
+      when 'table'
+        output_data_table(entries, columns)
+      when 'json'
+        output_json_data(entries, columns)
+      else
+        print_error('Supported OUTPUT_FORMAT values are table and json')
+        break
+      end
     end
   end
 
@@ -124,124 +192,24 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         case action.name
-        when 'RUN_QUERY_FILE_YAML'
-          unless datastore['YAML_QUERY_FILE_PATH']
-            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE_YAML action one must specify the path to YAML file containing the queries via YAML_QUERY_FILE_PATH!')
+        when 'RUN_QUERY_FILE'
+          unless datastore['QUERY_FILE_PATH']
+            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE action one must specify the path to the JASON/YAML file containing the queries via QUERY_FILE_PATH!')
           end
-          print_status("Loading queries from #{datastore['YAML_QUERY_FILE_PATH']}...")
+          print_status("Loading queries from #{datastore['QUERY_FILE_PATH']}...")
 
           begin
-            parsed_file = YAML.safe_load_file(datastore['YAML_QUERY_FILE_PATH'])
+            parsed_file = YAML.safe_load_file(datastore['QUERY_FILE_PATH'])
           rescue StandardError => e
-            print_error("Couldn't parse #{datastore['YAML_QUERY_FILE_PATH']}, error was: #{e}")
+            print_error("Couldn't parse #{datastore['QUERY_FILE_PATH']}, error was: #{e}")
             return
           end
 
           unless parsed_file['queries']&.class == Array && !parsed_file['queries'].empty?
-            print_error("No queries supplied in #{datastore['YAML_QUERY_FILE_PATH']}!")
+            print_error("No queries supplied in #{datastore['QUERY_FILE_PATH']}!")
           end
 
-          for query in parsed_file['queries']
-            unless query['name'] && query['filter'] && query['columns']
-              print_error("Each query in the query file must at least contain a 'name', 'filter' and 'columns' attribute!")
-              return
-            end
-            columns = query['columns']
-            if columns.nil? || columns.empty?
-              print_warning('At least one column needs to be specified per query in the query file for entries to work!')
-              return
-            end
-            filter = Net::LDAP::Filter.construct(query['filter'])
-            print_status("Running #{query['name']}...")
-            entries = perform_ldap_query(ldap, filter)
-
-            if entries.nil?
-              print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
-              next
-            else
-              tbl = Rex::Text::Table.new(
-                'Header' => "#{query['name']} Dump of #{peer}",
-                'Indent' => 1,
-                'Columns' => columns
-              )
-              entries.each do |entry|
-                data = []
-                columns.each do |col|
-                  col = col.to_sym
-                  if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
-                    data << ''
-                  else
-                    data << entry[col].join(' || ')
-                  end
-                end
-                tbl << data
-              end
-              print_status(tbl.to_s)
-            end
-          end
-          return
-
-        when 'RUN_QUERY_FILE_JSON'
-          unless datastore['JSON_QUERY_FILE_PATH']
-            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE_JSON action one must specify the path to the JSON file containing queries to run via JSON_QUERY_FILE_PATH!')
-          end
-          print_status("Loading queries from #{datastore['JSON_QUERY_FILE_PATH']}...")
-          begin
-            file_raw = File.read(datastore['JSON_QUERY_FILE_PATH'])
-          rescue StandardError => e
-            print_error("Couldn't open #{datastore['JSON_QUERY_FILE_PATH']}, error was: #{e}")
-            return
-          end
-
-          begin
-            parsed_file = JSON.parse(file_raw)
-          rescue StandardError => e
-            print_error("Couldn't parse #{datastore['JSON_QUERY_FILE_PATH']}, error was: #{e}")
-            return
-          end
-
-          unless parsed_file['queries']&.class == Array && !parsed_file['queries'].empty?
-            print_error("No queries supplied in #{datastore['JSON_QUERY_FILE_PATH']}!")
-          end
-
-          for query in parsed_file['queries']
-            unless query['name'] && query['filter'] && query['columns']
-              print_error("Each query in the query file must at least contain a 'name', 'filter' and 'columns' attribute!")
-              return
-            end
-            columns = query['columns']
-            if columns.nil? || columns.empty?
-              print_warning('At least one column needs to be specified per query in the query file for entries to work!')
-              return
-            end
-            filter = Net::LDAP::Filter.construct(query['filter'])
-            print_status("Running #{query['name']}...")
-            entries = perform_ldap_query(ldap, filter)
-
-            if entries.nil?
-              print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
-              next
-            else
-              tbl = Rex::Text::Table.new(
-                'Header' => "#{query['name']} Dump of #{peer}",
-                'Indent' => 1,
-                'Columns' => columns
-              )
-              entries.each do |entry|
-                data = []
-                columns.each do |col|
-                  col = col.to_sym
-                  if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
-                    data << ''
-                  else
-                    data << entry[col].join(' || ')
-                  end
-                end
-                tbl << data
-              end
-              print_status(tbl.to_s)
-            end
-          end
+          perform_multiple_queries_fom_file(ldap, parsed_file)
           return
 
         # Many of the following queries came from http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm. All credit goes to them for these popular queries.
@@ -306,23 +274,14 @@ class MetasploitModule < Msf::Auxiliary
     end
     return if entries.nil?
 
-    tbl = Rex::Text::Table.new(
-      'Header' => "#{action.name} Dump of #{peer}",
-      'Indent' => 1,
-      'Columns' => columns
-    )
-    entries.each do |entry|
-      data = []
-      columns.each do |col|
-        col = col.to_sym
-        if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
-          data << ''
-        else
-          data << entry[col].join(' || ')
-        end
-      end
-      tbl << data
+    case datastore['OUTPUT_FORMAT']
+    when 'table'
+      output_data_table(entries, columns)
+    when 'json'
+      output_json_data(entries, columns)
+    else
+      print_error('Supported OUTPUT_FORMAT values are table and json')
+      return
     end
-    # print_status(tbl.to_s)
   end
 end
