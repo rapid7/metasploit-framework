@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif @searchtype.include?('certificates')
       response = @cli.request_cgi(
         'method' => 'GET',
-        'uri' => "/api/v1/view/certificates?#{keyword}",
+        'uri' => "/api/v1/view/certificates/#{keyword}",
         'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
       )
       res = @cli.send_recv(response)
@@ -74,12 +74,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     records = ActiveSupport::JSON.decode(res.body)
-    results = records['result']
 
     if @searchtype.include?('certificates')
-      parse_certificates(results)
+      parse_certificates(records)
     elsif @searchtype.include?('ipv4')
-      parse_ipv4(results)
+      parse_ipv4(records['result'])
     end
   end
   def valid_domain?(domain)
@@ -95,40 +94,49 @@ class MetasploitModule < Msf::Auxiliary
     ips
   end
 
-  def parse_certificates(records)
+  def parse_certificates(certificate)
     ips = []
-    records['hits'].each do |certificate|
-      # parsed.fingerprint_sha256
-      # parsed.subject_dn
-      # parsed.issuer_dn
-      subject_dn = certificate['parsed.subject_dn'].join(',')
-      next unless subject_dn.include?('CN=')
+    # parsed.fingerprint_sha256
+    # parsed.subject_dn
+    # parsed.issuer_dn
+    subject_dn = certificate['parsed']['subject_dn']
+    return unless subject_dn.include?('CN=')
 
-      host = subject_dn.split('CN=')[1]
-      if Rex::Socket.is_ipv4?(host)
-        ips << host
-      elsif valid_domain?(host) # Fake DNS server
-        ips |= domain2ip(host)
-      end
+    host = subject_dn.split('CN=')[1]
+    if Rex::Socket.is_ipv4?(host)
+      ips << host
+    elsif valid_domain?(host) # Fake DNS server
+      ips |= domain2ip(host)
+    end
 
-      ips.each do |ip|
-        print_good("#{ip} - #{subject_dn}")
-        report_host(:host => ip, :info => subject_dn)
-      end
+    ips.each do |ip|
+      print_good("#{ip} - #{subject_dn}")
+      report_host(:host => ip, :info => subject_dn)
     end
   end
 
   def parse_ipv4(records)
-      records['hits'].each do |ipv4|
+    return unless records['hits']
+    records['hits'].each do |ipv4|
       ip = ipv4['ip']
-      protocols = ipv4['services']
-      protocols.each do |protocol|
-        port = protocol['port']
-        name = protocol['service_name']
+      services = ipv4['services']
+      ports = []
+      services.each do |service|
+        port = service['port']
+        name = service['service_name']
+        certificate = service['certificate']
+        if certificate
+            print_good("#{ipv4['ip']} - #{port} - #{name} - #{certificate}")
+        end
         report_service(:host => ip, :port => port, :name => name)
+        ports.append(port)
+      end
+      if ports != nil
+        print_good("#{ip} - #{ports.join(',')}")
       end
     end
   end
+
   # Check to see if www.censys.io resolves properly
   def censys_resolvable?
     begin
