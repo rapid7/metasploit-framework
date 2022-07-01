@@ -88,17 +88,15 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         if datastore['VERBOSE']
-          vprint_good("Login Successful: #{result.credential.private} (#{result.status}: #{result.proof.strip})")
+          vprint_good("Login Successful: #{result.credential.private} (#{result.status}: #{result.proof&.strip})")
         else
           print_good("Login Successful: #{result.credential.private}")
         end
       else
         invalidate_login(credential_data)
-        vprint_error("LOGIN FAILED: #{result.credential.private} (#{result.status}: #{result.proof.strip})")
+        vprint_error("LOGIN FAILED: #{result.credential.private} (#{result.status}: #{result.proof&.strip})")
       end
     end
-  rescue NoMethodError => e
-    fail_with(Failure::Unknown, e.message)
   end
 
   def check_host(_ip)
