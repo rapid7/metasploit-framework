@@ -12,6 +12,7 @@ This module has been tested successfully on FreeSWITCH versions:
 
 This module is a login utility to find the password of the FreeSWITCH event socket service by bruteforcing the login interface.
 Note that this service does not require a username to log in; login is done purely via supplying a valid password.
+This module will stops as soon as a valid password is found.
 
 This service is enabled by default and listens on TCP port 8021 on the local network interface.
 
