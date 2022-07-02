@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('CENSYS_UID', [true, 'The Censys API UID']),
       OptString.new('CENSYS_SECRET', [true, 'The Censys API SECRET']),
-      OptString.new('CENSYS_DORK', [true, 'The Censys Search Dork']),
-      OptEnum.new('CENSYS_SEARCHTYPE', [true, 'The Censys Search Type', 'certificates', ['certificates', 'ipv4', 'websites']])
+      OptString.new('DORK', [true, 'The Censys Search Dork']),
+      OptBool.new('CERTIFICATES', [false, 'Query infos about certificates', false])
     ])
   end
 
@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
   end
 
-  def search(keyword, search_type)
+  def search(keyword)
     # search_type should be one of ipv4, websites, certificates
 
     begin
@@ -48,22 +48,12 @@ class MetasploitModule < Msf::Auxiliary
       @cli = Rex::Proto::Http::Client.new('search.censys.io', 443, {}, true)
       @cli.connect
 
-    if @searchtype.include?('ipv4')
       response = @cli.request_cgi(
         'method' => 'GET',
-        'uri' => "/api/v2/hosts/search?q=#{keyword}",
-        'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
+         'uri' => "/api/v2/hosts/search?q=#{keyword}",
+         'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
       )
       res = @cli.send_recv(response)
-    elsif @searchtype.include?('certificates')
-      response = @cli.request_cgi(
-        'method' => 'GET',
-        'uri' => "/api/v1/view/certificates/#{keyword}",
-        'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
-      )
-      res = @cli.send_recv(response)
-    end
-
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed")
     end
@@ -74,13 +64,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     records = ActiveSupport::JSON.decode(res.body)
-
-    if @searchtype.include?('certificates')
-      parse_certificates(records)
-    elsif @searchtype.include?('ipv4')
-      parse_ipv4(records['result'])
-    end
+    parse_ipv4(records['result'])
   end
+  
   def valid_domain?(domain)
     domain =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/
   end
@@ -94,7 +80,10 @@ class MetasploitModule < Msf::Auxiliary
     ips
   end
 
-  def parse_certificates(certificate)
+  def parse_certificate(certificate)
+    if certificate.nil?
+      return "NO_CERT_DATA"
+    end
     ips = []
     # parsed.fingerprint_sha256
     # parsed.subject_dn
@@ -109,34 +98,80 @@ class MetasploitModule < Msf::Auxiliary
       ips |= domain2ip(host)
     end
 
+    result = []
     ips.each do |ip|
-      print_good("#{ip} - #{subject_dn}")
-      report_host(:host => ip, :info => subject_dn)
+      result.append("#{ip} - #{subject_dn}")
     end
+    return result
   end
 
   def parse_ipv4(records)
-    return unless records['hits']
+    if records.nil?
+      return
+    end
     records['hits'].each do |ipv4|
       ip = ipv4['ip']
       services = ipv4['services']
       ports = []
+      port_count = 0
       services.each do |service|
         port = service['port']
         name = service['service_name']
-        certificate = service['certificate']
-        if certificate
-            print_good("#{ipv4['ip']} - #{port} - #{name} - #{certificate}")
+        ports.append("#{port}/#{name}")
+        port_count += 1
+        if @certificates == true
+          certificate = service['certificate']
+          if certificate
+            begin
+              response = @cli.request_cgi(
+                'method' => 'GET',
+                'uri' => "/api/v1/view/certificates/#{certificate}",
+                'headers' => { 'Authorization' => basic_auth_header(@uid, @secret) },
+              )
+              res = @cli.send_recv(response)
+            rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+              print_error("HTTP Connection Failed")
+            end
+            unless res
+              print_error('server_response_error')
+              return
+            end
+            cert = ActiveSupport::JSON.decode(res.body)
+            ports.append(parse_certificate(cert))
+          else
+            ports.append("NO_CERT_DATA") #Need to input data for organization
+          end
+        else
+          ports.append("NO_CERT_DATA") #Need to input data for organization
         end
         report_service(:host => ip, :port => port, :name => name)
-        ports.append(port)
       end
+
       if ports != nil
-        print_good("#{ip} - #{ports.join(',')}")
+        i = 0
+        print_good("#{ip}")
+        ports.each do |port|
+          if i % 2 == 0 && i / 2 < port_count
+            print "#{port} "
+          end
+          i += 1
+        end
+        print "\n"
+        if @certificate == true
+          ports.each do |port|
+            if i % 2 == 1 && i / 2 < port_count
+              if !port.include? "NO_CERT_DATA"
+                port.each do |cert|
+                  print_good("#{ports[i-1]} - #{cert}")
+                end
+              end
+            end
+            i += 1
+          end
+        end
       end
     end
   end
-
   # Check to see if www.censys.io resolves properly
   def censys_resolvable?
     begin
@@ -156,8 +191,8 @@ class MetasploitModule < Msf::Auxiliary
 
     @uid = datastore['CENSYS_UID']
     @secret = datastore['CENSYS_SECRET']
-    @dork = datastore['CENSYS_DORK']
-    @searchtype = datastore['CENSYS_SEARCHTYPE']
-    search(@dork, @searchtype)
+    @dork = datastore['DORK']
+    @certificates = datastore['CERTIFICATES']
+    search(@dork)
   end
 end
