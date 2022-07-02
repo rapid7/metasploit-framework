@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     records = ActiveSupport::JSON.decode(res.body)
     parse_ipv4(records['result'])
   end
-  
+
   def valid_domain?(domain)
     domain =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/
   end
