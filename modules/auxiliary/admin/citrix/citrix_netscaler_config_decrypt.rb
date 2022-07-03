@@ -71,6 +71,9 @@ class MetasploitModule < Msf::Auxiliary
     datastore['NS_KEK_F2']
   end
 
+  # ns.conf elements that contain potential secrets, update as needed
+  # k = parameter that has the secret (-key, -password, [...])
+  # v = start of config line that potentially has a secret
   def ns_secret
     {
       'key' => ['add ssl certKey'],
@@ -166,6 +169,7 @@ class MetasploitModule < Msf::Auxiliary
             else
               ciphertext_b64 = encrypted_entry.split(' ')[1].delete('"')
               ciphertext_bytes = Base64.strict_decode64(ciphertext_b64)
+              # Still haven't grokked how -passcrypt works
               print_warning('Not decrypting passcrypt entry:')
               print_warning("Ciphertext: #{ciphertext_b64}")
               next
@@ -205,6 +209,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_username_from_config(line)
+    # Fugly but effective way to extract the principal name from a config line for loot storage
     [' user', 'userName', '-clientID', '-bindDN', '-ldapBindDn'].each do |user_param|
       next unless line.match?(/#{user_param} (.+)/)
 

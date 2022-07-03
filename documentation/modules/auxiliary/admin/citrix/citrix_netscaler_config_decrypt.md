@@ -1,16 +1,17 @@
-This module takes a Citrix NetScaler ns.conf configuration file as input and extracts secrets that
+This module takes a Citrix NetScaler `ns.conf` configuration file as input and extracts secrets that
 have been stored with reversible encryption. The module supports legacy NetScaler encryption (RC4)
 as well as the newer AES-256-ECB and AES-256-CBC encryption types. It is also possible to decrypt
 secrets protected by the Key Encryption Key (KEK) method, provided the key fragment files F1.key
-and F2.key are provided. Root access to a NetScaler device or access to a NetScaler configuration
-backup archive are the most effective means of acquiring the configuration file and key fragments.
+and F2.key are provided. Currently, keys for appliances in FIPS mode or running hardware HSM cannot 
+be extracted. Root access to a NetScaler device or access to a NetScaler configuration backup are
+the most effective means of acquiring the configuration file and key fragments.
 
 This module incorporates research published by dozer:
 
 https://dozer.nz/posts/citrix-decrypt/
 
 ## Vulnerable Application
-This module is tested against the configuration files for NetScaler versions 10.5, 11, 12.x and
+This module is tested against the configuration files for NetScaler versions 10.x, 11x, 12.x and
 13.x. The module will work with files retrieved from a live NetScaler system as well as files
 extracted from an unencrypted NetScaler backup archive. This is possible because NetScaler uses
 well-known hard coded encryption keys which are visible on the system in the hidden file:
@@ -19,13 +20,16 @@ well-known hard coded encryption keys which are visible on the system in the hid
 
 These static keys are:
 
-`NetScaler RC4:`
-  `2286da6ca015bcd9b7259753c2a5fbc2`
-`NetScaler AES:`
-  `351cbe38f041320f22d990ad8365889c7de2fcccae5a1a8707e21e4adccd4ad9`
-
+```
+NetScaler RC4:
+  2286da6ca015bcd9b7259753c2a5fbc2
+NetScaler AES:
+  351cbe38f041320f22d990ad8365889c7de2fcccae5a1a8707e21e4adccd4ad9
+```
 The module is also able to decrypt secrets encrypted with NetScaler KEK, provided the associated
-`F1.key` and `F2.key` fragments are provided.
+`F1.key` and `F2.key` fragments are provided. Private key passphrases that use `-passcrypt` are not
+currently decryptable by this module, but any secret that uses the `-encrypted` parameter should be
+fully recoverable.
 
 ## Verification Steps
 You must possess a NetScaler `ns.conf` file in order to use this module. If the NetScaler is running
@@ -72,7 +76,7 @@ From the nscli or
 
 `cat /nsconfig/ns.conf`
 
-From the BSD shell. These files can also be retrieved from NetScaler configuration backup
+from the BSD shell. These files can also be retrieved from NetScaler configuration backup
 archives which are generated from the appliance admin interface.
 
 ### Acquire KEK Fragment Files
@@ -96,8 +100,8 @@ key is stored in hidden files at paths:
 
 As well as under `/nsconfig/keys`. Note that both fragments must be provided for successful
 decryption. The module can be run without providing KEK fragments, but will be unable to decrypt
-any secrets that use KEK encryption. Like the `ns.conf` file, an unencrypted NetScaler backup
-will contain all KEK fragments currently defined on the appliance.
+any secrets that use KEK encryption. An unencrypted NetScaler backup archive will contain all KEK
+fragments currently defined on the appliance as well as the current `ns.conf` file.
 
 ### Running the Module
 
@@ -182,8 +186,8 @@ add authentication radiusAction APP01_DUO -serverIP 10.100.10.13 -serverPort 118
 add authentication radiusAction APP01_DUO_CITRIXRECEIVER -serverIP 10.100.10.13 -serverPort 21812 -authTimeout 60 -radKey 6644f481004ac7dee5a05b5a8dc3d9d9ae8c76f5fe82e0430b43acd7fb5afe9c -encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -accounting ON
 [+] Plaintext: IAmSam!
 [*] Config line:
-add authentication ldapAction AD_DUA2FAUSERS -serverName ldap.cesium137.io -serverPort 636 -authTimeout 60 -ldapBase "DC=cesium137,DC=io" -ldapBindDn wiz@cesium137.io -ldapBindDnPassword 7fbbf2ef9665641264406c17673c0cdb5774b76454f3ac8c7bb067dd0d2228c5 -encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -ldapLoginName sAMAccountName -searchFilter "&(objectCategory=user)(memberOf=CN=2FA-OWA,CN=Users,DC=cesium137,DC=io)" -groupAttrName memberOf -subAttributeName cn -secType SSL -passwdChange ENABLED -nestedGroupExtraction ON -groupNameIdentifier sAMAccountName -groupSearchAttribute memberOf -groupSearchSubAttribute CN
-[+] User: wiz@cesium137.io
+add authentication ldapAction AD_DUA2FAUSERS -serverName ldap.cesium137.io -serverPort 636 -authTimeout 60 -ldapBase "DC=cesium137,DC=io" -ldapBindDn ldap@cesium137.io -ldapBindDnPassword 7fbbf2ef9665641264406c17673c0cdb5774b76454f3ac8c7bb067dd0d2228c5 -encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -ldapLoginName sAMAccountName -searchFilter "&(objectCategory=user)(memberOf=CN=2FA-OWA,CN=Users,DC=cesium137,DC=io)" -groupAttrName memberOf -subAttributeName cn -secType SSL -passwdChange ENABLED -nestedGroupExtraction ON -groupNameIdentifier sAMAccountName -groupSearchAttribute memberOf -groupSearchSubAttribute CN
+[+] User: ldap@cesium137.io
 [+] Pass: Gr33n3gg$
 [*] Config line:
 set ns rpcNode 192.168.10.14 -password 2634fa338c457cb32fdf245873874a9b8fcd7128f6534641f49ea650e9f0974b -encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -srcIP 192.168.10.14
@@ -192,12 +196,12 @@ set ns rpcNode 192.168.10.14 -password 2634fa338c457cb32fdf245873874a9b8fcd7128f
 set ns rpcNode 192.168.10.15 -password 6955e686fc5dd3beee5013dad0e0fa6510a56029b52cc7d7ed15082a60ec6ce4 -encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -srcIP 192.168.10.14
 [+] Plaintext: SamIAm!
 [*] Config line:
-add lb monitor mon_ldaps LDAP -scriptName nsldap.pl -dispatcherIP 127.0.0.1 -dispatcherPort 3013 -password cc1f6bb054f5d63d5eb871fdd36ff573f3343c1e0238965682460c6f084d1e14-encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -LRTM DISABLED -secure YES -baseDN "DC=cesium137,DC=io" -bindDN wiz@cesium137.io -filter CN=builtin -devno 13862
-[+] User: wiz@cesium137.io
+add lb monitor mon_ldaps LDAP -scriptName nsldap.pl -dispatcherIP 127.0.0.1 -dispatcherPort 3013 -password cc1f6bb054f5d63d5eb871fdd36ff573f3343c1e0238965682460c6f084d1e14-encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -LRTM DISABLED -secure YES -baseDN "DC=cesium137,DC=io" -bindDN ldap@cesium137.io -filter CN=builtin -devno 13862
+[+] User: ldap@cesium137.io
 [+] Pass: Gr33n3gg$
 [*] Config line:
-add lb monitor mon_ldap LDAP -scriptName nsldap.pl -dispatcherIP 127.0.0.1 -dispatcherPort 3013 -password 5c35e0aa5c3d999e9ff10de1fa32910f9ac28b1ee8824c2301ac964e1f5f987e-encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -LRTM DISABLED -destPort 636 -secure YES -baseDN "DC=cesium137,DC=io" -bindDN wiz@cesium137.io -filter CN=builtin -devno 13863
-[+] User: wiz@cesium137.io
+add lb monitor mon_ldap LDAP -scriptName nsldap.pl -dispatcherIP 127.0.0.1 -dispatcherPort 3013 -password 5c35e0aa5c3d999e9ff10de1fa32910f9ac28b1ee8824c2301ac964e1f5f987e-encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35 -LRTM DISABLED -destPort 636 -secure YES -baseDN "DC=cesium137,DC=io" -bindDN ldap@cesium137.io -filter CN=builtin -devno 13863
+[+] User: ldap@cesium137.io
 [+] Pass: Gr33n3gg$
 [*] Config line:
 add lb monitor mon-radius RADIUS -respCode 2 -userName ldap -password fda3a1c5990558d4bfae059f27191f4c91a2dfa826d7318db287e109f5da39f9 -encrypted -encryptmethod ENCMTHD_3 -kek -suffix 2022_05_18_14_00_35  -LRTM DISABLED -resptimeout 4 -destPort 1812 -devno 13864
