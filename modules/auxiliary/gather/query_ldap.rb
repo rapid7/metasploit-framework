@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(389), # Set to 636 for SSL/TLS
-      OptEnum.new('OUTPUT_FORMAT', [true, 'The output format to use', 'table', ['table', 'json']]),
+      OptEnum.new('OUTPUT_FORMAT', [true, 'The output format to use', 'table', ['csv', 'table', 'json']]),
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptString.new('QUERY_FILE_PATH', [false, 'Path to the JSON or YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE])
     ])
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def output_data_table(entries, columns)
+  def generate_rex_table(columns, entries)
     tbl = Rex::Text::Table.new(
       'Header' => "#{action.name} Dump of #{peer}",
       'Indent' => 1,
@@ -104,7 +104,17 @@ class MetasploitModule < Msf::Auxiliary
       end
       tbl << data
     end
+    tbl
+  end
+
+  def output_data_table(entries, columns)
+    tbl = generate_rex_table(columns, entries)
     print_status(tbl.to_s)
+  end
+
+  def output_data_csv(entries, columns)
+    tbl = generate_rex_table(columns, entries)
+    print_status(tbl.to_csv)
   end
 
   def output_json_data(entries, columns)
@@ -139,17 +149,20 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Running #{query['name']}...")
       entries = perform_ldap_query(ldap, filter)
 
-      if entries.nil? print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
+      if entries.nil?
+        print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
         next
       end
 
       case datastore['OUTPUT_FORMAT']
+      when 'csv'
+        output_data_csv(entries, columns)
       when 'table'
         output_data_table(entries, columns)
       when 'json'
         output_json_data(entries, columns)
       else
-        print_error('Supported OUTPUT_FORMAT values are table and json')
+        print_error('Supported OUTPUT_FORMAT values are csv, table, and json')
         break
       end
     end
@@ -209,7 +222,7 @@ class MetasploitModule < Msf::Auxiliary
             print_error("No queries supplied in #{datastore['QUERY_FILE_PATH']}!")
           end
 
-          perform_multiple_queries_fom_file(ldap, parsed_file)
+          perform_multiple_queries_from_file(ldap, parsed_file)
           return
 
         # Many of the following queries came from http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm. All credit goes to them for these popular queries.
@@ -275,12 +288,14 @@ class MetasploitModule < Msf::Auxiliary
     return if entries.nil?
 
     case datastore['OUTPUT_FORMAT']
+    when 'csv'
+      output_data_csv(entries, columns)
     when 'table'
       output_data_table(entries, columns)
     when 'json'
       output_json_data(entries, columns)
     else
-      print_error('Supported OUTPUT_FORMAT values are table and json')
+      print_error('Supported OUTPUT_FORMAT values are csv, table and json')
       return
     end
   end
