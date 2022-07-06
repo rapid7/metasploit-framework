@@ -7,6 +7,8 @@ module Rex
       module Crypto
         # Base class for RFC3962 AES encryption classes
         class AesBlockCipherBase < BlockCipherBase
+          include Rex::Proto::Kerberos::Crypto::Utils
+          include Rex::Proto::Kerberos::Crypto::GssNewEncryptionType
 
           BLOCK_SIZE = 16
           PADDING_SIZE = 1
@@ -30,7 +32,7 @@ module Rex
           end
       
           def encrypt_basic(plaintext, key)
-            raise RuntimeError, 'Ciphertext too short' if plaintext.length < BLOCK_SIZE
+            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if plaintext.length < BLOCK_SIZE
 
             cipher = OpenSSL::Cipher.new(self.class::ENCRYPT_CIPHER_NAME)
             cipher.encrypt
@@ -51,7 +53,7 @@ module Rex
           end
       
           def decrypt_basic(ciphertext, key)
-            raise RuntimeError, 'Ciphertext too short' if ciphertext.length < BLOCK_SIZE
+            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if ciphertext.length < BLOCK_SIZE
 
             cipher = OpenSSL::Cipher.new(self.class::DECRYPT_CIPHER_NAME)
             cipher.decrypt
@@ -95,17 +97,18 @@ module Rex
             (plaintext_arr + last_plaintext_arr).pack('C*')
           end
 
-          private
+          #
+          # The number of bytes in the encrypted plaintext that precede the actual plaintext
+          #
+          def header_byte_count
+            BLOCK_SIZE
+          end
 
-          def xor_bytes(l1,l2)
-            result = []
-            l1.zip(l2).each do |b1,b2|
-              if b1 != nil && b2 != nil
-                result.append((b1^b2))
-              end
-            end
-
-            result
+          #
+          # The number of bytes in the encrypted plaintext that follow the actual plaintext
+          #
+          def trailing_byte_count
+            MAC_SIZE
           end
         end
       end
