@@ -109,10 +109,10 @@ module Rex
           # @param key [String] the key used as the HMAC secret (applicable to most but not all checksum algorithms)
           # @return [String] the checksum
           # @raise [NotImplementedError] if the encryption schema isn't supported
-          def checksum(etype, key)
+          def checksum(etype, key, key_usage)
             data = self.encode
             checksummer = Rex::Proto::Kerberos::Crypto::Checksum::from_checksum_type(etype)
-            checksummer.checksum(key, Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT, data)
+            checksummer.checksum(key, key_usage, data)
           end
 
           private

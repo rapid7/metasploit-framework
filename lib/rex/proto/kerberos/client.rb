@@ -188,7 +188,7 @@ module Rex
         # Decodes a Kerberos response
         #
         # @param data [String] the raw response message
-        # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] the kerberos message response
+        # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse, Rex::Proto::Kerberos::Model::KrbError>] the kerberos message response
         # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         def decode_kerb_response(data)
           asn1 = OpenSSL::ASN1.decode(data)
@@ -197,10 +197,10 @@ module Rex
           case msg_type
           when Rex::Proto::Kerberos::Model::KRB_ERROR
             res = Rex::Proto::Kerberos::Model::KrbError.decode(asn1)
-          when Rex::Proto::Kerberos::Model::AS_REP
+          when Rex::Proto::Kerberos::Model::AS_REP, Rex::Proto::Kerberos::Model::TGS_REP
             res = Rex::Proto::Kerberos::Model::KdcResponse.decode(asn1)
-          when Rex::Proto::Kerberos::Model::TGS_REP
-            res = Rex::Proto::Kerberos::Model::KdcResponse.decode(asn1)
+          when Rex::Proto::Kerberos::Model::AP_REP
+            res = Rex::Proto::Kerberos::Model::ApRep.decode(asn1)
           else
             raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Kerberos Client: Unknown response'
           end
