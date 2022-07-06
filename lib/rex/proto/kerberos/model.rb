@@ -8,14 +8,17 @@ module Rex
 
         # Application Message Id's
 
-        AS_REQ = 10
-        AS_REP = 11
-        TGS_REQ = 12
-        TGS_REP = 13
-        KRB_ERROR = 30
-        TICKET = 1
-        AUTHENTICATOR = 2
-        AP_REQ = 14
+        #module MessageType
+          AS_REQ = 10
+          AS_REP = 11
+          TGS_REQ = 12
+          TGS_REP = 13
+          KRB_ERROR = 30
+          TICKET = 1
+          AUTHENTICATOR = 2
+          AP_REQ = 14
+          AP_REP = 15
+        #end
 
         # From Principal
         # https://datatracker.ietf.org/doc/html/rfc4120#section-6.2

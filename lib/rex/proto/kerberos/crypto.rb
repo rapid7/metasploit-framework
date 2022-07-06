@@ -7,6 +7,8 @@ module Rex
   module Proto
     module Kerberos
       module Crypto
+        # https://datatracker.ietf.org/doc/html/rfc4120#section-7.5.1 - A unique number used as part of encryption to make certain types of
+        # cryptographic attacks harder
         module KeyUsage
           AS_REQ_PA_ENC_TIMESTAMP                        = 1
           KDC_REP_TICKET                                 = 2
