@@ -66,8 +66,8 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def perform_ldap_query(ldap, filter)
-    returned_entries = ldap.search(base: @base_dn, filter: filter)
+  def perform_ldap_query(ldap, filter, attributes)
+    returned_entries = ldap.search(base: @base_dn, filter: filter, attributes: attributes)
     query_result = ldap.as_json['result']['ldap_result']
     case query_result['resultCode']
     when 0
@@ -86,52 +86,54 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def generate_rex_table(columns, entries)
-    tbl = Rex::Text::Table.new(
-      'Header' => "#{action.name} Dump of #{peer}",
-      'Indent' => 1,
-      'Columns' => columns
-    )
+  def generate_rex_tables(entries, format)
     entries.each do |entry|
-      data = []
-      columns.each do |col|
-        col = col.to_sym
-        if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
-          data << ''
+      tbl = Rex::Text::Table.new(
+        'Header' => entry['dn'][0].split(',').join(' '),
+        'Indent' => 1,
+        'Columns' => ['Name', 'Attributes']
+      )
+
+      for attr in entry.attribute_names
+        if format == 'table'
+          tbl << [attr, entry[attr].join(' || ')] unless attr == :dn # Skip over DN entries for tables since DN information is shown in header.
         else
-          data << entry[col].join(' || ')
+          tbl << [attr, entry[attr].join(' || ')] # DN information is not shown in CSV output as a header so keep DN entries in.
         end
       end
-      tbl << data
+
+      case format
+      when 'table'
+        print_status(tbl.to_s)
+      when 'csv'
+        print_status(tbl.to_csv)
+      else
+        print_error("Invalid format #{format} passed to generate_rex_tables!")
+        break
+      end
     end
-    tbl
   end
 
-  def output_data_table(entries, columns)
-    tbl = generate_rex_table(columns, entries)
-    print_status(tbl.to_s)
-  end
-
-  def output_data_csv(entries, columns)
-    tbl = generate_rex_table(columns, entries)
-    print_status(tbl.to_csv)
-  end
-
-  def output_json_data(entries, columns)
-    result = ''
+  def output_json_data(entries, _columns)
     entries.each do |entry|
+      result = ''
       data = {}
-      columns.each do |col|
-        if entry[col].nil? || entry[col].empty? || entry[col][0].empty?
-          data[col] = ''
-        else
-          data[col] = entry[col].join(' || ')
-        end
+      for attr in entry.attribute_names
+        data[attr] = entry[attr].join(' || ')
       end
       result << JSON.pretty_generate(data) + ",\n"
+      result.gsub!(/},\n$/, '}')
+      print_status(entry['dn'][0].split(',').join(' '))
+      print_line(result)
     end
-    result.gsub!(/},\n$/, '}')
-    print_status(result)
+  end
+
+  def output_data_table(entries, _columns)
+    generate_rex_tables(entries, 'table')
+  end
+
+  def output_data_csv(entries, _columns)
+    generate_rex_tables(entries, 'csv')
   end
 
   def perform_multiple_queries_from_file(ldap, parsed_file)
@@ -140,14 +142,14 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Each query in the query file must at least contain a 'name', 'filter' and 'columns' attribute!")
         break
       end
-      columns = query['columns']
-      if columns.nil? || columns.empty?
-        print_warning('At least one column needs to be specified per query in the query file for entries to work!')
+      attributes = query['columns']
+      if attributes.nil? || attributes.empty?
+        print_warning('At least one attribute needs to be specified per query in the query file for entries to work!')
         break
       end
       filter = Net::LDAP::Filter.construct(query['filter'])
       print_status("Running #{query['name']}...")
-      entries = perform_ldap_query(ldap, filter)
+      entries = perform_ldap_query(ldap, filter, attributes)
 
       if entries.nil?
         print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
@@ -156,11 +158,11 @@ class MetasploitModule < Msf::Auxiliary
 
       case datastore['OUTPUT_FORMAT']
       when 'csv'
-        output_data_csv(entries, columns)
+        output_data_csv(entries, attributes)
       when 'table'
-        output_data_table(entries, columns)
+        output_data_table(entries, attributes)
       when 'json'
-        output_json_data(entries, columns)
+        output_json_data(entries, attributes)
       else
         print_error('Supported OUTPUT_FORMAT values are csv, table, and json')
         break
@@ -228,57 +230,58 @@ class MetasploitModule < Msf::Auxiliary
         # Many of the following queries came from http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm. All credit goes to them for these popular queries.
         when 'ENUM_ALL_OBJECTCLASS'
           filter = Net::LDAP::Filter.construct('(objectClass=*)') # Get ALL of the objects that have any objectClass associated with them. Can return a lot of info.
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'objectClass']
+          attributes = ['dn', 'objectClass']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_ALL_OBJECTCATEGORY'
           filter = Net::LDAP::Filter.construct('(objectCategory=*)') # Get ALL of the objects that have any objectCategory associated with them. Can return a lot of info.
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'objectCategory']
+          attributes = ['dn', 'objectCategory']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_ACCOUNTS'
           # Find AD accounts and organizational people.
           filter = Net::LDAP::Filter.construct('(|(objectClass=organizationalPerson)(sAMAccountType=805306368))')
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'name', 'displayname', 'samaccountname', 'userprincipalname', 'useraccountcontrol', 'homeDirectory', 'homeDrive', 'profilePath']
+          attributes = ['dn', 'name', 'displayname', 'samaccountname', 'userprincipalname', 'useraccountcontrol', 'homeDirectory', 'homeDrive', 'profilePath']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_COMPUTERS'
           filter = Net::LDAP::Filter.construct('(objectCategory=Computer)') # Find computers
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion', 'operatingSystemServicePack']
+          attributes = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion', 'operatingSystemServicePack']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_DOMAIN_CONTROLERS'
           filter = Net::LDAP::Filter.construct('(&(objectCategory=Computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))') # Find domain controllers
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion']
+          attributes = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_EXCHANGE_SERVERS'
           filter = Net::LDAP::Filter.construct('(&(objectClass=msExchExchangeServer)(!(objectClass=msExchExchangeServerPolicy)))') # Find Exchange Servers
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion']
+          attributes = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_EXCHANGE_RECIPIENTS'
           # Find Exchange Recipients with or without fax addresses.
           filter = Net::LDAP::Filter.construct('(|(mailNickname=*)(proxyAddresses=FAX:*))')
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'mailNickname', 'proxyAddresses', 'name']
+          attributes = ['dn', 'mailNickname', 'proxyAddresses', 'name']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_GROUPS'
           # Standard LDAP groups query, followed by trying to find AD security groups, then trying to find Linux groups.
           # Filters combined to remove duplicates.
           filter = Net::LDAP::Filter.construct('(|(objectClass=group)(objectClass=groupOfNames)(groupType:1.2.840.113556.1.4.803:=2147483648)(objectClass=posixGroup))')
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'name', 'groupType', 'memberof']
+          attributes = ['dn', 'name', 'groupType', 'memberof']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_ORGUNITS'
           filter = Net::LDAP::Filter.construct('(objectClass=organizationalUnit)') # Find OUs aka Organizational Units
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'displayName', 'name', 'description']
+          attributes = ['dn', 'displayName', 'name', 'description']
+          entries = perform_ldap_query(ldap, filter, attributes)
 
         when 'ENUM_ORGROLES'
           filter = Net::LDAP::Filter.construct('(objectClass=organizationalRole)') # Find OUs aka Organizational Units
-          entries = perform_ldap_query(ldap, filter)
-          columns = ['dn', 'displayName', 'name', 'description']
+          attributes = ['dn', 'displayName', 'name', 'description']
+          entries = perform_ldap_query(ldap, filter, attributes)
+
         end
       end
     rescue Rex::ConnectionTimeout, Net::LDAP::Error => e
