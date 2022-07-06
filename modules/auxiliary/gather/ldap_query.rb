@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       @default_settings_file_path = user_config_file
-      @default_settings = YAML.safe_load_file(@default_settings_file_path)
+      @default_settings = YAML.safe_load(File.binread(@default_settings_file_path))
     rescue StandardError => e
       print_error("Couldn't parse #{@default_settings_file_path}, error was: #{e}")
       return
@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def output_json_data(entries, _columns)
+  def output_json_data(entries)
     entries.each do |entry|
       result = ''
       data = {}
@@ -148,41 +148,41 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def output_data_table(entries, _columns)
+  def output_data_table(entries)
     generate_rex_tables(entries, 'table')
   end
 
-  def output_data_csv(entries, _columns)
+  def output_data_csv(entries)
     generate_rex_tables(entries, 'csv')
   end
 
   def perform_multiple_queries_from_file(ldap, parsed_file)
     parsed_file['queries'].each do |query|
-      unless query['name'] && query['filter'] && query['columns']
-        print_error("Each query in the query file must at least contain a 'name', 'filter' and 'columns' attribute!")
+      unless query['action'] && query['filter'] && query['attributes']
+        print_error("Each query in the query file must at least contain a 'action', 'filter' and 'attributes' attribute!")
         break
       end
-      attributes = query['columns']
+      attributes = query['attributes']
       if attributes.nil? || attributes.empty?
         print_warning('At least one attribute needs to be specified per query in the query file for entries to work!')
         break
       end
       filter = Net::LDAP::Filter.construct(query['filter'])
-      print_status("Running #{query['name']}...")
+      print_status("Running #{query['action']}...")
       entries = perform_ldap_query(ldap, filter, attributes)
 
       if entries.nil?
-        print_warning("Query #{query['filter']} from #{query['name']} didn't return any results!")
+        print_warning("Query #{query['filter']} from #{query['action']} didn't return any results!")
         next
       end
 
       case datastore['OUTPUT_FORMAT']
       when 'csv'
-        output_data_csv(entries, attributes)
+        output_data_csv(entries)
       when 'table'
-        output_data_table(entries, attributes)
+        output_data_table(entries)
       when 'json'
-        output_json_data(entries, attributes)
+        output_json_data(entries)
       else
         print_error('Supported OUTPUT_FORMAT values are csv, table, and json')
         break
@@ -192,7 +192,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     entries = nil
-    columns = []
     begin
       ldap_connect do |ldap|
         bind_result = ldap.as_json['result']['ldap_result']
@@ -234,7 +233,7 @@ class MetasploitModule < Msf::Auxiliary
           print_status("Loading queries from #{datastore['QUERY_FILE_PATH']}...")
 
           begin
-            parsed_file = YAML.safe_load_file(datastore['QUERY_FILE_PATH'])
+            parsed_file = YAML.safe_load(File.read(datastore['QUERY_FILE_PATH']))
           rescue StandardError => e
             print_error("Couldn't parse #{datastore['QUERY_FILE_PATH']}, error was: #{e}")
             return
@@ -248,21 +247,20 @@ class MetasploitModule < Msf::Auxiliary
           return
         else
           filter_string = nil
-          columns = nil
+          attributes = nil
           for entry in @default_settings['queries'] do
             next unless entry['action'] == datastore['ACTION']
 
             filter_string = entry['filter']
-            columns = entry['columns']
+            attributes = entry['attributes']
             break
           end
 
-          if columns&.empty? || filter_string&.empty?
-            print_error("Couldn't find and/or load the columns and filter string for #{datastore['ACTION']}. Check the validity of the YAML file at #{@default_settings_file_path}!")
+          if attributes&.empty? || filter_string&.empty?
+            print_error("Couldn't find and/or load the attributes and filter string for #{datastore['ACTION']}. Check the validity of the YAML file at #{@default_settings_file_path}!")
           end
 
           filter = Net::LDAP::Filter.construct(filter_string)
-          attributes = columns
           entries = perform_ldap_query(ldap, filter, attributes)
         end
       end
@@ -274,11 +272,11 @@ class MetasploitModule < Msf::Auxiliary
 
     case datastore['OUTPUT_FORMAT']
     when 'csv'
-      output_data_csv(entries, columns)
+      output_data_csv(entries)
     when 'table'
-      output_data_table(entries, columns)
+      output_data_table(entries)
     when 'json'
-      output_json_data(entries, columns)
+      output_json_data(entries)
     else
       print_error('Supported OUTPUT_FORMAT values are csv, table and json')
       return
