@@ -10,8 +10,16 @@ class MetasploitModule < Msf::Auxiliary
   require 'yaml'
 
   def initialize(info = {})
+    filename = 'ldap_queries_default.yaml'
+    user_config_file = File.join(::Msf::Config.get_config_root, filename)
+    unless File.exist?(user_config_file)
+      # If the user config file doesn't exist, then initialize it with the contents of the default one.
+      default_config_file = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', filename)
+      FileUtils.cp(default_config_file, user_config_file)
+    end
+
     begin
-      @default_settings_file_path = ::File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'query_ldap', 'default.yaml')
+      @default_settings_file_path = user_config_file
       @default_settings = YAML.safe_load_file(@default_settings_file_path)
     rescue StandardError => e
       print_error("Couldn't parse #{@default_settings_file_path}, error was: #{e}")
