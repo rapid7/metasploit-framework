@@ -10,6 +10,30 @@ class MetasploitModule < Msf::Auxiliary
   require 'yaml'
 
   def initialize(info = {})
+    begin
+      @default_settings_file_path = ::File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'query_ldap', 'default.yaml')
+      @default_settings = YAML.safe_load_file(@default_settings_file_path)
+    rescue StandardError => e
+      print_error("Couldn't parse #{@default_settings_file_path}, error was: #{e}")
+      return
+    end
+
+    unless @default_settings['queries']&.class == Array && !@default_settings['queries'].empty?
+      print_error("No queries supplied in #{@default_settings_file_path}!")
+      return
+    end
+
+    actions = []
+    for entry in @default_settings['queries']
+      if entry['action'].nil? || entry['description'].nil?
+        print_warning("Invalid entry detected, check the format of the file at #{@default_settings_file_path}!")
+        next
+      end
+      actions << [entry['action'], { 'Description' => entry['description'] }]
+    end
+    actions << ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }]
+    actions.sort!
+
     super(
       update_info(
         info,
@@ -33,19 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2022-05-19',
         'License' => MSF_LICENSE,
-        'Actions' => [
-          ['ENUM_ALL_OBJECTCLASS', { 'Description' => 'Dump all objects containing any objectClass field.' }],
-          ['ENUM_ALL_OBJECTCATEGORY', { 'Description' => 'Dump all objects containing any objectCategory field.' }],
-          ['ENUM_ACCOUNTS', { 'Description' => 'Dump info about all known user accounts in the domain.' }],
-          ['ENUM_COMPUTERS', { 'Description' => 'Dump all objects containing an objectCategory of Computer.' }],
-          ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }],
-          ['ENUM_DOMAIN_CONTROLERS', { 'Description' => 'Dump all known domain controllers.' }],
-          ['ENUM_EXCHANGE_SERVERS', { 'Description' => 'Dump info about all known Exchange servers.' }],
-          ['ENUM_EXCHANGE_RECIPIENTS', { 'Description' => 'Dump info about all known Exchange recipients.' }],
-          ['ENUM_GROUPS', { 'Description' => 'Dump info about all known groups in the LDAP environment.' }],
-          ['ENUM_ORGROLES', { 'Description' => 'Dump info about all known organizational roles in the LDAP environment.' }],
-          ['ENUM_ORGUNITS', { 'Description' => 'Dump info about all known organization units in the LDAP environment.' }],
-        ],
+        'Actions' => actions,
         'DefaultAction' => 'ENUM_ALL_OBJECTCLASS',
         'DefaultOptions' => {
           'SSL' => false
@@ -226,62 +238,24 @@ class MetasploitModule < Msf::Auxiliary
 
           perform_multiple_queries_from_file(ldap, parsed_file)
           return
+        else
+          filter_string = nil
+          columns = nil
+          for entry in @default_settings['queries'] do
+            next unless entry['action'] == datastore['ACTION']
 
-        # Many of the following queries came from http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm. All credit goes to them for these popular queries.
-        when 'ENUM_ALL_OBJECTCLASS'
-          filter = Net::LDAP::Filter.construct('(objectClass=*)') # Get ALL of the objects that have any objectClass associated with them. Can return a lot of info.
-          attributes = ['dn', 'objectClass']
+            filter_string = entry['filter']
+            columns = entry['columns']
+            break
+          end
+
+          if columns&.empty? || filter_string&.empty?
+            print_error("Couldn't find and/or load the columns and filter string for #{datastore['ACTION']}. Check the validity of the YAML file at #{@default_settings_file_path}!")
+          end
+
+          filter = Net::LDAP::Filter.construct(filter_string)
+          attributes = columns
           entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_ALL_OBJECTCATEGORY'
-          filter = Net::LDAP::Filter.construct('(objectCategory=*)') # Get ALL of the objects that have any objectCategory associated with them. Can return a lot of info.
-          attributes = ['dn', 'objectCategory']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_ACCOUNTS'
-          # Find AD accounts and organizational people.
-          filter = Net::LDAP::Filter.construct('(|(objectClass=organizationalPerson)(sAMAccountType=805306368))')
-          attributes = ['dn', 'name', 'displayname', 'samaccountname', 'userprincipalname', 'useraccountcontrol', 'homeDirectory', 'homeDrive', 'profilePath']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_COMPUTERS'
-          filter = Net::LDAP::Filter.construct('(objectCategory=Computer)') # Find computers
-          attributes = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion', 'operatingSystemServicePack']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_DOMAIN_CONTROLERS'
-          filter = Net::LDAP::Filter.construct('(&(objectCategory=Computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))') # Find domain controllers
-          attributes = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_EXCHANGE_SERVERS'
-          filter = Net::LDAP::Filter.construct('(&(objectClass=msExchExchangeServer)(!(objectClass=msExchExchangeServerPolicy)))') # Find Exchange Servers
-          attributes = ['dn', 'displayname', 'distinguishedname', 'dnshostname', 'description', 'givenName', 'name', 'operatingSystemVersion']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_EXCHANGE_RECIPIENTS'
-          # Find Exchange Recipients with or without fax addresses.
-          filter = Net::LDAP::Filter.construct('(|(mailNickname=*)(proxyAddresses=FAX:*))')
-          attributes = ['dn', 'mailNickname', 'proxyAddresses', 'name']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_GROUPS'
-          # Standard LDAP groups query, followed by trying to find AD security groups, then trying to find Linux groups.
-          # Filters combined to remove duplicates.
-          filter = Net::LDAP::Filter.construct('(|(objectClass=group)(objectClass=groupOfNames)(groupType:1.2.840.113556.1.4.803:=2147483648)(objectClass=posixGroup))')
-          attributes = ['dn', 'name', 'groupType', 'memberof']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_ORGUNITS'
-          filter = Net::LDAP::Filter.construct('(objectClass=organizationalUnit)') # Find OUs aka Organizational Units
-          attributes = ['dn', 'displayName', 'name', 'description']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
-        when 'ENUM_ORGROLES'
-          filter = Net::LDAP::Filter.construct('(objectClass=organizationalRole)') # Find OUs aka Organizational Units
-          attributes = ['dn', 'displayName', 'name', 'description']
-          entries = perform_ldap_query(ldap, filter, attributes)
-
         end
       end
     rescue Rex::ConnectionTimeout, Net::LDAP::Error => e
