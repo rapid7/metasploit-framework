@@ -35,7 +35,7 @@ RSpec.describe 'Lotus Domino Hashes' do
     File.binread(mock_doc)
   end
   let(:mock_doc) do
-    File.expand_path('lotus_domino_hash_response.xml', FILE_FIXTURES_PATH + 'modules/auxiliary/')
+    File.join(FILE_FIXTURES_PATH, 'modules', 'auxiliary', 'lotus_domino_hash_response.xml')
   end
 
   before do
@@ -54,7 +54,7 @@ RSpec.describe 'Lotus Domino Hashes' do
 
     context 'when the service response does not contain credentials' do
       let(:mock_doc) do
-        File.expand_path('lotus_domino_hash_response_no_cred.xml', FILE_FIXTURES_PATH + 'modules/auxiliary/')
+        File.join(FILE_FIXTURES_PATH, 'modules', 'auxiliary', 'lotus_domino_hash_response_no_cred.xml')
       end
       it 'when provided valid XML missing a credential' do
         subject.dump_hashes(view_id, cookie, uri)
