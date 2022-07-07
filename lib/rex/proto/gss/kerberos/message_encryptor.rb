@@ -15,12 +15,12 @@ module Rex
           # @param [Boolean] is_initiator Are we the initiator in this communication (used for setting flags and key usage values)
           # @param [Boolean] use_acceptor_subkey Are we using the subkey provided by the acceptor? (used for setting appropriate flags)
           def initialize(key, encrypt_sequence_number, decrypt_sequence_number, is_initiator, use_acceptor_subkey: true)
-            self.key = key
-            self.encrypt_sequence_number = encrypt_sequence_number
-            self.decrypt_sequence_number = decrypt_sequence_number
-            self.is_initiator = is_initiator
-            self.use_acceptor_subkey = use_acceptor_subkey
-            self.encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(self.key.type)
+            @key = key
+            @encrypt_sequence_number = encrypt_sequence_number
+            @decrypt_sequence_number = decrypt_sequence_number
+            @is_initiator = is_initiator
+            @use_acceptor_subkey = use_acceptor_subkey
+            @encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(key.type)
           end
   
           #
@@ -28,8 +28,8 @@ module Rex
           # @return [String, Integer, Integer] The encrypted data, the length of its header, and the length of padding added to it prior to encryption
           #
           def encrypt_and_increment(data)
-            result = self.encryptor.gss_wrap(data, self.key, self.encrypt_sequence_number, self.is_initiator, use_acceptor_subkey: self.use_acceptor_subkey)
-            self.encrypt_sequence_number += 1  
+            result = encryptor.gss_wrap(data, @key, @encrypt_sequence_number, @is_initiator, use_acceptor_subkey: @use_acceptor_subkey)
+            @encrypt_sequence_number += 1  
             
             result
           end
@@ -38,8 +38,8 @@ module Rex
           # Decrypt a ciphertext, and verify its validity
           #
           def decrypt_and_verify(data)
-            result = self.encryptor.gss_unwrap(data, self.key, self.decrypt_sequence_number, self.is_initiator, use_acceptor_subkey: self.use_acceptor_subkey)
-            self.decrypt_sequence_number += 1
+            result = encryptor.gss_unwrap(data, @key, @decrypt_sequence_number, @is_initiator, use_acceptor_subkey: @use_acceptor_subkey)
+            @decrypt_sequence_number += 1
 
             result
           end
