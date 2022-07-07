@@ -34,13 +34,23 @@ class MetasploitModule < Msf::Auxiliary
     actions = []
     for entry in @default_settings['queries']
       if entry['action'].nil? || entry['description'].nil?
-        print_warning("Invalid entry detected, check the format of the file at #{@default_settings_file_path}!")
+        if entry['action'].nil?
+          print_warning("Entry detected that was missing its 'action' and 'description' fields!")
+        else
+          print_warning("#{entry['Action']} is missing its 'description' field!")
+        end
+        print_warning("Please check the file at #{@default_settings_file_path} and fix the errors listed above!")
         next
       end
       actions << [entry['action'], { 'Description' => entry['description'] }]
     end
     actions << ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }]
     actions.sort!
+
+    default_action = 'RUN_QUERY_FILE'
+    if actions.length > 1 # Aka there is more than just RUN_QUERY_FILE in the list...
+      default_action = actions[0][0] # Get the first entry's action name and set this as the default action.
+    end
 
     super(
       update_info(
@@ -66,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2022-05-19',
         'License' => MSF_LICENSE,
         'Actions' => actions,
-        'DefaultAction' => 'ENUM_ALL_OBJECTCLASS',
+        'DefaultAction' => default_action,
         'DefaultOptions' => {
           'SSL' => false
         },
