@@ -27,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
           Netlify and Sucuri.
         },
         'Author' => [
-          'mekhalleh (RAMELLA Sébastien)' # https://www.pirates.re/
+          'mekhalleh (RAMELLA Sébastien)', # https://www.pirates.re/
+          'Yvain'
         ],
         'References' => [
           ['URL', 'https://citadelo.com/en/blog/cloudflare-how-to-do-it-right-and-do-not-reveal-your-real-ip/']
@@ -165,21 +166,18 @@ class MetasploitModule < Msf::Auxiliary
   # ------------------------------------------------------------------------- #
 
   # auxiliary/gather/censys_search.rb
-  def censys_search(keyword, search_type, uid, secret)
+  def censys_search(keyword, uid, secret)
     begin
-      payload = { 'query' => keyword }
-
-      cli = Rex::Proto::Http::Client.new('www.censys.io', 443, {}, true, nil, datastore['Proxies'])
+      cli = Rex::Proto::Http::Client.new('search.censys.io', 443, {}, true, nil, datastore['Proxies'])
       cli.connect
 
       response = cli.request_cgi(
-        'method' => 'POST',
-        'uri' => "/api/v1/search/#{search_type}",
+        'method' => 'GET',
+        'uri' => "/api/v2/hosts/search?q=#{keyword}",
         'agent' => datastore['USERAGENT'],
         'headers' => {
           'Authorization' => "Basic #{Rex::Text.encode_base64("#{uid}:#{secret}")}"
-        },
-        'data' => payload.to_json
+        }
       )
       results = cli.send_recv(response)
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
@@ -192,8 +190,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     records = ActiveSupport::JSON.decode(results.body)
-    results = records['results']
 
+    results = records['result']
     parse_ipv4(results)
   end
 
@@ -296,7 +294,7 @@ class MetasploitModule < Msf::Auxiliary
   # auxiliary/gather/censys_search.rb
   def parse_ipv4(records)
     ip_list = []
-    records.each do |ipv4|
+    records['hits'].each do |ipv4|
       ip_list.push(ipv4['ip'])
     end
     ip_list
@@ -579,7 +577,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Censys search
     if [datastore['CENSYS_UID'], datastore['CENSYS_SECRET']].none?(&:nil?)
-      ip_records = censys_search(domain_name, 'ipv4', datastore['CENSYS_UID'], datastore['CENSYS_SECRET'])
+      ip_records = censys_search(domain_name, datastore['CENSYS_UID'], datastore['CENSYS_SECRET'])
       if ip_records && !ip_records.empty?
         ip_list |= ip_records
       end
