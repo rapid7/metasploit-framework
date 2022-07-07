@@ -13,7 +13,7 @@ RSpec.describe 'Lotus Domino Hashes' do
     Faker::Number.new
   end
   let(:cookie) do
-    'invalid'
+    'mock-cookie'
   end
   let(:uri) do
     'http'
@@ -25,10 +25,11 @@ RSpec.describe 'Lotus Domino Hashes' do
     FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace))
   end
   let(:result) do
-    resp = double(Rex::Proto::Http::Response)
-    allow(resp).to receive(:body).and_return(mock_doc_data)
-    allow(resp).to receive(:get_html_document).and_return(Nokogiri::XML(mock_doc_data))
-    resp
+    instance_double(
+      Rex::Proto::Http::Response,
+      body: mock_doc_data,
+      get_html_document: Nokogiri::XML(mock_doc_data)
+    )
   end
   let(:mock_doc_data) do
     File.binread(mock_doc)
@@ -44,12 +45,14 @@ RSpec.describe 'Lotus Domino Hashes' do
   end
 
   describe '#dump_hashes' do
-    it 'when provided valid XML' do
-      subject.dump_hashes(view_id, cookie, uri)
-      expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/NULL/) }))
+    context 'when the service response contains credentials' do
+      it 'reports the extracted user and password' do
+        subject.dump_hashes(view_id, cookie, uri)
+        expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/NULL/) }))
+      end
     end
 
-    describe 'incomplete XML' do
+    context 'when the service response does not contain credentials' do
       let(:mock_doc) do
         File.expand_path('lotus_domino_hash_response_no_cred.xml', FILE_FIXTURES_PATH + 'modules/auxiliary/')
       end
