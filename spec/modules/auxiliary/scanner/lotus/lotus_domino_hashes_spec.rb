@@ -48,7 +48,7 @@ RSpec.describe 'Lotus Domino Hashes' do
     context 'when the service response contains credentials' do
       it 'reports the extracted user and password' do
         subject.dump_hashes(view_id, cookie, uri)
-        expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/NULL/) }))
+        expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
       end
     end
 
