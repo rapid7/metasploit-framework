@@ -1,8 +1,8 @@
 ## Vulnerable Application
 This module allows users to query an LDAP server using either a custom LDAP query, or
-a set of LDAP queries under a specific category. Users can also specify a JSON or 
-YAML file containing custom queries to be executed using the RUN_QUERY_FILE action. 
-If this action is specified, then `QUERY_FILE_PATH` must be a path to the 
+a set of LDAP queries under a specific category. Users can also specify a JSON or
+YAML file containing custom queries to be executed using the RUN_QUERY_FILE action.
+If this action is specified, then `QUERY_FILE_PATH` must be a path to the
 location of this JSON/YAML file on disk.
 
 Alternatively one can run one of several predefined queries by setting ACTION to the
@@ -20,7 +20,223 @@ separating multiple items within one column.
 5: Optional: `set SSL true` if the target port is SSL enabled.
 6: Do: `run`
 
+## Options
+
+### OUTPUT_FORMAT
+The output format to use. Can be either `csv`, `table` or `json` for
+CSV, Rex table output, or JSON output respectively.
+
+### BASE_DN
+The LDAP base DN if already obtained. If not supplied, the module will
+automatically attempt to find the base DN for the target LDAP server.
+
+### QUERY_FILE_PATH
+If the `ACTION` is set to `RUN_QUERY_FILE`, then this option is required and
+must be set to the full path to the JSON or YAML file containing the queries to
+be run.
+
+The file format must follow the following convention:
+
+```
+queries:
+  - action: THE ACTION NAME
+    description: "THE ACTION DESCRIPTION"
+    filter: "THE LDAP FILTER"
+    attributes:
+      - dn
+      - displayName
+      - name
+      - description
+```
+
+Where `queries` is an array of queries to be run, each containing an `action` field
+containing the name of the action to be run, a `description` field describing the
+action, a `filter` field containing the filter to send to the LDAP server
+(aka what to search on), and the list of attributes that we are interested in from
+the results as an array.
+
+
 ## Scenarios
+
+### RUN_QUERY_FILE with Table Output
+
+Here is the sample query file we will be using:
+
+```
+ ~/git/metasploit-framework │ ldap-changes !1 ?23  cat test.yaml                                                  ✔ │ 3.0.2 Ruby 
+---
+queries:
+  - action: ENUM_USERS
+    description: "Enumerate users"
+    filter: "(|(objectClass=inetOrgPerson)(objectClass=user)(sAMAccountType=805306368)(objectClass=posixAccount))"
+    columns:
+      - dn
+      - displayName
+      - name
+      - description
+  - action: ENUM_ORGUNITS
+    description: "Enumerate organizational units"
+    filter: "(objectClass=organizationalUnit)"
+    columns:
+      - dn
+      - displayName
+      - name
+      - description
+  - action: ENUM_GROUPS
+    description: "Enumerate groups"
+    filter: "(|(objectClass=group)(objectClass=groupOfNames)(groupType:1.2.840.113556.1.4.803:=2147483648)(objectClass=posixGroup))"
+    columns:
+      - dn
+      - name
+      - groupType
+      - memberof
+```
+
+Here is the results of using this file with the `RUN_QUERY_FILE` action which will
+run all queries within the file one after another.
+
+```
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
+msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
+BIND_DN => normal@daforest.com
+msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
+BIND_PW => thePassword123
+msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
+RHOSTS => 172.27.51.83
+msf6 auxiliary(gather/ldap_query) > set ACTION RUN_QUERY_FILE 
+ACTION => RUN_QUERY_FILE
+msf6 auxiliary(gather/ldap_query) > set QUERY_FILE_PATH /home/gwillcox/git/metasploit-framework/test.yaml
+QUERY_FILE_PATH => /home/gwillcox/git/metasploit-framework/test.yaml
+msf6 auxiliary(gather/ldap_query) > show options
+
+Module options (auxiliary/gather/ldap_query):
+
+   Name             Current Setting                     Required  Description
+   ----             ---------------                     --------  -----------
+   BASE_DN                                              no        LDAP base DN if you already have it
+   BIND_DN          normal@daforest.com                 no        The username to authenticate to LDAP server
+   BIND_PW          thePassword123                      no        Password for the BIND_DN
+   OUTPUT_FORMAT    table                               yes       The output format to use (Accepted: csv, table, json)
+   QUERY_FILE_PATH  /home/gwillcox/git/metasploit-fram  no        Path to the JSON or YAML file to load and run queries from
+                    ework/test.yaml
+   RHOSTS           172.27.51.83                        yes       The target host(s), see https://github.com/rapid7/metasploit-f
+                                                                  ramework/wiki/Using-Metasploit
+   RPORT            389                                 yes       The target port
+   SSL              false                               no        Enable SSL on the LDAP connection
+
+
+Auxiliary action:
+
+   Name            Description
+   ----            -----------
+   RUN_QUERY_FILE  Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.
+
+
+msf6 auxiliary(gather/ldap_query) > run
+[*] Running module against 172.27.51.83
+
+[+] Successfully bound to the LDAP server!
+[*] Discovering base DN automatically
+[+] 172.27.51.83:389 Discovered base DN: DC=daforest,DC=com
+[*] Loading queries from /home/gwillcox/git/metasploit-framework/test.yaml...
+[*] Running ENUM_USERS...
+[*] CN=Administrator CN=Users DC=daforest DC=com
+============================================
+
+ Name         Attributes
+ ----         ----------
+ description  Built-in account for administering the computer/domain
+ name         Administrator
+
+[*] CN=Guest CN=Users DC=daforest DC=com
+====================================
+
+ Name         Attributes
+ ----         ----------
+ description  Built-in account for guest access to the computer/domain
+ name         Guest
+
+*cut for brevity*
+
+[*] Running ENUM_ORGUNITS...
+[*] OU=Domain Controllers DC=daforest DC=com
+========================================
+
+ Name         Attributes
+ ----         ----------
+ description  Default container for domain controllers
+ name         Domain Controllers
+
+[*] OU=Admin DC=daforest DC=com
+===========================
+
+ Name  Attributes
+ ----  ----------
+ name  Admin
+
+[*] OU=Tier 0 OU=Admin DC=daforest DC=com
+=====================================
+
+ Name  Attributes
+ ----  ----------
+ name  Tier 0
+
+*cut for brevity*
+
+[*] Running ENUM_GROUPS...
+[*] CN=Administrators CN=Builtin DC=daforest DC=com
+===============================================
+
+ Name       Attributes
+ ----       ----------
+ grouptype  -2147483643
+ name       Administrators
+
+[*] CN=Users CN=Builtin DC=daforest DC=com
+======================================
+
+ Name       Attributes
+ ----       ----------
+ grouptype  -2147483643
+ name       Users
+
+[*] CN=Guests CN=Builtin DC=daforest DC=com
+=======================================
+
+ Name       Attributes
+ ----       ----------
+ grouptype  -2147483643
+ name       Guests
+
+[*] CN=Print Operators CN=Builtin DC=daforest DC=com
+================================================
+
+ Name       Attributes
+ ----       ----------
+ grouptype  -2147483643
+ name       Print Operators
+
+[*] CN=Backup Operators CN=Builtin DC=daforest DC=com
+=================================================
+
+ Name       Attributes
+ ----       ----------
+ grouptype  -2147483643
+ name       Backup Operators
+ 
+*cut for brevity*
+
+[*] CN=EL-chu-distlist1 OU=T2-Roles OU=Tier 2 OU=Admin DC=daforest DC=com
+=====================================================================
+
+ Name       Attributes
+ ----       ----------
+ grouptype  -2147483646
+ name       EL-chu-distlist1
+
+[*] Auxiliary module execution completed
+msf6 auxiliary(gather/ldap_query) > 
+```
 
 ### ENUM_COMPUTERS with Table Output
 
