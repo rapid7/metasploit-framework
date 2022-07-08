@@ -14,6 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::AuthOption
 
   def initialize
     super(
@@ -33,6 +34,21 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options('PASSWORD_SPRAY')
+
+    register_advanced_options(
+      [
+        OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS]),
+        OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos']),
+        OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'])
+      ]
+    )
+  end
+
+  def run
+    if datastore['WinrmAuth'] == KERBEROS
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using kerberos authentication.') if datastore['WinrmRhostname'].blank?
+    end
+    super
   end
 
   def run_host(ip)
@@ -41,6 +57,28 @@ class MetasploitModule < Msf::Auxiliary
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
+
+    kerberos_authenticator_factory = nil
+    preferred_auth = 'Negotiate'
+    if datastore['WinrmAuth'] == KERBEROS
+      preferred_auth = 'Kerberos'
+      kerberos_authenticator_factory = -> (username, password, realm) do
+        Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
+          host: datastore['DomainControllerRhost'],
+          hostname: datastore['WinrmRhostname'],
+          realm: realm,
+          username: username,
+          password: password,
+          timeout: 20,
+          framework: framework,
+          framework_module: self,
+          mutual_auth: true,
+          use_gss_checksum: true
+        )
+      end
+    end
+
+    keep_connection_alive = datastore['CreateSession']
 
     scanner = Metasploit::Framework::LoginScanner::WinRM.new(
       host: ip,
@@ -51,7 +89,9 @@ class MetasploitModule < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 10,
       framework: framework,
-      framework_module: self
+      framework_module: self,
+      kerberos_authenticator_factory: kerberos_authenticator_factory,
+      keep_connection_alive: keep_connection_alive
     )
 
     scanner.scan! do |result|
@@ -67,6 +107,7 @@ class MetasploitModule < Msf::Auxiliary
 
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
         if datastore['CreateSession']
+          http_client = result.connection
           rhost = result.host
           rport = result.port
           uri = datastore['URI']
@@ -87,7 +128,8 @@ class MetasploitModule < Msf::Auxiliary
               operation_timeout: 1, # For the WinRM server
               timeout: 20, # For the underlying HTTP client
               retry_delay: 1,
-              realm: result.credential.realm
+              realm: result.credential.realm,
+              http_client: http_client
             }
           )
           shell = conn.shell(:stdin, {})

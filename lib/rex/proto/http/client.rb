@@ -482,14 +482,9 @@ class Client
 
   def kerberos_auth(opts={})
     to = opts['timeout'] || 20
-    begin
     auth_result = self.kerberos_authenticator.authenticate(mechanism: Rex::Proto::Gss::Mechanism::KERBEROS)
     gss_data = auth_result[:security_blob]
     gss_data_b64 = Rex::Text.encode_base64(gss_data)
-    rescue => exception
-      print("Exception: #{exception}\n")
-      print("Exception: #{exception.backtrace}\n")
-    end
 
     # Separate options for the auth requests
     auth_opts = opts.clone

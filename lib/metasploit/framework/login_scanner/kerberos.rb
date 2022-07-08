@@ -41,7 +41,7 @@ module Metasploit
             result_options = result_options.merge({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
-            status = login_status_for_kerberos_error(e)
+            status = self.class.login_status_for_kerberos_error(e)
             result_options = result_options.merge({ status: status, proof: e })
             return Metasploit::Framework::LoginScanner::Result.new(result_options)
           end
@@ -54,10 +54,8 @@ module Metasploit
         alias rport port
         alias timeout connection_timeout
 
-        private
-
         # @param [Rex::Proto::Kerberos::Model::Error::KerberosError] krb_err The kerberos error
-        def login_status_for_kerberos_error(krb_err)
+        def self.login_status_for_kerberos_error(krb_err)
           error_code = krb_err.error_code
           case error_code
           when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED, Rex::Proto::Kerberos::Model::Error::ErrorCodes::KRB_AP_ERR_SKEW
@@ -101,6 +99,8 @@ module Metasploit
             Metasploit::Model::Login::Status::INCORRECT
           end
         end
+
+        private
 
         def set_sane_defaults
           self.port = DEFAULT_PORT unless self.port
