@@ -1,20 +1,22 @@
 ## Vulnerable Application
 This module allows users to query an LDAP server using either a custom LDAP query, or
 a set of LDAP queries under a specific category. Users can also specify a JSON or YAML
-file containing custom queries to be executed using the RUN_QUERY_FILE action.
-If this action is specified, then QUERY_FILE_PATH must be a path to the location
+file containing custom queries to be executed using the `RUN_QUERY_FILE` action.
+If this action is specified, then `QUERY_FILE_PATH` must be a path to the location
 of this JSON/YAML file on disk.
 
-Users can also run a single query by using the RUN_SINGLE_QUERY option and then setting
-the QUERY_FILTER datastore option to the filter to send to the LDAP server and QUERY_ATTRIBUTES
+Users can also run a single query by using the `RUN_SINGLE_QUERY` option and then setting
+the `QUERY_FILTER` datastore option to the filter to send to the LDAP server and `QUERY_ATTRIBUTES`
 to a comma seperated string containing the list of attributes they are interested in obtaining
 from the results.
 
-As a third option can run one of several predefined queries by setting ACTION to the
-appropriate value.
+As a third option can run one of several predefined queries by setting `ACTION` to the
+appropriate value. These options will be loaded from the `ldap_queries_default.yaml` file
+located in the MSF configuration directory, located by default at `~/.msf4/ldap_queries_default.yaml`.
 
-All results will be returned to the user in table, CSV or JSON format, with || as the delimiter
-separating multiple items within one column.
+All results will be returned to the user in table, CSV or JSON format, depending on the value
+of the `OUTPUT_FORMAT` datastore option. The characters `||` will be used as a delimiter
+should multiple items exist within a single column.
 
 ## Verification Steps
 
@@ -67,8 +69,7 @@ aka query that you want to send to the target LDAP server.
 ### QUERY_ATTRIBUTES
 Used only when the `RUN_SINGLE_QUERY` action is used. Should be a comma separated list
 of attributes to display from the full result set for each entry that was returned by the
-target LDAP server. Used to filter the results down to managable sets of data.
-
+target LDAP server. Used to filter the results down to manageable sets of data.
 
 ## Scenarios
 
@@ -159,7 +160,7 @@ msf6 auxiliary(gather/ldap_query) >
 Here is the sample query file we will be using:
 
 ```
- ~/git/metasploit-framework │ ldap-changes !1 ?23  cat test.yaml                                                  ✔ │ 3.0.2 Ruby 
+$ cat test.yaml
 ---
 queries:
   - action: ENUM_USERS
