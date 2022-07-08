@@ -44,6 +44,51 @@ RSpec.describe Msf::Post::Windows::Runas do
   end
 
   context "#create_process_with_logon" do
+    before :example do
+      allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X86)
+    end
+
+    context 'on a 32-bit session' do
+      it 'calls CreateProcessWithLogonW with a lpProcessInformation buffer of 16 bytes' do
+        expect(advapi32).to receive(:CreateProcessWithLogonW).with(
+          'bob',
+          nil,
+          'pass',
+          'LOGON_WITH_PROFILE',
+          nil,
+          'cmd.exe',
+          'CREATE_UNICODE_ENVIRONMENT',
+          nil,
+          nil,
+          subject.startup_info,
+          16
+        )
+        subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe')
+      end
+    end
+
+    context 'on a 64-bit session' do
+      before :example do
+        allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X64)
+      end
+      it 'calls CreateProcessWithLogonW with a lpProcessInformation buffer of 24 bytes' do
+        expect(advapi32).to receive(:CreateProcessWithLogonW).with(
+          'bob',
+          nil,
+          'pass',
+          'LOGON_WITH_PROFILE',
+          nil,
+          'cmd.exe',
+          'CREATE_UNICODE_ENVIRONMENT',
+          nil,
+          nil,
+          subject.startup_info,
+          24
+        )
+        subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe')
+      end
+    end
+
     it "should return a process_info hash" do
       expect(advapi32).to receive(:CreateProcessWithLogonW)
       expect(kernel32).not_to receive(:CloseHandle)
@@ -59,6 +104,52 @@ RSpec.describe Msf::Post::Windows::Runas do
   end
 
   context "#create_process_as_user" do
+    before :example do
+      allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X86)
+    end
+
+    context 'on a 32-bit session' do
+      it 'calls CreateProcessAsUserA with a lpProcessInformation buffer of 16 bytes' do
+        expect(advapi32).to receive(:CreateProcessAsUserA).with(
+          phToken,
+          nil,
+          'cmd.exe',
+          nil,
+          nil,
+          false,
+          'CREATE_NEW_CONSOLE',
+          nil,
+          nil,
+          subject.startup_info,
+          16
+        )
+        subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')
+      end
+    end
+
+    context 'on a 64-bit session' do
+      before :example do
+        allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X64)
+      end
+
+      it 'calls CreateProcessAsUserA with a lpProcessInformation buffer of 24 bytes' do
+        expect(advapi32).to receive(:CreateProcessAsUserA).with(
+          phToken,
+          nil,
+          'cmd.exe',
+          nil,
+          nil,
+          false,
+          'CREATE_NEW_CONSOLE',
+          nil,
+          nil,
+          subject.startup_info,
+          24
+        )
+        subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')
+      end
+    end
+
     it "should return a process_info hash" do
       expect(advapi32).to receive(:LogonUserA)
       expect(advapi32).to receive(:CreateProcessAsUserA)
@@ -92,22 +183,65 @@ RSpec.describe Msf::Post::Windows::Runas do
   end
 
   context "#startup_info" do
-    it "should be 68 bytes" do
-      expect(subject.startup_info.size).to eq(68)
+    context 'on a 32-bit session' do
+      before :example do
+        allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X86)
+      end
+
+      it "should be 68 bytes" do
+        expect(subject.startup_info.size).to eq(68)
+      end
+
+      it "should return SW_HIDE=0 and STARTF_USESHOWWINDOW=1" do
+        si = subject.startup_info.unpack('VVVVVVVVVVVVvvVVVV')
+        expect(si[11]).to eq(1)
+        expect(si[12]).to eq(0)
+      end
     end
 
-    it "should return SW_HIDE=0 and STARTF_USESHOWWINDOW=1" do
-      si = subject.startup_info.unpack('VVVVVVVVVVVVvvVVVV')
-      expect(si[11]).to eq(1)
-      expect(si[12]).to eq(0)
+    context 'on a 64-bit session' do
+      before :example do
+        allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X64)
+      end
+
+      it "should be 100 bytes" do
+        expect(subject.startup_info.size).to eq(100)
+      end
+
+      it "should return SW_HIDE=0 and STARTF_USESHOWWINDOW=1" do
+        si = subject.startup_info.unpack('QQQQVVVVVVVVvvQQQQ')
+        expect(si[11]).to eq(1)
+        expect(si[12]).to eq(0)
+      end
     end
   end
 
   context "#parse_process_information" do
-    it "should return a hash when given valid data" do
-      pi = subject.parse_process_information(process_info)
-      expect(pi).to be_kind_of(Hash)
-      expect(pi).to eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+    before :example do
+      allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X86)
+    end
+
+    context 'on a 32-bit session' do
+      it "should return a hash when given valid data" do
+        pi = subject.parse_process_information(process_info)
+        expect(pi).to be_kind_of(Hash)
+        expect(pi).to eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+      end
+    end
+
+    context 'on a 64-bit session' do
+      let(:process_info) do
+        "\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00"
+      end
+      before :example do
+        allow(subject).to receive_message_chain("session.arch").and_return(ARCH_X64)
+      end
+
+      it "should return a hash when given valid data" do
+        pi = subject.parse_process_information(process_info)
+        expect(pi).to be_kind_of(Hash)
+        expect(pi).to eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+      end
     end
 
     it "should return an exception when given an empty string" do
