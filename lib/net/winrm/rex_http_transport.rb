@@ -7,10 +7,10 @@ module Net
       # rubocop:disable Lint/
       def initialize(opts)
         if opts[:kerberos_authenticator]
-          self.http_client = Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], kerberos_authenticator: opts[:kerberos_authenticator])
+          self.http_client = opts.fetch(:http_client) { Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], kerberos_authenticator: opts[:kerberos_authenticator]) }
           self.preferred_auth = 'Kerberos'
         else
-          self.http_client = Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], opts[:user], opts[:password])
+          self.http_client = opts.fetch(:http_client) { Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], opts[:user], opts[:password]) }
           self.preferred_auth = 'Negotiate'
         end
         self.timeout = opts[:timeout]
