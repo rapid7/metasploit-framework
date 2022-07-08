@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     filename = 'ldap_queries_default.yaml'
-    user_config_file = File.join(::Msf::Config.get_config_root, filename)
+    user_config_file = File.join(::Msf::Config.get_config_root.to_s, filename)
     unless File.exist?(user_config_file)
       # If the user config file doesn't exist, then initialize it with the contents of the default one.
       default_config_file = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', filename)
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     actions = []
-    for entry in @default_settings['queries']
+    @default_settings['queries'].each do |entry|
       if entry['action'].nil? || entry['description'].nil?
         if entry['action'].nil?
           print_warning("Entry detected that was missing its 'action' and 'description' fields!")
@@ -45,10 +45,11 @@ class MetasploitModule < Msf::Auxiliary
       actions << [entry['action'], { 'Description' => entry['description'] }]
     end
     actions << ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }]
+    actions << ['RUN_SINGLE_QUERY', { 'Description' => 'Execute a single LDAP query using the QUERY_FILTER and QUERY_ATTRIBUTES options.' }]
     actions.sort!
 
     default_action = 'RUN_QUERY_FILE'
-    if actions.length > 1 # Aka there is more than just RUN_QUERY_FILE in the list...
+    if actions.length > 2 # Aka there is more than just RUN_QUERY_FILE and RUN_SINGLE_QUERY in the list...
       default_action = actions[0][0] # Get the first entry's action name and set this as the default action.
     end
 
@@ -62,14 +63,19 @@ class MetasploitModule < Msf::Auxiliary
           custom queries to be executed using the RUN_QUERY_FILE action. If this action is specified,
           then QUERY_FILE_PATH must be a path to the location of this JSON/YAML file on disk.
 
-          Alternatively one can run one of several predefined queries by setting ACTION to the
+          Users can also run a single query by using the RUN_SINGLE_QUERY option and then setting
+          the QUERY_FILTER datastore option to the filter to send to the LDAP server and QUERY_ATTRIBUTES
+          to a comma seperated string containing the list of attributes they are interested in obtaining
+          from the results.
+
+          As a third option can run one of several predefined queries by setting ACTION to the
           appropriate value.
 
-          All results will be returned to the user in table format, with || as the delimiter
+          All results will be returned to the user in table, CSV or JSON format, with || as the delimiter
           separating multiple items within one column.
         },
         'Author' => [
-          'Grant Willcox', # Module
+          'Grant Willcox', # Original module author
         ],
         'References' => [
         ],
@@ -90,9 +96,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(389), # Set to 636 for SSL/TLS
-      OptEnum.new('OUTPUT_FORMAT', [true, 'The output format to use', 'table', ['csv', 'table', 'json']]),
+      OptEnum.new('OUTPUT_FORMAT', [true, 'The output format to use', 'table', %w[csv table json]]),
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptString.new('QUERY_FILE_PATH', [false, 'Path to the JSON or YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE])
+      OptString.new('QUERY_FILE_PATH', [false, 'Path to the JSON or YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE]),
+      OptString.new('QUERY_FILTER', [false, 'Filter to send to the target LDAP server to perform the query'], conditions: %w[ACTION == RUN_SINGLE_QUERY]),
+      OptString.new('QUERY_ATTRIBUTES', [false, 'Comma seperated list of attributes to retrieve from the server'], conditions: %w[ACTION == RUN_SINGLE_QUERY])
     ])
   end
 
@@ -121,10 +129,10 @@ class MetasploitModule < Msf::Auxiliary
       tbl = Rex::Text::Table.new(
         'Header' => entry['dn'][0].split(',').join(' '),
         'Indent' => 1,
-        'Columns' => ['Name', 'Attributes']
+        'Columns' => %w[Name Attributes]
       )
 
-      for attr in entry.attribute_names
+      entry.attribute_names.each do |attr|
         if format == 'table'
           tbl << [attr, entry[attr].join(' || ')] unless attr == :dn # Skip over DN entries for tables since DN information is shown in header.
         else
@@ -148,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
     entries.each do |entry|
       result = ''
       data = {}
-      for attr in entry.attribute_names
+      entry.attribute_names.each do |attr|
         data[attr] = entry[attr].join(' || ')
       end
       result << JSON.pretty_generate(data) + ",\n"
@@ -166,7 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     generate_rex_tables(entries, 'csv')
   end
 
-  def perform_multiple_queries_from_file(ldap, parsed_file)
+  def run_queries_from_file(ldap, parsed_file)
     parsed_file['queries'].each do |query|
       unless query['action'] && query['filter'] && query['attributes']
         print_error("Each query in the query file must at least contain a 'action', 'filter' and 'attributes' attribute!")
@@ -238,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
         case action.name
         when 'RUN_QUERY_FILE'
           unless datastore['QUERY_FILE_PATH']
-            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE action one must specify the path to the JASON/YAML file containing the queries via QUERY_FILE_PATH!')
+            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE action, one must specify the path to the JASON/YAML file containing the queries via QUERY_FILE_PATH!')
           end
           print_status("Loading queries from #{datastore['QUERY_FILE_PATH']}...")
 
@@ -253,12 +261,32 @@ class MetasploitModule < Msf::Auxiliary
             print_error("No queries supplied in #{datastore['QUERY_FILE_PATH']}!")
           end
 
-          perform_multiple_queries_from_file(ldap, parsed_file)
+          run_queries_from_file(ldap, parsed_file)
           return
+        when 'RUN_SINGLE_QUERY'
+          unless datastore['QUERY_FILTER'] && datastore['QUERY_ATTRIBUTES']
+            fail_with(Failure::BadConfig, 'When using the RUN_SINGLE_QUERY action, one must supply the QUERY_FILTER and QUERY_ATTRIBUTE datastore options!')
+          end
+
+          begin
+            filter = Net::LDAP::Filter.construct(datastore['QUERY_FILTER'])
+          rescue StandardError => e
+            print_error("Could not compile the filter #{datastore['QUERY_FILTER']}. Error was #{e}")
+            return
+          end
+
+          print_status("Sending single query #{datastore['QUERY_FILTER']} to the LDAP server...")
+          attributes = datastore['QUERY_ATTRIBUTES'].split(',')
+          if attributes.empty?
+            print_error('Attributes list is empty as we could not find at least one attribute to filter on!')
+            return
+          end
+          entries = perform_ldap_query(ldap, filter, attributes)
+          print_error("No entries could be found for #{datastore['QUERY_FILTER']}!") if entries.nil? || entries.empty?
         else
           filter_string = nil
           attributes = nil
-          for entry in @default_settings['queries'] do
+          @default_settings['queries'].each do |entry|
             next unless entry['action'] == datastore['ACTION']
 
             filter_string = entry['filter']
@@ -278,7 +306,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Could not query #{datastore['RHOST']}! Error was: #{e.message}")
       return
     end
-    return if entries.nil?
+    return if entries.nil? || entries.empty?
 
     case datastore['OUTPUT_FORMAT']
     when 'csv'

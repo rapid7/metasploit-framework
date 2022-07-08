@@ -1,14 +1,19 @@
 ## Vulnerable Application
 This module allows users to query an LDAP server using either a custom LDAP query, or
-a set of LDAP queries under a specific category. Users can also specify a JSON or
-YAML file containing custom queries to be executed using the RUN_QUERY_FILE action.
-If this action is specified, then `QUERY_FILE_PATH` must be a path to the
-location of this JSON/YAML file on disk.
+a set of LDAP queries under a specific category. Users can also specify a JSON or YAML
+file containing custom queries to be executed using the RUN_QUERY_FILE action.
+If this action is specified, then QUERY_FILE_PATH must be a path to the location
+of this JSON/YAML file on disk.
 
-Alternatively one can run one of several predefined queries by setting ACTION to the
+Users can also run a single query by using the RUN_SINGLE_QUERY option and then setting
+the QUERY_FILTER datastore option to the filter to send to the LDAP server and QUERY_ATTRIBUTES
+to a comma seperated string containing the list of attributes they are interested in obtaining
+from the results.
+
+As a third option can run one of several predefined queries by setting ACTION to the
 appropriate value.
 
-All results will be returned to the user in table format, with `||` as the delimiter
+All results will be returned to the user in table, CSV or JSON format, with || as the delimiter
 separating multiple items within one column.
 
 ## Verification Steps
@@ -55,8 +60,99 @@ action, a `filter` field containing the filter to send to the LDAP server
 (aka what to search on), and the list of attributes that we are interested in from
 the results as an array.
 
+### QUERY_FILTER
+Used only when the `RUN_SINGLE_QUERY` action is used. This should be set to the filter
+aka query that you want to send to the target LDAP server.
+
+### QUERY_ATTRIBUTES
+Used only when the `RUN_SINGLE_QUERY` action is used. Should be a comma separated list
+of attributes to display from the full result set for each entry that was returned by the
+target LDAP server. Used to filter the results down to managable sets of data.
+
 
 ## Scenarios
+
+### RUN_SINGLE_QUERY with Table Output
+
+```
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
+msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
+BIND_DN => normal@daforest.com
+msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
+BIND_PW => thePassword123
+msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
+RHOSTS => 172.27.51.83
+msf6 auxiliary(gather/ldap_query) > set ACTION RUN_SINGLE_QUERY
+ACTION => RUN_SINGLE_QUERY
+msf6 auxiliary(gather/ldap_query) > set QUERY_ATTRIBUTES dn,displayName,name
+QUERY_ATTRIBUTES => dn,displayName,name
+msf6 auxiliary(gather/ldap_query) > set QUERY_FILTER (objectClass=*)
+QUERY_FILTER => (objectClass=*)
+msf6 auxiliary(gather/ldap_query) > run
+[*] Running module against 172.27.51.83
+
+[+] Successfully bound to the LDAP server!
+[*] Discovering base DN automatically
+[+] 172.27.51.83:389 Discovered base DN: DC=daforest,DC=com
+[*] Sending single query (objectClass=*) to the LDAP server...
+[*] DC=daforest DC=com
+==================
+
+ Name  Attributes
+ ----  ----------
+ name  daforest
+
+[*] CN=Users DC=daforest DC=com
+===========================
+
+ Name  Attributes
+ ----  ----------
+ name  Users
+
+[*] CN=Computers DC=daforest DC=com
+===============================
+
+ Name  Attributes
+ ----  ----------
+ name  Computers
+
+*cut for brevity*
+
+[*] CN=WAPPS1000022 OU=TST OU=Tier 1 DC=daforest DC=com
+===================================================
+
+ Name         Attributes
+ ----         ----------
+ displayname  WAPPS1000022
+ name         WAPPS1000022
+
+[*] CN=WLPT1000014 OU=AZR OU=Stage DC=daforest DC=com
+=================================================
+
+ Name         Attributes
+ ----         ----------
+ displayname  WLPT1000014
+ name         WLPT1000014
+
+[*] CN=WWKS1000016 OU=T1-Roles OU=Tier 1 OU=Admin DC=daforest DC=com
+================================================================
+
+ Name         Attributes
+ ----         ----------
+ displayname  WWKS1000016
+ name         WWKS1000016
+
+[*] CN=WVIR1000013 OU=Test OU=BDE OU=Tier 2 DC=daforest DC=com
+==========================================================
+
+ Name         Attributes
+ ----         ----------
+ displayname  WVIR1000013
+ name         WVIR1000013
+ 
+[*] Auxiliary module execution completed
+msf6 auxiliary(gather/ldap_query) > 
+```
 
 ### RUN_QUERY_FILE with Table Output
 
