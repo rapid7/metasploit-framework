@@ -104,6 +104,9 @@ module Rex
           end
 
           def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, use_acceptor_subkey: true)
+            # Always 32-bit sequence number
+            expected_sequence_number &= 0xFFFFFFFF
+
             mech_id, ciphertext = unwrap_pseudo_asn1(ciphertext)
 
             raise Rex::Proto::Kerberos::Model::Error::KerberosError unless ciphertext.length > 0x20
@@ -163,6 +166,9 @@ module Rex
           end
 
           def gss_wrap(plaintext, key, sequence_number, is_initiator, use_acceptor_subkey: true)
+            # Always 32-bit sequence number
+            sequence_number &= 0xFFFFFFFF
+
             # Header
             tok_id = 0x0201
             alg = 0x1100
