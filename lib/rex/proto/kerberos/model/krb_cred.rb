@@ -14,213 +14,76 @@ module Rex
           #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
           # @!attribute tickets
-          #   @return [Array<Rex::Proto::Kerberol::Model::Ticket>] Tickets encapsulated in this message
+          #   @return [Array<Rex::Proto::Kerberos::Model::Ticket>] Tickets encapsulated in this message
           attr_accessor :tickets
           # @!attribute enc_part
-          #   @return [String] Encrypted KRB-CRED blob
+          #   @return [Rex::Proto::Kerberos::Model::EncryptedData] Encrypted KRB-CRED blob
           attr_accessor :enc_part
 
-          # Decodes the Rex::Proto::Kerberos::Model::KrbError from an input
+          # Decodes the Rex::Proto::Kerberos::Model::KrbCred from an input
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
           # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
-            case input
-            when String
-              decode_string(input)
-            when OpenSSL::ASN1::ASN1Data
-              decode_asn1(input)
-            else
-              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KrbError, invalid input'
-            end
-
-            self
+            raise ::NotImplementedError, 'KrbCred decoding not supported'
           end
 
-          # Rex::Proto::Kerberos::Model::KrbError encoding isn't supported
+          # Rex::Proto::Kerberos::Model::KrbCred encoding isn't supported
           #
           # @raise [NotImplementedError]
           def encode
-            raise ::NotImplementedError, 'KrbError encoding not supported'
-          end
+            elems = []
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_pvno], 0, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_msg_type], 1, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_tickets], 2, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_enc_part], 3, :CONTEXT_SPECIFIC)
 
-          # Decodes the e_data field as an Array<PreAuthDataEntry>
-          #
-          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
-          def e_data_as_pa_data
-            pre_auth = []
-            decoded = OpenSSL::ASN1.decode(self.e_data)
-            decoded.each do |pre_auth_data|
-              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
-            end
+            seq = OpenSSL::ASN1::Sequence.new(elems)
+            seq_asn1 = OpenSSL::ASN1::ASN1Data.new([seq], KRB_CRED, :APPLICATION)
 
-            pre_auth
-          end
-
-          # Decodes the e_data field as a PreAuthData
-          #
-          # @return [Rex::Proto::Kerberos::Model::PreAuthData]
-          def e_data_as_pa_data_entry
-            decoded = OpenSSL::ASN1.decode(self.e_data)
-            Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(decoded)
+            seq_asn1.to_der
           end
 
           private
 
-          # Decodes a Rex::Proto::Kerberos::Model::KrbError from an String
+          # Encodes the pvno
           #
-          # @param input [String] the input to decode from
-          def decode_string(input)
-            asn1 = OpenSSL::ASN1.decode(input)
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError]
+          def encode_pvno
+            bn = OpenSSL::BN.new(pvno.to_s)
+            int = OpenSSL::ASN1::Integer.new(bn)
 
-            decode_asn1(asn1)
+            int
+          rescue OpenSSL::ASN1::ASN1Error
+            raise Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::KrbError
+          # Encodes the msg_type field
           #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
-          def decode_asn1(input)
-            input.value[0].value.each do |val|
-              case val.tag
-              when 0
-                self.pvno = decode_pvno(val)
-              when 1
-                self.msg_type = decode_msg_type(val)
-              when 2
-                self.ctime = decode_ctime(val)
-              when 3
-                self.cusec = decode_cusec(val)
-              when 4
-                self.stime = decode_stime(val)
-              when 5
-                self.susec = decode_susec(val)
-              when 6
-                self.error_code = decode_error_code(val)
-              when 7
-                self.crealm = decode_crealm(val)
-              when 8
-                self.cname = decode_cname(val)
-              when 9
-                self.realm = decode_realm(val)
-              when 10
-                self.sname = decode_sname(val)
-              when 11
-                self.etext = decode_etext(val)
-              when 12
-                self.e_data = decode_e_data(val)
-              else
-                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode KRB-ERROR SEQUENCE (#{val.tag})"
-              end
-            end
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_msg_type
+            bn = OpenSSL::BN.new(msg_type.to_s)
+            int = OpenSSL::ASN1::Integer.new(bn)
+
+            int
           end
 
-          # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
+          # Encodes the ticket field
           #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
-          def decode_pvno(input)
-            input.value[0].value.to_i
+          # @return [OpenSSL::ASN1::Sequence]
+          def encode_tickets
+            encoded = tickets.map {|t| t.encode}
+            seq = OpenSSL::ASN1::Sequence.new(encoded)
           end
 
-          # Decodes the msg_type from an OpenSSL::ASN1::ASN1Data
+          # Encodes the enc_part field
           #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
-          def decode_msg_type(input)
-            input.value[0].value.to_i
-          end
-
-          # Decodes the ctime field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Time]
-          def decode_ctime(input)
-            input.value[0].value
-          end
-
-          # Decodes the cusec field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
-          def decode_cusec(input)
-            input.value[0].value
-          end
-
-          # Decodes the stime field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Time]
-          def decode_stime(input)
-            input.value[0].value
-          end
-
-          # Decodes the susec field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
-          def decode_susec(input)
-            input.value[0].value.to_i
-          end
-
-          # Decodes the error_code field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Model::Error::ErrorCode]
-          def decode_error_code(input)
-            value = input.value[0].value.to_i
-
-            Error::ErrorCodes::ERROR_MAP[value] || Error::ErrorCode.new('UNKNOWN', value, 'Unknown error')
-          end
-
-          # Decodes the crealm field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [String]
-          def decode_crealm(input)
-            input.value[0].value
+          def encode_enc_part
+            encoded = enc_part.encode
           end
 
-          # Decodes the cname field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Model::PrincipalName]
-          def decode_cname(input)
-            Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
-          end
-
-          # Decodes the realm field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [String]
-          def decode_realm(input)
-            input.value[0].value
-          end
-
-          # Decodes the sname field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Model::PrincipalName]
-          def decode_sname(input)
-            Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
-          end
-
-          # Decodes the e-text field
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [String]
-          def decode_etext(input)
-            input.value[0].value
-          end
-
-          # Decodes the e_data from an OpenSSL::ASN1::ASN1Data
-          #
-          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [String]
-          def decode_e_data(input)
-            input.value[0].value
-          end
         end
       end
     end
