@@ -42,6 +42,7 @@ module Net
 
         str = response.body.force_encoding('BINARY')
         str.sub!(%r{^.*Content-Type: application/octet-stream\r\n(.*)--Encrypted.*$}m, '\1')
+        str.sub!(%r{^.*Content-Type: application/octet-stream\r\n(.*)-- Encrypted.*$}m, '\1')
 
         # Strip off the "encrypted message header length" token
         str = str[4, str.length-4]
