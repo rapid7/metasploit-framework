@@ -38,6 +38,13 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def run
+    if datastore['WinrmAuth'] == KERBEROS
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using kerberos authentication.') if datastore['WinrmRhostname'].blank?
+    end
+    super
+  end
+
   def run_host(ip)
     rhost = datastore['RHOST']
     rport = datastore['RPORT']

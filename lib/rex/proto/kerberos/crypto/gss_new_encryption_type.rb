@@ -14,11 +14,16 @@ module Rex
           # The length of the GSS header
           GSS_HEADER_LEN = 16
 
+          TOK_ID_GSS_WRAP = 0x0504
+
           #
           # Encrypt the message, wrapping it in GSS structures
           # @return [String, Integer, Integer] The encrypted data, the length of its header, and the length of padding added to it prior to encryption
           #
           def gss_wrap(plaintext, key, sequence_number, is_initiator, use_acceptor_subkey: true)
+            # Handle wrap-around
+            sequence_number &= 0xFFFFFFFFFFFFFFFF
+
             flags = GSS_SEALED
             flags |= GSS_ACCEPTOR_SUBKEY if use_acceptor_subkey
 
@@ -29,7 +34,7 @@ module Rex
               flags |= GSS_SENT_BY_ACCEPTOR
             end
 
-            tok_id = 0x0504
+            tok_id = TOK_ID_GSS_WRAP
             filler = 0xFF
             ec = calculate_ec(plaintext)
             rrc = calculate_rrc
@@ -38,6 +43,8 @@ module Rex
             plaintext_header = [tok_id, flags, filler, 0, 0, sequence_number].pack('nCCnnQ>')
 
             header = [tok_id, flags, filler, ec, rrc, sequence_number].pack('nCCnnQ>')
+            # "x" chosen as the filler based on the Linux implementation of the kerberos client
+            # https://salsa.debian.org/debian/krb5/-/blob/0269810b1aec6c554fb746433f045d59fd34ab3a/src/lib/gssapi/krb5/k5sealv3.c#L160
             ec_filler = "x" * ec
             plaintext = plaintext + ec_filler + plaintext_header
             ciphertext = self.encrypt(plaintext, key.value, key_usage)
@@ -47,6 +54,9 @@ module Rex
           end
 
           def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, use_acceptor_subkey: true)
+            # Handle wrap-around
+            sequence_number &= 0xFFFFFFFFFFFFFFFF
+
             expected_flags = GSS_SEALED
             expected_flags |= GSS_ACCEPTOR_SUBKEY if use_acceptor_subkey
 
@@ -60,7 +70,7 @@ module Rex
             ciphertext = ciphertext[GSS_HEADER_LEN, ciphertext.length]
 
             tok_id, flags, filler, ec, rrc, snd_seq = header.unpack('nCCnnQ>')
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid token ID' unless tok_id == 0x0504
+            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid token ID' unless tok_id == TOK_ID_GSS_WRAP
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid filler' unless filler == 0xFF
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Unexpected flags' unless flags == expected_flags
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Invalid sequence number (received #{snd_seq}; expected #{expected_sequence_number})" unless expected_sequence_number == snd_seq
