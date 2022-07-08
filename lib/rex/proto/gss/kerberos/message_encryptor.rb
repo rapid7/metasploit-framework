@@ -14,7 +14,7 @@ module Rex
           # @param [Integer] decrypt_sequence_number The starting sequence number we expect to see when we decrypt messages
           # @param [Boolean] is_initiator Are we the initiator in this communication (used for setting flags and key usage values)
           # @param [Boolean] use_acceptor_subkey Are we using the subkey provided by the acceptor? (used for setting appropriate flags)
-          def initialize(key, encrypt_sequence_number, decrypt_sequence_number, is_initiator, use_acceptor_subkey: true)
+          def initialize(key, encrypt_sequence_number, decrypt_sequence_number, is_initiator: true, use_acceptor_subkey: true)
             @key = key
             @encrypt_sequence_number = encrypt_sequence_number
             @decrypt_sequence_number = decrypt_sequence_number
@@ -44,8 +44,6 @@ module Rex
             result
           end
 
-  
-          private
           #
           # The sequence number to use when we are encrypting, which should be incremented for each message
           #

@@ -20,15 +20,15 @@ RSpec.describe Rex::Proto::Gss::Kerberos::MessageEncryptor do
   end
 
   subject(:initiator_encryptor) do
-    described_class.new(aes_key, client_seq, server_seq, true)
+    described_class.new(aes_key, client_seq, server_seq, is_initiator: true)
   end
 
   subject(:acceptor_encryptor) do
-    described_class.new(aes_key, server_seq, client_seq, false)
+    described_class.new(aes_key, server_seq, client_seq, is_initiator: false)
   end
 
   subject(:acceptor_encryptor_no_subkey) do
-    described_class.new(aes_key, server_seq, client_seq, false, use_acceptor_subkey: false)
+    described_class.new(aes_key, server_seq, client_seq, is_initiator: false, use_acceptor_subkey: false)
   end
 
   context 'When we are the initiator' do
