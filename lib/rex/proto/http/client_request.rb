@@ -66,6 +66,8 @@ class ClientRequest
     'pad_post_params_count'  => 8,       # integer
     'uri_fake_end'           => false,   # bool
     'uri_fake_params_start'  => false,   # bool
+    'shuffle_get_params'     => false,   # bool
+    'shuffle_post_params'    => false,   # bool
     'header_folding'         => false,   # bool
     'chunked_size'           => 0,        # integer
 
@@ -114,6 +116,8 @@ class ClientRequest
         end
       end
       if opts.key?("vars_get") && opts['vars_get']
+        opts['vars_get'] = Hash[opts['vars_get'].to_a.shuffle] if (opts['shuffle_get_params'])
+
         opts['vars_get'].each_pair do |var,val|
           var = var.to_s
 
@@ -138,6 +142,8 @@ class ClientRequest
           pstr << (opts['encode_params'] ? set_encode_uri(rand_val) : rand_val)
         end
       end
+
+      opts['vars_post'] = Hash[opts['vars_post'].to_a.shuffle] if (opts['shuffle_post_params'])
 
       opts['vars_post'].each_pair do |var,val|
         var = var.to_s
