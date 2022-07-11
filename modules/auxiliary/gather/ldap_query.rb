@@ -68,17 +68,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize_actions
     filename = 'ldap_queries_default.yaml'
-    user_config_file_path = File.join(::Msf::Config.get_config_root.to_s, filename)
+    @user_config_file_path = File.join(::Msf::Config.get_config_root.to_s, filename)
     default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', filename)
-    unless File.exist?(user_config_file_path)
-      # If the user config file doesn't exist, then initialize it with the contents of the default one.
-      # The user will be able to change the user_config_file_path contents to be what they like, and default_config_file_path
-      # will end up
-      FileUtils.cp(default_config_file_path, user_config_file_path)
+
+    unless File.exist?(@user_config_file_path)
+      # If the user config file doesn't exist, then initialize it with a sample entry.
+      # Users can adjust this file to overwrite default actions to retrieve different attributes etc by default.
+      content = "---
+queries:
+  - action: SAMPLE_ACTION
+    description: 'A description.'
+    filter: '(objectClass=*)'
+    attributes:
+      - dn
+      - objectClass"
+      File.write(@user_config_file_path, content)
     end
 
     begin
-      @default_settings_file_path = user_config_file_path
+      @default_settings_file_path = @user_config_file_path
       @default_settings = YAML.safe_load(File.binread(@default_settings_file_path))
     rescue StandardError => e
       fail_with(Failure::BadConfig, "Couldn't parse #{@default_settings_file_path}, error was: #{e}")
@@ -91,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless @default_settings['queries']&.class == Array && user_settings['queries']&.class == Array && !@default_settings['queries'].empty? && !user_settings['queries'].empty?
-      fail_with(Failure::BadConfig, "Either #{@default_settings_file_path} did not contain any queries or #{user_config_file_path} did not contain any queries!")
+      fail_with(Failure::BadConfig, "Either #{@default_settings_file_path} did not contain any queries or #{@user_config_file_path} did not contain any queries!")
     end
 
     # Combine the user settings with the default settings and then uniq them such that we only have one copy
@@ -110,9 +118,11 @@ class MetasploitModule < Msf::Auxiliary
         else
           print_warning("#{entry['Action']} is missing its 'description' field!")
         end
-        print_warning("Please check the file at #{@default_settings_file_path} and fix the errors listed above!")
+        print_warning("Please check the files at #{@default_settings_file_path} and #{@user_config_file_path} and fix the errors listed above!")
         next
       end
+      next if entry['action'] == 'SAMPLE_ACTION' # Skip the sample action in the file.
+
       actions << [entry['action'], { 'Description' => entry['description'] }]
     end
     actions << ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }]
@@ -315,7 +325,7 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           if attributes&.empty? || filter_string&.empty?
-            fail_with(Failure::BadConfig, "Couldn't find and/or load the attributes and filter string for #{datastore['ACTION']}. Check the validity of the YAML file at #{@default_settings_file_path}!")
+            fail_with(Failure::BadConfig, "Couldn't find and/or load the attributes and filter string for #{datastore['ACTION']}. Check the validity of the YAML files at #{@default_settings_file_path} and #{@user_config_file_path}!")
           end
 
           filter = Net::LDAP::Filter.construct(filter_string)

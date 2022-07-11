@@ -14,6 +14,13 @@ As a third option can run one of several predefined queries by setting `ACTION` 
 appropriate value. These options will be loaded from the `ldap_queries_default.yaml` file
 located in the MSF configuration directory, located by default at `~/.msf4/ldap_queries_default.yaml`.
 
+Note that you can override the default query settings in this way by defining a query with an
+action name that is the same as one of existing actions in the file at
+`data/auxiliary/gather/ldap_query/ldap_queries_default.yaml`. This will however prevent any updates
+for that action that may be made to the `data/auxiliary/gather/ldap_query/ldap_queries_default.yaml`
+file, which may occur as part of Metasploit updates/upgrades, from being used though, so keep this
+in mind when using the `~/.msf4/ldap_queries_default.yaml` file.
+
 All results will be returned to the user in table, CSV or JSON format, depending on the value
 of the `OUTPUT_FORMAT` datastore option. The characters `||` will be used as a delimiter
 should multiple items exist within a single column.
