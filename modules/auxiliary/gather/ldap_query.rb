@@ -68,22 +68,38 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize_actions
     filename = 'ldap_queries_default.yaml'
-    user_config_file = File.join(::Msf::Config.get_config_root.to_s, filename)
-    unless File.exist?(user_config_file)
+    user_config_file_path = File.join(::Msf::Config.get_config_root.to_s, filename)
+    default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', filename)
+    unless File.exist?(user_config_file_path)
       # If the user config file doesn't exist, then initialize it with the contents of the default one.
-      default_config_file = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', filename)
-      FileUtils.cp(default_config_file, user_config_file)
+      # The user will be able to change the user_config_file_path contents to be what they like, and default_config_file_path
+      # will end up
+      FileUtils.cp(default_config_file_path, user_config_file_path)
     end
 
     begin
-      @default_settings_file_path = user_config_file
+      @default_settings_file_path = user_config_file_path
       @default_settings = YAML.safe_load(File.binread(@default_settings_file_path))
     rescue StandardError => e
       fail_with(Failure::BadConfig, "Couldn't parse #{@default_settings_file_path}, error was: #{e}")
     end
 
-    unless @default_settings['queries']&.class == Array && !@default_settings['queries'].empty?
-      fail_with(Failure::BadConfig, "No queries supplied in #{@default_settings_file_path}!")
+    begin
+      user_settings = YAML.safe_load(File.binread(default_config_file_path))
+    rescue StandardError => e
+      fail_with(Failure::BadConfig, "Couldn't parse #{default_config_file_path}, error was: #{e}")
+    end
+
+    unless @default_settings['queries']&.class == Array && user_settings['queries']&.class == Array && !@default_settings['queries'].empty? && !user_settings['queries'].empty?
+      fail_with(Failure::BadConfig, "Either #{@default_settings_file_path} did not contain any queries or #{user_config_file_path} did not contain any queries!")
+    end
+
+    # Combine the user settings with the default settings and then uniq them such that we only have one copy
+    # of each ACTION, however we use the user's custom settings if they have tweaked anything to prevent overriding
+    # their custom adjustments.
+    @default_settings['queries'].concat(user_settings['queries'])
+    @default_settings['queries'].uniq! do |q|
+      q['action']
     end
 
     actions = []
