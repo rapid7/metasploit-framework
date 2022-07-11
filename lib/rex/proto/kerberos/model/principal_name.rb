@@ -45,6 +45,10 @@ module Rex
             seq.to_der
           end
 
+          def to_s
+            name_string.join('/')
+          end
+
           private
 
           # Encodes the name_type
