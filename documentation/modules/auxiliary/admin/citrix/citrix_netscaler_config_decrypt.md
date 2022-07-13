@@ -49,19 +49,19 @@ relevant loot entries with the IPv4 address of the originating system. If no val
 7. Do: `dump`
 
 ## Options
-**NS_CONF**
+### NS_CONF
 
 Path to the NetScaler configuration file on the local system. Example: `/tmp/ns.conf`
 
-**NS_KEK_F1**
+### NS_KEK_F1
 
 Path to the first of two NS KEK fragments, if decrypting NS KEK. Example: `/tmp/F1.key`
 
-**NS_KEK_F2**
+### NS_KEK_F2
 
 Path to the second  of two NS KEK fragments, if decrypting NS KEK. Example: `/tmp/F2.key`
 
-**NS_IP**
+### NS_IP
 
 Optional parameter to set the IPv4 address associated with loot entries made by the module.
 
