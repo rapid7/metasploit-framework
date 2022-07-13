@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_username_from_config(line)
-    # Fugly but effective way to extract the principal name from a config line for loot storage
+    # Ugly but effective way to extract the principal name from a config line for loot storage
     [' user', 'userName', '-clientID', '-bindDN', '-ldapBindDn'].each do |user_param|
       next unless line.match?(/#{user_param} (.+)/)
 
