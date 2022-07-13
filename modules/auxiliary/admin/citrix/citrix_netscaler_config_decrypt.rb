@@ -97,9 +97,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     if ns_kek_f1 && ns_kek_f2
       print_status('Building NetScaler KEK from key fragments ...')
-      unless build_ns_kek
-        fail_with(Msf::Exploit::Failure::NoTarget, 'Unable to build NetScaler KEK from key fragments')
-      end
+      build_ns_kek
     end
     parse_ns_config
   end
@@ -109,13 +107,15 @@ class MetasploitModule < Msf::Auxiliary
       print_error('KEK files must be 256 bytes in size')
       return false
     end
-    f1_hex = File.read(ns_kek_f1)
-    f2_hex = File.read(ns_kek_f2)
-    f1_hex&.encode('UTF-8', 'binary')
-    f2_hex&.encode('UTF-8', 'binary')
-    unless f1_hex.match?(/^[0-9a-f]+$/i) && f2_hex.match?(/^[0-9a-f]+$/i)
-      print_error('NS KEK files must be hexadecimal format')
-      return false
+    f1_hex = File.binread(ns_kek_f1)
+    f2_hex = File.binread(ns_kek_f2)
+    unless f1_hex.match?(/^[0-9a-f]+$/i)
+      print_error('Provided F1.key is not valid hexidecimal data')
+      raise Msf::OptionValidateError, ['NS_KEK_F1']
+    end
+    unless f2_hex.match?(/^[0-9a-f]+$/i)
+      print_error('Provided F2.key is not valid hexidecimal data')
+      raise Msf::OptionValidateError, ['NS_KEK_F2']
     end
     f1_key = f1_hex[66..130].scan(/../).map(&:hex).pack('C*')
     f2_key = f2_hex[70..134].scan(/../).map(&:hex).pack('C*')
@@ -130,12 +130,6 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Assembled NS KEK AES key')
     print_good("\t HEX: #{@ns_kek_key_hex}\n")
     true
-  rescue Encoding::UndefinedConversionError
-    print_error('Invalid NS KEK files provided: invalid UTF-8 data')
-    return false
-  rescue StandardError => e
-    print_error("#{__method__}: #{e.message}")
-    return false
   end
 
   def parse_ns_config
@@ -168,8 +162,8 @@ class MetasploitModule < Msf::Auxiliary
               ciphertext_bytes = encrypted_entry.scan(/../).map(&:hex).pack('C*')
             else
               ciphertext_b64 = encrypted_entry.split(' ')[1].delete('"')
-              ciphertext_bytes = Base64.strict_decode64(ciphertext_b64)
-              # Still haven't grokked how -passcrypt works
+              # TODO: Implement -passcrypt functionality
+              # ciphertext_bytes = Base64.strict_decode64(ciphertext_b64)
               print_warning('Not decrypting passcrypt entry:')
               print_warning("Ciphertext: #{ciphertext_b64}")
               next
@@ -209,7 +203,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_username_from_config(line)
-    # Fugly but effective way to extract the principal name from a config line for loot storage
+    # Ugly but effective way to extract the principal name from a config line for loot storage
+    # The whitespace prefixed to ' user' is intentional so that it does not clobber other parameters with 'user' in the pattern
     [' user', 'userName', '-clientID', '-bindDN', '-ldapBindDn'].each do |user_param|
       next unless line.match?(/#{user_param} (.+)/)
 
