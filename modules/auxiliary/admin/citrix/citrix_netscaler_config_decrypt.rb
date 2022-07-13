@@ -168,8 +168,8 @@ class MetasploitModule < Msf::Auxiliary
               ciphertext_bytes = encrypted_entry.scan(/../).map(&:hex).pack('C*')
             else
               ciphertext_b64 = encrypted_entry.split(' ')[1].delete('"')
-              ciphertext_bytes = Base64.strict_decode64(ciphertext_b64)
-              # Still haven't grokked how -passcrypt works
+              # TODO Implement -passcrypt functionality
+              # ciphertext_bytes = Base64.strict_decode64(ciphertext_b64)
               print_warning('Not decrypting passcrypt entry:')
               print_warning("Ciphertext: #{ciphertext_b64}")
               next
