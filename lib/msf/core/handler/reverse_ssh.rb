@@ -145,8 +145,12 @@ module Msf
       def default_version_string
         require 'rex/proto/ssh/connection'
         Rex::Proto::Ssh::Connection.default_options['local_version']
+      rescue OpenSSL::Cipher::CipherError => e
+        print_error("ReverseSSH handler did not load with OpenSSL version #{OpenSSL::VERSION}")
+        elog(e)
+        'SSH-2.0-OpenSSH_5.3p1'
       rescue LoadError => e
-        print_error("This handler requires PTY access not available on all platforms.")
+        print_error('ReverseSSH handler did not load as PTY access is not available on all platforms.')
         elog(e)
         'SSH-2.0-OpenSSH_5.3p1'
       end
