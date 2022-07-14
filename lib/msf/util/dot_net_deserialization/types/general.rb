@@ -50,7 +50,7 @@ module General
       binary_type_enums.each do |binary_type|
         additional_info = nil
         if has_additional_info?(binary_type)
-          additional_info = additional_infos[additional_info_index].value
+          additional_info = additional_infos[additional_info_index].snapshot
           additional_info_index += 1
         end
         infos << {binary_type: binary_type, additional_info: additional_info}
