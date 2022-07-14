@@ -19,7 +19,7 @@ using the `dr:/dr_search` action,while specifying the ID values for each record.
 For example, if the lowest observed ID value is 15 and the highest is 41, the module will perform three requests:
 1. A request for the records with ID values 15 to 24
 2. A request for the records with ID values 25 to 34
-3. A request for the records with ID values 34 to 41
+3. A request for the records with ID values 35 to 41
 Empty records are ignored.
 
 To view the raw Xnode requests and responses, enter `set VERBOSE true` before running the module.

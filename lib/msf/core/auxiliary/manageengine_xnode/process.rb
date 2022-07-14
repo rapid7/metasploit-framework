@@ -6,12 +6,13 @@ module Msf::Auxiliary::ManageengineXnode::Process
   # Processes the obtained server response from a ManageEngine Xnode data repository search request
   #
   # @param res [Hash] JSON-parsed response from the Xnode server. This should be a Hash.
+  # @param res_code [Integer] Response code received during the previos get_response call
   # @param repo_name [String] Name of the data repository that was queried
   # @param fields [Array] names of the data repository fields (columns) that were dumped
   # @param mode [String] the type of query that was performed: standard, total_hits, aggr_min or aggr_max
   # @return [Array, Integer] Array containing the parsed query results if parsing succeeds, error code otherwise
-  def process_dr_search(res, repo_name, fields=nil, mode='standard')
-    unless res.instance_of?(Hash) && res.keys.include?('response') && res['response'].instance_of?(Hash)
+  def process_dr_search(res, res_code, repo_name, fields=nil, mode='standard')
+    if res_code == 1
       print_error("Received unexpected reply when trying to dump table #{repo_name}: #{res}")
       print_warning("The target may not be exploitable.")
       return 1
@@ -62,7 +63,7 @@ module Msf::Auxiliary::ManageengineXnode::Process
     when 'standard'
       search_result = response['search_result']
       if search_result.empty?
-          vprint_status("The query returned no records.")
+        vprint_status("The query returned no records.")
         return 1
       end
 
@@ -71,9 +72,7 @@ module Msf::Auxiliary::ManageengineXnode::Process
         return 1
       end
 
-      if fields.nil?
-        return search_result
-      end
+      return search_result if fields.nil?
       
       process_results(search_result, repo_name, fields)
     end

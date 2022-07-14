@@ -16,13 +16,9 @@ module Msf::Auxiliary::ManageengineXnode::Config
       return 2      
     end
 
-    if data_to_dump.empty?
-      return 3
-    end
+    return 3 if data_to_dump.empty?
 
-    unless data_to_dump.instance_of?(Hash)
-      return 4
-    end
+    return 4 unless data_to_dump.instance_of?(Hash)
 
     data_to_dump
   end

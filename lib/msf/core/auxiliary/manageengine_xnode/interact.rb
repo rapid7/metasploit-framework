@@ -41,19 +41,39 @@ module Msf::Auxiliary::ManageengineXnode::Interact
     end
 
     vprint_status("Received response: #{r}")
-    r_decoded = try_to_parse_json(r)
-  end
 
-  # JSON-parses an Xnode server response
-  #
-  # @param res [String] String containing a JSON hash with the Xnode server response
-  # @return [Hash, Integer] Hash containing a JSON-parsed Xnode server response if interaction with the server succeeded, error code otherwise
-  def try_to_parse_json(res)
+    # attempt to JSON parse the response
     begin
-      return JSON.parse(res)
-    rescue StandardError => e
+      return JSON.parse(r)
+    rescue JSON::ParserError => e
       print_error("Encountered the following error while trying to JSON parse the response from the Xnode server:\n#{e.to_s}")
       return 1
     end
+  end
+
+  # Calls send_to_sock and performs basic checks on the received response to ensure it is valid
+  #
+  # @param sock [Socket] Socket to use for the request
+  # @param action_hash [Hash] Hash containing an Xnode-compatible request
+  # @param warning_messages [Array] Array of Strings print via print_warning if the server response doesn't match the expected format
+  # @param expected_response_key [String] String that should be present as a key in the 'response' hash that is expected to be part of the JSON response
+  # @return [Array, Integer] Array containing a response code and a JSON-parsed Xnode server response hash if interaction with the server succeeded, error code otherwise
+  def get_response(sock, action_hash, warning_messages=[], expected_response_key=nil)
+    res = send_to_sock(sock, action_hash)
+    return 1 if res == 1
+
+    unless res.instance_of?(Hash) && res.keys.include?('response') && res['response'].instance_of?(Hash)
+      if expected_response_key
+        unless res['response'].keys.include?(expected_response_key)
+          warning_messages.each { |msg| print_warning(msg) }
+          return [1, res]
+        end
+      else
+        warning_messages.each { |msg| print_warning(msg) }
+        return [1, res]
+      end
+    end
+
+    [0, res]
   end
 end
