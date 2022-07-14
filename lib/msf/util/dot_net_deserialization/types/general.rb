@@ -62,10 +62,10 @@ module General
 
     def has_additional_info?(binary_type)
       [
-          Enums::BinaryTypeEnum[:Primitive],
-          Enums::BinaryTypeEnum[:SystemClass],
-          Enums::BinaryTypeEnum[:Class],
-          Enums::BinaryTypeEnum[:PrimitiveArray]
+        Enums::BinaryTypeEnum[:Primitive],
+        Enums::BinaryTypeEnum[:SystemClass],
+        Enums::BinaryTypeEnum[:Class],
+        Enums::BinaryTypeEnum[:PrimitiveArray]
       ].include? binary_type
     end
 
