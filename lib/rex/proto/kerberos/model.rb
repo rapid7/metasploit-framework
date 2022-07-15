@@ -16,6 +16,7 @@ module Rex
         TICKET = 1
         AUTHENTICATOR = 2
         AP_REQ = 14
+        AP_REP = 15
 
         # From Principal
         # https://datatracker.ietf.org/doc/html/rfc4120#section-6.2

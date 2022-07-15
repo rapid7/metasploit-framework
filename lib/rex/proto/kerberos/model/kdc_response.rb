@@ -4,7 +4,7 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class provides a representation of a Kerberos KDC-REQ (response) data
+        # This class provides a representation of a Kerberos KDC-REP (response) data
         # definition
         class KdcResponse < Element
           # @!attribute pvno
