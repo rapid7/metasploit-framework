@@ -67,73 +67,82 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def initialize_actions
-    filename = 'ldap_queries_default.yaml'
-    @user_config_file_path = File.join(::Msf::Config.get_config_root.to_s, filename)
-    default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', filename)
+    user_config_file_path = File.join(::Msf::Config.get_config_root, 'ldap_queries.yaml')
+    default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', 'ldap_queries_default.yaml')
 
-    unless File.exist?(@user_config_file_path)
+    unless File.exist?(default_config_file_path)
+      print_error("The file #{default_config_file_path} should exist but does not! Check your setup!")
+      return
+    end
+
+    @loaded_queries = safe_load_queries(default_config_file_path) || []
+    if File.exist?(user_config_file_path)
+      @loaded_queries.concat(safe_load_queries(user_config_file_path) || [])
+    else
       # If the user config file doesn't exist, then initialize it with a sample entry.
       # Users can adjust this file to overwrite default actions to retrieve different attributes etc by default.
-      content = "---
-queries:
-  - action: SAMPLE_ACTION
-    description: 'A description.'
-    filter: '(objectClass=*)'
-    attributes:
-      - dn
-      - objectClass"
-      File.write(@user_config_file_path, content)
-    end
-
-    begin
-      @default_settings_file_path = @user_config_file_path
-      @default_settings = YAML.safe_load(File.binread(@default_settings_file_path))
-    rescue StandardError => e
-      fail_with(Failure::BadConfig, "Couldn't parse #{@default_settings_file_path}, error was: #{e}")
-    end
-
-    begin
-      user_settings = YAML.safe_load(File.binread(default_config_file_path))
-    rescue StandardError => e
-      fail_with(Failure::BadConfig, "Couldn't parse #{default_config_file_path}, error was: #{e}")
-    end
-
-    unless @default_settings['queries']&.class == Array && user_settings['queries']&.class == Array && !@default_settings['queries'].empty? && !user_settings['queries'].empty?
-      fail_with(Failure::BadConfig, "Either #{@default_settings_file_path} did not contain any queries or #{@user_config_file_path} did not contain any queries!")
+      template = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', 'ldap_queries_template.yaml')
+      FileUtils.cp(template, user_config_file_path) if File.exist?(template)
     end
 
     # Combine the user settings with the default settings and then uniq them such that we only have one copy
     # of each ACTION, however we use the user's custom settings if they have tweaked anything to prevent overriding
     # their custom adjustments.
-    @default_settings['queries'].concat(user_settings['queries'])
-    @default_settings['queries'].uniq! do |q|
-      q['action']
+    @loaded_queries = @loaded_queries.map { |h| [h['action'], h] }.to_h
+    @loaded_queries.select! do |_, entry|
+      if entry['action'].blank?
+        wlog('ldap query entry detected that was missing its action field')
+        return false
+      end
+
+      if %w[RUN_QUERY_FILE RUN_SINGLE_QUERY].include? entry['action']
+        wlog("ldap query entry detected that was using a reserved action name: #{entry['action']}")
+        return false
+      end
+
+      if entry['filter'].blank?
+        wlog('ldap query entry detected that was missing its filter field')
+        return false
+      end
+
+      unless entry['attributes'].is_a? Array
+        wlog('ldap query entry detected that was missing its attributes field')
+        return false
+      end
+
+      true
     end
 
     actions = []
-    @default_settings['queries'].each do |entry|
-      if entry['action'].nil? || entry['description'].nil?
-        if entry['action'].nil?
-          print_warning("Entry detected that was missing its 'action' and 'description' fields!")
-        else
-          print_warning("#{entry['Action']} is missing its 'description' field!")
-        end
-        print_warning("Please check the files at #{@default_settings_file_path} and #{@user_config_file_path} and fix the errors listed above!")
-        next
-      end
-      next if entry['action'] == 'SAMPLE_ACTION' # Skip the sample action in the file.
-
-      actions << [entry['action'], { 'Description' => entry['description'] }]
+    @loaded_queries.each_value do |entry|
+      actions << [entry['action'], { 'Description' => entry['description'] || '' }]
     end
     actions << ['RUN_QUERY_FILE', { 'Description' => 'Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.' }]
     actions << ['RUN_SINGLE_QUERY', { 'Description' => 'Execute a single LDAP query using the QUERY_FILTER and QUERY_ATTRIBUTES options.' }]
     actions.sort!
 
     default_action = 'RUN_QUERY_FILE'
-    if actions.length > 2 # Aka there is more than just RUN_QUERY_FILE and RUN_SINGLE_QUERY in the list...
+    unless @loaded_queries.empty? # Aka there is more than just RUN_QUERY_FILE and RUN_SINGLE_QUERY in the actions list...
       default_action = actions[0][0] # Get the first entry's action name and set this as the default action.
     end
     return actions, default_action
+  end
+
+  def safe_load_queries(filename)
+    begin
+      unless File.exist?(filename)
+        elog("File #{filename} dpoesn't exist on disk!")
+        return
+      end
+      settings = YAML.safe_load(File.binread(filename))
+    rescue StandardError => e
+      elog("Couldn't parse #{filename}", error: e)
+      return
+    end
+
+    return unless settings['queries'].is_a? Array
+
+    settings['queries']
   end
 
   def perform_ldap_query(ldap, filter, attributes)
@@ -218,8 +227,8 @@ queries:
     end
   end
 
-  def run_queries_from_file(ldap, parsed_file)
-    parsed_file['queries'].each do |query|
+  def run_queries_from_file(ldap, queries)
+    queries.each do |query|
       unless query['action'] && query['filter'] && query['attributes']
         fail_with(Failure::BadConfig, "Each query in the query file must at least contain a 'action', 'filter' and 'attributes' attribute!")
       end
@@ -283,17 +292,12 @@ queries:
           end
           print_status("Loading queries from #{datastore['QUERY_FILE_PATH']}...")
 
-          begin
-            parsed_file = YAML.safe_load(File.read(datastore['QUERY_FILE_PATH']))
-          rescue StandardError => e
-            fail_with(Failure::BadConfig, "Couldn't parse #{datastore['QUERY_FILE_PATH']}, error was: #{e}")
+          parsed_queries = safe_load_queries(datastore['QUERY_FILE_PATH']) || []
+          if parsed_queries.empty?
+            fail_with(Failure::BadConfig, "No queries loaded from #{datastore['QUERY_FILE_PATH']}!")
           end
 
-          unless parsed_file['queries']&.class == Array && !parsed_file['queries'].empty?
-            fail_with(Failure::BadConfig, "No queries supplied in #{datastore['QUERY_FILE_PATH']}!")
-          end
-
-          run_queries_from_file(ldap, parsed_file)
+          run_queries_from_file(ldap, parsed_queries)
           return
         when 'RUN_SINGLE_QUERY'
           unless datastore['QUERY_FILTER'] && datastore['QUERY_ATTRIBUTES']
@@ -314,22 +318,16 @@ queries:
           entries = perform_ldap_query(ldap, filter, attributes)
           print_error("No entries could be found for #{datastore['QUERY_FILTER']}!") if entries.nil? || entries.empty?
         else
-          filter_string = nil
-          attributes = nil
-          @default_settings['queries'].each do |entry|
-            next unless entry['action'] == datastore['ACTION']
+          query = @loaded_queries[datastore['ACTION']]
+          fail_with(Failure::BadConfig, "Invalid action: #{datastore['ACTION']}") unless query
 
-            filter_string = entry['filter']
-            attributes = entry['attributes']
-            break
+          begin
+            filter = Net::LDAP::Filter.construct(query['filter'])
+          rescue StandardError => e
+            fail_with(Failure::BadConfig, "Could not compile the filter #{query['filter']}. Error was #{e}")
           end
 
-          if attributes&.empty? || filter_string&.empty?
-            fail_with(Failure::BadConfig, "Couldn't find and/or load the attributes and filter string for #{datastore['ACTION']}. Check the validity of the YAML files at #{@default_settings_file_path} and #{@user_config_file_path}!")
-          end
-
-          filter = Net::LDAP::Filter.construct(filter_string)
-          entries = perform_ldap_query(ldap, filter, attributes)
+          entries = perform_ldap_query(ldap, filter, query['attributes'])
         end
       end
     rescue Rex::ConnectionTimeout
