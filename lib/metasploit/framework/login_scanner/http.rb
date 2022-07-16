@@ -117,6 +117,14 @@ module Metasploit
         #   @return [Integer] How many fake post variables to insert into the request
         attr_accessor :evade_pad_post_params_count
 
+        # @!attribute evade_shuffle_get_params
+        #   @return [Boolean] Randomize order of GET parameters
+        attr_accessor :evade_shuffle_get_params
+
+        # @!attribute evade_shuffle_post_params
+        #   @return [Boolean] Randomize order of POST parameters
+        attr_accessor :evade_shuffle_post_params
+
         # @!attribute evade_uri_fake_end
         #   @return [Boolean] Whether to add a fake end of URI (eg: /%20HTTP/1.0/../../)
         attr_accessor :evade_uri_fake_end
@@ -327,6 +335,8 @@ module Metasploit
             'pad_get_params_count'   => evade_pad_get_params_count,
             'pad_post_params'        => evade_pad_post_params,
             'pad_post_params_count'  => evade_pad_post_params_count,
+            'shuffle_get_params'     => evade_shuffle_get_params,
+            'shuffle_post_params'    => evade_shuffle_post_params,
             'uri_fake_end'           => evade_uri_fake_end,
             'uri_fake_params_start'  => evade_uri_fake_params_start,
             'header_folding'         => evade_header_folding,

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.2.6)
+    metasploit-framework (6.2.8)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -351,7 +351,7 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.31)
+    rex-exploitation (0.1.33)
       jsobfu
       metasm
       rex-arch
@@ -427,7 +427,7 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.1.5)
+    ruby_smb (3.1.6)
       bindata
       openssl-ccm
       openssl-cmac

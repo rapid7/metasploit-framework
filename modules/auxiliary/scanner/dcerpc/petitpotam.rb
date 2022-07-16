@@ -66,8 +66,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    connect
-    smb_login
+    begin
+      connect
+    rescue Rex::ConnectionError => e
+      fail_with(Failure::Unreachable, e.message)
+    end
+
+    begin
+      smb_login
+    rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
+      fail_with(Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
+    end
 
     handle_args = PIPE_HANDLES[datastore['PIPE'].to_sym]
     fail_with(Failure::BadConfig, "Invalid pipe: #{datastore['PIPE']}") unless handle_args
