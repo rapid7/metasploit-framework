@@ -70,11 +70,6 @@ class MetasploitModule < Msf::Auxiliary
     user_config_file_path = File.join(::Msf::Config.get_config_root, 'ldap_queries.yaml')
     default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', 'ldap_queries_default.yaml')
 
-    unless File.exist?(default_config_file_path)
-      print_error("The file #{default_config_file_path} should exist but does not! Check your setup!")
-      return
-    end
-
     @loaded_queries = safe_load_queries(default_config_file_path) || []
     if File.exist?(user_config_file_path)
       @loaded_queries.concat(safe_load_queries(user_config_file_path) || [])
@@ -130,10 +125,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def safe_load_queries(filename)
     begin
-      unless File.exist?(filename)
-        elog("File #{filename} dpoesn't exist on disk!")
-        return
-      end
       settings = YAML.safe_load(File.binread(filename))
     rescue StandardError => e
       elog("Couldn't parse #{filename}", error: e)
