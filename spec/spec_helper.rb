@@ -1,4 +1,10 @@
 # -*- coding: binary -*-
+
+# Enable legacy providers such as blowfish-cbc, cast128-cbc, arcfour, etc
+ENV['OPENSSL_CONF'] = File.expand_path(
+  File.join(File.dirname(__FILE__), '..', 'config', 'openssl.conf')
+)
+
 require 'stringio'
 require 'factory_bot'
 require 'rubocop'
