@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS]),
         OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos']),
-        OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'])
+        OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller']),
+        OptPath.new('WinrmKrb5Ccname', [false, 'The ccache file to use for kerberos authentication', ENV.fetch('WINRMKRB5CCNAME', ENV.fetch('KRB5CCNAME', nil))], conditions: %w[ WinrmAuth == kerberos ])
       ]
     )
   end
@@ -76,6 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         timeout: 20, # datastore['timeout']
         framework: framework,
         framework_module: self,
+        cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
         mutual_auth: true,
         use_gss_checksum: true
       )
