@@ -3,6 +3,12 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'ruby_smb', github: 'adfoster-r7/ruby_smb', branch: 'run-ubuntu-22.04-in-test-matrix'
+gem 'hrr_rb_ssh', github: 'adfoster-r7/hrr_rb_ssh', branch: 'investigate-openssl3-support'
+gem 'openssl-ccm', github: 'adfoster-r7/openssl-ccm', branch: 'add-support-openssl-3'
+gem 'openssl-cmac', github: 'adfoster-r7/openssl-cmac', branch: 'add-support-for-openssl3'
+gem 'metasploit-credential', github: 'adfoster-r7/metasploit-credential', branch: 'add-support-for-openssl3'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests

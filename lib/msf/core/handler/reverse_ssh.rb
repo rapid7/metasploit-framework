@@ -145,7 +145,7 @@ module Msf
       def default_version_string
         require 'rex/proto/ssh/connection'
         Rex::Proto::Ssh::Connection.default_options['local_version']
-      rescue OpenSSL::Cipher::CipherError => e
+      rescue OpenSSL::OpenSSLError => e
         print_error("ReverseSSH handler did not load with OpenSSL version #{OpenSSL::VERSION}")
         elog(e)
         'SSH-2.0-OpenSSH_5.3p1'
