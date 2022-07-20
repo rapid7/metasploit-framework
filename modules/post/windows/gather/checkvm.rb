@@ -60,13 +60,14 @@ class MetasploitModule < Msf::Post
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /vrtual/i
 
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-    return true if srvvals && srvvals.include?('VRTUAL')
+    %w[HKLM\HARDWARE\ACPI\FADT HKLM\HARDWARE\ACPI\RSDT].each do |key|
+      srvvals = registry_enumkeys(key)
+      return true if srvvals && srvvals.include?('VRTUAL')
+    end
 
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-    return true if srvvals && srvvals.include?('VRTUAL')
-
-    return true if service_exists?('vmicexchange')
+    %w[vmicexchange vmicheartbeat vmicshutdown vmicvss].each do |service|
+      return true if service_exists?(service)
+    end
 
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System'
     system_bios_version = registry_getvaldata(key_path, 'SystemBiosVersion')
@@ -100,7 +101,7 @@ class MetasploitModule < Msf::Post
   end
 
   def virtualpc?
-    %w[vpc-s3 vpcuhub msvmmouf].each do |service|
+    %w[vpc-s3 vpcbus vpcuhub msvmmouf].each do |service|
       return true if service_exists?(service)
     end
 
@@ -128,14 +129,10 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-    return true if srvvals && srvvals.include?('VBOX__')
-
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-    return true if srvvals && srvvals.include?('VBOX__')
-
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-    return true if srvvals && srvvals.include?('VBOX__')
+    %w[HKLM\HARDWARE\ACPI\DSDT HKLM\HARDWARE\ACPI\FADT HKLM\HARDWARE\ACPI\RSDT].each do |key|
+      srvvals = registry_enumkeys(key)
+      return true if srvvals && srvvals.include?('VBOX__')
+    end
 
     key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
     return true if registry_getvaldata(key_path, 'Identifier') =~ /vbox/i
@@ -159,14 +156,10 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-    return true if srvvals && srvvals.include?('Xen')
-
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-    return true if srvvals && srvvals.include?('Xen')
-
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-    return true if srvvals && srvvals.include?('Xen')
+    %w[HKLM\HARDWARE\ACPI\DSDT HKLM\HARDWARE\ACPI\FADT HKLM\HARDWARE\ACPI\RSDT].each do |key|
+      srvvals = registry_enumkeys(key)
+      return true if srvvals && srvvals.include?('Xen')
+    end
 
     %w[xenevtchn xennet xennet6 xensvc xenvdb].each do |service|
       return true if service_exists?(service)
@@ -182,14 +175,10 @@ class MetasploitModule < Msf::Post
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
     return true if registry_getvaldata(key_path, 'ProcessorNameString') =~ /qemu/i
 
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-    return true if srvvals && srvvals.include?('BOCHS_')
-
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-    return true if srvvals && srvvals.include?('BOCHS_')
-
-    srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-    return true if srvvals && srvvals.include?('BOCHS_')
+    %w[HKLM\HARDWARE\ACPI\DSDT HKLM\HARDWARE\ACPI\FADT HKLM\HARDWARE\ACPI\RSDT].each do |key|
+      srvvals = registry_enumkeys(key)
+      return true if srvvals && srvvals.include?('BOCHS_')
+    end
 
     false
   end
