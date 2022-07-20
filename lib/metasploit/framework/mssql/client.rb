@@ -121,7 +121,7 @@ module Metasploit
             if tdsencryption == true
                proxy = TDSSSLProxy.new(sock)
                proxy.setup_ssl
-               resp = proxy.send_recv(pkt, 15, false)
+               resp = proxy.send_recv(pkt)
             else
                resp = mssql_send_recv(pkt, 15, false)
             end
