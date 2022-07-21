@@ -172,7 +172,7 @@ jobs:
 
                     This includes:
 
-                    - All of the item points within this [tempate](https://github.com/rapid7/metasploit-framework/blob/master/.github/ISSUE_TEMPLATE/bug_report.md)
+                    - All of the item points within this [template](https://github.com/rapid7/metasploit-framework/blob/master/.github/ISSUE_TEMPLATE/bug_report.md)
                     - The result of the \`debug\` command in your Metasploit console
                     - Screenshots showing the issues you're having
                     - Exact replication steps
