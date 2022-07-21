@@ -18,6 +18,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
   def set_and_test_variable(name, framework_value, module_value, framework_re, module_re)
     # set the current module
     allow(core).to receive(:active_module).and_return(mod)
+    # always assume the variable is valid
+    allow(core).to receive(:tab_complete_option_names).and_return([ name ])
     # always assume set variables validate (largely irrelevant because ours are random)
     allow(driver).to receive(:on_variable_set).and_return(true)
     # the specified global value

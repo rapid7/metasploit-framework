@@ -1834,6 +1834,7 @@ class Core
       global = true
       datastore = self.framework.datastore
     end
+    valid_options = tab_complete_option_names(active_module, '', [])
 
     # Dump the contents of the active datastore if no args were supplied
     if (args.length == 0)
@@ -1852,11 +1853,14 @@ class Core
           datastore) + "\n")
       return true
     elsif (args.length == 1)
-      if (not datastore[args[0]].nil?)
+      if valid_options.any? { |vo| vo.casecmp?(args[0]) }
         print_line("#{args[0]} => #{datastore[args[0]]}")
         return true
       else
-        print_error("Unknown variable")
+        message = "Unknown datastore option: #{args[0]}."
+        suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(args[0]).first
+        message << " Did you mean #{suggestion}?" if suggestion
+        print_error(message)
         cmd_set_help
         return false
       end
@@ -1881,7 +1885,14 @@ class Core
         # [name, class] from payload_show_results
         value = mod.first
       end
+    end
 
+    unless valid_options.any? { |vo| vo.casecmp?(name) }
+      message = "Unknown datastore option: #{name}."
+      suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
+      message << " Did you mean #{suggestion}?" if suggestion
+      print_error(message)
+      return false
     end
 
     # If the driver indicates that the value is not valid, bust out.
