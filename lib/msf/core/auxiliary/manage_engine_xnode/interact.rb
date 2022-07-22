@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-module Msf::Auxiliary::ManageengineXnode::Interact
+module Msf::Auxiliary::ManageEngineXnode::Interact
   # Create a socket to connect to an Xnode server and rescue any resulting errors
   #
   # @param rhost [String] Target IP
@@ -26,8 +26,12 @@ module Msf::Auxiliary::ManageengineXnode::Interact
   #
   # @param sock [Socket] Socket to use for the request
   # @param action_hash [Hash] Hash containing an Xnode-compatible request
-  # @return [Hash, Integer] Hash containing a JSON-parsed Xnode server response if interaction with the server succeeded, error code otherwise
+  # @return [Hash, nil] Hash containing a JSON-parsed Xnode server response if interaction with the server succeeded, nil otherwise
   def send_to_sock(sock, action_hash)
+    unless action_hash.instance_of?(Hash)
+      print_error('The provided Xnode action is not a valid Hash. The request will not be performed.')
+      return nil
+    end
     begin
       vprint_status("Sending request: #{action_hash}")
 
@@ -37,7 +41,7 @@ module Msf::Auxiliary::ManageengineXnode::Interact
       r = sock.get
     rescue StandardError => e
       print_error("Encountered the following error while trying to interact with the Xnode server:\n#{e.to_s}")
-      return 1
+      return nil
     end
 
     vprint_status("Received response: #{r}")
@@ -46,8 +50,9 @@ module Msf::Auxiliary::ManageengineXnode::Interact
     begin
       return JSON.parse(r)
     rescue JSON::ParserError => e
-      print_error("Encountered the following error while trying to JSON parse the response from the Xnode server:\n#{e.to_s}")
-      return 1
+      print_error("Encountered the following error while trying to JSON parse the response from the Xnode server:")
+      print_error(e.to_s)
+      return nil
     end
   end
 
@@ -55,21 +60,25 @@ module Msf::Auxiliary::ManageengineXnode::Interact
   #
   # @param sock [Socket] Socket to use for the request
   # @param action_hash [Hash] Hash containing an Xnode-compatible request
-  # @param warning_messages [Array] Array of Strings print via print_warning if the server response doesn't match the expected format
+  # @param warning_message [String] String to print via print_warning if the server response doesn't match the expected format
   # @param expected_response_key [String] String that should be present as a key in the 'response' hash that is expected to be part of the JSON response
-  # @return [Array, Integer] Array containing a response code and a JSON-parsed Xnode server response hash if interaction with the server succeeded, error code otherwise
-  def get_response(sock, action_hash, warning_messages=[], expected_response_key=nil)
+  # @return [Array] Array containing a response code and a JSON-parsed Xnode server response hash if interaction with the server succeeded, Array containing a response code and nil otherwise
+  def get_response(sock, action_hash, warning_message=nil, expected_response_key=nil)
     res = send_to_sock(sock, action_hash)
-    return 1 if res == 1
+    return [1, nil] if res.nil?
 
     unless res.instance_of?(Hash) && res.keys.include?('response') && res['response'].instance_of?(Hash)
-      if expected_response_key
-        unless res['response'].keys.include?(expected_response_key)
-          warning_messages.each { |msg| print_warning(msg) }
-          return [1, res]
+      if warning_message
+        print_warning(warning_message)
+      end
+      return [1, res]
+    end
+
+    if expected_response_key
+      unless res['response'].keys.include?(expected_response_key)
+        if warning_message
+          print_warning(warning_message)
         end
-      else
-        warning_messages.each { |msg| print_warning(msg) }
         return [1, res]
       end
     end

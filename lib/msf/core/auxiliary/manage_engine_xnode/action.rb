@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-module Msf::Auxiliary::ManageengineXnode::Action
+module Msf::Auxiliary::ManageEngineXnode::Action
   # Returns an Xnode authentication request hash
   #
   # @param user [String] Username

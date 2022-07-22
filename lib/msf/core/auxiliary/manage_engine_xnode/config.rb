@@ -1,6 +1,11 @@
 # -*- coding: binary -*-
 
-module Msf::Auxiliary::ManageengineXnode::Config
+module Msf::Auxiliary::ManageEngineXnode::Config
+  CONFIG_FILE_DOES_NOT_EXIST = 1
+  CANNOT_READ_CONFIG_FILE = 2
+  DATA_TO_DUMP_EMPTY = 3
+  DATA_TO_DUMP_WRONG_FORMAT = 4
+
   # Reads the configuration file for the current ManageEngine Xnode module in order to obtain the data repositories (tables) and fields (columns) to dump.
   #
   # @param config_file [String] String containing the full path to the configuration file to read.
@@ -10,7 +15,8 @@ module Msf::Auxiliary::ManageengineXnode::Config
     return 1 unless File.exists? config_file
 
     begin
-      data_to_dump = YAML.load_file((config_file))
+      config_contents = File.read(config_file)
+      data_to_dump = YAML.safe_load((config_contents))
     rescue StandardError => e
       print_error("Encountered the following error while trying to load #{config_file}:\n#{e.to_s}")
       return 2      
@@ -23,7 +29,7 @@ module Msf::Auxiliary::ManageengineXnode::Config
     data_to_dump
   end
 
-  # returns an array of data respositories that may exist in ManageEngine Audit Plus
+  # Returns an array of data respositories that may exist in ManageEngine Audit Plus
   #
   # @return [Array] list of possible data respositories in ManageEngine Audit Plus
   def ad_audit_plus_data_repos
@@ -37,7 +43,7 @@ module Msf::Auxiliary::ManageengineXnode::Config
   end
 
 
-  # returns an array of data respositories that may exist in ManageEngine DataSecurity Plus
+  # Returns an array of data respositories that may exist in ManageEngine DataSecurity Plus
   #
   # @return [Array] list of possible data respositories in ManageEngine DataSecurity Plus
   def datasecurity_plus_data_repos
@@ -54,5 +60,13 @@ module Msf::Auxiliary::ManageengineXnode::Config
       'RAIncidents',
       'RAViolationRecords',
     ]
+  end
+
+  # Returns the full module so that config_status::<status> can be used in the modules importing this library
+  # as shorthand to access the error codes defined at the start of the module
+  #
+  # @return [Module] Msf::Auxiliary::ManageEngineXnode::Config
+  def config_status
+    Msf::Auxiliary::ManageEngineXnode::Config
   end
 end

