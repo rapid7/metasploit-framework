@@ -81,7 +81,7 @@ queries:
       - groupType
       - memberof
   - action: ENUM_ORGUNITS
-    description: 'Dump info about all known organizational roles in the LDAP environment.'
+    description: 'Dump info about all known organizational units in the LDAP environment.'
     filter: '(objectClass=organizationalUnit)'
     attributes:
       - dn
@@ -89,7 +89,7 @@ queries:
       - name
       - description
   - action: ENUM_ORGROLES
-    description: 'Dump info about all known organization units in the LDAP environment.'
+    description: 'Dump info about all known organization roles in the LDAP environment.'
     filter: '(objectClass=organizationalRole)'
     attributes:
       - dn
