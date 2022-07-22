@@ -235,6 +235,18 @@ module Metasploit
           context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
 
           res = nil
+          
+          require 'pry'; binding.pry
+          if http_trace
+            http_trace_proc = proc { |request, response|
+              print_line("# Request ==== #{request}")
+              print_line("# Response ==== #{response}")
+            }
+          end
+
+          p http_trace_proc
+
+
           cli = Rex::Proto::Http::Client.new(
             rhost,
             rport,
@@ -243,7 +255,8 @@ module Metasploit
             cli_ssl_version,
             cli_proxies,
             username,
-            password
+            password,
+            http_trace: http_trace_proc
           )
           configure_http_client(cli)
 

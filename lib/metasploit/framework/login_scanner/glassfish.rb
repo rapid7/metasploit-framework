@@ -67,20 +67,21 @@ module Metasploit
         #
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
-        def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
-          configure_http_client(cli)
-          cli.connect
-          req = cli.request_raw(opts)
-          res = cli.send_recv(req)
+        # def send_request(opts)
+        #  cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
+        #  
+        #  configure_http_client(cli)
+        #  cli.connect
+        #  req = cli.request_raw(opts)
+        #  res = cli.send_recv(req)
 
           # Found a cookie? Set it. We're going to need it.
-          if res && res.get_cookies =~ /JSESSIONID=(\w*);/i
-            self.jsession = $1
-          end
+        #  if res && res.get_cookies =~ /JSESSIONID=(\w*);/i
+        #    self.jsession = $1
+        #  end
 
-          res
-        end
+        #  res
+        # end
 
 
         # As of Sep 2014, if Secure Admin is disabled, it simply means the admin isn't allowed
