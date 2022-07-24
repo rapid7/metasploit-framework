@@ -2,6 +2,7 @@ require 'packetfu'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Capture
 
   FILE_NAME = 'bacnet-discovery'.freeze
   DEFAULT_SERVER_TIMEOUT = 3
@@ -45,12 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     "\u0001${dest_net_id}{dadr_len}{dadr}\xFF\u0002\u0002\u0002\f\f\u0002{object_identifier}#{READ_DESCRIPTION_PROP}"
   ].freeze
 
-  # Global variables initialization
-  $iface
-  $timeout
-  $packet_count
-  $port
-
   def initialize
     super(
       'Name' => 'BACnet Scanner',
@@ -73,9 +68,11 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', Array[true, 'The socket connect timeout in seconds', DEFAULT_SERVER_TIMEOUT]),
         OptInt.new('COUNT', Array[true, 'The number of times to send each packet', DEFAULT_SEND_COUNT]),
         OptPort.new('PORT', Array[true, 'BACnet/IP UDP port to scan (usually between 47808-47817)', DEFAULT_BACNET_PORT]),
-        OptString.new('INTERFACE', Array[true, 'The interface to scan from', 'eth1'])
+        OptString.new('INTERFACE', Array[true, 'The interface to scan from', 'eth1']),
+        OptAddressLocal.new('LHOST', [true, 'The local listener hostname'])
       ], self.class
     )
+    deregister_options('RHOSTS', 'FILTER', 'PCAPFILE')
   end
 
   def hex_to_bin(s)
@@ -86,26 +83,20 @@ class MetasploitModule < Msf::Auxiliary
     s.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
   end
 
-  def to_ip_address(s)
-    s = s.unpack('C*')
-    "#{s[0]}.#{s[1]}.#{s[2]}.#{s[3]}"
-  end
-
   # Create UDP packet with the l2 and l3 details.
   def create_packet_base
     udp_pkt = PacketFu::UDPPacket.new
     udp_pkt.ip_daddr = '255.255.255.255'
     udp_pkt.eth_daddr = 'ff:ff:ff:ff:ff:ff'
-    udp_pkt.udp_dport = $port
+    udp_pkt.udp_dport = datastore['PORT']
     udp_pkt.udp_sport = rand(0xffff - 1024) + 1024
     udp_pkt.ip_ttl = 64
 
     begin
-      udp_pkt.ip_saddr = `ip a s #{$iface} | grep "inet "`.scan(%r{inet (.*)/}).flatten[0] # Get interface's ip address
-      udp_pkt.eth_saddr = `ip a s #{$iface} | grep ether`.scan(%r{link/ether (.*) brd}).flatten[0] # Get interface's mac address
-    rescue StandardError
-      # Output is displayed via calling terminal command.
-      raise ArgumentError, "Device \"#{$iface}\" does not exist."
+      udp_pkt.ip_saddr = datastore['LHOST'] # Get user-input ip address
+      udp_pkt.eth_saddr = get_mac(datastore['INTERFACE']) # Get interface's mac address
+    rescue StandardError => e
+      raise e
     end
     udp_pkt
   end
@@ -163,9 +154,9 @@ class MetasploitModule < Msf::Auxiliary
 
   # Broadcasting Who-is and returns a capture with the responses.
   def broadcast_who_is(udp_pkt)
-    capture = PacketFu::Capture.new(iface: $iface, start: true, filter: "udp and src port #{$port}")
-    $packet_count.times { udp_pkt.to_w($iface) }
-    sleep($timeout)
+    capture = PacketFu::Capture.new(iface: datastore['INTERFACE'], start: true, filter: "udp and src port #{datastore['PORT']}")
+    datastore['COUNT'].times { udp_pkt.to_w(datastore['INTERFACE']) }
+    sleep(datastore['TIMEOUT'])
     capture.save
     capture
   end
@@ -176,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
     instance_numbers = []
     capture.array.each do |packet|
       mac = "#{bin_to_hex(packet[6])}:#{bin_to_hex(packet[7])}:#{bin_to_hex(packet[8])}:#{bin_to_hex(packet[9])}:#{bin_to_hex(packet[10])}:#{bin_to_hex(packet[11])}"
-      ip = to_ip_address(packet[26..29])
+      ip = Rex::Socket.addr_ntoa(packet[26..29])
       next unless packet[42] == BACNETIP_CONSTANT # If packet is not a bacnet/ip
 
       data = packet[46..]
@@ -211,9 +202,11 @@ class MetasploitModule < Msf::Auxiliary
   def create_nested_messages(instance_number, items)
     nested_messages = []
     GET_PROPERTY_MESSAGES_L3_NESTED.each do |msg_base|
-      msg = msg_base.sub('{object_identifier}', instance_number).sub('{dest_net_id}', items[1]).sub('{dadr_len}', items[2]).sub(
-        '{dadr}', items[3]
-      )
+      msg = msg_base
+            .sub('{object_identifier}', instance_number)
+            .sub('{dest_net_id}', items[1])
+            .sub('{dadr_len}', items[2])
+            .sub('{dadr}', items[3])
       length = Array(msg.length + BACNET_BVLC_LEN).pack('n*')
       msg = "\x81\n#{length}#{msg}"
       nested_messages.append(msg)
@@ -293,15 +286,15 @@ class MetasploitModule < Msf::Auxiliary
     udp_pkt.eth_daddr = mac
     udp_pkt.ip_daddr = ip
 
-    capture = PacketFu::Capture.new(iface: $iface, start: true,
+    capture = PacketFu::Capture.new(iface: datastore['INTERFACE'], start: true,
                                     filter: "ip src #{ip} and ip dst #{udp_pkt.ip_saddr}")
     print_status("Querying device number #{instance_number} in ip #{ip}")
     messages.each do |message|
       udp_pkt.payload = message
       udp_pkt.recalc
-      $packet_count.times { udp_pkt.to_w($iface) }
+      datastore['COUNT'].times { udp_pkt.to_w(datastore['INTERFACE']) }
     end
-    sleep($timeout)
+    sleep(datastore['TIMEOUT'])
     capture.save
     capture
   end
@@ -312,15 +305,16 @@ class MetasploitModule < Msf::Auxiliary
       ip_group.each do |asset|
         sadr = ''
         if asset['sadr']
-          sadr = "sadr: #{asset['sadr']}
-              "
+          sadr = "sadr: #{asset['sadr']}\n"
         end
-        print_good "for asset number #{asset['instance-number']}:
-          model name: #{asset['model-name']}
-          firmware revision: #{asset['firmware-revision']}
-          application software version: #{asset['application-software-version']}
-          description: #{asset['description']}
-          #{sadr}"
+        print_good(<<~OUTPUT)
+          for asset number #{asset['instance-number']}:
+          \tmodel name: #{asset['model-name']}
+          \tfirmware revision: #{asset['firmware-revision']}
+          \tapplication software version: #{asset['application-software-version']}
+          \tdescription: #{asset['description']}
+          \t#{sadr}
+        OUTPUT
       end
     end
   end
@@ -329,41 +323,41 @@ class MetasploitModule < Msf::Auxiliary
   def parse_data_to_xml(raw_data)
     data = ''
     raw_data.each do |ip, devices|
-      chunk = "<ip>
-      <value> #{ip} </value>"
+      chunk = <<~IP.chomp
+        <ip>
+          <value> #{ip} </value>
+      IP
       devices.each do |device|
         sadr = ''
         if device['sadr']
           sadr = "
           <sadr> #{device['sadr']} </sadr>"
         end
-        chunk = "#{chunk}
-        <asset>
-          <instance-number> #{device['instance-number']} </instance-number>
-          <model-name> #{device['model-name']} </model-name>
-          <application-software-version> #{device['application-software-version']} </application-software-version>
-          <firmware-revision> #{device['firmware-revision']} </firmware-revision>
-          <description> #{device['description']} </description>#{sadr}
-        </asset>"
+        chunk = <<~XML.chomp
+          #{chunk}
+              <asset>
+                <instance-number> #{device['instance-number']} </instance-number>
+                <model-name> #{device['model-name']} </model-name>
+                <application-software-version> #{device['application-software-version']} </application-software-version>
+                <firmware-revision> #{device['firmware-revision']} </firmware-revision>
+                <description> #{device['description']} </description>#{sadr}
+              </asset>
+        XML
       end
-      chunk += '
-      </ip>
-      '
+      chunk += <<~IP
+
+        </ip>
+      IP
       data += chunk
     end
     data
   end
 
   def run
-    # Get user input
-    $iface = datastore['INTERFACE'].freeze
-    $timeout = datastore['TIMEOUT'].freeze
-    $packet_count = datastore['COUNT'].freeze
-    $port = datastore['PORT'].freeze
-
-    raise Msf::OptionValidateError, ['TIMEOUT'] if $timeout.negative?
-    raise Msf::OptionValidateError, ['COUNT'] if $packet_count < 1
-    raise Msf::OptionValidateError, ['INTERFACE'] if $iface.empty?
+    # Validate user input
+    raise Msf::OptionValidateError, ['TIMEOUT'] if datastore['TIMEOUT'].negative?
+    raise Msf::OptionValidateError, ['COUNT'] if datastore['COUNT'] < 1
+    raise Msf::OptionValidateError, ['INTERFACE'] if datastore['INTERFACE'].empty?
 
     begin
       # Create Base packet
@@ -373,12 +367,16 @@ class MetasploitModule < Msf::Auxiliary
       udp_pkt.payload = DISCOVERY_MESSAGE_L3
       udp_pkt.recalc
 
-      # Prevent ICMP retransmission
-      socket = UDPSocket.new
-      socket.bind(udp_pkt.ip_saddr, udp_pkt.udp_sport)
+      begin
+        # Prevent ICMP retransmission
+        socket = UDPSocket.new
+        socket.bind(udp_pkt.ip_saddr, udp_pkt.udp_sport)
+      rescue StandardError
+        raise StandardError, "Could not open a socket. Is '#{datastore['LHOST']}' a correct local IP?"
+      end
 
       # Broadcast who-is and create request-property messages for detected devices.
-      print_status "Broadcasting Who-is via #{$iface}"
+      print_status "Broadcasting Who-is via #{datastore['INTERFACE']}"
       capture = broadcast_who_is(udp_pkt)
       devices_data = analyze_i_am_devices(capture)
       messages = create_messages_for_devices(devices_data)
@@ -393,8 +391,6 @@ class MetasploitModule < Msf::Auxiliary
         print_status('No devices found. Exiting.')
         return
       end
-    rescue ArgumentError
-      return
     rescue StandardError => e
       print_bad(e.message)
       return

@@ -1,3 +1,4 @@
+## Vulnerable Application
 BACnet is a Data Communication Protocol for Building Automation and Control Networks.
 Developed under the auspices of the American Society of Heating,
  Refrigerating and Air-Conditioning Engineers (ASHRAE), BACnet is an American national standard,
@@ -13,13 +14,21 @@ Each bacnet device responds with this data:
 - Application software version.
 - Firmware revision.
 - Device description.
+## Verification Steps
 
-## User Options
+  1. Start msfconsole.
+  2. Do: `use auxiliary/scanner/scada/bacnet_l3`.
+  3. Do: `set INTERFACE`.
+  4. Do: `set LHOST` and choose the chosen interface's IP.
+  5. Do: `run`.
+  6. Devices running the BACnet protocol should respond with data.
+
+## Options
 A user can choose between the interfaces of his host (e.g. eth1, ens192...),
 the number of Who-is packets to send - for reliability purposes, the time (in seconds) to wait for packets to arrive
 and the UDP port, the default is 47808.
 
-The user can always check these options via the ```show options``` command.
+The user can always check these options via the `show options` command.
 
 ```
 msf auxiliary(profinet_siemens) > show options
@@ -32,10 +41,11 @@ COUNT      1                yes       The number of times to send each packet
 INTERFACE  eth1             yes       The interface to scan from
 PORT       47808            yes       BACnet/IP UDP port to scan (usually between 47808-47817)
 TIMEOUT    3                yes       The socket connect timeout in seconds
+LHOST                       yes       The local IP of selected interface
 
 ```
 
-## Usage
+## Scenarios
 
 The following demonstrates a basic scenario, we "detect" two devices:
 
