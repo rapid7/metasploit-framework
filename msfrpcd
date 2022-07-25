@@ -122,10 +122,10 @@ if $PROGRAM_NAME == __FILE__
 
     require 'rex/parser/arguments'
 
-  ws_ssl_key_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-key.pem")
-  ws_ssl_cert_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-cert.pem")
-  ws_log = File.join(Msf::Config.get_config_root, 'logs', "#{WS_RPC_TAG}.log")
-  ws_rpc_pid = File.join(Msf::Config.get_config_root, "#{WS_RPC_TAG}.pid")
+  ws_ssl_key_default = File.join(Msf::Config.config_directory, "#{WS_TAG}-key.pem")
+  ws_ssl_cert_default = File.join(Msf::Config.config_directory, "#{WS_TAG}-cert.pem")
+  ws_log = File.join(Msf::Config.config_directory, 'logs', "#{WS_RPC_TAG}.log")
+  ws_rpc_pid = File.join(Msf::Config.config_directory, "#{WS_RPC_TAG}.pid")
   ws_ssl_key = ws_ssl_key_default
   ws_ssl_cert = ws_ssl_cert_default
   ssl_enable_verify = false

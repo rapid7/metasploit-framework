@@ -93,7 +93,7 @@ module Metasploit
       # @return [Pathname] if the user has a `database.yml` in their config directory (`~/.msf4` by default).
       # @return [nil] if the user does not have a `database.yml` in their config directory.
       def self.user_configurations_pathname
-        Pathname.new(Msf::Config.get_config_root).join('database.yml')
+        Pathname.new(Msf::Config.config_directory).join('database.yml')
       end
     end
   end

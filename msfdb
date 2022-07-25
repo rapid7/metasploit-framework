@@ -34,7 +34,7 @@ require 'msfenv'
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
-@localconf = Msf::Config.get_config_root
+@localconf = Msf::Config.config_directory
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
 @pg_cluster_conf_root = "#{@localconf}/.local/etc/postgresql"
