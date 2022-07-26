@@ -627,9 +627,8 @@ class Db
             when "workspace"; host.workspace.name
             when "tags"
               found_tags = find_host_tags(framework.db.workspace, host.id)
-              tag_names = []
-              found_tags.each { |t| tag_names << t.name }
-              found_tags * ", "
+              tag_names = found_tags.map(&:name).join(', ')
+              tag_names
             end
           # Otherwise, it's just an attribute
           else
