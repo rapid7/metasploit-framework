@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def initialize_actions
-    user_config_file_path = File.join(::Msf::Config.get_config_root, 'ldap_queries.yaml')
+    user_config_file_path = File.join(::Msf::Config.config_directory, 'ldap_queries.yaml')
     default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', 'ldap_queries_default.yaml')
 
     @loaded_queries = safe_load_queries(default_config_file_path) || []

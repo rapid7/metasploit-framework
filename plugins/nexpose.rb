@@ -8,7 +8,7 @@
 require 'nexpose'
 
 module Msf
-  Nexpose_yaml = "#{Msf::Config.get_config_root}/nexpose.yaml" #location of the nexpose.yml containing saved nexpose creds
+  Nexpose_yaml = "#{Msf::Config.config_directory}/nexpose.yaml" #location of the nexpose.yml containing saved nexpose creds
 
 class Plugin::Nexpose < Msf::Plugin
   class NexposeCommandDispatcher

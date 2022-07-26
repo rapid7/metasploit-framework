@@ -463,7 +463,7 @@ module Msf
       end
 
       def parse_start_args(args)
-        config_file = File.join(Msf::Config.get_config_root, 'capture_config.yaml')
+        config_file = File.join(Msf::Config.config_directory, 'capture_config.yaml')
         # See if there was a config file set
         @start_opt_parser.parse(args) do |opt, _idx, val|
           case opt
@@ -623,7 +623,7 @@ module Msf
       super
       add_console_dispatcher(ConsoleCommandDispatcher)
       filename = 'capture_config.yaml'
-      user_config_file = File.join(Msf::Config.get_config_root, filename)
+      user_config_file = File.join(Msf::Config.config_directory, filename)
       unless File.exist?(user_config_file)
         # Initialise user config file with the installed one
         base_config_file = File.join(Msf::Config.data_directory, filename)
