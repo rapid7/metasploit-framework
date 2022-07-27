@@ -53,6 +53,31 @@ class MetasploitModule < Msf::Auxiliary
     return unless data
     num, cmd, arg = data.strip.split(/\s+/, 3)
     arg ||= ""
+    args = []
+
+    # If the argument is a number in braces, such as {3}, it means data is coming
+    # separately
+    if arg.chomp =~ /\{[0-9]+\}$/
+      loop do
+        # Ask for more data
+        c.put "+ \r\n"
+
+        # Get the next line
+        arg = (c.get_once || '').chomp
+
+        # Remove the length field, if there is one
+        if arg =~ /(.*)\{[0-9]+\}$/
+          args << $1
+        else
+          # If there's no length field, we're at the end
+          args << arg
+          break
+        end
+      end
+    else
+      # If there's no length, treat it like we used to
+      args = arg.split(/\s+/)
+    end
 
     if cmd.upcase == 'CAPABILITY'
       c.put "* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS " +
@@ -74,28 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if cmd.upcase == 'LOGIN'
-      # If this is an RFC7888 request...
-      # (RFC7888 appends {size} to the end of the previous request)
-      if arg =~ /^\{[0-9]+\}$/
-        # Request more data
-        c.put "+ \r\n"
-
-        # Read the username + remove the RFC7888 length if it's present
-        username = c.get_once
-        return unless username
-        @state[c][:user] = username.strip.gsub(/ \{[0-9]+\}$/, '')
-
-        # Request more data
-        c.put "+ \r\n"
-
-        # Get the password
-        password = c.get_once
-        return unless password
-        @state[c][:pass] = password.strip.gsub(/ \{[0-9]+\}$/, '')
-      else
-        @state[c][:user], @state[c][:pass] = arg.split(/\s+/, 2)
-      end
-
+      @state[c][:user], @state[c][:pass] = args
       register_creds(@state[c][:ip], @state[c][:user], @state[c][:pass], 'imap')
       print_good("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
 
