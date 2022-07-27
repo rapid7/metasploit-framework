@@ -52,7 +52,8 @@ class MetasploitModule < Msf::Auxiliary
     data = c.get_once
     return unless data
     num, cmd, arg = data.strip.split(/\s+/, 3)
-    arg ||= ""
+    cmd ||= ''
+    arg ||= ''
     args = []
 
     # If the argument is a number in braces, such as {3}, it means data is coming
@@ -66,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         arg = (c.get_once || '').chomp
 
         # Remove the length field, if there is one
-        if arg =~ /(.*)\{[0-9]+\}$/
+        if arg =~ /(.*) \{[0-9]+\}$/
           args << $1
         else
           # If there's no length field, we're at the end
@@ -113,7 +114,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if cmd.upcase == 'ID'
-      print_status("Got ID command")
       c.put("* ID\r\n")
       c.put("#{num} OK ID completed\r\n")
       return
