@@ -18,6 +18,10 @@ class Input::Buffer < Rex::Ui::Text::Input
     def write(buf, opts={})
       syswrite(buf)
     end
+
+    def monitor_rsock(*args, **kwargs)
+      dlog('monitor_rsock: Skipping - functionality not required')
+    end
   end
 
   def initialize
