@@ -205,6 +205,7 @@ def init_db
   Dir.chdir(@framework) do
     @db_driver.run_cmd('bundle exec rake db:migrate')
   end
+  puts 'Database initialization successful'.green.bold.to_s
 end
 
 def load_db_config
