@@ -29,7 +29,7 @@ module MsfdbHelpers
       elsif test_executable_file("#{@db}")
         @socket_directory = @db
       else
-        print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC Flags. Database initialization failed.")
+        print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC flags. Database initialization failed.")
       end
  
       start
