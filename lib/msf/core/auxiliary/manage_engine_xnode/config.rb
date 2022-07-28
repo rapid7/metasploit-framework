@@ -18,7 +18,8 @@ module Msf::Auxiliary::ManageEngineXnode::Config
       config_contents = File.read(config_file)
       data_to_dump = YAML.safe_load((config_contents))
     rescue StandardError => e
-      print_error("Encountered the following error while trying to load #{config_file}:\n#{e.to_s}")
+      print_error("Encountered the following error while trying to load #{config_file}:")
+      print_error(e.to_s)
       return 2      
     end
 

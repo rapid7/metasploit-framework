@@ -199,29 +199,30 @@ class MetasploitModule < Msf::Auxiliary
       results = []
       print_status("Attempting to request #{total_hits} records for data repository #{repo} between IDs #{id_range_lower} and #{max_id}. This could take a while...")
       hit_upper_limit = false
-      loop do
+      until hit_upper_limit
         # build a custom query for the unique_id range
         custom_query = { 'query' => "UNIQUE_ID:[#{id_range_lower} TO #{id_range_upper}]" }
         query = action_dr_search(repo, fields, custom_query)
         res_code, res = get_response(@sock, query)
         partial_results = process_dr_search(res, res_code, repo, fields)
+        results += partial_results unless partial_results.nil?
+
         query_ct += 1
         if query_ct % 25 == 0
           print_status("Processed #{query_ct} queries (max 10 records per query) so far. The last queried record ID was #{id_range_upper}. The max ID is #{max_id}...")
         end
-        id_range_lower += 10
-        id_range_upper += 10
-        if id_range_upper > max_id
-          if hit_upper_limit
-            results += partial_results unless partial_results.nil?
-            break
-          end
-          hit_upper_limit = true
-          id_range_upper = max_id
-        end
-        next if partial_results.nil?
 
-        results += partial_results
+        # check if we have already queried the record with the maximum ID value, if so, we're done
+        if id_range_upper == max_id
+          hit_upper_limit = true
+        else
+          id_range_lower += 10
+          id_range_upper += 10
+          # make sure that id_range_upper never exceeds the maximum ID value
+          if id_range_upper > max_id
+            id_range_upper = max_id
+          end
+        end
       end
 
       if results.empty?

@@ -40,7 +40,8 @@ module Msf::Auxiliary::ManageEngineXnode::Interact
       # sock.recv won't work either since the message length can be (and often is) larger than the max of 65535
       r = sock.get
     rescue StandardError => e
-      print_error("Encountered the following error while trying to interact with the Xnode server:\n#{e.to_s}")
+      print_error("Encountered the following error while trying to interact with the Xnode server:")
+      print_error(e.to_s)
       return nil
     end
 

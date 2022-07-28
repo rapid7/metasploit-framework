@@ -1,6 +1,6 @@
 ## Vulnerable Application
 The module exploits default admin credentials for the DataEngine Xnode server in ADAudit Plus versions prior to 6.0.3 (6032)
-in order to dump the contents of Xnode data repositories (tables), which may contain (a limited amount of) Active Directory information
+in order to dump the contents of Xnode data repositories (tables), which may contain varying amounts of Active Directory information
 including domain names, host names, usernames and SIDs.
 The module can also be used against patched ADAudit Plus versions if the correct credentials are provided.
 
