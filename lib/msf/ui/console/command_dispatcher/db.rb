@@ -423,6 +423,7 @@ class Db
     [ '-n', '--name' ] => [ true, 'Change the name of a host', '<name>' ],
     [ '-m', '--comment' ] => [ true, 'Change the comment of a host', '<comment>' ],
     [ '-t', '--tag' ] => [ true, 'Add or specify a tag to a range of hosts', '<tag>' ],
+    [ '-T', '--delete-tag' ] => [ true, 'Remove a tag from a range of hosts', '<tag>' ],
     [ '-d', '--delete' ] => [ true, 'Delete the hosts instead of searching', '<hosts>' ],
     [ '-o', '--output' ] => [ true, 'Send output to a file in csv format', '<filename>' ],
     [ '-O', '--order' ] => [ true, 'Order rows by specified column number', '<column id>' ],
@@ -522,6 +523,9 @@ class Db
       when '-t', '--tag'
         mode << :tag
         tag_name = val
+      when '-T', '--delete-tag'
+        mode << :delete_tag
+        tag_name = val
       when '-c', '-C'
         list = val
         if(!list)
@@ -607,8 +611,16 @@ class Db
         end
       end
       return
-    when mode.include?(:tag) && mode.include?(:delete)
-      delete_host_tag(host_ranges, tag_name)
+    when mode == [:delete_tag]
+      begin
+        delete_host_tag(host_ranges, tag_name)
+      rescue => e
+        if e.message.include?('Validation failed')
+          print_error(e.message)
+        else
+          raise e
+        end
+      end
       return
     end
 
