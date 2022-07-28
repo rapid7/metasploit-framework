@@ -24,8 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD', [ true, 'The windows command to run', 'ipconfig /all' ]),
-        OptString.new('USERNAME', [ true, 'The username to authenticate as']),
-        OptString.new('PASSWORD', [ true, 'The password to authenticate with'])
+        OptString.new('USERNAME', [ true, 'The username to authenticate as'])
       ]
     )
 
@@ -41,7 +40,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if datastore['WinrmAuth'] == KERBEROS
-      fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using kerberos authentication.') if datastore['WinrmRhostname'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using Kerberos authentication.') if datastore['WinrmRhostname'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The DOMAIN option is required when using Kerberos authentication.') if datastore['DOMAIN'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
+    else
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The PASSWORD option is required unless using Kerberos authentication.') if datastore['PASSWORD'].blank?
     end
     super
   end
