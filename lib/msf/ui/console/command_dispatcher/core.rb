@@ -1827,14 +1827,23 @@ class Core
       append = true
     end
 
+    valid_options = []
     # Determine which data store we're operating on
     if (active_module and global == false)
       datastore = active_module.datastore
+
+      tab_complete_option_names(active_module, '', []).each do |opt_name|
+        valid_options << opt_name
+        option = active_module.options[opt_name]
+        next unless option
+
+        # aliases that are defined for backwards compatibility are not tab completed but are still valid option names
+        valid_options += active_module.options[opt_name].aliases
+      end
     else
       global = true
       datastore = self.framework.datastore
     end
-    valid_options = tab_complete_option_names(active_module, '', [])
 
     # Dump the contents of the active datastore if no args were supplied
     if (args.length == 0)
