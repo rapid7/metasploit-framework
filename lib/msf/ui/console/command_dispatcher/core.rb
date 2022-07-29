@@ -1853,7 +1853,7 @@ class Core
           datastore) + "\n")
       return true
     elsif (args.length == 1)
-      if valid_options.any? { |vo| vo.casecmp?(args[0]) }
+      if global || valid_options.any? { |vo| vo.casecmp?(args[0]) }
         print_line("#{args[0]} => #{datastore[args[0]]}")
         return true
       else
@@ -1887,7 +1887,7 @@ class Core
       end
     end
 
-    unless valid_options.any? { |vo| vo.casecmp?(name) }
+    unless global || valid_options.any? { |vo| vo.casecmp?(name) }
       message = "Unknown datastore option: #{name}."
       suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
       message << " Did you mean #{suggestion}?" if suggestion
