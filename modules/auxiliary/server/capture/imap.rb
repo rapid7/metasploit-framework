@@ -114,7 +114,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if cmd.upcase == 'ID'
-      c.put("* ID\r\n")
+      # RFC2971 specifies the ID command, and `NIL` is a valid response
+      c.put("* ID NIL\r\n")
       c.put("#{num} OK ID completed\r\n")
       return
     end
