@@ -109,10 +109,12 @@ module UserProfiles
   # Read HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList to
   # get a list of user profiles on the machine.
   #
-  def read_profile_list
+  def read_profile_list(user_accounts_only: true)
     hives=[]
     registry_enumkeys('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList').each do |profkey|
-      next unless profkey.include? "S-1-5-21"
+      if user_accounts_only
+        next unless profkey.starts_with?('S-1-5-21')
+      end
       hive={}
       hive['SID']=profkey
       hive['HKU']= "HKU\\#{profkey}"
@@ -131,7 +133,7 @@ module UserProfiles
   def loaded_hives
     hives=[]
     registry_enumkeys('HKU').each do |k|
-      next unless k.include? "S-1-5-21"
+      next unless k.starts_with?('S-1-')
       next if k.include? "_Classes"
       hives<< k
     end
