@@ -1,12 +1,12 @@
-require 'packetfu'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
+  include Rex::Socket::Udp
 
   FILE_NAME = 'bacnet-discovery'.freeze
-  DEFAULT_SERVER_TIMEOUT = 3
+  DEFAULT_SERVER_TIMEOUT = 1
   DEFAULT_SEND_COUNT = 1
+  DEFAULT_SLEEP = 1
 
   BACNET_ASHARE_STANDARD = "\x01".freeze
   BACNETIP_CONSTANT = "\x81".freeze
@@ -65,14 +65,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('TIMEOUT', Array[true, 'The socket connect timeout in seconds', DEFAULT_SERVER_TIMEOUT]),
-        OptInt.new('COUNT', Array[true, 'The number of times to send each packet', DEFAULT_SEND_COUNT]),
-        OptPort.new('PORT', Array[true, 'BACnet/IP UDP port to scan (usually between 47808-47817)', DEFAULT_BACNET_PORT]),
-        OptString.new('INTERFACE', Array[true, 'The interface to scan from', 'eth1']),
-        OptAddressLocal.new('LHOST', [true, 'The local IP of selected interface'], regex: /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/)
+        OptInt.new('TIMEOUT', [true, 'The socket connect timeout in seconds', DEFAULT_SERVER_TIMEOUT]),
+        OptInt.new('COUNT', [true, 'The number of times to send each packet', DEFAULT_SEND_COUNT]),
+        OptPort.new('PORT', [true, 'BACnet/IP UDP port to scan (usually between 47808-47817)', DEFAULT_BACNET_PORT]),
+        OptString.new('INTERFACE', [true, 'The interface to scan from', 'eth1'])
       ], self.class
     )
-    deregister_options('RHOSTS', 'FILTER', 'PCAPFILE')
+    deregister_options('RHOSTS', 'FILTER', 'PCAPFILE', 'LHOST')
   end
 
   def hex_to_bin(str)
@@ -83,50 +82,29 @@ class MetasploitModule < Msf::Auxiliary
     str.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
   end
 
-  # Create UDP packet with the l2 and l3 details.
-  def create_packet_base
-    udp_pkt = PacketFu::UDPPacket.new
-    udp_pkt.ip_daddr = '255.255.255.255'
-    udp_pkt.eth_daddr = 'ff:ff:ff:ff:ff:ff'
-    udp_pkt.udp_dport = datastore['PORT']
-    udp_pkt.udp_sport = rand(0xffff - 1024) + 1024
-    udp_pkt.ip_ttl = 64
-
-    begin
-      udp_pkt.ip_saddr = datastore['LHOST'] # Get user-input ip address
-      udp_pkt.eth_saddr = get_mac(datastore['INTERFACE']) # Get interface's mac address
-    rescue StandardError => e
-      raise e
-    end
-    udp_pkt
-  end
-
   # Check if device is nested and extract relevant data
   def parse_npdu(data)
     is_nested = false
     if data.start_with? BACNET_ASHARE_STANDARD
-      begin
-        control = data[1].unpack1('C*')
-        src_specifier = control & (1 << 3) != 0  # check if 4th bit is set
-        dst_specifier = control & (1 << 5) != 0  # check if 6th bit is set
-        idx = 2
-        if dst_specifier
-          dst_len = data[idx + 2].ord
-          idx += 3 + dst_len
-        end
-        if src_specifier
-          src_net_id = data[idx..idx + 1]
-          sadr_len = data[idx + 2]
-          sadr = data[idx + 3..idx + 2 + sadr_len.unpack1('C*')]
-          idx += 3 + sadr_len.unpack1('C*')
-          is_nested = true
-        end
-        idx += 1 if dst_specifier # increase index if both specifiers exist
-        # if no network address specified - set as broadcast network address
-        src_net_id ||= '\x00'
-      rescue StandardError => e
-        raise e
+      control = data[1].unpack1('C*')
+      src_specifier = control & (1 << 3) != 0  # check if 4th bit is set
+      dst_specifier = control & (1 << 5) != 0  # check if 6th bit is set
+
+      idx = 2
+      if dst_specifier
+        dst_len = data[idx + 2].ord
+        idx += 3 + dst_len
       end
+      if src_specifier
+        src_net_id = data[idx..idx + 1]
+        sadr_len = data[idx + 2]
+        sadr = data[idx + 3..idx + 2 + sadr_len.unpack1('C*')]
+        idx += 3 + sadr_len.unpack1('C*')
+        is_nested = true
+      end
+      idx += 1 if dst_specifier # increase index if both specifiers exist
+      # if no network address specified - set as broadcast network address
+      src_net_id ||= '\x00'
     end
     [is_nested, src_net_id, sadr_len, sadr]
   end
@@ -153,32 +131,47 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Broadcasting Who-is and returns a capture with the responses.
-  def broadcast_who_is(udp_pkt)
-    capture = PacketFu::Capture.new(iface: datastore['INTERFACE'], start: true, filter: "udp and src port #{datastore['PORT']}")
-    datastore['COUNT'].times { udp_pkt.to_w(datastore['INTERFACE']) }
-    sleep(datastore['TIMEOUT'])
-    capture.save
-    capture
+  def broadcast_who_is
+    begin
+      broadcast_addr = get_ipv4_broadcast(datastore['INTERFACE'])
+    rescue StandardError
+      raise StandardError, "Interface #{datastore['INTERFACE']} is down"
+    end
+    cap = []
+    lsocket = Rex::Socket::Udp.create({
+      'LocalHost' => broadcast_addr,
+      'LocalPort' => datastore['PORT'],
+      'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+    })
+    datastore['COUNT'].times { lsocket.sendto(DISCOVERY_MESSAGE_L3, '255.255.255.255', datastore['PORT'], 0) }
+    loop do
+      data, host, port = lsocket.recvfrom(65535, datastore['TIMEOUT'])
+      break if host.nil?
+
+      cap << [data, host, port]
+    end
+    lsocket.close
+    cap
   end
 
   # Analyze I-am packets,and prepare read-property messages for each.
   def analyze_i_am_devices(capture)
     devices_data = {}
     instance_numbers = []
-    capture.array.each do |packet|
-      mac = "#{bin_to_hex(packet[6])}:#{bin_to_hex(packet[7])}:#{bin_to_hex(packet[8])}:#{bin_to_hex(packet[9])}:#{bin_to_hex(packet[10])}:#{bin_to_hex(packet[11])}"
-      ip = Rex::Socket.addr_ntoa(packet[26..29])
-      next unless packet[42] == BACNETIP_CONSTANT # If packet is not a bacnet/ip
+    capture.each do |cap|
+      data = cap[0]
+      ip = cap[1]
+      next unless data[0] == BACNETIP_CONSTANT # If communication is not a bacnet/ip
 
-      data = packet[46..]
+      data = data[4..]
       index = data.index(BACNET_UNCOFIRMED_REQ_I_AM_OBJ_DEVICE_PREFIX)
-      next unless index # If packet has no I-am object
+      next unless index # If cap has no I-am object
 
       raw_instance_number = bin_to_hex(data[(index + BACNET_UNCOFIRMED_REQ_I_AM_OBJ_DEVICE_PREFIX.length)..(index + BACNET_UNCOFIRMED_REQ_I_AM_OBJ_DEVICE_PREFIX.length + 2)]).to_i(16) & 0x3fffff
       instance_number = raw_instance_number.to_s(16).rjust(6, '0')
       next if instance_numbers.include? instance_number # Pass if we already analysed this instance number
 
-      devices_data[[instance_number, mac, ip]] = data unless devices_data[[instance_number, mac, ip]]
+      devices_data[[instance_number, ip]] = data unless devices_data[[instance_number, ip]]
     end
     devices_data
   end
@@ -227,8 +220,8 @@ class MetasploitModule < Msf::Auxiliary
   # Loop on recorded packets and extract data from read-property messages
   def extract_data(capture)
     asset_data = {}
-    capture.array.each do |packet|
-      data = packet[46..]
+    capture.each do |packet|
+      data = packet[0][4..]
       items = parse_npdu(data)
       index = extract_index(data)
       asset_data['sadr'] = bin_to_hex(items[3]) if items[0] == true
@@ -246,27 +239,22 @@ class MetasploitModule < Msf::Auxiliary
       else
         raise "undefined attribute for property number #{bin_to_hex(type)}."
       end
-      begin
-        value = bin_to_hex(data[index + 9..])[/3e(.*?)3f/m, 1]
-        value = hex_to_bin(value)
-        value = (value[value.index(hex_to_bin('00')) + 1..]).force_encoding('UTF-8') # parsing the needed text
-        asset_data[attribute] = value
-      rescue StandardError => e
-        raise e
-      end
+      value = bin_to_hex(data[index + 9..])[/3e(.*?)3f/m, 1]
+      value = hex_to_bin(value)
+      value = (value[value.index(hex_to_bin('00')) + 1..]).force_encoding('UTF-8') # parsing the needed text
+      asset_data[attribute] = value
     end
     asset_data
   end
 
   # Gets properties from devices and returns a hash with the details of each device.
-  def get_properties_from_devices(messages, udp_pkt)
+  def get_properties_from_devices(messages)
     devices_by_ip = {}
     messages.each do |key, message_block|
       instance_number = key[0].to_i(16)
-      mac = key[1]
-      ip = key[2]
+      ip = key[1]
 
-      capture = send_read_properties(message_block, udp_pkt, mac, ip, instance_number)
+      capture = send_read_properties(message_block, ip, instance_number)
       begin
         device = extract_data(capture)
         raise StandardError if device.empty?
@@ -282,21 +270,25 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Sending read-property packets and returns a pcap with the responses.
-  def send_read_properties(messages, udp_pkt, mac, ip, instance_number)
-    udp_pkt.eth_daddr = mac
-    udp_pkt.ip_daddr = ip
-
-    capture = PacketFu::Capture.new(iface: datastore['INTERFACE'], start: true,
-                                    filter: "ip src #{ip} and ip dst #{udp_pkt.ip_saddr}")
+  def send_read_properties(messages, ip, instance_number)
+    cap = []
+    ssocket = Rex::Socket::Udp.create({
+      'PeerHost' => ip,
+      'PeerPort' => datastore['PORT'],
+      'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+    })
     print_status("Querying device number #{instance_number} in ip #{ip}")
     messages.each do |message|
-      udp_pkt.payload = message
-      udp_pkt.recalc
-      datastore['COUNT'].times { udp_pkt.to_w(datastore['INTERFACE']) }
+      ssocket.sendto(message, ip, datastore['PORT'], 0)
+      loop do
+        data, host, port = ssocket.recvfrom(65535, datastore['TIMEOUT'])
+        break if host.nil?
+
+        cap << [data, host, port]
+      end
     end
-    sleep(datastore['TIMEOUT'])
-    capture.save
-    capture
+    ssocket.close
+    cap
   end
 
   # Iterates over all the devices and prints the details to the user.
@@ -353,6 +345,17 @@ class MetasploitModule < Msf::Auxiliary
     data
   end
 
+  def get_device_array(devices_by_ip)
+    devices = []
+    devices_by_ip.each do |ip, batch|
+      batch.each do |device|
+        device['ip'] = ip
+        devices << device
+      end
+    end
+    devices
+  end
+
   def run
     # Validate user input
     raise Msf::OptionValidateError, ['TIMEOUT'] if datastore['TIMEOUT'].negative?
@@ -360,49 +363,44 @@ class MetasploitModule < Msf::Auxiliary
     raise Msf::OptionValidateError, ['INTERFACE'] if datastore['INTERFACE'].empty?
 
     begin
-      # Create Base packet
-      udp_pkt = create_packet_base
-
-      # Add Who-is payload
-      udp_pkt.payload = DISCOVERY_MESSAGE_L3
-      udp_pkt.recalc
-
-      begin
-        # Prevent ICMP retransmission
-        socket = UDPSocket.new
-        socket.bind(udp_pkt.ip_saddr, udp_pkt.udp_sport)
-      rescue StandardError
-        raise StandardError, "Could not open a socket. Is '#{datastore['LHOST']}' a correct local IP?"
-      end
-
       # Broadcast who-is and create request-property messages for detected devices.
       print_status "Broadcasting Who-is via #{datastore['INTERFACE']}"
-      capture = broadcast_who_is(udp_pkt)
+      capture = broadcast_who_is
       devices_data = analyze_i_am_devices(capture)
       messages = create_messages_for_devices(devices_data)
 
       # If there are messages to send
       if !messages.empty?
         print_status "found #{messages.length} devices"
-        devices_by_ip = get_properties_from_devices(messages, udp_pkt)
+        sleep(DEFAULT_SLEEP)
+        devices_by_ip = get_properties_from_devices(messages)
         print_status 'Done collecting data'
+        sleep(DEFAULT_SLEEP)
         output_results(devices_by_ip)
       else
-        print_status('No devices found. Exiting.')
-        return
+        fail_with(Failure::NotFound, 'No devices found. Exiting.')
       end
     rescue StandardError => e
-      print_bad(e.message)
+      fail_with(Failure::Unknown, e.message)
       return
     end
-    socket.close
     begin
       data = parse_data_to_xml(devices_by_ip)
-      store_local('bacnet.devices.info'.dup, 'text/xml', data, FILE_NAME)
-      print_good("Successfully saved data to local store named #{FILE_NAME}.xml")
+      begin
+        store_local('bacnet.devices.info'.dup, 'text/xml', data, FILE_NAME)
+        print_good("Successfully saved data to local store named #{FILE_NAME}.xml")
+      rescue StandardError # If there are no privileges to save a file
+        devices = get_device_array(devices_by_ip)
+        report_note(
+          ips: devices_by_ip.keys,
+          devices: devices,
+          proto: 'udp'
+        )
+        print_good('Successfully reported data')
+      end
       print_status('Done.')
     rescue StandardError => e
-      print_bad(e.message)
+      fail_with(Failure::Unknown, e.message)
     end
   end
 end
