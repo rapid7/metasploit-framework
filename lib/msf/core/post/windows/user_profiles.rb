@@ -4,6 +4,7 @@ class Post
 module Windows
 
 module UserProfiles
+  include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Accounts
 
@@ -92,7 +93,7 @@ module UserProfiles
     read_profile_list().each do |hive|
       hive['OURS']=false
       if hive['LOADED']== false
-        if session.fs.file.exist?(hive['DAT'])
+        if file_exist?(hive['DAT'])
           hive['OURS'] = registry_loadkey(hive['HKU'], hive['DAT'])
           print_error("Error loading USER #{hive['SID']}: Hive could not be loaded, are you Admin?") unless hive['OURS']
         else
@@ -116,7 +117,7 @@ module UserProfiles
       hive['SID']=profkey
       hive['HKU']= "HKU\\#{profkey}"
       hive['PROF']= registry_getvaldata("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{profkey}", 'ProfileImagePath')
-      hive['PROF']= session.fs.file.expand_path(hive['PROF']) if hive['PROF']
+      hive['PROF'] = expand_path(hive['PROF']) if hive['PROF']
       hive['DAT']= "#{hive['PROF']}\\NTUSER.DAT"
       hive['LOADED'] = loaded_hives.include?(profkey)
       hives << hive
