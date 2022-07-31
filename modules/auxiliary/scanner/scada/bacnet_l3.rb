@@ -69,18 +69,18 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('COUNT', Array[true, 'The number of times to send each packet', DEFAULT_SEND_COUNT]),
         OptPort.new('PORT', Array[true, 'BACnet/IP UDP port to scan (usually between 47808-47817)', DEFAULT_BACNET_PORT]),
         OptString.new('INTERFACE', Array[true, 'The interface to scan from', 'eth1']),
-        OptAddressLocal.new('LHOST', [true, 'The local IP of selected interface'], regex:/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/)
+        OptAddressLocal.new('LHOST', [true, 'The local IP of selected interface'], regex: /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/)
       ], self.class
     )
     deregister_options('RHOSTS', 'FILTER', 'PCAPFILE')
   end
 
-  def hex_to_bin(s)
-    s.scan(/../).map { |x| x.hex.chr }.join
+  def hex_to_bin(str)
+    str.scan(/../).map { |x| x.hex.chr }.join
   end
 
-  def bin_to_hex(s)
-    s.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+  def bin_to_hex(str)
+    str.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
   end
 
   # Create UDP packet with the l2 and l3 details.
@@ -202,7 +202,7 @@ class MetasploitModule < Msf::Auxiliary
   def create_nested_messages(instance_number, items)
     nested_messages = []
     GET_PROPERTY_MESSAGES_L3_NESTED.each do |msg_base|
-         msg = msg_base
+      msg = msg_base
             .sub('{object_identifier}', instance_number)
             .sub('{dest_net_id}', items[1])
             .sub('{dadr_len}', items[2])
@@ -314,7 +314,7 @@ class MetasploitModule < Msf::Auxiliary
           \tapplication software version: #{asset['application-software-version']}
           \tdescription: #{asset['description']}
           \t#{sadr}
-          OUTPUT
+        OUTPUT
       end
     end
   end
@@ -368,12 +368,12 @@ class MetasploitModule < Msf::Auxiliary
       udp_pkt.recalc
 
       begin
-      # Prevent ICMP retransmission
-      socket = UDPSocket.new
-      socket.bind(udp_pkt.ip_saddr, udp_pkt.udp_sport)
-    rescue
-      raise StandardError.new "Could not open a socket. Is '#{datastore['LHOST']}' a correct local IP?"
-    end
+        # Prevent ICMP retransmission
+        socket = UDPSocket.new
+        socket.bind(udp_pkt.ip_saddr, udp_pkt.udp_sport)
+      rescue StandardError
+        raise StandardError, "Could not open a socket. Is '#{datastore['LHOST']}' a correct local IP?"
+      end
 
       # Broadcast who-is and create request-property messages for detected devices.
       print_status "Broadcasting Who-is via #{datastore['INTERFACE']}"
