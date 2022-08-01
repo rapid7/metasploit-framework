@@ -19,7 +19,6 @@ Each bacnet device responds with this data:
   1. Start msfconsole.
   2. Do: `use auxiliary/scanner/scada/bacnet_l3`.
   3. Do: `set INTERFACE`.
-  4. Do: `set LHOST` and choose the chosen interface's IP.
   5. Do: `run`.
   6. Devices running the BACnet protocol should respond with data.
 
@@ -40,9 +39,7 @@ Name       Current Setting  Required  Description
 COUNT      1                yes       The number of times to send each packet
 INTERFACE  eth1             yes       The interface to scan from
 PORT       47808            yes       BACnet/IP UDP port to scan (usually between 47808-47817)
-TIMEOUT    3                yes       The socket connect timeout in seconds
-LHOST                       yes       The local IP of selected interface
-
+TIMEOUT    1                yes       The socket connect timeout in seconds
 ```
 
 ## Scenarios
