@@ -413,7 +413,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   def update_session_info
     # sys.config.getuid, and fs.dir.getwd cache their results, so update them
-    fs.dir.getwd
+    fs&.dir&.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
