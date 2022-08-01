@@ -133,21 +133,33 @@ class MetasploitModule < Msf::Auxiliary
   def broadcast_who_is
     begin
       broadcast_addr = get_ipv4_broadcast(datastore['INTERFACE'])
+      interface_addr = get_ipv4_addr(datastore['INTERFACE'])
     rescue StandardError
       raise StandardError, "Interface #{datastore['INTERFACE']} is down"
     end
     cap = []
+
+    # Create a socket for broadcast response and a socket for unicast response.
     lsocket = Rex::Socket::Udp.create({
       'LocalHost' => broadcast_addr,
       'LocalPort' => datastore['PORT'],
       'Context' => { 'Msf' => framework, 'MsfExploit' => self }
     })
+    ssocket = Rex::Socket::Udp.create({
+      'LocalHost' => interface_addr,
+      'LocalPort' => datastore['PORT'],
+      'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+    })
     datastore['COUNT'].times { lsocket.sendto(DISCOVERY_MESSAGE_L3, '255.255.255.255', datastore['PORT'], 0) }
+
+    # Collect responses with unicast or broadcast destination.
     loop do
       data, host, port = lsocket.recvfrom(65535, datastore['TIMEOUT'])
-      break if host.nil?
+      data2, host2, port2 = ssocket.recvfrom(65535, datastore['TIMEOUT'])
+      break if (host.nil? && host2.nil?)
 
-      cap << [data, host, port]
+      cap << [data, host, port] if host
+      cap << [data2, host2, port2] if host2
     end
     lsocket.close
     cap
