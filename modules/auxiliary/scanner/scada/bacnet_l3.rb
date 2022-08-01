@@ -99,10 +99,9 @@ class MetasploitModule < Msf::Auxiliary
         src_net_id = data[idx..idx + 1]
         sadr_len = data[idx + 2]
         sadr = data[idx + 3..idx + 2 + sadr_len.unpack1('C*')]
-        idx += 3 + sadr_len.unpack1('C*')
         is_nested = true
       end
-      idx += 1 if dst_specifier # increase index if both specifiers exist
+
       # if no network address specified - set as broadcast network address
       src_net_id ||= '\x00'
     end
