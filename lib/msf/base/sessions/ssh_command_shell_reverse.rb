@@ -31,20 +31,19 @@ module Msf::Sessions
       'SSH command shell'
     end
 
-    def shell_command(cmd)
+    def shell_command(cmd, timeout = 5)
       # Send the command to the session's stdin.
       shell_write(cmd + "\n")
 
-      timeo = 0.5
-      etime = ::Time.now.to_f + timeo
-      buff = ''
+      etime = ::Time.now.to_f + timeout
+      buff = ""
 
       # Keep reading data until no more data is available or the timeout is
       # reached.
-      while ((::Time.now.to_f < etime) && ::IO.select([rstream.fd_rd], nil, nil, timeo))
+      while ::Time.now.to_f < etime && ::IO.select([rstream.fd_rd], nil, nil, timeout)
         res = shell_read(-1, 0.01)
         buff << res if res
-        timeo = etime - ::Time.now.to_f
+        timeout = etime - ::Time.now.to_f
       end
 
       buff
