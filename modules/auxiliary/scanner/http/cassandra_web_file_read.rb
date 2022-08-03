@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     return Exploit::CheckCode::Unknown('No response from the web service') if res.nil?
-    return Exploit::CheckCode::Safe('Target is not a ZoneMinder web server') if res.code != 200
+    return Exploit::CheckCode::Safe('Target is not a Cassandra Web server') if res.code != 200
 
     if res.headers['server'] == 'thin' && res.body.include?('Cassandra Web') && res.body.include?('/js/cassandra.js')
       return Exploit::CheckCode::Appears('Cassandra Web Detected')
