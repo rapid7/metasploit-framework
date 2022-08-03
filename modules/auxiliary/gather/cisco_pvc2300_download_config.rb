@@ -169,10 +169,9 @@ class MetasploitModule < Msf::Auxiliary
       print_good('Obtained the following admin credentials for the web interface from the configuration file:')
       print_status("admin username: #{admin_name}")
       print_status("admin password: #{admin_password}")
+      # save the creds to the db
+      report_creds(admin_name, admin_password)
     end
-
-    # save the creds to the db
-    report_creds(admin_name, admin_password)
   end
 
   def report_creds(username, password)
