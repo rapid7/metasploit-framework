@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
@@ -168,6 +169,36 @@ class MetasploitModule < Msf::Auxiliary
       print_status("admin username: #{admin_name}")
       print_status("admin password: #{admin_password}")
     end
+
+    # save the creds to the db
+    report_creds(admin_name, admin_password)
+  end
+
+  def report_creds(username, password)
+    service_data = {
+      address: datastore['RHOST'],
+      port: datastore['RPORT'],
+      service_name: 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      origin_type: :service,
+      private_data: password,
+      private_type: :password,
+      username: username
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run
