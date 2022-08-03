@@ -251,7 +251,7 @@ module Msf::Post::File
     end
     raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
 
-    cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
+    cmd_exec("(test -w '#{path}' || test -O '#{path}') && echo true").to_s.include? 'true'
   end
 
   #
