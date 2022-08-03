@@ -90,6 +90,8 @@ module DotNetDeserialization
     case gadget_chain
     when :ClaimsPrincipal
       stream = GadgetChains::ClaimsPrincipal.generate(cmd)
+    when :DataSet
+      stream = GadgetChains::DataSet.generate(cmd)
     when :TextFormattingRunProperties
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
