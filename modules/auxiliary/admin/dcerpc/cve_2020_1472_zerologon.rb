@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'windows_error'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
@@ -33,7 +35,10 @@ class MetasploitModule < Msf::Auxiliary
           'Dirk-jan Mollema' # password restoration technique
         ],
         'Notes' => {
-          'AKA' => [ 'Zerologon' ]
+          'AKA' => ['Zerologon'],
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS]
         },
         'License' => MSF_LICENSE,
         'Actions' => [
@@ -86,6 +91,12 @@ class MetasploitModule < Msf::Auxiliary
       response = netr_server_authenticate3
 
       break if (status = response.error_status) == 0
+
+      windows_error = ::WindowsError::NTStatus.find_by_retval(response.error_status.to_i).first
+      # Try again if the Failure is STATUS_ACCESS_DENIED, otherwise something has gone wrong
+      next if windows_error == ::WindowsError::NTStatus::STATUS_ACCESS_DENIED
+
+      fail_with(Failure::UnexpectedReply, windows_error)
     end
 
     return CheckCode::Detected unless status == 0
