@@ -15,8 +15,8 @@ class MetasploitModule < Msf::Auxiliary
         {
           'Name' => 'Cisco PVC2300 POE Video Camera configuration download',
           'Description' => %q{
-            This module exploits an information disclosure vulnerablity in Cisco PVC2300 cameras in order to
-            download the configuration file containing the admin credentials for the web interface.
+            This module exploits an information disclosure vulnerability in Cisco PVC2300 cameras in order
+            to download the configuration file containing the admin credentials for the web interface.
 
             The module first performs a basic check to see if the target is likely Cisco PVC2300. If so, the
             module attempts to obtain a sessionID via an HTTP GET request to the vulnerable /oamp/System.xml
