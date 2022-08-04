@@ -309,7 +309,7 @@ class MetasploitModule < Msf::Auxiliary
           entries = perform_ldap_query(ldap, filter, attributes)
           print_error("No entries could be found for #{datastore['QUERY_FILTER']}!") if entries.nil? || entries.empty?
         else
-          query = @loaded_queries[datastore['ACTION']]
+          query = @loaded_queries[datastore['ACTION']].nil? ? @loaded_queries[default_action] : @loaded_queries[datastore['ACTION']]
           fail_with(Failure::BadConfig, "Invalid action: #{datastore['ACTION']}") unless query
 
           begin
