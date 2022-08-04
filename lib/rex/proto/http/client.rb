@@ -63,6 +63,8 @@ class Client
       'pad_get_params_count'   => 'integer',
       'pad_post_params'        => 'bool',
       'pad_post_params_count'  => 'integer',
+      'shuffle_get_params'     => 'bool',
+      'shuffle_post_params'    => 'bool',
       'uri_fake_end'           => 'bool',
       'uri_fake_params_start'  => 'bool',
       'header_folding'         => 'bool',

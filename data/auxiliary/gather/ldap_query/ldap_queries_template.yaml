@@ -1,0 +1,8 @@
+---
+queries:
+#  - action: SAMPLE_ACTION
+#    description: 'A description.'
+#    filter: '(objectClass=*)'
+#    attributes:
+#      - dn
+#      - objectClass
