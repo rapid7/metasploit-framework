@@ -205,21 +205,21 @@ class MetasploitModule < Msf::Auxiliary
     res1 = send_request_cgi('uri' => normalize_uri(target_uri.path))
 
     unless res1
-      Exploit::CheckCode::Unknown('Target is unreachable.')
+      return Exploit::CheckCode::Unknown('Target is unreachable.')
     end
 
     # string togetether a few checks to make it more likely we're dealing with a Cisco camera
     unless res1.code == 401 && res1.headers.include?('WWW-Authenticate') && res1.headers['WWW-Authenticate'] == 'Basic realm="IP Camera"'
-      Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
+      return Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
     end
 
     res2 = send_request_cgi('uri' => normalize_uri(target_uri.path, 'oamp', 'System.xml'))
     unless res2
-      Exploit::CheckCode::Unknown('Target is unreachable.')
+      return Exploit::CheckCode::Unknown('Target is unreachable.')
     end
 
     unless res2.code == 200 && res2.body =~ %r{<ActionStatus><statusCode>.*?</statusCode><statusString>.*?</statusString></ActionStatus>}
-      Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
+      return Exploit::CheckCode::Safe('Target is not a Cisco PVC2300 POE Video Camera')
     end
 
     vprint_status('Target seems to be a Cisco camera')
