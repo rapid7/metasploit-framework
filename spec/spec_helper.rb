@@ -1,4 +1,11 @@
 # -*- coding: binary -*-
+
+# Enable legacy providers such as blowfish-cbc, cast128-cbc, arcfour, etc
+$stderr.puts "Overriding user environment variable 'OPENSSL_CONF' to enable legacy functions." unless ENV['OPENSSL_CONF'].nil?
+ENV['OPENSSL_CONF'] = File.expand_path(
+  File.join(File.dirname(__FILE__), '..', 'config', 'openssl.conf')
+)
+
 require 'stringio'
 require 'factory_bot'
 require 'rubocop'

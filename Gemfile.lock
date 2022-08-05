@@ -234,7 +234,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (5.0.7)
+    metasploit-credential (5.0.8)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -287,8 +287,8 @@ GEM
     octokit (4.25.1)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
-    openssl-ccm (1.2.2)
-    openssl-cmac (2.0.1)
+    openssl-ccm (1.2.3)
+    openssl-cmac (2.0.2)
     openvas-omp (0.0.4)
     packetfu (1.1.13)
       pcaprub
@@ -429,7 +429,7 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.1.6)
+    ruby_smb (3.1.7)
       bindata
       openssl-ccm
       openssl-cmac
