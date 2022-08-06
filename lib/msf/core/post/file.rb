@@ -352,10 +352,20 @@ module Msf::Post::File
   #
   # Returns a MD5 checksum of a given remote file
   #
-  # @note THIS DOWNLOADS THE FILE
+  # @note For non-Meterpreter sessions,
+  #       this method downloads the file from the remote host.
+  #
   # @param file_name [String] Remote file name
   # @return [String] Hex digest of file contents
   def file_remote_digestmd5(file_name)
+    if session.type == 'meterpreter'
+      begin
+        return session.fs.file.md5(file_name)&.unpack('H*').flatten.first
+      rescue StandardError
+        return nil
+      end
+    end
+
     data = read_file(file_name)
     chksum = nil
     if data
@@ -367,10 +377,20 @@ module Msf::Post::File
   #
   # Returns a SHA1 checksum of a given remote file
   #
-  # @note THIS DOWNLOADS THE FILE
+  # @note For non-Meterpreter sessions,
+  #       this method downloads the file from the remote host.
+  #
   # @param file_name [String] Remote file name
   # @return [String] Hex digest of file contents
   def file_remote_digestsha1(file_name)
+    if session.type == 'meterpreter'
+      begin
+        return session.fs.file.sha1(file_name)&.unpack('H*').flatten.first
+      rescue StandardError
+        return nil
+      end
+    end
+
     data = read_file(file_name)
     chksum = nil
     if data
