@@ -353,11 +353,13 @@ module Msf::Post::File
   # Returns a MD5 checksum of a given remote file
   #
   # @note For shell sessions,
-  #       this method downloads the file from the remote host.
+  #       this method downloads the file from the remote host
+  #       unless a hashing utility for use on the remote host is specified.
   #
   # @param file_name [String] Remote file name
+  # @option util [String] Remote file hashing utility
   # @return [String] Hex digest of file contents
-  def file_remote_digestmd5(file_name)
+  def file_remote_digestmd5(file_name, util: nil)
     if session.type == 'meterpreter'
       begin
         return session.fs.file.md5(file_name)&.unpack('H*').flatten.first
@@ -375,23 +377,37 @@ module Msf::Post::File
       return chksum&.gsub(/-/, '')&.downcase
     end
 
-    data = read_file(file_name)
-    chksum = nil
-    if data
+    case util
+    when 'md5'
+      chksum = session.shell_command_token("md5 -q '#{file_name}'")&.strip
+    when 'md5sum'
+      chksum = session.shell_command_token("md5sum '#{file_name}'")&.strip.split.first
+    when 'certutil'
+      data = session.shell_command_token("certutil -hashfile \"#{file_name}\" MD5")
+      return unless data
+      chksum = data.scan(/^([a-f0-9 ]{47})\r?\n/).flatten.first&.gsub(/\s*/, '')
+    else
+      data = read_file(file_name)
+      return unless data
       chksum = Digest::MD5.hexdigest(data)
     end
-    return chksum
+
+    return unless chksum =~ /\A[a-f0-9]{32}\z/
+
+    chksum
   end
 
   #
   # Returns a SHA1 checksum of a given remote file
   #
   # @note For shell sessions,
-  #       this method downloads the file from the remote host.
+  #       this method downloads the file from the remote host
+  #       unless a hashing utility for use on the remote host is specified.
   #
   # @param file_name [String] Remote file name
+  # @option util [String] Remote file hashing utility
   # @return [String] Hex digest of file contents
-  def file_remote_digestsha1(file_name)
+  def file_remote_digestsha1(file_name, util: nil)
     if session.type == 'meterpreter'
       begin
         return session.fs.file.sha1(file_name)&.unpack('H*').flatten.first
@@ -408,12 +424,24 @@ module Msf::Post::File
       return chksum&.gsub(/-/, '')&.downcase
     end
 
-    data = read_file(file_name)
-    chksum = nil
-    if data
+    case util
+    when 'sha1'
+      chksum = session.shell_command_token("sha1 -q '#{file_name}'")&.strip
+    when 'sha1sum'
+      chksum = session.shell_command_token("sha1sum '#{file_name}'")&.strip.split.first
+    when 'certutil'
+      data = session.shell_command_token("certutil -hashfile \"#{file_name}\" SHA1")
+      return unless data
+      chksum = data.scan(/^([a-f0-9 ]{59})\r?\n/).flatten.first&.gsub(/\s*/, '')
+    else
+      data = read_file(file_name)
+      return unless data
       chksum = Digest::SHA1.hexdigest(data)
     end
-    return chksum
+
+    return unless chksum =~ /\A[a-f0-9]{40}\z/
+
+    chksum
   end
 
   #
