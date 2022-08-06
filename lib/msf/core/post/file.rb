@@ -352,7 +352,7 @@ module Msf::Post::File
   #
   # Returns a MD5 checksum of a given remote file
   #
-  # @note For non-Meterpreter sessions,
+  # @note For shell sessions,
   #       this method downloads the file from the remote host.
   #
   # @param file_name [String] Remote file name
@@ -366,6 +366,15 @@ module Msf::Post::File
       end
     end
 
+    # Note: This will fail on files larger than 2GB
+    if session.type == 'powershell'
+      data = cmd_exec("$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider; [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes('#{file_name}')))")
+      return unless data
+
+      chksum = data.scan(/^([A-F0-9-]+)$/).flatten.first
+      return chksum&.gsub(/-/, '')&.downcase
+    end
+
     data = read_file(file_name)
     chksum = nil
     if data
@@ -377,7 +386,7 @@ module Msf::Post::File
   #
   # Returns a SHA1 checksum of a given remote file
   #
-  # @note For non-Meterpreter sessions,
+  # @note For shell sessions,
   #       this method downloads the file from the remote host.
   #
   # @param file_name [String] Remote file name
@@ -389,6 +398,14 @@ module Msf::Post::File
       rescue StandardError
         return nil
       end
+    end
+
+    # Note: This will fail on files larger than 2GB
+    if session.type == 'powershell'
+      data = cmd_exec("$sha1 = New-Object -TypeName System.Security.Cryptography.SHA1CryptoServiceProvider; [System.BitConverter]::ToString($sha1.ComputeHash([System.IO.File]::ReadAllBytes('#{file_name}')))")
+      return unless data
+      chksum = data.scan(/^([A-F0-9-]+)$/).flatten.first
+      return chksum&.gsub(/-/, '')&.downcase
     end
 
     data = read_file(file_name)
