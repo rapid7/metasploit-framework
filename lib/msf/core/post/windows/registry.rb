@@ -668,7 +668,7 @@ protected
       raise ArgumentError, "Cannot normalize unknown key: #{key}"
     end
     # print_status("Normalized #{key} to #{keys.join("\\")}")
-    return keys.join("\\")
+    return keys.compact.join("\\")
   end
 
   #
