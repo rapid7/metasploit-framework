@@ -664,7 +664,7 @@ protected
     else
       raise ArgumentError, "Cannot normalize unknown key: #{key}"
     end
-    print_status("Normalized #{key} to #{keys.join("\\")}") if $blab
+    # print_status("Normalized #{key} to #{keys.join("\\")}")
     return keys.join("\\")
   end
 
