@@ -110,6 +110,7 @@ module Msf
     #
     # Removes an option.
     #
+    # @param [String] name the option name
     def remove_option(name)
       delete(name)
       sorted.each_with_index { |e, idx|

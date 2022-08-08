@@ -149,6 +149,11 @@ RSpec.configure do |config|
     end
   end
 
+  if ENV['DATASTORE_FALLBACKS']
+    config.before(:suite) do
+      Msf::FeatureManager.instance.set(Msf::FeatureManager::DATASTORE_FALLBACKS, true)
+    end
+  end
 end
 
 if load_metasploit
