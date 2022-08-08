@@ -90,6 +90,7 @@ module Scriptable
       'screenspy' => 'post/windows/gather/screen_spy',
       'search_dwld' => 'post/windows/gather/enum_files',
       'service_permissions_escalate' => 'exploits/windows/local/service_permissions',
+      'srt_webdrive_priv' => 'exploit/windows/local/service_permissions',
       'uploadexec' => 'post/windows/manage/download_exec',
       'webcam' => 'post/windows/manage/webcam',
       'wmic' => 'post/windows/gather/wmic_command',
