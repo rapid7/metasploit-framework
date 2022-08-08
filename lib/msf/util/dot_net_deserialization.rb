@@ -92,6 +92,8 @@ module DotNetDeserialization
       stream = GadgetChains::ClaimsPrincipal.generate(cmd)
     when :DataSet
       stream = GadgetChains::DataSet.generate(cmd)
+    when :DataSetTypeSpoof
+      stream = GadgetChains::DataSetTypeSpoof.generate(cmd)
     when :TextFormattingRunProperties
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
