@@ -423,6 +423,15 @@ class Driver < Msf::Ui::Driver
     end
   end
 
+  # TODO: Do we want an easy way to set a default payload still
+  #  if !glob && active_module && (active_module.exploit? || active_module.evasion?)
+  #     Msf::Ui::Console::CommandDispatcher::Exploit.choose_payload(active_module)
+  #     handle_payload(active_module.datastore['PAYLOAD'])
+  #
+  #    # Explicitly return false, as the side-effect of choosing a payload has already been done
+  #    false
+  #  end
+
   #
   # Proxies to shell.rb's update prompt with our own extras
   #
@@ -571,8 +580,13 @@ protected
     elsif active_module && (active_module.exploit? || active_module.evasion?)
       return false unless active_module.is_payload_compatible?(val)
     elsif active_module
+      # require 'pry'; binding.pry
+      # TODO: test this via 'set payload winows/meterpreter_reverse_tcp'
+      $stderr.puts "handle this"
       active_module.datastore.clear_non_user_defined
     elsif framework
+      # require 'pry'; binding.pry
+      $stderr.puts "handle this"
       framework.datastore.clear_non_user_defined
     end
   end

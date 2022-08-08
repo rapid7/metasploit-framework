@@ -555,7 +555,8 @@ class ReadableText
         ])
 
     mod.options.sorted.each do |name, opt|
-      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      # TODO: Investigate copy/pasta https://github.com/rapid7/metasploit-framework/commit/0660880332029327a77ac7ae67f308af859a8f4d
+      val = mod.datastore[name]
 
       next unless Msf::OptCondition.show_option(mod, opt)
       next if (opt.advanced?)
@@ -603,7 +604,7 @@ class ReadableText
     mod.options.sorted.each do |name, opt|
       next unless opt.advanced?
       next unless Msf::OptCondition.show_option(mod, opt)
-      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      val = mod.datastore[name]
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 
@@ -628,7 +629,7 @@ class ReadableText
 
     mod.options.sorted.each do |name, opt|
       next unless opt.evasion?
-      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      val = mod.datastore[name]
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 

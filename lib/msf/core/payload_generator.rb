@@ -255,7 +255,7 @@ module Msf
           cli_print "#{encoder_opt[0]} not found continuing..."
           next
         end
-        encoder_mod.datastore.import_options_from_hash(datastore)
+        encoder_mod.datastore.merge!(datastore)
         shellcode = run_encoder(encoder_mod, shellcode)
       end
       shellcode
@@ -366,7 +366,7 @@ module Msf
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       raise PayloadGeneratorError, "A payload module was not selected" if payload_module.nil?
-      payload_module.datastore.import_options_from_hash(datastore)
+      payload_module.datastore.merge!(datastore)
       case format
       when "raw", "jar"
         if payload_module.respond_to? :generate_jar
@@ -413,7 +413,7 @@ module Msf
         gen_payload = raw_payload
       else
         if payload_module.is_a?(Msf::Payload::Windows::PayloadDBConf)
-          payload_module.datastore.import_options_from_hash(datastore)
+          payload_module.datastore.merge!(datastore)
           ds_opt = payload_module.datastore
           cli_print("[!] Database is not active! Payload key and nonce must be manually set when creating handler") unless framework.db.active
           cli_print("[-] Please ensure payload key and nonce match when setting up handler: #{ds_opt['ChachaKey']} - #{ds_opt['ChachaNonce']}")
@@ -498,7 +498,7 @@ module Msf
             cli_print "[-] Skipping invalid encoder #{chosen_encoder}"
             next
           end
-          e.datastore.import_options_from_hash(datastore)
+          e.datastore.merge!(datastore)
           encoders << e if e
         end
         if encoders.empty?
@@ -519,7 +519,7 @@ module Msf
 
         framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
           e = framework.encoders.create(name)
-          e.datastore.import_options_from_hash(datastore)
+          e.datastore.merge!(datastore)
           encoders << e if e
         end
         encoders.select{ |my_encoder| my_encoder.rank != ManualRanking }.sort_by { |my_encoder| my_encoder.rank }.reverse

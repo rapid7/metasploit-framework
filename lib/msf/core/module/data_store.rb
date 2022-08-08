@@ -6,7 +6,7 @@ module Msf::Module::DataStore
   # @attribute [r] datastore
   #   The module-specific datastore instance.
   #
-  #   @return [Hash{String => String}]
+  #   @return [Msf::DataStore]
   attr_reader   :datastore
 
   #
@@ -15,16 +15,21 @@ module Msf::Module::DataStore
   #
   def import_defaults(clear_datastore = true)
     # Clear the datastore if the caller asked us to
+    # TODO: Is this a hack?
     self.datastore.clear if clear_datastore
 
-    self.datastore.import_options(self.options, 'self', true)
+    # TODO: Confirm why we need this. Is this a hack?
+    # XXX: Above: We need this as every call to register_options calls `import_defaults`, which is potentially weird - instead of the new `import_options`
+    # $stderr.puts "importing defaults from options"
+    # self.datastore.import_defaults_from_options(self.options, imported_by: 'self')
+    self.datastore.import_options(options)
 
     # If there are default options, import their values into the datastore
     if (module_info['DefaultOptions'])
-      self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
+      self.datastore.import_defaults_from_hash(module_info['DefaultOptions'], imported_by: 'self')
     end
 
-    # Preference the defaults for the currently set target
+    # Preference the defaults for the currently sets target
     import_target_defaults
   end
 
@@ -34,7 +39,7 @@ module Msf::Module::DataStore
   def import_target_defaults
     return unless defined?(targets) && targets && target && target.default_options
 
-    datastore.import_options_from_hash(target.default_options, true, 'self')
+    datastore.import_defaults_from_hash(target.default_options, imported_by: 'self')
   end
 
   #

@@ -52,7 +52,7 @@ class Auxiliary
     end
 
     mod_with_opts = mod.replicant
-    mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
+    mod_with_opts.datastore.merge!(args[:datastore_options])
     rhosts = mod_with_opts.datastore['RHOSTS']
     rhosts_walker = Msf::RhostsWalker.new(rhosts, mod_with_opts.datastore)
 

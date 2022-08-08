@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS]),
-        OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos']),
+        OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS], fallbacks: ['Auth']),
+        OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos'], fallbacks: ['RHOSTNAME']),
         OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'])
       ]
     )

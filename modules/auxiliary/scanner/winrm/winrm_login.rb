@@ -14,7 +14,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::AuthOption
 
   def initialize
     super(
@@ -37,15 +36,15 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS]),
-        OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos']),
+        OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS], fallbacks: ['Auth']),
+        OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos'], fallbacks: ['RHOSTNAME']),
         OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'])
       ]
     )
   end
 
   def run
-    if datastore['WinrmAuth'] == KERBEROS
+    if datastore['WinrmAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
       fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using kerberos authentication.') if datastore['WinrmRhostname'].blank?
     end
     super
@@ -59,8 +58,9 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     kerberos_authenticator_factory = nil
+    # TODO: Should this be something else, looks like local assignment, might need `self.preferred_auth`
     preferred_auth = 'Negotiate'
-    if datastore['WinrmAuth'] == KERBEROS
+    if datastore['WinrmAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
       preferred_auth = 'Kerberos'
       kerberos_authenticator_factory = -> (username, password, realm) do
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(

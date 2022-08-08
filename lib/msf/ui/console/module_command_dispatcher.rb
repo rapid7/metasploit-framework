@@ -138,7 +138,7 @@ module ModuleCommandDispatcher
     return false unless (args = parse_check_opts(args))
 
     mod_with_opts = mod.replicant
-    mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
+    mod_with_opts.datastore.merge!(args[:datastore_options])
 
     begin
       mod_with_opts.validate

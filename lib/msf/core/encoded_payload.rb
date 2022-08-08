@@ -208,7 +208,7 @@ class EncodedPayload
         # If we have any encoder options, import them into the datastore
         # of the encoder.
         if (reqs['EncoderOptions'])
-          self.encoder.datastore.import_options_from_hash(reqs['EncoderOptions'])
+          self.encoder.datastore.merge!(reqs['EncoderOptions'])
         end
 
         # Validate the encoder to make sure it's properly initialized.

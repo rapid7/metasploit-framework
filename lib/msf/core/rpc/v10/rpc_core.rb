@@ -64,7 +64,7 @@ class RPC_Core < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('core.unsetg', 'MyGlobal')
   def rpc_unsetg(var)
-    framework.datastore.delete(var)
+    framework.datastore.unset(var)
     { "result" => "success" }
   end
 
