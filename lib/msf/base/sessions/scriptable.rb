@@ -58,6 +58,7 @@ module Scriptable
     {
       'autoroute' => 'post/multi/manage/autoroute',
       'checkvm' => 'post/windows/gather/checkvm',
+      'credcollect' => 'post/windows/gather/credentials/credential_collector',
       'duplicate' => 'post/windows/manage/multi_meterpreter_inject',
       'enum_chrome' => 'post/windows/gather/enum_chrome',
       'enum_firefox' => 'post/windows/gather/enum_firefox',
