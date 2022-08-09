@@ -49,6 +49,11 @@ module Rex
             name_string.join('/')
           end
 
+          def ==(other)
+            name_type == other.name_type &&
+              name_string == other.name_string
+          end
+
           private
 
           # Encodes the name_type

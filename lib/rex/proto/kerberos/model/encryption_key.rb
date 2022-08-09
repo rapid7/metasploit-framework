@@ -46,6 +46,11 @@ module Rex
             seq.to_der
           end
 
+          def ==(other)
+            type == other.type &&
+              value == other.value
+          end
+
           private
 
           # Decodes a Rex::Proto::Kerberos::Model::EncryptionKey from an String

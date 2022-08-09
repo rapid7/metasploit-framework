@@ -72,6 +72,12 @@ module Rex
             encryptor.decrypt_asn1(cipher, key, msg_type)
           end
 
+          def ==(other)
+            etype == other.etype &&
+              kvno == other.kvno &&
+              cipher == other.cipher
+          end
+
           private
 
           # Encodes the etype
