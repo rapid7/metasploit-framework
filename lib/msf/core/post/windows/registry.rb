@@ -368,19 +368,22 @@ protected
   #
   def shell_registry_getvalinfo(key, valname, view)
     key = normalize_key(key)
-    value = {}
-    value["Data"] = nil # defaults
-    value["Type"] = nil
+    value = {
+      'Data' => nil,
+      'Type' => nil
+    }
+
     # REG QUERY KeyName [/v ValueName | /ve] [/s]
     results = shell_registry_cmd("query \"#{key}\" /v \"#{valname}\"", view)
+
+    # pull out the interesting line (the one with the value name in it)
     if match_arr = /^ +#{valname}.*/i.match(results)
-      # pull out the interesting line (the one with the value name in it)
-      # and split it with ' ' yielding [valname,REGvaltype,REGdata]
-      split_arr = match_arr[0].split(' ')
-      value["Type"] = split_arr[1]
-      value["Data"] = split_arr[2]
-      # need to test to ensure all results can be parsed this way
+      # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
+      value['Type'] = match_arr[0].split[1]
+      # treat the remainder of the line after the reg type as the reg value
+      value['Data'] = match_arr[0].strip.scan(/#{value['Type']}\s+(.+)/).flatten.first
     end
+
     value
   end
 
@@ -664,8 +667,8 @@ protected
     else
       raise ArgumentError, "Cannot normalize unknown key: #{key}"
     end
-    print_status("Normalized #{key} to #{keys.join("\\")}") if $blab
-    return keys.join("\\")
+    # print_status("Normalized #{key} to #{keys.join("\\")}")
+    return keys.compact.join("\\")
   end
 
   #
