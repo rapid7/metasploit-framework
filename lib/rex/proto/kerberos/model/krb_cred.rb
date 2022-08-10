@@ -54,6 +54,20 @@ module Rex
             seq_asn1.to_der
           end
 
+          def self.load_credential_from_file(file_path)
+            unless File.readable?(file_path.to_s)
+              raise ::ArgumentError, "Failed to load kirbi file '#{file_path}'"
+            end
+
+            decode(File.binread(file_path))
+          end
+
+          def save_credential_to_file(file_path)
+            file = File.open(file_path, 'wb')
+            file.write(encode)
+            file.close
+          end
+
           private
 
           # Encodes the pvno

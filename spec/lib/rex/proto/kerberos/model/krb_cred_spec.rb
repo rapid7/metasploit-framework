@@ -94,6 +94,34 @@ RSpec.describe Rex::Proto::Kerberos::Model::KrbCred do
     it { expect(subject.enc_part).to be_an(Rex::Proto::Kerberos::Model::EncryptedData) }
   end
 
+  describe '#save_credential_to_file' do
+    let(:kirbi_file) { Tempfile.new('test_kirbi_file_save.kirbi') }
+
+    it { expect { subject.save_credential_to_file(kirbi_file.path) }.not_to raise_error }
+  end
+
+  describe '.load_credential_from_file' do
+    let(:kirbi_file) do
+      Tempfile.new('test_kirbi_file_save.kirbi').tap do |f|
+        f << sample_kirbi
+        f.close
+      end
+    end
+
+    subject(:krb_cred) do
+      Rex::Proto::Kerberos::Model::KrbCred.load_credential_from_file(kirbi_file.path)
+    end
+
+    it { is_expected.to be_a(Rex::Proto::Kerberos::Model::KrbCred) }
+    it { expect(subject.pvno).to eq(5) }
+    it { expect(subject.msg_type).to eq(22) }
+    it { expect(subject.tickets).to be_an(Array) }
+    it { expect(subject.tickets.length).to be(1) }
+    it { expect(subject.tickets).to all be_a(Rex::Proto::Kerberos::Model::Ticket) }
+    it { expect(subject.enc_part).to be_an(Rex::Proto::Kerberos::Model::EncryptedData) }
+
+  end
+
   describe '#encode' do
     # TODO
   end
