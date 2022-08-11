@@ -69,8 +69,8 @@ loofah, 2.18.0, MIT
 memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.4, "New BSD"
-metasploit-credential, 5.0.7, "New BSD"
-metasploit-framework, 6.2.12, "New BSD"
+metasploit-credential, 5.0.8, "New BSD"
+metasploit-framework, 6.2.13, "New BSD"
 metasploit-model, 4.0.5, "New BSD"
 metasploit-payloads, 2.0.94, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.5, "New BSD"
@@ -93,8 +93,8 @@ nio4r, 2.5.8, MIT
 nokogiri, 1.13.6, MIT
 nori, 2.6.0, MIT
 octokit, 4.25.1, MIT
-openssl-ccm, 1.2.2, MIT
-openssl-cmac, 2.0.1, MIT
+openssl-ccm, 1.2.3, MIT
+openssl-cmac, 2.0.2, MIT
 openvas-omp, 0.0.4, MIT
 packetfu, 1.1.13, BSD
 parallel, 1.22.1, MIT
@@ -155,7 +155,7 @@ ruby-prof, 1.4.2, "Simplified BSD"
 ruby-progressbar, 1.11.0, MIT
 ruby-rc4, 0.1.5, MIT
 ruby2_keywords, 0.0.5, "ruby, Simplified BSD"
-ruby_smb, 3.1.6, "New BSD"
+ruby_smb, 3.1.7, "New BSD"
 rubyntlm, 0.6.3, MIT
 rubyzip, 2.3.2, "Simplified BSD"
 sawyer, 0.9.2, MIT
