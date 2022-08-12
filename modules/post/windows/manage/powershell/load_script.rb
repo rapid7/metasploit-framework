@@ -10,8 +10,8 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'                 => "Load Scripts Into PowerShell Session",
       'Description'          => %q{
-        This module will download and execute one or more PowerShell script
-        s over a present powershell session.
+        This module will download and execute one or more PowerShell scripts
+        over a present powershell session.
         Setting VERBOSE to true will show the stager results.
       },
       'License'              => MSF_LICENSE,
@@ -25,10 +25,9 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptPath.new( 'SCRIPT',  [false, 'Path to the local PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
-        OptPath.new( 'FOLDER',  [false, 'Path to a local folder of PS scripts'])
+        OptPath.new( 'SCRIPT', [false, 'Path to the local PS script', ::File.join(Msf::Config.data_directory, 'post', 'powershell', 'msflag.ps1') ]),
+        OptPath.new( 'FOLDER', [false, 'Path to a local folder of PS scripts'])
       ])
-
   end
 
   def run
