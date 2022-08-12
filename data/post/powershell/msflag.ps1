@@ -1,2 +1,2 @@
-$someText = "Hello from Metasploit!" ; $someText > "C:\flag.txt"
+$someText = "Hello!" ; $someText > "C:\flag.txt"
 
