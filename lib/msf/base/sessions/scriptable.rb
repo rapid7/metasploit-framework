@@ -60,6 +60,7 @@ module Scriptable
       'autoroute' => 'post/multi/manage/autoroute',
       'checkvm' => 'post/windows/gather/checkvm',
       'credcollect' => 'post/windows/gather/credentials/credential_collector',
+      'domain_list_gen' => 'post/windows/gather/enum_domain_group_users',
       'dumplinks' => 'post/windows/gather/dumplinks',
       'duplicate' => 'post/windows/manage/multi_meterpreter_inject',
       'enum_chrome' => 'post/windows/gather/enum_chrome',
