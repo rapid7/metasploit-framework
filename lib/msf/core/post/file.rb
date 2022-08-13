@@ -363,7 +363,8 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       begin
         return session.fs.file.md5(file_name)&.unpack('H*').flatten.first
-      rescue StandardError
+      rescue StandardError => e
+        print_error("Exception while running #{__method__}: #{e}")
         return nil
       end
     end
@@ -411,7 +412,8 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       begin
         return session.fs.file.sha1(file_name)&.unpack('H*').flatten.first
-      rescue StandardError
+      rescue StandardError => e
+        print_error("Exception while running #{__method__}: #{e}")
         return nil
       end
     end
