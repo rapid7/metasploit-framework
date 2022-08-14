@@ -181,6 +181,24 @@ module Msf
         end
 
         #
+        # It returns the IPv4 address of an interface.
+        # @return [String] of the host IPv4 interface
+        #
+        def get_ipv4(interface = 'eth0')
+          # we make an assumption ifconfig exists, this may fail in the future
+          vsphere_machine_ipv4 = cmd_exec("ifconfig | grep #{interface} -A1 | grep \"inet addr:\"").strip
+          return nil if vsphere_machine_ipv4.nil?
+
+          vsphere_machine_ipv4 = vsphere_machine_ipv4.split('  ')[0] # splits to inet addr, bcast, mask
+          return nil if vsphere_machine_ipv4.nil?
+
+          vsphere_machine_ipv4 = vsphere_machine_ipv4.split(':')[1]
+          return nil unless Rex::Socket.is_ipv4?(vsphere_machine_ipv4)
+
+          vsphere_machine_ipv4
+        end
+
+        #
         # Grabs the photon release and build number
         # @return [String, String] of the photon release and build number
         #

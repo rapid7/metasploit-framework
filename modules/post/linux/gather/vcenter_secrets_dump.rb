@@ -797,6 +797,12 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter DNS FQDN')
     end
 
+    vsphere_machine_ipv4 = get_ipv4
+    if vsphere_machine_ipv4.nil?
+      fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter IPv4 address')
+    end
+    print_status("Appliance IPv4: #{vsphere_machine_ipv4}")
+
     self.vc_psc_fqdn = get_platform_service_controller(vc_type_management)
     os, build = get_os_version
 

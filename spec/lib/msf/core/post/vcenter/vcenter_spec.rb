@@ -177,6 +177,17 @@ RSpec.describe Msf::Post::Vcenter::Vcenter do
     end
   end
 
+  context 'gets ipv4' do
+    it 'from ifconfig command with interface' do
+      allow(subject).to receive(:cmd_exec).with('ifconfig | grep eth0 -A1 | grep "inet addr:"').and_return("          inet addr:10.10.1.100  Bcast:10.10.1.255  Mask:255.255.255.0\n")
+      expect(subject.get_ipv4).to eq('10.10.1.100')
+    end
+    it 'from ifconfig command with non-existent interface' do
+      allow(subject).to receive(:cmd_exec).with('ifconfig | grep eth0 -A1 | grep "inet addr:"').and_return('')
+      expect(subject.get_ipv4).to be_nil
+    end
+  end
+
   context 'gets host os' do
     it 'from failing' do
       allow(subject).to receive(:file_exist?).and_return(false)
