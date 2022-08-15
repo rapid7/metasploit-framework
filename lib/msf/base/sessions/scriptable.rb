@@ -56,6 +56,7 @@ module Scriptable
   #
   def legacy_script_to_post_module(script_name)
     {
+      'arp_scanner' => 'post/windows/gather/arp_scanner',
       'autoroute' => 'post/multi/manage/autoroute',
       'checkvm' => 'post/windows/gather/checkvm',
       'credcollect' => 'post/windows/gather/credentials/credential_collector',
