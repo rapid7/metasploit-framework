@@ -91,6 +91,7 @@ module Scriptable
       'screenspy' => 'post/windows/gather/screen_spy',
       'search_dwld' => 'post/windows/gather/enum_files',
       'service_permissions_escalate' => 'exploits/windows/local/service_permissions',
+      'sound_recorder' => 'post/multi/manage/record_mic',
       'srt_webdrive_priv' => 'exploit/windows/local/service_permissions',
       'uploadexec' => 'post/windows/manage/download_exec',
       'webcam' => 'post/windows/manage/webcam',
