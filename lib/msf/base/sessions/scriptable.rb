@@ -72,6 +72,7 @@ module Scriptable
       'get_application_list' => 'post/windows/gather/enum_applications',
       'get_env' => 'post/multi/gather/env',
       'get_filezilla_creds' => 'post/windows/gather/credentials/filezilla_server',
+      'get_pidgin_creds' => 'post/multi/gather/pidgin_cred',
       'get_local_subnets' => 'post/multi/manage/autoroute',
       'get_valid_community' => 'post/windows/gather/enum_snmp',
       'getcountermeasure' => 'post/windows/manage/killav',
