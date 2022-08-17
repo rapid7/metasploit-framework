@@ -84,6 +84,7 @@ module Scriptable
       'killav' => 'post/windows/manage/killav',
       'metsvc' => 'exploit/windows/local/persistence',
       'migrate' => 'post/windows/manage/migrate',
+      'panda_2007_pavsrv51' => 'exploit/windows/local/service_permissions',
       'pml_driver_config' => 'exploit/windows/local/service_permissions',
       'packetrecorder' => 'post/windows/manage/rpcapd_start',
       'persistence' => 'exploit/windows/local/persistence',
