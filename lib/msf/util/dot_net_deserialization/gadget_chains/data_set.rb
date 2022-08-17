@@ -5,7 +5,7 @@ module GadgetChains
 
   class DataSet < Types::SerializedStream
 
-    # ClaimsPrincipal
+    # DataSet
     #   Credits:
     #     Finders: James Forshaw
     #     Contributors: Soroush Dalili

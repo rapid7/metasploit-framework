@@ -5,7 +5,7 @@ module GadgetChains
 
   class DataSetTypeSpoof < Types::SerializedStream
 
-    # ClaimsPrincipal
+    # DataSetTypeSpoof
     #   Credits:
     #     Finders: James Forshaw
     #     Contributors: Soroush Dalili, Markus Wulftange, Jang
