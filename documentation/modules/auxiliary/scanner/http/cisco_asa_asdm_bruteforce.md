@@ -19,7 +19,7 @@ To start we'll make ASDM remotely accessible:
 1. Unzip the package
 1. Import `asav-esxi.ovf` in VMWare Fusion (or your VMWare product of choice).
 1. Select the `ASAv5 - 1 Core / 2 GB (100 Mbps)` deployment option.
-1. After the import is complete assign `Network Adapter` (1 is implied) the desired
+1. After the import is complete, assign `Network Adapter` (1 is implied) the desired
 interface (e.g. I'll use `Wi-Fi` for my setup).
 1. Start the virtual machine
 1. Allow GRUB to boot the first option (this should happen twice)
@@ -73,7 +73,7 @@ add additional users to test with, let's use ASDM from a Windows machine:
 1. Click "Install ASDM Launcher"
 1. Enter creds `blank`:labpass1 (where blank is nothing and labpass1 is your enable password)
 1. Install the downloaded `dm-launcher.msi` (before 7.18.1 it will be unsigned)
-1. If Java isn't installed, intall Java 1.8 (current at time of writing is 8 Update 333): https://www.java.com/en/download/
+1. If Java isn't installed, install Java 1.8 (current at time of writing is 8 Update 333): https://www.java.com/en/download/
 1. Start the ASDM Launcher via `C:\Program Files (x86)\Cisco Systems\ASDM\run.bat`
 1. Enter your ASAv's IP address (10.9.249.201)
 1. Enter a blank username
@@ -82,7 +82,7 @@ add additional users to test with, let's use ASDM from a Windows machine:
 1. Click `Add`
 1. Set the username to `cisco`
 1. Set the password to `cisco123`
-1. Keep the default settings for `Access Restrictions` (Full access with privelege level of 2).
+1. Keep the default settings for `Access Restrictions` (Full access with privilege level of 2).
 1. Hit `OK`
 1. Hit `Apply`
 
