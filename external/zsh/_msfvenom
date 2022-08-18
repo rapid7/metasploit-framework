@@ -231,7 +231,7 @@ _arguments \
   "--list-options[List --payload <value>'s standard, advanced and evasion options]" \
   "--pad-nops[Use nopsled size specified by -n \<length\> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)]" \
   "--platform[The platform for --payload (use --list platforms to list)]:target platform:_msfvenom_platform" \
-  {-a,--arch}"[The architecture to use for --payload and --encoders (use --list archs to list)]:architecture:_msfvenom_archs" \
+  {-a,--arch}"[The architecture to use for --payload and --encoders (use --list archs to list)]:architecture:_msfvenom_arch" \
   {-b,--bad-chars}"[Characters to avoid example: '\x00\xff']:bad characters" \
   {-c,--add-code}"[Specify an additional win32 shellcode file to include]:shellcode file:_files" \
   {-e,--encoder}"[The encoder to use (use --list encoders to list)]:encoder:_msfvenom_encoder" \
