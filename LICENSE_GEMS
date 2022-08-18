@@ -70,7 +70,7 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.4, "New BSD"
 metasploit-credential, 5.0.8, "New BSD"
-metasploit-framework, 6.2.13, "New BSD"
+metasploit-framework, 6.2.14, "New BSD"
 metasploit-model, 4.0.5, "New BSD"
 metasploit-payloads, 2.0.94, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.5, "New BSD"
