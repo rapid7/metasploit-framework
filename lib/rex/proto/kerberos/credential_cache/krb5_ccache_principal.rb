@@ -13,5 +13,9 @@ module Rex::Proto::Kerberos::CredentialCache
     uint32        :count_of_components, initial_value: -> { components.length }
     data          :realm
     array         :components, initial_length: :count_of_components, type: :data
+
+    def to_s
+      components.snapshot.join('/')
+    end
   end
 end

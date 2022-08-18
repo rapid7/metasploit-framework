@@ -24,8 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD', [ true, 'The windows command to run', 'ipconfig /all' ]),
-        OptString.new('USERNAME', [ true, 'The username to authenticate as']),
-        OptString.new('PASSWORD', [ true, 'The password to authenticate with'])
+        OptString.new('USERNAME', [ true, 'The username to authenticate as'])
       ]
     )
 
@@ -33,14 +32,19 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS]),
         OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos']),
-        OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'])
+        OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller']),
+        OptPath.new('WinrmKrb5Ccname', [false, 'The ccache file to use for kerberos authentication', ENV.fetch('WINRMKRB5CCNAME', ENV.fetch('KRB5CCNAME', nil))], conditions: %w[ WinrmAuth == kerberos ])
       ]
     )
   end
 
   def run
     if datastore['WinrmAuth'] == KERBEROS
-      fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using kerberos authentication.') if datastore['WinrmRhostname'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The WinrmRhostname option is required when using Kerberos authentication.') if datastore['WinrmRhostname'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The DOMAIN option is required when using Kerberos authentication.') if datastore['DOMAIN'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
+    else
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The PASSWORD option is required unless using Kerberos authentication.') if datastore['PASSWORD'].blank?
     end
     super
   end
@@ -76,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         timeout: 20, # datastore['timeout']
         framework: framework,
         framework_module: self,
+        cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
         mutual_auth: true,
         use_gss_checksum: true
       )
