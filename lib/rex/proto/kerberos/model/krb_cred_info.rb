@@ -116,7 +116,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::GeneralizedTime]
           def encode_renew_till
-            OpenSSL::ASN1::GeneralizedTime.new(renew_till)
+            OpenSSL::ASN1::GeneralizedTime.new(renew_till.nil? ? 0 : renew_till)
           end
 
           # Encodes the srealm field
