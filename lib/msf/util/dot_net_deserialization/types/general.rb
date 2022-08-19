@@ -50,7 +50,7 @@ module General
       binary_type_enums.each do |binary_type|
         additional_info = nil
         if has_additional_info?(binary_type)
-          additional_info = additional_infos[additional_info_index].value
+          additional_info = additional_infos[additional_info_index].snapshot
           additional_info_index += 1
         end
         infos << {binary_type: binary_type, additional_info: additional_info}
@@ -62,10 +62,10 @@ module General
 
     def has_additional_info?(binary_type)
       [
-          Enums::BinaryTypeEnum[:Primitive],
-          Enums::BinaryTypeEnum[:SystemClass],
-          Enums::BinaryTypeEnum[:Class],
-          Enums::BinaryTypeEnum[:PrimitiveArray]
+        Enums::BinaryTypeEnum[:Primitive],
+        Enums::BinaryTypeEnum[:SystemClass],
+        Enums::BinaryTypeEnum[:Class],
+        Enums::BinaryTypeEnum[:PrimitiveArray]
       ].include? binary_type
     end
 

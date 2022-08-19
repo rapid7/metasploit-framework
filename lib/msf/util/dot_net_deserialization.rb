@@ -12,6 +12,8 @@ module DotNetDeserialization
   DEFAULT_GADGET_CHAIN = :TextFormattingRunProperties
 
   def self.encode_7bit_int(int)
+    return "\x00".b if int == 0
+
     # see: https://github.com/microsoft/referencesource/blob/3b1eaf5203992df69de44c783a3eda37d3d4cd10/mscorlib/system/io/binaryreader.cs#L582
     encoded_int = []
     while int > 0
@@ -88,6 +90,10 @@ module DotNetDeserialization
     case gadget_chain
     when :ClaimsPrincipal
       stream = GadgetChains::ClaimsPrincipal.generate(cmd)
+    when :DataSet
+      stream = GadgetChains::DataSet.generate(cmd)
+    when :DataSetTypeSpoof
+      stream = GadgetChains::DataSetTypeSpoof.generate(cmd)
     when :TextFormattingRunProperties
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
