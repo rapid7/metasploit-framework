@@ -7,16 +7,18 @@ module Windows
 module ExtAPI
 
   def load_extapi
-    if session.extapi
+    if session.respond_to?(:extapi) && session.extapi
       return true
-    else
-      begin
-        return session.core.use("extapi")
-      rescue Errno::ENOENT
-        print_error("Unable to load Extended API.")
-        return false
-      end
     end
+
+    if session.respond_to?(:core)
+      return session.core.use('extapi')
+    end
+
+    false
+  rescue Errno::ENOENT
+    print_error('Unable to load Extended API.')
+    false
   end
 
 end # ExtAPI
