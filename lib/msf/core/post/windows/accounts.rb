@@ -6,6 +6,7 @@ module Msf
     module Windows
       module Accounts
         include Msf::Post::Windows::Error
+        include Msf::Post::Windows::Registry
 
         GUID = [
           ['Data1', :DWORD],
@@ -63,6 +64,13 @@ module Msf
               }
             )
           )
+        end
+
+        # Check if target is a domain controller
+        #
+        # @return [Boolean] Target host is a domain controller
+        def domain_controller?
+          registry_key_exist?('HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS\\Parameters')
         end
 
         ##
