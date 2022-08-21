@@ -79,19 +79,27 @@ def main
     framework.db.workspace.hosts.each do |host|
         print_line("Checking IP: #{host.address}, OS: #{host.os_name}...")
 
-        # Modules
-        { 'multi/misc/nodejs_v8_debugger':        [ Exploit::CheckCode::Appears ],
-          'unix/misc/distcc_exec':                [ Exploit::CheckCode::Vulnerable ],
-          'unix/misc/qnx_qconn_exec':             [ Exploit::CheckCode::Vulnerable ],
-          'linux/misc/jenkins_java_deserialize':  [ Exploit::CheckCode::Vulnerable ],
-          'linux/http/github_enterprise_secret':  [ Exploit::CheckCode::Vulnerable ],
-          'multi/http/traq_plugin_exec':          [ Exploit::CheckCode::Appears ],
-          'multi/http/builderengine_upload_exec': [ Exploit::CheckCode::Appears ],
-          'multi/http/mantisbt_php_exec':         [ Exploit::CheckCode::Appears ],
-          'multi/http/vbulletin_unserialize':     [ Exploit::CheckCode::Appears ],
-          'unix/webapp/vbulletin_vote_sqli_exec': [ Exploit::CheckCode::Appears ],
-          'multi/misc/java_jmx_server':           [ Exploit::CheckCode::Appears,
-                                                    Exploit::CheckCode::Detected ] }.each do |mod,ret_val|
+        # Exploits
+        { 'multi/misc/nodejs_v8_debugger':           [ Msf::Exploit::CheckCode::Appears ],
+          'unix/misc/distcc_exec':                   [ Msf::Exploit::CheckCode::Vulnerable ],
+          'qnx/qconn/qconn_exec':                    [ Msf::Exploit::CheckCode::Vulnerable ],
+          'linux/misc/jenkins_java_deserialize':     [ Msf::Exploit::CheckCode::Vulnerable ],
+          'linux/http/github_enterprise_secret':     [ Msf::Exploit::CheckCode::Vulnerable ],
+          'linux/http/sourcegraph_gitserver_sshcmd': [ Msf::Exploit::CheckCode::Vulnerable ],
+          'multi/http/builderengine_upload_exec':    [ Msf::Exploit::CheckCode::Appears ],
+          'multi/http/gitlab_exif_rce':              [ Msf::Exploit::CheckCode::Vulnerable ],
+          'multi/http/gitlab_file_read_rce':         [ Msf::Exploit::CheckCode::Appears ],
+          'multi/http/gitlist_arg_injection':        [ Msf::Exploit::CheckCode::Appears ],
+          'multi/http/mantisbt_php_exec':            [ Msf::Exploit::CheckCode::Appears ],
+          'multi/http/traq_plugin_exec':             [ Msf::Exploit::CheckCode::Appears ],
+          'multi/http/vbulletin_unserialize':        [ Msf::Exploit::CheckCode::Appears ],
+          'unix/webapp/vbulletin_vote_sqli_exec':    [ Msf::Exploit::CheckCode::Appears ],
+          'multi/http/werkzeug_debug_rce':           [ Msf::Exploit::CheckCode::Appears ],
+          'multi/misc/teamcity_agent_xmlrpc_exec':   [ Msf::Exploit::CheckCode::Appears ],
+          'multi/misc/java_jdwp_debugger':           [ Msf::Exploit::CheckCode::Appears ],
+          'multi/misc/java_jmx_server':              [ Msf::Exploit::CheckCode::Appears,
+                                                       Msf::Exploit::CheckCode::Detected ]
+        }.each do |mod,ret_val|
             check_exploit(host: host,
                 mod_name: mod.to_s,
                 vuln_check_ret_val: ret_val)
