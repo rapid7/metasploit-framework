@@ -26,6 +26,8 @@ class AudioOutput
 
   # Upload file and play it
   def play_file(path)
+    raise "Could not read file: #{path}" unless ::File.readable?(path) && ::File.file?(path)
+
     channel = Channel.create(client, 'audio_output', Rex::Post::Meterpreter::Channels::Pools::StreamPool, CHANNEL_FLAG_SYNCHRONOUS)
 
     # Read file buffers after buffers and upload
@@ -41,8 +43,8 @@ class AudioOutput
       end
     ensure src_fd.close unless src_fd.nil?
     end
-
-    channel.close()
+  ensure
+    channel.close unless channel.nil?
   end
 
   attr_accessor :client
