@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Accounts
-  include Msf::Post::Windows::Registry
 
   def initialize(info = {})
     super(
@@ -54,7 +53,7 @@ class MetasploitModule < Msf::Post
         end
       end
 
-      if !is_dc?
+      unless domain_controller?
         list_group_members(domain, dom_admins)
       end
 
@@ -221,18 +220,5 @@ class MetasploitModule < Msf::Post
     end
     results = tbl.to_s
     print_line("\n" + results + "\n")
-  end
-
-  # Function for checking if target is a DC
-  def is_dc?
-    is_dc_srv = false
-    serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-    if registry_enumkeys(serviceskey).include?("NTDS")
-      if registry_enumkeys(serviceskey + "\\NTDS").include?("Parameters")
-        print_good("\tThis host is a Domain Controller!")
-        is_dc_srv = true
-      end
-    end
-    return is_dc_srv
   end
 end
