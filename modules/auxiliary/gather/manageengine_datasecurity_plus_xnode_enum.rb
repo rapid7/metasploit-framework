@@ -66,9 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['PASSWORD']
   end
 
-  #noinspection RubyMismatchedArgumentType
   def check
-    require 'pry'; binding.pry
     # create a socket
     res_code, sock_or_msg = create_socket_for_xnode(rhost, rport)
     if res_code == 1
@@ -91,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  #noinspection RubyMismatchedArgumentType
+  # noinspection RubyMismatchedArgumentType
   def run
     # check if we already have a socket, if not, create one
     unless @sock
