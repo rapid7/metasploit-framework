@@ -57,6 +57,11 @@ module Msf
       #
       # @return [void]
       def setup_handler
+        # The current SSH server implementation does not support OpenSSL 3
+        if OpenSSL::OPENSSL_LIBRARY_VERSION.start_with? 'OpenSSL 3'
+          raise RuntimeError, "ReverseSSH failed to load. OpenSSL version #{OpenSSL::VERSION} not supported."
+        end
+
         local_addr = nil
         local_port = bind_port
         ex = false
@@ -143,16 +148,21 @@ module Msf
       private
 
       def default_version_string
+        default_version_string = 'SSH-2.0-OpenSSH_5.3p1'
+
+        # The current SSH server implementation does not support OpenSSL 3
+        return default_version_string if OpenSSL::OPENSSL_LIBRARY_VERSION.start_with? 'OpenSSL 3'
+
         require 'rex/proto/ssh/connection'
         Rex::Proto::Ssh::Connection.default_options['local_version']
       rescue OpenSSL::OpenSSLError => e
         print_error("ReverseSSH handler did not load with OpenSSL version #{OpenSSL::VERSION}")
         elog(e)
-        'SSH-2.0-OpenSSH_5.3p1'
+        default_version_string
       rescue LoadError => e
         print_error('ReverseSSH handler did not load as PTY access is not available on all platforms.')
         elog(e)
-        'SSH-2.0-OpenSSH_5.3p1'
+        default_version_string
       end
     end
   end
