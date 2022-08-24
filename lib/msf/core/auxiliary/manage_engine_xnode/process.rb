@@ -47,7 +47,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
         return nil
       end
 
-      return total_hits.to_s # return this as a string to the calling method can distinguish it from an error code
+      return [total_hits]
     when 'aggr_min', 'aggr_max'
       aggr_type = mode.split("_")[1]
       unless response.include?('aggr_result') && response['aggr_result'].is_a?(Hash) && response['aggr_result'].include?(aggr_type)
