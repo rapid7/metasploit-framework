@@ -20,12 +20,15 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'ICPR Cert Management',
+        'Name' => 'ICPR Certificate Management',
         'Description' => %q{
+          Request certificates via MS-ICPR (Active Directory Certificate Services). Depending on the certificate
+          template's configuration the resulting certificate can be used for various operations such as authentication.
+          PFX certificate files that are saved are encrypted with a blank password.
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          # TODO: Original certipy code
+          'Oliver Lyak', # certipy implementation
           'Spencer McIntyre',
         ],
         'References' => [
@@ -43,10 +46,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('CA', [ true, 'The target certificate authority.' ]),
-      OptString.new('CERT_TEMPLATE', [ true, 'The certificate template.' ]),
-      OptString.new('ALT_DNS', [ false, 'Alternative certificate DNS.' ]),
-      OptString.new('ALT_UPN', [ false, 'Alternative certificate UPN.' ]),
+      OptString.new('CA', [ true, 'The target certificate authority' ]),
+      OptString.new('CERT_TEMPLATE', [ true, 'The certificate template', 'User' ]),
+      OptString.new('ALT_DNS', [ false, 'Alternative certificate DNS' ]),
+      OptString.new('ALT_UPN', [ false, 'Alternative certificate UPN' ]),
       Opt::RPORT(445)
     ])
   end
@@ -135,7 +138,6 @@ class MetasploitModule < Msf::Auxiliary
       attributes['SAN'] = "upn=#{datastore['ALT_UPN']}"
     end
 
-    # fail_with(Failure::Unknown, 'till next time my friends')
     print_status('Requesting a certificate...')
     response = @icpr.cert_server_request(
       attributes: attributes,
@@ -149,6 +151,7 @@ class MetasploitModule < Msf::Auxiliary
       print_warning('The requested certificate was submitted for review.')
     else
       print_error('There was an error while requesting the certificate.')
+      print_error(response[:disposition_message].strip.to_s) unless response[:disposition_message].blank?
       return
     end
 
@@ -160,14 +163,10 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Certificate SID: #{sid}")
     end
 
-    pkcs12 = OpenSSL::PKCS12.create(
-      '',
-      '',
-      private_key,
-      response[:certificate]
-    )
+    pkcs12 = OpenSSL::PKCS12.create('', '', private_key, response[:certificate])
     # see: https://pki-tutorial.readthedocs.io/en/latest/mime.html#mime-types
-    stored_path = store_loot('certificate.pfx', 'application/x-pkcs12', nil, pkcs12.to_der, 'certificate.pfx', 'Certificate')
+    info = "#{simple.client.default_domain}\\#{datastore['SMBUser']} Certificate"
+    stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', nil, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
   end
 
@@ -177,6 +176,7 @@ class MetasploitModule < Msf::Auxiliary
   # @param [OpenSSL::PKey] private_key The private key for the certificate.
   # @param [String] dns An alternative DNS name to use.
   # @param [String] msext_upn An alternative User Principal Name (this is a Microsoft-specific feature).
+  # @return [OpenSSL::X509::Request] The request object.
   def build_csr(cn:, private_key:, dns: nil, msext_upn: nil)
     request = OpenSSL::X509::Request.new
     request.version = 1
@@ -202,8 +202,12 @@ class MetasploitModule < Msf::Auxiliary
     request
   end
 
+  # Get the object security identifier (SID) from the certificate. This is a Microsoft specific extension.
+  #
+  # @param [OpenSSL::X509::Certificate] cert
+  # @return [String, nil] The SID if it was found, otherwise nil.
   def get_cert_msext_sid(cert)
-    ext = cert.find_extension(NTDS_CA_SECURITY_EXT)
+    ext = cert.extensions.find { |e| e.oid == NTDS_CA_SECURITY_EXT }
     return unless ext
 
     ext_asn = OpenSSL::ASN1.decode(OpenSSL::ASN1.decode(ext.to_der).value[1].value)
@@ -218,8 +222,12 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
+  # Get the User Principal Name (UPN) from the certificate. This is a Microsoft specific extension.
+  #
+  # @param [OpenSSL::X509::Certificate] cert
+  # @return [String, nil] The UPN if it was found, otherwise nil.
   def get_cert_msext_upn(cert)
-    ext = cert.find_extension('subjectAltName')
+    ext = cert.extensions.find { |e| e.oid == 'subjectAltName' }
     return unless ext
 
     # need to decode the contents and handle them ourselves
