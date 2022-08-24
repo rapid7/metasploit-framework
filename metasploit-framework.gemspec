@@ -95,8 +95,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
   spec.add_runtime_dependency 'openssl-ccm'
-  # Needed for documentation generation
-  spec.add_runtime_dependency 'octokit'
+  # Needed for documentation generation - locked unitl Ruby 2.6 support is dropped
+  spec.add_runtime_dependency 'octokit', '~> 4.0'
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
