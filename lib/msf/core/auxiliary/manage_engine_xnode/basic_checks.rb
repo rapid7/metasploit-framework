@@ -2,6 +2,7 @@
 
 module Msf::Auxiliary::ManageEngineXnode::BasicChecks
   include Msf::Auxiliary::ManageEngineXnode::Action
+  include Msf::Auxiliary::ManageEngineXnode::Interact
   # Performs a sanity check and an authentication attempt against Xnode to verify if the target is Xnode and if we can authenticate
   #
   # @param sock [Socket] Socket to use for the request

@@ -8,7 +8,6 @@ module Msf
 #
 ###
   module Auxiliary::ManageEngineXnode
-    include Msf::Auxiliary::Report
     include Msf::Auxiliary::ManageEngineXnode::Action
     include Msf::Auxiliary::ManageEngineXnode::BasicChecks
     include Msf::Auxiliary::ManageEngineXnode::Config
