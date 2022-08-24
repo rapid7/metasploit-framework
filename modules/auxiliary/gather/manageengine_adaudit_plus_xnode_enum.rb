@@ -228,7 +228,7 @@ class MetasploitModule < Msf::Auxiliary
         query = action_dr_search(repo, fields, custom_query)
         res_code, res = get_response(@sock, query)
         partial_results = process_dr_search(res, res_code, repo, fields)
-        results += partial_results.first unless partial_results.nil?
+        results += partial_results unless partial_results.nil?
 
         query_ct += 1
         if query_ct % 5 == 0
