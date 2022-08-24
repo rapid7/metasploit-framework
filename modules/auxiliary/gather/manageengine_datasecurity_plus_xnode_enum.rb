@@ -139,8 +139,7 @@ class MetasploitModule < Msf::Auxiliary
       total_hits = process_dr_search(res, res_code, repo, ['UNIQUE_ID'], 'total_hits')
       # check if total_hits is nil, as that means process_dr_search failed and we should skip to the next repo
       next if total_hits.nil?
-
-      total_hits = total_hits[0]
+      total_hits = total_hits.first
 
       # use "aggr" with the "min" specification for the UNIQUE_ID field in order to obtain the minimum value for this field, i.e. the oldest available record
       aggr_min_query = { 'aggr' => { 'min' => { 'field' => 'UNIQUE_ID' } } }
@@ -148,6 +147,7 @@ class MetasploitModule < Msf::Auxiliary
       aggr_min = process_dr_search(res, res_code, repo, ['UNIQUE_ID'], 'aggr_min')
       # check if aggr_min is nil, as that means process_dr_search failed and we should skip to the next repo
       next if aggr_min.nil?
+      aggr_min = aggr_min.first
 
       # use "aggr" with the "max" specification for the UNIQUE_ID field in order to obtain the maximum value for this field, i.e. the most recent record
       aggr_max_query = { 'aggr' => { 'max' => { 'field' => 'UNIQUE_ID' } } }
@@ -155,6 +155,7 @@ class MetasploitModule < Msf::Auxiliary
       aggr_max = process_dr_search(res, res_code, repo, ['UNIQUE_ID'], 'aggr_max')
       # check if aggr_max is nil, as that means process_dr_search failed and we should skip to the next repo
       next if aggr_max.nil?
+      aggr_max = aggr_max.first
 
       print_good("Data repository #{repo} contains #{total_hits} records with ID numbers between #{aggr_min} and #{aggr_max}.")
 
@@ -224,7 +225,7 @@ class MetasploitModule < Msf::Auxiliary
         query = action_dr_search(repo, fields, custom_query)
         res_code, res = get_response(@sock, query)
         partial_results = process_dr_search(res, res_code, repo, fields)
-        results += partial_results unless partial_results.nil?
+        results += partial_results.first unless partial_results.nil?
 
         query_ct += 1
         if query_ct % 5 == 0

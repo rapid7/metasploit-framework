@@ -55,7 +55,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
         return nil
       end
 
-      return response['aggr_result'][aggr_type]
+      return [response['aggr_result'][aggr_type]]
     when 'standard'
       search_result = response['search_result']
       unless search_result.is_a? Array
