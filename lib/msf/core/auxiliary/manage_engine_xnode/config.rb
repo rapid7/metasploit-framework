@@ -11,8 +11,8 @@ module Msf::Auxiliary::ManageEngineXnode::Config
   # @param config_file [String] String containing the full path to the configuration file to read.
   # @return [Hash, Integer] Hash containing the data repositories (tables) and their fields (columns) to dump if reading the config file succeeded, error code otherwise
   def grab_config(config_file)
-    # get the specified data respositories (tables) and fields (columns) to dump from the config file
-    return 1 unless File.exists? config_file
+    # get the specified data repositories (tables) and fields (columns) to dump from the config file
+    return CONFIG_FILE_DOES_NOT_EXIST unless File.exists? config_file
 
     begin
       config_contents = File.read(config_file)
@@ -20,19 +20,19 @@ module Msf::Auxiliary::ManageEngineXnode::Config
     rescue StandardError => e
       print_error("Encountered the following error while trying to load #{config_file}:")
       print_error(e.to_s)
-      return 2      
+      return CANNOT_READ_CONFIG_FILE
     end
 
-    return 3 if data_to_dump.empty?
+    return DATA_TO_DUMP_EMPTY if data_to_dump.empty?
 
-    return 4 unless data_to_dump.instance_of?(Hash)
+    return DATA_TO_DUMP_WRONG_FORMAT unless data_to_dump.instance_of?(Hash)
 
     data_to_dump
   end
 
-  # Returns an array of data respositories that may exist in ManageEngine Audit Plus
+  # Returns an array of data repositories that may exist in ManageEngine Audit Plus
   #
-  # @return [Array] list of possible data respositories in ManageEngine Audit Plus
+  # @return [Array] list of possible data repositories in ManageEngine Audit Plus
   def ad_audit_plus_data_repos
     [
       'AdapFileAuditLog',
@@ -44,9 +44,9 @@ module Msf::Auxiliary::ManageEngineXnode::Config
   end
 
 
-  # Returns an array of data respositories that may exist in ManageEngine DataSecurity Plus
+  # Returns an array of data repositories that may exist in ManageEngine DataSecurity Plus
   #
-  # @return [Array] list of possible data respositories in ManageEngine DataSecurity Plus
+  # @return [Array] list of possible data repositories in ManageEngine DataSecurity Plus
   def datasecurity_plus_data_repos
     [
       'DSPEmailAuditAttachments',

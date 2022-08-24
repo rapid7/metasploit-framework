@@ -1,8 +1,8 @@
 ## Vulnerable Application
 The module exploits default admin credentials for the DataEngine Xnode server in ADAudit Plus versions prior to 6.0.3 (6032)
 in order to dump the contents of Xnode data repositories (tables), which may contain varying amounts of Active Directory information
-including domain names, host names, usernames and SIDs.
-The module can also be used against patched ADAudit Plus versions if the correct credentials are provided.
+including domain names, host names, usernames and SIDs. The module can also be used against patched ADAudit Plus
+versions if the correct credentials are provided.
 
 The module's `check` method attempts to authenticate to the remote Xnode server. The default credentials are `atom`:`chegan`.
 If the credentials are valid, the module will perform a few requests to the Xnode server to obtain information like the Xnode version.
@@ -26,29 +26,32 @@ Empty records are ignored.
 To view the raw Xnode requests and responses, enter `set VERBOSE true` before running the module.
 
 By default, the module dumps only the data repositories (tables) and fields (columns) specified in the configuration file.
-The configuration file can be set via the CONFIG_FILE option, but this is not required because
-a default config file exists at `data/exploits/manageengine_xnode/CVE-2020-11532/adaudit_plus_xnode_conf.yaml`.
-The configuration file is then also used to add labels to the values sent by Xnode in response to a query.
-This means that for every value in the Xnode response, the module will add the corresponding field name to the results
-before writing those to a JSON file in ~/.msf4/loot.
+The configuration file can be set via the `CONFIG_FILE` option, but this is not required because
+a default config file exists at `data/exploits/manageengine_xnode/CVE-2020-11532/adaudit_plus_xnode_conf.yaml` that will
+be used if `CONFIG_FILE` is not set.
 
-It is also possible to use the DUMP_ALL option to obtain all data in all known data repositories without specifying data field names.
-However, in the latter case the data won't be labeled.
+The configuration file is also used to add labels to the values sent by Xnode in response to a query.
+This means that for every value in the Xnode response, the module will add the corresponding field name to the results
+before writing those to a JSON file in `~/.msf4/loot`.
+
+It is also possible to use the `DUMP_ALL` option to obtain all data in all known data repositories without specifying data field names.
+However, note that when using this option the data won't be labeled.
 
 This module has been successfully tested against ManageEngine ADAudit Plus 6.0.3 (6031) running on Windows Server 2012 R2
 and ADAudit Plus 6.0.7 (6076) running on Windows Server 2019.
 
 ## Installation Information
 Vulnerable versions of ADAudit Plus are available [here](https://archives2.manageengine.com/active-directory-audit/).
-All versions from 6000 through 6031 are configured with default Xnode credentials.
-However, testing against vulnerable versions from the archives will make data enumeration impossible because
-the free trials for those versions do not seem to allow ADAudit Plus to
-actually start collecting data that can then be accessed via Xnode.
+All versions from 6000 through 6031 are configured with default Xnode credentials. Note that testing against
+vulnerable versions from the archives will make data enumeration impossible because the free trials for those
+versions do not seem to allow ADAudit Plus to actually start collecting data that can then be accessed via Xnode.
+
 However, apart from some configuration changes, Xnode functions the same way on patched versions as it does on vulnerable versions,
 so it is possible to test the modules against patched versions as long as the correct credentials are provided.
+
 A free 30-day trial of the latest version of ADAudit Plus can be downloaded
-[here](https://www.manageengine.com/products/active-directory-audit/download.html).
-To install, just run the .exe and follow the instructions.
+[here](https://www.manageengine.com/products/active-directory-audit/download.html). To install, just run the .exe and follow the instructions.
+
 In order to configure a patched ManageEngine ADAudit Plus instance for testing, follow these steps:
 - Open the Xnode config file at `<install_dir>\apps\dataengine-xnode\conf\dataengine-xnode.conf`
 - Note down the username and password
@@ -67,6 +70,7 @@ To launch ADAudit Plus, run Command Prompt as administrator and run: `<install_d
 ## Options
 ### CONFIG_FILE
 YAML File specifying the data repositories (tables) and fields (columns) to dump.
+
 ### DUMP_ALL
 Dump all data from the available data repositories (tables). If true, CONFIG_FILE will be ignored.
 
@@ -103,6 +107,7 @@ msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > run
 [*] 192.168.1.41:29118 - The data repository AdapADReplicationAuditLog is not available on the target.
 [*] Auxiliary module execution completed
 ```
+
 ### ManageEngine ADAudit Plus 6.0.7 (6076) running on Windows Server 2019 (custom password)
 ```
 msf6 > use auxiliary/gather/manageengine_adaudit_plus_xnode_enum

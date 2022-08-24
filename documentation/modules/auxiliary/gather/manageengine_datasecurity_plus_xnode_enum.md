@@ -1,8 +1,8 @@
 ## Vulnerable Application
 The module exploits default admin credentials for the DataEngine Xnode server in DataSecurity Plus versions prior to 6.0.1 (6011)
 in order to dump the contents of Xnode data repositories (tables), which may contain varying amounts of Active Directory information
-including domain names, host names, usernames and SIDs.
-The module can also be used against patched DataSecurity Plus versions if the correct credentials are provided.
+including domain names, host names, usernames and SIDs. The module can also be used against patched 
+DataSecurity Plus versions if the correct credentials are provided.
 
 The module's `check` method attempts to authenticate to the remote Xnode server. The default credentials are `atom`:`chegan`.
 If the credentials are valid, the module will perform a few requests to the Xnode server to obtain information like the Xnode version.
@@ -26,27 +26,31 @@ Empty records are ignored.
 To view the raw Xnode requests and responses, enter `set VERBOSE true` before running the module.
 
 By default, the module dumps only the data repositories (tables) and fields (columns) specified in the configuration file.
-The configuration file can be set via the CONFIG_FILE option, but this is not required because
-a default config file exists at `data/exploits/manageengine_xnode/CVE-2020-11532/datasecurity_plus_xnode_conf.yaml`.
+The configuration file can be set via the `CONFIG_FILE` option, but this is not required because
+a default config file exists at `data/exploits/manageengine_xnode/CVE-2020-11532/datasecurity_plus_xnode_conf.yaml`
+that will be used if `CONFIG_FILE` is not set.
+
 The configuration file is then also used to add labels to the values sent by Xnode in response to a query.
 This means that for every value in the Xnode response, the module will add the corresponding field name to the results
-before writing those to a JSON file in ~/.msf4/loot.
+before writing those to a JSON file in `~/.msf4/loot`.
 
-It is also possible to use the DUMP_ALL option to obtain all data in all known data repositories without specifying data field names.
-However, in the latter case the data won't be labeled.
+It is also possible to use the `DUMP_ALL` option to obtain all data in all known data repositories without specifying data field names.
+However, note when using this option the data won't be labeled.
 
 This module has been successfully tested against DataSecurity Plus 6.0.1 (6010) running on Windows Server 2012 R2.
 
 ## Installation Information
 Vulnerable versions of DataSecurity Plus are available [here](https://archives.manageengine.com/data-security/).
-All versions from 6000 through 6011 are configured with default Xnode credentials.
-However, testing against vulnerable versions from the archives will make data enumeration impossible because
-the free trials for those versions do not seem to allow DataSecurity Plus to
-actually start collecting data that can then be accessed via Xnode.
+All versions from 6000 through 6011 are configured with default Xnode credentials. Note that testing against
+vulnerable versions from the archives will make data enumeration impossible because the free trials for those
+versions do not seem to allow ADAudit Plus to actually start collecting data that can then be accessed via Xnode.
+
 However, apart from some configuration changes, Xnode functions the same way on patched versions as it does on vulnerable versions,
 so it is possible to test the modules against patched versions as long as the correct credentials are provided.
+
 A free 30-day trial of DataSecurity Plus can be downloaded [here](https://www.manageengine.com/data-security/download.html).
 To install, just run the .exe and follow the instructions.
+
 In order to configure a patched ManageEngine DataSecurity Plus instance for testing, follow these steps:
 - Open the Xnode config file at `<install_dir>\apps\dataengine-xnode\conf\dataengine-xnode.conf`
 - Note down the username and password
@@ -65,6 +69,7 @@ To launch DataSecurity Plus, run Command Prompt as administrator and run: `<inst
 ## Options
 ### CONFIG_FILE
 YAML File specifying the data repositories (tables) and fields (columns) to dump.
+
 ### DUMP_ALL
 Dump all data from the available data repositories (tables). If true, CONFIG_FILE will be ignored.
 

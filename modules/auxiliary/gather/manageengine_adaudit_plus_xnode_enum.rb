@@ -23,11 +23,12 @@ class MetasploitModule < Msf::Auxiliary
 
         By default, the module dumps only the data repositories and fields
         (columns) specified in the configuration file (set via the
-        CONFIG_FILE option). The configuration file is then also used to
+        CONFIG_FILE option). The configuration file is also used to
         add labels to the values sent by Xnode in response to a query.
+
         It is also possible to use the DUMP_ALL option to obtain all data
         in all known data repositories without specifying data field names.
-        However, in the latter case the data won't be labeled.
+        However, note that when using the DUMP_ALL option, the data won't be labeled.
 
         This module has been successfully tested against ManageEngine
         ADAudit Plus 6.0.3 (6031) running on Windows Server 2012 R2 and
@@ -84,6 +85,8 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe(res_msg)
     when 2
       return Exploit::CheckCode::Unknown(res_msg)
+    else
+      return Exploit::CheckCode::Unknown('An unexpected error occurred whilst running this module. Please raise a bug ticket!')
     end
   end
 
@@ -153,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good("Data repository #{repo} contains #{total_hits} records with ID numbers between #{aggr_min} and #{aggr_max}.")
 
-      repo_record_info_hash [repo] = {
+      repo_record_info_hash[repo] = {
         'total_hits' => total_hits.to_i,
         'aggr_min' => aggr_min.to_i,
         'aggr_max' => aggr_max.to_i

@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
 
 module Msf::Auxiliary::ManageEngineXnode::Process
-  include Msf::Auxiliary::ManageEngineXnode::Action
-  include Msf::Auxiliary::ManageEngineXnode::Interact
   # Processes the obtained server response from a ManageEngine Xnode data repository search request
   #
   # @param res [Hash] JSON-parsed response from the Xnode server. This should be a Hash.
@@ -24,14 +22,13 @@ module Msf::Auxiliary::ManageEngineXnode::Process
         error_msg = response['error_msg']
         if /DataRepository for '#{repo_name}' not found!/ =~ error_msg
           print_status("The data repository #{repo_name} is not available on the target.")
-          return nil
+        else
+          print_error("Received error message: #{error_msg}")
         end
-
-        print_error("Received error message: #{error_msg}")
-        return nil
+      else
+        print_error("Received unexpected query response: #{response}")
       end
 
-      print_error("Received unexpected query response: #{response}")
       return nil
     end
 
@@ -54,7 +51,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
     when 'aggr_min', 'aggr_max'
       aggr_type = mode.split("_")[1]
       unless response.include?('aggr_result') && response['aggr_result'].is_a?(Hash) && response['aggr_result'].include?(aggr_type)
-        print_error("Received unexpected reply when trying to obtain #{aggr_type} aggregrate value for the UNIQUE_ID field.")
+        print_error("Received unexpected reply when trying to obtain #{aggr_type} aggregate value for the UNIQUE_ID field.")
         return nil
       end
 
@@ -74,6 +71,9 @@ module Msf::Auxiliary::ManageEngineXnode::Process
       return search_result unless fields.is_a? Array
       
       process_results(search_result, fields)
+    else
+      print_error('An invalid mode parameter was supplied!')
+      return nil
     end
   end
 
@@ -81,7 +81,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
   #
   # @param search_result [Array] nested Array containing the data repository rows and their values
   # @param fields [Array] data repository fields (columns) that were dumped, used for mapping the search_result values to field names
-  # @return [Array, nil] Array containing the query results if the provided paramters are correct, nil otherwise
+  # @return [Array, nil] Array containing the query results if the provided parameters are correct, nil otherwise
   def process_results(search_result, fields)
     return nil unless fields.is_a? Array
     results = []

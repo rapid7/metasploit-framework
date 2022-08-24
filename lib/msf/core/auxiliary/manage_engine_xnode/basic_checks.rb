@@ -1,11 +1,12 @@
 # -*- coding: binary -*-
 
 module Msf::Auxiliary::ManageEngineXnode::BasicChecks
+  include Msf::Auxiliary::ManageEngineXnode::Action
   # Performs a sanity check and an authentication attempt against Xnode to verify if the target is Xnode and if we can authenticate
   #
   # @param sock [Socket] Socket to use for the request
-  # @param user [String] Username
-  # @param pass [String] Password
+  # @param username [String] Username
+  # @param password [String] Password
   # @return [Array] Array containing a response code (Integer) and a status message (String)
   def xnode_check(sock, username, password)
     res_code, res_msg = xnode_sanity_check(sock)
@@ -40,11 +41,11 @@ module Msf::Auxiliary::ManageEngineXnode::BasicChecks
     end
   end
 
-  # Performs an Xnode autentication attempt and parses the response
+  # Performs an Xnode authentication attempt and parses the response
   #
   # @param sock [Socket] Socket to use for the request
-  # @param user [String] Username
-  # @param pass [String] Password
+  # @param username [String] Username
+  # @param password [String] Password
   # @return [Array] Array containing a response code (Integer) and a status message (String)
   def xnode_authenticate(sock, username, password)
     res = send_to_sock(sock, action_authenticate(username, password))
@@ -66,6 +67,6 @@ module Msf::Auxiliary::ManageEngineXnode::BasicChecks
       end
     end
 
-    return [2, 'Received unexpected response when trying to authenticate.']
+    [2, 'Received unexpected response when trying to authenticate.']
   end
 end

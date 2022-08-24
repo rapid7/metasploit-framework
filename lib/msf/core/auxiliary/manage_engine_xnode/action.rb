@@ -35,14 +35,14 @@ module Msf::Auxiliary::ManageEngineXnode::Action
     }
   end
 
-  # Returns an Xnode DataRespository Search request hash
+  # Returns an Xnode DataRepository Search request hash
   #
-  # @param repo_name [String] Name of the DataRespository to query
-  # @param fields [Array] data respository fields (columns) to dump
+  # @param repo_name [String] Name of the DataRepository to query
+  # @param fields [Array] data repository fields (columns) to dump
   # @param custom_query [Hash] A hash containing a custom query to merge with the query hash
-  # @return [Hash] Xnode data respository search request
+  # @return [Hash] Xnode data repository search request
   def action_dr_search(repo_name, fields=nil, custom_query=nil)
-    time_gen_from = rand(500000000..1000000000) # generate random Unix timestamp somewhere between 1985 - 2001, used below as the "from" date, to ensure we get all data we want
+    time_gen_from = rand(0..10000000) # generate random Unix timestamp somewhere in 1970 (aka Epoch), used below as the "from" date, to ensure we get all data we want
     time_gen_to = Time.now.to_i + 100000 # take the current time and add 100,000 seconds (a little over a day) to rule out any issues arising from time zone differences
     query = {
       "action" => 'dr:/dr_search',
