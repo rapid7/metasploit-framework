@@ -252,7 +252,11 @@ class Client
   # @return [void]
   def send_request(req, t = -1)
     connect(t)
-    conn.put(req.to_s)
+    Timeout.timeout((t < 0) ? nil : t) do
+      conn.put(req.to_s)
+    end
+
+    nil
   end
 
   # Resends an HTTP Request with the propper authentcation headers
