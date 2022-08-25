@@ -1495,11 +1495,11 @@ module Msf
           def show_targets(mod) # :nodoc:
             case mod
             when Msf::Exploit
-              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
-              print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '', "\nExploit targets:")
+              print("#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
             when Msf::Evasion
-              mod_targs = Serializer::ReadableText.dump_evasion_targets(mod, '   ')
-              print("\nEvasion targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+              mod_targs = Serializer::ReadableText.dump_evasion_targets(mod, '', "\nEvasion targets:")
+              print("#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
             end
           end
 

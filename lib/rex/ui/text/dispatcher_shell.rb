@@ -250,7 +250,7 @@ module DispatcherShell
           {
             'Command' =>
               {
-                'MaxWidth' => 12
+                'Width' => 12
               }
           })
 
