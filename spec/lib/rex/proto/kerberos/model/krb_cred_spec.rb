@@ -92,6 +92,10 @@ RSpec.describe Rex::Proto::Kerberos::Model::KrbCred do
     it { expect(subject.tickets.length).to be(1) }
     it { expect(subject.tickets).to all be_a(Rex::Proto::Kerberos::Model::Ticket) }
     it { expect(subject.enc_part).to be_an(Rex::Proto::Kerberos::Model::EncryptedData) }
+    it "successfully decodes the EncKrbCredPart" do
+      enc_krb_part = Rex::Proto::Kerberos::Model::EncKrbCredPart.decode(subject.enc_part.cipher)
+      expect(enc_krb_part).to be_an(Rex::Proto::Kerberos::Model::EncKrbCredPart)
+    end
   end
 
   describe '#save_credential_to_file' do
@@ -123,6 +127,6 @@ RSpec.describe Rex::Proto::Kerberos::Model::KrbCred do
   end
 
   describe '#encode' do
-    # TODO
+    it { expect(krb_cred.encode).to eq(sample_kirbi) }
   end
 end

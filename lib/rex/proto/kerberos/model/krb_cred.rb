@@ -132,7 +132,7 @@ module Rex
               when 3
                 self.enc_part = decode_enc_part(val)
               else
-                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode AP-REP SEQUENCE (#{val.tag})"
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode KrbCred (#{val.tag})"
               end
             end
           end
