@@ -1,5 +1,28 @@
 ---
 queries:
+  - action: ENUM_ADCS_CAS
+    description: 'Enumerate ADCS certificate authorities.'
+    base_dn_prefix: 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
+    filter: (objectClass=pKIEnrollmentService)
+    attributes:
+      - cn
+      - name
+      - cACertificateDN
+      - dNSHostname
+      - certificateTemplates
+  - action: ENUM_ADCS_CERT_TEMPLATES
+    description: 'Enumerate ADCS certificate templates.'
+    base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    filter: (objectClass=pkicertificatetemplate)
+    attributes:
+      - cn
+      - name
+      - displayName
+      - msPKI-Enrollment-Flag
+      - msPKI-Private-Key-Flag
+      - msPKI-Certificate-Name-Flag
+      - msPKI-RA-Signature
+      - pKIExtendedKeyUsage
   - action: ENUM_ALL_OBJECT_CLASS
     description: 'Dump all objects containing any objectClass field.'
     filter: '(objectClass=*)'

@@ -136,8 +136,9 @@ class MetasploitModule < Msf::Auxiliary
     settings['queries']
   end
 
-  def perform_ldap_query(ldap, filter, attributes)
-    returned_entries = ldap.search(base: @base_dn, filter: filter, attributes: attributes)
+  def perform_ldap_query(ldap, filter, attributes, base: nil)
+    base ||= @base_dn
+    returned_entries = ldap.search(base: base, filter: filter, attributes: attributes)
     query_result = ldap.as_json['result']['ldap_result']
     case query_result['resultCode']
     when 0
@@ -174,9 +175,9 @@ class MetasploitModule < Msf::Auxiliary
 
       case format
       when 'table'
-        print_status(tbl.to_s)
+        print_line(tbl.to_s)
       when 'csv'
-        print_status(tbl.to_csv)
+        print_line(tbl.to_csv)
       else
         fail_with(Failure::BadConfig, "Invalid format #{format} passed to generate_rex_tables!")
       end
@@ -230,7 +231,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       filter = Net::LDAP::Filter.construct(query['filter'])
       print_status("Running #{query['action']}...")
-      entries = perform_ldap_query(ldap, filter, attributes)
+      entries = perform_ldap_query(ldap, filter, attributes, base: (query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil))
 
       if entries.nil?
         print_warning("Query #{query['filter']} from #{query['action']} didn't return any results!")
@@ -318,7 +319,7 @@ class MetasploitModule < Msf::Auxiliary
             fail_with(Failure::BadConfig, "Could not compile the filter #{query['filter']}. Error was #{e}")
           end
 
-          entries = perform_ldap_query(ldap, filter, query['attributes'])
+          entries = perform_ldap_query(ldap, filter, query['attributes'], base: (query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil))
         end
       end
     rescue Rex::ConnectionTimeout
