@@ -130,13 +130,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     attributes = { 'CertificateTemplate' => datastore['CERT_TEMPLATE'] }
-    if !datastore['ALT_DNS'].blank? && datastore['ALT_UPN'].blank?
-      attributes['SAN'] = "dns=#{datastore['ALT_DNS']}"
-    elsif !datastore['ALT_DNS'].blank? && !datastore['ALT_UPN'].blank?
-      attributes['SAN'] = "dns=#{datastore['ALT_DNS']}&upn=#{datastore['ALT_UPN']}"
-    elsif datastore['ALT_DNS'].blank? && !datastore['ALT_UPN'].blank?
-      attributes['SAN'] = "upn=#{datastore['ALT_UPN']}"
-    end
+    san = []
+    san << "dns=#{datastore['ALT_DNS']}" if datastore['ALT_DNS'].present?
+    san << "upn=#{datastore['ALT_UPN']}" if datastore['ALT_UPN'].present?
+    attributes['SAN'] = san.join('&') unless san.empty?
 
     print_status('Requesting a certificate...')
     response = @icpr.cert_server_request(
@@ -207,19 +204,7 @@ class MetasploitModule < Msf::Auxiliary
   # @param [OpenSSL::X509::Certificate] cert
   # @return [String, nil] The SID if it was found, otherwise nil.
   def get_cert_msext_sid(cert)
-    ext = cert.extensions.find { |e| e.oid == NTDS_CA_SECURITY_EXT }
-    return unless ext
-
-    ext_asn = OpenSSL::ASN1.decode(OpenSSL::ASN1.decode(ext.to_der).value[1].value)
-    ext_asn.value.each do |value|
-      value = value.value
-      next unless value.is_a?(Array)
-      next unless value[0]&.value == OID_NTDS_OBJECTSID
-
-      return value[1].value[0].value
-    end
-
-    nil
+    get_cert_ext_property(cert, NTDS_CA_SECURITY_EXT, OID_NTDS_OBJECTSID)
   end
 
   # Get the User Principal Name (UPN) from the certificate. This is a Microsoft specific extension.
@@ -227,7 +212,15 @@ class MetasploitModule < Msf::Auxiliary
   # @param [OpenSSL::X509::Certificate] cert
   # @return [String, nil] The UPN if it was found, otherwise nil.
   def get_cert_msext_upn(cert)
-    ext = cert.extensions.find { |e| e.oid == 'subjectAltName' }
+    get_cert_ext_property(cert, 'subjectAltName', 'msUPN')
+  end
+
+  private
+
+  # Get a value from a certificate extension. Returns nil if it's not found. Allows fetching values not natively
+  # supported by Ruby's OpenSSL by parsing the ASN1 directly.
+  def get_cert_ext_property(cert, ext_oid, key)
+    ext = cert.extensions.find { |e| e.oid == ext_oid }
     return unless ext
 
     # need to decode the contents and handle them ourselves
@@ -235,7 +228,7 @@ class MetasploitModule < Msf::Auxiliary
     ext_asn.value.each do |value|
       value = value.value
       next unless value.is_a?(Array)
-      next unless value[0]&.value == 'msUPN'
+      next unless value[0]&.value == key
 
       return value[1].value[0].value
     end
