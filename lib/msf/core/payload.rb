@@ -67,12 +67,12 @@ class Payload < Msf::Module
       self.module_info['Stage'] = {}
 
       if self.module_info['Payload']
-        self.module_info['Stage']['Payload']  = self.module_info['Payload']['Payload'] || ""
-        self.module_info['Stage']['Assembly'] = self.module_info['Payload']['Assembly'] || ""
+        self.module_info['Stage']['Payload']  = self.module_info['Payload']['Payload'] || ''
+        self.module_info['Stage']['Assembly'] = self.module_info['Payload']['Assembly'] || ''
         self.module_info['Stage']['Offsets']  = self.module_info['Payload']['Offsets'] || {}
       else
-        self.module_info['Stage']['Payload']  = ""
-        self.module_info['Stage']['Assembly'] = ""
+        self.module_info['Stage']['Payload']  = ''
+        self.module_info['Stage']['Assembly'] = ''
         self.module_info['Stage']['Offsets']  = {}
       end
 
@@ -137,13 +137,13 @@ class Payload < Msf::Module
   def payload_type_s
     case payload_type
       when Type::Stage
-        return "stage"
+        return 'stage'
       when Type::Stager
-        return "stager"
+        return 'stager'
       when Type::Single
-        return "single"
+        return 'single'
       else
-        return "unknown"
+        return 'unknown'
     end
   end
 
@@ -306,7 +306,7 @@ class Payload < Msf::Module
   # @param raw [Array] Byte array to encode.
   #
   def raw_to_db(raw)
-    raw.unpack("C*").map {|c| "0x%.2x" % c}.join(",")
+    raw.unpack('C*').map {|c| '0x%.2x' % c}.join(',')
   end
 
   #
@@ -342,14 +342,14 @@ class Payload < Msf::Module
 
           # Someone gave us a funky address (ipv6?)
           if(val.length == 16)
-            raise RuntimeError, "IPv6 address specified for IPv4 payload."
+            raise RuntimeError, 'IPv6 address specified for IPv4 payload.'
           end
         elsif (pack == 'ADDR6')
           val = Rex::Socket.resolv_nbo(val)
 
           # Convert v4 to the v6ish address
           if(val.length == 4)
-            nip = "fe80::5efe:" + val.unpack("C*").join(".")
+            nip = 'fe80::5efe:' + val.unpack('C*').join('.')
             val = Rex::Socket.resolv_nbo(nip)
           end
         elsif (['ADDR16MSB', 'ADDR16LSB', 'ADDR22MSB', 'ADDR22LSB'].include?(pack))
@@ -357,7 +357,7 @@ class Payload < Msf::Module
 
           # Someone gave us a funky address (ipv6?)
           if(val.length == 16)
-            raise RuntimeError, "IPv6 address specified for IPv4 payload."
+            raise RuntimeError, 'IPv6 address specified for IPv4 payload.'
           end
         elsif (pack == 'RAW')
           # Just use the raw value...
@@ -366,7 +366,7 @@ class Payload < Msf::Module
           # it.
           if val.kind_of?(String)
             if val =~ /^\\x/n
-              val = [ val.gsub(/\\x/n, '') ].pack("H*").unpack(pack)[0]
+              val = [ val.gsub(/\\x/n, '') ].pack('H*').unpack(pack)[0]
             elsif val =~ /^0x/n
               val = val.hex
             end
@@ -380,7 +380,7 @@ class Payload < Msf::Module
         # Substitute it
         if (['ADDR16MSB', 'ADDR16LSB'].include?(pack))
           if (offset.length != 2)
-            raise RuntimeError, "Missing value for payload offset, there must be two offsets."
+            raise RuntimeError, 'Missing value for payload offset, there must be two offsets.'
           end
 
           if (pack == 'ADDR16LSB')
@@ -392,7 +392,7 @@ class Payload < Msf::Module
 
         elsif (['ADDR22MSB', 'ADDR22LSB'].include?(pack))
           if (offset.length != 2)
-            raise RuntimeError, "Missing value for payload offset, there must be two offsets."
+            raise RuntimeError, 'Missing value for payload offset, there must be two offsets.'
           end
 
           if (pack == 'ADDR22LSB')
@@ -467,7 +467,20 @@ class Payload < Msf::Module
   # A placeholder stub, to be overriden by mixins
   #
   def apply_prepends(raw)
-    raw
+    apply_prepend_shellcode(raw)
+  end
+
+  #
+  # prepend the shellcode if required
+  #
+  def apply_prepend_shellcode(raw)
+    unless datastore['prepend_shellcode'].empty?
+      shellcode = binread(datastore['prepend_shellcode'])
+      raw = prepend_shellcode + raw
+    end
+    return raw
+  rescue IOError => e
+    elog("Unable to prepend shellcode: #{e}")
   end
 
   ##
@@ -554,7 +567,7 @@ protected
   # @raise ArgumentError if +asm+ is blank
   def build(asm, off={})
     if(asm.nil? or asm.empty?)
-      raise ArgumentError, "Assembly must not be empty"
+      raise ArgumentError, 'Assembly must not be empty'
     end
 
     # Use the refname so blobs can be flushed when the module gets
@@ -597,7 +610,7 @@ protected
       else
         elog("Broken payload #{refname} has arch unsupported with assembly: #{module_info["Arch"].inspect}")
         elog("Call stack:\n#{caller.join("\n")}")
-        return ""
+        return ''
       end
     sc = Metasm::Shellcode.assemble(cpu, asm).encoded
 

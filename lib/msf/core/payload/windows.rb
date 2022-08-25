@@ -17,7 +17,7 @@ module Msf::Payload::Windows
   # below, it causes the windows/exec payload (and probably others) to
   # somehow not have PrependMigrate despite having Payload::Windows,
   # which leads to a NoMethodError on #prepends
-  include Msf::Payload::Windows::PrependMigrate
+  include Msf::Payload::Windows::Prepend
 
   #
   # ROR hash associations for some of the exit technique routines.
@@ -36,7 +36,10 @@ module Msf::Payload::Windows
   # Implement payload prepends for Windows payloads
   #
   def apply_prepends(raw)
-    apply_prepend_migrate(raw)
+    raw = apply_prepend_migrate(raw)
+    # apply_prepend_code should go last
+    raw = apply_prepend_code(raw)
+    raw
   end
 
   #

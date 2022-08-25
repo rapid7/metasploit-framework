@@ -183,38 +183,10 @@ module Msf
     # This method takes the shellcode generated so far and adds shellcode from
     # a supplied file. The added shellcode is executed in a separate thread
     # from the main payload.
-    # @param shellcode [String] The shellcode to add to
+    # @param shellcode [String] The file containing shellcode or assembly to add
     # @return [String] the combined shellcode which executes the added code in a separate thread
     def add_shellcode(shellcode)
-      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == ARCH_X86
-        cli_print "Adding shellcode from #{add_code} to the payload"
-        shellcode_file = File.open(add_code)
-        shellcode_file.binmode
-        added_code = shellcode_file.read
-        shellcode_file.close
-        shellcode = ::Msf::Util::EXE.win32_rwx_exec_thread(shellcode,0,'end')
-        shellcode << added_code
-      else
-        shellcode.dup
-      end
-    end
-
-    # This method takes the shellcode generated so far and adds shellcode from
-    # a supplied file to the beginning of the shellcode.
-    # @param shellcode [String] The shellcode to be prepended
-    # @return [String] the combined shellcode
-    def prepend_shellcode(shellcode)
-      print_line("Prepending code")
-      if prepend_code.present?
-        cli_print "Adding shellcode from #{prepend_code} to the beginning of the payload"
-        shellcode_file = File.open(prepend_code)
-        shellcode_file.binmode
-        added_code = shellcode_file.read
-        shellcode_file.close
-        added_code << shellcode
-      else
-        shellcode.dup
-      end
+      datastore['PrependThread'] = add_code
     end
 
     # This method takes a payload module and tries to reconcile a chosen
