@@ -109,13 +109,27 @@ module Msf
         # @param [String] query the query to execute
         # @param [String] instance the SQL instance to target
         # @param [String] server the SQL server to target
+        # @param [String] database the database to connect to upon successfully authenticating
+        # @param [String] username the username to authenticate as
+        # @param [String] password the password to authenticate with
         # @return [String] the result of query
-        def run_sql(query, instance = nil, server = '.')
+        def run_sql(query, instance = nil, server = '.', database = nil, username = nil, password = nil)
           target = server
           if instance && instance.downcase != 'mssqlserver'
             target = "#{server}\\#{instance}"
           end
-          cmd = "#{@sql_client} -E -S #{target} -Q \"#{query}\" -h-1 -w 200"
+          cmd = "#{@sql_client}"
+          cmd += " -d #{database}" unless database.nil? || database.empty?
+          if username && password
+            if username.empty?
+              print_error("Username field was blank!")
+              return ""
+            end
+            cmd += " -U \"#{username}\" -P \"#{password}\""
+          else
+            cmd += " -E"
+          end
+          cmd += " -S #{target} -Q \"#{query}\" -h -1 -w 200"
           vprint_status(cmd)
           run_cmd(cmd)
         end
