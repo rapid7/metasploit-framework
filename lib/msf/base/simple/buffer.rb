@@ -62,7 +62,7 @@ module Buffer
       when 'base64'
         buf = Rex::Text.encode_base64(buf)
       when 'go','golang'
-        buf = to_golang(buf)
+        buf = Rex::Text.to_golang(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -96,7 +96,7 @@ module Buffer
       when 'powershell','ps1'
         buf = Rex::Text.to_psh_comment(buf)
       when 'go','golang'
-        buf = to_golang_comment(buf)
+        buf = Rex::Text.to_golang_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -116,6 +116,8 @@ module Buffer
       'csharp',
       'dw',
       'dword',
+      'go',
+      'golang',
       'hex',
       'java',
       'js_be',
@@ -143,17 +145,6 @@ module Buffer
       'aes256',
       'rc4'
     ]
-  end
-
-  def self.to_golang(buf,var_name = "buf")
-    data = Rex::Text.to_num(buf).gsub(/\s+/, "").split(",") #Might be a better way to eliminate new lines but I can't find the way using to_num(buf,DefaultWrap)
-    golang_var = "buf := []byte{%s}" % [data.join(", ")] # Note, I've tried setting the size of the buffer manually to be more efficent it go, but better results are seen when using an undelcared array size.
-    return golang_var
-
-  end
-  
-  def self.to_golang_comment(buf)
-    return "/*\n%s*/\n" % [buf]
   end
 
   private
