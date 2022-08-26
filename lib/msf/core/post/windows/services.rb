@@ -22,6 +22,7 @@ end
 #
 module Services
 
+  # From https://docs.microsoft.com/en-us/windows/win32/msi/serviceinstall-table
   START_TYPE = ["Boot","System","Auto","Manual","Disabled"]
   START_TYPE_BOOT       = 0
   START_TYPE_SYSTEM     = 1
@@ -36,6 +37,34 @@ module Services
   SERVICE_CONTINUE_PENDING  = 5
   SERVICE_PAUSE_PENDING     = 6
   SERVICE_PAUSED            = 7
+
+  # 0x1            A Kernel device driver.
+  #
+  # 0x2            File system driver, which is also
+  #                a Kernel device driver.
+  #
+  # 0x4            A set of arguments for an adapter.
+  #
+  # 0x10           A Win32 program that can be started
+  #                by the Service Controller and that
+  #                obeys the service control protocol.
+  #                This type of Win32 service runs in
+  #                a process by itself.
+  #
+  # 0x20           A Win32 service that can share a process
+  #                with other Win32 services.
+  #
+  # 0x110          Same as 0x10 but allowed to interact with desktop.
+  #
+  # 0x120          Same as 0x20 but allowed to interact with desktop.
+  SERVICE_KERNEL_DRIVER                   = 0x1
+  SERVICE_FILE_SYSTEM_DRIVER              = 0x2
+  SERVICE_ADAPTER                         = 0x4
+  SERVICE_RECOGNIZER_DRIVER               = 0x8
+  SERVICE_WIN32_OWN_PROCESS               = 0x10
+  SERVICE_WIN32_SHARE_PROCESS             = 0x20
+  SERVICE_WIN32_OWN_PROCESS_INTERACTIVE   = 0x110
+  SERVICE_WIN32_SHARE_PROCESS_INTERACTIVE = 0x120
 
   include ::Msf::Post::Windows::Error
   include ::Msf::Post::Windows::ExtAPI
@@ -145,47 +174,47 @@ module Services
     end
   end
 
+  #
   # Yield each service name on the remote host
   #
-  # @todo Allow operating on a remote host
   # @yield [String] Case-sensitive name of a service
+  #
+  # @todo Allow operating on a remote host
+  #
   def each_service(&block)
-    if load_extapi
-      session.extapi.service.enumerate.each(&block)
-    else
-      serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-
-      keys = registry_enumkeys(serviceskey)
-      keys.each do |sk|
-        srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type")
-        # From http://support.microsoft.com/kb/103000
-        #
-        # 0x1            A Kernel device driver.
-        #
-        # 0x2            File system driver, which is also
-        #                a Kernel device driver.
-        #
-        # 0x4            A set of arguments for an adapter.
-        #
-        # 0x10           A Win32 program that can be started
-        #                by the Service Controller and that
-        #                obeys the service control protocol.
-        #                This type of Win32 service runs in
-        #                a process by itself.
-        #
-        # 0x20           A Win32 service that can share a process
-        #                with other Win32 services.
-        if srvtype == 32 || srvtype == 16
-          yield sk
-        end
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
+      begin
+        return session.extapi.service.enumerate.each(&block)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        vprint_error("Request Error #{e} falling back to registry technique")
       end
-
-      keys
     end
+
+    serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
+
+    keys = registry_enumkeys(serviceskey)
+    keys.each do |sk|
+      service_type = registry_getvaldata("#{serviceskey}\\#{sk}", 'Type').to_s
+      service_type = (service_type.starts_with?('0x') ? service_type.to_i(16) : service_type.to_i)
+
+      next unless [
+        SERVICE_WIN32_OWN_PROCESS,
+        SERVICE_WIN32_OWN_PROCESS_INTERACTIVE,
+        SERVICE_WIN32_SHARE_PROCESS,
+        SERVICE_WIN32_SHARE_PROCESS_INTERACTIVE
+      ].include?(service_type)
+
+      yield sk
+    end
+
+    keys
   end
 
   #
   # List all Windows Services present
+  #
+  # If ExtAPI is available we return the DACL, LOGroup, and Interactive
+  # values otherwise these values are nil
   #
   # @return [Array<Hash>] Array of Hashes containing Service details. May contain the following keys:
   #   * :name
@@ -197,32 +226,60 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_list
-    if load_extapi
-      return session.extapi.service.enumerate
-    else
-      serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-      a =[]
-      services = []
-      keys = registry_enumkeys(serviceskey)
-      keys.each do |s|
-        if a.length >= 10
-          a.first.join
-          a.delete_if {|x| not x.alive?}
-        end
-        t = framework.threads.spawn(self.refname+"-ServiceRegistryList",false,s) { |sk|
-          begin
-            srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
-            if srvtype == "32" or srvtype == "16"
-              services << {:name => sk }
-            end
-          rescue
-          end
-        }
-        a.push(t)
+    return meterpreter_service_list if session.type == 'meterpreter'
+
+    services = []
+    each_service do |s|
+      services << {:name => s}
+    end
+
+    services
+  end
+
+  def meterpreter_service_list
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
+      begin
+        return session.extapi.service.enumerate
+      rescue Rex::Post::Meterpreter::RequestError => e
+        vprint_error("Request Error #{e} falling back to registry technique")
       end
     end
 
-    return services
+    serviceskey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
+    keys = registry_enumkeys(serviceskey)
+    threads = 10
+    services = []
+    until keys.empty?
+      t = []
+      threads = 1 if threads <= 0
+
+      if keys.length < threads
+        threads = keys.length
+      end
+
+      begin
+        1.upto(threads) do
+          t << framework.threads.spawn(self.refname + '-ServiceRegistryList', false, keys.shift) do |s|
+            service_type = registry_getvaldata("#{serviceskey}\\#{s}", 'Type').to_i
+
+            next unless [
+              SERVICE_WIN32_OWN_PROCESS,
+              SERVICE_WIN32_OWN_PROCESS_INTERACTIVE,
+              SERVICE_WIN32_SHARE_PROCESS,
+              SERVICE_WIN32_SHARE_PROCESS_INTERACTIVE
+            ].include?(service_type)
+
+            services << {:name => s}
+          end
+        end
+        t.map(&:join)
+      rescue ::Timeout::Error
+      ensure
+        t.each { |x| x.kill rescue nil }
+      end
+    end
+
+    services
   end
 
   #
@@ -243,9 +300,7 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_info(name)
-    service = {}
-
-    if load_extapi
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE)
       begin
         return session.extapi.service.query(name)
       rescue Rex::Post::Meterpreter::RequestError => e
@@ -254,15 +309,17 @@ module Services
     end
 
     servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    service[:display]     = registry_getvaldata(servicekey,"DisplayName").to_s
-    service[:starttype]   = registry_getvaldata(servicekey,"Start").to_i
-    service[:path]        = registry_getvaldata(servicekey,"ImagePath").to_s
-    service[:startname]   = registry_getvaldata(servicekey,"ObjectName").to_s
-    service[:dacl]        = nil
-    service[:logroup]     = nil
-    service[:interactive] = nil
+    start_type = registry_getvaldata(servicekey, 'Start').to_s
 
-    return service
+    {
+      display: registry_getvaldata(servicekey, 'DisplayName').to_s,
+      starttype: (start_type.starts_with?('0x') ? start_type.to_i(16) : start_type.to_i),
+      path: registry_getvaldata(servicekey, 'ImagePath').to_s,
+      startname: registry_getvaldata(servicekey, 'ObjectName').to_s,
+      dacl: nil,
+      logroup: nil,
+      interactive: nil
+    }
   end
 
   #
