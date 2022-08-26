@@ -9,6 +9,7 @@ module Msf::Post::Process
       info,
       'Compat' => { 'Meterpreter' => { 'Commands' => %w{
         stdapi_sys_process_get_processes
+        stdapi_sys_process_kill
       } } }
     ))
   end
@@ -43,6 +44,26 @@ module Msf::Post::Process
     else
       shell_get_processes
     end
+  end
+
+  #
+  # Forcefully terminate process with ID `pid` on the remote system
+  #
+  # @return [Boolean] True upon success
+  #
+  def kill_process(pid)
+    if session.type == 'meterpreter' && session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_KILL)
+      session.sys.process.kill(pid)
+      return true
+    end
+
+    if session.platform == 'windows'
+      return !cmd_exec("taskkill /F /PID #{pid}").to_s.starts_with?('ERROR')
+    end
+
+    cmd_exec("kill -9 #{pid} && echo true").to_s.include?('true')
+  rescue Rex::Post::Meterpreter::RequestError
+    false
   end
 
   def meterpreter_get_processes
