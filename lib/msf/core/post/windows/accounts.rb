@@ -89,6 +89,19 @@ module Msf
           domain.gsub(%r{^\\\\}, '')
         end
 
+        # @return [String] Active Directory domain FQDN
+        def get_domain_name
+          if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            return get_domain('DomainName')
+          end
+
+          # Use cached domain name
+          key = "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+          return unless registry_key_exist?(key)
+
+          registry_getvaldata(key, 'MachineDomain')
+        end
+
         ##
         # get_domain(info_key, server_name = nil)
         #
