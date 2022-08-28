@@ -73,6 +73,22 @@ module Msf
           registry_enumkeys("HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS")&.include?('Parameters') ? true : false
         end
 
+        # @return [String] Active Directory primary domain controller FQDN
+        def get_primary_domain_controller
+          if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            domain = get_domain('DomainControllerName')
+          else
+            # Use cached domain controller name
+            key = "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+            return unless registry_key_exist?(key)
+            domain = registry_getvaldata(key, 'DCName')
+          end
+
+          return unless domain
+
+          domain.gsub(%r{^\\\\}, '')
+        end
+
         ##
         # get_domain(info_key, server_name = nil)
         #
