@@ -66,11 +66,11 @@ module Msf
           )
         end
 
-        # Check if target is a domain controller
+        # Check if host is an Active Directory domain controller
         #
-        # @return [Boolean] Target host is a domain controller
+        # @return [Boolean] Target host is an Active Directory domain controller
         def domain_controller?
-          registry_key_exist?('HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS\\Parameters')
+          registry_enumkeys("HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS")&.include?('Parameters') ? true : false
         end
 
         ##
