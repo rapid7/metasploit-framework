@@ -268,12 +268,16 @@ NAVIGATION_CONFIG = [
             nav_order: 1
           },
           {
-            path: 'dev/Setting-Up-a-Metasploit-Development-Environment.md',
+            path: 'Creating-Your-First-PR.md',
             nav_order: 2
           },
           {
-            path: 'Sanitizing-PCAPs.md',
+            path: 'dev/Setting-Up-a-Metasploit-Development-Environment.md',
             nav_order: 3
+          },
+          {
+            path: 'Sanitizing-PCAPs.md',
+            nav_order: 4
           },
           {
             old_wiki_path: "Navigating-and-Understanding-Metasploit's-Codebase.md",

@@ -1,22 +1,27 @@
 # Creating Your First PR - An Intro To Git and the PR Process
 ## Intro
-Congratulations fellow traveler, so your interested in contributing to Metasploit eh? Well welcome aboard, its going to be a fun ride!
+Congratulations fellow traveler, so you're interested in contributing to Metasploit eh? Well welcome aboard, its going to be a fun ride!
 You'll learn lots along the way but here are some tips and tricks that should help you get started with making your first PR request
 whilst also avoiding some common pitfalls and learning how some of our systems work.
 
 ## Initial Steps and Important Notes
 The rest of this guide assumes you have already followed the steps at [Setting Up A Developer Environment](https://r-7.co/MSF-DEV) in order to get
-a fork of Metasploit set up and ready to run, and that you have added in your SSH keys, set up Ruby and optionally the PostgreSQL database, and
-done any custom shortcuts you wish to configure.
+a fork of Metasploit set up and ready to run, and that you have added in your SSH keys 
+(see [Adding a New SSH Key To Your GitHub Account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)), 
+set up Ruby and optionally the PostgreSQL database, and done any custom shortcuts you wish to configure.
 
 ## Getting the Latest Version of Metasploit Framework
 Before making any new contributions, you will want to sure you are running the latest version of Metasploit Framework.
-To do this run `git checkout master && git fetch && git pull`. This will check out the `master` branch, then fetch all
-the changes from upstream (which should be configured to be Rapid7's copy of Metasploit Framework on GitHub), and then pulls
-those changes into the current local branch, aka `master`.
+To do this run `git checkout master && git fetch upstream && git pull`, where `upstream` is the branch connected to the 
+Rapid7 remote, aka Rapid7's copy of the code. You can verify that `upstream` is set correctly by running `git remote get-url upstream`
+and verifying it is set to `git@github.com:rapid7/metasploit-framework.git`.
+
+Once you run this command, it will check out the `master` branch, then fetch all
+the changes from `upstream` (which should be configured to be Rapid7's copy of Metasploit Framework on GitHub). Once
+it has cached these changes, the `git pull` command will then pull these changes into the current branch, aka `master`.
 
 Not pulling down changes before writing new code could lead to big issues down the line, particularly if someone has edited a file
-you intended to modify. In that case maintainers will then have to try find the right combination of changes to implment, which could lead
+you intended to modify. In that case maintainers will then have to try find the right combination of changes to implement, which could lead
 to your PR being rejected if these changes are too complex.
 
 ## Making Sure Your Gems Are Updated
@@ -29,7 +34,7 @@ developing code, those bugs are not related to out of date Gems being installed,
 ## Creating a New Branch for Your Code
 Once all of this is done, you will want to create a new branch for your code, which can be done by running `git checkout -b <your branch name here>`.
 This will snapshot the current branch that you are on, and use that to create a new branch with the name provided. Note that I did say snapshot. This is
-why its important to update the current branch's code to the latest version of Metasploit Framework available prior to running this command,
+why it's important to update the current branch's code to the latest version of Metasploit Framework available prior to running this command,
 otherwise the new branch will contain outdated code.
 
 ## Adding in Your Changes and Creating Meaningful Commit Messages
@@ -37,7 +42,7 @@ Once you have made your code changes, add them using `git add <path to file to a
 specify multiple files to add using `git add` at the same time.
 
 To commit these changes locally, use `git commit -m "<commit message here>"`. Note that as a general rule of thumb, commit messages should aim
-to be short whilst also telling readers what was changed in that commit. You generally don't want to create commits that do multiple things at once,
+to be 50 characters or less while telling readers what was changed in that commit. You generally don't want to create commits that do multiple things at once,
 instead create a separate commit for each group of items that you are changing, and make sure that the commit message reflects what changed in a general sense.
 
 Note also that maintainers may end up squashing your commits down so that your commit A, B, and C, now become commit D which
@@ -84,10 +89,17 @@ these may be okay to ignore depending on the context. A good example is if a lin
 safely ignored.
 
 ## Submitting Your Changes and Opening a PR
-Once you have gone through all of the steps above you should be ready to submit your PR. To submit your PR do `git push origin local-branch:remote-branch` 
-and replace `local-branch` with the branch locally where your code changes are located, and `remote-branch` with what you want this branch to be called on 
-the remote repositor, aka `origin` which will be your fork on GitHub.com. In most cases you will want these two names to be the same to avoid confusion, but its good to know this
-syntax should you start working with more complex situations.
+Once you have gone through all of the steps above you should be ready to submit your PR. To submit your PR, first check which 
+branch points to your copy of the code. If you have followed the setup guide, it should be `origin`. You can double check this 
+branch's remote URL using `git remote get-url origin`. It should look something like `git@github.com:gwillcox-r7/metasploit-framework`
+with `gwillcox-r7` substituted for your username.
+
+Assuming the `origin` branch is in fact pointing to your copy of the code, run `git push origin local-branch:remote-branch` 
+and replace `local-branch` with the branch locally where your code changes are located, and `remote-branch` with what 
+you want this branch to be called on the remote repository, aka `origin` which will be your fork on GitHub.com. In most 
+cases you will want these two names to be the same to avoid confusion, but its good to know this syntax should you 
+start working with more complex situations. Note that if the branch pointing to your copy of the code is not named `origin`,
+replace the word `origin` in the command above with the name of the branch that does point to your copy of the code.
 
 This should result in output similar to the following:
 
@@ -116,7 +128,7 @@ deleting the template text once you have provided the requested information. Not
 their description will be closed.
 
 In your PR description you should take care to mention what it is that you are submitting, details on the type of vulnerability and CVE-ID,
-if applicable, how to test the submission, as well as any special concerns or items of note that occured whilst conducting testing.
+if applicable, how to test the submission, as well as any special concerns or items of note that occurred whilst conducting testing.
 
 Once this is done a member of our team will review your PR within a few days and provide feedback on any changes that may still need to be made
 before the submission can be accepted.
