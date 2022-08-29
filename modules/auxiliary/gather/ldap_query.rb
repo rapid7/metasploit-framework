@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
         'Columns' => %w[Name Attributes]
       )
 
-      entry.keys.each do |attr|
+      entry.each_key do |attr|
         if format == 'table'
           tbl << [attr, entry[attr].join(' || ')] unless attr == :dn # Skip over DN entries for tables since DN information is shown in header.
         else
@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     entries.each do |entry|
       result = ''
       data = {}
-      entry.keys.each do |attr|
+      entry.each_key do |attr|
         data[attr] = entry[attr].join(' || ')
       end
       result << JSON.pretty_generate(data) + ",\n"
@@ -213,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
       entry = entry.to_h
       entry_keys = entry.keys
       for key in entry_keys
-        entry[key][0] = entry[key][0].force_encoding("ISO-8859-1").encode("UTF-8")
+        entry[key][0] = entry[key][0].force_encoding('ISO-8859-1').encode('UTF-8')
       end
 
       cleaned_entries.append(entry)
