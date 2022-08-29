@@ -255,15 +255,16 @@ class MetasploitModule < Msf::Post
         salt = pass_info['salt']
         hash = pass_info['hash']
         pass_type = pass_info['type']
+
         case pass_type
         when 'md5'
           hashed = UnixCrypt::MD5.build(str, salt)
         when 'bf'
           BCrypt::Engine.cost = pass_info['cost'] || 12
           hashed = BCrypt::Engine.hash_secret(str, hash[0..28])
-        when pass_type.include?('sha256')
+        when /sha256/
           hashed = UnixCrypt::SHA256.build(str, salt)
-        when pass_type.include?('sha512')
+        when /sha512/
           hashed = UnixCrypt::SHA512.build(str, salt)
         when 'yescrypt'
           get_python_version
@@ -354,7 +355,6 @@ class MetasploitModule < Msf::Post
         search_regions.each { |reg| captured_strings << get_printable_strings(pid, reg['start'], reg['length']) }
         captured_strings.flatten!
         captured_strings.uniq!
-
         check_for_valid_passwords(captured_strings, password_data, info['name'])
         captured_strings = []
       end
