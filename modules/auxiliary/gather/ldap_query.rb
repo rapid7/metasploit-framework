@@ -160,12 +160,12 @@ class MetasploitModule < Msf::Auxiliary
   def generate_rex_tables(entries, format)
     entries.each do |entry|
       tbl = Rex::Text::Table.new(
-        'Header' => entry['dn'][0].split(',').join(' '),
+        'Header' => entry[:dn][0].split(',').join(' '),
         'Indent' => 1,
         'Columns' => %w[Name Attributes]
       )
 
-      entry.attribute_names.each do |attr|
+      entry.keys.each do |attr|
         if format == 'table'
           tbl << [attr, entry[attr].join(' || ')] unless attr == :dn # Skip over DN entries for tables since DN information is shown in header.
         else
@@ -188,12 +188,12 @@ class MetasploitModule < Msf::Auxiliary
     entries.each do |entry|
       result = ''
       data = {}
-      entry.attribute_names.each do |attr|
+      entry.keys.each do |attr|
         data[attr] = entry[attr].join(' || ')
       end
       result << JSON.pretty_generate(data) + ",\n"
       result.gsub!(/},\n$/, '}')
-      print_status(entry['dn'][0].split(',').join(' '))
+      print_status(entry[:dn][0].split(',').join(' '))
       print_line(result)
     end
   end
@@ -204,6 +204,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def output_data_csv(entries)
     generate_rex_tables(entries, 'csv')
+  end
+
+  def normalize_entries(entries)
+    cleaned_entries = []
+    for entry in entries
+      # Convert to a hash so we get only the data we need.
+      entry = entry.to_h
+      entry_keys = entry.keys
+      for key in entry_keys
+        entry[key][0] = entry[key][0].force_encoding("ISO-8859-1").encode("UTF-8")
+      end
+
+      cleaned_entries.append(entry)
+    end
+    cleaned_entries
   end
 
   def show_output(entries)
@@ -238,6 +253,7 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
 
+      entries = normalize_entries(entries)
       show_output(entries)
     end
   end
@@ -320,6 +336,7 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           entries = perform_ldap_query(ldap, filter, query['attributes'], base: (query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil))
+          require 'pry'; binding.pry
         end
       end
     rescue Rex::ConnectionTimeout
@@ -329,6 +346,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     return if entries.nil? || entries.empty?
 
+    entries = normalize_entries(entries)
     show_output(entries)
   end
 end
