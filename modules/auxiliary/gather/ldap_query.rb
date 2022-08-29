@@ -336,7 +336,6 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           entries = perform_ldap_query(ldap, filter, query['attributes'], base: (query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil))
-          require 'pry'; binding.pry
         end
       end
     rescue Rex::ConnectionTimeout
