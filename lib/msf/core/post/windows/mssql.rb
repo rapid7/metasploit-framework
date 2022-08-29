@@ -113,7 +113,7 @@ module Msf
         # @param [String] username the username to authenticate as
         # @param [String] password the password to authenticate with
         # @return [String] the result of query
-        def run_sql(query, instance = nil, server = '.', database = nil, username = nil, password = nil)
+        def run_sql(query, instance = nil, server = '.', database: nil, username: nil, password: nil)
           target = server
           if instance && instance.downcase != 'mssqlserver'
             target = "#{server}\\#{instance}"
