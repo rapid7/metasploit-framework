@@ -52,11 +52,13 @@ done when the code is ready to be landed into Metasploit Framework to help make 
 ## Checking for Code Errors
 Before code can be accepted into Metasploit Framework, it must also pass our RuboCop and MsfTidy rules. These help ensure that
 all contributors are committing code that follows a common set of standards. To check if your code meets our RuboCop standards, 
-from the root of wherever you cloned your fork of Metasploit Framework to on disk, run `rubocop -a <path to your module from current directory>`.
+from the root of wherever you cloned your fork of Metasploit Framework to on disk, run `rubocop <path to your module from current directory>`.
 
-This will ask RuboCop to check your module and if possible fix any issues that RuboCop is able to fix. Keep running this command and fixing any
-issues that come up until RuboCop no longer comes back with any errors to report. Then run `git add <file>` followed by `git commit -m "RuboCop Fixes"`.
-You can change the commit message if you want, but it should mention RuboCop as it helps maintainers know what the commit is related to.
+Specifying the `-a` parameter will ask RuboCop to check your module and if possible fix any issues that RuboCop is able to fix.
+In this case the command would be `rubocop -a <path to your module from current directory>`. It is encouraged to keep running 
+this command and fixing any issues that come up until RuboCop no longer comes back with any errors to report. Once this is 
+complete, run `git add <file>` followed by `git commit -m "RuboCop Fixes"`. You can change the commit message if you 
+want, but it should mention RuboCop as it helps maintainers know what the commit is related to.
 
 As a good practice rule, you should always separate your commits that contain RuboCop changes from those that contain non-RuboCop related changes.
 This helps ensure that when it comes time to review your code, review can proceed a lot quicker and more efficiently.
