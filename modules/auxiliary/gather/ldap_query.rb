@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     unless @loaded_queries.empty? # Aka there is more than just RUN_QUERY_FILE and RUN_SINGLE_QUERY in the actions list...
       default_action = actions[0][0] # Get the first entry's action name and set this as the default action.
     end
-    return actions, default_action
+    [actions, default_action]
   end
 
   def safe_load_queries(filename)
@@ -208,14 +208,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def normalize_entries(entries)
     cleaned_entries = []
-    for entry in entries
+    entries.each do |entry|
       # Convert to a hash so we get only the data we need.
       entry = entry.to_h
       entry_keys = entry.keys
-      for key in entry_keys
-        entry[key][0] = entry[key][0].force_encoding('ISO-8859-1').encode('UTF-8')
+      entry_keys.each do |key|
+        entry[key][0] = Rex::Text.to_hex_ascii(entry[key][0])
       end
-
       cleaned_entries.append(entry)
     end
     cleaned_entries
