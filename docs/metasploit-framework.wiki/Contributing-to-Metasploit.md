@@ -6,6 +6,9 @@ However, tackling core Metasploit Framework bugs or particularly squirrelly expl
 
 Metasploit is a tool by and for hackers, but the hackers that maintain it also happen to be software engineers. So, we have some hopefully easy-to-remember Do's and Don'ts in [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md). Read up on those.
 
+# Making Your First PR
+Our preferred method of module submission is via a git pull request from a feature branch on your own fork of Metasploit. You can learn more about making your first PR at [Creating Your First PR]
+
 # Server exploits
 
 Server exploits are always in demand; why bother with complicated social engineering campaigns when you can go straight to the pain point of a vulnerable network. Here are some search queries to get you started:
@@ -52,9 +55,6 @@ Again, there's always room on #metasploit on Freenode. Be helpful with the quest
 # The Usual Warnings
 
 You probably shouldn't run proof of concept exploit code you find on the Internet on a machine you care about in a network you care about. That is generally considered a Bad Idea. You also probably shouldn't use your usual computer as a target for exploit development, since you are intentionally inducing unstable behavior.
-
-Our preferred method of module submission is via a git pull request from a feature branch on your own fork of Metasploit.  You can learn how to create one here:
-[[Landing-Pull-Requests]]
 
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them.
 
