@@ -213,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
       entry = entry.to_h
       entry_keys = entry.keys
       entry_keys.each do |key|
-        entry[key][0] = Rex::Text.to_hex_ascii(entry[key][0])
+        entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
       end
       cleaned_entries.append(entry)
     end
