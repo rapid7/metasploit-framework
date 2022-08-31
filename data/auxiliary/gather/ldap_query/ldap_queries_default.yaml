@@ -3,7 +3,7 @@ queries:
   - action: ENUM_ADCS_CAS
     description: 'Enumerate ADCS certificate authorities.'
     base_dn_prefix: 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
-    filter: (objectClass=pKIEnrollmentService)
+    filter: '(objectClass=pKIEnrollmentService)'
     attributes:
       - cn
       - name
@@ -13,7 +13,7 @@ queries:
   - action: ENUM_ADCS_CERT_TEMPLATES
     description: 'Enumerate ADCS certificate templates.'
     base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    filter: (objectClass=pkicertificatetemplate)
+    filter: '(objectClass=pkicertificatetemplate)'
     attributes:
       - cn
       - name

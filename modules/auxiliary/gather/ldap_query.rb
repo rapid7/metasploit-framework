@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     unless @loaded_queries.empty? # Aka there is more than just RUN_QUERY_FILE and RUN_SINGLE_QUERY in the actions list...
       default_action = actions[0][0] # Get the first entry's action name and set this as the default action.
     end
-    return actions, default_action
+    [actions, default_action]
   end
 
   def safe_load_queries(filename)
@@ -160,12 +160,12 @@ class MetasploitModule < Msf::Auxiliary
   def generate_rex_tables(entries, format)
     entries.each do |entry|
       tbl = Rex::Text::Table.new(
-        'Header' => entry['dn'][0].split(',').join(' '),
+        'Header' => entry[:dn][0].split(',').join(' '),
         'Indent' => 1,
         'Columns' => %w[Name Attributes]
       )
 
-      entry.attribute_names.each do |attr|
+      entry.each_key do |attr|
         if format == 'table'
           tbl << [attr, entry[attr].join(' || ')] unless attr == :dn # Skip over DN entries for tables since DN information is shown in header.
         else
@@ -188,12 +188,12 @@ class MetasploitModule < Msf::Auxiliary
     entries.each do |entry|
       result = ''
       data = {}
-      entry.attribute_names.each do |attr|
+      entry.each_key do |attr|
         data[attr] = entry[attr].join(' || ')
       end
       result << JSON.pretty_generate(data) + ",\n"
       result.gsub!(/},\n$/, '}')
-      print_status(entry['dn'][0].split(',').join(' '))
+      print_status(entry[:dn][0].split(',').join(' '))
       print_line(result)
     end
   end
@@ -204,6 +204,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def output_data_csv(entries)
     generate_rex_tables(entries, 'csv')
+  end
+
+  def normalize_entries(entries)
+    cleaned_entries = []
+    entries.each do |entry|
+      # Convert to a hash so we get only the data we need.
+      entry = entry.to_h
+      entry_keys = entry.keys
+      entry_keys.each do |key|
+        entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
+      end
+      cleaned_entries.append(entry)
+    end
+    cleaned_entries
   end
 
   def show_output(entries)
@@ -238,6 +252,7 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
 
+      entries = normalize_entries(entries)
       show_output(entries)
     end
   end
@@ -329,6 +344,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     return if entries.nil? || entries.empty?
 
+    entries = normalize_entries(entries)
     show_output(entries)
   end
 end
