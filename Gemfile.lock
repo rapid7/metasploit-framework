@@ -303,12 +303,12 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.4.3)
-    pry (0.14.1)
+    pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    pry-byebug (3.10.1)
+    pry-byebug (3.9.0)
       byebug (~> 11.0)
-      pry (>= 0.13, < 0.15)
+      pry (~> 0.13.0)
     public_suffix (5.0.0)
     puma (5.6.5)
       nio4r (~> 2.0)
@@ -506,7 +506,7 @@ DEPENDENCIES
   memory_profiler
   metasploit-framework!
   octokit
-  pry-byebug
+  pry-byebug (~> 3.9.0)
   rake
   redcarpet
   rspec-rails
