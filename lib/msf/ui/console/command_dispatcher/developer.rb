@@ -9,6 +9,12 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     '-e' => [true,  'Expression to evaluate.']
   )
 
+  @@time_opts = Rex::Parser::Arguments.new(
+    ['-h', '--help'] => [ false, 'Help banner.' ],
+    '--cpu' => [false, 'Profile the CPU usage.'],
+    '--memory' => [false,  'Profile the memory usage.']
+  )
+
   @@_servicemanager_opts = Rex::Parser::Arguments.new(
     ['-l', '--list'] => [false, 'View the currently running services' ]
   )
@@ -381,25 +387,52 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   # Time how long in seconds a command takes to execute
   #
   def cmd_time(*args)
-    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    command = args.join(' ')
-    driver.run_single(command)
-  ensure
-    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    elapsed_time = end_time - start_time
-    print_good("Command #{command.inspect} completed in #{elapsed_time} seconds")
+    if args.empty? || args.first == '-h' || args.first == '--help'
+      cmd_time_help
+      return true
+    end
+
+    profiler = nil
+    while args.first == '--cpu' || args.first == '--memory'
+      profiler = args.shift
+    end
+
+    begin
+      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      command = args.join(' ')
+
+      case profiler
+      when '--cpu'
+        Metasploit::Framework::Profiler.record_cpu do
+          driver.run_single(command)
+        end
+      when '--memory'
+        Metasploit::Framework::Profiler.record_memory do
+          driver.run_single(command)
+        end
+      else
+        driver.run_single(command)
+      end
+    ensure
+      end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      elapsed_time = end_time - start_time
+      print_good("Command #{command.inspect} completed in #{elapsed_time} seconds")
+    end
   end
 
   def cmd_time_help
-    print_line 'Usage: time [command]'
+    print_line 'Usage: time [options] [command]'
     print_line
-    print_line 'Time how long a command takes to execute in seconds'
+    print_line 'Time how long a command takes to execute in seconds. Also supports profiling options.'
     print_line
     print_line '   Usage:'
     print_line '      * time db_import ./db_import.html'
     print_line '      * time show exploits'
     print_line '      * time reload_all'
     print_line '      * time missing_command'
+    print_line '      * time --cpu db_import ./db_import.html'
+    print_line '      * time --memory db_import ./db_import.html'
+    print @@time_opts.usage
     print_line
   end
 end
