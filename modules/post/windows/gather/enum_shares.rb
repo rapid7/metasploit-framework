@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
 
+  SID_PREFIX_USER = 'S-1-5-21-'.freeze
+
   def initialize(info = {})
     super(
       update_info(
@@ -181,7 +183,6 @@ class MetasploitModule < Msf::Post
       mount_history = enum_recent_mounts('HKEY_CURRENT_USER') if datastore['RECENT']
       run_history = enum_run_unc('HKEY_CURRENT_USER') if datastore['ENTERED']
     else
-      SID_PREFIX_USER = 'S-1-5-21-'
       keys = registry_enumkeys('HKU') || []
       keys.each do |maybe_sid|
         next unless maybe_sid.starts_with?(SID_PREFIX_USER)
