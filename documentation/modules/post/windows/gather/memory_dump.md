@@ -13,7 +13,7 @@ This module only works on a Meterpreter session on Windows.
   1. Get meterpreter session on a Windows host
   1. Do: `use post/windows/gather/memory_dump`
   1. Do: `set SESSION <session id>`
-  1. Do: `set PID <process id>`
+  1. Do: `set PID <process id>` or `set PROCESS_NAME <process name>`
   1. Do: `set DUMP_PATH <path on remote system>`
   1. Do: `set DUMP_TYPE <standard|full>`
   1. Do: `run`
@@ -26,12 +26,18 @@ This module only works on a Meterpreter session on Windows.
 
 The path that the memory dump will be temporarily stored at. This file is then
 downloaded and deleted at the end of the run. This file should be in a writable
-location, and should not already exist.
+location, and should not already exist. If not specified, the dump is written
+with a random filename in `%TEMP%`.
 
 ### PID
 
 The ID of the process to dump. To find the PID, in your Meterpreter session,
 type `ps`. To find a process by name, type `ps | <process name>`.
+
+### PROCESS_NAME
+
+The name of the process(es) to dump. This will dump memory for all processes
+with this name.
 
 ### DUMP_TYPE
 
@@ -55,7 +61,7 @@ significantly smaller than the Full option.
 
 ## Scenarios
 
-**Dumping lsass**
+### Dumping lsass
 
 Retrieving lsass (after getsystem)
 
@@ -126,5 +132,3 @@ SID               : S-1-5-21-920577323-754201681-977916534-1001
         credman :
         cloudap :
 ```
-
-
