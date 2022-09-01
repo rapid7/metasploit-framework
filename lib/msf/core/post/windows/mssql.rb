@@ -121,14 +121,14 @@ module Msf
           if username.present? && password.nil?
             raise 'Username provided but no value for the password was provided!'
           elsif username.present? && !password.nil?
-            cmd += " -U \"#{username.gsub!(/\\/, '\\\\').gsub!(/"/, '\"')}\" -P \"#{password.gsub!(/\\/, '\\\\').gsub!(/"/, '\"')}\""
+            cmd += " -U \"#{username.gsub(/"/, '\"')}\" -P \"#{password.gsub(/"/, '\"')}\""
           elsif !username.present? && password.present?
-            cmd += " -P \"#{password.gsub!(/\\/, '\\\\').gsub!(/"/, '\"')}\""
+            cmd += " -P \"#{password.gsub(/"/, '\"')}\""
           else
             cmd += ' -E'
           end
 
-          cmd += " -S #{target} -Q \"#{query.gsub!(/\\/, '\\\\').gsub!(/"/, '\"')}\" -h -1 -w 200"
+          cmd += " -S #{target} -Q \"#{query&.gsub(/"/, '\"')}\" -h -1 -w 200"
           vprint_status(cmd)
           run_cmd(cmd)
         end
