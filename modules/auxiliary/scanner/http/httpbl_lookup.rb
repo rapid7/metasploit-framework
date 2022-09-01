@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require "net/dns/resolver"
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -21,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'		=> MSF_LICENSE,
       'References' 	=>
         [
-          ['URL', 'http://www.projecthoneypot.org/httpbl_api.php'],
+          ['URL', 'https://www.projecthoneypot.org/httpbl_api.php'],
         ]
       ))
 
@@ -30,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         # OptAddressRange.new('RHOSTS', [false, "The target address, range, or CIDR identifier"]),
         OptString.new('HTTPBL_APIKEY', [ true, "Your HTTP:BL api key"])
-      ], self.class)
+      ])
   end
 
   # Not compatible today

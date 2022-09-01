@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/nop/opty2'
 
 
@@ -17,7 +15,7 @@ require 'rex/nop/opty2'
 # ADMmutate and from spoonfu.
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
   def initialize
     super(
@@ -35,5 +33,4 @@ class Metasploit3 < Msf::Nop
 
     opty.generate_sled(length)
   end
-
 end

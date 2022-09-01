@@ -3,7 +3,7 @@ module Msf::DBManager::Import::Nessus::NBE
   # scan. You get "Security Note" or "Security Warning," and that's it.
   def import_nessus_nbe(args={}, &block)
     nbe_data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     nbe_copy = nbe_data.dup
@@ -83,7 +83,6 @@ module Msf::DBManager::Import::Nessus::NBE
   #
   def import_nessus_nbe_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

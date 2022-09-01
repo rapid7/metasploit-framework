@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '98249' ],
           [ 'BID', '62902' ],
           [ 'ZDI', '13-240' ],
-          [ 'URL', 'https://h20566.www2.hp.com/portal/site/hpsc/public/kb/docDisplay/?docId=emr_na-c03943547' ]
+          [ 'URL', 'https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c03943547' ]
         ],
       'Author'         =>
         [
@@ -34,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
           'juan vazquez' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Oct 08 2013"
+      'DisclosureDate' => '2013-10-08'
     ))
 
     register_options(
@@ -42,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('USERNAME', [true, 'Username for the new account', 'msf']),
         OptString.new('PASSWORD', [true, 'Password for the new account', 'p4ssw0rd'])
-      ], self.class)
+      ])
   end
 
   def get_service_desk_strong_name
@@ -69,32 +66,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     return nil
-  end
-
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
   end
 
   def run
@@ -258,18 +229,19 @@ class Metasploit3 < Msf::Auxiliary
       login_url = ssl ? "https://" : "http://"
       login_url << "#{rhost}:#{rport}/servicedesk/ServiceDesk.jsp"
 
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: (ssl ? "https" : "http"),
-        user: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
-        proof: "#{login_url}\n#{res.body}"
-      )
+      connection_details = {
+          module_fullname: self.fullname,
+          username: datastore['USERNAME'],
+          private_data: datastore['PASSWORD'],
+          private_type: :password,
+          workspace_id: myworkspace_id,
+          proof: "#{login_url}\n#{res.body}",
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
 
       print_good("Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
       print_status("Use it to log into #{login_url}")
     end
   end
-
 end

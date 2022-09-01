@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Fuzzer
 
@@ -15,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'SMB Negotiate SMB2 Dialect Corruption',
       'Description'    => %q{
-        This module sends a series of SMB negiotiate requests that advertise a
+        This module sends a series of SMB negotiate requests that advertise a
       SMB2 dialect with corrupted bytes.
       },
       'Author'         => [ 'hdm' ],
@@ -24,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       Opt::RPORT(445),
       OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test'])
-    ], self.class)
+    ])
   end
 
   def do_smb_negotiate(pkt,opts={})

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'nokogiri'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -28,9 +26,9 @@ class Metasploit3 < Msf::Auxiliary
       'References'     => [
         [ 'CVE', '2013-4614' ],
         [ 'OSVDB', '94417' ],
-        [ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
+        [ 'URL', 'https://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
       ],
-      'DisclosureDate' => 'Jun 18 2013'))
+      'DisclosureDate' => '2013-06-18'))
   end
 
   def get_network_settings

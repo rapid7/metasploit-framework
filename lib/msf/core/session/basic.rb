@@ -35,11 +35,7 @@ protected
   #
   def _interact
     framework.events.on_session_interact(self)
-    if self.respond_to?(:ring)
-      interact_ring(ring)
-    else
-      interact_stream(rstream)
-    end
+    interact_stream(rstream)
   end
 
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos # %n etc kills a thread, but otherwise ok.
 
@@ -21,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
         string data. With physical access to the device and debugging,
         this module may be able to be used to execute arbitrary code remotely.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     => [
         [ 'BID', '35145' ],
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         [ 'OSVDB', '54881' ],
         [ 'URL', 'http://www.aushack.com/200905-sonicwall.txt' ],
       ],
-      'DisclosureDate' => 'May 29 2009'))
+      'DisclosureDate' => '2009-05-29'))
 
     register_options([
       OptString.new('URI', [ true, 'URI to request', '/cgi-bin/welcome/VirtualOffice?err=' ]),

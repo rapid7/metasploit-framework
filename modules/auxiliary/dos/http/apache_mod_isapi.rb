@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -46,12 +43,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2010-0425' ],
           [ 'OSVDB', '62674'],
           [ 'BID', '38494' ],
-          [ 'URL', 'https://issues.apache.org/bugzilla/show_bug.cgi?id=48509' ],
-          [ 'URL', 'http://www.gossamer-threads.com/lists/apache/cvs/381537' ],
+          [ 'URL', 'https://bz.apache.org/bugzilla/show_bug.cgi?id=48509' ],
+          [ 'URL', 'https://web.archive.org/web/20100715032229/http://www.gossamer-threads.com/lists/apache/cvs/381537' ],
           [ 'URL', 'http://www.senseofsecurity.com.au/advisories/SOS-10-002' ],
           [ 'EDB', '11650' ]
         ],
-      'DisclosureDate' => 'Mar 05 2010'))
+      'DisclosureDate' => '2010-03-05'))
 
     register_options([
       Opt::RPORT(80),
@@ -93,5 +90,4 @@ class Metasploit3 < Msf::Auxiliary
     disconnect
 
   end
-
 end

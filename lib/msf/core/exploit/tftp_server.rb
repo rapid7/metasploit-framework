@@ -1,0 +1,36 @@
+# -*- coding: binary -*-
+
+
+module Msf
+
+###
+#
+# This mixin provides a TFTPServer
+#
+###
+module Exploit::TFTPServer
+
+  def initialize(info = {})
+    super
+
+    @tftp = nil
+  end
+
+  def start_service(tag, exe)
+    @tftp = Rex::Proto::TFTP::Server.new
+    @tftp.register_file(tag, exe)
+    vprint_status("Starting TFTP server to host \"#{tag}\" (#{exe.length} bytes)")
+    @tftp.start
+    add_socket(@tftp.sock)
+    @tftp
+  end
+
+  def stop_service
+    vprint_status("Stopping TFTP server")
+    @tftp.stop
+  end
+
+  attr_accessor :tftp
+end
+
+end

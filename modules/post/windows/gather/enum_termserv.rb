@@ -1,38 +1,41 @@
-# post/windows/gather/enum_termserv.rb
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
-
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Gather Terminal Server Client Connection Information Dumper',
-      'Description'   => %q{
-        This module dumps MRU and connection data for RDP sessions
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'mubix' ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Terminal Server Client Connection Information Dumper',
+        'Description' => %q{
+          This module dumps MRU and connection data for RDP sessions
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'mubix' ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_registry_open_key
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
     userhives = load_missing_hives()
     userhives.each do |hive|
       next if hive['HKU'] == nil
+
       print_status("Doing enumeration for #{hive['SID']}")
       root_key, base_key = session.sys.registry.splitkey("#{hive['HKU']}\\Software\\Microsoft\\Terminal\ Server\ Client")
       begin

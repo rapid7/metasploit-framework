@@ -217,10 +217,10 @@ module Rex
             res[attribute_identifier] = mft_record[curs + content_offset, content_size]
           else
             # non resident
-            if attribute_identifier == INDEX_ALLOCATION_ID or 
+            if attribute_identifier == INDEX_ALLOCATION_ID or
               (!lazy and attribute_identifier != DATA_ATTRIBUTE_ID)
               res[attribute_identifier] = cluster_from_attribute_non_resident(mft_record[curs, attribute_size])
-            else 
+            else
               res[attribute_identifier] = mft_record[curs, attribute_size]
             end
           end

@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -254,7 +254,7 @@ end
     kill_frfx = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if frfxchk
     user = @client.sys.config.getuid
     if not is_system?

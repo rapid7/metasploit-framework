@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/post'
 require 'rex/post/meterpreter/client'
 require 'rex/post/meterpreter/extensions/stdapi/constants'
 
@@ -77,7 +78,7 @@ class Memory
   # Low-level memory allocation.
   #
   def _allocate(base, length, allocation_type, protection)
-    request = Packet.create_request('stdapi_sys_process_memory_allocate')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_ALLOCATE)
 
     # Populate the request
     if (base != nil)
@@ -106,13 +107,13 @@ class Memory
   # Low-level memory deallocation.
   #
   def _free(base, length)
-    request = Packet.create_request('stdapi_sys_process_memory_free')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_FREE)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
     request.add_tlv(TLV_TYPE_LENGTH, length)
 
-    response = process.client.send_request(request)
+    process.client.send_request(request)
 
     return true
   end
@@ -121,7 +122,7 @@ class Memory
   # Read memory from the context of a process and return the buffer.
   #
   def read(base, length)
-    request = Packet.create_request('stdapi_sys_process_memory_read')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_READ)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
@@ -137,7 +138,7 @@ class Memory
   # actually written.
   #
   def write(base, data)
-    request = Packet.create_request('stdapi_sys_process_memory_write')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_WRITE)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
@@ -152,7 +153,7 @@ class Memory
   # Queries an address for information about its state.
   #
   def query(base)
-    request = Packet.create_request('stdapi_sys_process_memory_query')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_QUERY)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
@@ -199,7 +200,7 @@ class Memory
   # Change the protection masks on the region supplied in base.
   #
   def protect(base, length = nil, protection = nil)
-    request = Packet.create_request('stdapi_sys_process_memory_protect')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_PROTECT)
 
     if (length == nil)
       length = 4096
@@ -231,12 +232,12 @@ class Memory
   # handle is ignored.
   #
   def lock(base, length)
-    request = Packet.create_request('stdapi_sys_process_memory_lock')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_LOCK)
 
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
     request.add_tlv(TLV_TYPE_LENGTH, length)
 
-    response = process.client.send_request(request)
+    process.client.send_request(request)
 
     return true
   end
@@ -248,12 +249,12 @@ class Memory
   # handle is ignored.
   #
   def unlock(base, length)
-    request = Packet.create_request('stdapi_sys_process_memory_unlock')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_UNLOCK)
 
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
     request.add_tlv(TLV_TYPE_LENGTH, length)
 
-    response = process.client.send_request(request)
+    process.client.send_request(request)
 
     return true
   end

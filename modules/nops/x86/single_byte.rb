@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 ###
 #
@@ -13,7 +9,7 @@ require 'msf/core'
 # ADMmutate and from spoonfu.
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
 SINGLE_BYTE_SLED =
   {
@@ -90,7 +86,7 @@ SINGLE_BYTE_SLED =
     register_advanced_options(
       [
         OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ], self.class)
+      ])
   end
 
   # Generate a single-byte NOP sled for X86
@@ -106,7 +102,7 @@ SINGLE_BYTE_SLED =
 
     # Did someone specify random NOPs in the environment?
     if (!random and datastore['RandomNops'])
-      random = (datastore['RandomNops'].match(/true|1|y/i) != nil)
+      random = datastore['RandomNops']
     end
 
     # Generate the whole sled...
@@ -144,5 +140,4 @@ SINGLE_BYTE_SLED =
 
     return out_sled
   end
-
 end

@@ -45,7 +45,7 @@ class Thread
   # of the process and returns a Sys::Thread instance.
   #
   def open(tid, access = THREAD_ALL)
-    request = Packet.create_request('stdapi_sys_process_thread_open')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_OPEN)
     real    = 0
 
     # Translate access
@@ -78,7 +78,7 @@ class Thread
   # returns a Sys::Thread instance.
   #
   def create(entry, parameter = nil, suspended = false)
-    request = Packet.create_request('stdapi_sys_process_thread_create')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CREATE)
     creation_flags = 0
 
     request.add_tlv(TLV_TYPE_PROCESS_HANDLE, process.handle)
@@ -119,7 +119,7 @@ class Thread
   # Returns an array of thread identifiers.
   #
   def get_threads
-    request = Packet.create_request('stdapi_sys_process_thread_get_threads')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_GET_THREADS)
     threads = []
 
     request.add_tlv(TLV_TYPE_PID, process.pid)

@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 ###
 #
@@ -15,7 +11,7 @@ require 'msf/core'
 # Executes an arbitrary command.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 24
 
@@ -39,7 +35,7 @@ module Metasploit3
     # Register exec options
     register_options([
       OptString.new('CMD',  [ true,  "The command string to execute" ]),
-    ], self.class)
+    ])
   end
 
   #
@@ -48,5 +44,4 @@ module Metasploit3
   def generate_stage(opts={})
     bsd_x86_exec_payload
   end
-
 end

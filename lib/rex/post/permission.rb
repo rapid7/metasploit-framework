@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-
+module Rex::Post::Permission
 # Generic page protection flags
 PROT_NONE         =        0
 PROT_READ         = (1 <<  0)
@@ -24,3 +24,4 @@ THREAD_READ       = (1 <<  0)
 THREAD_WRITE      = (1 <<  1)
 THREAD_EXECUTE    = (1 <<  2)
 THREAD_ALL        = 0xffffffff
+end

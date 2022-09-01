@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -24,7 +21,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'     =>
         [
           # General
-          [ 'URL', 'http://blog.c22.cc' ]
+          [ 'URL', 'https://blog.c22.cc' ]
         ],
       'Author'         => [ 'Chris John Riley' ],
       'License'        => MSF_LICENSE
@@ -37,8 +34,10 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('TARGETURI', [false, 'Path to the SAP Management Console ', '/']),
         OptPath.new('USER_FILE', [ false, "File containing users, one per line",
                                    File.join(Msf::Config.data_directory, "wordlists", "sap_common.txt") ])
-      ], self.class)
+      ])
     register_autofilter_ports([ 50013 ])
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(rhost)
@@ -168,7 +167,7 @@ class Metasploit4 < Msf::Auxiliary
 
       report_cred(
         ip: rhost,
-        port: port,
+        port: rport,
         user: user,
         password: pass,
         service_name: 'sap-managementconsole',

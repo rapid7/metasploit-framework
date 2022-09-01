@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/payload/generic'
-require 'msf/core/handler/bind_tcp'
-
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 0
 
@@ -24,5 +20,4 @@ module Metasploit3
       'Session'       => Msf::Sessions::CommandShell
       ))
   end
-
 end

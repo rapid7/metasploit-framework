@@ -3,7 +3,7 @@
 module Msf::DBManager::WMAP
   # Create a request (by hand)
   def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     req = ::Mdm::WmapRequest.create(
         :host => host,
         :address => host,
@@ -24,7 +24,7 @@ module Msf::DBManager::WMAP
 
   # Create a target
   def create_target(host,port,ssl,sel)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     tar = ::Mdm::WmapTarget.create(
         :host => host,
         :address => host,
@@ -38,7 +38,7 @@ module Msf::DBManager::WMAP
 
   # This methods deletes all targets from targets table in the database
   def delete_all_targets
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapTarget.delete_all
   }
   end
@@ -104,7 +104,7 @@ module Msf::DBManager::WMAP
 
   # Find a target matching this id
   def get_target(id)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     target = ::Mdm::WmapTarget.where("id = ?", id).first()
     return target
   }
@@ -113,28 +113,28 @@ module Msf::DBManager::WMAP
   # This method returns a list of all possible targets available in requests
   # This method will be removed on second phase of db merging.
   def request_distinct_targets
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')
   }
   end
 
   # This method allows to query directly the requests table. To be used mainly by modules
   def request_sql(host,port,extra_condition)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
   }
   end
 
   # This methods returns a list of all targets in the database
   def requests
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapRequest.all
   }
   end
 
   # Selected host
   def selected_host
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     selhost = ::Mdm::WmapTarget.where("selected != 0").first()
     if selhost
       return selhost.host
@@ -161,28 +161,28 @@ module Msf::DBManager::WMAP
 
   # Selected target
   def selected_wmap_target
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapTarget.find.where("selected != 0")
   }
   end
 
   # Quick way to query the database (used by wmap_sql)
   def sql_query(sqlquery)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ActiveRecord::Base.connection.select_all(sqlquery)
+  ::ApplicationRecord.connection_pool.with_connection {
+    ApplicationRecord.connection.select_all(sqlquery)
   }
   end
 
   # This method returns a list of all requests from target
   def target_requests(extra_condition)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
   }
   end
 
   # This methods returns a list of all targets in the database
   def targets
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::WmapTarget.all
   }
   end

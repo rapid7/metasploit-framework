@@ -12,8 +12,12 @@ class OptRaw < OptBase
     return 'raw'
   end
 
+  def validate_on_assignment?
+    false
+  end
+
   def normalize(value)
-    if (value =~ /^file:(.*)/)
+    if (value.to_s =~ /^file:(.*)/)
       path = $1
       begin
         value = File.read(path)
@@ -24,7 +28,7 @@ class OptRaw < OptBase
     value
   end
 
-  def valid?(value=self.value)
+  def valid?(value=self.value, check_empty: true)
     value = normalize(value)
     return false if empty_required_value?(value)
     return super

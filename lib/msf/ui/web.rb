@@ -12,4 +12,3 @@ end
 end
 end
 
-require 'msf/ui/web/driver'

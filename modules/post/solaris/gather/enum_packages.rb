@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Solaris::System
 
@@ -30,7 +26,7 @@ class Metasploit3 < Msf::Post
     print_status("Running Module against #{distro[:hostname]}")
     packages = cmd_exec("/usr/bin/pkginfo -l")
     pkg_loot = store_loot("solaris.packages", "text/plain", session, packages, "installed_packages.txt", "Solaris Installed Packages")
-    print_status("Package list saved to loot file: #{pkg_loot}")
+    print_good("Package list saved to loot file: #{pkg_loot}")
 
     if datastore['VERBOSE']
       packages.each do |p|

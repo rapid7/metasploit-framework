@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
@@ -25,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'Brendan Coles <bcoles[at]gmail.com>'  # metasploit module
+          'bcoles'  # metasploit module
         ],
       'References'     =>
         [
@@ -33,13 +31,12 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '110522'],
           ['CVE', '2014-5377']
         ],
-      'DisclosureDate' => 'Aug 28 2014'))
+      'DisclosureDate' => '2014-08-28'))
     register_options(
       [
         Opt::RPORT(6060),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
-    deregister_options('RHOST')
+      ])
   end
 
   def check
@@ -93,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       workspace_id: myworkspace_id
     }
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'ManageEngine DeviceExpert User Credentials',
       'Indent'  => 1,
       'Columns' =>
@@ -122,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
       cred_table << [user, pass, hash, role, mail, salt]
 
       if pass
-        print_status("Found weak credentials (#{user}:#{pass})")
+        print_good("Found weak credentials (#{user}:#{pass})")
         credential_data = {
           origin_type: :service,
           module_fullname: self.fullname,

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-require 'rex/proto/http'
-require 'rex/proto/http/handler'
+
 
 module Rex
 module Proto
@@ -99,7 +98,9 @@ class Server
   # Initializes an HTTP server as listening on the provided port and
   # hostname.
   #
-  def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {}, comm = nil, ssl_cert = nil, ssl_compression = false)
+  def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {},
+                 comm = nil, ssl_cert = nil, ssl_compression = false,
+                 ssl_cipher = nil, ssl_version = nil)
     self.listen_host     = listen_host
     self.listen_port     = port
     self.ssl             = ssl
@@ -107,6 +108,8 @@ class Server
     self.comm            = comm
     self.ssl_cert        = ssl_cert
     self.ssl_compression = ssl_compression
+    self.ssl_cipher      = ssl_cipher
+    self.ssl_version     = ssl_version
     self.listener        = nil
     self.resources       = {}
     self.server_name     = DefaultServer
@@ -124,7 +127,7 @@ class Server
   # Returns the hardcore alias for the HTTP service
   #
   def self.hardcore_alias(*args)
-    "#{(args[0] || '')}#{(args[1] || '')}"
+    "#{(args[0] || '')}-#{(args[1] || '')}-#{args[4] || ''}"
   end
 
   #
@@ -140,13 +143,15 @@ class Server
   def start
 
     self.listener = Rex::Socket::TcpServer.create(
-      'LocalHost' => self.listen_host,
-      'LocalPort' => self.listen_port,
-      'Context'   => self.context,
-      'SSL'		=> self.ssl,
-      'SSLCert'	=> self.ssl_cert,
+      'LocalHost'      => self.listen_host,
+      'LocalPort'      => self.listen_port,
+      'Context'        => self.context,
+      'SSL'            => self.ssl,
+      'SSLCert'        => self.ssl_cert,
       'SSLCompression' => self.ssl_compression,
-      'Comm'      => self.comm
+      'SSLCipher'      => self.ssl_cipher,
+      'SSLVersion'     => self.ssl_version,
+      'Comm'           => self.comm
     )
 
     # Register callbacks
@@ -269,7 +274,7 @@ class Server
   end
 
   attr_accessor :listen_port, :listen_host, :server_name, :context, :comm
-  attr_accessor :ssl, :ssl_cert, :ssl_compression
+  attr_accessor :ssl, :ssl_cert, :ssl_compression, :ssl_cipher, :ssl_version
   attr_accessor :listener, :resources
 
 protected
@@ -364,8 +369,7 @@ protected
         handler.on_request(cli, request)
       end
     else
-      elog("Failed to find handler for resource: #{request.resource}",
-        LogSource)
+      elog("Failed to find handler for resource: #{request.resource}", LogSource)
 
       send_e404(cli, request)
     end

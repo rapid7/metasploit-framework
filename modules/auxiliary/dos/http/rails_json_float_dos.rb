@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -33,12 +30,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '100113' ],
           [ 'URL', 'https://www.ruby-lang.org/en/news/2013/11/22/ruby-1-9-3-p484-is-released/' ]
         ],
-      'DisclosureDate' => 'Nov 22 2013'))
+      'DisclosureDate' => '2013-11-22'))
     register_options(
       [
         OptString.new('TARGETURI', [false, 'The URL of the vulnerable Rails application', '/']),
         OptString.new('HTTPVERB', [false, 'The HTTP verb to use', 'POST'])
-      ], self.class)
+      ])
   end
 
   def uri
@@ -124,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
     return unless target_available
 
-    print_status "Target is still responsive, DoS was unsuccessful."
+    print_error "Target is still responsive, DoS was unsuccessful."
 
   end
 end

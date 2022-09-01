@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'csv'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Report
 
@@ -24,14 +23,14 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'James Hooker',                    # Disclosure
-          'Rob Carr <rob[at]rastating.com>'  # Metasploit module
+          'James Hooker', # Disclosure
+          'rastating'     # Metasploit module
         ],
       'References'      =>
         [
           ['WPVDB', '7778']
         ],
-      'DisclosureDate'  => 'Feb 02 2015'
+      'DisclosureDate'  => '2015-02-02'
     ))
   end
 

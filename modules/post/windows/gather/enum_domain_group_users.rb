@@ -1,33 +1,42 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Windows Gather Enumerate Domain Group',
-      'Description'   => %q( This module extracts user accounts from specified group
-        and stores the results in the loot. It will also verify if session
-        account is in the group. Data is stored in loot in a format that
-        is compatible with the token_hunter plugin. This module should be
-        run over as session with domain credentials.),
-      'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Enumerate Domain Group',
+        'Description' => %q{
+          This module extracts user accounts from specified group
+          and stores the results in the loot. It will also verify if session
+          account is in the group. Data is stored in loot in a format that
+          is compatible with the token_hunter plugin. This module should be
+          run over as session with domain credentials.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Carlos Perez <carlos_perez[at]darkoperator.com>',
           'Stephen Haywood <haywoodsb[at]gmail.com>'
         ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
+      )
+    )
     register_options(
       [
         OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
-      ], self.class)
+      ]
+    )
   end
 
   # Run Method for when run command is issued
@@ -65,7 +74,7 @@ class Metasploit3 < Msf::Post
 
       # Store the captured data in the loot.
       loot_file = store_loot(ltype, ctype, session, loot.join("\n"), nil, datastore['GROUP'])
-      print_status("User list stored in #{loot_file}")
+      print_good("User list stored in #{loot_file}")
     else
       print_error("No members found for #{datastore['GROUP']}")
     end
@@ -76,12 +85,15 @@ class Metasploit3 < Msf::Post
 
     # Usernames start somewhere around line 6
     results = results.slice(6, results.length)
+    return members if results.nil?
+
     # Get group members from the output
     results.each do |line|
       line.split("  ").compact.each do |user|
         next if user.strip == ""
         next if user =~ /-----/
         next if user =~ /The command completed successfully/
+
         members << user.strip
       end
     end

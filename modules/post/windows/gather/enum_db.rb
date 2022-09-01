@@ -1,35 +1,40 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-require 'msf/core/auxiliary/report'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Gather Database Instance Enumeration',
-      'Description'   => %q{ This module will enumerate a windows system for installed database instances },
-      'License'       => MSF_LICENSE,
-      'Author'        => [
-        'Barry Shteiman <barry[at]sectorix.com>', # Module author
-        'juan vazquez' # minor help
-      ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Database Instance Enumeration',
+        'Description' => %q{ This module will enumerate a windows system for installed database instances },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Barry Shteiman <barry[at]sectorix.com>', # Module author
+          'juan vazquez' # minor help
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
+      )
+    )
   end
 
   # method called when command run is issued
   def run
-
     results = []
 
     print_status("Enumerating Databases on #{sysinfo['Computer']}")
@@ -56,16 +61,17 @@ class Metasploit3 < Msf::Post
 
     print_status("Done, Databases Found.")
 
-    tbl = Rex::Ui::Text::Table.new(
-      'Header'  => "Installed Databases",
-      'Indent'  => 1,
+    tbl = Rex::Text::Table.new(
+      'Header' => "Installed Databases",
+      'Indent' => 1,
       'Columns' =>
         [
           "Type",
           "Instance",
           "Database",
           "Port"
-        ])
+        ]
+    )
 
     results.each { |r|
       report_service(:host => session.sock.peerhost, :port => r[3], :name => r[0], :info => "#{r[0]}, #{r[1]}")
@@ -74,8 +80,7 @@ class Metasploit3 < Msf::Post
 
     print_line(tbl.to_s)
     p = store_loot("host.databases", "text/plain", session, tbl.to_s, "databases.txt", "Running Databases")
-    print_status("Results stored in: #{p}")
-
+    print_good("Results stored in: #{p}")
   end
 
   ##### initial identification methods #####
@@ -158,10 +163,10 @@ class Metasploit3 < Msf::Post
     instances = registry_enumvals(key)
     if not instances.nil? and not instances.empty?
       instances.each do |i|
-        tcpkey = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\#{registry_getvaldata(key,i)}\\MSSQLServer\\SuperSocketNetLib\\Tcp\\IPAll"
-        tcpport = registry_getvaldata(tcpkey,"TcpPort")
-        print_good("\t\t+ #{registry_getvaldata(key,i)} (Port:#{tcpport})")
-        results << ["mssql","instance:#{registry_getvaldata(key,i)} port:#{tcpport}","Microsoft SQL Server",tcpport]
+        tcpkey = "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\#{registry_getvaldata(key, i)}\\MSSQLServer\\SuperSocketNetLib\\Tcp\\IPAll"
+        tcpport = registry_getvaldata(tcpkey, "TcpPort")
+        print_good("\t\t+ #{registry_getvaldata(key, i)} (Port:#{tcpport})")
+        results << ["mssql", "instance:#{registry_getvaldata(key, i)} port:#{tcpport}", "Microsoft SQL Server", tcpport]
       end
     end
     return results
@@ -174,9 +179,10 @@ class Metasploit3 < Msf::Post
   def enumerate_oracle
     results = []
     found_key = false
-    basekey_set = ["HKLM\\SOFTWARE\\Oracle\\SYSMAN","HKLM\\SOFTWARE\\ORACLE\\KEY_XE"]
+    basekey_set = ["HKLM\\SOFTWARE\\Oracle\\SYSMAN", "HKLM\\SOFTWARE\\ORACLE\\KEY_XE"]
     basekey_set.each do |basekey|
       next if found_key
+
       instances = registry_enumkeys(basekey)
       if instances.nil? or instances.empty?
         next
@@ -185,13 +191,13 @@ class Metasploit3 < Msf::Post
       end
 
       instances.each do |i|
-        if basekey.include?"KEY_XE"
-          val_ORACLE_SID = registry_getvaldata(basekey,"ORACLE_SID")
-          val_ORACLE_HOME = registry_getvaldata(basekey,"ORACLE_HOME")
+        if basekey.include? "KEY_XE"
+          val_ORACLE_SID = registry_getvaldata(basekey, "ORACLE_SID")
+          val_ORACLE_HOME = registry_getvaldata(basekey, "ORACLE_HOME")
         else
           key = "#{basekey}\\#{i}"
-          val_ORACLE_SID = registry_getvaldata(key,"ORACLE_SID")
-          val_ORACLE_HOME = registry_getvaldata(key,"ORACLE_HOME")
+          val_ORACLE_SID = registry_getvaldata(key, "ORACLE_SID")
+          val_ORACLE_HOME = registry_getvaldata(key, "ORACLE_HOME")
         end
         if not exist?(val_ORACLE_HOME + "\\NETWORK\\ADMIN\\tnsnames.ora")
           print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
@@ -202,7 +208,7 @@ class Metasploit3 < Msf::Post
         if data_TNSNAMES =~ /PORT\ \=\ (\d+)/
           port = $1
           print_good("\t\t+ #{val_ORACLE_SID} (Port:#{port})")
-          results << [ "oracle","instance:#{val_ORACLE_SID} port:#{port}","Oracle Database Server",port ]
+          results << [ "oracle", "instance:#{val_ORACLE_SID} port:#{port}", "Oracle Database Server", port ]
         else
           print_error("\t\t! #{val_ORACLE_SID} (No Listener Found)")
         end
@@ -222,19 +228,20 @@ class Metasploit3 < Msf::Post
     results = []
     basekey = "HKLM\\SOFTWARE\\MySQL AB"
     instances = registry_enumkeys(basekey)
-    if  instances.nil? or instances.empty?
+    if instances.nil? or instances.empty?
       return results
     end
+
     instances.each do |i|
       key = "#{basekey}\\#{i}"
-      val_location = registry_getvaldata(key,"Location")
+      val_location = registry_getvaldata(key, "Location")
 
       data = find_mysql_conf(val_location)
 
       if data and data =~ /port\=(\d+)/
         port = $1
         print_good("\t\t+ MYSQL (Port:#{port})")
-        results << ["mysql","instance:MYSQL port:#{port}","MySQL Server",port]
+        results << ["mysql", "instance:MYSQL port:#{port}", "MySQL Server", port]
       else
         print_error("\t\t! could not identify information")
       end
@@ -248,8 +255,8 @@ class Metasploit3 < Msf::Post
   # method to identify sybase instances
   def enumerate_sybase
     basekey = "HKLM\\SOFTWARE\\Sybase\\SQLServer"
-    instance = registry_getvaldata(basekey,"DSLISTEN")
-    location = registry_getvaldata(basekey,"RootDir")
+    instance = registry_getvaldata(basekey, "DSLISTEN")
+    location = registry_getvaldata(basekey, "RootDir")
     results = []
 
     if not exist?(location + "\\ini\\sql.ini")
@@ -273,7 +280,7 @@ class Metasploit3 < Msf::Post
     end
 
     print_good("\t\t+ #{instance} (Port:#{port})")
-    results << [ "sybase","instance:#{instance} port:#{port}","Sybase SQL Server",port ]
+    results << [ "sybase", "instance:#{instance} port:#{port}", "Sybase SQL Server", port ]
     return results
   rescue
     print_error("\t\t! couldnt locate information.")
@@ -293,7 +300,7 @@ class Metasploit3 < Msf::Post
     end
 
     windir = session.sys.config.getenv('windir')
-    getfile = session.fs.file.search(windir + "\\system32\\drivers\\etc\\","services.*",recurse=true,timeout=-1)
+    getfile = session.fs.file.search(windir + "\\system32\\drivers\\etc\\", "services.*", recurse = true, timeout = -1)
 
     data = nil
     getfile.each do |file|
@@ -311,13 +318,12 @@ class Metasploit3 < Msf::Post
     end
 
     cmd_i.split("\n").compact.each do |line|
-      stripped=line.strip
+      stripped = line.strip
       print_good("\t\t+ #{stripped} (Port:#{port_t})")
-      results << [ "db2","instance:#{stripped} port:#{port_t}","DB2 Server",port_t ]
+      results << [ "db2", "instance:#{stripped} port:#{port_t}", "DB2 Server", port_t ]
     end
 
     return results
-
   rescue
     print_error("\t\t! could not identify instances information")
     return results || []
@@ -332,8 +338,8 @@ class Metasploit3 < Msf::Post
     elsif exist?(val_location + "\\my.cnf")
       data = read_file(val_location + "\\my.cnf")
     else
-      sysdriv=session.sys.config.getenv('SYSTEMDRIVE')
-      getfile = session.fs.file.search(sysdriv + "\\","my.ini",recurse=true,timeout=-1)
+      sysdriv = session.sys.config.getenv('SYSTEMDRIVE')
+      getfile = session.fs.file.search(sysdriv + "\\", "my.ini", recurse = true, timeout = -1)
       getfile.each do |file|
         if exist?("#{file['path']}\\#{file['name']}")
           data = read_file("#{file['path']}\\#{file['name']}")
@@ -343,6 +349,4 @@ class Metasploit3 < Msf::Post
     end
     return data
   end
-
 end
-

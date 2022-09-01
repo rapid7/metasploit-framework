@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [
         'Joe Giron',                           # Discovery and PoC (@theonlyevil1)
-        'Brendan Coles <bcoles[at]gmail.com>', # Metasploit
+        'bcoles', # Metasploit
         'sinn3r'                               # shell session support
       ],
       'References'    =>
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Post
   #
   def decrypt_des(encrypted)
     return nil if encrypted.nil?
-    decipher = OpenSSL::Cipher::DES.new
+    decipher = OpenSSL::Cipher.new('DES')
     decipher.decrypt
     decipher.key = "\xb9\x9a\x52\xd4\x58\x77\xe9\x18"
     decipher.iv  = "\x52\xe9\xc3\x9f\x13\xb4\x1d\x0f"
@@ -57,7 +54,7 @@ class Metasploit3 < Msf::Post
     begin
       port = JSON.parse(data)['BoundPort']
     rescue JSON::ParserError => e
-      elog("#{e.class} - Unable to parse BoundPort (#{e.message}) #{e.backtrace * "\n"}")
+      elog('Unable to parse BoundPort', error: e)
       return nil
     end
 

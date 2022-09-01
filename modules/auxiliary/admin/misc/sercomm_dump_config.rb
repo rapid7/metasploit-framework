@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -55,12 +52,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '101653' ],
           [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
         ],
-      'DisclosureDate' => "Dec 31 2013" ))
+      'DisclosureDate' => '2013-12-31' ))
 
       register_options(
         [
           Opt::RPORT(32764),
-        ], self.class)
+        ])
   end
 
   def run
@@ -83,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     loot_file = store_loot("router.config", "text/plain", rhost, config[:data], "#{rhost}router_config.txt", "Router Configurations")
-    print_status("Router configuration dump stored in: #{loot_file}")
+    print_good("Router configuration dump stored in: #{loot_file}")
 
     parse_configuration(config[:data])
   end
@@ -222,7 +219,7 @@ class Metasploit3 < Msf::Auxiliary
 
     @credentials.each do |k,v|
       next unless v[:user] and v[:password]
-      print_status("#{k}: User: #{v[:user]} Pass: #{v[:password]}")
+      print_good("#{k}: User: #{v[:user]} Pass: #{v[:password]}")
       report_cred(
         ip: rhost,
         port: rport,
@@ -259,5 +256,4 @@ class Metasploit3 < Msf::Auxiliary
 
     end
   end
-
 end

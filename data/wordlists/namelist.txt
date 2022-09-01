@@ -660,6 +660,7 @@ fresno
 front
 frontdesk
 fs
+fs1
 fsp
 ftp
 ftp-
@@ -1495,6 +1496,7 @@ shoppers
 shopping
 si
 siebel
+siem
 sierra
 sigma
 signin

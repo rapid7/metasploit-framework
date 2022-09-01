@@ -7,7 +7,7 @@ module Metasploit
 
       def validate_each(record, attribute, value)
         unless ::File.executable? value
-          record.errors[attribute] << (options[:message] || "is not a valid path to an executable file")
+          record.errors.add(attribute, (options[:message] || "is not a valid path to an executable file"))
         end
       end
     end

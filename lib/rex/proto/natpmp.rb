@@ -3,5 +3,7 @@
 #
 # @author Jon Hart <jhart@spoofed.org>
 
-require 'rex/proto/natpmp/constants'
-require 'rex/proto/natpmp/packet'
+module Rex::Proto::NATPMP
+  include Rex::Proto::NATPMP::Constants
+  include Rex::Proto::NATPMP::Packet
+end

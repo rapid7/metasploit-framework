@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/proto/http'
+
 
 module Rex
 module Proto
@@ -95,6 +95,14 @@ class Packet::Header < Hash
     self.dcase_hash[key.downcase] = value
   end
 
+  #
+  # More advanced include? that does downcase comparison
+  #
+  def include?(key)
+    self.each_key.any? { |k|
+      k.casecmp?(key)
+    }
+  end
   #
   # Converts the header to a string.
   #

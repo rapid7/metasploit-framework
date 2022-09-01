@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -22,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2010-2731' ],
           [ 'OSVDB', '66160' ],
           [ 'MSB', 'MS10-065' ],
-          [ 'URL', 'http://soroush.secproject.com/blog/2010/07/iis5-1-directory-authentication-bypass-by-using-i30index_allocation/' ]
+          [ 'URL', 'https://soroush.secproject.com/blog/2010/07/iis5-1-directory-authentication-bypass-by-using-i30index_allocation/' ]
         ],
       'Author'         =>
         [
@@ -30,13 +27,13 @@ class Metasploit3 < Msf::Auxiliary
           'sinn3r'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Jul 02 2010"
+      'DisclosureDate' => '2010-07-02'
     ))
 
     register_options(
       [
         OptString.new("TARGETURI", [true, 'The URI directory where basic auth is enabled', '/'])
-      ], self.class)
+      ])
   end
 
 
@@ -89,5 +86,4 @@ class Metasploit3 < Msf::Auxiliary
       print_good("You can bypass auth by doing: #{bypass_string}")
     end
   end
-
 end

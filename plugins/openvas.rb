@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #
 # This plugin provides integration with OpenVAS. Written by kost and
 # averagesecurityguy.
@@ -10,7 +9,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
-require 'openvas/openvas-omp'
+require 'openvas-omp'
 
 module Msf
 class Plugin::OpenVAS < Msf::Plugin
@@ -149,7 +148,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        ver = @ov.get_version
+        ver = @ov.version_get
         print_good("Using OMP version #{ver}")
       rescue OpenVASOMP::OMPError => e
         print_error(e.to_s)
@@ -189,7 +188,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
         begin
           print_status("Connecting to OpenVAS instance at #{host}:#{port} with username #{user}...")
-          ov = OpenVASOMP::OpenVASOMP.new(user, pass, host, port)
+          ov = OpenVASOMP::OpenVASOMP.new('user' => user, 'password' => pass, 'host' => host, 'port' => port)
         rescue OpenVASOMP::OMPAuthError => e
           print_error("Authentication failed: #{e.reason}")
           return
@@ -222,7 +221,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 3)
         begin
-          resp = @ov.target_create(args[0], args[1], args[2])
+          resp = @ov.target_create('name' => args[0], 'hosts' => args[1], 'comment' => args[2])
           print_status(resp)
           cmd_openvas_target_list
         rescue OpenVASOMP::OMPError => e
@@ -254,13 +253,11 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Hosts", "Max Hosts", "In Use", "Comment"])
-        id = 0
         @ov.target_get_all().each do |target|
-          tbl << [ id, target["name"], target["hosts"], target["max_hosts"],
+          tbl << [ target["id"], target["name"], target["hosts"], target["max_hosts"],
           target["in_use"], target["comment"] ]
-          id += 1
         end
         print_good("OpenVAS list of targets")
         print_line
@@ -279,7 +276,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 4)
         begin
-          resp = @ov.task_create(args[0], args[1], args[2], args[3])
+          resp = @ov.task_create('name' => args[0], 'comment' => args[1], 'config' => args[2], 'target'=> args[3])
           print_status(resp)
           cmd_openvas_task_list
         rescue OpenVASOMP::OMPError => e
@@ -320,12 +317,10 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Comment", "Status", "Progress"])
-        id = 0
         @ov.task_get_all().each do |task|
-          tbl << [ id, task["name"], task["comment"], task["status"], task["progress"] ]
-          id += 1
+          tbl << [ task["id"], task["name"], task["comment"], task["status"], task["progress"] ]
         end
         print_good("OpenVAS list of tasks")
         print_line
@@ -418,13 +413,11 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => [ "ID", "Name" ])
 
-        id = 0
-        @ov.configs.each do |config|
-          tbl << [ id, config["name"] ]
-          id += 1
+        @ov.config_get_all.each do |config|
+          tbl << [ config["id"], config["name"] ]
         end
         print_good("OpenVAS list of configs")
         print_line
@@ -442,12 +435,10 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Extension", "Summary"])
-        id = 0
-        @ov.formats.each do |format|
-          tbl << [ id, format["name"], format["extension"], format["summary"] ]
-          id += 1
+        format_get_all.each do |format|
+          tbl << [ format["id"], format["name"], format["extension"], format["summary"] ]
         end
         print_good("OpenVAS list of report formats")
         print_line
@@ -465,12 +456,18 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Task Name", "Start Time", "Stop Time"])
-        id = 0
-        @ov.report_get_all().each do |report|
-          tbl << [ id, report["task"], report["start_time"], report["stop_time"] ]
-          id += 1
+
+        resp = @ov.report_get_raw
+
+        resp.elements.each("//get_reports_response/report") do |report|
+          report_id = report.elements["report"].attributes["id"]
+          report_task = report.elements["task/name"].get_text
+          report_start_time = report.elements["creation_time"].get_text
+          report_stop_time = report.elements["modification_time"].get_text
+
+          tbl << [ report_id, report_task, report_start_time, report_stop_time ]
         end
         print_good("OpenVAS list of reports")
         print_line
@@ -502,12 +499,14 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 4)
         begin
-          report = @ov.report_get_by_id(args[0], args[1])
+          report = @ov.report_get_raw("report_id"=>args[0],"format"=>args[1])
           ::FileUtils.mkdir_p(args[2])
           name = ::File.join(args[2], args[3])
           print_status("Saving report to #{name}")
           output = ::File.new(name, "w")
-          output.puts(report)
+          data = nil
+          report.elements.each("//get_reports_response"){|r| data = r.to_s}
+          output.puts(data)
           output.close
         rescue OpenVASOMP::OMPError => e
           print_error(e.to_s)
@@ -522,15 +521,44 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 2)
         begin
-          report = @ov.report_get_by_id(args[0], args[1])
+          report = @ov.report_get_raw("report_id"=>args[0],"format"=>args[1])
+          data = nil
+          report.elements.each("//get_reports_response"){|r| data = r.to_s}
           print_status("Importing report to database.")
-          framework.db.import({:data => report})
+          framework.db.import({:data => data})
         rescue OpenVASOMP::OMPError => e
           print_error(e.to_s)
         end
       else
         print_status("Usage: openvas_report_import <report_id> <format_id>")
         print_status("Only the NBE and XML formats are supported for importing.")
+      end
+    end
+
+
+
+    #--------------------------
+    # Format Functions
+    #--------------------------
+    # Get a list of report formats
+    def format_get_all
+      begin
+        resp = @ov.omp_request_xml("<get_report_formats/>")
+        if @debug then print resp end
+
+        list = Array.new
+        resp.elements.each('//get_report_formats_response/report_format') do |report|
+          td = Hash.new
+          td["id"] = report.attributes["id"]
+          td["name"] = report.elements["name"].text
+          td["extension"] = report.elements["extension"].text
+          td["summary"] = report.elements["summary"].text
+          list.push td
+        end
+        @formats = list
+        return list
+      rescue
+        raise OMPResponseError
       end
     end
 
@@ -551,6 +579,7 @@ class Plugin::OpenVAS < Msf::Plugin
     print_status
     @ov = nil
     @formats = nil
+    @debug = nil
   end
 
   def cleanup

@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
 
 
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         control. IOS 11.3 -> 12.2 are reportedly vulnerable. This module
         tested successfully against a Cisco 1600 Router IOS v11.3(11d).
       },
-      'Author'		=> [ 'patrick', 'hdm' ],
+      'Author'		=> [ 'aushack', 'hdm' ],
       'License'		=> MSF_LICENSE,
       'References'	=>
         [
@@ -37,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2001-0537'],
           [ 'OSVDB', '578' ],
         ],
-      'DisclosureDate' => 'Jun 27 2001'))
+      'DisclosureDate' => '2001-06-27'))
   end
 
   def run_host(ip)
@@ -90,5 +87,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

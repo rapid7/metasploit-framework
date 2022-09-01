@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/proto/drda'
+
 
 module Rex
 module Proto
-module DRDA
+module DRDA::Packet
 
 class Error < StandardError; end
 class RespError < Error; end

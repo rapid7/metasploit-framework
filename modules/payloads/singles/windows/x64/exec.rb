@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 275
 
@@ -21,7 +17,7 @@ module Metasploit3
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Payload'       =>
         {
           'Offsets' =>
@@ -51,7 +47,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('CMD', [ true, "The command string to execute" ]),
-      ], self.class )
+      ])
   end
 
   def generate
@@ -61,5 +57,4 @@ module Metasploit3
   def command_string
     return datastore['CMD'] || ''
   end
-
 end

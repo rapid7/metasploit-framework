@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -16,12 +12,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-
-  # Aliases for common classes
-  SIMPLE = Rex::Proto::SMB::SimpleClient
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
-
 
   def initialize
     super(
@@ -43,38 +33,46 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$'])
-    ], self.class)
+    ])
 
   end
 
   def run_host(_ip)
+    validate_lpaths!
+    validate_rpaths!
     begin
-      vprint_status("#{peer}: Connecting to the server...")
-      connect()
+      vprint_status("Connecting to the server...")
+      connect
       smb_login()
 
-      vprint_status("#{peer}: Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+      vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
       self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
       remote_path = remote_paths.first
+
+      if local_paths.nil?
+        print_error("Local paths not specified")
+        return
+      end
+
       local_paths.each do |local_path|
         begin
-          vprint_status("#{peer}: Trying to upload #{local_path} to #{remote_path}...")
+          vprint_status("Trying to upload #{local_path} to #{remote_path}...")
 
-          fd = simple.open("\\#{remote_path}", 'rwct')
-          data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
+          fd = simple.open("#{remote_path}", 'wct', write: true)
+          data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']), mode: 'rb')
           fd.write(data)
           fd.close
 
-          print_good("#{peer}: #{local_path} uploaded to #{remote_path}")
+          print_good("#{local_path} uploaded to #{remote_path}")
         rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-          print_error("#{peer} Unable to upload #{local_path} to #{remote_path} : #{e.message}")
+          elog("Unable to upload #{local_path} to #{remote_path}", error: e)
+          print_error("Unable to upload #{local_path} to #{remote_path} : #{e.message}")
         end
       end
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-      print_error("#{peer} Unable to login: #{e.message}")
+      elog("Unable to login:", error: e)
+      print_error("Unable to login: #{e.message}")
     end
   end
 end

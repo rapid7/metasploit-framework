@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -36,17 +33,17 @@ class Metasploit3 < Msf::Auxiliary
       'License'       => MSF_LICENSE,
       'References'    =>
         [
-          ['URL', 'http://www.ocert.org/advisories/ocert-2011-003.html'],
-          ['URL', 'http://www.nruns.com/_downloads/advisory28122011.pdf'],
-          ['URL', 'http://events.ccc.de/congress/2011/Fahrplan/events/4680.en.html'],
-          ['URL', 'http://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf'],
-          ['URL', 'http://www.youtube.com/watch?v=R2Cq3CLI6H8'],
+          ['URL', 'http://ocert.org/advisories/ocert-2011-003.html'],
+          ['URL', 'https://web.archive.org/web/20120105151644/http://www.nruns.com/_downloads/advisory28122011.pdf'],
+          ['URL', 'https://fahrplan.events.ccc.de/congress/2011/Fahrplan/events/4680.en.html'],
+          ['URL', 'https://fahrplan.events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf'],
+          ['URL', 'https://www.youtube.com/watch?v=R2Cq3CLI6H8'],
           ['CVE', '2011-5034'],
           ['CVE', '2011-5035'],
           ['CVE', '2011-4885'],
           ['CVE', '2011-4858']
         ],
-      'DisclosureDate'=> 'Dec 28 2011'
+      'DisclosureDate'=> '2011-12-28'
     ))
 
     register_options(
@@ -54,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
       OptEnum.new('TARGET', [ true, 'Target to attack', nil, ['PHP','Java']]),
       OptString.new('URL', [ true, "The request URI", '/' ]),
       OptInt.new('RLIMIT', [ true, "Number of requests to send", 50 ])
-    ], self.class)
+    ])
 
     register_advanced_options(
     [
@@ -63,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('CollisionChars', [false, "Number of colliding chars to find", 5]),
       OptInt.new('CollisionCharLength', [false, "Length of the collision chars (2 = Ey, FZ; 3=HyA, ...)", 2]),
       OptInt.new('PayloadLength', [false, "Length of each parameter in the payload", 8])
-    ], self.class)
+    ])
   end
 
   def generate_payload

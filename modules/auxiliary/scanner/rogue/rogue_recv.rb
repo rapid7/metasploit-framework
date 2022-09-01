@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize
@@ -26,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
       OptPort.new("CPORT", [true, "The source port for the TCP SYN packet", 13832]),
       OptInt.new("ECHOID", [true, "The unique ICMP ECHO ID to embed into the packet", 7893]),
     ])
-    deregister_options('RHOST')
   end
 
   def build_filter
@@ -75,5 +71,4 @@ class Metasploit3 < Msf::Auxiliary
     end
     return reply
   end
-
 end

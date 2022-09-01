@@ -1,0 +1,7 @@
+<% if meta[:capabilities].include? 'soft_check' %>
+def check
+  code = execute_module(<%= meta[:path] %>, method: :soft_check, fail_on_exit: false) || 'unknown'
+  return Msf::Exploit::CheckCode.new(code, nil)
+end
+<% end %>
+

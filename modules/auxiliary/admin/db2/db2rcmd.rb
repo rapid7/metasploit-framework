@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
 
   def initialize(info = {})
@@ -26,20 +23,22 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '4180' ],
           [ 'BID', '9821' ],
         ],
-      'DisclosureDate' => 'Mar 4 2004'))
+      'DisclosureDate' => '2004-03-04'))
 
       register_options(
         [
           OptString.new('CMD', [ true, 'The command to execute', 'ver']),
           OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin']),
           OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'])
-        ], self.class )
+        ])
+
+      deregister_options('SMB::ProtocolVersion')
   end
 
   def run
 
     print_status("Connecting to the server...")
-    connect()
+    connect(versions: [1])
 
     print_status("Authenticating as user '#{datastore['SMBUser']}' with pass '#{datastore['SMBPass']}'...")
 

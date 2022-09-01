@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -37,9 +34,9 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional group fields to retrieve, comma separated.', nil]),
-      OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', TRUE]),
-      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', TRUE])
-    ], self.class)
+      OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', true]),
+      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', true])
+    ])
   end
 
   def run
@@ -75,7 +72,7 @@ class Metasploit3 < Msf::Post
 
   # Takes the results of LDAP query, parses them into a table
   def parse_results(results)
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Groups with Managers",
       'Indent'     => 1,
       'SortIndex'  => -1,

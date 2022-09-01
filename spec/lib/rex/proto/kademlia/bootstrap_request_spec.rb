@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'spec_helper'
-require 'rex/proto/kademlia/bootstrap_request'
 
 RSpec.describe Rex::Proto::Kademlia::BootstrapRequest do
   subject(:bootstrap) do

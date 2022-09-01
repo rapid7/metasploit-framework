@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/bind_tcp'
-require 'msf/core/payload/php/bind_tcp'
+module MetasploitModule
 
-module Metasploit4
-
-  CachedSize = 1187
+  CachedSize = 1337
 
   include Msf::Payload::Stager
   include Msf::Payload::Php::BindTcp
@@ -34,5 +30,4 @@ module Metasploit4
   def use_ipv6
     true
   end
-
 end

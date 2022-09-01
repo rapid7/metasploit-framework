@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
@@ -71,6 +67,7 @@ class Metasploit3 < Msf::Post
     save("Disk info", disks)
     save("Logfiles", logfiles)
     save("Setuid/setgid files", uidgid)
+    save("CPU Vulnerabilities", get_cpu_vulnerabilities)
   end
 
   def save(msg, data, ctype = 'text/plain')
@@ -124,6 +121,10 @@ class Metasploit3 < Msf::Post
       print_error("Could not determine the Linux Distribution to get list of configured services")
     end
     services_installed
+  end
+
+  def get_cpu_vulnerabilities
+    execute('grep -r . /sys/devices/system/cpu/vulnerabilities').to_s
   end
 
   def get_crons(users, user)

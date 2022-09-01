@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
@@ -22,12 +19,12 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'URL', 'http://www.metasploit.com' ],
         ],
-      'DisclosureDate' => 'Jan 5 2008'))
+      'DisclosureDate' => '2008-01-05'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -63,5 +60,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

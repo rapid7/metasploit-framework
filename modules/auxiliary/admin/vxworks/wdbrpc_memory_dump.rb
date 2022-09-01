@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WDBRPC_Client
 
   def initialize(info = {})
@@ -22,12 +17,12 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['OSVDB', '66842'],
-          ['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
+          ['URL', 'https://www.rapid7.com/blog/post/2010/08/02/new-vxworks-vulnerabilities/'],
           ['US-CERT-VU', '362332']
         ],
       'Actions'     =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Dump system memory']
         ],
       'DefaultAction' => 'Download'
       ))
@@ -42,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
           ]
         ),
         OptInt.new('OFFSET', [ true, "The starting offset to read the memory dump (hex allowed)", 0 ])
-      ], self.class)
+      ])
   end
 
   def run
@@ -107,5 +102,4 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Dumped #{"0x%.8x" % idx} bytes.")
     wdbrpc_client_disconnect
   end
-
 end

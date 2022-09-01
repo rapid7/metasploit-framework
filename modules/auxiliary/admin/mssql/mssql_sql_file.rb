@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
 
   def initialize(info = {})
@@ -15,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module will allow for multiple SQL queries contained within a specified
         file to be executed against a Microsoft SQL (MSSQL) Server instance, given
-        the appropiate credentials.
+        the appropriate credentials.
       },
       'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
       'License'        => MSF_LICENSE
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('SQL_FILE', [ true, "File containing multiple SQL queries execute (one per line)"]),
         OptString.new('QUERY_PREFIX', [ false, "string to append each line of the file",""]),
         OptString.new('QUERY_SUFFIX', [ false, "string to prepend each line of the file",""])
-      ], self.class)
+      ])
   end
 
 

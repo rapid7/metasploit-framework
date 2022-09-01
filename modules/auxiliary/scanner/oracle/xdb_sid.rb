@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -15,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Oracle XML DB SID Discovery',
       'Description' => %q{
-          This module simply makes a authenticated request to retrieve
+          This module simply makes an authenticated request to retrieve
           the sid from the Oracle XML DB httpd server.
       },
       'References'  =>
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
           Opt::RPORT(8080),
           OptString.new('DBUSER', [ false, 'The db user to authenticate with.',  'scott']),
           OptString.new('DBPASS', [ false, 'The db pass to authenticate with.',  'tiger']),
-        ], self.class)
+        ])
   end
 
   def run_host(ip)

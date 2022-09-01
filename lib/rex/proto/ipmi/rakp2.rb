@@ -1,36 +1,40 @@
 # -*- coding: binary -*-
 
+require 'bindata'
+
 module Rex
-module Proto
-module IPMI
+  module Proto
+    module IPMI
+      class RAKP2 < BinData::Record
+        endian  :little
+        uint8   :rmcp_version                   ,label: "RMCP Version"
+        uint8   :rmcp_padding                   ,label: "RMCP Padding"
+        uint8   :rmcp_sequence                  ,label: "RMCP Sequence"
+        bit1    :rmcp_mtype                     ,label: "RMCP Message Type"
+        bit7    :rmcp_class                     ,label: "RMCP Message Class"
 
-class RAKP2 < BitStruct
-  unsigned :rmcp_version,      8,     "RMCP Version"
-  unsigned :rmcp_padding,      8,     "RMCP Padding"
-  unsigned :rmcp_sequence,     8,     "RMCP Sequence"
-  unsigned :rmcp_mtype,    1,     "RMCP Message Type"
-  unsigned :rmcp_class,    7,     "RMCP Message Class"
+        uint8   :session_auth_type              ,label: "Authentication Type"
 
-  unsigned :session_auth_type,  8,     "Authentication Type"
+        bit1    :session_payload_encrypted      ,label: "Session Payload Encrypted"
+        bit1    :session_payload_authenticated  ,label: "Session Payload Authenticated"
+        bit6    :session_payload_type           ,label: "Session Payload Type"
 
-  unsigned :session_payload_encrypted,  1,     "Session Payload Encrypted"
-  unsigned :session_payload_authenticated,  1,     "Session Payload Authenticated"
-  unsigned :session_payload_type,  6,     "Session Payload Type", :endian => 'little'
+        uint32  :session_id                     ,label: "Session ID"
+        uint32  :session_sequence               ,label: "Session Sequence Number"
+        uint16  :message_length                 ,label: "Message Length"
+        uint8   :ignored1                       ,label: "Ignored"
+        uint8   :error_code                     ,label: "RMCP Error Code"
+        uint16  :ignored2                       ,label: "Ignored"
+        rest    :data                           ,label: "RAKP2 Data"
+      end
 
-  unsigned :session_id,  32,     "Session ID"
-  unsigned :session_sequence,  32,     "Session Sequence Number"
-  unsigned :message_length,  16,     "Message Length", :endian => "little"
-
-  unsigned :ignored1, 8, "Ignored"
-  unsigned :error_code, 8, "RMCP Error Code"
-  unsigned :ignored2, 16, "Ignored"
-  char :console_session_id, 32, "Console Session ID"
-  char :bmc_random_id,  128,     "BMC Random ID"
-  char :bmc_guid,  128,     "RAKP2 Hash 2 (nulls)"
-  char :hmac_sha1,  160,     "HMAC_SHA1 Output"
-  rest :stuff, "The rest of the stuff"
-end
-
-end
-end
+      class RAKP2_Data < BinData::Record
+        endian  :little
+        string  :console_session_id, length: 4  ,label: "Console Session ID"
+        string  :bmc_random_id, length: 16      ,label: "BMC Random ID"
+        string  :bmc_guid, length: 16           ,label: "RAKP2 Hash 2 (nulls)"
+        string  :hmac_sha1, length: 20          ,label: "HMAC_SHA1 Output"
+      end
+    end
+  end
 end

@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'rex/poly'
-require 'msf/core'
 
-
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # The shikata encoder has an excellent ranking because it is polymorphic.
   # Party time, excellent!
@@ -314,5 +311,4 @@ protected
   def dec(regnum)
     [0x48 + regnum].pack('C')
   end
-
 end

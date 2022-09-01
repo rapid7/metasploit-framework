@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -50,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21654041' ],
           [ 'URL', 'http://xforce.iss.net/xforce/xfdb/84969' ]
         ],
-      'DisclosureDate' => 'Nov 07 2013'))
+      'DisclosureDate' => '2013-11-07'))
 
     register_options(
       [
@@ -62,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
           '<target_email_address>@<sametime_media_server_FQDN>'
         ]),
         OptInt.new('TIMEOUT', [ true,  'Set specific response timeout', 0])
-      ], self.class)
+      ])
 
   end
 
@@ -218,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Unable to connect")
       return nil
     rescue ::Errno::ECONNRESET
-      print_status("DoS packet successful, host not responding.")
+      print_good("DoS packet successful, host not responding.")
       return nil
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       print_status("Couldn't connect")

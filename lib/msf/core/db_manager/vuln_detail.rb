@@ -4,7 +4,7 @@ module Msf::DBManager::VulnDetail
   # information, matched by a specific criteria
   #
   def report_vuln_details(vuln, details)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id)).first
     if detail
       details.each_pair do |k,v|
@@ -23,9 +23,11 @@ module Msf::DBManager::VulnDetail
   # Note that this *can* update data across workspaces
   #
   def update_vuln_details(details)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     criteria = details.delete(:key) || {}
-    ::Mdm::VulnDetail.update(key, details)
+    vuln_detail = ::Mdm::VulnDetail.find(key)
+    vuln_detail.update!(criteria)
+    return vuln_detail
   }
   end
 end

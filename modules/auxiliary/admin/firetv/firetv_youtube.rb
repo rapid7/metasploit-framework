@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -20,8 +17,8 @@ class Metasploit4 < Msf::Auxiliary
       },
       'Author' => ['wvu'],
       'References' => [
-        ['URL', 'http://www.amazon.com/dp/B00CX5P8FC?_encoding=UTF8&showFS=1'],
-        ['URL', 'http://www.amazon.com/dp/B00GDQ0RMG/ref=fs_ftvs']
+        ['URL', 'https://www.amazon.com/dp/B00CX5P8FC?_encoding=UTF8&showFS=1'],
+        ['URL', 'https://www.amazon.com/dp/B00GDQ0RMG/ref=fs_ftvs']
       ],
       'License' => MSF_LICENSE,
       'Actions' => [
@@ -33,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8008),
-      OptString.new('VID', [true, 'Video ID', 'HkhSZyYmpO4'])
+      OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
     ])
   end
 
@@ -86,5 +83,4 @@ class Metasploit4 < Msf::Auxiliary
       fail_with(Failure::Unreachable, e)
     end
   end
-
 end

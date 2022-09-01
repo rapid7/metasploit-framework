@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Accounts
 
   def initialize(info={})
@@ -22,7 +19,7 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('SID', [ true, 'SID to lookup' ]),
         OptString.new('SYSTEM_NAME', [ false, 'Where to search. If undefined, first local then trusted DCs' ]),
-      ], self.class)
+      ])
 
   end
 

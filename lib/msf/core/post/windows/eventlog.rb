@@ -5,12 +5,28 @@ module Windows
 
 module Eventlog
 
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_sysinfo
+              stdapi_sys_eventlog_*
+            ]
+          }
+        }
+      )
+    )
+  end
+
   #
   # Enumerate eventlogs
   #
   def eventlog_list
     key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\"
-    if session.sys.config.sysinfo['OS'] =~ /Windows 2003|.Net|XP|2000/
+    if session.sys.config.sysinfo['OS'] =~ /Windows 2003|\.Net|XP|2000/
       key = "#{key}Eventlog"
     else
       key = "#{key}eventlog"

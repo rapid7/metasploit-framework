@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'metasm'
 
 module Msf
@@ -8,29 +7,16 @@ module Msf
 #
 # This class represents the base class for a logical payload.  The framework
 # automatically generates payload combinations at runtime which are all
-# extended for this Payload as a base class.
+# extended from this Payload as a base class.
 #
 ###
 class Payload < Msf::Module
 
-  require 'rex/payloads'
-
-  require 'msf/core/payload/single'
-  require 'msf/core/payload/generic'
-  require 'msf/core/payload/stager'
 
   # Platform specific includes
-  require 'msf/core/payload/aix'
-  require 'msf/core/payload/bsd'
-  require 'msf/core/payload/linux'
-  require 'msf/core/payload/osx'
-  require 'msf/core/payload/solaris'
-  require 'msf/core/payload/windows'
-  require 'msf/core/payload/netware'
-  require 'msf/core/payload/java'
-  require 'msf/core/payload/dalvik'
-  require 'msf/core/payload/firefox'
-  require 'msf/core/payload/mainframe'
+  require 'metasploit/framework/compiler/mingw'
+
+  # Universal payload includes
 
   ##
   #
@@ -57,6 +43,8 @@ class Payload < Msf::Module
     # applicable.
     #
     Stage  = (1 << 2)
+
+    Adapter = (1 << 3)
   end
 
   #
@@ -65,10 +53,16 @@ class Payload < Msf::Module
   def initialize(info = {})
     super
 
-    # If this is a staged payload but there is no stage information,
+    #
+    # Gets the Dependencies if the payload requires external help
+    # to work
+    #
+    self.module_info['Dependencies'] = self.module_info['Dependencies'] || []
+
+    # If this is an adapted or staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
     # information hash accordingly.
-    if self.class.include?(Msf::Payload::Single) and
+    if (self.class.include?(Msf::Payload::Adapter) || self.class.include?(Msf::Payload::Single)) and
       self.class.include?(Msf::Payload::Stager)
       self.module_info['Stage'] = {}
 
@@ -198,7 +192,9 @@ class Payload < Msf::Module
     pl = nil
     begin
       pl = generate()
+    rescue Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError
     rescue NoCompatiblePayloadError
+    rescue PayloadItemSizeError
     end
     pl ||= ''
     pl.length
@@ -235,6 +231,13 @@ class Payload < Msf::Module
   end
 
   #
+  # Returns the compiler dependencies if the payload has one
+  #
+  def dependencies
+    module_info['Dependencies']
+  end
+
+  #
   # Returns the staging convention that the payload uses, if any.  This is
   # used to make sure that only compatible stagers and stages are built
   # (where assumptions are made about register/environment initialization
@@ -258,29 +261,6 @@ class Payload < Msf::Module
   #
   def symbol_lookup
     module_info['SymbolLookup']
-  end
-
-  #
-  # Checks to see if the supplied convention is compatible with this
-  # payload's convention.
-  #
-  def compatible_convention?(conv)
-    # If we don't have a convention or our convention is equal to
-    # the one supplied, then we know we are compatible.
-    if ((self.convention == nil) or
-        (self.convention == conv))
-      true
-    # On the flip side, if we are a stager and the supplied convention is
-    # nil, then we know it's compatible.
-    elsif ((payload_type == Type::Stager) and
-           (conv == nil))
-      true
-    # Otherwise, the conventions don't match in some way or another, and as
-    # such we deem ourself as not being compatible with the supplied
-    # convention.
-    else
-      false
-    end
   end
 
   #
@@ -308,7 +288,7 @@ class Payload < Msf::Module
   #
   # Generates the payload and returns the raw buffer to the caller.
   #
-  def generate
+  def generate(_opts = {})
     internal_generate
   end
 
@@ -609,12 +589,11 @@ protected
     end
     cpu = case a
       when ARCH_X86    then Metasm::Ia32.new
-      when ARCH_X86_64 then Metasm::X86_64.new
       when ARCH_X64    then Metasm::X86_64.new
       when ARCH_PPC    then Metasm::PowerPC.new
       when ARCH_ARMLE  then Metasm::ARM.new
-      when ARCH_MIPSLE  then Metasm::MIPS.new(:little)
-      when ARCH_MIPSBE  then Metasm::MIPS.new(:big)
+      when ARCH_MIPSLE then Metasm::MIPS.new(:little)
+      when ARCH_MIPSBE then Metasm::MIPS.new(:big)
       else
         elog("Broken payload #{refname} has arch unsupported with assembly: #{module_info["Arch"].inspect}")
         elog("Call stack:\n#{caller.join("\n")}")

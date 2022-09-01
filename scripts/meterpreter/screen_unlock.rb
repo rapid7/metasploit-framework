@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -43,7 +43,7 @@ def unsupported
   print_error("This version of Meterpreter is not supported with this Script!")
   raise Rex::Script::Completed
 end
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 os = client.sys.config.sysinfo['OS']
 
 targets.each do |t|

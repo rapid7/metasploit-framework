@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -48,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       ]
     )
 
-    deregister_options('FTPUSER','FTPPASS') # Can use these, but should use 'username' and 'password'
+    deregister_options('FTPUSER','FTPPASS', 'PASSWORD_SPRAY') # Can use these, but should use 'username' and 'password'
     @accepts_all_logins = {}
   end
 
@@ -56,18 +54,11 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status("#{ip}:#{rport} - Starting FTP login sweep")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
         username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS'],
+        password: datastore['PASSWORD'],
         prepended_creds: anonymous_creds
     )
-
-    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
         host: ip,
@@ -96,11 +87,12 @@ class Metasploit3 < Msf::Auxiliary
           workspace_id: myworkspace_id
       )
       if result.success?
+        credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

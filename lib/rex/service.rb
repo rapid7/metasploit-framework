@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex'
-require 'rex/proto'
 
 module Rex
 
@@ -14,7 +13,6 @@ module Rex
 module Service
   include Ref
 
-  require 'rex/services/local_relay'
 
   #
   # Returns the hardcore, as in porno, alias for this service.  This is used
@@ -30,6 +28,7 @@ module Service
     # If there's only one reference, then it's the service managers.
     if @_references == 1
       Rex::ServiceManager.stop_service(self)
+      return true
     end
 
     rv

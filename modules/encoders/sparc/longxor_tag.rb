@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   def initialize
     super(
@@ -60,5 +56,4 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
       badchars
     ) ? false : true)
   end
-
 end

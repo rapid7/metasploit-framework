@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -20,14 +18,19 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => ['<tebo[at]attackresearch.com>'],
       'References'  =>
         [
-          ['URL',	'http://www.ietf.org/rfc/rfc1057.txt']
+          ['URL',	'https://www.ietf.org/rfc/rfc1057.txt']
         ],
       'License'	=> MSF_LICENSE
     )
+
+    register_options([
+      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w[tcp udp]]),
+    ])
   end
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
+    proto = datastore['PROTOCOL']
     vprint_status "SunRPC - Enumerating programs"
 
     begin
@@ -35,22 +38,22 @@ class Metasploit3 < Msf::Auxiliary
       progver		= 2
       procedure	= 4
 
-      sunrpc_create('udp', program, progver)
+      sunrpc_create(proto, program, progver)
       sunrpc_authnull
       resp = sunrpc_call(procedure, "")
 
       progs = resp[3, 1].unpack('C')[0]
       maps = []
       if (progs == 0x01)
-        while XDR.decode_int!(resp) == 1
-          maps << XDR.decode!(resp, Integer, Integer, Integer, Integer)
+        while Rex::Encoder::XDR.decode_int!(resp) == 1
+          maps << Rex::Encoder::XDR.decode!(resp, Integer, Integer, Integer, Integer)
         end
       end
       sunrpc_destroy
       return if maps.empty?
       vprint_good("Found #{maps.size} programs available")
 
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'  => "SunRPC Programs for #{ip}",
         'Indent'  => 1,
         'Columns' => %w(Name Number Version Port Protocol)

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'json'
-require 'msf/core'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
   include Msf::Post::WebRTC
 
@@ -22,7 +20,7 @@ class Metasploit3 < Msf::Post
       'References'    => [
         [ 'URL', 'http://www.rapid7.com/db/modules/exploit/firefox/local/exec_shellcode' ]
       ],
-      'DisclosureDate' => 'May 13 2014'
+      'DisclosureDate' => '2014-05-13'
     ))
 
     register_options([
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('VISIBLE', [false, "Show a window containing the chat to the target", false]),
       OptInt.new('TIMEOUT', [false, "End the chat session after this many seconds", -1]),
       OptString.new('ICESERVER', [true, "The ICE server that sets up the P2P connection", 'wsnodejs.jit.su:80'])
-    ], self.class)
+    ])
   end
 
   def run
@@ -108,5 +106,4 @@ class Metasploit3 < Msf::Post
       })(this.send);
     |
   end
-
 end

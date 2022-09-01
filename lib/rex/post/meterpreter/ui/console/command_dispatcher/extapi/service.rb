@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
 module Rex
 module Post
@@ -16,16 +17,23 @@ class Console::CommandDispatcher::Extapi::Service
   Klass = Console::CommandDispatcher::Extapi::Service
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Extapi
 
   #
   # List of supported commands.
   #
   def commands
-    {
-      "service_enum"    => "Enumerate all registered Windows services",
-      "service_query"   => "Query more detail about a specific Windows service",
-      "service_control" => "Control a single service (start/pause/resume/stop/restart)"
+    all = {
+      'service_enum'    => 'Enumerate all registered Windows services',
+      'service_query'   => 'Query more detail about a specific Windows service',
+      'service_control' => 'Control a single service (start/pause/resume/stop/restart)'
     }
+    reqs = {
+      'service_enum'    => [COMMAND_ID_EXTAPI_SERVICE_ENUM],
+      'service_query'   => [COMMAND_ID_EXTAPI_SERVICE_QUERY],
+      'service_control' => [COMMAND_ID_EXTAPI_SERVICE_CONTROL],
+    }
+    filter_commands(all, reqs)
   end
 
   #
@@ -86,7 +94,7 @@ class Console::CommandDispatcher::Extapi::Service
 
     services = client.extapi.service.enumerate
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Service List',
       'Indent'    => 0,
       'SortIndex' => 3,

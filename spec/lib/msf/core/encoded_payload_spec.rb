@@ -11,6 +11,7 @@ RSpec.describe Msf::EncodedPayload do
         'x86/shikata_ga_nai',
         # Great rank
         'x86/call4_dword_xor',
+        'x86/xor_dynamic',
         'generic/none',
         ],
       module_type: 'encoder',
@@ -100,7 +101,7 @@ RSpec.describe Msf::EncodedPayload do
       }
 
       it 'returns ["X86_64"]' do
-        expect(encoded_payload.arch).to eq [ARCH_X86_64]
+        expect(encoded_payload.arch).to eq [ARCH_X64]
       end
     end
   end
@@ -120,8 +121,28 @@ RSpec.describe Msf::EncodedPayload do
     context 'with bad characters: "\\0"' do
       let(:badchars) { "\0".force_encoding('binary') }
 
-      specify 'chooses x86/shikata_ga_nai' do
-        expect(encoded_payload.encoder.refname).to eq("x86/shikata_ga_nai")
+      context 'when the payload contains the bad characters' do
+        specify 'chooses x86/shikata_ga_nai' do
+          expect(encoded_payload.encoder.refname).to eq("x86/shikata_ga_nai")
+        end
+
+        specify do
+          expect(encoded_payload.encoded).not_to include(badchars)
+        end
+      end
+
+      context 'when the payload does not contain the bad characters' do
+        specify 'returns the raw value' do
+          expect(encoded_payload.generate("RAW")).to eql("RAW")
+        end
+      end
+
+    end
+    context 'with bad characters: "\\xD9\\x00"' do
+      let(:badchars) { "\xD9\x00".force_encoding('binary') }
+
+      specify 'chooses x86/xor_dynamic' do
+        expect(encoded_payload.encoder.refname).to eq("x86/xor_dynamic")
       end
 
       specify do
@@ -129,11 +150,18 @@ RSpec.describe Msf::EncodedPayload do
       end
 
     end
-    context 'with bad characters: "\\xD9\\x00"' do
-      let(:badchars) { "\xD9\x00".force_encoding('binary') }
+    context 'with windows/meterpreter_bind_tcp and bad characters: "\\x00\\x0a\\x0d"' do
+      let(:badchars) { "\x00\x0a\x0d".force_encoding('binary') }
+      let(:ancestor_reference_names) {
+        %w{singles/windows/meterpreter_bind_tcp}
+      }
 
-      specify 'chooses x86/call4_dword_xor' do
-        expect(encoded_payload.encoder.refname).to eq("x86/call4_dword_xor")
+      let(:reference_name) {
+        'windows/meterpreter_bind_tcp'
+      }
+
+      specify 'chooses x86/xor_dynamic' do
+        expect(encoded_payload.encoder.refname).to eq("x86/xor_dynamic")
       end
 
       specify do

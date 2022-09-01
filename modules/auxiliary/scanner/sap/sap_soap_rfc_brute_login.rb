@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -32,7 +29,7 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References' =>
         [
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+          [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
         ],
       'Author' =>
         [
@@ -44,11 +41,13 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8000),
-        OptString.new('CLIENT', [true, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+        OptString.new('CLIENT', [true, 'Client can be single (066), comma separated list (000,001,066) or range (000-999)', '000,001,066']),
         OptString.new('TARGETURI', [true, 'The base path to the SOAP RFC Service', '/sap/bc/soap/rfc']),
         OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
-      ], self.class)
+      ])
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(rhost)

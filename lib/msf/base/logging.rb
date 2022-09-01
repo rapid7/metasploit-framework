@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 require 'rex'
-require 'msf/base'
-
 module Msf
 
 # This module provides an initialization interface for logging.
@@ -16,21 +14,25 @@ class Logging
 
   # Initialize logging.
   #
+  # @param log_sink_name [string] Log sink name.
   # @return [void]
-  def self.init
+  def self.init(log_sink_name = nil)
     if (! @@initialized)
       @@initialized = true
 
-      f = Rex::Logging::Sinks::Flatfile.new(
-        Msf::Config.log_directory + File::SEPARATOR + "framework.log")
+      log_sink ||= Rex::Logging::LogSinkFactory.new(
+        log_sink_name,
+        Msf::Config.log_directory + File::SEPARATOR + "framework.log"
+      )
 
       # Register each known log source
       [
         Rex::LogSource,
+        Rex::Socket::LogSource,
         Msf::LogSource,
         'base',
       ].each { |src|
-        register_log_source(src, f)
+        register_log_source(src, log_sink)
       }
     end
   end
@@ -80,7 +82,7 @@ class Logging
   # @return [void]
   def self.start_session_log(session)
     if (log_source_registered?(session.log_source) == false)
-      f = Rex::Logging::Sinks::TimestampFlatfile.new(
+      f = Rex::Logging::Sinks::TimestampColorlessFlatfile.new(
       Msf::Config.session_log_directory + File::SEPARATOR + "#{session.log_file_name}.log")
 
       register_log_source(session.log_source, f)

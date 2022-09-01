@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -30,7 +26,12 @@ class Metasploit3 < Msf::Auxiliary
       }
     )
 
-    deregister_options('RPORT', 'RHOST')
+    register_options(
+      [
+        OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ]),
+      ])
+
+    deregister_options('RPORT')
   end
 
   def rport
@@ -160,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
       resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
       if ! (resp and resp.length == 24)
-        print_error("#{ip} Invalid response from the Connect5 request")
+        print_error("Invalid response from the Connect5 request")
         disconnect
         return
       end
@@ -174,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if(perror != 0)
-        print_error("#{ip} Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
+        print_error("Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
         disconnect
         return
       end
@@ -312,7 +313,12 @@ class Metasploit3 < Msf::Auxiliary
           extra << "PasswordMin=#{domains[domain][:pass_min]} "
           extra << ")"
         end
-        print_status("#{ip} #{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
+        print_good("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
+        if datastore['DB_ALL_USERS']
+          users.each { |user|
+            store_username(user, domain, ip, rport, resp)
+          }
+        end
       end
 
       # cleanup
@@ -330,5 +336,31 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+
+  def store_username(username, domain, ip, rport, resp)
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      proof: resp
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: username[1],
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: domain,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
 end

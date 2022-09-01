@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -27,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [true, "Path to use", '/']),
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

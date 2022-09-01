@@ -17,12 +17,11 @@ require 'packetfu'
 require 'rkelly'
 require 'robots'
 require 'zip'
-
+require 'msf'
 #
 # Project
 #
 
-require 'msf/core'
 
 # Top-level namespace that is shared between {Metasploit::Framework
 # metasploit-framework} and pro, which uses Metasploit::Pro.

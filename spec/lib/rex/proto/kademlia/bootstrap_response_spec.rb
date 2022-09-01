@@ -1,12 +1,11 @@
 # -*- coding: binary -*-
 
 require 'spec_helper'
-require 'rex/proto/kademlia/bootstrap_response'
 
 RSpec.describe Rex::Proto::Kademlia::BootstrapResponse do
   describe '#from_data' do
     it 'properly decodes real valid bootstrap responses' do
-      data = IO.read(File.join(File.dirname(__FILE__), 'kademlia_bootstrap_res.bin'))
+      data = File.binread(File.join(File.dirname(__FILE__), 'kademlia_bootstrap_res.bin'))
       response = described_class.from_data(data)
       expect(response.peer_id).to eq('B54A83462529B21EF51FD54B956B07B0')
       expect(response.tcp_port).to eq(4662)

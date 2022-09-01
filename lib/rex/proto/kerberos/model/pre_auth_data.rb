@@ -9,7 +9,7 @@ module Rex
         class PreAuthData < Element
 
           # @!attribute type
-          #   @return [Fixnum] The padata type
+          #   @return [Integer] The padata type
           attr_accessor :type
           # @!attribute value
           #   @return [String] The padata value
@@ -19,7 +19,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -27,7 +27,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode PreAuthData, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode PreAuthData, invalid input'
             end
 
             self
@@ -85,7 +85,7 @@ module Rex
           # Decodes the type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_type(input)
             input.value[0].value.to_i
           end
@@ -93,7 +93,7 @@ module Rex
           # Decodes the value from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_value(input)
             input.value[0].value
           end

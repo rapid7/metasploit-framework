@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
 
   def initialize
@@ -25,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('LOOP', [true, "The number of times to loop through the file",1]),
       OptInt.new('DELAY', [true, "the delay in millisecond between each loop",0]),
       OptInt.new('PKT_DELAY', [true, "the delay in millisecond between each packet",0]),
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','TIMEOUT','SECRET','GATEWAY_PROBE_HOST','GATEWAY_PROBE_PORT')
   end
@@ -40,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     filename = datastore['FILENAME']
     verbose = datastore['VERBOSE']
     count = 0
-    unless File.exists? filename and File.file? filename
+    unless File.exist? filename and File.file? filename
       print_error("Pcap File does not exist")
       return
     end
@@ -54,5 +51,4 @@ class Metasploit3 < Msf::Auxiliary
     end
     close_pcap
   end
-
 end

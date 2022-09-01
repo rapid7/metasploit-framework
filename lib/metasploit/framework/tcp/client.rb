@@ -43,10 +43,10 @@ module Metasploit
         extend ActiveSupport::Concern
 
         # @!attribute max_send_size
-        #   @return [Fixnum] The max size of the data to encapsulate in a single packet
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
         attr_accessor :max_send_size
         # @!attribute send_delay
-        #   @return [Fixnum] The delay between sending packets
+        #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
 
         included do
@@ -83,6 +83,7 @@ module Metasploit
 
           nsock = Rex::Socket::Tcp.create(
               'PeerHost'      =>  opts['RHOST'] || rhost,
+              'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
               'PeerPort'      => (opts['RPORT'] || rport).to_i,
               'LocalHost'     =>  opts['CHOST'] || chost || "0.0.0.0",
               'LocalPort'     => (opts['CPORT'] || cport || 0).to_i,

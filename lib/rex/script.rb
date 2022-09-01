@@ -18,7 +18,7 @@ module Script
   #
   def self.execute_file(file, in_binding = nil)
     str = ''
-    buf = ::File.read(file, ::File.size(file))
+    buf = ::File.read(file, ::File.size(file), mode: 'rb')
     execute(buf, in_binding)
   end
 
@@ -35,8 +35,3 @@ module Script
 end
 
 end
-
-require 'rex/script/base'
-require 'rex/script/shell'
-require 'rex/script/meterpreter'
-

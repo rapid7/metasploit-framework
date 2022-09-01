@@ -38,28 +38,40 @@ module Rex
   LogSource = "rex"
 end
 
-# Generic classes
-require 'rex/constants'
-require 'rex/exceptions'
-require 'rex/transformer'
-require 'rex/random_identifier_generator'
+#
+# REX Gems
+#
+
+# Text manipulation library for things like generating random string
 require 'rex/text'
-require 'rex/time'
-require 'rex/job_container'
+# Library for Generating Randomized strings valid as Identifiers such as variable names
+require 'rex/random_identifier'
+# library for creating Powershell scripts for exploitation purposes
+require 'rex/powershell'
+# Library for processing and creating Zip compatible archives
+require 'rex/zip'
+# Library for parsing offline Windows Registry files
+require 'rex/registry'
+# Library for parsing Java serialized streams
+require 'rex/java'
+# Library for creating C-style Structs
+require 'rex/struct2'
+# Library for working with OLE
+require 'rex/ole'
+# Library for creating and/or parsing MIME messages
+require 'rex/mime'
+# Library for polymorphic encoders
+require 'rex/encoder'
+# Architecture subsystem
+require 'rex/arch'
+# Exploit Helper Library
+require 'rex/exploitation'
+
+# Generic classes
 require 'rex/file'
 
 # Thread safety and synchronization
 require 'rex/sync'
-
-# Thread factory
-require 'rex/thread_factory'
-
-# Encoding
-require 'rex/encoder/xor'
-require 'rex/encoding/xor'
-
-# Architecture subsystem
-require 'rex/arch'
 
 # Assembly
 require 'rex/assembly/nasm'
@@ -75,25 +87,15 @@ require 'rex/io/stream_server'
 # Sockets
 require 'rex/socket'
 
-# Protocols
-require 'rex/proto'
-require 'rex/mac_oui'
-
-# Parsers
-require 'rex/parser/arguments'
-require 'rex/parser/ini'
-
-
 # Compatibility
 require 'rex/compat'
 
-# Platforms
-require 'rex/platforms'
-
-# SSLScan 
+# SSLScan
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
 
+# Versions
+require 'rex/version'
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("

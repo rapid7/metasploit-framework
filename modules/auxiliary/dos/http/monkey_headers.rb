@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -28,12 +25,12 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '93853'],
           ['BID', '60333']
         ],
-      'DisclosureDate' => 'May 30 2013'))
+      'DisclosureDate' => '2013-05-30'))
 
     register_options(
       [
         Opt::RPORT(2001)
-      ], self.class)
+      ])
   end
 
   def dos

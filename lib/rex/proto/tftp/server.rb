@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-require 'rex/proto/tftp'
 
 module Rex
 module Proto
@@ -109,12 +108,12 @@ class Server
   # Send an error packet w/the specified code and string
   #
   def send_error(from, num)
-    if (num < 1 or num >= ERRCODES.length)
+    if (num < 1 or num >= Constants::ERRCODES.length)
       # ignore..
       return
     end
-    pkt = [OpError, num].pack('nn')
-    pkt << ERRCODES[num]
+    pkt = [Constants::OpError, num].pack('nn')
+    pkt << Constants::ERRCODES[num]
     pkt << "\x00"
     send_packet(from, pkt)
   end
@@ -253,7 +252,7 @@ protected
       self.transfers.each do |tr|
         # We handle RRQ and WRQ separately
         #
-        if (tr[:type] == OpRead)
+        if (tr[:type] == Constants::OpRead)
           # Are we awaiting an ack?
           if (tr[:last_sent])
             check_retransmission(tr)
@@ -261,7 +260,7 @@ protected
             # No ack waiting, send next block..
             chunk = tr[:file][:data].slice(tr[:offset], tr[:blksize])
             if (chunk and chunk.length >= 0)
-              pkt = [OpData, tr[:block]].pack('nn')
+              pkt = [Constants::OpData, tr[:block]].pack('nn')
               pkt << chunk
 
               send_packet(tr[:from], pkt)
@@ -282,7 +281,7 @@ protected
           elsif (w != nil and w[0] == self.sock)
             # Not waiting for data, send an ack..
             #puts "[*] sending ack for block %d" % [tr[:block]]
-            pkt = [OpAck, tr[:block]].pack('nn')
+            pkt = [Constants::OpAck, tr[:block]].pack('nn')
 
             send_packet(tr[:from], pkt)
             tr[:last_sent] = ::Time.now
@@ -319,7 +318,7 @@ protected
     #start = "[*] TFTP - %s:%u - %s" % [from[0], from[1], OPCODES[op]]
 
     case op
-    when OpRead
+    when Constants::OpRead
       # Process RRQ packets
       fn = TFTP::get_string(buf)
       mode = TFTP::get_string(buf).downcase
@@ -328,10 +327,10 @@ protected
 
       if (not @shutting_down) and (file = self.find_file(fn))
         if (file[:once] and file[:started])
-          send_error(from, ErrFileNotFound)
+          send_error(from, Constants::ErrFileNotFound)
         else
           transfer = {
-            :type => OpRead,
+            :type => Constants::OpRead,
             :from => from,
             :file => file,
             :block => 1,
@@ -348,10 +347,10 @@ protected
         end
       else
         #puts "[-] file not found!"
-        send_error(from, ErrFileNotFound)
+        send_error(from, Constants::ErrFileNotFound)
       end
 
-    when OpWrite
+    when Constants::OpWrite
       # Process WRQ packets
       fn = TFTP::get_string(buf)
       mode = TFTP::get_string(buf).downcase
@@ -360,7 +359,7 @@ protected
 
       if not @shutting_down
         transfer = {
-          :type => OpWrite,
+          :type => Constants::OpWrite,
           :from => from,
           :file => { :name => fn, :data => '' },
           :block => 0, # WRQ starts at 0
@@ -374,23 +373,23 @@ protected
 
         self.transfers << transfer
       else
-        send_error(from, ErrIllegalOperation)
+        send_error(from, Constants::ErrIllegalOperation)
       end
 
-    when OpAck
+    when Constants::OpAck
       # Process ACK packets
       block = buf.unpack('n')[0]
 
       #puts "%s %d" % [start, block]
 
-      tr = find_transfer(OpRead, from, block)
+      tr = find_transfer(Constants::OpRead, from, block)
       if not tr
         # NOTE: some clients, such as pxelinux, send an ack for block 0.
         # To deal with this, we simply ignore it as we start with block 1.
         return if block == 0
 
         # If we didn't find it, send an error.
-        send_error(from, ErrUnknownTransferId)
+        send_error(from, Constants::ErrUnknownTransferId)
       else
         # acked! send the next block
         tr[:offset] += tr[:blksize]
@@ -409,17 +408,17 @@ protected
         end
       end
 
-    when OpData
+    when Constants::OpData
       # Process Data packets
       block = buf.unpack('n')[0]
       data = buf.slice(2, buf.length)
 
       #puts "%s %d %d bytes" % [start, block, data.length]
 
-      tr = find_transfer(OpWrite, from, (block-1))
+      tr = find_transfer(Constants::OpWrite, from, (block-1))
       if not tr
         # If we didn't find it, send an error.
-        send_error(from, ErrUnknownTransferId)
+        send_error(from, Constants::ErrUnknownTransferId)
       else
         tr[:file][:data] << data
         tr[:last_size] = data.length
@@ -433,7 +432,7 @@ protected
     else
       # Other packets are unsupported
       #puts start
-      send_error(from, ErrAccessViolation)
+      send_error(from, Constants::ErrAccessViolation)
 
     end
   end
@@ -468,7 +467,7 @@ protected
         end
 
       when "tsize"
-        if tr[:type] == OpRead
+        if tr[:type] == Constants::OpRead
           len = tr[:file][:data].length
         else
           val = val.to_i
@@ -482,7 +481,7 @@ protected
     return if to_ack.length < 1
 
     # if we have anything to ack, do it
-    data = [OpOptAck].pack('n')
+    data = [Constants::OpOptAck].pack('n')
     to_ack.each { |el|
       data << el[0] << "\x00" << el[1] << "\x00"
     }

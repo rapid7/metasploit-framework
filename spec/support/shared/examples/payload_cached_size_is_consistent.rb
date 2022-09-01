@@ -101,11 +101,37 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
       'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
       'RC4PASSWORD' => 'Metasploit',
       'DNSZONE' => 'corelan.eu',
-      'PEXEC' => '/bin/sh'
+      'PEXEC' => '/bin/sh',
+      'HttpUserAgent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
+      'StagerURILength' => 5
     },
     'Encoder'     => nil,
     'DisableNops' => true
   }
+
+  opts6 = {
+      'Format'      => 'raw',
+      'Options'     => {
+          'CPORT' => 4444,
+          'LPORT' => 4444,
+          'LHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+          'KHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+          'AHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+          'CMD' => '/bin/sh',
+          'URL' => 'http://a.com',
+          'PATH' => '/',
+          'BUNDLE' => 'data/isight.bundle',
+          'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
+          'RC4PASSWORD' => 'Metasploit',
+          'DNSZONE' => 'corelan.eu',
+          'PEXEC' => '/bin/sh',
+          'HttpUserAgent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
+          'StagerURILength' => 5
+      },
+      'Encoder'     => nil,
+      'DisableNops' => true
+  }
+
 
   #
   # lets
@@ -133,7 +159,7 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
       )
     end
 
-    next if reference_name =~ /generic/
+    next if reference_name =~ /generic|peinject/
 
     if dynamic_size
       it 'is dynamic_size?' do
@@ -156,7 +182,11 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
         )
         expect(pinst.cached_size).to_not(be_nil)
         expect(pinst.dynamic_size?).to be(false)
-        expect(pinst.cached_size).to eq(pinst.generate_simple(opts).size)
+        if pinst.shortname =~ /6/
+          expect(pinst.cached_size).to eq(pinst.generate_simple(opts6).size)
+        else
+          expect(pinst.cached_size).to eq(pinst.generate_simple(opts).size)
+        end
       end
     end
   end

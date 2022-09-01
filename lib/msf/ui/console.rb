@@ -8,4 +8,3 @@ end
 end
 end
 
-require 'msf/ui/console/driver'

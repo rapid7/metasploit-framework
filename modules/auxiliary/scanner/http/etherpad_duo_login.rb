@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -25,6 +23,7 @@ class Metasploit3 < Msf::Auxiliary
     'License'        => MSF_LICENSE
     ))
 
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(ip)
@@ -57,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       return false
     end
 
-    if (res and res.code == 200 and res.headers['Server'].include?("EtherPAD") and res.body.include?("EtherPAD Duo"))
+    if (res and res.code == 200 and res.headers['Server'] =~ /EtherPAD/ and res.body.include?("EtherPAD Duo"))
       vprint_good("Running EtherPAD Duo application ...")
       return true
     else

@@ -1,0 +1,62 @@
+{
+    "COMMAND_LIST": [],
+    "CREDS_FILE": "../JSON/creds.json",
+    "FRAMEWORK_BRANCH": "upstream/master",
+    "HTTP_PORT": 5309,
+    "MSF_HOSTS": [
+        {
+            "CPE": "cpe:/a:rapid7:metasploit:::",
+            "HYPERVISOR_CONFIG": "../JSON/esxi_config.json",
+            "METHOD": "VM_TOOLS_UPLOAD",
+            "MSF_ARTIFACT_PATH": "/home/msfuser/rapid7/test_artifacts",
+            "MSF_PATH": "/home/msfuser/rapid7/metasploit-framework",
+            "TYPE": "VIRTUAL"
+        }
+    ],
+    "REPORT_PREFIX": "SmbEnumUsersTest",
+    "STARTING_LISTENER": 30000,
+    "SUCCESS_LIST": [
+        "Administrator"
+    ],
+    "TARGETS": [
+        {
+            "CPE": "cpe:/o:microsoft:windows_server_2008:r2:sp1:x64",
+            "METHOD": "EXPLOIT",
+            "MODULES": [
+                {
+                    "NAME": "auxiliary/scanner/smb/smb_enumusers",
+                    "SETTINGS": [
+                        "smbuser=vagrant",
+                        "smbpass=vagrant"
+                    ]
+                }
+            ],
+            "TYPE": "VIRTUAL"
+        },
+        {
+            "CPE": "cpe:/o:microsoft:windows_server_2016:::x64",
+            "METHOD": "EXPLOIT",
+            "MODULES": [
+                {
+                    "NAME": "auxiliary/scanner/smb/smb_enumusers",
+                    "SETTINGS": [
+                        "smbuser=vagrant",
+                        "smbpass=vagrant"
+                    ]
+                }
+            ],
+            "TYPE": "VIRTUAL"
+        }
+    ],
+    "TARGET_GLOBALS": {
+        "HYPERVISOR_CONFIG": "../JSON/esxi_config.json",
+        "METERPRETER_JAVA": "C:\\software\\x86\\java\\bin\\java.exe",
+        "METERPRETER_PYTHON": "C:\\software\\x86\\python27\\python.exe",
+        "METHOD": "VM_TOOLS_UPLOAD",
+        "PAYLOAD_DIRECTORY": "C:\\payload_test",
+        "PYTHON": "C:\\software\\x86\\python27\\python.exe",
+        "TESTING_SNAPSHOT": "TESTING_BASE",
+        "TYPE": "VIRTUAL"
+    },
+    "TEST_NAME": "smb_enumusers test"
+}

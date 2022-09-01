@@ -34,7 +34,9 @@ class Thread < Rex::Post::Thread
     self.process = process
     self.handle  = handle
     self.tid     = tid
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.process.client, self.handle) )
+
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(process.client, handle))
   end
 
   def self.finalize(client,handle)
@@ -51,7 +53,7 @@ class Thread < Rex::Post::Thread
   # Suspends the thread's execution.
   #
   def suspend
-    request = Packet.create_request('stdapi_sys_process_thread_suspend')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_SUSPEND)
 
     request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
 
@@ -64,7 +66,7 @@ class Thread < Rex::Post::Thread
   # Resumes the thread's execution.
   #
   def resume
-    request = Packet.create_request('stdapi_sys_process_thread_resume')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_RESUME)
 
     request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
 
@@ -77,7 +79,7 @@ class Thread < Rex::Post::Thread
   # Terminates the thread's execution.
   #
   def terminate(code)
-    request = Packet.create_request('stdapi_sys_process_thread_terminate')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_TERMINATE)
 
     request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
     request.add_tlv(TLV_TYPE_EXIT_CODE, code)
@@ -97,7 +99,7 @@ class Thread < Rex::Post::Thread
   # Queries the register state of the thread.
   #
   def query_regs
-    request = Packet.create_request('stdapi_sys_process_thread_query_regs')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_QUERY_REGS)
     regs    = {}
 
     request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
@@ -116,7 +118,7 @@ class Thread < Rex::Post::Thread
   # in the form of a hash.
   #
   def set_regs(regs_hash)
-    request = Packet.create_request('stdapi_sys_process_thread_set_regs')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_SET_REGS)
 
     request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
 
@@ -159,7 +161,7 @@ class Thread < Rex::Post::Thread
   # Closes the thread handle.
   #
   def self.close(client, handle)
-    request = Packet.create_request('stdapi_sys_process_thread_close')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CLOSE)
     request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
     client.send_request(request, nil)
     handle = nil
@@ -168,7 +170,11 @@ class Thread < Rex::Post::Thread
 
   # Instance method
   def close
-    self.class.close(self.process.client, self.handle)
+    unless self.handle.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.process.client, self.handle)
+      self.handle = nil
+    end
   end
 
   attr_reader :process, :handle, :tid # :nodoc:

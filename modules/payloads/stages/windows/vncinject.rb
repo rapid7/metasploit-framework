@@ -1,21 +1,17 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # Copyright (c) 2008 Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 
-require 'msf/core'
-require 'msf/core/payload/windows/reflectivedllinject'
-require 'msf/base/sessions/vncinject'
-require 'msf/base/sessions/vncinject_options'
 
 ###
 #
 # Injects the VNC server DLL (via Reflective Dll Injection) and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::ReflectiveDllInject
   include Msf::Sessions::VncInjectOptions

@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Multi Gather DNS Service Record Lookup Scan',
         'Description'   => %q{
-          Enumerates know SRV Records for a given domaon using target host DNS query tool.
+          Enumerates known SRV Records for a given domain using target host DNS query tool.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -23,9 +20,9 @@ class Metasploit3 < Msf::Post
     register_options(
       [
 
-        OptString.new('DOMAIN', [true, 'Domain ro perform SRV query against.'])
+        OptString.new('DOMAIN', [true, 'Domain to perform SRV query against.'])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -55,26 +52,11 @@ class Metasploit3 < Msf::Post
 
     a = []
 
-
-    if session.type =~ /shell/
-      # Only one thread possible when shell
-      thread_num = 1
-      # Use the shell platform for selecting the command
-      platform = session.platform
-    else
-      # When in Meterpreter the safest thread number is 10
-      thread_num = 10
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-      platform = session.sys.config.sysinfo['OS']
-    end
-
-    platform = session.platform
-
-    case platform
-    when /win/i
+    case session.platform
+    when 'windows'
       ns_opt = " -query=srv "
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       ns_opt = " -t srv "
       cmd = "/usr/sbin/host"
     else
@@ -82,14 +64,14 @@ class Metasploit3 < Msf::Post
       cmd = "/usr/bin/host"
     end
 
-    while(not srvrcd.nil? and not srvrcd.empty?)
-      1.upto(thread_num) do
+    while !srvrcd.nil? && !srvrcd.empty?
+      1.upto session.max_threads do
         a << framework.threads.spawn("Module(#{self.refname})", false, srvrcd.shift) do |srv|
           next if srv.nil?
           r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
 
-          case platform
-          when /win/
+          case session.platform
+          when 'windows'
             if r =~ /\s*internet\saddress\s\=\s/
               nslookup_srv_consume("#{srv}#{domain}", r).each do |f|
                 print_good("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")

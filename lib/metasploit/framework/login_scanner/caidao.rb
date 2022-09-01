@@ -43,6 +43,7 @@ module Metasploit
 
         def set_sane_defaults
           self.method = "POST" if self.method.nil?
+          super
         end
 
         # Actually doing the login. Called by #attempt_login

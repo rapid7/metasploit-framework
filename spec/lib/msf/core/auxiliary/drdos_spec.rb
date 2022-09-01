@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/auxiliary/drdos'
 
 RSpec.describe Msf::Auxiliary::DRDoS do
   subject do
@@ -33,6 +32,12 @@ RSpec.describe Msf::Auxiliary::DRDoS do
       map = { 'foo' => [ 'foo' ] }
       result, _ = subject.prove_amplification(map)
       expect(result).to be false
+    end
+
+    it 'should handle empty responses' do
+      map = { '' => [ 'foo' ] }
+      result, _ = subject.prove_amplification(map)
+      expect(result).to be true
     end
   end
 end

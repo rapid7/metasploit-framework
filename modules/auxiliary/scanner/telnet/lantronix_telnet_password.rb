@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -28,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
         Opt::CHOST,
         Opt::RPORT(30718),
         OptBool.new('CHECK_TCP', [false , 'Check TCP instead of UDP', false])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -112,5 +110,4 @@ class Metasploit4 < Msf::Auxiliary
       return nil
     end
   end
-
 end

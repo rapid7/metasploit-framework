@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -34,10 +31,10 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2014-7863'],
           ['OSVDB', '117695'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/114'],
+          ['URL', 'https://seclists.org/fulldisclosure/2015/Jan/114'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_failservlet.txt']
         ],
-      'DisclosureDate' => 'Jan 28 2015'))
+      'DisclosureDate' => '2015-01-28'))
 
     register_options(
       [
@@ -48,9 +45,12 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'The username to login as (IT360 target only)']),
         OptString.new('PASSWORD', [false, 'Password for the specified username (IT360 target only)']),
         OptString.new('DOMAIN_NAME', [false, 'Name of the domain to logon to (IT360 target only)'])
-      ], self.class)
+      ])
   end
 
+  def post_auth?
+    true
+  end
 
   def get_cookie
     cookie = nil

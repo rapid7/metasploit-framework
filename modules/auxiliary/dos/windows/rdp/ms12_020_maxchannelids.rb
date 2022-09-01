@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://pastie.org/private/feg8du0e9kfagng4rrg' ],
           [ 'URL', 'http://stratsec.blogspot.com.au/2012/03/ms12-020-vulnerability-for-breakfast.html' ],
           [ 'EDB', '18606' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/03/21/metasploit-update' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2012/03/21/metasploit-update/' ]
         ],
       'Author'         =>
         [
@@ -40,13 +37,13 @@ class Metasploit3 < Msf::Auxiliary
           '#ms12-020' # Freenode IRC
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 16 2012"
+      'DisclosureDate' => '2012-03-16'
     ))
 
     register_options(
       [
         Opt::RPORT(3389)
-      ], self.class)
+      ])
   end
 
   def is_rdp_up
@@ -166,5 +163,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

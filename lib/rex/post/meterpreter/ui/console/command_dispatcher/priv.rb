@@ -28,6 +28,10 @@ class Console::CommandDispatcher::Priv
 
   include Console::CommandDispatcher
 
+  def self.has_command?(name)
+    Dispatchers.any? { |klass| klass.has_command?(name) }
+  end
+
   #
   # Initializes an instance of the priv command interaction.
   #

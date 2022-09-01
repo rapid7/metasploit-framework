@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,9 +20,7 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -54,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('USERNAME', [true, 'Username to create', 'msf']),
       OptString.new('PASSWORD', [true, 'Password for the new user', '$Metasploit1234$']),
       OptString.new('GROUP', [true, 'Group for the new user', 'Administrators'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

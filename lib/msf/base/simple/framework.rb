@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-require 'msf/base/simple'
-require 'msf/base/simple/framework/module_paths'
-
+require 'msf/core/constants'
 module Msf
 module Simple
 
@@ -30,7 +28,7 @@ module Framework
     def load(path, opts = {})
       def_path = Msf::Config.plugin_directory + File::SEPARATOR + path
 
-      if (File.exists?(def_path) or File.exists?(def_path + ".rb"))
+      if (File.exist?(def_path) or File.exist?(def_path + ".rb"))
         super(def_path, opts)
       else
         super
@@ -49,7 +47,7 @@ module Framework
   # Simplifies module instances when they're created.
   #
   def on_module_created(instance)
-    Msf::Simple::Framework.simplify_module(instance)
+    Msf::Simple::Framework.simplify_module(instance, load_saved_config: true)
   end
 
   ModuleSimplifiers =
@@ -60,6 +58,7 @@ module Framework
       Msf::MODULE_PAYLOAD => Msf::Simple::Payload,
       Msf::MODULE_AUX     => Msf::Simple::Auxiliary,
       Msf::MODULE_POST    => Msf::Simple::Post,
+      Msf::MODULE_EVASION => Msf::Simple::Evasion
     }
 
   # Create a simplified instance of the framework.  This routine takes a hash
@@ -67,7 +66,7 @@ module Framework
   #
   # @param opts [Hash{String => Object}]
   # @option opts (see simplify)
-  # @return [Msf::Simple::Frameworkt s]
+  # @return [Msf::Simple::Framework]
   def self.create(opts = {})
     framework = Msf::Framework.new(opts)
     return simplify(framework, opts)
@@ -83,6 +82,7 @@ module Framework
   # @option opts [#call] 'OnCreateProc' Proc to call after {#init_simplified}.  Will be passed `framework`.
   # @option opts [String] 'ConfigDirectory'  Directory where configuration is saved.  The `~/.msf4` directory.
   # @option opts [Boolean] 'DisableLogging' (false) `true` to disable `Msf::Logging.init`
+  # @option opts [String] 'Logger' (Flatfile) Will default to logging to `~/.msf4`.
   # @option opts [Boolean] 'DeferModuleLoads' (false) `true` to disable `framework.init_module_paths`.
   # @return [Msf::Simple::Framework] `framework`
   def self.simplify(framework, opts)
@@ -108,7 +108,10 @@ module Framework
 
     # Initialize configuration and logging
     Msf::Config.init
-    Msf::Logging.init unless opts['DisableLogging']
+    unless opts['DisableLogging']
+      log_sink_name = opts['Logger']
+      Msf::Logging.init(log_sink_name)
+    end
 
     # Load the configuration
     framework.load_config
@@ -128,7 +131,7 @@ module Framework
   # Simplifies a module instance if the type is supported by extending it
   # with the simplified module interface.
   #
-  def self.simplify_module(instance, load_saved_config = true)
+  def self.simplify_module(instance, load_saved_config: false)
     if ((ModuleSimplifiers[instance.type]) and
         (instance.class.include?(ModuleSimplifiers[instance.type]) == false))
       instance.extend(ModuleSimplifiers[instance.type])
@@ -170,6 +173,7 @@ module Framework
   #
   attr_reader :stats
 
+
   #
   # Boolean indicating whether the cache is initialized yet
   #
@@ -191,4 +195,3 @@ end
 
 end
 end
-

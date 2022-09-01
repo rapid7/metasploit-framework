@@ -1,20 +1,18 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include REXML
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Advantech WebAccess SQL Injection',
+      'Name'           => 'Advantech WebAccess DBVisitor.dll ChartThemeConfig SQL Injection',
       'Description'    => %q{
         This module exploits a SQL injection vulnerability found in Advantech WebAccess 7.1. The
         vulnerability exists in the DBVisitor.dll component, and can be abused through malicious
@@ -35,14 +33,14 @@ class Metasploit3 < Msf::Auxiliary
           'juan vazquez' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Apr 08 2014"
+      'DisclosureDate' => '2014-04-08'
     ))
 
     register_options(
       [
         OptString.new("TARGETURI", [true, 'The path to the BEMS Web Site', '/BEMS']),
         OptString.new("WEB_DATABASE", [true, 'The path to the bwCfg.mdb database in the target', "C:\\WebAccess\\Node\\config\\bwCfg.mdb"])
-      ], self.class)
+      ])
   end
 
   def build_soap(injection)
@@ -151,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{@users.length} users found!")
     end
 
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
       'Indent'   => 1,
       'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password', 'Origin']
@@ -169,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 
       begin
         @plain_passwords[i].encode("ISO-8859-1").to_s
-      rescue Encoding::UndefinedConversionError
+      rescue ::Encoding::UndefinedConversionError
         chars = @plain_passwords[i].unpack("C*")
         @plain_passwords[i] = "0x#{chars.collect {|c| c.to_s(16)}.join(", 0x")}"
         @plain_passwords[i] << " (ISO-8859-1 hex chars)"
@@ -319,6 +317,5 @@ class Metasploit3 < Msf::Auxiliary
 
     result
   end
-
 end
 

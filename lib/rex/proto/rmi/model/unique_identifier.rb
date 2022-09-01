@@ -8,13 +8,13 @@ module Rex
         class UniqueIdentifier < Element
 
           # @!attribute number
-          #   @return [Fixnum] Identifies the VM where an object is generated
+          #   @return [Integer] Identifies the VM where an object is generated
           attr_accessor :number
           # @!attribute time
-          #   @return [Fixnum] Time where the object was generated
+          #   @return [Integer] Time where the object was generated
           attr_accessor :time
           # @!attribute count
-          #   @return [Fixnum] Identifies different instance of the same object generated from the same VM
+          #   @return [Integer] Identifies different instance of the same object generated from the same VM
           #     at the same time
           attr_accessor :count
 
@@ -23,7 +23,7 @@ module Rex
           # Reads the number from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_number(io)
             number = read_int(io)
 
@@ -33,7 +33,7 @@ module Rex
           # Reads the time from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_time(io)
             time = read_long(io)
 
@@ -43,7 +43,7 @@ module Rex
           # Reads the count from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_count(io)
             count = read_short(io)
 

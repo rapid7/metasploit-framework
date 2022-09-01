@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
   include Exploit::Remote::Udp
 
@@ -34,12 +31,12 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002'],
           ['URL', 'http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/Once-Bled-Twice-Shy-OpenSSL-CVE-2014-0195/ba-p/6501048']
         ],
-      'DisclosureDate' => 'Jun 05 2014'))
+      'DisclosureDate' => '2014-06-05'))
 
     register_options([
       Opt::RPORT(4433),
       OptInt.new('VERSION', [true,  "SSl/TLS version", 0xFEFF])
-    ], self.class)
+    ])
 
   end
 

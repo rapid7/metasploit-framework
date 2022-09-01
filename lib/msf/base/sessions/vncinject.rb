@@ -1,6 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base'
-require 'rex/services/local_relay'
 
 module Msf
 module Sessions
@@ -58,6 +56,10 @@ class VncInject
   #
   def self.type
     "vncinject"
+  end
+
+  def self.can_cleanup_files
+    false
   end
 
   ##

@@ -39,12 +39,46 @@ module Metasploit
           super
         end
 
+        def parse_auth_methods(resp)
+          return [] unless resp and resp.code == 401
+          methods = []
+          methods << "Negotiate" if resp.headers['WWW-Authenticate'].include? "Negotiate"
+          methods << "Kerberos" if resp.headers['WWW-Authenticate'].include? "Kerberos"
+          methods << "Basic" if resp.headers['WWW-Authenticate'].include? "Basic"
+          return methods
+        end
+
+        # send an HTTP request that WinRM would consider as valid  (SOAP XML in the message matching the XML schema definition)
+        def send_request(opts)
+          allowed_auth_methods = parse_auth_methods(super(opts.merge({ 'authenticate' => false })))
+
+          if allowed_auth_methods.include? 'Negotiate'
+            opts['preferred_auth'] = 'Negotiate'
+          elsif allowed_auth_methods.include? 'Basic'
+            # Straight up hack since if Basic auth is used winrm complains about the content size being 0
+            # The error message actually complains about the Content-Size header not being set even though it is
+            # but it doesn't like it being 0 and other auth methods fail with the supplied data to get around it
+            # So only if "Basic" is selected as the preferred option do we add this extra stuff as a workaround
+            opts['preferred_auth'] = 'Basic'
+            opts['headers'] ||= { }
+            opts['ctype'] = 'application/soap+xml;charset=UTF-8'
+            opts['data'] = wsman_identity_request
+            opts['headers']['Content-Length'] = opts['data'].length
+          end
+          super
+        end
+
         # The method *must* be "POST", so don't let the user change it
         # @raise [RuntimeError] Unconditionally
         def method=(_)
           raise RuntimeError, "Method must be POST for WinRM"
         end
 
+        private
+
+        def wsman_identity_request
+          %Q{<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><s:Header/><s:Body><wsmid:Identify/></s:Body></s:Envelope>}
+        end
       end
     end
   end

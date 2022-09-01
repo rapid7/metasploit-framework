@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'msf/core/handler/reverse_http'
 require 'uri'
 
 module Msf

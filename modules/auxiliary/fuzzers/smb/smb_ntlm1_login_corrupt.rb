@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Fuzzer
 
@@ -24,12 +20,13 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       Opt::RPORT(445),
       OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test'])
-    ], self.class)
+    ])
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def do_smb_login(pkt,opts={})
     @connected = false
-    connect
+    connect(versions: [1])
     simple.client.negotiate(false)
 
     @connected = true

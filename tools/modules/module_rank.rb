@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists each module with its rank
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -18,8 +20,6 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 ranks= Hash.new
 
@@ -104,7 +104,7 @@ end
 $framework = Msf::Simple::Framework.create(framework_opts)
 
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module Ranks',
   'Indent'  => Indent.length,
   'Columns' => [ 'Module', 'Rank' ]

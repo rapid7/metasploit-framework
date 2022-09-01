@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf
 
@@ -44,7 +43,7 @@ module Payload::Generic
   # the actual payload in case settings have changed.  Other methods will
   # use the cached version if possible.
   #
-  def generate
+  def generate(_opts = {})
     reset
 
     redirect_to_actual(:generate)

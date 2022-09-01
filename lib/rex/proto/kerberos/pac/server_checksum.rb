@@ -9,7 +9,7 @@ module Rex
         class ServerChecksum < Element
 
           # @!attribute version
-          #   @return [Fixnum] The checksum type
+          #   @return [Integer] The checksum type
           attr_accessor :checksum
 
           # Encodes the Rex::Proto::Kerberos::Pac::ServerChecksum

@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #
 # $Id$
 #
@@ -129,8 +128,8 @@ class Plugin::Msfd < Msf::Plugin
             'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli),
             'AllowCommandPassthru' => false,
             'DisableBanner' => opts['DisableBanner'] ? true : false).run
-        rescue
-          elog("Msfd: Client error: #{$!}\n\n#{$@.join("\n")}", 'core')
+        rescue => e
+          elog('Msfd client error', error: e)
         ensure
           msg = "Msfd: Closing client connection with #{cli.peerhost}"
           ilog(msg, 'core')
@@ -163,4 +162,3 @@ protected
 end
 
 end
-

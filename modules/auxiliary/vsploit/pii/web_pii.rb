@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   #
   # This module acts as an compromised webserver distributing PII Data
@@ -21,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => 'MJC',
       'References' =>
       [
-        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2011/06/02/vsploit--virtualizing-exploitation-attributes-with-metasploit-framework']
+        [ 'URL', 'https://www.rapid7.com/blog/post/2011/06/02/vsploit--virtualizing-exploitation-attributes-with-metasploit-framework']
       ],
       'DefaultOptions' => { 'HTTP::server_name' => 'IIS'}
       ))
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
           OptBool.new('META_REFRESH', [ false, "Set page to auto refresh.", false]),
           OptInt.new('REFRESH_TIME', [ false, "Set page refresh interval.", 15]),
           OptInt.new('ENTRIES', [ false, "PII Entry Count", 1000])
-        ],self.class)
+        ])
   end
 
 

@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/proto/rfb'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vnc'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -47,7 +44,9 @@ class Metasploit3 < Msf::Auxiliary
         # We need to set the following options to make sure BLANK_PASSWORDS functions properly
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
-      ], self.class)
+      ])
+
+    deregister_options('PASSWORD_SPRAY')
 
     register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 
@@ -59,17 +58,10 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status("#{ip}:#{rport} - Starting VNC login sweep")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
         username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS']
+        password: datastore['PASSWORD']
     )
-
-    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::VNC.new(
         host: ip,
@@ -102,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
@@ -110,5 +102,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

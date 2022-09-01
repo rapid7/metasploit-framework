@@ -1,30 +1,39 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Gather Prefetch File Information',
-      'Description'   => %q{
-        This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems
-        and current values of related registry keys. From each prefetch file we'll collect
-        filetime (converted to utc) of the last execution, file path hash, run count, filename
-        and the execution path.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => ['TJ Glad <tjglad[at]cmail.nu>'],
-      'Platform'      => ['win'],
-      'SessionType'   => ['meterpreter']
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Prefetch File Information',
+        'Description' => %q{
+          This module gathers prefetch file information from WinXP, Win2k3 and Win7 systems
+          and current values of related registry keys. From each prefetch file we'll collect
+          filetime (converted to utc) of the last execution, file path hash, run count, filename
+          and the execution path.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['TJ Glad <tjglad[at]cmail.nu>'],
+        'Platform' => ['win'],
+        'SessionType' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_search
+              stdapi_sys_config_getenv
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        }
+      )
+    )
   end
 
   def print_prefetch_key_value()
@@ -133,7 +142,7 @@ class Metasploit3 < Msf::Post
     sysnfo = client.sys.config.sysinfo['OS']
     error_msg = "You don't have enough privileges. Try getsystem."
 
-    if sysnfo =~/(Windows XP|2003|.NET)/
+    if sysnfo =~ /(Windows XP|2003|.NET)/
 
       if not is_admin?
         print_error(error_msg)
@@ -149,7 +158,7 @@ class Metasploit3 < Msf::Post
       # Registry key for timezone
       key_value = "StandardName"
 
-    elsif sysnfo =~/(Windows 7)/
+    elsif sysnfo =~ /(Windows 7)/
       if not is_admin?
         print_error(error_msg)
         return nil
@@ -168,9 +177,9 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    table = Rex::Ui::Text::Table.new(
-      'Header'  => "Prefetch Information",
-      'Indent'  => 1,
+    table = Rex::Text::Table.new(
+      'Header' => "Prefetch Information",
+      'Indent' => 1,
       'Columns' =>
       [
         "Last execution (filetime)",
@@ -178,7 +187,8 @@ class Metasploit3 < Msf::Post
         "Hash",
         "Filename",
         "Filepath"
-      ])
+      ]
+    )
 
     print_prefetch_key_value
     print_timezone_key_values(key_value)

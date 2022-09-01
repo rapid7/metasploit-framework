@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Post
 
   def dump_rsync_secrets(config_file)
     vprint_status("Attempting to get RSYNC creds from #{config_file}")
-    creds_table = Rex::Ui::Text::Table.new(
+    creds_table = Rex::Text::Table.new(
       'Header' => "RSYNC credentials from #{config_file}",
       'Columns' => %w(Username Password Module)
     )

@@ -1,19 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+module MetasploitModule
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/linux/reverse_tcp'
-
-module Metasploit4
-
-  CachedSize = 114
+  CachedSize = 166
 
   include Msf::Payload::Stager
-  include Msf::Payload::Linux::ReverseTcp
+  include Msf::Payload::Linux::ReverseTcp_x86
 
   def self.handler_type_alias
     'reverse_tcp_uuid'
@@ -39,5 +34,4 @@ module Metasploit4
   def include_send_uuid
     true
   end
-
 end

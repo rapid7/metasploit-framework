@@ -1,0 +1,74 @@
+diff --git a/examples/ssh_server_fork.c b/examples/ssh_server_fork.c
+index 217c5298..20008c76 100644
+--- a/examples/ssh_server_fork.c
++++ b/examples/ssh_server_fork.c
+@@ -235,8 +235,6 @@ struct channel_data_struct {
+ struct session_data_struct {
+     /* Pointer to the channel the session will allocate. */
+     ssh_channel channel;
+-    int auth_attempts;
+-    int authenticated;
+ };
+ 
+ static int data_function(ssh_session session, ssh_channel channel, void *data,
+@@ -406,8 +404,8 @@ static int shell_request(ssh_session session, ssh_channel channel,
+     if (cdata->pty_master != -1 && cdata->pty_slave != -1) {
+         return exec_pty("-l", NULL, cdata);
+     }
+-    /* Client requested a shell without a pty, let's pretend we allow that */
+-    return SSH_OK;
++
++    return exec_nopty("/bin/sh -l", cdata);
+ }
+ 
+ static int subsystem_request(ssh_session session, ssh_channel channel,
+@@ -421,16 +419,13 @@ static int subsystem_request(ssh_session session, ssh_channel channel,
+ 
+ static int auth_password(ssh_session session, const char *user,
+                          const char *pass, void *userdata) {
+-    struct session_data_struct *sdata = (struct session_data_struct *) userdata;
+-
+     (void) session;
++    (void) userdata;
+ 
+     if (strcmp(user, USER) == 0 && strcmp(pass, PASS) == 0) {
+-        sdata->authenticated = 1;
+         return SSH_AUTH_SUCCESS;
+     }
+ 
+-    sdata->auth_attempts++;
+     return SSH_AUTH_DENIED;
+ }
+ 
+@@ -496,9 +491,7 @@ static void handle_session(ssh_event event, ssh_session session) {
+ 
+     /* Our struct holding information about the session. */
+     struct session_data_struct sdata = {
+-        .channel = NULL,
+-        .auth_attempts = 0,
+-        .authenticated = 0
++        .channel = NULL
+     };
+ 
+     struct ssh_channel_callbacks_struct channel_cb = {
+@@ -530,19 +523,11 @@ static void handle_session(ssh_event event, ssh_session session) {
+     ssh_set_auth_methods(session, SSH_AUTH_METHOD_PASSWORD);
+     ssh_event_add_session(event, session);
+ 
+-    n = 0;
+-    while (sdata.authenticated == 0 || sdata.channel == NULL) {
+-        /* If the user has used up all attempts, or if he hasn't been able to
+-         * authenticate in 10 seconds (n * 100ms), disconnect. */
+-        if (sdata.auth_attempts >= 3 || n >= 100) {
+-            return;
+-        }
+-
++    while (sdata.channel == NULL) {
+         if (ssh_event_dopoll(event, 100) == SSH_ERROR) {
+             fprintf(stderr, "%s\n", ssh_get_error(session));
+             return;
+         }
+-        n++;
+     }
+ 
+     ssh_set_channel_callbacks(sdata.channel, &channel_cb);

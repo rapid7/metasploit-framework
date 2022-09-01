@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
 
   def initialize(info = {})
@@ -19,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'		=> MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run DTP forging service' ]
         ],
       'PassiveActions' => [ 'Service' ],
       'DefaultAction'  => 'Service'
@@ -27,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMAC',    	[false, 'The spoofed mac (if unset, derived from netifaces)']),
-      ], self.class)
+      ])
     deregister_options('RHOST', 'PCAPFILE')
   end
 
@@ -83,5 +80,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

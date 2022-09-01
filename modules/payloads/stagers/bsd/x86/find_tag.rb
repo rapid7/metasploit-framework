@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-require 'msf/core/handler/find_tag'
 
 
 ###
@@ -16,7 +12,7 @@ require 'msf/core/handler/find_tag'
 # BSD find tag stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 40
 
@@ -44,5 +40,4 @@ module Metasploit3
         }
       ))
   end
-
 end

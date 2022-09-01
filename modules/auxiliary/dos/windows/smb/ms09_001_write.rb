@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
 
@@ -29,12 +28,14 @@ class Metasploit3 < Msf::Auxiliary
         ]
       )
     )
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
 
   def send_smb_pkt(dlenlow, doffset,fillersize)
 
-    connect()
+    connect(versions: [1])
     smb_login()
 
     pkt = CONST::SMB_CREATE_PKT.make_struct
@@ -115,5 +116,4 @@ class Metasploit3 < Msf::Auxiliary
       j=j-10000
     end
   end
-
 end

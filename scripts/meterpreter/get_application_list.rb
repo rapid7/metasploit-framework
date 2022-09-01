@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -14,7 +14,7 @@ opts = Rex::Parser::Arguments.new(
 )
 
 def app_list
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Header'  => "Installed Applications",
     'Indent'  => 1,
     'Columns' => [
@@ -62,7 +62,7 @@ opts.parse(args) { |opt, idx, val|
 
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   app_list
 else
   print_error("This version of Meterpreter is not supported with this Script!")

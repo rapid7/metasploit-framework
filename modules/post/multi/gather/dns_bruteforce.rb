@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -27,55 +23,42 @@ class Metasploit3 < Msf::Post
         OptPath.new('NAMELIST',[true, "List of hostnames or subdomains to use.",
             ::File.join(Msf::Config.data_directory, "wordlists", "namelist.txt")])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
   def run
-
     domain = datastore['DOMAIN']
     hostlst = datastore['NAMELIST']
     a = []
 
     print_status("Performing DNS Forward Lookup Bruteforce for Domain #{domain}")
-    if session.type =~ /shell/
-      # Only one thread possible when shell
-      thread_num = 1
-      # Use the shell platform for selecting the command
-      platform = session.platform
-    else
-      # When in Meterpreter the safest thread number is 10
-      thread_num = 10
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-      platform = session.sys.config.sysinfo['OS']
-    end
 
     name_list = []
-    if ::File.exists?(hostlst)
+    if ::File.exist?(hostlst)
       ::File.open(hostlst).each do |n|
         name_list << n
       end
     end
 
-    platform = session.platform
-
-    case platform
-    when /win/i
+    case session.platform
+    when 'windows'
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       cmd = "/usr/sbin/host "
     else
       cmd = "/usr/bin/host "
     end
-    while(not name_list.nil? and not name_list.empty?)
-      1.upto(thread_num) do
+
+    while !name_list.nil? && !name_list.empty?
+      1.upto session.max_threads  do
         a << framework.threads.spawn("Module(#{self.refname})", false, name_list.shift) do |n|
           next if n.nil?
           vprint_status("Trying #{n.strip}.#{domain}")
           r = cmd_exec(cmd, "#{n.strip}.#{domain}")
 
           case session.platform
-          when /win/
+          when 'windows'
             proccess_win(r, "#{n.strip}.#{domain}")
           else
             process_nix(r, "#{n.strip}.#{domain}")

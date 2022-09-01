@@ -1,15 +1,12 @@
 # -*- coding:binary -*-
 require 'spec_helper'
-require 'msf/core/module'
 
 RSpec.describe Msf::Module do
   subject(:msf_module) {
     described_class.new
   }
 
-  it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :debugging? }
-  it { is_expected.to respond_to_protected :derived_implementor? }
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
@@ -32,7 +29,6 @@ RSpec.describe Msf::Module do
   it_should_behave_like 'Msf::Module::Options'
   it_should_behave_like 'Msf::Module::Privileged'
   it_should_behave_like 'Msf::Module::Ranking'
-  it_should_behave_like 'Msf::Module::Search'
   it_should_behave_like 'Msf::Module::Type'
   it_should_behave_like 'Msf::Module::UI'
   it_should_behave_like 'Msf::Module::UUID'
@@ -43,7 +39,7 @@ RSpec.describe Msf::Module do
     }
 
     it { is_expected.to respond_to :cached? }
-    it { is_expected.to respond_to :is_usable }
+    it { is_expected.to respond_to :usable? }
   end
 
   describe "cloning modules into replicants" do

@@ -21,16 +21,3 @@ module Rex
     end
   end
 end
-
-require 'rex/proto/rmi/model/element'
-require 'rex/proto/rmi/model/output_header'
-require 'rex/proto/rmi/model/protocol_ack'
-require 'rex/proto/rmi/model/continuation'
-require 'rex/proto/rmi/model/unique_identifier'
-require 'rex/proto/rmi/model/call_data'
-require 'rex/proto/rmi/model/call'
-require 'rex/proto/rmi/model/return_value'
-require 'rex/proto/rmi/model/return_data'
-require 'rex/proto/rmi/model/dgc_ack'
-require 'rex/proto/rmi/model/ping'
-require 'rex/proto/rmi/model/ping_ack'

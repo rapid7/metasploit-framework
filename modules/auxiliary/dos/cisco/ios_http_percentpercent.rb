@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -21,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
         unresponsive. IOS 11.1 -> 12.1 are reportedly vulnerable. This module
         tested successfully against a Cisco 1600 Router IOS v11.2(18)P.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -29,12 +24,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2000-0380'],
           [ 'OSVDB', '1302' ],
         ],
-      'DisclosureDate' => 'Apr 26 2000'))
+      'DisclosureDate' => '2000-04-26'))
 
     register_options(
       [
         Opt::RPORT(80),
-      ], self.class)
+      ])
 
   end
 
@@ -48,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end
 
 =begin

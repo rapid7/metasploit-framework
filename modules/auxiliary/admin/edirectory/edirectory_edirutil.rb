@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Exploit::Remote::HttpClient
 
@@ -104,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8028),
         OptString.new("PARAM", [false, 'Specify a parameter for the action'])
-      ], self.class)
+      ])
   end
 
   def run

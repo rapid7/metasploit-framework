@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -37,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'SSL' => true,
-          'SSLVersion' => 'TLS1',
           'RPORT' => 443
         }
     ))
@@ -46,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000]),
         OptBool.new('FORCE', [true, 'Proceed with attack even if a BigIP virtual server isn\'t detected', false])
-      ], self.class)
+      ])
   end
 
   def run

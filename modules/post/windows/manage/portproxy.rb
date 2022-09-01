@@ -1,9 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
         OptPort.new(   'LOCAL_PORT',      [ true, 'Port number to which to listen.']),
         OptBool.new(   'IPV6_XP',         [ true, 'Install IPv6 on Windows XP (needed for v4tov4).', true]),
         OptEnum.new(   'TYPE',            [ true, 'Type of forwarding', 'v4tov4', ['v4tov4','v6tov6','v6tov4','v4tov6']])
-      ], self.class)
+      ])
     end
 
   def run
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
   end
 
   def enable_portproxy
-    rtable = Rex::Ui::Text::Table.new(
+    rtable = Rex::Text::Table.new(
       'Header' => 'Port Forwarding Table',
       'Indent' =>  3,
       'Columns' => ['LOCAL IP', 'LOCAL PORT', 'REMOTE IP', 'REMOTE PORT']
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Post
   end
 
   def fw_enable_ports
-    print_status ("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
+    print_status("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
     if sysinfo["OS"] =~ /Windows 7|Vista|2008|2012/
       cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LOCAL_PORT']}\"")
     else

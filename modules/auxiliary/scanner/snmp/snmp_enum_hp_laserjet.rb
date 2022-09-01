@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -16,14 +13,14 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'HP LaserJet Printer SNMP Enumeration',
       'Description' => %q{
         This module allows enumeration of files previously printed.
-        It provides details as filename, client, timestamp and username informations.
+        It provides details as filename, client, timestamp and username information.
         The default community used is "public".
       },
       'References'  =>
         [
-          [ 'URL', 'http://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
-          [ 'URL', 'http://net-snmp.sourceforge.net/docs/man/snmpwalk.html' ],
-          [ 'URL', 'http://www.nothink.org/perl/snmpcheck/' ],
+          [ 'URL', 'https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
+          [ 'URL', 'https://net-snmp.sourceforge.io/docs/man/snmpwalk.html' ],
+          [ 'URL', 'http://www.nothink.org/codes/snmpcheck/index.php' ],
           [ 'URL', 'http://www.securiteam.com/securitynews/5AP0S2KGVS.html' ],
           [ 'URL', 'http://stuff.mit.edu/afs/athena/dept/cron/tools/share/mibs/290923.mib' ],
         ],

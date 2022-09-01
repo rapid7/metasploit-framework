@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/poly'
-require 'msf/core'
 
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the time(2) key is generated and supplied
   # manually.
@@ -35,7 +34,7 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
           [ true,
           "TIME key from target host (see tools/context/time-key utility)",
           "0x00000000"])
-      ], self.class)
+      ])
   end
 
   def obtain_key(buf, badchars, state)
@@ -183,5 +182,4 @@ protected
       Rex::Arch::X86::ESP,
       Rex::Arch::X86::ECX ], nil, state.badchars)
   end
-
 end

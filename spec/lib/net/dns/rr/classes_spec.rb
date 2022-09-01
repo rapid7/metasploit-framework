@@ -31,13 +31,13 @@ RSpec.describe Net::DNS::RR::Classes do
       expect(rr_class.to_s).to eql('NONE')
     end
 
-    it 'initializes with a valid RR class Fixnum argument' do
+    it 'initializes with a valid RR class Integer argument' do
       rr_class.send(:initialize, 4)
       expect(rr_class.to_i).to eql(4)
       expect(rr_class.to_s).to eql('HS')
     end
 
-    it 'raises when the supplied RR class Fixnum is invalid' do
+    it 'raises when the supplied RR class Integer is invalid' do
       expect { rr_class.send(:initialize, 123456) }.to raise_error(ClassArgumentError)
       expect { rr_class.send(:initialize, -1) }.to raise_error(ClassArgumentError)
     end

@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client::Psexec
@@ -32,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
         [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
         [ 'OSVDB', '3106'],
         [ 'URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/' ],
-        [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
+        [ 'URL', 'https://docs.microsoft.com/en-us/sysinternals/downloads/psexec' ]
       ],
       'License'     => MSF_LICENSE
     )
@@ -40,11 +39,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('USERNAME', [false, 'The name of a specific user to search for', '']),
-      OptString.new('RPORT', [true, 'The Target port', 445]),
+      OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the Windows directory', 'WINDOWS']),
-    ], self.class)
-
-    deregister_options('RHOST')
+    ])
   end
 
   # This is the main controller function
@@ -211,5 +208,4 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
   end
-
 end

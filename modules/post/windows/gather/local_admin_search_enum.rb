@@ -1,38 +1,44 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'         => 'Windows Gather Local Admin Search',
-      'Description'  => %q{
-        This module will identify systems in a given range that the
-        supplied domain user (should migrate into a user pid) has administrative
-        access to by using the Windows API OpenSCManagerA to establishing a handle
-        to the remote host. Additionally it can enumerate logged in users and group
-        membership via Windows API NetWkstaUserEnum and NetUserGetGroups.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Local Admin Search',
+        'Description' => %q{
+          This module will identify systems in a given range that the
+          supplied domain user (should migrate into a user pid) has administrative
+          access to by using the Windows API OpenSCManagerA to establishing a handle
+          to the remote host. Additionally it can enumerate logged in users and group
+          membership via Windows API NetWkstaUserEnum and NetUserGetGroups.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
           'Royce Davis "r3dy" <rdavis[at]accuvant.com>'
         ],
-      'Platform'     => 'win',
-      'SessionTypes' => [ 'meterpreter' ]
-      ))
+        'Platform' => 'win',
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_railgun_memread
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
+      )
+    )
 
     register_options(
       [
@@ -40,7 +46,8 @@ class Metasploit3 < Msf::Post
         OptBool.new('ENUM_GROUPS', [ false, 'Enumerates groups for identified users.', true]),
         OptString.new('DOMAIN', [false, 'Domain to enumerate user\'s groups for']),
         OptString.new('DOMAIN_CONTROLLER', [false, 'Domain Controller to query groups'])
-      ], self.class)
+      ]
+    )
   end
 
   def setup
@@ -63,16 +70,16 @@ class Metasploit3 < Msf::Post
         datastore['DOMAIN'] = user.split('\\')[0]
       end
 
-      if @domain_controll.nil? and datastore['ENUM_GROUPS']
+      if @domain_controller.nil? and datastore['ENUM_GROUPS']
         @dc_error = false
 
         # Uses DC which applied policy since it would be a DC this device normally talks to
         cmd = "gpresult /SCOPE COMPUTER"
-          # If Vista/2008 or later add /R
-          if (sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
-            cmd << " /R"
-          end
-        res = cmd_exec("cmd.exe","/c #{cmd}")
+        # If Vista/2008 or later add /R
+        if (sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
+          cmd << " /R"
+        end
+        res = cmd_exec("cmd.exe", "/c #{cmd}")
 
         # Check if RSOP data exists, if not disable group check
         unless res =~ /does not have RSOP data./
@@ -117,7 +124,7 @@ class Metasploit3 < Msf::Post
     base = 0
     userlist = Array.new
     begin
-      mem = client.railgun.memread(startmem, 8*count)
+      mem = client.railgun.memread(startmem, 8 * count)
     rescue ::Exception => e
       print_error("Issue reading memory for #{host}")
       vprint_error(e.to_s)
@@ -125,12 +132,12 @@ class Metasploit3 < Msf::Post
     end
     # For each entry returned, get domain and name of logged in user
     begin
-      count.times{|i|
+      count.times { |i|
         temp = {}
-        userptr = mem[(base + 0),4].unpack("V*")[0]
-        temp[:user] = client.railgun.memread(userptr,255).split("\0\0")[0].split("\0").join
-        nameptr = mem[(base + 4),4].unpack("V*")[0]
-        temp[:domain] = client.railgun.memread(nameptr,255).split("\0\0")[0].split("\0").join
+        userptr = mem[(base + 0), 4].unpack("V*")[0]
+        temp[:user] = client.railgun.memread(userptr, 255).split("\0\0")[0].split("\0").join
+        nameptr = mem[(base + 4), 4].unpack("V*")[0]
+        temp[:domain] = client.railgun.memread(nameptr, 255).split("\0\0")[0].split("\0").join
 
         # Ignore if empty or machine account
         unless temp[:user].empty? or temp[:user][-1, 1] == "$"
@@ -178,7 +185,7 @@ class Metasploit3 < Msf::Post
     base = 0
 
     begin
-      mem = client.railgun.memread(startmem, 8*count)
+      mem = client.railgun.memread(startmem, 8 * count)
     rescue ::Exception => e
       print_error("Issue reading memory for groups for user #{user}")
       vprint_error(e.to_s)
@@ -187,19 +194,18 @@ class Metasploit3 < Msf::Post
 
     begin
       # For each entry returned, get group
-      count.to_i.times{|i|
-          temp = {}
-          groupptr = mem[(base + 0),4].unpack("V*")[0]
-          temp[:group] = client.railgun.memread(groupptr,255).split("\0\0")[0].split("\0").join
+      count.to_i.times { |i|
+        temp = {}
+        groupptr = mem[(base + 0), 4].unpack("V*")[0]
+        temp[:group] = client.railgun.memread(groupptr, 255).split("\0\0")[0].split("\0").join
 
-          # Add group to string to be returned
-          grouplist << "#{temp[:group]}, "
-          if (i % 5) == 2
-            grouplist <<"\n\t-   "
-          end
-          base = base + 4
+        # Add group to string to be returned
+        grouplist << "#{temp[:group]}, "
+        if (i % 5) == 2
+          grouplist << "\n\t-   "
+        end
+        base = base + 4
       }
-
     rescue ::Exception => e
       print_error("Issue enumerating groups for user #{user}, check domain")
       vprint_error(e.backtrace)
@@ -207,7 +213,6 @@ class Metasploit3 < Msf::Post
     end
 
     return grouplist.chomp("\n\t-   ")
-
   end
 
   # http://msdn.microsoft.com/en-us/library/windows/desktop/ms684323(v=vs.85).aspx
@@ -221,12 +226,12 @@ class Metasploit3 < Msf::Post
     # use railgun and OpenSCManagerA api to connect to remote host
     manag = @adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
 
-    if(manag["return"] != 0) # we have admin rights
+    if (manag["return"] != 0) # we have admin rights
       result = "#{host.ljust(16)} #{user} - Local admin found\n"
       # Run enumerate users on all hosts if option was set
 
       if datastore['ENUM_USERS']
-        enum_users(host).each {|i|
+        enum_users(host).each { |i|
           result << i
         }
       end
@@ -245,9 +250,9 @@ class Metasploit3 < Msf::Post
   # Write to notes database
   def db_note(host, data, type)
     report_note(
-      :type  => type,
-      :data  => data,
-      :host  => host,
+      :type => type,
+      :data => data,
+      :host => host,
       :update => :unique_data
     )
   end
@@ -255,6 +260,6 @@ class Metasploit3 < Msf::Post
   # Write to loot database
   def db_loot(host, user, type)
     p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
-    vprint_status("User data stored in: #{p}")
+    vprint_good("User data stored in: #{p}")
   end
 end

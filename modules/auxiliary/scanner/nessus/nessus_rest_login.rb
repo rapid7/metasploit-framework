@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/nessus'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -25,33 +23,30 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
       {
         'SSL'        => true,
-        'SSLVersion' => 'TLS1'
       }
     ))
     register_options(
       [
         Opt::RPORT(8834),
         OptString.new('TARGETURI', [ true,  'The path to the Nessus server login API', '/session']),
-      ], self.class)
+      ])
+
+    deregister_options('HttpUsername', 'HttpPassword', 'PASSWORD_SPRAY')
   end
 
 
   # Initializes CredentialCollection and Nessus Scanner
   def init(ip)
-    @cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file:       datastore['PASS_FILE'],
+    @cred_collection = build_credential_collection(
       password:        datastore['PASSWORD'],
-      user_file:       datastore['USER_FILE'],
-      userpass_file:   datastore['USERPASS_FILE'],
-      username:        datastore['USERNAME'],
-      user_as_pass:    datastore['USER_AS_PASS']
+      username:        datastore['USERNAME']
     )
 
     @scanner = Metasploit::Framework::LoginScanner::Nessus.new(
         host: ip,
         port: datastore['RPORT'],
         uri: datastore['TARGETURI'],
+        proxies: datastore['PROXIES'],
         cred_details:       @cred_collection,
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
@@ -139,5 +134,4 @@ class Metasploit3 < Msf::Auxiliary
 
     bruteforce(ip)
   end
-
 end

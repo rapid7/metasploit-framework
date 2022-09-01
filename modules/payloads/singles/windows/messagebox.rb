@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 272
 
@@ -31,10 +27,10 @@ module Metasploit3
     # Register MessageBox options
     register_options(
       [
-        OptString.new('TITLE', [ true, "Messagebox Title (max 255 chars)", "MessageBox" ]),
-        OptString.new('TEXT', [ true, "Messagebox Text (max 255 chars)", "Hello, from MSF!" ]),
+        OptString.new('TITLE', [ true, "Messagebox Title (max 255 chars)", "MessageBox" ], max_length: 255),
+        OptString.new('TEXT', [ true, "Messagebox Text (max 255 chars)", "Hello, from MSF!" ], max_length: 255),
         OptString.new('ICON', [ true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO" ])
-      ], self.class)
+      ])
   end
 
   #
@@ -46,16 +42,10 @@ module Metasploit3
     if (strTitle.length < 1)
       raise ArgumentError, "You must specify a title"
     end
-    if (strTitle.length >= 256)
-      raise ArgumentError, "The title must be less than 256 characters long."
-    end
 
     strText = datastore['TEXT'] + "X"
     if (strText.length < 1)
       raise ArgumentError, "You must specify the text of the MessageBox"
-    end
-    if (strText.length >= 256)
-      raise ArgumentError, "The text must be less than 256 characters long."
     end
 
     # exitfunc process or thread ?
@@ -298,5 +288,4 @@ EOS
 
     pushes
   end
-
 end

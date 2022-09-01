@@ -56,8 +56,6 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
   # @return [Msf::Ui::Console::Driver]
   def driver
     unless @driver
-      # require here so minimum loading is done before {start} is called.
-      require 'msf/ui'
 
       @driver = Msf::Ui::Console::Driver.new(
           Msf::Ui::Console::Driver::DefaultPrompt,
@@ -80,12 +78,14 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
       driver_options['DeferModuleLoads'] = options.modules.defer_loads
-      driver_options['Defanged'] = options.console.defanged
       driver_options['DisableBanner'] = options.console.quiet
       driver_options['DisableDatabase'] = options.database.disable
+      driver_options['HistFile'] = options.console.histfile
       driver_options['LocalOutput'] = options.console.local_output
+      driver_options['Logger'] = options.console.logger
       driver_options['ModulePath'] = options.modules.path
       driver_options['Plugins'] = options.console.plugins
+      driver_options['Readline'] = options.console.readline
       driver_options['RealReadline'] = options.console.real_readline
       driver_options['Resource'] = options.console.resources
       driver_options['XCommands'] = options.console.commands

@@ -1,0 +1,15 @@
+```
+msf > use <%= mod.fullname %>
+msf <%= mod.type %>(<%= mod.shortname %>) > run
+```
+
+This module is also supported by Browser Autopwn 2.
+
+To load it from Browser Autopwn 2, here's how:
+
+```
+msf > use auxiliary/server/browser_autopwn2 
+msf auxiliary(browser_autopwn2) > set INCLUDE_PATTERN <%= mod.shortname %>
+INCLUDE_PATTERN => <%= mod.shortname %>
+msf auxiliary(browser_autopwn2) > exploit
+```

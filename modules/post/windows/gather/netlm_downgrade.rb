@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::WindowsServices
   include Msf::Post::Windows::Priv
@@ -29,14 +25,14 @@ class Metasploit3 < Msf::Post
       'SessionTypes'   => [ 'meterpreter' ],
       'References'     =>
         [
-          [ 'URL', 'http://www.fishnetsecurity.com/6labs/blog/post-exploitation-using-netntlm-downgrade-attacks']
+          [ 'URL', 'https://www.optiv.com/blog/post-exploitation-using-netntlm-downgrade-attacks']
         ]
     ))
 
     register_options(
       [
         OptAddress.new('SMBHOST', [ true, 'IP Address where SMB host is listening to capture hashes.' ])
-      ], self.class)
+      ])
   end
 
   # method to make smb connection

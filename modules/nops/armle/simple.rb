@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 ###
 #
@@ -15,8 +11,7 @@ require 'msf/core'
 # This class implements simple NOP generator for ARM (little endian)
 #
 ###
-class Metasploit3 < Msf::Nop
-
+class MetasploitModule < Msf::Nop
 
   def initialize
     super(
@@ -30,7 +25,7 @@ class Metasploit3 < Msf::Nop
     register_advanced_options(
       [
         OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ], self.class)
+      ])
   end
 
 
@@ -53,11 +48,10 @@ class Metasploit3 < Msf::Nop
       0xe1a0b00b
     ]
 
-    if( random and random.match(/^(t|y|1)/i) )
+    if random
       return ([nops[rand(nops.length)]].pack("V*") * (length/4))
     end
 
     return ([nops[0]].pack("V*") * (length/4))
   end
-
 end

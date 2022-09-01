@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -28,10 +23,10 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '39500'],
           ['URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2007-12/0440.html']
         ],
-      'DisclosureDate' => 'Dec 17 2007'
+      'DisclosureDate' => '2007-12-17'
     ))
 
-    register_options([Opt::RPORT(5400),], self.class)
+    register_options([Opt::RPORT(5400),])
   end
 
   def run
@@ -92,5 +87,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

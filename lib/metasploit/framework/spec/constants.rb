@@ -1,4 +1,3 @@
-require 'msf/core/modules'
 
 # Monitor constants created by module loading to ensure that the loads in one example don't interfere with the
 # assertions in another example.
@@ -20,7 +19,9 @@ module Metasploit::Framework::Spec::Constants
   # and not dynamically loaded code
   PERSISTENT_CHILD_CONSTANT_NAMES = %w{
     Error
+    External
     Loader
+    Metadata
     MetasploitClassCompatibilityError
     Namespace
     VersionCompatibilityError
@@ -42,7 +43,7 @@ module Metasploit::Framework::Spec::Constants
   # Adds actions to `spec` task so that `rake spec` fails if any of the following:
   #
   # # `log/leaked-constants.log` exists after printing out the leaked constants.
-  # # {Each.configured!} is unnecessary in `spec/spec_helper.rb` and should be removed.
+  # # Each.configured! is unnecessary in `spec/spec_helper.rb` and should be removed.
   #
   # @return [void]
   def self.define_task

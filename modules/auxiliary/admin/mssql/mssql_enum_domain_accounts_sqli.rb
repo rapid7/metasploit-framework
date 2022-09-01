@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/exploit/mssql_commands'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL_SQLI
   include Msf::Auxiliary::Report
 
@@ -28,14 +25,14 @@ class Metasploit3 < Msf::Auxiliary
           'antti <antti.rantasaari[at]netspi.com>'
         ],
       'License'     => MSF_LICENSE,
-      'References'  => [[ 'URL','http://msdn.microsoft.com/en-us/library/ms174427.aspx']]
+      'References'  => [[ 'URL','https://docs.microsoft.com/en-us/sql/t-sql/functions/suser-sname-transact-sql']]
       ))
 
     register_options(
     [
       OptInt.new('START_RID', [true, 'RID to start fuzzing at.', 500]),
       OptInt.new('END_RID', [true, 'RID to stop fuzzing at.', 3000])
-    ], self.class)
+    ])
   end
 
   def run
@@ -84,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{domain_users.length} user accounts, groups, and computer accounts were found.")
 
     # Create table for report
-    windows_domain_login_table = Rex::Ui::Text::Table.new(
+    windows_domain_login_table = Rex::Text::Table.new(
       'Header'  => 'Windows Domain Accounts',
       'Ident'   => 1,
       'Columns' => ['name']
@@ -218,5 +215,4 @@ class Metasploit3 < Msf::Auxiliary
     # Create full sid
     "0x#{domain_sid}#{principal_id}"
   end
-
 end

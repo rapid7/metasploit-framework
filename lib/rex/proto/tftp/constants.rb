@@ -1,9 +1,8 @@
 # -*- coding: binary -*-
-require 'rex/proto/tftp'
 
 module Rex
 module Proto
-module TFTP
+module TFTP::Constants
 
 OPCODES = %w{ Unknown RRQ WRQ DATA ACK ERROR }
 OpRead = 1

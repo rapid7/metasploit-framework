@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,11 +8,8 @@
 # parses the usernames and passwords from it.
 ##
 
-require 'msf/core'
-require 'rex/ui/text/shell'
-require 'rex/proto/tftp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
   include Rex::Proto::TFTP
   include Msf::Exploit::Remote::Udp
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2012-6663'],
         ],
-      'DisclosureDate' => 'Jan 19 2012'
+      'DisclosureDate' => '2012-01-19'
       ))
 
     register_options(
@@ -40,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(69),
         Opt::RHOST('192.168.255.1'),
         OptString.new('REMOTE_CONFIG_NAME', [true, "The remote filename used to retrieve the configuration", "NVRAM\\D20.zlb"])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -222,7 +219,7 @@ class Metasploit3 < Msf::Auxiliary
     headerlen = makeword(f.read(2))
     f.seek(userentryptr + 40) # sorry decimal
     entrylen = makeword(f.read(2)) # sorry this is decimal
-    logins = Rex::Ui::Text::Table.new(
+    logins = Rex::Text::Table.new(
       'Header' => "D20 usernames, passwords, and account levels\n(use for TELNET authentication)",
       'Indent' => 1,
       'Columns' => ["Type", "User Name", "Password"])

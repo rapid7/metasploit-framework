@@ -24,7 +24,7 @@ class IrbShell
     # Initialize IRB by setting up its internal configuration hash and
     # stuff.
     if (@@IrbInitialized == false)
-      load('irb.rb')
+      require 'irb'
 
       IRB.setup(nil)
       IRB.conf[:PROMPT_MODE]  = :SIMPLE

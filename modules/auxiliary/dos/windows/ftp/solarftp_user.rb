@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -30,12 +27,12 @@ class Metasploit3 < Msf::Auxiliary
       [
         [ 'EDB', '16204' ],
       ],
-      'DisclosureDate' => 'Feb 22 2011'))
+      'DisclosureDate' => '2011-02-22'))
 
       register_options(
       [
         Opt::RPORT(21)
-      ],self.class)
+      ])
   end
 
   def run
@@ -51,5 +48,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

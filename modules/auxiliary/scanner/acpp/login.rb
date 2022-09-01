@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/proto/acpp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/acpp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -35,12 +33,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(Rex::Proto::ACPP::DEFAULT_PORT)
-      ], self.class)
+      ])
 
     deregister_options(
       # there is no username, so remove all of these options
       'DB_ALL_USERS',
       'DB_ALL_CREDS',
+      'DB_SKIP_EXISTING',
+      'PASSWORD_SPRAY',
       'USERNAME',
       'USERPASS_FILE',
       'USER_FILE',
@@ -53,13 +53,11 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
+    cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      username: '<BLANK>'
+      password: datastore['PASSWORD']
     )
-
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::ACPP.new(
@@ -93,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{password}")
+        print_good("#{ip}:#{rport} - ACPP Login Successful: #{password}")
         report_vuln(
           host: ip,
           port: rport,

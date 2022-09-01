@@ -1,9 +1,16 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+#
 # Reads untest payload modules from log/untested-payloads.log (which can be produced by running `rake spec`) and prints
-# the statements that need to be added to `spec/modules/payloads_spec.rb`.  **Note: this script depends on the payload
+# the statements that need to be added to `spec/modules/payloads_spec.rb`. **Note: this script depends on the payload
 # being loadable, so if module is not loadable, then the developer must manually determine which single needs to be tested
 # or which combinations of stages and stagers need to be tested.**
+#
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -12,8 +19,6 @@ end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
 require 'msfenv'
-require 'msf/core'
-require 'msf/base'
 
 framework = Msf::Simple::Framework.create()
 
@@ -22,13 +27,14 @@ options_set_by_ancestor_reference_name = Hash.new { |hash, ancestor_reference_na
 }
 
 framework.payloads.each { |reference_name, payload_class|
+  next unless payload_class
   module_ancestors = payload_class.ancestors.select { |ancestor|
     # need to use try because name may be nil for anonymous Modules
     ancestor.name.try(:start_with?, 'Msf::Modules::')
   }
   ancestor_reference_names = module_ancestors.map { |module_ancestor|
     unpacked_module_ancestor_full_name = module_ancestor.name.sub(/^Msf::Modules::Mod/, '')
-                                                             .sub(/::Metasploit\d+/, '')
+                                                             .sub(/::MetasploitModule/, '')
     module_ancestor_full_name = [unpacked_module_ancestor_full_name].pack("H*")
     module_ancestor_full_name.sub(%r{^payload/}, '')
   }
@@ -59,21 +65,21 @@ File.open('log/untested-payloads.log') { |f|
        unless tested_options.include? options
          reference_name = options[:reference_name]
 
-         $stderr.puts
-         $stderr.puts "  context '#{reference_name}' do\n" \
+         $stdout.puts
+         $stdout.puts "  context '#{reference_name}' do\n" \
                       "    it_should_behave_like 'payload cached size is consistent',\n" \
                       "                          ancestor_reference_names: ["
 
          ancestor_reference_names = options[:ancestor_reference_names]
 
          if ancestor_reference_names.length == 1
-           $stderr.puts "                            '#{ancestor_reference_names[0]}'"
+           $stdout.puts "                            '#{ancestor_reference_names[0]}'"
          else
-           $stderr.puts "                            '#{ancestor_reference_names[1]}',"
-           $stderr.puts "                            '#{ancestor_reference_names[0]}'"
+           $stdout.puts "                            '#{ancestor_reference_names[1]}',"
+           $stdout.puts "                            '#{ancestor_reference_names[0]}'"
          end
 
-         $stderr.puts "                          ],\n" \
+         $stdout.puts "                          ],\n" \
                       "                          dynamic_size: false,\n" \
                       "                          modules_pathname: modules_pathname,\n" \
                       "                          reference_name: '#{reference_name}'\n" \

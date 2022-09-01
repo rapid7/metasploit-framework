@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_METADATA.GET_GRANTED_XML',
       'Description'    => %q{
-        This module will escalate a Oracle DB user to DBA by exploiting an sql injection
+        This module will escalate an Oracle DB user to DBA by exploiting a sql injection
         bug in the SYS.DBMS_METADATA.GET_GRANTED_XML package/function.
       },
       'Author'         => [ 'MC' ],
@@ -22,12 +19,12 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'URL', 'http://www.metasploit.com' ],
         ],
-      'DisclosureDate' => 'Jan 5 2008'))
+      'DisclosureDate' => '2008-01-05'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run

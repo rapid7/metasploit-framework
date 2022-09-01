@@ -1,43 +1,57 @@
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/railgun'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
-  include Msf::Post::Windows::Railgun
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'railgun_testing',
-        'Description'   => %q{ This module will test railgun code used in post modules},
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'kernelsmith'],
-        'Platform'      => [ 'windows' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'railgun_testing',
+        'Description' => %q{ This module will test railgun code used in post modules},
+        'License' => MSF_LICENSE,
+        'Author' => [ 'kernelsmith'],
+        'Platform' => [ 'windows' ]
+      )
+    )
 
     register_options(
       [
-        OptInt.new("ERR_CODE",   [ false, "Error code to reverse lookup" ]),
-        OptInt.new("WIN_CONST",  [ false, "Windows constant to reverse lookup" ]),
+        OptInt.new("ERR_CODE", [ false, "Error code to reverse lookup" ]),
+        OptInt.new("WIN_CONST", [ false, "Windows constant to reverse lookup" ]),
         OptRegexp.new("WCREGEX", [ false, "Regexp to apply to constant rev lookup" ]),
         OptRegexp.new("ECREGEX", [ false, "Regexp to apply to error code lookup" ]),
-      ], self.class)
+      ], self.class
+    )
+  end
 
+  #
+  # Return an array of windows constants names matching +winconst+
+  #
+  def select_const_names(winconst, filter_regex = nil)
+    session.railgun.constant_manager.select_const_names(winconst, filter_regex)
+  end
+
+  #
+  # Returns an array of windows error code names for a given windows error code matching +err_code+
+  #
+  def lookup_error(err_code, filter_regex = nil)
+    select_const_names(err_code, /^ERROR_/).select do |name|
+      name =~ filter_regex
+    end
   end
 
   def test_static
-
     it "should return a constant name given a const and a filter" do
       ret = true
       results = select_const_names(4, /^SERVICE/)
@@ -65,16 +79,14 @@ class Metasploit3 < Msf::Post
 
       ret
     end
-
   end
 
   def test_datastore
-
     if (datastore["WIN_CONST"])
       it "should look up arbitrary constants" do
         ret = true
         results = select_const_names(datastore['WIN_CONST'], datastore['WCREGEX'])
-        #vprint_status("RESULTS:  #{results.class} #{results.pretty_inspect}")
+        # vprint_status("RESULTS:  #{results.class} #{results.pretty_inspect}")
 
         ret
       end
@@ -84,13 +96,10 @@ class Metasploit3 < Msf::Post
       it "should look up arbitrary error codes" do
         ret = true
         results = lookup_error(datastore['ERR_CODE'], datastore['ECREGEX'])
-        #vprint_status("RESULTS:  #{results.class} #{results.inspect}")
+        # vprint_status("RESULTS:  #{results.class} #{results.inspect}")
 
         ret
       end
     end
-
   end
 end
-
-

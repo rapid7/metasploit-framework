@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -30,15 +27,15 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2013-0136' ],
           [ 'US-CERT-VU', '701572' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/05/15/new-1day-exploits-mutiny-vulnerabilities' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/05/15/new-1day-exploits-mutiny-vulnerabilities/' ]
         ],
       'Actions'     =>
         [
-          ['Read'],
-          ['Delete']
+          ['Read', 'Description' => 'Read arbitrary file'],
+          ['Delete', 'Description' => 'Delete arbitrary file']
         ],
       'DefaultAction' => 'Read',
-      'DisclosureDate' => 'May 15 2013'))
+      'DisclosureDate' => '2013-05-15'))
 
     register_options(
       [
@@ -47,13 +44,13 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, 'The user to authenticate as', 'superadmin@mutiny.com' ]),
         OptString.new('PASSWORD', [ true, 'The password to authenticate with', 'password' ]),
         OptString.new('PATH',     [ true, 'The file to read or delete' ]),
-      ], self.class)
+      ])
   end
 
   def run
     print_status("Trying to login")
     if login
-      print_good("Login successful")
+      print_good("Login Successful")
     else
       print_error("Login failed, review USERNAME and PASSWORD options")
       return
@@ -172,5 +169,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return false
   end
-
 end

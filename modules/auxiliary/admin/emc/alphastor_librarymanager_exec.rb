@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
@@ -26,13 +22,13 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '45715' ],
           [ 'BID', '29398' ],
         ],
-      'DisclosureDate' => 'May 27 2008'))
+      'DisclosureDate' => '2008-05-27'))
 
       register_options(
         [
           Opt::RPORT(3500),
           OptString.new('CMD', [ false, 'The OS command to execute', 'echo metasploit > metasploit.txt']),
-        ], self.class)
+        ])
   end
 
   def run

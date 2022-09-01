@@ -8,7 +8,7 @@ module Auxiliary::MimeTypes
   def mime_lookup_by_extension(extension)
     return 'application/octet-stream' if extension.nil? or extension.empty?
     if extension.starts_with? '.'
-      extension.gsub!('.','')
+      extension.delete!('.')
     end
     mtype = Mime::Type.lookup_by_extension(extension)
     mtype = mime_yaml_lookup(extension) if mtype.nil?

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
         [ 'OSVDB', '49998'],
         [ 'EDB', '7109' ]
       ],
-      'DisclosureDate' => 'Nov 13 2008'))
+      'DisclosureDate' => '2008-11-13'))
 
     register_options([
       OptString.new('FILENAME', [ true, 'File in /isapi to request', 'users.txt' ])

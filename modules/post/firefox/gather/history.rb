@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'json'
-require 'msf/core'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
   def initialize(info={})
@@ -19,12 +17,12 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev' ],
-      'DisclosureDate' => 'Apr 11 2014'
+      'DisclosureDate' => '2014-04-11'
     ))
 
     register_options([
       OptInt.new('TIMEOUT', [true, "Maximum time (seconds) to wait for a response", 90])
-    ], self.class)
+    ])
   end
 
   def run

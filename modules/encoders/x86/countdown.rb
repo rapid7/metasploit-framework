@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Encoder::Xor
+class MetasploitModule < Msf::Encoder::Xor
 
   def initialize
     super(
@@ -35,21 +31,23 @@ class Metasploit3 < Msf::Encoder::Xor
     if (modified_registers & saved_registers).length > 0
       raise BadGenerateError
     end
+    begin
+      decoder =
+        Rex::Arch::X86.set(
+          Rex::Arch::X86::ECX,
+          state.buf.length - 1,
+          state.badchars) +
+        "\xe8\xff\xff\xff" +  # call $+4
+        "\xff\xc1" +          # inc ecx
+        "\x5e" +              # pop esi
+        "\x30\x4c\x0e\x07" +  # xor_loop: xor [esi + ecx + 0x07], cl
+        "\xe2\xfa"            # loop xor_loop
 
-    decoder =
-      Rex::Arch::X86.set(
-        Rex::Arch::X86::ECX,
-        state.buf.length - 1,
-        state.badchars) +
-      "\xe8\xff\xff\xff" +  # call $+4
-      "\xff\xc1" +          # inc ecx
-      "\x5e" +              # pop esi
-      "\x30\x4c\x0e\x07" +  # xor_loop: xor [esi + ecx + 0x07], cl
-      "\xe2\xfa"            # loop xor_loop
-
-    # Initialize the state context to 1
-    state.context = 1
-
+      # Initialize the state context to 1
+      state.context = 1
+    rescue RuntimeError => e
+      raise BadcharError if e.message == "No valid set instruction could be created!"
+    end
     return decoder
   end
 

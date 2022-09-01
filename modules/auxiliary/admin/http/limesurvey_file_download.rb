@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 # for extracting files
 require 'zip'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -29,11 +26,11 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          ['URL', 'https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20151022-0_Lime_Survey_multiple_critical_vulnerabilities_v10.txt'],
-          ['URL', 'https://www.limesurvey.org/en/blog/76-limesurvey-news/security-advisories/1836-limesurvey-security-advisory-10-2015'],
+          ['URL', 'https://sec-consult.com/vulnerability-lab/advisory/multiple-critical-vulnerabilities-in-lime-survey/'],
+          ['URL', 'https://www.limesurvey.org/blog/22-security/136-limesurvey-security-advisory-10-2015'],
           ['URL', 'https://github.com/LimeSurvey/LimeSurvey/compare/2.06_plus_151014...2.06_plus_151016?w=1']
         ],
-      'DisclosureDate' => 'Oct 12 2015'))
+      'DisclosureDate' => '2015-10-12'))
 
     register_options(
       [
@@ -41,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, "The base path to the limesurvey installation", '/']),
         OptString.new('FILEPATH', [true, 'Path of the file to download', '/etc/passwd']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 15])
-      ], self.class)
+      ])
   end
 
   def filepath

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Dos
 
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '49043' ],
           [ 'EDB', '6581' ]
         ],
-      'DisclosureDate' => 'Sep 26 2008'))
+      'DisclosureDate' => '2008-09-26'))
   end
 
   def run

@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(
       update_info(
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Post
         OptString.new('USERS', [false, 'List of users to write(1) to, separated by commas. ' \
                       ' wall(1)s to all users by default']),
         OptBool.new('COWSAY', [true, 'Display MESSAGE in a ~cowsay way', false])
-      ], self.class)
+      ])
   end
 
   def users

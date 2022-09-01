@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::JBoss
 
   def initialize
@@ -24,13 +21,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2010-0738' ], # using a VERB other than GET/POST
           [ 'OSVDB', '64171' ],
-          [ 'URL', 'http://www.redteam-pentesting.de/publications/jboss' ],
+          [ 'URL', 'https://www.redteam-pentesting.de/en/publications/jboss/-bridging-the-gap-between-the-enterprise-and-you-or-whos-the-jboss-now' ],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=574105' ]
         ],
       'Actions'       =>
         [
-          ['Deploy'],
-          ['Undeploy']
+          ['Deploy', 'Description' => 'Create and deploy app (WAR) to deliver payload'],
+          ['Undeploy', 'Description' => 'Remove app (WAR) for cleanup']
         ],
       'DefaultAction' => 'Deploy',
       'License'       => BSD_LICENSE,
@@ -41,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('APPBASE', [ true,  'Application base name', 'payload']),
         OptPath.new('WARFILE',   [ false, 'The WAR file to deploy'])
-      ], self.class)
+      ])
   end
 
   def deploy_action(app_base, war_data)
@@ -134,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
       unless datastore['WARFILE'] && File.exist?(datastore['WARFILE'])
         fail_with(Failure::BadConfig, "Unable to open WARFILE")
       end
-      war_data = File.read(datastore['WARFILE'])
+      war_data = File.read(datastore['WARFILE'], mode: 'rb')
       deploy_action(app_base, war_data)
     when 'Undeploy'
       undeploy_action(app_base)

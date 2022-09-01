@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -14,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'TikiWiki Information Disclosure',
       'Description'    => %q{
           A vulnerability has been reported in Tikiwiki, which can be exploited by
-        a anonymous user to dump the MySQL user & passwd just by creating a mysql
+        an anonymous user to dump the MySQL user & passwd just by creating a mysql
         error with the "sort_mode" var.
 
         The vulnerability was reported in Tikiwiki version 1.9.5.
@@ -26,20 +23,20 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '30172'],
           ['BID', '20858'],
           ['CVE', '2006-5702'],
-          ['URL', 'http://secunia.com/advisories/22678/'],
+          ['URL', 'https://web.archive.org/web/20080211225557/http://secunia.com/advisories/22678/'],
         ],
-      'DisclosureDate' => 'Nov 1 2006',
+      'DisclosureDate' => '2006-11-01',
       'Actions'        =>
         [
-          ['Download']
+          ['Dump', 'Description' => 'Dump user and password']
         ],
-      'DefaultAction'  => 'Download'
+      'DefaultAction'  => 'Dump'
       ))
 
     register_options(
       [
         OptString.new('URI', [true, "TikiWiki directory path", "/tikiwiki"]),
-      ], self.class)
+      ])
   end
 
   def run

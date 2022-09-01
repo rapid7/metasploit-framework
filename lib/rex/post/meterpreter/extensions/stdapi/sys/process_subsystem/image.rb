@@ -49,7 +49,7 @@ class Image
   # Loads an image file into the context of the process.
   #
   def load(image_path)
-    request = Packet.create_request('stdapi_sys_process_image_load')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_LOAD)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_IMAGE_FILE_PATH, image_path)
@@ -64,7 +64,7 @@ class Image
   # library.
   #
   def get_procedure_address(image_file, procedure)
-    request = Packet.create_request('stdapi_sys_process_image_get_proc_address')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_GET_PROC_ADDRESS)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_IMAGE_FILE, image_file)
@@ -80,12 +80,12 @@ class Image
   # process by its base address.
   #
   def unload(base)
-    request = Packet.create_request('stdapi_sys_process_image_unload')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_UNLOAD)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_IMAGE_BASE, base)
 
-    response = process.client.send_request(request)
+    process.client.send_request(request)
 
     return true
   end
@@ -102,7 +102,7 @@ class Image
   # have keys for 'name', 'path', and 'base'.
   #
   def get_images
-    request = Packet.create_request('stdapi_sys_process_image_get_images')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_GET_IMAGES)
     images  = []
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)

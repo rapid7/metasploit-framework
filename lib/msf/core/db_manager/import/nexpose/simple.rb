@@ -1,4 +1,3 @@
-require 'rex/parser/nexpose_simple_nokogiri'
 
 module Msf::DBManager::Import::Nexpose::Simple
   def import_nexpose_noko_stream(args, &block)
@@ -13,12 +12,12 @@ module Msf::DBManager::Import::Nexpose::Simple
 
   def import_nexpose_simplexml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     if Rex::Parser.nokogiri_loaded
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup
       noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
+      noko_args[:workspace] = wspace
       if block
         yield(:parser, parser)
         import_nexpose_noko_stream(noko_args) {|type, data| yield type,data}
@@ -155,7 +154,6 @@ module Msf::DBManager::Import::Nexpose::Simple
   #
   def import_nexpose_simplexml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

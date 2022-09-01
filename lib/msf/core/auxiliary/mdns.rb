@@ -27,8 +27,8 @@ module Msf
     def build_probe
       @probe ||= ::Net::DNS::Packet.new(query_name, query_type_num, query_class_num).data
       # TODO: support QU vs QM probes
-      # @probe[@probe.size-2] = [0x80].pack('C')
-      # @probe
+      #+ @probe[@probe.size-2] = [0x80].pack('C')
+      #+ @probe
     end
 
     def query_class

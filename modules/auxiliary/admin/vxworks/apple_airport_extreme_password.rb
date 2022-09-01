@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WDBRPC_Client
 
   def initialize(info = {})
@@ -27,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['OSVDB', '66842'],
-          ['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
+          ['URL', 'https://www.rapid7.com/blog/post/2010/08/02/new-vxworks-vulnerabilities/'],
           ['US-CERT-VU', '362332']
         ]
       ))

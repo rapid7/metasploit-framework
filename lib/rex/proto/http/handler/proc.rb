@@ -36,10 +36,10 @@ class Handler::Proc < Handler
   def on_request(cli, req)
     begin
       procedure.call(cli, req)
-    rescue Errno::EPIPE, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
-      elog("Proc::on_request: Client closed connection prematurely", LogSource)
-    rescue
-      elog("Proc::on_request: #{$!.class}: #{$!}\n\n#{$@.join("\n")}", LogSource)
+    rescue Errno::EPIPE, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED => e
+      elog('Proc::on_request: Client closed connection prematurely', LogSource, error: e)
+    rescue => e
+      elog('Proc::on_request', LogSource, error: e)
       if self.server and self.server.context
         exploit = self.server.context['MsfExploit']
         if exploit

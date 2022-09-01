@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
@@ -35,8 +33,8 @@ class Metasploit3 < Msf::Auxiliary
         'References'     =>
           [
             [ 'URL', 'http://talosintel.com/reports/TALOS-2015-0069/' ],
-            [ 'URL', 'http://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
-            [ 'URL', 'http://support.ntp.org/bin/view/Main/NtpBug2941' ],
+            [ 'URL', 'https://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
+            [ 'URL', 'https://support.ntp.org/bin/view/Main/NtpBug2941' ],
             [ 'CVE', '2015-7871' ]
           ]
       )
@@ -45,9 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('OFFSET', [true, "Offset from local time, in seconds", 300])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def build_crypto_nak(time)
@@ -83,11 +79,11 @@ class Metasploit3 < Msf::Auxiliary
     probe = build_crypto_nak(canary_timestamp)
     udp_sock.put(probe)
 
-    expected_length = probe.length - probe.payload.length
+    expected_length = probe.to_binary_s.length - probe.payload.length
     response = udp_sock.timed_read(expected_length)
     disconnect_udp
     if response.length == expected_length
-      ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new(response)
+      ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new.read(response)
       if ntp_symmetric.mode == 2 && ntp_symmetric.origin_timestamp == canary_timestamp
         vprint_good("#{rhost}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
         report_vuln(

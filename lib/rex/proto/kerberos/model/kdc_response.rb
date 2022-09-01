@@ -8,10 +8,10 @@ module Rex
         # definition
         class KdcResponse < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of a protocol message
+          #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
           # @!attribute crealm
           #   @return [String] The realm part of the client's principal identifier
@@ -30,7 +30,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -38,7 +38,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KdcResponse, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcResponse, invalid input'
             end
 
             self
@@ -65,7 +65,7 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::KdcResponse
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag
@@ -82,7 +82,7 @@ module Rex
               when 6
                 self.enc_part = decode_enc_part(val)
               else
-                raise ::RuntimeError, 'Failed to decode KDC-RESPONSE SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KDC-RESPONSE SEQUENCE'
               end
             end
           end
@@ -90,7 +90,7 @@ module Rex
           # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_pvno(input)
             input.value[0].value.to_i
           end
@@ -98,7 +98,7 @@ module Rex
           # Decodes the msg_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_msg_type(input)
             input.value[0].value.to_i
           end

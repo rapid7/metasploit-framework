@@ -1,5 +1,4 @@
 require 'metasploit/framework/tcp/client'
-require 'rex/proto/acpp'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 

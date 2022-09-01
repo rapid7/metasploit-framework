@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -21,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References' =>
         [
-          [ 'URL', 'https://code.google.com/p/memcached/issues/detail?id=192' ],
+          [ 'URL', 'https://code.google.com/archive/p/memcached/issues/192' ],
           [ 'CVE', '2011-4971' ],
           [ 'OSVDB', '92867' ]
         ],
@@ -29,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE
     ))
 
-    register_options([Opt::RPORT(11211),], self.class)
+    register_options([Opt::RPORT(11211),])
   end
 
   def is_alive?

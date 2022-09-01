@@ -1,20 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'msf/core/payload/windows/dllinject'
-require 'msf/base/sessions/meterpreter_x86_win'
-require 'msf/base/sessions/meterpreter_options'
 
 ###
 #
 # Injects the meterpreter server instance DLL via the DLL injection payload.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::DllInject
   include Msf::Sessions::MeterpreterOptions
@@ -43,5 +38,4 @@ module Metasploit3
   def library_path
     MetasploitPayloads.meterpreter_path('metsrv','x86.dll')
   end
-
 end

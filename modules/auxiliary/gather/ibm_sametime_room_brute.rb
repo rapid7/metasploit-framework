@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'enumerable'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -33,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
           'SSL' => true
         },
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 27 2013'
+      'DisclosureDate' => '2013-12-27'
     ))
 
     register_options(
@@ -42,13 +39,13 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('OWNER', [ true,  'The owner to bruteforce meeting room names for', '']),
         OptPath.new('DICT', [ true,  'The path to the userinfo script' ]),
         OptString.new('TARGETURI', [ true, 'Path to stmeetings', '/stmeetings/'])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptInt.new('TIMING', [ true,  'Set pause between requests', 0]),
         OptInt.new('Threads', [ true,  'Number of test threads', 10])
-      ], self.class)
+      ])
   end
 
   def run
@@ -192,5 +189,4 @@ class Metasploit3 < Msf::Auxiliary
     print_good(roomtbl.to_s)
 
   end
-
 end

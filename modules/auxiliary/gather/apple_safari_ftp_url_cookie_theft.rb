@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/service_manager'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report
 
@@ -26,12 +23,12 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'References'  => [
         [ 'CVE', '2015-1126' ],
-        [ 'URL', 'http://seclists.org/fulldisclosure/2015/Apr/30' ]
+        [ 'URL', 'https://seclists.org/fulldisclosure/2015/Apr/30' ]
       ],
-      'Actions'        => [ [ 'WebServer' ] ],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => 'Apr 8 2015'
+      'DisclosureDate' => '2015-04-08'
     ))
 
     register_options([
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         'The comma-separated list of domains to steal non-HTTPOnly cookies from.',
         'apple.com,example.com'
       ])
-    ], self.class )
+    ])
   end
 
 
@@ -172,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
   # set.
   #
   def use_zlib
-    unless Rex::Text.zlib_present? || datastore['HTTP::compression'] == false
+    unless Rex::Text.zlib_present? || !datastore['HTTP::compression']
       fail_with(Failure::Unknown, "zlib support was not detected, yet the HTTP::compression option was set.  Don't do that!")
     end
   end
@@ -257,5 +254,4 @@ class Metasploit3 < Msf::Auxiliary
   def grab_key
     @grab_key ||= Rex::Text.rand_text_alphanumeric(8)
   end
-
 end

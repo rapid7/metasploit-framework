@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'pathname'
 
 #
@@ -42,9 +41,9 @@ class Msf::ModuleSet < Hash
     # If there is no module associated with this class, then try to demand
     # load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      framework.modules.load_cached_module(module_type, reference_name)
-
-      recalculate
+      if framework.modules.load_cached_module(module_type, reference_name) || empty?
+        recalculate
+      end
 
       klass = fetch(reference_name, nil)
     end
@@ -183,8 +182,8 @@ class Msf::ModuleSet < Hash
   # @option info [Array<String>] 'files' List of paths to files that defined
   #   +klass+.
   # @return [Class] The klass parameter modified to have
-  #   {Msf::Module#framework}, {Msf::Module#refname}, {Msf::Module#file_path},
-  #   and {Msf::Module#orig_cls} set.
+  #   Msf::Module.framework, Msf::Module#refname, Msf::Module#file_path,
+  #   and Msf::Module#orig_cls set.
   def add_module(klass, reference_name, info = {})
     # Set the module's reference_name so that it can be referenced when
     # instances are created.

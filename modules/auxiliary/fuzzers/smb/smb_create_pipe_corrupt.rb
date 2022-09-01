@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Fuzzer
 
@@ -23,12 +19,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test']),
       OptString.new('SMBPIPE', [true, 'Specify the pipe name to corrupt', "\\BROWSER"])
-    ], self.class)
+    ])
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def do_smb_login(pkt,opts={})
     @connected = false
-    connect
+    connect(versions: [1])
     smb_login
 
     @connected = true
@@ -39,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
 
     # Connect in order to get the server-assigned user-id/tree-id
-    connect
+    connect(versions: [1])
     smb_login
     pkt = make_smb_create
     disconnect

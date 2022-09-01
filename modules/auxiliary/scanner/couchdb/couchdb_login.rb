@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -37,13 +34,15 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
-      ], self.class)
+      ])
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(ip)
 
-    user = datastore['USERNAME'].to_s
-    pass = datastore['PASSWORD'].to_s
+    user = datastore['HttpUsername'].to_s
+    pass = datastore['HttpPassword'].to_s
 
     if user.nil? || user.strip == ''
       each_user_pass do |user, pass|

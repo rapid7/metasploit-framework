@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Services
 
   def initialize(info={})
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Post
         OptString.new('CRED', [ false, 'String to search credentials for' ]),
         OptString.new('PATH', [ false, 'String to search path for' ]),
         OptEnum.new('TYPE', [true, 'Service startup Option', 'All', ['All', 'Auto', 'Manual', 'Disabled' ]])
-      ], self.class)
+      ])
   end
 
 
@@ -65,7 +60,7 @@ class Metasploit3 < Msf::Post
       print_status("Start Type Filter: #{qtype}")
     end
 
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
         'Header'     => 'Services',
         'Indent'     => 1,
         'SortIndex'  => 0,
@@ -128,5 +123,4 @@ class Metasploit3 < Msf::Post
     p = store_loot("windows.services", "text/plain", session, results_table.to_s, "windows_services.txt", "Windows Services")
     print_good("Loot file stored in: #{p.to_s}")
   end
-
 end

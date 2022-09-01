@@ -20,7 +20,7 @@ class SessionManager < Hash
 
   include Framework::Offspring
 
-  LAST_SEEN_INTERVAL  = 60 * 2.5
+  LAST_SEEN_INTERVAL = 60 * 2.5
   SCHEDULER_THREAD_COUNT = 5
 
   def initialize(framework)
@@ -99,6 +99,11 @@ class SessionManager < Hash
         end
 
         #
+        # Skip the database cleanup code below if there is no database
+        #
+        next unless framework.db && framework.db.active && framework.db.is_local?
+
+        #
         # Mark all open session as alive every LAST_SEEN_INTERVAL
         #
         if (Time.now.utc - last_seen_timer) >= LAST_SEEN_INTERVAL
@@ -107,40 +112,25 @@ class SessionManager < Hash
           # processing time for large session lists from skewing our update interval.
 
           last_seen_timer = Time.now.utc
-          if framework.db.active
-            ::ActiveRecord::Base.connection_pool.with_connection do
-              values.each do |s|
-                # Update the database entry on a regular basis, marking alive threads
-                # as recently seen.  This notifies other framework instances that this
-                # session is being maintained.
-                if s.db_record
-                  s.db_record.last_seen = Time.now.utc
-                  s.db_record.save
-                end
+
+          ::ApplicationRecord.connection_pool.with_connection do
+            values.each do |s|
+              # Update the database entry on a regular basis, marking alive threads
+              # as recently seen.  This notifies other framework instances that this
+              # session is being maintained.
+              if s.db_record
+                s.db_record = framework.db.update_session(id: s.db_record.id, last_seen: Time.now.utc)
               end
             end
           end
         end
 
-
-        #
-        # Skip the database cleanup code below if there is no database
-        #
-        next if not (framework.db and framework.db.active)
-
         #
         # Clean out any stale sessions that have been orphaned by a dead
         # framework instance.
         #
-        ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-          ::Mdm::Session.where(closed_at: nil).each do |db_session|
-            if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
-              db_session.closed_at    = db_session.last_seen || Time.now.utc
-              db_session.close_reason = "Orphaned"
-              db_session.save
-            end
-          end
-        end
+        framework.db.remove_stale_sessions(LAST_SEEN_INTERVAL)
+
       end
 
       #
@@ -148,8 +138,7 @@ class SessionManager < Hash
       #
       rescue ::Exception => e
         respawn_cnt += 1
-        elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread #{e.class} #{e}")
-        elog("Call stack: \n#{e.backtrace.join("\n")}")
+        elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread", error: e)
         if respawn_cnt < respawn_max
           ::IO.select(nil, nil, nil, 10.0)
           retry
@@ -228,18 +217,12 @@ class SessionManager < Hash
       # Insert the session into the session hash table
       self[next_sid.to_i] = session
 
-      # Notify the framework that we have a new session opening up...
-      # Don't let errant event handlers kill our session
-      begin
-        framework.events.on_session_open(session)
-      rescue ::Exception => e
-        wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
-        wlog("Call Stack\n#{e.backtrace.join("\n")}")
-      end
-
       if session.respond_to?("console")
         session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
         session.console.on_print_proc = Proc.new { |output| framework.events.on_session_output(session, output) }
+      end
+      if session.respond_to?("on_registered")
+        session.on_registered
       end
     end
 
@@ -282,10 +265,9 @@ class SessionManager < Hash
     session = nil
     sid = sid.to_i
 
-    if sid > 0
-      session = self[sid]
-    elsif sid == -1
-      sid = self.keys.sort[-1]
+    if sid < 0
+      session = self[self.keys.sort[sid]]
+    elsif sid > 0
       session = self[sid]
     end
 
@@ -312,4 +294,3 @@ protected
 end
 
 end
-

@@ -19,7 +19,7 @@ module Metasploit
           #   @return [Object] The framework module caller, if availale
           attr_accessor :framework_module
           # @!attribute connection_timeout
-          #   @return [Fixnum] The timeout in seconds for a single SSH connection
+          #   @return [Integer] The timeout in seconds for a single SSH connection
           attr_accessor :connection_timeout
           # @!attribute cred_details
           #   @return [CredentialCollection] Collection of Credential objects
@@ -28,13 +28,13 @@ module Metasploit
           #   @return [String] The IP address or hostname to connect to
           attr_accessor :host
           # @!attribute port
-          #   @return [Fixnum] The port to connect to
+          #   @return [Integer] The port to connect to
           attr_accessor :port
           # @!attribute host
           #   @return [String] The local host for outgoing connections
           attr_accessor :local_host
           # @!attribute port
-          #   @return [Fixnum] The local port for outgoing connections
+          #   @return [Integer] The local port for outgoing connections
           attr_accessor :local_port
           # @!attribute proxies
           #   @return [String] The proxy directive to use for the socket
@@ -43,7 +43,7 @@ module Metasploit
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
           # @!attribute bruteforce_speed
-          #   @return [Fixnum] The desired speed, with 5 being 'fast' and 0 being 'slow.'
+          #   @return [Integer] The desired speed, with 5 being 'fast' and 0 being 'slow.'
           attr_accessor :bruteforce_speed
 
           validates :connection_timeout,
@@ -115,7 +115,7 @@ module Metasploit
           # overridden, the override should probably do something sensible
           # with {#bruteforce_speed}
           #
-          # @return [Fixnum] a number of seconds to sleep between attempts
+          # @return [Integer] a number of seconds to sleep between attempts
           def sleep_time
             case bruteforce_speed
               when 0; 60 * 5
@@ -129,7 +129,7 @@ module Metasploit
 
           # A threadsafe sleep method
           #
-          # @param time [Fixnum] number of seconds (can be a Float), defaults
+          # @param time [Integer] number of seconds (can be a Float), defaults
           # to {#sleep_time}
           #
           # @return [void]
@@ -199,6 +199,7 @@ module Metasploit
             total_error_count = 0
 
             successful_users = Set.new
+            ignored_users = Set.new
             first_attempt = true
 
             each_credential do |credential|
@@ -209,6 +210,14 @@ module Metasploit
                 if credential.parent.respond_to?(:skipped)
                   credential.parent.skipped = true
                   credential.parent.save!
+                end
+                next
+              end
+
+              # Users that went into the lock-out list
+              if ignored_users.include?(credential.public)
+                if credential.parent.respond_to?(:skipped)
+                  credential.parent.skipped = true
                 end
                 next
               end
@@ -228,6 +237,10 @@ module Metasploit
                 consecutive_error_count = 0
                 successful_users << credential.public
                 break if stop_on_success
+              elsif result.status == Metasploit::Model::Login::Status::LOCKED_OUT
+                ignored_users << credential.public
+              elsif result.status == Metasploit::Model::Login::Status::DISABLED
+                ignored_users << credential.public
               else
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1
@@ -290,6 +303,10 @@ module Metasploit
           def validate_cred_details
             unless cred_details.respond_to? :each
               errors.add(:cred_details, "must respond to :each")
+            end
+
+            if cred_details.empty?
+              errors.add(:cred_details, "can't be blank")
             end
           end
 

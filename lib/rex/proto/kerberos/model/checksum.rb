@@ -8,7 +8,7 @@ module Rex
         class Checksum < Element
 
           # @!attribute type
-          #   @return [Fixnum] The algorithm used to generate the checksum
+          #   @return [Integer] The algorithm used to generate the checksum
           attr_accessor :type
           # @!attribute checksum
           #   @return [String] The checksum itself

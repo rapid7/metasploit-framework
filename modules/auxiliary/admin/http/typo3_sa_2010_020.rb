@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'thread'
 
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -21,6 +19,7 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     =>
         [
+          ['CVE', '2010-3714'],
           ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2010-020'],
           ['URL', 'http://gregorkopf.de/slides_berlinsides_2010.pdf'],
         ],
@@ -37,7 +36,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('URI', [true, "TYPO3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptInt.new('MAX_TRIES', [true, "Maximum tries", 10000]),
-      ], self.class)
+      ])
 
   end
 
@@ -139,5 +138,4 @@ class Metasploit4 < Msf::Auxiliary
   print_error("#{rhost}:#{rport} [Typo3-SA-2010-020] Failed to retrieve file #{datastore['RFILE']}")
 
   end
-
 end

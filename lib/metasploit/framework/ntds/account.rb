@@ -30,11 +30,11 @@ module Metasploit
         attr_accessor :lm_hash
         #@return [Array<String>] The LM hashes for previous passwords, up to 24
         attr_accessor :lm_history
-        #@return [Fixnum] The count of historical LM hashes
+        #@return [Integer] The count of historical LM hashes
         attr_accessor :lm_history_count
         #@return [Boolean] If the AD account is locked
         attr_accessor :locked
-        #@return [Fixnum] The number of times this account has logged in
+        #@return [Integer] The number of times this account has logged in
         attr_accessor :logon_count
         #@return [String] Human Readable Date for the last time the account logged in
         attr_accessor :logon_date
@@ -50,13 +50,13 @@ module Metasploit
         attr_accessor :nt_hash
         #@return [Array<String>] The NT hashes for previous passwords, up to 24
         attr_accessor :nt_history
-        #@return [Fixnum] The count of historical NT hashes
+        #@return [Integer] The count of historical NT hashes
         attr_accessor :nt_history_count
         #@return [String] Human Readable Date for the last password change
         attr_accessor :pass_date
         #@return [String] Human Readable Time for the last password change
         attr_accessor :pass_time
-        #@return [Fixnum] The Relative ID of the account
+        #@return [Integer] The Relative ID of the account
         attr_accessor :rid
         #@return [String] Byte String for the Account's SID
         attr_accessor :sid
@@ -137,7 +137,7 @@ module Metasploit
         end
 
         def get_string(data,length)
-          data.slice!(0,length).gsub(/\x00/,'')
+          data.slice!(0,length).force_encoding("UTF-8").gsub(/\x00/,'')
         end
 
         def uac_string

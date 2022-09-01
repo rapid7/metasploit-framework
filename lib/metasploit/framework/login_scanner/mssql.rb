@@ -52,8 +52,13 @@ module Metasploit
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end
-          rescue ::Rex::ConnectionError
+          rescue ::Rex::ConnectionError => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            result_options[:proof] = e
+          rescue => e
+            elog(e)
+            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            result_options[:proof] = e
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

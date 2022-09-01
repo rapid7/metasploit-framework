@@ -8,10 +8,10 @@ module Rex
         # This class provides a representation of a credential keys stored in the Kerberos Credential Cache.
         class KeyBlock < Element
           # @!attribute key_type
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :key_type
           # @!attribute e_type
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :e_type
           # @!attribute key_value
           #   @return [String]

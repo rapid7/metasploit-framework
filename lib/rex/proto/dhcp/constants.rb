@@ -1,9 +1,8 @@
 # -*- coding: binary -*-
-require 'rex/proto/dhcp'
 
 module Rex
 module Proto
-module DHCP
+module DHCP::Constants
 
 Request = 1
 Response = 2
@@ -23,6 +22,7 @@ OpDomainName = 15
 OpDns = 6
 OpHostname = 0x0c
 OpURL = 0x72
+OpProxyAutodiscovery = 0xfc
 OpEnd = 0xff
 
 PXEMagic = "\xF1\x00\x74\x7E"

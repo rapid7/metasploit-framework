@@ -1,28 +1,23 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
 
   def initialize
     super(
-      'Name'        => 'Simple Ethernet Frame Spoofer',
+      'Name' => 'Simple Ethernet Frame Spoofer',
       'Description' => 'This module sends spoofed ethernet frames',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Spoofer' ]
-        ],
-      'DefaultAction'  => 'Spoofer'
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Spoofer' ]
+      ],
+      'DefaultAction' => 'Spoofer'
     )
   end
 

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/windows/registry'
 
 module Msf
 class Post
@@ -42,6 +41,23 @@ module Services
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
 
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_service_enum
+              extapi_service_query
+              stdapi_railgun_api
+            ]
+          }
+        }
+      )
+    )
+  end
+
   def advapi32
     session.railgun.advapi32
   end
@@ -55,11 +71,11 @@ module Services
   # @param opts [Hash]
   # @option opts [String] :host (nil) The host on which to open the
   #   service manager. May be a hostname or IP address.
-  # @option opts [Fixnum] :access (0xF003F) Bitwise-or of the
+  # @option opts [Integer] :access (0xF003F) Bitwise-or of the
   #   SC_MANAGER_* constants (see
   #   {http://msdn.microsoft.com/en-us/library/windows/desktop/ms685981(v=vs.85).aspx})
   #
-  # @return [Fixnum] Opaque Windows handle SC_HANDLE as returned by
+  # @return [Integer] Opaque Windows handle SC_HANDLE as returned by
   #   OpenSCManagerA()
   # @yield [manager] Gives the block a manager handle as returned by
   #   advapi32.dll!OpenSCManagerA. When the block returns, the handle
@@ -78,7 +94,7 @@ module Services
     # );
     manag = advapi32.OpenSCManagerA(machine_str,nil,access)
     if (manag["return"] == 0)
-      raise RuntimeError.new("Unable to open service manager: #{manag["ErrorMessage"]}")
+      raise "Unable to open service manager: #{manag["ErrorMessage"]}"
     end
 
     if (block_given?)
@@ -105,7 +121,7 @@ module Services
   # Open the service with advapi32.dll!OpenServiceA on the
   # target manager
   #
-  # @return [Fixnum] Opaque Windows handle SC_HANDLE as returned by
+  # @return [Integer] Opaque Windows handle SC_HANDLE as returned by
   #   OpenServiceA()
   # @yield [manager] Gives the block a service handle as returned by
   #   advapi32.dll!OpenServiceA. When the block returns, the handle
@@ -115,7 +131,7 @@ module Services
   def open_service_handle(manager, name, access)
     handle = advapi32.OpenServiceA(manager, name, access)
     if (handle["return"] == 0)
-      raise RuntimeError.new("Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}")
+      raise "Could not open service. OpenServiceA error: #{handle["ErrorMessage"]}"
     end
 
     if (block_given?)
@@ -250,11 +266,35 @@ module Services
   end
 
   #
+  # Check if the specified Windows service exists.
+  #
+  # @param name [String] The target service's name (not to be confused
+  #   with Display Name). Case sensitive.
+  #
+  # @return [Boolean]
+  #
+  def service_exists?(service)
+    srv_info = service_info(service)
+
+    if srv_info.nil?
+      vprint_error('Unable to enumerate Windows services')
+      return false
+    end
+
+    if srv_info && srv_info[:display].empty?
+      return false
+    end
+
+    true
+  end
+
+  #
   # Changes a given service startup mode, name must be provided and the mode.
   #
   # Mode is a string with either auto, manual or disable for the
   # corresponding setting. The name of the service is case sensitive.
   #
+  # @raise [RuntimeError] if an invalid startup mode is provided in the mode parameter
   #
   def service_change_startup(name, mode, server=nil)
     if mode.is_a? Integer
@@ -267,7 +307,7 @@ module Services
         when "manual" then startup_number   = START_TYPE_MANUAL
         when "disable" then startup_number  = START_TYPE_DISABLED
         else
-          raise RuntimeError, "Invalid Startup Mode: #{mode}"
+          raise "Invalid Startup Mode: #{mode}"
       end
     end
 
@@ -299,6 +339,8 @@ module Services
   #
   # @return [GetLastError] 0 if the function succeeds
   #
+  # @raise [RuntimeError] if OpenSCManagerA failed
+  #
   def service_change_config(name, opts, server=nil)
     open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
       open_service_handle(manager, name, "SERVICE_CHANGE_CONFIG") do |service_handle|
@@ -329,6 +371,8 @@ module Services
   #   remote localhost
   #
   # @return [GetLastError] 0 if the function succeeds
+  #
+  # @raise [RuntimeError] if OpenSCManagerA failed
   #
   def service_create(name, opts, server=nil)
     access = "SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SC_MANAGER_QUERY_LOCK_STATUS"
@@ -376,7 +420,7 @@ module Services
   # @param server [String,nil] A hostname or IP address. Default is the
   #   remote localhost
   #
-  # @return [Fixnum] 0 if service started successfully, 1 if it failed
+  # @return [Integer] 0 if service started successfully, 1 if it failed
   #   because the service is already running, 2 if it is disabled
   #
   # @raise [RuntimeError] if OpenServiceA failed
@@ -395,7 +439,7 @@ module Services
   # Stop a service.
   #
   # @param (see #service_start)
-  # @return [Fixnum] 0 if service stopped successfully, 1 if it failed
+  # @return [Integer] 0 if service stopped successfully, 1 if it failed
   #   because the service is already stopped or disabled, 2 if it
   #   cannot be stopped for some other reason.
   #
@@ -426,6 +470,8 @@ module Services
   #
   # @param (see #service_start)
   #
+  # @raise [RuntimeError] if OpenServiceA failed
+  #
   def service_delete(name, server=nil)
     open_sc_manager(:host=>server) do |manager|
       open_service_handle(manager, name, "DELETE") do |service_handle|
@@ -444,7 +490,6 @@ module Services
   #
   # @raise (see #service_start)
   #
-  #
   def service_status(name, server=nil)
     ret = nil
 
@@ -453,7 +498,7 @@ module Services
         status = advapi32.QueryServiceStatus(service_handle,28)
 
         if (status["return"] == 0)
-          raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{status["ErrorMessage"]}")
+          raise "Could not query service. QueryServiceStatus error: #{status["ErrorMessage"]}"
         else
           ret = parse_service_status_struct(status['lpServiceStatus'])
         end
@@ -474,53 +519,41 @@ module Services
   #
   # @return [Boolean] indicating success
   #
-  #
-  def service_restart(name, start_type=START_TYPE_AUTO, server=nil)
-    tried = false
+  def service_restart(name, start_type=START_TYPE_AUTO, server=nil, should_retry=true)
+    status = service_start(name, server)
 
-    begin
-      status = service_start(name, server)
+    if status == Error::SUCCESS
+      vprint_good("[#{name}] Service started")
+      return true
+    end
 
-      if status == Error::SUCCESS
-        vprint_good("[#{name}] Service started")
-        return true
-      else
-        raise RuntimeError, status
-      end
-    rescue RuntimeError => s
-      if tried
-        vprint_error("[#{name}] Unhandled error: #{s}")
-        return false
-      else
-        tried = true
-      end
 
-      case s.message.to_i
-      when Error::ACCESS_DENIED
-        vprint_error("[#{name}] Access denied")
-      when Error::INVALID_HANDLE
-        vprint_error("[#{name}] Invalid handle")
-      when Error::PATH_NOT_FOUND
-        vprint_error("[#{name}] Service binary could not be found")
-      when Error::SERVICE_ALREADY_RUNNING
-        vprint_status("[#{name}] Service already running attempting to stop and restart")
-        stopped = service_stop(name, server)
-        if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
-          retry
-        else
-          vprint_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
-        end
-      when Error::SERVICE_DISABLED
-        vprint_status("[#{name}] Service disabled attempting to set to manual")
-        if (service_change_config(name, {:starttype => start_type}, server) == Error::SUCCESS)
-          retry
-        else
-          vprint_error("[#{name}] Service disabled, unable to change start type")
-        end
+    case status
+    when Error::ACCESS_DENIED
+      vprint_error("[#{name}] Access denied")
+    when Error::INVALID_HANDLE
+      vprint_error("[#{name}] Invalid handle")
+    when Error::PATH_NOT_FOUND
+      vprint_error("[#{name}] Service binary could not be found")
+    when Error::SERVICE_ALREADY_RUNNING
+      vprint_status("[#{name}] Service already running attempting to stop and restart")
+      stopped = service_stop(name, server)
+      if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
+        service_restart(name, start_type, server, false) if should_retry
       else
-        vprint_error("[#{name}] Unhandled error: #{s}")
-        return false
+        vprint_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
       end
+    when Error::SERVICE_DISABLED
+      vprint_status("[#{name}] Service disabled attempting to set to manual")
+      if (service_change_config(name, {:starttype => start_type}, server) == Error::SUCCESS)
+        service_restart(name, start_type, server, false) if should_retry
+      else
+        vprint_error("[#{name}] Service disabled, unable to change start type")
+      end
+    else
+      status = WindowsError::Win32.find_by_retval(s).first
+      vprint_error("[#{name}] Unhandled error: #{status.name}: #{status.description}")
+      return false
     end
   end
 

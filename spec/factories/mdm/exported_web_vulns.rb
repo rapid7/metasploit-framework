@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :exported_web_vuln, :parent => :mdm_web_vuln do
     blame { generate :mdm_web_vuln_blame }
     description { generate :mdm_web_vuln_description }

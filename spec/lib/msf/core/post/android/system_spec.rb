@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/android/system'
 
 RSpec.describe Msf::Post::Android::System do
 

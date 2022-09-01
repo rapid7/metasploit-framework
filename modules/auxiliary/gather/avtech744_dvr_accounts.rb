@@ -1,7 +1,9 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -37,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless res.code == 200
-      fail_with(Failure::Unknown, 'An unknown error occured')
+      fail_with(Failure::Unknown, 'An unknown error occurred')
     end
 
     raw_collection = extract_data(res.body)

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info={})
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Post
     # where we'll store hashes of found credentials while parsing.  reporting is done at the end.
     creds = []
     # A table to store the found credentials for loot storage afterward
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
     'Header'    => "mount.cifs credentials",
     'Indent'    => 1,
     'Columns'   =>
@@ -41,6 +38,7 @@ class Metasploit3 < Msf::Post
     ])
 
     # parse each line from /etc/fstab
+    fail_with(Failure::NotFound, '/etc/fstab not found on system') unless file_exist?('/etc/fstab')
     read_file("/etc/fstab").each_line do |fstab_line|
       fstab_line.strip!
       # where we'll store the current parsed credentials, if any

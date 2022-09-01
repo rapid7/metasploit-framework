@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-require 'rex/proto/tftp'
 require 'tempfile'
 
 module Rex
@@ -43,7 +42,7 @@ class Client
   def parse_tftp_response(str)
     return nil unless str.length >= 4
     ret = str.unpack("nnA*")
-    ret[2] = str[4,str.size] if ret[0] == OpData
+    ret[2] = str[4,str.size] if ret[0] == Constants::OpData
     return ret
   end
 
@@ -88,20 +87,20 @@ class Client
     res = self.server_sock.recvfrom(65535)
     if res and res[0]
       code, type, data = parse_tftp_response(res[0])
-      if code == OpAck and self.action == :upload
+      if code == Constants::OpAck and self.action == :upload
         if block_given?
           yield "WRQ accepted, sending the file." if type == 0
           send_data(res[1], res[2]) {|msg| yield msg}
         else
           send_data(res[1], res[2])
         end
-      elsif code == OpData and self.action == :download
+      elsif code == Constants::OpData and self.action == :download
         if block_given?
           recv_data(res[1], res[2], data) {|msg| yield msg}
         else
           recv_data(res[1], res[2], data)
         end
-      elsif code == OpError
+      elsif code == Constants::OpError
         yield("Aborting, got error type:%d, message:'%s'" % [type, data]) if block_given?
         self.status = {:error => [code, type, data]}
       else
@@ -140,13 +139,13 @@ class Client
   #
 
   def rrq_packet
-    req = [OpRead, self.remote_file, self.mode]
+    req = [Constants::OpRead, self.remote_file, self.mode]
     packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"
     req.pack(packstr)
   end
 
   def ack_packet(blocknum=0)
-    req = [OpAck, blocknum].pack("nn")
+    req = [Constants::OpAck, blocknum].pack("nn")
   end
 
   def send_read_request(&block)
@@ -233,7 +232,7 @@ class Client
   #
 
   def wrq_packet
-    req = [OpWrite, self.remote_file, self.mode]
+    req = [Constants::OpWrite, self.remote_file, self.mode]
     packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"
     req.pack(packstr)
   end
@@ -304,7 +303,7 @@ class Client
     end
     data_blocks.each_with_index do |data_block,idx|
       loop do
-        req = [OpData, (idx + 1), data_block].pack("nnA*")
+        req = [Constants::OpData, (idx + 1), data_block].pack("nnA*")
         if self.server_sock.sendto(req, host, port) <= 0
           send_retries += 1
           if send_retries > 100

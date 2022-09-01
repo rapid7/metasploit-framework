@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
@@ -26,12 +23,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '63772'],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuapr2010.html' ]
         ],
-      'DisclosureDate' => 'Apr 26 2010'))
+      'DisclosureDate' => '2010-04-26'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -79,5 +76,4 @@ END;
     print_status("Done...")
 
   end
-
 end

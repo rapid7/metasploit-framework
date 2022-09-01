@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.LT.ROLLBACKWORKSPACE',
       'Description'    => %q{
-        This module exploits an sql injection flaw in the ROLLBACKWORKSPACE
+        This module exploits a sql injection flaw in the ROLLBACKWORKSPACE
         procedure of the PL/SQL package SYS.LT. Any user with execute
         privilege on the vulnerable package can exploit this vulnerability.
       },
@@ -25,12 +22,12 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '53734'],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuapr2009.html' ],
         ],
-      'DisclosureDate' => 'May 4 2009'))
+      'DisclosureDate' => '2009-05-04'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run

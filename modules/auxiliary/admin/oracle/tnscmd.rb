@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TNS
 
   def initialize(info = {})
@@ -19,14 +16,14 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         => ['MC'],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Feb 1 2009'
+      'DisclosureDate' => '2009-02-01'
     ))
 
     register_options(
       [
         Opt::RPORT(1521),
         OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
-      ], self.class)
+      ])
   end
 
   def run

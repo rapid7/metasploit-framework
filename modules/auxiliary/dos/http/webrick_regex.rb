@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -27,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
         [ 'OSVDB', '47471' ],
         [ 'URL', 'http://www.ruby-lang.org/en/news/2008/08/08/multiple-vulnerabilities-in-ruby/']
       ],
-      'DisclosureDate' => 'Aug 08 2008'))
+      'DisclosureDate' => '2008-08-08'))
 
     register_options([
       OptString.new('URI', [ true, 'URI to request', '/' ])

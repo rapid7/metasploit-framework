@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/sync'
-require 'rex/logging/log_sink'
 
 module Rex
 module Logging
@@ -87,12 +86,12 @@ class LogDispatcher
   #
   # Performs the actual log operation against the supplied source
   #
-  def log(sev, src, level, msg, from)
+  def log(sev, src, level, msg)
     log_sinks_lock.synchronize {
       if ((sink = log_sinks[src]))
         next if (log_levels[src] and level > log_levels[src])
 
-        sink.log(sev, src, level, msg, from)
+        sink.log(sev, src, level, msg)
       end
     }
   end
@@ -108,7 +107,7 @@ class LogDispatcher
   # This method returns the log level threshold of a given source.
   #
   def get_level(src)
-    log_levels[src]
+    log_levels.fetch(src, DEFAULT_LOG_LEVEL)
   end
 
   attr_accessor :log_sinks, :log_sinks_lock # :nodoc:
@@ -118,8 +117,6 @@ end
 end
 end
 
-###
-#
 # An instance of the log dispatcher exists in the global namespace, along
 # with stubs for many of the common logging methods.  Various sources can
 # register themselves as a log sink such that logs can be directed at
@@ -130,28 +127,67 @@ end
 ###
 ExceptionCallStack = "__EXCEPTCALLSTACK__"
 
-def dlog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_DEBUG, src, level, msg, from)
+BACKTRACE_LOG_LEVEL = 3 # Equal to LEV_3
+DEFAULT_LOG_LEVEL = 0 # Equal to LEV_3
+
+def dlog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_DEBUG, src, level, msg)
 end
 
-def elog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_ERROR, src, level, msg, from)
+# Logs errors in a standard format for each Log Level.
+#
+# @param msg [String] Contains message from the developer explaining why an error was encountered.
+# Can also be an +Exception+, in which case a log is built from the +Exception+ with no accompanying message.
+#
+# @param src [String] Used to indicate where the error is originating from. Most commonly set to 'core'.
+#
+# @param log_level [Integer] Indicates the level of logging the message should be recorded at. If log_level is greater than
+# the global log level set for +src+, then the log is not recorded.
+#
+# @param error [Exception] Exception of an error that needs to be logged. For all log messages, the class and message of
+# an exception is added to a log message. If the global log level set for +src+ is greater than +BACKTRACE_LOG_LEVEL+,
+# then the stack trace for an error is also added to the log message.
+#
+# (Eg Loop Iterations, Variables, Function Calls).
+#
+# @return [NilClass].
+def elog(msg, src = 'core', log_level = 0, error: nil)
+  error = msg.is_a?(Exception) ? msg : error
+
+  if error.nil? || !error.is_a?(Exception)
+    $dispatcher.log(LOG_ERROR, src, log_level, msg)
+  else
+    error_details = "#{error.class} #{error.message}"
+    if get_log_level(src) >= BACKTRACE_LOG_LEVEL
+      if error.backtrace
+        error_details << "\nCall stack:\n#{error.backtrace.join("\n")}"
+      else
+        error_details << "\nCall stack:\nNone"
+      end
+    end
+
+    if msg.is_a?(Exception)
+      $dispatcher.log(LOG_ERROR, src, log_level,"#{error_details}")
+    else
+      $dispatcher.log(LOG_ERROR, src, log_level,"#{msg} - #{error_details}")
+    end
+  end
 end
 
-def wlog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_WARN, src, level, msg, from)
+def wlog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_WARN, src, level, msg)
 end
 
-def ilog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_INFO, src, level, msg, from)
+def ilog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_INFO, src, level, msg)
 end
 
-def rlog(msg, src = 'core', level = 0, from = caller)
+def rlog(msg, src = 'core', level = 0)
   if (msg == ExceptionCallStack)
     msg = "\nCall stack:\n" + $@.join("\n") + "\n"
   end
 
-  $dispatcher.log(LOG_RAW, src, level, msg, from)
+  $dispatcher.log(LOG_RAW, src, level, msg)
 end
 
 def log_source_registered?(src)

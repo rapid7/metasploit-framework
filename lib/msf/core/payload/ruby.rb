@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf::Payload::Ruby
 
@@ -10,7 +9,7 @@ module Msf::Payload::Ruby
       [
         # Since space restrictions aren't really a problem, default this to
         # true.
-        Msf::OptBool.new('PrependFork', [ false, "Start the payload in its own process via fork or popen", "true" ])
+        Msf::OptBool.new('PrependFork', [ false, "Start the payload in its own process via fork or popen", true ])
       ]
     )
   end

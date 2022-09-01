@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
+
 require 'uri'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -22,12 +20,12 @@ class Metasploit3 < Msf::Auxiliary
         models with attributes not protected by attr_protected or attr_accessible.
         After attempting to assign a non-existent field, the default rails with
         active_record setup will raise an ActiveRecord::UnknownAttributeError
-        exeption, and reply with HTTP code 500.
+        exception, and reply with HTTP code 500.
       },
 
       'References'     =>
         [
-          [ 'URL', 'http://guides.rubyonrails.org/security.html#mass-assignment' ]
+          [ 'URL', 'https://guides.rubyonrails.org/security.html#mass-assignment' ]
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('QUERY', [ false, "HTTP URI Query", nil]),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
         OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

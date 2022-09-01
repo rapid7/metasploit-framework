@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/proto/kerberos'
 
 RSpec.describe Rex::Proto::Kerberos::Model::Checksum do
 

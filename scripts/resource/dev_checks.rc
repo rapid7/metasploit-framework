@@ -1,0 +1,112 @@
+<ruby>
+
+#
+# This resource script will check for vulnerabilities related to
+# programs and services used by developers, including the following:
+#
+# * NodeJS debug (multi/misc/nodejs_v8_debugger)
+# * distcc (unix/misc/distcc_exe)
+# * Jenkins (linux/misc/jenkins_java_deserialize)
+# * GitHub Enterprise (linux/http/github_enterprise_secret)
+#
+# It is worth noting that ONLY CHECKS are performed, no active exploiting.
+# This makes it safe to run in many environments.
+#
+# Authors:
+# * pbarry-r7
+# * dmohanty-r7
+#
+
+@job_ids = []
+
+def wait_until_jobs_done
+    loop do
+        @job_ids.each do |job_id|
+            current_job_ids = framework.jobs.keys.map { |e| e.to_i }
+            sleep 1 if current_job_ids.include?(job_id)
+        end
+
+        return
+    end
+end
+
+def run_scanner(host:, mod_name:)
+    begin
+        mod = framework.auxiliary.create(mod_name)
+        mod.datastore['RHOSTS'] = host.address
+        print_line("Running the #{mod.name}...")
+        result = mod.run_simple({'RunAsJob': true, 'LocalOutput': self.output})
+    rescue ::Exception => e
+        print_error(e.message)
+    end
+end
+
+def check_exploit(host:, mod_name:, vuln_check_ret_val:)
+    begin
+        mod = framework.exploits.create(mod_name)
+        mod.datastore['RHOST'] = host.address
+        print_line("Looking for #{mod.name}...")
+        result = mod.check_simple({'RunAsJob': true, 'LocalOutput': self.output})
+        @job_ids << mod.job_id if mod.job_id
+        if vuln_check_ret_val.index(result)
+            print_line("HOST #{host.address} APPEARS VULNERABLE TO #{mod.name}")
+            framework.db.report_vuln(
+                workspace: mod.workspace,
+                host: mod.rhost,
+                name: mod.name,
+                info: "This was flagged as likely vulnerable by the explicit check of #{mod.fullname}.",
+                refs: mod.references
+            )
+        end
+    rescue ::Exception => e
+        print_error(e.message)
+    end
+end
+
+def setup
+    # Test and see if we have a database connected
+    if not (framework.db and framework.db.active)
+        print_error("Database connection isn't established")
+        return false
+    end
+
+    run_single("setg verbose true")
+
+    true
+end
+
+def main
+    framework.db.workspace.hosts.each do |host|
+        print_line("Checking IP: #{host.address}, OS: #{host.os_name}...")
+
+        # Modules
+        { 'multi/misc/nodejs_v8_debugger':        [ Exploit::CheckCode::Appears ],
+          'unix/misc/distcc_exec':                [ Exploit::CheckCode::Vulnerable ],
+          'unix/misc/qnx_qconn_exec':             [ Exploit::CheckCode::Vulnerable ],
+          'linux/misc/jenkins_java_deserialize':  [ Exploit::CheckCode::Vulnerable ],
+          'linux/http/github_enterprise_secret':  [ Exploit::CheckCode::Vulnerable ],
+          'multi/http/traq_plugin_exec':          [ Exploit::CheckCode::Appears ],
+          'multi/http/builderengine_upload_exec': [ Exploit::CheckCode::Appears ],
+          'multi/http/mantisbt_php_exec':         [ Exploit::CheckCode::Appears ],
+          'multi/http/vbulletin_unserialize':     [ Exploit::CheckCode::Appears ],
+          'unix/webapp/vbulletin_vote_sqli_exec': [ Exploit::CheckCode::Appears ],
+          'multi/misc/java_jmx_server':           [ Exploit::CheckCode::Appears,
+                                                    Exploit::CheckCode::Detected ] }.each do |mod,ret_val|
+            check_exploit(host: host,
+                mod_name: mod.to_s,
+                vuln_check_ret_val: ret_val)
+        end
+
+        # Scanners
+        [ 'scanner/misc/java_rmi_server' ].each do |mod|
+            run_scanner(host: host, mod_name: mod.to_s)
+        end
+    end
+
+    wait_until_jobs_done
+end
+
+abort("Error during setup, exiting.") unless setup
+main
+
+</ruby>

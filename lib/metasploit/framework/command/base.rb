@@ -74,7 +74,7 @@ class Metasploit::Framework::Command::Base
   end
 
   def self.parsed_options_class_name
-    @parsed_options_class_name ||= "#{parent.parent}::ParsedOptions::#{name.demodulize}"
+    @parsed_options_class_name ||= "#{module_parent.module_parent}::ParsedOptions::#{name.demodulize}"
   end
 
   def self.start

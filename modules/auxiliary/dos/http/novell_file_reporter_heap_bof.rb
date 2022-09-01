@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -24,15 +21,15 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     => [
         [ 'CVE', '2012-4956' ],
-        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
+        [ 'URL', 'https://www.rapid7.com/blog/post/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959/' ]
       ],
-      'DisclosureDate' => 'Nov 16 2012'))
+      'DisclosureDate' => '2012-11-16'))
 
     register_options(
       [
         Opt::RPORT(3037),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
+      ])
 
   end
 

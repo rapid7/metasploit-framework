@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::TNS
 
@@ -23,14 +20,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'https://www.metasploit.com/users/mc' ],
           [ 'URL' , 'http://www.red-database-security.com/scripts/sid.txt' ],
         ],
-      'DisclosureDate' => 'Jan 7 2009'))
+      'DisclosureDate' => '2009-01-07'))
 
     register_options(
       [
         Opt::RPORT(1521),
         OptString.new('SLEEP', [ false,   'Sleep() amount between each request.', '1']),
         OptString.new('SIDFILE', [ false, 'The file that contains a list of sids.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
-      ], self.class)
+      ])
 
   end
 

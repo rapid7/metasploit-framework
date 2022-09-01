@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -32,14 +29,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'MSB', 'MS10-065'],
           [ 'EDB', '15167' ]
         ],
-      'DisclosureDate' => 'Sep 14 2010'))
+      'DisclosureDate' => '2010-09-14'))
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('VHOST', [ false, 'The virtual host name to use in requests']),
         OptString.new('URI', [ true, 'URI to request', '/page.asp' ])
-      ], self.class )
+      ])
   end
 
 

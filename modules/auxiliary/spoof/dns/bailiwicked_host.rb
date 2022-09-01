@@ -1,16 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'net/dns'
 require 'resolv'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize(info = {})
@@ -35,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'US-CERT-VU', '800113' ],
           [ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.txt' ],
         ],
-      'DisclosureDate' => 'Jul 21 2008'
+      'DisclosureDate' => '2008-07-21'
       ))
 
       register_options(
@@ -48,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
           OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
           OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
 
-        ], self.class)
+        ])
 
       deregister_options('FILTER','PCAPFILE')
 
@@ -371,7 +367,7 @@ class Metasploit3 < Msf::Auxiliary
             answer = Resolv::DNS::Message.decode(answer)
             answer.each_answer do |name, ttl, data|
               if((name.to_s + ".") == hostname)
-                print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
+                print_good("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
                 print_status("TTL: #{ttl} DATA: #{data}")
                 close_pcap
                 return
@@ -477,5 +473,4 @@ class Metasploit3 < Msf::Auxiliary
     # XXX: We should subtract the timing from the target to us (calculated based on 0.50 of our non-recursive query times)
     avg_count
   end
-
 end

@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -58,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
     # Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
-      print_error("A Connection Error occured")
+      print_error("A Connection Error Occurred")
       return
     when :sql_error
       # We know the credentials worked but something else went wrong
@@ -90,11 +85,11 @@ class Metasploit3 < Msf::Auxiliary
       # We know the credentials worked and have admin access because we got the hashes
       login_data[:access_level] = 'Admin'
       create_credential_login(login_data)
-      print_status("Query appears to have run successfully")
+      print_good("Query appears to have run successfully")
     end
 
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Postgres Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']
@@ -139,7 +134,5 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{tbl.to_s}")
 
   end
-
-
 
 end

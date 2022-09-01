@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
@@ -99,7 +96,7 @@ class Metasploit3 < Msf::Post
       print_status("No #{exclusion_type} exclusions for #{product}")
       return
     end
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
       'Indent'    => 1,
       'Columns'   => [ exclusion_type.capitalize ]
@@ -109,13 +106,18 @@ class Metasploit3 < Msf::Post
   end
 
   def setup
+    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
+      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    end
+
     # all of these target applications seemingly store their registry
     # keys/values at the same architecture of the host, so if we happen to be
     # in a 32-bit process on a 64-bit machine, ensure that we read from the
     # 64-bit keys/values, and otherwise use the native keys/values
-    @registry_view = sysinfo['Architecture'] =~ /WOW64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_NATIVE
-    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
-      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86
+      @registry_view = REGISTRY_VIEW_64_BIT
+    else
+      @registry_view = REGISTRY_VIEW_NATIVE
     end
   end
 

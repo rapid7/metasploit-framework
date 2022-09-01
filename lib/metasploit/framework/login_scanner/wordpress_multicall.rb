@@ -12,11 +12,11 @@ module Metasploit
         attr_accessor :passwords
 
         # @!attribute chunk_size, limits number of passwords per XML request
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :chunk_size
 
         # @!attribute block_wait, time to wait if got blocked by the target
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :block_wait
 
         # @!attribute base_uri
@@ -29,10 +29,10 @@ module Metasploit
 
 
         def set_default
-          self.wordpress_url_xmlrpc = 'xmlrpc.php'
-          self.block_wait = 6
-          self.base_uri = '/'
-          self.chunk_size = 1700
+          @wordpress_url_xmlrpc ||= 'xmlrpc.php'
+          @block_wait ||= 6
+          @base_uri ||= '/'
+          @chunk_size ||= 1700
         end
 
         # Returns the XML data that is used for the login.
@@ -92,7 +92,7 @@ module Metasploit
               'ctype'   =>'text/xml'
             }
 
-          client = Rex::Proto::Http::Client.new(rhost)
+          client = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version, proxies, http_username, http_password)
           client.connect
           req  = client.request_cgi(opts)
           res  = client.send_recv(req)
@@ -110,6 +110,8 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential]
         # @return [Metasploit::Framework::LoginScanner::Result]
         def attempt_login(credential)
+          set_default
+          @passwords ||= [credential.private]
           generate_xml(credential.public).each do |xml|
             send_wp_request(xml)
             req_xml = Nokogiri::Slop(xml)

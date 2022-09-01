@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
 
@@ -32,13 +27,14 @@ class Metasploit3 < Msf::Auxiliary
         ]
     ))
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run
 
     print_status("Connecting to the target system...");
 
-    connect
+    connect(versions: [1])
     smb_login
 
     begin
@@ -63,5 +59,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

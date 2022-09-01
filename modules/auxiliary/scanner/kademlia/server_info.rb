@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::Kademlia
@@ -26,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
           [
             # There are lots of academic papers on the protocol but they tend to lack usable
             # protocol details.  This is the best I've found
-            ['URL', 'http://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/#more-125']
+            ['URL', 'https://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/#more-125']
           ],
         'License'        => MSF_LICENSE,
         'Actions'        => [
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(4672)
-    ], self.class)
+    ])
   end
 
   def build_probe

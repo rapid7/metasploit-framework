@@ -1,14 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
-require 'msf/core'
-require 'rex/proto/ntlm/message'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -32,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
-      ], self.class)
+      ])
   end
 
 
@@ -40,12 +36,12 @@ class Metasploit3 < Msf::Auxiliary
     if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
       # Get local Users and Groups
       user_list = vim_get_user_list(nil)
-      tmp_users = Rex::Ui::Text::Table.new(
+      tmp_users = Rex::Text::Table.new(
         'Header'  => "Users for server #{ip}",
         'Indent'  => 1,
         'Columns' => ['Name', 'Description']
       )
-      tmp_groups = Rex::Ui::Text::Table.new(
+      tmp_groups = Rex::Text::Table.new(
         'Header'  => "Groups for server #{ip}",
         'Indent'  => 1,
         'Columns' => ['Name', 'Description']
@@ -53,11 +49,11 @@ class Metasploit3 < Msf::Auxiliary
       unless user_list.nil?
         case user_list
         when :noresponse
-          print_error "Recieved no Response from #{ip}"
+          print_error "Received no response from #{ip}"
         when :expired
           print_error "The login session appears to have expired on #{ip}"
         when :error
-          print_error "An error occured while trying to enumerate the users for #{domain} on #{ip}"
+          print_error "An error occurred while trying to enumerate the users for #{domain} on #{ip}"
         else
           user_list.each do |obj|
             if obj['group'] == 'true'
@@ -77,21 +73,21 @@ class Metasploit3 < Msf::Auxiliary
       esx_domains = vim_get_domains
       case esx_domains
       when :noresponse
-        print_error "Recieved no Response from #{ip}"
+        print_error "Received no response from #{ip}"
       when :expired
         print_error "The login session appears to have expired on #{ip}"
       when :error
-        print_error "An error occured while trying to enumerate the domains on #{ip}"
+        print_error "An error occurred while trying to enumerate the domains on #{ip}"
       else
         # Enumerate Domain Users and Groups
         esx_domains.each do |domain|
-          tmp_dusers = Rex::Ui::Text::Table.new(
+          tmp_dusers = Rex::Text::Table.new(
             'Header'  => "Users for domain #{domain}",
             'Indent'  => 1,
             'Columns' => ['Name', 'Description']
           )
 
-          tmp_dgroups = Rex::Ui::Text::Table.new(
+          tmp_dgroups = Rex::Text::Table.new(
             'Header'  => "Groups for domain #{domain}",
             'Indent'  => 1,
             'Columns' => ['Name', 'Description']
@@ -102,11 +98,11 @@ class Metasploit3 < Msf::Auxiliary
           when nil
             next
           when :noresponse
-            print_error "Recieved no Response from #{ip}"
+            print_error "Received no response from #{ip}"
           when :expired
             print_error "The login session appears to have expired on #{ip}"
           when :error
-            print_error "An error occured while trying to enumerate the users for #{domain} on #{ip}"
+            print_error "An error occurred while trying to enumerate the users for #{domain} on #{ip}"
           else
             user_list.each do |obj|
               if obj['group'] == 'true'
@@ -126,9 +122,8 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
     else
-      print_error "Login Failure on #{ip}"
+      print_error "Login failure on #{ip}"
       return
     end
   end
-
 end

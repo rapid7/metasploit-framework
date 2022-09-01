@@ -1,10 +1,13 @@
 # -*- coding: binary -*-
-##
-# This module requires Metasploit: http://metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
-##
+
 require 'openssl/ccm'
 require 'metasm'
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 module Rex
   module Parser
     ###
@@ -112,7 +115,7 @@ module Rex
 
       # Parse the metadata_entries and return a hashmap using the
       # following format:
-      # {metadata_entry_type => {metadata_value_type => [fve_entry,...]}}
+      # metadata_entry_type => metadata_value_type => [fve_entry,...]
       def fve_entries(metadata_entries)
         offset_entry = 0
         entry_size = metadata_entries[0, 2].unpack('v')[0]
@@ -197,8 +200,7 @@ module Rex
                                          'hash_count']
           (1..0x100000).each do |c|
             updated_hash = sha256.digest(btl_struct_raw)
-            btl_struct_raw = updated_hash + btl_struct_raw \
-                             [btl_struct.updated_hash.sizeof..(
+            btl_struct_raw = updated_hash + btl_struct_raw[btl_struct.updated_hash.sizeof..(
                              btl_struct_hash_count_offset - 1)] + [c].pack('Q')
             sha256.reset
           end
@@ -215,7 +217,7 @@ module Rex
       end
 
       # Produce a hash map using the following format:
-      # {PROTECTION_TYPE => [fve_entry, fve_entry...]}
+      # PROTECTION_TYPE => [fve_entry, fve_entry...]
       def vmk_entries
         res = {}
         (@fve_metadata_entries[ENTRY_TYPE_VMK][VALUE_TYPE_VMK]).each do |vmk|

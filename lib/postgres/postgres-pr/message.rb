@@ -46,7 +46,14 @@ class Message
     type = stream.read_exactly_n_bytes(1) unless startup
     length = stream.read_exactly_n_bytes(4).to_s.unpack('N').first  # FIXME: length should be signed, not unsigned
 
-    raise ParseError unless length >= 4
+    raise ParseError if (length.nil? || length < 4)
+
+    # If we didn't read any bytes and startup was not set, then type will be nil, so don't continue.
+    unless startup
+      if type.nil?
+        return ParseError
+      end
+    end
 
     # initialize buffer
     buffer = Buffer.of_size(startup ? length : 1+length)
@@ -105,11 +112,15 @@ end
 class Authentification < Message
   register_message_type 'R'
 
-  AuthTypeMap = Hash.new { UnknownAuthType }
+  AuthTypeMap = {}
 
   def self.create(buffer)
     buffer.position = 5
     authtype = buffer.read_int32_network
+    unless AuthTypeMap.key? authtype
+      return UnknownAuthType.new(authtype, buffer)
+    end
+
     klass = AuthTypeMap[authtype]
     obj = klass.allocate
     obj.parse(buffer)
@@ -142,6 +153,13 @@ class Authentification < Message
 end
 
 class UnknownAuthType < Authentification
+  attr_reader :auth_type
+  attr_reader :buffer
+
+  def initialize(auth_type, buffer)
+    @auth_type = auth_type
+    @buffer = buffer
+  end
 end
 
 class AuthentificationOk < Authentification 

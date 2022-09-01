@@ -1,16 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 ###
 #  Linux Chmod(file, mode)
 #
 #  Kris Katterjohn - 03/03/2008
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 36
 
@@ -30,7 +28,7 @@ module Metasploit3
       [
         OptString.new('FILE', [ true, "Filename to chmod", "/etc/shadow" ]),
         OptString.new('MODE', [ true, "File mode (octal)", "0666" ]),
-      ], self.class)
+      ])
   end
 
   # Dynamically generates chmod(FILE, MODE) + exit()

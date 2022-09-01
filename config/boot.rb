@@ -24,9 +24,12 @@ end
 
 begin
   require 'bundler/setup'
-rescue LoadError
-  $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
-  $stderr.puts "    $ gem install bundler"
+rescue LoadError => e
+  $stderr.puts "[*] Bundler failed to load and returned this error:"
+  $stderr.puts
+  $stderr.puts "   '#{e}'"
+  $stderr.puts
+  $stderr.puts "[*] You may need to uninstall or upgrade bundler"
   exit(1)
 end
 

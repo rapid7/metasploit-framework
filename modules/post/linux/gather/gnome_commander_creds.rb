@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info={})
@@ -43,7 +42,7 @@ class Metasploit3 < Msf::Post
       # gnome-commander connections file
       connections_file = "#{dir}/.gnome-commander/connections"
       if file?(connections_file)
-        #File exists
+        #File.exist
         begin
           str_file=read_file(connections_file)
           print_good("File found: #{connections_file}")
@@ -61,5 +60,4 @@ class Metasploit3 < Msf::Post
       end
     end
   end
-
 end

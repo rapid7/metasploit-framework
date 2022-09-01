@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -37,15 +35,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$'])
-    ], self.class)
+    ])
   end
 
   def smb_delete_files
-    vprint_status("#{peer}: Connecting to the server...")
+    vprint_status("Connecting to the server...")
     connect()
     smb_login()
 
-    vprint_status("#{peer}: Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+    vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
     remote_paths.each do |remote_path|
@@ -53,21 +51,22 @@ class Metasploit3 < Msf::Auxiliary
         simple.delete("\\#{remote_path}")
 
         # If there's no exception raised at this point, we assume the file has been removed.
-        print_good("#{peer}: Deleted: #{remote_path}")
-      rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-        print_error("#{peer}: Cannot delete #{remote_path}: #{e.message}")
+        print_good("Deleted: #{remote_path}")
+      rescue Rex::Proto::SMB::Exceptions::ErrorCode, RubySMB::Error::RubySMBError => e
+        elog("Cannot delete #{remote_path}:", error: e)
+        print_error("Cannot delete #{remote_path}: #{e.message}")
       end
     end
   end
 
   def run_host(_ip)
+    validate_rpaths!
+
     begin
       smb_delete_files
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-      print_error("#{peer}: Unable to login: #{e.message}")
+      elog('Unable to login', error: e)
+      print_error("Unable to login: #{e.message}")
     end
   end
-
 end

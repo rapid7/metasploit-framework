@@ -1,6 +1,9 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -37,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
-    ], self.class)
+    ])
 
   end
 
@@ -112,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
       address: opts[:host],
       port: opts[:port],
       protocol: 'tcp',
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       service_name: opts[:creds_name]
     }
 

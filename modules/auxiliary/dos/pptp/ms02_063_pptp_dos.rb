@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -20,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       (Remote Access Services). Kernel memory is overwritten resulting in a BSOD.
       Code execution may be possible however this module is only a DoS.
       },
-      'Author' 	=> [ 'patrick' ],
+      'Author' 	=> [ 'aushack' ],
       'License'       => MSF_LICENSE,
       'References'    =>
       [
@@ -29,12 +25,12 @@ class Metasploit3 < Msf::Auxiliary
         [ 'OSVDB', '13422' ],
         [ 'MSB', 'MS02-063' ],
       ],
-      'DisclosureDate' => 'Sep 26 2002'))
+      'DisclosureDate' => '2002-09-26'))
 
       register_options(
       [
         Opt::RPORT(1723),
-      ],self.class)
+      ])
   end
 
   def run

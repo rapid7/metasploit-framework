@@ -31,7 +31,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::VNC do
 
     it 'returns a failed result when authentication fails' do
       expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:handshake).and_return true
-      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:authenticate).with(private).and_return false
+      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:negotiate_authentication).and_return Rex::Proto::RFB::AuthType::VNC
+      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:authenticate_with_type).with(Rex::Proto::RFB::AuthType::VNC,nil,private).and_return false
       result = login_scanner.attempt_login(test_cred)
       expect(result.status).to eq Metasploit::Model::Login::Status::INCORRECT
     end

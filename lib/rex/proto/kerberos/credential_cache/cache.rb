@@ -8,7 +8,7 @@ module Rex
         class Cache < Element
 
           # @!attribute version
-          #   @return [Fixnum] The file format version
+          #   @return [Integer] The file format version
           attr_accessor :version
           # @!attribute headers
           #   @return [Array<String>] The header tags

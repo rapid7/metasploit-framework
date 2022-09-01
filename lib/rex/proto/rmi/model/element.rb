@@ -82,7 +82,7 @@ module Rex
           # Reads a byte from an IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           # @raise [Rex::Proto::Rmi::DecodeError] if the byte can't be read from io
           def read_byte(io)
             raw = io.read(1)
@@ -94,7 +94,7 @@ module Rex
           # Reads a two bytes short from an IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           # @raise [Rex::Proto::Rmi::DecodeError] if the short can't be read from io
           def read_short(io)
             raw = io.read(2)
@@ -109,7 +109,7 @@ module Rex
           # Reads a four bytes int from an IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           # @raise [Rex::Proto::Rmi::DecodeError] if the int can't be read from io
           def read_int(io)
             raw = io.read(4)
@@ -124,7 +124,7 @@ module Rex
           # Reads a 8 bytes long from an IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           # @raise [Rex::Proto::Rmi::DecodeError] if the long can't be read from io
           def read_long(io)
             raw = io.read(8)
@@ -139,7 +139,7 @@ module Rex
           # Reads an string from an IO
           #
           # @param io [IO] the IO to read from
-          # @param length [Fixnum] the string length
+          # @param length [Integer] the string length
           # @return [String]
           # @raise [Rex::Proto::Rmi::DecodeError] if the string can't be read from io
           def read_string(io, length)

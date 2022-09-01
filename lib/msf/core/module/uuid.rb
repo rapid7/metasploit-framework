@@ -1,3 +1,5 @@
+require 'rex/text'
+
 module Msf::Module::UUID
   #
   # Attributes

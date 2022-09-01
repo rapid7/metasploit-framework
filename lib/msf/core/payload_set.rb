@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/module_manager'
-
 module Msf
 
 ###
@@ -31,7 +28,8 @@ class PayloadSet < ModuleSet
     [
       Payload::Type::Single,
       Payload::Type::Stager,
-      Payload::Type::Stage
+      Payload::Type::Stage,
+      Payload::Type::Adapter
     ].each { |type|
       self.payload_type_modules[type] = {}
     }
@@ -46,9 +44,6 @@ class PayloadSet < ModuleSet
     # Singles will simply point to the single payload class.
     self.stages  = {}
     self.singles = {}
-
-    # Hash that caches the sizes of payloads
-    self.sizes   = {}
 
     # Single instance cache of modules for use with doing quick referencing
     # of attributes that would require an instance.
@@ -78,6 +73,15 @@ class PayloadSet < ModuleSet
     _singles.each_pair { |name, op|
       mod, handler = op
 
+      # if the payload has a dependency, check
+      # if it is supported on the system
+      payload_dependencies = op[4].dependencies
+      unless payload_dependencies.empty?
+        supported = payload_dependencies.all?(&:available?)
+        elog("Dependency for #{name} is not supported") unless supported
+        next unless supported
+      end
+
       # Build the payload dupe using the determined handler
       # and module
       p = build_payload(handler, mod)
@@ -86,21 +90,42 @@ class PayloadSet < ModuleSet
       add_single(p, name, op[5])
       new_keys.push name
 
-      # Cache the payload's size
-      begin
-        sizes[name] = p.cached_size || p.new.size
-      # Don't cache generic payload sizes.
-      rescue NoCompatiblePayloadError
-      end
+      _adapters.each_pair { |adapter_name, ep|
+        adapter_mod, _, adapter_platform, adapter_arch, adapter_inst = ep
+        next unless adapter_inst.compatible?(p.new)
+
+        ap = build_payload(handler, mod, adapter_mod)
+
+        combined  = build_adapted_name(adapter_name, p.refname)
+        add_single(ap, combined, ep[5])
+        new_keys.push combined
+      }
     }
 
     # Recalculate staged payloads
     _stagers.each_pair { |stager_name, op|
       stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
+      # Pass if the stager has a dependency
+      # and doesn't have the dependency installed
+      stager_dependencies = stager_inst.dependencies
+      unless stager_dependencies.empty?
+        supported = stager_dependencies.all?(&:available?)
+        elog("Dependency for #{stager_name} is not supported") unless supported
+        next unless supported
+      end
+
       # Walk the array of stages
       _stages.each_pair { |stage_name, ip|
         stage_mod, _, stage_platform, stage_arch, stage_inst = ip
+
+        #
+        # if the stager or stage has a dependency, check
+        # if they are compatible
+        #
+        unless stager_dependencies.empty? && stage_inst.dependencies.empty?
+          next unless stager_dependencies == stage_inst.dependencies
+        end
 
         # No intersection between platforms on the payloads?
         if ((stager_platform) and
@@ -154,8 +179,20 @@ class PayloadSet < ModuleSet
           'type'  => op[5]['type']})
         new_keys.push combined
 
-        # Cache the payload's size
-        sizes[combined] = p.cached_size || p.new.size
+        _adapters.each_pair { |adapter_name, ep|
+          adapter_mod, _, adapter_platform, adapter_arch, adapter_inst = ep
+          next unless adapter_inst.compatible?(p.new)
+
+          ap = build_payload(handler, stager_mod, stage_mod, adapter_mod)
+
+          combined  = build_adapted_name(adapter_name, p.refname)
+          ap.refname = combined
+          ap.framework = framework
+          ap.file_path = ep[5]['files'][0]
+
+          self[combined] = ap
+          new_keys.push combined
+        }
       }
     }
 
@@ -186,7 +223,7 @@ class PayloadSet < ModuleSet
   # @return [void]
   def add_module(payload_module, reference_name, modinfo={})
 
-    if (md = reference_name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
+    if (md = reference_name.match(/^(adapters|singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
       ptype = md[1]
       reference_name  = md[2]
     end
@@ -376,12 +413,12 @@ class PayloadSet < ModuleSet
   # The list of singles that have been loaded.
   #
   attr_reader :singles
-  #
-  # The sizes of all the built payloads thus far.
-  #
-  attr_reader :sizes
 
 protected
+
+  def _adapters
+    return payload_type_modules[Payload::Type::Adapter] || {}
+  end
 
   #
   # Return the hash of single payloads
@@ -421,8 +458,17 @@ protected
     return klass
   end
 
+  def build_adapted_name(aname, pname)
+    aparts = aname.split('/')
+    pparts = pname.split('/')
+    pparts.shift if aparts.last.start_with?(pparts.first)
+    aparts.each { |apart| pparts.delete(apart) if pparts.include?(apart) }
+
+    (aparts + pparts).join('/')
+  end
+
   attr_accessor :payload_type_modules # :nodoc:
-  attr_writer   :stages, :singles, :sizes # :nodoc:
+  attr_writer   :stages, :singles # :nodoc:
   attr_accessor :_instances # :nodoc:
 
 end

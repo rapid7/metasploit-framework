@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -35,14 +32,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('EXTENDED', [true, 'Do all the 16 extended checks', false]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
     begin
       connect
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_status("SMTP #{banner_sanitized}")
+      print_good("SMTP #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
 
       if datastore['EXTENDED']
@@ -85,19 +82,19 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
 
-      res = raw_send_recv("EHLO X\r\n")
+      res = smtp_send_recv("EHLO X\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{mailfrom}\r\n")
+      res = smtp_send_recv("#{mailfrom}\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{mailto}\r\n")
+      res = smtp_send_recv("#{mailto}\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("DATA\r\n")
+      res = smtp_send_recv("DATA\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{Rex::Text.rand_text_alpha(rand(10)+5)}\r\n.\r\n")
+      res = smtp_send_recv("#{Rex::Text.rand_text_alpha(rand(10)+5)}\r\n.\r\n")
       vprint_status("#{res.inspect}")
 
       if res =~ /250/

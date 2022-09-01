@@ -4,4 +4,4 @@
 # -jduck
 #
 
-print_error("Error: Command shell sessions do not support migration")
+print_error("Error: command shell sessions do not support migration")

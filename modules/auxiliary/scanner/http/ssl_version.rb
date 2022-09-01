@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -30,11 +28,10 @@ class Metasploit3 < Msf::Auxiliary
       {
         'SSL' => true,
         'RPORT' => 443,
-        'SSLVersion' => 'SSL3'
       },
       'References'  =>
       [
-        [ 'URL', 'http://googleonlinesecurity.blogspot.com/2014/10/this-poodle-bites-exploiting-ssl-30.html'],
+        [ 'URL', 'https://security.googleblog.com/2014/10/this-poodle-bites-exploiting-ssl-30.html'],
         [ 'OSVDB', '113251'],
         [ 'CVE', '2014-3566']
       ],
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('SSLVersion', [true, 'Specify the version of SSL that should be used', 'SSL3', ['SSL2', 'SSL3', 'TLS1']])
+        Opt::SSLVersion
       ]
     )
 
@@ -80,5 +77,4 @@ class Metasploit3 < Msf::Auxiliary
       :exploited_at => Time.now.utc
     )
   end
-
 end

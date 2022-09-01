@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
@@ -32,15 +30,15 @@ class Metasploit3 < Msf::Auxiliary
     'References'  =>
     [
       [ 'CVE', '2015-0235' ],
-      [ 'URL', 'http://blog.spiderlabs.com/2015/01/ghost-gethostbyname-heap-overflow-in-glibc-cve-2015-0235.html'],
-      [ 'URL', 'http://blog.sucuri.net/2015/01/critical-ghost-vulnerability-released.html']
+      [ 'URL', 'https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/ghost-gethostbyname-heap-overflow-in-glibc-cve-2015-0235/'],
+      [ 'URL', 'https://blog.sucuri.net/2015/01/critical-ghost-vulnerability-released.html']
     ]
     ))
 
     register_options(
     [
       OptInt.new('LENGTH', [false, 'Payload length', 2500]),
-    ], self.class)
+    ])
   end
 
   def length
@@ -83,5 +81,4 @@ class Metasploit3 < Msf::Auxiliary
       print_status("target not vulnerable to GHOST")
     end
   end
-
 end

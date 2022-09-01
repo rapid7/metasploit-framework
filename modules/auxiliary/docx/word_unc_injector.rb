@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,12 +14,10 @@ require 'zip'
 # Project
 #
 
-require 'msf/core'
 # for creating files
 require 'rex/zip'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
@@ -36,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://jedicorp.com/?p=534' ]
+          [ 'URL', 'https://web.archive.org/web/20140527232608/http://jedicorp.com/?p=534' ]
         ],
       'Author'         =>
         [
@@ -46,11 +44,11 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
+        OptAddressLocal.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
         OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document.']),
         OptString.new('FILENAME', [true, 'Document output filename.', 'msf.docx']),
         OptString.new('DOCAUTHOR',[false,'Document author for empty document.']),
-      ], self.class)
+      ])
   end
 
   # here we create an empty .docx file with the UNC path. Only done when FILENAME is empty
@@ -74,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("Adding skeleton files from #{data_dir}")
     Dir["#{data_dir}/**/**"].each do |file|
       if not File.directory?(file)
-        zip_data[file.sub(data_dir,'')] = File.read(file)
+        zip_data[file.sub(data_dir,'')] = File.read(file, mode: 'rb')
       end
     end
 
@@ -85,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # add the otherwise skipped "hidden" file
     file = "#{data_dir}/_rels/.rels"
-    zip_data[file.sub(data_dir,'')] = File.read(file)
+    zip_data[file.sub(data_dir,'')] = File.read(file, mode: 'rb')
     # and lets create the file
     zip_docx(zip_data)
   end

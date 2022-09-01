@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -27,9 +24,9 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2011-4050' ],
           [ 'OSVDB', '77976' ],
-          [ 'URL', 'http://www.us-cert.gov/control_systems/pdf/ICSA-11-335-01.pdf' ]
+          [ 'URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-11-335-01' ]
         ],
-      'DisclosureDate' => 'Dec 20 2011'
+      'DisclosureDate' => '2011-12-20'
     ))
 
     register_options(

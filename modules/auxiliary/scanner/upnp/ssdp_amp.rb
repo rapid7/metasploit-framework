@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
@@ -19,14 +17,15 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A']
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
+          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A']
         ],
     )
 
     register_options([
       Opt::RPORT(1900),
       OptBool.new('SHORT', [ false, "Does a shorter request, for a higher amplifier, not compatible with all devices", false])
-    ], self.class)
+    ])
   end
 
   def setup

@@ -35,7 +35,7 @@ class Adsi
   # @return [Hash] Array of field names with associated results.
   #
   def domain_query(domain_name, filter, max_results, page_size, fields)
-    request = Packet.create_request('extapi_adsi_domain_query')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY)
 
     request.add_tlv(TLV_TYPE_EXT_ADSI_DOMAIN, domain_name)
     request.add_tlv(TLV_TYPE_EXT_ADSI_FILTER, filter)

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -21,7 +18,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'   =>
         [
           # General
-          [ 'URL', 'http://blog.c22.cc' ]
+          [ 'URL', 'https://blog.c22.cc' ]
         ],
       'Author'       => [ 'Chris John Riley' ],
       'License'      => MSF_LICENSE
@@ -32,9 +29,8 @@ class Metasploit4 < Msf::Auxiliary
         Opt::RPORT(50013),
         OptString.new('TARGETURI', [false, 'Path to the SAP Management Console ', '/']),
         OptString.new('MATCH', [false, 'Display matches e.g login/', '']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 50013 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

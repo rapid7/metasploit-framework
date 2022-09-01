@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
@@ -25,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        =>  MSF_LICENSE
     )
 
-    deregister_options('Proxies','SSL','RHOST')
+    deregister_udp_options
     register_options(
       [
         Opt::RPORT(5060),
@@ -33,12 +30,12 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('MSG', [true, "The spoofed caller id to send","The Metasploit has you"]),
         OptString.new('EXTENSION', [false, "The specific extension or name to target", nil]),
         OptString.new('DOMAIN', [false, "Use a specific SIP domain", nil])
-      ], self.class)
+      ])
     register_advanced_options(
       [
         OptAddress.new('SIP_PROXY_NAME', [false, "Use a specific SIP proxy", nil]),
         OptPort.new('SIP_PROXY_PORT', [false, "SIP Proxy port to use", 5060])
-      ], self.class)
+      ])
   end
 
 

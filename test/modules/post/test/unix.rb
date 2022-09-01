@@ -1,30 +1,31 @@
-require 'msf/core'
-
 lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-#load 'test/lib/module_test.rb'
-#load 'lib/rex/text.rb'
-#load 'lib/msf/core/post/linux/system.rb'
-#load 'lib/msf/core/post/unix/enum_user_dirs.rb'
+# load 'test/lib/module_test.rb'
+# load 'lib/rex/text.rb'
+# load 'lib/msf/core/post/linux/system.rb'
+# load 'lib/msf/core/post/unix/enum_user_dirs.rb'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Linux::System
   include Msf::Post::Unix
   include Msf::Post::Common
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Testing Remote Unix System Manipulation',
-        'Description'   => %q{ This module will test Post::File API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'egypt'],
-        'Platform'      => [ 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Testing Remote Unix System Manipulation',
+        'Description' => %q{ This module will test Post::File API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'egypt'],
+        'Platform' => [ 'linux', 'java' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
   end
 
   def test_unix
@@ -37,6 +38,7 @@ class Metasploit4 < Msf::Post
       if ret
         users.each { |u|
           next unless u[:name] == "root"
+
           have_root = true
         }
       end
@@ -45,8 +47,6 @@ class Metasploit4 < Msf::Post
 
       ret
     end
-
   end
 
 end
-

@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -23,18 +21,18 @@ class Metasploit3 < Msf::Auxiliary
         Note: All tokens expire after 30 minutes of inactivity by default.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'         => 'bcoles',
       'References'     =>
         [
           ['URL', 'https://doliforge.org/tracker/?func=detail&aid=1212&group_id=144'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/commit/8642e2027c840752c4357c4676af32fe342dc0cb']
         ],
-      'DisclosureDate' => 'Jan 12 2014'))
+      'DisclosureDate' => '2014-01-12'))
     register_options(
       [
         OptString.new('TARGETURI',      [true, 'The path to Dolibarr', '/dolibarr/']),
         OptString.new('TRAVERSAL_PATH', [true, 'The traversal path to the application tmp directory', '../../../../../../../../tmp/'])
-      ], self.class)
+      ])
   end
 
   #
@@ -192,7 +190,7 @@ class Metasploit3 < Msf::Auxiliary
       print_warning("No credentials collected.")
       return
     end
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Dolibarr User Credentials',
       'Indent'  => 1,
       'Columns' => ['Username', 'Password', 'Admin', 'E-mail']

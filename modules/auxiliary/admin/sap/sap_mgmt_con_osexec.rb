@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -32,10 +29,10 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(50013),
         OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-        OptString.new('USERNAME', [true, 'Username to use', '']),
-        OptString.new('PASSWORD', [true, 'Password to use', '']),
+        OptString.new('HttpUsername', [true, 'Username to use', '']),
+        OptString.new('HttpPassword', [true, 'Password to use', '']),
         OptString.new('CMD', [true, 'Command to run', 'set']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 50013 ])
   end
 
@@ -126,7 +123,7 @@ class Metasploit4 < Msf::Auxiliary
     data << '</SOAP-ENV:Body>' + "\r\n"
     data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
 
-    user_pass = Rex::Text.encode_base64(datastore['USERNAME'] + ":" + datastore['PASSWORD'])
+    user_pass = Rex::Text.encode_base64(datastore['HttpUsername'] + ":" + datastore['HttpPassword'])
 
     begin
       res = send_request_raw({

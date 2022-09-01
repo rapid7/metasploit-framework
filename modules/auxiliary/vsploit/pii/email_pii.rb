@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   #
   # This module sends pii via an attacker smtp machine
@@ -26,8 +24,8 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
         [
           OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
-          OptString.new('RPORT', [true, "SMTP server port",'25'])
-        ], self.class)
+          OptPort.new('RPORT', [true, "SMTP server port", 25])
+        ])
   end
 
   def run

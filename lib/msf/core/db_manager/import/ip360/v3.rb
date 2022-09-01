@@ -1,4 +1,3 @@
-require 'rex/parser/ip360_xml'
 
 module Msf::DBManager::Import::IP360::V3
   #
@@ -6,7 +5,6 @@ module Msf::DBManager::Import::IP360::V3
   #
   def import_ip360_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|
@@ -20,7 +18,7 @@ module Msf::DBManager::Import::IP360::V3
   #
   def import_ip360_xml_v3(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     # @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } }

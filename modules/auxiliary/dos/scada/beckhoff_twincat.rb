@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '75495' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/twincat_1-adv.txt' ]
         ],
-      'DisclosureDate' => 'Sep 13 2011'
+      'DisclosureDate' => '2011-09-13'
     ))
 
     register_options([Opt::RPORT(48899)])

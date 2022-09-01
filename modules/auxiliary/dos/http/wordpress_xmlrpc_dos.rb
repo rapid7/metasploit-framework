@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Dos
 
@@ -26,25 +23,26 @@ class Metasploit3 < Msf::Auxiliary
       'License'       => MSF_LICENSE,
       'References'    =>
         [
-          ['URL', 'http://wordpress.org/news/2014/08/wordpress-3-9-2/'],
+          ['CVE', '2014-5266'],
+          ['URL', 'https://wordpress.org/news/2014/08/wordpress-3-9-2/'],
           ['URL', 'http://www.breaksec.com/?p=6362'],
-          ['URL', 'http://mashable.com/2014/08/06/wordpress-xml-blowup-dos/'],
+          ['URL', 'https://mashable.com/archive/wordpress-xml-blowup-dos'],
           ['URL', 'https://core.trac.wordpress.org/changeset/29404'],
           ['WPVDB', '7526']
         ],
-      'DisclosureDate'=> 'Aug 6 2014'
+      'DisclosureDate'=> '2014-08-06'
     ))
 
     register_options(
     [
       OptInt.new('RLIMIT', [ true, "Number of requests to send", 1000 ])
-    ], self.class)
+    ])
 
     register_advanced_options(
     [
       OptInt.new('FINGERPRINT_STEP', [true, "The stepsize in MB when fingerprinting", 8]),
       OptInt.new('DEFAULT_LIMIT', [true, "The default limit in MB", 8])
-    ], self.class)
+    ])
   end
 
   def rlimit

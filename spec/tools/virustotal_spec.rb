@@ -3,7 +3,6 @@ require 'spec_helper'
 load Metasploit::Framework.root.join('tools/exploit/virustotal.rb').to_path
 
 require 'msfenv'
-require 'msf/base'
 require 'digest/sha2'
 
 RSpec.describe VirusTotalUtility do
@@ -172,19 +171,6 @@ RSpec.describe VirusTotalUtility do
 
 
     describe VirusTotalUtility::Driver do
-      # Get stdout:
-      # http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
-      def get_stdout(&block)
-        out = $stdout
-        $stdout = fake = StringIO.new
-        begin
-          yield
-        ensure
-          $stdout = out
-        end
-        fake.string
-      end
-
       before do
         $stdin = StringIO.new("Y\n")
       end

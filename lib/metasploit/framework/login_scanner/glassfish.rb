@@ -20,6 +20,13 @@ module Metasploit
         #   @return [String] Cookie session
         attr_accessor :jsession
 
+        # @!attribute http_username
+        attr_accessor :http_username
+        #   @return [String] HTTP username
+
+        # @!attribute http_password
+        attr_accessor :http_password
+
         # (see Base#check_setup)
         def check_setup
           begin
@@ -49,7 +56,7 @@ module Metasploit
             if @version.nil? || @version !~ /^[2349]/
               return "Unsupported version ('#{@version}')"
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+          rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
             return "Unable to connect to target"
           end
 
@@ -61,7 +68,7 @@ module Metasploit
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies)
+          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
           configure_http_client(cli)
           cli.connect
           req = cli.request_raw(opts)
@@ -201,7 +208,7 @@ module Metasploit
               result_opts.merge!(status)
             when /^9\.x$/
               status = try_glassfish_9(credential)
-              result_opts.merge!(status) 
+              result_opts.merge!(status)
             end
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)

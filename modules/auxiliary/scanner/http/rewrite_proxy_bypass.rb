@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -45,7 +43,7 @@ class Metasploit4 < Msf::Auxiliary
 
         OptString.new('BASELINE_URI',
           [true, 'Requested to establish that EXPECTED_RESPONSE is not the usual response', '/']),
-      ], self.class)
+      ])
   end
 
   def make_request(host, uri, timeout=20)

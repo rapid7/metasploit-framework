@@ -29,7 +29,6 @@ require 'action_view/railtie'
 
 require 'metasploit/framework/common_engine'
 require 'metasploit/framework/database'
-
 module Metasploit
   module Framework
     class Application < Rails::Application
@@ -37,6 +36,7 @@ module Metasploit
 
       config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
+      config.autoloader = :zeitwerk
 
       case Rails.env
       when "development"
@@ -52,3 +52,4 @@ end
 
 # Silence warnings about this defaulting to true
 I18n.enforce_available_locales = true
+require 'msfenv'

@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/smb'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
@@ -16,6 +14,10 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
+
+  Aliases = [
+    'auxiliary/scanner/smb/login'
+  ]
 
   def proto
     'smb'
@@ -48,17 +50,20 @@ class Metasploit3 < Msf::Auxiliary
           'USER_AS_PASS'    => false
         }
     )
-    deregister_options('RHOST','USERNAME','PASSWORD')
 
     # These are normally advanced options, but for this module they have a
     # more active role, so make them regular options.
     register_options(
       [
         Opt::Proxies,
+        OptBool.new('ABORT_ON_LOCKOUT', [ true, "Abort the run when an account lockout is detected", false ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
-        OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ])
-      ], self.class)
+        OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
+        OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', false]),
+        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
+      ])
 
+    deregister_options('USERNAME','PASSWORD', 'PASSWORD_SPRAY')
   end
 
   def run_host(ip)
@@ -69,52 +74,50 @@ class Metasploit3 < Msf::Auxiliary
     @scanner = Metasploit::Framework::LoginScanner::SMB.new(
       host: ip,
       port: rport,
+      local_port: datastore['CPORT'],
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      proxies: datastore['PROXIES'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
       max_send_size: datastore['TCP::max_send_size'],
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
-      smb_verify_signature: datastore['SMB::VerifySignature'],
-      use_ntlmv2: datastore['NTLM::UseNTLMv2'],
-      use_ntlm2_session: datastore['NTLM::UseNTLM2_session'],
-      send_lm: datastore['NTLM::SendLM'],
-      use_lmkey: datastore['NTLM::UseLMKey'],
-      send_ntlm: datastore['NTLM::SendNTLM'],
-      smb_native_os: datastore['SMB::Native_OS'],
-      smb_native_lm: datastore['SMB::Native_LM'],
-      send_spn: datastore['NTLM::SendSPN'],
     )
 
-    bogus_result = @scanner.attempt_bogus_login(domain)
-    if bogus_result.success?
-      if bogus_result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
-        print_status("#{ip} - This system allows guest sessions with any credentials")
+    if datastore['DETECT_ANY_AUTH']
+      bogus_result = @scanner.attempt_bogus_login(domain)
+      if bogus_result.success?
+        if bogus_result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
+          print_status("This system allows guest sessions with random credentials")
+        else
+          print_error("This system accepts authentication with random credentials, brute force is ineffective.")
+          return
+        end
       else
-        print_error("#{ip} - This system accepts authentication with any credentials, brute force is ineffective.")
-        return
+        vprint_status('This system does not accept authentication with random credentials, proceeding with brute force')
       end
     end
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['SMBPass'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['SMBUser'],
-      user_as_pass: datastore['USER_AS_PASS'],
+    cred_collection = build_credential_collection(
       realm: domain,
+      username: datastore['SMBUser'],
+      password: datastore['SMBPass']
     )
-
-    cred_collection = prepend_db_passwords(cred_collection)
     cred_collection = prepend_db_hashes(cred_collection)
 
     @scanner.cred_details = cred_collection
 
     @scanner.scan! do |result|
       case result.status
+      when Metasploit::Model::Login::Status::LOCKED_OUT
+        if datastore['ABORT_ON_LOCKOUT']
+          print_error("Account lockout detected on '#{result.credential.public}', aborting.")
+          return
+        else
+          print_error("Account lockout detected on '#{result.credential.public}', skipping this user.")
+        end
+
       when Metasploit::Model::Login::Status::DENIED_ACCESS
         print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
         report_creds(ip, rport, result)
@@ -135,6 +138,7 @@ class Metasploit3 < Msf::Auxiliary
             private: result.credential.private,
             realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
             realm_value: result.credential.realm,
+            last_attempted_at: DateTime.now,
             status: result.status
         )
         :abort
@@ -150,6 +154,7 @@ class Metasploit3 < Msf::Auxiliary
           private: result.credential.private,
           realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
           realm_value: result.credential.realm,
+          last_attempted_at: DateTime.now,
           status: result.status
         )
       end
@@ -197,7 +202,7 @@ class Metasploit3 < Msf::Auxiliary
       username: result.credential.public,
     }.merge(service_data)
 
-    if domain.present?
+    if datastore['DETECT_ANY_DOMAIN'] && domain.present?
       if accepts_bogus_domains?(result.credential.public, result.credential.private)
         print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
       else

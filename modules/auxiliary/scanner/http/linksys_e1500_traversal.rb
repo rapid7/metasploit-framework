@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -33,23 +30,21 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
+        OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
+        OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
 
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
+
     begin
-      words = File.open(wordfile, "rb") do |f|
-        f.read
-      end
-    rescue
-      return []
+      File.readlines(wordfile, chomp: true)
+    rescue ::StandardError => e
+      elog(e)
+      []
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def find_files(file,user,pass)
@@ -91,8 +86,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+    user = datastore['HttpUsername']
+    pass = datastore['HttpPassword']
 
     vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 

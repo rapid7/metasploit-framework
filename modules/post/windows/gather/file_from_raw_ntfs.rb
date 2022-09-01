@@ -1,37 +1,46 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/fs/ntfs'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Error
 
   ERROR = Msf::Post::Windows::Error
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Windows File Gather File from Raw NTFS',
-      'Description'  => %q{
-        This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
-        such as open file with write lock. Because it avoids the usual file locking issues, it can
-        be used to retrieve files such as NTDS.dit.
-      },
-      'License'      => 'MSF_LICENSE',
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
-      'Author'       => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
-      'References'   => [
-        [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
-      ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows File Gather File from Raw NTFS',
+        'Description' => %q{
+          This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
+          such as open file with write lock. Because it avoids the usual file locking issues, it can
+          be used to retrieve files such as NTDS.dit.
+        },
+        'License' => 'MSF_LICENSE',
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
+        'References' => [
+          [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('FILE_PATH', [true, 'The FILE_PATH to retreive from the Volume raw device', nil])
-      ], self.class)
+      ]
+    )
   end
 
   def run
@@ -69,7 +78,7 @@ class Metasploit3 < Msf::Post
     end
 
     @handle = r['return']
-    vprint_status("Successfuly opened #{drive}")
+    vprint_good("Successfuly opened #{drive}")
     begin
       @bytes_read = 0
       fs = Rex::Parser::NTFS.new(self)

@@ -42,6 +42,8 @@ class Process < Rex::Post::Process
   # valid.
   #
   def Process.[](key)
+    return if key.nil?
+
     each_process { |p|
       if (p['name'].downcase == key.downcase)
         return p['pid']
@@ -61,15 +63,15 @@ class Process < Rex::Post::Process
       perms = PROCESS_ALL
     end
 
-    if (perms & PROCESS_READ)
+    if (perms & PROCESS_READ) > 0
       real_perms |= PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_QUERY_INFORMATION
     end
 
-    if (perms & PROCESS_WRITE)
+    if (perms & PROCESS_WRITE) > 0
       real_perms |= PROCESS_SET_SESSIONID | PROCESS_VM_WRITE | PROCESS_DUP_HANDLE | PROCESS_SET_QUOTA | PROCESS_SET_INFORMATION
     end
 
-    if (perms & PROCESS_EXECUTE)
+    if (perms & PROCESS_EXECUTE) > 0
       real_perms |= PROCESS_TERMINATE | PROCESS_CREATE_THREAD | PROCESS_CREATE_PROCESS | PROCESS_SUSPEND_RESUME
     end
 
@@ -80,7 +82,7 @@ class Process < Rex::Post::Process
   # Low-level process open.
   #
   def Process._open(pid, perms, inherit = false)
-    request = Packet.create_request('stdapi_sys_process_attach')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_ATTACH)
 
     if (pid == nil)
       pid = 0
@@ -114,7 +116,7 @@ class Process < Rex::Post::Process
   #   InMemory    => true/false
   #
   def Process.execute(path, arguments = nil, opts = nil)
-    request = Packet.create_request('stdapi_sys_process_execute')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE)
     flags   = 0
 
     # If we were supplied optional arguments...
@@ -137,6 +139,17 @@ class Process < Rex::Post::Process
       if (opts['Session'])
         flags |= PROCESS_EXECUTE_FLAG_SESSION
         request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
+      end
+      if (opts['Subshell'])
+        flags |= PROCESS_EXECUTE_FLAG_SUBSHELL
+      end
+      if (opts['Pty'])
+        flags |= PROCESS_EXECUTE_FLAG_PTY
+      end
+      if (opts['ParentPid'])
+        request.add_tlv(TLV_TYPE_PARENT_PID, opts['ParentPid']);
+        request.add_tlv(TLV_TYPE_PROCESS_PERMS, PROCESS_ALL_ACCESS)
+        request.add_tlv(TLV_TYPE_INHERIT, false)
       end
       inmem = opts['InMemory']
       if inmem
@@ -171,7 +184,7 @@ class Process < Rex::Post::Process
     # If we were creating a channel out of this
     if (channel_id != nil)
       channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
-          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
+          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS, response)
     end
 
     # Return a process instance
@@ -179,10 +192,41 @@ class Process < Rex::Post::Process
   end
 
   #
+  # Execute an application and capture the output
+  #
+  def Process.capture_output(path, arguments = nil, opts = nil, time_out = 15)
+    start = Time.now.to_i
+    process = execute(path, arguments, opts)
+    data = ""
+
+    # Wait up to time_out seconds for the first bytes to arrive
+    while (d = process.channel.read)
+      data << d
+      if d == ""
+        if Time.now.to_i - start < time_out
+          sleep 0.1
+        else
+          break
+        end
+      end
+    end
+    data.chomp! if data
+
+    begin
+      process.channel.close
+    rescue IOError => e
+      # Channel was already closed, but we got the cmd output, so let's soldier on.
+    end
+    process.close
+
+    return data
+  end
+
+  #
   # Kills one or more processes.
   #
   def Process.kill(*args)
-    request = Packet.create_request('stdapi_sys_process_kill')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_KILL)
 
     args.each { |id|
       request.add_tlv(TLV_TYPE_PID, id)
@@ -197,7 +241,7 @@ class Process < Rex::Post::Process
   # Gets the process id that the remote side is executing under.
   #
   def Process.getpid
-    request = Packet.create_request('stdapi_sys_process_getpid')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_GETPID)
 
     response = client.send_request(request)
 
@@ -216,7 +260,7 @@ class Process < Rex::Post::Process
   # 'ppid', 'name', 'path', 'user', 'session' and 'arch'.
   #
   def Process.get_processes
-    request   = Packet.create_request('stdapi_sys_process_get_processes')
+    request   = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES)
     processes = ProcessList.new
 
     response = client.send_request(request)
@@ -224,13 +268,15 @@ class Process < Rex::Post::Process
     response.each(TLV_TYPE_PROCESS_GROUP) { |p|
     arch = ""
 
-    pa = p.get_tlv_value( TLV_TYPE_PROCESS_ARCH )
-    if( pa != nil )
+    pa = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH)
+    if !pa.nil?
       if pa == 1 # PROCESS_ARCH_X86
         arch = ARCH_X86
       elsif pa == 2 # PROCESS_ARCH_X64
-        arch = ARCH_X86_64
+        arch = ARCH_X64
       end
+    else
+      arch = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH_NAME)
     end
 
     processes <<
@@ -285,11 +331,12 @@ class Process < Rex::Post::Process
         'thread' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
       })
 
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, handle))
   end
 
-  def self.finalize(client,handle)
-    proc { self.close(client,handle) }
+  def self.finalize(client, handle)
+    proc { self.close(client, handle) }
   end
 
   #
@@ -310,9 +357,9 @@ class Process < Rex::Post::Process
   # Closes the handle to the process that was opened.
   #
   def self.close(client, handle)
-    request = Packet.create_request('stdapi_sys_process_close')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_CLOSE)
     request.add_tlv(TLV_TYPE_HANDLE, handle)
-    response = client.send_request(request, nil)
+    client.send_request(request, nil)
     handle = nil;
     return true
   end
@@ -320,8 +367,12 @@ class Process < Rex::Post::Process
   #
   # Instance method
   #
-  def close(handle=self.handle)
-    self.class.close(self.client, handle)
+  def close(handle = self.handle)
+    unless self.pid.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.client, handle)
+      self.pid = nil
+    end
   end
 
   #
@@ -330,11 +381,11 @@ class Process < Rex::Post::Process
   # occur as we may be waiting indefinatly for the process to terminate.
   #
   def wait( timeout = -1 )
-    request = Packet.create_request('stdapi_sys_process_wait')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_WAIT)
 
     request.add_tlv(TLV_TYPE_HANDLE, self.handle)
 
-    response = self.client.send_request(request, timeout)
+    self.client.send_request(request, timeout)
 
     self.handle = nil
 
@@ -349,7 +400,7 @@ protected
   # Gathers information about the process and returns a hash.
   #
   def get_info
-    request = Packet.create_request('stdapi_sys_process_get_info')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_GET_INFO)
     info    = {}
 
     request.add_tlv(TLV_TYPE_HANDLE, handle)
@@ -372,50 +423,45 @@ end
 class ProcessList < Array
 
   #
-  # Create a Rex::Ui::Text::Table out of the processes stored in this list
+  # Create a Rex::Text::Table out of the processes stored in this list
   #
-  # +opts+ is passed on to Rex::Ui::Text::Table.new, mostly unmolested
+  # +opts+ is passed on to Rex::Text::Table.new, mostly unmolested
   #
   # Note that this output is affected by Rex::Post::Meterpreter::Client#unicode_filter_encode
   #
   def to_table(opts={})
     if empty?
-      return Rex::Ui::Text::Table.new(opts)
+      return Rex::Text::Table.new(opts)
     end
 
-    cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-    # Arch and Session are specific to native Windows, PHP and Java can't do
-    # ppid.  Cut columns from the list if they aren't there.  It is conceivable
-    # that processes might have different columns, but for now assume that the
-    # first one is representative.
-    cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+    column_headers = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+    column_headers.delete_if do |h|
+      none? { |process| process.has_key?(h.downcase) } ||
+      all? { |process| process[h.downcase].nil? }
+    end
 
     opts = {
       'Header' => 'Process List',
       'Indent' => 1,
-      'Columns' => cols
+      'Columns' => column_headers
     }.merge(opts)
 
-    tbl = Rex::Ui::Text::Table.new(opts)
-    each { |process|
-      tbl << cols.map { |c|
-        col = c.downcase
+    tbl = Rex::Text::Table.new(opts)
+    each do |process|
+      tbl << column_headers.map do |header|
+        col = header.downcase
+        next unless process.keys.any? { |process_header| process_header == col }
         val = process[col]
         if col == 'session'
           val == 0xFFFFFFFF ? '' : val.to_s
-        elsif col == 'arch'
-          # for display and consistency with payload naming we switch the internal
-          # 'x86_64' value to display 'x64'
-          val == ARCH_X86_64 ? 'x64' : val
         else
           val
         end
-      }.compact
-    }
+      end
+    end
 
     tbl
   end
 end
 
 end; end; end; end; end; end
-

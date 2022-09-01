@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/proto/http'
+
 
 module Rex
 module Proto
@@ -32,7 +32,6 @@ class Packet
     Completed        = 3
   end
 
-  require 'rex/proto/http/packet/header'
 
   #
   # Initializes an instance of an HTTP packet.
@@ -164,9 +163,24 @@ class Packet
   end
 
   #
+  # Outputs a readable string of the packet for terminal output
+  #
+  def to_terminal_output(headers_only: false)
+    output_packet(true, headers_only: headers_only)
+  end
+
+  #
   # Converts the packet to a string.
   #
-  def to_s
+  def to_s(headers_only: false)
+    output_packet(false, headers_only: headers_only)
+  end
+
+  #
+  # Converts the packet to a string.
+  # If ignore_chunk is set the chunked encoding is omitted (for pretty print)
+  #
+  def output_packet(ignore_chunk = false, headers_only: false)
     content = self.body.to_s.dup
 
     # Update the content length field in the header with the body length.
@@ -187,21 +201,27 @@ class Packet
         end
       end
 
-      if (self.auto_cl == true && self.transfer_chunked == true)
-        raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatible"
-      elsif self.auto_cl == true
-        self.headers['Content-Length'] = content.length
-      elsif self.transfer_chunked == true
-        if self.proto != '1.1'
-          raise RuntimeError, 'Chunked encoding is only available via 1.1'
+      unless ignore_chunk
+        if self.auto_cl && self.transfer_chunked
+          raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatible"
         end
-        self.headers['Transfer-Encoding'] = 'chunked'
-        content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+
+        if self.auto_cl
+          self.headers['Content-Length'] = content.length
+        elsif self.transfer_chunked
+          if self.proto != '1.1'
+            raise RuntimeError, 'Chunked encoding is only available via 1.1'
+          end
+          self.headers['Transfer-Encoding'] = 'chunked'
+          content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+        end
       end
     end
 
     str  = self.headers.to_s(cmd_string)
-    str += content || ''
+    str += content || '' unless headers_only
+
+    str
   end
 
   #
@@ -303,6 +323,9 @@ protected
           #
           # So if we haven't seen either a Content-Length or a
           # Transfer-Encoding header, there shouldn't be a message body.
+          self.body_bytes_left = 0
+        elsif (self.headers['Connection']&.downcase == 'upgrade' && self.headers['Upgrade']&.downcase == 'websocket')
+          # The server appears to be responding to a websocket request
           self.body_bytes_left = 0
         #else
         # Otherwise we need to keep reading until EOF
@@ -411,4 +434,3 @@ end
 end
 end
 end
-

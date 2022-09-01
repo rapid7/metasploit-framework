@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -28,10 +25,10 @@ class Metasploit3 < Msf::Auxiliary
           ['EDB', '8038'],
           ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-002/'],
         ],
-      'DisclosureDate' => 'Feb 10 2009',
+      'DisclosureDate' => '2009-02-10',
       'Actions'        =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Download arbitrary file']
         ],
       'DefaultAction'  => 'Download'
       ))
@@ -41,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('URI', [true, "Typo3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptString.new('LFILE',[true, "The local filename to store the data", "localconf.php"]),
-      ], self.class)
+      ])
   end
 
   def run

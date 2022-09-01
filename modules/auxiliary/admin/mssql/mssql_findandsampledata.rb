@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -31,15 +27,14 @@ class Metasploit3 < Msf::Auxiliary
         'todb'                                               # Help on GitHub
       ],
       'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
-      'Targets'        => [[ 'MSSQL 2005', { 'ver' => 2005 }]]
+      'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]]
     ))
 
     register_options(
       [
         OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
-        OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  '1']),
-      ], self.class)
+        OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  1]),
+      ])
   end
 
   def print_with_underline(str)
@@ -349,14 +344,14 @@ class Metasploit3 < Msf::Auxiliary
     begin
       result = mssql_query(sql, false) if mssql_login_datastore
       column_data = result[:rows]
-      print_status("Successfully connected to #{rhost}:#{rport}")
+      print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
-      print_status ("Failed to connect to #{rhost}:#{rport}.")
+      print_error("Failed to connect to #{rhost}:#{rport}.")
     return
     end
 
     # CREATE TABLE TO STORE SQL SERVER DATA LOOT
-    sql_data_tbl = Rex::Ui::Text::Table.new(
+    sql_data_tbl = Rex::Text::Table.new(
       'Header'  => 'SQL Server Data',
       'Indent'   => 1,
       'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']
@@ -452,9 +447,8 @@ class Metasploit3 < Msf::Auxiliary
     if (save_loot=="yes")
       filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
       path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
-      print_status("Query results have been saved to: #{path}")
+      print_good("Query results have been saved to: #{path}")
     end
 
   end
-
 end

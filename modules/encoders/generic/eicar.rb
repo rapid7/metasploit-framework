@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   # Set to ManualRanking because actually using ths encoder will
   # certainly destroy any possibility of a successful shell.
@@ -45,5 +43,4 @@ class Metasploit3 < Msf::Encoder
   def encode_block(state, buf)
     buf = eicar_test_string
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -29,17 +26,17 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.yokogawa.com/dcs/security/ysar/YSAR-14-0001E.pdf' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/03/10/yokogawa-centum-cs3000-vulnerabilities' ],
+          [ 'URL', 'https://www.rapid7.com/blog/post/2014/03/10/yokogawa-centum-cs3000-vulnerabilities/' ],
           [ 'CVE', '2014-0781']
         ],
-      'DisclosureDate' => 'Mar 10 2014',
+      'DisclosureDate' => '2014-03-10',
     ))
 
     register_options(
       [
         Opt::RPORT(52302),
         OptInt.new('RLIMIT', [true,  "Number of packets to send", 10])
-      ], self.class)
+      ])
   end
 
   def run
@@ -72,5 +69,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect_udp
   end
-
 end

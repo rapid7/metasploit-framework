@@ -26,6 +26,10 @@ class Console::CommandDispatcher::Lanattacks
 
   include Console::CommandDispatcher
 
+  def self.has_command?(name)
+    Dispatchers.any? { |klass| klass.has_command?(name) }
+  end
+
   #
   # Initializes an instance of the lanattacks command interaction.
   #

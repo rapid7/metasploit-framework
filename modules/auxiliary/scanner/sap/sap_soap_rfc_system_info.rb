@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -33,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2006-6010' ],
-          [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ]
+          [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
         ],
       'Author' =>
         [
@@ -47,9 +44,9 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'SAP Client ', '001']),
-        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-        OptString.new('PASSWORD', [true, 'Password', '06071992']),
-      ], self.class)
+        OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
+        OptString.new('HttpPassword', [true, 'Password', '06071992']),
+      ])
   end
 
   def extract_field(data, elem)
@@ -95,7 +92,7 @@ class Metasploit4 < Msf::Auxiliary
         'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
         'ctype' => 'text/xml; charset=UTF-8',
         'encode_params' => false,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'headers' =>{
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
         },

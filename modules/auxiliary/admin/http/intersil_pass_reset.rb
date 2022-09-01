@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Intersil (Boa) HTTPd Basic Authentication Password Reset',
       'Description'   => %q{
-          The Intersil extention in the Boa HTTP Server 0.93.x - 0.94.11
+          The Intersil extension in the Boa HTTP Server 0.93.x - 0.94.11
           allows basic authentication bypass when the user string is greater
           than 127 bytes long.  The long string causes the password to be
           overwritten in memory, which enables the attacker to reset the
@@ -32,16 +29,17 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          [ 'CVE', '2007-4915' ],
           [ 'BID', '25676'],
           [ 'PACKETSTORM', '59347']
         ],
-      'DisclosureDate' => 'Sep 10 2007'))
+      'DisclosureDate' => '2007-09-10'))
 
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The request URI", '/']),
         OptString.new('PASSWORD', [true, 'The password to set', 'pass'])
-      ], self.class)
+      ])
   end
 
   def check

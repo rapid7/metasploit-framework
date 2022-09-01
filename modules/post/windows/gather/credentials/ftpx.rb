@@ -1,28 +1,38 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Gather FTP Explorer (FTPX) Credential Extraction',
-      'Description'   => %q{
-        This module finds saved login credentials for the FTP Explorer (FTPx)
-        FTP client for Windows.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather FTP Explorer (FTPX) Credential Extraction',
+        'Description' => %q{
+          This module finds saved login credentials for the FTP Explorer (FTPx)
+          FTP client for Windows.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'bcoles' ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
@@ -100,5 +110,4 @@ class Metasploit3 < Msf::Post
       create_credential_login(login_data.merge(service_data))
     end
   end
-
 end

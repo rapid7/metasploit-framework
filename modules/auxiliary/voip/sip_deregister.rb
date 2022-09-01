@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
@@ -16,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'SIP Deregister Extension',
       'Description'   => %q{
-          This module will will attempt to deregister a SIP user from the provider. It
+          This module will attempt to deregister a SIP user from the provider. It
         has been tested successfully when the sip provider/server doesn't use REGISTER
         authentication.
       },
@@ -24,19 +19,19 @@ class Metasploit3 < Msf::Auxiliary
       'License'        =>  MSF_LICENSE
     )
 
-    deregister_options('Proxies','SSL','RHOST')
+    deregister_udp_options
     register_options(
       [
         Opt::RPORT(5060),
         OptString.new('SRCADDR', [true, "The sip address the spoofed deregister request is coming from",'192.168.1.1']),
         OptString.new('EXTENSION', [true, "The specific extension or name to target", '100']),
         OptString.new('DOMAIN', [true, "Use a specific SIP domain", 'example.com'])
-      ],  self.class)
+      ])
     register_advanced_options(
       [
         OptAddress.new('SIP_PROXY_NAME', [false, "Use a specific SIP proxy", nil]),
         OptPort.new('SIP_PROXY_PORT', [false, "SIP Proxy port to use", 5060])
-      ],  self.class)
+      ])
   end
 
 
@@ -127,5 +122,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return true # set response to true
   end
-
 end

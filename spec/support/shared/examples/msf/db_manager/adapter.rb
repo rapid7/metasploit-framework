@@ -1,4 +1,9 @@
 RSpec.shared_examples_for 'Msf::DBManager::Adapter' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Not used for remote data service")}
+  end
+
   context 'CONSTANTS' do
     context 'ADAPTER' do
       subject(:adapter) {

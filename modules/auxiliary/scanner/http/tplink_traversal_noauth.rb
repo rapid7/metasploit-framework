@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -33,20 +30,18 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
+
     begin
-      words = File.open(wordfile, "rb") do |f|
-        f.read
-      end
-    rescue
-      return []
+      File.readlines(wordfile, chomp: true)
+    rescue ::StandardError => e
+      elog(e)
+      []
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def find_files(file)
@@ -83,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       loot = store_loot("tplink.traversal.data","text/plain",rhost, res.body,file)
       vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
 
-      if datastore['VERBOSE'] == true
+      if datastore['VERBOSE']
         vprint_good("#{rhost}:#{rport} - Response - File #{file}:")
         res.body.each_line do |line|
           # the following is the last line of the useless response
@@ -108,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         out = false
       end
-    elsif (res and res.code)
+    elsif res && res.code
       vprint_error("#{rhost}:#{rport} - File->#{file} not found")
     end
   end

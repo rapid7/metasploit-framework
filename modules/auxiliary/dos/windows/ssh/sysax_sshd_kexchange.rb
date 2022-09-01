@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -24,15 +19,15 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'OSVDB', '92081'],
-          [ 'URL', 'http://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html']
+          [ 'URL', 'https://www.mattandreko.com/2013/04/sysax-multi-server-610-ssh-dos.html']
         ],
-      'DisclosureDate' => 'Mar 17 2013'))
+      'DisclosureDate' => '2013-03-17'))
 
     register_options(
       [
         Opt::RPORT(22),
         OptString.new('CLIENTVERSION', [ true, 'The SSH client version to report.', 'Debian-5ubuntu1'])
-      ], self.class)
+      ])
 
   end
 
@@ -79,5 +74,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

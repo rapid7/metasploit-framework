@@ -9,10 +9,10 @@ module Rex
         #   @return [String] The kerberos server host
         attr_accessor :host
         # @!attribute port
-        #   @return [Fixnum] The kerberos server port
+        #   @return [Integer] The kerberos server port
         attr_accessor :port
         # @!attribute timeout
-        #   @return [Fixnum] The connect / read timeout
+        #   @return [Integer] The connect / read timeout
         attr_accessor :timeout
         # @todo Support UDP
         # @!attribute protocol
@@ -65,7 +65,7 @@ module Rex
         # Sends a kerberos request through the connection
         #
         # @param req [Rex::Proto::Kerberos::Model::KdcRequest] the request to send
-        # @return [Fixnum] the number of bytes sent
+        # @return [Integer] the number of bytes sent
         # @raise [RuntimeError] if the transport protocol is unknown
         # @raise [NotImplementedError] if the transport protocol isn't supported
         def send_request(req)
@@ -139,7 +139,7 @@ module Rex
         # Sends a Kerberos Request over a tcp connection
         #
         # @param req [Rex::Proto::Kerberos::Model::KdcRequest] the request to send
-        # @return [Fixnum] the number of bytes sent
+        # @return [Integer] the number of bytes sent
         # @raise [RuntimeError] if the request can't be encoded
         def send_request_tcp(req)
           data = req.encode
@@ -157,18 +157,18 @@ module Rex
         # Receives a Kerberos Response over a tcp connection
         #
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] the kerberos message response
-        # @raise [RuntimeError] if the response can't be processed
+        # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         # @raise [EOFError] if expected data can't be read
         def recv_response_tcp
           length_raw = connection.get_once(4, timeout)
           unless length_raw && length_raw.length == 4
-            raise ::RuntimeError, 'Kerberos Client: failed to read response'
+            raise ::EOFError, 'Kerberos Client: failed to read response'
           end
           length = length_raw.unpack('N')[0]
 
           data = connection.get_once(length, timeout)
           unless data && data.length == length
-            raise ::RuntimeError, 'Kerberos Client: failed to read response'
+            raise ::EOFError, 'Kerberos Client: failed to read response'
           end
 
           res = decode_kerb_response(data)
@@ -189,7 +189,7 @@ module Rex
         #
         # @param data [String] the raw response message
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] the kerberos message response
-        # @raise [RuntimeError] if the response can't be processed
+        # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         def decode_kerb_response(data)
           asn1 = OpenSSL::ASN1.decode(data)
           msg_type = asn1.value[0].value[1].value[0].value
@@ -202,7 +202,7 @@ module Rex
           when Rex::Proto::Kerberos::Model::TGS_REP
             res = Rex::Proto::Kerberos::Model::KdcResponse.decode(asn1)
           else
-            raise ::RuntimeError, 'Kerberos Client: Unknown response'
+            raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Kerberos Client: Unknown response'
           end
 
           res

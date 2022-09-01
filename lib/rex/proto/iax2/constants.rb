@@ -2,6 +2,7 @@
 module Rex
 module Proto
 module IAX2
+module Constants
 
 
 IAX2_DEFAULT_PORT = 4569
@@ -257,6 +258,7 @@ IAX_DEFAULT_REG_REFRESH = 60
 IAX_DEFAULT_TIMEOUT     = 10
 
 
+end
 end
 end
 end

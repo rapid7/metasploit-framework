@@ -1,16 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+module MetasploitModule
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/windows/reverse_tcp'
-
-module Metasploit4
-
-  CachedSize = 281
+  CachedSize = 296
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcp
@@ -25,8 +20,7 @@ module Metasploit4
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseTcp,
       'Convention'  => 'sockedi',
-      'Stager'      => { 'RequiresMidstager' => false }
+      'Stager'      => {'RequiresMidstager' => false}
     ))
   end
-
 end

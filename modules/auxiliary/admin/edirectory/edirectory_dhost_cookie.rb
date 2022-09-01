@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
@@ -22,7 +17,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['OSVDB', '60035'],
+          ['CVE', '2009-4655'],
+          ['OSVDB', '60035']
         ],
       'Author'         => 'hdm',
       'License'        => MSF_LICENSE
@@ -31,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       Opt::RPORT(8030),
       OptBool.new('SSL', [true, 'Use SSL', true])
-    ], self.class)
+    ])
   end
 
   def run
@@ -78,5 +74,4 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Deltas: #{deltas.map{|x| "%.8x" % x}.join(", ")}")
     end
   end
-
 end

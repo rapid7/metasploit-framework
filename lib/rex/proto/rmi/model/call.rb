@@ -8,7 +8,7 @@ module Rex
         class Call < Element
 
           # @!attribute message_id
-          #   @return [Fixnum] the message id
+          #   @return [Integer] the message id
           attr_accessor :message_id
           # @!attribute call_data
           #   @return [Rex::Proto::Rmi::Model::CallData] the call data

@@ -86,10 +86,11 @@ module Msf::Module::Compatibility
   # them into one single hash.  As it stands, modules can define
   # compatibility in their supplied info hash through:
   #
-  # Compat::        direct compat definitions
-  # PayloadCompat:: payload compatibilities
-  # EncoderCompat:: encoder compatibilities
-  # NopCompat::     nop compatibilities
+  # Compat::            direct compat definitions
+  # PayloadCompat::     payload compatibilities
+  # EncoderCompat::     encoder compatibilities
+  # NopCompat::         nop compatibilities
+  # MeterpreterCompat:: meterpreter compatibilities
   #
   # In the end, the module specific compatibilities are merged as sub-hashes
   # of the primary Compat hash key to make checks more uniform.
@@ -101,15 +102,13 @@ module Msf::Module::Compatibility
       c = module_info['Compat'] = Hash.new
     end
 
-    # Initialize the module sub compatibilities
-    c['Payload'] = Hash.new if (c['Payload'] == nil)
-    c['Encoder'] = Hash.new if (c['Encoder'] == nil)
-    c['Nop']     = Hash.new if (c['Nop'] == nil)
 
-    # Update the compat-derived module specific compatibilities from
-    # the specific ones to make a uniform view of compatibilities
-    c['Payload'].update(module_info['PayloadCompat'] || {})
-    c['Encoder'].update(module_info['EncoderCompat'] || {})
-    c['Nop'].update(module_info['NopCompat'] || {})
+    %w{ Encoder Meterpreter Nop Payload }.each do |key|
+      # Initialize the module sub compatibilities
+      c[key] = Hash.new if c[key].nil?
+      # Update the compat-derived module specific compatibilities from
+      # the specific ones to make a uniform view of compatibilities
+      c[key].update(module_info["#{key}Compat"] || {})
+    end
   end
 end

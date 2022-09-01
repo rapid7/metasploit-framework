@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Encoder
-
+class MetasploitModule < Msf::Encoder
   Rank = GoodRanking
 
   def initialize
@@ -86,5 +81,4 @@ class Metasploit3 < Msf::Encoder
 
     return buf
   end
-
 end

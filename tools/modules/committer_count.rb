@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+#
 # The committer_count.rb is a way to tell who's been active over the last
 # given period. It's of course, quite coarse -- someone with 10 commits in a day
 # may or may not be more productive than someone with 3, but over long enough
@@ -19,6 +20,7 @@
 #
 # History with colors and e-mail addresses (respecting .mailmap):
 # git log --pretty=format:"%C(white)%ad %C(yellow)%h %Cblue'%aN' <%aE> %Cgreen%f%Creset" --date=short
+#
 
 class GitLogLine < Struct.new(:date, :hash, :author, :message)
 end

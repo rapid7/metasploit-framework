@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::BusyBox
 
@@ -49,5 +46,4 @@ class Metasploit3 < Msf::Post
       print_error("Nothing read from file: #{file}, file may be empty.")
     end
   end
-
 end

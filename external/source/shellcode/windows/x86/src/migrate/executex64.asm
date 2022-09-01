@@ -40,6 +40,9 @@ delta:
 	
 	call go_all_native						; perform the transition into native x64 and return here when done.
 	
+	mov ax, ds								; fixes an elusive bug on AMD CPUs, http://blog.rewolf.pl/blog/?p=1484
+	mov ss, ax								; found and fixed by ReWolf, incorporated by RaMMicHaeL
+	
 	add esp, (8+4+8)						; remove the 8 bytes we allocated + the return address which was never popped off + the qword pushed from native_x64
 	pop edi									; restore the clobbered registers
 	pop esi									;

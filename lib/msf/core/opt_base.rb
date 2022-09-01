@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'resolv'
-require 'msf/core'
 require 'rex/socket'
 
 module Msf
@@ -22,15 +21,45 @@ module Msf
     # attrs[3] = possible enum values
     # attrs[4] = Regex to validate the option
     #
-    def initialize(in_name, attrs = [])
+    # Attrs can also be specified explicitly via named parameters, or attrs can
+    # also be a string as standin for the required description field.
+    #
+    def initialize(in_name, attrs = [],
+                   required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, aliases: [], max_length: nil)
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
-      self.required = attrs[0] || false
-      self.desc     = attrs[1]
-      self.default  = attrs[2]
-      self.enums    = [ *(attrs[3]) ].map { |x| x.to_s }
-      regex_temp    = attrs[4] || nil
+      self.aliases  = aliases
+      self.max_length = max_length
+      self.conditions = conditions
+
+      if attrs.is_a?(String) || attrs.length == 0
+        self.required = required
+        self.desc     = attrs.is_a?(String) ? attrs : desc
+        self.enums    = [ *(enums) ].map { |x| x.to_s }
+        if default.nil? && enums.length > 0
+          self.default = enums[0]
+        else
+          self.default = default
+        end
+        regex_temp = regex
+      else
+        if attrs[0].nil?
+          self.required = required
+        else
+          self.required = attrs[0]
+        end
+        self.desc     = attrs[1] || desc
+        self.default  = attrs[2] || default
+        self.enums    = attrs[3] || enums
+        self.enums    = [ *(self.enums) ].map { |x| x.to_s }
+        regex_temp    = attrs[4] || regex
+      end
+
+      unless max_length.nil?
+        self.desc += " Max parameter length: #{max_length} characters"
+      end
+
       if regex_temp
         # convert to string
         regex_temp = regex_temp.to_s if regex_temp.is_a? Regexp
@@ -51,46 +80,49 @@ module Msf
     # Returns true if this is a required option.
     #
     def required?
-      return required
+      required
     end
 
     #
     # Returns true if this is an advanced option.
     #
     def advanced?
-      return advanced
+      advanced
     end
 
     #
     # Returns true if this is an evasion option.
     #
     def evasion?
-      return evasion
+      evasion
     end
 
     #
     # Returns true if the supplied type is equivalent to this option's type.
     #
     def type?(in_type)
-      return (type == in_type)
+      type == in_type
+    end
+
+    #
+    # Returns true if this option can be validated on assignment
+    #
+    def validate_on_assignment?
+      true
     end
 
     #
     # If it's required and the value is nil or empty, then it's not valid.
     #
-    def valid?(value)
-      if required?
+    def valid?(value, check_empty: true)
+      if check_empty && required?
         # required variable not set
-        return false if (value == nil or value.to_s.empty?)
+        return false if (value.nil? || value.to_s.empty?)
       end
-      if regex
-        if value.match(regex)
-          return true
-        else
-          return false
-        end
+      if regex && !value.nil?
+        return !!value.match(regex)
       end
-      return true
+      true
     end
 
     #
@@ -98,7 +130,7 @@ module Msf
     # a valid value
     #
     def empty_required_value?(value)
-      return (required? and value.nil?)
+      required? && value.nil?
     end
 
     #
@@ -114,6 +146,15 @@ module Msf
     #
     def display_value(value)
       value.to_s
+    end
+
+    #
+    # Returns true if the value supplied is longer then the max allowed length
+    #
+    def invalid_value_length?(value)
+      if !value.nil? && !max_length.nil?
+        value.length > max_length
+      end
     end
 
     #
@@ -149,6 +190,10 @@ module Msf
     #
     attr_accessor :owner
     #
+    # The list of potential conditions
+    #
+    attr_accessor :conditions
+    #
     # The list of potential valid values
     #
     attr_accessor :enums
@@ -156,11 +201,17 @@ module Msf
     # A optional regex to validate the option value
     #
     attr_accessor :regex
+    #
+    # Aliases for this option for backward compatibility
+    #
+    attr_accessor :aliases
+    #
+    # The max length of the input value
+    #
+    attr_accessor :max_length
 
     protected
 
     attr_writer   :required, :desc, :default # :nodoc:
   end
-
 end
-

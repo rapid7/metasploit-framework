@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base'
 
 module Msf
 module Sessions
@@ -80,6 +79,10 @@ class TTY
   #
   def shell_close()
     rstream.close
+  end
+
+  def self.can_cleanup_files
+    true
   end
 
 end

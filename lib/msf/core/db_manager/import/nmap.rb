@@ -1,5 +1,3 @@
-require 'rex/parser/nmap_nokogiri'
-require 'rex/parser/nmap_xml'
 
 module Msf::DBManager::Import::Nmap
   def import_nmap_noko_stream(args, &block)
@@ -10,26 +8,27 @@ module Msf::DBManager::Import::Nmap
     end
     parser = ::Nokogiri::XML::SAX::Parser.new(doc)
     parser.parse(args[:data])
+    doc.result
   end
 
   # If you have Nokogiri installed, you'll be shunted over to
   # that. Otherwise, you'll hit the old NmapXMLStreamParser.
   def import_nmap_xml(args={}, &block)
     return nil if args[:data].nil? or args[:data].empty?
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     if Rex::Parser.nokogiri_loaded
       noko_args = args.dup
       noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
+      noko_args[:workspace] = wspace
       if block
         yield(:parser, "Nokogiri v#{::Nokogiri::VERSION}")
-        import_nmap_noko_stream(noko_args) {|type, data| yield type,data }
+        result = import_nmap_noko_stream(noko_args) {|type, data| yield type,data }
       else
-        import_nmap_noko_stream(noko_args)
+        result = import_nmap_noko_stream(noko_args)
       end
-      return true
+      return result
     end
 
     # XXX: Legacy nmap xml parser starts here.
@@ -182,7 +181,6 @@ module Msf::DBManager::Import::Nmap
                 :info => 'Microsoft Windows Server Service Crafted RPC Request Handling Unspecified Remote Code Execution',
                 :refs =>['CVE-2008-4250',
                   'BID-31874',
-                  'OSVDB-49243',
                   'CWE-94',
                   'MSFT-MS08-067',
                   'MSF-Microsoft Server Service Relative Path Stack Corruption',
@@ -204,8 +202,6 @@ module Msf::DBManager::Import::Nmap
                   'BID-18325',
                   'BID-18358',
                   'BID-18424',
-                  'OSVDB-26436',
-                  'OSVDB-26437',
                   'MSFT-MS06-025',
                   'MSF-Microsoft RRAS Service RASMAN Registry Overflow',
                   'NSS-21689']
@@ -224,7 +220,6 @@ module Msf::DBManager::Import::Nmap
                 :info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
                 # Add more refs based on nessus/nexpose .. results
                 :refs =>['CVE-2007-1748',
-                  'OSVDB-34100',
                   'MSF-Microsoft DNS RPC Service extractQuotedChar()',
                   'NSS-25168']
               }
@@ -245,7 +240,6 @@ module Msf::DBManager::Import::Nmap
   #
   def import_nmap_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

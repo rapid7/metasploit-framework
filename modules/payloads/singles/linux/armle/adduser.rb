@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 ###
 #
@@ -14,7 +11,7 @@ require 'msf/core'
 # Adds a UID 0 user to /etc/passwd.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 119
 
@@ -37,7 +34,7 @@ module Metasploit3
         OptString.new('USER',  [ true,  "The username to create",     "metasploit" ]),
         OptString.new('PASS',  [ true,  "The password for this user", "metasploit" ]),
         OptString.new('SHELL', [ false, "The shell for this user",    "/bin/sh"    ]),
-      ], self.class)
+      ])
   end
 
   #
@@ -61,5 +58,4 @@ module Metasploit3
       str + pwdir
 
   end
-
 end

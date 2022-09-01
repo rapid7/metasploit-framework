@@ -1,14 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 172
 
@@ -113,9 +109,9 @@ module Metasploit3
     # Register command execution options
     register_options(
       [
-        OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
+        OptString.new('SHELL', [ true, "The shell to execute.", "/bin/sh" ]),
         OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
-      ], self.class)
+      ])
   end
 
   def generate
@@ -137,5 +133,4 @@ module Metasploit3
 
     p
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -28,10 +25,10 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          ['URL', 'http://r-7.co/R7-2015-08'],
+          ['URL', 'https://www.rapid7.com/blog/post/2015/07/10/r7-2015-08-accellion-file-transfer-appliance-vulnerabilities-cve-2015-2856-cve-2015-2857/'],
           ['CVE', '2015-2856']
         ],
-      'DisclosureDate' => 'Jul 10 2015'
+      'DisclosureDate' => '2015-07-10'
     ))
 
     register_options(
@@ -40,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptString.new('TARGETURI', [true, 'The URI to request that triggers a call to template()', '/courier/intermediate_login.html']),
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -87,5 +84,4 @@ class Metasploit3 < Msf::Auxiliary
       )
     end
   end
-
 end

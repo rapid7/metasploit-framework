@@ -1,45 +1,47 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/encoder/alpha2/unicode_upper'
 
-
-class Metasploit3 < Msf::Encoder::Alphanum
-
+class MetasploitModule < Msf::Encoder::Alphanum
   Rank = ManualRanking
 
   def initialize
     super(
-      'Name'             => "Alpha2 Alphanumeric Unicode Uppercase Encoder",
-      'Description'      => %q{
+      'Name' => 'Alpha2 Alphanumeric Unicode Uppercase Encoder',
+      'Description' => %q{
         Encodes payload as unicode-safe uppercase text.  This encoder uses
         SkyLined's Alpha2 encoding suite.
       },
-      'Author'           => [ 'pusscat', 'skylined' ],
-      'Arch'             => ARCH_X86,
-      'License'          => BSD_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::AlphanumUnicodeUpper,
-      'Decoder'          =>
+      'Author' => [ 'pusscat', 'skylined' ],
+      'Arch' => ARCH_X86,
+      'License' => BSD_LICENSE,
+      'EncoderType' => Msf::Encoder::Type::AlphanumUnicodeUpper,
+      'Decoder' =>
         {
-          'BlockSize' => 1,
+          'BlockSize' => 1
         })
+    register_options(
+      [
+        OptString.new('BufferRegister', [true, 'The register that points to the encoded payload', 'ECX'])
+      ]
+    )
   end
 
   #
   # Returns the decoder stub that is adjusted for the size of the buffer
   # being encoded.
   #
-  def decoder_stub(state)
-    reg    = datastore['BufferRegister']
+  def decoder_stub(_state)
+    reg = datastore['BufferRegister']
     offset = datastore['BufferOffset'].to_i || 0
-    if (not reg)
-      raise EncodingError, "Need BufferRegister"
+    if !reg
+      raise EncodingError, 'Need BufferRegister'
     end
-    Rex::Encoder::Alpha2::UnicodeUpper::gen_decoder(reg, offset)
+
+    Rex::Encoder::Alpha2::UnicodeUpper.gen_decoder(reg, offset)
   end
 
   #
@@ -47,14 +49,14 @@ class Metasploit3 < Msf::Encoder::Alphanum
   # payload.
   #
   def encode_block(state, block)
-    Rex::Encoder::Alpha2::UnicodeUpper::encode_byte(block.unpack('C')[0], state.badchars)
+    Rex::Encoder::Alpha2::UnicodeUpper.encode_byte(block.unpack1('C'), state.badchars)
   end
 
   #
   # Tack on our terminator
   #
   def encode_end(state)
-    state.encoded += Rex::Encoder::Alpha2::UnicodeUpper::add_terminator()
+    state.encoded += Rex::Encoder::Alpha2::UnicodeUpper.add_terminator
   end
 
   #
@@ -63,5 +65,4 @@ class Metasploit3 < Msf::Encoder::Alphanum
   def to_native(buffer)
     Rex::Text.to_unicode(buffer)
   end
-
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,21 +11,19 @@
 #
 
 # openssl before rubygems mac os
-require 'msf/core'
 require 'openssl'
 require 'rinda/tuplespace'
 require 'pathname'
 require 'uri'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
       'Name'			=> 'Metasploit Web Crawler',
-      'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjuntion with wmap (someday) or standalone.',
+      'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjunction with wmap (someday) or standalone.',
       'Author'			=> 'et',
       'License'			=> MSF_LICENSE
     ))
@@ -33,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('PATH',	[true,	"Starting crawling path", '/']),
       OptInt.new('RPORT', [true, "Remote port", 80 ])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptPath.new('CrawlerModulesDir', [true,	'The base directory containing the crawler modules',
@@ -47,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('ReadTimeout', [ true, "Read timeout (-1 forever)", 3]),
       OptInt.new('ThreadNum', [ true, "Threads number", 20]),
       OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz'])
-    ], self.class)
+    ])
   end
 
   attr_accessor :ctarget, :cport, :cssl
@@ -180,14 +178,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def storedb(hashreq,response,dbpath)
 
+    # Added host/port/ssl for report_web_page support
     info = {
       :web_site => @current_site,
       :path     => hashreq['uri'],
       :query    => hashreq['query'],
-      :data	=> hashreq['data'],
-      :code     => response['code'],
-      :body     => response['body'],
-      :headers  => response['headers']
+      :host     => hashreq['rhost'],
+      :port     => hashreq['rport'],
+      :ssl      => !hashreq['ssl'].nil?,
+      :data	    => hashreq['data'],
+      :code     => response.code,
+      :body     => response.body,
+      :headers  => response.headers
     }
 
     #if response['content-type']
@@ -401,7 +403,6 @@ class Metasploit3 < Msf::Auxiliary
   def hashsig(hashreq)
     hashreq.to_s
   end
-
 end
 
 class BaseParser

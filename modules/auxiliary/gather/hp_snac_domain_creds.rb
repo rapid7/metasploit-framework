@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -36,13 +34,13 @@ class Metasploit3 < Msf::Auxiliary
         {
           'SSL' => true,
         },
-      'DisclosureDate' => "Sep 09 2013"
+      'DisclosureDate' => '2013-09-09'
     ))
 
     register_options(
       [
         Opt::RPORT(443)
-      ], self.class)
+      ])
   end
 
   def get_domain_info(session)
@@ -142,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Domain Controllers Credentials',
       'Indent'  => 1,
       'Columns' => ['Domain Controller', 'Username', 'Password']

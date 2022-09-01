@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -13,7 +11,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'          => 'F5 Networks Devices Management Interface Scanner',
       'Description'   => %q{
-        This module scans for web management interfaces of the following F5 Networks devices:
+        This module attempts to identify the web management interfaces of the following
+        F5 Networks devices:
         BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
       },
       'License'       => MSF_LICENSE,
@@ -26,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'SSL' => true,
-          'SSLVersion' => 'TLS1',
           'RPORT' => 443
         }
     ))
@@ -34,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('TIMEOUT', [true, 'HTTPS connect/read timeout in seconds', 1])
-      ], self.class)
+      ])
   end
 
   def port_open?

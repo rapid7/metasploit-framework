@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -29,7 +27,8 @@ class Metasploit3 < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References'  =>
         [
-          [ 'URL', 'http://www.securityfocus.com/archive/1/525045/30/30/threaded'],
+          [ 'CVE', '2013-0235' ],
+          [ 'URL', 'https://bugtraq.securityfocus.com/archive/1/525045/30/30/threaded'],
           [ 'URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
           [ 'URL', 'https://github.com/FireFart/WordpressPingbackPortScanner']
         ]
@@ -38,12 +37,12 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
         [
           OptString.new('TARGETURI', [ true, 'The path to wordpress installation (e.g. /wordpress/)', '/'])
-        ], self.class)
+        ])
 
       register_advanced_options(
         [
           OptInt.new('NUM_REDIRECTS', [ true, "Number of HTTP redirects to follow", 10])
-        ], self.class)
+        ])
   end
 
   def setup()

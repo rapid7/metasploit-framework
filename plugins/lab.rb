@@ -487,7 +487,7 @@ class Plugin::Lab < Msf::Plugin
       def hlp_print_lab
         indent = '    '
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Header'  => 'Available Lab VMs',
           'Indent'  => indent.length,
           'Columns' => [ 'Hostname', 'Driver', 'Type' ]
@@ -505,7 +505,7 @@ class Plugin::Lab < Msf::Plugin
       def hlp_print_lab_running
         indent = '    '
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Header'  => 'Running Lab VMs',
           'Indent'  => indent.length,
           'Columns' => [ 'Hostname', 'Driver', 'Type', 'Power?' ]

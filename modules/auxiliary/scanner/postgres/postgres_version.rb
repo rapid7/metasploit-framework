@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -17,17 +13,17 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'PostgreSQL Version Probe',
       'Description'    => %q{
-        Enumerates the verion of PostgreSQL servers.
+        Enumerates the version of PostgreSQL servers.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.postgresql.org' ]
+          [ 'URL', 'https://www.postgresql.org/' ]
         ]
     ))
 
-    register_options([ ], self.class) # None needed.
+    register_options([ ]) # None needed.
 
     deregister_options('SQL', 'RETURN_ROWSET')
   end
@@ -90,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
         vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
         print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
         vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
         print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
@@ -135,5 +131,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end
