@@ -603,7 +603,7 @@ class Client
           tries = 0
           begin
             # XXX: This doesn't deal with chunked encoding
-            while tries < 1000 and resp.headers["Content-Type"] and resp.headers["Content-Type"].starts_with?('text/html') and rblob !~ /<\/html>/i
+            while tries < 1000 and resp.headers["Content-Type"] and resp.headers["Content-Type"].start_with?('text/html') and rblob !~ /<\/html>/i
               buff = conn.get_once(-1, 0.05)
               break if not buff
               rblob += buff
