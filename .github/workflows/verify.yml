@@ -25,6 +25,8 @@ on:
   pull_request:
     branches-ignore:
       - weekly-dependency-updates
+#  schedule:
+#    - cron: ' * * * *'
 
 jobs:
   build:
