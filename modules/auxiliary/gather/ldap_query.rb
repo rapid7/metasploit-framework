@@ -184,6 +184,38 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Decode a binary string containing a GUID into a GUID string
+  # of the format XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+  def decode_guid_binstring(guid)
+    # See https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray?view=netcore-3.1#remarks
+    # for more information. Specifically note that they state that the first four byte group and the
+    # following 2 groups of two bytes each are reversed. Following this, the next 2 byte group and
+    # the terminating 4 byte group are kept in the same order as in the binary data.
+    #
+    # Thanks to Spencer McIntyre for providing assistance on this code.
+    decoded_guid = [guid[0...4].reverse, guid[4...6].reverse, guid[6...8].reverse, guid[8...10], guid[10..]].map { |p| p.unpack1('H*') }.join('-')
+    decoded_guid = decoded_guid.upcase # All GUID strings must be uppercase
+
+    decoded_guid
+  end
+
+  # Read in a DER formatted certificate file and transform it into a
+  # OpenSSL::X509::Certificate object before then using that object to
+  # read the properties of the certificate and return this info as a string.
+  def read_der_certificate_file(cert)
+    openssl_certificate = OpenSSL::X509::Certificate.new(cert)
+    version = openssl_certificate.version
+    subject = openssl_certificate.subject
+    issuer = openssl_certificate.issuer
+    algorithm = openssl_certificate.signature_algorithm
+    extensions = ''
+    openssl_certificate.extensions.each do |extension|
+      extensions += extension.to_s + ' | '
+    end
+    extensions.strip!.gsub!(/ \|$/, '') # Strip whitespace and then strip trailing | from end of string.
+    [openssl_certificate, "Version: 0x#{version}, Subject: #{subject}, Issuer: #{issuer}, Signature Algorithm: #{algorithm}, Extensions: #{extensions}"]
+  end
+
   def output_json_data(entries)
     entries.each do |entry|
       result = ''
@@ -213,7 +245,19 @@ class MetasploitModule < Msf::Auxiliary
       entry = entry.to_h
       entry_keys = entry.keys
       entry_keys.each do |key|
-        entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
+        if key.to_s.match(/guid$/i)
+          # Get the the entry[key] object will be an array containing a single string entry,
+          # so reach in and extract that string, which will contain binary data.
+          binguid = entry[key][0]
+          decoded_guid = decode_guid_binstring(binguid)
+          entry[key][0] = decoded_guid
+        elsif key == :cacertificate
+          raw_key_data = entry[key][0]
+          _certificate_file, read_data = read_der_certificate_file(raw_key_data)
+          entry[key][0] = read_data
+        else
+          entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
+        end
       end
       cleaned_entries.append(entry)
     end
