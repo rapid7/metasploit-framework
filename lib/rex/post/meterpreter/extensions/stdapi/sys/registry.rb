@@ -215,10 +215,13 @@ class Registry
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
-    if type == REG_SZ || type == REG_MULTI_SZ
-      data += "\x00"
-    elsif (type == REG_DWORD)
-      data = [ data.to_i ].pack("V")
+    case type
+    when REG_DWORD
+      data = [data.to_i].pack('V')
+    when REG_MULTI_SZ
+      data = data.join("\x00".b) + "\x00\x00".b
+    when REG_SZ
+      data << "\x00".b
     end
 
     request.add_tlv(TLV_TYPE_VALUE_DATA, data)
@@ -237,10 +240,13 @@ class Registry
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
-    if type == REG_SZ || type == REG_MULTI_SZ
-      data += "\x00"
-    elsif type == REG_DWORD
+    case type
+    when REG_DWORD
       data = [data.to_i].pack('V')
+    when REG_MULTI_SZ
+      data = data.join("\x00".b) + "\x00\x00".b
+    when REG_SZ
+      data << "\x00".b
     end
 
     request.add_tlv(TLV_TYPE_VALUE_DATA, data)
@@ -267,10 +273,13 @@ class Registry
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
     data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
 
-    if type == REG_SZ
+    case type
+    when REG_DWORD
+      data = data.unpack1('N')
+    when REG_MULTI_SZ
+      data = data[0..-3].split("\x00".b)
+    when REG_SZ
       data = data[0..-2]
-    elsif type == REG_DWORD
-      data = data.unpack('N')[0]
     end
 
     Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
@@ -288,10 +297,13 @@ class Registry
     data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
 
-    if (type == REG_SZ)
+    case type
+    when REG_DWORD
+      data = data.unpack1('N')
+    when REG_MULTI_SZ
+      data = data[0..-3].split("\x00".b)
+    when REG_SZ
       data = data[0..-2]
-    elsif (type == REG_DWORD)
-      data = data.unpack("N")[0]
     end
 
     return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(

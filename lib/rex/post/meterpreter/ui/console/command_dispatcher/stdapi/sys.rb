@@ -1019,7 +1019,9 @@ class Console::CommandDispatcher::Stdapi::Sys
               print_error('Invalid characters provided! Could not fully convert data provided to -d argument!')
               return false
             end
-           data = data.pack("C*")
+            data = data.pack("C*")
+          elsif type == 'REG_MULTI_SZ'
+            data = data.split('\0')
           end
 
           open_key.set_value(value, client.sys.registry.type2str(type), data)
@@ -1066,6 +1068,8 @@ class Console::CommandDispatcher::Stdapi::Sys
           data = v.data
           if v.type == REG_BINARY
             data = data.unpack('H*')[0]
+          elsif v.type == REG_MULTI_SZ
+            data = data.join('\0')
           end
 
           print(

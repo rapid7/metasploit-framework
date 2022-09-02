@@ -108,10 +108,26 @@ class MetasploitModule < Msf::Post
       ret = registry_createkey(%q#HKCU\test_key#)
     end
 
+    it "should write REG_MULTI_SZ values" do
+      ret = true
+      values = %w[ val0 val1 ]
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_multi_str", values, "REG_MULTI_SZ")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_multi_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_MULTI_SZ means string
+        ret &&= !!(valinfo["Type"] == 7)
+        ret &&= !!(valinfo["Data"].kind_of? Array)
+        ret &&= !!(valinfo["Data"] == values)
+      end
+
+      ret
+    end
+
     it "should write REG_SZ values" do
       ret = true
       registry_setvaldata(%q#HKCU\test_key#, "test_val_str", "str!", "REG_SZ")
-      registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
       valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_str")
       if (valinfo.nil?)
         ret = false
