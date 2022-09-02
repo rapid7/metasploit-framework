@@ -216,6 +216,23 @@ class MetasploitModule < Msf::Auxiliary
     [openssl_certificate, "Version: 0x#{version}, Subject: #{subject}, Issuer: #{issuer}, Signature Algorithm: #{algorithm}, Extensions: #{extensions}"]
   end
 
+  def decode_binary_data_to_sid(object_sid_raw)
+    revision_level = object_sid_raw[0].unpack('H*')[0].to_i.to_s
+    count_subauthorities = object_sid_raw[1].unpack('H*')[0].to_i
+    identifier_authority = object_sid_raw[2..7].unpack('H*')[0].to_i.to_s
+    sid_string = "S-#{revision_level.to_i}-#{identifier_authority.to_i}"
+
+    for i in 0...count_subauthorities
+      start = 8 + (4 * i)
+      stop = start + 4
+      sub_authority_raw = object_sid_raw[start...stop]
+      sub_authority = sub_authority_raw.unpack('L<')[0].to_i.to_s
+      sid_string += "-#{sub_authority}"
+    end
+
+    sid_string
+  end
+
   def output_json_data(entries)
     entries.each do |entry|
       result = ''
@@ -255,6 +272,11 @@ class MetasploitModule < Msf::Auxiliary
           raw_key_data = entry[key][0]
           _certificate_file, read_data = read_der_certificate_file(raw_key_data)
           entry[key][0] = read_data
+        elsif key == :objectsid
+          # Advice taken from https://ldapwiki.com/wiki/ObjectSID
+          object_sid_raw = entry[key][0]
+          sid_string = decode_binary_data_to_sid(object_sid_raw)
+          entry[key][0] = sid_string
         else
           entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
         end
