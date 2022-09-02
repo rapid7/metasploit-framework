@@ -31,7 +31,7 @@ on:
 jobs:
   # Ensures that the docs site builds successfully. Note that this workflow does not deploy the docs site.
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 40
 
     strategy:
