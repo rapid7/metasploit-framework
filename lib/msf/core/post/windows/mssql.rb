@@ -119,10 +119,10 @@ module Msf
           cmd = sql_client.to_s
           cmd += " -d #{database}" if database.present?
           if username.present? && password.nil?
-            raise 'Username provided but no value for the password was provided!'
+            raise ArgumentError, 'Username provided but no value for the password was provided!'
           elsif username.present? && !password.nil?
             cmd += " -U \"#{username.gsub(/"/, '\"')}\" -P \"#{password.gsub(/"/, '\"')}\""
-          elsif !username.present? && password.present?
+          elsif username.blank? && password.present?
             cmd += " -P \"#{password.gsub(/"/, '\"')}\""
           else
             cmd += ' -E'
