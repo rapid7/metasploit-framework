@@ -28,7 +28,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 40
     name: Docker Build
     steps:
@@ -64,17 +64,15 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - 2.6
           - 2.7
           - 3.0
           - 3.1
         os:
-          - ubuntu-18.04
-          - ubuntu-22.04
+          - ubuntu-20.04
+          - ubuntu-latest
         exclude:
-          - { os: ubuntu-22.04, ruby: 2.6 }
-          - { os: ubuntu-22.04, ruby: 2.7 }
-          - { os: ubuntu-22.04, ruby: 3.0 }
+          - { os: ubuntu-latest, ruby: 2.7 }
+          - { os: ubuntu-latest, ruby: 3.0 }
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"
@@ -85,7 +83,7 @@ jobs:
     env:
       RAILS_ENV: test
 
-    name: Ruby ${{ matrix.ruby }} - ${{ matrix.test_cmd }}
+    name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }} - ${{ matrix.test_cmd }}
     steps:
       - name: Install system dependencies
         run: sudo apt-get install libpcap-dev graphviz
