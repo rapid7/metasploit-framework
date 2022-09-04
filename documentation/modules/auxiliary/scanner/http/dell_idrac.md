@@ -5,6 +5,8 @@ default username and password.  Tested against Dell Remote Access:
 
 - Controller 6 - Express version 1.50 and 1.85,
 - Controller 7 - Enterprise 2.63.60.62
+- Controller 8 - Enterprise 2.83.05
+- Controller 9 - Enterprise 4.40.00.00
 
 ## Verification Steps
 
