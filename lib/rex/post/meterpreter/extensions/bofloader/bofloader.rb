@@ -122,7 +122,8 @@ class BofPack
     # Create packed data containing:
     # functionname | coff_data | args_data
     # which can be passed directly to the LoadAndRun() function
-    return bof_pack("zbb", [entrypoint, coff_data, argument_data])
+    fmt_pack = "zbb" # string, binary, binary
+    return bof_pack(fmt_pack, [entrypoint, coff_data, argument_data])
   end
 
 end
@@ -133,7 +134,6 @@ class Bofloader < Extension
     EXTENSION_ID_BOFLOADER
   end
 
-  #
   # Typical extension initialization routine.
   #
   # @param client (see Extension#initialize)
@@ -151,39 +151,32 @@ class Bofloader < Extension
   end
 
   def exec_cmd(cmd)
-    puts "test3"
     request = Packet.create_request(COMMAND_ID_BOFLOADER_EXEC_CMD)
     
     filename = cmd[0]
-    puts filename.class
 
-    puts "test4"
     if filename.nil?
       throw "Specify a BOF file to load"
     elsif not ::File.file?(filename)
       throw "File #{filename} does not exist!"
     end
     
-    puts "test5"
     file = ::File.new(filename, "rb")
     bof_data = file.read
     file.close
-    #puts "Could not open file #{filename} for reading!"
-    puts "test6"
+    # TODO: Check if BOF file is an object file and if it's the correct arch for the meterpreter session
     
     # Pack up beacon object file data and arguments into one single binary blob
     # Hardcode the entrypoint to "go" (CobaltStrike approved)
     bof = BofPack.new
     packed_args = bof.bof_pack(cmd[1], cmd[2..])
-    puts packed_args
     packed_coff_data = bof.coff_pack_pack("go", bof_data, packed_args)
 
     # Send the meterpreter TLV packet and get the output back
     request.add_tlv(TLV_TYPE_BOFLOADER_CMD, packed_coff_data)
     response = client.send_request(request)
-    puts "test8"
     output = response.get_tlv_value(TLV_TYPE_BOFLOADER_CMD_RESULT)
-    puts "test9"
+    return output
   end
 
 end

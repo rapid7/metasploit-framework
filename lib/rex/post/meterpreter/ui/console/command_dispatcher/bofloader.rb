@@ -37,10 +37,38 @@ class Console::CommandDispatcher::Bofloader
   def initialize(shell)
     super
     print_line
-    print_line(" Lawd dem BOFS -->  <bof file> <fstring> <args>")
+    print_line
+    print_line("                ..:::-::..                ")
+    print_line("            -=**##########*+=:.           ")
+    print_line("         :  :+#################+-         ")
+    print_line("       =*##+:  .=*###############*=       ")
+    print_line("     :*#######+-. .:=*#############*:     ")
+    print_line("    =############*=:. .....:-=*######=    ")
+    print_line("   =########=::+####*          .+#####+   ")
+    print_line("  :########-    *###-             ....:   ")
+    print_line("  +########:    +###+           .++++==-  ")
+    print_line("  *########*.  -#####-         :*#######  ")
+    print_line("  *##########*########+-.   .-+#########  ")
+    print_line("  *#######################*############*  ")
+    print_line("  -#######**##################**#######-  ")
+    print_line("   +#####:  =################+  :#####*   ")
+    print_line("    +####*:  :+############+:  .*####*    ")
+    print_line("     =#####=:   .-=++++=-.   .=#####=     ")
+    print_line("      :+#####*=:.        .:=*#####*:      ")
+    print_line("        :+########**++**########+:        ")
+    print_line("           :=*##############*=-.          ")
+    print_line("              .::-==++==-::.              ")
+    print_line
+    print_line("   TrustedSec COFFLoader (by @kev169, @GuhnooPlusLinux, @R0wdyjoe)")
     print_line
 
   end
+
+  @@bof_cmd_usage_opts = Arguments.new(
+     ['-b', '--bof-file']      => [ true, "Beacon Object File" ],
+     ['-a', '--arguments']     => [ false, "List of command-line arguments to pass to the BOF" ],
+     ['-f', '--format-string'] => [ false, "bof_pack compatible format-string. Choose combination of: b, i, s, z, Z" ],
+  )
 
   #
   # List of supported commands.
@@ -51,11 +79,20 @@ class Console::CommandDispatcher::Bofloader
     }
   end
 
+  def cmd_bof_cmd_tabs(str, words)
+    tab_complete_filenames(str, words)
+  end
+
+  def bof_cmd_tabs(*args)
+  end
   def cmd_bof_cmd(*args)
-    print_line("here1")
     output = client.bofloader.exec_cmd(args)
-    print_line("here2")
-    print_line(output)
+    if output.nil?
+      print_line("Nil output from BOF...")
+    else
+      print_line(output)
+    end
+
   end
 
 end
