@@ -108,6 +108,37 @@ class MetasploitModule < Msf::Post
       ret = registry_createkey(%q#HKCU\test_key#)
     end
 
+    it "should write REG_BINARY values" do
+      ret = true
+      value = Random.bytes(32)
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_bin", value, "REG_BINARY")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_bin")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_BINARY means string
+        ret &&= !!(valinfo["Type"] == 3)
+        ret &&= !!(valinfo["Data"].kind_of? String)
+        ret &&= !!(valinfo["Data"] == value)
+      end
+
+      ret
+    end
+
+    it "should write REG_DWORD values" do
+      ret = true
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_dword")
+      if (valinfo.nil?)
+        ret = false
+      else
+        ret &&= !!(valinfo["Type"] == 4)
+        ret &&= !!(valinfo["Data"].kind_of? Numeric)
+        ret &&= !!(valinfo["Data"] == 1234)
+      end
+      ret
+    end
+
     it "should write REG_MULTI_SZ values" do
       ret = true
       values = %w[ val0 val1 ]
@@ -138,20 +169,6 @@ class MetasploitModule < Msf::Post
         ret &&= !!(valinfo["Data"] == "str!")
       end
 
-      ret
-    end
-
-    it "should write REG_DWORD values" do
-      ret = true
-      registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
-      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_dword")
-      if (valinfo.nil?)
-        ret = false
-      else
-        ret &&= !!(valinfo["Type"] == 4)
-        ret &&= !!(valinfo["Data"].kind_of? Numeric)
-        ret &&= !!(valinfo["Data"] == 1234)
-      end
       ret
     end
 
