@@ -108,7 +108,7 @@ module Msf
       end
 
       def init_fd_client(cli)
-        Timeout.timeout(5) do
+        Timeout.timeout(25) do
           sleep 0.02 while cli.connection.open_channel_keys.empty?
           fdc = Rex::Proto::Ssh::ChannelFD.new(cli)
           service.clients.push(fdc)
