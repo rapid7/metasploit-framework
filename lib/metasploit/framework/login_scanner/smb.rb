@@ -128,11 +128,13 @@ module Metasploit
               else
                 status = Metasploit::Model::Login::Status::INCORRECT
             end
-          rescue ::Rex::ConnectionError, Errno::EINVAL, RubySMB::Error::NetBiosSessionService => e
+          rescue ::Rex::ConnectionError, Errno::EINVAL, RubySMB::Error::NetBiosSessionService, RubySMB::Error::NegotiationFailure, RubySMB::Error::CommunicationError  => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
-          rescue RubySMB::Error::UnexpectedStatusCode => e
+          rescue RubySMB::Error::UnexpectedStatusCode => _e
             status = Metasploit::Model::Login::Status::INCORRECT
+          rescue RubySMB::Error::RubySMBError => _e
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           ensure
             client.disconnect! if client
           end
