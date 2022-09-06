@@ -122,7 +122,7 @@ module Msf
             raise ArgumentError, 'Username provided but no value for the password was provided!'
           elsif username.present? && !password.nil?
             cmd += " -U \"#{username}\" -P \"#{password}\""
-          elsif username.blank? && password.present?
+          elsif username.blank? && !password.nil?
             cmd += " -P \"#{password}\""
           else
             cmd += ' -E'
