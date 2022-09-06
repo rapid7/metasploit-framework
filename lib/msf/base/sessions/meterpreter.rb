@@ -259,11 +259,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     @shell = nil
   end
 
-  def shell_command(cmd)
+  def shell_command(cmd, timeout = 5)
     # Send the shell channel's stdin.
     shell_write(cmd + "\n")
 
-    timeout = 5
     etime = ::Time.now.to_f + timeout
     buff = ""
 
