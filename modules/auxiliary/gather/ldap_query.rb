@@ -199,6 +199,19 @@ class MetasploitModule < Msf::Auxiliary
     decoded_guid
   end
 
+  def convert_nt_timestamp_to_time_string(nt_timestamp)
+    Time.at((nt_timestamp.to_i - 116444736000000000) / 10000000).utc.to_s
+  end
+
+  def convert_pwd_age_to_time_string(timestamp)
+    seconds = (timestamp.to_i / -1) / 10000000 # Convert always negative number to positive then convert to seconds from tick count.
+    days = seconds / 86400
+    hours = (seconds % 86400) / 3600
+    minutes = ((seconds % 86400) % 3600) / 60
+    real_seconds = (((seconds % 86400) % 3600) % 60)
+    return "#{days}:#{hours.to_s.rjust(2, '0')}:#{minutes.to_s.rjust(2, '0')}:#{real_seconds.to_s.rjust(2, '0')}"
+  end
+
   # Read in a DER formatted certificate file and transform it into a
   # OpenSSL::X509::Certificate object before then using that object to
   # read the properties of the certificate and return this info as a string.
@@ -231,6 +244,41 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     sid_string
+  end
+
+  # Taken from https://www.powershellgallery.com/packages/S.DS.P/2.1.3/Content/Transforms%5CsystemFlags.ps1
+  # and from https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1e38247d-8234-4273-9de3-bbf313548631
+  FLAG_DISALLOW_DELETE = 0x80000000
+  FLAG_CONFIG_ALLOW_RENAME = 0x40000000
+  FLAG_CONFIG_ALLOW_MOVE = 0x20000000
+  FLAG_CONFIG_ALLOW_LIMITED_MOVE = 0x10000000
+  FLAG_DOMAIN_DISALLOW_RENAME = 0x8000000
+  FLAG_DOMAIN_DISALLOW_MOVE = 0x4000000
+  FLAG_DISALLOW_MOVE_ON_DELETE = 0x2000000
+  FLAG_ATTR_IS_RDN = 0x20
+  FLAG_SCHEMA_BASE_OBJECT = 0x10
+  FLAG_ATTR_IS_OPERATIONAL = 0x8
+  FLAG_ATTR_IS_CONSTRUCTED = 0x4
+  FLAG_ATTR_REQ_PARTIAL_SET_MEMBER = 0x2
+  FLAG_NOT_REPLICATED = 0x1
+
+  def convert_system_flags_to_string(flags)
+    flags_converted = flags.to_i
+    flag_string = ''
+    flag_string << 'FLAG_DISALLOW_DELETE | ' if flags_converted & FLAG_DISALLOW_DELETE > 0
+    flag_string << 'FLAG_CONFIG_ALLOW_RENAME | ' if flags_converted & FLAG_CONFIG_ALLOW_RENAME > 0
+    flag_string << 'FLAG_CONFIG_ALLOW_MOVE | ' if flags_converted & FLAG_CONFIG_ALLOW_MOVE > 0
+    flag_string << 'FLAG_CONFIG_ALLOW_LIMITED_MOVE | ' if flags_converted & FLAG_CONFIG_ALLOW_LIMITED_MOVE > 0
+    flag_string << 'FLAG_DOMAIN_DISALLOW_RENAME | ' if flags_converted & FLAG_DOMAIN_DISALLOW_RENAME > 0
+    flag_string << 'FLAG_DOMAIN_DISALLOW_MOVE | ' if flags_converted & FLAG_DOMAIN_DISALLOW_MOVE > 0
+    flag_string << 'FLAG_DISALLOW_MOVE_ON_DELETE | ' if flags_converted & FLAG_DISALLOW_MOVE_ON_DELETE > 0
+    flag_string << 'FLAG_ATTR_IS_RDN | ' if flags_converted & FLAG_ATTR_IS_RDN > 0
+    flag_string << 'FLAG_SCHEMA_BASE_OBJECT | ' if flags_converted & FLAG_SCHEMA_BASE_OBJECT > 0
+    flag_string << 'FLAG_ATTR_IS_OPERATIONAL | ' if flags_converted & FLAG_ATTR_IS_OPERATIONAL > 0
+    flag_string << 'FLAG_ATTR_IS_CONSTRUCTED | ' if flags_converted & FLAG_ATTR_IS_CONSTRUCTED > 0
+    flag_string << 'FLAG_ATTR_REQ_PARTIAL_SET_MEMBER | ' if flags_converted & FLAG_ATTR_REQ_PARTIAL_SET_MEMBER > 0
+    flag_string << 'FLAG_NOT_REPLICATED | ' if flags_converted & FLAG_NOT_REPLICATED > 0
+    flag_string.strip.gsub!(/ \|$/, '')
   end
 
   def output_json_data(entries)
@@ -277,6 +325,21 @@ class MetasploitModule < Msf::Auxiliary
           object_sid_raw = entry[key][0]
           sid_string = decode_binary_data_to_sid(object_sid_raw)
           entry[key][0] = sid_string
+        # This one is hard as there are fields that end with the string Time that are technically
+        # enumerations or strings themselves, but these sometimes only exist on older versions
+        # of Windows Server such as 2012.
+        elsif key == :creationtime
+          timestamp = entry[key][0]
+          time_string = convert_nt_timestamp_to_time_string(timestamp)
+          entry[key][0] = time_string
+        elsif key == :systemflags
+          flags = entry[key][0]
+          converted_flags_string = convert_system_flags_to_string(flags)
+          entry[key][0] = converted_flags_string
+        elsif key.to_s.match(/pwdage$/) || key.to_s.match(/lockoutduration$/i)
+          timestamp = entry[key][0]
+          time_string = convert_pwd_age_to_time_string(timestamp)
+          entry[key][0] = time_string
         else
           entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
         end
