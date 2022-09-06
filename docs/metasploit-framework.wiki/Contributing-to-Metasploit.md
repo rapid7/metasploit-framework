@@ -7,7 +7,7 @@ However, tackling core Metasploit Framework bugs or particularly squirrelly expl
 Metasploit is a tool by and for hackers, but the hackers that maintain it also happen to be software engineers. So, we have some hopefully easy-to-remember Do's and Don'ts in [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md). Read up on those.
 
 # Making Your First PR
-Our preferred method of module submission is via a git pull request from a feature branch on your own fork of Metasploit. You can learn more about making your first PR at [Creating Your First PR]
+Our preferred method of module submission is via a git pull request from a feature branch on your own fork of Metasploit. You can learn more about making your first PR at [[Creating Your First PR]]
 
 # Server exploits
 
