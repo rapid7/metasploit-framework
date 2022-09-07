@@ -95,7 +95,7 @@ class BofPack
       return finalize_buffer()
     end
     if fstring.length != args.length
-      raise "Format string length must be the same as argument length: fstring:#{fstring.length}, args:#{args.length}"
+      raise ArgumentError, "Format string length must be the same as argument length: fstring:#{fstring.length}, args:#{args.length}"
     end
 
     fstring.each_char.each_with_index do |c,i|
@@ -150,33 +150,22 @@ class Bofloader < Extension
 
   end
 
-  def exec_cmd(cmd)
+  def exec_cmd(filename, args_format: nil, args: nil, entry: 'go')
     request = Packet.create_request(COMMAND_ID_BOFLOADER_EXEC_CMD)
-    
-    filename = cmd[0]
 
-    if filename.nil?
-      throw "Specify a BOF file to load"
-    elsif not ::File.file?(filename)
-      throw "File #{filename} does not exist!"
-    end
-    
-    file = ::File.new(filename, "rb")
-    bof_data = file.read
-    file.close
+    bof_data = ::File.binread(filename)
     # TODO: Check if BOF file is an object file and if it's the correct arch for the meterpreter session
-    
+
     # Pack up beacon object file data and arguments into one single binary blob
     # Hardcode the entrypoint to "go" (CobaltStrike approved)
     bof = BofPack.new
-    packed_args = bof.bof_pack(cmd[1], cmd[2..])
-    packed_coff_data = bof.coff_pack_pack("go", bof_data, packed_args)
+    packed_args = bof.bof_pack(args_format, args)
+    packed_coff_data = bof.coff_pack_pack(entry, bof_data, packed_args)
 
     # Send the meterpreter TLV packet and get the output back
     request.add_tlv(TLV_TYPE_BOFLOADER_CMD, packed_coff_data)
     response = client.send_request(request)
-    output = response.get_tlv_value(TLV_TYPE_BOFLOADER_CMD_RESULT)
-    return output
+    return response.get_tlv_value(TLV_TYPE_BOFLOADER_CMD_RESULT)
   end
 
 end
