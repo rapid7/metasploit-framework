@@ -11,9 +11,5 @@ module Msf::Payload::Custom::Options
       [
         Msf::OptPath.new('SHELLCODE_FILE', [false, "shellcode bin to launch", nil])
       ], self.class)
-    register_advanced_options(
-      [
-        Msf::OptBool.new('PrependSize', [true, "prepend stage size when sending", true])
-      ], self.class)
   end
 end
