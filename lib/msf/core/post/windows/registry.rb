@@ -375,31 +375,30 @@ protected
 
     # REG QUERY KeyName [/v ValueName | /ve] [/s]
     results = shell_registry_cmd("query \"#{key}\" /v \"#{valname}\"", view)
-    return nil if results =~ /ERROR: /i
 
     # pull out the interesting line (the one with the value name in it)
-    if match_arr = /^ +#{valname}.*/i.match(results)
-      # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
-      vtype = match_arr[0].split[1]
-      if %w[ REG_SZ REG_MULTI_SZ REG_EXPAND_SZ REG_DWORD REG_BINARY REG_NONE ].include?(vtype)
-        value['Type'] = self.class.const_get(vtype)
-      end
-      # treat the remainder of the line after the reg type as the reg value
-      vdata = match_arr[0].strip.scan(/#{vtype}\s+(.+)/).flatten.first
-      case vtype
-      when 'REG_BINARY'
-        vdata = vdata.scan(/../).map { |x| x.hex.chr }.join
-      when 'REG_DWORD'
-        if vdata.start_with?('0x')
-          vdata = vdata[2..].to_i(16)
-        else
-          vdata = vdata.to_i
-        end
-      when 'REG_MULTI_SZ'
-        vdata = vdata.split('\0')
-      end
-      value['Data'] = vdata
+    return nil unless match_arr = /^ +#{valname}.*/i.match(results)
+
+    # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
+    vtype = match_arr[0].split[1]
+    if %w[ REG_SZ REG_MULTI_SZ REG_EXPAND_SZ REG_DWORD REG_BINARY REG_NONE ].include?(vtype)
+      value['Type'] = self.class.const_get(vtype)
     end
+    # treat the remainder of the line after the reg type as the reg value
+    vdata = match_arr[0].strip.scan(/#{vtype}\s+(.+)/).flatten.first
+    case vtype
+    when 'REG_BINARY'
+      vdata = vdata.scan(/../).map { |x| x.hex.chr }.join
+    when 'REG_DWORD'
+      if vdata.start_with?('0x')
+        vdata = vdata[2..].to_i(16)
+      else
+        vdata = vdata.to_i
+      end
+    when 'REG_MULTI_SZ'
+      vdata = vdata.split('\0')
+    end
+    value['Data'] = vdata
 
     value
   end
@@ -437,11 +436,9 @@ protected
     end
 
     results = shell_registry_cmd("query \"#{key}\"")
-    if results =~ /ERROR: /i
-      return false
-    else
-      return true
-    end
+    return false if results.blank? || results =~ /ERROR: /i
+
+    true
   end
 
   ##
