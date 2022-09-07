@@ -16,7 +16,7 @@ The default credentials are checked by default.
 1. `modules/auxiliary/scanner/http/syncovery_linux_login`
 2. `set RHOSTS <TARGET HOSTS>`
 3. `run`
-5. On success you should get a valid token.
+5. On success you should get valid credentials.
 
 ## Scenarios
 
