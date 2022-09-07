@@ -358,8 +358,10 @@ protected
   # Returns the data portion of the value +valname+
   #
   def shell_registry_getvaldata(key, valname, view)
-    a = shell_registry_getvalinfo(key, valname, view)
-    a["Data"] || nil
+    valinfo = shell_registry_getvalinfo(key, valname, view)
+    return nil if valinfo.nil?
+
+    valinfo['Data']
   end
 
   #
