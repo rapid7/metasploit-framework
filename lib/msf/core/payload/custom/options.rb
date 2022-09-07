@@ -9,7 +9,7 @@ module Msf::Payload::Custom::Options
     super
     register_options(
       [
-        Msf::OptPath.new('SHELLCODE_FILE', [false, "shellcode bin to launch", nil])
+        Msf::OptPath.new('SHELLCODE_FILE', [false, 'Shellcode bin to launch', nil])
       ], self.class)
   end
 end

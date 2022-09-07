@@ -18,7 +18,7 @@ module MetasploitModule
         'License' => MSF_LICENSE,
         'Platform' => 'win',
         'Arch' => ARCH_X86,
-        'Session' => nil,
+        'Session' => Msf::Sessions::Custom,
         'PayloadCompat' => {}
       )
     )
