@@ -66,25 +66,23 @@ class MetasploitModule < Msf::Auxiliary
     )
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to host - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Error (response code: #{res.code})") if res.code != 200
-    
+
     if res.code == 200
       json_res = res.get_json_document
-      unless json_res
-        Exploit::CheckCode::Safe
-      else
-        if json_res['isSyncoveryLinux'] || !json_res['isSyncoveryWindows']
-          version = (json_res['SyncoveryTitle']).scan(/Syncovery\s([A-Za-z0-9.]+)/).flatten[0] || ''
-          if version.empty?
-            vprint_warning("#{rhost}:#{rport} - Could not identify version")
-            Exploit::CheckCode::Detected
-          elsif Rex::Version.new(version) < Rex::Version.new('9.48j') || Rex::Version.new(version) == '9.48'
-            vprint_good("#{rhost}:#{rport} - Syncovery #{version}")
-            Exploit::CheckCode::Vulnerable
-          else
-            vprint_status("#{rhost}:#{rport} - Syncovery #{version}")
-            Exploit::CheckCode::Safe
-          end
+      if json_res && (json_res['isSyncoveryLinux'] || !json_res['isSyncoveryWindows'])
+        version = (json_res['SyncoveryTitle']).scan(/Syncovery\s([A-Za-z0-9.]+)/).flatten[0] || ''
+        if version.empty?
+          vprint_warning("#{rhost}:#{rport} - Could not identify version")
+          Exploit::CheckCode::Detected
+        elsif Rex::Version.new(version) < Rex::Version.new('9.48j') || Rex::Version.new(version) == '9.48'
+          vprint_good("#{rhost}:#{rport} - Syncovery #{version}")
+          Exploit::CheckCode::Vulnerable
+        else
+          vprint_status("#{rhost}:#{rport} - Syncovery #{version}")
+          Exploit::CheckCode::Safe
         end
+      else
+        Exploit::CheckCode::Safe
       end
     end
   end
