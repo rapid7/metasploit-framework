@@ -1,4 +1,5 @@
 require 'metasploit/framework/login_scanner/http'
+require 'json'
 
 module Metasploit
   module Framework
@@ -30,7 +31,8 @@ module Metasploit
           globals = normalize_uri("#{uri}/get_global_variables")
           res = send_request({ 'uri' => globals })
           if res && res.code == 200
-            if res.body.scan(/"isSyncoveryLinux":"true"/).flatten[0] || res.body.scan(/"isSyncoveryWindows":"false"/).flatten[0]
+            json_res = res.get_json_document
+            if json_res['isSyncoveryLinux'] || !json_res['isSyncoveryWindows']
               return true
             end
 
@@ -47,7 +49,8 @@ module Metasploit
           res = send_request({ 'uri' => globals })
 
           if res && res.code == 200
-            version = res.body.scan(/"SyncoveryTitle":"Syncovery\s([A-Za-z0-9.]+)/).flatten[0] || ''
+            json_res = res.get_json_document
+            version = (json_res['SyncoveryTitle']).scan(/Syncovery\s([A-Za-z0-9.]+)/).flatten[0] || ''
             return version
           end
 
@@ -102,9 +105,9 @@ module Metasploit
             # session_token is actually just base64(MM/dd/yyyy HH:mm:ss) at the time of the login
             json_res = res.get_json_document
             unless json_res
-               # ....
+              return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
             end
-            
+
             token = json_res['session_token']
             if !token.blank?
               return { status: LOGIN_STATUS::SUCCESSFUL, proof: token.to_s }
