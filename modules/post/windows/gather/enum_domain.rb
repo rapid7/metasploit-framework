@@ -4,21 +4,26 @@
 ##
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Accounts
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => "Windows Gather Enumerate Domain",
+        'Name' => 'Windows Gather Enumerate Domain',
         'Description' => %q{
-          This module identifies the primary domain via the registry. The registry value used is:
-          HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History\DCName.
+          This module identifies the primary Active Directory domain name
+          and domain controller.
         },
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter'],
+        'SessionTypes' => %w[meterpreter shell powershell],
         'Author' => ['Joshua Abraham <jabra[at]rapid7.com>'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -30,40 +35,52 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def gethost(hostorip)
-    # check for valid ip and return if it is
-    return hostorip if Rex::Socket.dotted_ip?(hostorip)
+  def resolve_host(host)
+    return host if Rex::Socket.dotted_ip?(host)
 
-    ## get IP for host
-    vprint_status("Looking up IP for #{hostorip}")
-    result = client.net.resolve.resolve_host(hostorip)
-    return result[:ip] if result[:ip]
-    return nil if result[:ip].nil? || result[:ip].empty?
+    return unless client.respond_to?(:net)
+
+    vprint_status("Resolving host #{host}")
+
+    result = client.net.resolve.resolve_host(host)
+
+    return if result[:ip].blank?
+
+    result[:ip]
   end
 
   def run
-    domain = get_domain("DomainControllerName")
-    if !domain.nil? && domain =~ /\./
-      dom_info = domain.split('.')
-      dom_info[0].sub!(/\\\\/, '')
-      report_note(
-        host: session,
-        type: 'windows.domain',
-        data: { domain: dom_info[1] },
-        update: :unique_data
-      )
-      print_good("FOUND Domain: #{dom_info[1]}")
-      dc_ip = gethost(dom_info[0])
-      if !dc_ip.nil?
-        print_good("FOUND Domain Controller: #{dom_info[0]} (IP: #{dc_ip})")
-        report_host({
-          host: dc_ip,
-          name: dom_info[0],
-          info: "Domain controller for #{dom_info[1]}"
-        })
-      else
-        print_good("FOUND Domain Controller: #{dom_info[0]}")
-      end
+    domain = get_domain_name
+
+    fail_with(Failure::Unknown, 'Could not retrieve domain name. Is the host part of a domain?') unless domain && !domain.empty?
+
+    print_good("Domain FQDN: #{domain}")
+
+    report_note(
+      host: session,
+      type: 'windows.domain',
+      data: { domain: domain },
+      update: :unique_data
+    )
+
+    netbios_domain_name = domain.split('.').first.upcase
+
+    print_good("Domain NetBIOS Name: #{netbios_domain_name}")
+
+    domain_controller = get_primary_domain_controller
+
+    fail_with(Failure::Unknown, 'Could not retrieve domain controller name') unless domain_controller && !domain_controller.empty?
+
+    dc_ip = resolve_host(domain_controller)
+    if dc_ip.nil?
+      print_good("Domain Controller: #{domain_controller}")
+    else
+      print_good("Domain Controller: #{domain_controller} (IP: #{dc_ip})")
+      report_host({
+        host: dc_ip,
+        name: domain_controller,
+        info: "Domain controller for #{domain}"
+      })
     end
   end
 end
