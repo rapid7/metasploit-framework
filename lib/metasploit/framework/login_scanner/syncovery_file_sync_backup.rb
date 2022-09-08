@@ -100,7 +100,12 @@ module Metasploit
 
             # After login, the application should give us a new token
             # session_token is actually just base64(MM/dd/yyyy HH:mm:ss) at the time of the login
-            token = res.body.scan(%r{"session_token":"((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)"}).flatten[0] || ''
+            json_res = res.get_json_document
+            unless json_res
+               # ....
+            end
+            
+            token = json_res['session_token']
             if !token.blank?
               return { status: LOGIN_STATUS::SUCCESSFUL, proof: token.to_s }
             end
