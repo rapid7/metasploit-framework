@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
   def run
     domain = get_domain_name
 
-    fail_with(Failure::Unknown, 'Could not retrieve domain name. Is the host part of a domain?') unless domain
+    fail_with(Failure::Unknown, 'Could not retrieve domain name. Is the host part of a domain?') unless domain && !domain.empty?
 
     print_good("Domain FQDN: #{domain}")
 
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
 
     domain_controller = get_primary_domain_controller
 
-    fail_with(Failure::Unknown, 'Could not retrieve domain controller name') unless domain_controller
+    fail_with(Failure::Unknown, 'Could not retrieve domain controller name') unless domain_controller && !domain_controller.empty?
 
     dc_ip = resolve_host(domain_controller)
     if dc_ip.nil?
