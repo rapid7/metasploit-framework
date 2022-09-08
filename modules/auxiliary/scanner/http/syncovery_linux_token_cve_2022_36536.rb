@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/login_scanner/syncovery_file_sync_backup'
-require 'metasploit/framework/credential_collection'
 require 'base64'
 require 'date'
 
