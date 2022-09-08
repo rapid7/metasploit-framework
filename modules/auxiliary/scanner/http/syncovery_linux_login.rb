@@ -13,25 +13,27 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Syncovery File Sync & Backup Software Web-GUI Login Utility',
-      'Description' => 'This module will attempt to authenticate to Syncovery File Sync & Backup Software Web-GUI.',
-      'Author'      => [ 'Jan Rude' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'linux',
-      'Notes' => {
+    super(
+      update_info(
+        info,
+        'Name' => 'Syncovery File Sync & Backup Software Web-GUI Login Utility',
+        'Description' => 'This module will attempt to authenticate to Syncovery File Sync & Backup Software Web-GUI.',
+        'Author' => [ 'Jan Rude' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         },
-      'DefaultOptions' =>
-        {
-          'RPORT'      => 8999,
-          'USERNAME'   => 'default',
-          'PASSWORD'   => 'pass',
+        'DefaultOptions' => {
+          'RPORT' => 8999,
+          'USERNAME' => 'default',
+          'PASSWORD' => 'pass',
           'STOP_ON_SUCCESS' => true # There is only one user
         }
-    ))
+      )
+    )
 
     register_options(
       [
@@ -56,13 +58,14 @@ class MetasploitModule < Msf::Auxiliary
         configure_http_login_scanner(
           host: ip,
           port: datastore['RPORT'],
-          cred_details:       cred_collection,
-          stop_on_success:    datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+          cred_details: cred_collection,
+          stop_on_success: datastore['STOP_ON_SUCCESS'],
+          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
-          http_username:      datastore['HttpUsername'],
-          http_password:      datastore['HttpPassword']
-        ))
+          http_username: datastore['HttpUsername'],
+          http_password: datastore['HttpPassword']
+        )
+      )
     }.call
   end
 
@@ -76,11 +79,11 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: result.credential.private,
       private_type: :password,
-      username: result.credential.public,
+      username: result.credential.public
     }.merge(service_data)
 
     login_data = {
@@ -112,13 +115,13 @@ class MetasploitModule < Msf::Auxiliary
     scanner(ip).scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         report_good_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
+        vprint_brute(level: :verror, ip: ip, msg: result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
         report_bad_cred(ip, rport, result)
       end
     end
@@ -126,18 +129,18 @@ class MetasploitModule < Msf::Auxiliary
 
   # Start here
   def run_host(ip)
-    unless scanner(ip).check_setup
-      print_brute(:level => :error, :ip => ip, :msg => 'Target is not Syncovery File Sync & Backup Software')
-      return
+    if scanner(ip).check_setup
+      vprint_brute(level: :good, ip: ip, msg: 'Syncovery File Sync & Backup Software confirmed')
     else
-      vprint_brute(:level => :good, :ip => ip, :msg => 'Syncovery File Sync & Backup Software confirmed')
+      print_brute(level: :error, ip: ip, msg: 'Target is not Syncovery File Sync & Backup Software')
+      return
     end
 
     version = scanner(ip).get_version
     if !version
-      vprint_brute(:level => :error, :ip => ip, :msg => 'Unknown version')
+      vprint_brute(level: :error, ip: ip, msg: 'Unknown version')
     else
-      vprint_brute(:level => :good, :ip => ip, :msg => "Identified version: #{version}")
+      vprint_brute(level: :good, ip: ip, msg: "Identified version: #{version}")
     end
 
     bruteforce(ip)
