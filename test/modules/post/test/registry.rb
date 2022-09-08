@@ -136,6 +136,24 @@ class MetasploitModule < Msf::Post
         ret &&= !!(valinfo["Data"].kind_of? Numeric)
         ret &&= !!(valinfo["Data"] == 1234)
       end
+
+      ret
+    end
+
+    it "should write REG_EXPAND_SZ values" do
+      ret = true
+      value = '%SystemRoot%\system32'
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_expand_str", value, "REG_EXPAND_SZ")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_expand_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_EXPAND_SZ means string
+        ret &&= !!(valinfo["Type"] == 2)
+        ret &&= !!(valinfo["Data"].kind_of? String)
+        ret &&= !!(valinfo["Data"] == 'C:\Windows\system32')
+      end
+
       ret
     end
 
@@ -147,7 +165,7 @@ class MetasploitModule < Msf::Post
       if (valinfo.nil?)
         ret = false
       else
-        # type == REG_MULTI_SZ means string
+        # type == REG_MULTI_SZ means string array
         ret &&= !!(valinfo["Type"] == 7)
         ret &&= !!(valinfo["Data"].kind_of? Array)
         ret &&= !!(valinfo["Data"] == values)

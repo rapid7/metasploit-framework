@@ -218,6 +218,8 @@ class Registry
     case type
     when REG_DWORD
       data = [data.to_i].pack('V')
+    when REG_EXPAND_SZ
+      data << "\x00".b
     when REG_MULTI_SZ
       data = data.join("\x00".b) + "\x00\x00".b
     when REG_SZ
@@ -243,6 +245,8 @@ class Registry
     case type
     when REG_DWORD
       data = [data.to_i].pack('V')
+    when REG_EXPAND_SZ
+      data << "\x00".b
     when REG_MULTI_SZ
       data = data.join("\x00".b) + "\x00\x00".b
     when REG_SZ
@@ -276,6 +280,8 @@ class Registry
     case type
     when REG_DWORD
       data = data.unpack1('N')
+    when REG_EXPAND_SZ
+      data = data[0..-2]
     when REG_MULTI_SZ
       data = data[0..-3].split("\x00".b)
     when REG_SZ
@@ -300,6 +306,8 @@ class Registry
     case type
     when REG_DWORD
       data = data.unpack1('N')
+    when REG_EXPAND_SZ
+      data = data[0..-2]
     when REG_MULTI_SZ
       data = data[0..-3].split("\x00".b)
     when REG_SZ
