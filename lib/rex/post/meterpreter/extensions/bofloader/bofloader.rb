@@ -150,11 +150,8 @@ class Bofloader < Extension
 
   end
 
-  def exec_cmd(filename, args_format: nil, args: nil, entry: 'go')
+  def execute(bof_data, args_format: nil, args: nil, entry: 'go')
     request = Packet.create_request(COMMAND_ID_BOFLOADER_EXEC_CMD)
-
-    bof_data = ::File.binread(filename)
-    # TODO: Check if BOF file is an object file and if it's the correct arch for the meterpreter session
 
     # Pack up beacon object file data and arguments into one single binary blob
     # Hardcode the entrypoint to "go" (CobaltStrike approved)
