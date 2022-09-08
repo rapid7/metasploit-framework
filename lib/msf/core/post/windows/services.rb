@@ -238,10 +238,19 @@ module Msf
           services
         end
 
+        # Meterpreter specific function to list out all Windows Services present on the target.
+        # Uses threading to help speed up the information retrieval.
         #
+        # @return [Array<Hash>] Array of Hashes containing Service details. May contain the following keys:
+        #   * :name
+        #   * :display
+        #   * :pid
+        #   * :status
+        #   * :interactive
         #
-        # @return
         def meterpreter_service_list
+          return [] if session.type != 'meterpreter' # This function isn't compatible with non-Meterpreter sessions.
+
           if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
             begin
               return session.extapi.service.enumerate
