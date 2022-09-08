@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
           'Shelby Pace' # metasploit module
         ],
         'Platform' => [ 'linux' ],
-        'Arch' => [ ARCH_X86, ARCH_X64 ],
+        'Arch' => [ ARCH_X86, ARCH_X64, ARCH_AARCH64 ],
         'SessionTypes' => [ 'meterpreter' ],
         'Targets' => [[ 'Auto', {} ]],
         'Privileged' => true,
