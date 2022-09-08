@@ -6,7 +6,7 @@ module Metasploit
       class SyncoveryFileSyncBackup < HTTP
 
         DEFAULT_PORT = 8999 # HTTP=8999; HTTPS=8943
-        PRIVATE_TYPES = [ :password ]
+        PRIVATE_TYPES = [ :password ].freeze
         LOGIN_STATUS = Metasploit::Model::Login::Status # Shorter name
 
         # Checks if the target is Syncovery File Sync & Backup Software. The login module should call this.
@@ -26,10 +26,9 @@ module Metasploit
         # Checks if Syncovery Linux is used.
         #
         # @return [Boolean] true if Linux was found, otherwise FalseClass
-        def is_Linux?
+        def linux?
           globals = normalize_uri("#{uri}/get_global_variables")
           res = send_request({ 'uri' => globals })
-
           if res && res.code == 200
             if res.body.scan(/"isSyncoveryLinux":"true"/).flatten[0] || res.body.scan(/"isSyncoveryWindows":"false"/).flatten[0]
               return true
@@ -37,7 +36,6 @@ module Metasploit
 
             false
           end
-
           false
         end
 
@@ -65,14 +63,14 @@ module Metasploit
         #   * :proof [String] the HTTP response body or the session token
         def get_login_state(username, password)
           # Prep the data needed for login
-          protocol = ssl ? 'https' : 'http'
-          peer = "#{host}:#{port}"
-
           if username.empty?
             # no username => token is used as password
-            login_uri = normalize_uri("#{uri}/profiles.json?recordstartindex=0&recordendindex=0")
             res = send_request({
-              'uri' => login_uri,
+              'uri' => normalize_uri("#{uri}/profiles.json"),
+              'vars_get' => {
+                'recordstartindex' => '0',
+                'recordendindex' => '0'
+              },
               'method' => 'GET',
               'headers' => {
                 'token' => password
@@ -81,17 +79,19 @@ module Metasploit
             unless res
               return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
             end
-            if !(res.body.to_s).include? 'Session Expired'
+            if !res.body.to_s.include? 'Session Expired'
               return { status: LOGIN_STATUS::SUCCESSFUL, proof: res.body.to_s }
             end
 
             return { status: LOGIN_STATUS::INCORRECT, proof: res.body.to_s }
           else
             # use username:password
-            login_uri = normalize_uri("#{uri}/post_applogin.php?login=#{username}&password=#{password}")
-
             res = send_request({
-              'uri' => login_uri,
+              'uri' => normalize_uri("#{uri}/post_applogin.php"),
+              'vars_get' => {
+                'login' => username.to_s,
+                'password' => password.to_s
+              },
               'method' => 'GET'
             })
             unless res
