@@ -16,8 +16,8 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Syncovery File Sync & Backup Software Web-GUI Login Utility',
-        'Description' => 'This module will attempt to authenticate to Syncovery File Sync & Backup Software Web-GUI.',
+        'Name' => 'Syncovery For Linux Web-GUI Login Utility',
+        'Description' => 'This module will attempt to authenticate to Syncovery File Sync & Backup Software For Linux Web-GUI.',
         'Author' => [ 'Jan Rude' ],
         'License' => MSF_LICENSE,
         'Platform' => 'linux',
