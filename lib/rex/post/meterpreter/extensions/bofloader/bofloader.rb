@@ -151,7 +151,7 @@ class Bofloader < Extension
   end
 
   def execute(bof_data, args_format: nil, args: nil, entry: 'go')
-    request = Packet.create_request(COMMAND_ID_BOFLOADER_EXEC_CMD)
+    request = Packet.create_request(COMMAND_ID_BOFLOADER_EXECUTE)
 
     # Pack up beacon object file data and arguments into one single binary blob
     # Hardcode the entrypoint to "go" (CobaltStrike approved)
@@ -160,9 +160,9 @@ class Bofloader < Extension
     packed_coff_data = bof.coff_pack_pack(entry, bof_data, packed_args)
 
     # Send the meterpreter TLV packet and get the output back
-    request.add_tlv(TLV_TYPE_BOFLOADER_CMD, packed_coff_data)
+    request.add_tlv(TLV_TYPE_BOFLOADER_EXECUTE_BUFFER, packed_coff_data)
     response = client.send_request(request)
-    return response.get_tlv_value(TLV_TYPE_BOFLOADER_CMD_RESULT)
+    return response.get_tlv_value(TLV_TYPE_BOFLOADER_EXECUTE_RESULT)
   end
 
 end
