@@ -5,6 +5,8 @@ If a user does not logout, the token stays valid until next reboot. Note that th
 
 This affects Syncovery for Linux before v9.48j and all versions of the obsolete branch 8.
 
+### Setup
+
 Installing a vulnerable version of Syncovery for Linux to test this vulnerability is quite easy.
 Download a vulnerable version of Syncovery for Linux: https://www.syncovery.com/release/Syncovery-9.47a-amd64.deb
 Install it and once the server is up, you can access it on port 8999 for testing...
