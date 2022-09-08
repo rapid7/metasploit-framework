@@ -57,8 +57,36 @@ class MetasploitModule < Msf::Post
 
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_NATIVE)
       ret &&= !!(valinfo["Data"] == valdata)
+
+      ret
+    end
+
+    it "should read values with a 32-bit view" do
+      if session.type == 'shell' && cmd_exec('cmd.exe /c reg  QUERY /?') !~ /\/reg:\d\d/
+        skip('the target does not support non-native views')
+      end
+
+      ret = true
+      valinfo = registry_getvalinfo(%q#HKCU\Environment#, "TEMP")
+      ret &&= !!(valinfo["Data"])
+      ret &&= !!(valinfo["Type"])
+
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_32_BIT)
       ret &&= !!(valinfo["Data"] == valdata)
+
+      ret
+    end
+
+    it "should read values with a 64-bit view" do
+      if session.type == 'shell' && cmd_exec('cmd.exe /c reg  QUERY /?') !~ /\/reg:\d\d/
+        skip('the target does not support non-native views')
+      end
+
+      ret = true
+      valinfo = registry_getvalinfo(%q#HKCU\Environment#, "TEMP")
+      ret &&= !!(valinfo["Data"])
+      ret &&= !!(valinfo["Type"])
+
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_64_BIT)
       ret &&= !!(valinfo["Data"] == valdata)
 
@@ -151,7 +179,7 @@ class MetasploitModule < Msf::Post
         # type == REG_EXPAND_SZ means string
         ret &&= !!(valinfo["Type"] == 2)
         ret &&= !!(valinfo["Data"].kind_of? String)
-        ret &&= !!(valinfo["Data"] == 'C:\Windows\system32')
+        ret &&= !!(valinfo["Data"].casecmp('C:\Windows\system32'))
       end
 
       ret
