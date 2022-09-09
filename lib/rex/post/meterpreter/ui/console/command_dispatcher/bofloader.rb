@@ -24,10 +24,11 @@ module Rex
             'Beacon Object File Loader'
           end
 
-          DEFAULT_ENTRY = 'go'
+          DEFAULT_ENTRY = 'go'.freeze
 
           @@execute_bof_opts = Rex::Parser::Arguments.new(
             ['-h', '--help'] => [ false, 'Help Banner' ],
+            ['-c', '--compile'] => [ true, 'Compile the input file (requires mingw).' ],
             ['-e', '--entry'] => [ true, "The entry point (default: #{DEFAULT_ENTRY})." ],
             ['-f', '--format-string'] => [ true, 'bof_pack compatible format-string. Choose combination of: b, i, s, z, Z' ]
           )
@@ -54,6 +55,8 @@ module Rex
             return tab_complete_filenames(str, words) if words.length == 1
 
             fmt = {
+              '-c' => [ nil ],
+              '--compile' => [ nil ],
               '-e' => [ true ],
               '--entry' => [ true ],
               '-f' => [ true ],
@@ -63,7 +66,7 @@ module Rex
           end
 
           def cmd_execute_bof(*args)
-            if args.length == 0 || args.include?('-h') || args.include?('--help')
+            if args.empty? || args.include?('-h') || args.include?('--help')
               cmd_execute_bof_help
               return false
             end
@@ -72,9 +75,12 @@ module Rex
             bof_args_format = nil
             bof_cmdline = []
             entry = DEFAULT_ENTRY
+            compile = false
 
             @@execute_bof_opts.parse(args) do |opt, _idx, val|
               case opt
+              when '-c', '--compile'
+                compile = true
               when '-f', '--format-string'
                 bof_args_format = val
               when '-e', '--entry'
@@ -104,7 +110,12 @@ module Rex
               print_status('No argument format specified, executing bof with no arguments.')
             end
 
-            bof_data = ::File.binread(bof_filename)
+            if compile
+              bof_data = compile_c(bof_filename)
+              return unless bof_data
+            else
+              bof_data = ::File.binread(bof_filename)
+            end
 
             # loading all data will hang on invalid files like DLLs, so only parse the 20-byte header at first
             parsed = Metasm::COFF.decode_header(bof_data[0...20])
@@ -144,6 +155,35 @@ module Rex
           end
 
           private
+
+          def compile_c(source)
+            if client.arch == ARCH_X86
+              mingw = Metasploit::Framework::Compiler::Mingw::X86.new
+            elsif client.arch == ARCH_X64
+              mingw = Metasploit::Framework::Compiler::Mingw::X64.new
+            else
+              print_error("Unsupported client architecture: #{client.arch}")
+              return
+            end
+
+            unless mingw.class.available?
+              print_error("#{mingw.mingw_bin} is unavailable, can not compile source code")
+              return
+            end
+
+            ::Dir::Tmpname.create([::File.basename(source, '.c'), '.o']) do |destination|
+              output, status = Open3.capture2e(mingw.mingw_bin, '-c', source, '-I', Metasploit::Framework::Compiler::Mingw::INCLUDE_DIR, '-o', destination)
+              unless status.exitstatus == 0
+                print_error("Compilation exited with error code: #{status.exitstatus}")
+                print_line(output) unless output.blank?
+                return
+              end
+
+              bof_data = ::File.binread(destination)
+              ::File.delete(destination)
+              return bof_data
+            end
+          end
 
           def get_executable_symbols(coff)
             executable_symbols = []
