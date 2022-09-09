@@ -64,7 +64,7 @@ module Rex
 
           def cmd_execute_bof(*args)
             if args.length == 0 || args.include?('-h') || args.include?('--help')
-              cmd_bof_cmd_help
+              cmd_execute_bof_help
               return false
             end
 
@@ -101,7 +101,7 @@ module Rex
               print_error('Arguments detected and no format string specified.')
               return
             else
-              print_status('No argument format specified executing bof with no arguments.')
+              print_status('No argument format specified, executing bof with no arguments.')
             end
 
             bof_data = ::File.binread(bof_filename)
@@ -129,7 +129,13 @@ module Rex
               return
             end
 
-            output = client.bofloader.execute(bof_data, args_format: bof_args_format, args: bof_args, entry: entry)
+            begin
+              output = client.bofloader.execute(bof_data, args_format: bof_args_format, args: bof_args, entry: entry)
+            rescue Rex::Post::Meterpreter::Extensions::Bofloader::BofPackingError => e
+              print_error("Error processing the specified arguments: #{e.message}")
+              return
+            end
+
             if output.nil?
               print_status('No output returned from bof')
             else

@@ -21,6 +21,9 @@ module Rex
           #
           ###
 
+          class BofPackingError < RuntimeError
+          end
+
           class BofPack
             # Code referenced from: https://github.com/trustedsec/COFFLoader/blob/main/beacon_generate.py
             # Emulates the native Cobalt Strike bof_pack() function.
@@ -35,21 +38,31 @@ module Rex
             # Z       | zero-terminated wide-char string      | (wchar_t *)BeaconDataExtract
 
             def initialize
-              @buffer = ''
-              @size = 0
+              reset
             end
 
-            def addshort(short)
-              @buffer << [short.to_i].pack('<s')
-              @size += 2
+            def add_binary(b)
+              # Add binary data to the buffer
+              b = b.bytes if b.is_a? String
+              b << 0x00 # Null terminated binary data
+              b_length = b.length
+              b = [b_length] + b
+              buf = b.pack("<Ic#{b_length}")
+              @size += buf.length
+              @buffer << buf
             end
 
-            def addint(dint)
+            def add_int(dint)
               @buffer << [dint.to_i].pack('<I')
               @size += 4
             end
 
-            def addstr(s)
+            def add_short(short)
+              @buffer << [short.to_i].pack('<s')
+              @size += 2
+            end
+
+            def add_str(s)
               s = s.encode('utf-8').bytes
               s << 0x00 # Null terminated strings...
               s_length = s.length
@@ -59,7 +72,7 @@ module Rex
               @buffer << buf
             end
 
-            def addWstr(s)
+            def add_wstr(s)
               s = s.encode('utf-16le').bytes
               s << 0x00 << 0x00 # Null terminated wide string
               s_length = s.length
@@ -69,44 +82,41 @@ module Rex
               @buffer << buf
             end
 
-            def addbinary(b)
-              # Add binary data to the buffer
-              if b.class != 'Array'
-                b = b.bytes
-              end
-              b << 0x00 # Null terminated binary data
-              b_length = b.length
-              b = [b_length] + b
-              buf = b.pack("<Ic#{b_length}")
-              @size += buf.length
-              @buffer << buf
-            end
-
             def finalize_buffer
               output = [@size].pack('<I') + @buffer
-              initialize # Reset the class' buffer for another round
-              return output
+              reset
+              output
+            end
+
+            def reset
+              @buffer = ''
+              @size = 0
             end
 
             def bof_pack(fstring, args)
               # Wrapper function to pack an entire bof command line into a buffer
-              if fstring.nil? or args.nil?
+              if fstring.nil? || args.nil?
                 return finalize_buffer
               end
 
-              fstring.each_char.each_with_index do |c, i|
-                if c == 'b'
-                  addbinary(args[i])
-                elsif c == 'i'
-                  addint(args[i])
-                elsif c == 's'
-                  addshort(args[i])
-                elsif c == 'z'
-                  addstr(args[i])
-                elsif c == 'Z'
-                  addWstr(args[i])
+              if fstring.length != args.length
+                raise BofPackingError, 'Mismatched format and argument lengths'
+              end
+
+              fstring.chars.zip(args).each do |c, arg|
+                case c
+                when 'b'
+                  add_binary(arg)
+                when 'i'
+                  add_int(arg)
+                when 's'
+                  add_short(arg)
+                when 'z'
+                  add_str(arg)
+                when 'Z'
+                  add_wstr(arg)
                 else
-                  raise "Invalid character in format string: #{c}. Must be one of \"b, i, s, z, Z\""
+                  raise BofPackingError, "Invalid character in format string: #{c}. Must be one of \"b, i, s, z, Z\""
                 end
               end
 
