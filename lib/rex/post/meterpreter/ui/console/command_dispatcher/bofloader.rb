@@ -26,7 +26,7 @@ class Console::CommandDispatcher::Bofloader
 
   DEFAULT_ENTRY = 'go'
 
-  @@bof_cmd_opts = Rex::Parser::Arguments.new(
+  @@execute_bof_opts = Rex::Parser::Arguments.new(
     ['-h', '--help']          => [ false, "Help Banner" ],
     ['-e', '--entry']         => [ true,  "The entry point (default: #{DEFAULT_ENTRY})." ],
     ['-f', '--format-string'] => [ true,  "bof_pack compatible format-string. Choose combination of: b, i, s, z, Z" ],
@@ -70,11 +70,9 @@ class Console::CommandDispatcher::Bofloader
     bof_args = nil
     bof_args_format = nil
     bof_cmdline = []
-    bof_filename = nil
-    bof_json_filename = nil
     entry = DEFAULT_ENTRY
 
-    @@bof_cmd_opts.parse(args) { |opt, idx, val|
+    @@execute_bof_opts.parse(args) { |opt, idx, val|
       case opt
       when '-f', '--format-string'
         bof_args_format = val
@@ -106,6 +104,8 @@ class Console::CommandDispatcher::Bofloader
     end
 
     bof_data = ::File.binread(bof_filename)
+
+    # loading all data will hang on invalid files like DLLs, so only parse the 20-byte header at first
     parsed = Metasm::COFF.decode_header(bof_data[0...20])
     bof_arch = { # map of metasm to metasploit architectures
       'AMD64' => ARCH_X64,
@@ -121,6 +121,13 @@ class Console::CommandDispatcher::Bofloader
       return
     end
 
+    parsed = Metasm::COFF.decode(bof_data)
+    unless (executable_symbols = get_executable_symbols(parsed)).include?(entry)
+      print_error("The specified entry point was not found: #{entry}")
+      print_error("Available symbols: #{executable_symbols.join(', ')}")
+      return
+    end
+
     output = client.bofloader.execute(bof_data, args_format: bof_args_format, args: bof_args, entry: entry)
     if output.nil?
       print_status("No output returned from bof")
@@ -128,6 +135,34 @@ class Console::CommandDispatcher::Bofloader
       print_line(output)
     end
 
+  end
+
+  private
+
+  def get_executable_symbols(coff)
+    executable_symbols = []
+    coff.symbols.each do |sym|
+      next unless sym
+      next unless sym.sec_nr.is_a? Integer
+
+      section = coff.sections[sym.sec_nr - 1]
+      next unless section
+
+      next if section.name == sym.name
+      next unless section.characteristics.include?('MEM_EXECUTE')
+      next unless section.characteristics.include?('CONTAINS_CODE')
+
+      # see: https://github.com/trustedsec/COFFLoader/blob/24da168356bd20438a4e66ef3261c5012344d362/COFFLoader.c#L182-L189
+      unless client.arch == ARCH_X64
+        next unless sym.name.start_with?('_')
+
+        executable_symbols << sym.name[1..]
+      else
+        executable_symbols << sym.name
+      end
+    end
+
+    executable_symbols
   end
 
 end
