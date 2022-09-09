@@ -1,13 +1,13 @@
 ## Vulnerable Application
 
-This module will query the system for services and display name and
-configuration info for each returned service. It allows you to
-optionally search the credentials, path, or start type for a string
-and only return the results that match. These query operations are
-cumulative and if no query strings are specified, it just returns all
-services.  NOTE: If the script hangs, windows firewall is most likely
-on and you did not migrate to a safe process (explorer.exe for
-example).
+This module will query the system for services and return the display name and
+configuration info for each returned service. You can also optionally
+filter the results by using query strings to match on specific
+credentials, paths, or start types and only return the results that match.
+These query operations are cumulative and if no query strings are specified,
+the module will just return all services. NOTE: If the script hangs,
+Windows Defender Firewall is most likely on and you did not migrate
+to a safe process (explorer.exe for example).
 
 ## Verification Steps
 
@@ -21,15 +21,15 @@ example).
 
 ### CRED
 
-String to search credentials for.
+String to search returned service credentials for.
 
 ### PATH
 
-String to search path for.
+String to search returned service paths for.
 
 ### TYPE
 
-Service startup option (`All`, `Auto`, `Manual`, `Disabled`) (default: `All`)
+Service startup types to display (`All`, `Auto`, `Manual`, `Disabled`) (default: `All`)
 
 ## Scenarios
 
