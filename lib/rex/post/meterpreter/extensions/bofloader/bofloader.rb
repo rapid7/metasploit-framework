@@ -112,17 +112,8 @@ class BofPack
     end
 
     # return the packed bof_string
-    return finalize_buffer()
+    finalize_buffer
   end
-
-  def coff_pack_pack(entrypoint, coff_data, argument_data)
-    # Create packed data containing:
-    # functionname | coff_data | args_data
-    # which can be passed directly to the LoadAndRun() function
-    fmt_pack = "zbb" # string, binary, binary
-    return bof_pack(fmt_pack, [entrypoint, coff_data, argument_data])
-  end
-
 end
 
 class Bofloader < Extension
@@ -154,10 +145,11 @@ class Bofloader < Extension
     # Hardcode the entrypoint to "go" (CobaltStrike approved)
     bof = BofPack.new
     packed_args = bof.bof_pack(args_format, args)
-    packed_coff_data = bof.coff_pack_pack(entry, bof_data, packed_args)
 
     # Send the meterpreter TLV packet and get the output back
-    request.add_tlv(TLV_TYPE_BOFLOADER_EXECUTE_BUFFER, packed_coff_data)
+    request.add_tlv(TLV_TYPE_BOFLOADER_EXECUTE_BUFFER, bof_data)
+    request.add_tlv(TLV_TYPE_BOFLOADER_EXECUTE_BUFFER_ENTRY, entry)
+    request.add_tlv(TLV_TYPE_BOFLOADER_EXECUTE_ARGUMENTS, packed_args)
     response = client.send_request(request)
     return response.get_tlv_value(TLV_TYPE_BOFLOADER_EXECUTE_RESULT)
   end
