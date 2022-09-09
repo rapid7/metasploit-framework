@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
       srv_conf = {}
 
       # make sure we got a service name
-      unless srv[:name]
+      if srv[:name].blank?
         print_error("Problem retrieving service information - no name found for service: #{srv}")
         next
       end
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Post
       begin
         srv_conf = service_info(srv[:name])
 
-        next unless srv_conf[:startname]
+        next unless srv_conf && srv_conf[:startname] && srv_conf[:path]
 
         # filter service based on provided filters
         next if qcred && !srv_conf[:startname].downcase.include?(qcred)
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Post
 
         # There may not be a 'Startup', need to check nil
         start_type = srv_conf[:starttype]
-        start_type = start_type.blank? ? nil : START_TYPE[start_type]
+        start_type = start_type.blank? ? '' : START_TYPE[start_type].to_s
 
         next if qtype && !start_type.downcase.include?(qtype)
 
