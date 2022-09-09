@@ -94,9 +94,6 @@ class BofPack
     if fstring.nil? or args.nil?
       return finalize_buffer()
     end
-    if fstring.length != args.length
-      raise ArgumentError, "Format string length must be the same as argument length: fstring:#{fstring.length}, args:#{args.length}"
-    end
 
     fstring.each_char.each_with_index do |c,i|
       if c == "b"

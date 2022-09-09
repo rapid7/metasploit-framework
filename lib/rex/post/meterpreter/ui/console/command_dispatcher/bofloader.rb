@@ -53,8 +53,6 @@ class Console::CommandDispatcher::Bofloader
   def cmd_execute_bof_tabs(str, words)
     return tab_complete_filenames(str, words) if words.length == 1
     fmt = {
-      '-a'              => [ true ],
-      '--arguments'     => [ true ],
       '-e'              => [ true ],
       '--entry'         => [ true ],
       '-f'              => [ true ],
@@ -71,7 +69,8 @@ class Console::CommandDispatcher::Bofloader
 
     bof_args = nil
     bof_args_format = nil
-    bof_filename = args[0]
+    bof_cmdline = []
+    bof_filename = nil
     bof_json_filename = nil
     entry = DEFAULT_ENTRY
 
@@ -81,10 +80,12 @@ class Console::CommandDispatcher::Bofloader
         bof_args_format = val
       when '-e', '--entry'
         entry = val
-      when '-j', '--json-file'
-        bof_json_filename = val
+      when nil
+        bof_cmdline << val
       end
     }
+
+    bof_filename = bof_cmdline[0]
 
     unless ::File.file?(bof_filename) && ::File.readable?(bof_filename)
       print_error("Unreadable file: #{bof_filename}")
@@ -92,7 +93,14 @@ class Console::CommandDispatcher::Bofloader
     end
 
     if bof_args_format
-      bof_args = args[1..bof_args_format.length]
+      if bof_args_format.length != bof_cmdline.length - 1
+        print_error("Format string length must be the same as argument length: fstring:#{bof_args_format.length}, args:#{bof_cmdline.length - 1}")
+        return
+      end
+      bof_args = bof_cmdline[1..]
+    elsif bof_cmdline.length > 1
+      print_error('Arguments detected and no format string specified.')
+      return
     else
       print_status('No argument format specified executing bof with no arguments.')
     end
@@ -115,7 +123,7 @@ class Console::CommandDispatcher::Bofloader
 
     output = client.bofloader.execute(bof_data, args_format: bof_args_format, args: bof_args, entry: entry)
     if output.nil?
-      print_line("No (Nil?) output from BOF...")
+      print_status("No output returned from bof")
     else
       print_line(output)
     end
