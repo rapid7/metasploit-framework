@@ -415,6 +415,12 @@ protected
     case type
     when 'REG_BINARY'
       data = data.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+    when 'REG_EXPAND_SZ'
+      if session.type == 'powershell'
+        data = data.gsub('%', '""%""')
+      elsif session.type == 'shell'
+        data = data.gsub('%', '"%"')
+      end
     when 'REG_MULTI_SZ'
       data = data.join('\0')
     end

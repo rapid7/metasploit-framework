@@ -219,11 +219,11 @@ class Registry
     when REG_DWORD
       data = [data.to_i].pack('V')
     when REG_EXPAND_SZ
-      data << "\x00".b
+      data += "\x00".b
     when REG_MULTI_SZ
       data = data.join("\x00".b) + "\x00\x00".b
     when REG_SZ
-      data << "\x00".b
+      data += "\x00".b
     end
 
     request.add_tlv(TLV_TYPE_VALUE_DATA, data)
@@ -246,11 +246,11 @@ class Registry
     when REG_DWORD
       data = [data.to_i].pack('V')
     when REG_EXPAND_SZ
-      data << "\x00".b
+      data += "\x00".b
     when REG_MULTI_SZ
       data = data.join("\x00".b) + "\x00\x00".b
     when REG_SZ
-      data << "\x00".b
+      data += "\x00".b
     end
 
     request.add_tlv(TLV_TYPE_VALUE_DATA, data)

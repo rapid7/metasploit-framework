@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Post
         # type == REG_EXPAND_SZ means string
         ret &&= !!(valinfo["Type"] == 2)
         ret &&= !!(valinfo["Data"].kind_of? String)
-        ret &&= !!(valinfo["Data"].casecmp('C:\Windows\system32'))
+        ret &&= !!(valinfo["Data"] == value)
       end
 
       ret
