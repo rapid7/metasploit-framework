@@ -238,68 +238,6 @@ module Msf
           services
         end
 
-        # Meterpreter specific function to list out all Windows Services present on the target.
-        # Uses threading to help speed up the information retrieval.
-        #
-        # @return [Array<Hash>] Array of Hashes containing Service details. May contain the following keys:
-        #   * :name
-        #   * :display
-        #   * :pid
-        #   * :status
-        #   * :interactive
-        #
-        def meterpreter_service_list
-          return [] if session.type != 'meterpreter' # This function isn't compatible with non-Meterpreter sessions.
-
-          if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
-            begin
-              return session.extapi.service.enumerate
-            rescue Rex::Post::Meterpreter::RequestError => e
-              vprint_error("Request Error #{e} falling back to registry technique")
-            end
-          end
-
-          serviceskey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
-          keys = registry_enumkeys(serviceskey)
-          threads = 10
-          services = []
-          until keys.empty?
-            thread_list = []
-            threads = 1 if threads <= 0
-
-            if keys.length < threads
-              threads = keys.length
-            end
-
-            begin
-              1.upto(threads) do
-                thread_list << framework.threads.spawn(refname + '-ServiceRegistryList', false, keys.shift) do |service_name|
-                  service_type = registry_getvaldata("#{serviceskey}\\#{service_name}", 'Type').to_i
-
-                  next unless [
-                    SERVICE_WIN32_OWN_PROCESS,
-                    SERVICE_WIN32_OWN_PROCESS_INTERACTIVE,
-                    SERVICE_WIN32_SHARE_PROCESS,
-                    SERVICE_WIN32_SHARE_PROCESS_INTERACTIVE
-                  ].include?(service_type)
-
-                  services << { name: service_name }
-                end
-              end
-              thread_list.map(&:join)
-            rescue ::Timeout::Error
-            ensure
-              thread_list.each do |thread|
-                thread.kill
-              rescue StandardError
-                nil
-              end
-            end
-          end
-
-          services
-        end
-
         #
         # Get Windows Service information.
         #
@@ -654,6 +592,68 @@ module Msf
           else
             return nil
           end
+        end
+
+        private
+
+        # Meterpreter specific function to list out all Windows Services present on the target.
+        # Uses threading to help speed up the information retrieval.
+        #
+        # @return [Array<Hash>] Array of Hashes containing Service details. May contain the following keys:
+        #   * :name
+        #   * :display
+        #   * :pid
+        #   * :status
+        #   * :interactive
+        #
+        def meterpreter_service_list
+          if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
+            begin
+              return session.extapi.service.enumerate
+            rescue Rex::Post::Meterpreter::RequestError => e
+              vprint_error("Request Error #{e} falling back to registry technique")
+            end
+          end
+
+          serviceskey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
+          keys = registry_enumkeys(serviceskey)
+          threads = 10
+          services = []
+          until keys.empty?
+            thread_list = []
+            threads = 1 if threads <= 0
+
+            if keys.length < threads
+              threads = keys.length
+            end
+
+            begin
+              1.upto(threads) do
+                thread_list << framework.threads.spawn(refname + '-ServiceRegistryList', false, keys.shift) do |service_name|
+                  service_type = registry_getvaldata("#{serviceskey}\\#{service_name}", 'Type').to_i
+
+                  next unless [
+                    SERVICE_WIN32_OWN_PROCESS,
+                    SERVICE_WIN32_OWN_PROCESS_INTERACTIVE,
+                    SERVICE_WIN32_SHARE_PROCESS,
+                    SERVICE_WIN32_SHARE_PROCESS_INTERACTIVE
+                  ].include?(service_type)
+
+                  services << { name: service_name }
+                end
+              end
+              thread_list.map(&:join)
+            rescue ::Timeout::Error
+            ensure
+              thread_list.each do |thread|
+                thread.kill
+              rescue StandardError
+                nil
+              end
+            end
+          end
+
+          services
         end
       end
     end
