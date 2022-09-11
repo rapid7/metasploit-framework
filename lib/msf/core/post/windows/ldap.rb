@@ -136,7 +136,7 @@ module LDAP
       raise "Unable to find the domain to query."
     end
 
-    if load_extapi
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY)
       return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
     else
       if domain and domain.include? "DC="
