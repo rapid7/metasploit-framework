@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           credential_type: 'json',
           json_search: [
             {
-              json_parent: "",
+              json_parent: '',
               json_children: [
                 "['name']",
                 "['username']",
@@ -50,6 +50,9 @@ class MetasploitModule < Msf::Post
           This is a module that searches for RedisDesktopManager credentials on a windows remote host.
         },
         'License' => MSF_LICENSE,
+        'References' => [
+          [ 'URL', 'https://blog.kali-team.cn/Metasploit-PackRat-RedisDesktopManager-42dc7ab063f040d182da0f1fc16db74e' ]
+        ],
         'Author' => [
           'Kali-Team'
         ],
