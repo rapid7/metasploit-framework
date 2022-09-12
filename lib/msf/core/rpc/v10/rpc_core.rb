@@ -137,7 +137,8 @@ class RPC_Core < RPC_Base
       'post'      => framework.stats.num_post,
       'encoders'  => framework.stats.num_encoders,
       'nops'      => framework.stats.num_nops,
-      'payloads'  => framework.stats.num_payloads
+      'payloads'  => framework.stats.num_payloads,
+      'evasions'  => framework.stats.num_evasion
     }
   end
 
