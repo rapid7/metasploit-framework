@@ -24,6 +24,24 @@ module Rex
             'Beacon Object File Loader'
           end
 
+          def initialize(shell)
+            super
+            print_line
+            print_line
+            print_line("meterpreter                  ")
+            print_line("   ▄▄▄▄    ▒█████    █████▒  ")
+            print_line("  ▓█████▄ ▒██▒  ██▒▓██   ▒   ")
+            print_line("  ▒██▒ ▄██▒██░  ██▒▒████ ░   ")
+            print_line("  ▒██░█▀  ▒██   ██░░▓█▒  ░   ")
+            print_line("  ░▓█  ▀█▓░ ████▓▒░░▒█░      ")
+            print_line("  ░▒▓███▀▒░ ▒░▒░▒░  ▒ ░      ")
+            print_line("  ▒░▒   ░   ░ ▒ ▒░  ░     ~ by @kev169, @GuhnooPluxLinux, @R0wdyJoe, @skylerknecht ~  ")
+            print_line("   ░    ░ ░ ░ ░ ▒   ░ ░      ")
+            print_line("   ░          ░ ░  loader    ")
+            print_line("        ░                    ")
+            print_line
+          end
+
           DEFAULT_ENTRY = 'go'.freeze
 
           @@execute_bof_opts = Rex::Parser::Arguments.new(
@@ -47,7 +65,7 @@ module Rex
           def cmd_execute_bof_help
             print_line('Usage:   execute_bof </path/to/bof_file.o> [arguments [arguments]] --format-string [format-string]')
             print_line('Example: execute_bof /root/dir.x64.o C:\\ 0 --format-string Zs')
-            print_line(@@bof_cmd_opts.usage)
+            print_line(@@execute_bof_opts.usage)
           end
 
           # Tab complete the first argument as a file on the local filesystem
