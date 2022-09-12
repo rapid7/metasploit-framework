@@ -36,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'SideEffects' => []
         },
+        'DisclosureDate' => '2022-09-06',
         'DefaultOptions' => {
           'RPORT' => 8999,
           'STOP_ON_SUCCESS' => true # One valid session is enough
