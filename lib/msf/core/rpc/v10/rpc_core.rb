@@ -90,6 +90,7 @@ class RPC_Core < RPC_Base
   #  * 'encoders' [Integer] The number of encoders reloaded.
   #  * 'nops' [Integer] The number of NOP modules reloaded.
   #  * 'payloads' [Integer] The number of payloads reloaded.
+  #  * 'evasions' [Integer] The number of evasion modules reloaded.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.reload_modules')
   def rpc_reload_modules
@@ -100,7 +101,7 @@ class RPC_Core < RPC_Base
 
   # Adds a new local file system path (local to the server) as a module path. The module must be
   # accessible to the user running the Metasploit service, and contain a top-level directory for
-  # each module type such as: exploits, nop, encoder, payloads, auxiliary, post. Also note that
+  # each module type such as: exploits, nop, encoder, payloads, auxiliary, post, evasion. Also note that
   # this will not unload modules that were deleted from the file system that were previously loaded.
   #
   # @param [String] path The new path to load.
@@ -111,6 +112,7 @@ class RPC_Core < RPC_Base
   #  * 'encoders' [Integer] The number of encoders loaded.
   #  * 'nops' [Integer] The number of NOP modules loaded.
   #  * 'payloads' [Integer] The number of payloads loaded.
+  #  * 'evasions' [Integer] The number of evasion modules loaded.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.add_module_path', '/tmp/modules/')
   def rpc_add_module_path(path)
@@ -128,6 +130,7 @@ class RPC_Core < RPC_Base
   #  * 'encoders' [Integer] The number of encoders.
   #  * 'nops' [Integer] The number of NOP modules.
   #  * 'payloads' [Integer] The number of payloads.
+  #  * 'evasions' [Integer] The number of evasion modules.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.module_stats')
   def rpc_module_stats
@@ -137,7 +140,8 @@ class RPC_Core < RPC_Base
       'post'      => framework.stats.num_post,
       'encoders'  => framework.stats.num_encoders,
       'nops'      => framework.stats.num_nops,
-      'payloads'  => framework.stats.num_payloads
+      'payloads'  => framework.stats.num_payloads,
+      'evasions'  => framework.stats.num_evasion
     }
   end
 
