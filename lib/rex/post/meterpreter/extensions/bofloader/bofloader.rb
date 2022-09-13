@@ -44,7 +44,6 @@ module Rex
             def add_binary(b)
               # Add binary data to the buffer
               b = b.bytes if b.is_a? String
-              b << 0x00 # Null terminated binary data
               b_length = b.length
               b = [b_length] + b
               buf = b.pack("<Ic#{b_length}")

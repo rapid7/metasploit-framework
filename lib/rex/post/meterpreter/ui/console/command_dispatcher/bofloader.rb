@@ -46,12 +46,10 @@ module Rex
 
           @@execute_bof_opts = Rex::Parser::Arguments.new(
             ['-h', '--help'] => [ false, 'Help Banner' ],
-            ['-c', '--compile'] => [ true, 'Compile the input file (requires mingw).' ],
+            ['-c', '--compile'] => [ false, 'Compile the input file (requires mingw).' ],
             ['-e', '--entry'] => [ true, "The entry point (default: #{DEFAULT_ENTRY})." ],
-            ['-f', '--format-string'] => [ true, 'bof_pack compatible format-string. Choose combination of: b, i, s, z, Z' ]
+            ['-f', '--format-string'] => [ true, 'Argument format-string. Choose combination of: b, i, s, z, Z' ]
           )
-
-          # TODO: Properly parse arguments (positional and named switches)
 
           #
           # List of supported commands.
@@ -63,15 +61,35 @@ module Rex
           end
 
           def cmd_execute_bof_help
-            print_line('Usage:   execute_bof </path/to/bof_file.o> [arguments [arguments]] --format-string [format-string]')
-            print_line('Example: execute_bof /root/dir.x64.o C:\\ 0 --format-string Zs')
+            print_line('Usage:   execute_bof </path/to/bof_file.o> [bof_nonliteral_arguments] [--format-string] [-- bof_literal_arguments]')
             print_line(@@execute_bof_opts.usage)
+            print_line(
+              <<~HELP
+              Examples:
+                execute_bof /bofs/dir.x64.o -- --help
+                execute_bof /bofs/dir.x64.o --format-string Zs C:\\\\ 0
+                execute_bof /bofs/upload.x64.o --format-string bZ file:/local/file.txt C:\\remote\\file.txt 
+                execute_bof /bofs/dir.x64.c --compile --format-string Zs -- C:\\\\ 0 
+                
+
+              Argument formats:
+                b       binary data (e.g. 01020304)
+                i       32-bit integer
+                s       16-bit integer
+                z       null-terminated utf-8 string
+                Z       null-terminated utf-16 string
+              HELP
+            )
           end
 
           # Tab complete the first argument as a file on the local filesystem
           def cmd_execute_bof_tabs(str, words)
+            return if words.include?('--')
             return tab_complete_filenames(str, words) if words.length == 1
-
+            if (str =~ /^file:(.*)/)
+              files = tab_complete_filenames($1, words)
+              return files.map { |f| "file:" + f }
+            end
             fmt = {
               '-c' => [ nil ],
               '--compile' => [ nil ],
@@ -84,16 +102,23 @@ module Rex
           end
 
           def cmd_execute_bof(*args)
-            if args.empty? || args.include?('-h') || args.include?('--help')
+            if args.empty? 
               cmd_execute_bof_help
               return false
             end
 
-            bof_args = nil
+            bof_args_literal = []
+            bof_args_nonliteral = []
             bof_args_format = nil
-            bof_cmdline = []
             entry = DEFAULT_ENTRY
             compile = false
+
+            args, bof_args_literal = args.split('--') if args.include?('--')
+            if args.include?('-h') || args.include?('--help')
+              cmd_execute_bof_help
+              return false
+            end
+            bof_filename = args.shift
 
             @@execute_bof_opts.parse(args) do |opt, _idx, val|
               case opt
@@ -104,11 +129,15 @@ module Rex
               when '-e', '--entry'
                 entry = val
               when nil
-                bof_cmdline << val
+                if val.start_with?('-')
+                  print_error("Unknown argument: #{val}")
+                  return false
+                end
+                bof_args_nonliteral << val
               end
             end
 
-            bof_filename = bof_cmdline[0]
+            bof_args = bof_args_nonliteral + bof_args_literal
 
             unless ::File.file?(bof_filename) && ::File.readable?(bof_filename)
               print_error("Unreadable file: #{bof_filename}")
@@ -116,16 +145,52 @@ module Rex
             end
 
             if bof_args_format
-              if bof_args_format.length != bof_cmdline.length - 1
-                print_error("Format string length must be the same as argument length: fstring:#{bof_args_format.length}, args:#{bof_cmdline.length - 1}")
+              if bof_args_format.length != bof_args.length
+                print_error('Format string must be the same length as arguments.')
                 return
               end
-              bof_args = bof_cmdline[1..]
-            elsif bof_cmdline.length > 1
-              print_error('Arguments detected and no format string specified.')
+
+              bof_args_format.chars.each_with_index do |fmt, idx|
+                bof_arg = bof_args[idx]
+                case fmt
+                when 'b'
+                  if bof_arg.start_with?('file:')
+                    local_filename = bof_arg.split('file:')[1]
+
+                    unless ::File.file?(local_filename) && ::File.readable?(local_filename)
+                      print_error("Argument ##{idx + 1} contains an unreadable file: #{local_filename}")
+                      return false
+                    end
+                    bof_arg = ::File.binread(local_filename)
+                  else
+                    unless bof_arg.length.even?
+                      print_error("Argument ##{idx + 1} was not appropriately padded to an even length string!")
+                      return false
+                    end
+                    bytes = bof_arg.scan(/(?:[a-fA-F0-9]{2})/).map {|v| v.to_i(16)}
+                    if (bof_arg.length / 2 != bytes.length)
+                      print_error("Argument ##{idx + 1} contains invalid characters!")
+                      return false
+                    end
+                    bof_arg = bytes.pack("C*")
+                  end
+                when 'i', 's'
+                  if bof_arg =~ /^\d+$/
+                    bof_arg = bof_arg.to_i
+                  elsif bof_arg =~ /^0x[a-fA-F0-9]+$/
+                    bof_arg = bof_arg[2..].to_i(16)
+                  else
+                    print_error("Argument ##{idx + 1} must be a number!")
+                    return false
+                  end
+                end
+                bof_args[idx] = bof_arg
+              end
+            elsif bof_args.length > 1
+              print_error('Arguments detected but no format string specified.')
               return
             else
-              print_status('No argument format specified, executing bof with no arguments.')
+              print_status('No arguments specified, executing bof with no arguments.')
             end
 
             if compile
