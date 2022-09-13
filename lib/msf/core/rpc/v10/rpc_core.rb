@@ -90,6 +90,7 @@ class RPC_Core < RPC_Base
   #  * 'encoders' [Integer] The number of encoders reloaded.
   #  * 'nops' [Integer] The number of NOP modules reloaded.
   #  * 'payloads' [Integer] The number of payloads reloaded.
+  #  * 'evasions' [Integer] The number of evasion modules reloaded.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.reload_modules')
   def rpc_reload_modules
@@ -111,6 +112,7 @@ class RPC_Core < RPC_Base
   #  * 'encoders' [Integer] The number of encoders loaded.
   #  * 'nops' [Integer] The number of NOP modules loaded.
   #  * 'payloads' [Integer] The number of payloads loaded.
+  #  * 'evasions' [Integer] The number of evasion modules loaded.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.add_module_path', '/tmp/modules/')
   def rpc_add_module_path(path)
@@ -128,6 +130,7 @@ class RPC_Core < RPC_Base
   #  * 'encoders' [Integer] The number of encoders.
   #  * 'nops' [Integer] The number of NOP modules.
   #  * 'payloads' [Integer] The number of payloads.
+  #  * 'evasions' [Integer] The number of evasion modules.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.module_stats')
   def rpc_module_stats
