@@ -97,25 +97,25 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
-    actionpack (6.1.6.1)
-      actionview (= 6.1.6.1)
-      activesupport (= 6.1.6.1)
+    actionpack (6.1.7)
+      actionview (= 6.1.7)
+      activesupport (= 6.1.7)
       rack (~> 2.0, >= 2.0.9)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.2.0)
-    actionview (6.1.6.1)
-      activesupport (= 6.1.6.1)
+    actionview (6.1.7)
+      activesupport (= 6.1.7)
       builder (~> 3.1)
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
-    activemodel (6.1.6.1)
-      activesupport (= 6.1.6.1)
-    activerecord (6.1.6.1)
-      activemodel (= 6.1.6.1)
-      activesupport (= 6.1.6.1)
-    activesupport (6.1.6.1)
+    activemodel (6.1.7)
+      activesupport (= 6.1.7)
+    activerecord (6.1.7)
+      activemodel (= 6.1.7)
+      activesupport (= 6.1.7)
+    activesupport (6.1.7)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -128,13 +128,13 @@ GEM
       activerecord (>= 3.1.0, < 8)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.624.0)
-    aws-sdk-core (3.137.0)
+    aws-partitions (1.628.0)
+    aws-sdk-core (3.145.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-ec2 (1.329.0)
+    aws-sdk-ec2 (1.331.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.70.0)
@@ -183,7 +183,7 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
-    faker (2.22.0)
+    faker (2.23.0)
       i18n (>= 1.8.11, < 2)
     faraday (2.5.2)
       faraday-net_http (>= 2.0, < 3.1)
@@ -229,11 +229,11 @@ GEM
       nokogiri (>= 1.5.9)
     memory_profiler (1.0.0)
     metasm (1.0.5)
-    metasploit-concern (4.0.4)
+    metasploit-concern (4.0.5)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (5.0.8)
+    metasploit-credential (5.0.9)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -323,9 +323,9 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.4.3)
       loofah (~> 2.3)
-    railties (6.1.6.1)
-      actionpack (= 6.1.6.1)
-      activesupport (= 6.1.6.1)
+    railties (6.1.7)
+      actionpack (= 6.1.7)
+      activesupport (= 6.1.7)
       method_source
       rake (>= 12.2)
       thor (~> 1.0)
@@ -351,7 +351,7 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.35)
+    rex-exploitation (0.1.36)
       jsobfu
       metasm
       rex-arch
@@ -365,20 +365,20 @@ GEM
       rex-arch
     rex-ole (0.1.7)
       rex-text
-    rex-powershell (0.1.96)
+    rex-powershell (0.1.97)
       rex-random_identifier
       rex-text
       ruby-rc4
-    rex-random_identifier (0.1.8)
+    rex-random_identifier (0.1.9)
       rex-text
     rex-registry (0.1.4)
     rex-rop_builder (0.1.4)
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.41)
+    rex-socket (0.1.42)
       rex-core
-    rex-sslscan (0.1.7)
+    rex-sslscan (0.1.8)
       rex-core
       rex-socket
       rex-text
@@ -394,7 +394,7 @@ GEM
       rspec-mocks (~> 3.11.0)
     rspec-core (3.11.0)
       rspec-support (~> 3.11.0)
-    rspec-expectations (3.11.0)
+    rspec-expectations (3.11.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-mocks (3.11.1)
@@ -410,8 +410,8 @@ GEM
       rspec-support (~> 3.10)
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
-    rspec-support (3.11.0)
-    rubocop (1.35.1)
+    rspec-support (3.11.1)
+    rubocop (1.36.0)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.2.1)
@@ -450,7 +450,8 @@ GEM
       rack (~> 2.2)
       rack-protection (= 2.2.2)
       tilt (~> 2.0)
-    sqlite3 (1.4.4)
+    sqlite3 (1.5.0)
+      mini_portile2 (~> 2.8.0)
     sshkey (2.0.0)
     swagger-blocks (3.0.0)
     thin (1.8.1)
