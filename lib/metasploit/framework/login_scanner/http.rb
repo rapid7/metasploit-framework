@@ -294,7 +294,7 @@ module Metasploit
 
           begin
             response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
-            if response && response.code == 200
+            if response && (response.code == 200 || (response.code >= 300 && response.code < 400))
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e
