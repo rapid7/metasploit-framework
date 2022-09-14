@@ -40,5 +40,39 @@ module Rex::Proto::Kerberos::CredentialCache
 
     # the other kerberos models use #encode so alias that for simplicity
     alias_method :encode, :to_binary_s
+
+    def self.from_responses(res, enc_res)
+      self.new(
+        default_principal: {
+          name_type: res.cname.name_type, # NT_PRINCIPAL
+          realm: res.crealm,
+          components: res.cname.name_string
+        },
+        credentials: [
+          {
+            client: {
+              name_type: res.cname.name_type,
+              realm: res.crealm,
+              components: res.cname.name_string
+            },
+            server: {
+              name_type: enc_res.sname.name_type,
+              realm: enc_res.srealm,
+              components: enc_res.sname.name_string
+            },
+            keyblock: {
+              enctype: enc_res.key.type,
+              data: enc_res.key.value
+            },
+            authtime: enc_res.auth_time,
+            starttime: enc_res.start_time,
+            endtime: enc_res.end_time,
+            renew_till: enc_res.renew_till,
+            ticket_flags: enc_res.flags.to_i,
+            ticket: res.ticket.encode
+          }
+        ]
+      )
+    end
   end
 end
