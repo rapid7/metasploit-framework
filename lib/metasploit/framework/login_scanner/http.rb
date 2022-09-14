@@ -177,6 +177,10 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
+        # @!attribute redirects_on_success
+        # @return [String] whether the target is expected to redirect on successful login
+        attr_accessor :redirects_on_success
+
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -294,7 +298,7 @@ module Metasploit
 
           begin
             response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
-            if response && (response.code == 200 || (response.code >= 300 && response.code < 400))
+            if response && (response.code == 200 || (redirects_on_success && response.redirect?))
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e

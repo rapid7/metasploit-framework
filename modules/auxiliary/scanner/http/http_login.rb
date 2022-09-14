@@ -44,6 +44,12 @@ class MetasploitModule < Msf::Auxiliary
       ])
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 
+    register_advanced_options(
+      [
+        OptBool.new('RedirectsOnSuccess', [ false, 'Login may redirect on successful login', false]),
+      ]
+    )
+
     deregister_options('USERNAME', 'PASSWORD', 'PASSWORD_SPRAY')
   end
 
@@ -152,6 +158,7 @@ class MetasploitModule < Msf::Auxiliary
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        redirects_on_success: datastore['RedirectsOnSuccess'],
         connection_timeout: 5
       )
     )
