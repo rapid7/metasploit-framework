@@ -49,12 +49,12 @@ Golden tickets can be used for persistance in an Active Directory environment. T
 
 Golden tickets can be forged using a stolen Kerberos `krbtgt` account, using a password hash in NTHASH format.
 
-For golden ticket attacks the following information is required:
+For golden ticket attacks, the following information is required:
 
 1. `DOMAIN` - The domain, i.e.`adf3.local`
-2. `DOMAIN_SID` This is the Security Identifier for the system, i.e. `S-1-5-21-1266190811-2419310613-1856291569`
+2. `DOMAIN_SID` - This is the Security Identifier for the system, i.e. `S-1-5-21-1266190811-2419310613-1856291569`
 3. `NTHASH` - The NTHASH for the krbtgt account, i.e. `767400b2c71afa35a5dca216f2389cd9`
-4. `USER` - This username will be stored within the forged ticket, this must be a user that exists in ActiveDirectory
+4. `USER` - This username will be stored within the forged ticket, this must be a user that exists in Active Directory
 
 One way of extracting the krbtgt account NTHASH is to run the `auxiliary/gather/windows_secrets_dump` module:
 
@@ -79,7 +79,7 @@ No cached hashes on this system
 # SID's:
 ADF3\Administrator: S-1-5-21-1266190811-2419310613-1856291569-500
 ADF3\Guest: S-1-5-21-1266190811-2419310613-1856291569-501
-ADF3\krbtgt: S-1-5-21-1266190811-2419310613-1856291569-502 <------------- Use the SID from here
+ADF3\krbtgt: S-1-5-21-1266190811-2419310613-1856291569-502 <------------- Use the SID from here, the part before RID 502
 ADF3\DefaultAccount: S-1-5-21-1266190811-2419310613-1856291569-503
 ADF3\j.blogs: S-1-5-21-1266190811-2419310613-1856291569-1104
 ADF3\admin: S-1-5-21-1266190811-2419310613-1856291569-1112
@@ -119,7 +119,7 @@ python3 ~/impacket/examples/smbexec.py 'adf3.local/Administrator@dc3.adf3.local'
 
 If this is not working for you, there is a section dedicated to common errors below.
 
-### Forging silver ticket
+### Forging Silver ticket
 
 A silver ticket is similar to a golden ticket. The user will compromise the password hash for a service or computer account to forge tickets which grant persistent access to services such as SMB/LDAP/MSSQL/etc.
 
@@ -139,6 +139,7 @@ Example Service Principal Names:
 | WinRM        | HOST or HTTP          |
 | SMB          | CIFS                  |
 | LDAP         | LDAP                  |
+| MSSQL        | MSSqlSvc              |
 
 One way of extracting the computer account NTHASH is to run the `auxiliary/gather/windows_secrets_dump` module:
 
@@ -167,7 +168,7 @@ ADF3\krbtgt: S-1-5-21-1266190811-2419310613-1856291569-502
 ADF3\DefaultAccount: S-1-5-21-1266190811-2419310613-1856291569-503
 ADF3\j.blogs: S-1-5-21-1266190811-2419310613-1856291569-1104
 ADF3\admin: S-1-5-21-1266190811-2419310613-1856291569-1112
-ADF3\DC3$: S-1-5-21-1266190811-2419310613-1856291569-1001 <------------- Use the SID from the targeted computer account
+ADF3\DC3$: S-1-5-21-1266190811-2419310613-1856291569-1001 <------------- Use the SID from the targeted computer account, the part before RID 1001
 
 ... omitted for brevity ...
 
