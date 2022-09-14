@@ -113,10 +113,15 @@ class MetasploitModule < Msf::Auxiliary
       return :next_user # assume this is a temporary error
     end
     json = JSON.parse(auth.body)
-    if json['authResult'] == 1
+    if json.nil?
+      print_error('Invalid response, not JSON. Likely not an iDRAC.')
+      return
+    end
+    if json['authResult'] == 1 or json['authResult'] == 8
       vprint_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
-      unless json['blockingTime'] == 0
+      if !json['blockingTime'].nil? && json['blockingTime'] > 0
         vprint_error("\tServer throttled logins at #{json['blockingTime']} seconds")
+        sleep(json['blockingTime'])
       end
     else
       print_good("#{target_url} - SUCCESSFUL login for user '#{user}' with password '#{pass}'")
@@ -188,26 +193,30 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       # v9
-      res = send_request_raw({
-        'method' => 'GET',
-        'uri' => v9_url
-      })
+      unless server_response
+        res = send_request_raw({
+          'method' => 'GET',
+          'uri' => v9_url
+        })
 
-      if res && res.code == 401
-        server_response = true
-        json = JSON.parse(res.body)
-        if !json['authResult'].nil? # version 9
-          print_status('Attempting authentication against iDRAC version 9')
+        if res && res.code == 401
+          server_response = true
+          json = JSON.parse(res.body)
+          if json.nil?
+            server_response = nil # so we can use the error message at the end
+          elsif !json['authResult'].nil? # version 9
+            print_status('Attempting authentication against iDRAC version 9')
 
-          each_user_pass do |user, pass|
-            do_login_v9(user, pass)
+            each_user_pass do |user, pass|
+              do_login_v9(user, pass)
+            end
+          elsif res.code == 301
+            print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
+            return :abort
+          else
+            print_error("The iDRAC login page not detected on #{ip}")
+            return :abort
           end
-        elsif res.code == 301
-          print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
-          return :abort
-        else
-          print_error("The iDRAC login page not detected on #{ip}")
-          return :abort
         end
       end
 
