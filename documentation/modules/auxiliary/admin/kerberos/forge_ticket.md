@@ -1,6 +1,6 @@
 # Kerberos Ticket Forging (Golden/Silver tickets)
 
-The `forge_kerberos_ticket` module allows the forging of a golden or silver ticket.
+The `forge_ticket` module allows the forging of a golden or silver ticket.
 
 ## Vulnerable Application
 
