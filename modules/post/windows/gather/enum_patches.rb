@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
+  require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
   def initialize(info = {})
     super(
@@ -80,14 +81,14 @@ class MetasploitModule < Msf::Post
     end
 
     if results.rows.empty?
-      print_status('Found no patches installed')
+      print_status("No patches were found to be installed on #{hostname} (#{session.session_host})")
       return
     end
 
     print_line
     print_line(results.to_s)
 
-    l = store_loot('enum_patches', 'text/plain', session, results.to_csv)
-    print_status("Patch list saved to #{l}")
+    loot_file = store_loot('enum_patches', 'text/plain', session, results.to_csv)
+    print_status("Patch list saved to #{loot_file}")
   end
 end

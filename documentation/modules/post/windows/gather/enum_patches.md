@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 This module enumerates patches applied to a Windows system using the
-WMI query: SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering.
+WMI query: `SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering`.
 
 
 ## Verification Steps
