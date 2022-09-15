@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.2.18)
+    metasploit-framework (6.2.19)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -450,8 +450,7 @@ GEM
       rack (~> 2.2)
       rack-protection (= 2.2.2)
       tilt (~> 2.0)
-    sqlite3 (1.5.0)
-      mini_portile2 (~> 2.8.0)
+    sqlite3 (1.5.0-x86_64-linux)
     sshkey (2.0.0)
     swagger-blocks (3.0.0)
     thin (1.8.1)
