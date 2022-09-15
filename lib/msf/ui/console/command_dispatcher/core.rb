@@ -1084,6 +1084,7 @@ class Core
         if Rex::Socket.is_ip_addr?(args.first)
           netmask = args.shift
         elsif Rex::Socket.is_ip_addr?(subnet)
+          cidr_mask ||= Rex::Socket.is_ipv6?(subnet) ? 128 : 32
           netmask = Rex::Socket.addr_ctoa(cidr_mask, v6: Rex::Socket.is_ipv6?(subnet))
         end
 
