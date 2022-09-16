@@ -109,7 +109,7 @@ module Metasploit
             end
 
             token = json_res['session_token']
-            if !token.blank?
+            if token.present?
               return { status: LOGIN_STATUS::SUCCESSFUL, proof: token.to_s }
             end
 
