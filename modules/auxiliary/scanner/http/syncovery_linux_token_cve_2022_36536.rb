@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         if version.empty?
           vprint_warning("#{rhost}:#{rport} - Could not identify version")
           Exploit::CheckCode::Detected
-        elsif Rex::Version.new(version) < Rex::Version.new('9.48j') || Rex::Version.new(version) == '9.48'
+        elsif Rex::Version.new(version) < Rex::Version.new('9.48j') || Rex::Version.new(version) == Rex::Version.new('9.48')
           vprint_good("#{rhost}:#{rport} - Syncovery #{version}")
           Exploit::CheckCode::Appears
         else
