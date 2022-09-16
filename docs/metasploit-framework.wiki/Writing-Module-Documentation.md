@@ -1,6 +1,6 @@
 Adding and reviewing module documentation is a great way to contribute to the Metasploit Framework. 
 
-Before you write any module documentation, you should take a look at the sample template, [module_doc_template.md](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md), or take a look at any of the KBs that are already available.
+Before you write any module documentation, you should take a look at the sample template, [Module_Doc_Template](Module_Doc_Template.md), or take a look at any of the KBs that are already available.
 
 ### Writing a KB
 
