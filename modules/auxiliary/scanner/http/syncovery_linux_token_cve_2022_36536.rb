@@ -65,8 +65,8 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, '/get_global_variables'),
       'method' => 'GET'
     )
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to host - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Error (response code: #{res.code})") if res.code != 200
+    return CheckCode::Unknown("#{peer} - Could not connect to host - no response") if res.nil?
+    return CheckCode::Unknown("#{peer} - Error (response code: #{res.code})") if res.code != 200
 
     if res.code == 200
       json_res = res.get_json_document
