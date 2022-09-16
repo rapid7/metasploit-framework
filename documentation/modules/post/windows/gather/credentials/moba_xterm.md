@@ -1,20 +1,20 @@
 ## Vulnerable Application
 
-  Any Windows host with a `meterpreter` session and MobaXtrem v20.6+
+  Any Windows host with a `meterpreter` session and MobaXterm v20.6+
   installed. The following passwords will be searched for and recovered:
 
 ### Installation Steps
 
-  1. Download the latest installer of MobaXtrem.
+  1. Download the latest installer of MobaXterm.
   2. Select default installation
-  3. Open the software and click "Setting" in the toolbar, `General > MobaXtrem password management > Master Password setting`
+  3. Open the software and click "Setting" in the toolbar, `General > MobaXterm password management > Master Password setting`
      complete password setting, add the test account password to the certificate.
 
 ## Verification Steps
 
   1. Get a `meterpreter` session on a Windows host.
-  2. Do: ```run post/windows/gather/credentials/moba_xtrem```
-  3. If the system has registry keys for MobaXtrem passwords they will be printed out.
+  2. Do: ```run post/windows/gather/credentials/moba_xterm```
+  3. If the system has registry keys for MobaXterm passwords they will be printed out.
 
 ## Options
 
@@ -30,7 +30,7 @@
 
 ```
 
-msf6 post(windows/gather/credentials/moba_xtrem) > run
+msf6 post(windows/gather/credentials/moba_xterm) > run
 [*] Gathering MobaXterm session information from WIN-79MR8QJM50N
 [!] Parsing is not supported: #84#9%C:\Users\FireEye\Desktop%0%#MobaFont%10%0%0%-1%15%236,236,236%30,30,30%180,180,192%0%-1%0%%xterm%-1%-1%_Std_Colors_0_%80%24
 %0%1%-1%<none>%%0#0# #-1

