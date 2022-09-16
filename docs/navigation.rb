@@ -112,6 +112,18 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-a-reverse-shell-in-Metasploit.md'
           },
+          {
+            path: 'Msfconsole.md',
+            title: 'Using Msfconsole'
+          },
+          {
+            path: 'Msfconsole-Repeat.md',
+            title: 'Msfconsole Repeat Command'
+          },
+          {
+            path: 'Msfconsole-Jobs.md',
+            title: 'Msfconsole Jobs'
+          },
         ]
       },
       {
