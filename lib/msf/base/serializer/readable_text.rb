@@ -555,7 +555,11 @@ class ReadableText
         ])
 
     mod.options.sorted.each do |name, opt|
-      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+        val = mod.datastore[name]
+      else
+        val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      end
 
       next unless Msf::OptCondition.show_option(mod, opt)
       next if (opt.advanced?)
@@ -603,7 +607,11 @@ class ReadableText
     mod.options.sorted.each do |name, opt|
       next unless opt.advanced?
       next unless Msf::OptCondition.show_option(mod, opt)
-      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+        val = mod.datastore[name]
+      else
+        val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      end
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 
@@ -628,7 +636,11 @@ class ReadableText
 
     mod.options.sorted.each do |name, opt|
       next unless opt.evasion?
-      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+        val = mod.datastore[name]
+      else
+        val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      end
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 

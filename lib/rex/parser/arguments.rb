@@ -23,6 +23,7 @@ module Rex
       # Initializes the format list with an array of formats like:
       #
       # Arguments.new(
+      #    '-z'                => [ has_argument, "some text", "<argument_description>" ],
       #    '-b'                => [ false, "some text"                 ],
       #    ['-b']              => [ false, "some text"                 ],
       #    ['-x', '--execute'] => [ true, "mixing long and short args" ],

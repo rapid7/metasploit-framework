@@ -728,8 +728,8 @@ RSpec.describe Msf::RhostsWalker do
         smb_scanner_mod.datastore.import_options(
           Msf::OptionContainer.new(
             [
-              Msf::OptString.new('SMBUser', [true, 'The username to authenticate as', 'db2admin']),
-              Msf::OptString.new('SMBPass', [true, 'The password for the specified username', 'db2admin'])
+              Msf::OptString.new('SMBUser', [true, 'The username to authenticate as', 'db2admin'], fallbacks: ['USERNAME']),
+              Msf::OptString.new('SMBPass', [true, 'The password for the specified username', 'db2admin'], fallbacks: ['PASSWORD']),
             ]
           ),
           smb_scanner_mod.class,
