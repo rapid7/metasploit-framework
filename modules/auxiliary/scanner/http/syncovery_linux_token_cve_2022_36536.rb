@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.code == 200
       json_res = res.get_json_document
       if json_res && (json_res['isSyncoveryLinux'] || !json_res['isSyncoveryWindows'])
-        version = (json_res['SyncoveryTitle']).scan(/Syncovery\s([A-Za-z0-9.]+)/).flatten[0] || ''
+        version = json_res['SyncoveryTitle']&.scan(/Syncovery\s([A-Za-z0-9.]+)/)&.flatten&.first || ''
         if version.empty?
           vprint_warning("#{rhost}:#{rport} - Could not identify version")
           Exploit::CheckCode::Detected
