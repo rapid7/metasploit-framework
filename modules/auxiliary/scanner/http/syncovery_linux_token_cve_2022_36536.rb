@@ -99,9 +99,7 @@ class MetasploitModule < Msf::Auxiliary
       dates << (Date.today - day).strftime('%m/%d/%Y')
     end
     time = DateTime.now.strftime('%H:%M:%S')
-    hrs = (time.split(':')[0])
-    min = (time.split(':')[1])
-    sec = (time.split(':')[2])
+    hrs, min, sec = time.split(':')
 
     # Create an array of possible session token values
     token_queue = []
