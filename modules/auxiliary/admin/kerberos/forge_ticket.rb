@@ -41,6 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('USER', [ true, 'The Domain User' ]),
+        OptInt.new('USER_RID', [ true, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
         OptString.new('NTHASH', [ true, 'The krbtgt/service nthash' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
@@ -77,6 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       flags: flags,
       domain: datastore['DOMAIN'],
       username: datastore['USER'],
+      user_id: datastore['USER_RID'],
       domain_sid: datastore['DOMAIN_SID']
     )
   end
