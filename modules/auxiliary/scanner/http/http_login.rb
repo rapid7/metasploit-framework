@@ -151,7 +151,12 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['HttpPassword']
     )
 
-    success_codes = parse_http_success_codes(datastore['HttpSuccessCodes'])
+    begin
+      success_codes = parse_http_success_codes(datastore['HttpSuccessCodes'])
+    rescue ArgumentError => e
+      fail_with(Msf::Exploit::Failure::BadConfig, "HttpSuccessCodes in invalid: #{e.message}")
+    end
+
     scanner = Metasploit::Framework::LoginScanner::HTTP.new(
       configure_http_login_scanner(
         uri: @uri,
