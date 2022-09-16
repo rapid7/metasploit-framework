@@ -1,22 +1,25 @@
-## Syncovery For Linux Web-GUI Login Brute-Forcer
+## Vulnerable Application
+[Syncovery For Linux with Web-GUI](https://www.syncovery.com/download/linux/)
 
 This module attempts to brute-force valid login credentials for the Syncovery File Sync & Backup Software Web-GUI for Linux.
 The default credentials are checked by default.
 
-## Authors
+### Authors
 
 - Jan Rude (mgm security partners GmbH)
 
-## Platforms
+### Platforms
 
 - Unix
 
 ## Verification Steps
 
-1. `modules/auxiliary/scanner/http/syncovery_linux_login`
-2. `set RHOSTS <TARGET HOSTS>`
-3. `run`
-5. On success you should get valid credentials.
+1. Install the application
+2. Start msfconsole
+3. Do: `use modules/auxiliary/scanner/http/syncovery_linux_login`
+4. Do: `set RHOSTS <TARGET HOSTS>`
+5. Do: `run`
+6. On success you should get valid credentials.
 
 ## Scenarios
 

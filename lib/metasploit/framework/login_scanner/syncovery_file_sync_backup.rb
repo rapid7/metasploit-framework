@@ -17,7 +17,7 @@ module Metasploit
           login_uri = normalize_uri("#{uri}/")
           res = send_request({ 'uri' => login_uri })
 
-          if res && res.code == 200 && (res.body.include?('You can now log in to Syncovery on your machine') || res.body.include?('Syncovery'))
+          if res && res.code == 200 && res.body.include?('Syncovery')
             return true
           end
 
@@ -45,9 +45,8 @@ module Metasploit
         #
         # @return [String] version if version was found, otherwise FalseClass
         def get_version
-          globals = normalize_uri("#{uri}/get_global_variables")
+          globals = normalize_uri("#{uri}/aa/get_global_variables")
           res = send_request({ 'uri' => globals })
-
           if res && res.code == 200
             json_res = res.get_json_document
             version = json_res['SyncoveryTitle']&.scan(/Syncovery\s([A-Za-z0-9.]+)/)&.flatten&.first || ''
@@ -86,7 +85,7 @@ module Metasploit
               return { status: LOGIN_STATUS::SUCCESSFUL, proof: res.body.to_s }
             end
 
-            return { status: LOGIN_STATUS::INCORRECT, proof: res.body.to_s }
+            return { proof: res.body.to_s }
           else
             # use username:password
             res = send_request({
@@ -104,16 +103,12 @@ module Metasploit
             # After login, the application should give us a new token
             # session_token is actually just base64(MM/dd/yyyy HH:mm:ss) at the time of the login
             json_res = res.get_json_document
-            unless json_res
-              return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
-            end
-
             token = json_res['session_token']
             if token.present?
               return { status: LOGIN_STATUS::SUCCESSFUL, proof: token.to_s }
             end
 
-            return { status: LOGIN_STATUS::INCORRECT, proof: res.to_s }
+            return { proof: res.to_s }
           end
         end
 
