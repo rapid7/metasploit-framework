@@ -15,6 +15,7 @@ module Metasploit
         DEFAULT_REALM        = nil
         DEFAULT_PORT         = 80
         DEFAULT_SSL_PORT     = 443
+        DEFAULT_HTTP_SUCCESS_CODES = [ 200, 201 ].append(*(300..309))
         LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
         LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
         PRIVATE_TYPES        = [ :password ]
@@ -177,9 +178,9 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
-        # @!attribute redirects_on_success
-        # @return [String] whether the target is expected to redirect on successful login
-        attr_accessor :redirects_on_success
+        # @!attribute http_success_codes
+        # @return [Array][Int] list of valid http response codes
+        attr_accessor :http_success_codes
 
 
         validates :uri, presence: true, length: { minimum: 1 }
@@ -190,6 +191,13 @@ module Metasploit
 
         # (see Base#check_setup)
         def check_setup
+          if http_success_codes.nil?
+            @http_success_codes = DEFAULT_HTTP_SUCCESS_CODES
+          else
+            @http_success_codes = validate_http_codes(@http_success_codes)
+          end
+
+
           http_client = Rex::Proto::Http::Client.new(
             host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
           )
@@ -298,7 +306,7 @@ module Metasploit
 
           begin
             response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
-            if response && (response.code == 200 || (redirects_on_success && response.redirect?))
+            if response && http_success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e
@@ -398,6 +406,17 @@ module Metasploit
         # @return [String] the final URL mapped against the base
         def normalize_uri(target_uri)
           (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')
+        end
+
+        private
+
+        def validate_http_codes(http_codes)
+          raise ArgumentError.new("HTTP codes must be an Array") unless http_codes.is_a?(Array)
+          http_codes.each do |code|
+            next if code >= 200 && code < 400
+            raise ArgumentError.new("Invalid HTTP code provided #{code}")
+          end
+          http_codes
         end
 
       end
