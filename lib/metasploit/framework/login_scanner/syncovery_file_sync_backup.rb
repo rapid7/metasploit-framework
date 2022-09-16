@@ -98,7 +98,7 @@ module Metasploit
               'method' => 'GET'
             })
             unless res
-              return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
+              return { status: LOGIN_STATUS::UNABLE_TO_CONNECT }
             end
 
             # After login, the application should give us a new token
