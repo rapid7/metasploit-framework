@@ -50,7 +50,7 @@ module Metasploit
 
           if res && res.code == 200
             json_res = res.get_json_document
-            version = (json_res['SyncoveryTitle']).scan(/Syncovery\s([A-Za-z0-9.]+)/).flatten[0] || ''
+            version = json_res['SyncoveryTitle']&.scan(/Syncovery\s([A-Za-z0-9.]+)/)&.flatten&.first || ''
             return version
           end
 
