@@ -110,6 +110,9 @@ NAVIGATION_CONFIG = [
             path: 'Module-Documentation.md'
           },
           {
+            path: 'Building-The-Docs-Locally.md'
+          },
+          {
             path: 'How-to-use-a-reverse-shell-in-Metasploit.md'
           },
         ]
