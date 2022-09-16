@@ -3,25 +3,31 @@ Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.sv
 The Metasploit Framework is released under a BSD-style license. See
 [COPYING](COPYING) for more details.
 
-The latest version of this software is available from: https://metasploit.com
+The latest version of this software is available from: https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
 
-Bug tracking and development information can be found at:
- https://github.com/rapid7/metasploit-framework
+You can find documentation on Metasploit and how to use it at:
+ https://docs.metasploit.com/
+
+Information about setting up a development environment can be found at:
+ https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html
+
+Our bug and feature request tracker can be found at:
+ https://github.com/rapid7/metasploit-framework/issues
 
 New bugs and feature requests should be directed to:
   https://r-7.co/MSF-BUGv1
 
 API documentation for writing modules can be found at:
-  https://rapid7.github.io/metasploit-framework/api
+  https://docs.metasploit.com/api/
 
 Questions and suggestions can be sent to: Freenode IRC channel or e-mail the metasploit-hackers mailing list
 
 Installing
 --
 
-Generally, you should use [the free installer](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers),
+Generally, you should use [the free installer](https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html),
 which contains all of the dependencies and will get you up and running with a
-few clicks. See the [Dev Environment Setup](https://r-7.co/MSF-DEV) if
+few clicks. See the [Dev Environment Setup](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html) if
 you'd like to deal with dependencies on your own.
 
 Using Metasploit
@@ -29,21 +35,20 @@ Using Metasploit
 Metasploit can do all sorts of things. The first thing you'll want to do
 is start `msfconsole`, but after that, you'll probably be best served by
 reading [Metasploit Unleashed][unleashed], the [great community
-resources](https://metasploit.github.io), or the [wiki].
+resources](https://metasploit.github.io), or take a look at the
+[Using Metasploit](https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html)
+page on the documentation website.
 
 Contributing
 --
-See the [Dev Environment Setup][wiki-devenv] guide on GitHub, which will
+See the [Dev Environment Setup][devenv] guide on GitHub, which will
 walk you through the whole process from installing all the
 dependencies, to cloning the repository, and finally to submitting a
 pull request. For slightly more information, see
 [Contributing](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
 
 
-[wiki]: https://github.com/rapid7/metasploit-framework/wiki
-[wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment "Metasploit Development Environment Setup"
-[wiki-start]: https://github.com/rapid7/metasploit-framework/wiki/ "Metasploit Wiki"
-[wiki-usage]: https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit "Using Metasploit"
+[devenv]: https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html "Metasploit Development Environment Setup"
 [unleashed]: https://www.offensive-security.com/metasploit-unleashed/ "Metasploit Unleashed"
 
 
