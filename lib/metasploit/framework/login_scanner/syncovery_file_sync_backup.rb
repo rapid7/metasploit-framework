@@ -45,7 +45,7 @@ module Metasploit
         #
         # @return [String] version if version was found, otherwise FalseClass
         def get_version
-          globals = normalize_uri("#{uri}/aa/get_global_variables")
+          globals = normalize_uri("#{uri}/get_global_variables")
           res = send_request({ 'uri' => globals })
           if res && res.code == 200
             json_res = res.get_json_document
