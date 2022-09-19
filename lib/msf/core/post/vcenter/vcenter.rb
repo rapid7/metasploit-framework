@@ -69,21 +69,6 @@ module Msf
         end
 
         #
-        # Function to determine if a string is a valid IP4 or not
-        # @param ipv4 [String] the string to determine if its a valid IP or not
-        # @return [Bool] boolean if the string is a valid IP4 address
-        #
-        def is_ipv4?(ipv4)
-          begin
-            ip = IPAddr.new ipv4
-          rescue IPAddr::InvalidAddressError
-            return false
-          end
-
-          true
-        end
-
-        #
         # Function to determine if a dn is legitimate
         # @param dn [String] the string to determine if its a dn or not
         # @return [Bool] boolean if the string is a valid DN address
@@ -370,6 +355,10 @@ module Msf
         # @return [String] a string to run on command line
         #
         def postgress_connect(pg_password, vcdb_user, vcdb_name, vcdb_host = 'localhost')
+          # should come in wrapped in quotes, but if not wrap
+          unless pg_password.start_with?("'") && pg_password.end_with?("'")
+            pg_password = "'#{pg_password}'"
+          end
           "PGPASSWORD=#{pg_password} #{psql_bin} -h '#{vcdb_host}' -U '#{vcdb_user}' -d '#{vcdb_name}'"
         end
 
@@ -424,8 +413,8 @@ module Msf
           decipher.padding = 1
           decipher.key = vc_sym_key
           return (decipher.update(ciphertext) + decipher.final).delete("\000")
-        rescue StandardError
-          # fail_with(Msf::Exploit::Failure::Unknown, 'Error performing vpx_aes_decrypt')
+        rescue StandardError => e
+          elog('Error performing vpx_aes_decrypt', error: e)
           ''
         end
 

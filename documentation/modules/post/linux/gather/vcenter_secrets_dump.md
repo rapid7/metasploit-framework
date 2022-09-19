@@ -1,3 +1,5 @@
+## Vulnerable Application
+
 Grab secrets and keys from the vCenter server and add them to loot. Secrets include the dcAccountDN
 and dcAccountPassword for the vCenter machine which can be used for manipulating the SSO domain via
 standard LDAP interface; good for plugging into the vmware_vcenter_vmdir_ldap module or for adding
@@ -5,6 +7,7 @@ new SSO admin users. The MACHINE_SSL, VMCA_ROOT and SSO IdP certificates with as
 are also plundered and can be used to sign forged SAML assertions for the /ui admin interface.
 
 ## Vulnerable Application
+
 This module is tested against the vCenter appliance only; it will not work on Windows vCenter
 instances. It is intended to be run after successfully acquiring root access on a vCenter appliance
 and is useful for penetrating further into the environment following a vCenter exploit that results
@@ -12,6 +15,7 @@ in a root shell. This module has been tested against vCenter appliance versions 
 probably work against other versions of vCenter appliance.
 
 ## Verification Steps
+
 This is a post module and requires a meterpreter or shell session on the vCenter appliance with root
 access.
 
@@ -19,31 +23,30 @@ access.
 2. Get session on vCenter appliance via exploit of your choice and background it
 3. Do: `use post/linux/gather/vcenter_secrets_dump`
 4. Do: `set session <session>`
-15. Do: `dump`
+5. Do: `dump`
 
 ## Options
-**SESSION**
-
-Which session to use, which can be viewed with `sessions -l`
 
 ## Advanced Options
-**DUMP_VMDIR**
+
+### DUMP_VMDIR
 
 Boolean value that controls whether the module will attempt to extract vSphere SSO domain
 information, including SSO user hashes and a complete LDIF dump of the SSO directory. Defaults
 to true.
 
-**DUMP_VMAFD**
+### DUMP_VMAFD
 
 Boolean value that controls whether the module will attempt to extract vSphere certificates, private
 keys, and secrets. Defaults to true.
 
-**DUMP_SPEC**
+### DUMP_SPEC
 
 If DUMP_VMAFD is also true, attempt to extract VM Guest Customization secrets from PSQL using the
 DATA-ENCIPHERMENT key extracted from VMAFD. Defaults to true.
 
 ## Scenarios
+
 Example run from meterpreter session on vCenter appliance version 7.0 U3d
 
 ```
