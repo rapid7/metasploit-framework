@@ -34,13 +34,6 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://attackerkb.com/topics/PlLehGSmxT/cve-2017-7921' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2017/Sep/23' ]
         ],
-        'Platform' => 'linux',
-        'Arch' => ARCH_ARMLE,
-        'Privileged' => true,
-        'Targets' => [
-          [ 'Automatic', {} ]
-        ],
-        'DefaultTarget' => 0,
         'DisclosureDate' => '2017-09-23',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
