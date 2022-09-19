@@ -2916,6 +2916,132 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/adduser'
   end
 
+  context 'windows/custom/bind_ipv6_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_ipv6_tcp',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/bind_ipv6_tcp'
+  end
+
+  context 'windows/custom/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_ipv6_tcp_uuid',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/bind_ipv6_tcp_uuid'
+  end
+
+  context 'windows/custom/bind_named_pipe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/bind_named_pipe'
+  end
+
+  context 'windows/custom/bind_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_tcp',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/bind_tcp'
+  end
+
+  context 'windows/custom/bind_tcp_rc4' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_tcp_rc4',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/bind_tcp_rc4'
+  end
+
+  context 'windows/custom/bind_tcp_uuid' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_tcp_uuid',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/bind_tcp_uuid'
+  end
+
+  context 'windows/custom/reverse_http' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_http',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_http'
+  end
+
+  context 'windows/custom/reverse_https' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_https',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_https'
+  end
+
+  context 'windows/custom/reverse_named_pipe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_named_pipe',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_named_pipe'
+  end
+
+  context 'windows/custom/reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_tcp',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_tcp'
+  end
+
+  context 'windows/custom/reverse_tcp_rc4' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_tcp_rc4',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_tcp_rc4'
+  end
+
+  context 'windows/custom/reverse_tcp_uuid' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_tcp_uuid',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_tcp_uuid'
+  end
+
+  context 'windows/custom/reverse_winhttp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttp',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_winhttp'
+  end
+
+  context 'windows/custom/reverse_winhttps' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttps',
+                            'stages/windows/custom'
+                          ],
+                          reference_name: 'windows/custom/reverse_winhttps'
+  end
+
   context 'windows/dllinject/bind_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4582,6 +4708,132 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp_rc4_dns'
+  end
+
+  context 'windows/x64/custom/bind_ipv6_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/bind_ipv6_tcp',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/bind_ipv6_tcp'
+  end
+
+  context 'windows/x64/custom/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/bind_ipv6_tcp_uuid',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/bind_ipv6_tcp_uuid'
+  end
+
+  context 'windows/x64/custom/bind_named_pipe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/bind_named_pipe',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/bind_named_pipe'
+  end
+
+  context 'windows/x64/custom/bind_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/bind_tcp',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/bind_tcp'
+  end
+
+  context 'windows/x64/custom/bind_tcp_rc4' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/bind_tcp_rc4',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/bind_tcp_rc4'
+  end
+
+  context 'windows/x64/custom/bind_tcp_uuid' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/bind_tcp_uuid',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/bind_tcp_uuid'
+  end
+
+  context 'windows/x64/custom/reverse_http' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_http',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_http'
+  end
+
+  context 'windows/x64/custom/reverse_https' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_https',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_https'
+  end
+
+  context 'windows/x64/custom/reverse_named_pipe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_named_pipe',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_named_pipe'
+  end
+
+  context 'windows/x64/custom/reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_tcp',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_tcp'
+  end
+
+  context 'windows/x64/custom/reverse_tcp_rc4' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_tcp_rc4',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_tcp_rc4'
+  end
+
+  context 'windows/x64/custom/reverse_tcp_uuid' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_tcp_uuid',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_tcp_uuid'
+  end
+
+  context 'windows/x64/custom/reverse_winhttp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_winhttp',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_winhttp'
+  end
+
+  context 'windows/x64/custom/reverse_winhttps' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'stagers/windows/x64/reverse_winhttps',
+                            'stages/windows/x64/custom'
+                          ],
+                          reference_name: 'windows/x64/custom/reverse_winhttps'
   end
 
   context 'windows/x64/encrypted_shell/reverse_tcp' do
