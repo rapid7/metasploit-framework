@@ -217,11 +217,13 @@ class Registry
 
     case type
     when REG_DWORD
-      data = [data.to_i].pack('V')
+      data = [data.to_i].pack('L<')
     when REG_EXPAND_SZ
       data += "\x00".b
     when REG_MULTI_SZ
       data = data.join("\x00".b) + "\x00\x00".b
+    when REG_QWORD
+      data = [data.to_i].pack('Q<')
     when REG_SZ
       data += "\x00".b
     end
@@ -244,11 +246,13 @@ class Registry
 
     case type
     when REG_DWORD
-      data = [data.to_i].pack('V')
+      data = [data.to_i].pack('L<')
     when REG_EXPAND_SZ
       data += "\x00".b
     when REG_MULTI_SZ
       data = data.join("\x00".b) + "\x00\x00".b
+    when REG_QWORD
+      data = [data.to_i].pack('Q<')
     when REG_SZ
       data += "\x00".b
     end
@@ -279,11 +283,13 @@ class Registry
 
     case type
     when REG_DWORD
-      data = data.unpack1('N')
+      data = data.unpack1('L>')
     when REG_EXPAND_SZ
       data = data[0..-2]
     when REG_MULTI_SZ
       data = data[0..-3].split("\x00".b)
+    when REG_QWORD
+      data = data.unpack1('Q<')
     when REG_SZ
       data = data[0..-2]
     end
@@ -305,11 +311,13 @@ class Registry
 
     case type
     when REG_DWORD
-      data = data.unpack1('N')
+      data = data.unpack1('L>')
     when REG_EXPAND_SZ
       data = data[0..-2]
     when REG_MULTI_SZ
       data = data[0..-3].split("\x00".b)
+    when REG_QWORD
+      data = data.unpack1('Q<')
     when REG_SZ
       data = data[0..-2]
     end
@@ -426,6 +434,7 @@ class Registry
     when 'REG_EXPAND_SZ' then REG_EXPAND_SZ
     when 'REG_MULTI_SZ'  then REG_MULTI_SZ
     when 'REG_NONE'      then REG_NONE
+    when 'REG_QWORD'     then REG_QWORD
     when 'REG_SZ'        then REG_SZ
     else
       nil

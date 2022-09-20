@@ -40,6 +40,7 @@ module Registry
   REG_BIG_ENDIAN = 5
   REG_LINK = 6
   REG_MULTI_SZ = 7
+  REG_QWORD = 11
 
   HKEY_CLASSES_ROOT = 0x80000000
   HKEY_CURRENT_USER = 0x80000001
@@ -383,7 +384,7 @@ protected
 
     # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
     vtype = match_arr[0].split[1]
-    if %w[ REG_SZ REG_MULTI_SZ REG_EXPAND_SZ REG_DWORD REG_BINARY REG_NONE ].include?(vtype)
+    if %w[ REG_BINARY REG_DWORD REG_EXPAND_SZ REG_MULTI_SZ REG_NONE REG_QWORD REG_SZ ].include?(vtype)
       value['Type'] = self.class.const_get(vtype)
     end
     # treat the remainder of the line after the reg type as the reg value
@@ -391,7 +392,7 @@ protected
     case vtype
     when 'REG_BINARY'
       vdata = vdata.scan(/../).map { |x| x.hex.chr }.join
-    when 'REG_DWORD'
+    when 'REG_DWORD', 'REG_QWORD'
       if vdata.start_with?('0x')
         vdata = vdata[2..].to_i(16)
       else
