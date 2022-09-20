@@ -66,6 +66,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login_pre9(user = nil, pass = nil)
+    if @blockingtime > 0
+      vprint_error("\tServer throttled logins at #{@blockingtime} seconds")
+      sleep(@blockingtime)
+    end
     uri = pre_v9_url
     auth = send_request_cgi({
       'method' => 'POST',
@@ -80,7 +84,8 @@ class MetasploitModule < Msf::Auxiliary
       print_error('iDRAC failed to respond to login attempt')
       return :next_user # assume this is a temporary error
     end
-    if !auth.body.to_s.match(%r{<authResult>[0|5]</authResult>}).nil?
+    body = auth.body.to_s
+    if !body.match(%r{<authResult>[0|5]</authResult>}).nil?
       print_good("#{target_url} - SUCCESSFUL login for user '#{user}' with password '#{pass}'")
       report_cred(
         ip: rhost,
@@ -92,11 +97,21 @@ class MetasploitModule < Msf::Auxiliary
       )
       return :next_user
     else
-      vprint_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
+      vprint_error("#{target_url} - Failed to login as '#{user}' with password '#{pass}'")
+      # seen on idrac 8
+      if body =~ %r{<blockingTime>(\d+)</blockingTime>}
+        @blockingtime = Regexp.last_match(1).to_i
+      else
+        @blockingtime = 0
+      end
     end
   end
 
   def do_login_v9(user = nil, pass = nil)
+    if @blockingtime > 0
+      vprint_error("\tServer throttled logins at #{@blockingtime} seconds")
+      sleep(@blockingtime)
+    end
     uri = v9_url
     auth = send_request_cgi({
       'method' => 'POST',
@@ -120,8 +135,9 @@ class MetasploitModule < Msf::Auxiliary
     if json['authResult'] == 1 or json['authResult'] == 8
       vprint_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
       if !json['blockingTime'].nil? && json['blockingTime'] > 0
-        vprint_error("\tServer throttled logins at #{json['blockingTime']} seconds")
-        sleep(json['blockingTime'])
+        @blockingtime = json['blockingTime']
+      else
+        @blockingtime = 0
       end
     else
       print_good("#{target_url} - SUCCESSFUL login for user '#{user}' with password '#{pass}'")
@@ -167,6 +183,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("Verifying that login page exists at #{ip}")
     server_response = false
+    @blockingtime = 0
     begin
       # <= v8
       res = send_request_raw({
