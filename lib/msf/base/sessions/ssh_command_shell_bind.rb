@@ -246,7 +246,7 @@ module Msf::Sessions
       @rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
       super
 
-      @info = "SSH #{username} @ #{@peer_info}"
+      @info = "SSH #{username} @ #{@rstream.peerinfo}"
     end
 
     def desc

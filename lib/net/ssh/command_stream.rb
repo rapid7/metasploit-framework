@@ -47,21 +47,22 @@ class Net::SSH::CommandStream
     self.rsock.extend(Rex::IO::Stream)
 
     self.ssh = ssh
+
+    info = ssh.transport.socket.getpeername_as_array
+    if Rex::Socket.is_ipv6?(info[1])
+      self.lsock.peerinfo = "[#{info[1]}]:#{info[2]}"
+    else
+      self.lsock.peerinfo = "#{info[1]}:#{info[2]}"
+    end
+
+    info = ssh.transport.socket.getsockname
+    if Rex::Socket.is_ipv6?(info[1])
+      self.lsock.localinfo = "[#{info[1]}]:#{info[2]}"
+    else
+      self.lsock.localinfo = "#{info[1]}:#{info[2]}"
+    end
+
     self.thread = Thread.new(ssh, cmd, pty, cleanup) do |rssh, rcmd, rpty, rcleanup|
-      info = rssh.transport.socket.getpeername_as_array
-      if Rex::Socket.is_ipv6?(info[1])
-        self.lsock.peerinfo = "[#{info[1]}]:#{info[2]}"
-      else
-        self.lsock.peerinfo = "#{info[1]}:#{info[2]}"
-      end
-
-      info = rssh.transport.socket.getsockname
-      if Rex::Socket.is_ipv6?(info[1])
-        self.lsock.localinfo = "[#{info[1]}]:#{info[2]}"
-      else
-        self.lsock.localinfo = "#{info[1]}:#{info[2]}"
-      end
-
       channel = rssh.open_channel do |rch|
         # A PTY will write us to {u,w}tmp and lastlog
         rch.request_pty if rpty
