@@ -37,8 +37,6 @@ module WMIC
   end
 
   def wmic_query(query, server=datastore['RHOST'])
-    extapi = load_extapi
-
     result_text = ""
 
     if datastore['SMBUser']
@@ -47,7 +45,7 @@ module WMIC
       end
     end
 
-    if extapi && !is_system?
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA) && !is_system?
       session.extapi.clipboard.set_text("")
       wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} #{query}"
     else
@@ -63,7 +61,7 @@ module WMIC
     session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
     ps.close
 
-    if extapi && !is_system?
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA) && !is_system?
       result = session.extapi.clipboard.get_data.first
       if result && result[1] && result[1].has_key?('Text')
         result_text = result[1]['Text']

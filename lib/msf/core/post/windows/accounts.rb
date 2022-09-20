@@ -1,12 +1,12 @@
 # -*- coding: binary -*-
 
-
 module Msf
   class Post
     module Windows
       module Accounts
         include Msf::Post::Windows::Error
         include Msf::Post::Windows::Registry
+        require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
         GUID = [
           ['Data1', :DWORD],
@@ -70,7 +70,7 @@ module Msf
         #
         # @return [Boolean] Target host is an Active Directory domain controller
         def domain_controller?
-          registry_enumkeys("HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS")&.include?('Parameters') ? true : false
+          registry_enumkeys('HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS')&.include?('Parameters') ? true : false
         end
 
         # @return [String] Active Directory primary domain controller FQDN
@@ -79,14 +79,15 @@ module Msf
             domain = get_domain('DomainControllerName')
           else
             # Use cached domain controller name
-            key = "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+            key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History'
             return unless registry_key_exist?(key)
+
             domain = registry_getvaldata(key, 'DCName')
           end
 
           return unless domain
 
-          domain.gsub(%r{^\\\\}, '')
+          domain.gsub(/^\\\\/, '')
         end
 
         # @return [String] Active Directory domain FQDN
@@ -96,7 +97,7 @@ module Msf
           end
 
           # Use cached domain name
-          key = "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+          key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History'
           return unless registry_key_exist?(key)
 
           registry_getvaldata(key, 'MachineDomain')
@@ -126,6 +127,10 @@ module Msf
         ##
         def get_domain(info_key = 'DomainName', server_name = nil)
           domain = nil
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            return nil
+          end
+
           result = session.railgun.netapi32.DsGetDcNameA(
             server_name,
             nil,
@@ -174,6 +179,10 @@ module Msf
         #   Everything other than ':success' signifies failure
         ##
         def delete_user(username, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            return nil
+          end
+
           deletion = client.railgun.netapi32.NetUserDel(server_name, username)
 
           # http://msdn.microsoft.com/en-us/library/aa370674.aspx
@@ -230,6 +239,10 @@ module Msf
         #   If an invalid system_name is provided, there will be a Windows error and nil returned
         ##
         def resolve_sid(sid, system_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            return nil
+          end
+
           adv = client.railgun.advapi32
 
           # Second param is the size of the buffer where the pointer will be written
@@ -316,9 +329,9 @@ module Msf
           sid_type = lookup_sid_name_use(lookup['peUse'].unpack1('C'))
 
           return {
-            name:   lookup['Name'],
+            name: lookup['Name'],
             domain: lookup['ReferencedDomainName'],
-            type:   sid_type,
+            type: sid_type,
             mapped: true
           }
         end
@@ -360,17 +373,21 @@ module Msf
         # @return [Integer] the impersonate token handle identifier if success, nil if
         #  fails
         def get_imperstoken
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           adv = session.railgun.advapi32
-          tok_all = "TOKEN_ASSIGN_PRIMARY |TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | "
-          tok_all << "TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS"
-          tok_all << " | TOKEN_ADJUST_DEFAULT"
+          tok_all = 'TOKEN_ASSIGN_PRIMARY |TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | '
+          tok_all << 'TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS'
+          tok_all << ' | TOKEN_ADJUST_DEFAULT'
 
           pid = session.sys.process.open.pid
           pr = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
           pt = adv.OpenProcessToken(pr.handle, tok_all, 4) # get handle to primary token
-          it = adv.DuplicateToken(pt["TokenHandle"], 2, 4) # get an impersonation token
-          if it["return"] # if it fails return 0 for error handling
-            return it["DuplicateTokenHandle"]
+          it = adv.DuplicateToken(pt['TokenHandle'], 2, 4) # get an impersonation token
+          if it['return'] # if it fails return 0 for error handling
+            return it['DuplicateTokenHandle']
           else
             return nil
           end
@@ -383,21 +400,25 @@ module Msf
         # @param [Integer] token the access token
         # @return [String, nil] a String describing the permissions or nil
         def check_dir_perms(dir, token)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           adv = session.railgun.advapi32
-          si = "OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION"
-          result = ""
+          si = 'OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION'
+          result = ''
 
           # define generic mapping structure
           gen_map = [0, 0, 0, 0]
-          gen_map = gen_map.pack("V")
+          gen_map = gen_map.pack('V')
           buffer_size = 500
 
           # get Security Descriptor for the directory
           f = adv.GetFileSecurityA(dir, si, buffer_size, buffer_size, 4)
-          if f['return'] && f["lpnLengthNeeded"] <= buffer_size
-            sd = f["pSecurityDescriptor"]
+          if f['return'] && f['lpnLengthNeeded'] <= buffer_size
+            sd = f['pSecurityDescriptor']
           elsif f['GetLastError'] == 122 # ERROR_INSUFFICIENT_BUFFER
-            sd = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
+            sd = adv.GetFileSecurityA(dir, si, f['lpnLengthNeeded'], f['lpnLengthNeeded'], 4)
           elsif f['GetLastError'] == 2
             vprint_error("The system cannot find the file specified: #{dir}")
             return nil
@@ -407,18 +428,18 @@ module Msf
           end
 
           # check for write access, called once to get buffer size
-          a = adv.AccessCheck(sd, token, "ACCESS_READ | ACCESS_WRITE", gen_map, 0, 0, 4, 8)
-          len = a["PrivilegeSetLength"]
+          a = adv.AccessCheck(sd, token, 'ACCESS_READ | ACCESS_WRITE', gen_map, 0, 0, 4, 8)
+          len = a['PrivilegeSetLength']
 
-          r = adv.AccessCheck(sd, token, "ACCESS_READ", gen_map, len, len, 4, 8)
-          return nil if !r["return"]
+          r = adv.AccessCheck(sd, token, 'ACCESS_READ', gen_map, len, len, 4, 8)
+          return nil if !r['return']
 
-          result << "R" if r["GrantedAccess"] > 0
+          result << 'R' if r['GrantedAccess'] > 0
 
-          w = adv.AccessCheck(sd, token, "ACCESS_WRITE", gen_map, len, len, 4, 8)
-          return nil if !w["return"]
+          w = adv.AccessCheck(sd, token, 'ACCESS_WRITE', gen_map, len, len, 4, 8)
+          return nil if !w['return']
 
-          result << "W" if w["GrantedAccess"] > 0
+          result << 'W' if w['GrantedAccess'] > 0
 
           result
         end
@@ -435,6 +456,10 @@ module Msf
         #   password    - The password to be assigned to the new user account
         ##
         def add_user(username, password, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           addr_username = session.railgun.util.alloc_and_write_wstring(username)
           addr_password = session.railgun.util.alloc_and_write_wstring(password)
           #  Set up the USER_INFO_1 structure.
@@ -448,11 +473,11 @@ module Msf
             0x0,
             client.railgun.const('UF_SCRIPT | UF_NORMAL_ACCOUNT|UF_DONT_EXPIRE_PASSWD'),
             0x0
-          ].pack(client.arch == ARCH_X86 ? "VVVVVVVV" : "QQVVQQVQ")
+          ].pack(client.arch == ARCH_X86 ? 'VVVVVVVV' : 'QQVVQQVQ')
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
           client.railgun.multi([
-            ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
-            ["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]], #  addr_password
+            ['kernel32', 'VirtualFree', [addr_username, 0, MEM_RELEASE]], #  addr_username
+            ['kernel32', 'VirtualFree', [addr_password, 0, MEM_RELEASE]], #  addr_password
           ])
           return result
         end
@@ -468,16 +493,20 @@ module Msf
         #   localgroup  - Specifies a local group name
         ##
         def add_localgroup(localgroup, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           #  Set up the #  LOCALGROUP_INFO_1 structure.
           addr_group = session.railgun.util.alloc_and_write_wstring(localgroup)
           #  https://docs.microsoft.com/windows/desktop/api/lmaccess/ns-lmaccess-localgroup_info_1
           localgroup_info = [
             addr_group, #  lgrpi1_name
             0x0 #  lgrpi1_comment
-          ].pack(client.arch == ARCH_X86 ? "VV" : "QQ")
+          ].pack(client.arch == ARCH_X86 ? 'VV' : 'QQ')
           result = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
           client.railgun.multi([
-            ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+            ['kernel32', 'VirtualFree', [addr_group, 0, MEM_RELEASE]], #  addr_group
           ])
           return result
         end
@@ -492,16 +521,20 @@ module Msf
         #   group       - Specifies a global group name
         ##
         def add_group(group, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           addr_group = session.railgun.util.alloc_and_write_wstring(group)
           #  https://docs.microsoft.com/zh-cn/windows/win32/api/lmaccess/ns-lmaccess-group_info_1
           # Set up the GROUP_INFO_1 structure.
           group_info_1 = [
             addr_group,
             0x0
-          ].pack(client.arch == ARCH_X86 ? "VV" : "QQ")
+          ].pack(client.arch == ARCH_X86 ? 'VV' : 'QQ')
           result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info_1, 4)
           client.railgun.multi([
-            ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+            ['kernel32', 'VirtualFree', [addr_group, 0, MEM_RELEASE]], #  addr_group
           ])
           return result
         end
@@ -517,15 +550,19 @@ module Msf
         #   username    - Specifies a local username
         ##
         def add_members_localgroup(localgroup, username, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           addr_username = session.railgun.util.alloc_and_write_wstring(username)
           #  Set up the LOCALGROUP_MEMBERS_INFO_3 structure.
           #  https://docs.microsoft.com/windows/desktop/api/lmaccess/ns-lmaccess-localgroup_members_info_3
           localgroup_members = [
             addr_username,
-          ].pack(client.arch == ARCH_X86 ? "V" : "Q")
+          ].pack(client.arch == ARCH_X86 ? 'V' : 'Q')
           result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 3, localgroup_members, 1)
           client.railgun.multi([
-            ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]],
+            ['kernel32', 'VirtualFree', [addr_username, 0, MEM_RELEASE]],
           ])
           return result
         end
@@ -541,6 +578,10 @@ module Msf
         #   username    - Specifies a global username
         ##
         def add_members_group(group, username, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           result = client.railgun.netapi32.NetGroupAddUser(server_name, group, username)
           return result
         end
@@ -555,22 +596,26 @@ module Msf
         #   group       - Specifies a group name
         ##
         def get_members_from_group(groupname, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           members = []
           result = client.railgun.netapi32.NetGroupGetUsers(server_name, groupname, 0, 4, 4096, 4, 4, 0)
           if (result['return'] == 0) && ((result['totalentries'] % 4294967296) != 0)
             begin
-                members_info_addr = result['bufptr'].unpack1("V")
-                unless members_info_addr == 0
-                  # Railgun assumes PDWORDS are pointers and returns 8 bytes for x64 architectures.
-                  # Therefore we need to truncate the result value to an actual
-                  # DWORD for entriesread or totalentries.
-                  members_info = session.railgun.util.read_array(GROUP_USERS_INFO, (result['totalentries'] % 4294967296), members_info_addr)
-                  for member in members_info
-                    members << member["grui0_name"]
-                  end
-                  return members
+              members_info_addr = result['bufptr'].unpack1('V')
+              unless members_info_addr == 0
+                # Railgun assumes PDWORDS are pointers and returns 8 bytes for x64 architectures.
+                # Therefore we need to truncate the result value to an actual
+                # DWORD for entriesread or totalentries.
+                members_info = session.railgun.util.read_array(GROUP_USERS_INFO, (result['totalentries'] % 4294967296), members_info_addr)
+                for member in members_info
+                  members << member['grui0_name']
                 end
+                return members
               end
+            end
           else
             return members
           end
@@ -588,19 +633,23 @@ module Msf
         #   group       - Specifies a group name
         ##
         def get_members_from_localgroup(localgroupname, server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           members = []
           result = client.railgun.netapi32.NetLocalGroupGetMembers(server_name, localgroupname, 3, 4, 4096, 4, 4, 0)
           if (result['return'] == 0) && ((result['totalentries'] % 4294967296) != 0)
             begin
-                members_info_addr = result['bufptr'].unpack1("V")
-                unless members_info_addr == 0
-                  members_info = session.railgun.util.read_array(LOCALGROUP_MEMBERS_INFO, (result['totalentries'] % 4294967296), members_info_addr)
-                  for member in members_info
-                    members << member["lgrmi3_domainandname"]
-                  end
-                  return members
+              members_info_addr = result['bufptr'].unpack1('V')
+              unless members_info_addr == 0
+                members_info = session.railgun.util.read_array(LOCALGROUP_MEMBERS_INFO, (result['totalentries'] % 4294967296), members_info_addr)
+                for member in members_info
+                  members << member['lgrmi3_domainandname']
                 end
+                return members
               end
+            end
           else
             return members
           end
@@ -617,16 +666,20 @@ module Msf
         #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
         ##
         def enum_user(server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           users = []
           filter = 'FILTER_NORMAL_ACCOUNT|FILTER_TEMP_DUPLICATE_ACCOUNT'
           result = client.railgun.netapi32.NetUserEnum(server_name, 0, client.railgun.const(filter), 4, 4096, 4, 4, 0)
           if (result['return'] == 0) && ((result['totalentries'] % 4294967296) != 0)
             begin
-              user_info_addr = result['bufptr'].unpack1("V")
+              user_info_addr = result['bufptr'].unpack1('V')
               unless user_info_addr == 0
                 user_info = session.railgun.util.read_array(USER_INFO, (result['totalentries'] % 4294967296), user_info_addr)
                 for member in user_info
-                  users << member["usri0_name"]
+                  users << member['usri0_name']
                 end
                 return users
               end
@@ -647,15 +700,19 @@ module Msf
         #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
         ##
         def enum_localgroup(server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           localgroups = []
           result = client.railgun.netapi32.NetLocalGroupEnum(server_name, 0, 4, 4096, 4, 4, 0)
           if (result['return'] == 0) && ((result['totalentries'] % 4294967296) != 0)
             begin
-              localgroup_info_addr = result['bufptr'].unpack1("V")
+              localgroup_info_addr = result['bufptr'].unpack1('V')
               unless localgroup_info_addr == 0
                 localgroup_info = session.railgun.util.read_array(LOCALGROUP_INFO, (result['totalentries'] % 4294967296), localgroup_info_addr)
                 for member in localgroup_info
-                  localgroups << member["lgrpi0_name"]
+                  localgroups << member['lgrpi0_name']
                 end
                 return localgroups
               end
@@ -676,15 +733,19 @@ module Msf
         #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
         ##
         def enum_group(server_name = nil)
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise "Session doesn't support Railgun!"
+          end
+
           groups = []
           result = client.railgun.netapi32.NetGroupEnum(server_name, 0, 4, 4096, 4, 4, 0)
           if (result['return'] == 0) && ((result['totalentries'] % 4294967296) != 0)
             begin
-              group_info_addr = result['bufptr'].unpack1("V")
+              group_info_addr = result['bufptr'].unpack1('V')
               unless group_info_addr == 0
                 group_info = session.railgun.util.read_array(GROUP_INFO, (result['totalentries'] % 4294967296), group_info_addr)
                 for member in group_info
-                  groups << member["grpi0_name"]
+                  groups << member['grpi0_name']
                 end
                 return groups
               end
