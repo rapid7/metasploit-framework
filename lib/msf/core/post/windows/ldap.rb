@@ -262,7 +262,7 @@ module Msf
         # @return [Array] Entry data structure
         def get_entry(pEntry)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           return client.railgun.memread(pEntry, 41).unpack('VVVVVVVVVvCCC')
@@ -274,7 +274,7 @@ module Msf
         # @return [String] The BER data structure
         def get_ber(msg)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           ber = client.railgun.memread(msg[2], 60).unpack('V*')

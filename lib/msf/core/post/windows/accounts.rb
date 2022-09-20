@@ -374,7 +374,7 @@ module Msf
         #  fails
         def get_imperstoken
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           adv = session.railgun.advapi32
@@ -401,7 +401,7 @@ module Msf
         # @return [String, nil] a String describing the permissions or nil
         def check_dir_perms(dir, token)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           adv = session.railgun.advapi32
@@ -457,7 +457,7 @@ module Msf
         ##
         def add_user(username, password, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           addr_username = session.railgun.util.alloc_and_write_wstring(username)
@@ -494,7 +494,7 @@ module Msf
         ##
         def add_localgroup(localgroup, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           #  Set up the #  LOCALGROUP_INFO_1 structure.
@@ -522,7 +522,7 @@ module Msf
         ##
         def add_group(group, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           addr_group = session.railgun.util.alloc_and_write_wstring(group)
@@ -551,7 +551,7 @@ module Msf
         ##
         def add_members_localgroup(localgroup, username, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           addr_username = session.railgun.util.alloc_and_write_wstring(username)
@@ -579,7 +579,7 @@ module Msf
         ##
         def add_members_group(group, username, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           result = client.railgun.netapi32.NetGroupAddUser(server_name, group, username)
@@ -597,7 +597,7 @@ module Msf
         ##
         def get_members_from_group(groupname, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           members = []
@@ -634,7 +634,7 @@ module Msf
         ##
         def get_members_from_localgroup(localgroupname, server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           members = []
@@ -667,7 +667,7 @@ module Msf
         ##
         def enum_user(server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           users = []
@@ -701,7 +701,7 @@ module Msf
         ##
         def enum_localgroup(server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           localgroups = []
@@ -734,7 +734,7 @@ module Msf
         ##
         def enum_group(server_name = nil)
           unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+            raise "Session doesn't support Railgun!"
           end
 
           groups = []
