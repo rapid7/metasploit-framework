@@ -1020,6 +1020,15 @@ class Console::CommandDispatcher::Stdapi::Sys
               return false
             end
             data = data.pack("C*")
+          elsif type == 'REG_DWORD' || type == 'REG_QWORD'
+            if data =~ /^\d+$/
+              data = data.to_i
+            elsif data =~ /^0x[a-fA-F0-9]+$/
+              data = data[2..].to_i(16)
+            else
+              print_error("Invalid data provided, #{type} must be numeric.")
+              return false
+            end
           elsif type == 'REG_MULTI_SZ'
             data = data.split('\0')
           end
