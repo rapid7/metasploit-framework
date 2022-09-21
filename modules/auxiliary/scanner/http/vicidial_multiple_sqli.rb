@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def basic_auth
-    user_pass = datastore['USERNAME'].to_s + ':' + datastore['PASSWORD'].to_s
+    user_pass = "#{datastore['USERNAME']}:#{datastore['PASSWORD']}"
     {
       'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
     }
