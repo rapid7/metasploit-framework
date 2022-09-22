@@ -4,17 +4,19 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::Priv
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'Windows Gather Enumerate Domain Group',
         'Description' => %q{
-          This module extracts user accounts from specified group
+          This module extracts user accounts from the specified domain group
           and stores the results in the loot. It will also verify if session
           account is in the group. Data is stored in loot in a format that
-          is compatible with the token_hunter plugin. This module should be
-          run over as session with domain credentials.
+          is compatible with the token_hunter plugin. This module must be
+          run on a session running as a domain user.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -23,6 +25,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -32,87 +39,54 @@ class MetasploitModule < Msf::Post
         }
       )
     )
-    register_options(
-      [
-        OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
-      ]
-    )
+    register_options([
+      OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
+    ])
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
-    cur_domain, cur_user = client.sys.config.getuid.split("\\")
-    ltype = "domain.group.members"
-    ctype = "text/plain"
+    group = datastore['GROUP']
 
-    # Get Data
-    usr_res = cmd_exec("net groups \"#{datastore['GROUP']}\" /domain")
+    fail_with(Failure::BadConfig, 'GROUP must be set.') if group.blank?
 
-    # Parse Returned data
-    members = get_members(usr_res.split("\n"))
-    domain = get_env("USERDOMAIN")
+    domain = get_domain_name
 
-    # Show results if we have any, Error if we don't
-    if !members.empty?
+    fail_with(Failure::Unknown, 'Could not retrieve domain name. Is the host part of a domain?') if domain.blank?
 
-      print_status("Found users in #{datastore['GROUP']}")
+    netbios_domain_name = domain.split('.').first.upcase
 
-      loot = []
-      members.each do |user|
-        print_status("\t#{domain}\\#{user}")
-        loot << "#{domain}\\#{user}"
-      end
+    members = get_members_from_group(group, domain) || []
 
-      # Is our current user a member of this domain and group
-      if is_member(cur_domain, cur_user, domain, members)
-        print_good("Current sessions running as #{cur_domain}\\#{cur_user} is a member of #{datastore['GROUP']}!")
-      else
-        print_status("Current session running as #{cur_domain}\\#{cur_user} is not a member of #{datastore['GROUP']}")
-      end
+    fail_with(Failure::Unknown, "No members found for '#{domain}\\#{group}' group.") if members.blank?
 
-      # Store the captured data in the loot.
-      loot_file = store_loot(ltype, ctype, session, loot.join("\n"), nil, datastore['GROUP'])
-      print_good("User list stored in #{loot_file}")
+    print_status("Found #{members.length} users in '#{domain}\\#{group}' group.")
+
+    loot = []
+    members.each do |user|
+      print_status("\t#{netbios_domain_name}\\#{user}")
+      loot << "#{netbios_domain_name}\\#{user}"
+    end
+
+    user_domain, user = client.sys.config.getuid.split('\\')
+
+    if user_domain.downcase.include?(netbios_domain_name.downcase) && members.map { |u| u.downcase == user.downcase }.include?(true)
+      print_good("Current session running as #{domain}\\#{user} is a member of #{domain}\\#{group}!")
     else
-      print_error("No members found for #{datastore['GROUP']}")
-    end
-  end
-
-  def get_members(results)
-    members = []
-
-    # Usernames start somewhere around line 6
-    results = results.slice(6, results.length)
-    return members if results.nil?
-
-    # Get group members from the output
-    results.each do |line|
-      line.split("  ").compact.each do |user|
-        next if user.strip == ""
-        next if user =~ /-----/
-        next if user =~ /The command completed successfully/
-
-        members << user.strip
-      end
+      print_status("Current session running as #{domain}\\#{user} is not a member of #{domain}\\#{group}")
     end
 
-    members
-  end
+    loot_file = store_loot(
+      'domain.group.members',
+      'text/plain',
+      session,
+      loot.join("\n"),
+      nil,
+      group
+    )
 
-  def is_member(cur_dom, cur_user, dom, users)
-    member = false
-
-    if cur_dom == dom
-      users.each do |u|
-        if u.downcase == cur_user.downcase
-          member = true
-          break
-        end
-      end
-    end
-
-    member
+    print_good("User list stored in #{loot_file}")
   end
 end
