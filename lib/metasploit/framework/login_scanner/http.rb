@@ -183,6 +183,8 @@ module Metasploit
         attr_accessor :http_success_codes
 
 
+        validate :validate_http_codes
+
         validates :uri, presence: true, length: { minimum: 1 }
 
         validates :method,
@@ -191,13 +193,6 @@ module Metasploit
 
         # (see Base#check_setup)
         def check_setup
-          if http_success_codes.nil?
-            @http_success_codes = DEFAULT_HTTP_SUCCESS_CODES
-          else
-            @http_success_codes = validate_http_codes(@http_success_codes)
-          end
-
-
           http_client = Rex::Proto::Http::Client.new(
             host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
           )
@@ -410,15 +405,17 @@ module Metasploit
 
         private
 
-        def validate_http_codes(http_codes)
-          raise ArgumentError.new("HTTP codes must be an Array") unless http_codes.is_a?(Array)
-          http_codes.each do |code|
-            next if code >= 200 && code < 400
-            raise ArgumentError.new("Invalid HTTP code provided #{code}")
+        def validate_http_codes
+          if http_success_codes.nil?
+            @http_success_codes = DEFAULT_HTTP_SUCCESS_CODES
+          else
+            errors.add(:http_success_codes, "HTTP codes must be an Array") unless @http_success_codes.is_a?(Array)
+            @http_success_codes.each do |code|
+              next if code >= 200 && code < 400
+              errors.add(:http_success_codes, "Invalid HTTP code provided #{code}")
+            end
           end
-          http_codes
         end
-
       end
     end
   end

@@ -215,13 +215,13 @@ class MetasploitModule < Msf::Auxiliary
         int_start = code_parts[0].to_i
         int_end = code_parts[1].to_i
         unless int_start > 0 && int_end > 0
-          raise ArguementError.new("#{code} is not a valid response code range.")
+          raise ArgumentError.new("#{code} is not a valid response code range.")
         end
         codes.append(*(int_start..int_end))
       else
         int_code = code.to_i
         unless int_code > 0
-          raise ArguementError.new("#{code} is not a valid response code.")
+          raise ArgumentError.new("#{code} is not a valid response code.")
         end
         codes << int_code
       end
