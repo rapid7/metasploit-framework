@@ -439,6 +439,10 @@ NAVIGATION_CONFIG = [
                 title: 'PhpExe'
               },
               {
+                path: 'How-to-use-the-Git-mixin-to-write-an-exploit-module.md',
+                title: 'Git Mixin'
+              },
+              {
                 title: 'HTTP',
                 folder: 'http',
                 children: [
