@@ -28,17 +28,17 @@ module Rex
             super
             print_line
             print_line
-            print_line("meterpreter                  ")
-            print_line("   ▄▄▄▄    ▒█████    █████▒  ")
-            print_line("  ▓█████▄ ▒██▒  ██▒▓██   ▒   ")
-            print_line("  ▒██▒ ▄██▒██░  ██▒▒████ ░   ")
-            print_line("  ▒██░█▀  ▒██   ██░░▓█▒  ░   ")
-            print_line("  ░▓█  ▀█▓░ ████▓▒░░▒█░      ")
-            print_line("  ░▒▓███▀▒░ ▒░▒░▒░  ▒ ░      ")
-            print_line("  ▒░▒   ░   ░ ▒ ▒░  ░     ~ by @kev169, @GuhnooPluxLinux, @R0wdyJoe, @skylerknecht ~  ")
-            print_line("   ░    ░ ░ ░ ░ ▒   ░ ░      ")
-            print_line("   ░          ░ ░  loader    ")
-            print_line("        ░                    ")
+            print_line('meterpreter                  ')
+            print_line('   ▄▄▄▄    ▒█████    █████▒  ')
+            print_line('  ▓█████▄ ▒██▒  ██▒▓██   ▒   ')
+            print_line('  ▒██▒ ▄██▒██░  ██▒▒████ ░   ')
+            print_line('  ▒██░█▀  ▒██   ██░░▓█▒  ░   ')
+            print_line('  ░▓█  ▀█▓░ ████▓▒░░▒█░      ')
+            print_line('  ░▒▓███▀▒░ ▒░▒░▒░  ▒ ░      ')
+            print_line('  ▒░▒   ░   ░ ▒ ▒░  ░     ~ by @kev169, @GuhnooPluxLinux, @R0wdyJoe, @skylerknecht ~')
+            print_line('   ░    ░ ░ ░ ░ ▒   ░ ░      ')
+            print_line('   ░          ░ ░  loader    ')
+            print_line('        ░                    ')
             print_line
           end
 
@@ -61,23 +61,23 @@ module Rex
           end
 
           def cmd_execute_bof_help
-            print_line('Usage:   execute_bof </path/to/bof_file.o> [bof_nonliteral_arguments] [--format-string] [-- bof_literal_arguments]')
+            print_line('Usage:   execute_bof </path/to/bof_file> [bof_nonliteral_arguments] [--format-string] [-- bof_literal_arguments]')
             print_line(@@execute_bof_opts.usage)
             print_line(
               <<~HELP
-              Examples:
-                execute_bof /bofs/dir.x64.o -- --help
-                execute_bof /bofs/dir.x64.o --format-string Zs C:\\\\ 0
-                execute_bof /bofs/upload.x64.o --format-string bZ file:/local/file.txt C:\\remote\\file.txt 
-                execute_bof /bofs/dir.x64.c --compile --format-string Zs -- C:\\\\ 0 
-                
+                Examples:
+                  execute_bof /bofs/dir.x64.o -- --help
+                  execute_bof /bofs/dir.x64.o --format-string Zs C:\\\\ 0
+                  execute_bof /bofs/upload.x64.o --format-string bZ file:/local/file.txt C:\\remote\\file.txt#{' '}
+                  execute_bof /bofs/dir.x64.c --compile --format-string Zs -- C:\\\\ 0#{' '}
+                #{'  '}
 
-              Argument formats:
-                b       binary data (e.g. 01020304)
-                i       32-bit integer
-                s       16-bit integer
-                z       null-terminated utf-8 string
-                Z       null-terminated utf-16 string
+                Argument formats:
+                  b       binary data (e.g. 01020304)
+                  i       32-bit integer
+                  s       16-bit integer
+                  z       null-terminated utf-8 string
+                  Z       null-terminated utf-16 string
               HELP
             )
           end
@@ -86,9 +86,10 @@ module Rex
           def cmd_execute_bof_tabs(str, words)
             return if words.include?('--')
             return tab_complete_filenames(str, words) if words.length == 1
+
             if (str =~ /^file:(.*)/)
-              files = tab_complete_filenames($1, words)
-              return files.map { |f| "file:" + f }
+              files = tab_complete_filenames(Regexp.last_match(1), words)
+              return files.map { |f| 'file:' + f }
             end
             fmt = {
               '-c' => [ nil ],
@@ -102,7 +103,7 @@ module Rex
           end
 
           def cmd_execute_bof(*args)
-            if args.empty? 
+            if args.empty?
               cmd_execute_bof_help
               return false
             end
@@ -167,12 +168,12 @@ module Rex
                       print_error("Argument ##{idx + 1} was not appropriately padded to an even length string!")
                       return false
                     end
-                    bytes = bof_arg.scan(/(?:[a-fA-F0-9]{2})/).map {|v| v.to_i(16)}
+                    bytes = bof_arg.scan(/(?:[a-fA-F0-9]{2})/).map { |v| v.to_i(16) }
                     if (bof_arg.length / 2 != bytes.length)
                       print_error("Argument ##{idx + 1} contains invalid characters!")
                       return false
                     end
-                    bof_arg = bytes.pack("C*")
+                    bof_arg = bytes.pack('C*')
                   end
                 when 'i', 's'
                   if bof_arg =~ /^\d+$/
@@ -254,7 +255,8 @@ module Rex
               return
             end
 
-            ::Dir::Tmpname.create([::File.basename(source, '.c'), '.o']) do |destination|
+            ::Tempfile.create([::File.basename(source, '.c'), '.o']) do |destination|
+              destination = destination.path
               output, status = Open3.capture2e(mingw.mingw_bin, '-c', source, '-I', Metasploit::Framework::Compiler::Mingw::INCLUDE_DIR, '-o', destination)
               unless status.exitstatus == 0
                 print_error("Compilation exited with error code: #{status.exitstatus}")
@@ -262,9 +264,7 @@ module Rex
                 return
               end
 
-              bof_data = ::File.binread(destination)
-              ::File.delete(destination)
-              return bof_data
+              return ::File.binread(destination)
             end
           end
 

@@ -24,29 +24,28 @@ module Rex
           class BofPackingError < RuntimeError
           end
 
+          # Code referenced from: https://github.com/trustedsec/COFFLoader/blob/main/beacon_generate.py
+          # Emulates the native Cobalt Strike bof_pack() function.
+          # Documented here: https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics_aggressor-scripts/as-resources_functions.htm#bof_pack
+          #
+          # Type      Description                             Unpack With (C)
+          # --------|---------------------------------------|------------------------------
+          # b       | binary data                           | BeaconDataExtract
+          # i       | 4-byte integer                        | BeaconDataInt
+          # s       | 2-byte short integer                  | BeaconDataShort
+          # z       | zero-terminated+encoded string        | BeaconDataExtract
+          # Z       | zero-terminated wide-char string      | (wchar_t *)BeaconDataExtract
           class BofPack
-            # Code referenced from: https://github.com/trustedsec/COFFLoader/blob/main/beacon_generate.py
-            # Emulates the native Cobalt Strike bof_pack() function.
-            # Documented here: https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics_aggressor-scripts/as-resources_functions.htm#bof_pack
-            #
-            # Type      Description                             Unpack With (C)
-            # --------|---------------------------------------|------------------------------
-            # b       | binary data                           | BeaconDataExtract
-            # i       | 4-byte integer                        | BeaconDataInt
-            # s       | 2-byte short integer                  | BeaconDataShort
-            # z       | zero-terminated+encoded string        | BeaconDataExtract
-            # Z       | zero-terminated wide-char string      | (wchar_t *)BeaconDataExtract
-
             def initialize
               reset
             end
 
-            def add_binary(b)
+            def add_binary(binary)
               # Add binary data to the buffer
-              b = b.bytes if b.is_a? String
-              b_length = b.length
-              b = [b_length] + b
-              buf = b.pack("<Ic#{b_length}")
+              binary = binary.bytes if binary.is_a? String
+              b_length = binary.length
+              binary = [b_length] + binary
+              buf = binary.pack("<Ic#{b_length}")
               @size += buf.length
               @buffer << buf
             end
@@ -61,22 +60,22 @@ module Rex
               @size += 2
             end
 
-            def add_str(s)
-              s = s.encode('utf-8').bytes
-              s << 0x00 # Null terminated strings...
-              s_length = s.length
-              s = [s_length] + s
-              buf = s.pack("<Ic#{s_length}")
+            def add_str(str)
+              str = str.encode('utf-8').bytes
+              str << 0x00 # Null terminated strings...
+              s_length = str.length
+              str = [s_length] + str
+              buf = str.pack("<Ic#{s_length}")
               @size += buf.length
               @buffer << buf
             end
 
-            def add_wstr(s)
-              s = s.encode('utf-16le').bytes
-              s << 0x00 << 0x00 # Null terminated wide string
-              s_length = s.length
-              s = [s_length] + s
-              buf = s.pack("<Ic#{s_length}")
+            def add_wstr(wstr)
+              wstr = wstr.encode('utf-16le').bytes
+              wstr << 0x00 << 0x00 # Null terminated wide string
+              s_length = wstr.length
+              wstr = [s_length] + wstr
+              buf = wstr.pack("<Ic#{s_length}")
               @size += buf.length
               @buffer << buf
             end
@@ -124,6 +123,7 @@ module Rex
             end
           end
 
+          # Beacon object file (BOF) loader
           class Bofloader < Extension
 
             def self.extension_id
