@@ -30,7 +30,7 @@ module MetasploitModule
       ])
   end
 
-  def generate_stage(opts={})
+  def generate(opts={})
     cmd             = datastore['CMD'] || ''
     nullfreeversion = datastore['NullFreeVersion']
 
