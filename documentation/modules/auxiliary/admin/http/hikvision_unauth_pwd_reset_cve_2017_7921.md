@@ -25,6 +25,15 @@ Below is a list of vulnerable firmware, but many other white-labelled versions m
 
 Installing a vulnerable test bed requires a Hikvision camera with the vulnerable firmware loaded.
 
+This module has been tested against a Hikvision camera with the specifications listed below:
+
+* MANUFACTURER: Hikvision.China
+* MODEL: DS-2CD2142FWD-IS
+* FIRMWARE VERSION: V5.4.1
+* FIRMWARE RELEASE: build 160525
+* BOOT VERSION: V1.3.4
+* BOOT RELEASE: 100316
+
 ## Verification Steps
 
 1. `use auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921`
@@ -43,7 +52,7 @@ This option allows you to store the user and password credentials in the Metaspl
 
 ## Scenarios
 
-### Hikvision unauthenticated password reset of the admin user with id=1
+### Hikvision DS-2CD2142FWD-IS Firmware Version V5.4.1 build 160525
 
 ```
 msf6 > use auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921
