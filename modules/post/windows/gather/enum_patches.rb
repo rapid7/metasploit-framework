@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
-  require 'rex/post/meterpreter/extensions/extapi/command_ids'
+  include Msf::Post::Windows::ExtAPI
 
   def initialize(info = {})
     super(
