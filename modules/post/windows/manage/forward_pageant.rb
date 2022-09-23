@@ -6,6 +6,7 @@
 require 'tmpdir'
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::ExtAPI
   include Msf::Post::Windows::Priv
 
   def initialize(info = {})
@@ -54,21 +55,16 @@ class MetasploitModule < Msf::Post
     @sockpath ||= "#{Dir.tmpdir}/#{Rex::Text.rand_text_alphanumeric(8)}"
   end
 
-  def setup
-    return if session.extapi
-
-    vprint_status('Loading extapi extension...')
-    session.core.use('extapi')
-  rescue Errno::ENOENT
-    fail_with(Failure::BadConfig, 'This module is only available in a Windows meterpreter session.')
-  end
-
   def run
     # Check to ensure that UNIX sockets are supported
     begin
       ::UNIXServer
     rescue NameError
       fail_with(Failure::BadConfig, 'This module is only supported on a Metasploit installation that supports UNIX sockets.')
+    end
+
+    unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_PAGEANT_SEND_QUERY)
+      fail_with(Failure::BadConfig, 'Session does not support Meterpreter ExtAPI Pageant queries')
     end
 
     # Get the socket path from the user supplied options (or leave it blank to get the plugin to choose one)

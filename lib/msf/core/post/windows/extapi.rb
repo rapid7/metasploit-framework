@@ -1,25 +1,11 @@
 # -*- coding: binary -*-
 
 module Msf
-class Post
-module Windows
-
-module ExtAPI
-
-  def load_extapi
-    if session.extapi
-      return true
-    else
-      begin
-        return session.core.use("extapi")
-      rescue Errno::ENOENT
-        print_error("Unable to load Extended API.")
-        return false
+  class Post
+    module Windows
+      module ExtAPI
+        require 'rex/post/meterpreter/extensions/extapi/command_ids'
       end
     end
   end
-
-end # ExtAPI
-end # Windows
-end # Post
-end # Msf
+end
