@@ -67,7 +67,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login_pre9(user = nil, pass = nil)
     if @blockingtime > 0
-      vprint_error("\tServer throttled logins at #{@blockingtime} seconds")
       sleep(@blockingtime)
     end
     uri = pre_v9_url
@@ -101,6 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       # seen on idrac 8
       if body =~ %r{<blockingTime>(\d+)</blockingTime>}
         @blockingtime = Regexp.last_match(1).to_i
+        vprint_error("\tServer throttled logins at #{@blockingtime} seconds")
       else
         @blockingtime = 0
       end
@@ -109,7 +109,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login_v9(user = nil, pass = nil)
     if @blockingtime > 0
-      vprint_error("\tServer throttled logins at #{@blockingtime} seconds")
       sleep(@blockingtime)
     end
     uri = v9_url
@@ -136,6 +135,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
       if !json['blockingTime'].nil? && json['blockingTime'] > 0
         @blockingtime = json['blockingTime']
+        vprint_error("\tServer throttled logins at #{@blockingtime} seconds")
       else
         @blockingtime = 0
       end
