@@ -293,6 +293,15 @@ module Build
         '@scanner',
         '@yieldparam',
         '@yieldreturn',
+        '@compressed',
+        '@content',
+        '@path',
+        '@sha1',
+        '@type',
+        '@git_repo_uri',
+        '@git_addr',
+        '@git_objs',
+        '@refs',
       ]
 
       # Replace any dangling github usernames, i.e. `@foo` - but not `[@foo](http://...)` or `email@example.com`
