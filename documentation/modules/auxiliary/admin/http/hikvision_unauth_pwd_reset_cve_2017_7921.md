@@ -1,13 +1,17 @@
 ## Vulnerable Application
 
-Many Hikvision IP cameras contain backdoor credentials that allow unauthenticated impersonation of any
+Many Hikvision IP cameras contain improper authentication logic that allow unauthenticated impersonation of any
 configured user account. This allows an attacker to bypass all security on the camera and
 gain full admin access, allowing them to thereby completely control the camera and modify
 any setting or retrieve sensitive information.
 
 This module allows the attacker to perform an unauthenticated password change on
-any vulnerable Hikvision IP Camera using these backdoor credentials. This can then be
-used to gain full administrative access to the affected device.
+any vulnerable Hikvision IP Camera by utilizing the improper authentication logic to
+send a request  to the server which contains an `auth` parameter in the query string
+containing a Base64 encoded version of the authorization in `username:password` format.
+Vulnerable cameras will ignore the `username` parameter and will instead use the username
+part of this string as the user to log in as. This can then be used to gain full 
+administrative access to the affected device.
 
 The vulnerability has been present in Hikvision products since 2014.
 In addition to Hikvision-branded devices, it affects many white-labeled
