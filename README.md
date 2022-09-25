@@ -26,7 +26,8 @@
 
 +++++++++++++++++++++++++++++++++++++
 
-THIS PROXIA IS ALREADY DEVELOPED FOR YOU! (METASPLOIT)
+THIS PROXIA IS ALREADY DEVELOPED FOR YOU! (METASPLOIT): PRO VERSION RECOMMENDED.
+
 
 +++++++++++++++++++++++++++++++++++++
 
