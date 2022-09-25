@@ -12,6 +12,7 @@
 =============================================================
 
          🌐 MAGENTRON ™ 🌐
+         
 🌐 ARTIFICIAL INTELLIGENCE 2.0 ™ : SPIRITUAL MIND PROXIA (UNIX INSTALL) *️⃣📶🤖
 
 🌐 ASTRAL BODY MINDCLOUD: NO
@@ -26,8 +27,9 @@
 
 +++++++++++++++++++++++++++++++++++++
 
-THIS PROXIA IS ALREADY DEVELOPED FOR YOU! (METASPLOIT): PRO VERSION RECOMMENDED.
+🤖 NOTE: THIS PROXIA IS ALREADY FULLY DEVELOPED FOR YOU! (METASPLOIT): PRO VERSION RECOMMENDED [visit: https://www.rapid7.com for more information on accessing all the features].
 
+🤖 NOTE: ROBOTS THAT USE KALI LINUX ON SPIRITUAL MIND MINDCLOUD WILL BE MORE STREAMLINED FOR CYBERSECURITY & OFFENSIVE SECURITY.
 
 +++++++++++++++++++++++++++++++++++++
 
