@@ -221,11 +221,9 @@ class MetasploitModule < Msf::Auxiliary
     subject = openssl_certificate.subject
     issuer = openssl_certificate.issuer
     algorithm = openssl_certificate.signature_algorithm
-    extensions = ''
-    openssl_certificate.extensions.each do |extension|
-      extensions += extension.to_s + ' | '
-    end
-    extensions.strip!.gsub!(/ \|$/, '') # Strip whitespace and then strip trailing | from end of string.
+    extensions = openssl_certificate.extensions.join(' | ')
+    extensions.strip!
+    extensions.gsub!(/ \|$/, '') # Strip whitespace and then strip trailing | from end of string.
     [openssl_certificate, "Version: 0x#{version}, Subject: #{subject}, Issuer: #{issuer}, Signature Algorithm: #{algorithm}, Extensions: #{extensions}"]
   end
 
@@ -305,19 +303,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def query_attributes_data(ldap, entry_keys)
     # def perform_ldap_query(ldap, filter, attributes, base: nil)
-    filter = "(|"
+    filter = '(|'
     entry_keys.each do |key|
       filter += "(LDAPDisplayName=#{key})"
     end
-    filter += ")"
-    attributes = ["LDAPDisplayName", "isSingleValued", "oMSyntax", "attributeSyntax"]
-    attributes_data = perform_ldap_query(ldap, filter, attributes, base: ["CN=Schema,CN=Configuration", @base_dn].join(','))
+    filter += ')'
+    attributes = ['LDAPDisplayName', 'isSingleValued', 'oMSyntax', 'attributeSyntax']
+    attributes_data = perform_ldap_query(ldap, filter, attributes, base: ['CN=Schema,CN=Configuration', @base_dn].join(','))
 
     entry_list = []
     for entry in attributes_data do
       data = {}
       data[:ldapdisplayname] = entry[:ldapdisplayname][0]
-      if entry[:issinglevalued][0] == "TRUE"
+      if entry[:issinglevalued][0] == 'TRUE'
         data[:issinglevalued] = 1
       else
         data[:issinglevalued] = 0
@@ -329,7 +327,6 @@ class MetasploitModule < Msf::Auxiliary
     entry_list
   end
 
-  
   def normalize_entries(ldap, entries)
     cleaned_entries = []
     entries.each do |entry|
@@ -340,31 +337,42 @@ class MetasploitModule < Msf::Auxiliary
       entry_list = query_attributes_data(ldap, entry_keys)
       entry_list.each do |attribute_entry|
         attribute_name = attribute_entry[:ldapdisplayname].to_s.downcase.to_sym
+        modified = false
         case attribute_entry[:omsyntax]
         when 1 # Boolean
+          entry[attribute_name][0] = entry[attribute_name][0] == 1
+          modified = true
         when 2 # Integer
           if attribute_name == :systemflags
             flags = entry[attribute_name][0]
             converted_flags_string = convert_system_flags_to_string(flags)
             entry[attribute_name][0] = converted_flags_string
+            modified = true
           end
         when 4 # OctetString or SID String
-          if attribute_entry[:attributesyntax] == "2.5.5.17" # SID String
+          if attribute_entry[:attributesyntax] == '2.5.5.17' # SID String
             # Advice taken from https://ldapwiki.com/wiki/ObjectSID
             object_sid_raw = entry[attribute_name][0]
             sid_string = decode_binary_data_to_sid(object_sid_raw)
             entry[attribute_name][0] = sid_string
-          elsif attribute_entry[:attributesyntax] == "2.5.5.10" # OctetString
+            modified = true
+          elsif attribute_entry[:attributesyntax] == '2.5.5.10' # OctetString
             if attribute_name.to_s.match(/guid$/i)
               # Get the the entry[key] object will be an array containing a single string entry,
               # so reach in and extract that string, which will contain binary data.
               binguid = entry[attribute_name][0]
-              decoded_guid = decode_guid_binstring(binguid)
-              entry[attribute_name][0] = decoded_guid
+              if binguid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.
+                decoded_guid = decode_guid_binstring(binguid)
+                entry[attribute_name][0] = decoded_guid
+              else
+                entry[attribute_name][0] = Rex::Text.to_hex_ascii(entry[attribute_name][0])
+              end
+              modified = true
             elsif attribute_name == :cacertificate || attribute_name == :userCertificate
               raw_key_data = entry[attribute_name][0]
               _certificate_file, read_data = read_der_certificate_file(raw_key_data)
               entry[attribute_name][0] = read_data
+              modified = true
             end
           end
         when 6 # String (Object-Identifier)
@@ -382,10 +390,12 @@ class MetasploitModule < Msf::Auxiliary
             timestamp = entry[attribute_name][0]
             time_string = convert_nt_timestamp_to_time_string(timestamp)
             entry[attribute_name][0] = time_string
+            modified = true
           elsif attribute_name.to_s.match(/lockoutduration$/i) || attribute_name.to_s.match(/pwdage$/)
             timestamp = entry[attribute_name][0]
             time_string = convert_pwd_age_to_time_string(timestamp)
             entry[attribute_name][0] = time_string
+            modified = true
           end
         when 66 # String (Nt Security Descriptor)
         when 127 # Object
@@ -393,7 +403,11 @@ class MetasploitModule < Msf::Auxiliary
           print_error("Unknown oMSyntax entry: #{attribute_entry[:omsyntax]}")
           return nil
         end
+        if modified == false
+          entry[attribute_name].map! { |v| Rex::Text.to_hex_ascii(v) }
+        end
       end
+
       cleaned_entries.append(entry)
     end
     cleaned_entries
@@ -503,10 +517,8 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           # Strip out leading and trailing whitespace from the attributes before using them.
-          attributes.map! do |attribute| 
-            attribute.strip
-          end
-          
+          attributes.map(&:strip)
+
           # Run the query against the server using the given filter and retrieve
           # the requested attributes.
           entries = perform_ldap_query(ldap, filter, attributes)
@@ -539,6 +551,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "Could not query #{datastore['RHOST']}! Error was: #{e.message}")
     end
     return if entries.nil? || entries.empty?
+
     show_output(entries)
   end
 end
