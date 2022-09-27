@@ -304,8 +304,8 @@ class MetasploitModule < Msf::Auxiliary
   def query_attributes_data(ldap, entry_keys)
     # def perform_ldap_query(ldap, filter, attributes, base: nil)
     filter = '(|'
-    entry_keys.each do |key|
-      filter += "(LDAPDisplayName=#{key})"
+    entry_keys.each_key do |key|
+      filter += "(LDAPDisplayName=#{key})" unless key == :dn # Skip DN as it will never have a schema entry
     end
     filter += ')'
     attributes = ['LDAPDisplayName', 'isSingleValued', 'oMSyntax', 'attributeSyntax']
@@ -313,7 +313,7 @@ class MetasploitModule < Msf::Auxiliary
 
     entry_list = {}
     for entry in attributes_data do
-      ldap_display_name = entry[:ldapdisplayname][0]
+      ldap_display_name = entry[:ldapdisplayname][0].to_s.downcase.to_sym
       if entry[:issinglevalued][0] == 'TRUE'
         is_single_valued = true
       else
@@ -328,39 +328,44 @@ class MetasploitModule < Msf::Auxiliary
 
   def normalize_entries(ldap, entries)
     cleaned_entries = []
+    attributes = {}
     entries.each do |entry|
-      # Convert to a hash so we get only the data we need.
+      attributes.merge!(entry.to_h)
+    end
+    attribute_properties = query_attributes_data(ldap, attributes)
+
+    entries.each do |entry|
+      # Convert to a hash so we get the raw data we need from within the Net::LDAP::Entry object
       entry = entry.to_h
-      entry_keys = entry.keys
-      entry_keys.sort! # Sort entry keys alphabetically since LDAP results are returned alphabetically.
-      entry_list = query_attributes_data(ldap, entry_keys)
-      entry_list.each do |attribute_key, attribute_entry|
-        if attribute_entry[:issinglevalued] == false
-          print_status(attribute_key.to_s)
+      entry.each_key do |attribute_name|
+        next if attribute_name == :dn # Skip the DN case as there will be no attributes_properties entry for it.
+
+        if attribute_properties[attribute_name][:issinglevalued] == false
+          print_status(attribute_name.to_s)
         end
-        attribute_name = attribute_key.to_s.downcase.to_sym
+
         modified = false
-        case attribute_entry[:omsyntax]
+        case attribute_properties[attribute_name][:omsyntax]
         when 1 # Boolean
           entry[attribute_name][0] = entry[attribute_name][0] != 0
           modified = true
         when 2 # Integer
-          if attribute_name == :systemflags
+          if key == :systemflags
             flags = entry[attribute_name][0]
             converted_flags_string = convert_system_flags_to_string(flags)
             entry[attribute_name][0] = converted_flags_string
             modified = true
           end
         when 4 # OctetString or SID String
-          if attribute_entry[:attributesyntax] == '2.5.5.17' # SID String
+          if attribute_properties[attribute_name][:attributesyntax] == '2.5.5.17' # SID String
             # Advice taken from https://ldapwiki.com/wiki/ObjectSID
             object_sid_raw = entry[attribute_name][0]
             sid_string = decode_binary_data_to_sid(object_sid_raw)
             entry[attribute_name][0] = sid_string
             modified = true
-          elsif attribute_entry[:attributesyntax] == '2.5.5.10' # OctetString
+          elsif attribute_properties[attribute_name][:attributesyntax] == '2.5.5.10' # OctetString
             if attribute_name.to_s.match(/guid$/i)
-              # Get the the entry[key] object will be an array containing a single string entry,
+              # Get the the entry[attribute_name] object will be an array containing a single string entry,
               # so reach in and extract that string, which will contain binary data.
               binguid = entry[attribute_name][0]
               if binguid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.
@@ -402,7 +407,7 @@ class MetasploitModule < Msf::Auxiliary
         when 66 # String (Nt Security Descriptor)
         when 127 # Object
         else
-          print_error("Unknown oMSyntax entry: #{attribute_entry[:omsyntax]}")
+          print_error("Unknown oMSyntax entry: #{attribute_properties[attribute_name][:omsyntax]}")
           return nil
         end
         unless modified
