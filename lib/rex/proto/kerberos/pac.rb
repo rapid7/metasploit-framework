@@ -25,10 +25,10 @@ module Rex
         SCHEMA_ADMINISTRATORS = 518
         ENTERPRISE_ADMINS = 519
         GROUP_POLICY_CREATOR_OWNERS = 520
-        DEFAULT_USER_SID = 1000
+        DEFAULT_ADMIN_RID = 500
+        DEFAULT_USER_RID = 1000
         NT_AUTHORITY_SID = 'S-1-5'
       end
     end
   end
 end
-
