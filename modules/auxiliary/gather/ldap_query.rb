@@ -303,45 +303,95 @@ class MetasploitModule < Msf::Auxiliary
     generate_rex_tables(entries, 'csv')
   end
 
-  def normalize_entries(entries)
+  def query_attributes_data(ldap, entry_keys)
+    # def perform_ldap_query(ldap, filter, attributes, base: nil)
+    filter = "(|"
+    entry_keys.each do |key|
+      filter += "(LDAPDisplayName=#{key})"
+    end
+    filter += ")"
+    attributes = ["LDAPDisplayName", "isSingleValued", "oMSyntax", "attributeSyntax"]
+    attributes_data = perform_ldap_query(ldap, filter, attributes, base: ["CN=Schema,CN=Configuration", @base_dn].join(','))
+
+    entry_list = []
+    for entry in attributes_data do
+      data = {}
+      data[:ldapdisplayname] = entry[:ldapdisplayname][0]
+      if entry[:issinglevalued][0] == "TRUE"
+        data[:issinglevalued] = 1
+      else
+        data[:issinglevalued] = 0
+      end
+      data[:omsyntax] = entry[:omsyntax][0].to_i
+      data[:attributesyntax] = entry[:attributesyntax][0]
+      entry_list << data
+    end
+    entry_list
+  end
+
+  
+  def normalize_entries(ldap, entries)
     cleaned_entries = []
     entries.each do |entry|
       # Convert to a hash so we get only the data we need.
       entry = entry.to_h
       entry_keys = entry.keys
-      entry_keys.each do |key|
-        if key.to_s.match(/guid$/i)
-          # Get the the entry[key] object will be an array containing a single string entry,
-          # so reach in and extract that string, which will contain binary data.
-          binguid = entry[key][0]
-          decoded_guid = decode_guid_binstring(binguid)
-          entry[key][0] = decoded_guid
-        elsif key == :cacertificate
-          raw_key_data = entry[key][0]
-          _certificate_file, read_data = read_der_certificate_file(raw_key_data)
-          entry[key][0] = read_data
-        elsif key == :objectsid
-          # Advice taken from https://ldapwiki.com/wiki/ObjectSID
-          object_sid_raw = entry[key][0]
-          sid_string = decode_binary_data_to_sid(object_sid_raw)
-          entry[key][0] = sid_string
-        # This one is hard as there are fields that end with the string Time that are technically
-        # enumerations or strings themselves, but these sometimes only exist on older versions
-        # of Windows Server such as 2012.
-        elsif key == :creationtime
-          timestamp = entry[key][0]
-          time_string = convert_nt_timestamp_to_time_string(timestamp)
-          entry[key][0] = time_string
-        elsif key == :systemflags
-          flags = entry[key][0]
-          converted_flags_string = convert_system_flags_to_string(flags)
-          entry[key][0] = converted_flags_string
-        elsif key.to_s.match(/pwdage$/) || key.to_s.match(/lockoutduration$/i)
-          timestamp = entry[key][0]
-          time_string = convert_pwd_age_to_time_string(timestamp)
-          entry[key][0] = time_string
+      entry_keys.sort! # Sort entry keys alphabetically since LDAP results are returned alphabetically.
+      entry_list = query_attributes_data(ldap, entry_keys)
+      entry_list.each do |attribute_entry|
+        attribute_name = attribute_entry[:ldapdisplayname].to_s.downcase.to_sym
+        case attribute_entry[:omsyntax]
+        when 1 # Boolean
+        when 2 # Integer
+          if attribute_name == :systemflags
+            flags = entry[attribute_name][0]
+            converted_flags_string = convert_system_flags_to_string(flags)
+            entry[attribute_name][0] = converted_flags_string
+          end
+        when 4 # OctetString or SID String
+          if attribute_entry[:attributesyntax] == "2.5.5.17" # SID String
+            # Advice taken from https://ldapwiki.com/wiki/ObjectSID
+            object_sid_raw = entry[attribute_name][0]
+            sid_string = decode_binary_data_to_sid(object_sid_raw)
+            entry[attribute_name][0] = sid_string
+          elsif attribute_entry[:attributesyntax] == "2.5.5.10" # OctetString
+            if attribute_name.to_s.match(/guid$/i)
+              # Get the the entry[key] object will be an array containing a single string entry,
+              # so reach in and extract that string, which will contain binary data.
+              binguid = entry[attribute_name][0]
+              decoded_guid = decode_guid_binstring(binguid)
+              entry[attribute_name][0] = decoded_guid
+            elsif attribute_name == :cacertificate || attribute_name == :userCertificate
+              raw_key_data = entry[attribute_name][0]
+              _certificate_file, read_data = read_der_certificate_file(raw_key_data)
+              entry[attribute_name][0] = read_data
+            end
+          end
+        when 6 # String (Object-Identifier)
+        when 10 # Enumeration
+        when 18 # NumbericString
+        when 19 # PrintableString
+        when 20 # Case-Ignore String
+        when 22 # IA5String
+        when 23 # GeneralizedTime String (UTC-Time)
+        when 24 # GeneralizedTime String (GeneralizedTime)
+        when 27 # Case Sensitive String
+        when 64 # DirectoryString String(Unicode)
+        when 65 # LargeInteger
+          if attribute_name == :creationtime
+            timestamp = entry[attribute_name][0]
+            time_string = convert_nt_timestamp_to_time_string(timestamp)
+            entry[attribute_name][0] = time_string
+          elsif attribute_name.to_s.match(/lockoutduration$/i) || attribute_name.to_s.match(/pwdage$/)
+            timestamp = entry[attribute_name][0]
+            time_string = convert_pwd_age_to_time_string(timestamp)
+            entry[attribute_name][0] = time_string
+          end
+        when 66 # String (Nt Security Descriptor)
+        when 127 # Object
         else
-          entry[key] = entry[key].map { |v| Rex::Text.to_hex_ascii(v) }
+          print_error("Unknown oMSyntax entry: #{attribute_entry[:omsyntax]}")
+          return nil
         end
       end
       cleaned_entries.append(entry)
@@ -381,7 +431,7 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
 
-      entries = normalize_entries(entries)
+      entries = normalize_entries(ldap, entries)
       show_output(entries)
     end
   end
@@ -451,8 +501,20 @@ class MetasploitModule < Msf::Auxiliary
           if attributes.empty?
             fail_with(Failure::BadConfig, 'Attributes list is empty as we could not find at least one attribute to filter on!')
           end
+
+          # Strip out leading and trailing whitespace from the attributes before using them.
+          attributes.map! do |attribute| 
+            attribute.strip
+          end
+          
+          # Run the query against the server using the given filter and retrieve
+          # the requested attributes.
           entries = perform_ldap_query(ldap, filter, attributes)
-          print_error("No entries could be found for #{datastore['QUERY_FILTER']}!") if entries.nil? || entries.empty?
+          if entries.nil? || entries.empty?
+            print_error("No entries could be found for #{datastore['QUERY_FILTER']}!")
+          else
+            entries = normalize_entries(ldap, entries)
+          end
         else
           query = @loaded_queries[datastore['ACTION']].nil? ? @loaded_queries[default_action] : @loaded_queries[datastore['ACTION']]
           fail_with(Failure::BadConfig, "Invalid action: #{datastore['ACTION']}") unless query
@@ -464,6 +526,11 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           entries = perform_ldap_query(ldap, filter, query['attributes'], base: (query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil))
+          if entries.nil? || entries.empty?
+            print_error("No entries could be found for #{query['filter']}!")
+          else
+            entries = normalize_entries(ldap, entries)
+          end
         end
       end
     rescue Rex::ConnectionTimeout
@@ -472,8 +539,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "Could not query #{datastore['RHOST']}! Error was: #{e.message}")
     end
     return if entries.nil? || entries.empty?
-
-    entries = normalize_entries(entries)
     show_output(entries)
   end
 end
