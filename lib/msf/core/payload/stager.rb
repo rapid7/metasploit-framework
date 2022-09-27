@@ -170,6 +170,7 @@ module Msf::Payload::Stager
   # @param (see handle_connection_stage)
   # @return (see handle_connection_stage)
   def handle_connection(conn, opts={})
+
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)

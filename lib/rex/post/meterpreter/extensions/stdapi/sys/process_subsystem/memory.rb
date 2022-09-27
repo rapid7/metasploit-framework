@@ -134,6 +134,35 @@ class Memory
   end
 
   #
+  # Search memory for supplied regexes and return matches
+  #
+  def search(needles, min_search_len = 5, match_len = 500)
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_SEARCH)
+
+    request.add_tlv(TLV_TYPE_PID, process.pid)
+    needles.each { | needle | request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle) }
+    request.add_tlv(TLV_TYPE_MEMORY_SEARCH_MATCH_LEN, match_len)
+    request.add_tlv(TLV_TYPE_UINT, min_search_len)
+
+    response = process.client.send_request(request)
+
+    matches = []
+    if response.result == 0
+      response.each(TLV_TYPE_MEMORY_SEARCH_RESULTS) do |res|
+         match_data = {}
+         match_data['match_str'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_MATCH_STR)
+         match_data['match_offset'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_MATCH_ADDR)
+         match_data['sect_start'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_START_ADDR)
+         match_data['sect_len'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_SECT_LEN)
+
+         matches << match_data
+      end
+    end
+
+    matches
+  end
+
+  #
   # Write memory to the context of a process and return the number of bytes
   # actually written.
   #
@@ -243,7 +272,7 @@ class Memory
   end
 
   #
-  # Unloock a region of memory into physical memory so that it can be
+  # Unlock a region of memory into physical memory so that it can be
   # swapped to disk.  This can only be done in the context of the
   # process that is running the meterpreter server.  The instance's
   # handle is ignored.

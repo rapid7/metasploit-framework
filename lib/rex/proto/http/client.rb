@@ -64,6 +64,8 @@ class Client
       'pad_get_params_count'   => 'integer',
       'pad_post_params'        => 'bool',
       'pad_post_params_count'  => 'integer',
+      'shuffle_get_params'     => 'bool',
+      'shuffle_post_params'    => 'bool',
       'uri_fake_end'           => 'bool',
       'uri_fake_params_start'  => 'bool',
       'header_folding'         => 'bool',
@@ -663,8 +665,8 @@ class Client
           rblob = rbody.to_s + rbufq.to_s
           tries = 0
           begin
-            # XXX: This doesn't deal with chunked encoding or "Content-type: text/html; charset=..."
-            while tries < 1000 and resp.headers["Content-Type"]== "text/html" and rblob !~ /<\/html>/i
+            # XXX: This doesn't deal with chunked encoding
+            while tries < 1000 and resp.headers["Content-Type"] and resp.headers["Content-Type"].start_with?('text/html') and rblob !~ /<\/html>/i
               buff = conn.get_once(-1, 0.05)
               break if not buff
               rblob += buff

@@ -6,7 +6,7 @@ module Msf::Module::DataStore
   # @attribute [r] datastore
   #   The module-specific datastore instance.
   #
-  #   @return [Hash{String => String}]
+  #   @return [Msf::DataStore]
   attr_reader   :datastore
 
   #
@@ -21,7 +21,11 @@ module Msf::Module::DataStore
 
     # If there are default options, import their values into the datastore
     if (module_info['DefaultOptions'])
-      self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
+      if datastore.is_a?(Msf::DataStoreWithFallbacks)
+        self.datastore.import_defaults_from_hash(module_info['DefaultOptions'], imported_by: 'import_defaults')
+      else
+        self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
+      end
     end
 
     # Preference the defaults for the currently set target
@@ -34,7 +38,11 @@ module Msf::Module::DataStore
   def import_target_defaults
     return unless defined?(targets) && targets && target && target.default_options
 
-    datastore.import_options_from_hash(target.default_options, true, 'self')
+    if self.datastore.is_a?(Msf::ModuleDataStoreWithFallbacks)
+      datastore.import_defaults_from_hash(target.default_options, imported_by: 'import_target_defaults')
+    else
+      datastore.import_options_from_hash(target.default_options, true, 'self')
+    end
   end
 
   #

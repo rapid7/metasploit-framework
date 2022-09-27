@@ -1,12 +1,10 @@
 ## Vulnerable Application
 
-This module extracts user accounts from specified group and stores 
-the results in the loot. It will also verify if session account is 
-in the group. Data is stored in loot in a format that is compatible 
-with the `token_hunter` plugin. This module should be run over as 
-session with domain credentials.
-
-This information is gathered through the `net groups <domain> /domain` command.
+This module extracts user accounts from the specified domain group
+and stores the results in the loot. It will also verify if session
+account is in the group. Data is stored in loot in a format that
+is compatible with the `token_hunter` plugin. This module must be
+run on a session running as a domain user.
 
 ## Verification Steps
 
@@ -14,7 +12,7 @@ This information is gathered through the `net groups <domain> /domain` command.
 1. Get a session on a Windows target which is joined to a domain
 1. Do: `use post/windows/gather/enum_domain_group_users`
 1. Do: `set session [#]`
-1. Do: `set group`
+1. Do: `set group [group]`
 1. Do: `run`
 1. You should get the domain members for the group.
 
@@ -50,14 +48,14 @@ group => finance
 msf6 post(windows/gather/enum_domain_group_users) > run
 
 [*] Running module against DC1
-[-] No members found for finance
+[-] Post aborted due to failure: unknown: No members found for 'hoodiecola\finance' group.
 [*] Post module execution completed
 msf6 post(windows/gather/enum_domain_group_users) > set group "quality control"
 group => quality control
 msf6 post(windows/gather/enum_domain_group_users) > run
 
-[*] Running module against DC1
-[*] Found users in quality control
+[*] Running module against DC1 (1.1.1.1)
+[*] Found 3 users in 'hoodiecola\quality control' group.
 [*]     hoodiecola\rachel
 [*]     hoodiecola\lisa
 [*]     hoodiecola\charles

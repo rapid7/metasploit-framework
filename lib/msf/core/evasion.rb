@@ -101,8 +101,14 @@ module Msf
     # @param [FlaseClass] Payload is not compatible.
     def is_payload_compatible?(name)
       p = framework.payloads[name]
+      return false unless p
 
-      pi = p.new
+      begin
+        pi = p.new
+      rescue ::Exception, ::LoadError => e
+        wlog("Module #{name} failed to initialize payload when checking evasion compatibility: #{e}", 'core', LEV_0)
+        return false
+      end
 
       # Are we compatible in terms of conventions and connections and
       # what not?

@@ -21,7 +21,7 @@ class Client
     opts = {
       :caller_number => '15555555555',
       :caller_name   => '',
-      :server_port   => IAX2_DEFAULT_PORT,
+      :server_port   => Constants::IAX2_DEFAULT_PORT,
       :context       => { }
     }.merge(uopts)
 

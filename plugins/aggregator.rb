@@ -7,7 +7,7 @@
 #
 
 module Msf
-  Aggregator_yaml = "#{Msf::Config.get_config_root}/aggregator.yaml" # location of the aggregator.yml containing saved aggregator creds
+  Aggregator_yaml = "#{Msf::Config.config_directory}/aggregator.yaml" # location of the aggregator.yml containing saved aggregator creds
 
   class Plugin::Aggregator < Msf::Plugin
     class AggregatorCommandDispatcher

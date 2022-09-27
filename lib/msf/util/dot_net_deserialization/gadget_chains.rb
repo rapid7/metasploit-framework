@@ -6,6 +6,8 @@ module GadgetChains
 
 NAMES = [
   :ClaimsPrincipal,
+  :DataSet,
+  :DataSetTypeSpoof,
   :TextFormattingRunProperties,
   :TypeConfuseDelegate,
   :WindowsIdentity

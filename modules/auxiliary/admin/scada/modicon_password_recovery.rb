@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(21),
-        OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser']),
-        OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'])
+        OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser'], fallbacks: ['USERNAME']),
+        OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'], fallbacks: ['PASSWORD'])
       ])
 
     register_advanced_options(

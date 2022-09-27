@@ -35,7 +35,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Notes'           =>
         {
-          'SideEffects' =>  [CONFIG_CHANGES]
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => [CONFIG_CHANGES]
         },
       'DisclosureDate'  => '2018-11-08'
     ))

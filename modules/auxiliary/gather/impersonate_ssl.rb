@@ -38,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('PRIVKEY', [false, 'Sign the cert with your own CA private key', nil]),
         OptString.new('PRIVKEY_PASSWORD', [false, 'Password for private key specified in PRIV_KEY (if applicable)', nil]),
         OptPath.new('CA_CERT', [false, 'CA Public certificate', nil]),
-        OptString.new('ADD_CN', [false, 'Add CN to match spoofed site name (e.g. *.example.com)', nil])
+        OptString.new('ADD_CN', [false, 'Add CN to match spoofed site name (e.g. *.example.com)', nil]),
+        OptString.new('ADD_SAN', [false, 'Add SAN entries to certificate (e.g. alt.example.com,127.0.0.1)', nil])
       ]
     )
 
@@ -179,6 +180,17 @@ class MetasploitModule < Msf::Auxiliary
       ef.create_extension('basicConstraints', 'CA:FALSE', true),
       ef.create_extension('subjectKeyIdentifier', 'hash'),
     ]
+
+    # Add additional SAN entries to the new cert. See https://support.f5.com/csp/article/K13471
+    # for an example of how this added SAN field is expected to look like in a certificate.
+    if !datastore['ADD_SAN'].nil? && !datastore['ADD_SAN'].empty?
+      sans = datastore['ADD_SAN'].to_s.split(/,/)
+      sans.map! do |san|
+        san = (san =~ Resolv::IPv4::Regex || san =~ Resolv::IPv6::Regex) ? "IP:#{san}" : "DNS:#{san}"
+      end
+      new_cert.add_extension(ef.create_extension('subjectAltName', sans.join(','), false))
+      print_status("Adding #{datastore['ADD_SAN']} to the certificate subject alternative names")
+    end
 
     if !datastore['PRIVKEY'].nil? && !datastore['PRIVKEY'].empty?
       new_cert.sign(ca_key, OpenSSL::Digest.new(hashtype))

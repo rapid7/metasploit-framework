@@ -10,6 +10,20 @@ module Msf
   ###
   class ModuleDataStore < DataStore
 
+    # Temporary forking logic for conditionally using the {Msf::ModuleDatastoreWithFallbacks} implementation.
+    #
+    # This method replaces the default `ModuleDataStore.new` with the ability to instantiate the `ModuleDataStoreWithFallbacks`
+    # class instead, if the feature is enabled
+    def self.new(m)
+      if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
+        return Msf::ModuleDataStoreWithFallbacks.new(m)
+      end
+
+      instance = allocate
+      instance.send(:initialize, m)
+      instance
+    end
+
     def initialize(m)
       super()
 

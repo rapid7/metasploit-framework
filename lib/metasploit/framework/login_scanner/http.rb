@@ -15,6 +15,7 @@ module Metasploit
         DEFAULT_REALM        = nil
         DEFAULT_PORT         = 80
         DEFAULT_SSL_PORT     = 443
+        DEFAULT_HTTP_SUCCESS_CODES = [ 200, 201 ].append(*(300..309))
         LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
         LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
         PRIVATE_TYPES        = [ :password ]
@@ -117,6 +118,14 @@ module Metasploit
         #   @return [Integer] How many fake post variables to insert into the request
         attr_accessor :evade_pad_post_params_count
 
+        # @!attribute evade_shuffle_get_params
+        #   @return [Boolean] Randomize order of GET parameters
+        attr_accessor :evade_shuffle_get_params
+
+        # @!attribute evade_shuffle_post_params
+        #   @return [Boolean] Randomize order of POST parameters
+        attr_accessor :evade_shuffle_post_params
+
         # @!attribute evade_uri_fake_end
         #   @return [Boolean] Whether to add a fake end of URI (eg: /%20HTTP/1.0/../../)
         attr_accessor :evade_uri_fake_end
@@ -177,6 +186,11 @@ module Metasploit
         # @return [Boolean] Whether to keep the connection open after a successful login
         attr_accessor :keep_connection_alive
 
+        # @!attribute http_success_codes
+        # @return [Array][Int] list of valid http response codes
+        attr_accessor :http_success_codes
+
+        validate :validate_http_codes
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -279,7 +293,7 @@ module Metasploit
 
           begin
             response = send_request(request_opts)
-            if response && response.code == 200
+            if response && http_success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e
@@ -368,6 +382,8 @@ module Metasploit
             'pad_get_params_count'   => evade_pad_get_params_count,
             'pad_post_params'        => evade_pad_post_params,
             'pad_post_params_count'  => evade_pad_post_params_count,
+            'shuffle_get_params'     => evade_shuffle_get_params,
+            'shuffle_post_params'    => evade_shuffle_post_params,
             'uri_fake_end'           => evade_uri_fake_end,
             'uri_fake_params_start'  => evade_uri_fake_params_start,
             'header_folding'         => evade_header_folding,
@@ -396,6 +412,7 @@ module Metasploit
           self.connection_timeout ||= 20
           self.uri = '/' if self.uri.blank?
           self.method = 'GET' if self.method.blank?
+          self.http_success_codes = DEFAULT_HTTP_SUCCESS_CODES if self.http_success_codes.nil?
 
           # Note that this doesn't cover the case where ssl is unset and
           # port is something other than a default. In that situtation,
@@ -427,6 +444,15 @@ module Metasploit
           (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')
         end
 
+        private
+
+        def validate_http_codes
+          errors.add(:http_success_codes, "HTTP codes must be an Array") unless @http_success_codes.is_a?(Array)
+          @http_success_codes.each do |code|
+            next if code >= 200 && code < 400
+            errors.add(:http_success_codes, "Invalid HTTP code provided #{code}")
+          end
+        end
       end
     end
   end

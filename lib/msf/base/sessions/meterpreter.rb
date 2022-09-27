@@ -259,11 +259,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     @shell = nil
   end
 
-  def shell_command(cmd)
+  def shell_command(cmd, timeout = 5)
     # Send the shell channel's stdin.
     shell_write(cmd + "\n")
 
-    timeout = 5
     etime = ::Time.now.to_f + timeout
     buff = ""
 
@@ -413,7 +412,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   def update_session_info
     # sys.config.getuid, and fs.dir.getwd cache their results, so update them
-    fs.dir.getwd
+    fs&.dir&.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 

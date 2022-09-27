@@ -77,7 +77,7 @@ class Msf::Analyze
             port = svc.port
             next if evaluated_module_targets.include?([fnd_mod, port])
 
-            creds = @framework.db.creds(svcs: [svc.name])
+            creds = @framework.db.creds(svcs: [svc.name], workspace: eval_host.workspace)
             r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port},
                            available_creds: creds, payloads: payloads, framework: @framework)
             if r.match?
@@ -98,7 +98,7 @@ class Msf::Analyze
     to_evaluate_with_defaults.each do |fnd_mod, port|
       next if evaluated_module_targets.include?([fnd_mod, port])
 
-      creds = @framework.db.creds(port: port) if port
+      creds = @framework.db.creds(port: port, workspace: eval_host.workspace) if port
       r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port},
                      available_creds: creds, payloads: payloads, framework: @framework)
 

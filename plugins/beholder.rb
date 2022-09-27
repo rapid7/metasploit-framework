@@ -226,7 +226,7 @@ class Plugin::Beholder < Msf::Plugin
       webcam: false,
       keystrokes: true,
       automigrate: true,
-      base: ::File.join(Msf::Config.get_config_root, "beholder", Time.now.strftime("%Y-%m-%d.%s")),
+      base: ::File.join(Msf::Config.config_directory, "beholder", Time.now.strftime("%Y-%m-%d.%s")),
       freq: 30,
       # TODO: Only capture when the idle threshold has been reached
       idle: 0,

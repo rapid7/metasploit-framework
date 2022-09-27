@@ -258,6 +258,7 @@ module Msf
         str = <<~VERSIONS
           Framework: #{framework.version}
           Ruby: #{RUBY_DESCRIPTION}
+          OpenSSL: #{OpenSSL::OPENSSL_VERSION}
           Install Root: #{Msf::Config.install_root}
           Session Type: #{db_connection_info(framework)}
           Install Method: #{installation_method}

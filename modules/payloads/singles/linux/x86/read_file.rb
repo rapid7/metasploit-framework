@@ -28,7 +28,7 @@ module MetasploitModule
       ])
   end
 
-  def generate_stage(opts={})
+  def generate(opts={})
     fd = datastore['FD']
 
     payload_data =<<-EOS
