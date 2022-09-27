@@ -31,7 +31,7 @@ module Registry
   #
   # Windows Registry Constants.
   #
-  REG_NONE = 1
+  REG_NONE = 0
   REG_SZ = 1
   REG_EXPAND_SZ = 2
   REG_BINARY = 3
@@ -40,6 +40,7 @@ module Registry
   REG_BIG_ENDIAN = 5
   REG_LINK = 6
   REG_MULTI_SZ = 7
+  REG_QWORD = 11
 
   HKEY_CLASSES_ROOT = 0x80000000
   HKEY_CURRENT_USER = 0x80000001
@@ -246,17 +247,17 @@ protected
   ##
 
   def shell_registry_cmd(suffix, view = REGISTRY_VIEW_NATIVE)
-    cmd = "cmd.exe /c reg"
+    cmd = "cmd.exe /c reg #{suffix}"
     if view == REGISTRY_VIEW_32_BIT
-      cmd += " /reg:32"
+      cmd << " /reg:32"
     elsif view == REGISTRY_VIEW_64_BIT
-      cmd += " /reg:64"
+      cmd << " /reg:64"
     end
-    cmd_exec("#{cmd} #{suffix}")
+    cmd_exec(cmd)
   end
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)
-    results = shell_registry_cmd(suffix, view);
+    results = shell_registry_cmd(suffix, view)
     results.include?('The operation completed successfully')
   end
 
@@ -282,7 +283,7 @@ protected
   def shell_registry_createkey(key, view)
     key = normalize_key(key)
     # REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
-    shell_registry_cmd_result("add /f \"#{key}\"", view)
+    shell_registry_cmd_result("add \"#{key}\" /f", view)
   end
 
   #
@@ -358,8 +359,10 @@ protected
   # Returns the data portion of the value +valname+
   #
   def shell_registry_getvaldata(key, valname, view)
-    a = shell_registry_getvalinfo(key, valname, view)
-    a["Data"] || nil
+    valinfo = shell_registry_getvalinfo(key, valname, view)
+    return nil if valinfo.nil?
+
+    valinfo['Data']
   end
 
   #
@@ -377,12 +380,28 @@ protected
     results = shell_registry_cmd("query \"#{key}\" /v \"#{valname}\"", view)
 
     # pull out the interesting line (the one with the value name in it)
-    if match_arr = /^ +#{valname}.*/i.match(results)
-      # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
-      value['Type'] = match_arr[0].split[1]
-      # treat the remainder of the line after the reg type as the reg value
-      value['Data'] = match_arr[0].strip.scan(/#{value['Type']}\s+(.+)/).flatten.first
+    return nil unless match_arr = /^ +#{valname}.*/i.match(results)
+
+    # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
+    vtype = match_arr[0].split[1]
+    if %w[ REG_BINARY REG_DWORD REG_EXPAND_SZ REG_MULTI_SZ REG_NONE REG_QWORD REG_SZ ].include?(vtype)
+      value['Type'] = self.class.const_get(vtype)
     end
+    # treat the remainder of the line after the reg type as the reg value
+    vdata = match_arr[0].strip.scan(/#{vtype}\s+(.+)/).flatten.first
+    case vtype
+    when 'REG_BINARY'
+      vdata = vdata.scan(/../).map { |x| x.hex.chr }.join
+    when 'REG_DWORD', 'REG_QWORD'
+      if vdata.start_with?('0x')
+        vdata = vdata[2..].to_i(16)
+      else
+        vdata = vdata.to_i
+      end
+    when 'REG_MULTI_SZ'
+      vdata = vdata.split('\0')
+    end
+    value['Data'] = vdata
 
     value
   end
@@ -393,9 +412,23 @@ protected
   #
   def shell_registry_setvaldata(key, valname, data, type, view)
     key = normalize_key(key)
+
+    case type
+    when 'REG_BINARY'
+      data = data.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+    when 'REG_EXPAND_SZ'
+      if session.type == 'powershell'
+        data = data.gsub('%', '""%""')
+      elsif session.type == 'shell'
+        data = data.gsub('%', '"%"')
+      end
+    when 'REG_MULTI_SZ'
+      data = data.join('\0')
+    end
+
     # REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
     # /f to overwrite w/o prompt
-    shell_registry_cmd_result("add /f \"#{key}\" /v \"#{valname}\" /t \"#{type}\" /d \"#{data}\" /f", view)
+    shell_registry_cmd_result("add \"#{key}\" /v \"#{valname}\" /t \"#{type}\" /d \"#{data}\" /f", view)
   end
 
   # Checks if a key exists on the target registry using a shell session
@@ -412,11 +445,9 @@ protected
     end
 
     results = shell_registry_cmd("query \"#{key}\"")
-    if results =~ /ERROR: /i
-      return false
-    else
-      return true
-    end
+    return false if results.blank? || results =~ /ERROR: /i
+
+    true
   end
 
   ##

@@ -124,15 +124,11 @@ class MetasploitModule < Msf::Post
     shares = []
     print_status('The following shares were found:')
     share_names.each do |sname|
-      info = registry_getvaldata(shares_key, sname)
-      next if info.nil?
+      share_info = registry_getvaldata(shares_key, sname)
+      next if share_info.nil?
 
       print_status("\tName: #{sname}")
 
-      # NOTE: Extracting these values will fail on Meterpreter.
-      # Share info keys are REG_MULTI_SZ. Meterpreter stdapi registry
-      # query_value() function returns malformed REG_MULTI_SZ values.
-      share_info = info.split('\\0')
       stype = remark = path = nil
       share_info.each do |e|
         name, val = e.split('=')
