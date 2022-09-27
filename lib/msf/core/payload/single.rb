@@ -32,12 +32,13 @@ module Msf::Payload::Single
       # If they defined a custom method that will return the payload, then
       # call it
       if self.class.method_defined?(:generate_stage)
-        generate_stage
-      # Otherwise, just use the default method to generate the single
-      # payload
-      else
-        super
+        # this can safely be ignored for adapters
+        unless self.class.include?(Msf::Payload::Adapter)
+          wlog("Single payload '#{self.fullname}' has #generate_stage defined when it should be using #generate")
+        end
       end
+
+      super
     end
   end
 
