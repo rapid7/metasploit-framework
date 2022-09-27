@@ -311,18 +311,17 @@ class MetasploitModule < Msf::Auxiliary
     attributes = ['LDAPDisplayName', 'isSingleValued', 'oMSyntax', 'attributeSyntax']
     attributes_data = perform_ldap_query(ldap, filter, attributes, base: ['CN=Schema,CN=Configuration', @base_dn].join(','))
 
-    entry_list = []
+    entry_list = {}
     for entry in attributes_data do
-      data = {}
-      data[:ldapdisplayname] = entry[:ldapdisplayname][0]
+      ldap_display_name = entry[:ldapdisplayname][0]
       if entry[:issinglevalued][0] == 'TRUE'
-        data[:issinglevalued] = 1
+        is_single_valued = true
       else
-        data[:issinglevalued] = 0
+        is_single_valued = false
       end
-      data[:omsyntax] = entry[:omsyntax][0].to_i
-      data[:attributesyntax] = entry[:attributesyntax][0]
-      entry_list << data
+      omsyntax = entry[:omsyntax][0].to_i
+      attribute_syntax = entry[:attributesyntax][0]
+      entry_list[ldap_display_name] = { issinglevalued: is_single_valued, omsyntax: omsyntax, attributesyntax: attribute_syntax }
     end
     entry_list
   end
@@ -335,12 +334,15 @@ class MetasploitModule < Msf::Auxiliary
       entry_keys = entry.keys
       entry_keys.sort! # Sort entry keys alphabetically since LDAP results are returned alphabetically.
       entry_list = query_attributes_data(ldap, entry_keys)
-      entry_list.each do |attribute_entry|
-        attribute_name = attribute_entry[:ldapdisplayname].to_s.downcase.to_sym
+      entry_list.each do |attribute_key, attribute_entry|
+        if attribute_entry[:issinglevalued] == false
+          print_status(attribute_key.to_s)
+        end
+        attribute_name = attribute_key.to_s.downcase.to_sym
         modified = false
         case attribute_entry[:omsyntax]
         when 1 # Boolean
-          entry[attribute_name][0] = entry[attribute_name][0] == 1
+          entry[attribute_name][0] = entry[attribute_name][0] != 0
           modified = true
         when 2 # Integer
           if attribute_name == :systemflags
@@ -403,7 +405,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("Unknown oMSyntax entry: #{attribute_entry[:omsyntax]}")
           return nil
         end
-        if modified == false
+        unless modified
           entry[attribute_name].map! { |v| Rex::Text.to_hex_ascii(v) }
         end
       end
