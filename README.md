@@ -38,7 +38,7 @@ EXAMPLE: ROBOT ARMY
 
 🌐 HIVE/SWARM/PHALANX SOLDIER: Running KALI LINUX. Kali Linux is a specialized distribution that includes a few designed purposes, including penetration, cybersecurity,offensive security and forensics testing.
 
-🌐 HIVE/SWARM/PHALANX QUEEN: Running UBUNTU. Ubuntu is basically a SERVER and desktop distribution that also includes a lot of purposes. e.g HIVE/SWARM/PHALANX LEADER (server) with ADVANCED MACHINE LEARNING CAPABILITIES USES MACHINE LEARNING AND DEEP LEARNING TO SOLVE A REAL WORLD PROBLEM FOR SOLDIER ROBOTS (client), FROM DATASETS WHICH THE SOLDIER ROBOTS GATHER IN THE FIELD, AND SERVES UP WEIGHTS/MODELS to them via client server mode (but understand different deep learning weights/models may meand a different class of robot/a new type of ROBOT (see MACHINE MARRIAGES and LIBIDO in THE ARTIFICIAL INTELLIGENCE 2.0 ™) Documentation...
+🌐 HIVE/SWARM/PHALANX QUEEN: Running UBUNTU. Ubuntu is basically a SERVER and desktop distribution that also includes a lot of purposes. e.g HIVE/SWARM/PHALANX LEADER (server) with ADVANCED MACHINE LEARNING CAPABILITIES USES MACHINE LEARNING AND DEEP LEARNING TO SOLVE A REAL WORLD PROBLEM FOR SOLDIER ROBOTS (client), FROM DATASETS WHICH THE SOLDIER ROBOTS GATHER IN THE FIELD, AND SERVES UP WEIGHTS/MODELS to them via client server mode (but understand different deep learning weights/models may mean a different class of robot/a new type of ROBOT (see MACHINE MARRIAGES, SELF REPLICATION and LIBIDO in THE ARTIFICIAL INTELLIGENCE 2.0 ™) Documentation...
 
 
 
