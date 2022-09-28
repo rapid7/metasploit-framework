@@ -350,7 +350,7 @@ class MetasploitModule < Msf::Auxiliary
           entry[attribute_name][0] = entry[attribute_name][0] != 0
           modified = true
         when 2 # Integer
-          if key == :systemflags
+          if attribute_name == :systemflags
             flags = entry[attribute_name][0]
             converted_flags_string = convert_system_flags_to_string(flags)
             entry[attribute_name][0] = converted_flags_string
@@ -371,15 +371,15 @@ class MetasploitModule < Msf::Auxiliary
               if binguid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.
                 decoded_guid = decode_guid_binstring(binguid)
                 entry[attribute_name][0] = decoded_guid
-              else
-                entry[attribute_name][0] = Rex::Text.to_hex_ascii(entry[attribute_name][0])
+                modified = true
               end
-              modified = true
             elsif attribute_name == :cacertificate || attribute_name == :userCertificate
-              raw_key_data = entry[attribute_name][0]
-              _certificate_file, read_data = read_der_certificate_file(raw_key_data)
-              entry[attribute_name][0] = read_data
-              modified = true
+              entry[attribute_name].map! do |raw_key_data|
+                _certificate_file, read_data = read_der_certificate_file(raw_key_data)
+                modified = true
+
+                read_data
+              end
             end
           end
         when 6 # String (Object-Identifier)
@@ -518,13 +518,17 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           print_status("Sending single query #{datastore['QUERY_FILTER']} to the LDAP server...")
-          attributes = datastore['QUERY_ATTRIBUTES'].split(',')
+          attributes = datastore['QUERY_ATTRIBUTES']
           if attributes.empty?
             fail_with(Failure::BadConfig, 'Attributes list is empty as we could not find at least one attribute to filter on!')
           end
 
+          # Split attributes string into an array of attributes, splitting on the comma character.
+          # Also downcase for consistency with rest of the code since LDAP searches aren't case sensitive.
+          attributes = attributes.downcase.split(',')
+
           # Strip out leading and trailing whitespace from the attributes before using them.
-          attributes.map(&:strip)
+          attributes.map(&:strip!)
 
           # Run the query against the server using the given filter and retrieve
           # the requested attributes.
