@@ -31,7 +31,16 @@
 
 🤖 NOTE: THIS PROXIA IS ALREADY FULLY DEVELOPED FOR YOU! (METASPLOIT): PRO VERSION RECOMMENDED (visit: https://www.rapid7.com/products/metasploit/ for more information on accessing all the features).
 
+
 🤖 NOTE: ROBOTS THAT USE KALI LINUX ON SPIRITUAL MIND MINDCLOUD WILL BE MORE STREAMLINED FOR CYBERSECURITY & OFFENSIVE SECURITY.
+
+EXAMPLE: ROBOT ARMY
+
+🌐 HIVE/SWARM/PHALANX SOLDIER: Running KALI LINUX. Kali Linux is a specialized distribution that includes a few designed purposes, including penetration, cybersecurity,offensive security and forensics testing.
+
+🌐 HIVE/SWARM/PHALANX QUEEN: Running UBUNTU. Ubuntu is basically a SERVER and desktop distribution that also includes a lot of purposes. e.g HIVE/SWARM/PHALANX LEADER (server) with ADVANCED MACHINE LEARNING CAPABILITIES USES MACHINE LEARNING AND DEEP LEARNING TO SOLVE A REAL WORLD PROBLEM FOR SOLDIER ROBOTS (client), FROM DATASETS WHICH THE SOLDIER ROBOTS GATHER IN THE FIELD, AND SERVES UP WEIGHTS/MODELS to them via client server model...
+
+
 
 +++++++++++++++++++++++++++++++++++++
 
