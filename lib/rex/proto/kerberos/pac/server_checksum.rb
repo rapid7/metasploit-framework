@@ -12,13 +12,22 @@ module Rex
           #   @return [Integer] The checksum type
           attr_accessor :checksum
 
+          def checksum_length
+            if checksum == Rex::Proto::Kerberos::Crypto::Checksum::SHA1_AES128 ||
+              checksum == Rex::Proto::Kerberos::Crypto::Checksum::SHA1_AES256
+              return 12
+            elsif checksum == Rex::Proto::Kerberos::Crypto::Checksum::HMAC_MD5
+              return 16
+            end
+            16 # default to old behaviour just in case
+          end
           # Encodes the Rex::Proto::Kerberos::Pac::ServerChecksum
           #
           # @return [String]
           def encode
             encoded = ''
             encoded << [checksum].pack('V')
-            encoded << "\x00" * 16
+            encoded << "\x00" * checksum_length
 
             encoded
           end
