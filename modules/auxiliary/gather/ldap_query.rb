@@ -373,7 +373,7 @@ class MetasploitModule < Msf::Auxiliary
                 entry[attribute_name][0] = decoded_guid
                 modified = true
               end
-            elsif attribute_name == :cacertificate || attribute_name == :userCertificate
+            elsif attribute_name == :cacertificate || attribute_name == :usercertificate
               entry[attribute_name].map! do |raw_key_data|
                 _certificate_file, read_data = read_der_certificate_file(raw_key_data)
                 modified = true
@@ -393,7 +393,7 @@ class MetasploitModule < Msf::Auxiliary
         when 27 # Case Sensitive String
         when 64 # DirectoryString String(Unicode)
         when 65 # LargeInteger
-          if attribute_name == :creationtime
+          if attribute_name == :creationtime || attribute_name.to_s.match(/lastlog(?:on|off)/)
             timestamp = entry[attribute_name][0]
             time_string = convert_nt_timestamp_to_time_string(timestamp)
             entry[attribute_name][0] = time_string
