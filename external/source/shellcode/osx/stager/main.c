@@ -116,7 +116,7 @@ struct shared_file_mapping
 struct libdyldDyld4Section {
     void*               apis;
     void*               allImageInfos;  // set by dyld to point to the dyld_all_image_infos struct
-	  void*  defaultVars;    // set by libdyld to have addresses of default crt globals in libdyld.dylib
+    void*               defaultVars;    // set by libdyld to have addresses of default crt globals in libdyld.dylib
     uint64_t dyldLookupFuncAddr;
 };
 
@@ -406,7 +406,7 @@ int main(int argc, char** argv)
 #ifdef DEBUG
       print("Rosetta.\n");
 #endif
-    // TODO: Rosseta requires a bit more space...
+      // TODO: Rosseta requires a bit more space...
       extraAllocSize = 0x0;
     }
     vmSpace += extraAllocSize;
@@ -436,12 +436,12 @@ int main(int argc, char** argv)
         for (int i = 0 ; i < rptr->_usedCount; i++) {
           const struct Region region = rptr->_elements[i];
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Region: %lld\n", region.vmOffset);
-          SimpleDPrintf_func(1, "Region: %lld\n", region.perms);
-          SimpleDPrintf_func(1, "Region: %lld\n", region.isZeroFill);
-          SimpleDPrintf_func(1, "Region: %lld\n", region.readOnlyData);
-          SimpleDPrintf_func(1, "Region: %lld\n", region.fileOffset);
-          SimpleDPrintf_func(1, "Region: %lld\n", region.fileSize);
+          SimpleDPrintf_func(1, "Region vmOffset: %lld\n", region.vmOffset);
+          SimpleDPrintf_func(1, "Region perms: %lld\n", region.perms);
+          SimpleDPrintf_func(1, "Region isZeroFill: %lld\n", region.isZeroFill);
+          SimpleDPrintf_func(1, "Region readOnlyData: %lld\n", region.readOnlyData);
+          SimpleDPrintf_func(1, "Region fileOffset: %lld\n", region.fileOffset);
+          SimpleDPrintf_func(1, "Region fileSize: %lld\n", region.fileSize);
           print("----\n");
 #endif
           if ( region.isZeroFill || (region.fileSize == 0) )
