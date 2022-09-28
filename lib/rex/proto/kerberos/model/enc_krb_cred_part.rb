@@ -74,12 +74,6 @@ module Rex
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
-          # ticket-info     [0] SEQUENCE OF KrbCredInfo,
-          # nonce           [1] UInt32 OPTIONAL,
-          # timestamp       [2] KerberosTime OPTIONAL,
-          # usec            [3] Microseconds OPTIONAL,
-          # s-address       [4] HostAddress OPTIONAL,
-          # r-address       [5] HostAddress OPTIONAL
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag

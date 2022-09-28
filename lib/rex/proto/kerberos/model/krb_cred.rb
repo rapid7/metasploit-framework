@@ -20,6 +20,13 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::EncryptedData] Encrypted KRB-CRED blob
           attr_accessor :enc_part
 
+          def ==(other)
+            pvno == other.pvno &&
+              msg_type == other.msg_type &&
+              tickets == other.tickets &&
+              enc_part == other.enc_part
+          end
+
           # Decodes the Rex::Proto::Kerberos::Model::KrbCred from an input
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
@@ -54,6 +61,9 @@ module Rex
             seq_asn1.to_der
           end
 
+          # Loads a KrbCred from a kirbi file
+          # @param [String] file_path the path to load the file from
+          # @return [Rex::Proto::Kerberos::Model::KrbCred]
           def self.load_credential_from_file(file_path)
             unless File.readable?(file_path.to_s)
               raise ::ArgumentError, "Failed to load kirbi file '#{file_path}'"
@@ -62,17 +72,11 @@ module Rex
             decode(File.binread(file_path))
           end
 
+          # Saves a KrbCred to a kirbi file
+          # @param [String] file_path the path to save the file to
+          # @return [Integer] The length written
           def save_credential_to_file(file_path)
-            file = File.open(file_path, 'wb')
-            file.write(encode)
-            file.close
-          end
-
-          def ==(other)
-            pvno == other.pvno &&
-              msg_type == other.msg_type &&
-              tickets == other.tickets &&
-              enc_part == other.enc_part
+            File.binwrite(file_path, encode)
           end
 
           private

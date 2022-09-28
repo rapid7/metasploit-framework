@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
           This module converts tickets to the ccache format from the kirbi format and vice versa.
         },
         'Author' => [
+          'Zer1t0', # Impacket Implementation https://github.com/Zer1t0
           'Dean Welch', # Metasploit Module
-          'Zer1t0' # Impacket Implementation https://github.com/Zer1t0
         ],
         'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/3c6713e309cae871d685fa443d3e21b7026a2155/examples/ticketConverter.py'],
@@ -33,25 +33,25 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        OptPath.new('InputFile', [ true, 'The file path to ticket in kirbi (KRB-CRED) or ccache format.' ]),
+        OptPath.new('InputPath', [ true, 'The file path to ticket in kirbi (KRB-CRED) or ccache format.' ]),
         OptString.new('OutputPath', [ true, 'The output path to save the converted ticket.' ]),
       ]
     )
   end
 
   def run
-    input = File.open(datastore['InputFile'], 'rb', &:read)
-    if input[0..1] == "\x05\x04"
+    header = File.binread(datastore['InputPath'], 2)
+    if ccache?(header)
       print_status('Converting from ccache to kirbi')
-      output = ccache_to_kirbi(input)
-    elsif input[0] == "\x76"
+      output = ccache_to_kirbi(File.binread(datastore['InputPath']))
+    elsif kirbi?(header)
       print_status('Converting from kirbi to ccache')
-      output = kirbi_to_ccache(input)
+      output = kirbi_to_ccache(File.binread(datastore['InputPath']))
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unknown file format')
     end
     path = File.expand_path(datastore['OutputPath'])
-    File.write(path, output.encode, mode: 'wb')
+    File.binwrite(path, output.encode)
     print_status("File written to #{path}")
   end
 
@@ -63,5 +63,15 @@ class MetasploitModule < Msf::Auxiliary
   def kirbi_to_ccache(input)
     krb_cred = Rex::Proto::Kerberos::Model::KrbCred.decode(input)
     Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(krb_cred)
+  end
+
+  private
+
+  def kirbi?(header)
+    header[0] == "\x76"
+  end
+
+  def ccache?(header)
+    header[0..1] == "\x05\x04"
   end
 end
