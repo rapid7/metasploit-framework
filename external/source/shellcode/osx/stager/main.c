@@ -237,6 +237,7 @@ typedef void * (*NSAddressOfSymbol_ptr)(NSSymbol symbol);
 typedef /*Loader*/void * (*JustInTimeLoaderMake_ptr)(void *apis, void *ma, const char* path, const struct FileID * fileId, uint64_t sliceOffset, bool willNeverUnload, bool leaveMapped, bool overridesCache, uint16_t overridesDylibIndex);
 typedef void * (*AnalyzeSegmentsLayout_ptr)(void *ma, uintptr_t * vmSpace, bool * hasZeroFill);
 typedef void * (*VMAllocate_ptr)(uint64_t target_task, void * address, uint64_t size, int flags);
+typedef void * (*VMDeallocate_ptr)(uint64_t target_task, void * address, uint64_t size);
 typedef void * (*WithRegions_ptr)(void *ma, void * callback);
 typedef void * (*MMap_ptr)(void * sdg, void *addr, size_t length, int prot, int flags, int fd, uint64_t offset);
 void * memcpy2(void *dest, const void *src, size_t len);
@@ -259,7 +260,7 @@ typedef uint64_t (*SimpleDPrintf_ptr)(uint64_t fd, const char * fmt, const void 
 
 uint64_t find_macho(uint64_t addr, unsigned int increment);
 uint64_t find_dylib(uint64_t addr, unsigned int increment);
-uint64_t find_symbol(uint64_t base, char* symbol, uint64_t offset);
+void * find_symbol(uint64_t base, char* symbol, uint64_t offset);
 int string_compare(const char* s1, const char* s2);
 int detect_sierra();
 uint64_t syscall_shared_region_check_np();
@@ -327,7 +328,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  NSCreateObjectFileImageFromMemory_ptr NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory", offset);
+  NSCreateObjectFileImageFromMemory_ptr NSCreateObjectFileImageFromMemory_func = find_symbol(dyld, "_NSCreateObjectFileImageFromMemory", offset);
   while (!NSCreateObjectFileImageFromMemory_func) {
     if (sierra) {
       dyld = find_dylib(dyld + 0x1000, 0x1000);
@@ -338,20 +339,21 @@ int main(int argc, char** argv)
     if (!dyld) {
       return 1;
     }
-    NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory", offset);
-  } 
+    NSCreateObjectFileImageFromMemory_func = find_symbol(dyld, "_NSCreateObjectFileImageFromMemory", offset);
+  }
 #ifdef DEBUG
   print("good symbol!\n");
 #endif
 
-  void* gDyld = (void*)find_symbol(dyld, "__ZN5dyld45gDyldE", offset);
+  void* gDyld = find_symbol(dyld, "__ZN5dyld45gDyldE", offset);
   //printf("gDyld: %lld\n", gDyld);
+  void * addr_main = 0;
   if (gDyld != 0) {
 #ifdef DEBUG
     print("gDyld found, using dual hijack technique.\n");
 #endif
     // Also known as the RuntimeState or Allocator.
-    __block void* apis = ((struct libdyldDyld4Section*)gDyld)->apis;
+    void* apis = ((struct libdyldDyld4Section*)gDyld)->apis;
 #ifdef DEBUG
     printf("apis: %lld\n", apis);
     printf("config: %i\n", (int)*(void **)(apis+8));
@@ -364,7 +366,7 @@ int main(int argc, char** argv)
 #ifdef DEBUG
     printf("sdyld: %lld\n", sdyld);
 #endif
-    JustInTimeLoaderMake_ptr JustInTimeLoaderMake_func = (void*)find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", sdyld);
+    JustInTimeLoaderMake_ptr JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", sdyld);
     while (!JustInTimeLoaderMake_func) {
       sdyld = find_macho(sdyld + 0x1000, 0x1000);
       if (sdyld == 1) {
@@ -374,18 +376,18 @@ int main(int argc, char** argv)
         return 1;
       }
       //printf("Dyld: %lld\n", sdyld);
-      JustInTimeLoaderMake_func = (void*)find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", sdyld);
+      JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", sdyld);
     }
     //printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
     //printf("JITLMP: %lld\n", JustInTimeLoaderMake_func);
-    SimpleDPrintf_ptr SimpleDPrintf_func = (void*)find_symbol(sdyld, "__simple_dprintf", sdyld);
+    SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
 #ifdef DEBUG
     SimpleDPrintf_func(1, "SimpleDPrintf_func: %lld\n", SimpleDPrintf_func);
 #endif
     // Loader::mapSegments
     uintptr_t vmSpace = 0;
     bool hasZeroFill;
-    AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = (void*)find_symbol(sdyld, "__ZNK5dyld313MachOAnalyzer21analyzeSegmentsLayoutERyRb", sdyld);
+    AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = find_symbol(sdyld, "__ZNK5dyld313MachOAnalyzer21analyzeSegmentsLayoutERyRb", sdyld);
 #ifdef DEBUG
     print("Analyzing Segments.\n");
 #endif
@@ -412,7 +414,7 @@ int main(int argc, char** argv)
     SimpleDPrintf_func(1, "Translated: %s\n", isTranslated ? "true" : "false");
 #endif
     uintptr_t loadAddress = 0;
-    VMAllocate_ptr VMAllocate_func = (void*)find_symbol(sdyld, "_vm_allocate", sdyld);
+    VMAllocate_ptr VMAllocate_func = find_symbol(sdyld, "_vm_allocate", sdyld);
     uint64_t mach_task_self = *(uint64_t*)find_symbol(sdyld, "_mach_task_self_", sdyld);
     void * vmallocate_ret = VMAllocate_func(mach_task_self, &loadAddress, vmSpace, /*VM_FLAGS_ANYWHERE: */0x1);
 #ifdef DEBUG
@@ -421,14 +423,14 @@ int main(int argc, char** argv)
 #endif
     // Put regions together...
     // JustInTimeLoader::withRegions via MachOAnalyzer::getAllSegmentsInfos
-    WithRegions_ptr WithRegions_func = (void*)find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld313MachOAnalyzerEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", sdyld);
+    WithRegions_ptr WithRegions_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld313MachOAnalyzerEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", sdyld);
     WithRegions_func((void*)buffer, ^(struct ArrayOfRegions * rptr) {
 #ifdef DEBUG
         SimpleDPrintf_func(1, "Region Ptrs: %lld\n", rptr);
         SimpleDPrintf_func(1, "usedCount: %lld\n", rptr->_usedCount);
         SimpleDPrintf_func(1, "allocCount: %lld\n", rptr->_allocCount);
 #endif
-        __block uint32_t segIndex = 0;
+        uint32_t segIndex = 0;
         uint64_t sliceOffset = 0;
         uint64_t lastOffset = 0;
         for (int i = 0 ; i < rptr->_usedCount; i++) {
@@ -447,7 +449,7 @@ int main(int argc, char** argv)
           if ( (region.vmOffset == 0) && (segIndex > 0) )
             continue;
           int perms = region.perms;
-          MMap_ptr MMap_func = (void*)find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", sdyld);
+          MMap_ptr MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", sdyld);
 #ifdef DEBUG
           SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
           SimpleDPrintf_func(1, "Addr: %lld\n", (void*)(loadAddress + region.vmOffset));
@@ -469,7 +471,7 @@ int main(int argc, char** argv)
 #ifdef DEBUG
           SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
 #endif
-          Mprotect_ptr Mprotect_func = (void*)find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate8mprotectEPvmi", sdyld);
+          Mprotect_ptr Mprotect_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate8mprotectEPvmi", sdyld);
           Mprotect_func(*(void **)(apis+ 8), segAddress, (size_t)region.fileSize, perms);
 #ifdef DEBUG
           SimpleDPrintf_func(1, "SegAddress: %lld\n", segAddress);
@@ -480,8 +482,18 @@ int main(int argc, char** argv)
     });
     // Okay, we should be good to go with JustInTimeLoader::make.
     // __ZNK5dyld39MachOFile11installNameEv: ""
-    WithLoadersWriteLock_ptr WithLoadersWriteLock_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState20withLoadersWriteLockEU13block_pointerFvvE", sdyld);
-    __block void * topLoader;
+    WithLoadersWriteLock_ptr WithLoadersWriteLock_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState20withLoadersWriteLockEU13block_pointerFvvE", sdyld);
+    // We cannot use __block as it corrupts the stack, so we have to use a malloc technique to pass data.
+    uintptr_t structspace = 0;
+    uint64_t structspacesize = sizeof(void *)+ // rtopLoader
+        sizeof(struct FileID)+ // fileid
+        sizeof(struct LoadChain)+ // loadChainMain
+        sizeof(struct LoadChain)+ // loadChainCaller
+        sizeof(struct LoadChain)+ // loadChain
+        sizeof(struct LoadOptions)+ // depOptions
+        sizeof(struct diagnostics); // diag
+    VMAllocate_func(mach_task_self, &structspace, structspacesize, 0x1);
+    uint64_t * rtopLoader = (uint64_t *)(structspace);;
     WithLoadersWriteLock_func(apis, ^(){
       struct Loaded * loaded = (struct Loaded*)(apis+32);
       uintptr_t startLoaderCount = loaded->size;
@@ -490,18 +502,19 @@ int main(int argc, char** argv)
       SimpleDPrintf_func(1, "Loaded first: %lld\n", (loaded->elements));
       SimpleDPrintf_func(1, "Loaded Capacity: %lld\n", loaded->capacity);
 #endif
-      struct FileID fileid;// = { 0, 0, false };
-      fileid.iNode = 0;
-      fileid.modTime = 0;
-      fileid.isValid = false;
+      struct FileID * fileid = (struct FileID *)(rtopLoader+sizeof(void *));// = { 0, 0, false };
+      fileid->iNode = 0;
+      fileid->modTime = 0;
+      fileid->isValid = false;
 #ifdef DEBUG
       SimpleDPrintf_func(1, "Apis: %lld\n", apis);
       SimpleDPrintf_func(1, "LoadAddress: %lld\n", loadAddress);
       SimpleDPrintf_func(1, "JITLMP: %lld\n", JustInTimeLoaderMake_func);
 #endif
-      topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", &fileid, 0, false, true, false, 0);
+      void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0);
 #ifdef DEBUG
       SimpleDPrintf_func(1, "TopLoader: %lld\n", topLoader);
+      SimpleDPrintf_func(1, "Toploader (*(int*)this): %i\n", *(int *)topLoader);
       SimpleDPrintf_func(1, "Loaded Size: %lld\n", loaded->size);
       SimpleDPrintf_func(1, "Loaded Capacity: %lld\n", loaded->capacity);
 #endif
@@ -518,39 +531,41 @@ int main(int argc, char** argv)
 #ifdef DEBUG
       SimpleDPrintf_func(1, "lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
 #endif
-      struct LoadChain loadChainMain = { 0, *(void **)(apis+24) };
+      struct LoadChain * loadChainMain = (struct LoadChain *)(fileid+sizeof(struct FileID));// = { 0, *(void **)(apis+24) };
+      loadChainMain->previous = 0;
+      loadChainMain->image = *(void **)(apis+24);
 #ifdef DEBUG
       SimpleDPrintf_func(1, "mainExecutableLoader: %lld\n", *(void **)(apis+24));
-      SimpleDPrintf_func(1, "mainExecutableLoader: %lld\n", loadChainMain.image);
+      SimpleDPrintf_func(1, "mainExecutableLoader: %lld\n", loadChainMain->image);
 #endif
-      // This is required for some reason, if you find out comment below.
-      struct PartialLoader * pl2 = (struct PartialLoader *)(*(void **)(apis+24));
-#ifdef DEBUG
-      SimpleDPrintf_func(1, "Magic2: %lld\n", pl2->magic);
-#endif
-      struct LoadChain loadChainCaller = { &loadChainMain, &(loaded->elements[0]) };
+      struct LoadChain * loadChainCaller = (struct LoadChain *)(loadChainMain+sizeof(struct LoadChain));// = { &loadChainMain, &(loaded->elements[0]) };
+      loadChainCaller->previous = &loadChainMain;
+      loadChainCaller->image = &(loaded->elements[0]);
 #ifdef DEBUG
       SimpleDPrintf_func(1, "LoadedElements: %lld\n", &(loaded->elements[0]));
+      SimpleDPrintf_func(1, "Toploader (*(int*)this): %i\n", *(int *)topLoader);
 #endif
-      struct LoadChain loadChain = { &loadChainCaller, topLoader };
-      struct LoadOptions depOptions;
-      depOptions.staticLinkage    = true;
-      depOptions.rtldLocal        = false; // RTLD_LOCAL only effects top level dylib
-      depOptions.rtldNoDelete     = true;
-      depOptions.canBeDylib       = true;
-      depOptions.rpathStack       = &loadChain;
-      depOptions.useFallBackPaths = true;
-      LoadDependents_ptr LoadDependents_func = (void*)find_symbol(sdyld, "__ZN5dyld46Loader14loadDependentsER11DiagnosticsRNS_12RuntimeStateERKNS0_11LoadOptionsE", sdyld);
-      struct diagnostics diag;
-      diag._buffer = 0;
-      LoadDependents_func(topLoader, &diag, apis, &depOptions);
-      if (diag._buffer != 0) {
+      struct LoadChain * loadChain = (struct LoadChain *)(loadChainCaller+sizeof(struct LoadChain));// = { &loadChainCaller, topLoader };
+      loadChain->previous = &loadChainCaller;
+      loadChain->image = topLoader;
+      struct LoadOptions * depOptions = (struct LoadOptions *)(loadChain+sizeof(struct LoadChain));
+      depOptions->staticLinkage    = false;
+      depOptions->rtldLocal        = false; // RTLD_LOCAL only effects top level dylib
+      depOptions->rtldNoDelete     = true;
+      depOptions->canBeDylib       = true;
+      depOptions->rpathStack       = loadChain;
+      depOptions->useFallBackPaths = true;
+      LoadDependents_ptr LoadDependents_func = find_symbol(sdyld, "__ZN5dyld46Loader14loadDependentsER11DiagnosticsRNS_12RuntimeStateERKNS0_11LoadOptionsE", sdyld);
+      struct diagnostics * diag = (struct diagnostics *)(depOptions+sizeof(struct LoadOptions));
+      diag->_buffer = 0;
+      LoadDependents_func(topLoader, diag, apis, depOptions);
+      if (diag->_buffer != 0) {
 #ifdef DEBUG
         print("Error\n");
 #endif
       };
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "buffer: %lld\n", diag._buffer);
+      SimpleDPrintf_func(1, "buffer: %lld\n", diag->_buffer);
       SimpleDPrintf_func(1, "startLoaderCount: %lld\n", startLoaderCount);
 #endif
       uint64_t newLoadersCount = loaded->size - startLoaderCount;
@@ -558,18 +573,18 @@ int main(int argc, char** argv)
       SimpleDPrintf_func(1, "newLoadersCount: %lld\n", newLoadersCount);
 #endif
       void * * newLoaders = &loaded->elements[startLoaderCount];
-      __block struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
+      struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
       if (newLoadersCount != 0) {
-        NotifyDebuggerLoad_ptr NotifyDebuggerLoad_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState18notifyDebuggerLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+        NotifyDebuggerLoad_ptr NotifyDebuggerLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState18notifyDebuggerLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
         NotifyDebuggerLoad_func(apis, &newLoadersArray);
         if (*(char *)(apis + 0x7f) != '\0') {
-          AddWeakDefs_ptr AddWeakDefs_func = (void*)find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKN5dyld35ArrayIPKS0_EE", sdyld);
+          AddWeakDefs_ptr AddWeakDefs_func = find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKN5dyld35ArrayIPKS0_EE", sdyld);
           AddWeakDefs_func(apis, &newLoadersArray);
 #ifdef DEBUG
           print("WeakRefed\n");
 #endif
         }
-        ApplyFixups_ptr ApplyFixups_func = (void*)find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", sdyld);
+        ApplyFixups_ptr ApplyFixups_func = find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", sdyld);
         struct DyldCacheDataConstLazyScopedWriter dcdclsw = { apis, false };
         for (int i = 0; i != newLoadersCount; ++i) {
 #ifdef DEBUG
@@ -579,132 +594,121 @@ int main(int argc, char** argv)
 #ifdef DEBUG
           SimpleDPrintf_func(1, "Ldr: %lld\n", ldr);
 #endif
-          ApplyFixups_func(ldr, &diag, apis, &dcdclsw, true);
+          ApplyFixups_func(ldr, diag, apis, &dcdclsw, true);
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Diag: %lld\n", diag._buffer);
+          SimpleDPrintf_func(1, "Diag: %lld\n", diag->_buffer);
 #endif
         }
         // TODO: Figure out if we need addPermanentRanges.
-        NotifyDtrace_ptr NotifyDtrace_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+        NotifyDtrace_ptr NotifyDtrace_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
         NotifyDtrace_func(apis, &newLoadersArray);
-        RebindMissingFlatLazySymbols_ptr RebindMissingFlatLazySymbols_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState28rebindMissingFlatLazySymbolsERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+        RebindMissingFlatLazySymbols_ptr RebindMissingFlatLazySymbols_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState28rebindMissingFlatLazySymbolsERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
         RebindMissingFlatLazySymbols_func(apis, &newLoadersArray);
         for (int i = 0; i != newLoadersCount; ++i) {
           void * ldr = newLoaders[i];
 #ifdef DEBUG
           print("Setting up locals.\n");
 #endif
-          GetMA_ptr GetMA_func = (void*)find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", sdyld);
+          GetMA_ptr GetMA_func = find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", sdyld);
           const void* * ma = GetMA_func(ldr, apis);
-          HasThreadLocalVariables_ptr HasThreadLocalVariables_func = (void*)find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", sdyld);
+          HasThreadLocalVariables_ptr HasThreadLocalVariables_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", sdyld);
           if (HasThreadLocalVariables_func(ma) == true) {
 #ifdef DEBUG
             print("Has local variables.\n");
 #endif
-            SetUpTLVs_ptr SetUpTLVs_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", sdyld);
+            SetUpTLVs_ptr SetUpTLVs_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", sdyld);
             SetUpTLVs_func(apis, ma);
           }
         };
       }
-      IncDlRefCount_ptr IncDlRefCount_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", sdyld);
+      IncDlRefCount_ptr IncDlRefCount_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", sdyld);
       IncDlRefCount_func(apis, topLoader);
 #ifdef DEBUG
       print("Notifying.\n");
 #endif
-      NotifyLoad_ptr NotifyLoad_func = (void*)find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+      NotifyLoad_ptr NotifyLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
       NotifyLoad_func(apis, &newLoadersArray);
 #ifdef DEBUG
       print("Initializing\n");
 #endif
-      RunInitializers_ptr RunInitializers_func = (void*)find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", sdyld);
+      RunInitializers_ptr RunInitializers_func = find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", sdyld);
       RunInitializers_func(topLoader, apis);
+      *rtopLoader = (uint64_t)topLoader;
     });
     uintptr_t flags = 0;
-    void* handle = (void*)((((uintptr_t)topLoader) << 1) | flags);
+    void* handle = (void*)((((uintptr_t)*rtopLoader) << 1) | flags);
 #ifdef DEBUG
     SimpleDPrintf_func(1, "Handle: %lld\n", handle);
 #endif
+    VMDeallocate_ptr VMDeallocate_func = find_symbol(sdyld, "_vm_deallocate", sdyld);
+    VMDeallocate_func(mach_task_self, (void *)structspace, structspacesize);
+#ifdef DEBUG
+    SimpleDPrintf_func(1, "VMDeallocated: %lld\n", structspace);
+#endif
     NSModule nm = handle;
-    NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = (void*)find_symbol(dyld, "_NSLookupSymbolInModule", offset);
+    NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = find_symbol(dyld, "_NSLookupSymbolInModule", offset);
     NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
 #ifdef DEBUG
     SimpleDPrintf_func(1, "sym_main: %lld\n", sym_main);
 #endif
-    NSAddressOfSymbol_ptr NSAddressOfSymbol_func = (void*)find_symbol(dyld, "_NSAddressOfSymbol", offset);
+    NSAddressOfSymbol_ptr NSAddressOfSymbol_func = find_symbol(dyld, "_NSAddressOfSymbol", offset);
+    addr_main = NSAddressOfSymbol_func(sym_main);
+  } else {
+    NSLinkModule_ptr NSLinkModule_func = find_symbol(dyld, "_NSLinkModule", offset);
+    if (!NSLinkModule_func) {
+      return 1;
+    }
+
+    NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = find_symbol(dyld, "_NSLookupSymbolInModule", offset);
+    if (!NSLookupSymbolInModule_func) {
+      return 1;
+    }
+
+    NSAddressOfSymbol_ptr NSAddressOfSymbol_func = find_symbol(dyld, "_NSAddressOfSymbol", offset);
+    if (!NSAddressOfSymbol_func) {
+      return 1;
+    }
+
+    /*if (*(char*)buffer == 'b') {*/
+    /*print("magic b!\n");*/
+    /*}*/
+    *(char*)buffer = '\xcf';
+    ((uint32_t *)buffer)[3] = MH_BUNDLE;
+
+    NSObjectFileImage fi = 0;
+    if (NSCreateObjectFileImageFromMemory_func((void*)buffer, buffer_size, &fi) != 1) {
+      return 1;
+    }
+#ifdef DEBUG
+    print("created!\n");
+#endif
+
+    NSModule nm = NSLinkModule_func(fi, "", NSLINKMODULE_OPTION_PRIVATE | NSLINKMODULE_OPTION_BINDNOW | NSLINKMODULE_OPTION_RETURN_ON_ERROR);
+    if (!nm) {
+#ifdef DEBUG
+      print("no nm!\n");
+#endif
+      return 1;
+    }
+#ifdef DEBUG
+    print("good nm!\n");
+#endif
+
+    NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
+    if (!sym_main) {
+      return 1;
+    }
+
     void * addr_main = NSAddressOfSymbol_func(sym_main);
-#ifdef DEBUG
-    SimpleDPrintf_func(1, "addr_main: %lld\n", addr_main);
-#endif
-    int(*main_func)(int, char**) = (int(*)(int, char**))addr_main;
-#ifdef DEBUG
-    SimpleDPrintf_func(1, "main_func: %lld\n", main_func);
-#endif
-    char* socket = (char*)(size_t)argc;
-    char *new_argv[] = { "m", socket, NULL };
-    int new_argc = 2;
-#ifdef DEBUG
-    print("Calling main.\n");
-#endif
-    main_func(new_argc, new_argv);
-#ifdef DEBUG
-    print("Returning.\n");
-#endif
-    return 0;
-  }
-  NSLinkModule_ptr NSLinkModule_func = (void*)find_symbol(dyld, "_NSLinkModule", offset);
-  if (!NSLinkModule_func) {
-    return 1;
-  } 
-
-  NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = (void*)find_symbol(dyld, "_NSLookupSymbolInModule", offset);
-  if (!NSLookupSymbolInModule_func) {
-    return 1;
-  }
-
-  NSAddressOfSymbol_ptr NSAddressOfSymbol_func = (void*)find_symbol(dyld, "_NSAddressOfSymbol", offset);
-  if (!NSAddressOfSymbol_func) {
-    return 1;
-  }
-
-  /*if (*(char*)buffer == 'b') {*/
-  /*print("magic b!\n");*/
-  /*}*/
-  *(char*)buffer = '\xcf';
-  ((uint32_t *)buffer)[3] = MH_BUNDLE;
-
-  NSObjectFileImage fi = 0; 
-  if (NSCreateObjectFileImageFromMemory_func((void*)buffer, buffer_size, &fi) != 1) {
-    return 1;
-  }
-#ifdef DEBUG
-  print("created!\n");
-#endif
-
-  NSModule nm = NSLinkModule_func(fi, "", NSLINKMODULE_OPTION_PRIVATE | NSLINKMODULE_OPTION_BINDNOW | NSLINKMODULE_OPTION_RETURN_ON_ERROR);
-  if (!nm) {
-#ifdef DEBUG
-    print("no nm!\n");
-#endif
-    return 1;
-  }
-#ifdef DEBUG
-  print("good nm!\n");
-#endif
-
-  NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
-  if (!sym_main) {
-    return 1;
-  }
-
-  void * addr_main = NSAddressOfSymbol_func(sym_main);
-  if (!addr_main) {
-    return 1;
-  }
+    if (!addr_main) {
+      return 1;
+    }
 
 #ifdef DEBUG
-  print("found main!\n");
+    print("found main!\n");
 #endif
 
+  };
   int(*main_func)(int, char**) = (int(*)(int, char**))addr_main;
   char* socket = (char*)(size_t)argc;
   char *new_argv[] = { "m", socket, NULL };
@@ -712,7 +716,7 @@ int main(int argc, char** argv)
   return main_func(new_argc, new_argv);
 }
 
-uint64_t find_symbol(uint64_t base, char* symbol, uint64_t offset)
+void * find_symbol(uint64_t base, char* symbol, uint64_t offset)
 {
   struct segment_command_64 *sc, *linkedit, *text;
   struct load_command *lc;
@@ -755,14 +759,14 @@ uint64_t find_symbol(uint64_t base, char* symbol, uint64_t offset)
     /*print("\n");*/
     /*#endif*/
     if (string_compare(name, symbol) == 0) {
-      return nl[i].n_value + offset;
+      return (void*)(nl[i].n_value + offset);
     }
   }
 
   return 0;
 }
 
-uint64_t syscall_chmod(uint64_t path, long mode) 
+uint64_t syscall_chmod(uint64_t path, long mode)
 {
   uint64_t chmod_no = 0x200000f;
   uint64_t ret = 0;
@@ -805,7 +809,7 @@ uint64_t find_dylib(uint64_t addr, unsigned int increment)
   return 0;
 }
 
-int string_compare(const char* s1, const char* s2) 
+int string_compare(const char* s1, const char* s2)
 {
   while (*s1 != '\0' && *s1 == *s2)
   {
@@ -891,7 +895,7 @@ uint64_t roundUp(uint64_t numToRound, uint64_t multiple)
 }
 
 #ifdef DEBUG
-int string_len(const char* s1) 
+int string_len(const char* s1)
 {
   const char* s2 = s1;
   while (*s2 != '\0')
@@ -901,7 +905,7 @@ int string_len(const char* s1)
   return (s2 - s1);
 }
 
-void print(char * str) 
+void print(char * str)
 {
   long write = 0x2000004;
   long stdout = 1;
