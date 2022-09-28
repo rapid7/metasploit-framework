@@ -98,12 +98,6 @@ RSpec.describe Rex::Proto::Kerberos::Model::KrbCred do
     end
   end
 
-  describe '#save_credential_to_file' do
-    let(:kirbi_file) { Tempfile.new('test_kirbi_file_save.kirbi') }
-
-    it { expect { subject.save_credential_to_file(kirbi_file.path) }.not_to raise_error }
-  end
-
   describe '.load_credential_from_file' do
     let(:kirbi_file) do
       Tempfile.new('test_kirbi_file_save.kirbi').tap do |f|

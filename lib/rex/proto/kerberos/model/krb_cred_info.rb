@@ -40,6 +40,23 @@ module Rex
           # @!attribute sname
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
+          # @!attribute caddr
+          #   @return [Rex::Proto::Kerberos::Model::HostAddress] These are the addresses from which the ticket can be used
+          attr_accessor :caddr
+
+          def ==(other)
+            key == other.key &&
+              prealm == other.prealm &&
+              pname == other.pname &&
+              flags == other.flags &&
+              auth_time == other.auth_time &&
+              start_time == other.start_time &&
+              end_time == other.end_time &&
+              renew_till == other.renew_till &&
+              srealm == other.srealm &&
+              sname == other.sname &&
+              caddr == other.caddr
+          end
 
           # Decodes the Rex::Proto::Kerberos::Model::KrbCredInfo from an input
           #
@@ -71,21 +88,9 @@ module Rex
             elems << OpenSSL::ASN1::ASN1Data.new([encode_renew_till], 7, :CONTEXT_SPECIFIC) if renew_till
             elems << OpenSSL::ASN1::ASN1Data.new([encode_srealm], 8, :CONTEXT_SPECIFIC) if srealm
             elems << OpenSSL::ASN1::ASN1Data.new([encode_sname], 9, :CONTEXT_SPECIFIC) if sname
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_caddr], 10, :CONTEXT_SPECIFIC) if caddr
             seq = OpenSSL::ASN1::Sequence.new(elems)
             seq.to_der
-          end
-
-          def ==(other)
-            key == other.key &&
-              prealm == other.prealm &&
-              pname == other.pname &&
-              flags == other.flags &&
-              auth_time == other.auth_time &&
-              start_time == other.start_time &&
-              end_time == other.end_time &&
-              renew_till == other.renew_till &&
-              srealm == other.srealm &&
-              sname == other.sname
           end
 
           private
@@ -160,6 +165,13 @@ module Rex
             sname.encode
           end
 
+          # Encodes the caddr
+          #
+          # @return [String]
+          def encode_caddr
+            caddr.encode
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::KrbCredInfo from a String
           #
           # @param input [String] the input to decode from
@@ -173,17 +185,6 @@ module Rex
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from
           # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
-          # key             [0] EncryptionKey,
-          # prealm          [1] Realm OPTIONAL,
-          # pname           [2] PrincipalName OPTIONAL,
-          # flags           [3] TicketFlags OPTIONAL,
-          # authtime        [4] KerberosTime OPTIONAL,
-          # starttime       [5] KerberosTime OPTIONAL,
-          # endtime         [6] KerberosTime OPTIONAL,
-          # renew-till      [7] KerberosTime OPTIONAL,
-          # srealm          [8] Realm OPTIONAL,
-          # sname           [9] PrincipalName OPTIONAL,
-          # caddr           [10] HostAddresses OPTIONAL
           def decode_asn1(input)
             input.value.each do |val|
               case val.tag
@@ -208,7 +209,7 @@ module Rex
               when 9
                 self.sname = decode_sname(val)
               when 10
-                ilog "Ignoring optional value #{val.tag} while decoding KrbCredInfo"
+                self.caddr = decode_caddr(val)
               else
                 raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KrbCredInfo SEQUENCE'
               end

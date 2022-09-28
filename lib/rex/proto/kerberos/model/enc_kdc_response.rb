@@ -61,7 +61,7 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
           # @!attribute caddr
-          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] These are the addresses from which the ticket can be used
+          #   @return [Rex::Proto::Kerberos::Model::HostAddress] These are the addresses from which the ticket can be used
           attr_accessor :caddr
           # @!attribute pa_data
           #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>,nil] An array of PreAuthDataEntry. nil if not present.
@@ -184,7 +184,17 @@ module Rex
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [Rex::Proto::Kerberos::Model::KdcOptionFlags]
           def decode_flags(input)
-            Rex::Proto::Kerberos::Model::KdcOptionFlags.new(input.value[0].value.unpack1('N'))
+            flags = input.value[0].value.unpack1('N')
+            # == OpenSSL::ASN1::BitString
+            #
+            # === Additional attributes
+            # _unused_bits_: if the underlying BIT STRING's
+            # length is a multiple of 8 then _unused_bits_ is 0. Otherwise
+            # _unused_bits_ indicates the number of bits that are to be ignored in
+            # the final octet of the BitString's _value_.
+            unused_bits = input.value[0].unused_bits
+            flags >>= unused_bits
+            Rex::Proto::Kerberos::Model::KdcOptionFlags.new(flags)
           end
 
           # Decodes the auth_time field
