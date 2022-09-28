@@ -6,7 +6,7 @@ module Msf::Sessions
       super
     end
     def shell_command_token(cmd,timeout = 10)
-      shell_command_token_unix(cmd,timeout)
+      shell_command_token_base(cmd,timeout,';')
     end
   end
 
