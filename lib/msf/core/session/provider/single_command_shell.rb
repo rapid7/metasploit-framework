@@ -84,9 +84,6 @@ module SingleCommandShell
     nil
   end
 
-  def read_until_receiving_token(token, timeout=10)
-  end
-
   def shell_command_token(cmd, timeout=10)
     if platform == 'windows'
       output = shell_command_token_base(cmd, timeout, '&')
@@ -106,21 +103,15 @@ module SingleCommandShell
   # by the token (this time from actually being run).
   #
   # This function determines which situation we're in, and sets a variable accordingly
-  # (shell_token_index) which will persist for the duration of the session.
-  def set_shell_token_index(timeout, command_separator)
-    return @shell_token_index if @shell_token_index
+  # (is_echo_shell) which will persist for the duration of the session.
+  def set_is_echo_shell(timeout, command_separator)
+    return @is_echo_shell unless @is_echo_shell.nil?
     token = ::Rex::Text.rand_text_alpha(32)
     numeric_token = rand(0xffffffff) + 1
     cmd = "echo #{numeric_token}"
     shell_write(cmd + "#{command_separator}echo #{token}#{command_termination}")
     res = shell_read_until_token(token, 0, timeout)
-    if res.to_i == numeric_token
-      # We found our token - we can expect that, in future, we'll find it at index 0
-      @shell_token_index = 0
-    else
-      # We did not find our token. We can infer from this that it is echoing input
-      @shell_token_index = 1
-    end
+    @is_echo_shell = res.include?(cmd)
   end
 
   #
@@ -133,12 +124,17 @@ module SingleCommandShell
   def shell_command_token_base(cmd, timeout=10, command_separator="\n")
     # read any pending data
     buf = shell_read(-1, 0.01)
-    set_shell_token_index(timeout, command_separator)
+    set_is_echo_shell(timeout, command_separator)
     token = ::Rex::Text.rand_text_alpha(32)
 
     # Send the command to the session's stdin.
-    shell_write(cmd + "#{command_separator}echo #{token}#{command_termination}")
-    res = shell_read_until_token(token, @shell_token_index, timeout)
+    delimiter = "echo #{token}"
+    shell_data = cmd + "#{command_separator}#{delimiter}#{command_termination}"
+    unless @is_echo_shell
+      shell_data = "#{delimiter}#{command_separator}#{shell_data}"
+    end
+    shell_write(shell_data)
+    res = shell_read_until_token(token, 1, timeout)
     res
   end
 
