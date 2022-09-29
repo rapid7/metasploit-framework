@@ -1,5 +1,5 @@
 This module exports and decrypts Secret Server credentials to a CSV file; it is intended as a
-post-exploitation module for Windows hosts with Delia/Thycotic Secret Server installed. Master
+post-exploitation module for Windows hosts with Delinea/Thycotic Secret Server installed. Master
 Encryption Key (MEK) and associated IV values are decrypted from `encryption.config` using a 
 static key baked into the software; there is also support for encryption configs configured with
 Windows DPAPI MachineKey protection. The module contains two actions, `dump` and `export`, the
