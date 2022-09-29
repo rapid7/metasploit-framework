@@ -52,6 +52,7 @@ PATH
       pg
       puma
       railties
+      rasn1
       rb-readline
       recog
       redcarpet
@@ -334,6 +335,7 @@ GEM
       thor (~> 1.0)
     rainbow (3.1.1)
     rake (13.0.6)
+    rasn1 (0.10.0)
     rb-readline (0.5.5)
     recog (2.3.23)
       nokogiri

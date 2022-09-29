@@ -68,6 +68,7 @@ module Rex
 
           # The default etypes to offer to the Kerberos server when none is provided
           DefaultOfferedEtypes = [AES256, AES128, RC4_HMAC, DES_CBC_MD5, DES3_CBC_SHA1]
+          PkinitEtypes = [AES256, AES128]
 
           # The individual etype used by an encryptor when none is provided
           DefaultEncryptionType = RC4_HMAC
