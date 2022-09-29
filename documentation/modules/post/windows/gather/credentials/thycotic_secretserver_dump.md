@@ -16,7 +16,7 @@ https://github.com/denandz/SecretServerSecretStealer
 ## Vulnerable Application
 This module has been tested against Secret Server versions 8.4 through 11.2, though it may work on
 earlier versions. It is intended to be run after successfully exploiting a Windows host with the
-Delia/Thycotic Secret Server software installed. The module supports decryption of configuration
+Delinea/Thycotic Secret Server software installed. The module supports decryption of configuration
 files that have been protected by Windows DPAPI, but does not support extraction of any secrets
 if the system is configured with a Hardware Security Module (HSM).
 
