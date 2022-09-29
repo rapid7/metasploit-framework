@@ -17,19 +17,19 @@ queries:
   - action: ENUM_ADCS_ESC1_VULN_TEMPLATES
     description: 'Enumerate ADCS ESC1 vulnerable certificate templates.'
     base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    filter: '(&(objectclass=pkicertificatetemplate)(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))(|(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.2)(pkiextendedkeyusage=1.3.6.1.5.5.7.3.2) (pkiextendedkeyusage=1.3.6.1.5.2.3.4))(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1))'
+    filter: '(&(objectclass=pkicertificatetemplate)(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))(|(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.2)(pkiextendedkeyusage=1.3.6.1.5.5.7.3.2)(pkiextendedkeyusage=1.3.6.1.5.2.3.4)(pkiextendedkeyusage=2.5.29.37.0)(!(pkiextendedkeyusage=*)))(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1))'
     attributes:
       - cn
       - name
       - displayName
       - msPKI-Cert-Template-OID
+      - msPKI-Template-Schema-Version
       - msPKI-Enrollment-Flag
-      - msPKI-Private-Key-Flag
-      - msPKI-Certificate-Name-Flag
       - msPKI-RA-Signature
       - pKIExtendedKeyUsage
+      - ntSecurityDescriptor
     references:
-      - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/ad-cs-abuse/esc1
+      - https://web.archive.org/web/20220818094600if_/https://specterops.io/assets/resources/Certified_Pre-Owned.pdf
   - action: ENUM_ADMIN_OBJECTS
     description: 'Dump info about all objects with protected ACLs (i.e highly privileged objects).'
     filter: '(adminCount=1)'
@@ -44,7 +44,7 @@ queries:
       - objectCategory
       - member
       - memberof
-    references: 
+    references:
       - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
   - action: ENUM_ALL_OBJECT_CLASS
     description: 'Dump all objects containing any objectClass field.'
@@ -186,7 +186,7 @@ queries:
       - serverName
     references:
       - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
-      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1 
+      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
   - action: ENUM_LDAP_SERVER_METADATA
     description: 'Dump metadata about the setup of the domain.'
     filter: '(objectClass=*)'
@@ -198,7 +198,7 @@ queries:
       - domainControllerFunctionality
       - dnsHostName
     references:
-      - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf  
+      - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
   - action: ENUM_ORGUNITS
     description: 'Dump info about all known organizational units in the LDAP environment.'
     filter: '(objectClass=organizationalUnit)'
@@ -340,7 +340,12 @@ queries:
     references:
       - https://www.netspi.com/blog/technical/network-penetration-testing/exploiting-adidns/
       - https://github.com/dirkjanm/krbrelayx/blob/master/dnstool.py
-
-
-    
-  
+  - action: ENUM_DNS_ZONES
+    description: 'Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This is needed as without this BASEDN prefix we often miss certain entries'
+    filter: '(objectClass=dnsZone)'
+    base_dn_prefix: 'DC=DomainDnsZones'
+    attributes:
+      - name
+      - distinguishedName
+    references:
+      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
