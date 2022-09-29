@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         'Name' => 'Delia Thycotic Secret Server Dump',
         'Description' => %q{
           This module exports and decrypts Secret Server credentials to a CSV file;
-          it is intended as a post-exploitation module for Windows hosts with Delia/Thycotic
+          it is intended as a post-exploitation module for Windows hosts with Delinea/Thycotic
           Secret Server installed. Master Encryption Key (MEK) and associated IV values are
           decrypted from encryption.config using a static key baked into the software. The
           module also supports parameter recovery for encryption configs configured with
