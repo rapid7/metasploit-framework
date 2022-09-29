@@ -22,7 +22,7 @@ if the system is configured with a Hardware Security Module (HSM).
 
 ## Verification Steps
 This is a post module and requires a meterpreter session on the Microsoft Windows server host
-with a configured instance of Delia/Thycotic Secret Server installed.
+with a configured instance of Delinea/Thycotic Secret Server installed.
 
 1. Start msfconsole
 2. Get session on Secret Server host via method of choice and background it
