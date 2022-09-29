@@ -326,7 +326,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     report_auth_info(auth_info)
-    start_session(self, info, merge_me) if datastore['CreateSession']
-
+    if datastore['CreateSession']
+      start_session(self, info, merge_me, false, self.sock)
+      # Don't tie the life of this socket to the exploit
+      self.sock = nil
+    end
   end
 end
