@@ -264,9 +264,11 @@ class MetasploitModule < Msf::Auxiliary
       :stderr_sock    => stderr_sock
     }
 
-    # Don't tie the life of this socket to the exploit
-    self.sockets.delete(stderr_sock)
-
-    start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", merge_me) if datastore['CreateSession']
+    if datastore['CreateSession']
+      start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", merge_me, nil, self.sock)
+      # Don't tie the life of this socket to the exploit
+      self.sockets.delete(stderr_sock)
+      self.sock = nil
+    end
   end
 end
