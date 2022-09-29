@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Delia Thycotic Secret Server Dump',
+        'Name' => 'Delinea Thycotic Secret Server Dump',
         'Description' => %q{
           This module exports and decrypts Secret Server credentials to a CSV file;
           it is intended as a post-exploitation module for Windows hosts with Delinea/Thycotic
