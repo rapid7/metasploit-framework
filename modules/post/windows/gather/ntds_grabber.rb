@@ -4,9 +4,9 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Powershell
   include Msf::Post::Windows::Priv
-  include Msf::Post::Windows::Registry
   include Msf::Post::File
   include Msf::Post::Common
 
@@ -43,17 +43,6 @@ class MetasploitModule < Msf::Post
       ],
       self.class
     )
-  end
-
-  def dc_check
-    is_dc_srv = false
-    serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-    if registry_enumkeys(serviceskey).include?("NTDS")
-      if registry_enumkeys("#{serviceskey}\\NTDS").include?("Parameters")
-        is_dc_srv = true
-      end
-    end
-    return is_dc_srv
   end
 
   def task_running(task)
@@ -96,12 +85,12 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    if not dc_check
-      print_error('Not running on a domain controller, you need run this module on a domain controller! STOPPING')
+    unless domain_controller?
+      print_error('Host is not a domain controller. This module must be on a domain controller! STOPPING')
       return
-    else
-      print_good('Running on a domain controller')
     end
+
+    print_good('Running on a domain controller')
 
     if have_powershell?
       print_good('PowerShell is installed.')

@@ -109,6 +109,7 @@ module WindowsCryptoHelpers
     (60...policy_secret.length).step(16) do |i|
       aes.reset
       aes.padding = 0
+      aes.iv = "\x00" * 16
       decrypted_data << aes.update(policy_secret[i,16])
     end
 

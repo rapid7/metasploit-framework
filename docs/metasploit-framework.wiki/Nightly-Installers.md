@@ -30,6 +30,33 @@ Download the [latest Windows installer](https://windows.metasploit.com/metasploi
 
 If you downloaded Metasploit from us, there is no cause for alarm.  We pride ourselves on offering the ability for our customers and followers to have the same toolset that the hackers have so that they can test systems more accurately.  Because these (and the other exploits and tools in Metasploit) are identical or very similar to existing malicious toolsets, they can be used for nefarious purposes, and they are often flagged and automatically removed by antivirus programs, just like the malware they mimic.
 
+### Windows silent installation
+
+The PowerShell below will download and install the framework, and is suitable for automated Windows deployments. Note that, the installer will be downloaded to `$DownloadLocation` and won't be deleted after the script has run.
+```
+[CmdletBinding()]
+Param(
+    $DownloadURL = "https://windows.metasploit.com/metasploitframework-latest.msi",
+    $DownloadLocation = "$env:APPDATA/Metasploit",
+    $InstallLocation = "C:\Tools",
+    $LogLocation = "$DownloadLocation/install.log"
+)
+
+If(! (Test-Path $DownloadLocation) ){
+    New-Item -Path $DownloadLocation -ItemType Directory
+}
+
+If(! (Test-Path $InstallLocation) ){
+    New-Item -Path $InstallLocation -ItemType Directory
+}
+
+$Installer = "$DownloadLocation/metasploit.msi"
+
+Invoke-WebRequest -UseBasicParsing -Uri $DownloadURL -OutFile $Installer
+
+& $Installer /q /log $LogLocation INSTALLLOCATION="$InstallLocation"
+```
+
 ## Improving these installers
 
 Feel free to review and help improve [the source code for our installers](https://github.com/rapid7/metasploit-omnibus).

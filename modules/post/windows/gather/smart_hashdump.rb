@@ -384,20 +384,6 @@ class MetasploitModule < Msf::Post
   end
   #-------------------------------------------------------------------------------
 
-  # Function for checking if target is a DC
-  def is_dc?
-    is_dc_srv = false
-    serviceskey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
-    if registry_enumkeys(serviceskey).include?('NTDS')
-      if registry_enumkeys(serviceskey + '\\NTDS').include?('Parameters')
-        print_good("\tThis host is a Domain Controller!")
-        is_dc_srv = true
-      end
-    end
-    return is_dc_srv
-  end
-  #-------------------------------------------------------------------------------
-
   # Function to migrate to a process running as SYSTEM
   def move_to_sys
     # Make sure you got the correct SYSTEM Account Name no matter the OS Language
@@ -426,7 +412,9 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
 
   def smart_hash_dump(migrate_system, pwdfile)
-    domain_controller = is_dc?
+    domain_controller = domain_controller?
+    print_good('Host is a Domain Controller') if domain_controller
+
     if !is_uac_enabled? || is_admin?
       print_status('Dumping password hashes...')
       # Check if Running as SYSTEM

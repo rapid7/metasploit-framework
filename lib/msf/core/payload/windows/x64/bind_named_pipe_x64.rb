@@ -30,7 +30,7 @@ module Payload::Windows::BindNamedPipe_x64
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     conf = {
       name:        datastore['PIPENAME'],
       host:        datastore['PIPEHOST'],

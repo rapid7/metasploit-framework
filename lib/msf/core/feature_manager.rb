@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 # frozen_string_literal: true
 
+require 'rex/text'
 
 module Msf
   ###
@@ -14,6 +15,7 @@ module Msf
 
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
+    DATASTORE_FALLBACKS = 'datastore_fallbacks'
     FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
     SERVICEMANAGER_COMMAND = 'servicemanager_command'
     DEFAULTS = [
@@ -30,6 +32,12 @@ module Msf
       {
         name: SERVICEMANAGER_COMMAND,
         description: 'When enabled you will have access to the _servicemanager command',
+        default_value: false
+      }.freeze,
+      {
+        name: DATASTORE_FALLBACKS,
+        description: 'When enabled you can consistently set username across modules, instead of setting SMBUser/FTPUser/BIND_DN/etc',
+        requires_restart: true,
         default_value: false
       }.freeze
     ].freeze
@@ -58,11 +66,21 @@ module Msf
       end
     end
 
+    # @param [String] name The feature name
+    # @return [TrueClass,FalseClass] True if the flag is be enabled, false otherwise
     def enabled?(name)
       return false unless @flag_lookup[name]
 
       feature = @flag_lookup[name]
       feature.key?(:user_preference) ? feature[:user_preference] : feature[:default_value]
+    end
+
+    # @param [String] name The feature name
+    # @return [TrueClass,FalseClass] True if the flag requires a console restart to work effectively
+    def requires_restart?(name)
+      return false unless @flag_lookup[name]
+
+      @flag_lookup[name][:requires_restart] == true
     end
 
     def exists?(name)

@@ -16,7 +16,7 @@ module Payload::Windows::BindTcpRc4_x64
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     xorkey, rc4key = rc4_keys(datastore['RC4PASSWORD'])
     conf = {
       port:        datastore['LPORT'],

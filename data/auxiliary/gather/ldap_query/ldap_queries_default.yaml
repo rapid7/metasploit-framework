@@ -1,0 +1,121 @@
+---
+queries:
+  - action: ENUM_ADCS_CAS
+    description: 'Enumerate ADCS certificate authorities.'
+    base_dn_prefix: 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
+    filter: '(objectClass=pKIEnrollmentService)'
+    attributes:
+      - cn
+      - name
+      - cACertificateDN
+      - dNSHostname
+      - certificateTemplates
+  - action: ENUM_ADCS_CERT_TEMPLATES
+    description: 'Enumerate ADCS certificate templates.'
+    base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    filter: '(objectClass=pkicertificatetemplate)'
+    attributes:
+      - cn
+      - name
+      - displayName
+      - msPKI-Enrollment-Flag
+      - msPKI-Private-Key-Flag
+      - msPKI-Certificate-Name-Flag
+      - msPKI-RA-Signature
+      - pKIExtendedKeyUsage
+  - action: ENUM_ALL_OBJECT_CLASS
+    description: 'Dump all objects containing any objectClass field.'
+    filter: '(objectClass=*)'
+    attributes:
+      - dn
+      - objectClass
+  - action: ENUM_ALL_OBJECT_CATEGORY
+    description: 'Dump all objects containing any objectCategory field.'
+    filter: '(objectCategory=*)'
+    attributes:
+      - dn
+      - objectCategory
+  - action: ENUM_ACCOUNTS
+    description: 'Dump info about all known user accounts in the domain.'
+    filter: '(|(objectClass=organizationalPerson)(sAMAccountType=805306368))'
+    attributes:
+      - dn
+      - name
+      - displayName
+      - samAccountName
+      - userPrincipalName
+      - userAccountControl
+      - homeDirectory
+      - homeDrive
+      - profilePath
+  - action: ENUM_COMPUTERS
+    description: 'Dump all objects containing an objectCategory of Computer.'
+    filter: '(objectCategory=Computer)'
+    attributes:
+      - dn
+      - displayName
+      - distinguishedName
+      - dNSHostName
+      - description
+      - givenName
+      - name
+      - operatingSystemVersion
+      - operatingSystemServicePack
+  - action: ENUM_DOMAIN_CONTROLLERS
+    description: 'Dump all known domain controllers.'
+    filter: '(&(objectCategory=Computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))'
+    attributes:
+      - dn
+      - displayName
+      - distinguishedName
+      - dNSHostName
+      - description
+      - givenName
+      - name
+      - operatingSystemVersion
+      - operatingSystemServicePack
+  - action: ENUM_EXCHANGE_SERVERS
+    description: 'Dump info about all known Exchange servers.'
+    filter: '(&(objectClass=msExchExchangeServer)(!(objectClass=msExchExchangeServerPolicy)))'
+    attributes:
+      - dn
+      - displayName
+      - distinguishedName
+      - dNSHostName
+      - description
+      - givenName
+      - name
+      - operatingSystemVersion
+      - operatingSystemServicePack
+  - action: ENUM_EXCHANGE_RECIPIENTS
+    description: 'Dump info about all known Exchange recipients.'
+    filter: '(|(mailNickname=*)(proxyAddresses=FAX:*))'
+    attributes:
+      - dn
+      - mailNickname
+      - proxyAddresses
+      - name
+  - action: ENUM_GROUPS
+    description: 'Dump info about all known groups in the LDAP environment.'
+    filter: '(|(objectClass=group)(objectClass=groupOfNames)(groupType:1.2.840.113556.1.4.803:=2147483648)(objectClass=posixGroup))'
+    attributes:
+      - dn
+      - name
+      - groupType
+      - memberof
+  - action: ENUM_ORGUNITS
+    description: 'Dump info about all known organizational units in the LDAP environment.'
+    filter: '(objectClass=organizationalUnit)'
+    attributes:
+      - dn
+      - displayName
+      - name
+      - description
+  - action: ENUM_ORGROLES
+    description: 'Dump info about all known organization roles in the LDAP environment.'
+    filter: '(objectClass=organizationalRole)'
+    attributes:
+      - dn
+      - displayName
+      - name
+      - description

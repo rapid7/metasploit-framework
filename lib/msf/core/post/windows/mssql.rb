@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
+
 module Msf
   class Post
     module Windows
       module MSSQL
-
         # @return [String, nil] contains the identified SQL command line client
         attr_accessor :sql_client
 
@@ -48,18 +48,16 @@ module Msf
                 target_service = service
                 break
               end
-            else
-              if (
-                  service[:display].downcase.include?("SQL Server (#{instance}".downcase) || #2k8
-                  service[:display].downcase.include?("MSSQL$#{instance}".downcase) || #2k
-                  service[:display].downcase.include?("MSSQLServer#{instance}".downcase) || #2k5
+            elsif (
+                  service[:display].downcase.include?("SQL Server (#{instance}".downcase) || # 2k8
+                  service[:display].downcase.include?("MSSQL$#{instance}".downcase) || # 2k
+                  service[:display].downcase.include?("MSSQLServer#{instance}".downcase) || # 2k5
                   service[:display].downcase == instance.downcase # If the user gets very specific
-                 ) &&
-                 service[:display] !~ /OLAPService|ADHelper/i &&
-                 service[:pid].to_i > 0
-                target_service = service
-                break
-              end
+                ) &&
+                  service[:display] !~ /OLAPService|ADHelper/i &&
+                  service[:pid].to_i > 0
+              target_service = service
+              break
             end
           end
 
@@ -109,13 +107,28 @@ module Msf
         # @param [String] query the query to execute
         # @param [String] instance the SQL instance to target
         # @param [String] server the SQL server to target
+        # @param [String] database the database to connect to upon successfully authenticating
+        # @param [String] username the username to authenticate as
+        # @param [String] password the password to authenticate with
         # @return [String] the result of query
-        def run_sql(query, instance = nil, server = '.')
+        def run_sql(query, instance = nil, server = '.', database: nil, username: nil, password: nil)
           target = server
           if instance && instance.downcase != 'mssqlserver'
             target = "#{server}\\#{instance}"
           end
-          cmd = "#{@sql_client} -E -S #{target} -Q \"#{query}\" -h-1 -w 200"
+          cmd = sql_client.to_s
+          cmd += " -d #{database}" if database.present?
+          if username.present? && password.nil?
+            raise ArgumentError, 'Username provided but no value for the password was provided!'
+          elsif username.present? && !password.nil?
+            cmd += " -U \"#{username}\" -P \"#{password}\""
+          elsif username.blank? && !password.nil?
+            cmd += " -P \"#{password}\""
+          else
+            cmd += ' -E'
+          end
+
+          cmd += " -S #{target} -Q \"#{query}\" -h -1 -w 200"
           vprint_status(cmd)
           run_cmd(cmd)
         end
@@ -132,9 +145,10 @@ module Msf
         def run_cmd(cmd, token = true)
           opts = { 'Hidden' => true, 'Channelized' => true, 'UseThreadToken' => token }
           process = session.sys.process.execute("cmd.exe /c #{cmd}", nil, opts)
-          res = ""
+          res = ''
           while (d = process.channel.read)
-            break if d == ""
+            break if d == ''
+
             res << d
           end
           process.channel.close
@@ -203,20 +217,20 @@ module Msf
         #
         # @return [Boolean] true if escalated successfully or user is already SYSTEM
         def get_system
-          print_status("Checking if user is SYSTEM...")
+          print_status('Checking if user is SYSTEM...')
 
           if is_system?
-            print_good("User is SYSTEM")
+            print_good('User is SYSTEM')
             return true
           else
             # Attempt to get LocalSystem privileges
-            print_warning("Attempting to get SYSTEM privileges...")
+            print_warning('Attempting to get SYSTEM privileges...')
             system_status = session.priv.getsystem
             if system_status && system_status.first
-              print_good("Success, user is now SYSTEM")
+              print_good('Success, user is now SYSTEM')
               return true
             else
-              print_error("Unable to obtained SYSTEM privileges")
+              print_error('Unable to obtained SYSTEM privileges')
               return false
             end
           end

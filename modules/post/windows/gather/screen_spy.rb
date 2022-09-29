@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
 
   def run
     host = session.session_host
-    screenshot = Msf::Config.get_config_root + '/logs/' + host + '.jpg'
+    screenshot = Msf::Config.config_directory + '/logs/' + host + '.jpg'
 
     # If no PID is specified, don't migrate.
     if datastore['PID'] != ''

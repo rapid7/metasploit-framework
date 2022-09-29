@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.93'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.96'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.18'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.20'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -95,8 +95,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
   spec.add_runtime_dependency 'openssl-ccm'
-  # Needed for documentation generation
-  spec.add_runtime_dependency 'octokit'
+  # Needed for documentation generation - locked unitl Ruby 2.6 support is dropped
+  spec.add_runtime_dependency 'octokit', '~> 4.0'
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
@@ -140,7 +140,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'ed25519' # Adds ed25519 keys for net-ssh
   spec.add_runtime_dependency 'bcrypt_pbkdf'
-  spec.add_runtime_dependency 'ruby_smb', '~> 3.1.0'
+  spec.add_runtime_dependency 'ruby_smb', '~> 3.2.0'
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
   spec.add_runtime_dependency 'winrm'
@@ -211,8 +211,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'hrr_rb_ssh-ed25519'
   # Needed for irb internal command
   spec.add_runtime_dependency 'irb'
-  # Lock reline version until Fiddle concerns are addressed
-  spec.add_runtime_dependency 'reline', '0.2.5'
 
   # AWS enumeration modules
   spec.add_runtime_dependency 'aws-sdk-s3'
@@ -224,6 +222,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'eventmachine'
 
   spec.add_runtime_dependency 'faraday'
+  spec.add_runtime_dependency 'faraday-retry'
 
   # Required for windows terminal colors as of Ruby 3.0
   spec.add_runtime_dependency 'win32api'

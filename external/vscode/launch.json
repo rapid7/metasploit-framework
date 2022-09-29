@@ -1,0 +1,27 @@
+{
+    // Example file to showcase how to debug Metasploit using the ruby/debug gem along with the
+    // ruby/vscode-rdbg VSCode plugin. This file will be used by VSCode and the ruby/vscode-rdbg
+    // plugin to figure out how to connect to setup the rdbg instance for msfconsole and then connect
+    // to it properly, allowing you to debug Metasploit and more specifically msfconsole and any associated
+    // modules that you run within it.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "rdbg",
+            "name": "Debug current file with rdbg",
+            "request": "launch",
+            "script": "${cwd}/msfconsole",
+            "args": [],
+            "askParameters": true,
+            "localfs": true,
+            "debugPort": "127.0.0.1:55634"
+        },
+        {
+            "type": "rdbg",
+            "name": "Attach with rdbg",
+            "request": "attach",
+            "localfs": true,
+            "debugPort": "127.0.0.1:55634"
+        }
+    ]
+}

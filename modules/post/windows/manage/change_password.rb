@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('SMBDomain', [false, 'Domain or Host to change password on, if not set will use the current login domain', nil]),
-        OptString.new('SMBUser', [true, 'Username to change password of']),
+        OptString.new('SMBDomain', [false, 'Domain or Host to change password on, if not set will use the current login domain', nil], fallbacks: ['DOMAIN']),
+        OptString.new('SMBUser', [true, 'Username to change password of'], fallbacks: ['PASSWORD']),
         OptString.new('OLD_PASSWORD', [true, 'Original password' ]),
         OptString.new('NEW_PASSWORD', [true, 'New password' ]),
       ]

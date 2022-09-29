@@ -61,6 +61,10 @@ module Buffer
         buf = Rex::Text.encode_base32(buf)
       when 'base64'
         buf = Rex::Text.encode_base64(buf)
+      when 'go','golang'
+        buf = Rex::Text.to_golang(buf)
+      when 'nim','nimlang'
+        buf = Rex::Text.to_nim(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -93,6 +97,10 @@ module Buffer
         buf = Rex::Text.to_c_comment(buf)
       when 'powershell','ps1'
         buf = Rex::Text.to_psh_comment(buf)
+      when 'go','golang'
+        buf = Rex::Text.to_golang_comment(buf)
+      when 'nim','nimlang'
+        buf = Rex::Text.to_nim_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -112,10 +120,14 @@ module Buffer
       'csharp',
       'dw',
       'dword',
+      'go',
+      'golang',
       'hex',
       'java',
       'js_be',
       'js_le',
+      'nim',
+      'nimlang',
       'num',
       'perl',
       'pl',

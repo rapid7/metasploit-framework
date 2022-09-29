@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # They're required
     register_options([
-      OptString.new('FTPUSER', [ true, 'Valid FTP username', 'anonymous' ]),
-      OptString.new('FTPPASS', [ true, 'Valid FTP password for username', 'anonymous' ])
+      OptString.new('FTPUSER', [ true, 'Valid FTP username', 'anonymous' ], fallbacks: ['USERNAME']),
+      OptString.new('FTPPASS', [ true, 'Valid FTP password for username', 'anonymous' ], fallbacks: ['PASSWORD'])
     ])
   end
 

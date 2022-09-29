@@ -24,7 +24,7 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShellUnix,
       ))
 
-    def generate_stage
+    def generate(opts={})
       # tcp port conversion; shamelessly stolen from linux/x86/shell_reverse_tcp_ipv6.rb
       port_order = ([1,0]) # byte ordering
       tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array

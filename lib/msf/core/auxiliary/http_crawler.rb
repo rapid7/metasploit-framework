@@ -243,7 +243,8 @@ module Auxiliary::HttpCrawler
   # Specific module implementations should redefine this method
   # with whatever is meaningful to them.
   def crawler_process_page(t, page, cnt)
-    msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{@current_site.vhost} - #{page.url}"
+    return if page.nil? # Skip over pages that don't contain any info aka page is nil. We can't process these types of pages since there is no data to process.
+    msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page ? page.code || "ERR" : "ERR"} - #{@current_site.vhost} - #{page.url}"
     case page.code
       when 301,302
         if page.headers and page.headers["location"]

@@ -57,7 +57,7 @@ module Payload::Windows::LoadLibrary
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return super + dll_string + "\x00"
   end
 

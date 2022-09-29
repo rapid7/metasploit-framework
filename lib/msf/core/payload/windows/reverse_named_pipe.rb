@@ -26,7 +26,7 @@ module Payload::Windows::ReverseNamedPipe
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     conf = {
       name:        datastore['PIPENAME'],
       host:        datastore['PIPEHOST'] || '.',

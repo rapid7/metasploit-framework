@@ -50,15 +50,12 @@ module Msf::Post::Windows::Priv
   def is_admin?
     if session_has_ext
       # Assume true if the OS doesn't expose this (Windows 2000)
-      session.railgun.shell32.IsUserAnAdmin()["return"] rescue true
-    else
-      local_service_key = registry_enumkeys('HKU\S-1-5-19')
-      if local_service_key
-        return true
-      else
-        return false
-      end
+      return session.railgun.shell32.IsUserAnAdmin()['return'] rescue true
     end
+
+    local_service_key = registry_enumkeys('HKU\S-1-5-19')
+
+    !local_service_key.blank?
   end
 
   # Steals the current user's token.
@@ -125,14 +122,11 @@ module Msf::Post::Windows::Priv
   def is_system?
     if session_has_ext
       return session.sys.config.is_system?
-    else
-      results = registry_enumkeys('HKLM\SAM\SAM')
-      if results
-        return true
-      else
-        return false
-      end
     end
+
+    sam = registry_enumkeys('HKLM\SAM\SAM')
+
+    !sam.blank?
   end
 
   #

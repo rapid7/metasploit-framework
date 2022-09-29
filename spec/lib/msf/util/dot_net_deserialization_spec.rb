@@ -14,16 +14,18 @@ RSpec.describe Msf::Util::DotNetDeserialization do
   describe '#generate' do
     COMMAND = 'ping 127.0.0.1'
 
-    it 'generates correct gadget chains' do
-      # this is a quick but important check to ensure consistency of the
-      # serialized payloads which are deterministic
-      table = {
-        :ClaimsPrincipal             => '3f7232efeed59104840b199c5261e5769f4dc30a',
-        :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
-        :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1',
-        :WindowsIdentity             => '8dab1805a165cabea8ce96a7721317096f072166'
-      }
-      table.each do |gadget_chain, correct_digest|
+
+    # this is a quick but important check to ensure consistency of the
+    # serialized payloads which are deterministic
+    {
+      :ClaimsPrincipal             => '3f7232efeed59104840b199c5261e5769f4dc30a',
+      :DataSet                     => 'cc0ad32c20348282eab964c42caef34a52f8deb4',
+      :DataSetTypeSpoof            => '2142f7810a10264b8d431648c5d0c555396a7635',
+      :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
+      :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1',
+      :WindowsIdentity             => '8dab1805a165cabea8ce96a7721317096f072166'
+    }.each do |gadget_chain, correct_digest|
+      it "generates the correct data for: #{gadget_chain}" do
         stream = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
         expect(stream).to be_kind_of String
         real_digest = OpenSSL::Digest::SHA1.hexdigest(stream)
@@ -32,7 +34,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
     end
 
     Msf::Util::DotNetDeserialization::GadgetChains::NAMES.each do |gadget_chain|
-      describe "parsed gadget chain #{gadget_chain}" do
+      describe "parsed gadget chain: #{gadget_chain}" do
         serialized = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
         stream = Msf::Util::DotNetDeserialization::Types::SerializedStream.read(serialized)
 

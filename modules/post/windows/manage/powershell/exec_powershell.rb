@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptPath.new('SCRIPT', [true, 'Path to the local PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
+        OptPath.new('SCRIPT', [true, 'Path to the local PS script', ::File.join(Msf::Config.data_directory, 'post', 'powershell', 'msflag.ps1') ]),
       ]
     )
 

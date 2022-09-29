@@ -25,6 +25,35 @@ openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -node
 If you receive `gethostbyname failure` error in `openssl`, add the client (metasploit)
 IP and hostname to your hosts file.
 
+### Using docker
+
+Using the environment created by [vulhub](https://github.com/vulhub/vulhub/tree/master/openssl/CVE-2014-0160)
+
+First create a new docker-compose file:
+
+```
+version: '2'
+services:
+ nginx:
+   image: vulhub/openssl:1.0.1c-with-nginx
+   ports:
+    - "8080:80"
+    - "8443:443"
+```
+
+Then run `docker-compose up` and verify that the service is running with:
+
+```
+$ curl https://localhost:8443 -k
+<html>
+<head><title>404 Not Found</title></head>
+<body bgcolor="white">
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.11.13</center>
+</body>
+</html>
+```
+
 ## Verification Steps
 
   1. Install a vulnerable OpenSSL, start the service

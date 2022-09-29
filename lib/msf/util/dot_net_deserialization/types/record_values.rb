@@ -7,6 +7,29 @@ module RecordValues
   #
   # .NET Serialization Types (Records)
   #
+  class ArraySinglePrimitive < BinData::Record
+    # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/3a50a305-5f32-48a1-a42a-c34054db310b
+    RECORD_TYPE =         Enums::RecordTypeEnum[:ArraySinglePrimitive]
+    endian                :little
+    array_info            :array_info
+    uint8                 :primitive_type_enum
+    choice                :members, selection: :primitive_type_enum do
+      array               Enums::PrimitiveTypeEnum[:Boolean],  type: :boolean,   initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:Byte],     type: :uint8,     initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:Double],   type: :double,    initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:Int16],    type: :int16,     initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:Int32],    type: :int32,     initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:Int64],    type: :int64,     initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:SByte],    type: :int8,      initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:Single],   type: :float,     initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:TimeSpan], type: :int64,     initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:DateTime], type: :date_time, initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:UInt16],   type: :uint16,    initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:UInt32],   type: :uint32,    initial_length: -> { array_info.member_count }
+      array               Enums::PrimitiveTypeEnum[:UInt64],   type: :uint64,    initial_length: -> { array_info.member_count }
+    end
+  end
+
   class ArraySingleString < BinData::Record
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/3d98fd60-d2b4-448a-ac0b-3cd8dea41f9d
     RECORD_TYPE =          Enums::RecordTypeEnum[:ArraySingleString]

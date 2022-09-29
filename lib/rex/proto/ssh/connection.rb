@@ -83,15 +83,16 @@ class Connection < ::HrrRbSsh::Connection
     @context = context
     @logger = Logger.new self.class.name
     @server = options.delete(:ssh_server)
+    @mode = options.delete(:ssh_mode) || HrrRbSsh::Mode::SERVER
     # Take a pre-built transport from the options or build one on the fly
     @transport = options.delete(:ssh_transport) || HrrRbSsh::Transport.new(
       io,
-      options.delete(:ssh_mode) || :server,
+      @mode,
       options
     )
     # Take a pre-built authentication from the options or build one on the fly
     @authentication = options.delete(:ssh_authentication) ||
-      HrrRbSsh::Authentication.new(@transport, options)
+      HrrRbSsh::Authentication.new(@transport, @mode, options)
     @global_request_handler = GlobalRequestHandler.new(self)
     # Retain remaining options for later use
     @options = options
@@ -147,23 +148,6 @@ class Connection < ::HrrRbSsh::Connection
 
   attr_accessor :transport, :authentication, :channels, :global_request_handler
   attr_reader :server, :context
-end
-
-##
-# Create a monitored relay between channel IOs and external FD-like objects
-##
-class ChannelRelay
-  include Rex::IO::SocketAbstraction
-
-  def initialize(src, dst, threadname = "SshChannelMonitorRemote")
-    initialize_abstraction(src, dst)
-  end
-
-  def initialize_abstraction(src, dst, threadname)
-    self.rsock = src
-    self.lsock = dst
-    monitor_rsock(threadname)
-  end
 end
 
 ##
@@ -309,7 +293,8 @@ class ChannelFD
   def fd_rd
     begin
       channel.io[0]
-    rescue
+    rescue => e
+      elog(e)
     end
   end
 
@@ -322,7 +307,8 @@ class ChannelFD
   def fd_wr(fd = :stdout)
     begin
       channel.io[(fd == :stderr ? 2 : 1)]
-    rescue
+    rescue => e
+      elog(e)
     end
   end
 
