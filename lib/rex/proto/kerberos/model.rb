@@ -45,6 +45,8 @@ module Rex
           PA_ENC_TIMESTAMP = 2
           PA_PW_SALT = 3
           PA_ETYPE_INFO = 11
+          PA_PK_AS_REQ = 16
+          PA_PK_AS_REP = 17
           PA_ETYPE_INFO2 = 19
           PA_PAC_REQUEST = 128
           PA_SUPPORTED_ETYPES = 165
