@@ -699,7 +699,7 @@ int main(int argc, char** argv)
       return 1;
     }
 
-    void * addr_main = NSAddressOfSymbol_func(sym_main);
+    addr_main = NSAddressOfSymbol_func(sym_main);
     if (!addr_main) {
       return 1;
     }
@@ -707,7 +707,6 @@ int main(int argc, char** argv)
 #ifdef DEBUG
     print("found main!\n");
 #endif
-
   };
   int(*main_func)(int, char**) = (int(*)(int, char**))addr_main;
   char* socket = (char*)(size_t)argc;
