@@ -86,9 +86,9 @@ module SingleCommandShell
 
   def shell_command_token(cmd, timeout=10)
     if platform == 'windows'
-      output = shell_command_token_base(cmd, timeout, '&')
+      output = shell_command_token_win32(cmd, timeout)
     else
-      output = shell_command_token_base(cmd, timeout, ';')
+      output = shell_command_token_unix(cmd, timeout)
     end
     output
   end
@@ -113,6 +113,16 @@ module SingleCommandShell
     res = shell_read_until_token(token, 0, timeout)
     @is_echo_shell = res.include?(cmd)
   end
+
+  def shell_command_token_win32(cmd, timeout=10)
+    shell_command_token_base(cmd, timeout, '&')
+  end
+  module_function :shell_command_token_win32
+
+  def shell_command_token_unix(cmd, timeout=10)
+    shell_command_token_base(cmd, timeout, ';')
+  end
+  module_function :shell_command_token_unix
 
   #
   # Explicitly run a single command and return the output.
