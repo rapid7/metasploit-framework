@@ -158,29 +158,30 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def start_rexec_session(host, port, user, pass, proof, stderr_sock)
-    report_auth_info(
-      :host	=> host,
-      :port	=> port,
-      :sname => 'exec',
-      :user	=> user,
-      :pass	=> pass,
-      :proof  => proof,
-      :source_type => "user_supplied",
-      :active => true
-    )
-
-    merge_me = {
-      'USERPASS_FILE' => nil,
-      'USER_FILE'     => nil,
-      'PASS_FILE'     => nil,
-      'USERNAME'      => user,
-      'PASSWORD'      => pass,
-      # Save a reference to the socket so we don't GC prematurely
-      :stderr_sock    => stderr_sock
+    service_data = {
+      address: host,
+      port: port,
+      service_name: 'exec',
+      proof: proof,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      username: user,
+      # Save a reference to the socket so we don't GC prematurely
+      stderr_sock: stderr_sock
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
     if datastore['CreateSession']
-      start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", merge_me, false, self.sock)
+      start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", login_data, false, self.sock)
       # Don't tie the life of this socket to the exploit
       self.sockets.delete(stderr_sock)
       self.sock = nil
