@@ -59,7 +59,10 @@ module Rex
 
         end
 
+        # https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml
         module Encryption
+          DES_CBC_CRC = 1
+          DES_CBC_MD4 = 2
           DES_CBC_MD5 = 3
           DES3_CBC_SHA1 = 16
           AES128 = 17
@@ -72,17 +75,40 @@ module Rex
           # The individual etype used by an encryptor when none is provided
           DefaultEncryptionType = RC4_HMAC
 
-          def self.from_etype(etype)
-            encryptors = {
-              DES_CBC_MD5 =>   Rex::Proto::Kerberos::Crypto::DesCbcMd5,
-              DES3_CBC_SHA1 => Rex::Proto::Kerberos::Crypto::Des3CbcSha1,
-              RC4_HMAC =>      Rex::Proto::Kerberos::Crypto::Rc4Hmac,
-              AES128 =>        Rex::Proto::Kerberos::Crypto::Aes128CtsSha1,
-              AES256 =>        Rex::Proto::Kerberos::Crypto::Aes256CtsSha1,
-            }
+          ENCRYPTORS = {
+            DES_CBC_MD5 =>   Rex::Proto::Kerberos::Crypto::DesCbcMd5,
+            DES3_CBC_SHA1 => Rex::Proto::Kerberos::Crypto::Des3CbcSha1,
+            RC4_HMAC =>      Rex::Proto::Kerberos::Crypto::Rc4Hmac,
+            AES128 =>        Rex::Proto::Kerberos::Crypto::Aes128CtsSha1,
+            AES256 =>        Rex::Proto::Kerberos::Crypto::Aes256CtsSha1,
+          }
+          private_constant :ENCRYPTORS
 
-            result = encryptors[etype]
-            raise ::NotImplementedError, 'EncryptedData schema is not supported' if result == nil
+          SUPPORTED_ENCRYPTIONS = ENCRYPTORS.keys
+
+          #
+          # Return a string representation of the constant for a number
+          #
+          # @param [Integer] code
+          def self.const_name(code)
+            (self.constants - [:DefaultEncryptionType]).each do |c|
+              return c.to_s if self.const_get(c) == code
+            end
+            return nil
+          end
+
+          # Return a integer value for the given encryption const name
+          #
+          # @param [String] const_name
+          def self.value_for(const_name)
+            self.const_get(const_name)
+          end
+
+          # @param [Integer] etype
+          # @return [Rex::Proto::Kerberos::Crypto::BlockCipherBase]
+          def self.from_etype(etype)
+            result = ENCRYPTORS[etype]
+            raise ::NotImplementedError, "EncryptedData schema #{etype.inspect} is not supported" if result == nil
 
             result.new
           end
