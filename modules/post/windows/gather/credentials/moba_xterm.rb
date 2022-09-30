@@ -330,7 +330,7 @@ class MetasploitModule < Msf::Post
       end
     else
       grab_user_profiles.each do |user|
-        next if user['MyDocs'].nil?
+        next if user['MyDocs'].nil? && user['SID'] != session.sys.config.getsid
 
         ini_config_path = "#{user['MyDocs']}\\MobaXterm\\MobaXterm.ini"
         print_status("UserName: #{user['UserName']} Parsing file: " + ini_config_path)
