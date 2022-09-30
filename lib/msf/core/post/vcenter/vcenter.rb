@@ -258,6 +258,8 @@ module Msf
           temp_ldif_file = "/tmp/.#{base_fqdn}_#{Time.now.strftime('%Y%m%d%H%M%S')}.tmp"
           rm_f(temp_ldif_file) if file_exist?(temp_ldif_file)
           out = cmd_exec("#{ldapsearch_bin} -h #{vc_psc_fqdn} -b '#{base_dn}' -s sub -D '#{bind_dn}' -w #{shell_bind_pw} \\* \\+ \\- \> #{temp_ldif_file}")
+          return nil unless file_exist?(temp_ldif_file)
+
           contents = read_file(temp_ldif_file)
           if contents.nil?
             print_warning('Unable to retrieve ldif contents')
