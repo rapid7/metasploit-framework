@@ -29,6 +29,7 @@ concurrent-ruby, 1.0.5, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
 daemons, 1.4.1, MIT
+debug, 1.6.2, "ruby, Simplified BSD"
 diff-lcs, 1.5.0, "MIT, Artistic-2.0, GPL-2.0+"
 digest, 3.1.0, "ruby, Simplified BSD"
 dnsruby, 1.61.9, "Apache 2.0"
@@ -70,9 +71,9 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.5, "New BSD"
 metasploit-credential, 5.0.9, "New BSD"
-metasploit-framework, 6.2.20, "New BSD"
+metasploit-framework, 6.2.21, "New BSD"
 metasploit-model, 4.0.6, "New BSD"
-metasploit-payloads, 2.0.94, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.96, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.5, "New BSD"
 metasploit_payloads-mettle, 1.0.20, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
