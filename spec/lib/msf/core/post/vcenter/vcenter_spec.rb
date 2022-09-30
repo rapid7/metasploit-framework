@@ -413,21 +413,6 @@ RSpec.describe Msf::Post::Vcenter::Vcenter do
     end
   end
 
-  context 'validates IPv4' do
-    it 'when not IPv4' do
-      expect(subject.is_ipv4?('foobar')).to be(false)
-    end
-    it 'for IPv4' do
-      expect(subject.is_ipv4?('1.1.1.1')).to be(true)
-    end
-    it 'for IPv4 localhost' do
-      expect(subject.is_ipv4?('127.0.0.1')).to be(true)
-    end
-    it 'for IPv4 reserved address' do
-      expect(subject.is_ipv4?('10.0.0.1')).to be(true)
-    end
-  end
-
   context 'validates DNs' do
     it 'when not a dn' do
       expect(subject.is_dn?('foobar')).to be(false)
