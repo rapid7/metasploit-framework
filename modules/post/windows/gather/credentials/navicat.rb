@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Post
       host = node.attributes['Host']
       port = node.attributes['Port']
       proto = node.attributes['ConnType']
-      username = node.attributes['Username']
+      username = node.attributes['UserName']
       name = node.attributes['ConnectionName']
       epassword = node.attributes['Password']
       password = decrypt_navicat_ncx(epassword)

