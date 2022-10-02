@@ -3,7 +3,7 @@
 module Rex
   module Proto
     module Kerberos
-      module KeyTab
+      module Keytab
       end
     end
   end
