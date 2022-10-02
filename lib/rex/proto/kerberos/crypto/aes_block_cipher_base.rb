@@ -16,7 +16,7 @@ module Rex
           HASH_FUNCTION = 'SHA1'
 
           # Subclasses must also define ENCRYPT_CIPHER_NAME and DECRYPT_CIPHER_NAME
-      
+
           # Derive an encryption key based on a password and salt for the given cipher type
           #
           # @param password [String] The password to use as the basis for key generation
@@ -30,7 +30,7 @@ module Rex
             tkey = random_to_key(seed)
             derive(tkey, 'kerberos'.encode('utf-8'))
           end
-      
+
           def encrypt_basic(plaintext, key)
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if plaintext.length < BLOCK_SIZE
 
@@ -51,7 +51,7 @@ module Rex
 
             ciphertext
           end
-      
+
           def decrypt_basic(ciphertext, key)
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if ciphertext.length < BLOCK_SIZE
 

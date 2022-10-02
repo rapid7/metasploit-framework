@@ -1,3 +1,19 @@
+GIT
+  remote: https://github.com/adfoster-r7/metasploit-credential.git
+  revision: a76197bda6b38fc5bf49502cd2350df2e8d29c7a
+  branch: add-krb-models
+  specs:
+    metasploit-credential (5.0.10)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
+
 PATH
   remote: .
   specs:
@@ -236,22 +252,12 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (5.0.9)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip
     metasploit-model (4.0.6)
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
     metasploit-payloads (2.0.97)
-    metasploit_data_models (5.0.5)
+    metasploit_data_models (5.0.6)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
       arel-helpers
@@ -259,7 +265,7 @@ GEM
       metasploit-model (>= 3.1)
       pg
       railties (~> 6.0)
-      recog (~> 2.0)
+      recog
       webrick
     metasploit_payloads-mettle (1.0.20)
     method_source (1.0.0)
@@ -334,7 +340,7 @@ GEM
     rake (13.0.6)
     rasn1 (0.11.0)
     rb-readline (0.5.5)
-    recog (2.3.23)
+    recog (3.0.3)
       nokogiri
     redcarpet (3.5.1)
     regexp_parser (2.6.0)
@@ -498,7 +504,7 @@ GEM
       webrick
     yard (0.9.28)
       webrick (~> 1.7.0)
-    zeitwerk (2.6.1)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
@@ -508,6 +514,7 @@ DEPENDENCIES
   factory_bot_rails
   fivemat
   memory_profiler
+  metasploit-credential!
   metasploit-framework!
   octokit
   pry-byebug (~> 3.9.0)
@@ -522,4 +529,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.1.4
+   2.2.22

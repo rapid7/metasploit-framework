@@ -33,7 +33,7 @@ class Creds
   end
 
   def allowed_cred_types
-    %w(password ntlm hash) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
+    %w(password ntlm hash KrbEncKey KrbTicket) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
   end
 
   #
@@ -103,7 +103,7 @@ class Creds
       user:         'Public, usually a username',
       password:     'Private, private_type Password.',
       ntlm:         'Private, private_type NTLM Hash.',
-      postgres:     'Private, private_type postgres MD5',
+      postgres:     'Private, private_type postgres MD5.',
       'ssh-key' =>  'Private, private_type SSH key, must be a file path.',
       hash:         'Private, private_type Nonreplayable hash',
       jtr:          'Private, private_type John the Ripper hash type.',
@@ -396,13 +396,17 @@ class Creds
     # If we get here, we're searching.  Delete implies search
 
     if ptype
-      type = case ptype
+      type = case ptype.downcase
              when 'password'
                Metasploit::Credential::Password
              when 'hash'
                Metasploit::Credential::PasswordHash
              when 'ntlm'
                Metasploit::Credential::NTLMHash
+             when 'KrbEncKey'.downcase
+               Metasploit::Credential::KrbEncKey
+             when 'KrbTicket'.downcase
+               Metasploit::Credential::KrbTicket
              when *Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
                opts[:jtr_format] = ptype
                Metasploit::Credential::NonreplayableHash

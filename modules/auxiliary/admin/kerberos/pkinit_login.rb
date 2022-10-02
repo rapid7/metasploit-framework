@@ -65,12 +65,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Attempting PKINIT login for #{username}@#{realm}")
     begin
       server_name = "krbtgt/#{realm}"
-      tgt_result, key = send_request_tgt_pkinit(pfx: pfx,
-                                                username: username,
-                                                realm: realm,
-                                                server_name: server_name)
+      tgt_result = send_request_tgt_pkinit(
+        pfx: pfx,
+        username: username,
+        realm: realm,
+        server_name: server_name
+      )
       print_good('Successfully authenticated with certificate')
-      enc_part = decrypt_kdc_as_rep_enc_part(tgt_result.as_rep, key)
 
       info = []
       info << "realm: #{realm.upcase}"
@@ -85,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
         info: "Module: #{fullname}, Realm: #{realm}"
       )
 
-      ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
+      ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, tgt_result.decrypted_part)
       path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil, info.join(', '))
       print_status("#{peer} - TGT MIT Credential Cache saved to #{path}")
     rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
