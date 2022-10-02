@@ -7,12 +7,11 @@ This module allows the attacker to disclose this information without the need of
 improper authentication logic to send a request to the server which contains an `auth` parameter in the query string
 containing a Base64 encoded version of the authorization in `username:password` format.
 Vulnerable cameras will ignore the `password` parameter and will instead use the username part of this string
-as the user to log in. Using user `admin` will allow an attacker to retrieve and disclosed any information
-of the targetted device.
+as the user to log in. Using user `admin` will allow an attacker to retrieve and disclose any information
+of the targeted device.
 
 The vulnerability has been present in Hikvision products since 2014.
-In addition to Hikvision-branded devices, it affects many white-labeled
-camera products sold under a variety of brand names.
+In addition to Hikvision-branded devices, it affects many white-labeled camera products sold under a variety of brand names.
 
 Below is a list of vulnerable firmware, but many other white-labelled versions might be vulnerable.
 
@@ -66,7 +65,7 @@ All information disclosed is by default stored in loot
 
 ## Scenarios
 
-### Hikvision DS-2CD2142FWD-IS Firmware Version V5.4.1 build 160525
+### Hikvision Camera DS-2CD2142FWD-IS -> firmware version V5.4.1, build 160525
 
 ```
 msf6 auxiliary(gather/hikvision_info_disclosure_cve_2017_7921) > set rhosts 192.168.100.180
@@ -119,7 +118,7 @@ Device ID: 88
 Device description: IPCamera
 Device manufacturer: Hikvision.China
 Device model: DS-2CD2142FWD-IS
-Device S/N: DS-2CD2142FWD-IS20160627BBWR616855101
+Device S/N: DS-2CD2142FWD-IS2016HS77777777777
 Device MAC: bc:ad:28:ff:ff:ff
 Device firware version: V5.4.1
 Device firmware release: build 160525
