@@ -2,10 +2,10 @@
 
 require 'bindata'
 
-module Rex::Proto::Kerberos::KeyTab
-  class KeyTabCountedOctetString < BinData::Primitive
+module Rex::Proto::Kerberos::Keytab
+  class KeytabCountedOctetString < BinData::Primitive
     endian :big
-    search_prefix :key_tab
+    search_prefix :keytab
 
     # @!attribute [rw] len
     #   @return [Integer]
@@ -24,22 +24,22 @@ module Rex::Proto::Kerberos::KeyTab
     end
   end
 
-  class KeyTabKeyBlock < BinData::Record
+  class KeytabKeyblock < BinData::Record
     endian :big
-    search_prefix :key_tab
+    search_prefix :keytab
 
     # @!attribute [rw] enctype
     #   @return [Integer] The encryption type
     # @see Rex::Proto::Kerberos::Crypto::Encryption
     uint16 :enctype
 
-    # @return [KeyTabCountedOctetString]
+    # @return [KeytabCountedOctetString]
     counted_octet_string :data
   end
 
-  class KeyTabEpoch < BinData::Primitive
+  class KeytabEpoch < BinData::Primitive
     endian :big
-    search_prefix :key_tab
+    search_prefix :keytab
 
     # @!attribute [rw] epoch
     #   @return [Integer]
@@ -54,9 +54,9 @@ module Rex::Proto::Kerberos::KeyTab
     end
   end
 
-  class KeyTabEntry < BinData::Record
+  class KeytabEntry < BinData::Record
     endian :big
-    search_prefix :key_tab
+    search_prefix :keytab
 
     # @return [Integer] The number of bytes for the len field
     LEN_FIELD_BYTE_SIZE = 4
@@ -72,7 +72,8 @@ module Rex::Proto::Kerberos::KeyTab
               name_type,
               timestamp,
               vno8,
-              key_block,
+              keyblock,
+              # TODO: Omit vno and flags to ensure we generate MIT output for cross-compatibility with ktpass and wireshark
               vno,
               flags
             ].sum { |field| field.to_binary_s.bytes.count }
@@ -106,9 +107,9 @@ module Rex::Proto::Kerberos::KeyTab
     #   @return [Integer] The lower 8 bits of the version number of the key
     uint8 :vno8
 
-    # @!attribute [rw] key_block
-    #   @return [KeyTabKeyBlock]
-    key_block :key_block
+    # @!attribute [rw] keyblock
+    #   @return [KeytabKeyBlock]
+    keyblock :keyblock
 
     # @!attribute [rw] vno
     #   @return [Integer]
@@ -134,9 +135,9 @@ module Rex::Proto::Kerberos::KeyTab
   # http://www.ioplex.com/utilities/keytab.txt
   # http://web.mit.edu/freebsd/head/crypto/heimdal/doc/doxyout/krb5/html/krb5_fileformats.html
   #
-  class KeyTab < BinData::Record
+  class Keytab < BinData::Record
     endian :big
-    search_prefix :key_tab
+    search_prefix :keytab
 
     # Older keytab version 0x501 not currently supported
     # @!attribute [r] file_format_version
@@ -144,7 +145,7 @@ module Rex::Proto::Kerberos::KeyTab
     uint16 :file_format_version, initial_value: 0x502, assert: 0x502
 
     # @!attribute [rw] key_entries
-    #   @return [Array<KeyTabEntry>] the keytab entries
+    #   @return [Array<KeytabEntry>] the keytab entries
     array :key_entries, type: :entry, read_until: :eof
   end
 end
