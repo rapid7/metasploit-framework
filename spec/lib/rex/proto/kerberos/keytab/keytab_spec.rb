@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
-require 'rex/proto/kerberos/key_tab'
-require 'rex/proto/kerberos/key_tab/key_tab'
+require 'rex/proto/kerberos/keytab'
+require 'rex/proto/kerberos/keytab/keytab'
 
 RSpec.shared_examples_for 'a parseable keytab' do
   let(:expected) do
@@ -17,7 +17,7 @@ RSpec.shared_examples_for 'a parseable keytab' do
             name_type: 1,
             timestamp: expected_timestamp,
             vno8: 1,
-            key_block: {
+            keyblock: {
               enctype: 18,
               data: "\xC4\xA3\xF3\x1Dd\xAF\xA6H\xA6\xD0\x8D\avV>\x128\xB9v\xD0\xB9\x0Fy\xEA\a!\x946\x82\x94\xE9)"
             },
@@ -32,7 +32,7 @@ RSpec.shared_examples_for 'a parseable keytab' do
             name_type: 1,
             timestamp: expected_timestamp,
             vno8: 1,
-            key_block: {
+            keyblock: {
               enctype: 17,
               data: "\xBA\xBAC\xA8\xB9{\xAC\xA1S\xBDT\xB2\xF0wJ\xD7"
             },
@@ -47,7 +47,7 @@ RSpec.shared_examples_for 'a parseable keytab' do
             name_type: 1,
             timestamp: expected_timestamp,
             vno8: 1,
-            key_block: {
+            keyblock: {
               enctype: 23,
               data: "\x88F\xF7\xEA\xEE\x8F\xB1\x17\xAD\x06\xBD\xD80\xB7Xl"
             },
@@ -66,7 +66,7 @@ RSpec.shared_examples_for 'a parseable keytab' do
   end
 end
 
-RSpec.describe Rex::Proto::Kerberos::KeyTab::KeyTab do
+RSpec.describe Rex::Proto::Kerberos::Keytab::Keytab do
 =begin
   Generated with heimdal ktutil; which has two additional bytes at the end for a 32-bit kvno and flags which are
   not present in the mit format
@@ -158,7 +158,7 @@ RSpec.describe Rex::Proto::Kerberos::KeyTab::KeyTab do
               name_type: 1,
               timestamp: timestamp,
               vno8: 1,
-              key_block: {
+              keyblock: {
                 enctype: 18,
                 data: "\xC4\xA3\xF3\x1Dd\xAF\xA6H\xA6\xD0\x8D\avV>\x128\xB9v\xD0\xB9\x0Fy\xEA\a!\x946\x82\x94\xE9)"
               },
@@ -171,7 +171,7 @@ RSpec.describe Rex::Proto::Kerberos::KeyTab::KeyTab do
               name_type: 1,
               timestamp: timestamp,
               vno8: 1,
-              key_block: {
+              keyblock: {
                 enctype: 17,
                 data: "\xBA\xBAC\xA8\xB9{\xAC\xA1S\xBDT\xB2\xF0wJ\xD7"
               },
@@ -184,7 +184,7 @@ RSpec.describe Rex::Proto::Kerberos::KeyTab::KeyTab do
               name_type: 1,
               timestamp: timestamp,
               vno8: 1,
-              key_block: {
+              keyblock: {
                 enctype: 23,
                 data: "\x88F\xF7\xEA\xEE\x8F\xB1\x17\xAD\x06\xBD\xD80\xB7Xl"
               },

@@ -1,13 +1,13 @@
 require 'rspec'
 
-RSpec.describe 'kerberos ktutil' do
+RSpec.describe 'kerberos keytab' do
   include_context 'Msf::UIDriver'
   include_context 'Msf::Simple::Framework#modules loading'
 
   let(:subject) do
     load_and_create_module(
       module_type: 'auxiliary',
-      reference_name: 'admin/kerberos/ktutil'
+      reference_name: 'admin/kerberos/keytab'
     )
   end
 
@@ -43,6 +43,7 @@ RSpec.describe 'kerberos ktutil' do
   let(:keytab_file) { Tempfile.new('keytab') }
 
   before(:each) do
+    subject.datastore['VERBOSE'] = false
     allow(driver).to receive(:input).and_return(driver_input)
     allow(driver).to receive(:output).and_return(driver_output)
     subject.init_ui(driver_input, driver_output)
@@ -70,9 +71,9 @@ RSpec.describe 'kerberos ktutil' do
           Keytab entries
           ==============
 
-           vno  type         principal                   hash                                                              date
-           ---  ----         ---------                   ----                                                              ----
-           1    18 (AES256)  Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  1970-01-01 01:00:00 +0100
+           kvno  type         principal                   hash                                                              date
+           ----  ----         ---------                   ----                                                              ----
+           1     18 (AES256)  Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
           TABLE
         end
       end
@@ -92,13 +93,13 @@ RSpec.describe 'kerberos ktutil' do
           Keytab entries
           ==============
 
-           vno  type                principal                   hash                                                              date
-           ---  ----                ---------                   ----                                                              ----
-           1    3 (DES_CBC_MD5)     Administrator@DOMAIN.LOCAL  89d3b923d6a7195e                                                  1970-01-01 01:00:00 +0100
-           1    16 (DES3_CBC_SHA1)  Administrator@DOMAIN.LOCAL  341994e0ba5b1a20d640911cda23c137b637d51a6416d6cb                  1970-01-01 01:00:00 +0100
-           1    23 (RC4_HMAC)       Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  1970-01-01 01:00:00 +0100
-           1    17 (AES128)         Administrator@DOMAIN.LOCAL  baba43a8b97baca153bd54b2f0774ad7                                  1970-01-01 01:00:00 +0100
-           1    18 (AES256)         Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  1970-01-01 01:00:00 +0100
+           kvno  type                principal                   hash                                                              date
+           ----  ----                ---------                   ----                                                              ----
+           1     3  (DES_CBC_MD5)    Administrator@DOMAIN.LOCAL  89d3b923d6a7195e                                                  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
+           1     16 (DES3_CBC_SHA1)  Administrator@DOMAIN.LOCAL  341994e0ba5b1a20d640911cda23c137b637d51a6416d6cb                  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
+           1     23 (RC4_HMAC)       Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
+           1     17 (AES128)         Administrator@DOMAIN.LOCAL  baba43a8b97baca153bd54b2f0774ad7                                  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
+           1     18 (AES256)         Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
 
           TABLE
         end
@@ -119,9 +120,9 @@ RSpec.describe 'kerberos ktutil' do
           Keytab entries
           ==============
 
-           vno  type         principal                   hash                                                              date
-           ---  ----         ---------                   ----                                                              ----
-           1    18 (AES256)  Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  1970-01-01 01:00:00 +0100
+           kvno  type         principal                   hash                                                              date
+           ----  ----         ---------                   ----                                                              ----
+           1     18 (AES256)  Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
           TABLE
         end
       end
@@ -148,12 +149,12 @@ RSpec.describe 'kerberos ktutil' do
             Keytab entries
             ==============
 
-             vno  type           principal                   hash                                                              date
-             ---  ----           ---------                   ----                                                              ----
-             1    18 (AES256)    Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  2022-10-01 18:51:29 +0100
-             1    17 (AES128)    Administrator@DOMAIN.LOCAL  baba43a8b97baca153bd54b2f0774ad7                                  2022-10-01 18:51:29 +0100
-             1    23 (RC4_HMAC)  Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  2022-10-01 18:51:29 +0100
-             1    18 (AES256)    Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  1970-01-01 01:00:00 +0100
+             kvno  type           principal                   hash                                                              date
+             ----  ----           ---------                   ----                                                              ----
+             1     18 (AES256)    Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
+             1     17 (AES128)    Administrator@DOMAIN.LOCAL  baba43a8b97baca153bd54b2f0774ad7                                  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
+             1     23 (RC4_HMAC)  Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
+             1     18 (AES256)    Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  #{Time.parse('1970-01-01 00:00:00 +0000').to_time}
           TABLE
         end
       end
@@ -179,11 +180,11 @@ RSpec.describe 'kerberos ktutil' do
           Keytab entries
           ==============
 
-           vno  type           principal                   hash                                                              date
-           ---  ----           ---------                   ----                                                              ----
-           1    18 (AES256)    Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  2022-10-01 18:51:29 +0100
-           1    17 (AES128)    Administrator@DOMAIN.LOCAL  baba43a8b97baca153bd54b2f0774ad7                                  2022-10-01 18:51:29 +0100
-           1    23 (RC4_HMAC)  Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  2022-10-01 18:51:29 +0100
+           kvno  type           principal                   hash                                                              date
+           ----  ----           ---------                   ----                                                              ----
+           1     18 (AES256)    Administrator@DOMAIN.LOCAL  c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
+           1     17 (AES128)    Administrator@DOMAIN.LOCAL  baba43a8b97baca153bd54b2f0774ad7                                  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
+           1     23 (RC4_HMAC)  Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
 
         TABLE
       end
