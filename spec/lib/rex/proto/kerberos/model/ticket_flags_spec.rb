@@ -9,10 +9,10 @@ RSpec.describe Rex::Proto::Kerberos::Model::TicketFlags do
     it 'supports initialization from an array of values' do
       result = described_class.from_flags(
         [
-          Rex::Proto::Kerberos::Model::TicketFlag::FORWARDABLE,
-          Rex::Proto::Kerberos::Model::TicketFlag::RENEWABLE,
-          Rex::Proto::Kerberos::Model::TicketFlag::INITIAL,
-          Rex::Proto::Kerberos::Model::TicketFlag::PRE_AUTHENT,
+          Rex::Proto::Kerberos::Model::TicketFlags::FORWARDABLE,
+          Rex::Proto::Kerberos::Model::TicketFlags::RENEWABLE,
+          Rex::Proto::Kerberos::Model::TicketFlags::INITIAL,
+          Rex::Proto::Kerberos::Model::TicketFlags::PRE_AUTHENT,
         ]
       )
 
@@ -29,11 +29,11 @@ RSpec.describe Rex::Proto::Kerberos::Model::TicketFlags do
 
   describe '#include?' do
     it 'returns true when the flag is enabled' do
-      expect(subject).to include(Rex::Proto::Kerberos::Model::TicketFlag::FORWARDABLE)
+      expect(subject).to include Rex::Proto::Kerberos::Model::TicketFlags::FORWARDABLE
     end
 
     it 'returns false when the flag is not enabled' do
-      expect(subject).to_not include(Rex::Proto::Kerberos::Model::TicketFlag::ALLOW_POST_DATE)
+      expect(subject).to_not include Rex::Proto::Kerberos::Model::TicketFlags::ALLOW_POST_DATE
     end
   end
 
