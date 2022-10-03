@@ -1020,7 +1020,7 @@ class MetasploitModule < Msf::Auxiliary
         if action.name == 'ALL'
           print_warning('Unable to get BootKey... skipping')
         else
-          fail_with(Module::Failure::Unknown,
+          fail_with(Module::Failure::NotFound,
                     'Unable to get BootKey. If it is a Domain Controller, you can still '\
                     'try DOMAIN action since it does not need BootKey')
         end
