@@ -41,6 +41,9 @@ module Rex::Proto::Kerberos::CredentialCache
     # the other kerberos models use #encode so alias that for simplicity
     alias_method :encode, :to_binary_s
 
+    # @param [Rex::Proto::Kerberos::Model::KdcResponse] res The KDC response
+    # @param [Rex::Proto::Kerberos::Model::EncKdcResponse] enc_res The encrypted KDC response
+    # @return [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache]
     def self.from_responses(res, enc_res)
       self.new(
         default_principal: {
