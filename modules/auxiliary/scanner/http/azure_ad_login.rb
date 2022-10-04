@@ -161,6 +161,9 @@ class MetasploitModule < Msf::Auxiliary
     elsif auth_details.start_with?('AADSTS50053') # Account is locked
       print_error('Account is locked, consider taking time before continuuing to scan!')
       :next_user
+    elsif auth_details.start_with?('AADSTS50057') # User exists, but is disabled so we don't report
+      print_error("#{domain}\\#{username} exists but is disabled; it will not be reported")
+      :next_user
     else # Unknown error code
       print_error("Received unknown response with error code: #{auth_details}")
     end
