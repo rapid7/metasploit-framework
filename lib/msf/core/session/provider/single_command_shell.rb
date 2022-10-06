@@ -117,12 +117,10 @@ module SingleCommandShell
   def shell_command_token_win32(cmd, timeout=10)
     shell_command_token_base(cmd, timeout, '&')
   end
-  module_function :shell_command_token_win32
 
   def shell_command_token_unix(cmd, timeout=10)
     shell_command_token_base(cmd, timeout, ';')
   end
-  module_function :shell_command_token_unix
 
   #
   # Explicitly run a single command and return the output.
