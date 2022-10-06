@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Auxiliary::Report
   include Msf::Exploit::Remote::Kerberos::Client
 
   def initialize(info = {})
@@ -53,6 +54,9 @@ class MetasploitModule < Msf::Auxiliary
     tgt_result, key = send_request_tgt_pkinit(pfx: pfx,
                                               username: datastore['USERNAME'],
                                               realm: datastore['DOMAIN'])
-    extract_session_key(tgt_result.as_rep, key)
+    enc_part = decrypt_kdc_as_rep_enc_part(tgt_result.as_rep, key)
+    ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
+    path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil)
+    print_status("#{peer} - TGT MIT Credential Cache saved to #{path}")
   end
 end
