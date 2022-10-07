@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
                                                 username: username,
                                                 realm: realm,
                                                 server_name: server_name)
-      print_good("Successfully authenticated with certificate")
+      print_good('Successfully authenticated with certificate')
       enc_part = decrypt_kdc_as_rep_enc_part(tgt_result.as_rep, key)
 
       info = []
