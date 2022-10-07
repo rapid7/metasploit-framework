@@ -63,9 +63,10 @@ module Rex
               PreAuthPwSalt.decode(self.value)
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_ETYPE_INFO
               # Not yet supported
+            when Rex::Proto::Kerberos::Model::PreAuthType::PA_PK_AS_REQ
+               PreAuthPkAsReq.decode(self.value)
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_PK_AS_REP
-              result = PreAuthPkAsRep.decode(self.value)
-              result
+               PreAuthPkAsRep.decode(self.value)
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_ETYPE_INFO2
               decoded = OpenSSL::ASN1.decode(self.value)
               PreAuthEtypeInfo2.decode(decoded)
