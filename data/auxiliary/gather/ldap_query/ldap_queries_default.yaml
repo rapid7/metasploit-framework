@@ -14,10 +14,10 @@ queries:
       - caCertificate
     referemces:
       - https://aaroneg.com/post/2018-05-15-enterprise-ca/
-  - action: ENUM_ADCS_ESC1_VULN_TEMPLATES
-    description: 'Enumerate ADCS ESC1 vulnerable certificate templates.'
+  - action: ENUM_ADCS_CERT_TEMPLATES
+    description: 'Enumerate ADCS certificate templates.'
     base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    filter: '(&(objectclass=pkicertificatetemplate)(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))(|(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.2)(pkiextendedkeyusage=1.3.6.1.5.5.7.3.2)(pkiextendedkeyusage=1.3.6.1.5.2.3.4)(pkiextendedkeyusage=2.5.29.37.0)(!(pkiextendedkeyusage=*)))(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1))'
+    filter: '(objectClass=pkicertificatetemplate)'
     attributes:
       - cn
       - name
@@ -25,9 +25,10 @@ queries:
       - msPKI-Cert-Template-OID
       - msPKI-Template-Schema-Version
       - msPKI-Enrollment-Flag
+      - msPKI-Certificate-Name-Flag
+      - msPKI-Private-Key-Flag
       - msPKI-RA-Signature
       - pKIExtendedKeyUsage
-      - ntSecurityDescriptor
     references:
       - https://web.archive.org/web/20220818094600if_/https://specterops.io/assets/resources/Certified_Pre-Owned.pdf
   - action: ENUM_ADMIN_OBJECTS
