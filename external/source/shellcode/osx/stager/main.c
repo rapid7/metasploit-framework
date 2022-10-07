@@ -345,6 +345,8 @@ int main(int argc, char** argv)
   print("good symbol!\n");
 #endif
 
+  // gDyld is a special struct that libdyld.dylib uses to interface with dyld4.
+  // gDyld is not present in dyld3 and back.
   void* gDyld = find_symbol(dyld, "__ZN5dyld45gDyldE", offset);
   //printf("gDyld: %lld\n", gDyld);
   void * addr_main = 0;
@@ -358,10 +360,12 @@ int main(int argc, char** argv)
     printf("apis: %lld\n", apis);
     printf("config: %i\n", (int)*(void **)(apis+8));
 #endif
+    // config is offset around 0x100000 from the start of dyld4.
     uint64_t base = roundUp((uint64_t)(*(void **)(apis+8) - 0x00100000), 0x1000);
 #ifdef DEBUG
     printf("base: %lld\n", base);
 #endif
+    // sdyld will be the address of dyld4, which contains mangled symbols.
     uint64_t sdyld = find_macho(base, 0x1000);
 #ifdef DEBUG
     printf("sdyld: %lld\n", sdyld);
@@ -460,7 +464,7 @@ int main(int argc, char** argv)
           SimpleDPrintf_func(1, "Offset: %lld\n", (size_t)(sliceOffset + region.fileOffset));
 #endif
           // MMap will init this with zeros.
-          void* segAddress = MMap_func(*(void **)(apis+ 8), (void*)(loadAddress + region.vmOffset), (size_t)region.fileSize, 0x7, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+          void* segAddress = MMap_func(*(void **)(apis+ 8), (void*)(loadAddress + region.vmOffset), (size_t)region.fileSize, PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
           lastOffset = loadAddress + region.vmOffset + region.fileSize;
 #ifdef DEBUG
           SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
