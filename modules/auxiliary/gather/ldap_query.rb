@@ -140,15 +140,19 @@ class MetasploitModule < Msf::Auxiliary
     base ||= @base_dn
     returned_entries = ldap.search(base: base, filter: filter, attributes: attributes)
     query_result = ldap.as_json['result']['ldap_result']
-    case query_result['resultCode']
+
+    result_code, result_message = check_query_result_code(query_result, filter)
+    case result_code
+    when -1
+      fail_with(Failure::BadConfig, result_message)
     when 0
-      vprint_good('Successfully queried LDAP server!')
+      vprint_good(result_message)
     when 1
-      print_error("Could not perform query #{filter}. Its likely the query requires authentication!")
-      fail_with(Failure::NoAccess, query_result['errorMessage'])
-    else
-      fail_with(Failure::UnexpectedReply, "Query #{filter} failed with error: #{query_result['errorMessage']}")
+      fail_with(Failure::NoAccess, result_message)
+    when 2
+      fail_with(Failure::UnexpectedReply, result_message)
     end
+
     if returned_entries.nil? || returned_entries.empty?
       print_error("No results found for #{filter}.")
       nil
@@ -433,6 +437,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     entries = nil
+
     begin
       ldap_connect do |ldap|
         validate_bind_success!(ldap)
