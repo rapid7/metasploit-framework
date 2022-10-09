@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if device_info.nil?
       print_error('Target server did not respond to the device info request.')
-    elsif device_info && device_info.code == 200
+    elsif device_info.code == 200
       # process XML output and store in loot_data
       xml_device_info = device_info.get_xml_document
       if xml_device_info.blank?
