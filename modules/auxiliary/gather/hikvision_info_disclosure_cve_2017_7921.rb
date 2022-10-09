@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     else
-      print_error('No response received obtaining the user credentials.')
+      print_error('Response code invalid for obtaining the user credentials.')
     end
     return loot_data
   end
