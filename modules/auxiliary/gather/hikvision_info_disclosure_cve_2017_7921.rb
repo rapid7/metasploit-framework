@@ -269,7 +269,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.nil?
       print_error('Target server did not respond to the snapshot request.')
-    elsif res && res.code == 200
+    elsif res.code == 200
       jpeg_image = res.body
     else
       print_error('No response received obtaining a camera snapshot.')
