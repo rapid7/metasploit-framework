@@ -84,34 +84,15 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-  def report_creds(user, pwd)
-    if datastore['SSL'] == true
-      service_proto = 'https'
-    else
-      service_proto = 'http'
-    end
-    service_data = {
-      address: datastore['RHOSTS'],
-      port: datastore['RPORT'],
-      service_name: service_proto,
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
     credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: user,
-      private_data: pwd,
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }.merge(service_data)
-
-    cred_res = create_credential_login(login_data)
+        module_fullname: self.fullname,
+        username: user,
+        private_data: pwd,
+        private_type: :password,
+        workspace_id: myworkspace_id,
+        status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_details)
+    cred_res = create_credential_and_login(credential_data)
     unless cred_res.nil?
       print_status("Credentials for user:#{user} are added to the database...")
     end
