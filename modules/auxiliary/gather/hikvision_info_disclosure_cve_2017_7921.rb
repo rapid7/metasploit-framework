@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if creds_info.nil?
       print_error('Target server did not respond to the credentials request.')
-    elsif creds_info && creds_info.code == 200
+    elsif creds_info.code == 200
       # process XML output and store output in loot_data
       xml_creds_info = creds_info.get_xml_document
       if xml_creds_info.blank?
