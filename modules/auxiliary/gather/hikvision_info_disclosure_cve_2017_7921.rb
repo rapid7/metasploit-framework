@@ -272,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif res.code == 200
       jpeg_image = res.body
     else
-      print_error('No response received obtaining a camera snapshot.')
+      print_error('Response code invalid for obtaining a camera snapshot.')
     end
     return jpeg_image
   end
