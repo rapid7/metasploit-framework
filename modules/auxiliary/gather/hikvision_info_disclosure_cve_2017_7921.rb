@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if aes_data.nil?
       print_error('Target server did not respond to the configuration file download request.')
-    elsif aes_data && aes_data.code == 200
+    elsif aes_data.code == 200
       # decrypt configuration file data with the weak AES128-ECB encryption hex key: 279977f62f6cfd2d91cd75b889ce0c9a
       decipher = OpenSSL::Cipher.new('aes-128-ecb')
       decipher.decrypt
