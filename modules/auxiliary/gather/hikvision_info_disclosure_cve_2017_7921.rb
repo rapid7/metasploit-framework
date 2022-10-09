@@ -283,7 +283,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.nil?
       return Exploit::CheckCode::Unknown
-    elsif res && res.code == 200
+    elsif res.code == 200
       return Exploit::CheckCode::Vulnerable
     else
       return Exploit::CheckCode::Safe
