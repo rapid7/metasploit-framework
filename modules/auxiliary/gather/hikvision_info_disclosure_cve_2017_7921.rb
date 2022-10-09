@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
         loot_data << "\n"
       end
     else
-      print_error('No response received obtaining camera hardware and software configuration.')
+      print_error('Response code invalid for obtaining camera hardware and software configuration.')
     end
 
     # Get network configuration
