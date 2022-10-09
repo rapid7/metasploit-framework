@@ -201,7 +201,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if network_info.nil?
       print_error('Target server did not respond to the network info request.')
-    elsif network_info && network_info.code == 200
+    elsif network_info.code == 200
       # process XML output and store in loot_data
       xml_network_info = network_info.get_xml_document
       if xml_network_info.blank?
