@@ -236,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if storage_info.nil?
       print_error('Target server did not respond to the storage info request.')
-    elsif storage_info && storage_info.code == 200
+    elsif storage_info.code == 200
       # process XML output and store in loot
       xml_storage_info = storage_info.get_xml_document
       if xml_storage_info.blank?
