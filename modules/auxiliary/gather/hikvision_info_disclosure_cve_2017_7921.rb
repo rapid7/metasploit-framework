@@ -227,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
         loot_data << "\n"
       end
     else
-      print_error('No response received obtaining camera network configuration.')
+      print_error('Response code invalid for obtaining camera network configuration.')
     end
 
     # Get storage configuration
