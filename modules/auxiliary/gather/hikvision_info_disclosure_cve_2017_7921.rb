@@ -255,7 +255,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     else
-      print_error('No response received obtaining camera storage configuration.')
+      print_error('Response code invalid for obtaining camera storage configuration.')
     end
     return loot_data
   end
