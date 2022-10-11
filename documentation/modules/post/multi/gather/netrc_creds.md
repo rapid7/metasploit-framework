@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Post Module to obtain credentials saved for FTP and other services
+Post module to obtain credentials saved for FTP and other services
 in `.netrc`
 
 This file is kept in user's home directories to configure various services,
@@ -25,7 +25,7 @@ echo "password qwerty2" >> ~/.netrc
 1. Do: `use post/multi/gather/netrc_creds`
 1. Do: `set session [session]`
 1. Do: `run`
-1. If any `.netrc` files exist with credentials, they will be stored and read
+1. If any `.netrc` files exist with credentials, they will be read and stored into a loot file.
 
 ## Options
 
