@@ -1,19 +1,27 @@
 CFLAGS=-fno-stack-protector -fomit-frame-pointer -fno-exceptions -fPIC -Os -O0
 GCC_BIN_OSX=`xcrun --sdk macosx -f gcc`
 GCC_BASE_OSX=$(GCC_BIN_OSX) $(CFLAGS)
-GCC_OSX=$(GCC_BASE_OSX) -arch x86_64
+GCC_OSX_X64=$(GCC_BASE_OSX) -arch x86_64
+GCC_OSX_AARCH64=$(GCC_BASE_OSX) -arch arm64
 
-all: clean main_osx
+all: clean x64_osx_stage aarch64_osx_stage
 
-main_osx: main.c
-	$(GCC_OSX) -o $@ $^
+x64_osx_stage: main.c
+	$(GCC_OSX_X64) -o $@ $^
 
-install: main_osx
-	cp main_osx ../../../../../data/meterpreter/x64_osx_stage
+aarch64_osx_stage: main.c
+	$(GCC_OSX_AARCH64) -o $@ $^
 
-shellcode: install
-	otool -tv main_osx
+install: x64_osx_stage aarch64_osx_stage
+	cp x64_osx_stage ../../../../../data/meterpreter/x64_osx_stage
+	cp aarch64_osx_stage ../../../../../data/meterpreter/aarch64_osx_stage
+
+x64_shellcode: install
+	otool -tv x64_osx_stage
+
+aarch64_shellcode: install
+	otool -tv aarch64_osx_stage
 
 clean:
-	rm -f *.o main_osx
+	rm -f *.o x64_osx_stage aarch64_osx_stage
 

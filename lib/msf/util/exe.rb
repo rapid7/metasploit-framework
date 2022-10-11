@@ -166,6 +166,9 @@ require 'digest/sha1'
       if plat.index(Msf::Module::Platform::Linux)
         return to_linux_aarch64_elf(framework, code)
       end
+      if plat.index(Msf::Module::Platform::OSX)
+        return to_osx_aarch64_macho(framework, code)
+      end
 
       # XXX: Add remaining AARCH64 systems here
     end
@@ -863,6 +866,24 @@ require 'digest/sha1'
 
     mo = self.get_file_contents(opts[:template])
     bo = self.find_payload_tag(mo, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag")
+    mo[bo, code.length] = code
+    mo
+  end
+
+  # self.to_osx_aarch64_macho
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String]
+  def self.to_osx_aarch64_macho(framework, code, opts = {})
+
+    # Allow the user to specify their own template
+    set_template_default(opts, "template_aarch64_darwin.bin")
+
+    mo = self.get_file_contents(opts[:template])
+    bo = self.find_payload_tag(mo, "Invalid OSX Aarch64 Mach-O template: missing \"PAYLOAD:\" tag")
     mo[bo, code.length] = code
     mo
   end

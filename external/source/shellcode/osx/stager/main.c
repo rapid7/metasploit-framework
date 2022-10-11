@@ -256,7 +256,6 @@ typedef bool (*HasThreadLocalVariables_ptr)(void * ma);
 typedef void (*SetUpTLVs_ptr)(void * ma, void * apis);
 typedef void (*AddWeakDefs_ptr)(void * apis, void * newLoaders);
 
-typedef uint64_t (*SimpleDPrintf_ptr)(uint64_t fd, const char * fmt, const void * a);
 
 uint64_t find_macho(uint64_t addr, unsigned int increment);
 uint64_t find_dylib(uint64_t addr, unsigned int increment);
@@ -272,6 +271,24 @@ static void print(char * str);
 #define printf(a,b) print(a);
 #endif
 
+#ifdef __aarch64__
+/*
+typedef uint64_t (*VDPrintf_ptr)(uint64_t fd, const char * fmt, ...);
+void printf_sdyld_arm64(char * a, void * b, uint64_t sdyld) {
+  VDPrintf_ptr VDPrintf_func = find_symbol(sdyld, "__simple_vdprintf", sdyld);
+  //VDPrintf_func(1, a, b);
+  printf(a,b);
+}*/
+#define printf_sdyld(a,b) print(a);
+#else
+typedef uint64_t (*SimpleDPrintf_ptr)(uint64_t fd, const char * fmt, const void * a);
+void printf_sdyld_x86_64(char * a, void * b, uint64_t sdyld) {
+  SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
+  SimpleDPrintf_func(1, a, b);
+}
+#define printf_sdyld(a,b) printf_sdyld_x86_64(a, b, sdyld);
+#endif
+
 
 #define DYLD_BASE_ADDR 0x00007fff5fc00000
 #define MAX_OSXVM_ADDR 0x00007ffffffff000
@@ -283,10 +300,17 @@ int main(int argc, char** argv)
 #endif
   uint64_t buffer = 0;
   uint64_t buffer_size = 0;
+#ifdef __aarch64__
+  __asm__(
+      "mov %0, x12\n"
+      "mov %1, x10\n"
+      : "=r"(buffer), "=r"(buffer_size));
+#else
   __asm__(
       "movq %%r10, %0;\n"
       "movq %%r12, %1;\n"
       : "=g"(buffer), "=g"(buffer_size));
+#endif
 
 #ifdef DEBUG
   print("hello world!\n");
@@ -384,9 +408,10 @@ int main(int argc, char** argv)
     }
     //printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
     //printf("JITLMP: %lld\n", JustInTimeLoaderMake_func);
-    SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
+    //SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "SimpleDPrintf_func: %lld\n", SimpleDPrintf_func);
+    //printf_sdyld("SimpleDPrintf_func: %lld\n", SimpleDPrintf_func);
+    printf_sdyld("Errno: %lld\n", *(uint64_t*)find_symbol(sdyld, "_errno", sdyld));
 #endif
     // Loader::mapSegments
     uintptr_t vmSpace = 0;
@@ -397,11 +422,11 @@ int main(int argc, char** argv)
 #endif
     *(uint32_t*)buffer = 0xfeedfacf;
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "Buffer: %lld\n", buffer);
+    printf_sdyld("Buffer: %lld\n", buffer);
 #endif
     AnalyzeSegmentsLayout_func((void*)buffer, &vmSpace, &hasZeroFill);
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "vmSpace: %lld\n", vmSpace);
+    printf_sdyld("vmSpace: %lld\n", vmSpace);
 #endif
     bool isTranslated = false; // Rosetta.
     uint64_t extraAllocSize = 0;
@@ -415,24 +440,24 @@ int main(int argc, char** argv)
     }
     vmSpace += extraAllocSize;
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "Translated: %s\n", isTranslated ? "true" : "false");
+    printf_sdyld("Translated: %s\n", isTranslated ? "true" : "false");
 #endif
     uintptr_t loadAddress = 0;
     VMAllocate_ptr VMAllocate_func = find_symbol(sdyld, "_vm_allocate", sdyld);
     uint64_t mach_task_self = *(uint64_t*)find_symbol(sdyld, "_mach_task_self_", sdyld);
     void * vmallocate_ret = VMAllocate_func(mach_task_self, &loadAddress, vmSpace, /*VM_FLAGS_ANYWHERE: */0x1);
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "VMAllocate Ret: %lld\n", vmallocate_ret);
-    SimpleDPrintf_func(1, "LoadAddress: %lld\n", loadAddress);
+    printf_sdyld("VMAllocate Ret: %lld\n", vmallocate_ret);
+    printf_sdyld("LoadAddress: %lld\n", loadAddress);
 #endif
     // Put regions together...
     // JustInTimeLoader::withRegions via MachOAnalyzer::getAllSegmentsInfos
     WithRegions_ptr WithRegions_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld313MachOAnalyzerEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", sdyld);
     WithRegions_func((void*)buffer, ^(struct ArrayOfRegions * rptr) {
 #ifdef DEBUG
-        SimpleDPrintf_func(1, "Region Ptrs: %lld\n", rptr);
-        SimpleDPrintf_func(1, "usedCount: %lld\n", rptr->_usedCount);
-        SimpleDPrintf_func(1, "allocCount: %lld\n", rptr->_allocCount);
+        printf_sdyld("Region Ptrs: %lld\n", rptr);
+        printf_sdyld("usedCount: %lld\n", rptr->_usedCount);
+        printf_sdyld("allocCount: %lld\n", rptr->_allocCount);
 #endif
         uint32_t segIndex = 0;
         uint64_t sliceOffset = 0;
@@ -440,12 +465,12 @@ int main(int argc, char** argv)
         for (int i = 0 ; i < rptr->_usedCount; i++) {
           const struct Region region = rptr->_elements[i];
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Region vmOffset: %lld\n", region.vmOffset);
-          SimpleDPrintf_func(1, "Region perms: %lld\n", region.perms);
-          SimpleDPrintf_func(1, "Region isZeroFill: %lld\n", region.isZeroFill);
-          SimpleDPrintf_func(1, "Region readOnlyData: %lld\n", region.readOnlyData);
-          SimpleDPrintf_func(1, "Region fileOffset: %lld\n", region.fileOffset);
-          SimpleDPrintf_func(1, "Region fileSize: %lld\n", region.fileSize);
+          printf_sdyld("Region vmOffset: %lld\n", region.vmOffset);
+          printf_sdyld("Region perms: %lld\n", region.perms);
+          printf_sdyld("Region isZeroFill: %lld\n", region.isZeroFill);
+          printf_sdyld("Region readOnlyData: %lld\n", region.readOnlyData);
+          printf_sdyld("Region fileOffset: %lld\n", region.fileOffset);
+          printf_sdyld("Region fileSize: %lld\n", region.fileSize);
           print("----\n");
 #endif
           if ( region.isZeroFill || (region.fileSize == 0) )
@@ -455,31 +480,31 @@ int main(int argc, char** argv)
           int perms = region.perms;
           MMap_ptr MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", sdyld);
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
-          SimpleDPrintf_func(1, "Addr: %lld\n", (void*)(loadAddress + region.vmOffset));
-          SimpleDPrintf_func(1, "Size: %lld\n", (size_t)region.fileSize);
-          SimpleDPrintf_func(1, "Perms: %lld\n", region.perms);
-          SimpleDPrintf_func(1, "Flags: %lld\n", MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS);
-          SimpleDPrintf_func(1, "FD: %lld\n", (int)-1);
-          SimpleDPrintf_func(1, "Offset: %lld\n", (size_t)(sliceOffset + region.fileOffset));
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Addr: %lld\n", (void*)(loadAddress + region.vmOffset));
+          printf_sdyld("Size: %lld\n", (size_t)region.fileSize);
+          printf_sdyld("Perms: %lld\n", region.perms);
+          printf_sdyld("Flags: %lld\n", MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS);
+          printf_sdyld("FD: %lld\n", (int)-1);
+          printf_sdyld("Offset: %lld\n", (size_t)(sliceOffset + region.fileOffset));
 #endif
           // MMap will init this with zeros.
           void* segAddress = MMap_func(*(void **)(apis+ 8), (void*)(loadAddress + region.vmOffset), (size_t)region.fileSize, PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
           lastOffset = loadAddress + region.vmOffset + region.fileSize;
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
-          SimpleDPrintf_func(1, "Buffer: %lld\n", buffer);
-          SimpleDPrintf_func(1, "BufferO: %lld\n", buffer + sliceOffset + region.fileOffset);
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Buffer: %lld\n", buffer);
+          printf_sdyld("BufferO: %lld\n", buffer + sliceOffset + region.fileOffset);
 #endif
           memcpy2(segAddress, (const void *)(buffer + sliceOffset + region.fileOffset), (size_t)region.fileSize);
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
 #endif
           Mprotect_ptr Mprotect_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate8mprotectEPvmi", sdyld);
           Mprotect_func(*(void **)(apis+ 8), segAddress, (size_t)region.fileSize, perms);
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "SegAddress: %lld\n", segAddress);
-          SimpleDPrintf_func(1, "Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("SegAddress: %lld\n", segAddress);
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
 #endif
           ++segIndex;
         }
@@ -502,52 +527,52 @@ int main(int argc, char** argv)
       struct Loaded * loaded = (struct Loaded*)(apis+32);
       uintptr_t startLoaderCount = loaded->size;
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "Loaded Size: %lld\n", loaded->size);
-      SimpleDPrintf_func(1, "Loaded first: %lld\n", (loaded->elements));
-      SimpleDPrintf_func(1, "Loaded Capacity: %lld\n", loaded->capacity);
+      printf_sdyld("Loaded Size: %lld\n", loaded->size);
+      printf_sdyld("Loaded first: %lld\n", (loaded->elements));
+      printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
 #endif
       struct FileID * fileid = (struct FileID *)(rtopLoader+sizeof(void *));// = { 0, 0, false };
       fileid->iNode = 0;
       fileid->modTime = 0;
       fileid->isValid = false;
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "Apis: %lld\n", apis);
-      SimpleDPrintf_func(1, "LoadAddress: %lld\n", loadAddress);
-      SimpleDPrintf_func(1, "JITLMP: %lld\n", JustInTimeLoaderMake_func);
+      printf_sdyld("Apis: %lld\n", apis);
+      printf_sdyld("LoadAddress: %lld\n", loadAddress);
+      printf_sdyld("JITLMP: %lld\n", JustInTimeLoaderMake_func);
 #endif
       void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0);
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "TopLoader: %lld\n", topLoader);
-      SimpleDPrintf_func(1, "Toploader (*(int*)this): %i\n", *(int *)topLoader);
-      SimpleDPrintf_func(1, "Loaded Size: %lld\n", loaded->size);
-      SimpleDPrintf_func(1, "Loaded Capacity: %lld\n", loaded->capacity);
+      printf_sdyld("TopLoader: %lld\n", topLoader);
+      printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
+      printf_sdyld("Loaded Size: %lld\n", loaded->size);
+      printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
 #endif
       struct PartialLoader * pl = (struct PartialLoader *)topLoader;
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "LoadAddress: %lld\n", pl->mappedAddress);
-      SimpleDPrintf_func(1, "lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
-      SimpleDPrintf_func(1, "hidden: %lld\n", pl->hidden);
-      SimpleDPrintf_func(1, "Magic: %lld\n", pl->magic);
-      SimpleDPrintf_func(1, "IsPrebuilt: %lld\n", pl->isPrebuilt);
+      printf_sdyld("LoadAddress: %lld\n", pl->mappedAddress);
+      printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
+      printf_sdyld("hidden: %lld\n", pl->hidden);
+      printf_sdyld("Magic: %lld\n", pl->magic);
+      printf_sdyld("IsPrebuilt: %lld\n", pl->isPrebuilt);
 #endif
       pl->lateLeaveMapped = 1;
       pl = (struct PartialLoader *)topLoader;
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
+      printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
 #endif
       struct LoadChain * loadChainMain = (struct LoadChain *)(fileid+sizeof(struct FileID));// = { 0, *(void **)(apis+24) };
       loadChainMain->previous = 0;
       loadChainMain->image = *(void **)(apis+24);
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "mainExecutableLoader: %lld\n", *(void **)(apis+24));
-      SimpleDPrintf_func(1, "mainExecutableLoader: %lld\n", loadChainMain->image);
+      printf_sdyld("mainExecutableLoader: %lld\n", *(void **)(apis+24));
+      printf_sdyld("mainExecutableLoader: %lld\n", loadChainMain->image);
 #endif
       struct LoadChain * loadChainCaller = (struct LoadChain *)(loadChainMain+sizeof(struct LoadChain));// = { &loadChainMain, &(loaded->elements[0]) };
       loadChainCaller->previous = &loadChainMain;
       loadChainCaller->image = &(loaded->elements[0]);
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "LoadedElements: %lld\n", &(loaded->elements[0]));
-      SimpleDPrintf_func(1, "Toploader (*(int*)this): %i\n", *(int *)topLoader);
+      printf_sdyld("LoadedElements: %lld\n", &(loaded->elements[0]));
+      printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
 #endif
       struct LoadChain * loadChain = (struct LoadChain *)(loadChainCaller+sizeof(struct LoadChain));// = { &loadChainCaller, topLoader };
       loadChain->previous = &loadChainCaller;
@@ -569,12 +594,12 @@ int main(int argc, char** argv)
 #endif
       };
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "buffer: %lld\n", diag->_buffer);
-      SimpleDPrintf_func(1, "startLoaderCount: %lld\n", startLoaderCount);
+      printf_sdyld("buffer: %lld\n", diag->_buffer);
+      printf_sdyld("startLoaderCount: %lld\n", startLoaderCount);
 #endif
       uint64_t newLoadersCount = loaded->size - startLoaderCount;
 #ifdef DEBUG
-      SimpleDPrintf_func(1, "newLoadersCount: %lld\n", newLoadersCount);
+      printf_sdyld("newLoadersCount: %lld\n", newLoadersCount);
 #endif
       void * * newLoaders = &loaded->elements[startLoaderCount];
       struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
@@ -596,11 +621,11 @@ int main(int argc, char** argv)
 #endif
           void * ldr = newLoaders[i];
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Ldr: %lld\n", ldr);
+          printf_sdyld("Ldr: %lld\n", ldr);
 #endif
           ApplyFixups_func(ldr, diag, apis, &dcdclsw, true);
 #ifdef DEBUG
-          SimpleDPrintf_func(1, "Diag: %lld\n", diag->_buffer);
+          printf_sdyld("Diag: %lld\n", diag->_buffer);
 #endif
         }
         // TODO: Figure out if we need addPermanentRanges.
@@ -642,18 +667,18 @@ int main(int argc, char** argv)
     uintptr_t flags = 0;
     void* handle = (void*)((((uintptr_t)*rtopLoader) << 1) | flags);
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "Handle: %lld\n", handle);
+    printf_sdyld("Handle: %lld\n", handle);
 #endif
     VMDeallocate_ptr VMDeallocate_func = find_symbol(sdyld, "_vm_deallocate", sdyld);
     VMDeallocate_func(mach_task_self, (void *)structspace, structspacesize);
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "VMDeallocated: %lld\n", structspace);
+    printf_sdyld("VMDeallocated: %lld\n", structspace);
 #endif
     NSModule nm = handle;
     NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = find_symbol(dyld, "_NSLookupSymbolInModule", offset);
     NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
 #ifdef DEBUG
-    SimpleDPrintf_func(1, "sym_main: %lld\n", sym_main);
+    printf_sdyld("sym_main: %lld\n", sym_main);
 #endif
     NSAddressOfSymbol_ptr NSAddressOfSymbol_func = find_symbol(dyld, "_NSAddressOfSymbol", offset);
     addr_main = NSAddressOfSymbol_func(sym_main);
@@ -773,6 +798,17 @@ uint64_t syscall_chmod(uint64_t path, long mode)
 {
   uint64_t chmod_no = 0x200000f;
   uint64_t ret = 0;
+#ifdef __aarch64__
+  __asm__(
+      "mov x16, %1;\n"
+      "mov x0, %2;\n"
+      "mov x1, %3;\n"
+      "svc #0;\n"
+      "mov %0, x0;\n"
+      : "=r"(ret)
+      : "r"(chmod_no), "r"(path), "r"(mode)
+      :);
+#else
   __asm__(
       "movq %1, %%rax;\n"
       "movq %2, %%rdi;\n"
@@ -782,6 +818,7 @@ uint64_t syscall_chmod(uint64_t path, long mode)
       : "=g"(ret)
       : "g"(chmod_no), "S"(path), "g"(mode)
       :);
+#endif
   return ret;
 }
 
@@ -843,6 +880,21 @@ int detect_sierra()
   uint64_t valsizeptr = (uint64_t)&size;
   uint64_t ret = 0;
 
+#ifdef __aarch64__
+  __asm__(
+      "mov x16, %1;\n"
+      "mov x0, %2;\n"
+      "mov x1, %3;\n"
+      "mov x2, %4;\n"
+      "mov x3, %5;\n"
+      "eor x4, x4, x4;\n"
+      "eor x5, x5, x5;\n"
+      "svc #0;\n"
+      "mov %0, x0;\n"
+      : "=r"(ret)
+      : "r"(sc_sysctl), "r"(nameptr), "r"(namelen), "r"(valptr), "r"(valsizeptr)
+      : );
+#else
   __asm__(
       "mov %1, %%rax;\n"
       "mov %2, %%rdi;\n"
@@ -856,6 +908,7 @@ int detect_sierra()
       : "=g"(ret)
       : "g"(sc_sysctl), "g"(nameptr), "g"(namelen), "g"(valptr), "g"(valsizeptr)
       : );
+#endif
 
   // osrelease is 16.x.x on Sierra
   if (ret == 0 && size > 2) {
@@ -874,6 +927,16 @@ uint64_t syscall_shared_region_check_np()
   long shared_region_check_np = 0x2000126; // #294
   uint64_t address = 0;
   unsigned long ret = 0;
+#ifdef __aarch64__
+  __asm__(
+      "mov x16, %1;\n"
+      "mov x0, %2;\n"
+      "svc #0;\n"
+      "mov %0, x0;\n"
+      : "=r"(ret)
+      : "r"(shared_region_check_np), "r"(&address)
+      : "x16", "x0" );
+#else
   __asm__(
       "movq %1, %%rax;\n"
       "movq %2, %%rdi;\n"
@@ -882,6 +945,7 @@ uint64_t syscall_shared_region_check_np()
       : "=g"(ret)
       : "g"(shared_region_check_np), "g"(&address)
       : "rax", "rdi" );
+#endif
   return address;
 }
 
@@ -916,6 +980,18 @@ void print(char * str)
   unsigned long long addr = (unsigned long long) str;
   unsigned long ret = 0;
   /* ret = write(stdout, str, len); */
+#ifdef __aarch64__
+  __asm__(
+      "mov x16, %1;\n"
+      "mov x0, %2;\n"
+      "mov x1, %3;\n"
+      "mov x2, %4;\n"
+      "svc #0;\n"
+      "mov %0, x0;\n"
+      : "=r"(ret)
+      : "r"(write), "r"(stdout), "r"(addr), "r"(len)
+      : "x0", "x1", "x2" );
+#else
   __asm__(
       "movq %1, %%rax;\n"
       "movq %2, %%rdi;\n"
@@ -926,5 +1002,6 @@ void print(char * str)
       : "=g"(ret)
       : "g"(write), "g"(stdout), "S"(addr), "g"(len)
       : "rax", "rdi", "rdx" );
+#endif
 }
 #endif
