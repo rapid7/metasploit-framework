@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Post Module to obtain credentials saved for IMAP, POP and other mail
+Post module to obtain credentials saved for IMAP, POP and other mail
 retrieval protocols in fetchmail's `.fetchmailrc`.
 
 This file is kept in user's home directories to configure fetchmail,
@@ -12,7 +12,7 @@ Example documentation can be found in the fetchmail handbook:
 https://docs.freebsd.org/doc/6.0-RELEASE/usr/share/doc/handbook/mail-fetchmail.html#:~:text=fetchmailrc%20serves%20as%20an%20example,user%20on%20the%20local%20system.
 
 ```
-echo "poll example.com protocol pop3 username \"joesoap\" password \"XXX\"" > ~/.fetchamilrc
+echo "poll example.com protocol pop3 username \"joesoap\" password \"XXX\"" > ~/.fetchmailrc
 ```
 
 ## Verification Steps
@@ -22,7 +22,7 @@ echo "poll example.com protocol pop3 username \"joesoap\" password \"XXX\"" > ~/
 1. Do: `use post/multi/gather/fetchmailrc_creds`
 1. Do: `set session [session]`
 1. Do: `run`
-1. If any `.fetchmailrc` files exist with credentials, they will be stored and read
+1. If any `.fetchmailrc` files exist with credentials, they will be read and stored into a loot file.
 
 ## Options
 
