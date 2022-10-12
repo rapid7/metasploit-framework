@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptString.new('NCX_PATH', [ false, 'Specify the path of the NCX export file. e.g.:connections.ncx']),
+        OptString.new('NCX_PATH', [ false, 'Specify the path of the NCX export file (e.g. connections.ncx).']),
       ]
     )
   end
