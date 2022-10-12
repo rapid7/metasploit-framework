@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
   end
 
   def navicat_store_config(config)
-    if [:hostname, :service_name, :port, :username].any? { |e| config[e].blank? } || config[:password].nil?
+    if %i[hostname service_name port username].any? { |e| config[e].blank? } || config[:password].nil?
       return # If any of these fields are nil or are empty (with the exception of the password field which can be empty),
       # then we shouldn't proceed, as we don't have enough info to store a credential which someone could actually
       # use against a target.
