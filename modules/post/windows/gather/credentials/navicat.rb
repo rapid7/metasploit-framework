@@ -246,7 +246,6 @@ class MetasploitModule < Msf::Post
       rescue Rex::Post::Meterpreter::RequestError
         fail_with(Msf::Module::Failure::BadConfig, "The file #{ncx_path} either could not be read or does not exist")
       end
-      return
     else
       get_reg
       print_status('Finished processing from the registry')
