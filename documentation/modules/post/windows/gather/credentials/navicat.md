@@ -17,9 +17,9 @@ This module can decrypt the password of navicat, If the user chooses to remember
 
 ## Options
 
- **NCX_PATH**
+### NCX_PATH
 
-  - Specify the path of the NCX export file. e.g.:connections.ncx
+Specify the path of the NCX export file. e.g.: connections.ncx
 
 ## Scenarios
 
