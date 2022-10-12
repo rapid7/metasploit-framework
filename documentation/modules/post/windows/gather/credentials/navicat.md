@@ -12,7 +12,7 @@ This module can decrypt the password of navicat, If the user chooses to remember
   2. Use navicat to log in to DB server.
   3. Remember to save the account password.
   4. Get a `meterpreter` session on a Windows host.
-  5. Do: ```run post/windows/gather/credentials/navicat```
+  5. Do: `run post/windows/gather/credentials/navicat`
   6. If the session file is saved in the system, the host, port, user name and plaintext password will be printed.
 
 ## Options
