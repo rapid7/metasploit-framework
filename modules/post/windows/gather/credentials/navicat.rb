@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Post
           print_status("Finished processing #{ncx_path}")
         end
       rescue Rex::Post::Meterpreter::RequestError
-        print_status("The file #{ncx_path} either could not be read or does not exist")
+        fail_with(Msf::Module::Failure::BadConfig, "The file #{ncx_path} either could not be read or does not exist")
         return
       end
       return
