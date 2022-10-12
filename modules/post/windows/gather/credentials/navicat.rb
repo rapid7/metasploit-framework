@@ -21,7 +21,10 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/HyperSine/how-does-navicat-encrypt-password'],
           [ 'URL', 'https://blog.kali-team.cn/Metasploit-Navicat-fbc1390cf57c40b5b576584c48b8e125']
         ],
-        'Author' => [ 'HyperSine', 'Kali-Team <kali-team[at]qq.com>'],
+        'Author' => [
+          'HyperSine', # Research and PoC
+          'Kali-Team <kali-team[at]qq.com>' # MSF module
+        ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
