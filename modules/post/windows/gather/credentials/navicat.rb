@@ -27,14 +27,6 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
-        'Compat' => {
-          'Meterpreter' => {
-            'Commands' => %w[
-
-            ]
-          }
-
-        },
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
