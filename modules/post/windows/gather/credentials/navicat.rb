@@ -221,7 +221,7 @@ class MetasploitModule < Msf::Post
       navicat_store_config(config)
     end
     print_line(tbl.to_s)
-    if tbl.rows.count
+    if tbl.rows.count > 0
       path = store_loot('host.navicat_session', 'text/plain', session, tbl, 'navicat_sessions.txt', 'Navicat Sessions')
       print_good("Session info stored in: #{path}")
     end
