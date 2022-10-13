@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 module Msf
   ###
@@ -10,7 +10,6 @@ module Msf
   ###
   module Auxiliary::Juniper
     include Msf::Auxiliary::Report
-    include Metasploit::Framework::Hashes::Identify
 
     def juniper_screenos_config_eater(thost, tport, config)
       # this is for the netscreen OS, which came on SSG (ie SSG5) type devices.
@@ -178,7 +177,7 @@ module Msf
       # }
       if /root-authentication\s+\{\s+encrypted-password "(?<root_hash>[^"]+)";/i =~ config
         root_hash = root_hash.strip
-        jtr_format = identify_hash root_hash
+        jtr_format = Metasploit::Framework::Hashes.identify_hash root_hash
 
         print_good("root password hash: #{root_hash}")
         if framework.db.active
@@ -196,7 +195,7 @@ module Msf
         user_uid = result[2].strip
         user_permission = result[3].strip
         user_hash = result[4].strip
-        jtr_format = identify_hash user_hash
+        jtr_format = Metasploit::Framework::Hashes.identify_hash user_hash
 
         print_good("User #{user_uid} named #{user_name} in group #{user_permission} found with password hash #{user_hash}.")
         next unless framework.db.active
@@ -252,7 +251,7 @@ module Msf
         result_block[0].strip.scan(/(?<tacplus_server>[0-9.]{7,15}) secret "(?<hash>[^"]+)";/i).each do |result|
           ip = result[0].strip
           hash = result[1].strip
-          jtr_format = identify_hash hash
+          jtr_format = Metasploit::Framework::Hashes.identify_hash hash
           print_good("tacplus server #{ip} with password hash #{hash}")
           next unless framework.db.active
 
