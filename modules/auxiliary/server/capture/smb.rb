@@ -10,6 +10,7 @@ require 'metasploit/framework/hashes/identify'
 class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::Server
   include ::Msf::Exploit::Remote::SMB::Server::HashCapture
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize
     super({

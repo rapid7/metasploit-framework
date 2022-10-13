@@ -4,12 +4,13 @@
 ##
 
 require 'rex/zip'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
+  include Metasploit::Framework::Hashes::Identify
 
-  require 'metasploit/framework/hashes/identify'
 
   def initialize(info = {})
     super(

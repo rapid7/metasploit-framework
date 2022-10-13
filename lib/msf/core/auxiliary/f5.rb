@@ -10,6 +10,7 @@ module Msf
   ###
   module Auxiliary::F5
     include Msf::Auxiliary::Report
+    include Metasploit::Framework::Hashes::Identify
 
     def f5_config_eater(thost, tport, config, store = true)
 

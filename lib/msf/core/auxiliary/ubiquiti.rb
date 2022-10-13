@@ -12,6 +12,7 @@ module Msf
   ###
   module Auxiliary::Ubiquiti
     include Msf::Auxiliary::Report
+    include Metasploit::Framework::Hashes::Identify
 
     def decrypt_unf(contents)
       aes = OpenSSL::Cipher.new('aes-128-cbc')

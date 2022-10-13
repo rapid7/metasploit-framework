@@ -1,3 +1,4 @@
+require 'metasploit/framework/hashes/identify'
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -7,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
-  require 'metasploit/framework/hashes/identify'
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info = {})
     super(

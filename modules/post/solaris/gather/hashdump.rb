@@ -8,6 +8,7 @@ require 'metasploit/framework/hashes/identify'
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Solaris::Priv
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info={})
     super( update_info( info,

@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Util::WindowsRegistry
   include Msf::Util::WindowsCryptoHelpers
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info = {})
     super(

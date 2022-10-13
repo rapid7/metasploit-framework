@@ -10,6 +10,7 @@ module Msf
   ###
   module Auxiliary::Arista
     include Msf::Auxiliary::Report
+    include Metasploit::Framework::Hashes::Identify
 
     def arista_eos_config_eater(thost, tport, config)
 
