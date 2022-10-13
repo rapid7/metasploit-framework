@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 module Msf
   ###
@@ -10,7 +10,6 @@ module Msf
   ###
   module Auxiliary::VYOS
     include Msf::Auxiliary::Report
-    include Metasploit::Framework::Hashes::Identify
 
     def vyos_config_eater(thost, tport, config, store = true)
 
@@ -102,7 +101,7 @@ module Msf
         cred = credential_data.dup
         cred[:username] = username
         unless hash.start_with?('********') # if not in config mode these are masked
-          cred[:jtr_format] = identify_hash(hash)
+          cred[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(hash)
           cred[:private_data] = hash
           print_hash = " with hash #{hash}"
         end

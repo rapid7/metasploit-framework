@@ -3,13 +3,12 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Report
-  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info = {})
     super(
@@ -188,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
         username: dn,
         private_data: john_hash,
         private_type: :nonreplayable_hash,
-        jtr_format: identify_hash(john_hash)
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(john_hash)
       ))
     end
   end

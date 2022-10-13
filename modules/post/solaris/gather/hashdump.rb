@@ -3,12 +3,11 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Solaris::Priv
-  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info={})
     super( update_info( info,
@@ -38,7 +37,7 @@ class MetasploitModule < Msf::Post
       john_file = unshadow(passwd_file, shadow_file)
       john_file.each_line do |l|
         hash_parts = l.split(':')
-        jtr_format = identify_hash hash_parts[1]
+        jtr_format = Metasploit::Framework::Hashes.identify_hash hash_parts[1]
         if jtr_format.empty? #overide the default
           jtr_format = 'des,bsdi,crypt'
         end

@@ -5,12 +5,10 @@
 
 require 'ruby_smb'
 require 'ruby_smb/gss/provider/ntlm'
-require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::Server
   include ::Msf::Exploit::Remote::SMB::Server::HashCapture
-  include Metasploit::Framework::Hashes::Identify
 
   def initialize
     super({
