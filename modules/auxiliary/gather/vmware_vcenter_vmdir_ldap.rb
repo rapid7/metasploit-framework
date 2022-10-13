@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Report
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info = {})
     super(

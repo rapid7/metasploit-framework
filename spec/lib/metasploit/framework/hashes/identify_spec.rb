@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/hashes/identify'
 require 'bcrypt'
+include Metasploit::Framework::Hashes::Identify
 
 =begin
 #!/usr/bin/python

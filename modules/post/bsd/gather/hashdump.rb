@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Auxiliary::Report
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info = {})
     super( update_info( info,

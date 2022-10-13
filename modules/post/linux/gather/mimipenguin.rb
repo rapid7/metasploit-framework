@@ -10,6 +10,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
   include Msf::Post::Linux::Process
+  include Metasploit::Framework::Hashes::Identify
 
   def initialize(info = {})
     super(

@@ -10,6 +10,7 @@ module Msf
   ###
   module Auxiliary::VYOS
     include Msf::Auxiliary::Report
+    include Metasploit::Framework::Hashes::Identify
 
     def vyos_config_eater(thost, tport, config, store = true)
 

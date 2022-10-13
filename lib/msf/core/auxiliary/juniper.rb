@@ -10,6 +10,7 @@ module Msf
   ###
   module Auxiliary::Juniper
     include Msf::Auxiliary::Report
+    include Metasploit::Framework::Hashes::Identify
 
     def juniper_screenos_config_eater(thost, tport, config)
       # this is for the netscreen OS, which came on SSG (ie SSG5) type devices.
