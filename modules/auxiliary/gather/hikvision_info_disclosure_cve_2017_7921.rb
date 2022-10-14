@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Response code invalid for obtaining the user credentials.')
     end
     if loot_data
-      if datastore['PRINT'] == true
+      if datastore['PRINT']
         print_status(loot_data.to_s)
       end
       loot_path = store_loot('hikvision.credential', 'text/plain', datastore['RHOSTS'], loot_data, 'credentials', 'leaked credentials')
