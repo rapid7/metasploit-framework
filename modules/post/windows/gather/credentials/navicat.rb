@@ -223,7 +223,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status('Gathering Navicat password information.')
-    if datastore['NCX_PATH']
+    if datastore['NCX_PATH'].present?
       ncx_path = datastore['NCX_PATH']
       print_status("Looking for #{ncx_path}")
       begin
