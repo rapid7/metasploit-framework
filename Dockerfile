@@ -1,4 +1,4 @@
-FROM ruby:3.0.2-alpine3.12 AS builder
+FROM ruby:3.0.4-alpine3.15 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set clean 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -40,6 +40,7 @@ RUN apk add --no-cache \
     # needed so non root users can read content of the bundle
     && chmod -R a+r /usr/local/bundle
 
+ENV GO111MODULE=off
 RUN mkdir -p $TOOLS_HOME/bin && \
     cd $TOOLS_HOME/bin && \
     curl -O https://dl.google.com/go/go1.11.2.src.tar.gz && \
@@ -48,7 +49,7 @@ RUN mkdir -p $TOOLS_HOME/bin && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.0.2-alpine3.12
+FROM ruby:3.0.4-alpine3.15
 LABEL maintainer="Rapid7"
 
 ENV APP_HOME=/usr/src/metasploit-framework
@@ -59,7 +60,9 @@ ENV METASPLOIT_GROUP=metasploit
 # used for the copy command
 RUN addgroup -S $METASPLOIT_GROUP
 
-RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs postgresql-libs python2 python3 py3-pip ncurses libcap su-exec alpine-sdk python2-dev openssl-dev nasm mingw-w64-gcc
+RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs \
+    postgresql-libs python2 python3 py3-pip ncurses libcap su-exec alpine-sdk \
+    python2-dev openssl-dev nasm mingw-w64-gcc
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
