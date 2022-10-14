@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
       # decode the AES decrypted configuration file data with xor key: 73 8B 55 44
       file_data = Rex::Text.xor("\x73\x8b\x55\x44".b, xor_data)
 
-      # filter out text chunks with regular expression below...
+      # extract text chunks with regular expression below...
       text_data = file_data.scan(%r{[0-9A-Za-z_\#~`@|\\/=*\^:"'.;{}?\-+&!$%()\[\]<>]+}x)
     end
     return text_data
