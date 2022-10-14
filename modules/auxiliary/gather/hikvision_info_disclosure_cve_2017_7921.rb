@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Response code invalid for obtaining the user credentials.')
     end
-    unless loot_data.nil?
+    if loot_data
       if datastore['PRINT'] == true
         print_status(loot_data.to_s)
       end
