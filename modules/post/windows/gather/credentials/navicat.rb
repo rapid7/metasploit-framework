@@ -102,6 +102,7 @@ class MetasploitModule < Msf::Post
 
   def navicat_store_config(config)
     if %i[hostname service_name port username].any? { |e| config[e].blank? } || config[:password].nil?
+      vprint_warning('Key data is empty, skip saving service credential')
       return # If any of these fields are nil or are empty (with the exception of the password field which can be empty),
       # then we shouldn't proceed, as we don't have enough info to store a credential which someone could actually
       # use against a target.
@@ -228,7 +229,9 @@ class MetasploitModule < Msf::Post
       print_status("Looking for #{ncx_path}")
       begin
         if file_exist?(ncx_path)
-          condata = read_file(ncx_path)
+          condata = read_file(ncx_path) || ''
+          return if condata.empty?
+
           loot_path = store_loot('navicat.creds', 'text/xml', session, condata, ncx_path)
           print_good("navicat.ncx saved to #{loot_path}")
           parse_xml(condata)
