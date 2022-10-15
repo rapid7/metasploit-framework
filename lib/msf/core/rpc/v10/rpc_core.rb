@@ -64,7 +64,12 @@ class RPC_Core < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('core.unsetg', 'MyGlobal')
   def rpc_unsetg(var)
-    framework.datastore.delete(var)
+    if framework.datastore.is_a?(Msf::DataStoreWithFallbacks)
+      framework.datastore.unset(var)
+    else
+      framework.datastore.delete(var)
+    end
+
     { "result" => "success" }
   end
 

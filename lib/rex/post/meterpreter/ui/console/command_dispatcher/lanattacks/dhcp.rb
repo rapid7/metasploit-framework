@@ -189,7 +189,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
     datastore = args.shift
 
-    if not datastore.is_a?(Hash)
+    unless datastore.is_a?(Hash) || datastore.is_a?(Msf::DataStoreWithFallbacks)
       print_dhcp_load_options_usage
       return true
     end

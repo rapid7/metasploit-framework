@@ -73,6 +73,10 @@ jobs:
         exclude:
           - { os: ubuntu-latest, ruby: 2.7 }
           - { os: ubuntu-latest, ruby: 3.0 }
+        include:
+          - os: ubuntu-latest
+            ruby: 3.1
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" DATASTORE_FALLBACKS=1'
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"

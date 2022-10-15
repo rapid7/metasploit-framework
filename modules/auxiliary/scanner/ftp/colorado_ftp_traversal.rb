@@ -38,8 +38,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 2 ]),
         OptString.new('PATH', [ true, 'Path to the file to disclose, relative to the root dir.', 'conf\\xml-users.xml']),
-        OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser']), #override default
-        OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123']) #override default
+        OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser'], fallbacks: ['USERNAME']), #override default
+        OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123'], fallbacks: ['PASSWORD']) #override default
       ])
 
   end

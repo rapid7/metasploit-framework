@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('FTPROOT',    [ true,  "The FTP root directory to serve files from", '/tmp/ftproot' ]),
-        OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"]),
-        OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"]),
+        OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"], fallbacks: ['USERNAME']),
+        OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"], fallbacks: ['PASSWORD']),
       ])
   end
 

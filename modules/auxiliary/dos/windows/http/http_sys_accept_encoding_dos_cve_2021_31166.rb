@@ -40,8 +40,8 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2021-05-11',
         'Notes' => {
           'Stability' => [CRASH_OS_RESTARTS],
-          'Reliability' => [IOC_IN_LOGS],
-          'SideEffects' => [SCREEN_EFFECTS]
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS, SCREEN_EFFECTS]
         }
       )
     )

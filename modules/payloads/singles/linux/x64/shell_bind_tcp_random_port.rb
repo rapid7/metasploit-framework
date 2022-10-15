@@ -25,7 +25,7 @@ module MetasploitModule
     ))
   end
 
-  def generate_stage
+  def generate(opts={})
     payload = %Q^
       ; Creating the socket file descriptor
       ; int socket(int domain, int type, int protocol);

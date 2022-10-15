@@ -68,7 +68,7 @@ module SingleCommandShell
               # normalize the line endings following the token and parse them
               buf.gsub!("#{token}\n", "#{token}\r\n")
               parts = buf.split("#{token}\r\n", -1)
-              if parts.length == parts_needed
+              if parts.length >= parts_needed
                 # cause another prompt to appear (just in case)
                 shell_write(command_termination)
                 return parts[wanted_idx]
@@ -93,52 +93,56 @@ module SingleCommandShell
     output
   end
 
+  # We don't know initially whether the shell we have is one that
+  # echos input back to the output stream. If it is, we need to
+  # take this into account when using tokens to extract the data corresponding
+  # to the command we run. For instance, if the input is not echoed, our output
+  # will receive the data corresponding to the command run, followed by the token.
+  # On the other hand, if it does echo, we will see the token (echoed from our input)
+  # followed by the data corresponding to the command that was run, followed again
+  # by the token (this time from actually being run).
   #
-  # Explicitly run a single command and return the output.
-  # This version uses a marker to denote the end of data (instead of a timeout).
-  #
-  def shell_command_token_unix(cmd, timeout=10)
-    # read any pending data
-    buf = shell_read(-1, 0.01)
-    set_shell_token_index(timeout)
-    token = ::Rex::Text.rand_text_alpha(32)
-
-    # Send the command to the session's stdin.
-    shell_write(cmd + ";echo #{token}\n")
-    shell_read_until_token(token, @shell_token_index, timeout)
-  end
-
-  # NOTE: if the session echoes input we don't need to echo the token twice.
-  # This setting will persist for the duration of the session.
-  def set_shell_token_index(timeout)
-    return @shell_token_index if @shell_token_index
+  # This function determines which situation we're in, and sets a variable accordingly
+  # (is_echo_shell) which will persist for the duration of the session.
+  def set_is_echo_shell(timeout, command_separator)
+    return @is_echo_shell unless @is_echo_shell.nil?
     token = ::Rex::Text.rand_text_alpha(32)
     numeric_token = rand(0xffffffff) + 1
     cmd = "echo #{numeric_token}"
-    shell_write(cmd + ";echo #{token}#{command_termination}")
+    shell_write(cmd + "#{command_separator}echo #{token}#{command_termination}")
     res = shell_read_until_token(token, 0, timeout)
-    if res.to_i == numeric_token
-      @shell_token_index = 0
-    else
-      @shell_token_index = 1
-    end
+    @is_echo_shell = res.include?(cmd)
+  end
+
+  def shell_command_token_win32(cmd, timeout=10)
+    shell_command_token_base(cmd, timeout, '&')
+  end
+
+  def shell_command_token_unix(cmd, timeout=10)
+    shell_command_token_base(cmd, timeout, ';')
   end
 
   #
   # Explicitly run a single command and return the output.
   # This version uses a marker to denote the end of data (instead of a timeout).
+  # @param cmd [String] The command to run (will have an echo statement appended to signify the end)
+  # @param timeout [Integer] The timeout in seconds for the command
+  # @param command_separator [String] A string to separate commands, for the given platform
   #
-  def shell_command_token_win32(cmd, timeout=10)
-
+  def shell_command_token_base(cmd, timeout=10, command_separator="\n")
     # read any pending data
     buf = shell_read(-1, 0.01)
-    set_shell_token_index(timeout)
+    set_is_echo_shell(timeout, command_separator)
     token = ::Rex::Text.rand_text_alpha(32)
 
     # Send the command to the session's stdin.
-    # NOTE: if the session echoes input we don't need to echo the token twice.
-    shell_write(cmd + "&echo #{token}#{command_termination}")
-    res = shell_read_until_token(token, @shell_token_index, timeout)
+    delimiter = "echo #{token}"
+    shell_data = cmd + "#{command_separator}#{delimiter}#{command_termination}"
+    unless @is_echo_shell
+      shell_data = "#{delimiter}#{command_separator}#{shell_data}"
+    end
+    shell_write(shell_data)
+    res = shell_read_until_token(token, 1, timeout)
     res
   end
 

@@ -3,6 +3,9 @@ module Msf
     attr_accessor :tests
     attr_accessor :failures
 
+    class SkipTestError < ::Exception
+    end
+
     def initialize(info = {})
       @tests = 0
       @failures = 0
@@ -16,6 +19,10 @@ module Msf
       }
     end
 
+    def skip(msg = "No reason given")
+      raise SkipTestError, msg
+    end
+
     def it(msg = "", &block)
       @tests += 1
       begin
@@ -26,9 +33,11 @@ module Msf
           @failures += 1
           return
         end
+      rescue SkipTestError => e
+        print_status("SKIPPED: #{msg} (#{e.message})")
       rescue ::Exception => e
         print_error("FAILED: #{msg}")
-        print_error("Exception: #{e.class} : #{e}")
+        print_error("Exception: #{e.class}: #{e}")
         dlog("Exception in testing - #{msg}")
         dlog("Call stack: #{e.backtrace.join("\n")}")
         return

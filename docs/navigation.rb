@@ -212,6 +212,10 @@ NAVIGATION_CONFIG = [
                 title: without_prefix('Meterpreter ')
               },
               {
+                path: 'Meterpreter-ExecuteBof-Command.md',
+                title: without_prefix('Meterpreter ')
+              },
+              {
                 path: 'How-to-get-started-with-writing-a-Meterpreter-script.md'
               },
               {
@@ -437,6 +441,10 @@ NAVIGATION_CONFIG = [
               {
                 path: 'How-to-use-PhpEXE-to-exploit-an-arbitrary-file-upload-bug.md',
                 title: 'PhpExe'
+              },
+              {
+                path: 'How-to-use-the-Git-mixin-to-write-an-exploit-module.md',
+                title: 'Git Mixin'
               },
               {
                 title: 'HTTP',
