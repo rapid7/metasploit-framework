@@ -1,24 +1,27 @@
-## Description
+## Vulnerable Application
 
+### Description
 Check if a server supports a given version of SSL/TLS and cipher suites.
 
 The certificate is stored in loot, and any known vulnerabilities against that
-ssl version and cipher suite combination are checked. These checks include
-POODLE, Deprecated protocols, expired/not valid certs, low key strength, Null cipher suites,
-Certificates signed with MD5, DROWN, RC4 ciphers, exportable ciphers, LOGJAM, and BEAST.
+SSL version and cipher suite combination are checked. These checks include
+POODLE, deprecated protocols, expired/not valid certs, low key strength, null cipher suites,
+certificates signed with MD5, DROWN, RC4 ciphers, exportable ciphers, LOGJAM, and BEAST.
+
+## Options
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/ssl/ssl_version```
-2. Do: ```set RHOSTS [IP]```
-3. Do: ```set THREADS [num of threads]```
-4. Do: ```run```
+1. Do: `use auxiliary/scanner/ssl/ssl_version`
+2. Do: `set RHOSTS [IP]`
+3. Do: `set THREADS [num of threads]`
+4. Do: `run`
 
 ## Scenarios
 
 ### No issues found
 
-An example run against Google.com, no real issues as expected.
+An example run against `google.com`, no real issues as expected.
 
 ```
 resource (ssl_cert.rb)> use auxiliary/scanner/ssl/ssl_version
