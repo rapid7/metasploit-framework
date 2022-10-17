@@ -1,5 +1,6 @@
-## Description
-This module uses a pfx certificate file to acquire a TGT using the PKINIT protocol. A successful login will store the TGT for use with other modules.
+## Vulnerable Application
+This module uses a pfx certificate file to acquire a TGT using the PKINIT protocol.
+A successful login will store the TGT for use with other modules.
 
 ## Options
 
@@ -7,15 +8,18 @@ This module only requires the `RHOST` and `CERT_FILE` options to be set.
 
 If the certificate file has a non-empty password, the `CERT_PASS` option must also be set.
 
-The username and realm for the login request are derived from the certificate; however it is possible to override them using the `USERNAME` and `DOMAIN` options. These options must be provided if for some reason the certificate contains several principals. The module will provide a warning if these do not match any entry in the certificate.
+The username and realm for the login request are derived from the certificate;
+however it is possible to override them using the `USERNAME` and `DOMAIN` options.
+These options must be provided if for some reason the certificate contains several principals.
+The module will provide a warning if these do not match any entry in the certificate.
 
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/admin/kerberos/pkinit_login```
-1. Do: ```set RHOSTS [IP]```
-1. Do: ```set CERT_FILE [path]```
-1. Do: ```run```
+1. Do: `use auxiliary/admin/kerberos/pkinit_login`
+1. Do: `set RHOSTS [IP]`
+1. Do: `set CERT_FILE [path]`
+1. Do: `run`
 
 ## Scenarios
 

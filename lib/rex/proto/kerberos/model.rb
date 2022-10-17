@@ -20,6 +20,16 @@ module Rex
         KRB_CRED = 22
         ENC_KRB_CRED_PART = 29
 
+        module OID
+          DiffieHellman = '1.2.840.10046.2.1'
+          SHA1 = '1.3.14.3.2.26'
+          ContentType = '1.2.840.113549.1.9.3'
+          MessageDigest = '1.2.840.113549.1.9.4'
+          RSAWithSHA1 = '1.2.840.113549.1.1.5'
+          PkinitAuthData = '1.3.6.1.5.2.3.1'
+          SignedData = '1.2.840.113549.1.7.2'
+        end
+
         # From Principal
         # https://datatracker.ietf.org/doc/html/rfc4120#section-6.2
 

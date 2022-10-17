@@ -18,7 +18,10 @@ class MetasploitModule < Msf::Auxiliary
           use with other modules.
         },
         'Author' => [
-          'smashery',
+          'Will Schroeder', # original idea/research
+          'Lee Christensen', # original idea/research
+          'Oliver Lyak', # certipy implementation
+          'smashery', # Metasploit module
         ],
         'References' => [
         ],
@@ -41,17 +44,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     certificate = File.read(datastore['CERT_FILE'])
-    cert_pass = datastore['CERT_PASS']
-    cert_pass = '' if cert_pass.nil?
-    pfx = OpenSSL::PKCS12.new(certificate, cert_pass)
-    if datastore['USERNAME'].nil? && !datastore['DOMAIN'].nil?
-      print_error('Username override provided but no domain override provided (must provide both or neither)')
-      return
-    elsif datastore['DOMAIN'].nil? && !datastore['USERNAME'].nil?
-      print_error('Domain override provided but no username override provided (must provide both or neither)')
-      return
+    cert_pass = datastore['CERT_PASS'] || ''
+    begin
+      pfx = OpenSSL::PKCS12.new(certificate, cert_pass)
+    rescue OpenSSL::PKCS12::PKCS12Error
+      fail_with(Failure::BadConfig, 'Unable to parse certificate file. Is this a PKCS#12 certificate format?')
     end
-    username, realm = extract_user_and_realm(pfx.certificate, datastore['USERNAME'], datastore['DOMAIN'])
+
+    if datastore['USERNAME'].blank? && datastore['DOMAIN'].present?
+      fail_with(Failure::BadConfig, 'Domain override provided but no username override provided (must provide both or neither)')
+    elsif datastore['DOMAIN'].blank? && datastore['USERNAME'].present?
+      fail_with(Failure::BadConfig, 'Username override provided but no domain override provided (must provide both or neither)')
+    end
+    begin
+      username, realm = extract_user_and_realm(pfx.certificate, datastore['USERNAME'], datastore['DOMAIN'])
+    rescue ArgumentError => e
+      fail_with(Failure::BadConfig, e.message)
+    end
+
     print_status("Attempting PKINIT login for #{username}@#{realm}")
     begin
       server_name = "krbtgt/#{realm}"
@@ -67,11 +77,21 @@ class MetasploitModule < Msf::Auxiliary
       info << "serviceName: #{server_name.downcase}"
       info << "username: #{username.downcase}"
 
+      report_service(
+        host: rhost,
+        port: rport,
+        name: 'Kerberos-PKINIT',
+        proto: 'tcp',
+        info: "Module: #{fullname}, Realm: #{realm}"
+      )
+
       ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
       path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil, info.join(', '))
       print_status("#{peer} - TGT MIT Credential Cache saved to #{path}")
     rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
-      print_error("Failed: #{e.message}")
+      fail_with(Failure::Unknown, e.message)
+    rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
+      fail_with(Failure::Disconnected, e.message)
     end
   end
 end
