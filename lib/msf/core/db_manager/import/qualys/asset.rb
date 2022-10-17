@@ -2,8 +2,8 @@ module Msf::DBManager::Import::Qualys::Asset
   # Takes QID numbers and finds the discovered services in
   # a qualys_asset_xml.
   def find_qualys_asset_ports(i,host,wspace,hobj,task_id)
-    return unless (i == 82023 || i == 82004)
-    proto = i == 82023 ? 'tcp' : 'udp'
+    return unless (i == Msf::DBManager::Import::Qualys::TCP_QID || i == Msf::DBManager::Import::Qualys::UDP_QID)
+    proto = i == Msf::DBManager::Import::Qualys::TCP_QID ? 'tcp' : 'udp'
     qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
     qid_result = qid.parent.elements["RESULT[@format='table']"] if qid
     hports = qid_result.first.to_s if qid_result
@@ -51,7 +51,8 @@ module Msf::DBManager::Import::Qualys::Asset
   # Import Qualys's Asset Data Report format
   #
   def import_qualys_asset_xml(args={}, &block)
-    data = args[:data]
+    # drop `RESULT` tags not consumed by the parser to increase efficiency
+    data = args[:data].gsub(Msf::DBManager::Import::Qualys::RESULT_FILTER, '\k<needle>')
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     doc = rexmlify(data)
