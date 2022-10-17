@@ -6,6 +6,8 @@ module Rex
       module Model
         module Pkinit
           class Name
+            # Rather than specifying the entire structure of a name, we pass this off
+            # to OpenSSL, effectively providing an interface between RASN and OpenSSL.
             attr_accessor :value
 
             def parse!(str, ber: false)
