@@ -277,7 +277,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Response code invalid for obtaining camera storage configuration.')
     end
-    unless loot_data.nil?
+    unless loot_data.empty?
       if datastore['PRINT']
         print_status(loot_data.to_s)
       end
