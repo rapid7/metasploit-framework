@@ -33,7 +33,7 @@ module Msf::DBManager::Import::Qualys::Scan
       end
 
       # Open TCP Services List (Qualys ID 82023)
-      services_tcp = host.elements["SERVICES/CAT/SERVICE[@number='82023']/RESULT"]
+      services_tcp = host.elements["SERVICES/CAT/SERVICE[@number='#{Msf::DBManager::Import::Qualys::TCP_QID}']/RESULT"]
       if services_tcp
         services_tcp.text.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
           if match[2] == nil or match[2].strip == 'unknown'
@@ -45,7 +45,7 @@ module Msf::DBManager::Import::Qualys::Scan
         end
       end
       # Open UDP Services List (Qualys ID 82004)
-      services_udp = host.elements["SERVICES/CAT/SERVICE[@number='82004']/RESULT"]
+      services_udp = host.elements["SERVICES/CAT/SERVICE[@number='#{Msf::DBManager::Import::Qualys::UDP_QID}']/RESULT"]
       if services_udp
         services_udp.text.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
           if match[2] == nil or match[2].strip == 'unknown'
@@ -92,6 +92,8 @@ module Msf::DBManager::Import::Qualys::Scan
     ::File.open(filename, 'rb') do |f|
       data = f.read(f.stat.size)
     end
+    # drop `RESULT` tags not consumed by the parser to increase efficiency
+    data.gsub!(Msf::DBManager::Import::Qualys::RESULT_FILTER, '\k<needle>')
     import_qualys_scan_xml(args.merge(:data => data))
   end
 end
