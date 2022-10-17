@@ -7,7 +7,6 @@ module Msf::DBManager::Import::Qualys
 
   TCP_QID = 82023
   UDP_QID = 82004
-  RESULT_FILTER = %r{(?<needle><QID id=.qid_(?!#{TCP_QID}|!#{UDP_QID}).*?<\/QID>.*?)<RESULT[>| format="table">].*?<\/RESULT>}m
 
   #
   # Qualys report parsing/handling
