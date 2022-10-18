@@ -9,7 +9,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Module::Deprecated
-  # include Rex::Socket::Comm
 
   moved_from 'auxiliary/scanner/http/ssl'
   moved_from 'auxiliary/scanner/http/ssl_version'
@@ -21,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         Check if a server supports a given version of SSL/TLS and cipher suites.
 
         The certificate is stored in loot, and any known vulnerabilities against that
-        ssl version and cipher suite combination are checked. These checks include
-        POODLE, deprecated protocols, expired/not valid certs, low key strength, Null cipher suites,
+        SSL version and cipher suite combination are checked. These checks include
+        POODLE, deprecated protocols, expired/not valid certs, low key strength, null cipher suites,
         certificates signed with MD5, DROWN, RC4 ciphers, exportable ciphers, LOGJAM, and BEAST.
       },
       'Author' => [
@@ -68,11 +67,17 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def get_ssl_versions
+  def get_metasploit_ssl_versions
     # originally we used OpenSSL::SSL::SSLContext here, but it gives back ssl versions
     # with no cipher suites, and therefore we can't use them, or they are invalid.
     # this method only lists valid connectable ones. Original method from:
     # https://github.com/rapid7/rex-socket/blob/6ea0bb3b4e19c53d73e4337617be72c0ed351ceb/lib/rex/socket/ssl_tcp.rb#L46
+
+    # If the user specified that we should use all available SSL versions, then get the list of the ciphers
+    # that the Metasploit host supports using OpenSSL::SSL::SSLContext and grab the 2nd element, aka the
+    # SSL version that the cipher can work with (can be multiple entries to combine a particular cipher with
+    # a given SSL version. Then uniq the resulting array so that we only get unique entries before reversing
+    # so that SSL versions come first, then TLS versions.
     if datastore['SSLVersion'] == 'All'
       return Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse
     end
@@ -80,14 +85,20 @@ class MetasploitModule < Msf::Auxiliary
     datastore['SSLVersion']
   end
 
-  def get_ssl_cipher_suites(ssl_version)
-    # originally this method used OpenSSL::Cipher.ciphers
-    # however that gives back ciphers that are invalid for a ssl version
-    # meaning we throw lots of errors, this way is more accurate
+  def get_metasploit_ssl_cipher_suites(ssl_version)
+    # Originally this method used OpenSSL::Cipher.ciphers.
+    # However that gives back ciphers that are invalid for a SSL version
+    # which resulted in a lot of errors being thrown. This method 
+    # is much more accurate.
+
+    # First find all valid ciphers that the Metasploit host supports.
+    # Also transform the SSL version to a standard format..
     ssl_version = ssl_version.to_s.gsub('_', '.')
     all_ciphers = OpenSSL::SSL::SSLContext.new.ciphers
     valid_ciphers = []
 
+    # For each cipher that the Metasploit host supports, determine if that cipher 
+    # is supported for use with the SSL version passed into this function.
     all_ciphers.each do |cipher|
       # cipher list has struct of [cipher, ssl_version, <int>, <int>]
       if cipher[1] == ssl_version
@@ -95,6 +106,11 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
+    # If the user wants to use all ciphers then return all valid ciphers.
+    # Otherwise return only those that match the ones the user specified
+    # in the SSLCipher datastore option.
+    #
+    # If no match is found for some reason then we will return an empty array.
     if datastore['SSLCipher'] == 'All'
       return valid_ciphers
     elsif valid_ciphers.contains? datastore['SSLCipher']
@@ -152,6 +168,12 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       vhostn = nil
+      # Convert the certificate subject field into a series of arrays.
+      # For each array, which will represent one subject, then
+      # go ahead and check if the subject describes a CN entry.
+      #
+      # If it does, then assign the value of vhost name, aka the 
+      # second entry in the array,to vhostn
       cert.subject.to_a.each do |n|
         vhostn = n[1] if n[0] == 'CN'
       end
@@ -392,16 +414,30 @@ class MetasploitModule < Msf::Auxiliary
 
   # Fingerprint a single host
   def run_host(ip)
-    versions = get_ssl_versions
+    # Get the available SSL/TLS versions that that Metasploit host supports
+    versions = get_metasploit_ssl_versions
 
     certs_found = {}
     skip_ssl_version = false
     vprint_status("Scanning #{ip} for: #{versions.map(&:to_s).join(', ')}")
 
+    # For each SSL/TLS version...
     versions.each do |version|
       skip_ssl_version = false
-      ciphers = get_ssl_cipher_suites(version)
+
+      # Get the cipher suites that SSL/TLS can use on the Metasploit host
+      # and print them out.
+      ciphers = get_metasploit_ssl_cipher_suites(version)
       vprint_status("Scanning #{ip} #{version} with ciphers: #{ciphers.map(&:to_s).join(', ')}")
+
+      # For each cipher attempt to connect to the server. If we could connect with the given SSL version,
+      # then skip it and move onto the next one. If the cipher isn't supported, then note this.
+      # If the server responds with a peer certificate, make a new certificate object from it and find
+      # its fingerprint, then check it for vulnerabilities, before saving it to loot if it hasn't been
+      # saved already (check done using the certificate's SHA1 hash).
+      # 
+      # In all cases the SSL version and cipher combination will also be checked for vulnerabilities 
+      # using the check_vulnerabilities function.
       ciphers.each do |cipher|
         break if skip_ssl_version
 
