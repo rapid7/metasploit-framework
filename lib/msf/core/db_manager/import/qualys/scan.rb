@@ -73,11 +73,11 @@ module Msf::DBManager::Import::Qualys::Scan
           end
           vuln.xpath('CVE_ID_LIST/CVE_ID').each do |ref|
             id = ref.xpath("ID").first&.text
-            refs.push("CVE-#{id}") if id
+            refs.push(id) if id
           end
           vuln.xpath('BUGTRAQ_ID_LIST/BUGTRAQ_ID').each do |ref|
             id = ref.xpath("ID").first&.text
-            refs.push("CVE-#{id}") if id
+            refs.push("BID-#{id}") if id
           end
 
           handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, nil,title, args[:task])
