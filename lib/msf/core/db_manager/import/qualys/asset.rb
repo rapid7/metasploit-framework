@@ -24,7 +24,7 @@ module Msf::DBManager::Import::Qualys::Asset
     doc.xpath("/ASSET_DATA_REPORT/GLOSSARY/VULN_DETAILS_LIST/VULN_DETAILS").each do |vuln|
       qid_el = vuln.xpath('QID')
       next unless qid_el && qid_el.first
-      qid = vuln.xpath('QID').text
+      qid = qid_el.first.text
       vuln_refs[qid] ||= []
       vuln.xpath('CVE_ID_LIST/CVE_ID').each do |ref|
         id = ref.xpath("ID").first&.text
