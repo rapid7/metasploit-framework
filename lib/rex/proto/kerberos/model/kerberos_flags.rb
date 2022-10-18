@@ -38,7 +38,7 @@ module Rex
             ((value >> (31 - flag)) & 1) == 1
           end
 
-          # @return [Boolean] whether the flag is present within the current KdcOptionFlags
+          # @return [Array<String>] The enabled flag names
           def enabled_flag_names
             sorted_flag_names = self.class.constants.sort_by { |name| self.class.const_get(name) }
             enabled_flag_names = sorted_flag_names.select { |flag| include?(self.class.const_get(flag)) }

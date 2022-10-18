@@ -65,6 +65,12 @@ module Rex
         end
 
         AD_IF_RELEVANT = 1
+        KDC_ISSUED = 4
+        AND_OR = 5
+        MANDATORY_FOR_KDC = 8
+        INITIAL_VERIFIED_CAS = 9
+        OSF_DCE = 64
+        SESAME = 65
       end
     end
   end
