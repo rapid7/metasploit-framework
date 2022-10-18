@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
+require 'rex/proto/kerberos/pac/krb5_pac'
 
 RSpec.describe Rex::Proto::Kerberos::Pac::Type do
 
@@ -85,6 +86,16 @@ RSpec.describe Rex::Proto::Kerberos::Pac::Type do
         pac_type.checksum = rsa_md5
 
         expect(pac_type.encode).to eq(sample)
+      end
+    end
+  end
+
+  describe "#read" do
+    it "does not break" do
+      BinData.trace_reading do
+        x = Rex::Proto::Kerberos::Pac::Krb5Pac.read(sample)
+        pp x.snapshot
+        expect(x).to be_a(Rex::Proto::Kerberos::Pac::Krb5Pac)
       end
     end
   end

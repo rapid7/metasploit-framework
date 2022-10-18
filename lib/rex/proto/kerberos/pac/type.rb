@@ -26,8 +26,8 @@ module Rex
             offset_two = 0
 
             draft = ''
-            draft << encode_buffers_length
-            draft << encode_version
+            draft << encode_buffers_length # number of buffers (usually 4)
+            draft << encode_version # must be 0
             draft << encode_pac_info_buffers
 
             # Encode buffers

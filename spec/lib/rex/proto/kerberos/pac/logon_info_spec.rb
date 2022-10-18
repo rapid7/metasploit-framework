@@ -1,6 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
-
+require 'rex/proto/kerberos/pac/krb5_pac'
 
 RSpec.describe Rex::Proto::Kerberos::Pac::LogonInfo do
 
@@ -45,6 +45,33 @@ RSpec.describe Rex::Proto::Kerberos::Pac::LogonInfo do
         logon_info.logon_domain_id = 'S-1-5-21-1755879683-3641577184-3486455962'
 
         expect(logon_info.encode).to eq(sample)
+      end
+    end
+  end
+
+  describe "#read" do
+    it "does not break" do
+      BinData.trace_reading do
+        x = Rex::Proto::Kerberos::Pac::KrbValidationInfo.read(sample)
+        pp x.snapshot
+        expect(x).to be_a(Rex::Proto::Kerberos::Pac::KrbValidationInfo)
+      end
+    end
+
+    it "does not break2" do
+      # OG impl for logon_info
+      # https://github.com/rapid7/metasploit-framework/blob/5f85175f56e3bf993458ebd95c7d03ba30364198/lib/rex/proto/kerberos/pac/logon_info.rb#L153-L164
+      class RpcUnicodeStringTest < BinData::Record
+        endian :little
+
+        uint16 :string_length
+        uint16 :maximum_length
+        uint32 :wchar_buffer_pointer # ruby_smb/dcerpc/ndr.rb
+      end
+      BinData.trace_reading do
+        RpcUnicodeStringTest.read("\b\x00\b\x00\x04\x00\x02\x00")
+
+        RubySMB::Dcerpc::RpcUnicodeString.read("\b\x00\b\x00\x04\x00\x02\x00")
       end
     end
   end

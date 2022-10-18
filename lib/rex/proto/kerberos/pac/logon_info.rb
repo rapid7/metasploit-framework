@@ -83,7 +83,7 @@ module Rex
             decoded = ''
             elements.each do |elem|
               decoded << elem
-              decoded << "\x00" * ((elem.length + 3) / 4 * 4 - elem.length)
+              decoded << "\x00" * ((elem.length + 3) / 4 * 4 - elem.length) # Just padding to make divisible by 4 bytes
             end
 
             header = "\x01\x10\x08\x00\xcc\xcc\xcc\xcc"
