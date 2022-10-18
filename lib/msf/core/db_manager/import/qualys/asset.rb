@@ -28,11 +28,11 @@ module Msf::DBManager::Import::Qualys::Asset
       vuln_refs[qid] ||= []
       vuln.xpath('CVE_ID_LIST/CVE_ID').each do |ref|
         id = ref.xpath("ID").first&.text
-        vuln_refs[qid].push("CVE-#{id}") if id
+        vuln_refs[qid].push(id) if id
       end
       vuln.xpath('BUGTRAQ_ID_LIST/BUGTRAQ_ID').each do |ref|
         id = ref.xpath("ID").first&.text
-        vuln_refs[qid].push("CVE-#{id}") if id
+        vuln_refs[qid].push("BID-#{id}") if id
       end
     end
     return vuln_refs
