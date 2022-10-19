@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary
@@ -324,7 +324,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         jtr_hash = "M$#{username}##{cache_info.data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       end
-      credential_opts[:jtr_format] = identify_hash(jtr_hash)
+      credential_opts[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(jtr_hash)
       unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, **credential_opts)
         vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
       end

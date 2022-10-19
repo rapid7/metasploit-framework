@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Post
       md5 = "#{md5}:#{salt}"
       print_good("MD5: #{md5}")
       credential_data = {
-          jtr_format: identify_hash(md5),
+          jtr_format: Metasploit::Framework::Hashes.identify_hash(md5),
           origin_type: :session,
           post_reference_name: self.refname,
           private_type: :nonreplayable_hash,

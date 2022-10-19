@@ -7,8 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   prepend Msf::Exploit::Remote::AutoCheck
 
-  require 'metasploit/framework/hashes/identify'
-
   def initialize(info = {})
     super(
       update_info(
