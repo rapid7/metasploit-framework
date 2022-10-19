@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/hashes'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI
   include Msf::Post::Windows::Accounts
@@ -46,6 +48,7 @@ class MetasploitModule < Msf::Post
         OptString.new('USER', [false, 'Target User']),
         OptString.new('DOMAIN', [false, 'Target Domain']),
         OptString.new('KRBTGT_HASH', [false, 'KRBTGT NTLM Hash']),
+        OptString.new('KRBTGT_HASH', [false, 'KRBTGT NT Hash']),
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
         OptString.new('GROUPS', [false, 'ID of Groups (Comma Separated)']),
@@ -63,6 +66,10 @@ class MetasploitModule < Msf::Post
     domain_sid = datastore['SID']
     id = datastore['ID'] || 0
     end_in = datastore['END_IN'] || 87608
+
+    # Golden Ticket requires an NTHash
+    if Metasploit::Framework::Hashes.identify_hash(krbtgt_hash)  != 'nt'
+      fail_with(Failure::BadConfig, 'KRBTGT_HASH must be an NTHash')
 
     unless domain
       print_status('Searching for the domain...')
