@@ -254,8 +254,6 @@ def _s2b(text):
 	return list(ord(c)for c in text)
 def _b2s(binary):
 	return "".join(chr(b)for b in binary)
-def _concat_list(a,b):
-	return a+b
 if sys.version_info[0]>=3:
 	xrange=range
 	def _s2b(text):
@@ -264,8 +262,6 @@ if sys.version_info[0]>=3:
 		return[ord(c)for c in text]
 	def _b2s(binary):
 		return bytes(binary)
-	def _concat_list(a,b):
-		return a+bytes(b)
 else:
 	bytes=lambda s,e:s
 empty=struct.pack('')
