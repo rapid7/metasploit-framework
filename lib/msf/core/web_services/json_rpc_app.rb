@@ -27,7 +27,7 @@ module Msf::WebServices
       set :show_exceptions, false
 
       set :sessions, {key: 'msf-ws.session', expire_after: 300}
-      set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
+      set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(32))
       set :api_token, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN', nil)
     end
 
