@@ -325,30 +325,22 @@ class AESCBC(object):
 		for r in xrange(1,rds):
 			for j in xrange(0,4):
 				tt=self._Kd[r][j];self._Kd[r][j]=(self.U1[(tt>>24)&255]^self.U2[(tt>>16)&255]^self.U3[(tt>>8)&255]^self.U4[tt&255])
+	def _encdec(self,data,K,s,S,L1,L2,L3,L4):
+		if len(data)!=16:
+			raise ValueError('wrong block length')
+		rds=len(K)-1;(s1,s2,s3)=s;a=[0,0,0,0];t=[(_cw(data[4*i:4*i+4])^K[0][i])for i in xrange(0,4)]
+		for r in xrange(1,rds):
+			for i in xrange(0,4):
+				a[i]=(L1[(t[i]>>24)&255]^L2[(t[(i+s1)%4]>>16)&255]^L3[(t[(i+s2)%4]>>8)&255]^L4[t[(i+s3)%4]&255]^K[r][i])
+			t=copy.copy(a)
+		rst=[]
+		for i in xrange(0,4):
+			tt=K[rds][i];rst.append((S[(t[i]>>24)&255]^(tt>>24))&255);rst.append((S[(t[(i+s1)%4]>>16)&255]^(tt>>16))&255);rst.append((S[(t[(i+s2)%4]>>8)&255]^(tt>>8))&255);rst.append((S[t[(i+s3)%4]&255]^tt)&255)
+		return rst
 	def enc_in(self,pt):
-		if len(pt)!=16:
-			raise ValueError('wrong block length')
-		rds=len(self._Ke)-1;(s1,s2,s3)=[1,2,3];a=[0,0,0,0];t=[(_cw(pt[4*i:4*i+4])^self._Ke[0][i])for i in xrange(0,4)]
-		for r in xrange(1,rds):
-			for i in xrange(0,4):
-				a[i]=(self.T1[(t[i]>>24)&255]^self.T2[(t[(i+s1)%4]>>16)&255]^self.T3[(t[(i+s2)%4]>>8)&255]^self.T4[t[(i+s3)%4]&255]^self._Ke[r][i])
-			t=copy.copy(a)
-		rst=[]
-		for i in xrange(0,4):
-			tt=self._Ke[rds][i];rst.append((self.S[(t[i]>>24)&255]^(tt>>24))&255);rst.append((self.S[(t[(i+s1)%4]>>16)&255]^(tt>>16))&255);rst.append((self.S[(t[(i+s2)%4]>>8)&255]^(tt>>8))&255);rst.append((self.S[t[(i+s3)%4]&255]^tt)&255)
-		return rst
+		return self._encdec(pt,self._Ke,[1,2,3],self.S,self.T1,self.T2,self.T3,self.T4)
 	def dec_in(self,ct):
-		if len(ct) != 16:
-			raise ValueError('wrong block length')
-		rds=len(self._Kd)-1;(s1,s2,s3)=[3,2,1];a=[0,0,0,0];t=[(_cw(ct[4*i:4*i+4])^self._Kd[0][i])for i in xrange(0,4)]
-		for r in xrange(1,rds):
-			for i in xrange(0,4):
-				a[i]=(self.T5[(t[i]>>24)&255]^self.T6[(t[(i+s1)%4]>>16)&255]^self.T7[(t[(i+s2)%4]>>8)&255]^self.T8[t[(i+s3)%4]&255]^self._Kd[r][i])
-			t=copy.copy(a)
-		rst=[]
-		for i in xrange(0,4):
-			tt=self._Kd[rds][i];rst.append((self.Si[(t[i]>>24)&255]^(tt>>24))&255);rst.append((self.Si[(t[(i+s1)%4]>>16)&255]^(tt>>16))&255);rst.append((self.Si[(t[(i+s2)%4]>>8)&255]^(tt>>8))&255);rst.append((self.Si[t[(i+s3)%4]&255]^tt)&255)
-		return rst
+		return self._encdec(ct,self._Kd,[3,2,1],self.Si,self.T5,self.T6,self.T7,self.T8)
 	def pad(self,pt):
 		c=16-(len(pt)%16)
 		return pt+bytes(chr(c)*c,'utf-8')
