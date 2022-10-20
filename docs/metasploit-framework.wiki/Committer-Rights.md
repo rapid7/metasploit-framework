@@ -33,7 +33,7 @@ Commit rights are granted via votes on the committers mailing list. Voting recor
 1. Any current committer may nominate any one person as a potential committer by writing to the committers mailing list.
 2. The nominator must provide a justification for committer rights, and include the nominee's e-mail address.
 2. After some discussion on the mailing list, there will be a group vote on the nominee.
-2. The Metasploit manager (@busterb) will inform the new committer of their new commit rights and responsibilities, add the new committer to the appropriate ACL groups and mailing lists, and inform the mailing list of the successful completion of these tasks.
+2. The Metasploit manager ([@smcintyre-r7](https://github.com/smcintyre-r7)) will inform the new committer of their new commit rights and responsibilities, add the new committer to the appropriate ACL groups and mailing lists, and inform the mailing list of the successful completion of these tasks.
 
 Committers introduced in this way will have commit rights to the [public framework repositories](https://github.com/orgs/rapid7/teams/framework-public-committers/repositories).
 
