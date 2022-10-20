@@ -43,7 +43,7 @@ jobs:
     name: Ruby ${{ matrix.ruby }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
