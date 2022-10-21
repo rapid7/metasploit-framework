@@ -540,7 +540,7 @@ module Msf::Post::File
           return _win_bin_append_file(file_name, data)
         end
       else
-        return _write_file_unix_shell(file_name, data)
+        return _append_file_unix_shell(file_name, data)
       end
     end
     true
@@ -907,6 +907,17 @@ protected
       file_rm(b64_filename)
       file_rm(tmp_filename)
     end
+  end
+
+  #
+  # Append +data+ to the remote file +file_name+.
+  #
+  # You should never call this method directly. Instead, call {#append_file}
+  # which will call this method if it is appropriate for the given session.
+  #
+  # @return [void]
+  def _append_file_unix_shell(file_name, data)
+    _write_file_unix_shell(file_name, data, true)
   end
 
   #
