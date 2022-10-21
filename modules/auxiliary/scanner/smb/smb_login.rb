@@ -10,6 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::AuthOption
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -71,6 +72,28 @@ class MetasploitModule < Msf::Auxiliary
 
     domain = datastore['SMBDomain'] || ""
 
+    kerberos_authenticator_factory = nil
+    if datastore['SMBAuth'] == KERBEROS
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The SmbRhostname option is required when using Kerberos authentication.') if datastore['SmbRhostname'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
+
+      kerberos_authenticator_factory = -> (username, password, realm) do
+        Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB.new(
+          host: datastore['DomainControllerRhost'],
+          hostname: datastore['SmbRhostname'],
+          realm: realm,
+          username: username,
+          password: password,
+          framework: framework,
+          framework_module: self,
+          cache_file: datastore['SmbKrb5Ccname'].blank? ? nil : datastore['SmbKrb5Ccname'],
+          use_cached_credentials: datastore['UseCachedCredentials'].nil? ? true : datastore['UseCachedCredentials'],
+          store_credential_cache: datastore['StoreCredentialCache'].nil? ? true : datastore['StoreCredentialCache']
+        )
+      end
+    end
+
     @scanner = Metasploit::Framework::LoginScanner::SMB.new(
       host: ip,
       port: rport,
@@ -83,6 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
+      kerberos_authenticator_factory: kerberos_authenticator_factory
     )
 
     if datastore['DETECT_ANY_AUTH']

@@ -52,6 +52,11 @@ module Metasploit
         #   @return [RubySMB::Dispatcher::Socket]
         attr_accessor :dispatcher
 
+        # @!attribute kerberos_authenticator_factory
+        #   @return [Func<username, password, realm> : Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB]
+        #     A factory method for creating a kerberos authenticator
+        attr_accessor :kerberos_authenticator_factory
+
         # If login is successul and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given
@@ -97,6 +102,13 @@ module Metasploit
             username    = (credential.public  || "").force_encoding('UTF-8')
             password    = (credential.private || "").force_encoding('UTF-8')
             client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
+
+            if kerberos_authenticator_factory
+              client.extend(Msf::Exploit::Remote::SMB::Client::KerberosAuthentication)
+              client.kerberos_authenticator = kerberos_authenticator_factory.call(username, password, realm)
+            end
+
+
             status_code = client.login
 
             if status_code == WindowsError::NTStatus::STATUS_SUCCESS
