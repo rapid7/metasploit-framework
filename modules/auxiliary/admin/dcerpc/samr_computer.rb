@@ -187,7 +187,9 @@ class MetasploitModule < Msf::Auxiliary
       user_handle: user_handle,
       user_info: user_info
     )
-    print_good("Successfully created #{@domain_name}\\#{computer_name} with password #{password}")
+    print_good("Successfully created #{@domain_name}\\#{computer_name}")
+    print_good("  Password: #{password}")
+    print_good("  SID:      #{get_computer_sid(computer_name)}")
     report_creds(@domain_name, computer_name, password)
   end
 
@@ -208,14 +210,16 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
     computer_name = datastore['COMPUTER_NAME']
 
-    details = @samr.samr_lookup_names_in_domain(domain_handle: @domain_handle, names: [ computer_name ])
-    if details.nil?
-      print_error('The specified computer was not found.')
-      return
-    end
-    details = details[computer_name]
-    sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: details[:rid]).to_s
+    sid = get_computer_sid(computer_name)
     print_good("Found #{@domain_name}\\#{computer_name} (SID: #{sid})")
+  end
+
+  def get_computer_sid(computer_name)
+    details = @samr.samr_lookup_names_in_domain(domain_handle: @domain_handle, names: [ computer_name ])
+    fail_with(Failure::NotFound, 'The computer was not found.') if details.nil?
+
+    details = details[computer_name]
+    @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: details[:rid]).to_s
   end
 
   def report_creds(domain, username, password)
