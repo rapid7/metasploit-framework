@@ -43,8 +43,8 @@ module Msf::Modules::Metadata::Search
 
     terms.each do |term|
       keyword, search_term = term.split(":", 2)
-      unless search_term
-        search_term = keyword
+      if search_term.nil? || search_term.length == 0
+        search_term = keyword.sub(/:+$/, '')
         keyword = 'text'
       end
       next if search_term.length == 0
