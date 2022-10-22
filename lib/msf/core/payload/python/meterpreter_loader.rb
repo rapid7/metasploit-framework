@@ -273,7 +273,7 @@ def _gmul(a, b):
 		b>>=1
 	return r
 def _mix(n, vec):
-	return sum([_gmul(n,v)<<(24-8*shift) for shift,v in enumerate(vec)])
+	return sum(_gmul(n,v)<<(24-8*shift) for shift,v in enumerate(vec))
 def _ror32(n):
 	return (n&255)<<24|n>>8
 def _rcon():
