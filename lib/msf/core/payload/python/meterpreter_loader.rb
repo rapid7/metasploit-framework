@@ -277,9 +277,9 @@ def _mix(n, vec):
 def _ror32(n):
 	return (n&255)<<24|n>>8
 def _rcon():
-	return [_gmul(1, 1<<n) for n in xrange(30)]
+	return [_gmul(1, 1<<n) for n in range(30)]
 def _Si(S):
-	return [S.index(n) for n in xrange(len(S))]
+	return [S.index(n) for n in range(len(S))]
 def _mixl(S, vec):
 	return [_mix(s, vec) for s in S]
 def _rorl(T):
@@ -298,7 +298,7 @@ class AESCBC(object):
 	T6=_rorl(T5)
 	T7=_rorl(T6)
 	T8=_rorl(T7)
-	U1=_mixl(xrange(256), (14,9,13,11))
+	U1=_mixl(range(256), (14,9,13,11))
 	U2=_rorl(U1)
 	U3=_rorl(U2)
 	U4=_rorl(U3)
