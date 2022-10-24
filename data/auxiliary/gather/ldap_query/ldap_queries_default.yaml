@@ -107,7 +107,7 @@ queries:
     references:
       - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
       - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf
- - action: ENUM_CONSTRAINED_DELEGATION
+  - action: ENUM_CONSTRAINED_DELEGATION
     description: 'Dump info about all known objects that allow contrained delegation.'
     filter: '(userAccountControl:1.2.840.113556.1.4.803:=16777216)'
     attributes:
@@ -132,7 +132,7 @@ queries:
       - https://www.netspi.com/blog/technical/network-penetration-testing/exploiting-adidns/
       - https://github.com/dirkjanm/krbrelayx/blob/master/dnstool.py
   - action: ENUM_DNS_ZONES
-    description: 'Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This is needed as without this BASEDN prefix we often miss certain entries'
+    description: 'Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This is needed as without this BASEDN prefix we often miss certain entries.'
     filter: '(objectClass=dnsZone)'
     base_dn_prefix: 'DC=DomainDnsZones'
     attributes:
@@ -140,7 +140,7 @@ queries:
       - distinguishedName
     references:
       - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
-- action: ENUM_DOMAIN_CONTROLLERS
+  - action: ENUM_DOMAIN_CONTROLLERS
     description: 'Dump all known domain controllers.'
     filter: '(&(objectCategory=Computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))'
     attributes:
@@ -233,7 +233,7 @@ queries:
       - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
       - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1 
   - action: ENUM_LAPS_PASSWORDS
-    description: 'Dump info about computers that have LAPS enabled, and passwords for them if available'
+    description: 'Dump info about computers that have LAPS enabled, and passwords for them if available.'
     filter: '(ms-MCS-AdmPwd=*)'
     attributes:
       - cn
@@ -282,7 +282,7 @@ queries:
       - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/domain-compromise-via-unrestricted-kerberos-delegation
       - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
   - action: ENUM_USER_ACCOUNT_DISABLED
-    description: 'Dump info about disabled user accounts'
+    description: 'Dump info about disabled user accounts.'
     filter: '(userAccountControl:1.2.840.113556.1.4.803:=2)'
     attributes:
       - cn
@@ -292,7 +292,7 @@ queries:
       - userPrincipalName
       - userAccountControl
   - action: ENUM_USER_ACCOUNT_LOCKED_OUT
-    description: 'Dump info about locked out user accounts'
+    description: 'Dump info about locked out user accounts.'
     filter: '(userAccountControl:1.2.840.113556.1.4.803:=16)'
     attributes:
       - cn
@@ -303,7 +303,7 @@ queries:
     references:
       - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
   - action: ENUM_USER_ASREP_ROASTABLE
-    description: 'Dump info about all users who are configured not to require kerberos pre-authentication and are therefore AS-REP roastable'
+    description: 'Dump info about all users who are configured not to require kerberos pre-authentication and are therefore AS-REP roastable.'
     filter: '(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304))'
     attributes:
       - cn
@@ -316,7 +316,7 @@ queries:
       - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
       - https://burmat.gitbook.io/security/hacking/domain-exploitation
   - action: ENUM_USER_PASSWORD_NEVER_EXPIRES
-    description: 'Dump info about all users whose password never expires'
+    description: 'Dump info about all users whose password never expires.'
     filter: '(userAccountControl:1.2.840.113556.1.4.803:=65536)'
     attributes:
       - cn
@@ -328,7 +328,7 @@ queries:
     references:
       - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
   - action: ENUM_USER_PASSWORD_NOT_REQUIRED
-    description: 'Dump info about all users whose password never expires and whose account is still enabled'
+    description: 'Dump info about all users whose password never expires and whose account is still enabled.'
     filter: '(&(userAccountControl:1.2.840.113556.1.4.803:=32)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
     attributes:
       - cn
@@ -340,7 +340,7 @@ queries:
     references:
       - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
   - action: ENUM_USER_SPNS_KERBEROAST
-    description: 'Dump info about all user objects with Service Principal Names (SPNs) for kerberoasting'
+    description: 'Dump info about all user objects with Service Principal Names (SPNs) for kerberoasting.'
     filter: '(&(&(servicePrincipalName=*)(userAccountControl:1.2.840.113556.1.4.803:=512))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
     attributes:
       - cn
