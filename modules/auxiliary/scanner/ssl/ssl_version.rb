@@ -158,19 +158,20 @@ class MetasploitModule < Msf::Auxiliary
       print_status("\tNot Valid After: #{cert.not_after}")
 
       # Checks for common properties of self signed certificates
+      # regex tried against a bunch of alexa top 100 and others.
+      # https://rubular.com/r/Yj6vyy1VqGWCL8
       caissuer = nil
       cert.extensions.each do |e|
-        e = e.to_s
-        if /CA Issuers - URI:([^, \n]*)/i.match(e)
-          caissuer = /CA Issuers - URI:([^, \n]*)/i.match(e)
-          break
-        end
+        next unless /CA Issuers - URI:([^, \n]*)/i =~ e.to_s
+
+        caissuer = ::Regexp.last_match(1)
+        break
       end
 
       if caissuer.nil?
         print_good("\tCertificate contains no CA Issuers extension... possible self signed certificate")
       else
-        print_status("\t#{caissuer}")
+        print_status("\tCA Issuer: #{caissuer}")
       end
 
       if cert.issuer.to_s == cert.subject.to_s
