@@ -219,7 +219,7 @@ class MetasploitModule < Msf::Post
     vecs_stores = get_vecs_stores
     return if vecs_stores.nil?
 
-    unless vecs_stores.first
+    if vecs_stores.empty?
       print_error('Empty vecs-cli store list returned from vCenter')
       return
     end
