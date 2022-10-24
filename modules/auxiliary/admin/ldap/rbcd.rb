@@ -95,10 +95,13 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'The DELEGATE_FROM option must be specified for this action.')
     end
 
-    delegate_from = ldap_get("(sAMAccountName=#{datastore['DELEGATE_FROM']})", attributes: ['sAMAccountName', 'ObjectSID'])
-    fail_with(Failure::NotFound, "Failed to find: #{datastore['DELEGATE_FROM']}") unless delegate_from
+    obj = ldap_get("(sAMAccountName=#{delegate_from})", attributes: ['sAMAccountName', 'ObjectSID'])
+    if obj.nil? && !delegate_from.end_with?('$')
+      obj = ldap_get("(sAMAccountName=#{delegate_from}$)", attributes: ['sAMAccountName', 'ObjectSID'])
+    end
+    fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{delegate_from}") unless obj
 
-    delegate_from
+    obj
   end
 
   def ldap_get(filter, attributes: [])
@@ -138,8 +141,12 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      obj = ldap_get("(sAMAccountName=#{datastore['DELEGATE_TO']})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-      fail_with(Failure::NotFound, "Failed to find: #{datastore['DELEGATE_TO']}") unless obj
+      delegate_to = datastore['DELEGATE_TO']
+      obj = ldap_get("(sAMAccountName=#{delegate_to})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
+      if obj.nil? && !delegate_to.end_with?('$')
+        obj = ldap_get("(sAMAccountName=#{delegate_to}$)", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
+      end
+      fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{delegate_to}") unless obj
 
       send("action_#{action.name.downcase}", obj)
     end
@@ -234,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
     security_descriptor = obj[ATTRIBUTE]
     if security_descriptor.dacl
       if security_descriptor.dacl.aces.any? { |ace| ace.body[:sid].to_s == delegate_from['ObjectSid'].to_s }
-        print_status("Delegation from #{datastore['DELEGATE_FROM']} to #{datastore['DELEGATE_TO']} is already enabled.")
+        print_status("Delegation from #{delegate_from['sAMAccountName']} to #{obj['sAMAccountName']} is already enabled.")
         return true
       end
       # clear these fields so they'll be calculated automatically after the update
