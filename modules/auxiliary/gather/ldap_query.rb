@@ -184,21 +184,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Decode a binary string containing a GUID into a GUID string
-  # of the format XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-  def decode_guid_binstring(guid)
-    # See https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray?view=netcore-3.1#remarks
-    # for more information. Specifically note that they state that the first four byte group and the
-    # following 2 groups of two bytes each are reversed. Following this, the next 2 byte group and
-    # the terminating 4 byte group are kept in the same order as in the binary data.
-    #
-    # Thanks to Spencer McIntyre for providing assistance on this code.
-    decoded_guid = [guid[0...4].reverse, guid[4...6].reverse, guid[6...8].reverse, guid[8...10], guid[10..]].map { |p| p.unpack1('H*') }.join('-')
-    decoded_guid = decoded_guid.upcase # All GUID strings must be uppercase
-
-    decoded_guid
-  end
-
   def convert_nt_timestamp_to_time_string(nt_timestamp)
     Time.at((nt_timestamp.to_i - 116444736000000000) / 10000000).utc.to_s
   end
@@ -225,23 +210,6 @@ class MetasploitModule < Msf::Auxiliary
     extensions.strip!
     extensions.gsub!(/ \|$/, '') # Strip whitespace and then strip trailing | from end of string.
     [openssl_certificate, "Version: 0x#{version}, Subject: #{subject}, Issuer: #{issuer}, Signature Algorithm: #{algorithm}, Extensions: #{extensions}"]
-  end
-
-  def decode_binary_data_to_sid(object_sid_raw)
-    revision_level = object_sid_raw[0].unpack('H*')[0].to_i.to_s
-    count_subauthorities = object_sid_raw[1].unpack('H*')[0].to_i
-    identifier_authority = object_sid_raw[2..7].unpack('H*')[0].to_i.to_s
-    sid_string = "S-#{revision_level.to_i}-#{identifier_authority.to_i}"
-
-    for i in 0...count_subauthorities
-      start = 8 + (4 * i)
-      stop = start + 4
-      sub_authority_raw = object_sid_raw[start...stop]
-      sub_authority = sub_authority_raw.unpack('L<')[0].to_i.to_s
-      sid_string += "-#{sub_authority}"
-    end
-
-    sid_string
   end
 
   # Taken from https://www.powershellgallery.com/packages/S.DS.P/2.1.3/Content/Transforms%5CsystemFlags.ps1
@@ -340,10 +308,6 @@ class MetasploitModule < Msf::Auxiliary
       entry.each_key do |attribute_name|
         next if attribute_name == :dn # Skip the DN case as there will be no attributes_properties entry for it.
 
-        if attribute_properties[attribute_name][:issinglevalued] == false
-          print_status(attribute_name.to_s)
-        end
-
         modified = false
         case attribute_properties[attribute_name][:omsyntax]
         when 1 # Boolean
@@ -360,17 +324,27 @@ class MetasploitModule < Msf::Auxiliary
           if attribute_properties[attribute_name][:attributesyntax] == '2.5.5.17' # SID String
             # Advice taken from https://ldapwiki.com/wiki/ObjectSID
             object_sid_raw = entry[attribute_name][0]
-            sid_string = decode_binary_data_to_sid(object_sid_raw)
+            begin
+              sid_data = Rex::Proto::MsDtyp::MsDtypSid.read(object_sid_raw)
+              sid_string = sid_data.to_s
+            rescue IOErrors => e
+              fail_with(Failure::UnexpectedReply, "Failed to read SID. Error was #{e.message}")
+            end
             entry[attribute_name][0] = sid_string
             modified = true
           elsif attribute_properties[attribute_name][:attributesyntax] == '2.5.5.10' # OctetString
             if attribute_name.to_s.match(/guid$/i)
               # Get the the entry[attribute_name] object will be an array containing a single string entry,
               # so reach in and extract that string, which will contain binary data.
-              binguid = entry[attribute_name][0]
-              if binguid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.
-                decoded_guid = decode_guid_binstring(binguid)
-                entry[attribute_name][0] = decoded_guid
+              bin_guid = entry[attribute_name][0]
+              if bin_guid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.
+                begin
+                  decoded_guid = Rex::Proto::MsDtyp::MsDtypGuid.read(bin_guid)
+                  decoded_guid_string = decoded_guid.get
+                rescue IOError => e
+                  fail_with(Failure::UnexpectedReply, "Failed to read GUID. Error was #{e.message}")
+                end
+                entry[attribute_name][0] = decoded_guid_string
                 modified = true
               end
             elsif attribute_name == :cacertificate || attribute_name == :usercertificate
