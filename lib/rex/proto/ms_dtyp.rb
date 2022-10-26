@@ -12,19 +12,19 @@ module Rex::Proto::MsDtyp
     def assign(val)
       # allow assignment from the human-readable string representation
       if val.is_a?(String) && val =~ /^S-1-(\d+)(-\d+)+$/
-          _, _, ia, sa = val.split('-', 4)
-          val = {}
-          val[:identifier_authority] = [ia.to_i].pack('Q>')[2..].bytes
-          val[:sub_authority] = sa.split('-').map(&:to_i)
+        _, _, ia, sa = val.split('-', 4)
+        val = {}
+        val[:identifier_authority] = [ia.to_i].pack('Q>')[2..].bytes
+        val[:sub_authority] = sa.split('-').map(&:to_i)
       end
-      
+
       super
     end
 
     def to_s
-        str = 'S-1'
-        str << "-#{("\x00\x00" + identifier_authority.to_binary_s).unpack1('Q>')}"
-        str << '-' + sub_authority.map(&:to_s).join('-')
+      str = 'S-1'
+      str << "-#{("\x00\x00" + identifier_authority.to_binary_s).unpack1('Q>')}"
+      str << '-' + sub_authority.map(&:to_s).join('-')
     end
   end
 
