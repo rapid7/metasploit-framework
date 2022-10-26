@@ -6,20 +6,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'ESC1 Misconfigured Certificate Template Finder',
+        'Name' => 'Misconfigured Certificate Template Finder',
         'Description' => %q{
-          This module allows users to query a LDAP server for ESC1 vulnerable certificate
-          templates and will print these certificates out along with their associated permissions.
+          This module allows users to query a LDAP server for vulnerable certificate
+          templates and will print these certificates out in a table alogn with which
+          attack they are vulnerable to and the SIDs that can be used to enroll in that
+          certificate template.
 
-          ESC1 vulnerable certificates are those that allow users the ability to specify the
-          SubjectAlternativeName field, also known as the SAN for short, when sending a certificate
-          signing request to certificate authority server to create a new certificate using
-          the vulnerable certificate template.
-
-          By allowing non-privileged users the ability to specify the SAN for a certificate, these
-          vulnerable certificate templates can be used by attackers to generate a new certificate
-          which authorizes them as the user of their choice, which can be anyone that the certificate
-          authority server recognizes as a valid user.
+          Additionally the module will also print out a list of known certificate servers
+          along with info about which vulnerable certificate templates the certificate server
+          allows enrollment in and which SIDs are authorized to use that certificate server to
+          perform this enrollment operation.
         },
         'Author' => [
           'Grant Willcox', # Original module author
@@ -48,54 +45,6 @@ class MetasploitModule < Msf::Auxiliary
   # Constants Definition
   CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT = '0e10c968-78fb-11d2-90d4-00c04f79dc55'.freeze
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
-
-  def decode_certificate_name_flag(flag)
-    raw_string = ''
-    flag = flag.to_i
-
-    if (flag & 0x00000001) == 0x00000001
-      raw_string += 'CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT|'
-    end
-    if (flag & 0x00000008) == 0x00000008
-      raw_string += 'CT_FLAG_OLD_CERT_SUPPLIES_SUBJECT_AND_ALT_NAME|'
-    end
-    if (flag & 0x00010000) == 0x00010000
-      raw_string += 'CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT_ALT_NAME|'
-    end
-    if (flag & 0x00400000) == 0x00400000
-      raw_string += 'CT_FLAG_SUBJECT_ALT_REQUIRE_DOMAIN_DNS|'
-    end
-    if (flag & 0x00800000) == 0x00800000
-      raw_string += 'CT_FLAG_SUBJECT_ALT_REQUIRE_SPN|'
-    end
-    if (flag & 0x01000000) == 0x01000000
-      raw_string += 'CT_FLAG_SUBJECT_ALT_REQUIRE_DIRECTORY_GUID|'
-    end
-    if (flag & 0x02000000) == 0x02000000
-      raw_string += 'CT_FLAG_SUBJECT_ALT_REQUIRE_UPN|'
-    end
-    if (flag & 0x04000000) == 0x04000000
-      raw_string += 'CT_FLAG_SUBJECT_ALT_REQUIRE_EMAIL|'
-    end
-    if (flag & 0x08000000) == 0x08000000
-      raw_string += 'CT_FLAG_SUBJECT_ALT_REQUIRE_DNS|'
-    end
-    if (flag & 0x10000000) == 0x10000000
-      raw_string += 'CT_FLAG_SUBJECT_REQUIRE_DNS_AS_CN|'
-    end
-    if (flag & 0x20000000) == 0x20000000
-      raw_string += 'CT_FLAG_SUBJECT_REQUIRE_EMAIL|'
-    end
-    if (flag & 0x40000000) == 0x40000000
-      raw_string += 'CT_FLAG_SUBJECT_REQUIRE_COMMON_NAME|'
-    end
-    if (flag & 0x80000000) == 0x80000000
-      raw_string += 'CT_FLAG_SUBJECT_REQUIRE_DIRECTORY_PATH|'
-    end
-    raw_string.chomp!('|')
-
-    raw_string
-  end
 
   def find_acl_type_string(type)
     case type
@@ -332,42 +281,30 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, "Could not query #{datastore['RHOST']}! Error was: #{e.message}")
   end
 
-  def run
-    # Define our instance variables real quick.
-    @base_dn = nil
-    @vuln_cert_template_table = Rex::Text::Table.new(
-      'Header' => 'Vulnerable Certificate Template List With Enrollment SIDs',
-      'Indent' => 1,
-      'Columns' => %w[ESC_VULN Template DN Enrollment_SIDS]
-    )
-    @enrollment_allowed_table = Rex::Text::Table.new(
-      'Header' => 'Certificate Template Enrollment Allowed List By Server and SID',
-      'Indent' => 1,
-      'Columns' => %w[Server Template Enrollment_SIDS]
-    )
-
+  def find_esc1_vuln_cert_templates
     esc1_raw_filter = '(&'\
-    '(objectclass=pkicertificatetemplate)(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
-    '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
-    '(|'\
-    '(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.2)'\
-    '(pkiextendedkeyusage=1.3.6.1.5.5.7.3.2)'\
-    '(pkiextendedkeyusage=1.3.6.1.5.2.3.4)'\
-    '(pkiextendedkeyusage=2.5.29.37.0)'\
-    '(!(pkiextendedkeyusage=*))'\
-    ')'\
-    '(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1)'\
+      '(objectclass=pkicertificatetemplate)'\
+      '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
+      '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+      '(|'\
+        '(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.2)'\
+        '(pkiextendedkeyusage=1.3.6.1.5.5.7.3.2)'\
+        '(pkiextendedkeyusage=1.3.6.1.5.2.3.4)'\
+        '(pkiextendedkeyusage=2.5.29.37.0)'\
+        '(!(pkiextendedkeyusage=*))'\
+      ')'\
+      '(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1)'\
     ')'
-    attributes = ['cn', 'description', 'msPKI-Cert-Template-OID', 'msPKI-Certificate-Name-Flag', 'ntSecurityDescriptor']
+    attributes = ['cn', 'description', 'ntSecurityDescriptor']
     base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    entries = query_ldap_server(esc1_raw_filter, attributes, base_prefix: base_prefix)
-    fail_with(Failure::NotVulnerable, 'Could not find any ESC1 vulnerable certificates!') if entries.blank?
+    esc1_entries = query_ldap_server(esc1_raw_filter, attributes, base_prefix: base_prefix)
+    fail_with(Failure::NotVulnerable, 'Could not find any ESC1 vulnerable certificate templates!') if esc1_entries.blank?
 
     # Grab a list of certificates that contain vulnerable settings.
     # Also print out the list of SIDs that can enroll in that server.
-    certificate_template_list = []
-    entries.each do |entry|
-      certificate_template_list << entry[:cn][0]
+
+    esc1_entries.each do |entry|
+      @vuln_certificate_template_list << entry[:cn][0]
 
       begin
         security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
@@ -381,14 +318,141 @@ class MetasploitModule < Msf::Auxiliary
       end
       parse_dacl_or_sacl(security_descriptor.sacl) if security_descriptor.sacl
     end
+  end
 
-    print_line(@vuln_cert_template_table.to_s)
+  def find_esc2_vuln_cert_templates
+    esc2_raw_filter = '(&'\
+      '(objectclass=pkicertificatetemplate)'\
+      '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
+      '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+      '(|'\
+        '(pkiextendedkeyusage=2.5.29.37.0)'\
+        '(!(pkiextendedkeyusage=*))'\
+      ')'\
+    ')'
 
+    attributes = ['cn', 'description', 'ntSecurityDescriptor']
+    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    esc2_entries = query_ldap_server(esc2_raw_filter, attributes, base_prefix: base_prefix)
+    fail_with(Failure::NotVulnerable, 'Could not find any ESC2 vulnerable certificate templates!') if esc2_entries.blank?
+
+    # Grab a list of certificates that contain vulnerable settings.
+    # Also print out the list of SIDs that can enroll in that server.
+
+    esc2_entries.each do |entry|
+      @vuln_certificate_template_list << entry[:cn][0]
+
+      begin
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
+      rescue IOError => e
+        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
+      end
+
+      flag_allowed_to_enroll, allowed_sids = parse_dacl_or_sacl(security_descriptor.dacl) if security_descriptor.dacl
+      if flag_allowed_to_enroll == true
+        @vuln_cert_template_table << ['ESC2', entry[:cn][0], entry[:dn][0], allowed_sids.join(', ')]
+      end
+      parse_dacl_or_sacl(security_descriptor.sacl) if security_descriptor.sacl
+    end
+  end
+
+  def find_esc3_vuln_cert_templates
+    esc3_template_1_raw_filter = '(&'\
+      '(objectclass=pkicertificatetemplate)'\
+      '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
+      '(|'\
+        '(mspki-ra-signature=0)'\
+        '(!(mspki-ra-signature=*))'\
+      ')'\
+      '(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.1)'\
+    ')'
+
+    # Find the first vulnerable types of templates, those that have the OID of the 
+    # Certificate Request Agent which allows the template to be used for 
+    # requesting other certificate templates on behalf of other principals.
+    attributes = ['cn', 'description', 'ntSecurityDescriptor']
+    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    esc3_template_1_entries = query_ldap_server(esc3_template_1_raw_filter, attributes, base_prefix: base_prefix)
+    fail_with(Failure::NotVulnerable, 'Could not find any ESC3 template 1 vulnerable certificate templates!') if esc3_template_1_entries.blank?
+
+    # Grab a list of certificates that contain vulnerable settings.
+    # Also print out the list of SIDs that can enroll in that server.
+
+    esc3_template_1_entries.each do |entry|
+      @vuln_certificate_template_list << entry[:cn][0]
+
+      begin
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
+      rescue IOError => e
+        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
+      end
+
+      flag_allowed_to_enroll, allowed_sids = parse_dacl_or_sacl(security_descriptor.dacl) if security_descriptor.dacl
+      if flag_allowed_to_enroll == true
+        @vuln_cert_template_table << ['ESC3_TEMPLATE_1', entry[:cn][0], entry[:dn][0], allowed_sids.join(', ')]
+      end
+      parse_dacl_or_sacl(security_descriptor.sacl) if security_descriptor.sacl
+    end
+
+
+    esc3_template_2_raw_filter = '(&'\
+      '(objectclass=pkicertificatetemplate)'\
+      '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
+      '(|'\
+        '(mspki-template-schema-version=1)'\
+        '(&'\
+          '(mspki-template-schema-version>=2)'\
+          '(msPKI-RA-Application-Policies=1.3.6.1.4.1.311.20.2.1)'\
+        ')'\
+      ')'\
+      '(|'\
+        '(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.2)'\
+        '(pkiextendedkeyusage=1.3.6.1.5.5.7.3.2)'\
+        '(pkiextendedkeyusage=1.3.6.1.5.2.3.4)'\
+        '(pkiextendedkeyusage=2.5.29.37.0)'\
+        '(!(pkiextendedkeyusage=*))'\
+      ')'\
+    ')'
+
+    # Find the first vulnerable types of templates, those that have the OID of the 
+    # Certificate Request Agent which allows the template to be used for 
+    # requesting other certificate templates on behalf of other principals.
+    attributes = ['cn', 'description', 'ntSecurityDescriptor']
+    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    esc3_template_2_entries = query_ldap_server(esc3_template_2_raw_filter, attributes, base_prefix: base_prefix)
+    fail_with(Failure::NotVulnerable, 'Could not find any ESC3 template 2 vulnerable certificate templates!') if esc3_template_2_entries.blank?
+
+    # Grab a list of certificates that contain vulnerable settings.
+    # Also print out the list of SIDs that can enroll in that server.
+
+    esc3_template_2_entries.each do |entry|
+      @vuln_certificate_template_list << entry[:cn][0]
+
+      begin
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
+      rescue IOError => e
+        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
+      end
+
+      flag_allowed_to_enroll, allowed_sids = parse_dacl_or_sacl(security_descriptor.dacl) if security_descriptor.dacl
+      if flag_allowed_to_enroll == true
+        @vuln_cert_template_table << ['ESC3_TEMPLATE_2', entry[:cn][0], entry[:dn][0], allowed_sids.join(', ')]
+      end
+      parse_dacl_or_sacl(security_descriptor.sacl) if security_descriptor.sacl
+    end
+  end
+
+  def find_enrollable_vuln_certificate_templates
     # For each of the vulnerable certificate templates, determine which servers
     # allows users to enroll in that certificate template and which users/groups
     # have permissions to enroll in certificates on each server.
 
-    certificate_template_list.each do |certificate_template|
+    # First remove duplicate certificate templates. Aka certificate templates that may
+    # be vulnerable to multiple attack vectors. This will ensure we only have one copy
+    # of each vulnerable certificate template instead of multiple copies.
+    @vuln_certificate_template_list.uniq!
+
+    @vuln_certificate_template_list.each do |certificate_template|
       certificate_enrollment_raw_filter = "(&(objectClass=pKIEnrollmentService)(certificateTemplates=#{certificate_template}))"
       attributes = ['dnsHostname', 'ntsecuritydescriptor']
       base_prefix = 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
@@ -411,5 +475,28 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line(@enrollment_allowed_table.to_s)
+  end
+
+  def run
+    # Define our instance variables real quick.
+    @base_dn = nil
+    @vuln_cert_template_table = Rex::Text::Table.new(
+      'Header' => 'Vulnerable Certificate Template List With Enrollment SIDs',
+      'Indent' => 1,
+      'Columns' => %w[ESC_VULN Template DN Enrollment_SIDS]
+    )
+    @enrollment_allowed_table = Rex::Text::Table.new(
+      'Header' => 'Certificate Template Enrollment Allowed List By Server and SID',
+      'Indent' => 1,
+      'Columns' => %w[Server Template Enrollment_SIDS]
+    )
+    @vuln_certificate_template_list = []
+
+    find_esc1_vuln_cert_templates
+    find_esc2_vuln_cert_templates
+    find_esc3_vuln_cert_templates
+    print_line(@vuln_cert_template_table.to_s)
+
+    find_enrollable_vuln_certificate_templates
   end
 end
