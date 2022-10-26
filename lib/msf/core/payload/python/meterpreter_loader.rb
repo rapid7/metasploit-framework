@@ -159,8 +159,9 @@ module Payload::Python::MeterpreterLoader
     %Q?
 import codecs,base64,zlib
 try:
-  import importlib.util
-  new_module = lambda x: importlib.util.spec_from_loader(x, loader=None)
+  from importlib.util import spec_from_loader
+  def new_module(name):
+    return spec_from_loader(name, loader=None)
 except ImportError:
   import imp
   new_module = imp.new_module
