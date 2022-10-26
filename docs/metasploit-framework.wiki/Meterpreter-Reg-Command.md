@@ -193,7 +193,7 @@ meterpreter > reg setval -k 'HKLM\Software\Microsoft\Windows\CurrentVersion\Poli
 Successfully set LocalAccountTokenFilterPolicy of REG_DWORD.
 ```
 
-Setting a `REG_QWORD` use a decimal value:
+Setting a `REG_QWORD` - use a decimal value:
 
 ```
 meterpreter > reg setval -k 'HKLM\Software\example' -t REG_DWORD -v qword_example -d 12345678
