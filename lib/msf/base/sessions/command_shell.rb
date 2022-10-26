@@ -2,6 +2,7 @@
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
+
 module Msf
 module Sessions
 
@@ -159,8 +160,8 @@ Shell Banner:
       'sessions'   => 'Quickly switch to another session',
       'resource'   => 'Run a meta commands script stored in a local file',
       'shell'      => 'Spawn an interactive shell (*NIX Only)',
-      'download'   => 'Download files (*NIX Only)',
-      'upload'     => 'Upload files (*NIX Only)',
+      'download'   => 'Download files',
+      'upload'     => 'Upload files',
       'source'     => 'Run a shell script on remote machine (*NIX Only)',
       'irb'        => 'Open an interactive Ruby shell on the current session',
       'pry'        => 'Open the Pry debugger on the current session'
@@ -326,6 +327,11 @@ Shell Banner:
       return cmd_sessions_help
     end
 
+    if platform == 'windows'
+      print_error('Functionality not supported on windows')
+      return
+    end
+
     # 1. Using python
     python_path = binary_exists("python") || binary_exists("python3")
     if python_path != nil
@@ -396,27 +402,6 @@ Shell Banner:
     return binary_path
   end
 
-  #
-  # Check if there is a file on the target machine
-  #
-  def file_exists(path)
-    # Use `ls` command to check file exists
-    # If file exists, `ls [path]` will echo the varible `path`
-    # Or `ls` command will report an error message
-    # But we can not ensure that the implementation of ls command are the same on different destribution
-    # So just check the success flag not error message
-    # eg:
-    # $ ls /etc/passwd
-    # /etc/passwd
-    # $ ls /etc/nosuchfile
-    # ls: cannot access '/etc/nosuchfile': No such file or directory
-    result = shell_command_token("ls #{path}").to_s.strip
-    if result.eql?(path)
-      return true
-    end
-    return false
-  end
-
   def cmd_download_help
     print_line("Usage: download [src] [dst]")
     print_line
@@ -435,19 +420,17 @@ Shell Banner:
     dst = args[1]
 
     # Check if src exists
-    if !file_exists(src)
+    if !_file_transfer.file_exist?(src)
       print_error("The target file does not exist")
       return
     end
 
     # Get file content
     print_status("Download #{src} => #{dst}")
-    content = shell_command("cat #{src}")
+    content = _file_transfer.read_file(src)
 
     # Write file to local machine
-    file = File.open(dst, "wb")
-    file.write(content)
-    file.close
+    File.binwrite(dst, content)
     print_good("Done")
   end
 
@@ -469,68 +452,22 @@ Shell Banner:
     dst = args[1]
 
     # Check target file exists on the target machine
-    if file_exists(dst)
+    if _file_transfer.file_exist?(dst)
       print_warning("The file <#{dst}> already exists on the target machine")
-      if prompt_yesno("Overwrite the target file <#{dst}>?")
-        # Create an empty file on the target machine
-        # Notice here does not check the permission of the target file (folder)
-        # So if you generate a reverse shell with out redirection the STDERR
-        # you will not realise that the current user does not have permission to write to the target file
-        # IMPORTANT:
-        #   assume(the current have the write access on the target file)
-        #   if (the current user can not write on the target file) && (stderr did not redirected)
-        #     No error reporting, you must check the file created or not manually
-        result = shell_command_token("cat /dev/null > #{dst}")
-        if !result.empty?
-          print_error("Create new file on the target machine failed. (#{result})")
-          return
-        end
-        print_good("Create new file on the target machine succeed")
-      else
+      unless prompt_yesno("Overwrite the target file <#{dst}>?")
         return
       end
     end
 
-    buffer_size = 0x100
-
     begin
-      # Open local file
-      src_fd = open src
-      # Get local file size
-      src_size = File.size(src)
-      # Calc how many time to append to the remote file
-      times = src_size / buffer_size + (src_size % buffer_size == 0 ? 0 : 1)
-      print_status("File <#{src}> size: #{src_size}, need #{times} times writes to upload")
-      # Start transfer
-
-      for i in 1..times do
-        print_status("Uploading (#{i * buffer_size}/#{src_size})")
-        chunk = src_fd.read(buffer_size)
-        chunk_repr = repr(chunk)
-        result = shell_command_token("echo -ne '#{chunk_repr}' >> #{dst}")
-        if !result.empty?
-          print_error("Appending content to the target file <#{dst}> failed. (#{result})")
-          # Do some cleanup
-          # Delete the target file
-          shell_command_token("rm -rf '#{dst}'")
-          print_status("Target file <#{dst}> deleted")
-          return
-        end
-      end
+      content = File.binread(src)
+      _file_transfer.write_file(dst, content)
       print_good("File <#{dst}> upload finished")
-    rescue
-      print_error("Error occurs while uploading <#{src}> to <#{dst}> ")
+    rescue => e
+      print_error("Error occurs while uploading <#{src}> to <#{dst}> - #{e.message}")
+      elog(e)
       return
     end
-  end
-
-  def repr(data)
-    data_repr = ''
-    data.each_char {|c|
-      data_repr << "\\x"
-      data_repr << c.unpack("H*")[0]
-    }
-    return data_repr
   end
 
   def cmd_source_help
@@ -545,8 +482,13 @@ Shell Banner:
 
   def cmd_source(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_source_help
+    end
+
+    if platform == 'windows'
+      print_error('Functionality not supported on windows')
+      return
     end
 
     background = args[1].downcase == 'y'
@@ -828,6 +770,29 @@ protected
       end
       Thread.pass
     end
+  end
+
+  # Functionality used as part of builtin commands/metashell support that isn't meant to be exposed
+  # as part of the CommandShell's public API
+  class FileTransfer
+    include Msf::Post::File
+
+    # @param [Msf::Sessions::CommandShell] session
+    def initialize(session)
+      @session = session
+    end
+
+    private
+
+    def vprint_status(s)
+      session.print_status(s)
+    end
+
+    attr_reader :session
+  end
+
+  def _file_transfer
+    FileTransfer.new(self)
   end
 end
 
