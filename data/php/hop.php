@@ -1,4 +1,5 @@
-<?php
+<!-- basic file of php -->
+<?php 
 $magic = 'TzGq';
 $tempdir = sys_get_temp_dir() . "/hop" . $magic;
 if(!is_dir($tempdir)){
@@ -66,3 +67,7 @@ if($url === "/control"){
 }else if(strpos($url, "12345") !== FALSE){
 	readfile($tempdir."/init");
 }
+
+
+
+// end of file
