@@ -41,13 +41,13 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://security.googleblog.com/2014/10/this-poodle-bites-exploiting-ssl-30.html' ],
         [ 'CVE', '2014-3566' ],
         [ 'URL', 'https://www.openssl.org/~bodo/ssl-poodle.pdf' ],
-        # tls deprecation
+        # TLS v1.0 and v1.1 depreciation
         [ 'URL', 'https://datatracker.ietf.org/doc/rfc8996/' ],
-        # SSL 2 deprecation
+        # SSLv2 deprecation
         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc6176' ],
-        # SSL 3 deprecation
+        # SSLv3 deprecation
         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc7568' ],
-        # md5 signed certs
+        # MD5 signed certs
         [ 'URL', 'https://www.win.tue.nl/hashclash/rogue-ca/' ],
         [ 'CWE', '328' ],
         # DROWN attack
@@ -82,18 +82,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_metasploit_ssl_versions
-    # Originally we used OpenSSL::SSL::SSLContext::METHODS here, as referenced in
+    # There are two ways to generate a list of valid SSL Versions (SSLv3, TLS1.1, etc) and cipher suites (AES256-GCM-SHA384,
+    # ECDHE-RSA-CHACHA20-POLY1305, etc). The first would be to generate them independently. It's possible to
+    # pull all SSLContext methods (SSL Versions) via OpenSSL::SSL::SSLContext::METHODS here, as referenced in
     # https://github.com/rapid7/rex-socket/blob/6ea0bb3b4e19c53d73e4337617be72c0ed351ceb/lib/rex/socket/ssl_tcp.rb#L46
-    # however, we'd then need to remove all but the client oriented ones.  After that, several of these
-    # do not have a usable cipher suite, which would also need to be removed.  Instead, OpenSSL::SSL::SSLContext.new.ciphers
-    # gives a list of ciphers paired to to the SSL version, which we can strip down to just the valid SSL versions
-    # knowing they are usable and valid.
+    # then pull all ciphers with OpenSSL::Cipher.ciphers. Now in theory you have a nice easy loop:
+    #
+    # OpenSSL::SSL::SSLContext::METHODS.each do |ssl_version|
+    #    OpenSSL::Cipher.ciphers.each do |cipher_suite|
+    #      # do something
+    #    end
+    # end
+    #
+    # However, in practice we find that OpenSSL::SSL::SSLContext::METHODS includes '_client' and '_server' variants
+    # such as :TLSv1, :TLSv1_client, :TLSv1_server. In this case, we only need :TLSv1, so we need to remove ~2/3 of the list.
+    #
+    # Next, we'll find that many ciphers in OpenSSL::Cipher.ciphers are not applicable for various SSL versions.
+    # The loop we previously looked at has (at the time of writing on Kali Rollin, msf 6.2.23) 3060 rounds.
+    # This is a lot of iterations when we already know there are many combinations that will not be applicable for our
+    # use. Luckily there is a 2nd way which is much more efficent.
+    #
+    # The OpenSSL library includes https://docs.ruby-lang.org/en/2.4.0/OpenSSL/SSL/SSLContext.html#method-i-ciphers
+    # which we can use to generate a list of all ciphers, and SSL versions they work with. The structure is:
+    #
+    # [[name, version, bits, alg_bits], ...]
+    #
+    # which makes it very easy to just pull the 2nd element (version, or SSL version) from each list item, and unique it.
+    # This gives us the list of all SSL versions which also have at least one working cipher on our system.
+    # Using this method we produce no unusable SSL versions or matching cipher suites and the list is 60 items long, so 1/51 the size.
+    # Later in get_metasploit_ssl_cipher_suites, we can grab all cipher suites to a SSL version easily by simply filtering
+    # the 2nd element (version, or SSL version) from each list item.
 
-    # If the user specified that we should use all available SSL versions, then get the list of the ciphers
-    # that the Metasploit host supports using OpenSSL::SSL::SSLContext and grab the 2nd element, aka the
-    # SSL version that the cipher can work with (can be multiple entries to combine a particular cipher with
-    # a given SSL version. Then uniq the resulting array so that we only get unique entries before reversing
-    # so that SSL versions come first, then TLS versions.
     if datastore['SSLVersion'] == 'All'
       return Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse
     end
@@ -102,19 +121,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_metasploit_ssl_cipher_suites(ssl_version)
-    # Originally this method used OpenSSL::Cipher.ciphers.
-    # However that gives back ciphers that are invalid for a SSL version
-    # which resulted in a lot of errors being thrown. This method
-    # is much more accurate.
+    # See comments in get_metasploit_ssl_versions for details on the use of
+    # OpenSSL::SSL::SSLContext.new.ciphers vs other methods to generate
+    # valid ciphers for a given SSL version
 
     # First find all valid ciphers that the Metasploit host supports.
-    # Also transform the SSL version to a standard format..
+    # Also transform the SSL version to a standard format.
     ssl_version = ssl_version.to_s.gsub('_', '.')
     all_ciphers = OpenSSL::SSL::SSLContext.new.ciphers
     valid_ciphers = []
 
     # For each cipher that the Metasploit host supports, determine if that cipher
-    # is supported for use with the SSL version passed into this function.
+    # is supported for use with the SSL version passed into this function. If it is,
+    # then add it to the valid_ciphers list.
     all_ciphers.each do |cipher|
       # cipher list has struct of [cipher, ssl_version, <int>, <int>]
       if cipher[1] == ssl_version
@@ -168,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
         break
       end
 
-      if caissuer.nil?
+      if caissuer.blank?
         print_good("\tCertificate contains no CA Issuers extension... possible self signed certificate")
       else
         print_status("\tCA Issuer: #{caissuer}")
@@ -208,6 +227,7 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         # Update the server hostname if necessary
+        # https://github.com/rapid7/metasploit-framework/pull/17149#discussion_r1000675472
         if vhostn !~ /localhost|snakeoil/i
           report_host(
             host: ip,
@@ -231,8 +251,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed SSLv3 is available. Vulnerable to POODLE, CVE-2014-3566.",
-        refs: 'CVE-2014-3566',
-        exploited_at: Time.now.utc
+        refs: ['CVE-2014-3566']
       )
     end
 
@@ -245,8 +264,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed SSLv2 is available. Vulnerable to DROWN, CVE-2016-0800.",
-        refs: 'CVE-2016-0800',
-        exploited_at: Time.now.utc
+        refs: ['CVE-2016-0800']
       )
     end
 
@@ -259,8 +277,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed SSLv3/TLSv1 and a CBC cipher. Vulnerable to BEAST, CVE-2011-3389.",
-        refs: 'CVE-2011-3389',
-        exploited_at: Time.now.utc
+        refs: ['CVE-2011-3389']
       )
     end
 
@@ -272,9 +289,8 @@ class MetasploitModule < Msf::Auxiliary
         port: rport,
         proto: 'tcp',
         name: name,
-        info: "Module #{fullname} confirmed RC4 cipher. CVE-2013-2566.",
-        refs: 'CVE-2013-2566',
-        exploited_at: Time.now.utc
+        info: "Module #{fullname} confirmed RC4 cipher.",
+        refs: ['CVE-2013-2566']
       )
     end
 
@@ -287,8 +303,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed EXPORT based cipher.",
-        refs: 'CWE-327',
-        exploited_at: Time.now.utc
+        refs: ['CWE-327']
       )
     end
 
@@ -301,8 +316,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed DHE_EXPORT based cipher. Vulnerable to LOGJAM, CVE-2015-4000",
-        refs: 'CVE-2015-4000',
-        exploited_at: Time.now.utc
+        refs: ['CVE-2015-4000']
       )
     end
 
@@ -315,8 +329,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed Null cipher.",
-        refs: 'CVE-2022-3358',
-        exploited_at: Time.now.utc
+        refs: ['CVE-2022-3358']
       )
     end
 
@@ -328,9 +341,8 @@ class MetasploitModule < Msf::Auxiliary
         port: rport,
         proto: 'tcp',
         name: name,
-        info: "Module #{fullname} confirmed SSLv2. Which was deprecated in 2011",
-        refs: 'https://datatracker.ietf.org/doc/html/rfc6176',
-        exploited_at: Time.now.utc
+        info: "Module #{fullname} confirmed SSLv2, which was deprecated in 2011.",
+        refs: ['https://datatracker.ietf.org/doc/html/rfc6176']
       )
     elsif ssl_version == 'SSLv3'
       print_good('Accepts Deprecated SSLv3')
@@ -339,9 +351,8 @@ class MetasploitModule < Msf::Auxiliary
         port: rport,
         proto: 'tcp',
         name: name,
-        info: "Module #{fullname} confirmed SSLv3. Which was deprecated in 2015",
-        refs: 'https://datatracker.ietf.org/doc/html/rfc7568',
-        exploited_at: Time.now.utc
+        info: "Module #{fullname} confirmed SSLv3, which was deprecated in 2015.",
+        refs: ['https://datatracker.ietf.org/doc/html/rfc7568']
       )
     elsif ssl_version == 'TLSv1.0'
       print_good('Accepts Deprecated TLSv1.0')
@@ -350,9 +361,8 @@ class MetasploitModule < Msf::Auxiliary
         port: rport,
         proto: 'tcp',
         name: name,
-        info: "Module #{fullname} confirmed TLSv1.0. Which was widely deprecated in 2020",
-        refs: 'https://datatracker.ietf.org/doc/rfc8996/',
-        exploited_at: Time.now.utc
+        info: "Module #{fullname} confirmed TLSv1.0, which was widely deprecated in 2020.",
+        refs: ['https://datatracker.ietf.org/doc/rfc8996/']
       )
     end
 
@@ -368,8 +378,7 @@ class MetasploitModule < Msf::Auxiliary
           proto: 'tcp',
           name: name,
           info: "Module #{fullname} confirmed certificate key size 1024 bits",
-          refs: 'CWE-326',
-          exploited_at: Time.now.utc
+          refs: ['CWE-326']
         )
       elsif key_size < 1024
         print_good('Public Key < 1024 bits')
@@ -379,8 +388,7 @@ class MetasploitModule < Msf::Auxiliary
           proto: 'tcp',
           name: name,
           info: "Module #{fullname} confirmed certificate key size < 1024 bits",
-          refs: 'CWE-326',
-          exploited_at: Time.now.utc
+          refs: ['CWE-326']
         )
       end
     end
@@ -396,8 +404,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed certificate signed with MD5 algo",
-        refs: 'CWE-328',
-        exploited_at: Time.now.utc
+        refs: ['CWE-328']
       )
     end
 
@@ -410,8 +417,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed certificate expired",
-        refs: 'CWE-295',
-        exploited_at: Time.now.utc
+        refs: ['CWE-295']
       )
     end
 
@@ -424,8 +430,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed certificate not yet valid",
-        refs: 'CWE-295',
-        exploited_at: Time.now.utc
+        refs: ['CWE-295']
       )
     end
   end
