@@ -169,7 +169,11 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Allowed accounts:')
     security_descriptor.dacl.aces.each do |ace|
       account_name = ldap_get("(ObjectSid=#{ace.body.sid})", attributes: ['sAMAccountName'])
-      print_status("  #{account_name['sAMAccountName']} (#{ace.body.sid})")
+      if account_name
+        print_status("  #{ace.body.sid} (#{account_name['sAMAccountName']})")
+      else
+        print_status("  #{ace.body.sid}")
+      end
     end
   end
 
