@@ -144,6 +144,7 @@ module Metasploit
             status = Metasploit::Model::Login::Status::INCORRECT
           rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
             status = Metasploit::Framework::LoginScanner::Kerberos.login_status_for_kerberos_error(e)
+            proof = e
           ensure
             client.disconnect! if client
           end
