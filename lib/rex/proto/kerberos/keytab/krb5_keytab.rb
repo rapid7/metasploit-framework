@@ -2,10 +2,11 @@
 
 require 'bindata'
 
+# Models for or Krb5 keytab
 module Rex::Proto::Kerberos::Keytab
-  class KeytabCountedOctetString < BinData::Primitive
+  class Krb5KeytabCountedOctetString < BinData::Primitive
     endian :big
-    search_prefix :keytab
+    search_prefix :krb5_keytab
 
     # @!attribute [rw] len
     #   @return [Integer]
@@ -24,9 +25,9 @@ module Rex::Proto::Kerberos::Keytab
     end
   end
 
-  class KeytabKeyblock < BinData::Record
+  class Krb5KeytabKeyblock < BinData::Record
     endian :big
-    search_prefix :keytab
+    search_prefix :krb5_keytab
 
     # @!attribute [rw] enctype
     #   @return [Integer] The encryption type
@@ -37,9 +38,9 @@ module Rex::Proto::Kerberos::Keytab
     counted_octet_string :data
   end
 
-  class KeytabEpoch < BinData::Primitive
+  class Krb5KeytabEpoch < BinData::Primitive
     endian :big
-    search_prefix :keytab
+    search_prefix :krb5_keytab
 
     # @!attribute [rw] epoch
     #   @return [Integer]
@@ -54,9 +55,9 @@ module Rex::Proto::Kerberos::Keytab
     end
   end
 
-  class KeytabEntry < BinData::Record
+  class Krb5KeytabEntry < BinData::Record
     endian :big
-    search_prefix :keytab
+    search_prefix :krb5_keytab
 
     # @return [Integer] The number of bytes for the len field
     LEN_FIELD_BYTE_SIZE = 4
@@ -73,7 +74,6 @@ module Rex::Proto::Kerberos::Keytab
               timestamp,
               vno8,
               keyblock,
-              # TODO: Omit vno and flags to ensure we generate MIT output for cross-compatibility with ktpass and wireshark
               vno,
               flags
             ].sum { |field| field.to_binary_s.bytes.count }
@@ -135,14 +135,14 @@ module Rex::Proto::Kerberos::Keytab
   # http://www.ioplex.com/utilities/keytab.txt
   # http://web.mit.edu/freebsd/head/crypto/heimdal/doc/doxyout/krb5/html/krb5_fileformats.html
   #
-  class Keytab < BinData::Record
+  class Krb5Keytab < BinData::Record
     endian :big
-    search_prefix :keytab
+    search_prefix :krb5_keytab
 
     # Older keytab version 0x501 not currently supported
     # @!attribute [r] file_format_version
     #   @return [Integer]
-    uint16 :file_format_version, initial_value: 0x502, assert: 0x502
+    uint16 :file_format_version, asserted_value: 0x502
 
     # @!attribute [rw] key_entries
     #   @return [Array<KeytabEntry>] the keytab entries
