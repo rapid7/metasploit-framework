@@ -26,16 +26,6 @@ module RubySMB::Dcerpc::Ndr
     ndr_uint32 :object_buffer_length, initial_value: :buffer_length
     ndr_uint32 :filler, asserted_value: 0x00000000
   end
-
-  # [2.2.6 Type Serialization Version 1](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/9a1d0f97-eac0-49ab-a197-f1a581c2d6a0)
-  # class TypeSerialization1 < NdrStruct
-  #   default_parameter byte_align: 4
-  #   endian :little
-  #   search_prefix :type_serialization1
-  #
-  #   common_type_header  :common_header
-  #   private_header      :private_header
-  # end
 end
 
 # full MIDL spec for PAC
@@ -117,9 +107,6 @@ module Rex::Proto::Kerberos::Pac
 
     uint32 :number_of_memberships
     array :group_memberships, type: :group_membership, initial_length: :number_of_memberships
-    # array :group_memberships, initial_length: :number_of_memberships do
-    #   group_membership :initial_value => :index
-    # end
 
     def assign(val)
       case val
@@ -153,21 +140,10 @@ module Rex::Proto::Kerberos::Pac
 
   class Krb5PacSignatureData < BinData::Record
     endian :little
-    # mandatory_parameter :data
-    # default_parameter key: nil
 
     uint32 :signature_type
     string :signature, length: -> { CHECKSUM_SIGNATURE_LENGTH.fetch(signature_type) }
-                      # value: lambda {
-                      #   require 'pry'; binding.pry
-                      #          checksummer = Rex::Proto::Kerberos::Crypto::Checksum.from_checksum_type(signature_type)
-                      #          checksummer.checksum(nil, Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT, self.parent.parent.parent.to_binary_s)
-                      #        }
 
-    def calc(data)
-      self.signature = "abcdabcdabcdabcd"
-      true
-    end
   end
 
   class Krb5PacServerChecksum < Krb5PacSignatureData
@@ -293,19 +269,24 @@ module Rex::Proto::Kerberos::Pac
         super
       end
     end
-  end
 
-  # class Krb5PacType < BinData::Record
-  #   endian :little
-  #
-  # end
-  # class Krb5PacInfoBuffer < BinData::Record
-  #   endian :little
-  #
-  #   uint32 :ul_type
-  #   uint32 :cb_buffer_size
-  #   uint64 :offset
-  # end
+    def effective_name=(val)
+      effective_name_ptr.assign val
+      effective_name_info.assign val
+    end
+
+    def effective_name()
+      effective_name_info.unicode_string
+    end
+
+    def logon_domain_name=(val)
+      logon_domain_name_ptr.assign val
+      logon_domain_name_info.assign val
+    end
+    def group_ids=(val)
+      group_ids_info.assign val
+    end
+  end
 
   class Krb5PacElement < BinData::Choice
     krb5_validation_info 0x00000001
@@ -314,49 +295,50 @@ module Rex::Proto::Kerberos::Pac
     krb5_pac_priv_server_checksum 0x00000007
   end
 
+  class Krb5PacInfoBuffer < BinData::Record
+    endian :little
+
+    uint32 :ul_type
+    uint32 :cb_buffer_size, initial_value: -> { buffer.pac_element.num_bytes }
+    uint64 :offset
+
+    delayed_io :buffer, read_abs_offset: :offset do
+      krb5_pac_element :pac_element, selection: -> { ul_type }
+      string :padding, length: -> { bytes_to_align(pac_element.num_bytes) }
+    end
+  end
+
+
+
   class Krb5Pac < BinData::Record
     endian :little
+    auto_call_delayed_io
 
     uint32 :c_buffers, asserted_value: -> { pac_info_buffers.length }
 
     uint32 :version, asserted_value: 0x00000000
 
-    array :pac_info_buffers, initial_length: :c_buffers do
-      uint32 :ul_type
-      uint32 :cb_buffer_size, value: -> { pac_elements[index].num_bytes }
-      uint64 :offset, value: -> { pac_elements.rel_offset + pac_elements[index].rel_offset }
-    end
-
-    array :pac_elements, initial_length: :c_buffers do
-      krb5_pac_element selection: -> { pac_info_buffers[index].ul_type }
-    end
-    string :rest, length: 4
+    array :pac_info_buffers, type: :krb5_pac_info_buffer, initial_length: :c_buffers
 
     def assign(val)
       case val
       when Hash
-        pac_info_buffers = val[:pac_elements].map do |pac_element|
-          { ul_type: pac_element.ul_type }
+        pac_infos = val[:pac_elements].map do |pac_element|
+          { ul_type: pac_element.ul_type, buffer: { pac_element: pac_element } }
         end
-        new_val = val.merge(pac_info_buffers: pac_info_buffers)
+        new_val = val.merge(pac_info_buffers: pac_infos)
         super(new_val)
       else
         super
       end
     end
 
-    def do_write(io)
-      if pac_info_buffers.length != pac_elements.length
-        raise 'you dun goofed'
-      end
-
-      super
-    end
-
+    # Calculates the checksums, can only be done after all other fields are set
     def calculate_checksums(key: nil)
       server_checksum = nil
       priv_server_checksum = nil
-      pac_elements.each do |pac_element|
+      pac_info_buffers.each do |info_buffer|
+        pac_element = info_buffer.buffer.pac_element
         if pac_element.ul_type == 6
           server_checksum = pac_element
         elsif pac_element.ul_type == 7
@@ -367,6 +349,28 @@ module Rex::Proto::Kerberos::Pac
 
       priv_server_checksum.signature = calculate_checksum(priv_server_checksum.signature_type, key, server_checksum.signature)
     end
+
+    # Calculates the offsets for pac_elements if they haven't yet been set
+    def calculate_offsets
+      offset = pac_info_buffers.abs_offset + pac_info_buffers.num_bytes
+      pac_info_buffers.each do |pac_info|
+        next unless pac_info.offset == 0
+        pac_info.offset = offset
+        offset += pac_info.cb_buffer_size
+        offset += bytes_to_align(offset)
+      end
+    end
+
+    # Call this when you are done setting fields in the object
+    # in order to finalise the data
+    def finish
+      calculate_offsets
+      calculate_checksums
+    end
+    def bytes_to_align(n, align: 8)
+      (align - (n % align)) % align
+    end
+
 
     private
 
