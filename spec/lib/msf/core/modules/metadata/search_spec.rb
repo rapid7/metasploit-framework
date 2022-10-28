@@ -41,6 +41,12 @@ RSpec.describe Msf::Modules::Metadata::Search do
     it { expect(described_class.parse_search_string("platform:-android")).to eq({"platform"=>[[], ["android"]]}) }
     it { expect(described_class.parse_search_string("author:egypt arch:x64")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
     it { expect(described_class.parse_search_string("  author:egypt   arch:x64  ")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
+    it { expect(described_class.parse_search_string("postgres:")).to eq({"text"=>[["postgres"], []]}) }
+    it { expect(described_class.parse_search_string("postgres;")).to eq({"text"=>[["postgres;"], []]}) }
+    it { expect(described_class.parse_search_string("text:postgres:")).to eq({"text"=>[["postgres:"], []]}) }
+    it { expect(described_class.parse_search_string("postgres::")).to eq({"postgres"=>[[":"], []]}) }
+    it { expect(described_class.parse_search_string("postgres:::")).to eq({"postgres"=>[["::"], []]}) }
+    it { expect(described_class.parse_search_string("turtle:bobcat postgres:")).to eq({"text"=>[["postgres"], []], "turtle"=>[["bobcat"], []]}) }
   end
 
   describe '#find' do
