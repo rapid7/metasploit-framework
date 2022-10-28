@@ -141,17 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     returned_entries = ldap.search(base: base, filter: filter, attributes: attributes)
     query_result = ldap.as_json['result']['ldap_result']
 
-    result_code, result_message = check_query_result_code(query_result, filter)
-    case result_code
-    when -1
-      fail_with(Failure::BadConfig, result_message)
-    when 0
-      vprint_good(result_message)
-    when 1
-      fail_with(Failure::NoAccess, result_message)
-    when 2
-      fail_with(Failure::UnexpectedReply, result_message)
-    end
+    validate_query_result!(query_result, filter)
 
     if returned_entries.nil? || returned_entries.empty?
       print_error("No results found for #{filter}.")
