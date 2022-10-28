@@ -78,9 +78,9 @@ class MetasploitModule < Msf::Auxiliary
     keytab_path = datastore['KEYTAB_FILE']
 
     if File.exist?(keytab_path)
-      keytab = Rex::Proto::Kerberos::Keytab::Keytab.read(File.binread(datastore['KEYTAB_FILE']))
+      keytab = Rex::Proto::Kerberos::Keytab::Krb5Keytab.read(File.binread(datastore['KEYTAB_FILE']))
     else
-      keytab = Rex::Proto::Kerberos::Keytab::Keytab.new
+      keytab = Rex::Proto::Kerberos::Keytab::Krb5Keytab.new
     end
 
     principal = datastore['PRINCIPAL']
@@ -169,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     keytab = File.binread(datastore['KEYTAB_FILE'])
-    keytab = Rex::Proto::Kerberos::Keytab::Keytab.read(keytab)
+    keytab = Rex::Proto::Kerberos::Keytab::Krb5Keytab.read(keytab)
     keytab.key_entries.each do |entry|
       keyblock = entry.keyblock
       tbl << [

@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/proto/kerberos/keytab'
-require 'rex/proto/kerberos/keytab/keytab'
+require 'rex/proto/kerberos/keytab/krb5_keytab'
 
 RSpec.shared_examples_for 'a parseable keytab' do
   let(:expected) do
@@ -66,7 +66,7 @@ RSpec.shared_examples_for 'a parseable keytab' do
   end
 end
 
-RSpec.describe Rex::Proto::Kerberos::Keytab::Keytab do
+RSpec.describe Rex::Proto::Kerberos::Keytab::Krb5Keytab do
 =begin
   Generated with heimdal ktutil; which has two additional bytes at the end for a 32-bit kvno and flags which are
   not present in the mit format
