@@ -4,11 +4,12 @@ module Rex::Proto::MsDtyp
   # [2.4.3 ACCESS_MASK](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/7a53f60e-e730-4dfe-bbe9-b21b62eb790b)
   class MsDtypAccessMask < BinData::Record
     endian :little
-    hide   :reserved0, :reserved1, :reserved2
+    hide   :reserved0, :reserved1
 
-    bit16 :reserved0
+    # the protocol field id reserved for protocol-specific access rights
+    bit16 :protocol
 
-    bit3  :reserved1
+    bit3  :reserved0
     bit1  :sy
     bit1  :wo
     bit1  :wd
@@ -19,12 +20,12 @@ module Rex::Proto::MsDtyp
     bit1  :gw
     bit1  :gx
     bit1  :ga
-    bit2  :reserved2
+    bit2  :reserved1
     bit1  :ma
     bit1  :as
 
-    ALL  = MsDtypAccessMask.new({ gr: 1, gw: 1, gx: 1, ga: 1, ma: 1, as: 1, sy: 1, wo: 1, wd: 1, rc: 1, de: 1 })
-    NONE = MsDtypAccessMask.new({ gr: 0, gw: 0, gx: 0, ga: 0, ma: 0, as: 0, sy: 0, wo: 0, wd: 0, rc: 0, de: 0 })
+    ALL  = MsDtypAccessMask.new({ gr: 1, gw: 1, gx: 1, ga: 1, ma: 1, as: 1, sy: 1, wo: 1, wd: 1, rc: 1, de: 1, protocol: 0xffff })
+    NONE = MsDtypAccessMask.new({ gr: 0, gw: 0, gx: 0, ga: 0, ma: 0, as: 0, sy: 0, wo: 0, wd: 0, rc: 0, de: 0, protocol: 0 })
   end
 
   # [2.4.2.2 SID--Packet Representation](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f992ad60-0fe4-4b87-9fed-beb478836861)
@@ -58,7 +59,7 @@ module Rex::Proto::MsDtyp
 
   # [Universal Unique Identifier](http://pubs.opengroup.org/onlinepubs/9629399/apdxa.htm)
   # The online documentation at [2.3.4.2](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/001eec5a-7f8b-4293-9e21-ca349392db40)
-  # wierdly doesn't mention this needs to be 4 byte aligned for us to read it correctly,
+  # weirdly doesn't mention this needs to be 4 byte aligned for us to read it correctly,
   # which the RubySMB::Dcerpc::Uuid definition takes care of.
   class MsDtypGuid < RubySMB::Dcerpc::Uuid
   end
