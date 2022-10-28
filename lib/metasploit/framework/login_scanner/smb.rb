@@ -120,7 +120,7 @@ module Metasploit
                 if tree.permissions.add_file == 1
                   access_level = AccessLevels::ADMINISTRATOR
                 end
-              rescue StandardError
+              rescue StandardError => _e
                 client.tree_connect("\\\\#{host}\\IPC$")
               end
             end
@@ -140,10 +140,10 @@ module Metasploit
           rescue ::Rex::ConnectionError, Errno::EINVAL, RubySMB::Error::NetBiosSessionService, RubySMB::Error::NegotiationFailure, RubySMB::Error::CommunicationError  => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
-          rescue RubySMB::Error::UnexpectedStatusCode
+          rescue RubySMB::Error::UnexpectedStatusCode => _e
             status = Metasploit::Model::Login::Status::INCORRECT
-          rescue RubySMB::Error::RubySMBError => _e
-            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+            status = Metasploit::Framework::LoginScanner::Kerberos.login_status_for_kerberos_error(e)
           ensure
             client.disconnect! if client
           end
