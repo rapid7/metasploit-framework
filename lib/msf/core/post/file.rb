@@ -880,7 +880,7 @@ protected
     b64_filename = "#{file_name}.b64"
     begin
       _win_ansi_write_file(b64_filename, b64_data, chunk_size)
-      cmd_exec("certutil -decode #{b64_filename} #{file_name}")
+      cmd_exec("certutil -f -decode #{b64_filename} #{file_name}")
     rescue ::Exception => e
       print_error("Exception while running #{__method__}: #{e}")
     ensure
