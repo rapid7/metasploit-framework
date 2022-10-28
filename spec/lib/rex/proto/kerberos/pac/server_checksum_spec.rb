@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 
-RSpec.describe Rex::Proto::Kerberos::Pac::ServerChecksum do
+RSpec.describe Rex::Proto::Kerberos::Pac::Krb5PacSignatureData do
 
   subject(:server_checksum) do
     described_class.new

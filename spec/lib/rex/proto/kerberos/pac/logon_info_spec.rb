@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/proto/kerberos/pac/krb5_pac'
 
-RSpec.describe Rex::Proto::Kerberos::Pac::LogonInfo do
+RSpec.describe Rex::Proto::Kerberos::Pac::Krb5ValidationInfo do
 
   subject(:logon_info) do
     described_class.new
@@ -52,27 +52,62 @@ RSpec.describe Rex::Proto::Kerberos::Pac::LogonInfo do
   describe "#read" do
     it "does not break" do
       BinData.trace_reading do
-        x = Rex::Proto::Kerberos::Pac::KrbValidationInfo.read(sample)
+        x = Rex::Proto::Kerberos::Pac::Krb5ValidationInfo.read(sample)
         pp x.snapshot
-        expect(x).to be_a(Rex::Proto::Kerberos::Pac::KrbValidationInfo)
+        expect(x).to be_a(Rex::Proto::Kerberos::Pac::Krb5ValidationInfo)
       end
     end
 
-    it "does not break2" do
-      # OG impl for logon_info
-      # https://github.com/rapid7/metasploit-framework/blob/5f85175f56e3bf993458ebd95c7d03ba30364198/lib/rex/proto/kerberos/pac/logon_info.rb#L153-L164
-      class RpcUnicodeStringTest < BinData::Record
-        endian :little
+    # it "does not break2" do
+    #   # OG impl for logon_info
+    #   # https://github.com/rapid7/metasploit-framework/blob/5f85175f56e3bf993458ebd95c7d03ba30364198/lib/rex/proto/kerberos/pac/logon_info.rb#L153-L164
+    #   class RpcUnicodeStringTest < BinData::Record
+    #     endian :little
+    #
+    #     uint16 :string_length
+    #     uint16 :maximum_length
+    #     uint32 :wchar_buffer_pointer # ruby_smb/dcerpc/ndr.rb
+    #   end
+    #   BinData.trace_reading do
+    #     RpcUnicodeStringTest.read("\b\x00\b\x00\x04\x00\x02\x00")
+    #
+    #     RubySMB::Dcerpc::RpcUnicodeString.read("\b\x00\b\x00\x04\x00\x02\x00")
+    #   end
+    # end
+  end
 
-        uint16 :string_length
-        uint16 :maximum_length
-        uint32 :wchar_buffer_pointer # ruby_smb/dcerpc/ndr.rb
-      end
+  describe "#to_binary_s" do
+    it "reads and encodes the same data" do
       BinData.trace_reading do
-        RpcUnicodeStringTest.read("\b\x00\b\x00\x04\x00\x02\x00")
+        x = Rex::Proto::Kerberos::Pac::Krb5ValidationInfo.read(sample)
 
-        RubySMB::Dcerpc::RpcUnicodeString.read("\b\x00\b\x00\x04\x00\x02\x00")
+        expect(x.to_binary_s).to eq(sample)
       end
+    end
+
+    it "creating object to equal read object" do
+      x = Rex::Proto::Kerberos::Pac::Krb5ValidationInfo.read(sample)
+
+      y = Rex::Proto::Kerberos::Pac::Krb5ValidationInfo.new(
+        logon_time: Time.at(1418712492),
+        effective_name: 'juan',
+        user_id: 1000,
+        primary_group_id: 513,
+        group_ids: [513, 512, 520, 518, 519],
+        logon_domain_name: 'DEMO.LOCAL',
+        logon_domain_id: 'S-1-5-21-1755879683-3641577184-3486455962'
+      )
+
+      # y = Rex::Proto::Kerberos::Pac::Krb5ValidationInfo.new(
+      #   logon_info: logon_info
+      # )
+
+      # expect(y.logon_info).to eq(x.logon_info)
+
+      expect(y).to eq(x)
+      expect(y.to_binary_s).to eq(sample)
+
+
     end
   end
 end
