@@ -36,7 +36,7 @@ when an individual is representing the project or its community.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported by contacting the project maintainers at msfdev@metasploit.com. If
-the incident involves a committer, you may report directly to
+the incident involves a committer, you may report it directly to
 caitlin_condon@rapid7.com or todb@metasploit.com.
 
 All complaints will be reviewed and investigated and will result in a
