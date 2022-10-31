@@ -435,27 +435,8 @@ class MetasploitModule < Msf::Auxiliary
     entries = nil
     begin
       ldap_connect do |ldap|
-        bind_result = ldap.as_json['result']['ldap_result']
+        validate_bind_success!(ldap)
 
-        # Codes taken from https://ldap.com/ldap-result-code-reference-core-ldapv3-result-codes
-        case bind_result['resultCode']
-        when 0
-          print_good('Successfully bound to the LDAP server!')
-        when 1
-          fail_with(Failure::NoAccess, "An operational error occurred, perhaps due to lack of authorization. The error was: #{bind_result['errorMessage']}")
-        when 7
-          fail_with(Failure::NoTarget, 'Target does not support the simple authentication mechanism!')
-        when 8
-          fail_with(Failure::NoTarget, "Server requires a stronger form of authentication than we can provide! The error was: #{bind_result['errorMessage']}")
-        when 14
-          fail_with(Failure::NoTarget, "Server requires additional information to complete the bind. Error was: #{bind_result['errorMessage']}")
-        when 48
-          fail_with(Failure::NoAccess, "Target doesn't support the requested authentication type we sent. Try binding to the same user without a password, or providing credentials if you were doing anonymous authentication.")
-        when 49
-          fail_with(Failure::NoAccess, 'Invalid credentials provided!')
-        else
-          fail_with(Failure::Unknown, "Unknown error occurred whilst binding: #{bind_result['errorMessage']}")
-        end
         if (@base_dn = datastore['BASE_DN'])
           print_status("User-specified base DN: #{@base_dn}")
         else
@@ -469,7 +450,7 @@ class MetasploitModule < Msf::Auxiliary
         case action.name
         when 'RUN_QUERY_FILE'
           unless datastore['QUERY_FILE_PATH']
-            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE action, one must specify the path to the JASON/YAML file containing the queries via QUERY_FILE_PATH!')
+            fail_with(Failure::BadConfig, 'When using the RUN_QUERY_FILE action, one must specify the path to the JSON/YAML file containing the queries via QUERY_FILE_PATH!')
           end
           print_status("Loading queries from #{datastore['QUERY_FILE_PATH']}...")
 
