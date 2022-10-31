@@ -104,7 +104,7 @@ module Buffer
       when 'nim','nimlang'
         buf = Rex::Text.to_nim_comment(buf)
       when 'rust', 'rustlang'
-        buf = Rext::Text.to_rust_comment(buf)
+        buf = Rex::Text.to_rust_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
