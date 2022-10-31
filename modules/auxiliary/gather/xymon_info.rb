@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
             origin_type: :service,
             private_data: hash,
             private_type: :nonreplayable_hash,
-            jtr_format: identify_hash(hash),
+            jtr_format: Metasploit::Framework::Hashes.identify_hash(hash),
             username: user
           }.merge(service_data)
 

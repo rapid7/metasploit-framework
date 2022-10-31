@@ -2,11 +2,11 @@ module Msf::DBManager::Import::Qualys::Asset
   # Takes QID numbers and finds the discovered services in
   # a qualys_asset_xml.
   def find_qualys_asset_ports(i,host,wspace,hobj,task_id)
-    return unless (i == 82023 || i == 82004)
-    proto = i == 82023 ? 'tcp' : 'udp'
-    qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
-    qid_result = qid.parent.elements["RESULT[@format='table']"] if qid
-    hports = qid_result.first.to_s if qid_result
+    return unless (i == Msf::DBManager::Import::Qualys::TCP_QID || i == Msf::DBManager::Import::Qualys::UDP_QID)
+    proto = i == Msf::DBManager::Import::Qualys::TCP_QID ? 'tcp' : 'udp'
+    qid = host.xpath("VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']").first
+    qid_result = qid.parent.xpath("RESULT[@format='table']") if qid
+    hports = qid_result.first.text if qid_result
     if hports
       hports.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
         if match[2] == nil or match[2].strip == 'unknown'
@@ -21,15 +21,18 @@ module Msf::DBManager::Import::Qualys::Asset
 
   def find_qualys_asset_vuln_refs(doc)
     vuln_refs = {}
-    doc.elements.each("/ASSET_DATA_REPORT/GLOSSARY/VULN_DETAILS_LIST/VULN_DETAILS") do |vuln|
-      next unless vuln.elements['QID'] && vuln.elements['QID'].first
-      qid = vuln.elements['QID'].first.to_s
+    doc.xpath("/ASSET_DATA_REPORT/GLOSSARY/VULN_DETAILS_LIST/VULN_DETAILS").each do |vuln|
+      qid_el = vuln.xpath('QID')
+      next unless qid_el && qid_el.first
+      qid = qid_el.first.text
       vuln_refs[qid] ||= []
-      vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
-        vuln_refs[qid].push('CVE-' + /C..-([0-9\-]{9,})/.match(ref.elements['ID'].text.to_s)[1])
+      vuln.xpath('CVE_ID_LIST/CVE_ID').each do |ref|
+        id = ref.xpath("ID").first&.text
+        vuln_refs[qid].push(id) if id
       end
-      vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
-        vuln_refs[qid].push('BID-' + ref.elements['ID'].text.to_s)
+      vuln.xpath('BUGTRAQ_ID_LIST/BUGTRAQ_ID').each do |ref|
+        id = ref.xpath("ID").first&.text
+        vuln_refs[qid].push("BID-#{id}") if id
       end
     end
     return vuln_refs
@@ -38,9 +41,9 @@ module Msf::DBManager::Import::Qualys::Asset
   # Pull out vulnerabilities that have at least one matching
   # ref -- many "vulns" are not vulns, just audit information.
   def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,task_id,&block)
-    host.elements.each("VULN_INFO_LIST/VULN_INFO") do |vi|
-      next unless vi.elements["QID"]
-      vi.elements.each("QID") do |qid|
+    host.xpath("VULN_INFO_LIST/VULN_INFO").each do |vi|
+      next unless vi.xpath("QID").first
+      vi.xpath("QID").each do |qid|
         next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
         handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil, nil, task_id)
       end
@@ -54,28 +57,32 @@ module Msf::DBManager::Import::Qualys::Asset
     data = args[:data]
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    doc = rexmlify(data)
+    doc = Nokogiri.XML(data)
     vuln_refs = find_qualys_asset_vuln_refs(doc)
 
     # 2nd pass, actually grab the hosts.
-    doc.elements.each("/ASSET_DATA_REPORT/HOST_LIST/HOST") do |host|
+    doc.xpath("/ASSET_DATA_REPORT/HOST_LIST/HOST").each do |host|
       hobj = nil
-      addr = host.elements["IP"].text if host.elements["IP"]
+      addr_el = host.xpath("IP").first
+      addr = addr_el.text if addr_el
       next unless validate_ips(addr)
       if bl.include? addr
         next
       else
         yield(:address,addr) if block
       end
+      netbios_el = host.xpath("NETBIOS").first
+      dns_el = host.xpath("DNS").first
       hname = ( # Prefer NetBIOS over DNS
-        (host.elements["NETBIOS"].text if host.elements["NETBIOS"]) ||
-         (host.elements["DNS"].text if host.elements["DNS"]) ||
+        (netbios_el.text if netbios_el) ||
+         (dns_el.text if dns_el) ||
          "" )
       hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
       report_import_note(wspace,hobj)
 
-      if host.elements["OPERATING_SYSTEM"]
-        hos = host.elements["OPERATING_SYSTEM"].text
+      os_el = host.xpath("OPERATING_SYSTEM").first
+      if os_el
+        hos = os_el.text
         report_note(
           :workspace => wspace,
           :task => args[:task],

@@ -1,5 +1,33 @@
 ---
 queries:
+  - action: ENUM_ACCOUNTS
+    description: 'Dump info about all known user accounts in the domain.'
+    filter: '(|(objectClass=organizationalPerson)(sAMAccountType=805306368)(objectcategory=user)(objectClass=user))'
+    attributes:
+      - dn
+      - name
+      - description
+      - displayName
+      - sAMAccountName
+      - userPrincipalName
+      - userAccountControl
+      - homeDirectory
+      - homeDrive
+      - profilePath
+      - memberof
+      - lastLogoff
+      - lastLogon
+      - lastLogonDate
+      - logonCount
+      - badPwdCount
+      - pwdLastSet
+      - SmartcardLogonRequired
+      - LastBadPasswordAttempt
+      - PasswordLastSet
+      - PaswordNeverExpires
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+      - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf
   - action: ENUM_ADCS_CAS
     description: 'Enumerate ADCS certificate authorities.'
     base_dn_prefix: 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
@@ -10,6 +38,10 @@ queries:
       - cACertificateDN
       - dNSHostname
       - certificateTemplates
+      - objectGUID
+      - caCertificate
+    references:
+      - https://aaroneg.com/post/2018-05-15-enterprise-ca/
   - action: ENUM_ADCS_CERT_TEMPLATES
     description: 'Enumerate ADCS certificate templates.'
     base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
@@ -18,39 +50,46 @@ queries:
       - cn
       - name
       - displayName
+      - msPKI-Cert-Template-OID
+      - msPKI-Template-Schema-Version
       - msPKI-Enrollment-Flag
-      - msPKI-Private-Key-Flag
       - msPKI-Certificate-Name-Flag
+      - msPKI-Private-Key-Flag
       - msPKI-RA-Signature
       - pKIExtendedKeyUsage
-  - action: ENUM_ALL_OBJECT_CLASS
-    description: 'Dump all objects containing any objectClass field.'
-    filter: '(objectClass=*)'
+    references:
+      - https://web.archive.org/web/20220818094600if_/https://specterops.io/assets/resources/Certified_Pre-Owned.pdf
+  - action: ENUM_ADMIN_OBJECTS
+    description: 'Dump info about all objects with protected ACLs (i.e highly privileged objects).'
+    filter: '(adminCount=1)'
     attributes:
       - dn
-      - objectClass
+      - description
+      - distinguishedName
+      - name
+      - samAccountName
+      - objectSID
+      - objectGUID
+      - objectCategory
+      - member
+      - memberof
+    references:
+      - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
   - action: ENUM_ALL_OBJECT_CATEGORY
     description: 'Dump all objects containing any objectCategory field.'
     filter: '(objectCategory=*)'
     attributes:
       - dn
       - objectCategory
-  - action: ENUM_ACCOUNTS
-    description: 'Dump info about all known user accounts in the domain.'
-    filter: '(|(objectClass=organizationalPerson)(sAMAccountType=805306368))'
+  - action: ENUM_ALL_OBJECT_CLASS
+    description: 'Dump all objects containing any objectClass field.'
+    filter: '(objectClass=*)'
     attributes:
       - dn
-      - name
-      - displayName
-      - samAccountName
-      - userPrincipalName
-      - userAccountControl
-      - homeDirectory
-      - homeDrive
-      - profilePath
+      - objectClass
   - action: ENUM_COMPUTERS
-    description: 'Dump all objects containing an objectCategory of Computer.'
-    filter: '(objectCategory=Computer)'
+    description: 'Dump all objects containing an objectCategory or objectClass of Computer.'
+    filter: '(|(objectCategory=computer)(objectClass=computer))'
     attributes:
       - dn
       - displayName
@@ -59,8 +98,48 @@ queries:
       - description
       - givenName
       - name
+      - operatingSystem
       - operatingSystemVersion
       - operatingSystemServicePack
+      - lastLogonTimestamp
+      - servicePrincipalName
+      - primaryGroupId
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+      - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf
+  - action: ENUM_CONSTRAINED_DELEGATION
+    description: 'Dump info about all known objects that allow contrained delegation.'
+    filter: '(userAccountControl:1.2.840.113556.1.4.803:=16777216)'
+    attributes:
+      - cn
+      - sAMAccountName
+      - objectCategory
+      - msds-allowedtodelegateto
+      - servicePrincipalName
+    references:
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+      - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-kerberos-constrained-delegation
+  - action: ENUM_DNS_RECORDS
+    description: 'Dump info about DNS records the server knows about using the dnsNode object class.'
+    filter: '(objectClass=dnsNode)'
+    attributes:
+      - dc
+      - cn
+      - dnsRecord
+      - dnsTombstoned
+      - name
+    references:
+      - https://www.netspi.com/blog/technical/network-penetration-testing/exploiting-adidns/
+      - https://github.com/dirkjanm/krbrelayx/blob/master/dnstool.py
+  - action: ENUM_DNS_ZONES
+    description: 'Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This is needed as without this BASEDN prefix we often miss certain entries.'
+    filter: '(objectClass=dnsZone)'
+    base_dn_prefix: 'DC=DomainDnsZones'
+    attributes:
+      - name
+      - distinguishedName
+    references:
+      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
   - action: ENUM_DOMAIN_CONTROLLERS
     description: 'Dump all known domain controllers.'
     filter: '(&(objectCategory=Computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))'
@@ -72,8 +151,22 @@ queries:
       - description
       - givenName
       - name
+      - operatingSystem
       - operatingSystemVersion
       - operatingSystemServicePack
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+      - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf 
+  - action: ENUM_EXCHANGE_RECIPIENTS
+    description: 'Dump info about all known Exchange recipients.'
+    filter: '(|(mailNickname=*)(proxyAddresses=FAX:*))'
+    attributes:
+      - dn
+      - mailNickname
+      - proxyAddresses
+      - name
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
   - action: ENUM_EXCHANGE_SERVERS
     description: 'Dump info about all known Exchange servers.'
     filter: '(&(objectClass=msExchExchangeServer)(!(objectClass=msExchExchangeServerPolicy)))'
@@ -85,37 +178,175 @@ queries:
       - description
       - givenName
       - name
+      - operatingSystem
       - operatingSystemVersion
       - operatingSystemServicePack
-  - action: ENUM_EXCHANGE_RECIPIENTS
-    description: 'Dump info about all known Exchange recipients.'
-    filter: '(|(mailNickname=*)(proxyAddresses=FAX:*))'
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+      - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf
+  - action: ENUM_GMSA_HASHES
+    description: 'Dump info about GMSAs and their password hashes if available.'
+    filter: '(objectClass=msDS-GroupManagedServiceAccount)'
     attributes:
-      - dn
-      - mailNickname
-      - proxyAddresses
-      - name
+      - cn
+      - displayName
+      - msDS-ManagedPassword
+    references:
+      - https://stealthbits.com/blog/securing-gmsa-passwords/
+      - https://o365blog.com/post/gmsa/
+      - https://adsecurity.org/?p=4367
   - action: ENUM_GROUPS
     description: 'Dump info about all known groups in the LDAP environment.'
-    filter: '(|(objectClass=group)(objectClass=groupOfNames)(groupType:1.2.840.113556.1.4.803:=2147483648)(objectClass=posixGroup))'
+    filter: '(|(objectClass=group)(objectClass=groupOfNames)(groupType:1.2.840.113556.1.4.803:=2147483648)(objectClass=posixGroup)(objectcategory=group))'
     attributes:
-      - dn
-      - name
-      - groupType
-      - memberof
-  - action: ENUM_ORGUNITS
-    description: 'Dump info about all known organizational units in the LDAP environment.'
-    filter: '(objectClass=organizationalUnit)'
-    attributes:
-      - dn
-      - displayName
+      - cn
       - name
       - description
+      - groupType
+      - memberof
+      - member
+      - owner
+      - adminCount
+      - managedBy
+      - groupAttributes
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+  - action: ENUM_GROUP_POLICY_OBJECTS
+    description: 'Dump info about all known Group Policy Objects (GPOs) in the LDAP environment.'
+    filter: '(objectClass=groupPolicyContainer)'
+    attributes:
+      - displayName
+      - gPCFileSysPath
+      - objectCategory
+      - objectGUID
+    references:
+      - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
+  - action: ENUM_HOSTNAMES
+    description: 'Dump info about all known hostnames in the LDAP environment.'
+    filter: '(dnsHostName=*)'
+    attributes:
+      - dn
+      - name
+      - dnsHostName
+      - serverName
+    references:
+      - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
+      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1 
+  - action: ENUM_LAPS_PASSWORDS
+    description: 'Dump info about computers that have LAPS enabled, and passwords for them if available.'
+    filter: '(ms-MCS-AdmPwd=*)'
+    attributes:
+      - cn
+      - displayName
+      - ms-MCS-AdmPwd
+    references:
+      - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/ldap-ldaps
+  - action: ENUM_LDAP_SERVER_METADATA
+    description: 'Dump metadata about the setup of the domain.'
+    filter: '(objectClass=*)'
+    attributes:
+      - dn
+      - defaultNamingContext
+      - domainFunctionality
+      - forestFunctionality
+      - domainControllerFunctionality
+      - dnsHostName
+    references:
+      - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
   - action: ENUM_ORGROLES
     description: 'Dump info about all known organization roles in the LDAP environment.'
     filter: '(objectClass=organizationalRole)'
     attributes:
-      - dn
       - displayName
       - name
       - description
+  - action: ENUM_ORGUNITS
+    description: 'Dump info about all known organizational units in the LDAP environment.'
+    filter: '(objectClass=organizationalUnit)'
+    attributes:
+      - displayName
+      - name
+      - description
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+  - action: ENUM_UNCONSTRAINED_DELEGATION
+    description: 'Dump info about all known objects that allow uncontrained delegation.'
+    filter: '(userAccountControl:1.2.840.113556.1.4.803:=524288)'
+    attributes:
+      - cn
+      - sAMAccountName
+      - objectCategory
+      - memberof
+      - member
+    references:
+      - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/domain-compromise-via-unrestricted-kerberos-delegation
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+  - action: ENUM_USER_ACCOUNT_DISABLED
+    description: 'Dump info about disabled user accounts.'
+    filter: '(userAccountControl:1.2.840.113556.1.4.803:=2)'
+    attributes:
+      - cn
+      - displayName
+      - description
+      - sAMAccountName
+      - userPrincipalName
+      - userAccountControl
+  - action: ENUM_USER_ACCOUNT_LOCKED_OUT
+    description: 'Dump info about locked out user accounts.'
+    filter: '(userAccountControl:1.2.840.113556.1.4.803:=16)'
+    attributes:
+      - cn
+      - displayName
+      - sAMAccountName
+      - userPrincipalName
+      - userAccountControl
+    references:
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+  - action: ENUM_USER_ASREP_ROASTABLE
+    description: 'Dump info about all users who are configured not to require kerberos pre-authentication and are therefore AS-REP roastable.'
+    filter: '(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304))'
+    attributes:
+      - cn
+      - displayName
+      - description
+      - sAMAccountName
+      - userPrincipalName
+      - userAccountControl
+    references:
+      - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
+      - https://burmat.gitbook.io/security/hacking/domain-exploitation
+  - action: ENUM_USER_PASSWORD_NEVER_EXPIRES
+    description: 'Dump info about all users whose password never expires.'
+    filter: '(userAccountControl:1.2.840.113556.1.4.803:=65536)'
+    attributes:
+      - cn
+      - displayName
+      - description
+      - sAMAccountName
+      - userPrincipalName
+      - userAccountControl
+    references:
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+  - action: ENUM_USER_PASSWORD_NOT_REQUIRED
+    description: 'Dump info about all users whose password never expires and whose account is still enabled.'
+    filter: '(&(userAccountControl:1.2.840.113556.1.4.803:=32)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
+    attributes:
+      - cn
+      - displayName
+      - description
+      - sAMAccountName
+      - userPrincipalName
+      - userAccountControl
+    references:
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+  - action: ENUM_USER_SPNS_KERBEROAST
+    description: 'Dump info about all user objects with Service Principal Names (SPNs) for kerberoasting.'
+    filter: '(&(&(servicePrincipalName=*)(userAccountControl:1.2.840.113556.1.4.803:=512))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
+    attributes:
+      - cn
+      - sAMAccountName
+      - servicePrincipalName
+    references:
+      - https://malicious.link/post/2022/ldapsearch-reference/
+      - https://burmat.gitbook.io/security/hacking/domain-exploitation
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties 
