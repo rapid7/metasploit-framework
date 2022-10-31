@@ -11,7 +11,6 @@ module Msf
         include Msf::Post::Windows::Error
         include Msf::Post::Windows::ExtAPI
         include Msf::Post::Windows::Accounts
-        require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
         LDAP_SIZELIMIT_EXCEEDED = 0x04
         LDAP_OPT_SIZELIMIT = 0x03

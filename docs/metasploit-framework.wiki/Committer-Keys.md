@@ -9,35 +9,40 @@ Keybase.io is used by Metasploit as an easy way to verify identities of committe
 
 | Github Username                                   | Keybase.io Username                                |
 | ------------------------------------------------- | -------------------------------------------------- |
-| [@acammack-r7](https://github.com/acammack-r7)    | [acammackr7](https://keybase.io/acammackr7)        |
+| [@adfoster-r7](https://github.com/adfoster-r7)    | [adfosterr7](https://keybase.io/adfosterr7)        |
 | [@bcoles](https://github.com/bcoles)              | [bcoles](https://keybase.io/bcoles)                |
-| [@busterb](https://github.com/busterb)            | [busterb](https://keybase.io/busterb)              |
 | [@bwatters-r7](https://github.com/bwatters-r7)    | [bwatters](https://keybase.io/bwatters)            |
 | [@ccondon-r7](https://github.com/ccondon-r7)      | [catc0n](https://keybase.io/catc0n)                |
-| [@cdelafuente-r7](https://github.com/cdelafuente-r7)|[cdelafuente](https://keybase.io/cdelafuente)    |
+| [@cdelafuente-r7](https://github.com/cdelafuente-r7)|[cdelafuente](https://keybase.io/cdelafuente)     |
+| [@cgranleese-r7](https://github.com/cgranleese-r7)|                                                    |
 | [@chiggins](https://github.com/chiggins)          | [chiggins](https://keybase.io/chiggins)            |
-| [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
+| [@dwelch-r7](https://github.com/dwelch-r7)        | [dwelchr7](https://keybase.io/dwelchr7)            |
+| [@erran-r7](https://github.com/erran-r7)          | [err7n](https://keybase.io/err7n)                  |
+| [@ekelly-rapid7](https://github.com/ekelly-rapid7)|                                                    |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
 | [@Green-m](https://github.com/Green-m)            | [green-m](https://keybase.io/green_m)              |
 | [@gwillcox-r7](https://github.com/gwillcox-r7)    | [grantwillcox](https://keybase.io/grantwillcox)    |
 | [@h00die](https://github.com/h00die)              | [h00die](https://keybase.io/h00die)                |
-| [@jbarnett-r7](https://github.com/jbarnett-r7)    | [jmbarnett](https://keybase.io/jmbarnett)          |
+| [@hwilson-r7](https://github.com/hwilson-r7)      |                                                    |
+| [@jharris-r7](https://github.com/jharris-r7)      |                                                    |
+| [@jheysel-r7](https://github.com/jheysel-r7)      |                                                    |
 | [@jmartin-r7](https://github.com/jmartin-r7)      | [jmartinr7](https://keybase.io/jmartinr7)          |
-| [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
 | [@Meatballs1](https://github.com/Meatballs1)      | [meatballs](https://keybase.io/meatballs)          |
 | [@mkienow-r7](https://github.com/mkienow-r7)      | [inokii](https://keybase.io/inokii)                |
 | [@mubix](https://github.com/mubix)                | [mubix](https://keybase.io/mubix)                  |
+| [@nhkaraka-r7](https://github.com/nhkaraka-r7)    |                                                    |
 | [@OJ](https://github.com/OJ)                      | [oj](https://keybase.io/oj)                        |
+| [@rhodgman-r7](https://github.com/rhodgman-r7)    | [rhodgmanr7](https://keybase.io/rhodgmanr7)        |
 | [@scriptjunkie](https://github.com/scriptjunkie)  | [scriptjunkie](https://keybase.io/scriptjunkie)    |
 | [@sgonzalez-r7](https://github.com/sgonzalez-r7)  | [essgee](https://keybase.io/essgee)                |
 | [@smashery](https://github.com/smashery)          | [smashery](https://keybase.io/smashery)            |
+| [@smcintyre-r7](https://github.com/smcintyre-r7)  |                                                    |
 | [@space-r7](https://github.com/space-r7)          | [shelbyp](https://keybase.io/shelbyp)              |
-| [@tdoan-r7](https://github.com/tdoan-r7)          | [doanosaur](https://keybase.io/doanosaur)          |
+| [@tas-r7](https://github.com/tas-r7)              |                                                    |
 | [@timwr](https://github.com/timwr)                | [timwr](https://keybase.io/timwr)                  |
 | [@todb-r7](https://github.com/todb-r7)            | [todb](https://keybase.io/todb)                    |
 | [@void-in](https://github.com/void-in)            | [void_in](https://keybase.io/void_in)              |
-| [@wchen-r7](https://github.com/wchen-r7)          | [wchenr7](https://keybase.io/wchenr7)              |
-| [@zeroSteiner](https://github.com/zeroSteiner)    | [zerosteiner](https://keybase.io/zerosteiner)      |
+| [@zgoldman-r7](https://github.com/zgoldman-r7)    |                                                    |
 
 Note, keybase.io does **not require** your private key to prove your GitHub
 identity. Actually sharing your private key with Keybase.io is a matter of
@@ -46,7 +51,7 @@ thoughtful argument [for][pro-sharing].
 
 # Tracking criteria
 
-In order to get [@bcook-r7](https://github.com/bcook-r7) to track your key, you
+In order to get [@smcintyre-r7](https://github.com/smcintyre-r7) to track your key, you
 alert him to its existence through some non-GitHub means, and verify your
 GitHub username. That's all there is to it.
 

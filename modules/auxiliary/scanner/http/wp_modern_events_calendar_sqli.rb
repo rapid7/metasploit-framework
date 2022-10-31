@@ -1,3 +1,4 @@
+require 'metasploit/framework/hashes'
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -7,7 +8,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::SQLi
-  require 'metasploit/framework/hashes/identify'
 
   def initialize(info = {})
     super(
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         username: user[0],
         private_type: :nonreplayable_hash,
-        jtr_format: identify_hash(user[1]),
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(user[1]),
         private_data: user[1],
         service_name: 'Wordpress',
         address: ip,

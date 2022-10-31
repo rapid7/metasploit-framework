@@ -4,12 +4,11 @@
 ##
 
 require 'rex/zip'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
-
-  require 'metasploit/framework/hashes/identify'
 
   def initialize(info = {})
     super(
@@ -74,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
           module_fullname: fullname,
           username: username,
           private_type: :nonreplayable_hash,
-          jtr_format: identify_hash(password),
+          jtr_format: Metasploit::Framework::Hashes.identify_hash(password),
           private_data: password,
           service_name: 'Wordpress',
           address: ip,

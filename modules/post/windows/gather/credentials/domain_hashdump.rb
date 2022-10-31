@@ -148,12 +148,11 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    unless session_compat?
-      return false
+    unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_NTDS_PARSE)
+      fail_with(Failure::BadConfig, 'Session does not support Meterpreter ExtAPI NTDS parser')
     end
 
-    load_extapi
-    return true
+    session_compat?
   end
 
   def repair_ntds(path = '')

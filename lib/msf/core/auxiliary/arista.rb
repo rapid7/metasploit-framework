@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 module Msf
   ###
@@ -123,7 +123,7 @@ module Msf
             cred[:jtr_format] = ''
           else
             output << " and Hash: #{hash}"
-            cred[:jtr_format] = identify_hash(hash)
+            cred[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(hash)
           end
 
           cred[:username] = name
@@ -154,7 +154,7 @@ module Msf
             cred[:jtr_format] = ''
           else
             output << " with Hash: #{hash}"
-            cred[:jtr_format] = identify_hash(hash)
+            cred[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(hash)
           end
 
           cred[:private_data] = hash.to_s

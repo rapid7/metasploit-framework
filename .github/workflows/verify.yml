@@ -33,7 +33,7 @@ jobs:
     name: Docker Build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: docker-compose build
         run: |
@@ -93,7 +93,7 @@ jobs:
         run: sudo apt-get install libpcap-dev graphviz
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Ruby
         env:
