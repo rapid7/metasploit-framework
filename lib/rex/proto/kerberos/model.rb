@@ -23,9 +23,11 @@ module Rex
         module OID
           DiffieHellman = '1.2.840.10046.2.1'
           SHA1 = '1.3.14.3.2.26'
+          SHA256 = '2.16.840.1.101.3.4.2.1'
           ContentType = '1.2.840.113549.1.9.3'
           MessageDigest = '1.2.840.113549.1.9.4'
           RSAWithSHA1 = '1.2.840.113549.1.1.5'
+          RSAWithSHA256 = '1.2.840.113549.1.1.11'
           PkinitAuthData = '1.3.6.1.5.2.3.1'
           SignedData = '1.2.840.113549.1.7.2'
         end
