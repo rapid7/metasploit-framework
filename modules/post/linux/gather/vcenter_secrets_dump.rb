@@ -4,7 +4,7 @@
 ##
 
 require 'metasploit/framework/credential_collection'
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
@@ -348,7 +348,7 @@ class MetasploitModule < Msf::Post
         username: dn,
         private_data: john_hash,
         private_type: :nonreplayable_hash,
-        jtr_format: identify_hash(john_hash)
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(john_hash)
       ))
     end
   end
