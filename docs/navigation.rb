@@ -212,6 +212,14 @@ NAVIGATION_CONFIG = [
                 title: without_prefix('Meterpreter ')
               },
               {
+                path: 'Meterpreter-ExecuteBof-Command.md',
+                title: without_prefix('Meterpreter ')
+              },
+              {
+                path: 'Meterpreter-Reg-Command.md',
+                title: without_prefix('Meterpreter ')
+              },
+              {
                 path: 'How-to-get-started-with-writing-a-Meterpreter-script.md'
               },
               {

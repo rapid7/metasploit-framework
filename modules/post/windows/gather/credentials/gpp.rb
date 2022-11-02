@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::File
+  include Msf::Post::Windows::ExtAPI
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::NetAPI
@@ -219,7 +220,7 @@ class MetasploitModule < Msf::Post
   end
 
   def adsi_query(domain, adsi_filter, adsi_fields)
-    return "" unless session.core.use("extapi")
+    return "" unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY)
 
     query_result = session.extapi.adsi.domain_query(domain, adsi_filter, 255, 255, adsi_fields)
 

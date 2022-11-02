@@ -324,7 +324,7 @@ class MetasploitModule < Msf::Auxiliary
           'SAMLResponse' => saml_response,
           'RelayState' => @vcenter_saml_relay_state
         },
-        'keep_cookies' => 'true'
+        'keep_cookies' => true
       })
     else
       res = send_request_cgi({
@@ -333,7 +333,7 @@ class MetasploitModule < Msf::Auxiliary
         'vars_post' => {
           'SAMLResponse' => saml_response
         },
-        'keep_cookies' => 'true'
+        'keep_cookies' => true
       })
     end
 

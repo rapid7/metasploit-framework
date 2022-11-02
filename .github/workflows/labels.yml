@@ -28,7 +28,7 @@ jobs:
   handle-labels:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@v6
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -202,16 +202,16 @@ jobs:
 
             if (config.comment) {
               const precedingWhitespaceLength = config.comment.split("\n")[1].search(/\S/);
-              const commentWithoutPreceedingWhitespace = config.comment.split("\n").map(line => line.substring(precedingWhitespaceLength)).join("\n").trim();
-              await github.issues.createComment({
+              const commentWithoutPrecedingWhitespace = config.comment.split("\n").map(line => line.substring(precedingWhitespaceLength)).join("\n").trim();
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: commentWithoutPreceedingWhitespace
+                body: commentWithoutPrecedingWhitespace
               });
             }
             if (config.close) {
-              await github.issues.update({
+              await github.rest.issues.update({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,

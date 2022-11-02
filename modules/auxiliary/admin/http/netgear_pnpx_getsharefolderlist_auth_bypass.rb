@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(
       'uri' => '/top.html',
       'method' => 'GET',
-      'keep_cookies' => 'true'
+      'keep_cookies' => true
     )
 
     if res.nil?

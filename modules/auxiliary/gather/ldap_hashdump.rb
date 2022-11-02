@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -364,7 +364,7 @@ class MetasploitModule < Msf::Auxiliary
             # Remove LDAP's {crypt} prefix from known hash types
             hash.gsub!(/{crypt}.{,2}(\$[0256][aby]?\$)/i, '\1')
           end
-          hash_format = identify_hash(hash)
+          hash_format = Metasploit::Framework::Hashes.identify_hash(hash)
         end
       end
 

@@ -4,7 +4,7 @@
 ##
 
 require 'unix_crypt'
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Linux::Priv
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Post
   def configure_passwords(user_data = [])
     user_data.each do |info|
       hash = info['hash']
-      hash_format = identify_hash(hash)
+      hash_format = Metasploit::Framework::Hashes.identify_hash(hash)
       info['type'] = hash_format.empty? ? 'unsupported' : hash_format
 
       salt = ''

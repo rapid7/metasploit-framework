@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'wp-content', 'plugins', 'wp-automatic', 'process_form.php'),
       'headers' => { 'X-Requested-With' => 'XMLHttpRequest' },
       'vars_post' => { key => value },
-      'keep_cookies' => 'true'
+      'keep_cookies' => true
     })
     fail_with(Failure::Unreachable, 'Site not responding') unless res
     res && res.code == 200 && res.body.include?('{"status":"success"}')

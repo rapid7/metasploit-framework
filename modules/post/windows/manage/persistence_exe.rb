@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Post
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [ARTIFACTS_ON_DISK, CONFIG_CHANGES],
-          'SideEffects' => [REPEATABLE_SESSION]
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [ARTIFACTS_ON_DISK, CONFIG_CHANGES]
         }
       )
     )

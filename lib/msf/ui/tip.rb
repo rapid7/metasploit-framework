@@ -36,7 +36,9 @@ module Msf
         "Use #{highlight('sessions -1')} to interact with the last opened session",
         "View missing module options with #{highlight('show missing')}",
         "Start commands with a space to avoid saving them to history",
-        "You can pivot connections over sessions started with the ssh_login modules"
+        "You can pivot connections over sessions started with the ssh_login modules",
+        "Use the #{highlight('analyze')} command to suggest runnable modules for hosts",
+        "Set the current module's RHOSTS with database values using #{highlight('hosts -R')} or #{highlight('services -R')}"
       ].freeze
       private_constant :COMMON_TIPS
 

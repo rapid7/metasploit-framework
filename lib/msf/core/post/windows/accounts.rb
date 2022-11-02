@@ -5,8 +5,8 @@ module Msf
     module Windows
       module Accounts
         include Msf::Post::Windows::Error
+        include Msf::Post::Windows::ExtAPI
         include Msf::Post::Windows::Registry
-        require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
         GUID = [
           ['Data1', :DWORD],
