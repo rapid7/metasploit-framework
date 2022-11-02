@@ -9,6 +9,7 @@ module Rex::Proto::Kerberos::CredentialCache
     endian :big
     search_prefix :krb5_ccache
 
+    # @see Rex::Proto::Kerberos::Crypto::Encryption
     uint16        :enctype
     data          :data
   end
