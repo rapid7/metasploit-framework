@@ -1,10 +1,55 @@
 PATH
+  remote: ../gem/metasploit-concern
+  specs:
+    metasploit-concern (5.0.0)
+      activemodel (~> 7.0)
+      activesupport (~> 7.0)
+      railties (~> 7.0)
+      zeitwerk
+
+PATH
+  remote: ../gem/metasploit-credential
+  specs:
+    metasploit-credential (5.0.10)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
+
+PATH
+  remote: ../gem/metasploit-model
+  specs:
+    metasploit-model (5.0.0)
+      activemodel (~> 7.0)
+      activesupport (~> 7.0)
+      railties (~> 7.0)
+
+PATH
+  remote: ../metasploit_data_models
+  specs:
+    metasploit_data_models (5.0.6)
+      activerecord (~> 7.0)
+      activesupport (~> 7.0)
+      arel-helpers
+      metasploit-concern
+      metasploit-model (>= 3.1)
+      pg
+      railties (~> 7.0)
+      recog
+      webrick
+
+PATH
   remote: .
   specs:
     metasploit-framework (6.2.37)
-      actionpack (~> 6.0)
-      activerecord (~> 6.0)
-      activesupport (~> 6.0)
+      actionpack (~> 7.0)
+      activerecord (~> 7.0)
+      activesupport (~> 7.0)
       aws-sdk-ec2
       aws-sdk-iam
       aws-sdk-s3
@@ -96,30 +141,29 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
-    actionpack (6.1.7)
-      actionview (= 6.1.7)
-      activesupport (= 6.1.7)
-      rack (~> 2.0, >= 2.0.9)
+    actionpack (7.0.4)
+      actionview (= 7.0.4)
+      activesupport (= 7.0.4)
+      rack (~> 2.0, >= 2.2.0)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.2.0)
-    actionview (6.1.7)
-      activesupport (= 6.1.7)
+    actionview (7.0.4)
+      activesupport (= 7.0.4)
       builder (~> 3.1)
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
-    activemodel (6.1.7)
-      activesupport (= 6.1.7)
-    activerecord (6.1.7)
-      activemodel (= 6.1.7)
-      activesupport (= 6.1.7)
-    activesupport (6.1.7)
+    activemodel (7.0.4)
+      activesupport (= 7.0.4)
+    activerecord (7.0.4)
+      activemodel (= 7.0.4)
+      activesupport (= 7.0.4)
+    activesupport (7.0.4)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
-      zeitwerk (~> 2.3)
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
     afm (0.2.2)
@@ -230,35 +274,7 @@ GEM
       nokogiri (>= 1.5.9)
     memory_profiler (1.0.1)
     metasm (1.0.5)
-    metasploit-concern (4.0.5)
-      activemodel (~> 6.0)
-      activesupport (~> 6.0)
-      railties (~> 6.0)
-    metasploit-credential (6.0.1)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip
-    metasploit-model (4.0.6)
-      activemodel (~> 6.0)
-      activesupport (~> 6.0)
-      railties (~> 6.0)
     metasploit-payloads (2.0.108)
-    metasploit_data_models (5.0.6)
-      activerecord (~> 6.0)
-      activesupport (~> 6.0)
-      arel-helpers
-      metasploit-concern
-      metasploit-model (>= 3.1)
-      pg
-      railties (~> 6.0)
-      recog
-      webrick
     metasploit_payloads-mettle (1.0.20)
     method_source (1.0.0)
     mini_portile2 (2.8.1)
@@ -320,14 +336,15 @@ GEM
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.4.4)
-      loofah (~> 2.19, >= 2.19.1)
-    railties (6.1.7)
-      actionpack (= 6.1.7)
-      activesupport (= 6.1.7)
+    rails-html-sanitizer (1.4.3)
+      loofah (~> 2.3)
+    railties (7.0.4)
+      actionpack (= 7.0.4)
+      activesupport (= 7.0.4)
       method_source
       rake (>= 12.2)
       thor (~> 1.0)
+      zeitwerk (~> 2.5)
     rainbow (3.1.1)
     rake (13.0.6)
     rb-readline (0.5.5)
@@ -505,7 +522,11 @@ DEPENDENCIES
   factory_bot_rails
   fivemat
   memory_profiler
+  metasploit-concern!
+  metasploit-credential!
   metasploit-framework!
+  metasploit-model!
+  metasploit_data_models!
   octokit
   pry-byebug
   rake
