@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
   SALT = (1..8).map(&:chr).join.freeze
   ITERATIONS = 1024
 
-  ResourceCredential = Struct.new(:resource_name, :resource_url, :description, :login_name, :password)
+  ResourceCredential = Struct.new(:resource_name, :resource_url, :account_notes, :login_name, :password)
 
   def initialize(info = {})
     super(
@@ -294,7 +294,7 @@ class MetasploitModule < Msf::Post
     cred_tbl = Rex::Text::Table.new({
       'Header' => 'Password Manager Pro Credentials',
       'Indent' => 1,
-      'Columns' => ['Resource Name', 'Resource URL', 'Description', 'Login Name', 'Password']
+      'Columns' => ['Resource Name', 'Resource URL', 'Account Notes', 'Login Name', 'Password']
     })
 
     resource_credentials.each do |res_cred|
@@ -303,7 +303,7 @@ class MetasploitModule < Msf::Post
       cred_tbl << [
         res_cred.resource_name,
         res_cred.resource_url,
-        res_cred.description,
+        res_cred.account_notes,
         res_cred.login_name,
         res_cred.password
       ]
