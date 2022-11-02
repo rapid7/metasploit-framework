@@ -78,7 +78,7 @@ To properly test this module, some resources and accounts will need to be added 
 1. **Verify** the credentials are correctly stored in the database
 
 To test the installation path detection logic, you can repeat the process with
-PMP launched both in standalone mode and as service.
+PMP launched both in standalone mode and as a service.
 
 Also, this is interesting to test with both a shell and Meterpreter sessions.
 
@@ -123,7 +123,7 @@ msf6 post(linux/gather/password_manager) > run verbose=true session=1
 Password Manager Pro Credentials
 ================================
 
- Resource Name  Resource URL              Description      Login Name     Password
+ Resource Name  Resource URL              Account Notes    Login Name     Password
  -------------  ------------              -----------      ----------     --------
  Resource 1     https://foomsf.com        Admin creds      Administrator  P@ssw0rd!
  Resource 1     https://foomsf.com        Op creds         Operator       MySuperStrongPassword
@@ -162,7 +162,7 @@ msf6 post(linux/gather/password_manager) > run verbose=true session=2
 Password Manager Pro Credentials
 ================================
 
- Resource Name  Resource URL              Description      Login Name     Password
+ Resource Name  Resource URL              Account Notes    Login Name     Password
  -------------  ------------              -----------      ----------     --------
  Resource 1     https://foomsf.com        Admin creds      Administrator  P@ssw0rd!
  Resource 1     https://foomsf.com        Op creds         Operator       MySuperStrongPassword
