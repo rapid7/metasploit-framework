@@ -49,6 +49,8 @@ module Metasploit
       when "production"
         config.eager_load = true
       end
+
+      ActiveRecord.legacy_connection_handling = false
     end
   end
 end

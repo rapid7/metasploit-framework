@@ -33,12 +33,14 @@ module Metasploit::Framework::CommonEngine
     end
 
     config.root = Msf::Config::install_root
+    config.paths.add 'app/models', autoload: true
     config.paths.add 'app/concerns', autoload: true
     config.paths.add 'data/meterpreter', glob: '**/ext_*'
     config.paths.add 'modules'
 
     config.active_support.deprecation = :stderr
 
+    ActiveRecord.legacy_connection_handling = false
     #
     # `initializer`s
     #
