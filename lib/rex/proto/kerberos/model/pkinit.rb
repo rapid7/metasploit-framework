@@ -33,18 +33,18 @@ module Rex
             # Rather than specifying the entire structure of a certificate, we pass this off
             # to OpenSSL, effectively providing an interface between RASN and OpenSSL.
 
-            attr_accessor :value
+            attr_accessor :options
 
-            def initialize(value={})
-              self.value = value
+            def initialize(options={})
+              self.options = options
             end
 
             def to_der
-              self.value[:openssl_certificate].to_der
+              self.options[:openssl_certificate].to_der
             end
 
             def parse!(str, ber: false)
-              self.value[:openssl_certificate] = OpenSSL::X509::Certificate.new(str)
+              self.options[:openssl_certificate] = OpenSSL::X509::Certificate.new(str)
               to_der.length
             end
           end
@@ -87,11 +87,14 @@ module Rex
               end
             end
           end
-          
+
           class Name
             # Rather than specifying the entire structure of a name, we pass this off
             # to OpenSSL, effectively providing an interface between RASN and OpenSSL.
             attr_accessor :value
+
+            def initialize(options={})
+            end
 
             def parse!(str, ber: false)
               self.value = OpenSSL::X509::Name.new(str)
