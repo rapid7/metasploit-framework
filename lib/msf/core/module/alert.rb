@@ -99,7 +99,6 @@ module Msf::Module::Alert
     end
   end
 
-  # @nodoc
   def self.included(base)
     base.extend(ClassMethods)
   end

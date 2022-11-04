@@ -189,7 +189,7 @@ module DNS
     # @param packet_data [String] Data segment of DNS request packet
     # @param prox [String] Proxy configuration for TCP socket
     #
-    # @return ans [String] Raw DNS reply
+    # @return [String] Raw DNS reply
     def send_tcp(packet,packet_data,prox = @config[:proxies])
       ans = nil
       length = [packet_data.size].pack("n")
@@ -276,7 +276,7 @@ module DNS
     # @param packet [Net::DNS::Packet] Packet associated with packet_data
     # @param packet_data [String] Data segment of DNS request packet
     #
-    # @return ans [String] Raw DNS reply
+    # @return [String] Raw DNS reply
     def send_udp(packet,packet_data)
       ans = nil
       response = ""
@@ -323,7 +323,7 @@ module DNS
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
-    # @return ans [Dnsruby::Message] DNS Response
+    # @return [Dnsruby::Message] DNS Response
     def search(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
 
         return query(name,type,cls) if name.class == IPAddr
@@ -360,7 +360,7 @@ module DNS
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
-    # @return ans [Dnsruby::Message] DNS Response
+    # @return [Dnsruby::Message] DNS Response
     def query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
 
       return send(name,type,cls) if name.class == IPAddr

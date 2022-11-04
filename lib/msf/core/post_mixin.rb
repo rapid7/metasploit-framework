@@ -179,7 +179,7 @@ module Msf::PostMixin
   #
   # Return the reasons why a session is incompatible.
   #
-  # @return Array<String>
+  # @return [Array<String>]
   def session_incompatibility_reasons(sess_or_sid)
     # Normalize the argument to an actual Session
     case sess_or_sid
@@ -256,7 +256,7 @@ module Msf::PostMixin
   # Return the reasons why a meterpreter session is incompatible. Checks all specified meterpreter commands
   # are provided by the remote session
   #
-  # @return Array<String>
+  # @return [Array<String>]
   def meterpreter_session_incompatibility_reasons(session)
     cmd_name_wildcards = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
     cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select do |cmd_name|

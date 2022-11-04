@@ -17,8 +17,7 @@ module Msf::DBManager::Migration
   #
   # @param config [Hash] see ActiveRecord::Base.establish_connection
   # @param verbose [Boolean] see ActiveRecord::Migration.verbose
-  # @return [Array<ActiveRecord::MigrationProxy] List of migrations that
-  #   ran.
+  # @return [Array<ActiveRecord::MigrationProxy>] List of migrations that ran.
   #
   # @see ActiveRecord::MigrationContext.migrate
   def migrate(config=nil, verbose=false)
@@ -69,7 +68,7 @@ module Msf::DBManager::Migration
 
   # Loads gathers migration paths from all loaded Rails engines.
   #
-  # @return Array[String]
+  # @return [Array<String>]
   def gather_engine_migration_paths
     paths = ActiveRecord::Migrator.migrations_paths
 
