@@ -41,7 +41,7 @@ module Msf::RPC::JSON
     # @param symbol [Symbol] the symbol for the method called
     # @param args [Array] any positional arguments passed to the method
     # @param keyword_args [Hash] any keyword arguments passed to the method
-    # @returns [Msf::RPC::JSON::Request] an EM::Deferrable for the RPC method invocation.
+    # @return [Msf::RPC::JSON::Request] an EM::Deferrable for the RPC method invocation.
     def method_missing(symbol, *args, **keyword_args, &block)
       # assemble method parameters
       if !args.empty? && !keyword_args.empty?
@@ -60,7 +60,7 @@ module Msf::RPC::JSON
     # Asynchronously processes the RPC method invocation.
     # @param method [Symbol] the method
     # @param params [Array, Hash] any arguments passed to the method
-    # @returns [Msf::RPC::JSON::Request] an EM::Deferrable for the RPC method invocation.
+    # @return [Msf::RPC::JSON::Request] an EM::Deferrable for the RPC method invocation.
     def process_call_async(method, params)
       req = Request.new(@uri,
                         api_token: @api_token,
