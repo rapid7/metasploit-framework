@@ -396,7 +396,7 @@ class Kiwi < Extension
   #
   # Use the given ticket in the current session.
   #
-  # @param ticket [String] Content of the Kerberos ticket to use.
+  # @param base64_ticket [String] Base64 encoded version of the content of the Kerberos ticket to use.
   #
   # @return [void]
   #
@@ -418,14 +418,15 @@ class Kiwi < Extension
   #
   # Create a new golden kerberos ticket on the target machine and return it.
   #
-  # @param opts[:user] [String] Name of the user to create the ticket for.
-  # @param opts[:domain_name] [String] Domain name.
-  # @param opts[:domain_sid] [String] SID of the domain.
-  # @param opts[:krbtgt_hash] [String] The kerberos ticket granting token.
-  # @param opts[:id] [Integer] ID of the user to grant the token for.
-  # @param opts[:group_ids] [Array<Integer>] IDs of the groups to assign to the user
+  # @param opts [Hash] The options to use to create a Golden Ticket.
+  # @option opts [String] :user Name of the user to create the ticket for.
+  # @option opts [String] :domain_name Domain name.
+  # @option opts [String] :domain_sid SID of the domain.
+  # @option opts [String] :krbtgt_hash The kerberos ticket granting token.
+  # @option opts [Integer] :id ID of the user to grant the token for.
+  # @option opts [Array<Integer>] :group_ids IDs of the groups to assign to the user
   #
-  # @return [Array<Byte>]
+  # @return [Array<Byte>] The created Golden Ticket as a byte array.
   #
   def golden_ticket_create(opts={})
     cmd = [

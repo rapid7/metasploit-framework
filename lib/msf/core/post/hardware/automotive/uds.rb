@@ -381,7 +381,6 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
-  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Array] Array of DTCs
   def get_dtcs(bus, src_id, dst_id, opt = {})
@@ -436,7 +435,6 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
-  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] No packets are expected to return but an error could be returned
   def clear_dtcs(bus, src_id, dst_id, opt = {})
@@ -462,7 +460,6 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
-  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Array] Array of DTCs
@@ -695,10 +692,11 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param id [Array] 2 Bytes in an array of the identifier.  Example [ 0xF1, 0x90 ]
-  # @param opt [Hash] Additional Options.  SHOW_ERROR (Returns packet hash instead, default false)
-  #                                        PADDING if set uses this hex value for padding
+  # @param opt [Hash] Additional Options.  
+  # @option opt [Boolean] SHOW_ERROR Returns packet hash instead. Default value is False
+  # @option opt [Integer] PADDING If set uses this hex value for the padding byte.
   #
-  # @return [Array] Data retrieved.  If show_error is true and an error is detected, then packet hash will be returned instead
+  # @return [Array] Data retrieved. If show_error is true and an error is detected, then packet hash will be returned instead
   def read_data_by_id(bus, src_id, dst_id, id, opt = {})
     data = []
     unless client.automotive
