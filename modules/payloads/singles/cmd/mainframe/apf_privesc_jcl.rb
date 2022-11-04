@@ -76,7 +76,7 @@ module MetasploitModule
   ##
   # Construct Payload
   ##
-  def generate
+  def generate(_opts = {})
     super + command_string
   end
 

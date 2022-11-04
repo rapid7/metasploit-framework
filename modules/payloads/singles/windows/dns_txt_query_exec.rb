@@ -57,7 +57,7 @@ module MetasploitModule
   # b.corelan.eu	: contains the next 255 bytes of the alpha shellcode
   # c.corelan.eu	: contains the last 144 bytes of the alpha shellcode
 
-  def generate
+  def generate(_opts = {})
 
     dnsname		= datastore['DNSZONE']
     wType		= 0x0010	#DNS_TYPE_TEXT (TEXT)

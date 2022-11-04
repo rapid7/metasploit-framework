@@ -30,7 +30,7 @@ module MetasploitModule
     ])
   end
 
-  def generate
+  def generate(_opts = {})
     <<-EOS
 
       (function(){

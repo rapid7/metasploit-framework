@@ -121,7 +121,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return super + php_reverse_shell
   end
 end
