@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '2022-3358' ],
         [ 'CWE', '319'],
         # certificate expired
-        [ 'CWE', '295' ],
+        [ 'CWE', '298' ],
         # certificate broken or risky crypto aglorithms
         [ 'CWE', '327' ],
         # certificate inadequate encryption strength
@@ -75,8 +75,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('SSLVersion', [ true, 'SSL versions to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse]),
-        OptEnum.new('SSLCipher', [ true, 'SSL ciphers to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][0]).to_s }.uniq]),
+        OptEnum.new('SSLVersion', [ true, 'SSL version to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse]),
+        OptEnum.new('SSLCipher', [ true, 'SSL cipher to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][0]).to_s }.uniq]),
       ]
     )
   end
@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # If the user wants to use all ciphers then return all valid ciphers.
-    # Otherwise return only those that match the ones the user specified
+    # Otherwise return only the one that matches the one the user specified
     # in the SSLCipher datastore option.
     #
     # If no match is found for some reason then we will return an empty array.
@@ -417,7 +417,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed certificate expired",
-        refs: ['CWE-295']
+        refs: ['CWE-298']
       )
     end
 
@@ -430,7 +430,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'tcp',
         name: name,
         info: "Module #{fullname} confirmed certificate not yet valid",
-        refs: ['CWE-295']
+        refs: []
       )
     end
   end
