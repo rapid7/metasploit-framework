@@ -1,7 +1,7 @@
 
 module MetasploitModule
 
-  CachedSize = 193
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Pingback
