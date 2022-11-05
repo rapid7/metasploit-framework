@@ -62,6 +62,23 @@ localhost:5432:postgres:postgres:i23rYgoPBQwpn!5
         }
       ])
     end
+    it 'from file contents with * as port' do
+      allow(subject).to receive(:file_exist?).and_return(true)
+      allow(subject).to receive(:read_file).and_return('localhost:*:replication:replicator:BN^qgk&a)Ee2dK@|
+127.0.0.1:5432:replication:replicator:BN^qgk&a)Ee2dK@|
+/var/run/vpostgres:5432:replication:replicator:BN^qgk&a)Ee2dK@|
+localhost:5432:postgres:postgres:i23rYgoPBQwpn!5
+127.0.0.1:5432:postgres:postgres:i23rYgoPBQwpn!5')
+      expect(subject.process_pgpass_file).to eq([
+        {
+          'database' => 'replication',
+          'hostname' => 'localhost',
+          'password' => 'BN^qgk&a)Ee2dK@|',
+          'port' => '5432',
+          'username' => 'replicator'
+        }
+      ])
+    end
   end
 
   context 'gets pg_shadow values' do

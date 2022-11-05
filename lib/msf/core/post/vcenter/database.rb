@@ -39,6 +39,8 @@ module Msf
             o['database'] = sections[2]
             o['username'] = sections[3]
             o['password'] = sections[4]
+
+            o['port'] = 5432 if o['port'] == '*'
             output.append(o)
           end
           output
