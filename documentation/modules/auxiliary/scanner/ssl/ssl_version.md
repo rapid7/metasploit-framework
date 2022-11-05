@@ -10,6 +10,17 @@ certificates signed with MD5, DROWN, RC4 ciphers, exportable ciphers, LOGJAM, an
 
 ## Options
 
+### SSLVersion
+
+Which SSL/TLS Version to use. `all` implies all SSL/TLS versions which are usable by the metasploit + ruby + OpenSSL
+versions installed on the system. List is dynamically generated. Defaults to `all`
+
+### SSLCipher
+
+Which SSL/TLS Cipher to use. `all` implies all ciphers avaiable for the version of SSL/TLS being used and which
+are usable by the metasploit + ruby + OpenSSL versions installed on the system.
+List is dynamically generated. Defaults to `all`
+
 ## Verification Steps
 
 1. Do: `use auxiliary/scanner/ssl/ssl_version`
