@@ -40,5 +40,7 @@ module MetasploitModule
       except:
        pass
     PYTHON
+
+    py_create_exec_stub(cmd)
   end
 end
