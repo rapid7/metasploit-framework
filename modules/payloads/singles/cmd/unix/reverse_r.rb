@@ -26,6 +26,9 @@ module MetasploitModule
       'RequiredCmd' => 'R',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
+    register_options([
+      OptString.new('R_PATH', [true ,'The path to R interpreter', 'R'])
+    ])
   end
 
   def generate
@@ -33,7 +36,7 @@ module MetasploitModule
   end
 
   def prepends(r_string)
-   return "R -e \"#{r_string}\""
+   return "#{datastore['R_PATH']} -e \"#{r_string}\""
   end
 
   def r_string

