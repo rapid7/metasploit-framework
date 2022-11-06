@@ -15,9 +15,7 @@ with BusyBox telnetd installed.
 
   **TELNETD_PATH**
 
-  The `PATH` option allows the operator to specify file system path for an executable. 
-  The default value is `telnetd` which is same as the executable name to 
-  ensure consistency with the existing behaviour.  
+  The path to the `telnetd` executable.
 
 ### Advanced
 
