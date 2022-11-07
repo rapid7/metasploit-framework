@@ -16,6 +16,12 @@ module Rex
           #   @return [String] The enciphered text
           attr_accessor :cipher
 
+          def ==(other)
+            etype == other.etype &&
+              kvno == other.kvno &&
+              cipher == other.cipher
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::EncryptedData
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
@@ -71,6 +77,7 @@ module Rex
             encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
             encryptor.decrypt_asn1(cipher, key, msg_type)
           end
+
 
           private
 
