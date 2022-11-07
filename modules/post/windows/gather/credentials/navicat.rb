@@ -230,7 +230,7 @@ class MetasploitModule < Msf::Post
       begin
         if file_exist?(ncx_path)
           condata = read_file(ncx_path) || ''
-          return if condata.empty?
+          fail_with(Failure::Unknown, "The file #{ncx_path} could not be read") if condata.empty?
 
           loot_path = store_loot('navicat.creds', 'text/xml', session, condata, ncx_path)
           print_good("navicat.ncx saved to #{loot_path}")
@@ -238,7 +238,7 @@ class MetasploitModule < Msf::Post
           print_status("Finished processing #{ncx_path}")
         end
       rescue Rex::Post::Meterpreter::RequestError
-        fail_with(Msf::Module::Failure::BadConfig, "The file #{ncx_path} either could not be read or does not exist")
+        fail_with(Failure::Unknown, "The file #{ncx_path} either could not be read or does not exist")
       end
     else
       get_reg
