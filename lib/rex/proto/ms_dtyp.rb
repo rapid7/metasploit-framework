@@ -64,6 +64,34 @@ module Rex::Proto::MsDtyp
   class MsDtypGuid < RubySMB::Dcerpc::Uuid
   end
 
+  # Definitions taken from [2.4.4.1 ACE_HEADER](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/628ebb1d-c509-4ea0-a10f-77ef97ca4586)
+  class MsDtypAceType
+    ACCESS_ALLOWED_ACE_TYPE                 = 0x0
+    ACCESS_DENIED_ACE_TYPE                  = 0x1
+    SYSTEM_AUDIT_ACE_TYPE                   = 0x2
+    SYSTEM_ALARM_ACE_TYPE                   = 0x3 # Reserved for future use according to documentation.
+    ACCESS_ALLOWED_COMPOUND_ACE_TYPE        = 0x4 # Reserved for future use according to documentation.
+    ACCESS_ALLOWED_OBJECT_ACE_TYPE          = 0x5
+    ACCESS_DENIED_OBJECT_ACE_TYPE           = 0x6
+    SYSTEM_AUDIT_OBJECT_ACE_TYPE            = 0x7
+    SYSTEM_ALARM_OBJECT_ACE_TYPE            = 0x8 # Reserved for future use according to documentation.
+    ACCESS_ALLOWED_CALLBACK_ACE_TYPE        = 0x9
+    ACCESS_DENIED_CALLBACK_ACE_TYPE         = 0xA
+    ACCESS_ALLOWED_CALLBACK_OBJECT_ACE_TYPE = 0xB
+    ACCESS_DENIED_CALLBACK_OBJECT_ACE_TYPE  = 0xC
+    SYSTEM_AUDIT_CALLBACK_ACE_TYPE          = 0xD
+    SYSTEM_ALARM_CALLBACK_ACE_TYPE          = 0xE # Reserved for future use according to documentation.
+    SYSTEM_AUDIT_CALLBACK_OBJECT_ACE_TYPE   = 0xF
+    SYSTEM_ALARM_CALLBACK_OBJECT_ACE_TYPE   = 0x10 # Reserved for future use according to documentation.
+    SYSTEM_MANDATORY_LABEL_ACE_TYPE         = 0x11
+    SYSTEM_RESOURCE_ATTRIBUTE_ACE_TYPE      = 0x12
+    SYSTEM_SCOPED_POLICY_ID_ACE_TYPE        = 0x13
+
+    def self.name(value)
+      constants.select { |c| c.upcase == c }.find { |c| const_get(c) == value }
+    end
+  end
+
   # [2.4.4.1 ACE_HEADER](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/628ebb1d-c509-4ea0-a10f-77ef97ca4586)
   class MsDtypAceHeader < BinData::Record
     endian :little
@@ -82,20 +110,73 @@ module Rex::Proto::MsDtyp
     uint16 :ace_size, initial_value: -> { parent&.num_bytes || 0 }
   end
 
-  # [2.4.4.2 ACCESS_ALLOWED_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/72e7c7ea-bc02-4c74-a619-818a16bf6adb)
-  class MsDtypAccessAllowedAceBody < BinData::Record
+  class MsDtypAceNonObjectBody < BinData::Record
     endian :little
 
-    ms_dtyp_access_mask :access_mask
-    ms_dtyp_sid         :sid
+    uint32             :access_mask
+    ms_dtyp_sid        :sid, byte_align: 4
+  end
+
+  class MsDtypAceObjectBody < BinData::Record
+    endian :little
+
+    uint32             :access_mask
+    struct             :flags do
+      bit1 :reserved5
+      bit1 :reserved4
+      bit1 :reserved3
+      bit1 :reserved2
+      bit1 :reserved1
+      bit1 :reserved
+      bit1 :ace_inherited_object_type_present
+      bit1 :ace_object_type_present
+    end
+    ms_dtyp_guid       :object_type, onlyif: -> { flags.ace_object_type_present != 0x0 }
+    ms_dtyp_guid       :inherited_object_type, onlyif: -> { flags.ace_inherited_object_type_present != 0x0 }
+    ms_dtyp_sid        :sid, byte_align: 4
   end
 
   # [2.4.4.2 ACCESS_ALLOWED_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/72e7c7ea-bc02-4c74-a619-818a16bf6adb)
-  class MsDtypAccessAllowedAce < BinData::Record
+  class MsDtypAccessAllowedAceBody < MsDtypAceNonObjectBody
+  end
+
+  # [2.4.4.4 ACCESS_DENIED_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/b1e1321d-5816-4513-be67-b65d8ae52fe8)
+  class MsDtypAccessDeniedAceBody < MsDtypAceNonObjectBody
+  end
+
+  # [2.4.4.10 SYSTEM_AUDIT_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/9431fd0f-5b9a-47f0-b3f0-3015e2d0d4f9)
+  class MsDtypSystemAuditAceBody < MsDtypAceNonObjectBody
+  end
+
+  # [2.4.4.3 ACCESS_ALLOWED_OBJECT_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/c79a383c-2b3f-4655-abe7-dcbb7ce0cfbe)
+  class MsDtypAccessAllowedObjectAceBody < MsDtypAceObjectBody
+  end
+
+  # [2.4.4.5 ACCESS_DENIED_OBJECT_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/8720fcf3-865c-4557-97b1-0b3489a6c270)
+  class MsDtypAccessDeniedObjectAceBody < MsDtypAceObjectBody
+  end
+
+  # [2.4.4.11 SYSTEM_AUDIT_OBJECT_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/c8da72ae-6b54-4a05-85f4-e2594936d3d5)
+  class MsDtypSystemAuditObjectAceBody < MsDtypAceObjectBody
     endian :little
 
-    ms_dtyp_ace_header              :header, initial_value: { ace_type: 0 }
-    ms_dtyp_access_allowed_ace_body :body
+    string             :application_data, read_length: -> { calc_app_data_length }
+
+    def calc_app_data_length
+      ace_header = parent&.header
+      return 0 if ace_header.nil?
+      ace_size = ace_header&.ace_size
+      return 0 if ace_size.nil? or (ace_size == 0)
+
+      ace_header_length = ace_header.to_binary_s.length
+      body = parent&.body
+      if body.nil?
+        return 0 # Read no data as there is no body, so either we have done some data misalignment or we shouldn't be reading data.
+      else
+        ace_body_length = body.to_binary_s.length
+        return ace_size - (ace_header_length + ace_body_length)
+      end
+    end
   end
 
   class MsDtypAce < BinData::Record
@@ -103,8 +184,18 @@ module Rex::Proto::MsDtyp
 
     ms_dtyp_ace_header :header
     choice             :body, selection: -> { header.ace_type } do
-      ms_dtyp_access_allowed_ace_body 0
-      string                          :default, read_length: -> { header.ace_size - body.rel_offset }
+      ms_dtyp_access_allowed_ace_body Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
+      ms_dtyp_access_denied_ace_body Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_DENIED_ACE_TYPE
+      ms_dtyp_system_audit_ace_body Rex::Proto::MsDtyp::MsDtypAceType::SYSTEM_AUDIT_ACE_TYPE
+      # Type 3 is reserved for future use
+      # Type 4 is reserved for future use
+      ms_dtyp_access_allowed_object_ace_body Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_OBJECT_ACE_TYPE
+      ms_dtyp_access_denied_object_ace_body Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_DENIED_OBJECT_ACE_TYPE
+      ms_dtyp_system_audit_object_ace_body Rex::Proto::MsDtyp::MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
+      # Type 8 is reserved for future use
+      # Type 14 aka 0xE is reserved for future use
+      # Type 16 aka 0x10 is reserved for future use
+      string :default, read_length: -> { header.ace_size - body.rel_offset }
     end
   end
 
