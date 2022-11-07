@@ -6,7 +6,7 @@
 
 module MetasploitModule
 
-  CachedSize = 533
+  CachedSize = :dynamic
 
   include Msf::Payload::Stager
   include Msf::Payload::Python

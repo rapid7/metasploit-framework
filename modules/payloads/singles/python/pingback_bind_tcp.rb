@@ -1,7 +1,7 @@
 
 module MetasploitModule
 
-  CachedSize = 262
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Pingback
@@ -40,5 +40,7 @@ module MetasploitModule
       except:
        pass
     PYTHON
+
+    py_create_exec_stub(cmd)
   end
 end
