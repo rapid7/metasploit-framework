@@ -65,7 +65,7 @@ module Rex::Proto::MsDtyp
   end
 
   # Definitions taken from [2.4.4.1 ACE_HEADER](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/628ebb1d-c509-4ea0-a10f-77ef97ca4586)
-  class MsDtypAceType < BinData::Primitive
+  class MsDtypAceType
     ACCESS_ALLOWED_ACE_TYPE                 = 0x0
     ACCESS_DENIED_ACE_TYPE                  = 0x1
     SYSTEM_AUDIT_ACE_TYPE                   = 0x2
@@ -112,7 +112,7 @@ module Rex::Proto::MsDtyp
 
   class MsDtypAceNonObjectBody < BinData::Record
     endian :little
-    
+
     uint32             :access_mask
     ms_dtyp_sid        :sid, byte_align: 4
   end
@@ -167,8 +167,8 @@ module Rex::Proto::MsDtyp
       return 0 if ace_header.nil?
       ace_size = ace_header&.ace_size
       return 0 if ace_size.nil? or (ace_size == 0)
-      
-      ace_header_length = ace_header.to_binary_s.length 
+
+      ace_header_length = ace_header.to_binary_s.length
       body = parent&.body
       if body.nil?
         return 0 # Read no data as there is no body, so either we have done some data misalignment or we shouldn't be reading data.

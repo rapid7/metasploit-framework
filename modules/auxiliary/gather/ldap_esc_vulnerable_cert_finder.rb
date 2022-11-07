@@ -317,6 +317,10 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status("Template: #{key}")
+      unless enrollable
+        print_warning("   #{key} not published as an enrollable certificate!")
+      end
+
       print_status("   Distinguished Name: #{hash[:dn]}")
       print_status("   Vulnerable to: #{hash[:vulns].join(', ')}")
 
@@ -325,10 +329,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("      * #{sid}")
       end
 
-      if enrollable == false
-        print_warning("   #{key} not published as an enrollable certificate!")
-        next
-      end
+      next unless enrollable
 
       for ca_hostname, ca_hash in hash[:ca_servers_n_enrollment_sids]
         print_status('   Issuing CAs:')
