@@ -115,7 +115,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            service_name: ssl ? 'https' : 'http',
           }
 
           begin
