@@ -127,6 +127,7 @@ module Msf
               end
             else
               print(Serializer::ReadableText.dump_module(mod))
+              print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
             end
           end
 
@@ -1489,6 +1490,7 @@ module Msf
                 print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
+            print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info')}, or #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
           end
 
           def show_evasion_options(mod) # :nodoc:
