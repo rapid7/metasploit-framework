@@ -367,7 +367,7 @@ module Msf
             print_good('Exploited CVE-2022-22948 to read #{vcd_properties_file}')
           end
           output = {}
-          contents.split("\n").each do |line|
+          contents.each_line(chomp: true) do |line|
             next unless line.include?('=') # attempt to do a little quality control
 
             line = line.split('=')

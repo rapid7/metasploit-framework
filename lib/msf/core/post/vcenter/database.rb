@@ -27,7 +27,7 @@ module Msf
           return nil if contents.empty?
 
           output = []
-          contents.split("\n").each do |line|
+          contents.each_line(chomp: true) do |line|
             # file format hostname:port:database:username:password
             # https://www.postgresql.org/docs/current/libpq-pgpass.html
             next unless line.include?(':') # attempt to do a little quality control
@@ -40,7 +40,7 @@ module Msf
             o['username'] = sections[3]
             o['password'] = sections[4]
 
-            o['port'] = 5432 if o['port'] == '*'
+            o['port'] = '5432' if o['port'] == '*'
             output.append(o)
           end
           output
