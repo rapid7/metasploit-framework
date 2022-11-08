@@ -14,6 +14,8 @@ class MetasploitModule < Msf::Post
       'Description'  => %q{
         This module gathers usernames and password hashes from F5's mcp
         datastore, which is accessed via /var/run/mcp.
+
+        Adapted from:  https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
       },
       'License'      => MSF_LICENSE,
       'Author'       =>
@@ -26,7 +28,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    users = mcp_query_all_users()
+    users = mcp_simple_query('userdb_entry')
 
     unless users
       print_error('Failed to query users')
