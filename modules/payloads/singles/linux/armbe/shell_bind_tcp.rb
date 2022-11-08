@@ -31,7 +31,7 @@ module MetasploitModule
         Opt::LPORT(4444)
       ])
   end
-  def generate
+  def generate(_opts = {})
     cmd = (datastore['CMD'] || '') + "\x00"
     bytehigh = (datastore['LPORT'].to_i >> 8).chr
     bytelow = (datastore['LPORT'].to_i & 0xFF).chr

@@ -37,7 +37,7 @@ module MetasploitModule
       space
     end
 
-    def generate
+    def generate(_opts = {})
       encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]

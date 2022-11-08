@@ -21,7 +21,7 @@ module MetasploitModule
     ))
   end
 
-  def generate
+  def generate(_opts = {})
     super.to_s + command_string
   end
   def command_string

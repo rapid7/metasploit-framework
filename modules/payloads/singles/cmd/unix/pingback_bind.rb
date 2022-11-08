@@ -33,7 +33,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     super.to_s + command_string
   end
 

@@ -76,7 +76,7 @@ END_OF_PHP_CODE
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return php_findsock
   end
 end

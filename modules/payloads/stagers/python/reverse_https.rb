@@ -27,7 +27,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     super({scheme: 'https'})
   end
 end

@@ -36,7 +36,7 @@ module MetasploitModule
   #
   # Construct the payload
   #
-  def generate
+  def generate(_opts = {})
 
     strTitle = datastore['TITLE'] + "X"
     if (strTitle.length < 1)
