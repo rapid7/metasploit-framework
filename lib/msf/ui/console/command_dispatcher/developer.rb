@@ -21,6 +21,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def initialize(driver)
     super
+    output, status = modified_files
+    @modified_files = status.success? ? output : []
   end
 
   def name
@@ -78,19 +80,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def reload_changed_files
-    # Using an array avoids shelling out, so we avoid escaping/quoting
-    changed_files = %w[git diff --name-only]
-
-    output, status = Open3.capture2e(*changed_files, chdir: Msf::Config.install_root)
+    files, status = modified_files
 
     unless status.success?
-      print_error("Git is not available: #{output.chomp}")
+      print_error("Git is not available: #{files.chomp}")
       return
     end
 
-    files = output.split("\n")
-
-    files.each do |file|
+    @modified_files |= files
+    @modified_files.each do |file|
       next if file.end_with?('_spec.rb') || file.end_with?("spec_helper.rb")
       f = File.join(Msf::Config.install_root, file)
       reload_file(f, print_errors: false)
@@ -434,5 +432,17 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_line '      * time --memory db_import ./db_import.html'
     print @@time_opts.usage
     print_line
+  end
+
+  private
+
+  def modified_files
+    # Using an array avoids shelling out, so we avoid escaping/quoting
+    changed_files = %w[git diff --name-only]
+
+    output, status = Open3.capture2e(*changed_files, chdir: Msf::Config.install_root)
+    output = output.split("\n")
+
+    return output, status
   end
 end
