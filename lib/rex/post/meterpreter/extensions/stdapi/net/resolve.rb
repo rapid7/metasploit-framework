@@ -71,7 +71,7 @@ class Resolve
       type = types[i]
       host = hostnames[i]
 
-      hosts << raw_to_host_ip_pair(host, raw.value, type.value)
+      hosts << raw_to_host_ip_pair(host, raw.value, type&.value)
     end
 
     return hosts
