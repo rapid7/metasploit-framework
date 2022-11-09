@@ -9,22 +9,33 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Linux::F5
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'F5 Big-IP Gather DB Variables',
-      'Description'  => %q{
-        This module gathers database settings (called "db variables") from F5's
-        mcp datastore, which is accessed via /var/run/mcp.
+    super(
+      update_info(
+        info,
+        'Name' => 'F5 Big-IP Gather DB Variables',
+        'Description' => %q{
+          This module gathers database settings (called "db variables") from F5's
+          mcp datastore, which is accessed via /var/run/mcp.
 
-        Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       =>
-        [
-          'Ron Bowes'
+          Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Ron Bowes'],
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'References' => [
+          [ 'URL', 'https://github.com/rbowes-r7/refreshing-mcp-tool' ], # Original PoC
         ],
-      'Platform'     => ['linux'],
-      'SessionTypes' => ['shell', 'meterpreter']
-    ))
+        'DisclosureDate' => '2022-11-16',
+        'Targets' => [[ 'Auto', {} ]],
+        'DefaultTarget' => 0,
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
+      )
+    )
 
     register_options([
       OptBool.new('SHOW_EMPTY', [true, 'Show empty db_variables?', false]),
@@ -32,7 +43,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Fetching db variables (this will take a bit)...")
+    print_status('Fetching db variables (this takes a bit)...')
     vars = mcp_simple_query('db_variable')
 
     unless vars

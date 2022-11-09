@@ -1,29 +1,11 @@
 # Encoding: ASCII-8BIT
 
-# TODO: Possibly query these:
-# request_audit
-# vlan
-# interface
-# platform
-# monitor_param
-# monitor
-# rule
-# rule_event
-# profile_auth
-# system_information
-# master_key
-# aaa_*
-# sys_device
-# smtp_config
-
-# packet_filter_allow_trusted?
-
 module Msf
   class Post
     module Linux
       # The F5 mixin implements methods for querying F5's database, which
       # is found at `/var/run/mcp` on Big-IP and other F5 devices
-      module F5
+      module F5 # rubocop:disable Metrics/ModuleLength
         # This is a (growing!) subset of all possible objects:
         # https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-objects.txt
         TAGS_BY_NAME = {
@@ -251,11 +233,13 @@ module Msf
           'smtp_config_leaf_name' => 0x359f,
           'smtp_config_folder_name' => 0x35a0,
           'smtp_config_partition_id' => 0x35a1,
-          'smtp_config_transaction_id' => 0x5100,
-        }
+          'smtp_config_transaction_id' => 0x5100
+        }.freeze
 
-        TAGS_BY_ID = TAGS_BY_NAME.invert()
+        TAGS_BY_ID = TAGS_BY_NAME.invert.freeze
 
+        # Parse one or more packets (including headers) into an array of
+        # packets.
         def mcp_parse_responses(incoming_data)
           replies = []
 
@@ -264,11 +248,11 @@ module Msf
             expected_length, _, incoming_data = incoming_data.unpack('Na12a*')
 
             # Read the packet
-            packet, incoming_data = incoming_data.unpack("a#{ expected_length }a*")
+            packet, incoming_data = incoming_data.unpack("a#{expected_length}a*")
 
             # Sanity check
             if packet.length != expected_length
-              print_warning("Message truncated!")
+              print_warning('mcp message is truncated!')
               return replies
             end
 
@@ -304,7 +288,6 @@ module Msf
           #
           # This loop is the best we can do without having access to an AF_UNIX
           # socket (or doing something much, much more complex)
-          replies = []
           0.upto(4) do
             # Send the request messages(s) to the socket
             incoming_data = cmd_exec("echo '#{message}' | base64 -d | socat -t100 - UNIX-CONNECT:/var/run/mcp")
@@ -325,7 +308,7 @@ module Msf
             end
           end
 
-          print_error("mcp wouldn't respond with a full message, giving up")
+          print_error("mcp isn't responding with a full message, giving up")
           nil
         end
 
@@ -333,9 +316,9 @@ module Msf
         #
         # Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-parser.rb
         def mcp_parse(stream)
-          # Note: This has to be an array, not a hash, because there are often
-          # duplicate entries (like multiple userdb_entry results when a query
-          # is performed)
+          # Reminder: this has to be an array, not a hash, because there are
+          # often duplicate entries (like multiple userdb_entry results when a
+          # query is performed).
           result = []
 
           # Make a Hash of parsers. Some of them are recursive, which is fun!
@@ -344,59 +327,59 @@ module Msf
           # [value, stream]
           parsers = {
             # The easy stuff - simple values
-            'ulong' => Proc.new { |s| s.unpack('Na*') },
-            'long' => Proc.new { |s| s.unpack('Na*') },
-            'uquad' => Proc.new { |s| s.unpack('Q>a*') },
-            'uword' => Proc.new { |s| s.unpack('na*') },
-            'byte' => Proc.new { |s| s.unpack('Ca*') },
-            'service' => Proc.new { |s| s.unpack('na*') },
+            'ulong' => proc { |s| s.unpack('Na*') },
+            'long' => proc { |s| s.unpack('Na*') },
+            'uquad' => proc { |s| s.unpack('Q>a*') },
+            'uword' => proc { |s| s.unpack('na*') },
+            'byte' => proc { |s| s.unpack('Ca*') },
+            'service' => proc { |s| s.unpack('na*') },
 
-            # Parse "time" as a time
-            'time' => Proc.new do |s|
+            # Parse 'time' as a time
+            'time' => proc do |s|
               value, s = s.unpack('Na*')
               [Time.at(value), s]
             end,
 
-            # Look up "tag" values
-            'tag' => Proc.new do |s|
+            # Look up 'tag' values
+            'tag' => proc do |s|
               value, s = s.unpack('na*')
               [TAGS_BY_ID[value], s]
             end,
 
             # Parse MAC addresses
-            'mac' => Proc.new do |s|
+            'mac' => proc do |s|
               value, s = s.unpack('a6a*')
-              [value.bytes.map { |b| '%02x' % b }.join(':'), s]
+              [value.bytes.map { |b| '%02x'.format(b) }.join(':'), s]
             end,
 
-            # "string" is prefixed by two length values
-            'string' => Proc.new do |s|
+            # 'string' is prefixed by two length values
+            'string' => proc do |s|
               length, otherlength, s = s.unpack('Nna*')
 
               # I'm sure the two length values have a semantic difference, but just check for sanity
               if otherlength + 2 != length
-                raise "Inconsistent string lengths: #{ length } + #{ otherlength }"
+                raise "Inconsistent string lengths: #{length} + #{otherlength}"
               end
 
-              s.unpack("a#{ otherlength }a*")
+              s.unpack("a#{otherlength}a*")
             end,
 
-            # "structure" is recursive
-            'structure' => Proc.new do |s|
+            # 'structure' is recursive
+            'structure' => proc do |s|
               length, s = s.unpack('Na*')
-              struct, s = s.unpack("a#{ length }a*")
+              struct, s = s.unpack("a#{length}a*")
 
               [mcp_parse(struct), s]
             end,
 
-            # "array" is a bunch of consecutive values of the same type, which
+            # 'array' is a bunch of consecutive values of the same type, which
             # means we need to index back into this same parser array
-            'array' => Proc.new do |s|
+            'array' => proc do |s|
               length, s = s.unpack('Na*')
-              array, s = s.unpack("a#{ length }a*")
+              array, s = s.unpack("a#{length}a*")
 
               type, elements, array = array.unpack('nNa*')
-              type = TAGS_BY_ID[type] || "<unknown type 0x%04x>" % type
+              type = TAGS_BY_ID[type] || '<unknown type 0x%04x>'.format(type)
 
               array_results = []
               elements.times do
@@ -412,8 +395,8 @@ module Msf
             while stream.length > 2
               tag, type, stream = stream.unpack('nna*')
 
-              tag  = TAGS_BY_ID[tag]  || "<unknown tag 0x%04x>" % tag
-              type = TAGS_BY_ID[type] || "<unknown type 0x%04x>" % type
+              tag = TAGS_BY_ID[tag] || '<unknown tag 0x%04x>'.format(tag)
+              type = TAGS_BY_ID[type] || '<unknown type 0x%04x>'.format(type)
 
               if parsers[type]
                 value, stream = parsers[type].call(stream)
@@ -422,7 +405,7 @@ module Msf
                   value: value
                 }
               else
-                raise "Tried to parse unknown mcp type (skipping): type = #{ type }, tag = #{ tag }"
+                raise "Tried to parse unknown mcp type (skipping): type = #{type}, tag = #{tag}"
               end
             end
           rescue StandardError => e
@@ -440,9 +423,9 @@ module Msf
         # * If there's a single value with that tag name, return it
         # * If there are multiple values with that tag name, print an error
         #   and return nil
-        def mcp_get_single(h, name)
+        def mcp_get_single(hash, name)
           # Get all the entries
-          entries = mcp_get_multiple(h, name)
+          entries = mcp_get_multiple(hash, name)
 
           if entries.empty?
             # If there are none, return nil
@@ -452,10 +435,9 @@ module Msf
             return entries.pop
           else
             # If there are multiple entries, print a warning and return nil
-            print_warning("Query for mcp type #{name} was supposed to have one response but had #{entries.length}")
+            print_error("Query for mcp type #{name} was supposed to have one response but had #{entries.length}")
             return nil
           end
-
         end
 
         # Pull an array of tags with the same name out of a tag/value structure.
@@ -465,8 +447,8 @@ module Msf
         # The result is:
         # * If there are no values, return an empty array
         # * If there are one or more values, return them as an array
-        def mcp_get_multiple(h, name)
-          h.select { |entry| entry[:tag] == name }.map { |entry| entry[:value] }
+        def mcp_get_multiple(hash, name)
+          hash.select { |entry| entry[:tag] == name }.map { |entry| entry[:value] }
         end
 
         # Take an array of results from an mcp query, and change them from
@@ -474,8 +456,8 @@ module Msf
         #
         # Note! If there are multiple fields with the same tag, this will
         # only return one of them!
-        def mcp_to_h(a)
-          a.map do |r|
+        def mcp_to_h(array)
+          array.map do |r|
             [r[:tag], r[:value]]
           end.to_h
         end
@@ -485,19 +467,15 @@ module Msf
         # Adapted from https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-builder.rb
         def mcp_build(tag, type, data)
           if TAGS_BY_NAME[tag].nil?
-            raise "Invalid mcp tag: #{ tag }"
+            raise "Invalid mcp tag: #{tag}"
           end
           if TAGS_BY_NAME[type].nil?
-            raise "Invalid mcp type: #{ type }"
+            raise "Invalid mcp type: #{type}"
           end
 
           out = ''
           if type == 'structure'
             out = [data.join.length, data.join].pack('Na*')
-
-            # while (out.length % 4) != 0
-            #   out += "\0"
-            # end
           elsif type == 'string'
             out = [data.length + 2, data.length, data].pack('Nna*')
           elsif type == 'uquad'
@@ -515,14 +493,13 @@ module Msf
           elsif type == 'mac'
             out = [data].pack('a6')
           else
-            raise "Unknown type: #{ type }"
+            raise "Unknown type: #{type}"
           end
 
           out = [TAGS_BY_NAME[tag], TAGS_BY_NAME[type], out].pack('nna*')
 
           return out
         end
-
 
         # Do a query_all request for something that will reply with a single
         # query result.
@@ -540,7 +517,7 @@ module Msf
 
           # Error handling
           unless result
-            print_error("mcp_send_recv failed")
+            print_error('mcp_send_recv failed')
             return nil
           end
 
