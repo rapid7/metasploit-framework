@@ -4,68 +4,29 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # Represents the KdcOptions KerberosFlags.
+        # THe KdcOptions KerberosFlags are represented as a bit string.
+        # This module associates the human readable name, to the index the flag value is found at within the bit string.
         # https://www.rfc-editor.org/rfc/rfc4120.txt - KDCOptions      ::= KerberosFlags
-        class KdcOptionFlags
-          # @return [Integer] the integer value of the kerberos flags
-          attr_reader :value
-
-          # @param [Integer] value the numerical value of the flags
-          # @raise [ArgumentError] if any of the parameters are of an invalid type
-          def initialize(value)
-            raise ArgumentError, 'Invalid value' unless value.is_a?(Integer)
-
-            @value = value
-          end
-
-          # @param [Array<Integer,Rex::Proto::Kerberos::Model::KdcOptionFlag>] flags an array of numerical values representing flags
-          # @return [Rex::Proto::Kerberos::Model::KdcOptionFlags]
-          def self.from_flags(flags)
-            value = 0
-            flags.each do |flag|
-              value |= 1 << (31 - flag)
-            end
-
-            new(value)
-          end
-
-          def to_i
-            @value
-          end
-
-          # @param [Integer,Rex::Proto::Kerberos::Model::KdcOptionFlag] flag the numerical value of the flag to test for.
-          # @return [Boolean] whether the flag is present within the current KdcOptionFlags
-          def include?(flag)
-            ((value >> (31 - flag)) & 1) == 1
-          end
-
-          # @return [Boolean] whether the flag is present within the current KdcOptionFlags
-          def enabled_flag_names
-            sorted_flag_names = KdcOptionFlag.constants.sort_by { |name| KdcOptionFlag.const_get(name) }
-            enabled_flag_names = sorted_flag_names.select { |flag| include?(KdcOptionFlag.const_get(flag)) }
-
-            enabled_flag_names
-          end
-
-          # Override the equality test for KdcOptionFlags. Equality is
-          # always tested against the #value of the KdcOptionFlags.
-          #
-          # @param [Object] other_object the object to test equality against
-          # @raise [ArgumentError] if the other object is not either another KdcOptionFlags or a Integer
-          # @return [Boolean] whether the equality test passed
-          def ==(other)
-            if other.is_a? self.class
-              value == other.value
-            elsif other.is_a? Integer
-              value == other
-            elsif other.nil?
-              false
-            else
-              raise ArgumentError, "Cannot compare a #{self.class} to a #{other.class}"
-            end
-          end
-
-          alias === ==
+        class KdcOptionFlags < KerberosFlags
+          RESERVED = 0
+          FORWARDABLE = 1
+          FORWARDED = 2
+          PROXIABLE = 3
+          PROXY = 4
+          ALLOW_POST_DATE = 5
+          POST_DATED = 6
+          INVALID = 7
+          RENEWABLE = 8
+          INITIAL = 9
+          PRE_AUTHENT = 10
+          HW_AUTHNET = 11
+          TRANSITED_POLICY_CHECKED = 12
+          OK_AS_DELEGATE = 13
+          CANONICALIZE = 15
+          RENEWABLE_OK = 27
+          ENC_TKT_IN_SKEY = 28
+          RENEW = 30
+          VALIDATE = 31
         end
       end
     end

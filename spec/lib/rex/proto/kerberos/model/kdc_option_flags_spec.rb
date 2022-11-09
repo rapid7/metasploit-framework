@@ -9,10 +9,10 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcOptionFlags do
     it 'supports initialization from an array of values' do
       result = described_class.from_flags(
         [
-          Rex::Proto::Kerberos::Model::KdcOptionFlag::FORWARDABLE,
-          Rex::Proto::Kerberos::Model::KdcOptionFlag::RENEWABLE,
-          Rex::Proto::Kerberos::Model::KdcOptionFlag::CANONICALIZE,
-          Rex::Proto::Kerberos::Model::KdcOptionFlag::RENEWABLE_OK,
+          Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE,
+          Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE,
+          Rex::Proto::Kerberos::Model::KdcOptionFlags::CANONICALIZE,
+          Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE_OK,
         ]
       )
 
@@ -29,11 +29,11 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcOptionFlags do
 
   describe '#include?' do
     it 'returns true when the flag is enabled' do
-      expect(subject).to include(Rex::Proto::Kerberos::Model::KdcOptionFlag::FORWARDABLE)
+      expect(subject).to include(Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE)
     end
 
     it 'returns false when the flag is not enabled' do
-      expect(subject).to_not include(Rex::Proto::Kerberos::Model::KdcOptionFlag::ALLOW_POST_DATE)
+      expect(subject).to_not include(Rex::Proto::Kerberos::Model::KdcOptionFlags::ALLOW_POST_DATE)
     end
   end
 
