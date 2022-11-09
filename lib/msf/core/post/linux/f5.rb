@@ -15,13 +15,6 @@
 # aaa_*
 # sys_device
 # smtp_config
-# auth_ldap_config - can get the AD password
-# radius_server - can get radius password
-# auth_tacacs_config - can get tacacs+ password
-# ike_peer - ike_peer_preshared_key
-# A couple db_variables have secrets
-# smtp_config - password
-# app_cloud_security_service - access keys
 
 # packet_filter_allow_trusted?
 
@@ -31,7 +24,7 @@ module Msf
       # The F5 mixin implements methods for querying F5's database, which
       # is found at `/var/run/mcp` on Big-IP and other F5 devices
       module F5
-        # This is a subset of all possible objects:
+        # This is a (growing!) subset of all possible objects:
         # https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-objects.txt
         TAGS_BY_NAME = {
           # Types
@@ -192,6 +185,73 @@ module Msf
           'auth_ldap_config_check_roles_group' => 0x39ee,
           'auth_ldap_config_referrals' => 0x9d4f,
           'auth_ldap_config_include' => 0x9f80,
+
+          # Radius configuration
+          'radius_server' => 0x06c1,
+          'radius_server_name' => 0x06c2,
+          'radius_server_server' => 0x06c3,
+          'radius_server_port' => 0x06c4,
+          'radius_server_secret' => 0x06c5,
+          'radius_server_timeout' => 0x06c6,
+          'radius_server_mark' => 0x06c7,
+          'radius_server_dirty_cnt' => 0x06c8,
+          'radius_server_object_id' => 0x06c9,
+          'radius_server_validate_checkpoint' => 0x06ca,
+          'radius_server_validate_commit' => 0x06cb,
+          'radius_server_attributes' => 0x06cc,
+          'radius_server_partition_id' => 0x1058,
+          'radius_server_transaction_id' => 0x111c,
+          'radius_server_description' => 0x2a23,
+          'radius_server_leaf_name' => 0x2a24,
+          'radius_server_folder_name' => 0x2a25,
+          'radius_server_app_id' => 0x2a26,
+          'radius_server_strict_app_updates' => 0x2a27,
+
+          # TACACS+
+          'auth_tacacs_config' => 0x06e7,
+          'auth_tacacs_config_name' => 0x06e8,
+          'auth_tacacs_config_debug' => 0x06e9,
+          'auth_tacacs_config_encrypt' => 0x06ea,
+          'auth_tacacs_config_secret' => 0x06eb,
+          'auth_tacacs_config_servers' => 0x06ec,
+          'auth_tacacs_config_first_hit' => 0x06ed,
+          'auth_tacacs_config_acct_all' => 0x06ee,
+          'auth_tacacs_config_service_name' => 0x06ef,
+          'auth_tacacs_config_protocol_name' => 0x06f0,
+          'auth_tacacs_config_is_system' => 0x06f1,
+          'auth_tacacs_config_mark' => 0x06f2,
+          'auth_tacacs_config_dirty_cnt' => 0x06f3,
+          'auth_tacacs_config_object_id' => 0x06f4,
+          'auth_tacacs_config_attributes' => 0x06f5,
+          'auth_tacacs_config_validate_checkpoint' => 0x06f6,
+          'auth_tacacs_config_validate_commit' => 0x06f7,
+          'auth_tacacs_config_partition_id' => 0x105b,
+          'auth_tacacs_config_transaction_id' => 0x111e,
+          'auth_tacacs_config_description' => 0x2823,
+          'auth_tacacs_config_leaf_name' => 0x2824,
+          'auth_tacacs_config_folder_name' => 0x2825,
+          'auth_tacacs_config_app_id' => 0x2826,
+          'auth_tacacs_config_strict_app_updates' => 0x2827,
+          'auth_tacacs_config_timeout' => 0x7ef6,
+
+          'smtp_config' => 0x3591,
+          'smtp_config_object_id' => 0x3592,
+          'smtp_config_is_enabled' => 0x3593,
+          'smtp_config_is_auth' => 0x3594,
+          'smtp_config_source_machine_address' => 0x3595,
+          'smtp_config_from_address' => 0x3596,
+          'smtp_config_smtp_server_address' => 0x3597,
+          'smtp_config_smtp_server_port' => 0x3598,
+          'smtp_config_encryption' => 0x3599,
+          'smtp_config_username' => 0x359a,
+          'smtp_config_password' => 0x359b,
+          'smtp_config_app_id' => 0x359c,
+          'smtp_config_strict_app_updates' => 0x359d,
+          'smtp_config_name' => 0x359e,
+          'smtp_config_leaf_name' => 0x359f,
+          'smtp_config_folder_name' => 0x35a0,
+          'smtp_config_partition_id' => 0x35a1,
+          'smtp_config_transaction_id' => 0x5100,
         }
 
         TAGS_BY_ID = TAGS_BY_NAME.invert()
@@ -278,99 +338,96 @@ module Msf
           # is performed)
           result = []
 
+          # Make a Hash of parsers. Some of them are recursive, which is fun!
+          #
+          # They all take the stream as an input argument, and return
+          # [value, stream]
+          parsers = {
+            # The easy stuff - simple values
+            'ulong' => Proc.new { |s| s.unpack('Na*') },
+            'long' => Proc.new { |s| s.unpack('Na*') },
+            'uquad' => Proc.new { |s| s.unpack('Q>a*') },
+            'uword' => Proc.new { |s| s.unpack('na*') },
+            'byte' => Proc.new { |s| s.unpack('Ca*') },
+            'service' => Proc.new { |s| s.unpack('na*') },
+
+            # Parse "time" as a time
+            'time' => Proc.new do |s|
+              value, s = s.unpack('Na*')
+              [Time.at(value), s]
+            end,
+
+            # Look up "tag" values
+            'tag' => Proc.new do |s|
+              value, s = s.unpack('na*')
+              [TAGS_BY_ID[value], s]
+            end,
+
+            # Parse MAC addresses
+            'mac' => Proc.new do |s|
+              value, s = s.unpack('a6a*')
+              [value.bytes.map { |b| '%02x' % b }.join(':'), s]
+            end,
+
+            # "string" is prefixed by two length values
+            'string' => Proc.new do |s|
+              length, otherlength, s = s.unpack('Nna*')
+
+              # I'm sure the two length values have a semantic difference, but just check for sanity
+              if otherlength + 2 != length
+                raise "Inconsistent string lengths: #{ length } + #{ otherlength }"
+              end
+
+              s.unpack("a#{ otherlength }a*")
+            end,
+
+            # "structure" is recursive
+            'structure' => Proc.new do |s|
+              length, s = s.unpack('Na*')
+              struct, s = s.unpack("a#{ length }a*")
+
+              [mcp_parse(struct), s]
+            end,
+
+            # "array" is a bunch of consecutive values of the same type, which
+            # means we need to index back into this same parser array
+            'array' => Proc.new do |s|
+              length, s = s.unpack('Na*')
+              array, s = s.unpack("a#{ length }a*")
+
+              type, elements, array = array.unpack('nNa*')
+              type = TAGS_BY_ID[type] || "<unknown type 0x%04x>" % type
+
+              array_results = []
+              elements.times do
+                array_result, array = parsers[type].call(array)
+                array_results << array_result
+              end
+
+              [array_results, s]
+            end
+          }
+
           begin
             while stream.length > 2
               tag, type, stream = stream.unpack('nna*')
 
-              tag  = TAGS_BY_ID[tag]  || "<unknown 0x%04x>" % tag
-              type = TAGS_BY_ID[type] || "<unknown 0x%04x>" % type
+              tag  = TAGS_BY_ID[tag]  || "<unknown tag 0x%04x>" % tag
+              type = TAGS_BY_ID[type] || "<unknown type 0x%04x>" % type
 
-              if type == 'structure'
-                # Get the length and struct data, then recurse
-                length, stream = stream.unpack('Na*')
-                struct, stream = stream.unpack("a#{ length }a*")
-
-                result << {
-                  tag: tag,
-                  value: mcp_parse(struct)
-                }
-              elsif type == 'string'
-                length, otherlength, stream = stream.unpack('Nna*')
-
-                # I'm sure the two length values have a semantic difference, but just check for sanity
-                if otherlength + 2 != length
-                  raise "Inconsistent string lengths: #{ length } + #{ otherlength }"
-                end
-
-                str, stream = stream.unpack("a#{ otherlength }a*")
-                result << {
-                  tag: tag,
-                  value: str
-                }
-              elsif type == 'uquad'
-                value, stream = stream.unpack('Q>a*')
+              if parsers[type]
+                value, stream = parsers[type].call(stream)
                 result << {
                   tag: tag,
                   value: value
-                }
-              elsif type == 'ulong'
-                value, stream = stream.unpack('Na*')
-                result << {
-                  tag: tag,
-                  value: value
-                }
-              elsif type == 'time'
-                value, stream = stream.unpack('Na*')
-                result << {
-                  tag: tag,
-                  value: Time.at(value)
-                }
-              elsif type == 'uword'
-                value, stream = stream.unpack('na*')
-                result << {
-                  tag: tag,
-                  value: value
-                }
-              elsif type == 'long'
-                value, stream = stream.unpack('Na*')
-                result << {
-                  tag: tag,
-                  value: value
-                }
-              elsif type == 'tag'
-                value_tag, stream = stream.unpack('na*')
-                result << {
-                  tag: tag,
-                  value: TAGS_BY_ID[value_tag]
-                }
-              elsif type == 'byte'
-                value, stream = stream.unpack('Ca*')
-                result << {
-                  tag: tag,
-                  value: value
-                }
-              elsif type == 'mac'
-                value, stream = stream.unpack('a6a*')
-                value = value.bytes.map { |b| '%02x' % b }.join(':')
-                result << {
-                  tag: tag,
-                  value: value
-                }
-              elsif type == 'array'
-                length, stream = stream.unpack('Na*')
-                array, stream = stream.unpack("a#{ length }a*")
-
-                result << {
-                  tag: tag,
-                  value: "Array data: #{array.unpack('H*').pop}"
                 }
               else
-                raise "Tried to parse unknown mcp type (skipping): #{ type }"
+                raise "Tried to parse unknown mcp type (skipping): type = #{ type }, tag = #{ tag }"
               end
             end
           rescue StandardError => e
             # If we fail somewhere, print a warning but return what we have
-            print_warning(e.message)
+            print_warning("Parsing mcp data failed: #{e.message}")
           end
 
           result
@@ -516,7 +573,3 @@ module Msf
     end
   end
 end
-
-
-
-

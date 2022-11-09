@@ -40,7 +40,6 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    puts vars
     vars.each do |v|
       # Skip empty entries
       if v['db_variable_value'] == '' && !datastore['SHOW_EMPTY']
