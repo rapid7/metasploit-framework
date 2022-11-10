@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
-  include Msf::Post::Linux::F5
+  include Msf::Post::Linux::F5Mcp
 
   def initialize(info = {})
     super(

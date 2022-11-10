@@ -3,9 +3,39 @@
 module Msf
   class Post
     module Linux
-      # The F5 mixin implements methods for querying F5's database, which
-      # is found at `/var/run/mcp` on Big-IP and other F5 devices
-      module F5 # rubocop:disable Metrics/ModuleLength
+      # This mixin lets you programmatically interact with F5's "mcp" service,
+      # which is a database service on a variety of F5's devices, including
+      # BIG-IP and BIG-IQ.
+      #
+      # mcp uses a UNIX domain socket @ /var/run/mcp for all communications.
+      # As of writing this module, it's world-accessible, so anybody can query
+      # or write to it. We implemented a few interesting things as modules, and
+      # your best bet for learning how to work this is to look at those modules,
+      # but this will document it briefly.
+      #
+      # Data is read and written by serializing a TLV-style structure and
+      # writing it to that socket, then parsing the response.
+      #
+      # If you're just reading data, you can use `mcp_simple_query()` to build
+      # a query that fetches everything under a given name, and get a Hash of
+      # data back. That's by far the easiest way to handle things.
+      #
+      # To create a more complex query, you'll need to use mcp_build(), which
+      # serializes a message. You can generate a single message, or an array of
+      # them. Then use mcp_send_recv() to write it/them to the socket.
+      # Additionally, mcp_send_recv() automatically parses them and returns
+      # a whole big nested array of data.
+      #
+      # To actually use that data without going crazy, I suggest using either
+      # mcp_get_single(tagname) to fetch a single tag, or
+      # mcp_get_multiple(tagname) if multiple of the same tag can be returned.
+      # Finally, the response from that can be passed to mcp_to_h() to convert
+      # the response to a hash (note that if there are multiple of the same tag,
+      # map_to_h() will only keep one of them).
+      #
+      # Obviously, this is all way more complex than mcp_simple_query(). You can
+      # see this in action in the module `linux/local/f5_create_user`.
+      module F5Mcp # rubocop:disable Metrics/ModuleLength
         # This is a (growing!) subset of all possible objects:
         # https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-objects.txt
         TAGS_BY_NAME = {
