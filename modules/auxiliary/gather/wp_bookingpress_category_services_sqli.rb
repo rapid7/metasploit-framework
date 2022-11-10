@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         username: username,
         private_type: :nonreplayable_hash,
-        jtr_format: identify_hash(hash),
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(hash),
         private_data: hash,
         service_name: 'WordPress BookingPress Plugin',
         address: datastore['RHOSTS'],
