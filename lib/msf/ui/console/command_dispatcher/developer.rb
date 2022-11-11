@@ -21,8 +21,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def initialize(driver)
     super
-    output, status = modified_files
-    @modified_files = status.success? ? output : []
+    output, is_success = modified_files
+    @modified_files = is_success ? output : []
   end
 
   def name
@@ -80,10 +80,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def reload_changed_files
-    files, status = modified_files
+    files, is_success = modified_files
 
-    unless status.success?
-      print_error("Git is not available: #{files.chomp}")
+    unless is_success
+      print_error("Git is not available")
       return
     end
 
@@ -439,10 +439,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   def modified_files
     # Using an array avoids shelling out, so we avoid escaping/quoting
     changed_files = %w[git diff --name-only]
-
-    output, status = Open3.capture2e(*changed_files, chdir: Msf::Config.install_root)
-    output = output.split("\n")
-
-    return output, status
+    begin
+      output, status = Open3.capture2e(*changed_files, chdir: Msf::Config.install_root)
+      is_success = status.success?
+      output = output.split("\n")
+    rescue => e
+      elog(e)
+      output = []
+      is_success = false
+    end
+    return output, is_success
   end
 end
