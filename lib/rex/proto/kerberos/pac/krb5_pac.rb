@@ -43,10 +43,10 @@ module Rex::Proto::Kerberos::Pac
     Rex::Proto::Kerberos::Crypto::Checksum::HMAC_MD5 => 16
   }.freeze
 
-  # rpc_unicode_string1
+  # rpc_unicode_string_ptr
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/94a16bb6-c610-4cb9-8db6-26f15f560061
   # Remove once struct in ruby smb is fixed
-  class RpcUnicodeString1 < BinData::Record
+  class RpcUnicodeStringPtr < BinData::Record
     mandatory_parameter :ptr
 
     endian :little
@@ -125,32 +125,54 @@ module Rex::Proto::Kerberos::Pac
   class UserSessionKey < BinData::Record
     endian :little
 
+    # @!attribute [rw] session_key
+    #   @return [Integer]
     uint128 :session_key
   end
 
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/e465cb27-4bc1-4173-8be0-b5fd64dc9ff7
   class Krb5ClientInfo < BinData::Record
     endian :little
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
     virtual :ul_type, value: 0x0A
 
+    # @!attribute [rw] client_id
+    #   @return [FileTime] Kerberos initial ticket-granting ticket (TGT) authentication time
     file_time :client_id
+
+    # @!attribute [rw] name_length
+    #   @return [Integer]
     uint16 :name_length, initial_value: -> { name.num_bytes }
+
+    # @!attribute [rw] read_length
+    #   @return [String]
     string16 :name, read_length: :name_length
   end
 
   class Krb5PacSignatureData < BinData::Record
     endian :little
 
+    # @!attribute [rw] signature_type
+    #   @return [Integer] Defines the cryptographic system used to calculate the checksum
+    # @see Rex::Proto::Kerberos::Crypto::Checksum
     uint32 :signature_type
+
+    # @!attribute [rw] signature
+    #   @return [String]
     string :signature, length: -> { CHECKSUM_SIGNATURE_LENGTH.fetch(signature_type) }
 
   end
 
   class Krb5PacServerChecksum < Krb5PacSignatureData
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
     virtual :ul_type, value: 0x06
   end
 
   class Krb5PacPrivServerChecksum < Krb5PacSignatureData
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
     virtual :ul_type, value: 0x07
   end
 
@@ -158,77 +180,213 @@ module Rex::Proto::Kerberos::Pac
   class Krb5ValidationInfo < BinData::Record
     endian :little
     default_parameter byte_align: 4
+
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
     virtual :ul_type, value: 0x01
 
+    # @!attribute [rw] common_type_header
+    #   @return [TypeSerialization1CommonTypeHeader]
     type_serialization1_common_type_header :common_type_header
 
+    # @!attribute [rw] private_header_constructed_type
+    #   @return [TypeSerialization1PrivateHeader]
     type_serialization1_private_header :private_header_constructed_type, buffer_length: -> { num_bytes - element_id.rel_offset } # number of bytes left in this object
 
     # I don't know where this comes from but the og impl has it???
     # The next 4 bytes, from 0x0000006E through 0x00000071, are an RPC unique pointer referent, as defined in [C706] section 14.3.10.
     # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/7d4f403e-cc0a-455f-8eeb-f38326a903a9
     # https://github.com/rapid7/metasploit-framework/blob/5f85175f56e3bf993458ebd95c7d03ba30364198/lib/rex/proto/kerberos/pac/logon_info.rb#L100-L102
+
+    # @!attribute [r] element_id
+    #   @return [Integer]
     uint32 :element_id, asserted_value: NETLOGON_FLAG
 
+    # @!attribute [rw] logon_time
+    #   @return [FileTime] User account's lastLogon attribute
     file_time :logon_time
+
+    # @!attribute [rw] logoff_time
+    #   @return [FileTime] Time the client's logon session is set to expire
     file_time :logoff_time, initial_value: NEVER_EXPIRE
+
+    # @!attribute [rw] kick_off_time
+    #   @return [FileTime] logoff_time minus the user account's forceLogoff attribute
     file_time :kick_off_time, initial_value: NEVER_EXPIRE
+
+    # @!attribute [rw] password_last_set
+    #   @return [FileTime] User account's pwdLastSet attribute
     file_time :password_last_set
+
+    # @!attribute [rw] password_can_change
+    #   @return [FileTime] Time at which the client's password is allowed to change
     file_time :password_can_change
+
+    # @!attribute [rw] password_must_change
+    #   @return [FileTime] Time at which the client's password expires
     file_time :password_must_change, initial_value: NEVER_EXPIRE
 
-    rpc_unicode_string1 :effective_name_ptr, ptr: 0x20004, string: :effective_name
-    rpc_unicode_string1 :full_name_ptr, ptr: 0x20008
-    rpc_unicode_string1 :logon_script_ptr, ptr: 0x2000C
-    rpc_unicode_string1 :profile_path_ptr, ptr: 0x20010
-    rpc_unicode_string1 :home_directory_ptr, ptr: 0x20014
-    rpc_unicode_string1 :home_directory_drive_ptr, ptr: 0x20018
+    # @!attribute [rw] effective_name_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to user account's samAccountName attribute
+    rpc_unicode_string_ptr :effective_name_ptr, ptr: 0x20004
 
+    # @!attribute [rw] full_name_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to user account's full name for interactive logon
+    rpc_unicode_string_ptr :full_name_ptr, ptr: 0x20008
+
+    # @!attribute [rw] logon_script_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to user account's scriptPath attribute
+    rpc_unicode_string_ptr :logon_script_ptr, ptr: 0x2000C
+
+    # @!attribute [rw] profile_path_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to user account's profilePath attribute
+    rpc_unicode_string_ptr :profile_path_ptr, ptr: 0x20010
+
+    # @!attribute [rw] home_directory_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to user account's HomeDirectory attribute
+    rpc_unicode_string_ptr :home_directory_ptr, ptr: 0x20014
+
+    # @!attribute [rw] home_directory_drive_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to user account's HomeDrive attribute
+    rpc_unicode_string_ptr :home_directory_drive_ptr, ptr: 0x20018
+
+    # @!attribute [rw] logon_count
+    #   @return [Integer] User account's LogonCount attribute
     uint16 :logon_count
+
+    # @!attribute [rw] bad_password_count
+    #   @return [Integer] User account's badPwdCount attribute
     uint16 :bad_password_count
+
+    # @!attribute [rw] user_id
+    #   @return [Integer] RID of the account
     uint32 :user_id
+
+    # @!attribute [rw] primary_group_id
+    #   @return [Integer] RID for the primary group to which this account belongs
     uint32 :primary_group_id
+
+    # @!attribute [rw] group_count
+    #   @return [Integer] Number of groups within the account domain to which the account belongs
     uint32 :group_count, initial_value: -> { group_ids_info.number_of_memberships }
+
+    # @!attribute [rw] group_ids_ptr
+    #   @return [Integer] A pointer to a list of GROUP_MEMBERSHIP structures that contains the groups to which the account belongs in the account domain
     uint32 :group_ids_ptr, initial_value: 0x2001c
+
+    # @!attribute [rw] user_flags
+    #   @return [Integer] A set of bit flags that describe the user's logon information
     uint32 :user_flags
 
+    # @!attribute [rw] user_session_key
+    #   @return [Integer] A session key that is used for cryptographic operations on a session
     user_session_key :user_session_key
 
-    rpc_unicode_string1 :logon_server_ptr, string: :logon_server, ptr: 0x20020
-    rpc_unicode_string1 :logon_domain_name_ptr, string: :logon_domain_name, ptr: 0x20024
+    # @!attribute [rw] logon_server_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to NetBIOS name of the Kerberos KDC that performed the authentication server (AS) ticket request
+    rpc_unicode_string_ptr :logon_server_ptr, string: :logon_server, ptr: 0x20020
 
+    # @!attribute [rw] logon_domain_name_ptr
+    #   @return [RpcUnicodeStringPtr] Pointer to NetBIOS name of the domain to which this account belongs
+    rpc_unicode_string_ptr :logon_domain_name_ptr, string: :logon_domain_name, ptr: 0x20024
+
+    # @!attribute [rw] logon_domain_id_ptr
+    #   @return [Integer] Pointer to SID for the domain specified in LogonDomainName
     uint32 :logon_domain_id_ptr, initial_value: 0x20028 # prpc_sid :logon_domain_id_ptr
+
+    # @!attribute [rw] reserved_1
+    #   @return [Integer] This member is reserved
     uint64 :reserved_1
+
+    # @!attribute [rw] user_account_control
+    #   @return [Integer] Set of bit flags that represent information about this account
     uint32 :user_account_control, initial_value: USER_NORMAL_ACCOUNT | USER_DONT_EXPIRE_PASSWORD
+
+    # @!attribute [rw] sub_auth_status
+    #   @return [Integer] Subauthentication package's status code
     uint32 :sub_auth_status
 
+    # @!attribute [rw] last_successful_i_logon
+    #   @return [FileTime] User account's msDS-LastSuccessfulInteractiveLogonTime
     file_time :last_successful_i_logon
+
+    # @!attribute [rw] last_failed_i_logon
+    #   @return [FileTime] User account's msDS-LastFailedInteractiveLogonTime
     file_time :last_failed_i_logon
 
+    # @!attribute [rw] failed_i_logon_count
+    #   @return [Integer] User account's msDS-FailedInteractiveLogonCountAtLastSuccessfulLogon
     uint32 :failed_i_logon_count
-    uint32 :reserved_3
-    uint32 :sid_count
-    uint32 :extra_sids_ptr
-    uint32 :resource_group_domain_sid_ptr # prpc_sid :resource_group_domain_sid_ptr
-    uint32 :resource_group_count
-    uint32 :resource_group_ids_ptr
-    # end
 
+    # @!attribute [rw] reserved_3
+    #   @return [Integer] This member is reserved
+    uint32 :reserved_3
+
+    # @!attribute [rw] sid_count
+    #   @return [Integer] Total number of SIDs present in the ExtraSids member
+    uint32 :sid_count
+
+    # @!attribute [rw] extra_sids_ptr
+    #   @return [Integer] A pointer to a list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs
+    #   corresponding to groups in domains other than the account domain to which the principal belongs
+    uint32 :extra_sids_ptr
+
+    # @!attribute [rw] resource_group_domain_sid_ptr
+    #   @return [Integer] Pointer to SID of the domain for the server whose resources the client is authenticating to
+    uint32 :resource_group_domain_sid_ptr # prpc_sid :resource_group_domain_sid_ptr
+
+    # @!attribute [rw] resource_group_count
+    #   @return [Integer] Number of resource group identifiers stored in ResourceGroupIds
+    uint32 :resource_group_count
+
+    # @!attribute [rw] resource_group_ids_ptr
+    #   @return [Integer] Pointer to list of GROUP_MEMBERSHIP structures that contain the RIDs and attributes of the
+    #   account's groups in the resource domain
+    uint32 :resource_group_ids_ptr
+
+    # @!attribute [rw] effective_name_info
+    #   @return [RpcUnicodeStringInfo] User account's samAccountName attribute
     rpc_unicode_string_info :effective_name_info
+
+    # @!attribute [rw] full_name_info
+    #   @return [RpcUnicodeStringInfo] User account's full name for interactive logon
     rpc_unicode_string_info :full_name_info
+
+    # @!attribute [rw] logon_script_info
+    #   @return [RpcUnicodeStringInfo] User account's scriptPath attribute
     rpc_unicode_string_info :logon_script_info
+
+    # @!attribute [rw] profile_path_info
+    #   @return [RpcUnicodeStringInfo] User account's profilePath attribute
     rpc_unicode_string_info :profile_path_info
+
+    # @!attribute [rw] home_directory_info
+    #   @return [RpcUnicodeStringInfo] User account's HomeDirectory attribute
     rpc_unicode_string_info :home_directory_info
+
+    # @!attribute [rw] home_directory_drive_info
+    #   @return [RpcUnicodeStringInfo] User account's HomeDrive attribute
     rpc_unicode_string_info :home_directory_drive_info
 
+    # @!attribute [rw] group_ids_info
+    #   @return [GroupMemberships]
     group_memberships :group_ids_info
 
+    # @!attribute [rw] logon_server_info
+    #   @return [RpcUnicodeStringInfo] NetBIOS name of the Kerberos KDC that performed the authentication server (AS) ticket request
     rpc_unicode_string_info :logon_server_info
+
+    # @!attribute [rw] logon_domain_name_info
+    #   @return [RpcUnicodeStringInfo] NetBIOS name of the domain to which this account belongs
     rpc_unicode_string_info :logon_domain_name_info
 
     # https://github.com/rapid7/ruby_smb/blob/95ffce90f3fbd2b2d8d00b643e318fc38cce52bd/lib/ruby_smb/dcerpc/samr/rpc_sid.rb
+    # @!attribute [rw] logon_domain_id
+    #   @return [RpcSid] SID for the domain specified in LogonDomainName
     rpc_sid :logon_domain_id
 
+    # @!attribute [rw] resource_group_ids
+    #   @return [GroupMemberships] List of GROUP_MEMBERSHIP structures that contain the RIDs and attributes of the account's groups in the resource domain
     group_memberships :resource_group_ids, onlyif: -> { resource_group_count > 0 }
 
     # I think extra sids go here but I don't know what that looks like and we don't have an example atm
@@ -298,11 +456,21 @@ module Rex::Proto::Kerberos::Pac
   class Krb5PacInfoBuffer < BinData::Record
     endian :little
 
+    # @!attribute [rw] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
     uint32 :ul_type
+
+    # @!attribute [rw] cb_buffer_size
+    #   @return [Integer]
     uint32 :cb_buffer_size, initial_value: -> { buffer.pac_element.num_bytes }
+
+    # @!attribute [rw] offset
+    #   @return [Integer]
     uint64 :offset
 
     delayed_io :buffer, read_abs_offset: :offset do
+      # @!attribute [rw] pac_element
+      #   @return [Krb5PacElement]
       krb5_pac_element :pac_element, selection: -> { ul_type }
       string :padding, length: -> { bytes_to_align(pac_element.num_bytes) }
     end
@@ -314,10 +482,16 @@ module Rex::Proto::Kerberos::Pac
     endian :little
     auto_call_delayed_io
 
+    # @!attribute [rw] c_buffers
+    #   @return [Integer]
     uint32 :c_buffers, asserted_value: -> { pac_info_buffers.length }
 
+    # @!attribute [r] version
+    #   @return [Integer]
     uint32 :version, asserted_value: 0x00000000
 
+    # @!attribute [rw] pac_info_buffers
+    #   @return [Array<Krb5PacInfoBuffer>]
     array :pac_info_buffers, type: :krb5_pac_info_buffer, initial_length: :c_buffers
 
     def assign(val)
