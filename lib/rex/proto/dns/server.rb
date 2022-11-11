@@ -166,6 +166,10 @@ class Server
   include Rex::IO::GramServer
 
   Packet = Rex::Proto::DNS::Packet
+
+  attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache, :start_cache
+  attr_reader :serve_udp, :serve_tcp, :sock_options, :lock, :udp_sock, :tcp_sock
+  
   #
   # Create DNS Server
   #
@@ -179,8 +183,6 @@ class Server
   # @param sblock [Proc] Handler for :send_response flow control interception
   #
   # @return [Rex::Proto::DNS::Server] DNS Server object
-  attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache, :start_cache
-  attr_reader :serve_udp, :serve_tcp, :sock_options, :lock, :udp_sock, :tcp_sock
   def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, start_cache = true, res = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
 
     @serve_udp = udp

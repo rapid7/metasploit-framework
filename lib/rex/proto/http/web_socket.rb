@@ -143,7 +143,7 @@ module Rex::Proto::Http::WebSocket
       # process the data. The default functionality does nothing.
       #
       # @param [String] data the data that was read
-      # @param [Symbol] data_type the type of data that was received, either :binary or :text
+      # @param [Symbol] _data_type the type of data that was received, either :binary or :text
       # @return [String, nil] if a string is returned, it's passed through the channel
       def on_data_read(data, _data_type)
         data
