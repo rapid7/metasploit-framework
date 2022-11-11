@@ -25,13 +25,14 @@ module Msf
     # also be a string as standin for the required description field.
     #
     def initialize(in_name, attrs = [],
-                   required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, aliases: [], max_length: nil,
+                   required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, examples: [], aliases: [], max_length: nil,
                    fallbacks: [])
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
       self.aliases  = aliases
       self.max_length = max_length
+      self.examples = examples
       self.conditions = conditions
       self.fallbacks = fallbacks
 
@@ -224,6 +225,13 @@ module Msf
     #
     # @return [Array<String>] the array of fallbacks
     attr_accessor :fallbacks
+
+    #
+    # Array of examples for this option.
+    # This will be used for error handling to give more verbosity to user via examples as part of error messages.
+    #
+    # @return [Array<String>] the array of examples
+    attr_accessor :examples
 
     #
     # The max length of the input value

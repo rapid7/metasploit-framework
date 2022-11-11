@@ -70,7 +70,11 @@ class DataStoreWithFallbacks
     unless opt.nil?
       if opt.validate_on_assignment?
         unless opt.valid?(v, check_empty: false)
-          raise Msf::OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
+          if self.options[k].examples.empty?
+            raise Msf::OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
+          else
+            raise Msf::OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'. Example value: #{self.options[k].examples.first}"])
+          end
         end
         v = opt.normalize(v)
       end
@@ -413,7 +417,7 @@ class DataStoreWithFallbacks
   # Case-insensitive key lookup
   #
   # @return [String]
-  def find_key_case(k)
+  def  find_key_case(k)
     # Scan each alias looking for a key
     search_k = k.downcase
     if self.aliases.has_key?(search_k)

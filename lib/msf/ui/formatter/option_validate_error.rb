@@ -12,16 +12,22 @@ module Msf
         def self.print_error(mod, error)
           raise ArgumentError, "invalid error type #{error.class}, expected ::Msf::OptionValidateError" unless error.is_a?(::Msf::OptionValidateError)
 
-          if error.reasons.empty?
-            mod.print_error("#{error.class} The following options failed to validate: #{error.options.join(', ')}")
-          else
-            mod.print_error("#{error.class} The following options failed to validate:")
-            error.options.sort.each do |option_name|
-              reasons = error.reasons[option_name]
-              if reasons
-                mod.print_error("Invalid option #{option_name}: #{reasons.join(', ')}")
+          (0...error.options.length).each do |i|
+            if error.reasons.empty?
+              if mod.options[error.options[i]].examples.empty?
+                mod.print_error("#{error.class} The following option failed to validate: Value '#{mod.datastore.user_defined[error.options[i]]}' is not valid for option '#{error.options[i]}'.")
               else
-                mod.print_error("Invalid option #{option_name}")
+                mod.print_error("#{error.class} The following option failed to validate: Value '#{mod.datastore.user_defined[error.options[i]]}' is not valid for option '#{error.options[i]}'. Example value: #{mod.options[error.options[i]].examples.first}")
+              end
+            else
+              mod.print_error("#{error.class} The following options failed to validate:")
+              error.options.sort.each do |option_name|
+                reasons = error.reasons[option_name]
+                if reasons
+                  mod.print_error("Invalid option #{option_name}: #{reasons.join(', ')}")
+                else
+                  mod.print_error("Invalid option #{option_name}")
+                end
               end
             end
           end
