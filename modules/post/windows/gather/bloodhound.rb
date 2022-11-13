@@ -71,9 +71,8 @@ class MetasploitModule < Msf::Post
   #   LDAPPass -> LDAPPassword
   #   JSONFolder -> OutputDirectory
 
-  # Options removed or changed in sharphound Renamed in v4 from v3:
+  # Options removed or changed in sharphound Renamed in v4 (1.0.4) from v3:
   # Renamed
-  #   (everything is now lower case)
   #   (many of the single dash verbose command names are now double dash as is usual in Linux land)
   #   encryptzip -> zippassword
   #   nosavecache -> memcache
@@ -113,13 +112,13 @@ class MetasploitModule < Msf::Post
     extra_params = []
     [
       [datastore['Domain'], "-d #{datastore['Domain']}"],
-      [datastore['Stealth'], '--stealth'],
+      [datastore['Stealth'], '--Stealth'],
       # [datastore['SkipGCDeconfliction'], "-SkipGCDeconfliction"],
-      [datastore['ExcludeDomainControllers'], '--excludedcs'],
-      [datastore['DomainController'], "--domaincontroller #{datastore['DomainController']}"],
-      [datastore['LdapPort'], "--ldapport #{datastore['LdapPort']}"],
-      [datastore['SecureLdap'], '--secureldap'],
-      [datastore['NoSaveCache'], '--memcache'],
+      [datastore['ExcludeDomainControllers'], '--ExcludeDCs'],
+      [datastore['DomainController'], "--DomainController #{datastore['DomainController']}"],
+      [datastore['LdapPort'], "--LdapPort #{datastore['LdapPort']}"],
+      [datastore['SecureLdap'], '--SecureLdap'],
+      [datastore['NoSaveCache'], '--MemCache'],
     ].each do |params|
       if params[0]
         extra_params << params[1]
@@ -129,8 +128,9 @@ class MetasploitModule < Msf::Post
     extra_params = "#{extra_params.join(' ')} "
 
     if datastore['EncryptZip']
+      # for consistency, we use lower case password here since exe requires all extra_params to be lowercase
       zip_pass = Rex::Text.rand_text_alpha_lower(12..20)
-      extra_params += "--zippassword #{zip_pass} "
+      extra_params += "--ZipPassword #{zip_pass} "
     end
 
     # these options are only added if they aren't the sharphound default
@@ -143,15 +143,15 @@ class MetasploitModule < Msf::Post
 
     if datastore['Method'] == 'download'
       command = download_run
-      invoker = "Invoke-BloodHound --outputdirectory \"#{tmp_path}\" --zipfilename #{zip_name} #{extra_params}"
+      extra_params = extra_params.gsub('--', '-')
+      invoker = "Invoke-BloodHound -OutputDirectory \"#{tmp_path}\" -ZipFileName #{zip_name} #{extra_params}"
     elsif datastore['Method'] == 'disk'
       command = disk_run
       exe = command.sub('. ', '') # so we get the filename again
       # for exe, we move invoker into command to run more friendly
       invoker = ''
+      extra_params = extra_params.downcase
       command = "#{command} --outputdirectory \"#{tmp_path}\" --zipfilename #{zip_name} #{extra_params}"
-      # command.gsub!('-', '--')
-      command.gsub!(/(--[a-zA-Z]+ )/, &:downcase) # exe only uses downcase
     end
 
     print_status("Loading BloodHound with: #{command}")
