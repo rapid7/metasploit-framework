@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     acl.aces.each do |ace|
       ace_header = ace[:header]
       ace_body = ace[:body]
-      if ace_body['access_mask'].blank? # This won't work with Symbols for some reason, but will work with strings. Bite me.
+      if ace_body[:access_mask].blank?
         fail_with(Failure::UnexpectedReply, 'Encountered a DACL/SACL object without an access mask! Either data is an unrecognized type or we are reading it wrong!')
       end
       ace_string = Rex::Proto::MsDtyp::MsDtypAceType.name(ace_header[:ace_type])
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
       object_type = ace_body[:object_type]
 
-      if (ace_body[:access_mask] & CONTROL_ACCESS) == CONTROL_ACCESS && (object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
+      if (ace_body.access_mask.protocol & CONTROL_ACCESS) != 0 && (object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
         if ace_string.match(/DENIED/)
           flag_allowed_to_enroll = false
         elsif ace_string.match(/ALLOWED/)

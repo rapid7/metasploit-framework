@@ -7,22 +7,22 @@ module Rex::Proto::MsDtyp
     hide   :reserved0, :reserved1
 
     # the protocol field id reserved for protocol-specific access rights
-    bit16 :protocol
+    uint16 :protocol
 
-    bit3  :reserved0
-    bit1  :sy
-    bit1  :wo
-    bit1  :wd
-    bit1  :rc
-    bit1  :de
+    bit3   :reserved0
+    bit1   :sy
+    bit1   :wo
+    bit1   :wd
+    bit1   :rc
+    bit1   :de
 
-    bit1  :gr
-    bit1  :gw
-    bit1  :gx
-    bit1  :ga
-    bit2  :reserved1
-    bit1  :ma
-    bit1  :as
+    bit1   :gr
+    bit1   :gw
+    bit1   :gx
+    bit1   :ga
+    bit2   :reserved1
+    bit1   :ma
+    bit1   :as
 
     ALL  = MsDtypAccessMask.new({ gr: 1, gw: 1, gx: 1, ga: 1, ma: 1, as: 1, sy: 1, wo: 1, wd: 1, rc: 1, de: 1, protocol: 0xffff })
     NONE = MsDtypAccessMask.new({ gr: 0, gw: 0, gx: 0, ga: 0, ma: 0, as: 0, sy: 0, wo: 0, wd: 0, rc: 0, de: 0, protocol: 0 })
@@ -113,15 +113,15 @@ module Rex::Proto::MsDtyp
   class MsDtypAceNonObjectBody < BinData::Record
     endian :little
 
-    uint32             :access_mask
-    ms_dtyp_sid        :sid, byte_align: 4
+    ms_dtyp_access_mask :access_mask
+    ms_dtyp_sid         :sid, byte_align: 4
   end
 
   class MsDtypAceObjectBody < BinData::Record
     endian :little
 
-    uint32             :access_mask
-    struct             :flags do
+    ms_dtyp_access_mask :access_mask
+    struct              :flags do
       bit1 :reserved5
       bit1 :reserved4
       bit1 :reserved3
@@ -131,9 +131,9 @@ module Rex::Proto::MsDtyp
       bit1 :ace_inherited_object_type_present
       bit1 :ace_object_type_present
     end
-    ms_dtyp_guid       :object_type, onlyif: -> { flags.ace_object_type_present != 0x0 }
-    ms_dtyp_guid       :inherited_object_type, onlyif: -> { flags.ace_inherited_object_type_present != 0x0 }
-    ms_dtyp_sid        :sid, byte_align: 4
+    ms_dtyp_guid        :object_type, onlyif: -> { flags.ace_object_type_present != 0x0 }
+    ms_dtyp_guid        :inherited_object_type, onlyif: -> { flags.ace_inherited_object_type_present != 0x0 }
+    ms_dtyp_sid         :sid, byte_align: 4
   end
 
   # [2.4.4.2 ACCESS_ALLOWED_ACE](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/72e7c7ea-bc02-4c74-a619-818a16bf6adb)
