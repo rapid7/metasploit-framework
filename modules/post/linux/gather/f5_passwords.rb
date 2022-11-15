@@ -94,14 +94,11 @@ class MetasploitModule < Msf::Post
     if results.empty?
       print_warning('No service passwords found')
     else
-      results.each { |r| print_good(r) }
+      if datastore['VERBOSE']
+        results.each { |r| print_good(r) }
+      end
+
+      print_good("Passwords stored in #{store_loot('f5.service.passwords', 'text/plain', session, results.join("\n"), nil, 'F5 Service Passwords')}")
     end
   end
-
-  # def save(msg, data, ctype = 'text/plain')
-  #   ltype = 'linux.enum.users'
-  #   loot = store_loot(ltype, ctype, session, data, nil, msg)
-  #   print_good("#{msg} stored in #{loot.to_s}")
-  # end
-
 end

