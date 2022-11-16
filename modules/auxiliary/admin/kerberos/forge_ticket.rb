@@ -42,12 +42,13 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('USER', [ true, 'The Domain User' ]),
         OptInt.new('USER_RID', [ true, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
-        OptString.new('NTHASH', [ true, 'The krbtgt/service nthash' ]),
+        OptString.new('NTHASH', [ false, 'The krbtgt/service nthash' ]),
         OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
-        OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
-        OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962'], regex: /^S-\d-\d+-(\d+-){1,14}\d+$/, examples: %w[S-1-5-21-1755879683-3641577184-3486455962 S-1-5-21-1180699209-877415012-3182924384-1004]),
-        OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], conditions: %w[ACTION == FORGE_SILVER], regex: %r{.*/.*}, examples: %w[MSSqlSvc/host.domain.local:1433 MSSqlSvc/host.domain.local:1434]),
-        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650])
+        OptString.new('DOMAIN', [ false, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
+        OptString.new('DOMAIN_SID', [ false, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962'], regex: /^S-\d-\d+-(\d+-){1,14}\d+$/, examples: %w[S-1-5-21-1755879683-3641577184-3486455962 S-1-5-21-1180699209-877415012-3182924384-1004]),
+        OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket) Ex: MSSqlSvc/host.domain.local:1434'], conditions: %w[ACTION == FORGE_SILVER], regex: %r{.*/.*}, examples: %w[MSSqlSvc/host.domain.local:1433 MSSqlSvc/host.domain.local:1434]),
+        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650]),
+        OptString.new('TICKET_PATH', [false, 'Path to the ticket you wish to debug'])
       ]
     )
     deregister_options('RHOSTS', 'RPORT', 'Timeout')
