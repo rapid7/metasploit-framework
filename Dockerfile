@@ -43,9 +43,9 @@ RUN apk add --no-cache \
 ENV GO111MODULE=off
 RUN mkdir -p $TOOLS_HOME/bin && \
     cd $TOOLS_HOME/bin && \
-    curl -O https://dl.google.com/go/go1.11.2.src.tar.gz && \
-    tar -zxf go1.11.2.src.tar.gz && \
-    rm go1.11.2.src.tar.gz && \
+    curl -O https://dl.google.com/go/go1.19.3.src.tar.gz && \
+    tar -zxf go1.19.3.src.tar.gz && \
+    rm go1.19.3.src.tar.gz && \
     cd go/src && \
     ./make.bash
 
