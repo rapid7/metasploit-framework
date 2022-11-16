@@ -26,7 +26,9 @@ class MetasploitModule < Msf::Post
         'Platform' => ['linux'],
         'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
-          [ 'URL', 'https://github.com/rbowes-r7/refreshing-mcp-tool' ], # Original PoC
+          ['URL', 'https://github.com/rbowes-r7/refreshing-mcp-tool'], # Original PoC
+          ['URL', 'https://www.rapid7.com/blog/post/2022/11/16/cve-2022-41622-and-cve-2022-41800-fixed-f5-big-ip-and-icontrol-rest-vulnerabilities-and-exposures/'],
+          ['URL', 'https://support.f5.com/csp/article/K97843387'],
         ],
         'DisclosureDate' => '2022-11-16',
         'Targets' => [[ 'Auto', {} ]],
