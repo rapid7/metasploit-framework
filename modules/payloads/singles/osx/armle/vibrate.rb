@@ -23,7 +23,7 @@ module MetasploitModule
       'Arch'          => ARCH_ARMLE))
   end
 
-  def generate
+  def generate(_opts = {})
     [
       0xe1a00820, #  mov r0, r0, lsr #16
       0xe51ff004, #  ldr pc, [pc, #-4]

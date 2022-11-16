@@ -54,8 +54,8 @@ class MetasploitModule < Msf::Auxiliary
     service_data = {
       address: ip,
       port: port,
-      service_name: 'http',
-      protocol: 'tcp',
+      service_name: result.service_name,
+      protocol: result.protocol,
       workspace_id: myworkspace_id
     }
 

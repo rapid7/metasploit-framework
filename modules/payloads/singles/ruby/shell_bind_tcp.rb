@@ -27,7 +27,7 @@ module MetasploitModule
     ))
   end
 
-  def generate
+  def generate(_opts = {})
     return prepends(ruby_string)
   end
 

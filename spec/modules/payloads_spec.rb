@@ -961,7 +961,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_python_ssl'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_python_ssl'
   end
@@ -2605,7 +2605,7 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/bind_tcp',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/bind_tcp'
   end
@@ -2616,7 +2616,7 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/bind_tcp_uuid',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/bind_tcp_uuid'
   end
@@ -2627,7 +2627,7 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/python/reverse_http',
                             'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_http'
   end
@@ -2638,7 +2638,7 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/python/reverse_https',
                             'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_https'
   end
@@ -2649,7 +2649,7 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/reverse_tcp',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp'
   end
@@ -2660,7 +2660,7 @@ RSpec.describe 'modules/payloads', :content do
                             'stagers/python/reverse_tcp_ssl',
                             'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp_ssl'
   end
@@ -2671,7 +2671,7 @@ RSpec.describe 'modules/payloads', :content do
                               'stagers/python/reverse_tcp_uuid',
                               'stages/python/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp_uuid'
   end
@@ -2681,7 +2681,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_bind_tcp'
   end
@@ -2691,7 +2691,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_http'
   end
@@ -2701,7 +2701,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_reverse_https'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_https'
   end
@@ -2711,7 +2711,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_tcp'
   end
@@ -2721,7 +2721,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/pingback_bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/pingback_bind_tcp'
   end
@@ -2731,7 +2731,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/pingback_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/pingback_reverse_tcp'
   end
@@ -2741,7 +2741,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_bind_tcp'
   end
@@ -2751,7 +2751,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_tcp'
   end
@@ -2761,7 +2761,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_tcp_ssl'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_tcp_ssl'
   end
@@ -2771,7 +2771,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_udp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_udp'
   end

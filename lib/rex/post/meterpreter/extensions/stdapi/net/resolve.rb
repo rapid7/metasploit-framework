@@ -38,10 +38,9 @@ class Resolve
 
     response = client.send_request(request)
 
-    type = response.get_tlv_value(TLV_TYPE_ADDR_TYPE)
     raw = response.get_tlv_value(TLV_TYPE_IP)
 
-    return raw_to_host_ip_pair(hostname, raw, type)
+    return raw_to_host_ip_pair(hostname, raw)
   end
 
   def resolve_hosts(hostnames, family=AF_INET)
@@ -56,40 +55,31 @@ class Resolve
 
     hosts = []
     raws = []
-    types = []
 
     response.each(TLV_TYPE_IP) do |raw|
       raws << raw
     end
 
-    response.each(TLV_TYPE_ADDR_TYPE) do |type|
-      types << type
-    end
-
     0.upto(hostnames.length - 1) do |i|
       raw = raws[i]
-      type = types[i]
       host = hostnames[i]
 
-      hosts << raw_to_host_ip_pair(host, raw.value, type.value)
+      hosts << raw_to_host_ip_pair(host, raw&.value)
     end
 
     return hosts
   end
 
-  def raw_to_host_ip_pair(host, raw, type)
+  def raw_to_host_ip_pair(host, raw)
     if raw.nil? or host.nil?
       return nil
     end
 
-    if raw.empty?
-      ip = nil
-    else
-      if type == AF_INET
-        ip = Rex::Socket.addr_ntoa(raw[0..3])
-      else
-        ip = Rex::Socket.addr_ntoa(raw[0..16])
-      end
+    ip = nil
+    if raw.length == 4 || raw.length == 16
+      ip = Rex::Socket.addr_ntoa(raw)
+    elsif raw.length != 0
+      wlog("hostname resolution failed, the returned address is corrupt (hostname: #{host}, length: #{raw.length})")
     end
 
     result = { :hostname => host, :ip => ip }

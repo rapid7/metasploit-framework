@@ -34,6 +34,7 @@ RSpec.describe Msf::Modules::Metadata::Search do
 
   describe '#parse_search_string' do
     it { expect(described_class.parse_search_string(nil)).to eq({}) }
+    it { expect(described_class.parse_search_string("")).to eq({}) }
     it { expect(described_class.parse_search_string(" ")).to eq({}) }
     it { expect(described_class.parse_search_string("os:osx os:windows")).to eq({"os"=>[["osx", "windows"], []]}) }
     it { expect(described_class.parse_search_string("postgres login")).to eq({"text"=>[["postgres", "login"], []]}) }
@@ -41,6 +42,11 @@ RSpec.describe Msf::Modules::Metadata::Search do
     it { expect(described_class.parse_search_string("platform:-android")).to eq({"platform"=>[[], ["android"]]}) }
     it { expect(described_class.parse_search_string("author:egypt arch:x64")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
     it { expect(described_class.parse_search_string("  author:egypt   arch:x64  ")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
+    it { expect(described_class.parse_search_string("postgres:")).to eq({"text"=>[["postgres"], []]}) }
+    it { expect(described_class.parse_search_string("postgres;")).to eq({"text"=>[["postgres;"], []]}) }
+    it { expect(described_class.parse_search_string("text:postgres:")).to eq({"text"=>[["postgres"], []]}) }
+    it { expect(described_class.parse_search_string("postgres::::")).to eq({"text"=>[["postgres"], []]}) }
+    it { expect(described_class.parse_search_string("turtle:bobcat postgres:")).to eq({"text"=>[["postgres"], []], "turtle"=>[["bobcat"], []]}) }
   end
 
   describe '#find' do

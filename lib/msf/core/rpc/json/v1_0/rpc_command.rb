@@ -32,7 +32,7 @@ module Msf::RPC::JSON
       # returning the method's return value.
       # @param method [String] the RPC method name
       # @param params [Array, Hash] parameters for the RPC call
-      # @returns [Object] the method's return value.
+      # @return [Object] the method's return value.
       def execute(method, params)
         result = execute_internal(method, params)
         result = post_process_result(result, method, params)
@@ -48,7 +48,7 @@ module Msf::RPC::JSON
       # @param params [Array, Hash] parameters for the RPC call
       # @raise [MethodNotFound] The method does not exist
       # @raise [Timeout::Error] The method failed to terminate in @execute_timeout seconds
-      # @returns [Object] the method's return value.
+      # @return [Object] the method's return value.
       def execute_internal(method, params)
         group, base_method = parse_method_group(method)
 
@@ -78,7 +78,7 @@ module Msf::RPC::JSON
 
       # Parse method string in the format "group.base_method_name".
       # @param method [String] the RPC method name
-      # @returns [Array] Tuple of strings, group and base_method
+      # @return [Array] Tuple of strings, group and base_method
       def parse_method_group(method)
         idx = method.rindex(METHOD_GROUP_SEPARATOR)
         if idx.nil?
@@ -95,7 +95,7 @@ module Msf::RPC::JSON
       # @param handlers [Hash] hash of group String - Msf::RPC::RPC_Base object pairs
       # @param group [String] the RPC group
       # @param method_name [String] the RPC method name
-      # @returns [Msf::RPC::RPC_Base] concrete Msf::RPC::RPC_Base instance if one exists; otherwise, nil.
+      # @return [Msf::RPC::RPC_Base] concrete Msf::RPC::RPC_Base instance if one exists; otherwise, nil.
       def find_handler(handlers, group, method_name)
         handler = nil
         if !handlers[group].nil? && handlers[group].respond_to?(method_name)
@@ -108,7 +108,7 @@ module Msf::RPC::JSON
       # Prepare params for use by RPC methods by converting all hashes
       # inside of Arrays to use strings for their names (keys).
       # @param params [Object] parameters for the RPC call
-      # @returns [Object] If params is an Array all hashes it contains will be
+      # @return [Object] If params is an Array all hashes it contains will be
       # modified; otherwise, the object will simply pass-through.
       def prepare_params(params)
         clean_params = params
@@ -127,7 +127,7 @@ module Msf::RPC::JSON
 
       # Stringify the names (keys) in hash.
       # @param hash [Hash] input hash
-      # @returns [Hash] a new hash with strings for the keys.
+      # @return [Hash] a new hash with strings for the keys.
       def stringify_names(hash)
         JSON.parse(JSON.dump(hash), symbolize_names: false)
       end
@@ -136,7 +136,7 @@ module Msf::RPC::JSON
       # @param result [Object] the method's return value
       # @param method [String] the RPC method name
       # @param params [Array, Hash] parameters for the RPC call
-      # @returns [Object] processed method's return value
+      # @return [Object] processed method's return value
       def post_process_result(result, method, params)
         # post-process payload module result for JSON output
         if method == MODULE_EXECUTE_KEY && params.size >= 2 &&

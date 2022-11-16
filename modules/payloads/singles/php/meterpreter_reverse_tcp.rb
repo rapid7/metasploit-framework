@@ -25,7 +25,7 @@ module MetasploitModule
       'Session'       => Msf::Sessions::Meterpreter_Php_Php))
   end
 
-  def generate
+  def generate(_opts = {})
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
     met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']

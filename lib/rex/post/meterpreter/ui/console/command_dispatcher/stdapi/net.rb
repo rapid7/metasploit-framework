@@ -471,6 +471,7 @@ class Console::CommandDispatcher::Stdapi::Net
             return false
           end
 
+          print_status("Reverse TCP relay created: (remote) #{rhost}:#{rport} -> (local) #{lhost}:#{lport}")
         else
           # Validate parameters
           unless lport && rhost && rport
@@ -486,10 +487,9 @@ class Console::CommandDispatcher::Stdapi::Net
             'MeterpreterRelay'  => true,
             'OnLocalConnection' => Proc.new { |relay, lfd| create_tcp_channel(relay) })
           lport = relay.opts['LocalPort']
+
+          print_status("Forward TCP relay created: (local) #{lhost}:#{lport} -> (remote) #{rhost}:#{rport}")
         end
-
-        print_status("Local TCP relay created: #{lhost}:#{lport} <-> #{rhost}:#{rport}")
-
       # Delete local port forwards
       when 'delete', 'remove', 'del', 'rm'
 

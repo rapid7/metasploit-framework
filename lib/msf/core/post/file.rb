@@ -778,17 +778,18 @@ module Msf::Post::File
 
 protected
 
-  # Checks to see if there are non-ansi or newline characters in a given string
+  # Checks to see if there are non-printable characters in a given string
   #
-  # @param data [String] String to check for non-ansi or newline chars
+  # @param data [String] String to check for non-printable characters
   # @return bool
   def _can_echo?(data)
-    data.each_char do |char|
-      unless char.ascii_only? || char == '\n' || char == '"'
-        return false
-      end
+    # Ensure all bytes are between ascii 0x20 to 0x7e (ie. [[:print]]), excluding quotes etc
+    data.bytes.all? do|b|
+      (b >= 0x20 && b <= 0x7e) &&
+        b != '"'.ord &&
+        b != '%'.ord &&
+        b != '$'.ord
     end
-    return true
   end
 
   #
@@ -879,7 +880,7 @@ protected
     b64_filename = "#{file_name}.b64"
     begin
       _win_ansi_write_file(b64_filename, b64_data, chunk_size)
-      cmd_exec("certutil -decode #{b64_filename} #{file_name}")
+      cmd_exec("certutil -f -decode #{b64_filename} #{file_name}")
     rescue ::Exception => e
       print_error("Exception while running #{__method__}: #{e}")
     ensure

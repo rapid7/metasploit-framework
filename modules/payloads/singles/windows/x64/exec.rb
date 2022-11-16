@@ -50,7 +50,7 @@ module MetasploitModule
       ])
   end
 
-  def generate
+  def generate(_opts = {})
     return super + command_string + "\x00"
   end
 
