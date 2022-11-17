@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptEnum.new('CollectionMethod', [
-        true, 'The collection method to use. This parameter accepts a comma separated list of values.', 'Default',
+        true, 'The collection method to use.', 'Default',
         ['Group', 'LocalGroup', 'LocalAdmin', 'RDP', 'DCOM', 'PSRemote', 'Session', 'Trusts', 'ACL', 'Container', 'ComputerOnly', 'GPOLocalGroup', 'LoggedOn', 'ObjectProps', 'SPNTargets', 'Default', 'DCOnly', 'All']
       ]),
       OptString.new('Domain', [false, 'Specifies the domain to enumerate. If not specified, will enumerate the current domain your user context specifies']),

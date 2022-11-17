@@ -29,7 +29,7 @@ Which method to use to get shaphound running.  Default is `download`.
 
 ### CollectionMethode
 
-The collection method to use. This parameter accepts a comma separated list of values. Accepted values are `Default`, `Group`,
+The collection method to use. Accepted values are `Default`, `Group`,
 `LocalAdmin`, `RDP`, `DCOM`, `GPOLocalGroup`, `Session`, `ObjectProps`, `ComputerOnly`, `LoggedOn`, `Trusts`, `ACL`, `Container`,
 `DcOnly`, `All`.  The default method is `Default`.
 
