@@ -25,10 +25,10 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [ ]
         },
         'Actions' => [
-          [ 'TGT', { 'Description' => 'Request a TGT' } ],
-          [ 'TGS', { 'Description' => 'Request a TGS' } ],
+          [ 'GET_TGT', { 'Description' => 'Request a Ticket-Granting-Ticket (TGT)' } ],
+          [ 'GET_TGS', { 'Description' => 'Request a Ticket-Granting-Service (TGS)' } ],
         ],
-        'DefaultAction' => 'TGT'
+        'DefaultAction' => 'GET_TGT'
       )
     )
 
@@ -41,23 +41,20 @@ class MetasploitModule < Msf::Auxiliary
           'NTHASH', [
             false,
             'The NT hash in hex string. Server must support RC4'
-          ],
-          regex: /^\h{32}$/
+          ]
         ),
         OptString.new(
           'AESKEY', [
             false,
             'The AES key to use for Kerberos authentication in hex string. Supported keys: 128 or 256 bits'
-          ],
-          regex: /^(\h{32}|\h{64})$/
+          ]
         ),
         OptString.new(
           'SPN', [
             false,
             'The Service Principal Name, format is service_name/FQDN. Ex: cifs/dc01.mydomain.local'
           ],
-          regex: %r{.+/.+},
-          conditions: %w[ACTION == TGS]
+          conditions: %w[ACTION == GET_TGS]
         )
       ]
     )
@@ -75,15 +72,32 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run
-    if action.name == 'TGS' && datastore['SPN'].blank?
+  def validate_options
+    if datastore['NTHASH'].present? && !datastore['NTHASH'].match(/^\h{32}$/)
+      fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH must be a hex string of 32 characters (128 bits)')
+    end
+
+    if datastore['AESKEY'].present? && !datastore['AESKEY'].match(/^(\h{32}|\h{64})$/)
+      fail_with(Msf::Exploit::Failure::BadConfig,
+                'AESKEY must be a hex string of 32 characters for 128-bits AES keys or 64 characters for 256-bits AES keys')
+    end
+
+    if action.name == 'GET_TGS' && datastore['SPN'].blank?
       fail_with(Failure::BadConfig, 'SPN must be provided when requiring a TGS')
     end
 
-    send("action_request_#{action.name.downcase}")
+    if datastore['SPN'].present? && !datastore['SPN'].match(%r{.+/.+})
+      fail_with(Msf::Exploit::Failure::BadConfig, 'SPN format must be service_name/FQDN (ex: cifs/dc01.mydomain.local)')
+    end
   end
 
-  def action_request_tgt
+  def run
+    validate_options
+
+    send("action_#{action.name.downcase}")
+  end
+
+  def action_get_tgt
     ticket_options = Rex::Proto::Kerberos::Model::KdcOptionFlags.from_flags(
       [
         Rex::Proto::Kerberos::Model::KdcOptionFlag::FORWARDABLE,
@@ -99,6 +113,10 @@ class MetasploitModule < Msf::Auxiliary
       options: ticket_options
     }
     options[:password] = datastore['PASSWORD'] if datastore['PASSWORD'].present?
+    if datastore['NTHASH'].present?
+      options[:key] = [datastore['NTHASH']].pack('H*')
+      options[:etype] = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+    end
     if datastore['AESKEY'].present?
       options[:key] = [ datastore['AESKEY'] ].pack('H*')
       options[:etype] = if options[:key].size == 32
@@ -106,10 +124,6 @@ class MetasploitModule < Msf::Auxiliary
                         else
                           Rex::Proto::Kerberos::Crypto::Encryption::AES128
                         end
-    end
-    if datastore['NTHASH'].present?
-      options[:key] = [datastore['NTHASH']].pack('H*')
-      options[:etype] = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
     end
 
     tgt_result = send_request_tgt(options)
@@ -148,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, "Error while requesting a TGT: #{e}")
   end
 
-  def action_request_tgs
+  def action_get_tgs
     credential = nil
     options = {
       realm: datastore['DOMAIN'],
@@ -164,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
     if credential
       print_status("#{peer} - Using cached credential for #{credential.server} #{credential.client}")
     else
-      credential = action_request_tgt
+      credential = action_get_tgt
     end
 
     begin
