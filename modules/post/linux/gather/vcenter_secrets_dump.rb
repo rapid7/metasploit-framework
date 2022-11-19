@@ -92,8 +92,24 @@ class MetasploitModule < Msf::Post
     vc_type_embedded || vc_type_infrastructure
   end
 
+  def check_cve_2022_22948
+    # https://github.com/PenteraIO/CVE-2022-22948/blob/main/CVE-2022-22948-scanner.sh#L5
+    cmd_exec('stat -c "%G" "/etc/vmware-vpx/vcdb.properties"') == 'cis'
+  end
+
   def run
     get_vcsa_version
+
+    if check_cve_2022_22948
+      print_good('Vulnerable to CVE-2022-22948')
+      report_vuln(
+        host: rhost,
+        port: rport,
+        name: name,
+        refs: ['CVE-2022-22948'],
+        info: "Module #{fullname} found /etc/vmware-vpx/vcdb.properties owned by cis group"
+      )
+    end
 
     print_status('Validating target')
     validate_target
