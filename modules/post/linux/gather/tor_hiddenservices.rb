@@ -32,9 +32,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    print_status("Running module against #{get_hostname} (#{session.session_host})")
+
     distro = get_sysinfo
-    h = get_host
-    print_status("Running module against #{h}")
     print_status("Info:")
     print_status("\t#{distro[:version]}")
     print_status("\t#{distro[:kernel]}")
@@ -46,17 +46,6 @@ class MetasploitModule < Msf::Post
     fname = ::File.basename(file)
     loot = store_loot(ltype, ctype, session, data, fname)
     print_status("#{fname} stored in #{loot.to_s}")
-  end
-
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo["Computer"]
-    when /shell/
-      host = cmd_exec("hostname").chomp
-    end
-
-    return host
   end
 
   def find_torrc
