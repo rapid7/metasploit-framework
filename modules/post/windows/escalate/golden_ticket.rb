@@ -144,10 +144,10 @@ class MetasploitModule < Msf::Post
       krb_cred = Rex::Proto::Kerberos::Model::KrbCred.decode(kirbi_ticket)
 
       ccache_ticket = Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(krb_cred)
-      ccache_location = store_loot("golden_ticket",
-                                   "ccache",
+      ccache_location = store_loot('golden_ticket',
+                                   'ccache',
                                    session,
-                                   ccache_ticket,
+                                   ccache_ticket.to_binary_s,
                                    "#{domain}\\#{user}-golden_ticket.ccache",
                                    "#{domain}\\#{user} Golden Ticket")
       print_status("Ticket saved to #{ccache_location}")
