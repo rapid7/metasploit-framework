@@ -1,6 +1,5 @@
 REM Title: Metasploit Generated Payload
 REM Description: Opens a payload via powershell on the system
-REM Target: Windows 10/11 (Powershell)
 REM Version: 1.0
 REM Open start menu
 REM We use cmd.exe since the powershell payload is likely too long for the run bar
