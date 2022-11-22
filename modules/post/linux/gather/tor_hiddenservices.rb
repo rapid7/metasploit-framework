@@ -60,6 +60,8 @@ class MetasploitModule < Msf::Post
   end
 
   def find_torrc
+    fail_with(Failure::BadConfig, "'locate' command does not exist") unless command_exists?('locate')
+
     config = cmd_exec("locate 'torrc' | grep -v 'torrc.5.gz'").split("\n")
     if config.length == 0
         print_error ("No torrc file found, maybe it goes by a different name?")
