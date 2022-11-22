@@ -23,6 +23,21 @@ module Rex::Proto::MsDtyp
     bit2   :reserved1
     bit1   :ma
     bit1   :as
+    def bit_names
+      names = []
+      names << :GENERIC_READ if self.gr != 0
+      names << :GENERIC_WRITE if self.gw != 0
+      names << :GENERIC_EXECUTE if self.gx != 0
+      names << :GENERIC_ALL if self.ga != 0
+      names << :MAXIMUM_ALLOWED if self.ma != 0
+      names << :ACCESS_SYSTEM_SECURITY if self.as != 0
+      names << :SYNCHRONIZE if self.sy != 0
+      names << :WRITE_OWNER if self.wo != 0
+      names << :WRITE_DACL if self.wd != 0
+      names << :READ_CONTROL if self.rc != 0
+      names << :DELETE if self.de != 0
+      names
+    end
 
     ALL  = MsDtypAccessMask.new({ gr: 1, gw: 1, gx: 1, ga: 1, ma: 1, as: 1, sy: 1, wo: 1, wd: 1, rc: 1, de: 1, protocol: 0xffff })
     NONE = MsDtypAccessMask.new({ gr: 0, gw: 0, gx: 0, ga: 0, ma: 0, as: 0, sy: 0, wo: 0, wd: 0, rc: 0, de: 0, protocol: 0 })
