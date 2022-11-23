@@ -453,6 +453,7 @@ class Console::CommandDispatcher::Stdapi::Net
           begin
             channel = client.net.socket.create(
               Rex::Socket::Parameters.new(
+                'LocalHost' => rhost,
                 'LocalPort' => rport,
                 'Proto'     => 'tcp',
                 'Server'    => true
@@ -461,6 +462,7 @@ class Console::CommandDispatcher::Stdapi::Net
 
             # Start the local TCP reverse relay in association with this stream
             relay = service.start_reverse_tcp_relay(channel,
+              'LocalHost'         => channel.params.localhost,
               'LocalPort'         => channel.params.localport,
               'PeerHost'          => lhost,
               'PeerPort'          => lport,
