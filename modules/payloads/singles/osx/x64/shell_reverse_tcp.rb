@@ -37,7 +37,7 @@ module MetasploitModule
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD
-  def generate
+  def generate(_opts = {})
     lhost = datastore['LHOST'] || '127.0.0.1'
     # OptAddress allows either an IP or hostname, we only want IPv4
     unless Rex::Socket.is_ipv4?(lhost)

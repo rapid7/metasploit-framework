@@ -31,7 +31,7 @@ module MetasploitModule
   end
 
 
-  def generate
+  def generate(_opts = {})
     return super + jsp_bind_tcp
   end
 end

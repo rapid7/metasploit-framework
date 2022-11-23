@@ -56,7 +56,7 @@ module MetasploitModule
       ])
   end
 
-  def generate
+  def generate(_opts = {})
 
     volume_label   = datastore['VOLUMELABEL'] || ""
     encoded_volume_label = volume_label.to_s.unpack("C*").pack("v*")

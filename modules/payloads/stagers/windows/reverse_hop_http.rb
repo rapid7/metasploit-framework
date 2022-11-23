@@ -59,7 +59,7 @@ module MetasploitModule
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     uri = URI(datastore['HOPURL'])
     #create actual payload
     payload_data = <<EOS

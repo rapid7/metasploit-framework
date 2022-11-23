@@ -34,7 +34,7 @@ class Msf::WebServices::MetasploitApiApp < Sinatra::Base
 
   configure do
     set :sessions, {key: 'msf-ws.session', expire_after: 300}
-    set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET') { SecureRandom.hex(16) }
+    set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET') { SecureRandom.hex(32) }
   end
 
   before do

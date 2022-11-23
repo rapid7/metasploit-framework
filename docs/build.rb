@@ -32,6 +32,9 @@ module Build
     end
   end
 
+  class ConfigValidationError < StandardError
+  end
+
   # Configuration for generating the new website hierarchy, from the existing metasploit-framework wiki
   class Config
     include Enumerable
@@ -43,34 +46,34 @@ module Build
     def validate!
       configured_paths = all_file_paths
       missing_paths = available_paths.map { |path| path.gsub("#{WIKI_PATH}/", '') } - ignored_paths - existing_docs - configured_paths
-      raise "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
+      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
 
       each do |page|
         page_keys = page.keys
         allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
-        raise "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
+        raise ConfigValidationError, "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
       end
 
       # Ensure unique folder names
       folder_titles = to_enum.select { |page| page[:folder] }.map { |page| page[:title] }
       duplicate_folder = folder_titles.tally.select { |_name, count| count > 1 }
-      raise "Duplicate folder titles, will cause issues: #{duplicate_folder}" if duplicate_folder.any?
+      raise ConfigValidationError, "Duplicate folder titles, will cause issues: #{duplicate_folder}" if duplicate_folder.any?
 
       # Ensure no folder titles match file titles
       page_titles = to_enum.reject { |page| page[:folder] }.map { |page| page[:title] }
       title_collisions = (folder_titles & page_titles).tally
-      raise "Duplicate folder/page titles, will cause issues: #{title_collisions}" if title_collisions.any?
+      raise ConfigValidationError, "Duplicate folder/page titles, will cause issues: #{title_collisions}" if title_collisions.any?
 
       # Ensure there are no files being migrated to multiple places
       page_paths = to_enum.reject { |page| page[:path] }.map { |page| page[:title] }
       duplicate_page_paths = page_paths.tally.select { |_name, count| count > 1 }
-      raise "Duplicate paths, will cause issues: #{duplicate_page_paths}" if duplicate_page_paths.any?
+      raise ConfigValidationError, "Duplicate paths, will cause issues: #{duplicate_page_paths}" if duplicate_page_paths.any?
 
       # Ensure new file paths are only alphanumeric and hyphenated
       new_paths = to_enum.map { |page| page[:new_path] }
       invalid_new_paths = new_paths.reject { |path| File.basename(path) =~ /^[a-zA-Z0-9_-]*\.md$/ }
-      raise "Only alphanumeric and hyphenated file names required: #{invalid_new_paths}" if invalid_new_paths.any?
+      raise ConfigValidationError, "Only alphanumeric and hyphenated file names required: #{invalid_new_paths}" if invalid_new_paths.any?
     end
 
     def available_paths
@@ -346,7 +349,12 @@ module Build
     # - Converts the existing Wiki markdown pages into a Jekyll format
     # - Optionally updates the existing Wiki markdown pages with a link to the new website location
     def run(config, options = {})
-      config.validate!
+      begin
+        config.validate!
+      rescue
+        puts "[!] Validation failed. Please verify navigation.rb is valid, as well as the markdown file"
+        raise
+      end
 
       # Clean up new docs folder in preparation for regenerating it entirely from the latest wiki
       result_folder = File.join('.', 'docs')

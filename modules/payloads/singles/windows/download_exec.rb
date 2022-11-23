@@ -34,7 +34,7 @@ module MetasploitModule
   #
   # Construct the payload
   #
-  def generate
+  def generate(_opts = {})
 
     target_uri = datastore['URL'] || ""
     filename = datastore['EXE'] || ""

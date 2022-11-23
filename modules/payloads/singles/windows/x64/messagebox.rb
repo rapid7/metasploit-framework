@@ -58,7 +58,7 @@ module MetasploitModule
     return (hash(to_unicode(libname.upcase)) + hash(function)) & 0xffffffff
   end
 
-  def generate
+  def generate(_opts = {})
     style = 0x00
     case datastore['ICON'].upcase.strip
       # default = NO

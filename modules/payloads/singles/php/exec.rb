@@ -43,7 +43,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return php_exec_cmd
   end
 end

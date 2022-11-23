@@ -30,7 +30,7 @@ module MetasploitModule
     super
   end
 
-  def generate
+  def generate(_opts = {})
     payload = super
 
     if payload.include?("\n")

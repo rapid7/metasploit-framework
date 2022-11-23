@@ -22,14 +22,14 @@ class Def_windows_netapi32
       ["PBLOB","DomainGuid","in"],
       ["PWCHAR","SiteName","in"],
       ["DWORD","Flags","in"],
-      ["PDWORD","DomainControllerInfo","out"]
+      ["PLPVOID","DomainControllerInfo","out"]
     ])
 
     dll.add_function('NetUserEnum', 'DWORD', [
       ["PWCHAR","servername","in"],
       ["DWORD","level","in"],
       ["DWORD","filter","in"],
-      ["PBLOB","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -39,7 +39,7 @@ class Def_windows_netapi32
     dll.add_function('NetLocalGroupEnum', 'DWORD', [
       ["PWCHAR","servername","in"],
       ["DWORD","level","in"],
-      ["PBLOB","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -49,7 +49,7 @@ class Def_windows_netapi32
     dll.add_function('NetGroupEnum', 'DWORD', [
       ["PWCHAR","servername","in"],
       ["DWORD","level","in"],
-      ["PBLOB","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -72,7 +72,7 @@ class Def_windows_netapi32
       ["PWCHAR","servername","in"],
       ["PWCHAR","groupname","in"],
       ["DWORD","level","in"],
-      ["PBLOB","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -83,7 +83,7 @@ class Def_windows_netapi32
       ["PWCHAR","servername","in"],
       ["PWCHAR","localgroupname","in"],
       ["DWORD","level","in"],
-      ["PBLOB","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -127,7 +127,7 @@ class Def_windows_netapi32
     dll.add_function('NetServerEnum', 'DWORD',[
       ["PWCHAR","servername","in"],
       ["DWORD","level","in"],
-      ["PDWORD","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -139,7 +139,7 @@ class Def_windows_netapi32
     dll.add_function('NetWkstaUserEnum', 'DWORD', [
       ["PWCHAR","servername","in"],
       ["DWORD","level","in"],
-      ["PDWORD","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"],
@@ -150,7 +150,7 @@ class Def_windows_netapi32
       ["PWCHAR","servername","in"],
       ["PWCHAR","username","in"],
       ["DWORD","level","in"],
-      ["PDWORD","bufptr","out"],
+      ["PLPVOID","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"]
@@ -161,7 +161,7 @@ class Def_windows_netapi32
         ['PWCHAR','UncClientName','in'],
         ['PWCHAR','username','in'],
         ['DWORD','level','in'],
-        ['PDWORD','bufptr','out'],
+        ['PLPVOID','bufptr','out'],
         ['DWORD','prefmaxlen','in'],
         ['PDWORD','entriesread','out'],
         ['PDWORD','totalentries','out'],

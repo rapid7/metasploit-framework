@@ -115,7 +115,9 @@ class CommandMapper
 
     available_modules = [
       ::Rex::Post::Meterpreter,
-      *::Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
+      *::Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses,
+      # Railgun is a special case that defines extra TLV_TYPES inside an extension
+      Rex::Post::Meterpreter::Extensions::Stdapi::Railgun
     ].uniq
 
     available_modules.each do |mod|

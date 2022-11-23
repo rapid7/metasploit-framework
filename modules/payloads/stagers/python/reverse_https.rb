@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 865
+  CachedSize = :dynamic
 
   include Msf::Payload::Stager
   include Msf::Payload::Python
@@ -27,7 +27,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     super({scheme: 'https'})
   end
 end
