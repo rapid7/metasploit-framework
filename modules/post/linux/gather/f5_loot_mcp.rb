@@ -30,8 +30,6 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://support.f5.com/csp/article/K97843387'],
         ],
         'DisclosureDate' => '2022-11-16',
-        'Targets' => [[ 'Auto', {} ]],
-        'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
