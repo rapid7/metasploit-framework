@@ -427,7 +427,7 @@ class Console::CommandDispatcher::Stdapi::Net
           direction = 'Forward'
           direction = 'Reverse' if opts['Reverse'] == true
 
-          table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", direction]
+          table << [cnt + 1, "#{netloc(rhost, rport)}", "#{netloc(lhost, lport)}", direction]
 
           cnt += 1
         }
@@ -473,7 +473,7 @@ class Console::CommandDispatcher::Stdapi::Net
             return false
           end
 
-          print_status("Reverse TCP relay created: (remote) #{rhost}:#{rport} -> (local) #{lhost}:#{lport}")
+          print_status("Reverse TCP relay created: (remote) #{netloc(rhost, rport)} -> (local) #{netloc(lhost, lport)}")
         else
           # Validate parameters
           unless lport && rhost && rport
@@ -490,7 +490,7 @@ class Console::CommandDispatcher::Stdapi::Net
             'OnLocalConnection' => Proc.new { |relay, lfd| create_tcp_channel(relay) })
           lport = relay.opts['LocalPort']
 
-          print_status("Forward TCP relay created: (local) #{lhost}:#{lport} -> (remote) #{rhost}:#{rport}")
+          print_status("Forward TCP relay created: (local) #{netloc(lhost, lport)} -> (remote) #{netloc(rhost, rport)}")
         end
       # Delete local port forwards
       when 'delete', 'remove', 'del', 'rm'
@@ -535,9 +535,9 @@ class Console::CommandDispatcher::Stdapi::Net
 
           # Stop the service
           if service.stop_tcp_relay(lport, lhost)
-            print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+            print_status("Successfully stopped TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
           else
-            print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+            print_error("Failed to stop TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
           end
         end
 
@@ -556,9 +556,9 @@ class Console::CommandDispatcher::Stdapi::Net
             end
           else
             if service.stop_tcp_relay(lport, lhost)
-              print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+              print_status("Successfully stopped TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
             else
-              print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+              print_error("Failed to stop TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
               next
             end
           end
@@ -667,6 +667,10 @@ protected
     )
   end
 
+  def netloc(host, port)
+    host = "[#{host}]" if Rex::Socket.is_ipv6?(host)
+    "#{host}:#{port}"
+  end
 end
 
 end
