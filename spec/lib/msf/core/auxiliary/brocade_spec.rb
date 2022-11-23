@@ -1,20 +1,25 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-
 RSpec.describe Msf::Auxiliary::Brocade do
+  if ENV['REMOTE_DB']
+    # https://github.com/rapid7/metasploit-framework/pull/9939/files#diff-08c7b840568ae1bf6ed26d4d4288e5e8c1b817f8622dec8fb38417c74be6765d
+    before { skip('Awaiting cred port') }
+  end
+
+  include_context 'Msf::DBManager'
+  include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
+
   class DummyBrocadeClass
     include Msf::Auxiliary::Brocade
     def framework
-      Msf::Simple::Framework.create(
-          'ConfigDirectory' => Rails.root.join('spec', 'dummy', 'framework', 'config').to_s,
-          # don't load any module paths so we can just load the module under test and save time
-          'DeferModuleLoads' => true
-      )
+      raise StandardError, 'This method needs to be stubbed.'
     end
+
     def active_db?
-      true
+      framework.db.active
     end
+
     def print_good(str=nil)
       raise StandardError.new("This method needs to be stubbed.")
     end
@@ -35,6 +40,10 @@ RSpec.describe Msf::Auxiliary::Brocade do
   subject(:aux_brocade) { DummyBrocadeClass.new }
 
   let!(:workspace) { FactoryBot.create(:mdm_workspace) }
+
+  before(:each) do
+    allow_any_instance_of(DummyBrocadeClass).to receive(:framework).and_return(framework)
+  end
 
   context '#create_credential_and_login' do
 

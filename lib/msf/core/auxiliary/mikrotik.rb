@@ -90,11 +90,11 @@ module Msf
           module_fullname: fullname,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
-      end
 
-      # Default SNMP to UDP
-      if tport == 161
-        credential_data[:protocol] = 'udp'
+        # Default SNMP to UDP
+        if tport == 161
+          credential_data[:protocol] = 'udp'
+        end
       end
 
       store_loot('mikrotik.config', 'text/plain', thost, config.strip, 'config.txt', 'MikroTik Configuration')
@@ -185,11 +185,11 @@ module Msf
           module_fullname: fullname,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
-      end
 
-      # Default SNMP to UDP
-      if tport == 161
-        credential_data[:protocol] = 'udp'
+        # Default SNMP to UDP
+        if tport == 161
+          credential_data[:protocol] = 'udp'
+        end
       end
 
       store_loot('mikrotik.config', 'text/plain', thost, config.strip, 'config.txt', 'MikroTik Configuration')

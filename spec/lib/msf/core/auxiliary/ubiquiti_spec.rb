@@ -4,18 +4,24 @@ require 'spec_helper'
 require 'bson'
 
 RSpec.describe Msf::Auxiliary::Ubiquiti do
+  if ENV['REMOTE_DB']
+    # https://github.com/rapid7/metasploit-framework/pull/9939/files#diff-08c7b840568ae1bf6ed26d4d4288e5e8c1b817f8622dec8fb38417c74be6765d
+    before { skip('Awaiting cred port') }
+  end
+
+  include_context 'Msf::DBManager'
+  include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
+
   class DummyUnifiClass
     include Msf::Auxiliary::Ubiquiti
     def framework
-      Msf::Simple::Framework.create(
-          'ConfigDirectory' => Rails.root.join('spec', 'dummy', 'framework', 'config').to_s,
-          # don't load any module paths so we can just load the module under test and save time
-          'DeferModuleLoads' => true
-      )
+      raise StandardError, 'This method needs to be stubbed.'
     end
+
     def active_db?
-      true
+      framework.db.active
     end
+
     def print_good(str=nil)
       raise StandardError.new("This method needs to be stubbed.")
     end
@@ -37,6 +43,10 @@ RSpec.describe Msf::Auxiliary::Ubiquiti do
 
   let!(:workspace) { FactoryBot.create(:mdm_workspace) }
 
+  before(:each) do
+    allow_any_instance_of(DummyUnifiClass).to receive(:framework).and_return(framework)
+  end
+
   context '#create_credential_and_login' do
 
     let(:session) { FactoryBot.create(:mdm_session) }
@@ -46,11 +56,11 @@ RSpec.describe Msf::Auxiliary::Ubiquiti do
     let(:user) { FactoryBot.create(:mdm_user)}
 
     subject(:test_object) { DummyUnifiClass.new }
-    
+
     let(:workspace) { FactoryBot.create(:mdm_workspace) }
     let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
-    
+
     let(:login_data) {
       {
         address: service.host.address,
@@ -68,7 +78,7 @@ RSpec.describe Msf::Auxiliary::Ubiquiti do
         status: Metasploit::Model::Login::Status::UNTRIED
       }
     }
-    
+
     it 'creates a Metasploit::Credential::Login' do
       expect{test_object.create_credential_and_login(login_data)}.to change{Metasploit::Credential::Login.count}.by(1)
     end
@@ -132,12 +142,12 @@ RSpec.describe Msf::Auxiliary::Ubiquiti do
       )
     end
   end
-    
+
   context 'deals with radius configurations' do
     before(:example) do
       expect(aux_unifi).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
-      
+
     it 'with internal configurations' do
       expect(aux_unifi).to receive(:print_good).with("Radius server: 192.168.0.1:1812 with secret 'supersecret'")
       expect(aux_unifi).to receive(:report_host).with({:host => '127.0.0.1', :info => 'Ubiquiti Unifi Controller'})
@@ -164,11 +174,11 @@ RSpec.describe Msf::Auxiliary::Ubiquiti do
           username: ''
         }
       )
-        
+
       aux_unifi.unifi_config_eater('127.0.0.1',1337,
         {"radiusprofile"=>[{"_id"=>BSON::ObjectId('2c7a318c38c5ce2f86d179cb'), "attr_no_delete"=>true, "attr_hidden_id"=>"Default", "name"=>"Default", "site_id"=>"3c7f226b2315be2087a1d5b2", "use_usg_auth_server"=>true, "auth_servers"=>[{"ip"=>"192.168.0.1", "port"=>1812, "x_secret"=>"supersecret"}], "acct_servers"=>[]}]}
       )
-    end      
+    end
   end
 
   context 'handles firewall' do
