@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Post
     end
     # Parse keyevents; example format, KEYEVENT 82 press
     if line_array[0] == 'KEYEVENT'
-      session.ui.keyevent_send(line_array[1].to_i, line_array[2].to_i)
+      session.ui.keyevent_send(line_array[1].to_i, actions.key(line_array[2]).to_i)
     end
   end
 
