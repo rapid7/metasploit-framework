@@ -3,10 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'metasploit-concern', git: 'https://github.com/jmartin-r7/metasploit-concern', branch: 'add-support-for-rails-7'
-gem 'metasploit_data_models', git: 'https://github.com/jmartin-r7/metasploit_data_models', branch: 'add-support-for-rails-7'
-gem 'metasploit-credential', git: 'https://github.com/jmartin-r7/metasploit-credential', branch: 'add-support-for-rails-7'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests

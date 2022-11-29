@@ -1,46 +1,3 @@
-GIT
-  remote: https://github.com/jmartin-r7/metasploit-concern
-  revision: 5fec21870eff06c3e4e80b517dc3c11df931268d
-  branch: add-support-for-rails-7
-  specs:
-    metasploit-concern (5.0.0)
-      activemodel (~> 7.0)
-      activesupport (~> 7.0)
-      railties (~> 7.0)
-      zeitwerk
-
-GIT
-  remote: https://github.com/jmartin-r7/metasploit-credential
-  revision: bf1ffd5e6d3fb28ccf9d34aa5c41402fbb9d366b
-  branch: add-support-for-rails-7
-  specs:
-    metasploit-credential (6.0.0)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip
-
-GIT
-  remote: https://github.com/jmartin-r7/metasploit_data_models
-  revision: 1225880fc317e520c74edd3ef5e930b9c9f78546
-  branch: add-support-for-rails-7
-  specs:
-    metasploit_data_models (6.0.0)
-      activerecord (~> 7.0)
-      activesupport (~> 7.0)
-      arel-helpers
-      metasploit-concern
-      metasploit-model (>= 3.1)
-      pg
-      railties (~> 7.0)
-      recog
-      webrick
-
 PATH
   remote: .
   specs:
@@ -272,11 +229,36 @@ GEM
       nokogiri (>= 1.5.9)
     memory_profiler (1.0.1)
     metasm (1.0.5)
+    metasploit-concern (5.0.0)
+      activemodel (~> 7.0)
+      activesupport (~> 7.0)
+      railties (~> 7.0)
+      zeitwerk
+    metasploit-credential (6.0.0)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
     metasploit-model (5.0.0)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
     metasploit-payloads (2.0.108)
+    metasploit_data_models (6.0.0)
+      activerecord (~> 7.0)
+      activesupport (~> 7.0)
+      arel-helpers
+      metasploit-concern
+      metasploit-model (>= 3.1)
+      pg
+      railties (~> 7.0)
+      recog
+      webrick
     metasploit_payloads-mettle (1.0.20)
     method_source (1.0.0)
     mini_portile2 (2.8.1)
@@ -524,10 +506,7 @@ DEPENDENCIES
   factory_bot_rails
   fivemat
   memory_profiler
-  metasploit-concern!
-  metasploit-credential!
   metasploit-framework!
-  metasploit_data_models!
   octokit
   pry-byebug
   rake
