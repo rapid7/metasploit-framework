@@ -11,7 +11,10 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Ducky Script Parser',
         'Description' => %q{
-          This *incomplete* module can be used to execute supplied Ducky Scripts.
+          This module can be used to execute supplied *lightweight* Ducky Scripts - only supports: GUI, STRING, and STRINGLN.
+          It also supports sending individual keyevents based on Metasploit's current standards.
+
+          Setting VERBOSE to true will output each line of your file as it is parsed.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -47,20 +50,33 @@ class MetasploitModule < Msf::Post
 
   def ducky_parse(line)
     # Define common key codes for initial testing; this can be expanded later
-    key_codes = { '8' => 'backspace', '9' => 'tab', '13' => 'enter', '91' => 'windows' }
+    key_codes = { '13' => 'enter', '91' => 'windows' }
     actions = { '0' => 'press', '1' => 'down', '2' => 'up' }
-    line_array = line.split(' ', 2)
+    if line.include?('STRING') || line.include?('STRINGLN') || line.include?('GUI')
+      line_array = line.split(' ', 2)
+    end
+    if line.include?('KEYEVENT')
+      line_array = line.split(' ')
+    end
+    # Write a string
     if line_array[0] == 'STRING'
       session.ui.keyboard_send(line_array[1])
     end
+    # Write a string and press ENTER
     if line_array[0] == 'STRINGLN'
       session.ui.keyboard_send(line_array[1])
       session.ui.keyevent_send(key_codes.key('enter').to_i, actions.key('press').to_i)
     end
+    # Press Windows + R to launch run dialog
     if line_array[0] == 'GUI'
       session.ui.keyevent_send(key_codes.key('windows').to_i, actions.key('down').to_i)
+      # Keycode 82 == r
       session.ui.keyevent_send(82, actions.key('press').to_i)
       session.ui.keyevent_send(key_codes.key('windows').to_i, actions.key('up').to_i)
+    end
+    # Parse keyevents; example format, KEYEVENT 82 press
+    if line_array[0] == 'KEYEVENT'
+      session.ui.keyevent_send(line_array[1].to_i, line_array[2].to_i)
     end
   end
 
@@ -73,7 +89,9 @@ class MetasploitModule < Msf::Post
     end
     print_good("Reading file #{datastore['FILENAME']}")
     File.readlines(datastore['FILENAME']).each do |line|
-      print("Line: #{line}")
+      if datastore['VERBOSE']
+        print_good("Line: #{line}")
+      end
       sleep(datastore['SLEEP'])
       ducky_parse(line)
     end
