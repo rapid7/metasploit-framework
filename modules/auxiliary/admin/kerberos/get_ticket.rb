@@ -100,10 +100,10 @@ class MetasploitModule < Msf::Auxiliary
   def action_get_tgt
     ticket_options = Rex::Proto::Kerberos::Model::KdcOptionFlags.from_flags(
       [
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::FORWARDABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::RENEWABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::CANONICALIZE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::RENEWABLE_OK
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE,
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE,
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::CANONICALIZE,
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE_OK
       ]
     )
     options = {
@@ -238,9 +238,9 @@ class MetasploitModule < Msf::Auxiliary
     )
     ticket_options = Rex::Proto::Kerberos::Model::KdcOptionFlags.from_flags(
       [
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::FORWARDABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::RENEWABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlag::CANONICALIZE,
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE,
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE,
+        Rex::Proto::Kerberos::Model::KdcOptionFlags::CANONICALIZE,
       ]
     )
 
