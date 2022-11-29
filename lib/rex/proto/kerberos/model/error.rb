@@ -58,8 +58,12 @@ module Rex
             end
           end
 
+          # Core Kerberos specification and errors:
           # https://datatracker.ietf.org/doc/html/rfc4120#section-7.5.9
           # https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4768#table-2-kerberos-ticket-flags
+          #
+          # Additional errors added by PKINIT:
+          # https://www.rfc-editor.org/rfc/rfc4556#section-3.1.3
           module ErrorCodes
             KDC_ERR_NONE = ErrorCode.new('KDC_ERR_NONE', 0, 'No error')
             KDC_ERR_NAME_EXP = ErrorCode.new('KDC_ERR_NAME_EXP', 1, "Client's entry in database has expired")
@@ -108,7 +112,20 @@ module Rex
             KRB_AP_ERR_INAPP_CKSUM = ErrorCode.new('KRB_AP_ERR_INAPP_CKSUM', 50, 'Inappropriate type of checksum in message')
             KRB_ERR_GENERIC = ErrorCode.new('KRB_ERR_GENERIC', 60, 'Generic error')
             KRB_ERR_FIELD_TOOLONG = ErrorCode.new('KRB_ERR_FIELD_TOOLONG', 61, 'Field is too long for this implementation')
+            KDC_ERR_CLIENT_NOT_TRUSTED = ErrorCode.new('KDC_ERR_CLIENT_NOT_TRUSTED', 62, 'PKINIT - KDC_ERR_CLIENT_NOT_TRUSTED')
+            KDC_ERR_INVALID_SIG = ErrorCode.new('KDC_ERR_INVALID_SIG', 64, 'PKINIT - KDC_ERR_INVALID_SIG')
+            KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED', 65, 'PKINIT - KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED')
             KDC_ERR_WRONG_REALM = ErrorCode.new('KDC_ERR_WRONG_REALM', 68, 'Wrong Realm / domain')
+            KDC_ERR_CANT_VERIFY_CERTIFICATE = ErrorCode.new('KDC_ERR_CANT_VERIFY_CERTIFICATE', 70, 'PKINIT - KDC_ERR_CANT_VERIFY_CERTIFICATE')
+            KDC_ERR_INVALID_CERTIFICATE = ErrorCode.new('KDC_ERR_INVALID_CERTIFICATE', 71, 'PKINIT - KDC_ERR_INVALID_CERTIFICATE')
+            KDC_ERR_REVOKED_CERTIFICATE = ErrorCode.new('KDC_ERR_REVOKED_CERTIFICATE', 72, 'PKINIT - KDC_ERR_REVOKED_CERTIFICATE')
+            KDC_ERR_REVOCATION_STATUS_UNKNOWN = ErrorCode.new('KDC_ERR_REVOCATION_STATUS_UNKNOWN', 73, 'PKINIT - KDC_ERR_REVOCATION_STATUS_UNKNOWN')
+            KDC_ERR_CLIENT_NAME_MISMATCH = ErrorCode.new('KDC_ERR_CLIENT_NAME_MISMATCH', 75, 'PKINIT - KDC_ERR_CLIENT_NAME_MISMATCH')
+            KDC_ERR_INCONSISTENT_KEY_PURPOSE = ErrorCode.new('KDC_ERR_INCONSISTENT_KEY_PURPOSE', 77, 'PKINIT - KDC_ERR_INCONSISTENT_KEY_PURPOSE')
+            KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED', 78, 'PKINIT - KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED')
+            KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED = ErrorCode.new('KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED', 79, 'PKINIT - KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED')
+            KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED', 80, 'PKINIT - KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED')
+            KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED = ErrorCode.new('KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED', 81, 'PKINIT - KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED')
 
             # Allow lookup of errors via numerical value
             ERROR_MAP = ErrorCodes.constants.each_with_object({}) do |const, map|
