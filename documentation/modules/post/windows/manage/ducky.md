@@ -3,6 +3,11 @@
 This module serves as a wrapper around keyboard_send and keyevent_send using familiar Ducky Script language.
 
 ## Script Language
+- **REM** - This is a DuckyScript comment and is ignored.
+- **UP** - Move cursor up.
+- **DOWN** - Move cursor down.
+- **LEFT** - Move cursor left.
+- **RIGHT** - Move cursor right.
 - **STRING** - This uses keyboard_send to send a string.
 - **STRINGLN** - This sends a complete string followed by a new line.
 - **GUI** - This executes the run dialog by sending keyevents for Windows+R.
