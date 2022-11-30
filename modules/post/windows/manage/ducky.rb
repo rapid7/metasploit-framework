@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK]
+          'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK, SCREEN_EFFECTS]
         },
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter', ],
