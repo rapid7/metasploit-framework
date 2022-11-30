@@ -8,6 +8,7 @@ This module serves as a wrapper around keyboard_send and keyevent_send using fam
 - **DOWN** - Move cursor down.
 - **LEFT** - Move cursor left.
 - **RIGHT** - Move cursor right.
+- **RETURN** - Send a keyevent for Return/Enter.
 - **STRING** - This uses keyboard_send to send a string.
 - **STRINGLN** - This sends a complete string followed by a new line.
 - **GUI** - This executes the run dialog by sending keyevents for Windows+R.
@@ -17,10 +18,12 @@ This module serves as a wrapper around keyboard_send and keyevent_send using fam
 ```
 GUI
 STRINGLN notepad.exe
-KEYEVENT 82 press
-KEYEVENT 79 press
-KEYEVENT 79 press
-KEYEVENT 77 press
+KEYEVENT SHIFT DOWN
+KEYEVENT R PRESS
+KEYEVENT O PRESS
+KEYEVENT SHIFT UP
+KEYEVENT O PRESS
+KEYEVENT M PRESS
 ```
 OR
 ```
