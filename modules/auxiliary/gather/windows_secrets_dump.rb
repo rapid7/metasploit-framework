@@ -429,21 +429,32 @@ class MetasploitModule < Msf::Auxiliary
     raw_secret_utf_16le = raw_secret.dup.force_encoding(::Encoding::UTF_16LE)
     raw_secret_utf8 = raw_secret_utf_16le.encode(::Encoding::UTF_8, invalid: :replace).b
 
-    secret << {
-      enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
-      key: aes256_cts_hmac_sha1_96(raw_secret_utf8, salt),
-      salt: salt
-    }
-    secret << {
-      enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES128,
-      key: aes128_cts_hmac_sha1_96(raw_secret_utf8, salt),
-      salt: salt
-    }
-    secret << {
-      enctype: Rex::Proto::Kerberos::Crypto::Encryption::DES_CBC_MD5,
-      key: des_cbc_md5(raw_secret_utf8, salt),
-      salt: salt
-    }
+    secret << build_credential_private_data(
+      private_type: :krb_enc_key,
+      krb_enc_key: {
+        enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+        key: aes256_cts_hmac_sha1_96(raw_secret_utf8, salt),
+        salt: salt
+      }
+    )
+
+    secret << build_credential_private_data(
+      private_type: :krb_enc_key,
+      krb_enc_key: {
+        enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES128,
+        key: aes128_cts_hmac_sha1_96(raw_secret_utf8, salt),
+        salt: salt
+      }
+    )
+
+    secret << build_credential_private_data(
+      private_type: :krb_enc_key,
+      krb_enc_key: {
+        enctype: Rex::Proto::Kerberos::Crypto::Encryption::DES_CBC_MD5,
+        key: des_cbc_md5(raw_secret_utf8, salt),
+        salt: salt
+      }
+    )
 
     secret
   end
@@ -912,11 +923,16 @@ class MetasploitModule < Msf::Auxiliary
       else
         credential_opts[:type] = :krb_enc_key
         info[:kerberos_keys].each do |key|
-          # Map the SAMR kerberos key to an IANA compatible enctype before persisting
-          krb_enckey = key.merge(
-            enctype: SAMR_KERBEROS_TYPE_TO_IANA[key[:enctype]]
+          krb_enckey = build_credential_private_data(
+            private_type: :krb_enc_key,
+            krb_enc_key: {
+              **key,
+              # Map the SAMR kerberos key to an IANA compatible enctype before persisting
+              enctype: SAMR_KERBEROS_TYPE_TO_IANA[key[:enctype]]
+            }
           )
-          krb_enckey_to_s = krb_enc_key_to_s(krb_enckey)
+
+          krb_enckey_to_s = krb_enc_key_to_s(krb_enckey[:private_data])
           unless report_creds(full_name, krb_enckey, is_login_cred: false, **credential_opts)
             vprint_bad("Error when reporting #{full_name} kerberos key #{krb_enckey_to_s}")
           end

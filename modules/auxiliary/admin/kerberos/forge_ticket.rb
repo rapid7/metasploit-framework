@@ -115,11 +115,13 @@ class MetasploitModule < Msf::Auxiliary
       origin_type: :import,
       filename: fname,
       username: datastore['USER'],
-      private_type: :krb_ticket,
-      private_data: create_krb_ticket_data(
-        type: ticket_type,
-        ccache: ccache,
-        sname: datastore['SPN']
+      **build_credential_private_data(
+        private_type: :krb_ticket,
+        krb_ticket: {
+          type: ticket_type,
+          ccache: ccache,
+          sname: datastore['SPN']
+        }
       )
     }
 
@@ -143,23 +145,5 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
       fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size} should be 32 or 64")
     end
-  end
-
-  # @option [Symbol] :type Either tgt or tgs
-  # @option [Rex::Proto::Kerberos::Model::PrincipalName,String] :sname The target service principal name.
-  # @param [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache] ccache
-  # @return [Hash]
-  def create_krb_ticket_data(type:, ccache:, sname: nil)
-    # at this time Metasploit stores 1 credential per ccache file, so no need to iterate through them
-    cred = ccache.credentials.first
-
-    {
-      type: type,
-      sname: sname.to_s,
-      value: ccache.encode,
-      authtime: cred.authtime.to_time,
-      starttime: cred.starttime.to_time,
-      endtime: cred.endtime.to_time
-    }
   end
 end
