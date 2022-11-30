@@ -39,8 +39,3 @@ class MetasploitModule < Msf::Auxiliary
     print_good "Results saved to #{path}"
   end
 end
-
-=begin
-To set the AllowUncrypted option:
-winrm set winrm/config/service @{AllowUnencrypted="true"}
-=end
