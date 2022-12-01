@@ -5,6 +5,7 @@ module Msf
     module Vcenter
       module Vcenter
         include Msf::Post::File
+        include Msf::Post::Linux::Priv
 
         def manifest_file
           '/opt/vmware/etc/appliance-manifest.xml'

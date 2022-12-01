@@ -340,10 +340,12 @@ RSpec.describe Msf::Post::Vcenter::Vcenter do
     it 'from failing to get a valid entry' do
       allow(subject).to receive(:file_exist?).and_return(true)
       allow(subject).to receive(:read_file).and_return('this is not valid')
+      allow(subject).to receive(:is_root?).and_return(true)
       expect(subject.process_vcdb_properties_file).to eq({})
     end
     it 'and processes them correctly' do
       allow(subject).to receive(:file_exist?).and_return(true)
+      allow(subject).to receive(:is_root?).and_return(true)
       allow(subject).to receive(:read_file).and_return("driver = org.postgresql.Driver\ndbtype = PostgreSQL\nurl = jdbc:postgresql://localhost:5432/VCDB\nusername = vc\npassword = MB&|<)haN6Q>{K3O\npassword.encrypted = false")
       expect(subject.process_vcdb_properties_file).to eq({
         'driver' => 'org.postgresql.Driver',
