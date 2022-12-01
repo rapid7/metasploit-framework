@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           'URL', 'https://docs.hak5.org/hak5-usb-rubber-ducky/duckyscript-tm-quick-reference',
         ],
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
+          'Stability' => [],
           'Reliability' => [],
           'SideEffects' => [CONFIG_CHANGES, ARTIFACTS_ON_DISK, SCREEN_EFFECTS, PHYSICAL_EFFECTS, AUDIO_EFFECTS]
         },
