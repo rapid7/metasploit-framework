@@ -10,16 +10,16 @@ afm, 0.2.2, MIT
 arel-helpers, 2.14.0, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
-aws-partitions, 1.648.0, "Apache 2.0"
-aws-sdk-core, 3.162.0, "Apache 2.0"
-aws-sdk-ec2, 1.341.0, "Apache 2.0"
-aws-sdk-iam, 1.71.0, "Apache 2.0"
-aws-sdk-kms, 1.58.0, "Apache 2.0"
-aws-sdk-s3, 1.115.0, "Apache 2.0"
+aws-partitions, 1.663.0, "Apache 2.0"
+aws-sdk-core, 3.168.0, "Apache 2.0"
+aws-sdk-ec2, 1.350.0, "Apache 2.0"
+aws-sdk-iam, 1.73.0, "Apache 2.0"
+aws-sdk-kms, 1.59.0, "Apache 2.0"
+aws-sdk-s3, 1.117.1, "Apache 2.0"
 aws-sigv4, 1.5.2, "Apache 2.0"
 bcrypt, 3.1.18, MIT
 bcrypt_pbkdf, 1.1.0, MIT
-bindata, 2.4.13, ruby
+bindata, 2.4.14, ruby
 bson, 4.15.0, "Apache 2.0"
 builder, 3.2.4, MIT
 bundler, 2.1.4, MIT
@@ -29,7 +29,7 @@ concurrent-ruby, 1.0.5, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
 daemons, 1.4.1, MIT
-debug, 1.6.2, "ruby, Simplified BSD"
+debug, 1.6.3, "ruby, Simplified BSD"
 diff-lcs, 1.5.0, "MIT, Artistic-2.0, GPL-2.0+"
 dnsruby, 1.61.9, "Apache 2.0"
 docile, 1.4.0, MIT
@@ -41,9 +41,9 @@ erubi, 1.11.0, MIT
 eventmachine, 1.2.7, "ruby, GPL-2.0"
 factory_bot, 6.2.1, MIT
 factory_bot_rails, 6.2.0, MIT
-faker, 2.23.0, MIT
-faraday, 2.6.0, MIT
-faraday-net_http, 3.0.1, MIT
+faker, 3.0.0, MIT
+faraday, 2.7.1, MIT
+faraday-net_http, 3.0.2, MIT
 faraday-retry, 2.0.0, MIT
 faye-websocket, 0.11.1, "Apache 2.0"
 ffi, 1.15.5, "New BSD"
@@ -59,21 +59,21 @@ http_parser.rb, 0.8.0, MIT
 httpclient, 2.8.3, ruby
 i18n, 1.12.0, MIT
 io-console, 0.5.11, "ruby, Simplified BSD"
-irb, 1.4.2, "ruby, Simplified BSD"
+irb, 1.4.3, "ruby, Simplified BSD"
 jmespath, 1.6.1, "Apache 2.0"
 jsobfu, 0.4.2, "New BSD"
 json, 2.6.2, ruby
 little-plugger, 1.1.4, MIT
 logging, 2.3.1, MIT
 loofah, 2.19.0, MIT
-memory_profiler, 1.0.0, MIT
+memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.5, "New BSD"
 metasploit-credential, 5.0.9, "New BSD"
-metasploit-framework, 6.2.29, "New BSD"
+metasploit-framework, 6.2.30, "New BSD"
 metasploit-model, 4.0.6, "New BSD"
 metasploit-payloads, 2.0.101, "3-clause (or ""modified"") BSD"
-metasploit_data_models, 5.0.5, "New BSD"
+metasploit_data_models, 5.0.6, "New BSD"
 metasploit_payloads-mettle, 1.0.20, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
 mini_portile2, 2.8.0, MIT
@@ -85,7 +85,7 @@ mustermann, 3.0.0, MIT
 nessus_rest, 0.1.6, MIT
 net-ldap, 0.17.1, MIT
 net-protocol, 0.1.3, "ruby, Simplified BSD"
-net-smtp, 0.3.2, "ruby, Simplified BSD"
+net-smtp, 0.3.3, "ruby, Simplified BSD"
 net-ssh, 7.0.1, MIT
 network_interface, 0.0.2, MIT
 nexpose, 7.3.0, "New BSD"
@@ -101,15 +101,15 @@ parallel, 1.22.1, MIT
 parser, 3.1.2.1, MIT
 patch_finder, 1.0.2, "New BSD"
 pcaprub, 0.13.1, LGPL-2.1
-pdf-reader, 2.10.0, MIT
-pg, 1.4.4, "Simplified BSD"
+pdf-reader, 2.11.0, MIT
+pg, 1.4.5, "Simplified BSD"
 pry, 0.13.1, MIT
 pry-byebug, 3.9.0, MIT
 public_suffix, 5.0.0, MIT
 puma, 6.0.0, "New BSD"
 racc, 1.6.0, "ruby, Simplified BSD"
 rack, 2.2.4, MIT
-rack-protection, 3.0.2, MIT
+rack-protection, 3.0.3, MIT
 rack-test, 2.0.2, MIT
 rails-dom-testing, 2.0.3, MIT
 rails-html-sanitizer, 1.4.3, MIT
@@ -117,9 +117,9 @@ railties, 6.1.7, MIT
 rainbow, 3.1.1, MIT
 rake, 13.0.6, MIT
 rb-readline, 0.5.5, BSD
-recog, 2.3.23, unknown
+recog, 3.0.3, unknown
 redcarpet, 3.5.1, MIT
-regexp_parser, 2.6.0, MIT
+regexp_parser, 2.6.1, MIT
 reline, 0.3.1, ruby
 rex-arch, 0.1.14, "New BSD"
 rex-bin_tools, 0.1.8, "New BSD"
@@ -141,29 +141,29 @@ rex-text, 0.2.46, "New BSD"
 rex-zip, 0.1.4, "New BSD"
 rexml, 3.2.5, "Simplified BSD"
 rkelly-remix, 0.0.7, MIT
-rspec, 3.11.0, MIT
-rspec-core, 3.11.0, MIT
-rspec-expectations, 3.11.1, MIT
-rspec-mocks, 3.11.1, MIT
+rspec, 3.12.0, MIT
+rspec-core, 3.12.0, MIT
+rspec-expectations, 3.12.0, MIT
+rspec-mocks, 3.12.0, MIT
 rspec-rails, 6.0.1, MIT
 rspec-rerun, 1.1.0, MIT
-rspec-support, 3.11.1, MIT
-rubocop, 1.37.0, MIT
-rubocop-ast, 1.22.0, MIT
+rspec-support, 3.12.0, MIT
+rubocop, 1.39.0, MIT
+rubocop-ast, 1.23.0, MIT
 ruby-macho, 3.0.0, MIT
 ruby-prof, 1.4.2, "Simplified BSD"
 ruby-progressbar, 1.11.0, MIT
 ruby-rc4, 0.1.5, MIT
 ruby2_keywords, 0.0.5, "ruby, Simplified BSD"
-ruby_smb, 3.2.0, "New BSD"
+ruby_smb, 3.2.1, "New BSD"
 rubyntlm, 0.6.3, MIT
 rubyzip, 2.3.2, "Simplified BSD"
 sawyer, 0.9.2, MIT
 simplecov, 0.18.2, MIT
 simplecov-html, 0.12.3, MIT
 simpleidn, 0.2.1, MIT
-sinatra, 3.0.2, MIT
-sqlite3, 1.5.3, "New BSD"
+sinatra, 3.0.3, MIT
+sqlite3, 1.5.4, "New BSD"
 sshkey, 2.0.0, MIT
 swagger-blocks, 3.0.0, MIT
 thin, 1.8.1, "GPL-2.0+, ruby"
@@ -173,7 +173,7 @@ timecop, 0.9.5, MIT
 timeout, 0.3.0, "ruby, Simplified BSD"
 ttfunk, 1.7.0, "Nonstandard, GPL-2.0, GPL-3.0"
 tzinfo, 2.0.5, MIT
-tzinfo-data, 1.2022.5, MIT
+tzinfo-data, 1.2022.6, MIT
 unf, 0.1.4, "2-clause BSDL"
 unf_ext, 0.0.8.2, MIT
 unicode-display_width, 2.3.0, MIT
@@ -188,4 +188,4 @@ winrm, 2.3.6, "Apache 2.0"
 xdr, 3.0.3, "Apache 2.0"
 xmlrpc, 0.3.2, "ruby, Simplified BSD"
 yard, 0.9.28, MIT
-zeitwerk, 2.6.1, MIT
+zeitwerk, 2.6.6, MIT
