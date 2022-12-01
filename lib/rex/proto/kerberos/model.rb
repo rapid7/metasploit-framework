@@ -1,4 +1,4 @@
-# -*- coding: binary -*-
+ # -*- coding: binary -*-
 
 module Rex
   module Proto
@@ -61,7 +61,9 @@ module Rex
           PA_PK_AS_REP = 17
           PA_ETYPE_INFO2 = 19
           PA_PAC_REQUEST = 128
+          PA_FOR_USER = 129
           PA_SUPPORTED_ETYPES = 165
+          PA_PAC_OPTIONS = 167
         end
 
         AD_IF_RELEVANT = 1

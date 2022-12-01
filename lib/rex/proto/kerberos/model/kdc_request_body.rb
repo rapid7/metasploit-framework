@@ -61,6 +61,9 @@ module Rex
           # @!attribute enc_auth_data
           #   @return [Rex::Proto::Kerberos::Model::EncryptedData] An encoding of the desired authorization-data encrypted
           attr_accessor :enc_auth_data
+          # @!attribute additional_tickets
+          #   @return [Array<Rex::Proto::Kerberos::Model::EncryptedData>] Additional tickets
+          attr_accessor :additional_tickets
 
           # Decodes the Rex::Proto::Kerberos::Model::KdcRequestBody attributes from input
           #
@@ -97,6 +100,7 @@ module Rex
             elems << OpenSSL::ASN1::ASN1Data.new([encode_etype], 8, :CONTEXT_SPECIFIC) if etype
             elems << OpenSSL::ASN1::ASN1Data.new([encode_addresses], 9, :CONTEXT_SPECIFIC) if addresses&.any?
             elems << OpenSSL::ASN1::ASN1Data.new([encode_enc_auth_data], 10, :CONTEXT_SPECIFIC) if enc_auth_data
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_additional_tickets], 11, :CONTEXT_SPECIFIC) if additional_tickets
 
             seq = OpenSSL::ASN1::Sequence.new(elems)
 
@@ -210,6 +214,18 @@ module Rex
             enc_auth_data.encode
           end
 
+          # Encodes the additional_tickets
+          #
+          # @return [OpenSSL::ASN1::Sequence]
+          def encode_additional_tickets
+            encoded_tickets = []
+            additional_tickets.each do |ticket|
+              encoded_tickets << ticket.encode
+            end
+
+            OpenSSL::ASN1::Sequence.new(encoded_tickets)
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::KdcRequestBody from an String
           #
           # @param input [String] the input to decode from
@@ -254,6 +270,8 @@ module Rex
                 self.addresses = decode_addresses(val)
               when 10
                 self.enc_auth_data = decode_enc_auth_data(val)
+              when 11
+                self.additional_tickets = decode_additional_tickets(val)
               else
                 raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequestBody SEQUENCE'
               end
@@ -355,6 +373,19 @@ module Rex
           def decode_enc_auth_data(input)
             Rex::Proto::Kerberos::Model::EncryptedData.decode(input.value[0])
           end
+
+          # Decodes the additional_tickets field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Kerberos::Model::EncryptedData>]
+          def decode_additional_tickets(input)
+            encs = []
+            input.value[0].value.each do |enc_ticket|
+              encs << enc_ticket.decode
+            end
+            encs
+          end
+
         end
       end
     end

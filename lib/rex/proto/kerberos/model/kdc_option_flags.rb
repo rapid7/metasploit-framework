@@ -22,6 +22,7 @@ module Rex
           HW_AUTHNET = 11
           TRANSITED_POLICY_CHECKED = 12
           OK_AS_DELEGATE = 13
+          CNAME_IN_ADDL_TKT = 14
           CANONICALIZE = 15
           RENEWABLE_OK = 27
           ENC_TKT_IN_SKEY = 28

