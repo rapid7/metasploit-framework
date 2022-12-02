@@ -24,23 +24,6 @@ module Metasploit
           false
         end
 
-        # Checks if Syncovery Linux is used.
-        #
-        # @return [Boolean] true if Linux was found, otherwise FalseClass
-        def linux?
-          globals = normalize_uri("#{uri}/get_global_variables")
-          res = send_request({ 'uri' => globals })
-          if res && res.code == 200
-            json_res = res.get_json_document
-            if json_res['isSyncoveryLinux'] || !json_res['isSyncoveryWindows']
-              return true
-            end
-
-            false
-          end
-          false
-        end
-
         # Gets the Syncovery version.
         #
         # @return [String] version if version was found, otherwise FalseClass

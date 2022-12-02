@@ -21,6 +21,20 @@ The default credentials are checked by default.
 5. Do: `run`
 6. On success you should get valid credentials.
 
+## Options
+
+### USERNAME
+Username used for login. Default is "default".
+
+### PASSWORD
+Password used for login. Default is "pass".
+
+### TARGETURI
+The path to Syncovery login.
+
+### PORT
+The (TCP) target port on which Syncovery is running. By default port 8999 is used for HTTP and port 8943 is used for HTTPS.
+
 ## Scenarios
 
 ### Syncovery for Linux with default credentials
