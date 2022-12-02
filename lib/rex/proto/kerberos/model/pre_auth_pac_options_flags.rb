@@ -7,7 +7,7 @@ module Rex
         # THe PA-PAC-OPTIONS KerberosFlags are represented as a bit string.
         # This module associates the human readable name, to the index the flag value is found at within the bit string.
         # https://www.rfc-editor.org/rfc/rfc4120.txt - KDCOptions      ::= KerberosFlags
-        module PreAuthPacOptionsFlags
+        class PreAuthPacOptionsFlags < KerberosFlags
           # [MS-KILE] 2.2.10
           CLAIMS = 0
           BRANCH_AWARE = 1

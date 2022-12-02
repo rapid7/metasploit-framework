@@ -55,7 +55,9 @@ request the ticket).
 
 ### KrbUseCachedCredentials
 If set to `true`, it looks for a matching TGT in the database and, if found,
-use it for Kerberos authentication. Default is `true`.
+use it for Kerberos authentication when requesting a TGS. Note that this option
+only applies to `GET_TGS` action and has no effect on the `GET_TGT` action.
+Default is `true`.
 
 ## Scenarios
 

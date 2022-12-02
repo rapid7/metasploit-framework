@@ -71,9 +71,10 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new(
           'KrbUseCachedCredentials', [
             true,
-            'Use credentials stored in the database for Kerberos authentication',
+            'Use credentials stored in the database for Kerberos authentication when requesting a TGS',
             true
-          ]
+          ],
+          conditions: %w[ACTION == GET_TGS]
         ),
       ]
     )
@@ -149,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Getting TGT for #{datastore['USER']}@#{datastore['DOMAIN']}")
 
     authenticator = init_authenticator({ use_cached_credentials: false })
-    authenticator.authenticate({ tgt_only: true })
+    authenticator.request_tgt_only
   end
 
   def action_get_tgs
@@ -157,18 +158,18 @@ class MetasploitModule < Msf::Auxiliary
       use_cached_credentials: datastore['KrbUseCachedCredentials'].nil? ? false : datastore['KrbUseCachedCredentials']
     }
     authenticator = init_authenticator(options)
+    credential = authenticator.request_tgt_only(options)
 
     if datastore['IMPERSONATE'].present?
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_UNKNOWN,
         name_string: [datastore['USER']]
       )
-      credential = authenticator.request_tgt_only(options)
       auth_options = {
         sname: sname,
-        impersonate: datastore['IMPERSONATE'],
-        use_cache_tgt_only: true
+        impersonate: datastore['IMPERSONATE']
       }
       tgs_ticket, _tgs_auth = authenticator.s4u2self(
         credential,
@@ -180,19 +181,19 @@ class MetasploitModule < Msf::Auxiliary
         name_string: datastore['SPN'].split('/')
       )
       auth_options[:tgs_ticket] = tgs_ticket
-      auth_options.delete(:store_credential_cache)
       authenticator.s4u2proxy(credential, auth_options)
     else
       print_status("#{peer} - Getting TGS for #{datastore['USER']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
         name_string: datastore['SPN'].split('/')
       )
-      auth_options = {
+      tgs_options = {
         sname: sname,
-        use_cache_tgt_only: true
+        use_cached_credentials: false
       }
-      authenticator.authenticate(auth_options)
+      authenticator.request_tgs_only(credential, tgs_options)
     end
   end
 
