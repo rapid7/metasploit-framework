@@ -11,7 +11,7 @@ cameras, boilers, lights, safety alarm systems in an entire building.
 Default credentials exist within a vulnerable configuration on the Linear eMerge E3 access controller that can be easily leveraged
 to gain privileged access to the system.
 
-The first credential vulnerability is based on a default root password that is a stored in the `/etc/passwd`.
+The first credential vulnerability is based on a default root password that is stored in `/etc/passwd`.
 This can be used to escalate to root privileges using the RCE vulnerability CVE-2019-7256 or use these credentials in combination
 with ssh (if enabled) to get root access to the access controller.
 
@@ -44,8 +44,8 @@ This module has been tested against a Linear eMerge access controller with the s
 ### Nortek Linear eMerge E3 access controller credential disclosure
 
 ```
-msf6 > auxiliary/admin/http/linear_emerge_cred_disclosure_cve_2019_7252
-msf6 exploit(linux/http/linear_emerge_unauth_rce_cve_2019_7256) > options
+msf6 > use auxiliary/admin/http/linear_emerge_cred_disclosure_cve_2019_7252
+msf6 auxiliary(admin/http/linear_emerge_cred_disclosure_cve_2019_7252) > options
 
 Module options (auxiliary/admin/http/linear_emerge_cred_disclosure_cve_2019_7252):
 
