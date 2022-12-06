@@ -19,13 +19,13 @@ module Rex::Proto::Kerberos::CredentialCache
     private_constant :ADDRESS_TYPE_MAP
 
     AD_TYPE_MAP = {
-      Rex::Proto::Kerberos::Model::AD_IF_RELEVANT => 'IF_RELEVANT',
-      Rex::Proto::Kerberos::Model::KDC_ISSUED => 'KDC_ISSUED',
-      Rex::Proto::Kerberos::Model::AND_OR => 'AND_OR',
-      Rex::Proto::Kerberos::Model::MANDATORY_FOR_KDC => 'MANDATORY_FOR_KDC',
-      Rex::Proto::Kerberos::Model::INITIAL_VERIFIED_CAS => 'INITIAL_VERIFIED_CAS',
-      Rex::Proto::Kerberos::Model::OSF_DCE => 'OSF_DCE',
-      Rex::Proto::Kerberos::Model::SESAME => 'SESAME'
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::AD_IF_RELEVANT => 'IF_RELEVANT',
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::KDC_ISSUED => 'KDC_ISSUED',
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::AND_OR => 'AND_OR',
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::MANDATORY_FOR_KDC => 'MANDATORY_FOR_KDC',
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::INITIAL_VERIFIED_CAS => 'INITIAL_VERIFIED_CAS',
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::OSF_DCE => 'OSF_DCE',
+      Rex::Proto::Kerberos::Model::AuthorizationDataType::SESAME => 'SESAME'
     }.freeze
     private_constant :AD_TYPE_MAP
 

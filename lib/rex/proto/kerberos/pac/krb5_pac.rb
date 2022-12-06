@@ -29,7 +29,7 @@ module RubySMB::Dcerpc::Ndr
 
   # [2.2.6 Type Serialization Version 1](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/9a1d0f97-eac0-49ab-a197-f1a581c2d6a0)
   class TypeSerialization1 < NdrStruct
-    default_parameter byte_align: 4
+    default_parameter byte_align: 8
     mandatory_parameter :data_length
     endian :little
     search_prefix :type_serialization1
@@ -43,10 +43,11 @@ end
 # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1d4912dd-5115-4124-94b6-fa414add575f
 module Rex::Proto::Kerberos::Pac
   # https://github.com/rapid7/metasploit-framework/blob/b2eb348d943af25adfc41e6fa689d9da00154685/lib/rex/proto/kerberos/crypto.rb#L37-L42
-  # I don't know what the rest of these should be, the doc only mentions the three below
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/6e95edd3-af93-41d4-8303-6c7955297315
   CHECKSUM_SIGNATURE_LENGTH = {
-    Rex::Proto::Kerberos::Crypto::Checksum::RSA_MD5 => 16, # Used by: ms14_068_kerberos_checksum
+    # Used by: modules/auxiliary/admin/kerberos/ms14_068_kerberos_checksum.rb.
+    # Not defined in the specification explicitly, but the exploit uses a weaker checksum to bypass Microsoft's PAC security methods
+    Rex::Proto::Kerberos::Crypto::Checksum::RSA_MD5 => 16,
     Rex::Proto::Kerberos::Crypto::Checksum::SHA1_AES128 => 12,
     Rex::Proto::Kerberos::Crypto::Checksum::SHA1_AES256 => 12,
     Rex::Proto::Kerberos::Crypto::Checksum::HMAC_MD5 => 16,
