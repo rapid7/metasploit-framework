@@ -726,6 +726,10 @@ NAVIGATION_CONFIG = [
           },
           {
             path: 'Java-Meterpreter-Feature-Parity-Proposal.md'
+          },
+          {
+            path: 'Metasploit-Credential-Kerberos-Support-Proposal.md',
+            title: 'Metasploit Credential Kerberos Support'
           }
         ]
       },
