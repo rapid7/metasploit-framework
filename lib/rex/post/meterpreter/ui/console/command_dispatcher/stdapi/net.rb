@@ -442,7 +442,6 @@ class Console::CommandDispatcher::Stdapi::Net
         print_line
 
       when 'add'
-
         if reverse
           # Validate parameters
           unless lport && lhost && rport
@@ -450,10 +449,14 @@ class Console::CommandDispatcher::Stdapi::Net
             return
           end
 
+          unless rhost.nil?
+            print_warning('The remote host (-r) option is ignored for reverse port forwards.')
+          end
+
           begin
             channel = client.net.socket.create(
               Rex::Socket::Parameters.new(
-                'LocalHost' => rhost,
+                'LocalHost' => '', # see: #17282, always bind to all interfaces
                 'LocalPort' => rport,
                 'Proto'     => 'tcp',
                 'Server'    => true
