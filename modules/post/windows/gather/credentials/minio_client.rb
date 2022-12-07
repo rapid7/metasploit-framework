@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
         ],
         'Author' => ['Kali-Team <kali-team[at]qq.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ],
+        'SessionTypes' => %w[meterpreter powershell shell],
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
