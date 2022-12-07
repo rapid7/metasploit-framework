@@ -49,7 +49,13 @@ class MetasploitModule < Msf::Auxiliary
   CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT = '0e10c968-78fb-11d2-90d4-00c04f79dc55'.freeze
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
+
+  # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
   LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
+  OWNER_SECURITY_INFORMATION = 0x1
+  GROUP_SECURITY_INFORMATION = 0x2
+  DACL_SECURITY_INFORMATION = 0x4
+  SACL_SECURITY_INFORMATION = 0x8
 
   def parse_dacl_or_sacl(acl)
     flag_allowed_to_enroll = false
@@ -133,7 +139,8 @@ class MetasploitModule < Msf::Auxiliary
       # however in reality LDAP will cause that attribute to just be blanked out if a part of it
       # cannot be retrieved, so we just will get nothing for the ntSecurityDescriptor attribute
       # in these cases if the user doesn't have permissions to read the SACL.
-      control_values = [7].map(&:to_ber).to_ber_sequence.to_s.to_ber
+      all_but_sacl_flag = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION
+      control_values = [all_but_sacl_flag].map(&:to_ber).to_ber_sequence.to_s.to_ber
       controls = []
       controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
 
