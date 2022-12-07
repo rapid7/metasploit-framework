@@ -2,43 +2,7 @@
 
 require 'bindata'
 require 'ruby_smb/dcerpc'
-
-# Temp borrowed from christophe
-# https://github.com/cdelafuente-r7/metasploit-framework/blob/70767de71824557d4f8ad14831ed0121789d4363/lib/rex/proto/kerberos/pac/credential_info.rb#L3
-module RubySMB::Dcerpc::Ndr
-  # [2.2.6.1 Common Type Header for the Serialization Stream](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/6d75d40e-e2d2-4420-b9e9-8508a726a9ae)
-  class TypeSerialization1CommonTypeHeader < NdrStruct
-    default_parameter byte_align: 8
-    endian :little
-
-    ndr_uint8 :version, initial_value: 1
-    ndr_uint8 :endianness, initial_value: 0x10
-    ndr_uint16 :common_header_length, initial_value: 8
-    ndr_uint32 :filler, initial_value: 0xCCCCCCCC
-  end
-
-  # [2.2.6.2 Private Header for Constructed Type](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/63949ba8-bc88-4c0c-9377-23f14b197827)
-  class TypeSerialization1PrivateHeader < NdrStruct
-    default_parameter byte_align: 8
-    mandatory_parameter :data_length
-    endian :little
-
-    ndr_uint32 :object_buffer_length, initial_value: :data_length
-    ndr_uint32 :filler, initial_value: 0x00000000
-  end
-
-  # [2.2.6 Type Serialization Version 1](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/9a1d0f97-eac0-49ab-a197-f1a581c2d6a0)
-  class TypeSerialization1 < NdrStruct
-    default_parameter byte_align: 8
-    mandatory_parameter :data_length
-    endian :little
-    search_prefix :type_serialization1
-
-    common_type_header :common_header
-    private_header :private_header, data_length: :data_length
-  end
-end
-
+require 'rex/proto/kerberos/ndr/type_serialization1'
 # full MIDL spec for PAC
 # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1d4912dd-5115-4124-94b6-fa414add575f
 module Rex::Proto::Kerberos::Pac
@@ -299,13 +263,12 @@ module Rex::Proto::Kerberos::Pac
     extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
   end
 
-  class Krb5LogonInformation < BinData::Record
+  class Krb5LogonInformation < Rex::Proto::Kerberos::Ndr::TypeSerialization1
     endian :little
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present
     virtual :ul_type, value: 0x01
 
-    type_serialization1 :type_serialization1, data_length: -> { data.num_bytes }
     krb5_validation_info_ptr :data
   end
 

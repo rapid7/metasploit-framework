@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
+require 'rex/proto/kerberos/pac/krb5_pac'
 
 RSpec.describe Rex::Proto::Kerberos::Pac::Krb5Pac do
   subject(:pac) do
