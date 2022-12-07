@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 require 'rex/proto/kerberos/crypto/rc4_hmac'
 require 'rex/proto/kerberos/crypto/rsa_md5'
@@ -68,6 +69,18 @@ module Rex
           AES128 = 17
           AES256 = 18
           RC4_HMAC = 23
+
+          # Mapping of encryption type numbers to the human readable text description by IANA
+          # https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml
+          IANA_NAMES = {
+            DES_CBC_CRC => 'des-cbc-crc',
+            DES_CBC_MD4 => 'des-cbc-md4',
+            DES_CBC_MD5 => 'des-cbc-md5',
+            DES3_CBC_SHA1 => 'des3-cbc-sha1-kd',
+            AES128 => 'aes128-cts-hmac-sha1-96',
+            AES256 => 'aes256-cts-hmac-sha1-96',
+            RC4_HMAC => 'rc4-hmac'
+          }
 
           # The default etypes to offer to the Kerberos server when none is provided
           DefaultOfferedEtypes = [AES256, AES128, RC4_HMAC, DES_CBC_MD5, DES3_CBC_SHA1]

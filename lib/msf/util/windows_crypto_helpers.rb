@@ -391,14 +391,14 @@ module WindowsCryptoHelpers
 
       plaintext = ciphertext
     end
-    rnd_seed.unpack('H*')[0]
+    rnd_seed
   end
 
   # Encrypt using MIT Kerberos aes128-cts-hmac-sha1-96
   # http://web.mit.edu/kerberos/krb5-latest/doc/admin/enctypes.html?highlight=des#enctype-compatibility
   #
   # @param raw_secret [String] The data to encrypt
-  # @param key [String] The salt used by the encryption algorithm
+  # @param salt [String] The salt used by the encryption algorithm
   # @return [String, nil] The encrypted data
   def aes128_cts_hmac_sha1_96(raw_secret, salt)
     aes_cts_hmac_sha1_96('128-CBC', raw_secret, salt)
@@ -408,12 +408,21 @@ module WindowsCryptoHelpers
   # http://web.mit.edu/kerberos/krb5-latest/doc/admin/enctypes.html?highlight=des#enctype-compatibility
   #
   # @param raw_secret [String] The data to encrypt
-  # @param key [String] The salt used by the encryption algorithm
+  # @param salt [String] The salt used by the encryption algorithm
   # @return [String, nil] The encrypted data
   def aes256_cts_hmac_sha1_96(raw_secret, salt)
     aes_cts_hmac_sha1_96('256-CBC', raw_secret, salt)
   end
 
+  # Encrypt using MIT Kerberos rc4_hmac
+  # http://web.mit.edu/kerberos/krb5-latest/doc/admin/enctypes.html?highlight=des#enctype-compatibility
+  #
+  # @param raw_secret [String] The data to encrypt
+  # @param salt [String] The salt used by the encryption algorithm
+  # @return [String, nil] The encrypted data
+  def rc4_hmac(raw_secret, salt = nil)
+    Rex::Proto::Kerberos::Crypto::Rc4Hmac.new.string_to_key(raw_secret, salt)
+  end
 end
 end
 end
