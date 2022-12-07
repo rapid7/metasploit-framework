@@ -33,11 +33,7 @@ class MetasploitModule < Msf::Post
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_railgun_api
-              stdapi_railgun_api_multi
-              stdapi_railgun_memread
-              stdapi_railgun_memwrite
-              stdapi_sys_process_get_processes
+
             ]
           }
         }
@@ -58,15 +54,14 @@ class MetasploitModule < Msf::Post
       if file_contents.nil? || file_contents.empty?
         print_warning('Configuration file content is empty')
         return some_result
-      else
-        begin
-          configuration = JSON.parse(file_contents)
-          if !configuration['aliases'].nil?
-            some_result = configuration['aliases']
-          end
-        rescue JSON::ParserError => e
-          elog('Unable to parse configuration', error: e)
+      end
+      begin
+        configuration = JSON.parse(file_contents)
+        if !configuration['aliases'].nil?
+          some_result = configuration['aliases']
         end
+      rescue JSON::ParserError => e
+        elog('Unable to parse configuration', error: e)
       end
     end
     return some_result
