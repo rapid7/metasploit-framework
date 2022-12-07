@@ -32,9 +32,7 @@ class MetasploitModule < Msf::Post
         },
         'Compat' => {
           'Meterpreter' => {
-            'Commands' => %w[
-
-            ]
+            'Commands' => %w[]
           }
         }
       )
