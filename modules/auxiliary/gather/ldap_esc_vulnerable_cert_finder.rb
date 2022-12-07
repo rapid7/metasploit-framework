@@ -133,8 +133,9 @@ class MetasploitModule < Msf::Auxiliary
       # however in reality LDAP will cause that attribute to just be blanked out if a part of it
       # cannot be retrieved, so we just will get nothing for the ntSecurityDescriptor attribute
       # in these cases if the user doesn't have permissions to read the SACL.
-      control_value = [7].map(&:to_ber).to_ber_sequence.to_s.to_ber
-      controls = [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_value].to_ber_sequence
+      control_values = [7].map(&:to_ber).to_ber_sequence.to_s.to_ber
+      controls = []
+      controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
 
       returned_entries = ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
       query_result = ldap.as_json['result']['ldap_result']
