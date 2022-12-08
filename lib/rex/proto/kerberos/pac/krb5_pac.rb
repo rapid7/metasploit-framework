@@ -263,7 +263,7 @@ module Rex::Proto::Kerberos::Pac
     extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
   end
 
-  class Krb5LogonInformation < Rex::Proto::Kerberos::Ndr::TypeSerialization1
+  class Krb5LogonInformation < Rex::Proto::Kerberos::NDR::TypeSerialization1
     endian :little
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present

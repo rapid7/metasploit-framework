@@ -11,7 +11,7 @@ require 'ruby_smb/dcerpc'
 # [(IDL/NDR) # Pickles](https://pubs.opengroup.org/onlinepubs/9668899/chap2.htm#tagcjh_05_01_07)
 # and
 # [2.2.6 Type Serialization Version # 1](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/9a1d0f97-eac0-49ab-a197-f1a581c2d6a0)
-module Rex::Proto::Kerberos::Ndr
+module Rex::Proto::Kerberos::NDR
   # [2.2.6.1 Common Type Header for the Serialization Stream](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/6d75d40e-e2d2-4420-b9e9-8508a726a9ae)
   class TypeSerialization1CommonTypeHeader < BinData::Record
     default_parameter byte_align: 8
