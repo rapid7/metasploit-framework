@@ -50,6 +50,13 @@ class MetasploitModule < Msf::Auxiliary
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
 
+  # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
+  LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
+  OWNER_SECURITY_INFORMATION = 0x1
+  GROUP_SECURITY_INFORMATION = 0x2
+  DACL_SECURITY_INFORMATION = 0x4
+  SACL_SECURITY_INFORMATION = 0x8
+
   def parse_dacl_or_sacl(acl)
     flag_allowed_to_enroll = false
     allowed_sids = []
@@ -119,7 +126,25 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::BadConfig, "Could not compile the filter! Error was #{e}")
       end
 
-      returned_entries = ldap.search(base: full_base_dn, filter: filter, attributes: attributes)
+      # Set the value of LDAP_SERVER_SD_FLAGS_OID flag so everything but
+      # the SACL flag is set, as we need administrative privileges to retrieve
+      # the SACL from the ntSecurityDescriptor attribute on Windows AD LDAP servers.
+      #
+      # Note that without specifying the LDAP_SERVER_SD_FLAGS_OID control in this manner,
+      # the LDAP searchRequest will default to trying to grab all possible attributes of
+      # the ntSecurityDescriptor attribute, hence resulting in an attempt to retrieve the
+      # SACL even if the user is not an administrative user.
+      #
+      # Now one may think that we would just get the rest of the data without the SACL field,
+      # however in reality LDAP will cause that attribute to just be blanked out if a part of it
+      # cannot be retrieved, so we just will get nothing for the ntSecurityDescriptor attribute
+      # in these cases if the user doesn't have permissions to read the SACL.
+      all_but_sacl_flag = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION
+      control_values = [all_but_sacl_flag].map(&:to_ber).to_ber_sequence.to_s.to_ber
+      controls = []
+      controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
+
+      returned_entries = ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
       query_result = ldap.as_json['result']['ldap_result']
 
       validate_query_result!(query_result, filter)
