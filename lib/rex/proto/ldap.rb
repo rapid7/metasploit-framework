@@ -51,6 +51,9 @@ class Net::LDAP::Connection # :nodoc:
   # adjusting the search to not retrieve SACLs, non-admin users can still
   # retrieve information about the security of objects without violating this rule.
   #
+  # @see https://github.com/rapid7/metasploit-framework/issues/17324
+  # @see https://github.com/ruby-ldap/ruby-net-ldap/pull/411
+  #
   # @param [Hash] args A hash of the arguments to be utilized by the search operation.
   #
   # @return [Net::LDAP::PDU] A Protocol Data Unit (PDU) object, represented by the Net::LDAP::PDU class, containing the results of the search operation.
