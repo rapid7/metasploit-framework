@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
-This module exports and decrypts credentials from SolarWindows Orion Network Performance Monitor
-to a CSV file; it is intended as a post-exploitation module for Windows hosts with SolarWindows
+This module exports and decrypts credentials from SolarWinds Orion Network Performance Monitor
+to a CSV file; it is intended as a post-exploitation module for Windows hosts with SolarWinds
 Orion NPM installed. The module supports decryption of AES-256, RSA, and XMLSEC secrets. Separate
 actions for extraction and decryption of the data are provided to allow session migration during
 execution in order to log in to the SQL database using SSPI. Tested on  the 2020 version of
@@ -101,7 +101,7 @@ execute the SQL query below against the Orion database and save the resulting ro
 
 The CSV header must match:
 
-`CredentialID,Name,Description,CredentialType,CredentialOwner,CredentialPropertyName,Value,Encrypted`:
+`CredentialID,Name,Description,CredentialType,CredentialOwner,CredentialPropertyName,Value,Encrypted`
 
 Columns are cast `VARBINARY` to deal with poor CSV export support in `sqlcmd`. Export the results of
 the query below to CSV file:

