@@ -452,7 +452,12 @@ class Creds
 
       unless tbl.nil?
         public_val = core.public ? core.public.username : ''
-        private_val = core.private ? core.private.to_s : ''
+        if core.private
+          # Show the human readable description by default, unless the user ran with `--verbose` and wants to see the cred data
+          private_val = truncate ? core.private.to_s : core.private.data
+        else
+          private_val = ''
+        end
         if truncate && private_val.to_s.length > 87
           private_val = "#{private_val[0,87]} (TRUNCATED)"
         end
