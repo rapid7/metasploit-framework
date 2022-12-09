@@ -1,7 +1,13 @@
-## Syncovery For Linux Web-GUI Session Token Brute-Forcer
+## Vulnerable Application
+[Syncovery For Linux with Web-GUI](https://www.syncovery.com/download/linux/)
 
-This module attempts to brute-force a valid session token for the Syncovery File Sync & Backup Software Web-GUI by generating all possible tokens, for every second between 'DateTime.now' and the given X day(s). By default today and yesterday (DAYS = 1) will be checked. If a valid session token is found, the module stops. The vulnerability exists, because in Syncovery session tokens are basically just `base64(m/d/Y H:M:S)` at the time of the login instead of a random token.
-If a user does not logout, the token stays valid until next reboot. Note that the mobile version of the WEB GUI as well as the obsolete branch 8 of Syncovery do not have a logout button.
+This module attempts to brute-force a valid session token for the Syncovery File Sync & Backup Software Web-GUI
+by generating all possible tokens, for every second between 'DateTime.now' and the given X day(s).
+By default today and yesterday (DAYS = 1) will be checked. If a valid session token is found, the module stops.
+The vulnerability exists, because in Syncovery session tokens are basically just `base64(m/d/Y H:M:S)` at the time
+of the login instead of a random token.
+If a user does not logout, the token stays valid until next reboot. Note that the mobile version of the WEB GUI
+as well as the obsolete branch 8 of Syncovery do not have a logout button.
 
 This affects Syncovery for Linux before v9.48j and all versions of the obsolete branch 8.
 
@@ -25,6 +31,14 @@ Install it and once the server is up, you can access it on port 8999 for testing
 2. `set RHOSTS <TARGET HOSTS>`
 3. `run`
 5. On success you should get a valid token.
+
+## Options
+
+### TARGETURI
+The path to Syncovery login mask.
+
+### PORT
+The (TCP) target port on which Syncovery is running. By default port 8999 is used for HTTP and port 8943 is used for HTTPS.
 
 ## Scenarios
 
