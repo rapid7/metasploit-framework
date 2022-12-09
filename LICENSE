@@ -253,8 +253,8 @@ Files: external/source/exploits/CVE-2022-22942/cve-2022-22942-dc.c
 Copyright: 2022 Open Source Security, Inc.
 License: GNU GPL 2.0
 Purpose: This source file is necessary for users to create a stand-alone executable
-to exploit CVE-2022-22942, a local privilege escalation vulnerability in Linuc Kernels
-Linux kernel 4.14-rc1 - 5.17-rc1.
+to exploit CVE-2022-22942, a local privilege escalation vulnerability in Linux kernels
+4.14-rc1 - 5.17-rc1.
 
 Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
 Copyright: 2011 Jon Bringhurst
