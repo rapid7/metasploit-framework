@@ -31,6 +31,7 @@ License: GNU GPL 2.0
 Files: data/post/SharpHound.exe data/post/powershell/SharpHound.ps1
 Copyright (C) 2016-2022 Specter Ops Inc.
 License: GNU GPL 3.0
+Purpose: These files are uploaded and executed by post/windows/gather/bloodhound.
 
 Files: data/webcam/api.js
 Copyright: Copyright 2013 Muaz Khan<@muazkh>.
