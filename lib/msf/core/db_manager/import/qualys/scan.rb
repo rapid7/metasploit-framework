@@ -5,22 +5,23 @@ module Msf::DBManager::Import::Qualys::Scan
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 
-    doc = rexmlify(data)
-    doc.elements.each('/SCAN/IP') do |host|
+    doc = Nokogiri.XML(data)
+    doc.xpath('/SCAN/IP').each do |host|
       hobj = nil
-      addr  = host.attributes['value']
+      addr  = host.attr('value')
       if bl.include? addr
         next
       else
         yield(:address,addr) if block
       end
-      hname = host.attributes['name'] || ''
+      hname = host.attr('name') || ''
 
       hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
       report_import_note(wspace,hobj)
 
-      if host.elements["OS"]
-        hos = host.elements["OS"].text
+      os_el = host.xpath("OS").first
+      if os_el
+        hos = os_el.text
         report_note(
           :workspace => wspace,
           :task => args[:task],
@@ -33,7 +34,7 @@ module Msf::DBManager::Import::Qualys::Scan
       end
 
       # Open TCP Services List (Qualys ID 82023)
-      services_tcp = host.elements["SERVICES/CAT/SERVICE[@number='82023']/RESULT"]
+      services_tcp = host.xpath("SERVICES/CAT/SERVICE[@number='#{Msf::DBManager::Import::Qualys::TCP_QID}']/RESULT").first
       if services_tcp
         services_tcp.text.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
           if match[2] == nil or match[2].strip == 'unknown'
@@ -45,7 +46,7 @@ module Msf::DBManager::Import::Qualys::Scan
         end
       end
       # Open UDP Services List (Qualys ID 82004)
-      services_udp = host.elements["SERVICES/CAT/SERVICE[@number='82004']/RESULT"]
+      services_udp = host.xpath("SERVICES/CAT/SERVICE[@number='#{Msf::DBManager::Import::Qualys::UDP_QID}']/RESULT").first
       if services_udp
         services_udp.text.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
           if match[2] == nil or match[2].strip == 'unknown'
@@ -58,22 +59,25 @@ module Msf::DBManager::Import::Qualys::Scan
       end
 
       # VULNS are confirmed, PRACTICES are unconfirmed vulnerabilities
-      host.elements.each('VULNS/CAT | PRACTICES/CAT') do |cat|
-        port = cat.attributes['port']
-        protocol = cat.attributes['protocol']
-        cat.elements.each('VULN | PRACTICE') do |vuln|
+      host.xpath('VULNS/CAT | PRACTICES/CAT').each do |cat|
+        port = cat.attr('port')
+        protocol = cat.attr('protocol')
+        cat.xpath('VULN | PRACTICE').each do |vuln|
           refs = []
-          qid = vuln.attributes['number']
-          severity = vuln.attributes['severity']
-          title = vuln.elements['TITLE'].text.to_s
-          vuln.elements.each('VENDOR_REFERENCE_LIST/VENDOR_REFERENCE') do |ref|
-            refs.push(ref.elements['ID'].text.to_s)
+          qid = vuln.attr('number')
+          severity = vuln.attr('severity')
+          title = vuln.xpath('TITLE').first&.text
+          vuln.xpath('VENDOR_REFERENCE_LIST/VENDOR_REFERENCE').each do |ref|
+            id = ref.xpath('ID').first&.text
+            refs.push(id) if id
           end
-          vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
-            refs.push('CVE-' + /C..-([0-9\-]{9,})/.match(ref.elements['ID'].text.to_s)[1])
+          vuln.xpath('CVE_ID_LIST/CVE_ID').each do |ref|
+            id = ref.xpath("ID").first&.text
+            refs.push(id) if id
           end
-          vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
-            refs.push('BID-' + ref.elements['ID'].text.to_s)
+          vuln.xpath('BUGTRAQ_ID_LIST/BUGTRAQ_ID').each do |ref|
+            id = ref.xpath("ID").first&.text
+            refs.push("BID-#{id}") if id
           end
 
           handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, nil,title, args[:task])

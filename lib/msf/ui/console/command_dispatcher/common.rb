@@ -136,6 +136,8 @@ module Common
       print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
     end
 
+    print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info')}, or #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
+
     # Uncomment this line if u want target like msf2 format
     #print("\nTarget: #{mod.target.name}\n\n")
   end

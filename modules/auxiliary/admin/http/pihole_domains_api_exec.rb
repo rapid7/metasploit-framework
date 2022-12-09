@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'tab' => 'api'
       },
-      'keep_cookies' => 'true'
+      'keep_cookies' => true
     )
 
     # check if we got hit by a login prompt
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
         'field' => 'API',
         'token' => token
       },
-      'keep_cookies' => 'true',
+      'keep_cookies' => true,
       'method' => 'POST'
     )
     fail_with(Failure::UnexpectedReply, 'Unable to save settings') unless res && res.body.include?('The API settings have been updated')

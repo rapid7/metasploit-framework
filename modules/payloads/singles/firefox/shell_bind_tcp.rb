@@ -29,7 +29,7 @@ module MetasploitModule
   #
   # Returns the JS string to use for execution
   #
-  def generate
+  def generate(_opts = {})
     %Q|
     (function(){
       window = this;

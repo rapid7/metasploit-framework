@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
-This module identifies the primary domain via the registry. The registry value used is: 
-`HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History\DCName`.
+This module identifies the primary Active Directory domain name
+and domain controller.
 
 ## Verification Steps
 
@@ -10,34 +10,36 @@ This module identifies the primary domain via the registry. The registry value u
 1. Do: `use post/windows/gather/enum_domain`
 1. Do: `set session [#]`
 1. Do: `run`
-1. You should information on the computer's domain
+1. You should receive Active Directory domain information
 
 ## Options
 
 ## Scenarios
 
-### Windows 2012 DC
+### Windows 2016 with Windows 2008 SP1 DC
 
 ```
-msf6 post(windows/gather/enum_domain) > sessions -i 6
-[*] Starting interaction with 6...
+msf6 post(windows/gather/enum_domain) > sessions -i 1
+[*] Starting interaction with 1...
 
 meterpreter > sysinfo
-Computer        : DC1
-OS              : Windows 2012 (6.2 Build 9200).
+Computer        : WIN-7V3NGVNQTJ1
+OS              : Windows 2016+ (10.0 Build 14393).
 Architecture    : x64
 System Language : en_US
-Domain          : hoodiecola
+Domain          : CORP
 Logged On Users : 4
-Meterpreter     : x86/windows
+Meterpreter     : x64/windows
 meterpreter > background
-[*] Backgrounding session 6...
+[*] Backgrounding session 1...
+
 msf6 post(windows/gather/enum_domain) > use post/windows/gather/enum_domain
-msf6 post(windows/gather/enum_domain) > set session 6
-session => 6
+msf6 post(windows/gather/enum_domain) > set session 1
+session => 1
 msf6 post(windows/gather/enum_domain) > run
 
-[+] FOUND Domain: hoodiecola
-[+] FOUND Domain Controller: dc1 (IP: 1.1.1.1)
+[+] Domain FQDN: corp.local
+[+] Domain NetBIOS Name: CORP
+[+] Domain Controller: WIN-17B09RRRJTG.corp.local (IP: 192.168.200.218)
 [*] Post module execution completed
 ```

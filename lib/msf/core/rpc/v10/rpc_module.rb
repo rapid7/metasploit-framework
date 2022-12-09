@@ -467,7 +467,6 @@ class RPC_Module < RPC_Base
     res
   end
 
-
   # Executes a module.
   #
   # @param [String] mtype Module type. Supported types include (case-sensitive):
@@ -738,6 +737,12 @@ private
   end
 
   def _run_exploit(mod, opts)
+    if mod.datastore['PAYLOAD']
+      opts['PAYLOAD'] = mod.datastore['PAYLOAD']
+    else
+      opts['PAYLOAD'] = Msf::Payload.choose_payload(mod)
+    end
+
     s = Msf::Simple::Exploit.exploit_simple(mod, {
       'Payload'  => opts['PAYLOAD'],
       'Target'   => opts['TARGET'],
@@ -846,4 +851,3 @@ private
 end
 end
 end
-

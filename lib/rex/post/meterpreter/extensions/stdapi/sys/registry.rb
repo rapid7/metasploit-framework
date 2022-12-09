@@ -214,14 +214,7 @@ class Registry
     request.add_tlv(TLV_TYPE_HKEY, hkey)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
-
-    if type == REG_SZ || type == REG_MULTI_SZ
-      data += "\x00"
-    elsif (type == REG_DWORD)
-      data = [ data.to_i ].pack("V")
-    end
-
-    request.add_tlv(TLV_TYPE_VALUE_DATA, data)
+    request.add_tlv(TLV_TYPE_VALUE_DATA, self.ruby2reg_value(type, data))
 
     client.send_request(request)
 
@@ -236,14 +229,7 @@ class Registry
     request.add_tlv(TLV_TYPE_PERMISSION, perm)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
-
-    if type == REG_SZ || type == REG_MULTI_SZ
-      data += "\x00"
-    elsif type == REG_DWORD
-      data = [data.to_i].pack('V')
-    end
-
-    request.add_tlv(TLV_TYPE_VALUE_DATA, data)
+    request.add_tlv(TLV_TYPE_VALUE_DATA, self.ruby2reg_value(type, data))
 
     client.send_request(request)
 
@@ -265,13 +251,7 @@ class Registry
     response = client.send_request(request)
 
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
-    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
-
-    if type == REG_SZ
-      data = data[0..-2]
-    elsif type == REG_DWORD
-      data = data.unpack('N')[0]
-    end
+    data = self.reg2ruby_value(type, response.get_tlv(TLV_TYPE_VALUE_DATA).value)
 
     Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, 0, name, type, data)
@@ -285,14 +265,9 @@ class Registry
 
     response = client.send_request(request)
 
-    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
+    data = self.reg2ruby_value(type, response.get_tlv(TLV_TYPE_VALUE_DATA).value)
 
-    if (type == REG_SZ)
-      data = data[0..-2]
-    elsif (type == REG_DWORD)
-      data = data.unpack("N")[0]
-    end
 
     return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, hkey, name, type, data)
@@ -406,6 +381,7 @@ class Registry
     when 'REG_EXPAND_SZ' then REG_EXPAND_SZ
     when 'REG_MULTI_SZ'  then REG_MULTI_SZ
     when 'REG_NONE'      then REG_NONE
+    when 'REG_QWORD'     then REG_QWORD
     when 'REG_SZ'        then REG_SZ
     else
       nil
@@ -422,6 +398,44 @@ class Registry
       [ key2str($1), $2 ]
     else
       [ key2str(str), nil ]
+    end
+  end
+
+  class << self
+    private
+
+    def ruby2reg_value(type, value)
+      case type
+      when REG_DWORD
+        value = [value.to_i].pack('L<')
+      when REG_EXPAND_SZ
+        value += "\x00".b
+      when REG_MULTI_SZ
+        value = value.join("\x00".b) + "\x00\x00".b
+      when REG_QWORD
+        value = [value.to_i].pack('Q<')
+      when REG_SZ
+        value += "\x00".b
+      end
+
+      value
+    end
+
+    def reg2ruby_value(type, value)
+      case type
+      when REG_DWORD
+        value = value.unpack1('L>')
+      when REG_EXPAND_SZ
+        value = value[0..-2]
+      when REG_MULTI_SZ
+        value = value[0..-3].split("\x00".b)
+      when REG_QWORD
+        value = value.unpack1('Q<')
+      when REG_SZ
+        value = value[0..-2]
+      end
+
+      value
     end
   end
 

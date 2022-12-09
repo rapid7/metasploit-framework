@@ -5,7 +5,6 @@
 
 require 'ruby_smb'
 require 'ruby_smb/gss/provider/ntlm'
-require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::Server

@@ -122,6 +122,7 @@ REG_DWORD_LITTLE_ENDIAN  = 4
 REG_DWORD_BIG_ENDIAN     = 5
 REG_LINK                 = 6
 REG_MULTI_SZ             = 7
+REG_QWORD                = 11
 
 ##
 #

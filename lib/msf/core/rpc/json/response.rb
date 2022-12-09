@@ -10,7 +10,7 @@ module Msf::RPC::JSON
     # @param response [Hash] A response hash.
     # @param symbolize_names [Boolean] If true, symbols are used for the names (keys) when
     #   processing JSON objects; otherwise, strings are used. Default: true
-    # @returns [Response] Response object that represents the response hash.
+    # @return [Response] Response object that represents the response hash.
     def self.parse(response, symbolize_names: true)
       id_key = symbolize_names ? :id : :id.to_s
       result_key = symbolize_names ? :result : :result.to_s

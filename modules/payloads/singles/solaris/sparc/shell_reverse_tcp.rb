@@ -25,7 +25,7 @@ module MetasploitModule
     ))
   end
 
-  def generate
+  def generate(_opts = {})
     port    = (datastore['LPORT'] || '0').to_i
     host    = nil
     begin

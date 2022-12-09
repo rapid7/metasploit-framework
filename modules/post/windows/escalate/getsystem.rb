@@ -12,11 +12,10 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows Escalate Get System via Administrator',
+        'Name' => 'Windows Escalation',
         'Description' => %q{
-          This module uses the builtin 'getsystem' command to escalate
-          the current session to the SYSTEM account from an administrator
-          user account.
+          This module uses the `getsystem` command to escalate the current session to the SYSTEM account using various
+          techniques.
         },
         'License' => MSF_LICENSE,
         'Author' => 'hdm',

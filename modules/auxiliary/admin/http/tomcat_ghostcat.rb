@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-02-20',
         'Notes' => {
           'AKA' => ['Ghostcat'],
-          'Stability' => ['CRASH_SAFE'],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         }

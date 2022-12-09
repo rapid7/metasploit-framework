@@ -34,10 +34,10 @@ module MetasploitModule
         'Payload' => { 'Offsets' => {}, 'Payload' => '' }
       )
     )
-    register_options [
+    register_options([
       OptString.new('SHELL', [ true, 'The shell to execute.', 'cmd.exe' ]),
-      OptString.new('JJS_PATH', [ true, 'The path to JJS.', 'jjs.exe' ])
-    ]
+      OptString.new('JJS_PATH', [true, 'The path to the JJS executable', 'jjs.exe'])
+    ])
   end
 
   def generate

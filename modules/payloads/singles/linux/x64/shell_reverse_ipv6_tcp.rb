@@ -40,7 +40,7 @@ module MetasploitModule
       arr.map{ |x| sprintf("0x%02x", x.hex) }.join(',')
   end
 
-  def generate_stage
+  def generate(opts={})
       # 22 -> "0x00,0x16"
       # 4444 -> "0x11,0x5c"
       tcp_port = convert_input(datastore['LPORT'], 4)

@@ -37,7 +37,7 @@ module MetasploitModule
   #
   # Dynamically builds the exec payload based on the user's options.
   #
-  def generate_stage(opts={})
+  def generate(opts={})
     cmd_str = datastore['CMD'] || ''
     # Split the cmd string into arg chunks
     cmd_parts = Shellwords.shellsplit(cmd_str)

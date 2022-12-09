@@ -33,7 +33,7 @@ jobs:
     name: Docker Build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: docker-compose build
         run: |
@@ -73,6 +73,10 @@ jobs:
         exclude:
           - { os: ubuntu-latest, ruby: 2.7 }
           - { os: ubuntu-latest, ruby: 3.0 }
+        include:
+          - os: ubuntu-latest
+            ruby: 3.1
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" DATASTORE_FALLBACKS=1'
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"
@@ -89,7 +93,7 @@ jobs:
         run: sudo apt-get install libpcap-dev graphviz
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Ruby
         env:

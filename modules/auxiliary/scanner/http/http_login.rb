@@ -44,6 +44,12 @@ class MetasploitModule < Msf::Auxiliary
       ])
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 
+    register_advanced_options(
+      [
+        OptString.new('HttpSuccessCodes', [ false, 'Comma seperated list of HTTP response codes or ranges to promote as successful login', '200,201,300-308']),
+      ]
+    )
+
     deregister_options('USERNAME', 'PASSWORD', 'PASSWORD_SPRAY')
   end
 
@@ -145,6 +151,12 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['HttpPassword']
     )
 
+    begin
+      success_codes = parse_http_success_codes(datastore['HttpSuccessCodes'])
+    rescue ArgumentError => e
+      fail_with(Msf::Exploit::Failure::BadConfig, "HttpSuccessCodes in invalid: #{e.message}")
+    end
+
     scanner = Metasploit::Framework::LoginScanner::HTTP.new(
       configure_http_login_scanner(
         uri: @uri,
@@ -152,6 +164,7 @@ class MetasploitModule < Msf::Auxiliary
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        http_success_codes: success_codes,
         connection_timeout: 5
       )
     )
@@ -192,5 +205,28 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
+  private
+  def parse_http_success_codes(codes_string)
+    codes = []
+    parts = codes_string.split(',')
+    parts.each do |code|
+      code_parts = code.split('-')
+      if code_parts.length > 1
+        int_start = code_parts[0].to_i
+        int_end = code_parts[1].to_i
+        unless int_start > 0 && int_end > 0
+          raise ArgumentError.new("#{code} is not a valid response code range.")
+        end
+        codes.append(*(int_start..int_end))
+      else
+        int_code = code.to_i
+        unless int_code > 0
+          raise ArgumentError.new("#{code} is not a valid response code.")
+        end
+        codes << int_code
+      end
+    end
+    codes
+  end
 
 end
