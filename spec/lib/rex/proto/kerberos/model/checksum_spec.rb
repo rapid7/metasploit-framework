@@ -22,4 +22,15 @@ RSpec.describe Rex::Proto::Kerberos::Model::Checksum do
       expect(checksum.encode).to eq(sample)
     end
   end
+
+  describe "#decode" do
+    it "decodes Rex::Proto::Kerberos::Model::Checksum correctly" do
+      encoded_checksum = "\x30\x1a\xa0\x04\x02\x02\xff\x76\xa1\x12\x04\x10\xea\x62\x48\xe2\x8c\xe0\x76\x47\x06\xc7\x39\x99\x06\x35\x96\x89"
+      expected_type = Rex::Proto::Kerberos::Crypto::Checksum::HMAC_MD5
+      expected_checksum = "\xea\x62\x48\xe2\x8c\xe0\x76\x47\x06\xc7\x39\x99\x06\x35\x96\x89"
+      checksum.decode(encoded_checksum)
+      expect(checksum.type).to eq(expected_type)
+      expect(checksum.checksum).to eq(expected_checksum)
+    end
+  end
 end
