@@ -19,9 +19,9 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'SolarWinds Orion Secrets Dump',
         'Description' => %q{
-          This module exports and decrypts credentials from SolarWindows Orion Network
+          This module exports and decrypts credentials from SolarWinds Orion Network
           Performance Monitor (NPM) to a CSV file; it is intended as a post-exploitation
-          module for Windows hosts with SolarWindows Orion NPM installed. The module
+          module for Windows hosts with SolarWinds Orion NPM installed. The module
           supports decryption of AES-256, RSA, and XMLSEC secrets. Separate actions for
           extraction and decryption of the data are provided to allow session migration
           during execution in order to log in to the SQL database using SSPI. Tested on
