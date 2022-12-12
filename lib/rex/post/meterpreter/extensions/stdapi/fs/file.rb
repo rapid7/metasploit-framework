@@ -386,7 +386,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
         src_fd.close
-        return 'skipped'
+        return 'Skipped'
       end
     end
 
@@ -429,7 +429,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
               seek_back = false
               stat.call("Resuming at #{Filesize.new(in_pos).pretty} of #{src_size}", src_file, dest_file)
             else
-              # succesfully read and wrote - reset the counter
+              # successfully read and wrote - reset the counter
               tries_cnt = 0
             end
             adjust_block = true
@@ -477,7 +477,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     # Clone the times from the remote file
     ::File.utime(src_stat.atime, src_stat.mtime, dest_file)
-    return 'download'
+    return 'Completed'
   end
 
   #
