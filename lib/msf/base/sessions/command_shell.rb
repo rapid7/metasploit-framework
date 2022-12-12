@@ -406,13 +406,13 @@ Shell Banner:
     print_line("Usage: download [src] [dst]")
     print_line
     print_line("Downloads remote files to the local machine.")
-    print_line("This command does not support to download a FOLDER yet")
+    print_line("This command does not support directories")
     print_line
   end
 
   def cmd_download(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_download_help
     end
 
@@ -425,13 +425,21 @@ Shell Banner:
       return
     end
 
+    if (::File.basename(dst) != File.basename(src))
+      # The destination when downloading is a local file so use this system's separator
+      dst += ::File::SEPARATOR + File.basename(src)
+    end
+    dir = ::File.dirname(dst)
+    ::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
+
     # Get file content
-    print_status("Download #{src} => #{dst}")
+    # match the output style of the Meterpreter equivalent
+    print_status("Downloading: #{src} -> #{dst}")
     content = _file_transfer.read_file(src)
 
     # Write file to local machine
     File.binwrite(dst, content)
-    print_good("Done")
+    print_status("Completed  : #{src} -> #{dst}")
   end
 
   def cmd_upload_help
@@ -444,7 +452,7 @@ Shell Banner:
 
   def cmd_upload(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_upload_help
     end
 
