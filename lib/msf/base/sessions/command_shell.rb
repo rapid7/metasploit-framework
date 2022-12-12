@@ -421,7 +421,7 @@ Shell Banner:
 
     # Check if src exists
     if !_file_transfer.file_exist?(src)
-      print_error("The target file does not exist")
+      print_error('The target file does not exist')
       return
     end
 
@@ -446,7 +446,7 @@ Shell Banner:
     print_line("Usage: upload [src] [dst]")
     print_line
     print_line("Uploads load file to the victim machine.")
-    print_line("This command does not support to upload a FOLDER yet")
+    print_line("This command does not support directories")
     print_line
   end
 
@@ -459,22 +459,30 @@ Shell Banner:
     src = args[0]
     dst = args[1]
 
+    if dst.blank?
+      dst = ::File.basename(src)
+    elsif _file_transfer.directory?(dst)
+      fs_sep = platform == 'windows' ? '\\' : '/'
+      dst += fs_sep unless dst.end_with?(fs_sep)
+      dst += ::File.basename(src)
+    end
+
     # Check target file exists on the target machine
     if _file_transfer.file_exist?(dst)
-      print_warning("The file <#{dst}> already exists on the target machine")
-      unless prompt_yesno("Overwrite the target file <#{dst}>?")
+      print_warning('The target file already exists')
+      unless prompt_yesno("Overwrite the target file #{dst}?")
         return
       end
     end
 
+    print_status("Uploading  : #{src} -> #{dst}")
     begin
       content = File.binread(src)
       _file_transfer.write_file(dst, content)
-      print_good("File <#{dst}> upload finished")
+      print_status("Completed  : #{src} -> #{dst}")
     rescue => e
-      print_error("Error occurs while uploading <#{src}> to <#{dst}> - #{e.message}")
+      print_error("Failed     : #{src} -> #{dst} - #{e.message}")
       elog(e)
-      return
     end
   end
 

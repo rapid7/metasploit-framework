@@ -290,17 +290,15 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is uploaded and
   # again when each upload is complete.
   #
-  def File.upload(destination, *src_files, &stat)
+  def File.upload(dest, *src_files, &stat)
     src_files.each { |src|
-      dest = destination
-
-      stat.call('uploading', src, dest) if (stat)
-      if (self.basename(destination) != ::File.basename(src))
-        dest += self.separator + ::File.basename(src)
+      if (self.basename(dest) != ::File.basename(src))
+        dest += self.separator + ::File.basename(src) unless dest.end_with?(self.separator)
       end
+      stat.call('Uploading', src, dest) if (stat)
 
       upload_file(dest, src)
-      stat.call('uploaded', src, dest) if (stat)
+      stat.call('Completed', src, dest) if (stat)
     }
   end
 
@@ -310,7 +308,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.upload_file(dest_file, src_file, &stat)
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
-    stat.call('uploading', src_file, dest_file) if stat
+    stat.call('Uploading', src_file, dest_file) if stat
     dest_fd = nil
     src_fd = nil
     buf_size = 8 * 1024 * 1024
@@ -330,7 +328,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       src_fd.close unless src_fd.nil?
       dest_fd.close unless dest_fd.nil?
     end
-    stat.call('uploaded', src_file, dest_file) if stat
+    stat.call('Completed', src_file, dest_file) if stat
   end
 
   def File.is_glob?(name)
@@ -352,7 +350,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
-        dest += ::File::SEPARATOR + File.basename(src)
+        dest += ::File::SEPARATOR + File.basename(src) unless dest.end_with?(::File::SEPARATOR)
       end
 
       # XXX: dest can be the same object as src, so we use += instead of <<
