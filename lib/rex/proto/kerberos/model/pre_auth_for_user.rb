@@ -111,8 +111,8 @@ module Rex
                 self.user_name = decode_user_name(val)
               when 1
                 self.user_realm = decode_user_realm(val)
-              #when 2
-              #  self.cksum = decode_cksum(val)
+              when 2
+                self.cksum = decode_cksum(val)
               when 3
                 self.auth_package = decode_auth_package(val)
               else
@@ -125,7 +125,7 @@ module Rex
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [Rex::Proto::Kerberos::Model::PrincipalName]
-          def decode_cname(input)
+          def decode_user_name(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
           end
 
@@ -141,9 +141,9 @@ module Rex
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [Rex::Proto::Kerberos::Model::PrincipalName]
-          #def decode_cksum(input)
-          #  Rex::Proto::Kerberos::Model::Checksum.decode(input.value[0])
-          #end
+          def decode_cksum(input)
+            Rex::Proto::Kerberos::Model::Checksum.decode(input.value[0])
+          end
 
           # Decodes the auth_package field
           #
