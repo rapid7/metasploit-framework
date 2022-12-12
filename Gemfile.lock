@@ -234,7 +234,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (6.0.0)
+    metasploit-credential (6.0.1)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -278,7 +278,7 @@ GEM
     network_interface (0.0.2)
     nexpose (7.3.0)
     nio4r (2.5.8)
-    nokogiri (1.13.9)
+    nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     nori (2.6.0)
