@@ -6,6 +6,7 @@
 require 'windows_error'
 require 'ruby_smb'
 require 'ruby_smb/error'
+require 'ruby_smb/dcerpc/encrypting_file_system'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
@@ -14,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
 
   EncryptingFileSystem = RubySMB::Dcerpc::EncryptingFileSystem
 
-  METHODS = %w[EfsRpcOpenFileRaw EfsRpcEncryptFileSrv].freeze
+  METHODS = %w[EfsRpcOpenFileRaw EfsRpcEncryptFileSrv EfsRpcDecryptFileSrv EfsRpcQueryUsersOnFile EfsRpcQueryRecoveryAgents].freeze
   PIPE_HANDLES = {
     lsarpc: {
       uuid: EncryptingFileSystem::LSARPC_UUID,
