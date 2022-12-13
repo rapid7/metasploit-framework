@@ -75,7 +75,6 @@ class MsfAutoload
       "#{__dir__}/msf/core/payload/linux/x64",
       "#{__dir__}/msf/core/web_services/servlet",
       "#{__dir__}/msf/base",
-      "#{__dir__}/msf/ui/console/command_dispatcher/db",
       "#{__dir__}/rex/parser/fs"
     ]
   end
