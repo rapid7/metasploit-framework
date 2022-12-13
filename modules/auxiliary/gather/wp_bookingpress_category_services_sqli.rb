@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::SQLi
   prepend Msf::Exploit::Remote::AutoCheck
