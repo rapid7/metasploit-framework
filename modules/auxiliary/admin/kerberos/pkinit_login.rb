@@ -72,10 +72,12 @@ class MetasploitModule < Msf::Auxiliary
       print_good('Successfully authenticated with certificate')
       enc_part = decrypt_kdc_as_rep_enc_part(tgt_result.as_rep, key)
 
-      info = []
-      info << "realm: #{realm.upcase}"
-      info << "serviceName: #{server_name.downcase}"
-      info << "username: #{username.downcase}"
+      loot_info = Msf::Exploit::Remote::Kerberos::Ticket.loot_info(
+        client: username,
+        server: server_name,
+        realm: realm,
+        valid: true
+      )
 
       report_service(
         host: rhost,
@@ -86,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
-      path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil, info.join(', '))
+      path = store_loot('mit.kerberos.ccache', 'application/octet-stream', rhost, ccache.encode, nil, loot_info)
       print_status("#{peer} - TGT MIT Credential Cache saved to #{path}")
     rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
       fail_with(Failure::Unknown, e.message)
