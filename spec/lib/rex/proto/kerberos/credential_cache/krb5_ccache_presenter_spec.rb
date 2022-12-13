@@ -118,8 +118,9 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Client: Administrator@WINDOMAIN.LOCAL
           Ticket etype: 18 (AES256)
           Key: 3835366238646261363736326161393037386566633133613535323934333739
-          Ticket Length: 977
           Subkey: false
+          Ticket Length: 977
+          Ticket Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
           Addresses: 0
           Authdatas: 0
           Times:
@@ -150,8 +151,9 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Client: Administrator@WINDOMAIN.LOCAL
           Ticket etype: 18 (AES256)
           Key: 3835366238646261363736326161393037386566633133613535323934333739
-          Ticket Length: 977
           Subkey: false
+          Ticket Length: 977
+          Ticket Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
           Addresses: 0
           Authdatas: 0
           Times:

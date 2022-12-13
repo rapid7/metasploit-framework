@@ -62,10 +62,11 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "Client: #{cred.client}"
       output << "Ticket etype: #{cred.keyblock.enctype} (#{Rex::Proto::Kerberos::Crypto::Encryption.const_name(cred.keyblock.enctype)})"
       output << "Key: #{cred.keyblock.data.unpack1('H*')}"
+      output << "Subkey: #{cred.is_skey == 1}"
       output << "Ticket Length: #{cred.ticket.length}"
+      output << "Ticket Flags: 0x#{cred.ticket_flags.to_i.to_s(16).rjust(8, '0')} (#{Rex::Proto::Kerberos::Model::KdcOptionFlags.new(cred.ticket_flags.to_i).enabled_flag_names.join(', ')})"
       ticket = Rex::Proto::Kerberos::Model::Ticket.decode(cred.ticket.value)
 
-      output << "Subkey: #{cred.is_skey == 1}"
       output << "Addresses: #{cred.address_count}"
 
       unless cred.address_count == 0
