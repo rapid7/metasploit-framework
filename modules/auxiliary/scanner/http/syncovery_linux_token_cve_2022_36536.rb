@@ -135,7 +135,8 @@ class MetasploitModule < Msf::Auxiliary
       credential_data = result.to_h
       credential_data.merge!(
         module_fullname: fullname,
-        workspace_id: myworkspace_id
+        workspace_id: myworkspace_id,
+        service_name: 'http'
       )
 
       if result.success?
