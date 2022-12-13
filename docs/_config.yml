@@ -30,6 +30,9 @@ exclude:
   - README.md
 
 # just-the-docs config
+mermaid_enabled: true
+mermaid:
+  version: "9.2.2"
 heading_anchors: true
 aux_links_new_tab: true
 aux_links:

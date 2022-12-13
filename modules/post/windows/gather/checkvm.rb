@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Post
           'Aaron Soto <aaron_soto[at]rapid7.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => %w[meterpreter powershell shell],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
   end

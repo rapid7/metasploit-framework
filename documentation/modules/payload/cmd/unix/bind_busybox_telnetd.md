@@ -13,6 +13,9 @@ with BusyBox telnetd installed.
   The command telnetd will execute on connect. The default value is `/bin/sh`
   in order to provide a command shell.
 
+  **TelnetdPath**
+  The path to the telnetd executable on disk. The default value is `telnetd`.
+
 ### Advanced
 
   **CommandShellCleanupCommand**

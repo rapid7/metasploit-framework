@@ -27,7 +27,7 @@ module MetasploitModule
       ))
   end
 
-  def generate
+  def generate(_opts = {})
     unless self.available_space.nil? || self.available_space >= 57
       payload = <<-EOS
         preparation:

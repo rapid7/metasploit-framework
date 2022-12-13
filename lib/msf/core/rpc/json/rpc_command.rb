@@ -15,7 +15,7 @@ module Msf::RPC::JSON
     # Add a method to the RPC Command
     # @param method [Method] the Method
     # @param name [String] the name the method is register under. The method name is used if nil.
-    # @returns [Method] the Method.
+    # @return [Method] the Method.
     def register_method(method, name: nil)
       if name.nil?
         if method.is_a?(Method)
@@ -33,7 +33,7 @@ module Msf::RPC::JSON
     # @param params [Array, Hash] parameters for the RPC call
     # @raise [MethodNotFound] The method does not exist
     # @raise [Timeout::Error] The method failed to terminate in @execute_timeout seconds
-    # @returns [Object] the method's return value.
+    # @return [Object] the method's return value.
     def execute(method, params)
       unless @methods.key?(method)
         raise MethodNotFound.new(method)

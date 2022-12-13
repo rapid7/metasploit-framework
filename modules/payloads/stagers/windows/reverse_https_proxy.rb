@@ -70,7 +70,7 @@ module MetasploitModule
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     p = super
 
     i = p.index("/12345\x00")

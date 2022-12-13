@@ -32,9 +32,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    print_status("Running module against #{get_hostname} (#{session.session_host})")
+
     distro = get_sysinfo
-    h = get_host
-    print_status("Running module against #{h}")
     print_status("Info:")
     print_status("\t#{distro[:version]}")
     print_status("\t#{distro[:kernel]}")
@@ -48,18 +48,9 @@ class MetasploitModule < Msf::Post
     print_status("#{fname} stored in #{loot.to_s}")
   end
 
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo["Computer"]
-    when /shell/
-      host = cmd_exec("hostname").chomp
-    end
-
-    return host
-  end
-
   def find_torrc
+    fail_with(Failure::BadConfig, "'locate' command does not exist") unless command_exists?('locate')
+
     config = cmd_exec("locate 'torrc' | grep -v 'torrc.5.gz'").split("\n")
     if config.length == 0
         print_error ("No torrc file found, maybe it goes by a different name?")

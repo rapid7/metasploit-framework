@@ -1,8 +1,11 @@
 source 'https://rubygems.org'
 
-gem 'jekyll', '~> 4.2.0'
+gem 'jekyll', '~> 4.3.0'
 gem 'just-the-docs', github: 'rapid7/just-the-docs', branch: 'r7_ver_custom'
+# Useful when testing local just-the-docs changes:
+#gem 'just-the-docs', path: '../../just-the-docs'
 gem 'webrick'
+gem 'rexml'
 
 group :jekyll_plugins do
   gem 'jekyll-sitemap'

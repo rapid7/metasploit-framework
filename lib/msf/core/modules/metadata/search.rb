@@ -42,8 +42,15 @@ module Msf::Modules::Metadata::Search
     res = {}
 
     terms.each do |term|
-      keyword, search_term = term.split(":", 2)
-      unless search_term
+      # Split it on the `:`, with the part before the first `:` going into keyword, the part after first `:`
+      # but before any later instances of `:` going into search_term, and the characters after the second 
+      # `:` or later in the string going into _excess to be ignored.
+      #
+      # Example is `use exploit/linux/local/nested_namespace_idmap_limit_priv_esc::a`
+      # which would make keyword become `exploit/linux/local/nested_namespace_idmap_limit_priv_esc`,
+      # search_term become blank, and _excess become "a".
+      keyword, search_term, _excess = term.split(":", 3)
+      if search_term.blank?
         search_term = keyword
         keyword = 'text'
       end

@@ -16,7 +16,7 @@ module Buffer
   class BufferFormatError < ::ArgumentError; end
   #
   # Serializes a buffer to a provided format.  The formats supported are raw,
-  # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
+  # num, dword, ruby, rust, python, perl, bash, c, js_be, js_le, java and psh
   #
   def self.transform(buf, fmt = "ruby", var_name = 'buf', encryption_opts={})
     default_wrap = 60
@@ -65,6 +65,8 @@ module Buffer
         buf = Rex::Text.to_golang(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim(buf)
+      when 'rust', 'rustlang'
+        buf = Rex::Text.to_rust(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -74,7 +76,7 @@ module Buffer
 
   #
   # Creates a comment using the supplied format.  The formats supported are
-  # raw, ruby, python, perl, bash, js_be, js_le, c, and java.
+  # raw, ruby, rust python, perl, bash, js_be, js_le, c, and java.
   #
   def self.comment(buf, fmt = "ruby")
     case fmt
@@ -101,6 +103,8 @@ module Buffer
         buf = Rex::Text.to_golang_comment(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim_comment(buf)
+      when 'rust', 'rustlang'
+        buf = Rex::Text.to_rust_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -138,6 +142,8 @@ module Buffer
       'raw',
       'rb',
       'ruby',
+      'rust',
+      'rustlang',
       'sh',
       'vbapplication',
       'vbscript'

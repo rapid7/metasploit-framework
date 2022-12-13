@@ -408,7 +408,7 @@ module Rex
         end
 
         #
-        # An error describing an issue that occurred while parsing the the data structure.
+        # An error describing an issue that occurred while parsing the data structure.
         #
         class ParserError < GraphMLError
         end

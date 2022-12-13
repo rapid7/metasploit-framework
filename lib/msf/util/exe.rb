@@ -1437,6 +1437,18 @@ require 'digest/sha1'
                     method: 'reflection')
   end
 
+  def self.to_powershell_ducky_script(framework, arch, code)
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
+    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    method: 'reflection')
+    replacers = {}
+    replacers[:var_payload] = powershell
+    read_replace_script_template("to_powershell.ducky_script.template", replacers)
+  end
+
   def self.to_powershell_hta(framework, arch, code)
     template_path = Rex::Powershell::Templates::TEMPLATE_DIR
 
@@ -2155,6 +2167,8 @@ require 'digest/sha1'
       Msf::Util::EXE.to_powershell_hta(framework, arch, code)
     when 'python-reflection'
       Msf::Util::EXE.to_python_reflection(framework, arch, code, exeopts)
+    when 'ducky-script-psh'
+      Msf::Util::EXE.to_powershell_ducky_script(framework, arch, code)
     end
   end
 
@@ -2168,6 +2182,7 @@ require 'digest/sha1'
       "aspx-exe",
       "axis2",
       "dll",
+      "ducky-script-psh",
       "elf",
       "elf-so",
       "exe",

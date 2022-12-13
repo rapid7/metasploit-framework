@@ -96,12 +96,6 @@ class Evasion
 
     print_status "Payload Handler Started as Job #{job_id}"
   end
-
-  # This is the same functionality as Exploit::choose_payload, so call it
-  def self.choose_payload(mod)
-    Msf::Ui::Console::CommandDispatcher::Exploit.choose_payload(mod)
-  end
-
 end
 end
 end

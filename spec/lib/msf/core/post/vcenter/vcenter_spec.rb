@@ -332,50 +332,6 @@ RSpec.describe Msf::Post::Vcenter::Vcenter do
     end
   end
 
-  context 'gets vpx coustomization xml' do
-    it 'from failing to find command' do
-      allow(subject).to receive(:command_exists?).and_return(false)
-      expect(subject.get_vpx_customization_spec('test', 'test', 'test')).to be_nil
-    end
-    it 'from failing to get a valid entry' do
-      allow(subject).to receive(:command_exists?).and_return(true)
-      allow(subject).to receive(:cmd_exec).and_return('this is not valid')
-      expect(subject.get_vpx_customization_spec('test', 'test', 'test')).to eq({})
-    end
-    it 'with a valid entry' do
-      allow(subject).to receive(:command_exists?).and_return(true)
-      allow(subject).to receive(:cmd_exec).and_return('<xml></xml>')
-      # we need to convert the XML:Doc back to a string so it can be tested correctly
-      expect(subject.get_vpx_customization_spec('test', 'test', 'test').map { |k, v| [k.to_s, v.to_s] }.to_h).to eq({ '<xml></xml>' => "<?xml version=\"1.0\"?>\n<xml/>\n" })
-    end
-  end
-  # XXX need to add a real user test
-  context 'gets vpx users' do
-    it 'from failing to find command' do
-      allow(subject).to receive(:command_exists?).and_return(false)
-      expect(subject.get_vpx_users('test', 'test', 'test', 'test')).to be_nil
-    end
-    it 'from failing to get a valid entry' do
-      allow(subject).to receive(:command_exists?).and_return(true)
-      allow(subject).to receive(:cmd_exec).and_return('this is not valid')
-      expect(subject.get_vpx_users('test', 'test', 'test', 'test')).to eq([])
-    end
-    it 'with a valid entry' do
-      allow(subject).to receive(:command_exists?).and_return(true)
-      allow(subject).to receive(:cmd_exec).and_return('localhost|127.0.0.1|root|*')
-      # we need to convert the XML:Doc back to a string so it can be tested correctly
-      expect(subject.get_vpx_users('test', 'test', 'test', 'test')).to eq([
-        {
-          'fqdn' => 'localhost',
-          'ip' => '127.0.0.1',
-          'user' => 'root',
-          'password' => ''
-        }
-      ])
-    end
-    # XXX need to add a valid test where we actually decrypt something
-  end
-
   context 'gets vcdb properties' do
     it 'from failing to find command' do
       allow(subject).to receive(:file_exist?).and_return(false)
@@ -384,10 +340,12 @@ RSpec.describe Msf::Post::Vcenter::Vcenter do
     it 'from failing to get a valid entry' do
       allow(subject).to receive(:file_exist?).and_return(true)
       allow(subject).to receive(:read_file).and_return('this is not valid')
+      allow(subject).to receive(:is_root?).and_return(true)
       expect(subject.process_vcdb_properties_file).to eq({})
     end
     it 'and processes them correctly' do
       allow(subject).to receive(:file_exist?).and_return(true)
+      allow(subject).to receive(:is_root?).and_return(true)
       allow(subject).to receive(:read_file).and_return("driver = org.postgresql.Driver\ndbtype = PostgreSQL\nurl = jdbc:postgresql://localhost:5432/VCDB\nusername = vc\npassword = MB&|<)haN6Q>{K3O\npassword.encrypted = false")
       expect(subject.process_vcdb_properties_file).to eq({
         'driver' => 'org.postgresql.Driver',

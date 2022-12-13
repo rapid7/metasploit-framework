@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description'   => %q{
           This module dependent on the given filename extension creates either
           a .lnk, .scf, .url, .xml, or desktop.ini file which includes a reference
-          to the the specified remote host, causing SMB connections to be initiated
+          to the specified remote host, causing SMB connections to be initiated
           from any user that views the file.
         },
         'License'       => MSF_LICENSE,
