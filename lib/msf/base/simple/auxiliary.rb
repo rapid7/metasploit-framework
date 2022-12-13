@@ -41,7 +41,7 @@ module Auxiliary
   # 	Whether or not the exploit should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
+  def self.run_simple(omod, opts = {}, &block)
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -69,8 +69,8 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    job_listener.waiting run_uuid
-    ctx = [mod, run_uuid, job_listener]
+    mod.framework.events.waiting(run_uuid)
+    ctx = [mod, run_uuid]
     if(mod.passive? or opts['RunAsJob'])
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Auxiliary: #{mod.refname}",
@@ -108,7 +108,7 @@ module Auxiliary
   #
   # 	The local output through which data can be displayed.
   #
-  def self.check_simple(mod, opts, job_listener: Msf::Simple::NoopJobListener.instance)
+  def self.check_simple(mod, opts)
     Msf::Simple::Framework.simplify_module(mod)
 
     mod._import_extra_options(opts)
@@ -126,8 +126,9 @@ module Auxiliary
     mod.validate
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    job_listener.waiting run_uuid
-    ctx = [mod, run_uuid, job_listener]
+    mod[:run_uuid] = run_uuid
+    mod.framework.events.waiting(run_uuid)
+    ctx = [mod, run_uuid]
 
     if opts['RunAsJob']
       mod.job_id = mod.framework.jobs.start_bg_job(
@@ -169,16 +170,19 @@ protected
   def self.job_run_proc(ctx, &block)
     mod = ctx[0]
     run_uuid = ctx[1]
-    job_listener = ctx[2]
     begin
       begin
-        job_listener.start run_uuid
+        # Adds a random uuid to the module
+        mod[:run_uuid] = run_uuid
+
+        mod.framework.events.on_module_setup(mod)
+
         mod.setup
         mod.framework.events.on_module_run(mod)
         result = block.call(mod)
-        job_listener.completed(run_uuid, result, mod)
+        mod.framework.events.completed(run_uuid, result, mod)
       rescue ::Exception => e
-        job_listener.failed(run_uuid, e, mod)
+        mod.framework.events.failed(run_uuid, e, mod)
         raise
       end
     rescue Msf::Auxiliary::Complete
@@ -240,4 +244,3 @@ end
 
 end
 end
-

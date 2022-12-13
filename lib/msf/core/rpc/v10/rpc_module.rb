@@ -760,7 +760,7 @@ private
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+    })
     {
       "job_id" => job,
       "uuid" => uuid
@@ -771,7 +771,7 @@ private
     uuid, job = Msf::Simple::Exploit.check_simple(mod,{
         'RunAsJob' => true,
         'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+    })
     {
       "job_id" => job,
       "uuid" => uuid
@@ -783,7 +783,7 @@ private
         'Action'   => opts['ACTION'],
         'RunAsJob' => true,
         'Options'  => opts
-    }, job_listener: self.job_status_tracker)
+    })
     {
       "job_id" => job,
       "uuid" => uuid

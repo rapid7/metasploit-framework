@@ -35,6 +35,8 @@ class Service
     self.tokens             = self.options[:tokens] || {}
     self.users              = self.options[:users] || []
     self.job_status_tracker = Msf::RPC::RpcJobStatusTracker.new
+    rpc_framework_event_subscriber = Msf::RPC::RpcFrameworkEventSubscriber.new(job_status_tracker)
+    framework.events.add_general_subscriber(rpc_framework_event_subscriber)
 
     add_handler("health",  Msf::RPC::RPC_Health.new(self))
     add_handler("core",    Msf::RPC::RPC_Core.new(self))
@@ -229,4 +231,3 @@ end
 
 end
 end
-

@@ -116,6 +116,7 @@ class EventDispatcher
   #
   def on_module_load(name, mod)
     general_event_subscribers.each { |subscriber|
+      next unless subscriber.respond_to?(name, true)
       subscriber.on_module_load(name, mod)
     }
   end
