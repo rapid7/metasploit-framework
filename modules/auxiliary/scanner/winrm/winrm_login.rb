@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::AuthOption
+  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
 
   def initialize
     super(
@@ -75,7 +76,8 @@ class MetasploitModule < Msf::Auxiliary
           framework_module: self,
           cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
           mutual_auth: true,
-          use_gss_checksum: true
+          use_gss_checksum: true,
+          ticket_storage: kerberos_ticket_storage
         )
       end
     end

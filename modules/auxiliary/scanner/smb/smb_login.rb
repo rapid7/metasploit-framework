@@ -87,8 +87,7 @@ class MetasploitModule < Msf::Auxiliary
           framework: framework,
           framework_module: self,
           cache_file: datastore['SmbKrb5Ccname'].blank? ? nil : datastore['SmbKrb5Ccname'],
-          use_cached_credentials: datastore['KrbUseCachedCredentials'].nil? ? false : datastore['KrbUseCachedCredentials'],
-          store_credential_cache: datastore['KrbStoreCredentialCache'].nil? ? true : datastore['KrbStoreCredentialCache']
+          ticket_storage: kerberos_ticket_storage
         )
       end
     end

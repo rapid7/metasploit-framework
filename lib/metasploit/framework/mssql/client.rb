@@ -64,7 +64,8 @@ module Metasploit
               username: user,
               password: pass,
               framework: framework,
-              framework_module: framework_module
+              framework_module: framework_module,
+              ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::WriteOnly.new(framework: framework, framework_module: framework_module)
             )
 
             kerberos_result = kerberos_authenticator.authenticate
