@@ -53,7 +53,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def build_ace(sid)
-    Rex::Proto::MsDtyp::MsDtypAccessAllowedAce.new({
+    Rex::Proto::MsDtyp::MsDtypAce.new({
+      header: {
+        ace_type: Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
+      },
       body: {
         access_mask: Rex::Proto::MsDtyp::MsDtypAccessMask::ALL,
         sid: sid

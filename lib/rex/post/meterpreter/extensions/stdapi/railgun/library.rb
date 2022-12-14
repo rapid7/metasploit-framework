@@ -50,6 +50,7 @@ class Library
     'PHANDLE' => 'PULONG_PTR',
     'SIZE_T'  => 'ULONG_PTR',
     'PSIZE_T' => 'PULONG_PTR',
+    'PLPVOID' => 'PULONG_PTR'
   }.freeze
 
   attr_accessor :functions

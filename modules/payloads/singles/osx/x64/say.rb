@@ -27,7 +27,7 @@ module MetasploitModule
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD
-  def generate
+  def generate(_opts = {})
     say = (datastore['TEXT'] || '') << "\x00"
     call = "\xe8" + [say.length + 0xd].pack('V')
 

@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
   end
 
   #
-  # Returns the the key combinations required to invoke the exploit once installed.
+  # Returns the key combinations required to invoke the exploit once installed.
   #
   def get_target_key_combo
     case datastore['TARGET']

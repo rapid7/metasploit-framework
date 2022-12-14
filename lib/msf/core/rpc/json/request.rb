@@ -138,7 +138,7 @@ module Msf::RPC::JSON
 
     # Validate the JSON-RPC response.
     # @param response [Hash] the JSON-RPC response
-    # @returns [Boolean] true if the JSON-RPC response is valid; otherwise, false.
+    # @return [Boolean] true if the JSON-RPC response is valid; otherwise, false.
     def valid_rpc_response?(response)
       # validate response is an object
       return false unless response.is_a?(Hash)

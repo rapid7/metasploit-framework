@@ -1,4 +1,4 @@
-module Msf::Ui::Console::CommandDispatcher::Analyze
+module Msf::Ui::Console::CommandDispatcher::Db::Analyze
 
   def cmd_analyze_help
     print_line "Usage: analyze [OPTIONS] [addr1 addr2 ...]"

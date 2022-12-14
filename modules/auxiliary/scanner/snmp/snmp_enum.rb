@@ -865,6 +865,8 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
     rescue SNMP::UnsupportedVersion
       print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+    rescue SNMP::ParseError
+      print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e

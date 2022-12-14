@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module provides a Rex based DNS service which can store static entries,
         resolve names over pivots, and serve DNS requests across routed session comms.
-        DNS tunnels can operate across the the Rex switchboard, and DNS other modules
+        DNS tunnels can operate across the Rex switchboard, and DNS other modules
         can use this as a template. Setting static records via hostfile allows for DNS
         spoofing attacks without direct traffic manipulation at the handlers. handlers
         for requests and responses provided here mimic the internal Rex functionality,

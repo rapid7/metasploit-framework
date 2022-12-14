@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    host = get_host
+    print_status("Running module against #{get_hostname} (#{session.session_host})")
+
     user = execute("/usr/bin/whoami")
     print_status("Module running as #{user}")
 
@@ -80,20 +81,6 @@ class MetasploitModule < Msf::Post
     ltype = "linux.enum.network"
     loot = store_loot(ltype, ctype, session, data, nil, msg)
     print_good("#{msg} stored in #{loot.to_s}")
-  end
-
-  # Get host name
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo["Computer"]
-    when /shell/
-      host = cmd_exec("hostname").chomp
-    end
-
-    print_status("Running module against #{host}")
-
-    return host
   end
 
   def execute(cmd)

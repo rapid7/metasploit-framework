@@ -139,9 +139,13 @@ class PayloadCachedSize
     opts = OPTS.clone
     # Assign this way to overwrite the Options key of the newly cloned hash
     opts['Options'] = opts['Options'].merge(mod.shortname =~ /6/ ? OPTS_IPV6 : OPTS_IPV4)
-    if mod.arch_to_s == ARCH_X64
+    # Extract the AdaptedArch for adaptor payloads, note `mod.adapted_arch` is not part of the public API
+    # at this time, but could be in the future. The use of send is safe for now as it is an internal tool
+    # with automated tests if the API were to change in the future
+    adapted_arch = mod.send(:module_info)['AdaptedArch']
+    if adapted_arch == ARCH_X64 || mod.arch_to_s == ARCH_X64
       opts['Options'].merge!(OPTS_ARCH_X64)
-    elsif mod.arch_to_s == ARCH_X86
+    elsif adapted_arch == ARCH_X86 || mod.arch_to_s == ARCH_X86
       opts['Options'].merge!(OPTS_ARCH_X86)
     end
     opts

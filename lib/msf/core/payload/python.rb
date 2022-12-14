@@ -12,8 +12,9 @@ module Msf::Payload::Python
   # @return [String] Full python stub to execute the command.
   #
   def self.create_exec_stub(cmd)
-    # Base64 encoding is required in order to handle Python's formatting
-    b64_stub = "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(cmd)}')[0]))"
+    # Encoding is required in order to handle Python's formatting
+    payload = Rex::Text.encode_base64(Rex::Text.zlib_deflate(cmd))
+    b64_stub = "exec(__import__('zlib').decompress(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{payload}')[0])))"
     b64_stub
   end
 

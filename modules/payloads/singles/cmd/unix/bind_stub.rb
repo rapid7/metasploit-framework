@@ -34,7 +34,7 @@ module MetasploitModule
   #
   # Generate an empty payload
   #
-  def generate
+  def generate(_opts = {})
     ''
   end
 end

@@ -35,7 +35,7 @@ module MetasploitModule
   #
   # Construct the payload
   #
-  def generate
+  def generate(_opts = {})
     if datastore['ARCH']
       self.arch = actual_arch
     end

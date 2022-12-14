@@ -82,12 +82,9 @@ module Msf::RPC::JSON
 
     # Validate and execute the JSON-RPC request.
     # @param request [Hash] the JSON-RPC request
-    # @returns [RpcCommand] an RpcCommand for the specified version
     # @raise [InvalidParams] ArgumentError occurred during execution.
-    # @raise [ApplicationServerError] General server-error wrapper around an
-    # Msf::RPC::Exception that occurred during execution.
-    # @returns [Hash] JSON-RPC response that encapsulates the RPC result
-    # if successful; otherwise, a JSON-RPC error response.
+    # @raise [ApplicationServerError] General server-error wrapper around an Msf::RPC::Exception that occurred during execution.
+    # @return [Hash, nil] JSON-RPC response that encapsulates the RPC result, or Nil if a Notification request was sent.
     def process_request(request)
       begin
         if !validate_rpc_request(request)
@@ -123,7 +120,7 @@ module Msf::RPC::JSON
 
     # Validate the JSON-RPC request.
     # @param request [Hash] the JSON-RPC request
-    # @returns [Boolean] true if the JSON-RPC request is valid; otherwise, false.
+    # @return [Boolean] true if the JSON-RPC request is valid; otherwise, false.
     def validate_rpc_request(request)
       # validate request is an object
       return false unless request.is_a?(Hash)
@@ -168,7 +165,7 @@ module Msf::RPC::JSON
     # Create a JSON-RPC success response.
     # @param result [Object] the RPC method's return value
     # @param request [Hash] the JSON-RPC request
-    # @returns [Hash] JSON-RPC success response.
+    # @return [Hash] JSON-RPC success response.
     def self.create_success_response(result, request = nil)
       response = {
           # A String specifying the version of the JSON-RPC protocol.
@@ -188,7 +185,7 @@ module Msf::RPC::JSON
     # Create a JSON-RPC error response.
     # @param error [RpcError] a RpcError instance
     # @param request [Hash] the JSON-RPC request
-    # @returns [Hash] JSON-RPC error response.
+    # @return [Hash] JSON-RPC error response.
     def self.create_error_response(error, request = nil)
       response = {
           # A String specifying the version of the JSON-RPC protocol.
