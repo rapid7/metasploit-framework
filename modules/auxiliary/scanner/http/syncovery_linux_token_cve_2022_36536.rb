@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         Exploit::CheckCode::Safe
       end
     else
-      Exploit::Unknown
+      Exploit::CheckCode::Unknown
     end
   end
 
@@ -132,21 +132,9 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner.scan! do |result|
-      credential_data = result.to_h
-      credential_data.merge!(
-        module_fullname: fullname,
-        workspace_id: myworkspace_id,
-        service_name: 'http'
-      )
-
       if result.success?
-        credential_data.delete(:username) # This service uses no username
-        credential_core = create_credential(credential_data)
-        credential_data[:core] = credential_core
-        create_credential_login(credential_data)
         print_good("#{peer.strip} - VALID TOKEN: #{result.credential.private}")
       else
-        invalidate_login(credential_data)
         vprint_error("#{peer.strip} - INVALID TOKEN: #{result.credential.private}")
       end
     end
