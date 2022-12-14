@@ -856,15 +856,11 @@ protected
   def _win_ansi_write_file(file_name, data, chunk_size = 5000)
     start_index = 0
     write_length = [chunk_size, data.length].min
-    success = _shell_command_with_success_code("echo \"#{data[0, write_length]}\"> \"#{file_name}\"")
+    success = _shell_command_with_success_code("echo | set /p x=\"#{data[0, write_length]}\"> \"#{file_name}\"")
     return false unless success
     if data.length > write_length
       # just use append to finish the rest
-      success = _win_ansi_append_file(file_name, data[write_length, data.length], chunk_size)
-      unless success
-        vprint_status("Write partially succeeded then failed. May need to manually clean up")
-        return false
-      end
+      return _win_ansi_append_file(file_name, data[write_length, data.length], chunk_size)
     end
 
     true
@@ -883,7 +879,7 @@ protected
     write_length = [chunk_size, data.length].min
     while start_index < data.length
       begin
-        success = _shell_command_with_success_code("echo \"#{data[start_index, write_length]}\" >> \"#{file_name}\"")
+        success = _shell_command_with_success_code("echo | set /p x=\"#{data[start_index, write_length]}\">> \"#{file_name}\"")
         unless success
           vprint_status("Write partially succeeded then failed. May need to manually clean up") unless start_index == 0
           return false
@@ -892,6 +888,7 @@ protected
         write_length = [chunk_size, data.length - start_index].min
       rescue ::Exception => e
         print_error("Exception while running #{__method__}: #{e}")
+        vprint_status("May need to manually clean up") unless start_index == 0
         file_rm(file_name)
         return false
       end
@@ -912,6 +909,7 @@ protected
     begin
       success = _win_ansi_write_file(b64_filename, b64_data, chunk_size)
       return false unless success
+      vprint_status("Uploaded Base64-encoded file. Decoding using certutil")
       success = _shell_command_with_success_code("certutil -f -decode #{b64_filename} #{file_name}")
       return false unless success
     rescue ::Exception => e
@@ -937,8 +935,10 @@ protected
     begin
       success = _win_ansi_write_file(b64_filename, b64_data, chunk_size)
       return false unless success
+      vprint_status("Uploaded Base64-encoded file. Decoding using certutil")
       success = _shell_command_with_success_code("certutil -decode #{b64_filename} #{tmp_filename}")
       return false unless success
+      vprint_status("Certutil succeeded. Appending using copy")
       success = _shell_command_with_success_code("copy /b #{file_name}+#{tmp_filename} #{file_name}")
       return false unless success
     rescue ::Exception => e
