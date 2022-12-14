@@ -508,17 +508,16 @@ module Msf::Post::File
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
-          _win_ansi_write_file(file_name, data)
+          return _win_ansi_write_file(file_name, data)
         else
-          _win_bin_write_file(file_name, data)
+          return _win_bin_write_file(file_name, data)
         end
       else
-        _write_file_unix_shell(file_name, data)
+        return _write_file_unix_shell(file_name, data)
       end
     else
       return false
     end
-    true
   end
 
   #
@@ -718,6 +717,7 @@ module Msf::Post::File
       offset += chunk_size + 1
       break if offset >= data.length
     end
+    # TODO
   end
 
   def _write_file_powershell_fragment(file_name, data, offset, chunk_size, append = false)
@@ -844,6 +844,7 @@ protected
       # just use append to finish the rest
       _win_ansi_append_file(file_name, data[write_length, data.length], chunk_size)
     end
+    # TODO
   end
 
   # Windows ansi file append for shell sessions. Writes given object content to a remote file.
@@ -867,6 +868,7 @@ protected
         file_rm(file_name)
       end
     end
+    # TODO
   end
 
   # Windows binary file write for shell sessions. Writes given object content to a remote file.
@@ -886,6 +888,7 @@ protected
     ensure
       file_rm(b64_filename)
     end
+    # TODO
   end
 
   # Windows binary file append for shell sessions. Appends given object content to a remote file.
@@ -908,6 +911,7 @@ protected
       file_rm(b64_filename)
       file_rm(tmp_filename)
     end
+    # TODO
   end
 
   #
@@ -937,8 +941,7 @@ protected
     # Short-circuit an empty string. The : builtin is part of posix
     # standard and should theoretically exist everywhere.
     if data.empty?
-      session.shell_command_token(": #{redirect} #{file_name}")
-      return
+      return _unix_shell_command_with_success_code(": #{redirect} #{file_name}")
     end
 
     d = data.dup
@@ -1039,7 +1042,8 @@ protected
     # The first command needs to use the provided redirection for either
     # appending or truncating.
     cmd = command.sub('CONTENTS') { chunks.shift }
-    session.shell_command_token("#{cmd} #{redirect} \"#{file_name}\"")
+    succeeded = _unix_shell_command_with_success_code("#{cmd} #{redirect} \"#{file_name}\"")
+    return false unless succeeded
 
     # After creating/truncating or appending with the first command, we
     # need to append from here on out.
@@ -1047,10 +1051,21 @@ protected
       vprint_status("Next chunk is #{chunk.length} bytes")
       cmd = command.sub('CONTENTS') { chunk }
 
-      session.shell_command_token("#{cmd} >> '#{file_name}'")
+      succeeded = _unix_shell_command_with_success_code("#{cmd} >> '#{file_name}'")
+      unless succeeded
+        vprint_status("Write partially succeeded then failed. May need to manually clean up")
+        return false
+      end
     end
 
     true
+  end
+
+  def _unix_shell_command_with_success_code(cmd)
+    token = ::Rex::Text.rand_text_alpha(32)
+    result = session.shell_command_token("#{cmd} && echo #{token}")
+
+    return result.include?(token)
   end
 
   #
