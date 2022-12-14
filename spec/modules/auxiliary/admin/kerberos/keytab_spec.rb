@@ -67,7 +67,7 @@ RSpec.describe 'kerberos keytab' do
 
           subject.list_keytab_entries
           expect(@output.join("\n")).to match_table <<~TABLE
-          keytab entry added to #{keytab_file.path}
+          keytab saved to #{keytab_file.path}
           Keytab entries
           ==============
 
@@ -89,7 +89,7 @@ RSpec.describe 'kerberos keytab' do
 
           subject.list_keytab_entries
           expect(@output.join("\n")).to match_table <<~TABLE
-          keytab entry added to #{keytab_file.path}
+          keytab saved to #{keytab_file.path}
           Keytab entries
           ==============
 
@@ -116,7 +116,7 @@ RSpec.describe 'kerberos keytab' do
 
           subject.list_keytab_entries
           expect(@output.join("\n")).to match_table <<~TABLE
-          keytab entry added to #{keytab_file.path}
+          keytab saved to #{keytab_file.path}
           Keytab entries
           ==============
 
@@ -145,7 +145,7 @@ RSpec.describe 'kerberos keytab' do
 
           subject.list_keytab_entries
           expect(@output.join("\n")).to match_table <<~TABLE
-            keytab entry added to #{keytab_file.path}
+            keytab saved to #{keytab_file.path}
             Keytab entries
             ==============
 

@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['LIST', { 'Description' => 'List the entries in the keytab file' }],
           ['ADD', { 'Description' => 'Add a new entry to the keytab file' }],
+          ['EXPORT', { 'Description' => 'Export the current database creds to the keytab file' }]
         ],
         'DefaultAction' => 'LIST',
         'DefaultOptions' => {
@@ -70,18 +71,45 @@ class MetasploitModule < Msf::Auxiliary
       list_keytab_entries
     when 'ADD'
       add_keytab_entry
+    when 'EXPORT'
+      export_keytab_entries
     end
+  end
+
+  # Export the keytab entries from the database into the given keytab file. The keytab file will be created if it did not previously exist.
+  def export_keytab_entries
+    unless framework.db.active
+      print_error('export not available, because the database is not active.')
+      return
+    end
+
+    keytab_path = datastore['KEYTAB_FILE']
+    keytab = read_or_initialize_keytab(keytab_path)
+
+    kerberos_key_creds = framework.db.creds(type: 'Metasploit::Credential::KrbEncKey')
+    keytab_entries = kerberos_key_creds.map do |cred|
+      {
+        realm: cred.realm.value,
+        components: cred.public.username.split('/'),
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_PRINCIPAL,
+        timestamp: Time.at(0).utc,
+        vno8: datastore['KVNO'],
+        vno: datastore['KVNO'],
+        keyblock: {
+          enctype: cred.private.enctype,
+          data: cred.private.key
+        }
+      }
+    end
+
+    keytab.key_entries.concat(keytab_entries)
+    write_keytab(keytab_path, keytab)
   end
 
   # Add keytab entries into the given keytab file. The keytab file will be created if it did not previously exist.
   def add_keytab_entry
     keytab_path = datastore['KEYTAB_FILE']
-
-    if File.exist?(keytab_path)
-      keytab = Rex::Proto::Kerberos::Keytab::Krb5Keytab.read(File.binread(datastore['KEYTAB_FILE']))
-    else
-      keytab = Rex::Proto::Kerberos::Keytab::Krb5Keytab.new
-    end
+    keytab = read_or_initialize_keytab(keytab_path)
 
     principal = datastore['PRINCIPAL']
     fail_with(Failure::BadConfig, 'PRINCIPAL must be set to a non-empty string') if principal.blank?
@@ -93,7 +121,6 @@ class MetasploitModule < Msf::Auxiliary
       print_warning("REALM option has lowercase letters present - this may not work as expected for Window's Active Directory environments which uses a uppercase domain")
     end
 
-    components = principal.split('/')
     keyblocks = []
     if datastore['KEY'].present?
       fail_with(Failure::BadConfig, 'enctype ALL not supported when KEY is set') if datastore['ENCTYPE'] == 'ALL'
@@ -106,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
       password = datastore['PASSWORD']
       salt = datastore['SALT']
       if salt.blank?
-        salt = "#{realm}#{components[0]}"
+        salt = "#{realm}#{principal.split('/')[0]}"
         vprint_status("Generating key with salt: #{salt}. The SALT option can be set manually")
       end
 
@@ -127,26 +154,19 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'KEY or PASSWORD required to add a new entry')
     end
 
-    keyblocks.each do |keyblock|
-      entry = {
+    keytab_entries = keyblocks.map do |keyblock|
+      {
         realm: realm,
-        components: components,
+        components: principal.split('/'),
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_PRINCIPAL,
         timestamp: Time.at(0).utc,
         vno8: datastore['KVNO'],
         vno: datastore['KVNO'],
         keyblock: keyblock
       }
-      keytab.key_entries << entry
     end
-
-    # TODO: Confirm if we want to use store_loot here or not
-    File.binwrite(keytab_path, keytab.to_binary_s)
-    print_good "keytab entry added to #{keytab_path}"
-
-    if datastore['VERBOSE']
-      list_keytab_entries
-    end
+    keytab.key_entries.concat(keytab_entries)
+    write_keytab(keytab_path, keytab)
   end
 
   # List the keytab entries within the keytab file
@@ -196,5 +216,26 @@ class MetasploitModule < Msf::Auxiliary
   def enctype_name(id)
     name = Rex::Proto::Kerberos::Crypto::Encryption.const_name(id)
     name ? "#{id.to_s.ljust(2)} (#{name})" : id.to_s
+  end
+
+  private
+
+  # @param [String] keytab_path the keytab path
+  # @return [Rex::Proto::Kerberos::Keytab::Keytab]
+  def read_or_initialize_keytab(keytab_path)
+    return Rex::Proto::Kerberos::Keytab::Krb5Keytab.read(File.binread(keytab_path)) if File.exist?(keytab_path)
+
+    Rex::Proto::Kerberos::Keytab::Krb5Keytab.new
+  end
+
+  # @param [String] keytab_path the keytab path
+  # @param [Rex::Proto::Kerberos::Keytab::Keytab] keytab
+  def write_keytab(keytab_path, keytab)
+    File.binwrite(keytab_path, keytab.to_binary_s)
+    print_good "keytab saved to #{keytab_path}"
+
+    if datastore['VERBOSE']
+      list_keytab_entries
+    end
   end
 end
