@@ -710,7 +710,7 @@ module Msf::Post::File
 
   def _write_file_powershell(file_name, data, append = false)
     offset = 0
-    chunk_size = 16256
+    chunk_size = 1000
     loop do
       success = _write_file_powershell_fragment(file_name, data, offset, chunk_size, append)
       unless success
@@ -720,7 +720,9 @@ module Msf::Post::File
         return false
       end
 
-      offset += chunk_size + 1
+      # Future writes will then append, regardless of whether this is an append or write operation
+      append = true
+      offset += chunk_size
       break if offset >= data.length
     end
 
@@ -729,11 +731,11 @@ module Msf::Post::File
 
   def _write_file_powershell_fragment(file_name, data, offset, chunk_size, append = false)
     token = ::Rex::Text.rand_text_alpha(32)
-    chunk = data[offset..offset + chunk_size]
+    chunk = data[offset..(offset + chunk_size-1)]
     length = chunk.length
     compressed_chunk = Rex::Text.gzip(chunk)
     encoded_chunk = Base64.strict_encode64(compressed_chunk)
-    if offset > 0 || append
+    if append
       file_mode = 'Append'
     else
       file_mode = 'Create'
@@ -750,15 +752,14 @@ module Msf::Post::File
       $filestream.Write($file_bytes,0,$file_bytes.Length);
       $filestream.Close();
       $gzipstream.Close();
-      echo Complete
+      echo Done
       } catch {
       echo #{token}
       }
-
     PSH
     result = cmd_exec(pwsh_code)
 
-    return (!result.include?(token))
+    return result.include?(length.to_s) && !result.include?(token) && result.include?('Done')
   end
 
   def _read_file_powershell(filename)
