@@ -1,17 +1,89 @@
-# Kerberos Ticket Inspecting
+## Inspecting Kerberos Tickets
 
-The `inspect_ticket` module allows you to print the contents of a ccache/kirbi file.
+The `auxiliary/admin/kerberos/inspect_ticket` module allows you to print the contents of a ccache/kirbi file.
+The module will output ticket information such as:
 
-## Pre-Verification steps
+- Client information
+- Service information
+- Ticket creation / expiry times
+- Decrypted ticket contents - if `NTHASH` or `AESKEY` is set
 
-1. Generate a ccache file using the `forge_ticket` module
+## Acquiring tickets
 
-## Verification Steps
+Kerberos tickets can be acquired from multiple sources. For instance:
+
+- Retrieved directly from the KDC with the `get_ticket` module
+- Forged using the `forge_ticket` module after compromising the krbtgt or a service account's encryption keys
+- Extracted from memory using Meterpreter and mimikatz:
+
+```
+meterpreter > load kiwi
+Loading extension kiwi...
+  .#####.   mimikatz 2.2.0 20191125 (x64/windows)
+ .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+ ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ ## \ / ##       > http://blog.gentilkiwi.com/mimikatz
+ '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )
+  '#####'         > http://pingcastle.com / http://mysmartlogon.com  ***/
+
+Success.
+
+meterpreter > kiwi_cmd "sekurlsa::tickets /export"
+
+Authentication Id : 0 ; 1393218 (00000000:00154242)
+Session           : Network from 0
+User Name         : DC3$
+Domain            : DEMO
+Logon Server      : (null)
+Logon Time        : 1/12/2023 9:11:00 PM
+SID               : S-1-5-18
+
+	 * Username : DC3$
+	 * Domain   : DEMO.LOCAL
+	 * Password : (null)
+
+	Group 0 - Ticket Granting Service
+
+	Group 1 - Client Ticket ?
+	 [00000000]
+	   Start/End/MaxRenew: 1/12/2023 7:41:41 PM ; 1/13/2023 5:37:45 AM ; 1/1/1601 12:00:00 AM
+	   Service Name (02) : LDAP ; DC3 ; @ DEMO.LOCAL
+	   Target Name  (--) : @ DEMO.LOCAL
+	   Client Name  (01) : DC3$ ; @ DEMO.LOCAL
+	   Flags 40a50000    : name_canonicalize ; ok_as_delegate ; pre_authent ; renewable ; forwardable ;
+	   Session Key       : 0x00000012 - aes256_hmac
+	     ab64d555f18de6a3262d921e6dc75dcf884852f551db3114f7983dbaf276e1d6
+	   Ticket            : 0x00000012 - aes256_hmac       ; kvno = 7	[...]
+====================
+Base64 of file : [0;154242]-1-0-40a50000-DC3$@LDAP-DC3.kirbi
+====================
+doQAAAYXMIQAAAYRoIQAAAADAgEFoYQAAAADAgEWooQAAAS2MIQAAASwYYQAAASq
+MIQAAASkoIQAAAADAgEFoYQAAAAMGwpBREYzLkxPQ0FMooQAAAAmMIQAAAAgoIQA
+AAADAgECoYQAAAARMIQAAAALGwRMREFQGwNEQzOjhAAABFcwhAAABFGghAAAAAMC
+... etc...
+====================
+```
+
+Note that tools often Base64 encode the Kirbi content to display to the user. However the `inspect_ticket` module expects
+the input file to be in binary format. To convert base64 strings to binary files:
+
+```
+# Linux
+cat ticket.b64 | base64 -d > ticket.kirbi
+
+# Mac
+cat ticket.b64 | base64 -D > ticket.kirbi
+
+# Powershell
+[IO.File]::WriteAllBytes("ticket.kirbi", [Convert]::FromBase64String("<bas64_ticket>"))
+```
+
+## Module usage
 
 1. Start msfconsole
 2. Do: `use auxiliary/admin/kerberos/inspect_ticket`
 3. Do: `set TICKET_PATH /path/to/ccache/file`
-4. Optional: either `set AES_KEY aes_key_here` or `set NTHASH nthash_here`
+4. Optional: either `set AES_KEY aes_key_here` or `set NTHASH nthash_here` - which will attempt to decrypt tickets
 5. Do: `run` to see the contents of the ticket
 
 ## Scenarios
@@ -60,6 +132,7 @@ Creds: 1
 ```
 
 **With Key**
+
 ```
 msf6 auxiliary(admin/kerberos/inspect_ticket) > run AES_KEY=4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326 TICKET_PATH=/path/to/ticket
 Primary Principal: Administrator@WINDOMAIN.LOCAL

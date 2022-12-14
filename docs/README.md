@@ -13,6 +13,11 @@ How it works:
 
 Behind the scenes these docs are built and deployed to https://docs.metasploit.com/
 
+### Adding pages
+
+You can modify existing documentation files within `metasploit-framework.wiki/` with an editor of your choice and send a pull request.
+To add a new page, modify `navigation.rb`. Full details are found beside the `NAVIGATION_CONFIG` constant.
+
 ## Setup
 
 ### Developer build
@@ -42,9 +47,3 @@ bundle exec ruby build.rb --production --serve
 ```
 
 Now visit http://127.0.0.1:4000/metasploit-framework/
-
-
-### Contributing Documentation
-
-You can modify existing documentation files within `metasploit-framework.wiki/` with an editor of your choice and send a pull request.
-Note that adding a new page will also require modifying `navigation.rb` to appear on the navigation menu.

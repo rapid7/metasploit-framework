@@ -1,10 +1,17 @@
-# Kerberos Ticket Forging (Golden/Silver tickets)
+## Kerberos Ticket Forging (Golden/Silver tickets)
 
-The `forge_ticket` module allows the forging of a golden or silver ticket.
+The `auxiliary/admin/kerberos/forge_ticket` module allows the forging of a golden or silver ticket.
 
 ## Vulnerable Application
 
 Any system leveraging kerberos as a means of authentication e.g. Active Directory, MSSQL
+
+## Actions
+
+There are two kind of actions the module can run:
+
+1. **FORGE_SILVER** - Forge a Silver ticket - forging a service ticket. [Default]
+2. **FORGE_GOLDEN** - Forge a Golden ticket - forging a ticket granting ticket.
 
 ## Pre-Verification steps
 
@@ -15,9 +22,9 @@ Any system leveraging kerberos as a means of authentication e.g. Active Director
     or
     `use auxiliary/gather/windows_secrets_dump`
 3. Finally get the NTHASH or AES key (prefer AES key if available) of the service account you wish to target: e.g.
-    `mimikatz # sekurlsa::logonpasswords` - same command as before, shows you both values
+    `mimikatz # sekurlsa::logonpasswords` - this output contains both NTHASH and AES keys
 
-## Verification Steps
+## Module usage
 
 1. Start msfconsole
 2. Do: `use auxiliary/admin/kerberos/forge_ticket`
@@ -34,13 +41,6 @@ Any system leveraging kerberos as a means of authentication e.g. Active Director
     export KRB5CCNAME=/path/to/ticket
     python3 mssqlclient.py DW.LOCAL/fake_mysql@dc1.dw.local -k -no-pass
     ```
-
-## Actions
-
-There are two kind of actions the module can run:
-
-1. **FORGE_SILVER** - Forge a Silver ticket. [Default]
-2. **FORGE_GOLDEN** - Forge a Golden ticket.
 
 ## Scenarios
 
