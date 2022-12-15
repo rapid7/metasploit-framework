@@ -493,6 +493,7 @@ class Db
         onlyup = true
       when '-o'
         output = val
+        output = ::File.expand_path(output)
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
@@ -680,6 +681,8 @@ class Db
       return @@services_columns
     when '-O', '--order'
       return []
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
     when '-p', '--port'
       return []
     when '-r', '--protocol'
@@ -909,6 +912,10 @@ class Db
     if words.length == 1
       return @@vulns_opts.option_keys.select { |opt| opt.start_with?(str) }
     end
+    case words[-1]
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
+    end
   end
 
   def cmd_vulns_help
@@ -1083,6 +1090,8 @@ class Db
     case words[-1]
     when '-O', '--order'
       return []
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
     end
 
     []
@@ -1152,6 +1161,7 @@ class Db
         search_term = val
       when '-o', '--output'
         output_file = val
+        output_file = ::File.expand_path(output_file)
       when '-O'
         if (order_by = val.to_i - 1) < 0
           print_error('Please specify a column number starting from 1')
