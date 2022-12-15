@@ -16,7 +16,8 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
-  include Msf::Ui::Console::CommandDispatcher::Analyze
+  include Msf::Ui::Console::CommandDispatcher::Db::Common
+  include Msf::Ui::Console::CommandDispatcher::Db::Analyze
 
   DB_CONFIG_PATH = 'framework/database'
 
@@ -84,21 +85,6 @@ class Db
     if result[:data_service_name]
       @current_data_service = result[:data_service_name]
     end
-  end
-
-  #
-  # Returns true if the db is connected, prints an error and returns
-  # false if not.
-  #
-  # All commands that require an active database should call this before
-  # doing anything.
-  #
-  def active?
-    if not framework.db.active
-      print_error("Database not connected")
-      return false
-    end
-    true
   end
 
   @@workspace_opts = Rex::Parser::Arguments.new(
@@ -507,6 +493,7 @@ class Db
         onlyup = true
       when '-o'
         output = val
+        output = ::File.expand_path(output)
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
@@ -694,6 +681,8 @@ class Db
       return @@services_columns
     when '-O', '--order'
       return []
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
     when '-p', '--port'
       return []
     when '-r', '--protocol'
@@ -923,6 +912,10 @@ class Db
     if words.length == 1
       return @@vulns_opts.option_keys.select { |opt| opt.start_with?(str) }
     end
+    case words[-1]
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
+    end
   end
 
   def cmd_vulns_help
@@ -1097,6 +1090,8 @@ class Db
     case words[-1]
     when '-O', '--order'
       return []
+    when '-o', '--output'
+      return tab_complete_filenames(str, words)
     end
 
     []
@@ -1166,6 +1161,7 @@ class Db
         search_term = val
       when '-o', '--output'
         output_file = val
+        output_file = ::File.expand_path(output_file)
       when '-O'
         if (order_by = val.to_i - 1) < 0
           print_error('Please specify a column number starting from 1')
@@ -2129,48 +2125,6 @@ class Db
       return
     end
     true
-  end
-
-
-  #
-  # Miscellaneous option helpers
-  #
-
-  #
-  # Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into
-  # blocks of 1024.
-  #
-  def each_host_range_chunk(host_ranges, &block)
-    # Chunk it up and do the query in batches. The naive implementation
-    # uses so much memory for a /8 that it's basically unusable (1.6
-    # billion IP addresses take a rather long time to allocate).
-    # Chunking has roughly the same performance for small batches, so
-    # don't worry about it too much.
-    host_ranges.each do |range|
-      if range.nil? or range.length.nil?
-        chunk = nil
-        end_of_range = true
-      else
-        chunk = []
-        end_of_range = false
-        # Set up this chunk of hosts to search for
-        while chunk.length < 1024 and chunk.length < range.length
-          n = range.next_ip
-          if n.nil?
-            end_of_range = true
-            break
-          end
-          chunk << n
-        end
-      end
-
-      # The block will do some
-      yield chunk
-
-      # Restart the loop with the same RangeWalker if we didn't get
-      # to the end of it in this chunk.
-      redo unless end_of_range
-    end
   end
 
   #######

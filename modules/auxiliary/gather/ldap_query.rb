@@ -328,7 +328,7 @@ class MetasploitModule < Msf::Auxiliary
             modified = true
           elsif attribute_properties[attribute_name][:attributesyntax] == '2.5.5.10' # OctetString
             if attribute_name.to_s.match(/guid$/i)
-              # Get the the entry[attribute_name] object will be an array containing a single string entry,
+              # Get the entry[attribute_name] object will be an array containing a single string entry,
               # so reach in and extract that string, which will contain binary data.
               bin_guid = entry[attribute_name][0]
               if bin_guid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.

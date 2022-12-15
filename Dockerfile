@@ -1,4 +1,4 @@
-FROM ruby:3.0.4-alpine3.15 AS builder
+FROM ruby:3.0.5-alpine3.15 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set clean 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -43,13 +43,13 @@ RUN apk add --no-cache \
 ENV GO111MODULE=off
 RUN mkdir -p $TOOLS_HOME/bin && \
     cd $TOOLS_HOME/bin && \
-    curl -O https://dl.google.com/go/go1.11.2.src.tar.gz && \
-    tar -zxf go1.11.2.src.tar.gz && \
-    rm go1.11.2.src.tar.gz && \
+    curl -O https://dl.google.com/go/go1.19.3.src.tar.gz && \
+    tar -zxf go1.19.3.src.tar.gz && \
+    rm go1.19.3.src.tar.gz && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.0.4-alpine3.15
+FROM ruby:3.0.5-alpine3.15
 LABEL maintainer="Rapid7"
 
 ENV APP_HOME=/usr/src/metasploit-framework

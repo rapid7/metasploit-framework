@@ -30,6 +30,7 @@ module Auxiliary::Report
       framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -39,6 +40,7 @@ module Auxiliary::Report
       framework.db.create_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -48,6 +50,7 @@ module Auxiliary::Report
       framework.db.create_credential_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -57,6 +60,7 @@ module Auxiliary::Report
       framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -66,6 +70,7 @@ module Auxiliary::Report
       framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 

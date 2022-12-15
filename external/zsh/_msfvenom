@@ -116,6 +116,7 @@ _msfvenom_formats_list=(
   'aspx-exe'
   'axis2'
   'dll'
+  'ducky-script-psh'
   'elf'
   'elf-so'
   'exe'

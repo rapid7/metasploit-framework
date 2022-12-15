@@ -40,6 +40,11 @@ module FileInfo
       nil
     )['return']
 
+    if file_version_info_size == 0
+      # Indicates an error - should not continue
+      return nil
+    end
+
     buffer = session.railgun.kernel32.VirtualAlloc(
       nil,
       file_version_info_size,
