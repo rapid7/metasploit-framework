@@ -40,7 +40,24 @@ module Rex
             end
 
             def to_der
-              self.options[:openssl_certificate].to_der
+              self.options[:openssl_certificate]&.to_der || ''
+            end
+
+            # RASN1 Glue method - Say if DER can be built (not default value, not optional without value, has a value)
+            # @return [Boolean]
+            # @since 0.12
+            def can_build?
+              !to_der.empty?
+            end
+
+            # RASN1 Glue method
+            def primitive?
+              false
+            end
+
+            # RASN1 Glue method
+            def value
+              options[:openssl_certificate]
             end
 
             def parse!(str, ber: false)
