@@ -715,7 +715,7 @@ module Msf::Post::File
       success = _write_file_powershell_fragment(file_name, data, offset, chunk_size, append)
       unless success
         unless offset == 0
-          vprint_status("Write partially succeeded then failed. May need to manually clean up")
+          print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}")
         end
         return false
       end
@@ -730,7 +730,7 @@ module Msf::Post::File
   end
 
   def _write_file_powershell_fragment(file_name, data, offset, chunk_size, append = false)
-    token = ::Rex::Text.rand_text_alpha(32)
+    token = "_#{::Rex::Text.rand_text_alpha(32)}"
     chunk = data[offset..(offset + chunk_size-1)]
     length = chunk.length
     compressed_chunk = Rex::Text.gzip(chunk)
@@ -881,14 +881,14 @@ protected
       begin
         success = _shell_command_with_success_code("echo | set /p x=\"#{data[start_index, write_length]}\">> \"#{file_name}\"")
         unless success
-          vprint_status("Write partially succeeded then failed. May need to manually clean up") unless start_index == 0
+          print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}") unless start_index == 0
           return false
         end
         start_index += write_length
         write_length = [chunk_size, data.length - start_index].min
       rescue ::Exception => e
         print_error("Exception while running #{__method__}: #{e}")
-        vprint_status("May need to manually clean up") unless start_index == 0
+        print_warning("May need to manually clean up #{file_name}") unless start_index == 0
         file_rm(file_name)
         return false
       end
@@ -1091,7 +1091,7 @@ protected
 
       succeeded = _shell_command_with_success_code("#{cmd} >> '#{file_name}'")
       unless succeeded
-        vprint_status("Write partially succeeded then failed. May need to manually clean up")
+        print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}")
         return false
       end
     end
@@ -1100,7 +1100,7 @@ protected
   end
 
   def _shell_command_with_success_code(cmd)
-    token = ::Rex::Text.rand_text_alpha(32)
+    token = "_#{::Rex::Text.rand_text_alpha(32)}"
     result = session.shell_command_token("#{cmd} && echo #{token}")
 
     return result.include?(token)
