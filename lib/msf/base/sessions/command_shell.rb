@@ -425,12 +425,15 @@ Shell Banner:
       return
     end
 
-    if (::File.basename(dst) != File.basename(src))
-      # The destination when downloading is a local file so use this system's separator
-      dst += ::File::SEPARATOR + File.basename(src)
+    fs_sep = platform == 'windows' ? '\\' : '/'
+    if dst.blank?
+      dst = src.split(fs_sep).last
+    elsif ::File.directory?(dst)
+      dst += ::File::SEPARATOR unless dst.end_with?(::File::SEPARATOR)
+      dst += src.split(fs_sep).last
     end
-    dir = ::File.dirname(dst)
-    ::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
+    dst_dir = ::File.dirname(dst)
+    ::FileUtils.mkdir_p(dst_dir) if dst_dir and not ::File.directory?(dst_dir)
 
     # Get file content
     # match the output style of the Meterpreter equivalent
@@ -438,7 +441,7 @@ Shell Banner:
     content = _file_transfer.read_file(src)
 
     # Write file to local machine
-    File.binwrite(dst, content)
+    ::File.binwrite(dst, content)
     print_status("Completed  : #{src} -> #{dst}")
   end
 
@@ -477,7 +480,8 @@ Shell Banner:
 
     print_status("Uploading  : #{src} -> #{dst}")
     begin
-      content = File.binread(src)
+      # Read file from local machine
+      content = ::File.binread(src)
       _file_transfer.write_file(dst, content)
       print_status("Completed  : #{src} -> #{dst}")
     rescue => e

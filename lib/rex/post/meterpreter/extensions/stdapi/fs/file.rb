@@ -293,7 +293,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.upload(dest, *src_files, &stat)
     src_files.each { |src|
       if (self.basename(dest) != ::File.basename(src))
-        dest += self.separator + ::File.basename(src) unless dest.end_with?(self.separator)
+        dest += self.separator unless dest.end_with?(self.separator)
+        dest += ::File.basename(src)
       end
       stat.call('Uploading', src, dest) if (stat)
 
@@ -350,7 +351,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
-        dest += ::File::SEPARATOR + File.basename(src) unless dest.end_with?(::File::SEPARATOR)
+        dest += ::File::SEPARATOR unless dest.end_with?(::File::SEPARATOR)
+        dest += File.basename(src)
       end
 
       # XXX: dest can be the same object as src, so we use += instead of <<
