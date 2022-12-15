@@ -406,13 +406,13 @@ Shell Banner:
     print_line("Usage: download [src] [dst]")
     print_line
     print_line("Downloads remote files to the local machine.")
-    print_line("This command does not support to download a FOLDER yet")
+    print_line("This command does not support directories")
     print_line
   end
 
   def cmd_download(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_download_help
     end
 
@@ -421,52 +421,72 @@ Shell Banner:
 
     # Check if src exists
     if !_file_transfer.file_exist?(src)
-      print_error("The target file does not exist")
+      print_error('The target file does not exist')
       return
     end
 
+    fs_sep = platform == 'windows' ? '\\' : '/'
+    if dst.blank?
+      dst = src.split(fs_sep).last
+    elsif ::File.directory?(dst)
+      dst += ::File::SEPARATOR unless dst.end_with?(::File::SEPARATOR)
+      dst += src.split(fs_sep).last
+    end
+    dst_dir = ::File.dirname(dst)
+    ::FileUtils.mkdir_p(dst_dir) if dst_dir and not ::File.directory?(dst_dir)
+
     # Get file content
-    print_status("Download #{src} => #{dst}")
+    # match the output style of the Meterpreter equivalent
+    print_status("Downloading: #{src} -> #{dst}")
     content = _file_transfer.read_file(src)
 
     # Write file to local machine
-    File.binwrite(dst, content)
-    print_good("Done")
+    ::File.binwrite(dst, content)
+    print_status("Completed  : #{src} -> #{dst}")
   end
 
   def cmd_upload_help
     print_line("Usage: upload [src] [dst]")
     print_line
     print_line("Uploads load file to the victim machine.")
-    print_line("This command does not support to upload a FOLDER yet")
+    print_line("This command does not support directories")
     print_line
   end
 
   def cmd_upload(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_upload_help
     end
 
     src = args[0]
     dst = args[1]
 
+    if dst.blank?
+      dst = ::File.basename(src)
+    elsif _file_transfer.directory?(dst)
+      fs_sep = platform == 'windows' ? '\\' : '/'
+      dst += fs_sep unless dst.end_with?(fs_sep)
+      dst += ::File.basename(src)
+    end
+
     # Check target file exists on the target machine
     if _file_transfer.file_exist?(dst)
-      print_warning("The file <#{dst}> already exists on the target machine")
-      unless prompt_yesno("Overwrite the target file <#{dst}>?")
+      print_warning('The target file already exists')
+      unless prompt_yesno("Overwrite the target file #{dst}?")
         return
       end
     end
 
+    print_status("Uploading  : #{src} -> #{dst}")
     begin
-      content = File.binread(src)
+      # Read file from local machine
+      content = ::File.binread(src)
       _file_transfer.write_file(dst, content)
-      print_good("File <#{dst}> upload finished")
+      print_status("Completed  : #{src} -> #{dst}")
     rescue => e
-      print_error("Error occurs while uploading <#{src}> to <#{dst}> - #{e.message}")
+      print_error("Failed     : #{src} -> #{dst} - #{e.message}")
       elog(e)
-      return
     end
   end
 
