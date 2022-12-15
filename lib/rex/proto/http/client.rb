@@ -234,7 +234,7 @@ class Client
 
     send_request(req, t)
 
-    res = read_response(t)
+    res = read_response(req, t)
     if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
     end
@@ -561,12 +561,14 @@ class Client
   # If t is specified as nil or 0, it indicates no response parsing is required.
   #
   # @return [Response]
-  def read_response(t = -1, opts = {})
+  def read_response(original_request, t = -1, opts = {})
     # Return a nil response if timeout is nil or 0
     return if t.nil? || t == 0
 
     resp = Response.new
     resp.max_data = config['read_max_data']
+
+    parse_opts = { :orig_method => original_request.opts['method'] }
 
     Timeout.timeout((t < 0) ? nil : t) do
 
@@ -580,7 +582,7 @@ class Client
         begin
 
           buff = conn.get_once(resp.max_data, 1)
-          rv   = resp.parse(buff || '')
+          rv   = resp.parse(buff || '', parse_opts)
 
         # Handle unexpected disconnects
         rescue ::Errno::EPIPE, ::EOFError, ::IOError
@@ -629,7 +631,7 @@ class Client
         body = resp.body
         resp = Response.new
         resp.max_data = config['read_max_data']
-        rv = resp.parse(body)
+        rv = resp.parse(body, parse_opts)
       # We found a 100 Continue but didn't read the real reply yet
       # Otherwise reread the reply, but don't try this hack again
       else
