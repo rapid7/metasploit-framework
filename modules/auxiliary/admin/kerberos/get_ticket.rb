@@ -5,7 +5,9 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::Kerberos
   include Msf::Exploit::Remote::Kerberos::Client
+  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
 
   def initialize(info = {})
     super(
@@ -65,19 +67,6 @@ class MetasploitModule < Msf::Auxiliary
         )
       ]
     )
-
-    register_advanced_options(
-      [
-        OptBool.new(
-          'KrbUseCachedCredentials', [
-            true,
-            'Use credentials stored in the database for Kerberos authentication when requesting a TGS',
-            true
-          ],
-          conditions: %w[ACTION == GET_TGS]
-        ),
-      ]
-    )
   end
 
   def validate_options
@@ -127,7 +116,8 @@ class MetasploitModule < Msf::Auxiliary
       realm: datastore['DOMAIN'],
       username: datastore['USER'],
       framework: framework,
-      framework_module: self
+      framework_module: self,
+      ticket_storage: kerberos_ticket_storage
     })
     options[:password] = datastore['PASSWORD'] if datastore['PASSWORD'].present?
     if datastore['NTHASH'].present?
@@ -149,14 +139,11 @@ class MetasploitModule < Msf::Auxiliary
   def action_get_tgt
     print_status("#{peer} - Getting TGT for #{datastore['USER']}@#{datastore['DOMAIN']}")
 
-    authenticator = init_authenticator({ use_cached_credentials: false })
+    authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false) })
     authenticator.request_tgt_only
   end
 
   def action_get_tgs
-    options = {
-      use_cached_credentials: datastore['KrbUseCachedCredentials'].nil? ? false : datastore['KrbUseCachedCredentials']
-    }
     authenticator = init_authenticator(options)
     credential = authenticator.request_tgt_only(options)
 
@@ -173,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       }
       tgs_ticket, _tgs_auth = authenticator.s4u2self(
         credential,
-        auth_options.merge(store_credential_cache: false)
+        auth_options.merge(ticket_storage: kerberos_ticket_storage(read: false))
       )
 
       auth_options[:sname] = Rex::Proto::Kerberos::Model::PrincipalName.new(
@@ -191,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       tgs_options = {
         sname: sname,
-        use_cached_credentials: false
+        ticket_storage: kerberos_ticket_storage(read: false)
       }
       authenticator.request_tgs_only(credential, tgs_options)
     end
