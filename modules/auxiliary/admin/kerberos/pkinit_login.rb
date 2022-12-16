@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       ccache = Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses(tgt_result.as_rep, enc_part)
-      Kerberos::Ticket::Storage.store_ccache(ccache, host: rhost, framework_module: self)
+      Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, host: rhost, framework_module: self)
     rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
       fail_with(Failure::Unknown, e.message)
     rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
