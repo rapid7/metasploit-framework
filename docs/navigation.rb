@@ -63,6 +63,10 @@ NAVIGATION_CONFIG = [
       {
         path: 'Metasploit-Guide-Kubernetes.md',
         title: without_prefix('Metasploit Guide ')
+      },
+      {
+        path: 'Metasploit-Guide-Network-Pivoting.md',
+        title: without_prefix('Metasploit Guide ')
       }
     ]
   },
