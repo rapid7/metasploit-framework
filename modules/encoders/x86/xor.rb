@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Encoder::Xor
   end
 
   def decoder_stub(state)
-    # calculate the (negative) block count . We should check this against state.badchars.
+    # calculate the (negative and positiv) block count . wich should be good for badchar.
     state.decoder_key_size = 4
     state.decoder_key_pack = 'V'
     block_count = [-(((state.buf.length - 1) / state.decoder_key_size) + 1)].pack('V')
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Encoder::Xor
       raise 'No permutation found for the badchar set :' + state.badchars.inspect
     end
 
-    reg2 = regs[rand(5)] # Fixed to ECX register for now as long as we use Loop instruction, will be set to random when loop replaced by  manual jmp
+    reg2 = regs[rand(5)]
     regs.delete(reg2) # remove it from the list
     reg3 = regs[rand(4)] # random register
     regs.delete(reg3) # remove it from the list
