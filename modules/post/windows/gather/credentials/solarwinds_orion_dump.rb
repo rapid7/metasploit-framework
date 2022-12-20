@@ -26,12 +26,12 @@ class MetasploitModule < Msf::Post
           extraction and decryption of the data are provided to allow session migration
           during execution in order to log in to the SQL database using SSPI. Tested on
           the 2020 version of SolarWinds Orion NPM. This module is possible only because
-          of the source code and technical information published by Djordje Atlialp and
+          of the source code and technical information published by Rob Fuller and
           Atredis Partners.
         },
         'Author' => [
           'npm[at]cesium137.io', # Metasploit Module
-          'djordje.atlialp@gmail.com' # @rhazdon - Original research
+          'Rob Fuller' # @mubix - Original research
         ],
         'Platform' => [ 'win' ],
         'DisclosureDate' => '2022-11-08',

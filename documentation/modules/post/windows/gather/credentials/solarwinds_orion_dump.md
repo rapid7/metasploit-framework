@@ -6,7 +6,7 @@ Orion NPM installed. The module supports decryption of AES-256, RSA, and XMLSEC 
 actions for extraction and decryption of the data are provided to allow session migration during
 execution in order to log in to the SQL database using SSPI. Tested on  the 2020 version of
 SolarWinds Orion NPM. This module is possible only because of the source code and technical
-information published by Djordje Atlialp:
+information published by Rob Fuller:
 
 https://malicious.link/post/2020/solarflare-release-password-dumper-for-SolarWinds-orion
 
