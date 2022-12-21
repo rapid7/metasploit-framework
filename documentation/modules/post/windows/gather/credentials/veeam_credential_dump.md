@@ -10,16 +10,25 @@ automatically added to loot.
 
 ### Dump
 
-`dump` is the default action and performs extraction of the Veeam product database parameters and
-encryption keys. This action also exports SQL data and immediately decrypts it. Invoking the `dump`
-action requires SYSTEM level permissions on the target host in order to extract AES keys.
+`dump` is the default action and performs extraction of the Veeam product database parameters. This
+action also exports SQL data and immediately decrypts it.
 
 ### Export
 
 `export` performs SQL data extraction of the encrypted data as a CSV file; use this option if it is
 necessary to migrate the Meterpreter session to a new non-SYSTEM identity in order to access the SQL
 database. Invoking the `export` action requires the Meterpreter session to be running in the context
-of a user that has access to the configured SQL database.
+of a user that has access to the configured SQL database. The `VBR_MSSQL_INSTANCE` and `VBR_MSSQL_DB`
+options can be set to specify the SQL database instance path and DB name for Veeam Backup & Recovery
+and the `VOM_MSSQL_INSTANCE` and `VOM_MSSQL_DB` can be set to specify the SQL instance path and DB
+name for Veeam ONE Monitor, if the current session identity has permission to log in to SQL but does
+not have sufficient permission to extract this information from the target host.
+
+### Decrypt
+
+`decrypt` performs decryption of encrypted Veeam SQL data. To invoke the `decrypt` action, you must
+set the either the `VBR_CSV_FILE` or `VOM_CSV_FILE` advanced options. See `SQL Data Acquisition`
+below for more information.
 
 ## Verification Steps
 
@@ -42,7 +51,43 @@ the encrypted payloads and process them in a single batch, passing them as a sta
 on the PS command line. This greatly improves performance but may cause issues with there are a
 large number of secrets that attempt to decrypt in parallel. Set this option to `false` to
 suppress this behavior, and force the module to make DPAPI decryption calls sequentially rather
-than in parallel batches.
+than in a parallel batch.
+
+### VBR_CSV_FILE
+
+Path to a CSV file that contains the encrypted Veeam Backup & Recovery database data that has
+been previously exported. Provide this option when invoking offline decryption using the
+`decrypt` action.
+
+### VOM_CSV_FILE
+
+Path to a CSV file that contains the encrypted Veeam ONE Monitor database data that has been
+previously exported. Provide this option when invoking offline decryption using the `decrypt`
+action.
+
+### VBR_MSSQL_DB
+
+The MSSQL database name used by Veeam Backup & Recovery, specified in the `INITIAL CATALOG` as
+extracted from database parameters during `dump`. Provide this option when invoking the
+`export` action.
+
+### VOM_MSSQL_DB
+
+The MSSQL database name used by Veeam ONE Monitor, specified in the `INITIAL CATALOG` as
+extracted from database parameters during `dump`. Provide this option when invoking the
+`export` action.
+
+### VBR_MSSQL_INSTANCE
+
+The path to the MSSQL instance used by Veeam Backup & Recovery, specified in the `DATA SOURCE`
+as extracted from database parameters during `dump`. Provide this option when invoking the
+`export` action.
+
+### VOM_MSSQL_INSTANCE
+
+The path to the MSSQL instance used by Veeam ONE Monitor, specified in the `DATA SOURCE`
+as extracted from database parameters during `dump`. Provide this option when invoking the
+`export` action.
 
 ## Scenarios
 
@@ -50,12 +95,64 @@ than in parallel batches.
 
 The `sqlcmd` binaries (part of the SQL Server Management Studio) must be installed on the system
 to access the database. Columns are cast `VARBINARY` to deal with poor CSV export support in
-`sqlcmd`. If the database is configured migrate the session PID to an identity with permission
-to log on to the SQL server.
+`sqlcmd`. If the database is configured with Windows Integrated authentication the operator may
+need to migrate the session PID to an identity with permission to log on to the SQL server. It is
+also possible to extract the data out of band, and provide it to the module in the form of a CSV
+file in either the `VBR_CSV_FILE` or `VOM_CSV_FILE` advanced options. CSV files must contain the
+header
+
+`ID,USN,Username,Password,Description,Visible`
+
+The query for capturing data from the Veeam Backup & Recovery database is:
+
+```
+SET NOCOUNT ON;
+SELECT
+  [id] ID,
+  [usn] USN,
+  [user_name] Username,
+  [password] Password,
+  [description] Description,
+  [visible] Visible
+FROM
+  dbo.Credentials;
+```
+
+The query for capturing data from the Veeam ONE Monitor database is:
+
+```
+SET NOCOUNT ON;
+SELECT 
+  [uid] ID,
+  [id] USN,
+  [name] Username,
+  [password] Password,
+  'VeeamONE Credential' Description,
+  0 Visible
+FROM
+  [collector].[user]
+WHERE
+  [collector].[user].[name] IS NOT NULL
+AND
+  [collector].[user].[name] NOT LIKE '';
+```
+
+Output must be encoded VARBINARY per above, and must be well-formed CSV (i.e. no trailing whitespace).
+If using `sqlcmd`, ensure the `-W` and `-I` parameters are included to strip trailing whitespace and
+allow quoted identifiers. Suggested syntax for `sqlcmd` using Windows authentication is below, where
+the contents of `sql_query.sql` is the text of one of the SQL queries above:
+
+`sqlcmd -d "<DBNAME>" -S <MSSQL_INSTANCE> -E -i sql_query.sql -o veeam_dump.csv -h-1 -s"," -w 65535 -W -I`
+
+This should place a CSV export file suitable for use within the module at `veeam_dump.csv`. If using
+SQL native auth, replace the `-E` parameter with
+
+`-U "<MSSQL_USER>" -P "<MSSQL_PASS>"`
 
 ### Examples
 
-Windows Server 2019 host running Veeam Backup & Recovery and Veeam ONE with SQL SSPI using the `dump` action:
+Windows Server 2019 host with Veeam Backup & Recovery and Veeam ONE installed w/SQL SSPI using the
+`dump` action:
 
 ```
 msf6 exploit(multi/handler) > use windows/gather/credentials/veeam_credential_dump
