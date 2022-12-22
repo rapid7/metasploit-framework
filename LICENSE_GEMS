@@ -59,7 +59,7 @@ http_parser.rb, 0.8.0, MIT
 httpclient, 2.8.3, ruby
 i18n, 1.12.0, MIT
 io-console, 0.5.11, "ruby, Simplified BSD"
-irb, 1.5.1, "ruby, Simplified BSD"
+irb, 1.6.1, "ruby, Simplified BSD"
 jmespath, 1.6.2, "Apache 2.0"
 jsobfu, 0.4.2, "New BSD"
 json, 2.6.3, ruby
@@ -70,7 +70,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.5, "New BSD"
 metasploit-credential, 6.0.1, "New BSD"
-metasploit-framework, 6.2.32, "New BSD"
+metasploit-framework, 6.2.33, "New BSD"
 metasploit-model, 4.0.6, "New BSD"
 metasploit-payloads, 2.0.105, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.6, "New BSD"
