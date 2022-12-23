@@ -151,6 +151,8 @@ module Msf
               results << datastore.merge(overrides)
             end
           end
+        rescue ::Interrupt
+          raise
         rescue StandardError => e
           results << Msf::RhostsWalker::Error.new(value, cause: e)
         end
