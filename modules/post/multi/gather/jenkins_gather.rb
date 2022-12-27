@@ -231,9 +231,9 @@ class MetasploitModule < Msf::Post
     @ssh_keys.uniq.each do |e|
       print_good("SSH Key")
       print_status(" ID: #{e[0]}")
-      print_status(" Description: #{e[1]}") if !e[1].nil? || !e[1].empty?
-      print_status(" Passphrase:  #{e[2]}") if !e[2].nil? || !e[2].empty?
-      print_status(" Username:    #{e[3]}") if !e[3].nil? || !e[3].empty?
+      print_status(" Description: #{e[1]}") if !e[1].blank?
+      print_status(" Passphrase:  #{e[2]}") if !e[2].blank?
+      print_status(" Username:    #{e[3]}") if !e[3].blank?
       print_status("\n#{e[4]}")
     end
     ssh_output = @ssh_keys.each { |e| e.join(",") + "\n\n\n" }
