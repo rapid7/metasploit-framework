@@ -19,8 +19,8 @@ flowchart TD
 	ESC3{{ESC3}} -- Via PKINIT --> pkinit{Authenticate to Kerberos}
 ```
 # How To Set Up An ESC Target
-## Installing ADCS
-- [ ] Install ADCS on either a new or existing domain controller
+## Installing AD CS
+- [ ] Install AD CS on either a new or existing domain controller
     - [ ] Open the Server Manager
     - [ ] Select Add roles and features
     - [ ] Select "Active Directory Certificate Services" under the "Server Roles" section

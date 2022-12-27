@@ -84,6 +84,10 @@ NAVIGATION_CONFIG = [
         title: without_prefix('Metasploit Guide ')
       },
       {
+        path: 'Attacking-ADCS-ESC-Vulnerabilities.md',
+        title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
+      },
+      {
         nav_order: 5,
         path: 'Metasploit-Guide-Kubernetes.md',
         title: without_prefix('Metasploit Guide ')
