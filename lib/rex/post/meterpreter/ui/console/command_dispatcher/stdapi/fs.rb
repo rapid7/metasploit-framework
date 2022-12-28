@@ -338,7 +338,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     true
   end
 
-  # 
+  #
   # Tab completion for the lcat command
   #
   def cmd_lcat_tabs(str, words)
@@ -1053,7 +1053,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     src_items << last if src_items.empty?
 
     if args.size == 1
-      dest = last.split(/(\/|\\)/).last
+      dest = client.fs.file.basename(last)
     else
       dest = last
     end
