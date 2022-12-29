@@ -78,6 +78,8 @@ module Rex::Proto::MsDtyp
   # which the RubySMB::Dcerpc::Uuid definition takes care of.
   class MsDtypGuid < RubySMB::Dcerpc::Uuid
     def self.random_generate
+      # Taken from the "D" format as specified in
+      # https://learn.microsoft.com/en-us/dotnet/api/system.guid.tostring?view=net-7.0
       "{#{Rex::Text.rand_text_alphanumeric(8)}-#{Rex::Text.rand_text_alphanumeric(4)}-#{Rex::Text.rand_text_alphanumeric(4)}-#{Rex::Text.rand_text_alphanumeric(4)}-#{Rex::Text.rand_text_alphanumeric(12)}}".downcase
     end
   end
