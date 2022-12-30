@@ -88,7 +88,7 @@ module ModuleArgumentParsing
     print_line("    #{command} smb://user:pass@192.168.1.123") if is_smb_mod
     print_line("    #{command} LPATH=/tmp/foo.txt smb://user:pass@192.168.1.123/share_name/foo.txt") if is_smb_mod && mod.options.include?('RPATH')
     print_line('')
-    print_line('Learn more at https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit')
+    print_line('Learn more at https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html')
     print_line('')
   end
 

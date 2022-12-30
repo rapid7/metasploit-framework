@@ -56,7 +56,7 @@ Module options (auxiliary/scanner/http/syncovery_linux_token_cve_2022_36536):
    ----       ---------------  --------  -----------
    DAYS       1                yes       Check today and last X day(s) for valid session token
    Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS     192.168.178.26   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS     192.168.178.26   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT      8999             yes       The target port (TCP)
    SSL        false            no        Negotiate SSL/TLS for outgoing connections
    TARGETURI  /                no        The path to Syncovery

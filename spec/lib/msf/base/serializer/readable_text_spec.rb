@@ -153,7 +153,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           FloatValue               5                   no        A FloatValue
           NewOptionName                                yes       An option with a new name. Aliases ensure the old and new names are synchronized
           OptionWithModuleDefault  false               yes       option with module default
-          RHOSTS                   192.0.2.2           yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+          RHOSTS                   192.0.2.2           yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
           RPORT                    3000                yes       The target port
           SMBDomain                WORKGROUP           yes       The SMB username
           SMBUser                  username            yes       The SMB username

@@ -9,7 +9,7 @@ Module options (exploit/windows/smb/ms17_010_eternalblue):
 
    Name           Current Setting  Required  Description
    ----           ---------------  --------  -----------
-   RHOSTS                          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS                          yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT          445              yes       The target port (TCP)
    SMBDomain                       no        (Optional) The Windows domain to use for authentication. Only affects Windows Server 2008 R2, Windows 7, Windows Embedded Standard 7 target machines.
    SMBPass                         no        (Optional) The password for the specified username
@@ -67,7 +67,7 @@ Module options (exploit/windows/smb/ms17_010_eternalblue):
 
    Name    Current Setting  Required  Description
    ----    ---------------  --------  -----------
-   RHOSTS                   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS                   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
 ```
 
 ### Setting options

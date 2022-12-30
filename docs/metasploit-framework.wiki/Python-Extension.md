@@ -331,7 +331,7 @@ Hell no! But the goal is to get closer and closer to perfect as we go. It's up t
 
 Please do, making good use of the Github issues feature. Better still, create a PR for one!
 
-  [transport]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control
+  [transport]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-transport-control.html
   [inveigh]: https://github.com/Kevin-Robertson/Inveigh
 
 ## Currently Loadable Native Libraries

@@ -61,5 +61,5 @@ HTTP/S communications in Windows is a hairy beast, and trying to cater for all c
   [WinInet]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa383630%28v=vs.85%29.aspx
   [WinHTTP]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa382925%28v=vs.85%29.aspx
   [winhttp_wininet]: https://msdn.microsoft.com/en-us/library/windows/desktop/hh227298%28v=vs.85%29.aspx
-  [Paranoid Mode]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Paranoid-Mode
+  [Paranoid Mode]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-paranoid-mode.html
   [OJ]: https://github.com/OJ

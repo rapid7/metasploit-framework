@@ -734,7 +734,7 @@ module Msf
                 end
                 unless mod_resolved
                   elog("Module #{mod_name} not found, and no loading errors found. If you're using a custom module" \
-                    ' refer to our wiki: https://github.com/rapid7/metasploit-framework/wiki/Running-Private-Modules')
+                    ' refer to our wiki: https://docs.metasploit.com/docs/using-metasploit/intermediate/running-private-modules.html')
 
                   # Avoid trying to use the search result if it exactly matches
                   # the module we were trying to load. The module cannot be

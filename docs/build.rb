@@ -187,7 +187,7 @@ module Build
       @config.enum_for(:each).map { |page| page }
     end
 
-    # scans for absolute links to the old wiki such as 'https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service'
+    # scans for absolute links to the old wiki such as 'https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html'
     def extract_absolute_wiki_links(markdown)
       new_links = {}
 

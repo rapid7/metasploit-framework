@@ -16,7 +16,7 @@ On some systems such as Windows 7, it can also iterate over user directories and
 ```
 set RHOSTS [string]
 ```
-This is the target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit for more information.
+This is the target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html for more information.
 
 ```
 set SpiderProfiles [boolean]

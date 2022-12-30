@@ -76,7 +76,7 @@ Module options (auxiliary/gather/windows_secrets_dump):
 
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
-   RHOSTS     192.168.100.123  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS     192.168.100.123  yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT      445              yes       The target port (TCP)
    SMBDomain  .                no        The Windows domain to use for authentication
    SMBPass    123456           no        The password for the specified username
