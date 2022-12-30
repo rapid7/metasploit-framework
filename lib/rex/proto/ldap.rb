@@ -5,7 +5,16 @@ require 'rex/socket'
 # TODO: write a real LDAP client in Rex and migrate all consumers
 class Net::LDAP::Connection # :nodoc:
   module SynchronousRead
-    def read(length = nil, opts = {})
+    #
+    # Read `length` bytes of data from the LDAP connection socket and
+    #  return this data as a string.
+    #
+    # @param length [Integer] Length of the data to be read from the LDAP connection socket.
+    # @param _opts [Hash] Unused
+    #
+    # @return [String] A string containing the data read from the LDAP connection socket.
+    #
+    def read(length = nil, _opts = {})
       data = ''
       loop do
         chunk = super(length - data.length)
@@ -21,6 +30,13 @@ class Net::LDAP::Connection # :nodoc:
     end
   end
 
+  # Initialize the LDAP connection using Rex::Socket::TCP,
+  #   and optionally set up encryption on the connection if configured.
+  #
+  # @param server [Hash] Hash of the options needed to set
+  #   up the Rex::Socket::TCP socket for the LDAP connection.
+  # @see create_param
+  # @see Rex::Socket::Parameters.from_hash
   def initialize(server)
     begin
       @conn = Rex::Socket::Tcp.create(
