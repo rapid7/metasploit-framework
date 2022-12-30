@@ -293,7 +293,9 @@ class MetasploitModule < Msf::Auxiliary
       begin
         print_status 'Starting module'
         if rport == SMB1_PORT
-          connect(versions: [1])
+          # force library in smb1 mode otherwise simple.client is a
+          # `Rex::Proto::SMB::Client` that does not supply `net_share_enum_all`
+          connect(versions: [1], backend: :ruby_smb)
         else
           connect(versions: [1, 2, 3])
         end

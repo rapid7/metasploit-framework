@@ -48,28 +48,7 @@ module Metasploit
         #   * :proof [String] the HTTP response body or the session token
         def get_login_state(username, password)
           # Prep the data needed for login
-          if username.empty?
-            # no username => token is used as password
-            res = send_request({
-              'uri' => normalize_uri("#{uri}/profiles.json"),
-              'vars_get' => {
-                'recordstartindex' => '0',
-                'recordendindex' => '0'
-              },
-              'method' => 'GET',
-              'headers' => {
-                'token' => password
-              }
-            })
-            unless res
-              return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
-            end
-            if !res.body.to_s.include? 'Session Expired'
-              return { status: LOGIN_STATUS::SUCCESSFUL, proof: res.body.to_s }
-            end
-
-            return { proof: res.body.to_s }
-          else
+          if username.present?
             # use username:password
             res = send_request({
               'uri' => normalize_uri("#{uri}/post_applogin.php"),
@@ -92,6 +71,27 @@ module Metasploit
             end
 
             return { proof: res.to_s }
+          else
+            # no username => token is used as password
+            res = send_request({
+              'uri' => normalize_uri("#{uri}/profiles.json"),
+              'vars_get' => {
+                'recordstartindex' => '0',
+                'recordendindex' => '0'
+              },
+              'method' => 'GET',
+              'headers' => {
+                'token' => password
+              }
+            })
+            unless res
+              return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
+            end
+            if !res.body.to_s.include? 'Session Expired'
+              return { status: LOGIN_STATUS::SUCCESSFUL, proof: res.body.to_s }
+            end
+
+            return { proof: res.body.to_s }
           end
         end
 
