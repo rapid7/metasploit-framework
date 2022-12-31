@@ -214,6 +214,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'aws-sdk-s3'
   spec.add_runtime_dependency 'aws-sdk-ec2'
   spec.add_runtime_dependency 'aws-sdk-iam'
+  spec.add_runtime_dependency 'aws-sdk-ssm'
 
   # Needed for WebSocket Support
   spec.add_runtime_dependency 'faye-websocket'
