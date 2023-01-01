@@ -244,10 +244,7 @@ module BindAwsSsm
 
         self.conn_thread = framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
           begin
-            chan = get_ws_session(client_copy.start_session({
-              target: datastore['AWS_EC2_ID'],
-              document_name: 'SSM-SessionManagerRunShell'
-            }))
+            chan = ssm_ws_session(client_copy)
           rescue Rex::Proto::Http::WebSocket::ConnectionError
             chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
           rescue => e
@@ -336,7 +333,13 @@ private
   #
   # Initiates a WebSocket session based on the params of SSM::Client#start_session
   #
-  def get_ws_session(session_init, timeout = 20)
+  def ssm_ws_session(ssm_client, doc_name = 'SSM-SessionManagerRunShell', timeout = 20)
+    # hack-up a "graceful fail-down" in the caller
+    raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'WebSocket sesssions still need structs/parsing')
+    session_init = ssm_client.start_session({
+      target: datastore['AWS_EC2_ID'],
+      document_name: doc_name
+    })
     ws_key = session_init.token_value
     ssm_id = session_init.session_id
     ws_url = URI.parse(session_init.stream_url)
@@ -378,10 +381,14 @@ private
     socket = http_client.conn
     socket.extend(Rex::Proto::Http::WebSocket::Interface)
     # handshake
+    ssm_wsock_init = JSON.pretty_generate({
+      MessageSchemaVersion: '1.0',
+      RequestId: ::Rex::Proto::DCERPC::UUID.uuid_unpack(Rex::Text.rand_text(16)),
+      TokenValue: ws_key,
+    })
+    socket.put_wstext(ssm_wsock_init)
     # establish shell channel
-
-    # hack-up a "graceful fail-down" in the caller
-    raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'WebSocket sesssions are not yet implemented')
+    socket
   end
 protected
 
