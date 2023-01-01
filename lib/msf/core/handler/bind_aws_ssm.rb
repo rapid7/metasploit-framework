@@ -220,6 +220,7 @@ module BindAwsSsm
           vprint_error(e.message)
         rescue
           wlog("Exception caught in SSM handler: #{$!.class} #{$!}")
+          break
         end
         break if ssm_client
 
@@ -241,16 +242,18 @@ module BindAwsSsm
           :retry_wait   => datastore['SessionRetryWait'].to_i,
         }
 
-        # Start a new thread and pass the client connection
-        # as the input and output pipe.  Client's are expected
-        # to implement the Stream interface.
         self.conn_thread = framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
           begin
+            chan = get_ws_session(client_copy.start_session({
+              target: datastore['AWS_EC2_ID'],
+              document_name: 'SSM-SessionManagerRunShell'
+            }))
+          rescue Rex::Proto::Http::WebSocket::ConnectionError
             chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
-            handle_connection(chan.lsock, { datastore: datastore })
           rescue => e
             elog('Exception raised from BindAwsSsm.handle_connection', error: e)
           end
+          handle_connection(chan.lsock, { datastore: datastore })
         }
       else
         wlog("No connection received before the handler completed")
@@ -330,6 +333,56 @@ private
     return [client, peer_info]
   end
 
+  #
+  # Initiates a WebSocket session based on the params of SSM::Client#start_session
+  #
+  def get_ws_session(session_init, timeout = 20)
+    ws_key = session_init.token_value
+    ssm_id = session_init.session_id
+    ws_url = URI.parse(session_init.stream_url)
+    opts   = {}
+    opts['vhost']   = ws_url.host
+    opts['uri']     = ws_url.to_s.sub(/^.*#{ws_url.host}/,'')
+    opts['headers'] = {
+      'Connection'            => 'Upgrade',
+      'Upgrade'               => 'WebSocket',
+      'Sec-WebSocket-Version' => 13,
+      'Sec-WebSocket-Key'     => ws_key
+    }
+
+    http_client = Rex::Proto::Http::Client.new(
+      ws_url.host,
+      443,
+      {
+        'Msf'        => framework,
+        'MsfExploit' => self,
+      },
+      true
+    )
+    raise Rex::Proto::Http::WebSocket::ConnectionError.new if http_client.nil?
+
+    req = http_client.request_raw(opts)
+    res = http_client.send_recv(req, timeout)
+    unless res&.code == 101
+      disconnect
+      raise Rex::Proto::Http::WebSocket::ConnectionError.new(http_response: res)
+    end
+
+    # see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-WebSocket-Accept
+    accept_ws_key = Rex::Text.encode_base64(OpenSSL::Digest::SHA1.digest(ws_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'))
+    unless res.headers['Sec-WebSocket-Accept'] == accept_ws_key
+      disconnect
+      raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'Invalid Sec-WebSocket-Accept header', http_response: res)
+    end
+
+    socket = http_client.conn
+    socket.extend(Rex::Proto::Http::WebSocket::Interface)
+    # handshake
+    # establish shell channel
+
+    # hack-up a "graceful fail-down" in the caller
+    raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'WebSocket sesssions are not yet implemented')
+  end
 protected
 
   attr_accessor :bind_thread # :nodoc:
