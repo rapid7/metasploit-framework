@@ -31,6 +31,7 @@ module BindAwsSsm
       @peer_info = peer_info
       @ssmclient = ssmclient
       @cursor    = nil
+      @cmd_doc   = peer_info['CommandDocument'].blank? ? 'AWS-RunShellScript' : peer_info['CommandDocument']
 
       initialize_abstraction
 
@@ -92,7 +93,7 @@ module BindAwsSsm
 
     def write(buf, opts = {})
       resp = @ssmclient.send_command(
-        document_name: 'AWS-RunShellScript',
+        document_name: @cmd_doc,
         instance_ids: [@peer_info['InstanceId']],
         parameters: { commands: [buf] }
       )
@@ -153,6 +154,12 @@ module BindAwsSsm
         OptString.new('AWS_SK', [false, 'AWS secret key', nil]),
         OptString.new('AWS_ROLE_ARN', [false, 'AWS assumed role ARN', nil]),
         OptString.new('AWS_ROLE_SID', [false, 'AWS assumed role session ID', nil]),
+      ], Msf::Handler::BindAwsSsm)
+
+    register_advanced_options(
+      [
+        OptString.new('AWS_SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
+        OptString.new('AWS_SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
       ], Msf::Handler::BindAwsSsm)
 
     self.bind_thread = nil
@@ -244,8 +251,13 @@ module BindAwsSsm
 
         self.conn_thread = framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
           begin
-            chan = ssm_ws_session(client_copy)
+            session_init = ssm_client.start_session({
+              target: datastore['AWS_EC2_ID'],
+              document_name: datastore['AWS_SSM_SESSION_DOC']
+            })
+            chan = ssm_ws_session(session_init)
           rescue Rex::Proto::Http::WebSocket::ConnectionError
+            info_copy['CommandDocument'] = datastore['AWS_SSM_COMMAND_DOC']
             chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
           rescue => e
             elog('Exception raised from BindAwsSsm.handle_connection', error: e)
@@ -333,13 +345,9 @@ private
   #
   # Initiates a WebSocket session based on the params of SSM::Client#start_session
   #
-  def ssm_ws_session(ssm_client, doc_name = 'SSM-SessionManagerRunShell', timeout = 20)
+  def ssm_ws_session(session_init, timeout = 20)
     # hack-up a "graceful fail-down" in the caller
     raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'WebSocket sesssions still need structs/parsing')
-    session_init = ssm_client.start_session({
-      target: datastore['AWS_EC2_ID'],
-      document_name: doc_name
-    })
     ws_key = session_init.token_value
     ssm_id = session_init.session_id
     ws_url = URI.parse(session_init.stream_url)
@@ -388,7 +396,7 @@ private
     })
     socket.put_wstext(ssm_wsock_init)
     # establish shell channel
-    socket
+    socket.extend(AwsSssmWebSocket)
   end
 protected
 
@@ -399,6 +407,39 @@ protected
   module AwsSsmSessionChannelExt
     attr_accessor :localinfo
     attr_accessor :peerinfo
+  end
+
+  module AwsSssmWebSocket
+    # TODO: Move this, and WS session acquisition method to Rex::Proto
+    class SsmFrame < BinData::Record
+      endian :big
+
+      struct :header do
+        endian :big
+
+        uint32 :header_length
+        string :message_type, length: 32
+        uint32 :schema_version, default_value: 1
+        uint64 :created_date
+        uint64 :sequence_number
+        uint64 :flags, default_value: 1
+        string :message_id, length: 16
+      end
+
+      string :payload_digest, length: 32, default_value: lambda { Digest::SHA256.digest(payload_data) }
+      uint32 :payload_type, default_value: 1
+      uint32 :payload_length, value: lambda { payload_data.length }
+      string :payload_data, read_length: -> { payload_length }
+      virtual :valid_payload, assert: lambda { Digest::SHA256.digest(payload_data) == payload_digest }
+
+      def uuid
+        ::Rex::Proto::DCERPC::UUID.uuid_unpack(message_id)
+      end
+
+      def uuid=(value)
+        header.message_id = ::Rex::Proto::DCERPC::UUID.uuid_pack(message_id)
+      end
+    end
   end
 
 end
