@@ -234,7 +234,7 @@ class Client
 
     send_request(req, t)
 
-    res = read_response(req, t)
+    res = read_response(t, :original_request => req)
     if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
     end
@@ -561,14 +561,18 @@ class Client
   # If t is specified as nil or 0, it indicates no response parsing is required.
   #
   # @return [Response]
-  def read_response(original_request, t = -1, opts = {})
+  def read_response(t = -1, opts = {})
     # Return a nil response if timeout is nil or 0
     return if t.nil? || t == 0
 
     resp = Response.new
     resp.max_data = config['read_max_data']
 
-    parse_opts = { :orig_method => original_request.opts['method'] }
+    original_request = opts.fetch(:original_request) { nil }
+    parse_opts = {}
+    unless original_request.nil?
+      parse_opts = { :orig_method => original_request.opts['method'] }
+    end
 
     Timeout.timeout((t < 0) ? nil : t) do
 
