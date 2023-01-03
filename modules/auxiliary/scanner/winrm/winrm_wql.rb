@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     check_winrm_parameters
+    super
   end
 
   def run_host(ip)
