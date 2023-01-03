@@ -3,91 +3,6 @@
 require 'bindata'
 
 module Rex::Proto::Http::WebSocket::AmazonSsm
-  module Interface
-    class SsmChannel < Rex::Proto::Http::WebSocket::Interface::Channel
-      attr_reader :run_ssm_pub, :out_seq_num, :ack_seq_num
-
-      def initialize(websocket)
-        @ack_seq_num = 0
-        @out_seq_num = 0
-        @run_ssm_pub = true
-        @ack_outputs = Set.new
-
-        super(websocket, write_type: :binary, mask_write: false)
-      end
-
-      def acknowledge_output(output_frame)
-        ack = output_frame.to_ack
-        # ack.header.sequence_number = @out_seq_num
-        @websocket.put_wsbinary(ack.to_binary_s, {mask: false})
-        # wlog("SsmChannel: acknowledge output #{output_frame.uuid}")
-        output_frame.uuid
-      end
-
-      def handle_output_data(output_frame)
-        if @ack_outputs.include?(output_frame.uuid)
-          # wlog("SsmChannel: repeat output #{output_frame.uuid}")
-        else
-          @ack_outputs << acknowledge_output(output_frame)
-          # TODO: handle Payload::* types
-          if [PayloadType::Output, PayloadType::Error].any? {|e| e == output_frame.payload_type }
-            return output_frame.payload_data
-          else
-            wlog("SsmChannel got unhandled output payload type: #{Payload.front_val(output_frame.payload_type)}")
-          end
-        end
-        nil
-      end
-
-      def handle_acknowledge(ack_frame)
-        # wlog("SsmChannel: got acknowledge message #{ack_frame.uuid}")
-        begin
-          seq_num = JSON.parse(ack_frame.payload_data)['AcknowledgedMessageSequenceNumber'].to_i
-          @ack_seq_num = seq_num if seq_num > @ack_seq_num
-        rescue => e
-          elog("SsmChannel failed to parse ack JSON #{ack_frame.payload_data} due to #{e}!")
-        end
-        nil
-      end
-
-      def on_data_read(data, _data_type)
-        return data if data.blank?
-        ssm_frame = SsmFrame.read(data)
-        case ssm_frame.header.message_type.strip
-        when 'output_stream_data'
-          return handle_output_data(ssm_frame)
-        when 'acknowledge'
-          # update ACK seqno
-          handle_acknowledge(ssm_frame)
-        when 'start_publication'
-          # handle session resumption
-        when 'pause_publication'
-          # handle session suspension
-        when 'input_stream_data'
-          # this is supposed to be a one way street
-        when 'channel_closed'
-          elog("SsmChannel got closed message #{ssm_frame.uuid}")
-          close
-        else
-          raise Rex::Proto::Http::WebSocket::ConnectionError.new(
-            msg: 'Unknown SSM message type', message_type: ssm_frame.header.message_type
-          )
-        end
-        nil
-      end
-
-      def on_data_write(data)
-        frame = SsmFrame.create(data)
-        frame.header.sequence_number = @out_seq_num
-        @out_seq_num += 1
-        frame.to_binary_s
-      end
-    end
-
-    def to_ssm_channel
-      SsmChannel.new(self)
-    end
-  end
   module PayloadType
     Output               = 1
     Error                = 2
@@ -143,6 +58,125 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       self.unpack(Rex::Text.rand_text(16))
     end
   end
+  module Interface
+    module SsmChannelMethods
+      attr_accessor :rows
+      attr_accessor :cols
+
+      def acknowledge_output(output_frame)
+        ack = output_frame.to_ack
+        # ack.header.sequence_number = @out_seq_num
+        @websocket.put_wsbinary(ack.to_binary_s, {mask: false})
+        # wlog("SsmChannel: acknowledge output #{output_frame.uuid}")
+        output_frame.uuid
+      end
+
+      def handle_output_data(output_frame)
+        if @ack_outputs.include?(output_frame.uuid)
+          # wlog("SsmChannel: repeat output #{output_frame.uuid}")
+        else
+          @ack_outputs << acknowledge_output(output_frame)
+          # TODO: handle Payload::* types
+          if [PayloadType::Output, PayloadType::Error].any? {|e| e == output_frame.payload_type }
+            if @filter_echo.is_a?(String) and output_frame.payload_data.strip == @filter_echo.strip
+              wlog("SsmChannel: filtering output #{@filter_echo}")
+              @filter_echo = true
+              return nil
+            else
+              return output_frame.payload_data
+            end
+          else
+            wlog("SsmChannel got unhandled output payload type: #{Payload.front_val(output_frame.payload_type)}")
+          end
+        end
+        nil
+      end
+
+      def handle_acknowledge(ack_frame)
+        # wlog("SsmChannel: got acknowledge message #{ack_frame.uuid}")
+        begin
+          seq_num = JSON.parse(ack_frame.payload_data)['AcknowledgedMessageSequenceNumber'].to_i
+          @ack_seq_num = seq_num if seq_num > @ack_seq_num
+        rescue => e
+          elog("SsmChannel failed to parse ack JSON #{ack_frame.payload_data} due to #{e}!")
+        end
+        nil
+      end
+
+      def update_term_size
+        rows, cols = ::IO.console.winsize
+        unless rows == self.rows && cols == self.cols
+          set_term_size(rows, cols)
+          self.rows = rows
+          self.cols = cols
+        end
+      end
+
+      def set_term_size(cols, rows)
+        data = JSON.generate({cols: cols, rows: rows})
+        frame = SsmFrame.create(data)
+        frame.payload_type = PayloadType::Size
+        write(frame)
+      end
+    end
+
+    class SsmChannel < Rex::Proto::Http::WebSocket::Interface::Channel
+      include SsmChannelMethods
+      attr_reader :run_ssm_pub, :out_seq_num, :ack_seq_num
+      attr_accessor :filter_echo
+
+      def initialize(websocket, filter_echo = false)
+        @ack_seq_num = 0
+        @out_seq_num = 0
+        @run_ssm_pub = true
+        @ack_outputs = Set.new
+        @filter_echo  = filter_echo
+
+        super(websocket, write_type: :binary, mask_write: false)
+      end
+
+      def on_data_read(data, _data_type)
+        return data if data.blank?
+        ssm_frame = SsmFrame.read(data)
+        case ssm_frame.header.message_type.strip
+        when 'output_stream_data'
+          return handle_output_data(ssm_frame)
+        when 'acknowledge'
+          # update ACK seqno
+          handle_acknowledge(ssm_frame)
+        when 'start_publication'
+          # handle session resumption - foregrounding or resumption of input
+        when 'pause_publication'
+          # handle session suspension - backgrounding or general idle
+        when 'input_stream_data'
+          # this is supposed to be a one way street
+          emsg = "SsmChannel received input_stream_data from SSM (!!)"
+          elog(emsg)
+          raise emsg
+        when 'channel_closed'
+          elog("SsmChannel got closed message #{ssm_frame.uuid}")
+          close
+        else
+          raise Rex::Proto::Http::WebSocket::ConnectionError.new(
+            msg: 'Unknown SSM message type', message_type: ssm_frame.header.message_type
+          )
+        end
+        nil
+      end
+
+      def on_data_write(data)
+        @filter_echo = data if @filter_echo and data.is_a?(String)
+        frame = SsmFrame.create(data)
+        frame.header.sequence_number = @out_seq_num
+        @out_seq_num += 1
+        frame.to_binary_s
+      end
+    end
+
+    def to_ssm_channel(filter_echo = true)
+      SsmChannel.new(self, filter_echo)
+    end
+  end
 
   class SsmFrame < BinData::Record
     endian :big
@@ -166,6 +200,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
 
     class << self
       def create(data = nil, mtype = 'input_stream_data')
+        return data if data.is_a?(SsmFrame)
         frame = SsmFrame.new( header: {
           message_type: mtype,
           created_date: (Time.now.to_f * 1000).to_i,
@@ -189,17 +224,8 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       UUID.unpack(header.message_id)
     end
 
-    def _set_req_fields
-      if header.message_id == "\x00" * 16
-        header.message_id = UUID.pack(UUID.rand)
-      end
-      header.header_length = header.to_binary_s.length + 32 + payload_type.to_binary_s.length
-      payload_digest = Digest::SHA256.digest(payload_data)
-      payload_length = payload_data.length
-    end
-
     def to_ack
-      data   = JSON.pretty_generate({
+      data   = JSON.generate({
         AcknowledgedMessageType: header.message_type.strip,
         AcknowledgedMessageId: uuid,
         AcknowledgedMessageSequenceNumber: header.sequence_number.to_i,
@@ -209,6 +235,10 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       ack.header.sequence_number = header.sequence_number
       ack.header.flags = header.flags
       ack
+    end
+
+    def length
+      to_binary_s.length
     end
   end
   #
@@ -257,7 +287,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
     socket = http_client.conn
     socket.extend(Rex::Proto::Http::WebSocket::Interface)
     # Send initialization handshake
-    ssm_wsock_init = JSON.pretty_generate({
+    ssm_wsock_init = JSON.generate({
       MessageSchemaVersion: '1.0',
       RequestId: UUID.rand,
       TokenValue: ws_key,

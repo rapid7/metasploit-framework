@@ -161,10 +161,12 @@ module BindAwsSsm
       [
         OptString.new('AWS_SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
         OptString.new('AWS_SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
+        OptBool.new('AWS_SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false])
       ], Msf::Handler::BindAwsSsm)
 
     self.bind_thread = nil
     self.conn_thread = nil
+    self.bind_sock   = nil
   end
 
   #
@@ -209,7 +211,7 @@ module BindAwsSsm
 
     # Start a new handling thread
     self.bind_thread = framework.threads.spawn("BindAwsSsmHandler-#{datastore['AWS_EC2_ID']}", false) {
-      client = nil
+      ssm_client = nil
 
       print_status("Started #{human_name} handler against #{datastore['AWS_EC2_ID']}:#{datastore['AWS_REGION']}")
 
@@ -252,18 +254,25 @@ module BindAwsSsm
 
         self.conn_thread = framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
           begin
+            raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['AWS_SSM_FORCE_COMMANDS']
             session_init = client_copy.start_session({
               target: datastore['AWS_EC2_ID'],
               document_name: datastore['AWS_SSM_SESSION_DOC']
             })
             ssm_sock = connect_ssm_ws(session_init)
             chan = ssm_sock.to_ssm_channel
+            chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
+            chan.params.peerhost = peer_info['IpAddress']
+            chan.params.peerport = 0
+            chan.params.peerhostname = peer_info['ComputerName']
+            chan.update_term_size
           rescue Rex::Proto::Http::WebSocket::ConnectionError
             info_copy['CommandDocument'] = datastore['AWS_SSM_COMMAND_DOC']
             chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
           rescue => e
             elog('Exception raised from BindAwsSsm.handle_connection', error: e)
           end
+          self.bind_sock = chan
           handle_connection(chan.lsock, { datastore: datastore })
         }
       else
@@ -348,6 +357,7 @@ protected
 
   attr_accessor :bind_thread # :nodoc:
   attr_accessor :conn_thread # :nodoc:
+  attr_accessor :bind_sock # :nodoc:
 
 
   module AwsSsmSessionChannelExt
