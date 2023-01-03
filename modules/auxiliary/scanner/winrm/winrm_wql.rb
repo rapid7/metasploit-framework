@@ -30,6 +30,10 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def run
+    check_winrm_parameters
+  end
+
   def run_host(ip)
     connection = create_winrm_connection
     wql_result = connection.run_wql(datastore['WQL'], "#{wmi_namespace}/*")
