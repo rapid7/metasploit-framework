@@ -8,6 +8,7 @@ PATH
       aws-sdk-ec2
       aws-sdk-iam
       aws-sdk-s3
+      aws-sdk-ssm
       bcrypt
       bcrypt_pbkdf
       bson
@@ -146,6 +147,9 @@ GEM
       aws-sdk-core (~> 3, >= 3.165.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
+    aws-sdk-ssm (1.146.0)
+      aws-sdk-core (~> 3, >= 3.165.0)
+      aws-sigv4 (~> 1.1)
     aws-sigv4 (1.5.2)
       aws-eventstream (~> 1, >= 1.0.2)
     bcrypt (3.1.18)
