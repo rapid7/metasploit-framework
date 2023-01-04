@@ -15,38 +15,59 @@ License: BSD-3-clause
 # Last updated: 2013-Nov-04
 #
 
-Files: data/headers/windows/c_payload_util/beacon.h
-Copyright: 2022, Copyright Help/Systems LLC and its group of companies.
-License: Apache 2.0
-
 Files: data/exploits/mysql/lib_mysqludf_sys_*.so
 Copyright: 2007  Roland Bouman
            2008-2010  Roland Bouman and Bernardo Damele A. G.
 License: LGPL-2.1
 
-Files: data/templates/to_mem_pshreflection.ps1.template
-Copyright: 2012, Matthew Graeber
-License: BSD-3-clause
+Files: data/headers/windows/c_payload_util/beacon.h
+Copyright: 2022, Copyright Help/Systems LLC and its group of companies.
+License: Apache 2.0
 
-Files: external/source/exploits/IE11SandboxEscapes/*
-Copyright: James Forshaw, 2014
-License: GPLv3
+Files: data/jtr/*
+Copyright: Copyright 1996-2013 by Solar Designer
+License: GNU GPL 2.0
+
+Files: data/post/SharpHound.exe data/post/powershell/SharpHound.ps1
+Copyright (C) 2016-2022 Specter Ops Inc.
+License: GNU GPL 3.0
+Purpose: These files are uploaded and executed by post/windows/gather/bloodhound.
+
+Files: data/webcam/api.js
+Copyright: Copyright 2013 Muaz Khan<@muazkh>.
+License: MIT
 
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
 License: BSD-3-clause
+
+Files: external/source/evasion/windows/process_herpaderping/ProcessHerpaderping/*
+Copyright: 2020 Johnny Shaw
+License: MIT
+
+Files: exteneral/source/exploits/CVE-2022-26904/*
+Copywrite: 2022 Abdelhamid Naceri
+License: MIT
+
+Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
+Copyright: 2011 Jon Bringhurst
+License: GNU GPL 2.0
+
+Files: external/source/exploits/IE11SandboxEscapes/*
+Copyright: James Forshaw, 2014
+License: GPLv3
 
 Files: external/source/ipwn/*
 Copyright: 2004-2005 vlad902 <vlad902 [at] gmail.com>
            2007 H D Moore <hdm [at] metasploit.com>
 License: GPL-2 and Artistic
 
-Files: external/source/ReflectiveDLLInjection/*
-Copyright: 2011, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
-License: BSD-3-clause
-
 Files: external/source/metsvc/*
 Copyright: 2007, Determina Inc.
+License: BSD-3-clause
+
+Files: external/source/ReflectiveDLLInjection/*
+Copyright: 2011, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 License: BSD-3-clause
 
 Files: external/source/tightvnc/*
@@ -71,6 +92,10 @@ Copyright: 1999 AT&T Laboratories Cambridge.
            2000-2009 TightVNC Group
 License: GPL-2
 
+Files: data/templates/to_mem_pshreflection.ps1.template
+Copyright: 2012, Matthew Graeber
+License: BSD-3-clause
+
 Files: lib/anemone.rb lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
@@ -81,6 +106,10 @@ License: Ruby
 
 Files: lib/msf/core/modules/external/python/async_timeout/*
 Copyright: 2016-2017 Andrew Svetlov
+License: Apache 2.0
+
+Files: lib/msf/core/web_services/public/*, lib/msf/core/web_services/views/api_docs.erb
+Copyright: Copyright 2018 SmartBear Software
 License: Apache 2.0
 
 Files: lib/net/dns.rb lib/net/dns/*
@@ -114,30 +143,6 @@ License: Ruby
 Files: modules/payloads/singles/windows/speak_pwned.rb
 Copyright: 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 License: BSD-3-clause
-
-Files: data/webcam/api.js
-Copyright: Copyright 2013 Muaz Khan<@muazkh>.
-License: MIT
-
-Files: lib/msf/core/web_services/public/*, lib/msf/core/web_services/views/api_docs.erb
-Copyright: Copyright 2018 SmartBear Software
-License: Apache 2.0
-
-Files: data/jtr/*
-Copyright: Copyright 1996-2013 by Solar Designer
-License: GNU GPL 2.0
-
-Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
-Copyright: 2011 Jon Bringhurst
-License: GNU GPL 2.0
-
-Files: external/source/evasion/windows/process_herpaderping/ProcessHerpaderping/*
-Copyright: 2020 Johnny Shaw
-License: MIT
-
-Files: exteneral/source/exploits/CVE-2022-26904/*
-Copywrite: 2022 Abdelhamid Naceri
-License: MIT
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,

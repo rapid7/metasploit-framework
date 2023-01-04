@@ -64,18 +64,18 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - 2.7
-          - 3.0
-          - 3.1
+          - '2.7'
+          - '3.0'
+          - '3.1'
         os:
           - ubuntu-20.04
           - ubuntu-latest
         exclude:
-          - { os: ubuntu-latest, ruby: 2.7 }
-          - { os: ubuntu-latest, ruby: 3.0 }
+          - { os: ubuntu-latest, ruby: '2.7' }
+          - { os: ubuntu-latest, ruby: '3.0' }
         include:
           - os: ubuntu-latest
-            ruby: 3.1
+            ruby: '3.1'
             test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" DATASTORE_FALLBACKS=1'
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
@@ -100,7 +100,7 @@ jobs:
           BUNDLE_WITHOUT: "coverage development pcap"
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
 
       - name: Create database
