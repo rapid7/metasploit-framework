@@ -16,7 +16,15 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q(
                           Provided AWS credentials, this module will call the authenticated
                           API of Amazon Web Services to list all SSM-enabled EC2 instances
-                          associated with the account
+                          accessible to the account. Once enumerated as SSM-enabled, the
+                          instances can be controlled using out-of-band WebSocket sessions
+                          provided by the AWS API (nominally, privileged out of the box).
+                          This module provides not only the API enumeration identifying EC2
+                          instances accessible via SSM with given credentials, but enables
+                          session initiation for all identified targets (without requiring
+                          target-level credentials). The module also provides an EC2 ID
+                          filter and a limiting throttle to prevent session stampedes or
+                          expensive messes.
                          ),
         'Author'      => [
           'Aaron Soto <aaron.soto@rapid7.com>', # EC2 enum module
@@ -30,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('GET_SSM_SESSION', [true, 'Automatically get SSM sessions once found', false]),
         OptInt.new('LIMIT', [false, 'Only return the specified number of results from each region']),
+        OptString.new('FILTER_EC2_ID', [false, 'Look for specific EC2 instance ID']),
         OptString.new('REGION', [false, 'AWS Region (eg. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])
@@ -84,12 +93,20 @@ class MetasploitModule < Msf::Auxiliary
             type: "Equal",
           }
         ]}
+
+        inv_params[:filters] << {
+          key: "AWS:InstanceInformation.InstanceId",
+          values: [datastore['FILTER_EC2_ID']],
+          type: "Equal",
+        } if datastore['FILTER_EC2_ID']
+
         ssm_ec2 = client.get_inventory(inv_params).entities.map {|e| e.data["AWS:InstanceInformation"].content}.flatten
+        ssm_ec2 = ssm_ec2[0...datastore['LIMIT']] if datastore['LIMIT']
         ssm_ec2.each do |ssm_host| 
           vprint_good JSON.pretty_generate(ssm_host)
           if datastore['GET_SSM_SESSION']
             socket = get_ssm_socket(client, ssm_host['InstanceId'])
-            start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{socket.params.peerhost}:0)", datastore, false, socket.lsock)
+            start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{ssm_host['InstanceId']})", datastore, false, socket.lsock)
           end
           # report host?
           # report services?
