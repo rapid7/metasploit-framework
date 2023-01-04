@@ -72,20 +72,9 @@ class MetasploitModule < Msf::Encoder::Xor
     push = 0b0101_0000
 
     mov = 0b1011_1000
-
-    reg1 = -1
-    for i in 0..regs.length - 1
-      val = [(pop | regs[i])].pack('C')
-      next if state.badchars.include? val
-
-      reg1 = regs[i] # random register
-      regs.delete(reg1) # remove it from the list
-      break
-    end
-    if reg1 == -1
-      raise 'No permutation found for the badchar set :' + state.badchars.inspect
-    end
-
+    
+    reg1 = regs[rand(6)]
+    regs.delete(reg1)
     reg2 = regs[rand(5)] # Fixed to ECX register for now as long as we use Loop instruction, will be set to random when loop replaced by  manual jmp
     regs.delete(reg2) # remove it from the list
     reg3 = regs[rand(4)] # random register
