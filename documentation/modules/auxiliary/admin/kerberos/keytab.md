@@ -22,7 +22,7 @@ The following actions are supported:
 ### List
 
 ```
-msf6 auxiliary(admin/kerberos/ktutil) > run keytab_file=./example.keytab
+msf6 auxiliary(admin/kerberos/keytab) > run keytab_file=./example.keytab
 
 Keytab entries
 ==============
@@ -39,7 +39,7 @@ Keytab entries
 Adding an entry using a known password hash/key which has been extracted from a Domain Controller - for instance by using the `auxiliary/gather/windows_secrets_dump` module:
 
 ```
-msf6 auxiliary(admin/kerberos/ktutil) > run action=ADD keytab_file=./example.keytab principal=krbtgt realm=DEMO.LOCAL enctype=AES256 key=e1c5500ffb883e713288d8037651821b9ecb0dfad89e01d1b920fe136879e33c
+msf6 auxiliary(admin/kerberos/keytab) > run action=ADD keytab_file=./example.keytab principal=krbtgt realm=DEMO.LOCAL enctype=AES256 key=e1c5500ffb883e713288d8037651821b9ecb0dfad89e01d1b920fe136879e33c
 
 [*] modifying existing keytab
 [+] keytab entry added to ./example.keytab
@@ -48,7 +48,7 @@ msf6 auxiliary(admin/kerberos/ktutil) > run action=ADD keytab_file=./example.key
 Adding entries using a specified password:
 
 ```
-msf6 auxiliary(admin/kerberos/ktutil) > run action=ADD keytab_file=./example.keytab principal=Administrator realm=DEMO.LOCAL enctype=ALL password=p4$$w0rd
+msf6 auxiliary(admin/kerberos/keytab) > run action=ADD keytab_file=./example.keytab principal=Administrator realm=DEMO.LOCAL enctype=ALL password=p4$$w0rd
 
 [*] modifying existing keytab
 [*] Generating key with salt: DEMO.LOCALAdministrator. The SALT option can be set manually
