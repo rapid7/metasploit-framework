@@ -38,8 +38,26 @@ class MetasploitModule < Msf::Encoder::Xor
     raise 'No permutation found for the badchar set :' + state.badchars.inspect
   end
 
+  def register_preservation_generate(flag, regs)
+    ret = ''
+    pop = 0b0101_1000
+    push = 0b0101_0000
+    reg = regs.shuffle
+    if flag == 0
+      for r in regs
+        ret += [push | r].pack('C')
+      end
+    end
+    if flag == 1
+      for r in regs.reverse
+        ret += [pop | r].pack('C')
+      end
+    end
+    return ret
+  end
+
   def decoder_stub(state)
-    # calculate the (negative and positiv) block count . wich should be good for badchar.
+    # calculate the (negative) block count . We should check this against state.badchars.
     state.decoder_key_size = 4
     state.decoder_key_pack = 'V'
     block_count = [-(((state.buf.length - 1) / state.decoder_key_size) + 1)].pack('V')
@@ -68,7 +86,7 @@ class MetasploitModule < Msf::Encoder::Xor
       raise 'No permutation found for the badchar set :' + state.badchars.inspect
     end
 
-    reg2 = regs[rand(5)]
+    reg2 = regs[rand(5)] # Fixed to ECX register for now as long as we use Loop instruction, will be set to random when loop replaced by  manual jmp
     regs.delete(reg2) # remove it from the list
     reg3 = regs[rand(4)] # random register
     regs.delete(reg3) # remove it from the list
@@ -149,6 +167,9 @@ class MetasploitModule < Msf::Encoder::Xor
 
     small_junk = [choose_permutation(state, nops_2_bytes), choose_permutation(state, nops_3_bytes), choose_permutation(state, nops_4_bytes)]
 
+
+    reg_push = register_preservation_generate(0, [reg1, reg2, reg3])
+    reg_pop = register_preservation_generate(1, [reg1, reg2, reg3])
     geip = choose_permutation(state, get_eip)
     junk = choose_permutation(state, small_junk)
     reg2_0 = choose_permutation(state, set_reg2_0)
@@ -156,7 +177,8 @@ class MetasploitModule < Msf::Encoder::Xor
     reg1_add4 = choose_permutation(state, add_reg1_0x4)
     decrement_reg2 = choose_permutation(state, dec_reg2)
 
-    decoder = geip +                                      # get EIP into REG1
+    decoder = reg_push +
+              geip +                                      # get EIP into REG1
               junk +                                      # small junk
               reg2_0 +                                    # set REG2 to 0
               block_count_set + # sub reg2, block_count
@@ -164,12 +186,13 @@ class MetasploitModule < Msf::Encoder::Xor
               xor_rel_reg1_reg3 + 'LL' +                  # xor [reg1+DECODER_LEN], reg3
               reg1_add4 + # add reg1, 4
               decrement_reg2 + # dec reg2
-              "\x75" + 'SS' # jnz to xor
+              "\x75" + 'SS' + #jnz to xor
+              reg_pop
 
     decoder_len = decoder.size
     jmp = decoder.index(xor_rel_reg1_reg3) - decoder.index('SS')
     decoder.sub! 'SS', [jmp].pack('C')
-    decoder.sub! 'LL', [decoder_len - 2].pack('C')
+    decoder.sub! 'LL', [decoder_len - 5].pack('C')
     # e800000000     call loc._start.continue
     # 58             pop eax
     # 83e805         sub eax, 5
