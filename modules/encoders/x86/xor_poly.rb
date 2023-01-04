@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Encoder::Xor
     decoder_len = decoder.size
     jmp = decoder.index(xor_rel_reg1_reg3) - decoder.index('SS')
     decoder.sub! 'SS', [jmp].pack('C')
-    decoder.sub! 'LL', [decoder_len - 5].pack('C')
+    decoder.sub! 'LL', [decoder_len - 6].pack('C')
     # e800000000     call loc._start.continue
     # 58             pop eax
     # 83e805         sub eax, 5
