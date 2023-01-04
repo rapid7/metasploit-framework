@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Encoder::Xor
     push = 0b0101_0000
 
     mov = 0b1011_1000
-    
+
     reg1 = regs[rand(6)]
     regs.delete(reg1)
     reg2 = regs[rand(5)] # Fixed to ECX register for now as long as we use Loop instruction, will be set to random when loop replaced by  manual jmp
