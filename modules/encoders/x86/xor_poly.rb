@@ -38,11 +38,11 @@ class MetasploitModule < Msf::Encoder::Xor
     raise 'No permutation found for the badchar set :' + state.badchars.inspect
   end
 
+  # generate instruciton for a push
   def register_preservation_generate(flag, regs)
     ret = ''
     pop = 0b0101_1000
     push = 0b0101_0000
-    regs = regs.shuffle
     if flag == 0
       for r in regs
         ret += [push | r].pack('C')
@@ -167,8 +167,9 @@ class MetasploitModule < Msf::Encoder::Xor
 
     small_junk = [choose_permutation(state, nops_2_bytes), choose_permutation(state, nops_3_bytes), choose_permutation(state, nops_4_bytes)]
 
-    reg_push = register_preservation_generate(0, [reg1, reg2, reg3])
-    reg_pop = register_preservation_generate(1, [reg1, reg2, reg3])
+    reg_for_preservation = [reg1, reg2, reg3, reg4].shuffle
+    reg_push = register_preservation_generate(0, reg_for_preservation)
+    reg_pop = register_preservation_generate(1, reg_for_preservation)
     geip = choose_permutation(state, get_eip)
     junk = choose_permutation(state, small_junk)
     reg2_0 = choose_permutation(state, set_reg2_0)
