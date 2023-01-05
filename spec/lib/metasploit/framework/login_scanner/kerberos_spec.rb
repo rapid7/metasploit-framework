@@ -30,7 +30,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
   let(:tgt_response_no_preauth_required) do
     ::Msf::Exploit::Remote::Kerberos::Model::TgtResponse.new(
       as_rep: instance_double(::Rex::Proto::Kerberos::Model::EncKdcResponse),
-      preauth_required: true,
+      preauth_required: false,
+      krb_enc_key: nil,
       decrypted_part: nil
     )
   end
@@ -39,6 +40,11 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
     Msf::Exploit::Remote::Kerberos::Model::TgtResponse.new(
       as_rep: instance_double(::Rex::Proto::Kerberos::Model::KdcResponse),
       preauth_required: false,
+      krb_enc_key: {
+        enctype: Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC,
+        key: 'mock-key',
+        salt: 'mock-salt'
+      },
       decrypted_part: instance_double(::Rex::Proto::Kerberos::Model::EncKdcResponse)
     )
   end
