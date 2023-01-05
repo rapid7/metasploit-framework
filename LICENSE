@@ -29,10 +29,12 @@ Files: data/jtr/*
 Copyright: Copyright 1996-2013 by Solar Designer
 License: GNU GPL 2.0
 
-Files: data/post/SharpHound.exe data/post/powershell/SharpHound.ps1
+Files: data/post/SharpHound.exe
+       data/post/powershell/SharpHound.ps1
 Copyright (C) 2016-2022 Specter Ops Inc.
 License: GNU GPL 3.0
-Purpose: These files are uploaded and executed by post/windows/gather/bloodhound.
+Purpose: These files are uploaded and executed by
+         post/windows/gather/bloodhound.
 
 Files: data/templates/to_mem_pshreflection.ps1.template
 Copyright: 2012, Matthew Graeber
@@ -66,9 +68,9 @@ License: GNU GPL 2.0
 Files: external/source/exploits/IE11SandboxEscapes/*
 Copyright: James Forshaw, 2014
 License: GPLv3
-Purpose:  This set of source code supports the following modules
-            exploits/windows/local/ms13_097_ie_registry_symlink.rb
-            exploits/windows/local/ms14_009_ie_dfsvc.rb
+Purpose: This set of source code supports the following modules
+         exploits/windows/local/ms13_097_ie_registry_symlink.rb
+         exploits/windows/local/ms14_009_ie_dfsvc.rb
 
 Files: external/source/ipwn/*
 Copyright: 2004-2005 vlad902 <vlad902 [at] gmail.com>
@@ -89,9 +91,9 @@ Files: external/source/pxesploit/regeditor/ntreg.h
        external/source/pxesploit/regeditor/ntreg.c
 Copyright: 1997-2010, Petter Nordahl-Hagen
 License: LGPL
-Purpose: Unknown.  These files are used to create a linux binary called regeditor
-                   which allows a linux OS to edit a Windows registry.  It is used in
-                   pxesploit modules.
+Purpose: Unknown. These files are used to create a linux binary called regeditor
+         which allows a linux OS to edit a Windows registry. It is used in
+         pxesploit modules.
 
 Files: external/source/ReflectiveDLLInjection/*
 Copyright: 2011, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
@@ -152,7 +154,8 @@ Files: lib/rabal/*
 Copyright: Jeremy Hinegadner <jeremy at hinegardner dot org>
 License: Ruby
 
-Files: lib/rbmysql.rb lib/rbmysql/*
+Files: lib/rbmysql.rb
+       lib/rbmysql/*
 Copyright: 2009 tommy
 License: Ruby
 
@@ -173,20 +176,20 @@ License: Ruby
 Files: modules/auxiliary/dos/cisco/cisco_7937g_dos.py
 Copyright: 2020, Cody Martin
 License: GPL
-Purpose: This module allows an attacker to render a Cisco 7937G unresponsive until it is
-         manually power cycled.
+Purpose: This module allows an attacker to render a Cisco 7937G unresponsive
+         until it is manually power cycled.
 
 Files: modules/auxiliary/dos/cisco/cisco_7937g_dos_reboot.py
 Copyright: 2020, Cody Martin
 License: GPL
-Purpose: This module allows an attacker to render a Cisco 7937G unresponsive until it automatically
-         power cycles.
+Purpose: This module allows an attacker to render a Cisco 7937G unresponsive
+         until it automatically power cycles.
 
 Files: modules/auxiliary/admin/http/cisco_7937g_ssh_privesc.py
 Copyright: 2020, Cody Martin
 License: GPL
-Purpose: This module allows an unauthenticated user to change the credentials for SSH access on
-         a Cisco 7937G device.
+Purpose: This module allows an unauthenticated user to change the credentials
+         for SSH access on a Cisco 7937G device.
 
 Files: modules/auxiliary/gather/office365userenum.py
 Copyright: 2015  Oliver Morton
@@ -197,25 +200,27 @@ Files: modules/exploits/linux/local/bpf_priv_esc.rb
        data/exploits/CVE-2016-4557/hello
 Copyright: 2001-2007
 License: GPL
-Purpose: This module contains the source code for FUSE, which this module uploads and compiles
-         or uploads a precompiled binary (hello).
+Purpose: This module contains the source code for FUSE, which this module
+         uploads and compiles or uploads a precompiled binary (hello).
 
 Files: modules/exploits/linux/local/ntfs3g_priv_esc.rb
 Copyright: 2017
 License: GPLv2
-Purpose: The Ruby file contains the text of several modules from exploit-db which it
-         compiles and uploads to the target to elevate privileges.
+Purpose: The Ruby file contains the text of several modules from exploit-db 
+         which it compiles and uploads to the target to elevate privileges.
 
 Files: modules/exploits/unix/fileformat/metasploit_libnotify_cmd_injection.rb
 Copyright: 2020
 License: GPL
-Purpose: This module targets a vulnerability in Metasploit Framework versions prior to 5.0.86.
+Purpose: This module targets a vulnerability in Metasploit Framework versions
+         prior to 5.0.86.
 
 Files: modules/exploits/windows/smb/ms04_007_killbill.rb
 Copyright: 2004, Solar Eclipse
 License: GPL
-Purpose: The module exploits the Windows ASN.1 vulnerability in Windows 2000 SP2-SP4
-         and Windows XP SP0-SP1. It contains code ported from a GPLv2 module.
+Purpose: The module exploits the Windows ASN.1 vulnerability in Windows 2000 
+         SP2-SP4 and Windows XP SP0-SP1. It contains code ported from a GPLv2
+         module.
 
 Files: modules/payloads/singles/windows/speak_pwned.rb
 Copyright: 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
@@ -229,8 +234,9 @@ Purpose: This module allows us to create an x64 Windows messagebox payload.
 Files: modules/post/linux/dos/xen_420_dos.rb
 Copyright: 2016
 License: GPL
-Purpose: This module crashes the Xen 4.2.0 hypervisor when run in a paravirtualized VM.
-         It contains a short code section licensed through GPL.
+Purpose: This module crashes the Xen 4.2.0 hypervisor when run in a 
+         paravirtualized VM. It contains a short code section licensed through
+         GPL.
 
 Files: tools/exploit/metasm_shell.rb
 Copyright: 2007, Yoann GUILLOT
