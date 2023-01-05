@@ -13,7 +13,7 @@
 ## Verification Steps
 
   1. Get a `meterpreter` session on a Windows host.
-  2. Do: ```run post/windows/gather/credentials/dbeaver```
+  2. Do: `run post/windows/gather/credentials/dbeaver`
   3. If the system has registry keys for Dbeaver passwords they will be printed out.
 
 ## Options
