@@ -14,7 +14,9 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Kerberos Ticket Inspecting',
         'Description' => %q{
-          This module outputs the contents of a ccache/kirbi file
+          This module outputs the contents of a ccache/kirbi file and optionally (when provided with the appropriate key)
+          decrypts and displays the encrypted content too.
+          Can be used for inspecting tickets that aren't working as intended in an effort to debug them.
         },
         'Author' => [
           'Dean Welch' # Metasploit Module
@@ -25,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [],
           'SideEffects' => [],
           'Reliability' => [],
-          'AKA' => ['Klist']
+          'AKA' => ['klist']
         }
       )
     )
@@ -40,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('RHOSTS', 'RPORT', 'Timeout')
   end
 
-  SECS_IN_DAY = 60 * 60 * 24
+  SECS_IN_DAY = 86400 # 60 * 60 * 24
 
   def run
     enc_key = get_enc_key
@@ -62,13 +64,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if datastore['NTHASH'].present? && datastore['NTHASH'].size != 32
-      fail_with(Msf::Exploit::Failure::BadConfig, "NTHASH length was #{datastore['NTHASH'].size} should be 32")
+      fail_with(Msf::Exploit::Failure::BadConfig, "NTHASH length was #{datastore['NTHASH'].size}. It should be 32")
     else
       return datastore['NTHASH']
     end
 
     if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
-      fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size} should be 32 or 64")
+      fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size}. It should be 32 or 64")
     else
       return datastore['AES_KEY']
     end

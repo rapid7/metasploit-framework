@@ -154,4 +154,4 @@ Creds: 1
               Signature: \x71\x0b\xb1\x83\x85\x82\x57\xf4\x10\x21\xbd\x7e
 ```
 
-Both these examples Are printing the contents of the same ccache file and showing the difference in output if you have the decryption key available.
+Both of these examples are printing the contents of the same ccache file and showing the difference in output if you have the decryption key available.
