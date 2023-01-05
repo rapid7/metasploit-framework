@@ -1,6 +1,9 @@
-# Kerberos Ticket Converting (CCache <---> Kirbi)
+# Kerberos Ticket Converting
 
-The `ticket_converter` module is used to convert from a ccache file format to the kirbi file format and vice versa.
+The `auxiliary/admin/kerberos/ticket_converter` module is used to convert from a ccache file format to the kirbi file format and vice versa.
+The main reason you may want to convert between these file types is for use in different tools.
+For example mimikatz will create tickets for you in the kirbi format but to use that in another tool
+like Metasploit or Impacket you need to convert it to the ccache format first.
 
 ## Pre-Verification steps
 
@@ -33,12 +36,21 @@ The `ticket_converter` module is used to convert from a ccache file format to th
 
 ## You have a ccache file
 
-If you have a ccache file (for example by forging it using the `forge_ticket` module)
+If you have a ccache file (for example by forging it using the `auxiliary/admin/kerberos/forge_ticket` module)
 but need a file in the kirbi format which is commonly use by mimikatz.
 Simply set the `InputPath` to the location of your ccache file, specify your
 desired output location with `OutputPath` and `run`. 
 We automatically detect the file type so there's no need to tell msfconsole 
 whether it's a ccache or kirbi file.
+
+Example:
+```
+msf6 auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.ccache outputpath=metasploit_ticket.kirbi
+
+[*] [2023.01.05-17:01:02] Converting from ccache to kirbi
+[*] [2023.01.05-17:01:02] File written to /Users/dwelch/dev/metasploit-framework/metasploit_ticket.kirbi
+[*] Auxiliary module execution completed
+```
 
 ## You have a kirbi file
 
@@ -48,3 +60,12 @@ The steps are exactly the same for a kirbi file as they are for a ccache since
 we automatically detect the file type. Just set your `InputPath` to the location of 
 your kirbi file and `OutputPath` to where you want the ccache file saved, `run` the module
 and you're ready to go.
+
+Example:
+```
+msf6 auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.kirbi outputpath=metasploit_ticket.ccache
+
+[*] [2023.01.05-17:01:39] Converting from kirbi to ccache
+[*] [2023.01.05-17:01:39] File written to /Users/dwelch/dev/metasploit-framework/metasploit_ticket.ccache
+[*] Auxiliary module execution completed
+```
