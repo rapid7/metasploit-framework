@@ -5,15 +5,13 @@ require 'rex/socket'
 # TODO: write a real LDAP client in Rex and migrate all consumers
 class Net::LDAP::Connection # :nodoc:
   module SynchronousRead
-    #
     # Read `length` bytes of data from the LDAP connection socket and
-    #  return this data as a string.
+    # return this data as a string.
     #
     # @param length [Integer] Length of the data to be read from the LDAP connection socket.
     # @param _opts [Hash] Unused
     #
     # @return [String] A string containing the data read from the LDAP connection socket.
-    #
     def read(length = nil, _opts = {})
       data = ''
       loop do
@@ -31,12 +29,13 @@ class Net::LDAP::Connection # :nodoc:
   end
 
   # Initialize the LDAP connection using Rex::Socket::TCP,
-  #   and optionally set up encryption on the connection if configured.
+  # and optionally set up encryption on the connection if configured.
   #
   # @param server [Hash] Hash of the options needed to set
   #   up the Rex::Socket::TCP socket for the LDAP connection.
-  # @see create_param
-  # @see Rex::Socket::Parameters.from_hash
+  # @see http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create-class_method
+  # @see http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket.html#create_param-class_method
+  # @see http://gemdocs.org/gems/rex-socket/0.1.43/Rex/Socket/Parameters.html#from_hash-class_method
   def initialize(server)
     begin
       @conn = Rex::Socket::Tcp.create(
@@ -71,9 +70,8 @@ class Net::LDAP::Connection # :nodoc:
   # @see https://github.com/ruby-ldap/ruby-net-ldap/pull/411
   #
   # @param [Hash] args A hash of the arguments to be utilized by the search operation.
-  #
-  # @return [Net::LDAP::PDU] A Protocol Data Unit (PDU) object, represented by the Net::LDAP::PDU class, containing the results of the search operation.
-  #
+  # @return [Net::LDAP::PDU] A Protocol Data Unit (PDU) object, represented by
+  #   the Net::LDAP::PDU class, containing the results of the search operation.
   def search(args = nil)
     args ||= {}
 
