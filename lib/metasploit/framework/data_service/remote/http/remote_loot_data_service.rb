@@ -17,6 +17,7 @@ module RemoteLootDataService
       if loot[:data] && !loot[:data].empty?
         local_path = File.join(Msf::Config.loot_directory, File.basename(loot[:path]))
         rv[data.index(loot)].path = process_file(loot[:data], local_path)
+        rv[data.index(loot)].data = decode_loot_data(loot[:data])
       end
       if loot[:host]
         host_object = to_ar(RemoteHostDataService::HOST_MDM_CLASS.constantize, loot[:host])
@@ -41,5 +42,13 @@ module RemoteLootDataService
 
   def delete_loot(opts)
     json_to_mdm_object(self.delete_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS)
+  end
+
+  private
+
+  # The loot API returns the data encoded
+  # @see [Msf::WebServices::ServletHelper#encode_loot_data]
+  def decode_loot_data(data)
+    Base64.urlsafe_decode64(data)
   end
 end
