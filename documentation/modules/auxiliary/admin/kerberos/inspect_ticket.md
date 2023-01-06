@@ -12,7 +12,7 @@ The `inspect_ticket` module allows you to print the contents of a ccache/kirbi f
 2. Do: `use auxiliary/admin/kerberos/inspect_ticket`
 3. Do: `set TICKET_PATH /path/to/ccache/file`
 4. Optional: either `set AES_KEY aes_key_here` or `set NTHASH nthash_here`
-5. Do: `run` to see the contents of the ticket 
+5. Do: `run` to see the contents of the ticket
 
 ## Scenarios
 
@@ -30,10 +30,6 @@ No other options are used in this action.
 
 ```
 msf6 auxiliary(admin/kerberos/inspect_ticket) > run TICKET_PATH=/path/to/ticket
-```
-
-Example Output:
-```
 Primary Principal: Administrator@WINDOMAIN.LOCAL
 Ccache version: 4
 
@@ -66,10 +62,6 @@ Creds: 1
 **With Key**
 ```
 msf6 auxiliary(admin/kerberos/inspect_ticket) > run AES_KEY=4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326 TICKET_PATH=/path/to/ticket
-```
-
-Example output:
-```
 Primary Principal: Administrator@WINDOMAIN.LOCAL
 Ccache version: 4
 
