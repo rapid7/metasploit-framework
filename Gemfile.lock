@@ -507,7 +507,7 @@ DEPENDENCIES
   memory_profiler
   metasploit-framework!
   octokit
-  pry-byebug (~> 3.9.0)
+  pry-byebug
   rake
   redcarpet
   rspec-rails

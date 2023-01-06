@@ -15,8 +15,7 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  # lock to version with 2.6 support until project updates
-  gem 'pry-byebug', '~> 3.9.0'
+  gem 'pry-byebug'
   # Ruby Debugging Library - rebuilt and included by default from Ruby 3.1 onwards.
   # Replaces the old lib/debug.rb and provides more features.
   gem 'debug', '>= 1.0.0'
