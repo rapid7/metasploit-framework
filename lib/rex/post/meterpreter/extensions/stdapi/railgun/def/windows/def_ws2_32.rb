@@ -16,7 +16,7 @@ class Def_windows_ws2_32
       ["PCHAR","pNodeName","in"],
       ["PCHAR","pServiceName","in"],
       ["PDWORD","pHints","in"],
-      ["PDWORD","ppResult","out"]
+      ["PLPVOID","ppResult","out"]
       ])
 
     dll.add_function('gethostbyaddr', 'DWORD', [
