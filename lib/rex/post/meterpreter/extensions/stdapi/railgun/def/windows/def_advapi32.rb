@@ -55,14 +55,14 @@ class Def_windows_advapi32
 
     #Functions for Windows CryptoAPI
     dll.add_function( 'CryptAcquireContextW', 'BOOL',[
-        ['PDWORD', 'phProv', 'out'],
+        ['PHANDLE', 'phProv', 'out'],
         ['PWCHAR', 'pszContainer', 'in'],
         ['PWCHAR', 'pszProvider', 'in'],
         ['DWORD', 'dwProvType', 'in'],
         ['DWORD', 'dwflags', 'in']])
 
     dll.add_function( 'CryptAcquireContextA', 'BOOL',[
-        ['PDWORD', 'phProv', 'out'],
+        ['PHANDLE', 'phProv', 'out'],
         ['PWCHAR', 'pszContainer', 'in'],
         ['PWCHAR', 'pszProvider', 'in'],
         ['DWORD', 'dwProvType', 'in'],
@@ -84,7 +84,7 @@ class Def_windows_advapi32
 
     dll.add_function( 'CryptEnumProvidersA', 'BOOL', [
         ['DWORD', 'dwIndex', 'in'],
-        ['DWORD', 'pdwReserved', 'in'],
+        ['PDWORD', 'pdwReserved', 'in'],
         ['DWORD', 'dwFlags', 'in'],
         ['PDWORD', 'pdwProvType', 'out'],
         ['PCHAR', 'pszProvName', 'out'],
@@ -92,7 +92,7 @@ class Def_windows_advapi32
 
     dll.add_function( 'CryptEnumProviderTypesW', 'BOOL', [
         ['DWORD', 'dwIndex', 'in'],
-        ['DWORD', 'pdwReserved', 'in'],
+        ['PDWORD', 'pdwReserved', 'in'],
         ['DWORD', 'dwFlags', 'in'],
         ['PDWORD', 'pdwProvType', 'out'],
         ['PWCHAR', 'pszTypeName', 'out'],
@@ -157,7 +157,7 @@ class Def_windows_advapi32
         ['LPVOID', 'hKey', 'in'],
         ['DWORD', 'pdwReserved', 'in'],
         ['DWORD', 'dwFlags', 'in'],
-        ['PDWORD', 'phKey', 'out']])
+        ['PHANDLE', 'phKey', 'out']])
 
     dll.add_function( 'CryptExportKey', 'BOOL', [
         ['LPVOID', 'hKey', 'in'],
@@ -171,7 +171,7 @@ class Def_windows_advapi32
         ['LPVOID', 'hProv', 'in'],
         ['DWORD', 'Algid', 'in'],
         ['DWORD', 'dwFlags', 'in'],
-        ['PDWORD', 'phKey', 'out']])
+        ['PHANDLE', 'phKey', 'out']])
 
     dll.add_function( 'CryptGenRandom', 'BOOL', [
         ['LPVOID', 'hProv', 'in'],
@@ -188,7 +188,7 @@ class Def_windows_advapi32
     dll.add_function( 'CryptGetUserKey', 'BOOL', [
         ['LPVOID', 'hProv', 'in'],
         ['DWORD', 'dwKeySpec', 'in'],
-        ['PDWORD', 'phUserKey', 'out']])
+        ['PHANDLE', 'phUserKey', 'out']])
 
     dll.add_function( 'CryptImportKey', 'BOOL', [
         ['LPVOID', 'hProv', 'in'],
@@ -196,7 +196,7 @@ class Def_windows_advapi32
         ['DWORD', 'dwDataLen', 'in'],
         ['LPVOID', 'hPubKey', 'in'],
         ['DWORD', 'dwFlags', 'in'],
-        ['PDWORD', 'phKey', 'out']])
+        ['PHANDLE', 'phKey', 'out']])
 
     dll.add_function( 'CryptSetKeyParam', 'BOOL', [
         ['LPVOID', 'hKey', 'in'],
@@ -217,7 +217,7 @@ class Def_windows_advapi32
         ['LPVOID', 'hHash', 'in'],
         ['DWORD', 'pdwReserved', 'in'],
         ['DWORD', 'dwFlags', 'in'],
-        ['PDWORD', 'phHash', 'out']])
+        ['PHANDLE', 'phHash', 'out']])
 
     dll.add_function( 'CryptGetHashParam', 'BOOL', [
         ['LPVOID', 'hHash', 'in'],
@@ -274,7 +274,7 @@ class Def_windows_advapi32
         ['DWORD', 'Algid', 'in'],
         ['LPVOID', 'hKey', 'in'],
         ['DWORD', 'dwFlags', 'in'],
-        ['PDWORD', 'phHash', 'out']])
+        ['PHANDLE', 'phHash', 'out']])
 
     dll.add_function( 'CryptHashData', 'BOOL',[
         ['LPVOID', 'hHash', 'in'],
@@ -1201,7 +1201,7 @@ class Def_windows_advapi32
       ["DWORD","nSubAuthority5","in"],
       ["DWORD","nSubAuthority6","in"],
       ["DWORD","nSubAuthority7","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('AllocateLocallyUniqueId', 'BOOL',[
@@ -1263,12 +1263,12 @@ class Def_windows_advapi32
 
     dll.add_function('ConvertStringSidToSidA', 'BOOL',[
       ["PCHAR","StringSid","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('ConvertStringSidToSidW', 'BOOL',[
       ["PWCHAR","StringSid","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('CopySid', 'BOOL',[
@@ -1686,7 +1686,7 @@ class Def_windows_advapi32
       ["DWORD","dwLogonType","in"],
       ["DWORD","dwLogonProvider","in"],
       ["PHANDLE","phToken","out"],
-      ["PDWORD","ppLogonSid","out"],
+      ["PLPVOID","ppLogonSid","out"],
       ["PBLOB","ppProfileBuffer","out"],
       ["PDWORD","pdwProfileLength","out"],
       ["PBLOB","pQuotaLimits","out"],
@@ -1699,7 +1699,7 @@ class Def_windows_advapi32
       ["DWORD","dwLogonType","in"],
       ["DWORD","dwLogonProvider","in"],
       ["PHANDLE","phToken","out"],
-      ["PDWORD","ppLogonSid","out"],
+      ["PLPVOID","ppLogonSid","out"],
       ["PBLOB","ppProfileBuffer","out"],
       ["PDWORD","pdwProfileLength","out"],
       ["PBLOB","pQuotaLimits","out"],
