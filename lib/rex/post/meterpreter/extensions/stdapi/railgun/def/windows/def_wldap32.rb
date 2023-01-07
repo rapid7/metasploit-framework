@@ -32,7 +32,7 @@ class Def_windows_wldap32
         ['PCHAR', 'filter', 'in'],
         ['PCHAR', 'attrs[]', 'in'],
         ['DWORD', 'attrsonly', 'in'],
-        ['PDWORD', 'res', 'out']
+        ['PLPVOID', 'res', 'out']
     ], 'ldap_search_sA', "cdecl")
 
     dll.add_function('ldap_set_option', 'DWORD',[
@@ -52,7 +52,7 @@ class Def_windows_wldap32
         ['DWORD', 'pClientControls', 'in'],
         ['DWORD', 'pTimeout', 'in'],
         ['DWORD', 'SizeLimit', 'in'],
-        ['PDWORD', 'res', 'out']
+        ['PLPVOID', 'res', 'out']
     ], 'ldap_search_ext_sA', "cdecl")
 
     dll.add_function('ldap_count_entries', 'DWORD',[
