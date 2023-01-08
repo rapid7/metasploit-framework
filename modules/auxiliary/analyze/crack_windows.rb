@@ -16,6 +16,10 @@ class MetasploitModule < Msf::Auxiliary
         acquired from Windows systems. The module will only crack LANMAN/NTLM hashes.
         LANMAN is format 3000 in hashcat.
         NTLM is format 1000 in hashcat.
+        MSCASH is format 1100 in hashcat.
+        MSCASH2 is format 2100 in hashcat.
+        NetNTLM is format 5500 in hashcat.
+        NetNTLMv2 is format 5600 in hashcat.
       ),
       'Author' => [
         'theLightCosine',
