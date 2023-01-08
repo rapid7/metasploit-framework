@@ -145,6 +145,8 @@ class MetasploitModule < Msf::Auxiliary
             cred['password'] = john_lm_upper_to_ntlm(password, nt_hash)
           when 'mscash', 'mscash2'
             cred['password'] = fields.shift
+          when 'netntlm', 'netntlmv2'
+            cred['password'] = fields.shift
           end
           next if cred['password'].nil?
 

@@ -53,50 +53,8 @@ def hash_to_jtr(cred)
     when /md5|des|bsdi|crypt|bf|sha256|sha512|xsha512/
       # md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
       return "#{cred.public.username}:#{cred.private.data}:::::#{cred.id}:"
-    when /netntlmv2/
-      # from -> admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030
-      # to -> admin:$NETNTLMv2$N46iSNekpT$08ca45b7d7ea58ee$88dcbe4446168966a153a0064958dac6$5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030
-
-      # output format is:
-      #   <username>:
-      #   $NETNTLMv2$
-      #   <workgroup/domain>$
-      #   <challenge, 16 character>$
-      #   <not sure, 32 characters>$ -> 07659A550D5E9D02996DFD95C87EC1D5$
-      #   <response, 180 characters>
-
-      # we parse out the hashcat format to be:
-      #   username
-      #   <empty>
-      #   workgroup/domain
-      #   <challenge>
-      #   <? 32 characters>
-      #   <response>
-      c = cred.private.data.split(':')
-      return "#{c[0]}:$NETNTLMv2$#{c[2]}$#{c[3]}$#{c[4]}$#{c[5]}"
     when /netntlm/
-      # we ditch a field here: https://github.com/OpenSecurityResearch/hostapd-wpe/issues/24
-      # we're also doing the OPPOSITE of https://github.com/caseydunham/jtr-to-hashcat
-      # also a good source https://hashcat.net/forum/printthread.php?tid=4307
-
-      # from -> u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c
-      # to ->   u4-netntlm:$NETNTLM$cb8086049ec4736c$9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41
-
-      # output format is:
-      #   <username>:
-      #   $NETNTLM$
-      #   <challenge, 16 character>$
-      #   <response, 48 characters>
-
-      # we parse out the hashcat format to be:
-      #   username
-      #   <empty>
-      #   workgroup/domain
-      #   <not sure>
-      #   <response>
-      #   <challenge>
-      c = cred.private.data.split(':')
-      return "#{c[0]}:$NETNTLM$#{c[5]}$#{c[4]}"
+      return "#{cred.private.data}::::::#{cred.id}:"
     when /qnx/
       # https://moar.so/blog/qnx-password-hash-formats.html
       hash = cred.private.data.end_with?(':0:0') ? cred.private.data : "#{cred.private.data}:0:0"
