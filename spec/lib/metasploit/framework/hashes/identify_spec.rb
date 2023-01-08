@@ -286,6 +286,20 @@ RSpec.describe Metasploit::Framework::Hashes do
     end
   end
 
+  describe 'identify_netntlm' do
+    it 'returns netntlm' do
+      hash = described_class.identify_hash('u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c')
+      expect(hash).to match('netntlm')
+    end
+  end
+
+  describe 'identify_netntlmv2' do
+    it 'returns netntlmv2' do
+      hash = described_class.identify_hash('admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030')
+      expect(hash).to match('netntlmv2')
+    end
+  end
+
   describe 'identify_vnc' do
     it 'returns vnc' do
       hash = described_class.identify_hash('*00112233445566778899aabbccddeeff*6feb3cb1f07b66151656b5832341f223')
