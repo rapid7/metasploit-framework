@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/stopwatch'
+
 module Rex
   module Proto
     module Kerberos
@@ -160,20 +162,41 @@ module Rex
         # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if the response can't be processed
         # @raise [EOFError] if expected data can't be read
         def recv_response_tcp
-          length_raw = connection.get_once(4, timeout)
+          remaining = timeout
+          length_raw, elapsed_time = Rex::Stopwatch.elapsed_time do
+            connection.get_once(4, remaining)
+          end
+          remaining -= elapsed_time
           unless length_raw && length_raw.length == 4
-            raise ::EOFError, 'Kerberos Client: failed to read response'
+            if remaining <= 0
+              raise Rex::TimeoutError, 'Kerberos Client: failed to read response length due to timeout'
+            end
+
+            raise ::EOFError, 'Kerberos Client: failed to read response length'
           end
           length = length_raw.unpack('N')[0]
 
-          data = connection.get_once(length, timeout)
-          unless data && data.length == length
+          data = ''
+          while data.length < length && remaining > 0
+            chunk, elapsed_time = Rex::Stopwatch.elapsed_time do
+              connection.get_once(length - data.length, remaining)
+            end
+
+            remaining -= elapsed_time
+            break if chunk.nil?
+
+            data << chunk
+          end
+
+          unless data.length == length
+            if remaining <= 0
+              raise Rex::TimeoutError, 'Kerberos Client: failed to read response due to timeout'
+            end
+
             raise ::EOFError, 'Kerberos Client: failed to read response'
           end
 
-          res = decode_kerb_response(data)
-
-          res
+          decode_kerb_response(data)
         end
 
         # UDP isn't supported
