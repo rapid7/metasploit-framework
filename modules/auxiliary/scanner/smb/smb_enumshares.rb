@@ -263,7 +263,6 @@ class MetasploitModule < Msf::Auxiliary
           fname = "#{fname[0, 35]}..." if fname.length > 35
 
           pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
-
         end
         print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         subdirs.shift
