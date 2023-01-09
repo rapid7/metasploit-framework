@@ -35,15 +35,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options('PASSWORD_SPRAY')
-
-    register_advanced_options(
-      [
-        OptEnum.new('WinrmAuth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS]),
-        OptString.new('WinrmRhostname', [false, 'The rhostname which is required for kerberos']),
-        OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller']),
-        OptPath.new('WinrmKrb5Ccname', [false, 'The ccache file to use for kerberos authentication', ENV.fetch('WINRMKRB5CCNAME', ENV.fetch('KRB5CCNAME', nil))], conditions: %w[ WinrmAuth == kerberos ])
-      ]
-    )
   end
 
   def run
@@ -75,7 +66,8 @@ class MetasploitModule < Msf::Auxiliary
           cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
           mutual_auth: true,
           use_gss_checksum: true,
-          ticket_storage: kerberos_ticket_storage
+          ticket_storage: kerberos_ticket_storage,
+          offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['KrbOfferedEncryptionTypes'])
         )
       end
     end
