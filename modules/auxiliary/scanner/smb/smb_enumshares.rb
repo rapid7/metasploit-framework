@@ -255,12 +255,14 @@ class MetasploitModule < Msf::Auxiliary
             sz = file.end_of_file
           end
 
+          # Logging of the obtained data.
+          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
+          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
+
           # Filename is too long for the UI table, cut it.
           fname = "#{fname[0, 35]}..." if fname.length > 35
 
           pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
-          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
-          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
         end
         print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         subdirs.shift
