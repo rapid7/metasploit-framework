@@ -53,6 +53,10 @@ large number of secrets that attempt to decrypt in parallel. Set this option to 
 suppress this behavior, and force the module to make DPAPI decryption calls sequentially rather
 than in a parallel batch.
 
+### BATCH_DPAPI_MAXLEN
+
+The maximum size, in bytes, for each batch before it is submitted; this defaults to `8192`.
+
 ### VBR_CSV_FILE
 
 Path to a CSV file that contains the encrypted Veeam Backup & Recovery database data that has
