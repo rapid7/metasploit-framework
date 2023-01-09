@@ -72,6 +72,7 @@ class Packet
   # codes (Completed, Partial, or Error).
   #
   # @param [String] buf The buffer to parse; possibly not a complete request/response
+  # @param [Hash] opts Parsing options
   # @option [Boolean] orig_method The HTTP method used in an associated request, if applicable
   def parse(buf, opts={})
 
@@ -88,7 +89,9 @@ class Packet
       # Continue on to the body if the header was processed
       if(self.state == ParseState::ProcessingBody)
         # Chunked encoding sets the parsing state on its own
-        if (self.body_bytes_left == 0 and not self.transfer_chunked)
+        # HEAD requests can return immediately
+        orig_method = opts.fetch(:orig_method) { '' }
+        if (self.body_bytes_left == 0 and (not self.transfer_chunked or orig_method == 'HEAD'))
           self.state = ParseState::Completed
         else
           parse_body
@@ -284,13 +287,14 @@ protected
   #
   # Parsing
   #
+  # @param [Hash] opts Parsing options
+  # @option [Boolean] orig_method The HTTP method used in an associated request, if applicable
   ##
-
   def parse_header(opts)
 
     head,data = self.bufq.split(/\r?\n\r?\n/, 2)
 
-    return if not data
+    return if data.nil?
 
     self.headers.from_s(head)
     self.bufq = data || ""
