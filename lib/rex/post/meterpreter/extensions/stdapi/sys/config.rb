@@ -90,7 +90,7 @@ class Config
     response.each(TLV_TYPE_ENV_GROUP) do |env|
       var_name = env.get_tlv_value(TLV_TYPE_ENV_VARIABLE)
       var_value = env.get_tlv_value(TLV_TYPE_ENV_VALUE)
-      result[var_name] = var_value
+      result[var_name] = var_value.scan(/[[:print:]]/).join
     end
 
     result
