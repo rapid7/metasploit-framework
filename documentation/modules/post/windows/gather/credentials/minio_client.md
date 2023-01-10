@@ -14,8 +14,7 @@
 
 ### CONFIG_PATH
 
-- Specifies the config file path for MinIO Client
-- eg. `C:\Users\FireEye\mc\config.json`
+Specifies the config file path for MinIO Client (eg. `C:\Users\FireEye\mc\config.json`)
 
 ## Scenarios
 
