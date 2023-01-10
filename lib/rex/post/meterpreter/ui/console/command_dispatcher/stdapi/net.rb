@@ -476,7 +476,7 @@ class Console::CommandDispatcher::Stdapi::Net
             return false
           end
 
-          print_status("Reverse TCP relay created: (remote) #{netloc(rhost, rport)} -> (local) #{netloc(lhost, lport)}")
+          print_status("Reverse TCP relay created: (remote) #{netloc(rhost, rport)} -> (local) #{netloc(channel.params.localhost, channel.params.localport)}")
         else
           # Validate parameters
           unless lport && rhost && rport
