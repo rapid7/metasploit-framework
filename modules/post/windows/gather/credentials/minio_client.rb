@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
     some_result = Hash.new
     if file?(config_path)
       file_contents = read_file(config_path)
-      if file_contents.nil? || file_contents.empty?
+      if file_contents.blank?
         print_warning('Configuration file content is empty')
         return some_result
       end
