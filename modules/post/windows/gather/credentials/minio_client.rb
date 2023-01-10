@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Post
     )
     all_result.each do |results|
       results.each do |name, item|
-        row = [name] + item.values
+        row = [name, item['url'], item['accessKey'], item['secretKey'], item['api'], item['path']]
         tbl << row
       end
     end
