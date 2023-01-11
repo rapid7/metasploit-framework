@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://blog.kali-team.cn/Metasploit-MinIO-Client-7d940c60ae8545aeaa29c96536dda855' ]
         ],
         'Author' => ['Kali-Team <kali-team[at]qq.com>'],
-        'Platform' => [ 'win', 'linux', 'osx' ],
+        'Platform' => [ 'win', 'linux', 'osx', 'unix' ],
         'SessionTypes' => %w[meterpreter powershell shell],
         'Notes' => {
           'Stability' => [],
