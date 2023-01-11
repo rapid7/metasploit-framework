@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Post
 
       config_path = home + '\\mc\\config.json'
       return config_path
-    when 'linux', 'osx'
+    when 'linux', 'osx', 'unix'
       home = get_env('HOME')
       return if home.nil?
 
