@@ -100,6 +100,9 @@ class MetasploitModule < Msf::Auxiliary
       name: 'kerberos',
       info: "Module: #{fullname}, KDC for domain #{datastore['DOMAIN']}"
     )
+  rescue ::Rex::ConnectionError => e
+    elog('Connection error', error: e)
+    fail_with(Failure::Unreachable, e.message)
   rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError,
          ::EOFError => e
     msg = e.to_s
@@ -122,15 +125,15 @@ class MetasploitModule < Msf::Auxiliary
     options[:password] = datastore['PASSWORD'] if datastore['PASSWORD'].present?
     if datastore['NTHASH'].present?
       options[:key] = [datastore['NTHASH']].pack('H*')
-      options[:etype] = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+      options[:offered_etypes] = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
     end
     if datastore['AESKEY'].present?
       options[:key] = [ datastore['AESKEY'] ].pack('H*')
-      options[:etype] = if options[:key].size == 32
-                          Rex::Proto::Kerberos::Crypto::Encryption::AES256
-                        else
-                          Rex::Proto::Kerberos::Crypto::Encryption::AES128
-                        end
+      options[:offered_etypes] = if options[:key].size == 32
+                                   Rex::Proto::Kerberos::Crypto::Encryption::AES256
+                                 else
+                                   Rex::Proto::Kerberos::Crypto::Encryption::AES128
+                                 end
     end
 
     Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(**options)
