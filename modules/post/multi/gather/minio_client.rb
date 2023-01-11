@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Post
   def get_config_file_path
     case session.platform
     when 'windows'
-      home = session.sys.config.getenv('USERPROFILE')
+      home = get_env('USERPROFILE')
       return if home.nil?
 
       config_path = home + '\\mc\\config.json'
