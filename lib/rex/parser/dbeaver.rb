@@ -2,6 +2,18 @@ module Rex
   module Parser
     # @author Kali-Team
     module Dbeaver
+
+      module Error
+        class DbeaverError < StandardError
+        end
+
+        class ParserError < DbeaverError
+        end
+
+        class DecryptionError < ParserError
+        end
+      end
+
       SECRET_KEY = 'sdf@!#$verf^wv%6Fwe%$$#FFGwfsdefwfe135s$^H)dg'.freeze
       AES_KEY = "\xBA\xBBJ\x9FwJ\xB8S\xC9l-e=\xFETJ".freeze
       # decrypt_dbeaver_credentials
@@ -15,8 +27,8 @@ module Rex
           aes.key = AES_KEY
           plaintext = aes.update(credentials_config_data)
           plaintext << aes.final
-        rescue Error::DecryptionError
-          print_error('Unable to decrypt dbeaver credentials')
+        rescue OpenSSL::Cipher::CipherError => e
+          raise Error::DecryptionError, 'Unable to decrypt dbeaver credentials'
         end
         return plaintext[plaintext.index('{"')..]
       end
@@ -30,8 +42,8 @@ module Rex
         result_hashmap = Hash.new
         begin
           result_hashmap = JSON.parse(decrypt_data)
-        rescue Error::ParserError
-          print_error('Error on parsing credentials_config_data')
+        rescue ::JSON::ParserError => e
+          raise Error::ParserError, "[parse_credentials] #{e.class} - #{e}"
         end
         return result_hashmap
       end
@@ -70,8 +82,8 @@ module Rex
               'type' => item['configuration']['type'] || ''
           ]
           end
-        rescue Error::ParserError
-          print_error("Error when parsing #{file}: #{e.class} - #{e}")
+        rescue ::JSON::ParserError => e
+          raise Error::ParserError, "[parse_data_sources] #{e.class} - #{e}"
         end
         return result_hashmap
       end
@@ -100,6 +112,9 @@ module Rex
       # @return [Hash] result_hashmap
       def parse_data_sources_xml(data_sources_data)
         mxml = REXML::Document.new(data_sources_data).root
+        unless mxml
+          raise Error::ParserError, '[parse_data_sources_xml] XML parsing error'
+        end
         result_hashmap = Hash.new
         mxml.elements.to_a('//data-sources//data-source//connection//').each do |node|
           next unless node.name == 'connection'
@@ -118,20 +133,8 @@ module Rex
         ]
         end
         return result_hashmap
-      rescue Error::ParserError
-        print_error('parse_data_sources_xml parser error')
-      end
-    end
-
-    module Error
-      class DbeaverError < StandardError
       end
 
-      class ParserError < DbeaverError
-      end
-
-      class DecryptionError < ParserError
-      end
     end
   end
 end

