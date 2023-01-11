@@ -1,11 +1,12 @@
 ## Vulnerable Application
-
-  Any Windows host with a `meterpreter` session and Dbeaver full version
-  installed. The following passwords will be searched for and recovered:
+  DBeaver is free and open source universal database tool for developers and database administrators.
+  Any operating system host with a `meterpreter` session and Dbeaver full version installed.
+  If it works normally, the connection name, host, username and password saved in the certificate file will be printed
 
 ### Installation Steps
 
   1. Download the latest installer of Dbeaver (https://dbeaver.io/files/6.1.0/) and latest version.
+      With version 6.1.3 as the dividing line, there are two different decryption algorithms.
   2. Select default installation
   3. Open the software and create a database connection
      complete password setting, add the test account password to the certificate.
@@ -13,7 +14,7 @@
 ## Verification Steps
 
   1. Get a `meterpreter` session on a Windows host.
-  2. Do: `run post/windows/gather/credentials/dbeaver`
+  2. Do: `run post/multi/gather/credentials/dbeaver`
   3. If the system has registry keys for Dbeaver passwords they will be printed out.
 
 ## Options
@@ -21,7 +22,7 @@
  **XML_FILE_PATH**
 
 - Specify an XML configuration file.
-- eg. `C:\Users\FireEye\.dbeaver4\General\.dbeaver-data-sources.xml` or 
+- eg. `C:\Users\FireEye\.dbeaver4\General\.dbeaver-data-sources.xml` or
       `C:\Users\FireEye\AppData\Roaming\DBeaverData\workspace6\General\.dbeaver-data-sources.xml`
 
  **JSON_DIR_PATH**

