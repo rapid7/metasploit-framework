@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Post
           'Stability' => [],
           'Reliability' => [],
           'SideEffects' => []
+        }
       )
     )
     register_options(
