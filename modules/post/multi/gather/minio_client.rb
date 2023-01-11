@@ -24,12 +24,6 @@ class MetasploitModule < Msf::Post
           'Stability' => [],
           'Reliability' => [],
           'SideEffects' => []
-        },
-        'Compat' => {
-          'Meterpreter' => {
-            'Commands' => %w[]
-          }
-        }
       )
     )
     register_options(
