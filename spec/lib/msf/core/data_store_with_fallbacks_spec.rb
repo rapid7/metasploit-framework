@@ -195,6 +195,28 @@ RSpec.shared_examples_for 'a datastore' do
       s
     end
     it_behaves_like 'a datastore with lookup support'
+
+    context "parsing corner cases" do
+      it "should parse comma separated strings" do
+        str = "foo=bar,fizz=buzz"
+        subject.import_options_from_s(str)
+
+        expect(subject).to have_key("foo")
+        expect(subject["foo"]).to eql("bar")
+        expect(subject).to have_key("fizz")
+        expect(subject["fizz"]).to eql("buzz")
+      end
+
+      it "should parse options with nested equals" do
+        str = "COMMAND=date --date=2023-01-01 --iso-8601=ns,SESSION=1"
+        subject.import_options_from_s(str)
+
+        expect(subject).to have_key("COMMAND")
+        expect(subject["COMMAND"]).to eql("date --date=2023-01-01 --iso-8601=ns")
+        expect(subject).to have_key("SESSION")
+        expect(subject["SESSION"]).to eql("1")
+      end
+    end
   end
 
   describe '#from_file' do
