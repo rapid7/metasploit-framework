@@ -239,10 +239,10 @@ NAVIGATION_CONFIG = [
             folder: 'RPC',
             children: [
               {
-                path: 'How-to-use-Metasploit-RPC.md'
+                path: 'How-to-use-Metasploit-Messagepack-RPC.md'
               },
               {
-                path: 'JSON-RPC-API.md'
+                path: 'How-to-use-Metasploit-JSON-RPC.md'
               },
             ]
           },
