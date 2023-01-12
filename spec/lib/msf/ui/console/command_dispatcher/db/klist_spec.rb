@@ -20,6 +20,15 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
     Msf::Exploit::Remote::Kerberos::Ticket::Storage::ReadWrite.new(framework: framework)
   end
 
+  # Replace table entry ids with `[id]` for matching simplicity
+  # Also corrects spacing between columns to remove variation from different length ids
+  def table_without_ids(table)
+    output = table.dup
+    output.gsub!(/^--\s+----/, '--    ----')
+    output.gsub!(/^id\s+host/, 'id    host')
+    output.gsub!(/^\d+\s+/, '[id]  ')
+  end
+
   describe '#cmd_klist' do
     before(:each) do
       kerberos_ticket_storage.delete_tickets
@@ -30,13 +39,16 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         subject.cmd_klist '-h'
         expect(@output.join("\n")).to match_table <<~TABLE
           List Kerberos tickets in the database
-          Usage: klist [options]
+          Usage: klist [options] [hosts]
 
           OPTIONS:
 
-              -d, --delete   Delete *all* matching kerberos entries
-              -h, --help     Help banner
-              -v, --verbose  Verbose output
+              -a, --activate    Activates *all* matching kerberos entries
+              -A, --deactivate  Deactivates *all* matching kerberos entries
+              -d, --delete      Delete *all* matching kerberos entries
+              -h, --help        Help banner
+              -i, --index       Kerberos entry ID(s) to search for, e.g. `-i 1` or `-i 1,2,3` or `-i 1 -i 2 -i 3`
+              -v, --verbose     Verbose output
 
         TABLE
       end
@@ -58,6 +70,19 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         it 'should show no tickets' do
           subject.cmd_klist '-v'
           expect(@output.join("\n")).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            No tickets
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided' do
+        it 'should show no tickets and missing id warning' do
+          subject.cmd_klist '-i', '0' # Can't have an id of 0
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
+            Not all records with the ids: ["0"] could be found.
+            Please ensure all ids specified are available.
             Kerberos Cache
             ==============
             No tickets
@@ -142,17 +167,26 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         kerberos_ticket_storage.store_ccache(as_ccache(valid_ccache_base64), host: '192.0.2.2')
       end
 
+      let(:valid_ccache_id) do
+        valid_ccache[:loot].id
+      end
+
       let(:valid_ccache_path) do
-        kerberos_ticket_storage.tickets(host: '192.0.2.2').first.path
+        kerberos_ticket_storage.tickets(id: valid_ccache_id).first.path
       end
 
       let(:expired_ccache) do
         kerberos_ticket_storage.store_ccache(as_ccache(expired_ccache_base64), host: '192.0.2.24')
       end
 
-      let(:expired_ccache_path) do
-        kerberos_ticket_storage.tickets(host: '192.0.2.24').first.path
+      let(:expired_ccache_id) do
+        expired_ccache[:loot].id
       end
+
+      let(:expired_ccache_path) do
+        kerberos_ticket_storage.tickets(id: expired_ccache_id).first.path
+      end
+
 
       let(:create_tickets) do
         [valid_ccache, expired_ccache]
@@ -170,14 +204,13 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
       context 'when no options are provided' do
         it 'should show tickets' do
           subject.cmd_klist
-
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            host        principal                      sname                                   issued                     status       path
-            ----        ---------                      -----                                   ------                     ------       ----
-            192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  valid        #{valid_ccache_path}
-            192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
           TABLE
         end
       end
@@ -185,12 +218,12 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
       context 'when a host address is specified' do
         it 'should show the matching host addresses' do
           subject.cmd_klist '192.0.2.2'
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            host       principal                      sname                                   issued                     status  path
-            ----       ---------                      -----                                   ------                     ------  ----
-            192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  valid   #{valid_ccache_path}
+            id    host       principal                      sname                                   issued                     status  path
+            --    ----       ---------                      -----                                   ------                     ------  ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active  #{valid_ccache_path}
           TABLE
         end
       end
@@ -260,16 +293,190 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           old_valid_ccache_path = valid_ccache_path
           old_expired_ccache_path = expired_ccache_path
           subject.cmd_klist '-d'
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            host        principal                      sname                                   issued                     status       path
-            ----        ---------                      -----                                   ------                     ------       ----
-            192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  valid        #{old_valid_ccache_path}
-            192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{old_expired_ccache_path}
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{old_valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{old_expired_ccache_path}
             Deleted 2 entries
           TABLE
           expect(kerberos_ticket_storage.tickets.length).to eq(0)
+        end
+      end
+
+      context 'when the -i option is provided with a single id' do
+        it 'should show a single ticket' do
+          subject.cmd_klist '-i', valid_ccache_id.to_s
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host       principal                      sname                                   issued                     status  path
+            --    ----       ---------                      -----                                   ------                     ------  ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active  #{valid_ccache_path}
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided twice with different ids' do
+        it 'should show both tickets' do
+          subject.cmd_klist '-i', valid_ccache_id.to_s, '-i', expired_ccache_id.to_s
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided with 2 valid ids (comma seperated)' do
+        it 'should show both tickets' do
+          subject.cmd_klist '-i', "#{valid_ccache_id},#{expired_ccache_id}"
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided with 2 valid ids (quoted and space seperated)' do
+        it 'should show both tickets' do
+          subject.cmd_klist '-i', "#{valid_ccache_id} #{expired_ccache_id}"
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided with 2 valid ids (quoted and comma + space seperated)' do
+        it 'should show both tickets' do
+          subject.cmd_klist '-i', "#{valid_ccache_id}, #{expired_ccache_id}"
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided with 1 valid and 1 invalid id' do
+        it 'should show both tickets' do
+          subject.cmd_klist '-i', valid_ccache_id.to_s, '-i', '0' # Can't have an id of 0
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
+            Not all records with the ids: ["#{valid_ccache_id}", "0"] could be found.
+            Please ensure all ids specified are available.
+            Kerberos Cache
+            ==============
+            No tickets
+          TABLE
+        end
+      end
+
+      context 'when the -i option is provided with a loot id that is not a ccache' do
+        let(:loot) do
+          framework.db.report_loot(type: 'not a ccache', name: 'fake_loot', path: 'fake_path')
+        end
+
+        before do
+          loot
+        end
+
+        after do
+          framework.db.delete_loot(ids: [loot.id])
+        end
+
+        # This behaviour is inconsistent with providing an id that doesn't exist in the loot table at all
+        it 'will not show any tickets' do
+          subject.cmd_klist '-i', loot.id.to_s
+          expect(@output.join("\n")).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            No tickets
+          TABLE
+        end
+      end
+
+      context 'when the -A option is provided the tickets will be deactivated' do
+        it 'will show the deactivated tickets' do
+          subject.cmd_klist '-A'
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host        principal                      sname                                   issued                     status       path
+            --    ----        ---------                      -----                                   ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  inactive     #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+            Deactivated 2 entries
+          TABLE
+        end
+      end
+
+      context 'when there is a deactivated ticket' do
+        before do
+          subject.cmd_klist '-A'
+          reset_logging!
+        end
+
+        context 'when the -a option is provided the tickets will be activated' do
+          it 'will show the activated tickets' do
+            subject.cmd_klist '-a'
+            expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+              Kerberos Cache
+              ==============
+              id    host        principal                      sname                                   issued                     status       path
+              --    ----        ---------                      -----                                   ------                     ------       ----
+              [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active       #{valid_ccache_path}
+              [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            2022-12-16 12:05:05 +0000  >>expired<<  #{expired_ccache_path}
+              Activated 2 entries
+            TABLE
+          end
+        end
+      end
+
+      context 'when an index is provided with the delete option' do
+        it 'will delete the single entry provided' do
+          # Store the paths first before they are deleted
+          old_valid_ccache_path = valid_ccache_path
+          subject.cmd_klist '-d', '-i', valid_ccache_id.to_s
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host       principal                      sname                                   issued                     status  path
+            --    ----       ---------                      -----                                   ------                     ------  ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  active  #{old_valid_ccache_path}
+            Deleted 1 entry
+          TABLE
+          expect(kerberos_ticket_storage.tickets.length).to eq(1)
+        end
+      end
+
+      context 'when an index is provided with the deactivate option' do
+        it 'will deactivate the single entry provided' do
+          subject.cmd_klist '-A', '-i', valid_ccache_id.to_s
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache
+            ==============
+            id    host       principal                      sname                                   issued                     status    path
+            --    ----       ---------                      -----                                   ------                     ------    ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  2022-11-28 15:51:29 +0000  inactive  #{valid_ccache_path}
+            Deactivated 1 entry
+          TABLE
         end
       end
     end
