@@ -97,20 +97,24 @@ NAVIGATION_CONFIG = [
             nav_order: 2
           },
           {
-            path: 'How-to-use-msfvenom.md',
+            path: 'How-to-use-a-Metasploit-module-appropriately.md',
             nav_order: 3
           },
           {
-            path: 'How-to-use-a-Metasploit-module-appropriately.md'
+            path: 'How-payloads-work.md',
+            nav_order: 4
           },
           {
-            path: 'How-payloads-work.md'
+            path: 'Module-Documentation.md',
+            nav_order: 5
           },
           {
-            path: 'Module-Documentation.md'
+            path: 'How-to-use-a-reverse-shell-in-Metasploit.md',
+            nav_order: 6
           },
           {
-            path: 'How-to-use-a-reverse-shell-in-Metasploit.md'
+            path: 'How-to-use-msfvenom.md',
+            nav_order: 7
           },
         ]
       },
@@ -227,6 +231,18 @@ NAVIGATION_CONFIG = [
               },
               {
                 path: 'Python-Extension.md'
+              },
+            ]
+          },
+          {
+            title: 'RPC',
+            folder: 'RPC',
+            children: [
+              {
+                path: 'How-to-use-Metasploit-Messagepack-RPC.md'
+              },
+              {
+                path: 'How-to-use-Metasploit-JSON-RPC.md'
               },
             ]
           },
