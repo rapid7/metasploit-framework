@@ -225,7 +225,7 @@ class MetasploitModule < Msf::Auxiliary
 
         if res['os'] && res['os'] != 'Unknown'
           description = smb_os_description(res, nd_smb_fingerprint)
-          desc = description[:text]
+          desc << description[:text]
           nd_fingerprint_match = description[:fingerprint_match]
           nd_smb_fingerprint = description[:smb_fingerprint]
 
@@ -277,6 +277,15 @@ class MetasploitModule < Msf::Auxiliary
         else
           lines << { type: :status, message: '  Host could not be identified', verbose: true }
         end
+
+        report_service(
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          name: 'smb',
+          info: desc
+        )
+
 
         # Report a smb.fingerprint hash of attributes for OS fingerprinting
         report_note(
