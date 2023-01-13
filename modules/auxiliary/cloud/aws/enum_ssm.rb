@@ -4,6 +4,7 @@
 ##
 
 require 'aws-sdk-ssm'
+require 'aws-sdk-ec2'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::Http::WebSocket::AmazonSsm
@@ -58,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     regions = []
 
     ec2 = Aws::EC2::Resource.new(
-      region: 'us-east-1',
+      region: datastore['REGION'],
       access_key_id: datastore['ACCESS_KEY_ID'],
       secret_access_key: datastore['SECRET_ACCESS_KEY']
     )
