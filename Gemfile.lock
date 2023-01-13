@@ -127,7 +127,7 @@ GEM
       activerecord (>= 3.1.0, < 8)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.689.0)
+    aws-partitions (1.692.0)
     aws-sdk-core (3.168.4)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.651.0)
@@ -278,7 +278,7 @@ GEM
     network_interface (0.0.2)
     nexpose (7.3.0)
     nio4r (2.5.8)
-    nokogiri (1.13.10)
+    nokogiri (1.14.0)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     nori (2.6.0)
@@ -345,7 +345,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.28)
+    rex-core (0.1.29)
     rex-encoder (0.1.6)
       metasm
       rex-arch
@@ -375,7 +375,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.43)
+    rex-socket (0.1.44)
       rex-core
     rex-sslscan (0.1.8)
       rex-core
@@ -410,16 +410,16 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.12.0)
-    rubocop (1.42.0)
+    rubocop (1.43.0)
       json (~> 2.3)
       parallel (~> 1.10)
-      parser (>= 3.1.2.1)
+      parser (>= 3.2.0.0)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
       rubocop-ast (>= 1.24.1, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 3.0)
+      unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.24.1)
       parser (>= 3.1.1.0)
     ruby-macho (3.0.0)
@@ -449,7 +449,7 @@ GEM
       rack (~> 2.2, >= 2.2.4)
       rack-protection (= 3.0.5)
       tilt (~> 2.0)
-    sqlite3 (1.5.4)
+    sqlite3 (1.6.0)
       mini_portile2 (~> 2.8.0)
     sshkey (2.0.0)
     swagger-blocks (3.0.0)
