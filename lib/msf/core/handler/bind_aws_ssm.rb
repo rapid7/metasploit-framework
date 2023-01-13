@@ -161,7 +161,8 @@ module BindAwsSsm
       [
         OptString.new('AWS_SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
         OptString.new('AWS_SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
-        OptBool.new('AWS_SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false])
+        OptBool.new('AWS_SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false]),
+        OptBool.new('AWS_SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
       ], Msf::Handler::BindAwsSsm)
 
     self.bind_thread = nil
@@ -261,6 +262,7 @@ module BindAwsSsm
             })
             ssm_sock = connect_ssm_ws(session_init)
             chan = ssm_sock.to_ssm_channel
+            chan._start_ssm_keepalive if datastore['AWS_SSM_KEEP_ALIVE']
             chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
             chan.params.peerhost = peer_info['IpAddress']
             chan.params.peerport = 0

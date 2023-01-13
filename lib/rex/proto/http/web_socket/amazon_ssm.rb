@@ -63,14 +63,20 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       attr_accessor :rows
       attr_accessor :cols
 
-      def run_keepalive
+      def _start_ssm_keepalive
         @keepalive_thread = Rex::ThreadFactory.spawn('SsmChannel-Keepalive', false) do
-          while not closed?
+          while not closed? or @websocket.closed?
             write ''
             Rex::ThreadSafe.sleep(::Random.rand * 10 + 15)
           end
           @keepalive_thread = nil
         end
+      end
+
+      def close
+        @keepalive_thread.kill if @keepalive_thread
+        @keepalive_thread = nil
+        super
       end
 
       def acknowledge_output(output_frame)
@@ -140,11 +146,9 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         @out_seq_num = 0
         @run_ssm_pub = true
         @ack_outputs = Set.new
-        @filter_echo  = filter_echo
+        @filter_echo = filter_echo
 
-        ssm_sock = super(websocket, write_type: :binary, mask_write: false)
-        ssm_sock.run_keepalive
-        ssm_sock
+        super(websocket, write_type: :binary, mask_write: false)
       end
 
       def on_data_read(data, _data_type)
