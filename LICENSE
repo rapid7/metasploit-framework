@@ -19,6 +19,7 @@ Files: data/exploits/mysql/lib_mysqludf_sys_*.so
 Copyright: 2007  Roland Bouman
            2008-2010  Roland Bouman and Bernardo Damele A. G.
 License: LGPL-2.1
+Purpose: These files are used in exploits/multi/mysql/mysql_udf_payload.rb
 
 Files: data/headers/windows/c_payload_util/beacon.h
 Copyright: 2022, Copyright Help/Systems LLC and its group of companies.
@@ -28,10 +29,16 @@ Files: data/jtr/*
 Copyright: Copyright 1996-2013 by Solar Designer
 License: GNU GPL 2.0
 
-Files: data/post/SharpHound.exe data/post/powershell/SharpHound.ps1
+Files: data/post/SharpHound.exe
+       data/post/powershell/SharpHound.ps1
 Copyright (C) 2016-2022 Specter Ops Inc.
 License: GNU GPL 3.0
-Purpose: These files are uploaded and executed by post/windows/gather/bloodhound.
+Purpose: These files are uploaded and executed by
+         post/windows/gather/bloodhound.
+
+Files: data/templates/to_mem_pshreflection.ps1.template
+Copyright: 2012, Matthew Graeber
+License: BSD-3-clause
 
 Files: data/webcam/api.js
 Copyright: Copyright 2013 Muaz Khan<@muazkh>.
@@ -45,8 +52,13 @@ Files: external/source/evasion/windows/process_herpaderping/ProcessHerpaderping/
 Copyright: 2020 Johnny Shaw
 License: MIT
 
+Files: external/source/exploits/CVE-2018-8120/*
+Copyright: 2018
+License: GNU GPL 3
+Purpose: This supports exploits/windows/local/ms18_8120_win32k_privesc module
+
 Files: exteneral/source/exploits/CVE-2022-26904/*
-Copywrite: 2022 Abdelhamid Naceri
+Copyright: 2022 Abdelhamid Naceri
 License: MIT
 
 Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
@@ -56,34 +68,48 @@ License: GNU GPL 2.0
 Files: external/source/exploits/IE11SandboxEscapes/*
 Copyright: James Forshaw, 2014
 License: GPLv3
+Purpose: This set of source code supports the following modules
+         exploits/windows/local/ms13_097_ie_registry_symlink.rb
+         exploits/windows/local/ms14_009_ie_dfsvc.rb
 
 Files: external/source/ipwn/*
 Copyright: 2004-2005 vlad902 <vlad902 [at] gmail.com>
            2007 H D Moore <hdm [at] metasploit.com>
 License: GPL-2 and Artistic
+Purpose: These files are used in payloads/stages/osx/armle/execute
 
 Files: external/source/metsvc/*
 Copyright: 2007, Determina Inc.
 License: BSD-3-clause
 
+Files: external/source/osx/isight/*
+Copyright: 2009
+License: GPL
+Purpose: Used in modules/payloads/stages/osx/x86/isight to capture images.
+
+Files: external/source/pxesploit/regeditor/ntreg.h
+       external/source/pxesploit/regeditor/ntreg.c
+Copyright: 1997-2010, Petter Nordahl-Hagen
+License: LGPL
+Purpose: Unknown. These files are used to create a linux binary called regeditor
+         which allows a linux OS to edit a Windows registry. It is used in
+         pxesploit modules.
+
 Files: external/source/ReflectiveDLLInjection/*
 Copyright: 2011, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 License: BSD-3-clause
 
-Files: external/source/tightvnc/*
-Copyright: 1999 AT&T Laboratories Cambridge.
-           2000 Tridia Corp.
-           2002-2003 RealVNC Ltd.
-           2001-2004 HorizonLive.com, Inc.
-           2000-2007 Constantin Kaplinsky
-           2000-2009 TightVNC Group
-License: GPL-2
+Files: external/source/shellcode/windows/build.sh
+Copyright: 2009
+License: GPL / Perl Artistic
+Purpose: A perl script to build some of the x86 Windows payloads.
 
 Files: external/source/unixasm/*
 Copyright: 2004-2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
 License: BSD-4-clause
 
 Files: external/source/vncdll/winvnc/*
+       external/source/tightvnc/*
 Copyright: 1999 AT&T Laboratories Cambridge.
            2000 Tridia Corp.
            2002-2003 RealVNC Ltd.
@@ -91,12 +117,12 @@ Copyright: 1999 AT&T Laboratories Cambridge.
            2000-2006 Constantin Kaplinsky.
            2000-2009 TightVNC Group
 License: GPL-2
+Purpose: The built result is used in:
+           payloads/stages/windows/vncinject.rb
+           payloads/stages/windows/x64/vncinject.rb
 
-Files: data/templates/to_mem_pshreflection.ps1.template
-Copyright: 2012, Matthew Graeber
-License: BSD-3-clause
-
-Files: lib/anemone.rb lib/anemone/*
+Files: lib/anemone.rb
+       lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
 
@@ -108,15 +134,19 @@ Files: lib/msf/core/modules/external/python/async_timeout/*
 Copyright: 2016-2017 Andrew Svetlov
 License: Apache 2.0
 
-Files: lib/msf/core/web_services/public/*, lib/msf/core/web_services/views/api_docs.erb
+Files: lib/msf/core/web_services/public/*
+       lib/msf/core/web_services/views/api_docs.erb
 Copyright: Copyright 2018 SmartBear Software
 License: Apache 2.0
 
-Files: lib/net/dns.rb lib/net/dns/*
+Files: lib/net/dns.rb
+       lib/net/dns/*
 Copyright: 2006 Marco Ceresa
 License: Ruby
 
-Files: lib/postgres_msf.rb lib/postgres/postgres-pr/message.rb lib/postgres/postgres-pr/connection.rb
+Files: lib/postgres_msf.rb
+       lib/postgres/postgres-pr/message.rb
+       lib/postgres/postgres-pr/connection.rb
 Copyright: 2005 Michael Neumann
 License: BSD-3-clause or Ruby
 
@@ -124,11 +154,13 @@ Files: lib/rabal/*
 Copyright: Jeremy Hinegadner <jeremy at hinegardner dot org>
 License: Ruby
 
-Files: lib/rbmysql.rb lib/rbmysql/*
+Files: lib/rbmysql.rb
+       lib/rbmysql/*
 Copyright: 2009 tommy
 License: Ruby
 
-Files: lib/snmp.rb lib/snmp/*
+Files: lib/snmp.rb
+       lib/snmp/*
 Copyright: 2004, David R. Halliday
 License: Ruby
 
@@ -136,13 +168,81 @@ Files: lib/windows_console_color_support.rb
 Copyright: 2011 Michael 'mihi' Schierl
 License: BSD-3-clause
 
-Files: lib/zip.rb lib/zip/*
+Files: lib/zip.rb
+       lib/zip/*
 Copyright: 2002-2004, Thomas Sandergaard
 License: Ruby
+
+Files: modules/auxiliary/dos/cisco/cisco_7937g_dos.py
+Copyright: 2020, Cody Martin
+License: GPL
+Purpose: This module allows an attacker to render a Cisco 7937G unresponsive
+         until it is manually power cycled.
+
+Files: modules/auxiliary/dos/cisco/cisco_7937g_dos_reboot.py
+Copyright: 2020, Cody Martin
+License: GPL
+Purpose: This module allows an attacker to render a Cisco 7937G unresponsive
+         until it automatically power cycles.
+
+Files: modules/auxiliary/admin/http/cisco_7937g_ssh_privesc.py
+Copyright: 2020, Cody Martin
+License: GPL
+Purpose: This module allows an unauthenticated user to change the credentials
+         for SSH access on a Cisco 7937G device.
+
+Files: modules/auxiliary/gather/office365userenum.py
+Copyright: 2015  Oliver Morton
+License: GPL
+Purpose: Enumerates valid usernames from Office 365 using ActiveSync.
+
+Files: modules/exploits/linux/local/bpf_priv_esc.rb
+       data/exploits/CVE-2016-4557/hello
+Copyright: 2001-2007
+License: GPL
+Purpose: This module contains the source code for FUSE, which this module
+         uploads and compiles or uploads a precompiled binary (hello).
+
+Files: modules/exploits/linux/local/ntfs3g_priv_esc.rb
+Copyright: 2017
+License: GPLv2
+Purpose: The Ruby file contains the text of several modules from exploit-db 
+         which it compiles and uploads to the target to elevate privileges.
+
+Files: modules/exploits/unix/fileformat/metasploit_libnotify_cmd_injection.rb
+Copyright: 2020
+License: GPL
+Purpose: This module targets a vulnerability in Metasploit Framework versions
+         prior to 5.0.86.
+
+Files: modules/exploits/windows/smb/ms04_007_killbill.rb
+Copyright: 2004, Solar Eclipse
+License: GPL
+Purpose: The module exploits the Windows ASN.1 vulnerability in Windows 2000 
+         SP2-SP4 and Windows XP SP0-SP1. It contains code ported from a GPLv2
+         module.
 
 Files: modules/payloads/singles/windows/speak_pwned.rb
 Copyright: 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 License: BSD-3-clause
+
+Files: modules/payloads/singles/windows/x64/messagebox.rb
+Copyright: 2018, jaguinaga
+License: GPL
+Purpose: This module allows us to create an x64 Windows messagebox payload.
+
+Files: modules/post/linux/dos/xen_420_dos.rb
+Copyright: 2016
+License: GPL
+Purpose: This module crashes the Xen 4.2.0 hypervisor when run in a 
+         paravirtualized VM. It contains a short code section licensed through
+         GPL.
+
+Files: tools/exploit/metasm_shell.rb
+Copyright: 2007, Yoann GUILLOT
+License: LGPL
+Purpose: Allows users to invoke an interactive metasm shell to get opcodes from
+assembly instructions.
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,

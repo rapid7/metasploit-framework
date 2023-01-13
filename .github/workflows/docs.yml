@@ -55,5 +55,4 @@ jobs:
       - name: build
         working-directory: docs
         run: |
-          bundle exec ruby build.rb
           bundle exec ruby build.rb --production

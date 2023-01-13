@@ -741,5 +741,36 @@ RSpec.describe Rex::Proto::Http::Client do
 
       expect(request.to_s).to eq(expected)
     end
+
+    it 'should not hang when parsing a HEAD response' do
+      response = <<~EOF
+HTTP/1.1 200 OK
+Date: Thu, 15 Dec 2022 02:52:42 GMT
+Server: Apache
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+Pragma: no-cache
+Vary: Accept-Encoding
+Access-Control-Allow-Origin: *
+Connection: close
+Content-Type: text/html; charset=UTF-8
+Content-Length: 1000
+
+
+      EOF
+
+      conn = double
+      allow(conn).to receive(:put)
+      allow(conn).to receive(:peerinfo)
+      allow(conn).to receive(:closed?).and_return(false)
+
+      expect(conn).to receive(:get_once).at_least(:once).and_return(response, nil)
+      allow(Rex::Socket::Tcp).to receive(:create).and_return(conn)
+
+      request = cli.request_cgi('method' => 'HEAD')
+      resp = cli.send_recv(request,5)
+
+      expect(resp.headers['Content-Length']).to eq('1000')
+    end
   end
 end

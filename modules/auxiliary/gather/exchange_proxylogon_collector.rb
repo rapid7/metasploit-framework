@@ -207,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
     xml = Nokogiri::XML.parse(response.body)
 
     legacy_dn = xml.at_xpath('//xmlns:User/xmlns:LegacyDN', xmlns)&.content
-    fail_with(Failure::NotFound, 'No \'LegacyDN\' was found') if legacy_dn.empty?
+    fail_with(Failure::NotFound, 'No \'LegacyDN\' was found') if legacy_dn.blank?
 
     server = ''
     owa_urls = []
