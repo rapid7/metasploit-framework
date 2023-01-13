@@ -57,22 +57,44 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_key
-    if datastore['NTHASH'].blank? && datastore['AES_KEY'].blank?
-      return nil
-    elsif datastore['NTHASH'].present? && datastore['AES_KEY'].present?
+    if datastore['NTHASH'].present? && datastore['AES_KEY'].present?
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH and AES_KEY may not both be set for inspecting a ticket')
     end
 
-    if datastore['NTHASH'].present? && datastore['NTHASH'].size != 32
-      fail_with(Msf::Exploit::Failure::BadConfig, "NTHASH length was #{datastore['NTHASH'].size}. It should be 32")
+    if datastore['NTHASH'].present?
+      key_type = :nthash
+    elsif datastore['AES_KEY'].present?
+      key_type = :aes_key
     else
-      return datastore['NTHASH']
+      key_type = nil
     end
 
-    if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
-      fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size}. It should be 32 or 64")
+    case key_type
+    when :nthash
+      key = validate_nthash(datastore['NTHASH'])
+    when :aes_key
+      key = validate_aes_key(datastore['AES_KEY'])
     else
-      return datastore['AES_KEY']
+      print_status('No decryption key provided proceeding without decryption.')
+      key = nil
+    end
+
+    key
+  end
+
+  def validate_nthash(nthash)
+    if nthash.size != 32
+      fail_with(Msf::Exploit::Failure::BadConfig, "NTHASH length was #{nthash.size}. It should be 32")
+    else
+      nthash
+    end
+  end
+
+  def validate_aes_key(aes_key)
+    if aes_key.size != 32 && aes_key.size != 64
+      fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{aes_key.size}. It should be 32 or 64")
+    else
+      aes_key
     end
   end
 end
