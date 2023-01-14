@@ -1,10 +1,10 @@
 **This page is meant for Committers. If you are unsure whether you are a committer, you are not.**
 
-Metasploit is built incrementally by the community through GitHub's [Pull Request](https://github.com/rapid7/metasploit-framework/pulls) mechanism. Submitting pull requests (or PRs) is already discussed in the [Dev environment setup](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html) documentation. It's important to realize that PRs are a feature of GitHub, not git, so this document will take a look at how to get your git environment to deal with them sensibly.
+Metasploit is built incrementally by the community through GitHub's [Pull Request](https://github.com/rapid7/metasploit-framework/pulls) mechanism. Submitting pull requests (or PRs) is already discussed in the [[Dev environment setup|./dev/Setting-Up-a-Metasploit-Development-Environment.md]] documentation. It's important to realize that PRs are a feature of GitHub, not git, so this document will take a look at how to get your git environment to deal with them sensibly.
 
 # The short story
 
- - Configure your git environment as described [here](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html#keeping-in-sync).
+ - Configure your git environment as described [[here|./dev/Setting-Up-a-Metasploit-Development-Environment.md]].
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
  - Add your signing key `git config --global user.signingkey`
      - Use `gpg --list-keys` to view your available keys. Note that on certain systems you may need to replace `gpg` with `gpg2`. Sample output can be seen below:
@@ -46,7 +46,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 Check out [this gist](https://gist.github.com/todb-r7/3fbee1a9e7b36d82ca55) that automates (mostly) landing pull requests, signing the merge commit, all while rarely losing a race with other committers.
 # Fork and clone
 
-First, fork and clone the `rapid7/metasploit-framework` repo, [following these instructions](https://help.github.com/articles/fork-a-repo). I like using ssh with `~/.ssh/config` aliases [as described here](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html#wiki-ssh), but the https method will work, too.
+First, fork and clone the `rapid7/metasploit-framework` repo, [following these instructions](https://help.github.com/articles/fork-a-repo). I like using ssh with `~/.ssh/config` aliases [[as described here|./dev/Setting-Up-a-Metasploit-Development-Environment.md]], but the https method will work, too.
 
 Once this is done, you will have a remote repository called "origin," which points to your forked repository on GitHub. You will be doing most of your work in your own fork of Metasploit, even if you have commit rights to Rapid7's fork. Now, we're going to add an "upstream" repository to talk to the Rapid7 repository.
 
@@ -258,7 +258,7 @@ c = commit -S --edit
 m = merge -S --no-ff --edit
 ````
 
-People with commit rights to rapid7/metasploit-framework will have their [keys listed here](https://docs.metasploit.com/docs/development/maintainers/committer-keys.html).
+People with commit rights to rapid7/metasploit-framework will have their [[keys listed here|./Committer-Keys.md]].
 
 # Post-Merge
 

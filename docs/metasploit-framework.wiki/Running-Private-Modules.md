@@ -126,7 +126,7 @@ For Windows users, the above is all true, except for accessing the modules from 
 
 Any module that requires on changes to core library functions, such as new protocol parsers or other library mixins, aren't going to work out for you this way -- you're going to end up spewing errors all over the place as your module tries to load these classes. It's possible to write modules as completely self-contained in nearly all cases (thanks to Ruby's open class architecture), but such modules nearly always get refactored later to make the protocol and other mixin bits available to other modules.
 
-In this case, it would be better to work with modules like that using a proper GitHub checkout with a development branch -- see the [dev environment setup docs](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html) for tons more on that.
+In this case, it would be better to work with modules like that using a proper GitHub checkout with a development branch -- see the [[dev environment setup docs|./dev/Setting-Up-a-Metasploit-Development-Environment.md]] for tons more on that.
 
 ## A final warning
 

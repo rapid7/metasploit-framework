@@ -125,7 +125,7 @@ The commands for msfdb are as follows:
 In the case of any of the above commands printing either a stack trace or error, your first step should be to run `./msfdb reinit` (again making sure to say no to the prompt asking you if you want to delete the Database contents) and reattempt the command that caused the error. If the error persists, copy the command you executed, the output generated, and paste it into an [error ticket](https://github.com/rapid7/metasploit-framework/issues/new/choose).
 
 ## What's next?
-That's it for the simple high level explanation of how to setup a database for metasploit. If that wasn't enough detail for you you can check out our more in depth explanation [here](https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html).
+That's it for the simple high level explanation of how to setup a database for metasploit. If that wasn't enough detail for you you can check out our more in depth explanation [[here|./Metasploit-Web-Service.md]].
 
 If you want to get started hacking but don't know how to, here are a few guides we really like:
 * [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf) - A great, easy to follow guide on how to set up Metasploit and Metasploitable (Our intentionally vulnerable Linux virtual machine used to for security training) for VMs. Also has a fantastic guide on penetration testing Metasploitable 2, from information gathering right up to exploitation.

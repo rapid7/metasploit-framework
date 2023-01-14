@@ -41,4 +41,4 @@ This approach enables us to:
 
 ## Usage
 
-For more information on setting up the web service and using the data services see [Metasploit Web Service](https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html).
+For more information on setting up the web service and using the data services see [[Metasploit Web Service|./Metasploit-Web-Service.md]].

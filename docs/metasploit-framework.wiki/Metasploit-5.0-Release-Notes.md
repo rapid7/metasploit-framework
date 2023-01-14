@@ -12,7 +12,7 @@ The following is a high-level overview of Metasploit 5.0's features and capabili
 
 * A JSON-RPC API enables users to integrate Metasploit with additional tools and languages.
 
-* This release adds a common web service framework to expose both the database and the automation APIs; this framework supports advanced authentication and concurrent operations. Read more about how to set up and run these new services [here](https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html).
+* This release adds a common web service framework to expose both the database and the automation APIs; this framework supports advanced authentication and concurrent operations. Read more about how to set up and run these new services [[here|./Metasploit-Web-Service.md]].
 
 * Adds `evasion` module type and libraries to let users generate evasive payloads without having to install external tools. Read the research underpinning evasion modules [here](https://www.rapid7.com/info/encapsulating-antivirus-av-evasion-techniques-in-metasploit-framework). Rapid7's first evasion modules are [here](https://github.com/rapid7/metasploit-framework/pull/10759).
 

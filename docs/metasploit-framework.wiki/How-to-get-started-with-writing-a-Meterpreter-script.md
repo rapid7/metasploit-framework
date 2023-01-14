@@ -2,4 +2,4 @@
 
 I tricked you. We don't let anybody write Meterpreter scripts anymore, therefore we will no longer teach you how.
 
-[You should try writing post modules instead](https://docs.metasploit.com/docs/development/developing-modules/guides/how-to-get-started-with-writing-a-post-module.html).
+[[You should try writing post modules instead|./How-to-get-started-with-writing-a-post-module.md]].

@@ -26,7 +26,7 @@ Review all of the [student guide](https://google.github.io/gsocguides/student/) 
 
 A listed `idea` is a seed for GSoC students to expand on and propose how to design and implement a solution.  You can start by investigating the code base and how existing users interaction with `msfconsole` functionality. Think through scenarios on how a user might want to interact with the proposed idea.
 
-A place to get started with contributing to Metasploit is [here](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and expanded on [here](https://docs.metasploit.com/docs/development/get-started/contributing-to-metasploit.html#framework-bugs-and-features).
+A place to get started with contributing to Metasploit is [here](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and expanded on [[here|./Contributing-to-Metasploit.md]].
 
 GSoC mentors tend to look for those items that have a chance of making development and usage easier or improving the overall performance of a certain area, however by starting with understanding the most common contribution pattern you can get familiar with the codebase and also the mindset of users. This will help you in creating a proposal with the end user in mind.
 

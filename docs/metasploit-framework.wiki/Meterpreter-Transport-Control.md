@@ -350,7 +350,7 @@ The session is back up and running as if nothing had gone wrong.
 
 In the case where Meterpreter is configured with only a single transport mechanism, this process still takes place. Meterpreter's transport list implementation is a cyclic linked-list, and once the end of the list has been reached, it simply starts from the beginning again. This means that if there's a list of one transport then Meterpreter will continually attempt to use that one transport until the session expires. This works for both `TCP` and `HTTP/S`.
 
-For important detail on network resiliency, please see the [reliable network communication documentation](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-reliable-network-communication.html).
+For important detail on network resiliency, please see the [[reliable network communication documentation|./Meterpreter-Reliable-Network-Communication.md]]
 
 ## Supported Meterpreters
 
