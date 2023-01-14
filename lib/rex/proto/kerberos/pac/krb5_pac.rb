@@ -49,7 +49,7 @@ module Rex::Proto::Kerberos::Pac
     endian :little
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present in the buffer
-    virtual :ul_type, value: 0x0A
+    virtual :ul_type, value: Krb5PacElementType::CLIENT_INFORMATION
 
     # @!attribute [rw] client_id
     #   @return [FileTime] Kerberos initial ticket-granting ticket (TGT) authentication time
@@ -69,7 +69,7 @@ module Rex::Proto::Kerberos::Pac
     # @see Rex::Proto::Kerberos::Crypto::Checksum
     def assign(val)
       # Handle the scenario of users setting the signature type to a negative value such as -138 for HMAC_RC4
-      # Convert it to two's complement representation explicitly to bypass bindata's clamping logic:
+      # Convert it to two's complement representation explicitly to bypass bindata's clamping logic in the super method:
       if val < 0
         val &= 0xffffffff
       end
@@ -94,13 +94,13 @@ module Rex::Proto::Kerberos::Pac
   class Krb5PacServerChecksum < Krb5PacSignatureData
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present in the buffer
-    virtual :ul_type, value: 0x06
+    virtual :ul_type, value: Krb5PacElementType::SERVER_CHECKSUM
   end
 
   class Krb5PacPrivServerChecksum < Krb5PacSignatureData
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present in the buffer
-    virtual :ul_type, value: 0x07
+    virtual :ul_type, value: Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
   end
 
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73
@@ -268,7 +268,7 @@ module Rex::Proto::Kerberos::Pac
     endian :little
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present
-    virtual :ul_type, value: 0x01
+    virtual :ul_type, value: Krb5PacElementType::LOGON_INFORMATION
 
     krb5_validation_info_ptr :data
   end
@@ -364,7 +364,7 @@ module Rex::Proto::Kerberos::Pac
     endian :little
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present
-    virtual :ul_type, value: 0x02
+    virtual :ul_type, value: Krb5PacElementType::CREDENTIAL_INFORMATION
 
     uint32 :version
     uint32 :encryption_type
