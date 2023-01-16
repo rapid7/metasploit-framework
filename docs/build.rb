@@ -4,20 +4,22 @@ require 'open3'
 require 'optparse'
 require_relative './navigation'
 
-# Temporary build module to help migrate and build the Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
-# supported by Jekyll, as well as creating a hierarchical folder structure for nested documentation
+# This build module was used to migrate the old Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
+# supported by Jekyll. Jekyll was chosen as it was written in Ruby, which should reduce the barrier to entry for contributions.
+#
+# The build script took the flatlist of markdown files from the wiki, and converted them into the hierarchical folder structure
+# for nested documentation. This configuration is defiend in `navigation.rb`
+#
+# In the future a different site generator could be used, but it should be possible to use this build script again to migrate to a new format
 #
 # For now the doc folder only contains the key files for building the docs site and no content. The content is created on demand
-# from the metasploit-framework wiki on each build
-#
-# In the future, the markdown files will be committed directly to the metasploit-framework directory, the wiki history will be
-# merged with metasploit-framework, and the old wiki will no longer be updated.
+# from the `metasploit-framework.wiki` folder on each build
 module Build
   # The metasploit-framework.wiki files that are committed to Metasploit framework's repository
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
-  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki
+  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki - should no longer be required for normal workflows
   OLD_WIKI_PATH = 'metasploit-framework.wiki.old'.freeze
-  PRODUCTION_BUILD_ARTIFACTS = '_site'.freeze
+  RELEASE_BUILD_ARTIFACTS = '_site'.freeze
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
   # for each build. This allows changes to be made to the existing wiki until it's migrated
@@ -211,6 +213,7 @@ module Build
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
+
       markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
         new_path = new_path_for(old_path)
@@ -244,7 +247,7 @@ module Build
             File.basename(page[:path]).downcase == "#{File.basename(old_path)}".downcase)
       end
       if matched_pages.empty?
-        raise "Missing path for #{old_path}"
+        raise "Link not found: #{old_path}"
       end
       if matched_pages.count > 1
         raise "Duplicate paths for #{old_path}"
@@ -276,6 +279,7 @@ module Build
         '@zeroSteiner',
         '@harmj0y',
       ]
+      # These tags look like Github/Twitter handles, but are actually ruby/java code snippets
       ignored_tags = [
         '@harmj0yDescription',
         '@phpsessid',
@@ -368,7 +372,8 @@ module Build
           **page.slice(:title, :has_children, :nav_order),
           parent: (page[:parents][-1] || {})[:title],
           warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
-          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated"
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated",
+          has_content: !page[:path].nil?
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
@@ -382,7 +387,7 @@ module Build
         new_path = File.join(result_folder, page[:new_path])
         FileUtils.mkdir_p(File.dirname(new_path))
 
-        if page[:folder]
+        if page[:folder] && page[:path].nil?
           new_docs_content = preamble.rstrip + "\n"
         else
           old_path = File.join(WIKI_PATH, page[:path])
@@ -414,7 +419,7 @@ module Build
     def link_corrector_for(config)
       link_corrector = LinkCorrector.new(config)
       config.each do |page|
-        unless page[:folder]
+        unless page[:path].nil?
           content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
           link_corrector.extract(content)
         end
@@ -424,8 +429,8 @@ module Build
     end
   end
 
-  # Serve the production build at http://127.0.0.1:4000/metasploit-framework/
-  class ProductionServer
+  # Serve the release build at http://127.0.0.1:4000/metasploit-framework/
+  class ReleaseBuildServer
     autoload :WEBrick, 'webrick'
 
     def self.run
@@ -434,7 +439,7 @@ module Build
           Port: 4000
         }
       )
-      server.mount('/', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
+      server.mount('/', WEBrick::HTTPServlet::FileHandler, RELEASE_BUILD_ARTIFACTS)
       trap('INT') do
         server.shutdown
       rescue StandardError
@@ -539,11 +544,11 @@ module Build
     end
 
     if options[:production]
-      FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
       run_command('JEKYLL_ENV=production bundle exec jekyll build')
 
       if options[:serve]
-        ProductionServer.run
+        ReleaseBuildServer.run
       end
     elsif options[:serve]
       run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
@@ -589,6 +594,10 @@ if $PROGRAM_NAME == __FILE__
     opts.on('--create-wiki-to-framework-migration-branch') do
       options[:create_wiki_to_framework_migration_branch] = true
     end
+  end
+  if ARGV.length == 0
+    puts options_parser.help
+    exit 1
   end
   options_parser.parse!
 
