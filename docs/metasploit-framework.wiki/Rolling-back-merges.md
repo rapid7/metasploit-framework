@@ -18,35 +18,6 @@ The best way to diagnose these problems is simply to restart the build. Note, on
 
 Once, there was a bad merge on [PR #2320](https://github.com/rapid7/metasploit-framework/pull/2320). The fellow landing this pull request ran into a merge conflict while landing, thought he fixed it, and pushed the results, which ended up breaking about a dozen Rspec tests. Whoops. That was a bad merge. [PR #2624](https://github.com/rapid7/metasploit-framework/pull/2624) fixed it. Here's the procedure used.
 
-### Figure out what broke things.
-
-In this case, the failed build was pretty obvious:
-https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136 was
-red, and rerunning the GitHub Action didn't solve anything.
-Reading the build log, we can see that the updates broke two RSpec tests as noted at
-https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136#step:7:457,
-specifically around the way that the `lib/msf/core/exploit/remote/http/http_cookie.rb`
-library works (note the spec file always is the file name with `_spec.rb` appended to the
-end).
-
-Further investigation of this log would show
-https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136#step:7:480
-and the associated line 475, which shows that one test failed when testing if a URL with
-the HTTPS protocol is passed but it has no host, as it was expecting to receive a value of
-`false` but instead it got `true`.
-
-Looking further down the file we can see
-https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136#step:7:535
-which shows that the other RSpec test failed on a similar issue.
-
-We would now need to go into the code for these RSpec tests and figure out why they are
-failing. Of particular importance here is to also note that the other GitHub Actions all
-passed with similar setups and when running Ruby versions prior to 3.1, so its possible
-this was a 3.2 related issue.
-
-From here we could now go in and see if there are any changes to the code that need to be
-done to provide Ruby 3.2 compatibility.
-
 ### Check out the bad merge tip.
 
 These commands will put the local repo back to the bad merge, and create a local branch as such:
