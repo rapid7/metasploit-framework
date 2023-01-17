@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
+          'AKA' => ['getTGT', 'getST'],
           'Stability' => [ CRASH_SAFE ],
           'SideEffects' => [ ],
           'Reliability' => [ ]
@@ -67,6 +68,8 @@ class MetasploitModule < Msf::Auxiliary
         )
       ]
     )
+
+    deregister_options('KrbCacheMode')
   end
 
   def validate_options
@@ -119,8 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       realm: datastore['DOMAIN'],
       username: datastore['USER'],
       framework: framework,
-      framework_module: self,
-      ticket_storage: kerberos_ticket_storage
+      framework_module: self
     })
     options[:password] = datastore['PASSWORD'] if datastore['PASSWORD'].present?
     if datastore['NTHASH'].present?
@@ -142,12 +144,13 @@ class MetasploitModule < Msf::Auxiliary
   def action_get_tgt
     print_status("#{peer} - Getting TGT for #{datastore['USER']}@#{datastore['DOMAIN']}")
 
-    authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false) })
+    # Never attempt to use the kerberos cache when requesting a kerberos TGT, to ensure a request is made
+    authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false, write: true) })
     authenticator.request_tgt_only
   end
 
   def action_get_tgs
-    authenticator = init_authenticator(options)
+    authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: true, write: true) })
     credential = authenticator.request_tgt_only(options)
 
     if datastore['IMPERSONATE'].present?
@@ -163,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
       }
       tgs_ticket, _tgs_auth = authenticator.s4u2self(
         credential,
-        auth_options.merge(ticket_storage: kerberos_ticket_storage(read: false))
+        auth_options.merge(ticket_storage: kerberos_ticket_storage(read: false, write: true))
       )
 
       auth_options[:sname] = Rex::Proto::Kerberos::Model::PrincipalName.new(
