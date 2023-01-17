@@ -1,83 +1,98 @@
-# Workflow
+# Setting Up An AD CS Target
+Follow the instructions [[here|./Setting-Up-A-AD-CS-Target.md]] to set up a AD CS server
+for testing purposes.
+
+# Introduction to AD CS Vulnerabilities
 ```mermaid
 flowchart TD
-	subgraph Legend
-		NODE1[/Setup directions\]
-		NODE2{{Vulnerabilities}}
-		NODE3[Modules]
-		NODE4{Desired Outcomes}
-	end
-	setup[/How to set up an ESC target\] --> esc[ESC Finder Module]
-	esc[ESC Finder Module] --> escexp{Find vulnerable certificate templates}
-	escexp{Find vulnerable certificate templates} --> icpr[Issue certificates via icpr_cert]
+	escexp[Find vulnerable certificate templates\nvia ldap_esc_vulnerable_cert_finder] --> icpr[Issue certificates via icpr_cert]
 	icpr[Issue certificates via icpr_cert] --> ESC1{{ESC1}}
 	ESC1{{ESC1}} -- Via PKINIT --> pkinit{Authenticate to Kerberos}
 	icpr[Issue certificates via icpr_cert] --> users[Request certificates on behalf of other users]
 	users[Request certificates on behalf of other users] --> ESC2{{ESC2}}
 	users[Request certificates on behalf of other users] --> ESC3{{ESC3}}
-	ESC2{{ESC2}} -- Via PKINIT --> pkinit{Authenticate to Kerberos}
-	ESC3{{ESC3}} -- Via PKINIT --> pkinit{Authenticate to Kerberos}
+	ESC2{{ESC2}} -- Via PKINIT --> pkinit[Authenticate to Kerberos]
+	ESC3{{ESC3}} -- Via PKINIT --> pkinit[Authenticate to Kerberos]
 ```
-# How To Set Up An ESC Target
-## Installing AD CS
-- [ ] Install AD CS on either a new or existing domain controller
-    - [ ] Open the Server Manager
-    - [ ] Select Add roles and features
-    - [ ] Select "Active Directory Certificate Services" under the "Server Roles" section
-    - [ ] When prompted add all of the features and management tools
-    - [ ] On the AD CS "Role Services" tab, leave the default selection of only "Certificate Authority"
-    - [ ] Completion the installation and reboot the server
-    - [ ] Reopen the Server Manager
-    - [ ] Go to the AD CS tab and where it says "Configuration Required", hit "More" then "Configure Active Directory Certificate..."
-    - [ ] Select "Certificate Authority" in the Role Services tab
-    - [ ] Keep all of the default settings, noting the value of the "Common name for this CA" on the "CA Name" tab (this value corresponds to the `CA` datastore option)
-    - [ ] Accept the rest of the default settings and complete the configuration
 
-## Setting up a ESC1 Vulnerable Certificate Template
-- [ ] Open up the run prompt and type in `certsrv`.
-- [ ] In the window that appears you should see your list of certification authorities under `Certification Authority (Local)`. Right click on the folder in the drop down marked `Certificate Templates` and then click `Manage`.
-- [ ] Scroll down to the `User` certificate. Right click on it and select `Duplicate Template`.
-- [ ] From here you can refer to https://github.com/RayRRT/Active-Directory-Certificate-Services-abuse/blob/3da1d59f1b66dd0e381b2371b8fb42d87e2c9f82/ADCS.md for screenshots.
-- [ ] Select the `General` tab and rename this to something meaningful like `ESC1-Template`, then click the `Apply` button.
-- [ ] In the `Subject Name` tab, select `Supply in the request` and click `Ok` on the security warning that appears. Then click the `Apply` button.
-- [ ] Scroll to the `Extensions` tab and under `Application Policies` ensure that `Client Authentication`, `Server Authentication`, `KDC Authentication`, or `Smart Card Logon`  is listed. Then click the `Apply` button.
-- [ ] Under the `Security` tab make sure that `Domain Users` group listed and the `Enroll` permissions is marked as allowed for this group.
-- [ ] Under `Issuance Requirements` tab, ensure that under `Require the following for enrollment` that the `CA certificate manager approval` box is unticked, as is the `This number of authorized signatures` box.
-- [ ] Click `Apply` and then `Ok`
-- [ ] Go back to the `certsrv` screen and right click on the `Certificate Templates` folder. Then click `New` followed by `Certificate Template to Issue`.
-- [ ] Scroll down and select the `ESC1-Template` certificate, or whatever you named the ESC1 template you created, and select `OK`. The certificate should now be available to be issued by the CA server.
+The chart above showcases how one can go about attacking three common AD CS
+vulnerabilities, taking advantage of various flaws in how certificate templates are
+configured on an Active Directory Certificate Server.
 
-## Setting up a ESC2 Vulnerable Certificate Template
-- [ ] Open up `certsrv`
-- [ ] Scroll down to `Certificate Templates` folder, right click on it and select `Manage`.
-- [ ] Find the `ESC1` certificate template you created earlier and right click on that, then select `Duplicate Template`.
-- [ ] Select the `General` tab, and then name the template `ESC2-Template`. Then click `Apply`.
-- [ ] Go to the `Subject Name` tab and select `Build from this Active Directory Information` and select `Fully distinguished name` under the `Subject Name Format`. The main idea of setting this option is to prevent being able to supply the subject name in the request as this is more what makes the certificate vulnerable to ESC1. The specific options here I don't think will matter so much so long as the `Supply in the request` option isn't ticked. Then click `Apply`.
-- [ ] Go the to `Extensions` tab and click on `Application Policies`. Then click on `Edit`.
-- [ ] Delete all the existing application policies by clicking on them one by one and clicking the `Remove` button.
-- [ ] Click the `Add` button and select `Any Purpose` from the list that appears. Then click the `OK` button.
-- [ ] Click the `Apply` button, and then `OK`. The certificate should now be created.
-- [ ] Go back to the `certsrv` screen and right click on the `Certificate Templates` folder. Then click `New` followed by `Certificate Template to Issue`.
-- [ ] Scroll down and select the `ESC2-Template` certificate, or whatever you named the ESC2 template you created, and select `OK`. The certificate should now be available to be issued by the CA server.
+The following sections will walk through each of these steps, starting with enumerating
+certificate templates that the server has to offer and identifying those that are
+vulnerable to various misconfigurations and security flaws, followed by creating new
+certificates using these certificate templates with the `icpr_cert` Metasploit module,
+and finally using these certificates to authenticate to the domain as the domain
+administrator via Kerberos.
 
-## Setting up a ESC3 Template 1 Vulnerable Certificate Template
-- [ ] Follow the instructions above to duplicate the ESC2 template and name it `ESC3-Template1`, then click `Apply`.
-- [ ] Go to the `Extensions` tab, click the Application Policies entry, click the `Edit` button, and remove the `Any Purpose` policy and replace it with `Certificate Request Agent`, then click `OK`.
-- [ ] Click `Apply`.
-- [ ] Go to `Issuance Requirements` tab and double check that both `CA certificate manager approval` and `This number of authorized signatures` are unchecked.
-- [ ] Click `Apply` if any changes were made or the button is not grey'd out, then click `OK` to create the certificate.
-- [ ] Go back to the `certsrv` screen and right click on the `Certificate Templates` folder. Then click `New` followed by `Certificate Template to Issue`.
-- [ ] Scroll down and select the `ESC3-Template1` certificate, or whatever you named the ESC3 template number 1 template you just created, and select `OK`. The certificate should now be available to be issued by the CA server.
+Each certificate template vulnerability that will be discussed here has a ESC code, such
+as ESC1, ESC2, or ESC3. These ESC codes are taken from the original whitepaper that
+SpecterOps published which popularized these certificate template attacks, known as
+[Certified
+Pre-Owned](https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf).
+In this paper Will Schroeder and Lee Christensen described 8 different domain escalation
+attacks that they found they could conduct via misconfigured certificate templates:
 
-## Setting up a ESC3 Template 2 Vulnerable Certificate Template
-- [ ] Follow the instructions above to duplicate the ESC2 template and name it `ESC3-Template2`, then click `Apply`.
-- [ ] Go to the `Extensions` tab, click the Application Policies entry, click the `Edit` button, and remove the `Any Purpose` policy and replace it with `Client Authentication`, then click `OK`.
-- [ ] Click `Apply`.
-- [ ] Go to `Issuance Requirements` tab and double check that both `CA certificate manager approval` is unchecked.
-- [ ] Check the `This number of authorized signatures` checkbox and ensure the value specified is 1, and that the `Policy type required in signature` is set to `Application Policy`, and that the `Application policy` value is `Certificate Request Agent`.
-- [ ] Click `Apply` and then click `OK` to issue the certificate.
-- [ ] Go back to the `certsrv` screen and right click on the `Certificate Templates` folder. Then click `New` followed by `Certificate Template to Issue`.
-- [ ] Scroll down and select the `ESC3-Template2` certificate, or whatever you named the ESC3 template number 2 template you just created, and select `OK`. The certificate should now be available to be issued by the CA server.
+- ESC1 - Domain escalation via No Issuance Requirements + Enrollable Client
+  Authentication/Smart Card Logon OID templates + CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT
+- ESC2 - Domain escalation via No Issuance Requirements + Enrollable Any Purpose
+  EKU or no EKU
+- ESC3 - Domain escalation via No Issuance Requirements + Certificate Request
+  Agent EKU + no enrollment agent restrictions
+- ESC4 - Domain escalation via misconfigured certificate template access control
+- ESC5 - Domain escalation via vulnerable PKI AD Object Access Control
+- ESC6 - Domain escalation via the EDITF_ATTRIBUTESUBJECTALTNAME2 setting on CAs + No
+  Manager Approval + Enrollable Client Authentication/Smart Card Logon OID templates
+- ESC7 - Vulnerable Certificate Authority Access Control
+- ESC8 - NTLM Relay to AD CS HTTP Endpoints
+
+Later another
+[blog](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+came out from Oliver Lyak which discovered ESC9 and ESC10, two more vulnerabilities that
+could allow normal domain joined users to abuse certificate template misconfigurations to
+gain domain administrator privileges.
+
+- ESC9 - No Security Extension - CT_FLAG_NO_SECURITY_EXTENSION flag set in
+  `msPKI-EnrollmentFlag`. Also `StrongCertificateBindingEnforcement` not set to 2 or
+  `CertificateMappingMethods` contains `UPN` flag.
+- ESC10 - Weak Certificate Mappings -
+  `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\Schannel
+  CertificateMappingMethods` contains `UPN` bit aka `0x4` or
+  `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc StrongCertificateBindingEnforcement` is set to `0`.
+
+Finally, we have ESC11, which was discovered by Compass Security and described in their
+[blog
+post](https://blog.compass-security.com/2022/11/relaying-to-ad-certificate-services-over-rpc/).
+
+- ESC11 - Relaying NTLM to ICPR - Relaying NTLM authentication to unprotected RPC
+  interface is allowed due to lack of the `IF_ENFORCEENCRYPTICERTREQUEST` flag on `Config.CA.Interface.Flags`.
+
+Currently Metasploit only supports attacking ESC1 to ESC3. Plans are in the works to add
+support for more ESC attacks in the future. As such this paper only covers exploiting ESC1
+to ESC3 at this time.
+
+Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
+as the diagram notes above. This is because in ESC1, one has control over the
+`subjectAltName` field in the generated certificate, which is also known as the `SAN`
+field. This field allows one to specify who the certificate should authenticate as.
+Therefore, all an attacker needs to do is simply modify this field and they can gain a
+certificate that allows them to authenticate as any user they wish.
+
+ESC2 and ESC3 are a little different in that they don't allow one to edit the
+`subjectAltName` field, so instead an attacker has to utilize the fact that these
+certificate templates supply either the extended key usage value `Any Purpose EKU`, which
+allows you to use the generate certificate for any purpose, or they don't supply any EKU
+properties at all, which has the same effect, but also allows you to sign new
+certificates.
+
+In Metasploit we take advantage of this ability to request a certificate which can be used
+for any purpose to request a certificate that can be used to authenticate to the domain on
+behalf of another user, thereby giving us permission to access the domain as a more
+privileged user. These attacks therefore require two steps: one to get the certificate
+that gives us permission to issue certificates on behalf of another user, and another
+to get the certificate that actually allows us to authenticate on behalf of a given user,
+and escalate our privileges.
 
 # Finding Vulnerable ESC Templates Using ldap_esc_vulnerable_cert_finder
 Before one can exploit vulnerable ESC templates to elevate privileges, it is necessary to first find a list of vulnerable templates that exist on a domain.
@@ -87,7 +102,7 @@ templates they make available for enrollment. It will then also query the permis
 which users or groups can use that certificate template to elevate their privileges.
 
 Keep in mind though that there are two sets of permissions in play here though. There is one set of permissions on the CA server that control
-who is able to enroll in any certificiate template from that server, and second set of permissions that control who is allowed to enroll in
+who is able to enroll in any certificate template from that server, and second set of permissions that control who is allowed to enroll in
 a specific certificate template, which is applied to the certificate template itself. Therefore, the module will also specify which users are
 allowed to enroll in a specific template on a specific CA server, in order to make it as clear as possible which users or groups one needs
 to have access to in order to exploit the vulnerable certificate template.
