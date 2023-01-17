@@ -57,6 +57,13 @@ Copyright: 2018
 License: GNU GPL 3
 Purpose: This supports exploits/windows/local/ms18_8120_win32k_privesc module
 
+Files: external/source/exploits/CVE-2022-22942/cve-2022-22942-dc.c
+Copyright: 2022 Open Source Security, Inc.
+License: GNU GPL 2.0
+Purpose: This source file is necessary for users to create a stand-alone executable
+         to exploit CVE-2022-22942, a local privilege escalation vulnerability in
+         Linux kernels 4.14-rc1 - 5.17-rc1.
+
 Files: exteneral/source/exploits/CVE-2022-26904/*
 Copyright: 2022 Abdelhamid Naceri
 License: MIT
@@ -238,36 +245,11 @@ Purpose: This module crashes the Xen 4.2.0 hypervisor when run in a
          paravirtualized VM. It contains a short code section licensed through
          GPL.
 
-<<<<<<< HEAD
 Files: tools/exploit/metasm_shell.rb
 Copyright: 2007, Yoann GUILLOT
 License: LGPL
 Purpose: Allows users to invoke an interactive metasm shell to get opcodes from
 assembly instructions.
-=======
-Files: data/jtr/*
-Copyright: Copyright 1996-2013 by Solar Designer
-License: GNU GPL 2.0
-
-Files: external/source/exploits/CVE-2022-22942/cve-2022-22942-dc.c
-Copyright: 2022 Open Source Security, Inc.
-License: GNU GPL 2.0
-Purpose: This source file is necessary for users to create a stand-alone executable
-         to exploit CVE-2022-22942, a local privilege escalation vulnerability in
-         Linux kernels 4.14-rc1 - 5.17-rc1.
-
-Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
-Copyright: 2011 Jon Bringhurst
-License: GNU GPL 2.0
-
-Files: external/source/evasion/windows/process_herpaderping/ProcessHerpaderping/*
-Copyright: 2020 Johnny Shaw
-License: MIT
-
-Files: exteneral/source/exploits/CVE-2022-26904/*
-Copywrite: 2022 Abdelhamid Naceri
-License: MIT
->>>>>>> 3dde5cd511 (Update LICENSE file and location of source file)
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,
