@@ -88,6 +88,10 @@ NAVIGATION_CONFIG = [
         title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
       },
       {
+        path: 'Setting-Up-A-AD-CS-Target.md',
+        title: 'Setting up a Vulnerable AD CS Target'
+      },
+      {
         nav_order: 5,
         path: 'Metasploit-Guide-Kubernetes.md',
         title: without_prefix('Metasploit Guide ')
