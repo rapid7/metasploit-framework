@@ -2,10 +2,13 @@ Since the Metasploit-framework repository's master branch is the bleeding edge o
 
 # What's a bad merge?
 
- * Anything that causes [Travis-CI](https://travis-ci.org/rapid7/metasploit-framework/builds) to fail rspec tests consistently.
+ * Anything that causes our GitHub Actions to fail consistently.
  * Anything that hits untested code that otherwise causes problems with `msfconsole`, `msfcli`, `msfvenom`, and other console commands.
 
-Sometimes, Travis-CI does choke up, due to network weather. Every build is a fresh clone, and all gems have to be reinstalled every time. Also, some rspec tests require network connections to assets on the Internet. Sometimes, Travis-CI itself is under a lot of load, and builds time out.
+Sometimes, GitHub Actions might choke up, due to network weather. Every build is a fresh
+clone, and all gems have to be reinstalled every time. Also, some rspec tests require
+network connections to assets on the Internet. Sometimes, GitHub Actions servers are under a lot of
+load, and builds time out.
 
 The best way to diagnose these problems is simply to restart the build. Note, only [Committers](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights) have rights to do this. If that doesn't clear things up, or if it's obvious that there are real failures (since you've read the rspec results and have read the tests), the first order of business is to undo your bad commit.
 
@@ -17,7 +20,32 @@ Once, there was a bad merge on [PR #2320](https://github.com/rapid7/metasploit-f
 
 ### Figure out what broke things.
 
-In this case, the failed build was pretty obvious: [Build #5216](https://travis-ci.org/rapid7/metasploit-framework/builds/13816889) was red, and rerunning Travis-CI didn't solve. Reading the build log, we can see this was [merge commit 3996557](http://github.com/rapid7/metasploit-framework/commit/3996557ec61a6eeefaa3448480012205b8825374).
+In this case, the failed build was pretty obvious:
+https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136 was
+red, and rerunning the GitHub Action didn't solve anything.
+Reading the build log, we can see that the updates broke two RSpec tests as noted at
+https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136#step:7:457,
+specifically around the way that the `lib/msf/core/exploit/remote/http/http_cookie.rb`
+library works (note the spec file always is the file name with `_spec.rb` appended to the
+end).
+
+Further investigation of this log would show
+https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136#step:7:480
+and the associated line 475, which shows that one test failed when testing if a URL with
+the HTTPS protocol is passed but it has no host, as it was expecting to receive a value of
+`false` but instead it got `true`.
+
+Looking further down the file we can see
+https://github.com/rapid7/metasploit-framework/actions/runs/3913174060/jobs/6693468136#step:7:535
+which shows that the other RSpec test failed on a similar issue.
+
+We would now need to go into the code for these RSpec tests and figure out why they are
+failing. Of particular importance here is to also note that the other GitHub Actions all
+passed with similar setups and when running Ruby versions prior to 3.1, so its possible
+this was a 3.2 related issue.
+
+From here we could now go in and see if there are any changes to the code that need to be
+done to provide Ruby 3.2 compatibility.
 
 ### Check out the bad merge tip.
 
