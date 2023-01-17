@@ -17,7 +17,7 @@ The following ACTIONS are supported:
 - Do: `use auxiliary/admin/kerberos/get_ticket`
 - Do: `run rhosts=<remote host> domain=<domain> user=<username> password=<password> action=GET_TGT`
 - You should see that the TGT is correctly retrieved and stored in loot as well as the klist command
-- Try with the NT hash (`NTHASH` option) and the encryption key (`AESKEY`
+- Try with the NT hash (`NTHASH` option) and the encryption key (`AES_KEY`
   option) instead of the password
 - Do: `run rhosts=<remote host> domain=<domain> user=<username> password=<password> action=GET_TGS spn=<SPN>`
 - You should see that the module uses the TGT in the cache and does not request a new one
@@ -25,7 +25,7 @@ The following ACTIONS are supported:
 - Do: `run rhosts=<remote host> domain=<domain> user=<username> password=<password> action=GET_TGS spn=<SPN> KrbUseCachedCredentials=false`
 - You should see the module does not use the TGT in the cache and requests a new one
 - You should see both the TGT and the TGS are correctly retrieved and stored in the loot
-- Try with the NT hash (`NTHASH` option) and the encryption key (`AESKEY` option) instead of the password
+- Try with the NT hash (`NTHASH` option) and the encryption key (`AES_KEY` option) instead of the password
 
 ## Options
 
@@ -42,7 +42,7 @@ The user's password to use.
 The user's NT hash in hex string to authenticate with. Not that the DC must
 support RC4 encryption.
 
-### AESKEY
+### AES_KEY
 The user's AES key to use for Kerberos authentication in hex string. Supported
 keys: 128 or 256 bits.
 
@@ -106,7 +106,7 @@ host             port  proto  name      state  info
 TGT with encryption key
 
 ```
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=Administrator AESKEY=<redacted> action=GET_TGT
+msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=Administrator AES_KEY=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
@@ -153,7 +153,7 @@ host             service  type                 name  content                   i
 TGS with encryption key:
 
 ```
-msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=Administrator AESKEY=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
+msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=Administrator AES_KEY=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
 [+] 10.0.0.24:88 - Received a valid TGT-Response
@@ -214,7 +214,7 @@ host             service  type                 name  content                   i
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=Administrator action=GET_TGS spn=cifs/dc02.mylab.local KrbUseCachedCredentials=false
 [*] Running module against 10.0.0.24
 
-[-] Auxiliary aborted due to failure: unknown: Error while requesting a TGT: Kerberos Error - KDC_ERR_PREAUTH_REQUIRED (25) - Additional pre-authentication required - Check the authentication-related options (PASSWORD, NTHASH or AESKEY)
+[-] Auxiliary aborted due to failure: unknown: Error while requesting a TGT: Kerberos Error - KDC_ERR_PREAUTH_REQUIRED (25) - Additional pre-authentication required - Check the authentication-related options (PASSWORD, NTHASH or AES_KEY)
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local user=Administrator action=GET_TGS spn=cifs/dc02.mylab.local KrbUseCachedCredentials=false password=<redacted>
 [*] Running module against 10.0.0.24

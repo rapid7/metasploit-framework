@@ -8,6 +8,61 @@ RSpec.describe Msf::Serializer::ReadableText do
   let(:indent_string) { '' }
   let(:indent_length) { indent_string.length }
 
+  let(:default_module_options) do
+    [
+      Msf::Opt::RHOSTS,
+      Msf::Opt::RPORT(3000),
+      Msf::OptString.new(
+        'foo',
+        [true, 'Foo option', 'bar']
+      ),
+      Msf::OptString.new(
+        'fizz',
+        [true, 'fizz option', 'buzz']
+      ),
+      Msf::OptString.new(
+        'baz',
+        [true, 'baz option', 'qux']
+      ),
+      Msf::OptString.new(
+        'OptionWithModuleDefault',
+        [true, 'option with module default', true]
+      ),
+      Msf::OptFloat.new('FloatValue', [false, 'A FloatValue ', 3.5]),
+      Msf::OptString.new(
+        'NewOptionName',
+        [true, 'An option with a new name. Aliases ensure the old and new names are synchronized', 'default_value'],
+        aliases: ['OLD_OPTION_NAME']
+      ),
+      Msf::OptString.new(
+        'SMBUser',
+        [true, 'The SMB username'],
+        fallbacks: ['username']
+      ),
+      Msf::OptString.new(
+        'SMBDomain',
+        [true, 'The SMB username', 'WORKGROUP'],
+        aliases: ['WindowsDomain'],
+        fallbacks: ['domain']
+      )
+    ]
+  end
+
+  let(:default_advanced_module_options) do
+    [
+      Msf::OptEnum.new('DigestAlgorithm', [ true, 'The digest algorithm to use', 'SHA256', %w[SHA1 SHA256] ])
+    ]
+  end
+
+  let(:module_options) { default_module_options }
+  let(:advanced_module_options) {  default_advanced_module_options }
+
+  # (see Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options#kerberos_auth_options)
+  def kerberos_auth_options(protocol:, auth_methods:)
+    mixin = Class.new.extend(Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options)
+    mixin.kerberos_auth_options(protocol: protocol, auth_methods: auth_methods)
+  end
+
   let(:aux_mod) do
     mod_klass = Class.new(Msf::Auxiliary) do
       def initialize
@@ -22,50 +77,12 @@ RSpec.describe Msf::Serializer::ReadableText do
             'baz' => 'baz_from_module'
           },
         )
-
-        register_options(
-          [
-            Msf::Opt::RHOSTS,
-            Msf::Opt::RPORT(3000),
-            Msf::OptString.new(
-              'foo',
-              [true, 'Foo option', 'bar']
-            ),
-            Msf::OptString.new(
-              'fizz',
-              [true, 'fizz option', 'buzz']
-            ),
-            Msf::OptString.new(
-              'baz',
-              [true, 'baz option', 'qux']
-            ),
-            Msf::OptString.new(
-              'OptionWithModuleDefault',
-              [true, 'option with module default', true]
-            ),
-            Msf::OptFloat.new('FloatValue', [false, 'A FloatValue ', 3.5]),
-            Msf::OptString.new(
-              'NewOptionName',
-              [true, 'An option with a new name. Aliases ensure the old and new names are synchronized', 'default_value'],
-              aliases: ['OLD_OPTION_NAME']
-            ),
-            Msf::OptString.new(
-              'SMBUser',
-              [true, 'The SMB username'],
-              fallbacks: ['username']
-            ),
-            Msf::OptString.new(
-              'SMBDomain',
-              [true, 'The SMB username', 'WORKGROUP'],
-              aliases: ['WindowsDomain'],
-              fallbacks: ['domain']
-            )
-          ]
-        )
       end
     end
 
     mod = mod_klass.new
+    mod.send(:register_options, module_options)
+    mod.send(:register_advanced_options, advanced_module_options)
     mock_framework = instance_double(::Msf::Framework, datastore: Msf::DataStore.new)
     allow(mod).to receive(:framework).and_return(mock_framework)
     mod
@@ -108,6 +125,7 @@ RSpec.describe Msf::Serializer::ReadableText do
   
           Name                     Value
           ----                     -----
+          DigestAlgorithm          SHA256
           FloatValue               5
           NewOptionName
           OptionWithModuleDefault  false
@@ -152,6 +170,38 @@ RSpec.describe Msf::Serializer::ReadableText do
           Name           Current Setting  Required  Description
           ----           ---------------  --------  -----------
           NewOptionName                   yes       An option with a new name. Aliases ensure the old and new names are synchronized
+        TABLE
+      end
+    end
+  end
+
+  describe '.dump_advanced_options', if: ENV['DATASTORE_FALLBACKS'] do
+    context 'when kerberos options are present' do
+      let(:advanced_module_options) do
+        [
+          *default_advanced_module_options,
+          *kerberos_auth_options(protocol: 'Winrm', auth_methods: Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS),
+        ]
+      end
+
+      it 'returns the options as a table' do
+        expect(described_class.dump_advanced_options(aux_mod_with_set_options, indent_string)).to match_table <<~TABLE
+           Name             Current Setting  Required  Description
+           ----             ---------------  --------  -----------
+           Auth             auto             yes       The Authentication mechanism to use (Accepted: auto, ntlm, kerberos, plaintext)
+           DigestAlgorithm  SHA256           yes       The digest algorithm to use (Accepted: SHA1, SHA256)
+           VERBOSE          false            no        Enable detailed status messages
+           WORKSPACE                         no        Specify the workspace for this module
+
+
+           When Winrm::Auth == kerberos:
+
+           Name                       Current Setting                                   Required  Description
+           ----                       ---------------                                   --------  -----------
+           DomainControllerRhost                                                        no        The resolvable rhost for the Domain Controller
+           Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
+           KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
+           Rhostname                                                                    no        The rhostname which is required for kerberos - the SPN
         TABLE
       end
     end

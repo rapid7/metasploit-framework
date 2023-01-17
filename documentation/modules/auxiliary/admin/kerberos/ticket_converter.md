@@ -92,7 +92,7 @@ cat ticket.b64 | base64 -D > ticket.kirbi
 8. Example usage in Metasploit:
    ```
    use windows/smb/psexec
-   run rhost=192.168.123.13 username=Administrator domaincontrollerrhost=192.168.123.1 smbauth=kerberos smbrhostname=host.demo.local smbdomain=demo.local smbkrb5ccname=/path/to/ccache/ticket 
+   run rhost=192.168.123.13 username=Administrator domaincontrollerrhost=192.168.123.1 auth=kerberos smbrhostname=host.demo.local domain=demo.local krb5ccname=/path/to/ccache/ticket
    ```
 9. Example usage in impacket:
    ```

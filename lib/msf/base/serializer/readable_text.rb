@@ -544,48 +544,60 @@ class ReadableText
   # @param missing [Boolean] dump only empty required options.
   # @return [String] the string form of the information.
   def self.dump_options(mod, indent = '', missing = false)
-    tbl = Rex::Text::Table.new(
-      'Indent'  => indent.length,
-      'Columns' =>
-        [
-          'Name',
-          'Current Setting',
-          'Required',
-          'Description'
-        ])
-
-    mod.options.sorted.each do |name, opt|
-      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
-        val = mod.datastore[name]
-      else
-        val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
-      end
-
-      next unless Msf::OptCondition.show_option(mod, opt)
-      next if (opt.advanced?)
-      next if (opt.evasion?)
-      next if (missing && opt.valid?(val))
-
-      desc = opt.desc.dup
-
-      # Hint at RPORT proto by regexing mixins
-      if name == 'RPORT' && opt.kind_of?(Msf::OptPort)
-        mod.class.included_modules.each do |m|
-          case m.name
-          when /tcp/i, /HttpClient$/
-            desc << ' (TCP)'
-            break
-          when /udp/i
-            desc << ' (UDP)'
-            break
-          end
-        end
-      end
-
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", desc ]
+    options = mod.options.map { |name, option| option }
+    options_grouped_by_conditions = options.group_by do |option|
+      option.conditions
     end
 
-    return tbl.to_s
+    result = "".dup
+    options_grouped_by_conditions.each do |conditions, options|
+      tbl = Rex::Text::Table.new(
+        'Indent'  => indent.length,
+        'Columns' =>
+          [
+            'Name',
+            'Current Setting',
+            'Required',
+            'Description'
+          ])
+
+      options.sort_by(&:name).each do |opt|
+        name = opt.name
+        if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+          val = mod.datastore[name]
+        else
+          val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+        end
+
+        next if (opt.advanced?)
+        next if (opt.evasion?)
+        next if (missing && opt.valid?(val))
+
+        desc = opt.desc.dup
+
+        # Hint at RPORT proto by regexing mixins
+        if name == 'RPORT' && opt.kind_of?(Msf::OptPort)
+          mod.class.included_modules.each do |m|
+            case m.name
+            when /tcp/i, /HttpClient$/
+              desc << ' (TCP)'
+              break
+            when /udp/i
+              desc << ' (UDP)'
+              break
+            end
+          end
+        end
+
+        tbl << [ opt.display_name || name, opt.display_value(val), opt.required? ? "yes" : "no", desc ]
+      end
+
+      next if conditions.any? && tbl.rows.empty?
+      result << "\n\n#{indent}When #{Msf::OptCondition.format_conditions(mod, options.first)}:\n\n" if conditions.any?
+      result << tbl.to_s
+    end
+
+    return result
   end
 
   # Dumps the advanced options associated with the supplied module.
@@ -594,28 +606,39 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_advanced_options(mod, indent = '')
-    tbl = Rex::Text::Table.new(
-      'Indent'  => indent.length,
-      'Columns' =>
-        [
-          'Name',
-          'Current Setting',
-          'Required',
-          'Description'
-        ])
+    options = mod.options.map { |name, option| option }
+    options_grouped_by_conditions = options.group_by do |option|
+      option.conditions
+    end
+    result = "".dup
+    options_grouped_by_conditions.each do |conditions, options|
+      tbl = Rex::Text::Table.new(
+        'Indent'  => indent.length,
+        'Columns' =>
+          [
+            'Name',
+            'Current Setting',
+            'Required',
+            'Description'
+          ])
 
-    mod.options.sorted.each do |name, opt|
-      next unless opt.advanced?
-      next unless Msf::OptCondition.show_option(mod, opt)
-      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
-        val = mod.datastore[name]
-      else
-        val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+      options.sort_by(&:name).each do |opt|
+        next unless opt.advanced?
+        name = opt.name
+        if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+          val = mod.datastore[name]
+        else
+          val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
+        end
+        tbl << [ opt.display_name || name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
       end
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+
+      next if conditions.any? && tbl.rows.empty?
+      result << "\n\n#{indent}When #{Msf::OptCondition.format_conditions(mod, options.first)}:\n\n" if conditions.any?
+      result << tbl.to_s
     end
 
-    return tbl.to_s
+    result
   end
 
   # Dumps the evasion options associated with the supplied module.

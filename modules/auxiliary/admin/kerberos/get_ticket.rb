@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         ),
         OptString.new(
-          'AESKEY', [
+          'AES_KEY', [
             false,
             'The AES key to use for Kerberos authentication in hex string. Supported keys: 128 or 256 bits'
           ]
@@ -68,8 +68,6 @@ class MetasploitModule < Msf::Auxiliary
         )
       ]
     )
-
-    deregister_options('KrbCacheMode')
   end
 
   def validate_options
@@ -77,9 +75,9 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH must be a hex string of 32 characters (128 bits)')
     end
 
-    if datastore['AESKEY'].present? && !datastore['AESKEY'].match(/^(\h{32}|\h{64})$/)
+    if datastore['AES_KEY'].present? && !datastore['AES_KEY'].match(/^(\h{32}|\h{64})$/)
       fail_with(Msf::Exploit::Failure::BadConfig,
-                'AESKEY must be a hex string of 32 characters for 128-bits AES keys or 64 characters for 256-bits AES keys')
+                'AES_KEY must be a hex string of 32 characters for 128-bits AES keys or 64 characters for 256-bits AES keys')
     end
 
     if action.name == 'GET_TGS' && datastore['SPN'].blank?
@@ -111,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     msg = e.to_s
     if e.respond_to?(:error_code) &&
        e.error_code == ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_PREAUTH_REQUIRED
-      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AESKEY)'
+      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AES_KEY)'
     end
     fail_with(Failure::Unknown, msg)
   end
@@ -129,8 +127,8 @@ class MetasploitModule < Msf::Auxiliary
       options[:key] = [datastore['NTHASH']].pack('H*')
       options[:offered_etypes] = [ Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC ]
     end
-    if datastore['AESKEY'].present?
-      options[:key] = [ datastore['AESKEY'] ].pack('H*')
+    if datastore['AES_KEY'].present?
+      options[:key] = [ datastore['AES_KEY'] ].pack('H*')
       options[:offered_etypes] = if options[:key].size == 32
                                    [ Rex::Proto::Kerberos::Crypto::Encryption::AES256 ]
                                  else

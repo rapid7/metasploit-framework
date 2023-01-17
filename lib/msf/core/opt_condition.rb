@@ -3,6 +3,9 @@ module Msf
   module OptCondition
 
     # Check a condition's result
+    # @param [Msf::Module] mod The module module
+    # @param [Msf::OptBase] opt the option which has conditions present
+    # @return [String]
     def self.eval_condition(left_value, operator, right_value)
       case operator.to_sym
       when :==
@@ -13,6 +16,34 @@ module Msf
         right_value.include?(left_value)
       when :nin
         !right_value.include?(left_value)
+      end
+    end
+
+    # Format an option's conditions as a human readable string
+    # @param [Msf::Module] mod The module module
+    # @param [Msf::OptBase] opt the option which has conditions present
+    # @return [String]
+    def self.format_conditions(_mod, opt)
+      left_source = opt.conditions[0]
+      operator = opt.conditions[1]
+      right_value = opt.conditions[2]
+      expects_blank_values = Array(right_value).all? { |value| value.blank? }
+
+      case operator.to_sym
+      when :==, :!=
+        "#{left_source} #{operator} #{right_value}"
+      when :in
+        if expects_blank_values
+          return "#{left_source} is blank"
+        end
+        "#{left_source} #{operator} #{right_value.join(",")}"
+      when :nin
+        if expects_blank_values
+          return "#{left_source} is not blank"
+        end
+        "#{left_source} not in #{right_value.join(",")}"
+      else
+        "placeholder"
       end
     end
 

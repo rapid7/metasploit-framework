@@ -26,7 +26,7 @@ module Msf
     #
     def initialize(in_name, attrs = [],
                    required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, aliases: [], max_length: nil,
-                   fallbacks: [])
+                   fallbacks: [], display_name: nil)
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
@@ -34,6 +34,11 @@ module Msf
       self.max_length = max_length
       self.conditions = conditions
       self.fallbacks = fallbacks
+      self.display_name = display_name || self.name
+
+      if fallbacks.include?(in_name)
+        raise ArgumentError, "Option #{in_name} contains self-referential fallback: #{fallbacks.join(",")}"
+      end
 
       if attrs.is_a?(String) || attrs.length == 0
         self.required = required
@@ -224,6 +229,9 @@ module Msf
     #
     # @return [Array<String>] the array of fallbacks
     attr_accessor :fallbacks
+
+    # @return String The display name shown to the user
+    attr_accessor :display_name
 
     #
     # The max length of the input value

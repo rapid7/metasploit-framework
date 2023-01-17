@@ -9,8 +9,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::AuthOption
-  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
 
   def initialize
     super(
@@ -55,18 +53,18 @@ class MetasploitModule < Msf::Auxiliary
         retry_limit: 1,
         realm: datastore['DOMAIN']
     }
-    case datastore['WinrmAuth']
+    case datastore['Winrm::Auth']
     when KERBEROS
       kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
         host: datastore['DomainControllerRhost'],
-        hostname: datastore['WinrmRhostname'],
+        hostname: datastore['Winrm::Rhostname'],
         realm: datastore['DOMAIN'],
         username: datastore['USERNAME'],
         password: datastore['PASSWORD'],
         timeout: 20, # datastore['timeout']
         framework: framework,
         framework_module: self,
-        cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
+        cache_file: datastore['Winrm::Rhostname'].blank? ? nil : datastore['Winrm::Rhostname'],
         mutual_auth: true,
         use_gss_checksum: true,
         ticket_storage: kerberos_ticket_storage,

@@ -63,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      # Using USERNAME, PASSWORD and DOMAIN options defined by the LDAP mixin
       OptString.new('DC_NAME', [ true, 'Name of the domain controller being targeted (must match RHOST)' ]),
       OptInt.new('LDAP_PORT', [true, 'LDAP port (default is 389 and default encrypted is 636)', 636]), # Set to 636 for legacy SSL
       OptString.new('DOMAIN', [true, 'The domain to authenticate to']),
@@ -160,8 +159,8 @@ class MetasploitModule < Msf::Auxiliary
       if @privesc_success
         # If the privilege escalation succeeded, let'use the cached TGS
         # impersonating the admin to delete the computer account
-        datastore['SMBAuth'] = Msf::Exploit::Remote::AuthOption::KERBEROS
-        datastore['SmbRhostname'] = "#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
+        datastore['SMB::Auth'] = Msf::Exploit::Remote::AuthOption::KERBEROS
+        datastore['SMB::Rhostname'] = "#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
         datastore['SMBDomain'] = datastore['DOMAIN']
         datastore['DomainControllerRhost'] = rhost
         tree = connect_smb(username: datastore['IMPERSONATE'])
@@ -213,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['SMBPass'] = password
     datastore['SMBDomain'] = domain
 
-    if datastore['SMBAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
+    if datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
       vprint_status("Connecting SMB with #{username}.#{domain} using Kerberos authentication")
     else
       vprint_status("Connecting SMB with #{username}.#{domain}:#{password}")
