@@ -40,8 +40,10 @@ def merge_error_message
   puts "-" * 72
 end
 
-valid = true # Presume validity
-files_to_check = []
+modules_valid = true # Presume validity
+docs_valid = true # Presume validity
+modules_to_check = []
+docs_to_check = []
 
 # Who called us? If it's a post-merge check things operate a little
 # differently.
@@ -62,22 +64,24 @@ else
   changed_files = run('git diff --cached --name-only')
 end
 
+# Create two separate lists containing the modules
+# and documentation files that were changed.
 changed_files.each_line do |fname|
   fname.strip!
   next unless File.exist?(fname)
   next unless File.file?(fname)
-  next unless fname =~ /^modules.+\.rb/
-  files_to_check << fname
+  modules_to_check << fname if fname =~ /^modules.+\.rb/
+  docs_to_check << fname if fname =~ /^documentation\/modules\/.+\.md/
 end
 
-if files_to_check.empty?
+if modules_to_check.empty?
   puts "--- No Metasploit modules to check ---"
 else
   puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
-  files_to_check.each do |fname|
+  modules_to_check.each do |fname|
     command = "bundle exec ruby ./tools/dev/msftidy.rb #{fname}"
     msftidy_output, status = ::Open3.capture2(command)
-    valid = false unless status.success?
+    modules_valid = false unless status.success?
     puts "#{fname} - msftidy check passed" if msftidy_output.empty?
     msftidy_output.each_line do |line|
       puts line
@@ -86,7 +90,27 @@ else
   puts "-" * 72
 end
 
-unless valid
+if docs_to_check.empty?
+  puts "--- No documentation changes to check ---"
+else
+  puts "--- Checking new and changed documentation syntax with tools/dev/msftidy_docs.rb ---"
+  # msftidy_docs status codes
+  MSFTIDY_DOCS_OK       = 0
+  MSFTIDY_DOCS_WARNING  = 1
+  MSFTIDY_DOCS_ERROR    = 2
+  docs_to_check.each do |fname|
+    command = "bundle exec ruby ./tools/dev/msftidy_docs.rb #{fname}"
+    msftidy_docs_output, status = ::Open3.capture2(command)
+    raw_status = status.to_i
+    docs_valid = false unless raw_status == MSFTIDY_DOCS_OK || raw_status == MSFTIDY_DOCS_WARNING
+    puts "#{fname} - msftidy_docs check passed" if msftidy_docs_output.empty?
+    msftidy_docs_output.each_line do |line|
+      puts line
+    end
+  end
+end
+
+unless modules_valid
   if base_caller == :post_merge
     puts merge_error_message
     exit(0x10)
@@ -96,5 +120,4 @@ unless valid
     puts "-" * 72
     exit(0x01)
   end
-
 end
