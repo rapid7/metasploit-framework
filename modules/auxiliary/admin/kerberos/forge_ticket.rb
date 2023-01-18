@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
-        OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], regex: %r{.*/.*}),
+        OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)']),
         OptInt.new('DURATION', [ true, 'Duration of the ticket in days', 3650]),
       ]
     )
@@ -94,14 +94,17 @@ class MetasploitModule < Msf::Auxiliary
   def forge_silver
     raise Msf::OptionValidateError, 'SPN' if datastore['SPN'].blank?
 
-    validate_key
+    validate_spn!
+    validate_sid!
+    validate_key!
     sname = datastore['SPN'].split('/', 2)
     flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
     forge_ccache(sname: sname, flags: flags)
   end
 
   def forge_golden
-    validate_key
+    validate_sid!
+    validate_key!
     sname = ['krbtgt', datastore['DOMAIN'].upcase]
     flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
     forge_ccache(sname: sname, flags: flags)
@@ -126,7 +129,19 @@ class MetasploitModule < Msf::Auxiliary
     [enc_key, enc_type]
   end
 
-  def validate_key
+  def validate_spn!
+    unless datastore['SPN'] =~ %r{.*/.*}
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid SPN - must be in the format .*/.*. Ex. <service class>/<host><realm>:<port>/<service name>')
+    end
+  end
+
+  def validate_sid!
+    unless datastore['DOMAIN_SID'] =~ /^S-1-[0-59]-\d{2}/
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid DOMAIN_SID. Ex: S-1-5-21-1266190811-2419310613-1856291569')
+    end
+  end
+
+  def validate_key!
     if datastore['NTHASH'].blank? && datastore['AES_KEY'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH or AES_KEY must be set for forging a ticket')
     elsif datastore['NTHASH'].present? && datastore['AES_KEY'].present?
