@@ -30,7 +30,17 @@ def run(command, exception: true)
   stdout
 end
 
-def merge_error_message
+def docs_merge_error_message
+  msg = []
+  msg << "[*] This merge contains modules failing msftidy_docs.rb"
+  msg << "[*] Please fix this if you intend to publish these"
+  msg << "[*] modules to a popular metasploit-framework repo"
+  puts "-" * 72
+  puts msg.join("\n")
+  puts "-" * 72
+end
+
+def module_merge_error_message
   msg = []
   msg << "[*] This merge contains modules failing msftidy.rb"
   msg << "[*] Please fix this if you intend to publish these"
@@ -112,10 +122,22 @@ end
 
 unless modules_valid
   if base_caller == :post_merge
-    puts merge_error_message
+    puts module_merge_error_message
     exit(0x10)
   else
     puts "[!] msftidy.rb objected, aborting commit"
+    puts "[!] To bypass this check use: git commit --no-verify"
+    puts "-" * 72
+    exit(0x01)
+  end
+end
+
+unless docs_valid
+  if base_caller == :post_merge
+    puts docs_merge_error_message
+    exit(0x10)
+  else
+    puts "[!] msftidy_docs.rb objected, aborting commit"
     puts "[!] To bypass this check use: git commit --no-verify"
     puts "-" * 72
     exit(0x01)
