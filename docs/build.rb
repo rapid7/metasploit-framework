@@ -255,8 +255,20 @@ module Build
       if matched_pages.empty?
         raise "Link not found: #{old_path}"
       end
+      # Additional filter for absolute paths if there's potential ambiguity
       if matched_pages.count > 1
-        raise "Duplicate paths for #{old_path}"
+        refined_pages = matched_pages.select do |page|
+          !page[:folder] &&
+            (page[:path].downcase == "#{old_path}.md".downcase ||
+              page[:path].downcase == old_path.downcase)
+        end
+
+        if refined_pages.count != 1
+          page_paths = matched_pages.map { |page| page[:path] }
+          raise "Duplicate paths for #{old_path} - possible page paths found: #{page_paths}"
+        end
+
+        matched_pages = refined_pages
       end
 
       matched_pages.first.fetch(:new_path)
