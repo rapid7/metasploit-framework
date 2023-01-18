@@ -11,8 +11,8 @@ perform this enrollment operation.
 
 Currently the module is capable of checking for ESC1, ESC2, and ESC3 vulnerable certificates.
 
-### Installing ADCS
-1. Install ADCS on either a new or existing domain controller
+### Installing AD CS
+1. Install AD CS on either a new or existing domain controller
 1. Open the Server Manager
 1. Select Add roles and features
 1. Select "Active Directory Certificate Services" under the "Server Roles" section
@@ -96,9 +96,9 @@ that are both vulnerable and enrollable.
 
 ## Scenarios
 
-### Windows Server 2022 with ADCS
+### Windows Server 2022 with AD CS
 ```
-msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder 
+msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOST 172.26.104.157
 RHOST => 172.26.104.157
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set BIND_DN DAFOREST\\Administrator
@@ -234,10 +234,10 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*]          Enrollment SIDs:
 [*]             * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > 
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
 
-### Windows Server 2022 with ADCS and REPORT_NONENROLLABLE Set To TRUE
+### Windows Server 2022 with AD CS and REPORT_NONENROLLABLE Set To TRUE
 ```
 msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOST 172.26.104.157
@@ -449,5 +449,5 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*]          Enrollment SIDs:
 [*]             * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > 
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```

@@ -28,8 +28,8 @@ queries:
     references:
       - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
       - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf
-  - action: ENUM_ADCS_CAS
-    description: 'Enumerate ADCS certificate authorities.'
+  - action: ENUM_AD_CS_CAS
+    description: 'Enumerate AD Certificate Service certificate authorities.'
     base_dn_prefix: 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
     filter: '(objectClass=pKIEnrollmentService)'
     attributes:
@@ -42,8 +42,8 @@ queries:
       - caCertificate
     references:
       - https://aaroneg.com/post/2018-05-15-enterprise-ca/
-  - action: ENUM_ADCS_CERT_TEMPLATES
-    description: 'Enumerate ADCS certificate templates.'
+  - action: ENUM_AD_CS_CERT_TEMPLATES
+    description: 'Enumerate AD Certificate Service certificate templates.'
     base_dn_prefix: 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
     filter: '(objectClass=pkicertificatetemplate)'
     attributes:
@@ -156,7 +156,7 @@ queries:
       - operatingSystemServicePack
     references:
       - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
-      - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf 
+      - https://adsecurity.org/wp-content/uploads/2016/08/DEFCON24-2016-Metcalf-BeyondTheMCSE-RedTeamingActiveDirectory.pdf
   - action: ENUM_EXCHANGE_RECIPIENTS
     description: 'Dump info about all known Exchange recipients.'
     filter: '(|(mailNickname=*)(proxyAddresses=FAX:*))'
@@ -231,7 +231,7 @@ queries:
       - serverName
     references:
       - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
-      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1 
+      - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
   - action: ENUM_LAPS_PASSWORDS
     description: 'Dump info about computers that have LAPS enabled, and passwords for them if available.'
     filter: '(ms-MCS-AdmPwd=*)'
@@ -349,4 +349,4 @@ queries:
     references:
       - https://malicious.link/post/2022/ldapsearch-reference/
       - https://burmat.gitbook.io/security/hacking/domain-exploitation
-      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties 
+      - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
