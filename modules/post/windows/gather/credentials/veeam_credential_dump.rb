@@ -329,7 +329,7 @@ class MetasploitModule < Msf::Post
       end
       secret_disposition = 'DPAPI'
       decrypted_rows += 1
-      result_line = [credential_id.to_s, secret_usn.to_s, secret_username.to_s, secret_plaintext.to_s, secret_description.to_s, secret_visible.to_s]
+      result_line = [credential_id.to_s, secret_usn.to_s, secret_username.to_s, secret_plaintext.to_s, secret_description.to_s, secret_disposition.to_s, secret_visible.to_s]
       result_row = ::CSV.parse_line(CSV.generate_line(result_line).gsub("\r", ''))
       result_csv << result_row
       vprint_status("ID #{credential_id} username '#{secret_username}' password recovered: #{secret_plaintext} (#{secret_disposition})")

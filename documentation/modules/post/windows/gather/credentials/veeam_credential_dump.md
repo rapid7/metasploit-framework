@@ -27,8 +27,8 @@ not have sufficient permission to extract this information from the target host.
 ### Decrypt
 
 `decrypt` performs decryption of encrypted Veeam SQL data. To invoke the `decrypt` action, you must
-set the either the `VBR_CSV_FILE` or `VOM_CSV_FILE` advanced options. See `SQL Data Acquisition`
-below for more information.
+set either the `VBR_CSV_FILE` or `VOM_CSV_FILE` advanced options. See `SQL Data Acquisition` below
+for more information.
 
 ## Verification Steps
 
