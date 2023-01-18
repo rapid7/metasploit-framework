@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           logins and hosts so you can track your access.
 
           Kerberos accounts which do not require pre-authentication will
-          have the TGT logged, this technique is known as AS-REP Roasting.
+          have the TGT logged for offline cracking, this technique is known as AS-REP Roasting.
 
           It is also able to identify whether user accounts are enabled or
           disabled/locked out.

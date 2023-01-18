@@ -2,6 +2,7 @@ require 'fileutils'
 require 'uri'
 require 'open3'
 require 'optparse'
+require 'did_you_mean'
 require_relative './navigation'
 
 # This build module was used to migrate the old Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
@@ -48,13 +49,18 @@ module Build
     def validate!
       configured_paths = all_file_paths
       missing_paths = available_paths.map { |path| path.gsub("#{WIKI_PATH}/", '') } - ignored_paths - existing_docs - configured_paths
-      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
+      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')} - add navigation entries to navigation.rb for these files" if missing_paths.any?
 
       each do |page|
         page_keys = page.keys
         allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
-        raise ConfigValidationError, "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
+
+        suggestion = DidYouMean::SpellChecker.new(dictionary: allowed_keys).correct(invalid_keys[0]).first
+        error = "#{page} had invalid keys #{invalid_keys.join(', ')}."
+        error += " Did you mean #{suggestion}?" if suggestion
+
+        raise ConfigValidationError, error  if invalid_keys.any?
       end
 
       # Ensure unique folder names
@@ -281,6 +287,9 @@ module Build
       ]
       # These tags look like Github/Twitter handles, but are actually ruby/java code snippets
       ignored_tags = [
+        '@spid',
+        '@adf3',
+        '@LDAP-DC3',
         '@harmj0yDescription',
         '@phpsessid',
         '@http_client',
@@ -550,6 +559,13 @@ module Build
       if options[:serve]
         ReleaseBuildServer.run
       end
+    elsif options[:staging]
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
+      run_command('JEKYLL_ENV=production bundle exec jekyll build --config _config.yml,_config_staging.yml')
+
+      if options[:serve]
+        ReleaseBuildServer.run
+      end
     elsif options[:serve]
       run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
     end
@@ -570,6 +586,10 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--production', 'Run a production build') do |production|
       options[:production] = production
+    end
+
+    opts.on('--staging', 'Run a staging build for deploying to gh-pages') do |staging|
+      options[:staging] = staging
     end
 
     opts.on('--serve', 'serve the docs site') do |serve|

