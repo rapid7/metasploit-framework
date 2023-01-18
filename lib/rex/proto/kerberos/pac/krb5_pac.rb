@@ -285,6 +285,101 @@ module Rex::Proto::Kerberos::Pac
     string :unknown_element, read_length: :data_length
   end
 
+  # See [2.6.4 NTLM_SUPPLEMENTAL_CREDENTIAL](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/39f588d6-21e3-4e09-a9f2-d8f7b9b998bf)
+  class Krb5NtlmSupplementalCredential < RubySMB::Dcerpc::Ndr::NdrStruct
+    # The only package name that Microsoft KDCs use is `NTLM`
+    # See https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/a1c36b00-1fca-415c-a4ca-e66e98844760#Appendix_A_16
+    PACKAGE_NAME = 'NTLM'.encode('utf-16le').freeze
+
+    default_parameter byte_align: 4
+    endian :little
+
+    ndr_uint32 :version
+    ndr_uint32 :flags
+    ndr_fixed_byte_array :lm_password, initial_length: 16
+    ndr_fixed_byte_array :nt_password, initial_length: 16
+  end
+
+  class Krb5SecpkgSupplementalCredByteArrayPtr < RubySMB::Dcerpc::Ndr::NdrConfArray
+    default_parameters type: :ndr_uint8
+    extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
+  end
+
+  # See [2.6.3 SECPKG_SUPPLEMENTAL_CRED](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/50974dc7-6bce-4db5-805b-8dca924ad5a4)
+  class Krb5SecpkgSupplementalCred < RubySMB::Dcerpc::Ndr::NdrStruct
+    default_parameter byte_align: 4
+    endian :little
+
+    rpc_unicode_string :package_name
+    ndr_uint32 :credential_size
+    krb5_secpkg_supplemental_cred_byte_array_ptr :credentials
+  end
+
+  # See [2.6.2 PAC_CREDENTIAL_DATA](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/4927158e-c9d5-493d-a3f6-1826b88d22ba)
+  class Krb5PacCredentialData < RubySMB::Dcerpc::Ndr::NdrStruct
+    default_parameter byte_align: 4
+    endian :little
+
+    ndr_uint32 :credential_count
+    ndr_conf_array :credentials, type: :krb5_secpkg_supplemental_cred
+
+    # Extract the NTLM hash from the credentials array if present
+    #
+    # @return [String, nil] The NTLM hash as "LMHASH:NTHASH" or `nil` if the
+    #   credentials array does not contain any NTLM hash
+    def extract_ntlm_hash
+      credential = credentials.find do |credential|
+        credential.package_name.to_s == Krb5NtlmSupplementalCredential::PACKAGE_NAME
+      end
+      return unless credential
+
+      ntlm_creds_raw = credential.credentials.to_ary.pack('C*')
+      ntlm_creds = Krb5NtlmSupplementalCredential.read(ntlm_creds_raw)
+      if ntlm_creds.lm_password.any? {|elem| elem != 0}
+        lm_hash = ntlm_creds.lm_password.to_hex
+      else
+        # Empty LMHash
+        lm_hash = 'aad3b435b51404eeaad3b435b51404ee'
+      end
+      nt_hash = ntlm_creds.nt_password.to_hex
+
+      return "#{lm_hash}:#{nt_hash}"
+    end
+  end
+
+  class Krb5PacCredentialDataPtr < Krb5PacCredentialData
+    extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
+  end
+
+  class Krb5SerializedPacCredentialData < Rex::Proto::Kerberos::NDR::TypeSerialization1
+    endian :little
+
+    krb5_pac_credential_data_ptr :data
+  end
+
+  # See [2.6.1 PAC_CREDENTIAL_INFO](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/cc919d0c-f2eb-4f21-b487-080c486d85fe)
+  class Krb5PacCredentialInfo < BinData::Record
+    mandatory_parameter :data_length
+    endian :little
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present
+    virtual :ul_type, value: 0x02
+
+    uint32 :version
+    uint32 :encryption_type
+    array  :serialized_data, type: :uint8, read_until: -> { index == data_length - version.num_bytes - encryption_type.num_bytes - 1 }
+
+    def decrypt_serialized_data(key)
+      encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(self.encryption_type)
+      decrypted_serialized_data = encryptor.decrypt(
+        self.serialized_data.to_binary_s,
+        key,
+        Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_SALT
+      )
+      Krb5SerializedPacCredentialData.read(decrypted_serialized_data)
+    end
+  end
+
   class Krb5PacElement < BinData::Choice
     mandatory_parameter :data_length
 
@@ -292,6 +387,7 @@ module Rex::Proto::Kerberos::Pac
     krb5_client_info Krb5PacElementType::CLIENT_INFORMATION
     krb5_pac_server_checksum Krb5PacElementType::SERVER_CHECKSUM
     krb5_pac_priv_server_checksum Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
+    krb5_pac_credential_info Krb5PacElementType::CREDENTIAL_INFORMATION, data_length: :data_length
     unknown_pac_element :default, data_length: :data_length, selection: :selection
   end
 

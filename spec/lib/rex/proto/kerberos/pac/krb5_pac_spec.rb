@@ -208,3 +208,95 @@ RSpec.describe Rex::Proto::Kerberos::Pac::Krb5ClientInfo do
     expect(client_info).to eq(parsed_client_info)
   end
 end
+
+RSpec.describe Rex::Proto::Kerberos::Pac::Krb5PacCredentialInfo do
+  subject(:credential_info) do
+    described_class.new(data_length: data_length)
+  end
+
+  let(:data_length) { sample.size }
+
+  let(:sample) do
+    "\x00\x00\x00\x00\x12\x00\x00\x00\x53\xc8\x0e\x1a\x5d\x54\xf3\xb4\x82\x7d"\
+    "\x72\xf1\xba\x76\x2d\xf9\x74\xcc\x08\x7e\xf7\x47\x80\x1a\x03\x05\xfb\x3e"\
+    "\xe0\xe3\x5c\x42\xe7\x9e\xc7\xbd\xd3\xa6\x7c\x2a\x6b\x6e\x11\x6c\x5d\xdc"\
+    "\x30\x3f\xb4\x45\x23\x4b\x0b\x09\x2b\x5f\x72\xee\xf1\xf1\xeb\x07\xd7\xbc"\
+    "\x91\x70\xf2\x9d\x2a\x61\xef\xa2\xa0\x64\x81\x99\xa1\xfc\xd4\xa1\x73\xcb"\
+    "\x7b\x99\x7c\x16\xb5\xa6\xbd\x26\x64\x63\xce\x05\xf3\x80\xcc\xdb\xd2\x48"\
+    "\xf7\x06\xe2\xd0\x21\x4b\x87\x42\x8c\x5f\xe3\x98\xbb\x05\x27\x09\x7b\xe7"\
+    "\x8b\xa1\xfa\xaa\xbd\x06\x37\x5c\x21\x78\x42\x2a\x18\xe8\xce\x6d\x9e\x64"\
+    "\xb2\xc8\x42\x83"
+  end
+
+  describe '#read' do
+    let(:data_length) { sample.size }
+
+    it 'correctly parses the binary data' do
+      credential_info.read(sample)
+      expect(credential_info.to_binary_s).to eq(sample)
+    end
+  end
+
+
+  it 'creates a valid credential info structure' do
+    credential_info.version = 0
+    credential_info.encryption_type = 18
+    credential_info.serialized_data = sample[8..].bytes
+
+    parsed_credential_info = described_class.new(data_length: sample.size)
+    parsed_credential_info.read(sample)
+    expect(credential_info).to eq(parsed_credential_info)
+  end
+
+  describe '#decrypt_serialized_data' do
+    subject(:decrypted_serialized_data) do
+      credential_info.read(sample)
+      credential_info.decrypt_serialized_data(key)
+    end
+
+    let(:credential_data) do
+      Rex::Proto::Kerberos::Pac::Krb5SerializedPacCredentialData.new(
+        common_header: {
+          version: 1,
+          endianness: 16,
+          common_header_length: 8,
+          filler: 0xCCCCCCCC
+        },
+        private_header1: {
+          object_buffer_length: 96,
+          filler: 0x00000000
+        },
+        data: Rex::Proto::Kerberos::Pac::Krb5PacCredentialData.new(
+          credential_count: 1,
+          credentials: [
+            Rex::Proto::Kerberos::Pac::Krb5SecpkgSupplementalCred.new(
+              package_name: 'NTLM',
+              credential_size: 40,
+              credentials: [
+                0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 169, 61, 22, 135, 60, 157, 73, 190, 155,
+                27, 206, 67, 89, 220, 170, 109
+              ]
+            )
+          ]
+        )
+      )
+    end
+
+    let(:key) do
+      "\x48\xa7\x4a\x36\xd6\x48\xa8\x74\x24\x68\x69\x32\x08\x8a\xf8\x1c\x51\x3c"\
+      "\x7f\x5b\x3b\x64\x01\x34\x63\xc5\xff\x90\x03\x4d\xeb\x86"
+    end
+
+    it 'returns the expected Krb5SerializedPacCredentialData structure' do
+      expect(decrypted_serialized_data).to eq(credential_data)
+    end
+
+    context 'containing a NTLM_SUPPLEMENTAL_CREDENTIAL structure' do
+      let(:ntlm) { 'aad3b435b51404eeaad3b435b51404ee:a93d16873c9d49be9b1bce4359dcaa6d' }
+      it 'extracts the NTLM hash' do
+        expect(decrypted_serialized_data.data.extract_ntlm_hash).to eq(ntlm)
+      end
+    end
+  end
+end
