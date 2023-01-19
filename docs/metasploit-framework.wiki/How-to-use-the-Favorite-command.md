@@ -27,6 +27,7 @@ OPTIONS:
     -c        Clear the contents of the favorite modules file
     -d        Delete module(s) or the current active module from the favorite modules file
     -h        Help banner
+    -l        Print the list of favorite modules (alias for `show favorites`)
 ```
 
 
@@ -89,3 +90,18 @@ msf6 > show favorites
 [!] The favorite modules file is empty
 ```
 
+### Printing the list of favorite modules
+
+The list of favorite modules can be printed by supplying the `-l` flag. This is an alias for the `show favorites` and `favorites` commands.
+
+```shell
+msf6 > favorite -l
+
+Favorites
+=========
+
+   #  Name                        Disclosure Date  Rank    Check  Description
+   -  ----                        ---------------  ----    -----  -----------
+   0  exploit/multi/handler                        manual  No     Generic Payload Handler
+   1  exploit/windows/smb/psexec  1999-01-01       manual  No     Microsoft Windows Authenticated User Code Execution
+```
