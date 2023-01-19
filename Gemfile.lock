@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/sempervictus/rex-core.git
+  revision: 7b5e2954d3be6375f911ee359b048a91f881c222
+  branch: structure/move_logging_to_core
+  specs:
+    rex-core (0.1.29)
+
 PATH
   remote: .
   specs:
@@ -345,7 +352,6 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.28)
     rex-encoder (0.1.6)
       metasm
       rex-arch
@@ -510,6 +516,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-core!
   rspec-rails
   rspec-rerun
   rubocop
@@ -519,4 +526,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.1.4
+   2.2.33

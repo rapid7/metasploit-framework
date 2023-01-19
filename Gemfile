@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'rex-core', git: 'https://github.com/sempervictus/rex-core.git', branch: 'structure/move_logging_to_core'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
