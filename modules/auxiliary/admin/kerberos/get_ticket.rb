@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('DOMAIN', [ true, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local' ]),
-        OptString.new('USER', [ true, 'The domain user' ]),
+        OptString.new('USERNAME', [ true, 'The domain user' ]),
         OptString.new('PASSWORD', [ false, 'The domain user password' ]),
         OptString.new(
           'NTHASH', [
@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         ),
         OptString.new(
-          'AESKEY', [
+          'AES_KEY', [
             false,
             'The AES key to use for Kerberos authentication in hex string. Supported keys: 128 or 256 bits'
           ]
@@ -77,9 +77,9 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH must be a hex string of 32 characters (128 bits)')
     end
 
-    if datastore['AESKEY'].present? && !datastore['AESKEY'].match(/^(\h{32}|\h{64})$/)
+    if datastore['AES_KEY'].present? && !datastore['AES_KEY'].match(/^(\h{32}|\h{64})$/)
       fail_with(Msf::Exploit::Failure::BadConfig,
-                'AESKEY must be a hex string of 32 characters for 128-bits AES keys or 64 characters for 256-bits AES keys')
+                'AES_KEY must be a hex string of 32 characters for 128-bits AES keys or 64 characters for 256-bits AES keys')
     end
 
     if action.name == 'GET_TGS' && datastore['SPN'].blank?
@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     msg = e.to_s
     if e.respond_to?(:error_code) &&
        e.error_code == ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_PREAUTH_REQUIRED
-      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AESKEY)'
+      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AES_KEY)'
     end
     fail_with(Failure::Unknown, msg)
   end
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     options.merge!({
       host: rhost,
       realm: datastore['DOMAIN'],
-      username: datastore['USER'],
+      username: datastore['USERNAME'],
       framework: framework,
       framework_module: self
     })
@@ -129,8 +129,8 @@ class MetasploitModule < Msf::Auxiliary
       options[:key] = [datastore['NTHASH']].pack('H*')
       options[:offered_etypes] = [ Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC ]
     end
-    if datastore['AESKEY'].present?
-      options[:key] = [ datastore['AESKEY'] ].pack('H*')
+    if datastore['AES_KEY'].present?
+      options[:key] = [ datastore['AES_KEY'] ].pack('H*')
       options[:offered_etypes] = if options[:key].size == 32
                                    [ Rex::Proto::Kerberos::Crypto::Encryption::AES256 ]
                                  else
@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_get_tgt
-    print_status("#{peer} - Getting TGT for #{datastore['USER']}@#{datastore['DOMAIN']}")
+    print_status("#{peer} - Getting TGT for #{datastore['USERNAME']}@#{datastore['DOMAIN']}")
 
     # Never attempt to use the kerberos cache when requesting a kerberos TGT, to ensure a request is made
     authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false, write: true) })
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_UNKNOWN,
-        name_string: [datastore['USER']]
+        name_string: [datastore['USERNAME']]
       )
       auth_options = {
         sname: sname,
@@ -176,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
       auth_options[:tgs_ticket] = tgs_ticket
       authenticator.s4u2proxy(credential, auth_options)
     else
-      print_status("#{peer} - Getting TGS for #{datastore['USER']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+      print_status("#{peer} - Getting TGS for #{datastore['USERNAME']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
