@@ -38,13 +38,12 @@ module Rex::Proto::Http::WebSocket
       #   @return [Rex::Socket::Parameters]
       attr_reader :params
       # Boolean flag to control frame masking on output
-      attr_accessor :mask_write
 
       # @param [WebSocket::Interface] websocket the WebSocket that this channel is being opened on
       # @param [nil, Symbol] read_type the data type(s) to read from the WebSocket, one of :binary, :text or nil (for both
       #   binary and text)
       # @param [Symbol] write_type the data type to write to the WebSocket
-      def initialize(websocket, read_type: nil, write_type: :binary, mask_write: true)
+      def initialize(websocket, read_type: nil, write_type: :binary)
         initialize_abstraction
 
         # a read type of nil will handle both binary and text frames that are received
@@ -54,7 +53,6 @@ module Rex::Proto::Http::WebSocket
         @websocket = websocket
         @read_type = read_type
         @write_type = write_type
-        @mask_write = mask_write
         @mutex = Mutex.new
 
         # beware of: https://github.com/rapid7/rex-socket/issues/32
@@ -133,9 +131,9 @@ module Rex::Proto::Http::WebSocket
         length = buf.length
         buf = on_data_write(buf)
         if @write_type == :binary
-          @websocket.put_wsbinary(buf, {mask: @mask_write})
+          @websocket.put_wsbinary(buf)
         elsif @write_type == :text
-          @websocket.put_wstext(buf, {mask: @mask_write})
+          @websocket.put_wstext(buf)
         end
 
         length

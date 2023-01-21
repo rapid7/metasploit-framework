@@ -82,27 +82,27 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       def acknowledge_output(output_frame)
         ack = output_frame.to_ack
         # ack.header.sequence_number = @out_seq_num
-        @websocket.put_wsbinary(ack.to_binary_s, {mask: false})
+        @websocket.put_wsbinary(ack.to_binary_s)
         # wlog("SsmChannel: acknowledge output #{output_frame.uuid}")
         output_frame.uuid
       end
 
       def handle_output_data(output_frame)
-        if @ack_outputs.include?(output_frame.uuid)
+        if @ack_message == output_frame.uuid
           # wlog("SsmChannel: repeat output #{output_frame.uuid}")
         else
-          @ack_outputs << acknowledge_output(output_frame)
+          @ack_message = acknowledge_output(output_frame)
           # TODO: handle Payload::* types
           if [PayloadType::Output, PayloadType::Error].any? {|e| e == output_frame.payload_type }
             if @filter_echo.is_a?(String) and output_frame.payload_data.strip == @filter_echo.strip
-              wlog("SsmChannel: filtering output #{@filter_echo}")
+              dlog("SsmChannel: filtering output #{@filter_echo}")
               @filter_echo = true
               return nil
             else
               return output_frame.payload_data
             end
           else
-            wlog("SsmChannel got unhandled output payload type: #{Payload.front_val(output_frame.payload_type)}")
+            wlog("SsmChannel got unhandled output payload type: #{Payload.from_val(output_frame.payload_type)}")
           end
         end
         nil
@@ -139,17 +139,17 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
 
     class SsmChannel < Rex::Proto::Http::WebSocket::Interface::Channel
       include SsmChannelMethods
-      attr_reader :run_ssm_pub, :out_seq_num, :ack_seq_num
+      attr_reader :run_ssm_pub, :out_seq_num, :ack_seq_num, :ack_message
       attr_accessor :filter_echo
 
       def initialize(websocket, filter_echo = false)
         @ack_seq_num = 0
         @out_seq_num = 0
         @run_ssm_pub = true
-        @ack_outputs = Set.new
+        @ack_message = nil
         @filter_echo = filter_echo
 
-        super(websocket, write_type: :binary, mask_write: false)
+        super(websocket, write_type: :binary)
       end
 
       def on_data_read(data, _data_type)
