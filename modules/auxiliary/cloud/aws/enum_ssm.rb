@@ -138,6 +138,7 @@ class MetasploitModule < Msf::Auxiliary
     chan.params.peerhost = peer_info['IpAddress']
     chan.params.peerport = 0
     chan.params.peerhostname = peer_info['ComputerName']
+    chan._start_ssm_keepalive
     chan.update_term_size
     return chan
   end
