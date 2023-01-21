@@ -8,6 +8,7 @@ require 'aws-sdk-ec2'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::Http::WebSocket::AmazonSsm
+  include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
   def initialize(info = {})
     super(
@@ -30,7 +31,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author'      => [
           'RageLtMan <rageltman[at]sempervictus>'
         ],
-        'License'     => MSF_LICENSE
+        'License'     => MSF_LICENSE,
+        'DefaultOptions' => { 'CreateSession' => false }
       )
     )
 
@@ -55,6 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     begin
+      credentials = ::Aws::Credentials.new(datastore['ACCESS_KEY_ID'], datastore['SECRET_ACCESS_KEY'])
       vprint_status "Checking #{datastore['REGION']}..."
       client = ::Aws::SSM::Client.new(
         region: datastore['REGION'],
@@ -82,21 +85,30 @@ class MetasploitModule < Msf::Auxiliary
       ssm_ec2 = client.get_inventory(inv_params).entities.map {|e| e.data["AWS:InstanceInformation"].content}.flatten
       ssm_ec2 = ssm_ec2[0...datastore['LIMIT']] if datastore['LIMIT']
       ssm_ec2.each do |ssm_host|
-        vprint_good JSON.pretty_generate(ssm_host)
+        report_host(
+          host: ssm_host['IpAddress'],
+          os_flavor: ssm_host['PlatformName'],
+          os_name: ssm_host['PlatformType'],
+          os_sp: ssm_host['PlatformVersion'],
+          name: ssm_host['ComputerName'],
+          comments: "ec2-id: #{ssm_host['InstanceId']}"
+        )
+        report_note(
+          host: ssm_host['IpAddress'],
+          type: ssm_host['AgentType'],
+          data: ssm_host['AgentVersion']
+        )
+        vprint_good("Found SSM host #{ssm_host['InstanceId']} (#{ssm_host['ComputerName']}) - #{ssm_host['IpAddress']}")
         if datastore['CreateSession']
           socket = get_ssm_socket(client, ssm_host['InstanceId'])
           start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{ssm_host['InstanceId']})", datastore, false, socket.lsock)
         end
-        # report host?
-        # report services?
-        # report notes?
       end
     rescue Seahorse::Client::NetworkingError => e
       print_error e.message
       print_error "Confirm access to #{datastore['REGION']} with provided credentials"
     rescue ::Exception => e
       handle_aws_errors(e)
-    end
     end
   end
 
