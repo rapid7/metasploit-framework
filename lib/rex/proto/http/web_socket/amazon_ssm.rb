@@ -120,6 +120,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       end
 
       def update_term_size
+        return unless ::IO.console
         rows, cols = ::IO.console.winsize
         unless rows == self.rows && cols == self.cols
           set_term_size(rows, cols)

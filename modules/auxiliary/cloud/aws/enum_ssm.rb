@@ -23,13 +23,12 @@ class MetasploitModule < Msf::Auxiliary
                           This module provides not only the API enumeration identifying EC2
                           instances accessible via SSM with given credentials, but enables
                           session initiation for all identified targets (without requiring
-                          target-level credentials). The module also provides an EC2 ID
-                          filter and a limiting throttle to prevent session stampedes or
-                          expensive messes.
+                          target-level credentials) using the CreateSession mixin option.
+                          The module also provides an EC2 ID filter and a limiting throttle
+                          to prevent session stampedes or expensive messes.
                          ),
         'Author'      => [
-          'Aaron Soto <aaron.soto@rapid7.com>', # EC2 enum module
-          'RageLtMan <rageltman[at]sempervictus>' # SSM stuff
+          'RageLtMan <rageltman[at]sempervictus>'
         ],
         'License'     => MSF_LICENSE
       )
@@ -37,10 +36,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('GET_SSM_SESSION', [true, 'Automatically get SSM sessions once found', false]),
         OptInt.new('LIMIT', [false, 'Only return the specified number of results from each region']),
         OptString.new('FILTER_EC2_ID', [false, 'Look for specific EC2 instance ID']),
-        OptString.new('REGION', [false, 'AWS Region (eg. "us-west-2")']),
+        OptString.new('REGION', [true, 'AWS Region (eg. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])
       ]
@@ -55,70 +53,50 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def enumerate_regions
-    regions = []
-
-    ec2 = Aws::EC2::Resource.new(
-      region: datastore['REGION'],
-      access_key_id: datastore['ACCESS_KEY_ID'],
-      secret_access_key: datastore['SECRET_ACCESS_KEY']
-    )
-
-    ec2_regions = ec2.client.describe_regions.data.regions
-    ec2_regions.each do |r|
-      regions.append(r.region_name)
-    end
-
-    regions
-  end
-
   def run
-    regions = datastore['REGION'] ? [datastore['REGION']] : regions = enumerate_regions()
-    credentials = ::Aws::Credentials.new(datastore['ACCESS_KEY_ID'], datastore['SECRET_ACCESS_KEY'])
-    regions.each do |region|
-      begin
-        vprint_status "Checking #{region}..."
-        client = ::Aws::SSM::Client.new(
-          region: region,
-          credentials: credentials,
-        )
-        inv_params = { filters: [
-          {
-            key: "AWS:InstanceInformation.InstanceStatus",
-            values: ["Terminated"],
-            type: "NotEqual",
-          },
-          {
-            key: "AWS:InstanceInformation.ResourceType",
-            values: ['EC2Instance'],
-            type: "Equal",
-          }
-        ]}
-
-        inv_params[:filters] << {
-          key: "AWS:InstanceInformation.InstanceId",
-          values: [datastore['FILTER_EC2_ID']],
+    begin
+      vprint_status "Checking #{datastore['REGION']}..."
+      client = ::Aws::SSM::Client.new(
+        region: datastore['REGION'],
+        credentials: credentials,
+      )
+      inv_params = { filters: [
+        {
+          key: "AWS:InstanceInformation.InstanceStatus",
+          values: ["Terminated"],
+          type: "NotEqual",
+        },
+        {
+          key: "AWS:InstanceInformation.ResourceType",
+          values: ['EC2Instance'],
           type: "Equal",
-        } if datastore['FILTER_EC2_ID']
+        }
+      ]}
 
-        ssm_ec2 = client.get_inventory(inv_params).entities.map {|e| e.data["AWS:InstanceInformation"].content}.flatten
-        ssm_ec2 = ssm_ec2[0...datastore['LIMIT']] if datastore['LIMIT']
-        ssm_ec2.each do |ssm_host| 
-          vprint_good JSON.pretty_generate(ssm_host)
-          if datastore['GET_SSM_SESSION']
-            socket = get_ssm_socket(client, ssm_host['InstanceId'])
-            start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{ssm_host['InstanceId']})", datastore, false, socket.lsock)
-          end
-          # report host?
-          # report services?
-          # report notes?
+      inv_params[:filters] << {
+        key: "AWS:InstanceInformation.InstanceId",
+        values: [datastore['FILTER_EC2_ID']],
+        type: "Equal",
+      } if datastore['FILTER_EC2_ID']
+
+      ssm_ec2 = client.get_inventory(inv_params).entities.map {|e| e.data["AWS:InstanceInformation"].content}.flatten
+      ssm_ec2 = ssm_ec2[0...datastore['LIMIT']] if datastore['LIMIT']
+      ssm_ec2.each do |ssm_host|
+        vprint_good JSON.pretty_generate(ssm_host)
+        if datastore['CreateSession']
+          socket = get_ssm_socket(client, ssm_host['InstanceId'])
+          start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{ssm_host['InstanceId']})", datastore, false, socket.lsock)
         end
-      rescue Seahorse::Client::NetworkingError => e
-        print_error e.message
-        print_error 'Confirm region name (eg. us-west-2) is valid or blank before retrying'
-      rescue ::Exception => e
-        handle_aws_errors(e)
+        # report host?
+        # report services?
+        # report notes?
       end
+    rescue Seahorse::Client::NetworkingError => e
+      print_error e.message
+      print_error "Confirm access to #{datastore['REGION']} with provided credentials"
+    rescue ::Exception => e
+      handle_aws_errors(e)
+    end
     end
   end
 
