@@ -9,8 +9,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::AuthOption
-  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
 
   def initialize
     super(
@@ -56,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         realm: datastore['DOMAIN']
     }
     case datastore['WinrmAuth']
-    when KERBEROS
+    when Msf::Exploit::Remote::AuthOption::KERBEROS
       kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
         host: datastore['DomainControllerRhost'],
         hostname: datastore['WinrmRhostname'],
@@ -70,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
         mutual_auth: true,
         use_gss_checksum: true,
         ticket_storage: kerberos_ticket_storage,
-        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['KrbOfferedEncryptionTypes'])
+        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['WinrmKrbOfferedEncryptionTypes'])
       )
       opts = opts.merge({
         user: '', # Need to provide it, otherwise the WinRM module complains

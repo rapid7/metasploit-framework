@@ -10,7 +10,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
-  include Msf::Exploit::Remote::AuthOption
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -72,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     domain = datastore['SMBDomain'] || ''
 
     kerberos_authenticator_factory = nil
-    if datastore['SMBAuth'] == KERBEROS
+    if datastore['SMBAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SmbRhostname option is required when using Kerberos authentication.') if datastore['SmbRhostname'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
