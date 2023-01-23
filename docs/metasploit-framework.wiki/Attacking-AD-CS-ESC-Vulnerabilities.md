@@ -1,5 +1,5 @@
 # Setting Up An AD CS Target
-Follow the instructions [[here|./Setting-Up-A-AD-CS-Target.md]] to set up a AD CS server
+Follow the instructions [[here|./ad-certificates/overview.md]] to set up a AD CS server
 for testing purposes.
 
 # Introduction to AD CS Vulnerabilities
