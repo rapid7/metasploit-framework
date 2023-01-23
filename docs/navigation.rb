@@ -84,11 +84,11 @@ NAVIGATION_CONFIG = [
         title: without_prefix('Metasploit Guide ')
       },
       {
-        path: 'Attacking-ADCS-ESC-Vulnerabilities.md',
+        path: 'Attacking-AD-CS-ESC-Vulnerabilities.md',
         title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
       },
       {
-        path: 'Setting-Up-A-AD-CS-Target.md',
+        path: 'Setting-Up-An-AD-CS-Target.md',
         title: 'Setting up a Vulnerable AD CS Target'
       },
       {

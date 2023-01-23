@@ -11,6 +11,7 @@
     - [ ] Reopen the Server Manager
     - [ ] Go to the AD CS tab and where it says "Configuration Required", hit "More" then "Configure Active Directory Certificate..."
     - [ ] Select "Certificate Authority" in the Role Services tab
+    - [ ] Select "Enterprise CA" in the "Setup Type" tab (the user must be a Domain Administrator for this option to be available)
     - [ ] Keep all of the default settings, noting the value of the "Common name for this CA" on the "CA Name" tab (this value corresponds to the `CA` datastore option)
     - [ ] Accept the rest of the default settings and complete the configuration
 

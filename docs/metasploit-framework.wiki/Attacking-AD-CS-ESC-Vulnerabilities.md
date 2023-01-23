@@ -47,7 +47,7 @@ attacks that they found they could conduct via misconfigured certificate templat
 - ESC7 - Vulnerable Certificate Authority Access Control
 - ESC8 - NTLM Relay to AD CS HTTP Endpoints
 
-Later another
+Later, another
 [blog](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
 came out from Oliver Lyak which discovered ESC9 and ESC10, two more vulnerabilities that
 could allow normal domain joined users to abuse certificate template misconfigurations to
@@ -68,9 +68,8 @@ post](https://blog.compass-security.com/2022/11/relaying-to-ad-certificate-servi
 - ESC11 - Relaying NTLM to ICPR - Relaying NTLM authentication to unprotected RPC
   interface is allowed due to lack of the `IF_ENFORCEENCRYPTICERTREQUEST` flag on `Config.CA.Interface.Flags`.
 
-Currently Metasploit only supports attacking ESC1 to ESC3. Plans are in the works to add
-support for more ESC attacks in the future. As such this paper only covers exploiting ESC1
-to ESC3 at this time.
+Currently Metasploit only supports attacking ESC1 to ESC3. As such,
+this paper only covers exploiting ESC1 to ESC3 at this time.
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -118,7 +117,7 @@ flowchart TD
 	secondcheck{Certificate Template Allows Enrollment?} -- YES --> success[Access Granted!]
 ```
 
-To run the module, you will need to have some the login credentials of a domain joined user. The specific permissions of this user should not matter though,
+To run the module, you will need to have the login credentials of a domain joined user. The specific permissions of this user should not matter though,
 since most LDAP servers in an Active Directory (AD) environment are configured in such a way that they allow users to read most objects, but not write to them.
 For our purposes, since we just need to read the details of the certificate templates that are available, this means normal user permissions should be sufficient.
 
@@ -272,7 +271,7 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
 
-From the output above we can determine that SubCA is vulnerable to several attacks, however whilst the issuing CAs allow any authenticated user to enroll in this certificate, the certificate template permissions prevent anyone but Domain Administrators and Enterprise Admins from being able to enroll in this certificate tempalte. At that point you probably don't need to elevate your privileges any higher, so this certificate template isn't that useful for us.
+From the output above we can determine that the SubCA certificate template is vulnerable to several attacks. However, whilst the issuing CAs allow any authenticated user to enroll in this certificate, the certificate template permissions prevent anyone but Domain Administrators and Enterprise Admins from being able to enroll in this certificate tempalte. At that point you probably don't need to elevate your privileges any higher, so this certificate template isn't that useful for us.
 
 Moving onto the next certificate template we see that ESC1-Template is vulnerable to the ESC1 attack, has permissions on the template itself that allow for enrollment by any authenticated domain user, and has one issuing CA, daforest-WIN-BR0CCBA815B-CA, available at WIN-BR0CCBA815B.daforest.com, which allows enrollment by any authenticated user. This means that any user who is authenticated to the domain can utilize this template with a ESC1 attack to elevate their privileges.
 
@@ -680,12 +679,6 @@ Interact with a module by name or index. For example info 0, use 0 or use auxili
 [*] Using auxiliary/admin/kerberos/pkinit_login
 msf6 auxiliary(admin/kerberos/pkinit_login) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/kerberos/pkinit_login) > set
-set ACTION             set LogLevel           set PromptTimeFormat   set Timeout
-set CERT_FILE          set MeterpreterPrompt  set RHOSTS             set TimestampOutput
-set CERT_PASS          set MinimumRank        set RPORT              set USERNAME
-set ConsoleLogging     set Prompt             set SessionLogging     set VERBOSE
-set DOMAIN             set PromptChar         set SessionTlvLogging  set WORKSPACE
 msf6 auxiliary(admin/kerberos/pkinit_login) > set CERT_FILE /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
 CERT_FILE => /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
 msf6 auxiliary(admin/kerberos/pkinit_login) > run
