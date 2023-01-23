@@ -1,6 +1,19 @@
 ## What is AD CS?
 
-TODO
+Active Directory Certificate Services, also known as AD CS, is a Active Directory tool for
+letting administrators issue and manage public key certificates that can be used to
+connect to various services and principals on the domain. It is often used to provide
+certificates that can be used in place of credentials for logging into a network, or to
+provide certificates that can be used to sign and verify the authenticity of data.
+
+The main guarantees that AD CS aims to provide are:
+- Confidentiality via encryption
+- Integrity via digital signatures
+- Authentication by associating certificate keys with computers, users, or device accounts
+  on a computer network.
+
+Given that AD CS often holds highly sensitive keys and access credentials for a corporate
+network, this makes it a prime target for attackers.
 
 ## Required Ports for AD CS
 Active Directory requires the following TCP ports be open on all domain controllers (taken from
