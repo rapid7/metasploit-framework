@@ -50,7 +50,9 @@ module Metasploit
         config.eager_load = true
       end
 
-      ActiveRecord.legacy_connection_handling = false
+      if ActiveRecord.respond_to?(:legacy_connection_handling=)
+        ActiveRecord.legacy_connection_handling = false
+      end
     end
   end
 end

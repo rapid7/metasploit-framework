@@ -40,7 +40,9 @@ module Metasploit::Framework::CommonEngine
 
     config.active_support.deprecation = :stderr
 
-    ActiveRecord.legacy_connection_handling = false
+    if ActiveRecord.respond_to?(:legacy_connection_handling=)
+      ActiveRecord.legacy_connection_handling = false
+    end
     #
     # `initializer`s
     #
