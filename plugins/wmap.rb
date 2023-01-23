@@ -1,5 +1,5 @@
 #
-# Web assessment for the metasploit framework
+# Web assessment for the Metasploit Framework
 # Efrain Torres    - et[ ] metasploit.com  2012
 #
 
