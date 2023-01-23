@@ -78,20 +78,49 @@ field. This field allows one to specify who the certificate should authenticate 
 Therefore, all an attacker needs to do is simply modify this field and they can gain a
 certificate that allows them to authenticate as any user they wish.
 
-ESC2 and ESC3 are a little different in that they don't allow one to edit the
-`subjectAltName` field, so instead an attacker has to utilize the fact that these
-certificate templates supply either the extended key usage value `Any Purpose EKU`, which
-allows you to use the generate certificate for any purpose, or they don't supply any EKU
-properties at all, which has the same effect, but also allows you to sign new
-certificates.
+ESC2 is similar to ESC1 in all respects, however it differs in one key area. This is
+because, unlike ESC1 vulnerable certificate templates, you cannot edit the
+`subjectAltName` field, of ESC2 vulnerable certificate templates. Additionally, ESC2
+certificate templates define the `Any Purpose` extended key usage (EKU) or no EKU at all.
+This last part is important as it allows an attacker to utilize the ESC2 vulnerable
+certificate template to create a new certificate that can be used to authorize to log into
+a domain via Kerberos on behalf of any other user, thereby granting them access to the
+domain as that user. Note that certificates with no EKU at all will need to be trusted
+by the `NTAuthCertificates` object (which it won't be by default), otherwise new
+certificates that are created using the vulnerable ESC2 certificate template
+will not work for domain authentication. This restriction does not apply for those
+certificates vulnerable to ESC2 which have the `Any Purpose` EKU applied to them.
 
-In Metasploit we take advantage of this ability to request a certificate which can be used
-for any purpose to request a certificate that can be used to authenticate to the domain on
-behalf of another user, thereby giving us permission to access the domain as a more
-privileged user. These attacks therefore require two steps: one to get the certificate
-that gives us permission to issue certificates on behalf of another user, and another
-to get the certificate that actually allows us to authenticate on behalf of a given user,
-and escalate our privileges.
+Finally, ESC3 is fairly similar to ESC2, however it differs in two ways: a different EKU
+is abused, and the attacker also needs to utilize two different misconfigured certificate
+templates in order to exploit the vulnerability. The EKU in question this time is the
+Certificate Request Agent EKU, aka OID 1.3.6.1.4.1.311.20.2.1, which allows one to enroll
+for a certificate on behalf of another user, which may seem unusual, but this a common
+scenario within Microsoft environments. To abuse this EKU, an attacker must have the
+following two vulnerable certificate templates:
+
+1. A certificate template which has all the same permissions as ESC1, however it also has
+   the Certificate Request Agent EKU set on it, aka OID 1.3.6.1.4.1.311.20.2.1. This
+   certificate template is labeled as `ESC3_TEMPLATE_1` within the output of the
+   `ldap_esc_vulnerable_cert_finder` module we will use later on.
+2. A certificate template that allows low privileged users to enroll in it, and has
+   manager approval disabled, same as ESC1. However it also has either:
+   - A template schema of 1
+   - A template schema of 2 or greater and an Application Policy Issuance Requirement
+     requiring the Certificate Request Agent EKU so that only those who have a certificate
+     with this requirement can enroll in them.
+   It must also define an EKU that allows for domain authentication, same as ESC1, and
+   there must be no enrollment restrictions on the Certificate Authority (CA) server in
+   question. This certificate template is labeled as `ESC3_TEMPLATE_2` within the
+   output of the `ldap_esc_vulnerable_cert_finder` module we will use later on.
+
+If both of these criteria are met then the attacker can enroll in one of the
+`ESC3_TEMPLATE_1` vulnerable certificate templates as a low privileged user in order to
+get a certificate that will grant them Certificate Request Agent permissions. They can
+then use these permissions to enroll in a `ESC3_TEMPLATE_2` vulnerable certificate
+template and request a certificate on behalf of another user, such as the domain
+administrator, and utilize the fact that the certificate template allows for domain
+authentication to log into the domain via Kerberos as that user.
 
 # Finding Vulnerable ESC Templates Using ldap_esc_vulnerable_cert_finder
 Before one can exploit vulnerable ESC templates to elevate privileges, it is necessary to first find a list of vulnerable templates that exist on a domain.
