@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       # Using USERNAME, PASSWORD and DOMAIN options defined by the LDAP mixin
       OptString.new('DC_NAME', [ true, 'Name of the domain controller being targeted (must match RHOST)' ]),
       OptInt.new('LDAP_PORT', [true, 'LDAP port (default is 389 and default encrypted is 636)', 636]), # Set to 636 for legacy SSL
-      OptString.new('DOMAIN', [true, 'The domain to authenticate to']),
+      OptString.new('DOMAIN', [true, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local']),
       OptString.new('USERNAME', [true, 'The username to authenticate with']),
       OptString.new('PASSWORD', [true, 'The password to authenticate with']),
       OptString.new(
