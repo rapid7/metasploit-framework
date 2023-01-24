@@ -84,10 +84,6 @@ NAVIGATION_CONFIG = [
         title: without_prefix('Metasploit Guide ')
       },
       {
-        path: 'Attacking-AD-CS-ESC-Vulnerabilities.md',
-        title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
-      },
-      {
         nav_order: 5,
         path: 'Metasploit-Guide-Kubernetes.md',
         title: without_prefix('Metasploit Guide ')
@@ -205,6 +201,10 @@ NAVIGATION_CONFIG = [
               {
                 path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
                 title: 'Vulnerable cert finder'
+              },
+              {
+                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
+                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
               },
             ]
           }
