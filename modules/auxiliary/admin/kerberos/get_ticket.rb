@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN', [ false, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local' ]),
         OptString.new('USERNAME', [ false, 'The domain user' ]),
         OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
-        OptPath.new('CERT_FILE', [ false, 'File containing a certificate (*.pfx) to authenticate with' ]),
+        OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
         OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
         OptString.new(
           'NTHASH', [
