@@ -352,7 +352,7 @@ class MetasploitModule < Msf::Auxiliary
       server_name = "krbtgt/#{realm}"
       tgt_result = send_request_tgt_pkinit(
         pfx: cert,
-        username: username,
+        client_name: username,
         realm: realm,
         server_name: server_name,
         rport: 88
