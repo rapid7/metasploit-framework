@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('DOMAIN_SID', [ true, 'The Domain SID, Ex: S-1-5-21-1755879683-3641577184-3486455962']),
-        OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)']),
+        OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], conditions: %w[ACTION == FORGE_SILVER]),
         OptInt.new('DURATION', [ true, 'Duration of the ticket in days', 3650]),
       ]
     )
