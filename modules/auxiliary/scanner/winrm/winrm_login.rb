@@ -49,22 +49,22 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     kerberos_authenticator_factory = nil
-    if datastore['WinrmAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
+    if datastore['Winrm::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
       kerberos_authenticator_factory = -> (username, password, realm) do
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
           host: datastore['DomainControllerRhost'],
-          hostname: datastore['WinrmRhostname'],
+          hostname: datastore['Winrm::Rhostname'],
           realm: realm,
           username: username,
           password: password,
           timeout: 20,
           framework: framework,
           framework_module: self,
-          cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
+          cache_file: datastore['Winrm::Krb5Ccname'].blank? ? nil : datastore['Winrm::Krb5Ccname'],
           mutual_auth: true,
           use_gss_checksum: true,
           ticket_storage: kerberos_ticket_storage,
-          offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['WinrmKrbOfferedEncryptionTypes'])
+          offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes'])
         )
       end
     end

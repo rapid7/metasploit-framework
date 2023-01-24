@@ -55,7 +55,7 @@ module Metasploit
             aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) ) #application and library name
             sname = Rex::Text.to_unicode( rhost )
 
-            framework_module.fail_with(Msf::Exploit::Failure::BadConfig, 'The MssqlRhostname option is required when using kerberos authentication.') if hostname.blank?
+            framework_module.fail_with(Msf::Exploit::Failure::BadConfig, 'The Mssql::Rhostname option is required when using kerberos authentication.') if hostname.blank?
             kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::MSSQL.new(
               host: domain_controller_rhost,
               hostname: hostname,

@@ -191,17 +191,17 @@ RSpec.describe Msf::Serializer::ReadableText do
           DigestAlgorithm  SHA256           yes       The digest algorithm to use (Accepted: SHA1, SHA256)
           VERBOSE          false            no        Enable detailed status messages
           WORKSPACE                         no        Specify the workspace for this module
-          WinrmAuth        auto             yes       The Authentication mechanism to use (Accepted: auto, ntlm, kerberos, plaintext)
+          Winrm::Auth      auto             yes       The Authentication mechanism to use (Accepted: auto, ntlm, kerberos, plaintext)
 
 
           Active when Winrm::Auth is kerberos:
 
-          Name                            Current Setting                                   Required  Description
-          ----                            ---------------                                   --------  -----------
-          DomainControllerRhost                                                             no        The resolvable rhost for the Domain Controller
-          WinrmKrb5Ccname                                                                   no        The ccache file to use for kerberos authentication
-          WinrmKrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
-          WinrmRhostname                                                                    no        The rhostname which is required for kerberos - the SPN
+          Name                              Current Setting                                   Required  Description
+          ----                              ---------------                                   --------  -----------
+          DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
+          Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
+          Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
+          Winrm::Rhostname                                                                    no        The rhostname which is required for kerberos - the SPN
         TABLE
       end
     end

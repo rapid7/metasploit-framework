@@ -71,21 +71,21 @@ class MetasploitModule < Msf::Auxiliary
     domain = datastore['SMBDomain'] || ''
 
     kerberos_authenticator_factory = nil
-    if datastore['SMBAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
-      fail_with(Msf::Exploit::Failure::BadConfig, 'The SmbRhostname option is required when using Kerberos authentication.') if datastore['SmbRhostname'].blank?
+    if datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The Smb::Rhostname option is required when using Kerberos authentication.') if datastore['Smb::Rhostname'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
 
       kerberos_authenticator_factory = lambda do |username, password, realm|
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB.new(
           host: datastore['DomainControllerRhost'],
-          hostname: datastore['SmbRhostname'],
+          hostname: datastore['Smb::Rhostname'],
           realm: realm,
           username: username,
           password: password,
           framework: framework,
           framework_module: self,
-          cache_file: datastore['SmbKrb5Ccname'].blank? ? nil : datastore['SmbKrb5Ccname'],
+          cache_file: datastore['Smb::Krb5Ccname'].blank? ? nil : datastore['Smb::Krb5Ccname'],
           ticket_storage: kerberos_ticket_storage
         )
       end
