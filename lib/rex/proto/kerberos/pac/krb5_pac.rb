@@ -38,8 +38,9 @@ module Rex::Proto::Kerberos::Pac
     ndr_uint32 :attributes
   end
 
-  class Krb5SidAndAttributesPtr < Krb5SidAndAttributes
-    default_parameters byte_align: 1
+  class Krb5SidAndAttributesPtr < RubySMB::Dcerpc::Ndr::NdrConfArray
+    default_parameters byte_align: 1, type: :krb5_sid_and_attributes
+
     extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
   end
 
