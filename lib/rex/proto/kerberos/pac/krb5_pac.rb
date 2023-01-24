@@ -237,7 +237,7 @@ module Rex::Proto::Kerberos::Pac
     # @!attribute [rw] extra_sids_ptr
     #   @return [Integer] A pointer to a list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs
     #   corresponding to groups in domains other than the account domain to which the principal belongs
-    krb5_sid_and_attributes_ptr :extra_sids_ptr, length: :sid_count
+    krb5_sid_and_attributes_ptr :extra_sids_ptr
 
     # @!attribute [rw] resource_group_domain_sid_ptr
     #   @return [Integer] Pointer to SID of the domain for the server whose resources the client is authenticating to

