@@ -76,6 +76,8 @@ class Creds
       cmd_creds_help
     when 'add'
       creds_add(*args)
+    when 'fill'
+      creds_fill(*args)
     else
       # then it's not actually a subcommand
       args.unshift(subcommand) if subcommand
@@ -133,6 +135,20 @@ class Creds
     print_line "   # Add a NonReplayableHash"
     print_line "   creds add hash:d19c32489b870735b5f587d76b934283"
 
+    print_line "Usage - AutoFilling credentials:"
+    print_line "  creds fill <index> [<Specific Username>:<Specific Pasword>](Optional)"
+    print_line "  The <index> can be of the following types."
+    print_line "      - index of a single credential to be added to the options"
+    print_line "      - index range of credential to be added to a USER_FILE, PASS_FILE, etc"
+    print_line "  [<Specific Username>:<Specific Pasword>] should be the the options of the active module"
+    print_line
+    print_line "Examples: AutoFill"
+    print_line "   # Fill a Single credential to options if option exists Eg. USERNAME"
+    print_line "   creds fill 1"
+    print_line "   # Fill Multiple credentials to a file if option exists Eg. USER_FILE"
+    print_line "   creds fill 1-5"
+    print_line "   # Fill a Single credential to specific option if option exists"
+    print_line "   creds fill 1 SMBUser:SMBPass"
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
@@ -305,11 +321,86 @@ class Creds
 
   def build_service_info(service)
     if service.name.present?
-      info = "#{service.port}/#{service.proto} (#{service.name})"
+      info = "#{service.port}/
+#{service.proto} (#{service.name})"
     else
       info = "#{service.port}/#{service.proto}"
     end
     info
+  end
+
+  def creds_fill(*args) # sets the creds from database into a module
+    if active_module
+      mydatastore = active_module.datastore
+    else
+      print_error("No active module selected")
+      return
+    end
+    opts = {}
+    usernames = [] #store public values
+    passwords = [] #store private values
+    realms = [] #store realm values
+    query = framework.db.creds(opts)
+    query.each do |core|
+      user = core.public ? core.public.username : ''
+      usernames << user
+      passwd = core.private ? core.private.data : ''
+      passwords << passwd
+      realm_val = core.realm ? core.realm.value : ''
+      realms << realm_val
+    end
+    if !args.empty?
+      arguments = args.split(' ')
+      choice = arguments[0][1].split(':') if !arguments[0][1].nil?
+      clength = (choice.nil?) ? 0 : choice.length
+      indices = arguments[0][0].split('-').map! {|i| i.to_i}
+      sorm = 0
+    else
+      print_error("Invalid Arguments")
+      return
+    end
+    if (indices[0] == 0) || (indices[1] == 0) # check if a valid argument
+      print_error("Invalid parameter, #{arguments[0]}")
+      return
+    else
+      indices.map! {|i| i -= 1}
+    end
+    if (indices.length == 2) && mydatastore.options.include?('USER_FILE')
+      sorm += 1
+      if (indices[1] < indices[0])
+        print_error("Invalid parameter, #{arguments[0]}")
+        return
+      end
+      if clength == 0
+        user = usernames[indices[0]..indices[1]]
+        pass = passwords[indices[0]..indices[1]]
+        realm = realms[indices[0]..indices[1]]
+        set_creds_from_database(user, pass, realm, sorm)
+      else
+        print_error("Invalid Arguments,, #{choice}")
+        return
+      end
+    elsif indices.length == 1
+      if clength == 0
+        user = usernames[indices[0]..indices[0]]
+        pass = passwords[indices[0]..indices[0]]
+        realm = realms[indices[0]..indices[0]]
+        set_creds_from_database(user, pass, realm, sorm)
+      else
+        if mydatastore.options.include?(choice[0]) && mydatastore.options.include?(choice[1])
+          mydatastore[choice[0]] = usernames[indices[0]]
+          mydatastore[choice[1]] = passwords[indices[0]]
+          print_line "#{choice[0]} => #{mydatastore[choice[0]]}"
+          print_line "#{choice[1]} => #{mydatastore[choice[1]]}"
+        else
+          print_error("Invalid arguments, #{choice}")
+          return
+        end
+      end
+    else
+      print_error("Invalid parameter, #{args}")
+      return
+    end
   end
 
   def creds_search(*args)
@@ -319,11 +410,11 @@ class Creds
     svcs          = []
     rhosts        = []
     opts          = {}
-
+    count = 0
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
+    cred_table_columns = [ 'id', 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
     delete_count = 0
     search_term = nil
 
@@ -451,6 +542,7 @@ class Creds
       end
 
       unless tbl.nil?
+        count += 1
         public_val = core.public ? core.public.username : ''
         if core.private
           # Show the human readable description by default, unless the user ran with `--verbose` and wants to see the cred data
@@ -479,6 +571,7 @@ class Creds
         end
 
         tbl << [
+          count,
           host,
           origin,
           service_info,
