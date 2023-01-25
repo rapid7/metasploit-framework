@@ -372,7 +372,12 @@ class MetasploitModule < Msf::Auxiliary
 
       [ccache.credentials.first, tgt_result.krb_enc_key[:key]]
     rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
-      print_error("Failed: #{e.message}")
+      case e.error_code
+      when Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_CERTIFICATE_MISMATCH
+        print_error("Failed: #{e.message}, Target system is likely not vulnerable to Certifried")
+      else
+        print_error("Failed: #{e.message}")
+      end
       nil
     end
   end
