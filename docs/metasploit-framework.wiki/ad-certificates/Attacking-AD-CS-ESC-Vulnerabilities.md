@@ -1,8 +1,8 @@
 # Setting Up An AD CS Target
-Follow the instructions [[here|ad-certificates/overview.md]] to set up a AD CS server
+Follow the instructions [[here|ad-certificates/overview.md]] to set up an AD CS server
 for testing purposes.
 
-# Introduction to AD CS Vulnerabilities
+## Introduction to AD CS Vulnerabilities
 ```mermaid
 flowchart TD
 	escexp[Find vulnerable certificate templates\nvia ldap_esc_vulnerable_cert_finder] --> icpr[Issue certificates via icpr_cert]
@@ -122,7 +122,7 @@ template and request a certificate on behalf of another user, such as the domain
 administrator, and utilize the fact that the certificate template allows for domain
 authentication to log into the domain via Kerberos as that user.
 
-# Finding Vulnerable ESC Templates Using ldap_esc_vulnerable_cert_finder
+## Finding Vulnerable ESC Templates Using ldap_esc_vulnerable_cert_finder
 Before one can exploit vulnerable ESC templates to elevate privileges, it is necessary to first find a list of vulnerable templates that exist on a domain.
 To do this we can run the `auxiliary/gather/ldap_esc_vulnerable_cert_finder` module. This module will connect to the LDAP server on a target
 Domain Controller (DC), and will run a set of LDAP queries to gather a list of certificate authority (CA) servers and the vulnerable certificate
@@ -312,7 +312,7 @@ Another interesting one to note is the Machine template, which allows any domain
 
 With this we now have a list of certificates that can be utilized for privilege escalation. The next step is to use the `ipcr_cert` module to request certificates for authentication using the vulnerable certificate templates.
 
-# Using the ESC1 Vulnerability To Get a Certificate as the Domain Administrator
+## Using the ESC1 Vulnerability To Get a Certificate as the Domain Administrator
 Getting a certificate as the current user is great, but what we really want to do is elevate privileges if we can. Luckly we can also do this with the `icpr_cert` module. We just need to also set the `ALT_UPN` option to specify who we would like to authenticate as instead. Note that this only works with ESC1 vulnerable certificate templates which is why we can do this here.
 
 If we know the domain name is `daforest.com` and the domain administrator of this domain is named `Administrator` we can quickly set this up:
@@ -390,10 +390,14 @@ host           service  type                 name             content           
 msf6 auxiliary(admin/kerberos/pkinit_login) >
 ```
 
-We now have a TGT at `/home/gwillcox/.msf4/loot/20221216142717_default_172.30.239.85_mit.kerberos.cca_057480.bin` that can be used to authenticate to the `daforest.com` domain as the `Administrator` domain administrator user.
+We now have a TGT at:
+```
+/home/gwillcox/.msf4/loot/20221216142717_default_172.30.239.85_mit.kerberos.cca_057480.bin
+```
+This can be used to authenticate to the `daforest.com` domain as the `Administrator` domain administrator user.
 The user that we have gotten the certificate as can be confirmed by the `client` field in the `loot` command's output, and we can confirm the domain as well by looking at the `realm` field in the same output.
 
-# Exploiting ESC2 To Gain Domain Adminstrator Privileges
+## Exploiting ESC2 To Gain Domain Adminstrator Privileges
 From the previous enumeration efforts we know that the following certificate templates are vulnerable to ESC2:
 - SubCA - Not exploitable as you have to be a Domain Admin or Enterprise Admin to enroll in this certificate
 - ESC2-Template - Enrollable by any authenticated user that is part of the Domain Users group, aka any authenticated domain user.
@@ -604,7 +608,7 @@ host           service  type                 name             content           
 msf6 auxiliary(admin/kerberos/pkinit_login) >
 ```
 
-# Exploiting ESC3 To Gain Domain Adminstrator Privileges
+## Exploiting ESC3 To Gain Domain Administrator Privileges
 To exploit ESC3 vulnerable templates we will use a similar process to ESC2 templates but with slightly different steps. First, lets return to the earlier output where we can find several templates that are vulnerable to ESC3 attacks. However we need to split them by attack vector. The reason is that the first half of this attack needs to use the ESC3_TEMPLATE_1 vulnerable certificate templates to enroll in a certificate template that has the Certificate Request Agent OID (1.3.6.1.4.1.311.20.2.1) that allows one to request certificates on behalf of other principals (such as users or computers).
 
 The second part of this attack will then require that we co-sign requests for another certificate using the certificate that we just got, to then request a certificate that can authenticate to the domain on behalf of another user. To do this we will need to look for certificates in the `ldap_esc_vulnerable_cert_finder` module which are labeled as being vulnerable to the ESC3_TEMPLATE_2 attack.
