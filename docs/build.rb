@@ -191,12 +191,18 @@ module Build
     def extract_absolute_wiki_links(markdown)
       new_links = {}
 
-      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_-]+))}) do |full_match, old_path|
+      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_#-]+))}) do |full_match, old_path|
         full_match = full_match.gsub(/[).]+$/, '')
         old_path = URI.decode_www_form_component(old_path.gsub(/[).]+$/, ''))
 
-        new_path = new_path_for(old_path)
-        replacement = "{% link docs/#{new_path} %}"
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+
+        new_path = new_path_for(old_path, old_path_anchor)
+        replacement = "{% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""}"
 
         link = {
           full_match: full_match,
@@ -216,19 +222,26 @@ module Build
     #   '[[Custom name|Relative Path]]'
     #   '[[Custom name|relative-path]]'
     #   '[[Custom name|./relative-path.md]]'
+    #   '[[Custom name|./relative-path.md#section-anchor-to-link-to]]'
+    # Note that the page target resource file is validated for existence at build time - but the section anchors are not
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
 
-      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.-]+))?\]\])/) do |full_match, left, right|
+      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.#-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
-        new_path = new_path_for(old_path)
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+        new_path = new_path_for(old_path, old_path_anchor)
         if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
           raise "Link for #{full_match} previously resolved to #{existing_links[full_match][:new_path]}, but now resolves to #{new_path}"
         end
 
         link_text = left
-        replacement = "[#{link_text}]({% link docs/#{new_path} %})"
+        replacement = "[#{link_text}]({% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""})"
 
         link = {
           full_match: full_match,
@@ -245,8 +258,8 @@ module Build
       new_links
     end
 
-    def new_path_for(old_path)
-      old_path = old_path.gsub(' ', '-')
+    def new_path_for(old_path, old_path_anchor)
+      old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
       matched_pages = pages.select do |page|
         !page[:folder] &&
           (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||

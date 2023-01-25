@@ -18,6 +18,14 @@ Behind the scenes these docs are built and deployed to https://docs.metasploit.c
 You can modify existing documentation files within `metasploit-framework.wiki/` with an editor of your choice and send a pull request.
 To add a new page, modify `navigation.rb`. Full details are found beside the `NAVIGATION_CONFIG` constant.
 
+## Adding links
+
+For linking to other docs the Github markdown syntax `[[link text|relative_path_to_docs]]` is used. Behind the scenes these
+links will be verified at build time to ensure there's no 404 links.
+
+Note: It is also possible to use the syntax `[[link text|relative_path_to_docs#section]]` - but this navigation will happen client side, and
+there is no validation that these sections exist at build time. It is possible for future edits to a markdown file to break these links.
+
 ## Setup
 
 ### Developer build
