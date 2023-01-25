@@ -96,9 +96,9 @@ module Metasploit
           proof = nil
 
           begin
-            realm = (credential.realm || '').force_encoding('UTF-8')
-            username = (credential.public || '').force_encoding('UTF-8')
-            password = (credential.private || '').force_encoding('UTF-8')
+            realm = (credential.realm || '').dup.force_encoding('UTF-8')
+            username = (credential.public || '').dup.force_encoding('UTF-8')
+            password = (credential.private || '').dup.force_encoding('UTF-8')
             client = RubySMB::Client.new(dispatcher, username: username, password: password, domain: realm)
 
             if kerberos_authenticator_factory
