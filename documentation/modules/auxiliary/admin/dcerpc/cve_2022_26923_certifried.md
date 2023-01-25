@@ -38,6 +38,7 @@ The module will go through the following steps:
   this CA" on the "CA Name" tab (this value corresponds to the CA datastore
   option)
 - Accept the rest of the default settings and complete the configuration
+- Restart the server to ensure LDAPS on port 636 is running
 
 
 ## Verification Steps
