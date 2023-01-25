@@ -11,7 +11,7 @@ module RemoteLootDataService
     data = self.get_data(path, nil, opts)
     rv = json_to_mdm_object(data, LOOT_MDM_CLASS)
     parsed_body = JSON.parse(data.response.body, symbolize_names: true)
-    data = parsed_body[:data]
+    data = Array.wrap(parsed_body[:data])
     data.each do |loot|
       # TODO: Add an option to toggle whether the file data is returned or not
       if loot[:data] && !loot[:data].empty?
@@ -28,7 +28,7 @@ module RemoteLootDataService
   end
 
   def report_loot(opts)
-    self.post_data_async(LOOT_API_PATH, opts)
+    json_to_mdm_object(self.post_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS).first
   end
 
   def update_loot(opts)

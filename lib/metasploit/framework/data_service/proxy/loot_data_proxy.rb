@@ -1,3 +1,5 @@
+require 'metasploit/framework/data_service/remote/http/error'
+
 module LootDataProxy
 
   def report_loot(opts)
@@ -42,6 +44,9 @@ module LootDataProxy
         add_opts_workspace(opts)
         data_service.loot(opts)
       end
+    # Map remote db error to a local rails database exception for error handling consistency
+    rescue Metasploit::Framework::DataService::Remote::NotFound => _e
+      raise ActiveRecord::RecordNotFound, 'Loot not found'
     rescue => e
       self.log_error(e, "Problem retrieving loot")
     end
