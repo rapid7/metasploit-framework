@@ -85,8 +85,8 @@ class MetasploitModule < Msf::Auxiliary
       certificate = File.read(datastore['CERT_FILE'])
       begin
         @pfx = OpenSSL::PKCS12.new(certificate, datastore['CERT_PASSWORD'] || '')
-      rescue OpenSSL::PKCS12::PKCS12Error
-        fail_with(Failure::BadConfig, 'Unable to parse certificate file, must be in PKCS#12 format')
+      rescue OpenSSL::PKCS12::PKCS12Error => e
+        fail_with(Failure::BadConfig, "Unable to parse certificate file (#{e})")
       end
 
       if datastore['USERNAME'].blank? && datastore['DOMAIN'].present?
