@@ -195,10 +195,6 @@ NAVIGATION_CONFIG = [
                 title: 'Request certificates'
               },
               {
-                path: '../../documentation/modules/auxiliary/admin/kerberos/pkinit_login.md',
-                title: 'pkinit login'
-              },
-              {
                 path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
                 title: 'Vulnerable cert finder'
               },

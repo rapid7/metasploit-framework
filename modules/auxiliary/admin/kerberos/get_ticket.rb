@@ -13,12 +13,18 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Kerberos TGT/TGS Ticket Requestor',
+        'Name' => 'Kerberos TGT/TGS Ticket Requester',
         'Description' => %q{
           This module requests TGT/TGS Kerberos tickets from the KDC
         },
         'Author' => [
-          'Christophe De La Fuente' # MSF module
+          'Christophe De La Fuente', # Metasploit module
+          'Spencer McIntyre', # Metasploit module
+          # pkinit authors
+          'Will Schroeder', # original idea/research
+          'Lee Christensen', # original idea/research
+          'Oliver Lyak', # certipy implementation
+          'smashery' # Metasploit module
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
@@ -37,9 +43,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('DOMAIN', [ true, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local' ]),
-        OptString.new('USERNAME', [ true, 'The domain user' ]),
-        OptString.new('PASSWORD', [ false, 'The domain user password' ]),
+        OptString.new('DOMAIN', [ false, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local' ]),
+        OptString.new('USERNAME', [ false, 'The domain user' ]),
+        OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
+        OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
+        OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
         OptString.new(
           'NTHASH', [
             false,
@@ -73,6 +81,33 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_options
+    if datastore['CERT_FILE'].present?
+      certificate = File.read(datastore['CERT_FILE'])
+      begin
+        @pfx = OpenSSL::PKCS12.new(certificate, datastore['CERT_PASSWORD'] || '')
+      rescue OpenSSL::PKCS12::PKCS12Error => e
+        fail_with(Failure::BadConfig, "Unable to parse certificate file (#{e})")
+      end
+
+      if datastore['USERNAME'].blank? && datastore['DOMAIN'].present?
+        fail_with(Failure::BadConfig, 'Domain override provided but no username override provided (must provide both or neither)')
+      elsif datastore['DOMAIN'].blank? && datastore['USERNAME'].present?
+        fail_with(Failure::BadConfig, 'Username override provided but no domain override provided (must provide both or neither)')
+      end
+
+      begin
+        @username, @realm = extract_user_and_realm(@pfx.certificate, datastore['USERNAME'], datastore['DOMAIN'])
+      rescue ArgumentError => e
+        fail_with(Failure::BadConfig, e.message)
+      end
+    else # USERNAME and DOMAIN are required when they can't be extracted from the certificate
+      @username = datastore['USERNAME']
+      fail_with(Failure::BadConfig, 'USERNAME must be specified when used without a certificate') if @username.blank?
+
+      @realm = datastore['DOMAIN']
+      fail_with(Failure::BadConfig, 'DOMAIN must be specified when used without a certificate') if @realm.blank?
+    end
+
     if datastore['NTHASH'].present? && !datastore['NTHASH'].match(/^\h{32}$/)
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH must be a hex string of 32 characters (128 bits)')
     end
@@ -101,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
       port: rport,
       proto: 'tcp',
       name: 'kerberos',
-      info: "Module: #{fullname}, KDC for domain #{datastore['DOMAIN']}"
+      info: "Module: #{fullname}, KDC for domain #{@realm}"
     )
   rescue ::Rex::ConnectionError => e
     elog('Connection error', error: e)
@@ -119,8 +154,9 @@ class MetasploitModule < Msf::Auxiliary
   def init_authenticator(options = {})
     options.merge!({
       host: rhost,
-      realm: datastore['DOMAIN'],
-      username: datastore['USERNAME'],
+      realm: @realm,
+      username: @username,
+      pfx: @pfx,
       framework: framework,
       framework_module: self
     })
@@ -142,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_get_tgt
-    print_status("#{peer} - Getting TGT for #{datastore['USERNAME']}@#{datastore['DOMAIN']}")
+    print_status("#{peer} - Getting TGT for #{@username}@#{@realm}")
 
     # Never attempt to use the kerberos cache when requesting a kerberos TGT, to ensure a request is made
     authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: false, write: true) })
@@ -154,11 +190,11 @@ class MetasploitModule < Msf::Auxiliary
     credential = authenticator.request_tgt_only(options)
 
     if datastore['IMPERSONATE'].present?
-      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_UNKNOWN,
-        name_string: [datastore['USERNAME']]
+        name_string: [@username]
       )
       auth_options = {
         sname: sname,
@@ -176,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
       auth_options[:tgs_ticket] = tgs_ticket
       authenticator.s4u2proxy(credential, auth_options)
     else
-      print_status("#{peer} - Getting TGS for #{datastore['USERNAME']}@#{datastore['DOMAIN']} (SPN: #{datastore['SPN']})")
+      print_status("#{peer} - Getting TGS for #{@username}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,

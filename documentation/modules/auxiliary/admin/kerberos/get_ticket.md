@@ -29,6 +29,15 @@ The following ACTIONS are supported:
 
 ## Options
 
+### CERT_FILE
+The PKCS12 (.pfx) certificate file to authenticate with. When this option is set, USERNAME and DOMAIN are optional and
+will be extracted from the certificate unless specified. Specifying a certificate causes PKINIT to be used to obtain the
+ticket. The module will provide a warning if USERNAME and DOMAIN are set but do not match any entries within the
+certificate.
+
+### CERT_PASSWORD
+The certificate file's password.
+
 ### DOMAIN
 The Fully Qualified Domain Name (FQDN). Ex: mydomain.local
 
@@ -109,6 +118,7 @@ TGT with encryption key
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
+[*] 10.0.0.24:88 - Getting TGT for Administrator@mylab.local
 [+] 10.0.0.24:88 - Received a valid TGT-Response
 [*] 10.0.0.24:88 - TGT MIT Credential Cache saved on /home/msfuser/.msf4/loot/20221104182051_default_10.0.0.24_mit.kerberos.cca_535003.bin
 [*] Auxiliary module execution completed
@@ -120,11 +130,24 @@ TGT with password
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
+[*] 10.0.0.24:88 - Getting TGT for Administrator@mylab.local
 [+] 10.0.0.24:88 - Received a valid TGT-Response
 [*] 10.0.0.24:88 - TGT MIT Credential Cache saved on /home/msfuser/.msf4/loot/20221104182219_default_10.0.0.24_mit.kerberos.cca_533360.bin
 [*] Auxiliary module execution completed
 ```
 
+TGT with certificate
+
+```
+msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 cert_file=/home/msfuser/.msf4/loot/20230124155521_default_10.0.0.24_windows.ad.cs_384669.pfx action=GET_TGT
+[*] Running module against 10.0.0.24
+
+[*] 10.0.0.24:88 - Getting TGT for Administrator@mylab.local
+[+] 10.0.0.24:88 - Received a valid TGT-Response
+[*] 10.0.0.24:88 - TGT MIT Credential Cache ticket saved to /home/msfuser/.msf4/loot/20230124155555_default_192.168.159.10_mit.kerberos.cca_702818.bin
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/kerberos/get_ticket) >
+```
 
 ### Requesting a TGS
 
