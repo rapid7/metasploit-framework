@@ -202,6 +202,10 @@ NAVIGATION_CONFIG = [
                 path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
                 title: 'Vulnerable cert finder'
               },
+              {
+                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
+                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
+              },
             ]
           }
         ]
