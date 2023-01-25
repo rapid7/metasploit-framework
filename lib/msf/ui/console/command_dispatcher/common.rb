@@ -98,6 +98,47 @@ module Common
     print_line
   end
 
+  def set_creds_from_database(public, private, realm)
+    if public.empty? && private.empty?
+      print_status("Invalid")
+    end
+    # check if a module is active
+    if active_module
+      mydatastore = active_module.datastore
+    else
+      print_error("No active module selected")
+      return
+    end
+    # options to check if ppresent for active module
+    user_options = ['USERNAME', 'HttpUsername', 'SMBUser', 'DBUSER', 'FTPUSER']
+    pass_options = ['PASSWORD', 'HttpPassword', 'SMBPass', 'DBPASS', 'FTPPASS']
+    domain_options = ['DOMAIN', 'SMBDomain', 'DOMAINNAME']
+    # set username
+    user_options.each do |user_option|
+      if mydatastore.options.include?(user_option)
+        mydatastore[user_option] = public
+        print_line "#{user_option} => #{mydatastore[user_option]}"
+        break
+      end
+    end
+    # set password
+    pass_options.each do |pass_option|
+      if mydatastore.options.include?(pass_option)
+        mydatastore[pass_option] = private
+        print_line "#{pass_option} => #{mydatastore[pass_option]}"
+        break
+      end
+    end
+    # set realm
+    domain_options.each do |domain_option|
+      if mydatastore.options.include?(domain_option)
+        mydatastore[domain_option] = realm
+        print_line "#{domain_option} => #{mydatastore[domain_option]}"
+        break
+      end
+    end
+  end
+
   def show_options(mod) # :nodoc:
     mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
     print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)

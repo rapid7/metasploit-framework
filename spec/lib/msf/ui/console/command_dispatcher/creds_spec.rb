@@ -71,9 +71,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               'Credentials',
               '===========',
               '',
-              'host  origin  service  public    private   realm  private_type  JtR Format',
-              '----  ------  -------  ------    -------   -----  ------------  ----------',
-              '                       thisuser  thispass         Password      '
+              'id  host  origin  service  public    private   realm  private_type  JtR Format',
+              '--  ----  ------  -------  ------    -------   -----  ------------  ----------',
+              '1                          thisuser  thispass         Password      '
             ])
           end
 
@@ -83,9 +83,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               'Credentials',
               '===========',
               '',
-              'host  origin  service  public    private   realm  private_type  JtR Format',
-              '----  ------  -------  ------    -------   -----  ------------  ----------',
-              '                       thisuser  thispass         Password      '
+              'id  host  origin  service  public    private   realm  private_type  JtR Format',
+              '--  ----  ------  -------  ------    -------   -----  ------------  ----------',
+              '1                          thisuser  thispass         Password      '
             ])
           end
 
@@ -96,9 +96,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 'Credentials',
                 '===========',
                 '',
-                'host  origin  service  public  private        realm  private_type  JtR Format',
-                '----  ------  -------  ------  -------        -----  ------------  ----------',
-                '                               nonblank_pass         Password      '
+                'id  host  origin  service  public  private        realm  private_type  JtR Format',
+                '--  ----  ------  -------  ------  -------        -----  ------------  ----------',
+                '1                                  nonblank_pass         Password      '
               ])
             end
           end
@@ -109,9 +109,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 'Credentials',
                 '===========',
                 '',
-                'host  origin  service  public         private  realm  private_type  JtR Format',
-                '----  ------  -------  ------         -------  -----  ------------  ----------',
-                '                       nonblank_user                  Password      '
+                'id  host  origin  service  public         private  realm  private_type  JtR Format',
+                '--  ----  ------  -------  ------         -------  -----  ------------  ----------',
+                '1                          nonblank_user                  Password      '
               ])
             end
           end
@@ -125,8 +125,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 'Credentials',
                 '===========',
                 '',
-                'host  origin  service  public  private  realm  private_type  JtR Format',
-                '----  ------  -------  ------  -------  -----  ------------  ----------'
+                'id  host  origin  service  public  private  realm  private_type  JtR Format',
+                '--  ----  ------  -------  ------  -------  -----  ------------  ----------'
               ])
             end
           end
@@ -137,8 +137,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 'Credentials',
                 '===========',
                 '',
-                'host  origin  service  public  private  realm  private_type  JtR Format',
-                '----  ------  -------  ------  -------  -----  ------------  ----------'
+                'id  host  origin  service  public  private  realm  private_type  JtR Format',
+                '--  ----  ------  -------  ------  -------  -----  ------------  ----------'
               ])
             end
           end
@@ -206,9 +206,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 'Credentials',
                 '===========',
                 '',
-                'host  origin  service  public    private   realm  private_type  JtR Format',
-                '----  ------  -------  ------    -------   -----  ------------  ----------',
-                '                       thisuser  thispass         Password      '
+                'id  host  origin  service  public    private   realm  private_type  JtR Format',
+                '--  ----  ------  -------  ------    -------   -----  ------------  ----------',
+                '1                          thisuser  thispass         Password      '
               ])
             end
           end

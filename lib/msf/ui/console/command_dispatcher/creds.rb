@@ -76,6 +76,8 @@ class Creds
       cmd_creds_help
     when 'add'
       creds_add(*args)
+    when 'fill'
+      creds_fill(*args)
     else
       # then it's not actually a subcommand
       args.unshift(subcommand) if subcommand
@@ -132,6 +134,15 @@ class Creds
     print_line "   creds add user:other hash:d19c32489b870735b5f587d76b934283 jtr:md5"
     print_line "   # Add a NonReplayableHash"
     print_line "   creds add hash:d19c32489b870735b5f587d76b934283"
+    print_line
+    print_line "Usage - AutoFilling credentials:"
+    print_line "  => creds fill <index>"
+    print_line "  # The <index> can be of the following type."
+    print_line "        - index of a single credential to be added to the options"
+    print_line
+    print_line "Examples: AutoFill"
+    print_line "   # Fill a Single credential to options if option exists Eg. USERNAME"
+    print_line "   - creds fill 1"
 
     print_line
     print_line "General options"
@@ -312,6 +323,35 @@ class Creds
     info
   end
 
+  def creds_fill(*args) # sets the creds from database into a module
+    index = args[0].to_i
+    if (index == 0) # check if a valid argument
+      print_error("Invalid parameter, #{args}")
+      return
+    else
+      index -= 1
+    end
+    opts = {}
+    usernames = [] #store public values
+    passwords = [] #store private values
+    realms = [] #store realm values
+    query = framework.db.creds(opts)
+    query.each do |core|
+      user = core.public ? core.public.username : ''
+      usernames << user
+      passwd = core.private ? core.private.data : ''
+      passwords << passwd
+      realm_val = core.realm ? core.realm.value : ''
+      realms << realm_val
+    end
+    # Access the username, password  and realm by index
+    user = usernames[index]
+    pass = passwords[index]
+    realm = realms[index]
+    # set the creds to a module
+    set_creds_from_database(user, pass, realm)
+  end
+
   def creds_search(*args)
     host_ranges   = []
     origin_ranges = []
@@ -319,11 +359,11 @@ class Creds
     svcs          = []
     rhosts        = []
     opts          = {}
-
+    count = 0
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
+    cred_table_columns = [ 'id','host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
     delete_count = 0
     search_term = nil
 
@@ -451,6 +491,7 @@ class Creds
       end
 
       unless tbl.nil?
+        count += 1
         public_val = core.public ? core.public.username : ''
         if core.private
           # Show the human readable description by default, unless the user ran with `--verbose` and wants to see the cred data
@@ -479,6 +520,7 @@ class Creds
         end
 
         tbl << [
+          count,
           host,
           origin,
           service_info,
