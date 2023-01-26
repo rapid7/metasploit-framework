@@ -1,10 +1,10 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.2.37)
-      actionpack (~> 6.0)
-      activerecord (~> 6.0)
-      activesupport (~> 6.0)
+    metasploit-framework (6.3.0)
+      actionpack (~> 7.0)
+      activerecord (~> 7.0)
+      activesupport (~> 7.0)
       aws-sdk-ec2
       aws-sdk-iam
       aws-sdk-s3
@@ -51,6 +51,7 @@ PATH
       pg
       puma
       railties
+      rasn1
       rb-readline
       recog
       redcarpet
@@ -96,30 +97,29 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
-    actionpack (6.1.7)
-      actionview (= 6.1.7)
-      activesupport (= 6.1.7)
-      rack (~> 2.0, >= 2.0.9)
+    actionpack (7.0.4.1)
+      actionview (= 7.0.4.1)
+      activesupport (= 7.0.4.1)
+      rack (~> 2.0, >= 2.2.0)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.2.0)
-    actionview (6.1.7)
-      activesupport (= 6.1.7)
+    actionview (7.0.4.1)
+      activesupport (= 7.0.4.1)
       builder (~> 3.1)
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
-    activemodel (6.1.7)
-      activesupport (= 6.1.7)
-    activerecord (6.1.7)
-      activemodel (= 6.1.7)
-      activesupport (= 6.1.7)
-    activesupport (6.1.7)
+    activemodel (7.0.4.1)
+      activesupport (= 7.0.4.1)
+    activerecord (7.0.4.1)
+      activemodel (= 7.0.4.1)
+      activesupport (= 7.0.4.1)
+    activesupport (7.0.4.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
-      zeitwerk (~> 2.3)
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
     afm (0.2.2)
@@ -230,10 +230,11 @@ GEM
       nokogiri (>= 1.5.9)
     memory_profiler (1.0.1)
     metasm (1.0.5)
-    metasploit-concern (4.0.5)
-      activemodel (~> 6.0)
-      activesupport (~> 6.0)
-      railties (~> 6.0)
+    metasploit-concern (5.0.0)
+      activemodel (~> 7.0)
+      activesupport (~> 7.0)
+      railties (~> 7.0)
+      zeitwerk
     metasploit-credential (6.0.1)
       metasploit-concern
       metasploit-model
@@ -244,19 +245,19 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (4.0.6)
-      activemodel (~> 6.0)
-      activesupport (~> 6.0)
-      railties (~> 6.0)
+    metasploit-model (5.0.0)
+      activemodel (~> 7.0)
+      activesupport (~> 7.0)
+      railties (~> 7.0)
     metasploit-payloads (2.0.108)
-    metasploit_data_models (5.0.6)
-      activerecord (~> 6.0)
-      activesupport (~> 6.0)
+    metasploit_data_models (6.0.1)
+      activerecord (~> 7.0)
+      activesupport (~> 7.0)
       arel-helpers
       metasploit-concern
       metasploit-model (>= 3.1)
       pg
-      railties (~> 6.0)
+      railties (~> 7.0)
       recog
       webrick
     metasploit_payloads-mettle (1.0.20)
@@ -322,14 +323,17 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.4.4)
       loofah (~> 2.19, >= 2.19.1)
-    railties (6.1.7)
-      actionpack (= 6.1.7)
-      activesupport (= 6.1.7)
+    railties (7.0.4.1)
+      actionpack (= 7.0.4.1)
+      activesupport (= 7.0.4.1)
       method_source
       rake (>= 12.2)
       thor (~> 1.0)
+      zeitwerk (~> 2.5)
     rainbow (3.1.1)
     rake (13.0.6)
+    rasn1 (0.12.0)
+      strptime (~> 0.2.5)
     rb-readline (0.5.5)
     recog (3.0.3)
       nokogiri
@@ -427,7 +431,7 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.2.1)
+    ruby_smb (3.2.3)
       bindata
       openssl-ccm
       openssl-cmac
@@ -452,6 +456,7 @@ GEM
     sqlite3 (1.5.4)
       mini_portile2 (~> 2.8.0)
     sshkey (2.0.0)
+    strptime (0.2.5)
     swagger-blocks (3.0.0)
     thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
@@ -478,7 +483,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     win32api (0.1.0)
-    windows_error (0.1.4)
+    windows_error (0.1.5)
     winrm (2.3.6)
       builder (>= 2.1.2)
       erubi (~> 1.8)

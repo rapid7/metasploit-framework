@@ -358,15 +358,15 @@ class MetasploitModule < Msf::Auxiliary
         retry
       rescue Rex::ConnectionTimeout => e
         print_error(e.to_s)
-        return
+        next
       rescue Rex::Proto::SMB::Exceptions::LoginError => e
         print_error(e.to_s)
       rescue RubySMB::Error::RubySMBError => e
         print_error("RubySMB encountered an error: #{e}")
-        return
+        next
       rescue RuntimeError => e
         print_error e.to_s
-        return
+        next
       rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure

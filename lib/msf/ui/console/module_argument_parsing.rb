@@ -163,7 +163,7 @@ module ModuleArgumentParsing
   def resembles_datastore_assignment?(val)
     return false unless val
 
-    valid_option_regex = /^\w+=.*/
+    valid_option_regex = /^(\w|::)+=.*/
     valid_option_regex.match?(val)
   end
 

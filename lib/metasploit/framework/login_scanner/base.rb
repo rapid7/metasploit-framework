@@ -239,6 +239,8 @@ module Metasploit
                 break if stop_on_success
               elsif result.status == Metasploit::Model::Login::Status::LOCKED_OUT
                 ignored_users << credential.public
+              elsif result.status ==  Metasploit::Model::Login::Status::INVALID_PUBLIC_PART
+                ignored_users << credential.public
               elsif result.status == Metasploit::Model::Login::Status::DISABLED
                 ignored_users << credential.public
               else

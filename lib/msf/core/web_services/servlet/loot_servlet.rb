@@ -30,7 +30,9 @@ module Msf::WebServices::LootServlet
         data = encode_loot_data(data)
         data = data.first if is_single_object?(data, sanitized_params)
         set_json_data_response(response: data, includes: includes)
-      rescue => e
+      rescue ActiveRecord::RecordNotFound => e
+        create_error_response(error: e, message: 'Loot record was not found', code: 404)
+      rescue StandardError => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving the loot:', code: 500)
       end
     }
@@ -72,7 +74,7 @@ module Msf::WebServices::LootServlet
         data = get_db.update_loot(opts)
         data = encode_loot_data(data)
         set_json_data_response(response: data)
-      rescue => e
+      rescue StandardError => e
         print_error_and_create_response(error: e, message: 'There was an error updating the loot:', code: 500)
       end
     }
@@ -89,7 +91,7 @@ module Msf::WebServices::LootServlet
         data.map! { |loot| loot.dup if loot.frozen? }
         data = encode_loot_data(data)
         set_json_data_response(response: data)
-      rescue => e
+      rescue StandardError => e
         print_error_and_create_response(error: e, message: 'There was an error deleting the loot:', code: 500)
       end
     }

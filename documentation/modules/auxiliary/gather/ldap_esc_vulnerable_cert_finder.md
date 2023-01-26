@@ -1,5 +1,5 @@
 ## Vulnerable Application
-This module allows users to query a LDAP server for vulnerable certificate
+The `auxiliary/gather/ldap_esc_vulnerable_cert_finder` module allows users to query a LDAP server for vulnerable certificate
 templates and will print these certificates out in a table along with which
 attack they are vulnerable to and the SIDs that can be used to enroll in that
 certificate template.
@@ -77,7 +77,8 @@ Currently the module is capable of checking for ESC1, ESC2, and ESC3 vulnerable 
 1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
 1. The certificate should now be available to be issued by the CA server.
 
-## Verification Steps
+## Module usage
+
 1. Do: Start msfconsole
 1. Do: `use auxiliary/gather/ldap_esc_vulnerable_cert_finder`
 1. Do: `set BIND_DN <DOMAIN>\\<USERNAME to log in as>`
@@ -115,8 +116,7 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
    BIND_DN               DAFOREST\Administrator  no        The username to authenticate to LDAP server
    BIND_PW               theAdmin123             no        Password for the BIND_DN
    REPORT_NONENROLLABLE  false                   yes       Report nonenrollable certificate templates
-   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-
-                                                           Metasploit
+   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT                 389                     yes       The target port
    SSL                   false                   no        Enable SSL on the LDAP connection
 
@@ -258,8 +258,7 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
    BIND_DN               DAFOREST\Administrator  no        The username to authenticate to LDAP server
    BIND_PW               theAdmin123             no        Password for the BIND_DN
    REPORT_NONENROLLABLE  true                    yes       Report nonenrollable certificate templates
-   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-
-                                                           Metasploit
+   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT                 389                     yes       The target port
    SSL                   false                   no        Enable SSL on the LDAP connection
 

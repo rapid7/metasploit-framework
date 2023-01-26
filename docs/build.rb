@@ -2,6 +2,7 @@ require 'fileutils'
 require 'uri'
 require 'open3'
 require 'optparse'
+require 'did_you_mean'
 require_relative './navigation'
 
 # This build module was used to migrate the old Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
@@ -48,13 +49,18 @@ module Build
     def validate!
       configured_paths = all_file_paths
       missing_paths = available_paths.map { |path| path.gsub("#{WIKI_PATH}/", '') } - ignored_paths - existing_docs - configured_paths
-      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
+      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')} - add navigation entries to navigation.rb for these files" if missing_paths.any?
 
       each do |page|
         page_keys = page.keys
         allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
-        raise ConfigValidationError, "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
+
+        suggestion = DidYouMean::SpellChecker.new(dictionary: allowed_keys).correct(invalid_keys[0]).first
+        error = "#{page} had invalid keys #{invalid_keys.join(', ')}."
+        error += " Did you mean #{suggestion}?" if suggestion
+
+        raise ConfigValidationError, error  if invalid_keys.any?
       end
 
       # Ensure unique folder names
@@ -185,12 +191,18 @@ module Build
     def extract_absolute_wiki_links(markdown)
       new_links = {}
 
-      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_-]+))}) do |full_match, old_path|
+      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_#-]+))}) do |full_match, old_path|
         full_match = full_match.gsub(/[).]+$/, '')
         old_path = URI.decode_www_form_component(old_path.gsub(/[).]+$/, ''))
 
-        new_path = new_path_for(old_path)
-        replacement = "{% link docs/#{new_path} %}"
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+
+        new_path = new_path_for(old_path, old_path_anchor)
+        replacement = "{% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""}"
 
         link = {
           full_match: full_match,
@@ -210,19 +222,26 @@ module Build
     #   '[[Custom name|Relative Path]]'
     #   '[[Custom name|relative-path]]'
     #   '[[Custom name|./relative-path.md]]'
+    #   '[[Custom name|./relative-path.md#section-anchor-to-link-to]]'
+    # Note that the page target resource file is validated for existence at build time - but the section anchors are not
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
 
-      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.-]+))?\]\])/) do |full_match, left, right|
+      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.#-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
-        new_path = new_path_for(old_path)
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+        new_path = new_path_for(old_path, old_path_anchor)
         if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
           raise "Link for #{full_match} previously resolved to #{existing_links[full_match][:new_path]}, but now resolves to #{new_path}"
         end
 
         link_text = left
-        replacement = "[#{link_text}]({% link docs/#{new_path} %})"
+        replacement = "[#{link_text}]({% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""})"
 
         link = {
           full_match: full_match,
@@ -239,8 +258,17 @@ module Build
       new_links
     end
 
-    def new_path_for(old_path)
-      old_path = old_path.gsub(' ', '-')
+    def new_path_for(old_path, old_path_anchor)
+      # Strip out any leading `./` or `/` before the relative path.
+      # This is needed for our later code that does additional filtering for
+      # potential ambiguity with absolute paths since those comparisons occur
+      # against filenames without the leading ./ and / parts.
+      old_path = old_path.gsub(/^[.\/]+/, '')
+
+      # Replace any spaces in the file name with - separators, then
+      # make replace anchors with an empty string.
+      old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
+
       matched_pages = pages.select do |page|
         !page[:folder] &&
           (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
@@ -249,8 +277,20 @@ module Build
       if matched_pages.empty?
         raise "Link not found: #{old_path}"
       end
+      # Additional filter for absolute paths if there's potential ambiguity
       if matched_pages.count > 1
-        raise "Duplicate paths for #{old_path}"
+        refined_pages = matched_pages.select do |page|
+          !page[:folder] &&
+            (page[:path].downcase == "#{old_path}.md".downcase ||
+              page[:path].downcase == old_path.downcase)
+        end
+
+        if refined_pages.count != 1
+          page_paths = matched_pages.map { |page| page[:path] }
+          raise "Duplicate paths for #{old_path} - possible page paths found: #{page_paths}"
+        end
+
+        matched_pages = refined_pages
       end
 
       matched_pages.first.fetch(:new_path)
@@ -281,6 +321,9 @@ module Build
       ]
       # These tags look like Github/Twitter handles, but are actually ruby/java code snippets
       ignored_tags = [
+        '@spid',
+        '@adf3',
+        '@LDAP-DC3',
         '@harmj0yDescription',
         '@phpsessid',
         '@http_client',
@@ -550,6 +593,13 @@ module Build
       if options[:serve]
         ReleaseBuildServer.run
       end
+    elsif options[:staging]
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
+      run_command('JEKYLL_ENV=production bundle exec jekyll build --config _config.yml,_config_staging.yml')
+
+      if options[:serve]
+        ReleaseBuildServer.run
+      end
     elsif options[:serve]
       run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
     end
@@ -570,6 +620,10 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--production', 'Run a production build') do |production|
       options[:production] = production
+    end
+
+    opts.on('--staging', 'Run a staging build for deploying to gh-pages') do |staging|
+      options[:staging] = staging
     end
 
     opts.on('--serve', 'serve the docs site') do |serve|

@@ -21,7 +21,7 @@ class Client
   #
   # Creates a new client instance
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', comm: nil)
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', kerberos_authenticator: nil, comm: nil)
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
@@ -30,6 +30,7 @@ class Client
     self.proxies  = proxies
     self.username = username
     self.password = password
+    self.kerberos_authenticator = kerberos_authenticator
     self.comm = comm
 
     # Take ClientRequest's defaults, but override with our own
@@ -230,6 +231,8 @@ class Client
     @pipeline = persist
     if req.respond_to?(:opts) && req.opts['ntlm_transform_request'] && self.ntlm_client
       req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
+    elsif req.respond_to?(:opts) && req.opts['krb_transform_request'] && self.krb_encryptor
+      req = req.opts['krb_transform_request'].call(self.krb_encryptor, req)
     end
 
     send_request(req, t)
@@ -237,6 +240,8 @@ class Client
     res = read_response(t, :original_request => req)
     if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
+    elsif req.respond_to?(:opts) && req.opts['krb_transform_response'] && self.krb_encryptor
+      req = req.opts['krb_transform_response'].call(self.krb_encryptor, res)
     end
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
@@ -276,7 +281,11 @@ class Client
       end
     end
 
-    return res if opts['username'].nil? or opts['username'] == ''
+    if opts[:kerberos_authenticator].nil?
+      opts[:kerberos_authenticator] = self.kerberos_authenticator
+    end
+
+    return res if (opts['username'].nil? or opts['username'] == '') and opts[:kerberos_authenticator].nil?
     supported_auths = res.headers['WWW-Authenticate']
 
     # if several providers are available, the client may want one in particular
@@ -304,6 +313,13 @@ class Client
     elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Negotiate')
       opts['provider'] = 'Negotiate'
       temp_response = negotiate_auth(opts)
+      if temp_response.kind_of? Rex::Proto::Http::Response
+        res = temp_response
+      end
+      return res
+    elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Kerberos')
+      opts['provider'] = 'Negotiate'
+      temp_response = kerberos_auth(opts)
       if temp_response.kind_of? Rex::Proto::Http::Response
         res = temp_response
       end
@@ -461,6 +477,53 @@ class Client
     return resp
 
     rescue ::Errno::EPIPE, ::Timeout::Error
+    end
+  end
+
+  def kerberos_auth(opts={})
+    to = opts['timeout'] || 20
+    auth_result = self.kerberos_authenticator.authenticate(mechanism: Rex::Proto::Gss::Mechanism::KERBEROS)
+    gss_data = auth_result[:security_blob]
+    gss_data_b64 = Rex::Text.encode_base64(gss_data)
+
+    # Separate options for the auth requests
+    auth_opts = opts.clone
+    auth_opts['headers'] = opts['headers'].clone
+    auth_opts['headers']['Authorization'] = "Kerberos #{gss_data_b64}"
+
+    if auth_opts['no_body_for_auth']
+      auth_opts.delete('data')
+      auth_opts.delete('krb_transform_request')
+      auth_opts.delete('krb_transform_response')
+    end
+
+    begin
+      # Send the auth request
+      r = request_cgi(auth_opts)
+      resp = _send_recv(r, to)
+      unless resp.kind_of? Rex::Proto::Http::Response
+        return nil
+      end
+
+      # Get the challenge and craft the response
+      response = resp.headers['WWW-Authenticate'].scan(/Kerberos ([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
+      return resp unless response
+
+      decoded = Rex::Text.decode_base64(response)
+      mutual_auth_result = self.kerberos_authenticator.parse_gss_init_response(decoded, auth_result[:session_key], mechanism: 'kerberos')
+      self.krb_encryptor = self.kerberos_authenticator.get_message_encryptor(mutual_auth_result[:ap_rep_subkey], 
+                                                                                  auth_result[:client_sequence_number],
+                                                                                  mutual_auth_result[:server_sequence_number])
+
+      if opts['no_body_for_auth']
+        # If the body wasn't sent in the authentication, now do the actual request
+        r = request_cgi(opts)
+        resp = _send_recv(r, to, true)
+      end
+      return resp
+
+    rescue ::Errno::EPIPE, ::Timeout::Error
+      return nil
     end
   end
 
@@ -724,7 +787,7 @@ class Client
   attr_accessor :proxies
 
   # Auth
-  attr_accessor :username, :password
+  attr_accessor :username, :password, :kerberos_authenticator
 
   # When parsing the request, thunk off the first response from the server, since junk
   attr_accessor :junk_pipeline
@@ -740,6 +803,11 @@ protected
   # The established NTLM connection info
   #
   attr_accessor :ntlm_client
+
+  #
+  # The established kerberos connection info
+  #
+  attr_accessor :krb_encryptor
 end
 
 end
