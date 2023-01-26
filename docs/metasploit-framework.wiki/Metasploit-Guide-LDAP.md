@@ -17,7 +17,7 @@ For LDAPS support to be enabled on port 636, you will have to configure [[AD CS 
 
 ### Authentication
 
-The LDAP module supports the following forms of authentication with the `LDAPAuth` option:
+The LDAP module supports the following forms of authentication with the `LDAP::Auth` option:
 
 - auto
 - ntlm
@@ -102,7 +102,7 @@ Query LDAP for accounts:
 
 ```
 msf6 > use auxiliary/gather/ldap_query
-msf6 auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.13 username=Administrator password=p4$$w0rd ldapauth=kerberos ldaprhostname=dc3.demo.local domain=demo.local domaincontrollerrhost=192.168.123.13
+msf6 auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.13 username=Administrator password=p4$$w0rd ldap::auth=kerberos ldap::rhostname=dc3.demo.local domain=demo.local domaincontrollerrhost=192.168.123.13
 [*] Running module against 192.168.123.13
 
 [+] 192.168.123.13:88 - Received a valid TGT-Response

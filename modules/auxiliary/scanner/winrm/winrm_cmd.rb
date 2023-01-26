@@ -53,22 +53,22 @@ class MetasploitModule < Msf::Auxiliary
         retry_limit: 1,
         realm: datastore['DOMAIN']
     }
-    case datastore['WinrmAuth']
+    case datastore['Winrm::Auth']
     when Msf::Exploit::Remote::AuthOption::KERBEROS
       kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
         host: datastore['DomainControllerRhost'],
-        hostname: datastore['WinrmRhostname'],
+        hostname: datastore['Winrm::Rhostname'],
         realm: datastore['DOMAIN'],
         username: datastore['USERNAME'],
         password: datastore['PASSWORD'],
         timeout: 20, # datastore['timeout']
         framework: framework,
         framework_module: self,
-        cache_file: datastore['WinrmKrb5Ccname'].blank? ? nil : datastore['WinrmKrb5Ccname'],
+        cache_file: datastore['Winrm::Krb5Ccname'].blank? ? nil : datastore['Winrm::Krb5Ccname'],
         mutual_auth: true,
         use_gss_checksum: true,
         ticket_storage: kerberos_ticket_storage,
-        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['WinrmKrbOfferedEncryptionTypes'])
+        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes'])
       )
       opts = opts.merge({
         user: '', # Need to provide it, otherwise the WinRM module complains

