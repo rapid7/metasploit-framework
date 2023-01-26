@@ -47,6 +47,8 @@ class MetasploitModule < Msf::Auxiliary
   def run
     enc_key = get_enc_key
     print_contents(datastore['TICKET_PATH'], key: enc_key)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Msf::Exploit::Failure::Unknown, "Could not print ticket contents (#{e})")
   end
 
   private
