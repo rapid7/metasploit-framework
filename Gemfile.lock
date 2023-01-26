@@ -234,7 +234,7 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.0)
+    metasploit-credential (6.0.1)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
