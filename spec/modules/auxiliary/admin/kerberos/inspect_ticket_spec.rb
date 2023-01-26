@@ -486,7 +486,7 @@ RSpec.describe 'kerberos inspect ticket' do
             Encrypted Ticket Part:
               Ticket etype: 18 (AES256)
               Key Version Number: 2
-              Decrypted (with key: \x4b\x91\x2b\xe0\x36\x6a\x6f\x37\xf4\xa7\xd5\x71\xbe\xe1\x8b\x11\x73\xd9\x31\x95\xef\x76\xf8\xd1\xe3\xe8\x1e\xf6\x17\x2a\xb3\x26):
+              Decrypted (with key: 4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326):
                 Times:
                   Auth time: 2023-01-13 14:31:25 UTC
                   Start time: 2023-01-13 14:31:25 UTC
@@ -512,7 +512,7 @@ RSpec.describe 'kerberos inspect ticket' do
                     User ID: 500
                     Primary Group ID: 513
                     User Flags: 0
-                    User Session Key: \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+                    User Session Key: 00000000000000000000000000000000
                     User Account Control: 528
                     Sub Auth Status: 0
                     Last Successful Interactive Logon: No Time Set (0)
@@ -540,9 +540,9 @@ RSpec.describe 'kerberos inspect ticket' do
                     Name: 'Administrator'
                     Client ID: 2023-01-13 14:31:25 +0000
                   Pac Server Checksum:
-                    Signature: \x81\xa2\x0d\xa7\x31\xb3\xb9\xbd\xd2\xe7\x56\xdc
+                    Signature: 81a20da731b3b9bdd2e756dc
                   Pac Privilege Server Checksum:
-                    Signature: \xe5\x52\xba\x92\xad\x31\x27\x55\xd8\x9e\xbc\xc7
+                    Signature: e552ba92ad312755d89ebcc7
     EOF
     expected_output.join("\n")
   end
@@ -612,7 +612,7 @@ RSpec.describe 'kerberos inspect ticket' do
             Encrypted Ticket Part:
               Ticket etype: 23 (RC4_HMAC)
               Key Version Number: 2
-              Decrypted (with key: \x88\xe4\xd9\xfa\xba\xec\xf3\xde\xc1\x8d\xd8\x09\x05\x52\x1b\x29):
+              Decrypted (with key: 88e4d9fabaecf3dec18dd80905521b29):
                 Times:
                   Auth time: 2023-01-13 14:36:39 UTC
                   Start time: 2023-01-13 14:36:39 UTC
@@ -638,7 +638,7 @@ RSpec.describe 'kerberos inspect ticket' do
                     User ID: 500
                     Primary Group ID: 513
                     User Flags: 0
-                    User Session Key: \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+                    User Session Key: 00000000000000000000000000000000
                     User Account Control: 528
                     Sub Auth Status: 0
                     Last Successful Interactive Logon: No Time Set (0)
@@ -666,9 +666,9 @@ RSpec.describe 'kerberos inspect ticket' do
                     Name: 'Administrator'
                     Client ID: 2023-01-13 14:36:39 +0000
                   Pac Server Checksum:
-                    Signature: \x1a\x03\x8d\x8d\xd2\x57\xa7\xd9\xb8\x75\x28\x02\x59\xab\x0e\x4a
+                    Signature: 1a038d8dd257a7d9b875280259ab0e4a
                   Pac Privilege Server Checksum:
-                    Signature: \x2f\x3a\x9e\x1e\x4f\xa7\xd3\x82\x3d\xcb\x7e\xdb\xda\xaa\x83\x85
+                    Signature: 2f3a9e1e4fa7d3823dcb7edbdaaa8385
     EOF
     expected_output.join("\n")
   end
