@@ -168,7 +168,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
             Encrypted Ticket Part:
               Ticket etype: 18 (AES256)
               Key Version Number: 2
-              Decrypted (with key: \\x4b\\x91\\x2b\\xe0\\x36\\x6a\\x6f\\x37\\xf4\\xa7\\xd5\\x71\\xbe\\xe1\\x8b\\x11\\x73\\xd9\\x31\\x95\\xef\\x76\\xf8\\xd1\\xe3\\xe8\\x1e\\xf6\\x17\\x2a\\xb3\\x26):
+              Decrypted (with key: 4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326):
                 Times:
                   Auth time: 2022-11-28 15:51:29 UTC
                   Start time: 2022-11-28 15:51:29 UTC
@@ -194,7 +194,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     User ID: 500
                     Primary Group ID: 513
                     User Flags: 0
-                    User Session Key: \\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00
+                    User Session Key: 00000000000000000000000000000000
                     User Account Control: 528
                     Sub Auth Status: 0
                     Last Successful Interactive Logon: No Time Set (0)
@@ -222,9 +222,9 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Name: 'Administrator'
                     Client ID: 2022-11-28 15:51:29 +0000
                   Pac Server Checksum:
-                    Signature: \\x5e\\xb9\\x40\\x0b\\xca\\xb4\\x2b\\xab\\xcd\\x59\\x82\\x10
+                    Signature: 5eb9400bcab42babcd598210
                   Pac Privilege Server Checksum:
-                    Signature: \\x58\\x58\\xaf\\xf1\\x9f\\x89\\xc9\\xb9\\xce\\x01\\xc4\\x37
+                    Signature: 5858aff19f89c9b9ce01c437
     EOF
   end
 

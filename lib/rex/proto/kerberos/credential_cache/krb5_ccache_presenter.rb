@@ -100,7 +100,7 @@ module Rex::Proto::Kerberos::CredentialCache
         output << 'Cipher:'.indent(4)
         output << Base64.strict_encode64(ticket.enc_part.cipher).indent(6)
       else
-        output << "Decrypted (with key: #{key.bytes.map { |x| "\\x#{x.to_s(16).rjust(2, '0')}" }.join}):".indent(4)
+        output << "Decrypted (with key: #{key.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join}):".indent(4)
         output << present_encrypted_ticket_part(ticket, key).indent(6)
       end
 
@@ -172,7 +172,7 @@ module Rex::Proto::Kerberos::CredentialCache
     def present_server_checksum(info_buffer)
       server_checksum = info_buffer.buffer.pac_element
 
-      sig = server_checksum.signature.bytes.map { |x| "\\x#{x.to_s(16).rjust(2, '0')}" }.join
+      sig = server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
       "Pac Server Checksum:\n" +
         "Signature: #{sig}".indent(2)
     end
@@ -182,7 +182,7 @@ module Rex::Proto::Kerberos::CredentialCache
     def present_priv_server_checksum(info_buffer)
       priv_server_checksum = info_buffer.buffer.pac_element
 
-      sig = priv_server_checksum.signature.bytes.map { |x| "\\x#{x.to_s(16).rjust(2, '0')}" }.join
+      sig = priv_server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
       "Pac Privilege Server Checksum:\n" +
         "Signature: #{sig}".indent(2)
     end
@@ -259,7 +259,7 @@ module Rex::Proto::Kerberos::CredentialCache
     # @param [Rex::Proto::Kerberos::Pac::UserSessionKey] user_session_key
     # @return [String] A human readable representation of a User Session Key
     def present_user_session_key(user_session_key)
-      user_session_key.session_key.flat_map(&:data).map { |x| "\\x#{x.to_i.to_s(16).rjust(2, '0')}" }.join
+      user_session_key.session_key.flat_map(&:data).map { |x| "#{x.to_i.to_s(16).rjust(2, '0')}" }.join
     end
 
     # @param [RubySMB::Dcerpc::Ndr::NdrFileTime] time
