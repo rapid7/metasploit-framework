@@ -63,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      # Using USERNAME, PASSWORD and DOMAIN options defined by the LDAP mixin
       OptString.new('DC_NAME', [ true, 'Name of the domain controller being targeted (must match RHOST)' ]),
       OptInt.new('LDAP_PORT', [true, 'LDAP port (default is 389 and default encrypted is 636)', 636]), # Set to 636 for legacy SSL
       OptString.new('DOMAIN', [true, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local']),
@@ -88,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     ])
 
-    deregister_options('CERT_TEMPLATE', 'ALT_DNS', 'ALT_UPN', 'PFX', 'ON_BEHALF_OF', 'SMBUser', 'SMBPass', 'SMBDomain')
+    deregister_options('CERT_TEMPLATE', 'ALT_DNS', 'ALT_UPN', 'PFX', 'ON_BEHALF_OF', 'LDAPUsername', 'LDAPPassword', 'SMBUser', 'SMBPass', 'SMBDomain')
   end
 
   def run
@@ -295,7 +294,9 @@ class MetasploitModule < Msf::Auxiliary
     base = datastore['DOMAIN'].split('.').map { |dc| "dc=#{dc}" }.join(',')
     ldap_options = {
       port: datastore['LDAP_PORT'],
-      base: base
+      base: base,
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     }
 
     ldap_connect(ldap_options) do |ldap|
