@@ -259,7 +259,16 @@ module Build
     end
 
     def new_path_for(old_path, old_path_anchor)
+      # Strip out any leading `./` or `/` before the relative path.
+      # This is needed for our later code that does additional filtering for
+      # potential ambiguity with absolute paths since those comparisons occur
+      # against filenames without the leading ./ and / parts.
+      old_path = old_path.gsub(/^[.\/]+/, '')
+
+      # Replace any spaces in the file name with - separators, then
+      # make replace anchors with an empty string.
       old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
+
       matched_pages = pages.select do |page|
         !page[:folder] &&
           (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
