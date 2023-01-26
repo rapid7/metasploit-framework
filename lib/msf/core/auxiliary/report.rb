@@ -210,7 +210,7 @@ module Auxiliary::Report
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-    if opts[:host].kind_of?(::Mdm::Host)
+    if opts[:host].is_a?(::Mdm::Host)
       host = opts[:host].address
     else
       host = opts[:host]
@@ -235,7 +235,7 @@ module Auxiliary::Report
         proto = "tcp"
     end
 
-    if opts[:service] && opts[:service].kind_of?(Mdm::Service)
+    if opts[:service] && opts[:service].is_a?(Mdm::Service)
       port         = opts[:service].port
       proto        = opts[:service].proto
       service_name = opts[:service].name
@@ -395,7 +395,7 @@ module Auxiliary::Report
   # +filename+ and +info+ are only stored as metadata, and therefore both are
   # ignored if there is no database
   #
-  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil)
+  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil, &block)
     if ! ::File.directory?(Msf::Config.loot_directory)
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
@@ -403,7 +403,7 @@ module Auxiliary::Report
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
-      if parts.length > 1 and parts[-1].length <= 4
+      if parts.length > 1 and parts[-1].length <= 6
         ext = parts[-1]
       end
     end
@@ -446,7 +446,8 @@ module Auxiliary::Report
         conf[:service] = service if service
       end
 
-      framework.db.report_loot(conf)
+      loot = framework.db.report_loot(conf)
+      yield loot if block_given?
     end
 
     return full_path.dup

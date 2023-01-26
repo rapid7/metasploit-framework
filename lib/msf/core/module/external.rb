@@ -5,6 +5,11 @@ module Msf::Module::External
 
   def execute_module(path, method: :run, args: datastore, fail_on_exit: true)
     mod = Msf::Modules::External.new(path, framework: framework)
+    if args.is_a?(Msf::DataStore) || args.is_a?(Msf::DataStoreWithFallbacks)
+      datastore_to_h = args.to_h
+      datastore_to_h['rhost'] = args['RHOSTS'] if args['RHOSTS'] && datastore_to_h['rhost'].to_s.empty?
+      args = datastore_to_h
+    end
     success = mod.exec(method: method, args: args) do |m|
       begin
         case m.method

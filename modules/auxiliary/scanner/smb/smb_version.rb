@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
+  include Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options
 
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
@@ -36,6 +38,13 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
       'License' => MSF_LICENSE
+    )
+
+    register_advanced_options(
+      [
+        *kerberos_storage_options(protocol: 'SMB'),
+        *kerberos_auth_options(protocol: 'SMB', auth_methods: Msf::Exploit::Remote::AuthOption::SMB_OPTIONS),
+      ]
     )
 
     deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
