@@ -26,13 +26,13 @@ class Def_windows_wldap32
     ], 'ldap_bind_sA', "cdecl")
 
     dll.add_function('ldap_search_sA', 'DWORD',[
-        ['DWORD', 'ld', 'in'],
+        ['PHANDLE', 'ld', 'in'],
         ['PCHAR', 'base', 'in'],
         ['DWORD', 'scope', 'in'],
         ['PCHAR', 'filter', 'in'],
         ['PCHAR', 'attrs[]', 'in'],
         ['DWORD', 'attrsonly', 'in'],
-        ['PDWORD', 'res', 'out']
+        ['PULONG_PTR', 'res', 'out']
     ], 'ldap_search_sA', "cdecl")
 
     dll.add_function('ldap_set_option', 'DWORD',[
@@ -42,17 +42,17 @@ class Def_windows_wldap32
     ], 'ldap_set_option', "cdecl")
 
     dll.add_function('ldap_search_ext_sA', 'DWORD',[
-        ['DWORD', 'ld', 'in'],
+        ['PHANDLE', 'ld', 'in'],
         ['PCHAR', 'base', 'in'],
         ['DWORD', 'scope', 'in'],
         ['PCHAR', 'filter', 'in'],
         ['PCHAR', 'attrs[]', 'in'],
         ['DWORD', 'attrsonly', 'in'],
-        ['DWORD', 'pServerControls', 'in'],
-        ['DWORD', 'pClientControls', 'in'],
-        ['DWORD', 'pTimeout', 'in'],
+        ['PVOID', 'pServerControls', 'in'],
+        ['PVOID', 'pClientControls', 'in'],
+        ['PLONGLONG', 'pTimeout', 'in'],
         ['DWORD', 'SizeLimit', 'in'],
-        ['PDWORD', 'res', 'out']
+        ['PULONG_PTR', 'res', 'out']
     ], 'ldap_search_ext_sA', "cdecl")
 
     dll.add_function('ldap_count_entries', 'DWORD',[
