@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Parsing AS-REP...")
 
     session_key = extract_session_key(res, password_digest)
-    logon_time = decrypt_kdc_as_rep_enc_part(res, password_digest).auth_time
+    logon_time = extract_logon_time(res, password_digest)
     ticket = res.ticket
 
     pre_auth = []
