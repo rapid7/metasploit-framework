@@ -190,7 +190,8 @@ module Rex::Proto::Kerberos::CredentialCache
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
     # @return [String] A human readable representation of a Pac Info Buffer
     def present_pac_info_buffer(info_buffer)
-      case info_buffer.ul_type
+      ul_type = info_buffer.ul_type.to_i
+      case ul_type
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::LOGON_INFORMATION
         present_logon_info(info_buffer)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::CLIENT_INFORMATION
@@ -200,7 +201,10 @@ module Rex::Proto::Kerberos::CredentialCache
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
         present_priv_server_checksum(info_buffer)
       else
-        info_buffer.to_s
+        ul_type_name = Rex::Proto::Kerberos::Pac::Krb5PacElementType.const_name(ul_type)
+        ul_type_name = ul_type_name.gsub('_', ' ').capitalize if ul_type_name
+        "#{ul_type_name || "Unknown ul type #{ul_type}"}:\n" +
+          "#{info_buffer.to_s}".indent(2)
       end
     end
 
