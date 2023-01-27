@@ -141,9 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{peer} - Valid TGS-Response, extracting credentials...")
 
     cache = extract_kerb_creds(res, sub_key.value)
-
-    path = store_loot('windows.kerberos', 'application/octet-stream', rhost, cache.encode)
-    print_good("#{peer} - MIT Credential Cache saved on #{path}")
+    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(cache, framework_module: self, host: rhost)
   end
 
   def warn_error(res)
