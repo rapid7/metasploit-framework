@@ -16,7 +16,7 @@ Kerberos tickets can be acquired from multiple sources. For instance:
 - Forged using the `forge_ticket` module after compromising the krbtgt or a service account's encryption keys
 - Extracted from memory using Meterpreter and mimikatz:
 
-```
+```msf
 meterpreter > load kiwi
 Loading extension kiwi...
   .#####.   mimikatz 2.2.0 20191125 (x64/windows)
@@ -100,7 +100,7 @@ No other options are used in this action.
 
 **Without Key**
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/inspect_ticket) > run TICKET_PATH=/path/to/ticket
 Primary Principal: Administrator@WINDOMAIN.LOCAL
 Ccache version: 4
@@ -133,7 +133,7 @@ Creds: 1
 
 **With Key**
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/inspect_ticket) > run AES_KEY=4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326 TICKET_PATH=/path/to/ticket
 Primary Principal: Administrator@WINDOMAIN.LOCAL
 Ccache version: 4

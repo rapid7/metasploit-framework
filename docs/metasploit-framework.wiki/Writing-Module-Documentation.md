@@ -22,7 +22,7 @@ If you go to metasploit-framework/documentation/modules, you'll see that there a
 
 For example:
 
-```
+```msf
 msf> use auxiliary/scanner/smb/smb_login
 msf (smb_login)> info
 

@@ -21,7 +21,7 @@ option, which can be set by using the `setg` command. Module-level means only th
 remembers that datastore option, no other components will know about it. You are setting a module-level option if you
 load a module first, and then use the `set` command, like the following:
 
-```
+```msf
 msf > use exploit/windows/smb/ms08_067_netapi
 msf exploit(ms08_067_netapi) > set rhost 10.0.1.3
 rhost => 10.0.1.3

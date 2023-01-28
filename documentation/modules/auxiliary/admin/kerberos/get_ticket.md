@@ -75,7 +75,7 @@ Default is `true`.
 
 An example of viewing the Kerberos ticket cache, and requesting a TGT with NT hash:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > klist
 Kerberos Cache
 ==============
@@ -114,7 +114,7 @@ host             port  proto  name      state  info
 
 TGT with encryption key
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
@@ -126,7 +126,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 
 TGT with password
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGT
 [*] Running module against 10.0.0.24
 
@@ -138,7 +138,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 
 TGT with certificate
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 cert_file=/home/msfuser/.msf4/loot/20230124155521_default_10.0.0.24_windows.ad.cs_384669.pfx action=GET_TGT
 [*] Running module against 10.0.0.24
 
@@ -153,7 +153,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) >
 
 TGS with NT hash:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator nthash=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
@@ -175,7 +175,7 @@ host             service  type                 name  content                   i
 
 TGS with encryption key:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator AES_KEY=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
@@ -188,7 +188,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 
 TGS with password:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=Administrator password=<redacted> action=GET_TGS spn=cifs/dc02.mylab.local
 [*] Running module against 10.0.0.24
 
@@ -201,7 +201,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 
 TGS with cached TGT:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
@@ -223,7 +223,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 do
 
 TGS without cached TGT:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > loot
 
 Loot
@@ -262,7 +262,7 @@ host             service  type                 name  content                   i
 
 TGS impersonating the Administrator account:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/get_ticket) > run verbose=true rhosts=10.0.0.24 domain=mylab.local username=serviceA password=123456 action=GET_TGS spn=cifs/dc02.mylab.local impersonate=Administrator
 [*] Running module against 10.0.0.24
 

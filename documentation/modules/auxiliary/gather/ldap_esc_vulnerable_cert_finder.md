@@ -98,7 +98,7 @@ that are both vulnerable and enrollable.
 ## Scenarios
 
 ### Windows Server 2022 with AD CS
-```
+```msf
 msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOST 172.26.104.157
 RHOST => 172.26.104.157
@@ -238,7 +238,7 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
 
 ### Windows Server 2022 with AD CS and REPORT_NONENROLLABLE Set To TRUE
-```
+```msf
 msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOST 172.26.104.157
 RHOST => 172.26.104.157

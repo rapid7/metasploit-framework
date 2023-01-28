@@ -60,7 +60,7 @@ When the user views the options for a given module, it will be consolidated. The
 
 Multiple options are available for configuring the module options:
 
-```
+```msf
 msf5 exploit(multi/http/tomcat_mgr_upload) > options
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -87,7 +87,7 @@ Exploit target:
 
  Multiple options are consolidated into a single TARGETS field:
 
-```
+```msf
 msf5 exploit(multi/http/tomcat_mgr_upload) > options
 
 Module options (exploit/multi/http/tomcat_mgr_upload):

