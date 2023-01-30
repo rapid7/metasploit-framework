@@ -1,7 +1,7 @@
 ## LDAP Workflows
 
 Lightweight Directory Access Protocol (LDAP) is a method for obtaining distributed directory information from a service.
-For Windows Active Directory environments this is a useful method of enumerating users, computers, misconfigurations, etc. 
+For Windows Active Directory environments this is a useful method of enumerating users, computers, misconfigurations, etc.
 
 LDAP on Windows environments are found on:
 
@@ -56,6 +56,7 @@ CN=Administrator CN=Users DC=domain DC=local
                      | CN=Enterprise Admins,CN=Users,DC=domain,DC=local || CN=Schema Admins,CN=Users,DC=domain,DC=local || CN=Adm
                      inistrators,CN=Builtin,DC=domain,DC=local
  name                Administrator
+ objectsid           S-1-5-21-3402587289-1488798532-3618296993-500
  pwdlastset          133189448681297271
  samaccountname      Administrator
  useraccountcontrol  512
@@ -66,8 +67,8 @@ CN=Administrator CN=Users DC=domain DC=local
 This module has a selection of inbuilt queries which can be configured via the `action` setting to make enumeration easier:
 
 - `ENUM_ACCOUNTS` - Dump info about all known user accounts in the domain.
-- `ENUM_ADCS_CAS` - Enumerate ADCS certificate authorities.
-- `ENUM_ADCS_CERT_TEMPLATES` - Enumerate ADCS certificate templates.
+- `ENUM_AD_CS_CAS` - Enumerate AD CS certificate authorities.
+- `ENUM_AD_CS_CERT_TEMPLATES` - Enumerate AD CS certificate templates.
 - `ENUM_ADMIN_OBJECTS` - Dump info about all objects with protected ACLs (i.e highly privileged objects).
 - `ENUM_ALL_OBJECT_CATEGORY` - Dump all objects containing any objectCategory field.
 - `ENUM_ALL_OBJECT_CLASS` - Dump all objects containing any objectClass field.
@@ -75,6 +76,7 @@ This module has a selection of inbuilt queries which can be configured via the `
 - `ENUM_CONSTRAINED_DELEGATION` - Dump info about all known objects that allow contrained delegation.
 - `ENUM_DNS_RECORDS` - Dump info about DNS records the server knows about using the dnsNode object class.
 - `ENUM_DNS_ZONES` - Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This isneeded - as without this BASEDN prefix we often miss certain entries.
+- `ENUM_DOMAIN` - Dump info about the Active Directory domain.
 - `ENUM_DOMAIN_CONTROLLERS` - Dump all known domain controllers.
 - `ENUM_EXCHANGE_RECIPIENTS` - Dump info about all known Exchange recipients.
 - `ENUM_EXCHANGE_SERVERS` - Dump info about all known Exchange servers.
@@ -84,6 +86,7 @@ This module has a selection of inbuilt queries which can be configured via the `
 - `ENUM_HOSTNAMES` - Dump info about all known hostnames in the LDAP environment.
 - `ENUM_LAPS_PASSWORDS` - Dump info about computers that have LAPS enabled, and passwords for them if available.
 - `ENUM_LDAP_SERVER_METADATA` - Dump metadata about the setup of the domain.
+- `ENUM_MACHINE_ACCOUNT_QUOTA` - Dump the number of computer accounts a user is allowed to create in a domain.
 - `ENUM_ORGROLES` - Dump info about all known organization roles in the LDAP environment.
 - `ENUM_ORGUNITS` - Dump info about all known organizational units in the LDAP environment.
 - `ENUM_UNCONSTRAINED_DELEGATION` - Dump info about all known objects that allow uncontrained delegation.
@@ -113,7 +116,7 @@ msf6 auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.1
 [*] Discovering base DN automatically
 [+] 192.168.123.13:389 Discovered base DN: DC=domain,DC=local
 CN=Administrator CN=Users DC=domain DC=local
-==========================================
+============================================
 
  Name                Attributes
  ----                ----------
