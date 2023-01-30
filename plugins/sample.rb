@@ -1,7 +1,3 @@
-#
-# $Id$
-#
-
 module Msf
   ###
   #
@@ -10,7 +6,6 @@ module Msf
   # through any other arbitrary means.  They are designed to have a very loose
   # definition in order to make them as useful as possible.
   #
-  # $Revision$
   ###
   class Plugin::Sample < Msf::Plugin
 

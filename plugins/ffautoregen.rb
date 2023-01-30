@@ -1,8 +1,3 @@
-#
-# $Id: $
-# $Revision: $
-#
-
 module Msf
   ###
   #
@@ -54,14 +49,11 @@ module Msf
 
           last = mt
 
-          omod = active_module
           nmod = framework.modules.reload_module(active_module)
           if !nmod
             print_line('Error: Failed to reload module, trying again on next change...')
             next
           end
-
-          active_module = nmod
 
           jobify = false
           payload = nmod.datastore['PAYLOAD']

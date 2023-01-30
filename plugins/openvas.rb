@@ -1,13 +1,8 @@
-#
-# This plugin provides integration with OpenVAS. Written by kost and
-# averagesecurityguy.
-#
-# $Id$
-# $Revision$
+# This plugin provides integration with OpenVAS.
+# Written by kost and averagesecurityguy.
 #
 # Distributed under MIT license:
 # http://www.opensource.org/licenses/mit-license.php
-#
 
 require 'openvas-omp'
 

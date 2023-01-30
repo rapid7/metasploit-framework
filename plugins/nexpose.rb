@@ -1,16 +1,10 @@
-#
-# $Id$
-#
-# This plugin provides integration with Rapid7 Nexpose
-#
-# $Revision$
-#
 require 'English'
 require 'nexpose'
 
 module Msf
   Nexpose_yaml = "#{Msf::Config.config_directory}/nexpose.yaml".freeze # location of the nexpose.yml containing saved nexpose creds
 
+  # This plugin provides integration with Rapid7 Nexpose
   class Plugin::Nexpose < Msf::Plugin
     class NexposeCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
@@ -39,7 +33,7 @@ module Msf
           'nexpose_command' => 'Execute a console command on the Nexpose instance',
           'nexpose_sysinfo' => 'Display detailed system information about the Nexpose instance'
 
-          # TODO:
+          # @TODO:
           # nexpose_stop_scan
         }
       end
@@ -368,7 +362,6 @@ module Msf
 
         opt_template = 'pentest-audit'
         opt_maxaddrs = 32
-        opt_monitor = false
         opt_verbose = false
         opt_savexml = nil
         opt_preserve = false
@@ -394,9 +387,9 @@ module Msf
             opt_savexml = val
           when '-c'
             if (val =~ /^([^:]+):([^:]+):(.+)/)
-              type = ::Regexp.last_match(1)
-              user = ::Regexp.last_match(2)
-              pass = ::Regexp.last_match(3)
+              type = Regexp.last_match(1)
+              user = Regexp.last_match(2)
+              pass = Regexp.last_match(3)
               msfid = Time.now.to_i
               newcreds = Nexpose::SiteCredentials.for_service("Metasploit Site Credential #{msfid}", nil, nil, nil, nil, type)
               newcreds.user_name = user
@@ -622,9 +615,9 @@ module Msf
       def nexpose_vuln_lookup(doc, vid, refs, host, serv = nil)
         doc.elements.each("/NexposeReport/VulnerabilityDefinitions/vulnerability[@id = '#{vid}']]") do |vulndef|
           title = vulndef.attributes['title']
-          pciSeverity = vulndef.attributes['pciSeverity']
-          cvss_score = vulndef.attributes['cvssScore']
-          cvss_vector = vulndef.attributes['cvssVector']
+          # pci_severity = vulndef.attributes['pciSeverity']
+          # cvss_score = vulndef.attributes['cvssScore']
+          # cvss_vector = vulndef.attributes['cvssVector']
 
           vulndef.elements['references'].elements.each('reference') do |ref|
             if ref.attributes['source'] == 'BID'

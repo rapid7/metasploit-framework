@@ -287,7 +287,7 @@ module Msf
           response = http_client.send_recv(req)
         rescue ::OpenSSL::SSL::SSLError
           print_error('Encountered an SSL error')
-        rescue ::Errno::ECONNRESET => e
+        rescue ::Errno::ECONNRESET
           print_error('The connection was reset by the peer')
         rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
           print_error('Encountered an error')

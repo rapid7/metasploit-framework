@@ -10,7 +10,25 @@ module Msf
   class Plugin::Wmap < Msf::Plugin
     class WmapCommandDispatcher
 
-      attr_accessor :wmapmodules, :targets, :lastsites, :rpcarr, :njobs, :nmaxdisplay, :runlocal, :masstop, :killwhenstop # Enabled Wmap modules      # Targets    # Temp location of previously obtained sites       # Array or rpc connections        # Max number of jobs  # Flag to stop displaying the same mesg	# Flag to run local modules only	# Flag to stop everything # Kill process when exiting
+      # @!attribute wmapmodules
+      #   @return [Array] Enabled WMAP modules
+      # @!attribute targets
+      #   @return [Hash] WMAP targets
+      # @!attribute lastsites
+      #   @return [Array] Temp location of previously obtained sites
+      # @!attribute rpcarr
+      #   @return [Array] Array or rpc connections
+      # @!attribute njobs
+      #   @return [Integer] Max number of jobs
+      # @!attribute nmaxdisplay
+      #   @return [Boolean] Flag to stop displaying the same message
+      # @!attribute runlocal
+      #   @return [Boolean] Flag to run local modules only
+      # @!attribute masstop
+      #   @return [Boolean] Flag to stop everything
+      # @!attribute killwhenstop
+      #   @return [Boolean] Kill process when exiting
+      attr_accessor :wmapmodules, :targets, :lastsites, :rpcarr, :njobs, :nmaxdisplay, :runlocal, :masstop, :killwhenstop
 
       include Msf::Ui::Console::CommandDispatcher
 
@@ -487,7 +505,6 @@ module Msf
           matches10 = Hash.new
 
           # OPTIONS
-          opt_str = nil
           jobify = false
 
           # This will be clean later
@@ -589,7 +606,7 @@ module Msf
 
                 begin
                   if execmod
-                    rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
+                    rpc_round_exec(xref[0], xref[1], modopts, njobs)
                   end
                 rescue ::Exception
                   print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
@@ -653,7 +670,7 @@ module Msf
 
                 begin
                   if execmod
-                    rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
+                    rpc_round_exec(xref[0], xref[1], modopts, njobs)
                   end
                 rescue ::Exception
                   print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
@@ -774,7 +791,7 @@ module Msf
 
                         begin
                           if execmod
-                            rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
+                            rpc_round_exec(xref[0], xref[1], modopts, njobs)
                           end
                         rescue ::Exception
                           print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
@@ -885,7 +902,7 @@ module Msf
                   # print_status "+++++++++"
 
                   form.params.each do |p|
-                    pn, pv, pt = p
+                    pn, pv, _pt = p
                     if pn
                       if !pn.empty?
                         if !pv || pv.empty?
@@ -921,8 +938,8 @@ module Msf
                     # TODO: Add headers, etc.
                     #
                     if !usinginipath || (usinginipath && form.path.match(inipathname))
-
                       print_status "Path #{form.path}"
+
                       # print_status("Unique PATH #{modopts['PATH']}")
                       # print_status("Unique GET #{modopts['QUERY']}")
                       # print_status("Unique POST #{modopts['DATA']}")
@@ -937,8 +954,6 @@ module Msf
                         print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                       end
                     end
-                  else
-                    # print_status("Already tested")
                   end
                 end
               end
@@ -1022,7 +1037,7 @@ module Msf
                   temparr = []
 
                   req.params.each do |p|
-                    pn, pv, pt = p
+                    pn, pv, _pt = p
                     if pn
                       if !pn.empty?
                         if !pv || pv.empty?
@@ -1051,20 +1066,21 @@ module Msf
                   #
                   # TODO: Add method, headers, etc.
                   #
-                  next unless !usinginipath || (usinginipath && req.path.match(inipathname))
+                  if !usinginipath || (usinginipath && req.path.match(inipathname))
+                    print_status "Path #{req.path}"
 
-                  print_status "Path #{req.path}"
-                  # print_status("Query PATH #{modopts['PATH']}")
-                  # print_status("Query GET #{modopts['QUERY']}")
-                  # print_status("Query POST #{modopts['DATA']}")
-                  # print_status("Query TYPES #{typestr}")
+                    # print_status("Query PATH #{modopts['PATH']}")
+                    # print_status("Query GET #{modopts['QUERY']}")
+                    # print_status("Query POST #{modopts['DATA']}")
+                    # print_status("Query TYPES #{typestr}")
 
-                  begin
-                    if execmod
-                      rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
+                    begin
+                      if execmod
+                        rpc_round_exec(xref[0], xref[1], modopts, njobs)
+                      end
+                    rescue ::Exception
+                      print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                     end
-                  rescue ::Exception
-                    print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                   end
                 end
               end
@@ -1134,7 +1150,7 @@ module Msf
 
                 begin
                   if execmod
-                    rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
+                    rpc_round_exec(xref[0], xref[1], modopts, njobs)
                   end
                 rescue ::Exception
                   print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
@@ -1627,16 +1643,12 @@ module Msf
         end
       end
 
+      #
+      # Signature of the form ',p1,p2,pn' then to be appended to path: path,p1,p2,pn
+      #
       def signature(fpath, fquery)
-        hsig = Hash.new
-
         hsig = queryparse(fquery)
-
-        #
-        # Signature of the form ',p1,p2,pn' then to be appended to path: path,p1,p2,pn
-        #
-
-        sigstr = fpath + ',' + hsig.map { |p| p[0].to_s }.join(',')
+        fpath + ',' + hsig.map { |p| p[0].to_s }.join(',')
       end
 
       def queryparse(query)
@@ -1658,38 +1670,37 @@ module Msf
           self.rpcarr = Hash.new
         end
 
-        begin
-          istr = "#{host}|#{port}|#{ssl}|#{user}|#{pass}"
-          if rpcarr.key?(istr) && !bypass_exist && !rpcarr[istr].nil?
-            print_error("Connection already exists #{istr}")
-          else
-            begin
-              temprpc = ::Msf::RPC::Client.new(
-                host: host,
-                port: port,
-                ssl: ssl
-              )
-            rescue StandardError
-              print_error 'Unable to connect'
-              # raise ConnectionError
-              return
-            end
+        istr = "#{host}|#{port}|#{ssl}|#{user}|#{pass}"
 
-            res = temprpc.login(user, pass)
-
-            if !res
-              print_error("Unable to authenticate to #{host}:#{port}.")
-              return
-            else
-              res = temprpc.call('core.version')
-            end
-
-            print_status("Connected to #{host}:#{port} [#{res['version']}].")
-            rpcarr[istr] = temprpc
-          end
-        rescue StandardError
-          print_error('Unable to connect')
+        if rpcarr.key?(istr) && !bypass_exist && !rpcarr[istr].nil?
+          print_error("Connection already exists #{istr}")
+          return
         end
+
+        begin
+          temprpc = ::Msf::RPC::Client.new(
+            host: host,
+            port: port,
+            ssl: ssl
+          )
+        rescue StandardError
+          print_error 'Unable to connect'
+          # raise ConnectionError
+          return
+        end
+
+        res = temprpc.login(user, pass)
+
+        if !res
+          print_error("Unable to authenticate to #{host}:#{port}.")
+          return
+        end
+
+        res = temprpc.call('core.version')
+        print_status("Connected to #{host}:#{port} [#{res['version']}].")
+        rpcarr[istr] = temprpc
+      rescue StandardError
+        print_error('Unable to connect')
       end
 
       def local_module_exec(mod, mtype, opts, _nmaxjobs)
@@ -1769,34 +1780,36 @@ module Msf
           rpcarr.each do |k, rpccon|
             if !rpccon
               print_error("Skipping inactive node #{nid} #{k}")
-            else
-              begin
-                currentjobs = rpccon.call('job.list').length
+              nid += 1
+            end
 
-                if currentjobs < minjobs
-                  minconn = rpccon
-                  minjobs = currentjobs
-                end
+            begin
+              currentjobs = rpccon.call('job.list').length
 
-                if currentjobs == nmaxjobs && (nmaxdisplay == false)
-                  print_error("Node #{nid} reached max number of jobs #{nmaxjobs}")
-                  print_error('Waiting for available node/slot...')
-                  self.nmaxdisplay = true
-                end
-                # print_status("Node #{nid}   #currentjobs #{currentjobs} #min #{minjobs}")
-              rescue StandardError
-                print_error("Unable to connect. Node #{tarr[0]}:#{tarr[1]}")
-                rpcarr[k] = nil
+              if currentjobs < minjobs
+                minconn = rpccon
+                minjobs = currentjobs
+              end
 
-                if active_rpc_nodes == 0
-                  print_error('All active nodes ,not working or removed')
-                  return
-                else
-                  print_error('Sending job to next node')
-                  next
-                end
+              if currentjobs == nmaxjobs && (nmaxdisplay == false)
+                print_error("Node #{nid} reached max number of jobs #{nmaxjobs}")
+                print_error('Waiting for available node/slot...')
+                self.nmaxdisplay = true
+              end
+              # print_status("Node #{nid}   #currentjobs #{currentjobs} #min #{minjobs}")
+            rescue StandardError
+              print_error("Unable to connect. Node #{tarr[0]}:#{tarr[1]}")
+              rpcarr[k] = nil
+
+              if active_rpc_nodes == 0
+                print_error('All active nodes, not working or removed')
+                return
+              else
+                print_error('Sending job to next node')
+                next
               end
             end
+
             nid += 1
           end
 
@@ -1812,9 +1825,9 @@ module Msf
                 print_error("Unable to execute module in node #{k} #{res}")
               end
             end
-          else
-            # print_status("Max number of jobs #{nmaxjobs} reached in node #{k}")
           end
+
+          # print_status("Max number of jobs #{nmaxjobs} reached in node #{k}") if minjobs >= nmaxjobs
 
           idx += 1
         end
@@ -1834,8 +1847,9 @@ module Msf
 
         rpcarr.each do |k, v|
           if v
-            res = v.call('db.driver', { driver: 'postgresql' })
-            res = v.call('db.connect', { database: name, host: host, port: port, username: user, password: pass })
+            v.call('db.driver', { driver: 'postgresql' })
+            v.call('db.connect', { database: name, host: host, port: port, username: user, password: pass })
+
             res = v.call('db.status')
 
             if res['db'] == name
@@ -1858,20 +1872,16 @@ module Msf
 
           idx = k
           begin
-            currentjobs = rpccon.call('job.list').length
+            rpccon.call('job.list').length
           rescue StandardError
             tarr = k.split('|')
-            rflag = false
 
             res = rpccon.login(tarr[3], tarr[4])
 
-            if res
-              rflag = true
-              print_error("Reauth to node #{tarr[0]}:#{tarr[1]}")
-              break
-            else
-              raise ConnectionError
-            end
+            raise ConnectionError unless res
+
+            print_error("Reauth to node #{tarr[0]}:#{tarr[1]}")
+            break
           end
         end
       rescue StandardError
@@ -1880,8 +1890,6 @@ module Msf
         if active_rpc_nodes == 0
           print_error('No active nodes')
           self.masstop = true
-        else
-          # blah
         end
       end
 
@@ -2011,9 +2019,7 @@ module Msf
           rpc_reconnect_nodes
 
           idx = 0
-          rpcarr.each do |k, rpccon|
-            arrk = k.split('|')
-
+          rpcarr.each do |_k, rpccon|
             v = 'NOCONN'
             n = 1
             c = '%red'
@@ -2117,17 +2123,16 @@ module Msf
       end
 
       def active_rpc_nodes
-        if rpcarr.empty?
-          return 0
-        else
-          idx = 0
-          rpcarr.each do |_k, conn|
-            if conn
-              idx += 1
-            end
+        return 0 if rpcarr.empty?
+
+        idx = 0
+        rpcarr.each do |_k, conn|
+          if conn
+            idx += 1
           end
-          return idx
         end
+
+        idx
       end
 
       def view_modules
@@ -2175,19 +2180,20 @@ module Msf
         end
       end
 
+      # Sort hash by orderid
       # Yes sorting hashes dont make sense but actually it does when you are enumerating one. And
       # sort_by of a hash returns an array so this is the reason for this ugly piece of code
-      def sort_by_orderid(m)
+      def sort_by_orderid(matches)
         temphash = Hash.new
-        temparr = []
 
-        temparr = m.sort_by do |xref, _v|
+        temparr = matches.sort_by do |xref, _v|
           xref[3]
         end
 
         temparr.each do |b|
           temphash[b[0]] = b[1]
         end
+
         temphash
       end
 

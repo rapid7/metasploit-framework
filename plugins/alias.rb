@@ -118,8 +118,8 @@ module Msf
             end
           end
 
-          is_valid_alias = is_valid_alias?(name, value)
-          # print_good "Alias validity = #{is_valid_alias.to_s}"
+          is_valid_alias = valid_alias?(name, value)
+          # print_good "Alias validity = #{is_valid_alias}"
           is_sys_cmd = Rex::FileUtils.find_full_path(name)
           is_already_alias = @aliases.keys.include?(name)
           if is_valid_alias && !is_sys_cmd && !is_already_alias
@@ -135,7 +135,7 @@ module Msf
             print_error("#{name} already exists as a system command, use -f to force override") if is_sys_cmd
             print_error("#{name} is already an alias, use -f to force override") if is_already_alias
             if !is_valid_alias && !force
-              print_error("\'#{name}\' is not a permitted name or \'#{value}\' is not valid/permitted")
+              print_error("'#{name}' is not a permitted name or '#{value}' is not valid/permitted")
               print_error("It's possible the responding dispatcher isn't loaded yet, try changing to the proper context or using -f to force")
             end
           end
@@ -218,7 +218,7 @@ module Msf
       #
       # Validate a proposed alias with the +name+ and having the value +value+
       #
-      def is_valid_alias?(name, value)
+      def valid_alias?(name, value)
         # print_good "Assessing validay for #{name} and #{value}"
         # we validate two things, the name and the value
 
@@ -246,14 +246,10 @@ module Msf
 
         # we're only gonna validate the first part of the cmd, e.g. just ls from "ls -lh"
         value = value.split(' ').first
-        if @aliases.keys.include?(value)
-          return true
-        else
-          [value, value + '.exe'].each do |cmd|
-            if Rex::FileUtils.find_full_path(cmd)
-              return true
-            end
-          end
+        return true if @aliases.keys.include?(value)
+
+        [value, value + '.exe'].each do |cmd|
+          return true if Rex::FileUtils.find_full_path(cmd)
         end
 
         # gather all the current commands the driver's dispatcher's have & check 'em
@@ -265,12 +261,10 @@ module Msf
           if dispatcher.respond_to?("cmd_#{value.split(' ').first}")
             # print_status "Dispatcher (#{dispatcher.name}) responds to cmd_#{value.split(" ").first}"
             return true
-          else
-            # print_status "Dispatcher (#{dispatcher.name}) does not respond to cmd_#{value.split(" ").first}"
           end
         end
 
-        return false
+        false
       end
 
       #

@@ -100,7 +100,6 @@ module Msf
       def create_xindex
         start = Time.now
         print_status("Creating Exploit Search Index - (#{xindex}) - this won't take long.")
-        count = 0
         # Use Msf::Config.config_directory as the location.
         File.open(xindex.to_s, 'w+') do |f|
           # need to add version line.

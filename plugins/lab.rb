@@ -172,22 +172,6 @@ module Msf
         end
       end
 
-      def cmd_lab_load_dir(*args)
-        return lab_usage unless args.count == 2
-
-        @controller.build_from_dir(args[0], args[1], true)
-      end
-
-      def cmd_lab_clear(*_args)
-        @controller.clear!
-      end
-
-      def cmd_lab_save(*args)
-        return lab_usage if args.empty?
-
-        @controller.to_file(args[0])
-      end
-
       ##
       ## Commands for dealing with a currently-loaded lab
       ##
@@ -460,7 +444,7 @@ module Msf
       # Map for usages
       def lab_usage
         caller[0][/`cmd_(.*)'/]
-        cmd = ::Regexp.last_match(1)
+        cmd = Regexp.last_match(1)
         if extended_help[cmd] || commands[cmd]
           cmd_lab_help cmd
         else # Should never really get here...

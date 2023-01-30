@@ -1,15 +1,9 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # https://metasploit.com/framework/
 ##
-
-# $Revision$
 
 module Msf
   class Plugin::PcapLog < Msf::Plugin
@@ -36,7 +30,6 @@ module Msf
           'pcap_iface' => 'Set/Get an interface to capture from',
           'pcap_start' => 'Start a capture',
           'pcap_stop' => 'Stop a running capture',
-
           'pcap_show_config' => 'Show the current PcapLog configuration'
         }
       end

@@ -59,9 +59,6 @@ module Msf
         username = opt_user_pass[0]
         password = opt_user_pass[1]
 
-        tokens_del = {}
-        tokens_imp = {}
-
         framework.sessions.each_key do |sid|
           session = framework.sessions[sid]
           next unless session.type == 'meterpreter'

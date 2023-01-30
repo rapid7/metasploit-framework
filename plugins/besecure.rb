@@ -119,7 +119,7 @@ module Msf
       end
 
       def cmd_besecure_version
-        req = Net::HTTP::Post.new('/json.cgi', initheader = { 'Host' => @hostname })
+        req = Net::HTTP::Post.new('/json.cgi', initheader: { 'Host' => @hostname })
         req.set_form_data({ 'apikey' => @apikey, 'primary' => 'interface' })
 
         if @debug
@@ -136,7 +136,7 @@ module Msf
           http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
 
-        res = http.start { |http| http.request(req) }
+        res = http.start { |h| h.request(req) }
 
         unless res
           print_error("#{@hostname} - Connection timed out")
@@ -174,7 +174,7 @@ module Msf
           return ''
         end
 
-        req = Net::HTTP::Post.new('/json.cgi', initheader = { 'Host' => @hostname })
+        req = Net::HTTP::Post.new('/json.cgi', initheader: { 'Host' => @hostname })
         req.set_form_data({ 'apikey' => @apikey, 'primary' => 'admin', 'secondary' => 'networks', 'action' => 'returnnetworks', 'search_limit' => 10000 })
 
         if @debug
@@ -191,7 +191,7 @@ module Msf
           http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
 
-        res = http.start { |http| http.request(req) }
+        res = http.start { |h| h.request(req) }
 
         unless res
           print_error("#{@hostname} - Connection timed out")
@@ -227,7 +227,7 @@ module Msf
 
       def cmd_besecure_report_download(*args)
         if args?(args, 4)
-          req = Net::HTTP::Post.new('/json.cgi', initheader = { 'Host' => @hostname })
+          req = Net::HTTP::Post.new('/json.cgi', initheader: { 'Host' => @hostname })
           format_file = args[1]
           req.set_form_data({ 'apikey' => @apikey, 'primary' => 'vulnerabilities', 'secondary' => 'report', 'action' => 'getreport', 'network' => args[0], 'format' => format_file })
 
@@ -241,7 +241,7 @@ module Msf
             http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           end
 
-          res = http.start { |http| http.request(req) }
+          res = http.start { |h| h.request(req) }
 
           unless res
             print_error("#{@hostname} - Connection timed out")

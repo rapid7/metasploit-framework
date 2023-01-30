@@ -1,8 +1,3 @@
-#
-# $Id$
-# $Revision$
-#
-
 module Msf
   ###
   #
@@ -78,8 +73,8 @@ module IPSFilter
     end
 
     def ips_match(data)
-      lp = localport
-      rp = peerport
+      # lp = localport
+      # rp = peerport
 
       SIGS.each do |s|
         r = Regexp.new(s[1])
@@ -87,7 +82,7 @@ module IPSFilter
           print_error "Matched IPS signature #{s[0]}"
           return true
         end
-      rescue ::Exception => e
+      rescue ::Exception
         print_error "Compiled error: #{s[1]}"
       end
 

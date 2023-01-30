@@ -1,14 +1,7 @@
-#
-# $Id$
-#
-# This plugin provides management and interaction with an external session aggregator.
-#
-# $Revision$
-#
-
 module Msf
   Aggregator_yaml = "#{Msf::Config.config_directory}/aggregator.yaml".freeze # location of the aggregator.yml containing saved aggregator creds
 
+  # This plugin provides management and interaction with an external session aggregator.
   class Plugin::Aggregator < Msf::Plugin
     class AggregatorCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
@@ -165,13 +158,13 @@ module Msf
       def cmd_aggregator_sessions(*args)
         case args.length
         when 0
-          isDetailed = false
+          is_detailed = false
         when 1
           unless args[0] == '-v'
             usage_sessions
             return
           end
-          isDetailed = true
+          is_detailed = true
         else
           usage_sessions
           return
@@ -205,13 +198,13 @@ module Msf
         if session_map.empty?
           print_status('No remote sessions.')
         else
-          unless isDetailed
+          unless is_detailed
             print_status('  Id  Remote Id  Type                      Information          Connection')
             print_status('  --  ---------  ----                      -----------          ----------')
           end
           session_map.keys.sort.each do |key|
             details, target, local_id = session_map[key]
-            if isDetailed
+            if is_detailed
               show_session_detailed(details, target, local_id)
             else
               show_session(details, target, local_id)

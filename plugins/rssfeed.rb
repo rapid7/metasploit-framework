@@ -74,8 +74,8 @@ module Msf
           end
           select(nil, nil, nil, 0.25)
         end
-        rescue ::Exception => e
-          print_status("RSS plugin: fatal error #{e} #{e.backtrace}")
+      rescue ::Exception => e
+        print_status("RSS plugin: fatal error #{e} #{e.backtrace}")
       end
     end
 

@@ -135,9 +135,6 @@ module Msf
           end
         end
 
-        # Create an Array to hold a list of tables that we want to show
-        outputs = []
-
         # Output the table
         if respond_to? "#{command}_to_table", true
           table = send "#{command}_to_table", tbl_opts

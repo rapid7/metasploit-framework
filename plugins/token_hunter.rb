@@ -89,7 +89,7 @@ module Msf
                 next
               end
 
-              fdom, fusr = user.split('\\')
+              _fdom, fusr = user.split('\\')
 
               if (!fusr.nil? && !ndom && (fusr.strip.downcase == nusr.strip.downcase))
                 print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
@@ -113,7 +113,7 @@ module Msf
                 next
               end
 
-              fdom, fusr = user.split('\\')
+              _fdom, fusr = user.split('\\')
               if (!fusr.nil? && !ndom && (fusr.strip.downcase == nusr.strip.downcase))
                 print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
               end

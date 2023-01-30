@@ -1,37 +1,12 @@
-#
-# $Id$
-# $Revision$
-#
-
 module Msf
-  ###
-  #
-  # This class illustrates a sample plugin.  Plugins can change the behavior of
-  # the framework by adding new features, new user interface commands, or
-  # through any other arbitrary means.  They are designed to have a very loose
-  # definition in order to make them as useful as possible.
-  #
-  ###
   class Plugin::ThreadTest < Msf::Plugin
-
-    ###
-    #
-    # This class implements a sample console command dispatcher.
-    #
-    ###
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
-      #
-      # The dispatcher's name.
-      #
       def name
         'ThreadTest'
       end
 
-      #
-      # Returns the hash of commands supported by this dispatcher.
-      #
       def commands
         {
           'start_thread' => 'Start a background thread that writes to the console',
