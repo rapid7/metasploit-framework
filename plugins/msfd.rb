@@ -21,7 +21,7 @@ module Msf
     #
     # The default local hostname that the server listens on.
     #
-    DefaultHost = '127.0.0.1'
+    DefaultHost = '127.0.0.1'.freeze
 
     #
     # The default local port that the server listens on.
@@ -97,18 +97,18 @@ module Msf
     # threads to handle the console interface for each client.
     #
     def run(opts = {})
-      while true
+      loop do
         client = server.accept
 
         addr = Rex::Socket.resolv_nbo(client.peerhost)
 
-        if opts['HostsAllowed'] and
+        if opts['HostsAllowed'] &&
            !opts['HostsAllowed'].find { |x| x == addr }
           client.close
           next
         end
 
-        if opts['HostsDenied'] and
+        if opts['HostsDenied'] &&
            opts['HostsDenied'].find { |x| x == addr }
           client.close
           next

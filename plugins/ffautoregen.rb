@@ -39,7 +39,7 @@ module Msf
       # This method handles the command.
       #
       def cmd_ffautoregen(*_args)
-        if !active_module or !(path = active_module.file_path)
+        if !active_module || !(path = active_module.file_path)
           print_line('Error: No active module selected')
           return nil
         end

@@ -84,14 +84,14 @@ module Msf
                 ndom = nil
               end
 
-              if (!user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
+              if (!user.nil? && ndom && (user.strip.downcase == needle.strip.downcase))
                 print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
                 next
               end
 
               fdom, fusr = user.split('\\')
 
-              if (!fusr.nil? and !ndom and fusr.strip.downcase == nusr.strip.downcase)
+              if (!fusr.nil? && !ndom && (fusr.strip.downcase == nusr.strip.downcase))
                 print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
               end
             end
@@ -108,13 +108,13 @@ module Msf
                 ndom = nil
               end
 
-              if (!user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
+              if (!user.nil? && ndom && (user.strip.downcase == needle.strip.downcase))
                 print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
                 next
               end
 
               fdom, fusr = user.split('\\')
-              if (!fusr.nil? and !ndom and fusr.strip.downcase == nusr.strip.downcase)
+              if (!fusr.nil? && !ndom && (fusr.strip.downcase == nusr.strip.downcase))
                 print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
               end
             end

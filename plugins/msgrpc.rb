@@ -20,12 +20,12 @@ module Msf
     #
     # The default local hostname that the server listens on.
     #
-    DefaultHost ||= '127.0.0.1'
+    DefaultHost = '127.0.0.1'.freeze
 
     #
     # The default local port that the server listens on.
     #
-    DefaultPort ||= 55552
+    DefaultPort = 55552
 
     #
     # ServerPort

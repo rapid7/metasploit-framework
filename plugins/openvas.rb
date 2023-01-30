@@ -97,7 +97,7 @@ module Msf
 
       # Verify the database is connected and usable
       def database?
-        if !(framework.db and framework.db.usable)
+        if !(framework.db && framework.db.usable)
           return false
         else
           return true
@@ -118,7 +118,7 @@ module Msf
       # true if correct number of arguments and help was not requested.
       def args?(args, min = 1, max = nil)
         if !max then max = min end
-        if (args.length < min or args.length > max or args[0] == '-h')
+        if ((args.length < min) || (args.length > max) || (args[0] == '-h'))
           return false
         end
 
@@ -177,7 +177,7 @@ module Msf
           user, pass, host, port, sslv = args
 
           # SSL warning. User is required to confirm.
-          if (host != 'localhost' and host != '127.0.0.1' and sslv != 'ok')
+          if ((host != 'localhost') && (host != '127.0.0.1') && (sslv != 'ok'))
             print_error('Warning: SSL connections are not verified in this release, it is possible for an attacker')
             print_error('         with the ability to man-in-the-middle the OpenVAS traffic to capture the OpenVAS')
             print_error("         credentials. If you are running this on a trusted network, please pass in 'ok'")
@@ -564,7 +564,7 @@ module Msf
         raise OMPResponseError
       end
 
-    end # End OpenVAS class
+    end
 
     #------------------------------
     # Plugin initialization

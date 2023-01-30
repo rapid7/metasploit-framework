@@ -27,7 +27,7 @@ module Msf
         # Ignore local listening sockets
         return if !sock.peerhost
 
-        if (sock.peerhost != '0.0.0.0' and sock.peerport)
+        if ((sock.peerhost != '0.0.0.0') && sock.peerport)
 
           # Ignore sockets that didn't set up their context
           # to hold the framework in 'Msf'

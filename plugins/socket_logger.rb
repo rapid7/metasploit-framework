@@ -29,7 +29,7 @@ module Msf
 
       def on_socket_created(_comm, sock, param)
         # Sockets created by the exploit have MsfExploit set and MsfPayload not set
-        if param.context and param.context['MsfExploit'] and !param.context['MsfPayload']
+        if param.context && param.context['MsfExploit'] && !param.context['MsfPayload']
           sock.extend(SocketLogger::SocketTracer)
           sock.context = param.context
           sock.params = param
@@ -94,7 +94,7 @@ module SocketLogger
     end
 
     def format_module_info
-      return '' unless params.context and params.context['MsfExploit']
+      return '' unless params.context && params.context['MsfExploit']
       if params.context['MsfExploit'].respond_to? :fullname
         return 'via ' + params.context['MsfExploit'].fullname
       end

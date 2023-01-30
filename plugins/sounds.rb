@@ -45,7 +45,7 @@ module Msf
 
     def start_sound_queue
       self.queue_thread = Thread.new do
-        while true
+        loop do
           while (event = queue.shift)
             path = ::File.join(base, theme, "#{event}.wav")
             if ::File.exist?(path)

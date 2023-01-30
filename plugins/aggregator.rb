@@ -7,7 +7,7 @@
 #
 
 module Msf
-  Aggregator_yaml = "#{Msf::Config.config_directory}/aggregator.yaml" # location of the aggregator.yml containing saved aggregator creds
+  Aggregator_yaml = "#{Msf::Config.config_directory}/aggregator.yaml".freeze # location of the aggregator.yml containing saved aggregator creds
 
   class Plugin::Aggregator < Msf::Plugin
     class AggregatorCommandDispatcher
@@ -111,7 +111,7 @@ module Msf
 
       def cmd_aggregator_save(*args)
         # if we are logged in, save session details to aggregator.yaml
-        if args.length > 0 || args[0] == '-h'
+        if !args.empty? || args[0] == '-h'
           usage_save
           return
         end
@@ -123,9 +123,9 @@ module Msf
 
         group = 'default'
 
-        if (@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0)
-          config = { "#{group}" => { 'server' => @host, 'port' => @port } }
-          ::File.open("#{Aggregator_yaml}", 'wb') { |f| f.puts YAML.dump(config) }
+        if (@host && !@host.empty?) && (@port && !@port.empty? && @port.to_i > 0)
+          config = { group.to_s => { 'server' => @host, 'port' => @port } }
+          ::File.open(Aggregator_yaml.to_s, 'wb') { |f| f.puts YAML.dump(config) }
           print_good("#{Aggregator_yaml} created.")
         else
           print_error('Missing server/port - reconnect and then try again.')
@@ -134,15 +134,15 @@ module Msf
       end
 
       def cmd_aggregator_connect(*args)
-        if !args[0] && ::File.readable?("#{Aggregator_yaml}")
-          lconfig = YAML.load_file("#{Aggregator_yaml}")
+        if !args[0] && ::File.readable?(Aggregator_yaml.to_s)
+          lconfig = YAML.load_file(Aggregator_yaml.to_s)
           @host = lconfig['default']['server']
           @port = lconfig['default']['port']
           aggregator_login
           return
         end
 
-        if args.length == 0 || args[0].empty? || args[0] == '-h'
+        if args.empty? || args[0].empty? || args[0] == '-h'
           usage_connect
           return
         end
@@ -202,7 +202,7 @@ module Msf
         print_status('Remote sessions')
         print_status('===============')
         print_status('')
-        if session_map.length == 0
+        if session_map.empty?
           print_status('No remote sessions.')
         else
           unless isDetailed
@@ -251,7 +251,7 @@ module Msf
           return
         end
 
-        if !aggregator_verify || args.length == 0 || args[0] == '-h' || \
+        if !aggregator_verify || args.empty? || args[0] == '-h' || \
            port.nil? || port.to_i <= 0
           usage_cable_add
           return
@@ -279,7 +279,7 @@ module Msf
         when 2
           host, port = args
         end
-        if !aggregator_verify || args.length == 0 || args[0] == '-h' || host.nil?
+        if !aggregator_verify || args.empty? || args[0] == '-h' || host.nil?
           usage_cable_remove
           return
         end
@@ -374,12 +374,12 @@ module Msf
       end
 
       def aggregator_login
-        if !((@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0))
+        if !((@host && !@host.empty?) && (@port && !@port.empty? && @port.to_i > 0))
           usage_connect
           return
         end
 
-        if @host != 'localhost' and @host != '127.0.0.1'
+        if (@host != 'localhost') && (@host != '127.0.0.1')
           print_error('Warning: SSL connections are not verified in this release, it is possible for an attacker')
           print_error('         with the ability to man-in-the-middle the Aggregator traffic to capture the Aggregator')
           print_error('         traffic, if you are running this on an untrusted network.')
@@ -429,7 +429,7 @@ module Msf
         multi_handler.datastore['LHOST'] = '127.0.0.1'
         # multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_https"
         multi_handler.datastore['PAYLOAD'] = 'multi/meterpreter/reverse_http'
-        multi_handler.datastore['LPORT'] = "#{port}"
+        multi_handler.datastore['LPORT'] = port.to_s
 
         # %w(DebugOptions PrependMigrate PrependMigrateProc
         #  InitialAutoRunScript AutoRunScript CAMPAIGN_ID HandlerSSLCert

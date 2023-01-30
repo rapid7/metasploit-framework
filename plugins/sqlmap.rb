@@ -27,7 +27,7 @@ module Msf
       end
 
       def cmd_sqlmap_connect(*args)
-        if args.length == 0
+        if args.empty?
           print_error('Need a host, and optionally a port')
           return
         end
@@ -61,7 +61,7 @@ module Msf
       end
 
       def cmd_sqlmap_start_task(*args)
-        if args.length == 0
+        if args.empty?
           print_error('Usage:')
           print_error('\tsqlmap_start_task <taskid> [<url>]')
           return
@@ -207,7 +207,7 @@ module Msf
             web_vuln_info[:pname] = v['parameter']
             web_vuln_info[:method] = v['place']
             web_vuln_info[:payload] = v['suffix']
-            v['data'].values.each do |i|
+            v['data'].each_value do |i|
               web_vuln_info[:name] = i['title']
               web_vuln_info[:description] = res.to_json
               web_vuln_info[:proof] = i['payload']
@@ -266,7 +266,7 @@ module Msf
       def cmd_sqlmap_list_tasks
         @hid_tasks ||= {}
         @tasks ||= {}
-        @hid_tasks.keys.each do |task|
+        @hid_tasks.each_key do |task|
           print_good("Task ID: #{task}")
         end
       end

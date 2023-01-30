@@ -2,8 +2,8 @@
 require 'nessus_rest'
 
 module Msf
-  PLUGIN_NAME = 'Nessus'
-  PLUGIN_DESCRIPTION = 'Nessus Bridge for Metasploit'
+  PLUGIN_NAME = 'Nessus'.freeze
+  PLUGIN_DESCRIPTION = 'Nessus Bridge for Metasploit'.freeze
 
   class Plugin::Nessus < Msf::Plugin
 
@@ -31,7 +31,7 @@ module Msf
       end
 
       def msf_local
-        "#{Msf::Config.local_directory}"
+        Msf::Config.local_directory.to_s
       end
 
       def commands
@@ -102,7 +102,7 @@ module Msf
         print_status("Creating Exploit Search Index - (#{xindex}) - this won't take long.")
         count = 0
         # Use Msf::Config.config_directory as the location.
-        File.open("#{xindex}", 'w+') do |f|
+        File.open(xindex.to_s, 'w+') do |f|
           # need to add version line.
           f.puts(Msf::Framework::Version)
           framework.exploits.sort.each do |refname, mod|
@@ -116,7 +116,7 @@ module Msf
             next if !o
 
             o.references.map do |x|
-              if !(x.ctx_id == 'URL')
+              if x.ctx_id != 'URL'
                 if (x.ctx_id == 'MSB')
                   stuff << "|#{x.ctx_val}"
                 else
@@ -133,9 +133,9 @@ module Msf
       end
 
       def nessus_index
-        if File.exist?("#{xindex}")
+        if File.exist?(xindex.to_s)
           # check if it's version line matches current version.
-          File.open("#{xindex}") do |f|
+          File.open(xindex.to_s) do |f|
             line = f.readline
             line.chomp!
             if line.to_i == Msf::Framework::RepoRevision
@@ -150,7 +150,7 @@ module Msf
       end
 
       def nessus_login
-        if !((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+        if !((@user && !@user.empty?) && (@host && !@host.empty?) && (@port && !@port.empty? && (@port.to_i > 0)) && (@pass && !@pass.empty?))
           print_status('You need to connect to a server first.')
           ncusage
           return
@@ -172,7 +172,7 @@ module Msf
       end
 
       def nessus_verify_token
-        if @token.nil? or @token == ''
+        if @token.nil? || (@token == '')
           ncusage
           return false
         end
@@ -197,7 +197,7 @@ module Msf
       end
 
       def nessus_verify_db
-        if !(framework.db and framework.db.active)
+        if !(framework.db && framework.db.active)
           print_error('No database has been configured, please use db_create/db_connect first')
           return false
         end
@@ -316,11 +316,10 @@ module Msf
             @host = lconfig['default']['server'].to_s
             @port = lconfig['default']['port'].to_s
             nessus_login
-            return
           else
             ncusage
-            return
           end
+          return
         end
 
         if args[0] == '-h'
@@ -339,7 +338,7 @@ module Msf
           print_error('You are already authenticated.  Call nessus_logout before authenticating again')
           return
         end
-        if (args.length == 0 or args[0].empty?)
+        if (args.empty? || args[0].empty?)
           ncusage
           return
         end
@@ -352,13 +351,11 @@ module Msf
             @user, @pass = cred.split(':', 2)
             targ ||= '127.0.0.1:8834'
             @host, @port = targ.split(':', 2)
-            @port ||= '8834'
-            @sslv = args[1]
           else
             @host, @port = args[0].split(':', 2)
-            @port ||= '8834'
-            @sslv = args[1]
           end
+          @port ||= '8834'
+          @sslv = args[1]
         when 3, 4, 5
           ncusage
           return
@@ -380,7 +377,7 @@ module Msf
           ncusage
           return
         end
-        if !((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+        if !((@user && !@user.empty?) && (@host && !@host.empty?) && (@port && !@port.empty? && (@port.to_i > 0)) && (@pass && !@pass.empty?))
           ncusage
           return
         end
@@ -413,10 +410,10 @@ module Msf
           return
         end
         group = 'default'
-        if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+        if ((@user && !@user.empty?) && (@host && !@host.empty?) && (@port && !@port.empty? && (@port.to_i > 0)) && (@pass && !@pass.empty?))
           config = Hash.new
-          config = { "#{group}" => { 'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port } }
-          File.open("#{nessus_yaml}", 'w+') do |f|
+          config = { group.to_s => { 'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port } }
+          File.open(nessus_yaml.to_s, 'w+') do |f|
             f.puts YAML.dump(config)
           end
           print_good("#{nessus_yaml} created.")
@@ -704,11 +701,10 @@ module Msf
           end
           print_line
           print_line tbl.to_s
-          return
         else
           print_error('Only completed scans can be used for vulnerability reporting')
-          return
         end
+        return
       end
 
       def cmd_nessus_report_host_details(*args)
@@ -730,8 +726,8 @@ module Msf
             search_vuln = /#{args.shift}/nmi
           else
             scan_id =
-arg,
-host_id = args.shift
+              arg,
+              host_id = args.shift
           end
         end
 
@@ -1199,7 +1195,7 @@ host_id = args.shift
             file_id = export['file']
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
             print_status('Checking export status...')
-            begin
+            loop do
               status = @n.scan_export_status(scan_id, file_id)
               print_status('Export status: ' + status['status'])
               if status['status'] == 'ready'
@@ -1207,7 +1203,8 @@ host_id = args.shift
               end
 
               sleep(1)
-            end while (status['status'] == 'loading')
+              break unless (status['status'] == 'loading')
+            end
             if status['status'] == 'ready'
               print_status("The status of scan ID #{scan_id} export is ready")
               select(nil, nil, nil, 5)
@@ -1250,7 +1247,7 @@ host_id = args.shift
             scan_ids << scan['id']
           end
         end
-        if scan_ids.length > 0
+        if !scan_ids.empty?
           scan_ids.each do |scan_id|
             @n.scan_pause(scan_id)
           end
@@ -1308,7 +1305,7 @@ host_id = args.shift
             scan_ids << scan['id']
           end
         end
-        if scan_ids.length > 0
+        if !scan_ids.empty?
           scan_ids.each do |scan_id|
             @n.scan_stop(scan_id)
           end
@@ -1366,7 +1363,7 @@ host_id = args.shift
             scan_ids << scan['id']
           end
         end
-        if scan_ids.length > 0
+        if !scan_ids.empty?
           scan_ids.each do |scan_id|
             @n.scan_resume(scan_id)
           end
@@ -1493,7 +1490,7 @@ host_id = args.shift
             file_id = export['file']
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
             print_status('Checking export status...')
-            begin
+            loop do
               status = @n.scan_export_status(scan_id, file_id)
               print_status('Export status: ' + status['status'])
               if status['status'] == 'ready'
@@ -1501,7 +1498,8 @@ host_id = args.shift
               end
 
               sleep(1)
-            end while (status['status'] == 'loading')
+              break unless (status['status'] == 'loading')
+            end
             if status['status'] == 'ready'
               print_good("The status of scan ID #{scan_id} export is ready")
             else
@@ -1529,7 +1527,7 @@ host_id = args.shift
         when 2
           scan_id = args[0]
           file_id = args[1]
-          begin
+          loop do
             status = @n.scan_export_status(scan_id, file_id)
             print_status('Export status: ' + status['status'])
             if status['status'] == 'ready'
@@ -1537,7 +1535,8 @@ host_id = args.shift
             end
 
             sleep(1)
-          end while (status['status'] == 'loading')
+            break unless (status['status'] == 'loading')
+          end
           if status['status'] == 'ready'
             print_status("The status of scan ID #{scan_id} export is ready")
           else

@@ -97,7 +97,7 @@ module Msf
 
         # Get the table we should be looking at
         command = args.shift
-        if command.nil? or !['creds', 'hosts', 'loot', 'services', 'vulns'].include?(command.downcase)
+        if command.nil? || !['creds', 'hosts', 'loot', 'services', 'vulns'].include?(command.downcase)
           usage(wiki_type)
           return
         end
@@ -116,7 +116,7 @@ module Msf
             tbl_opts[:namespace] = next_opt(args)
           when '-p', '-P', '--port', '--ports'
             tbl_opts[:ports] = next_opts(args)
-            tbl_opts[:ports].map! { |p| p.to_i }
+            tbl_opts[:ports].map!(&:to_i)
           when '-s', '-S', '--search'
             tbl_opts[:search] = next_opt(args)
           when '-i', '-I', '--heading-size'
@@ -227,10 +227,10 @@ module Msf
         tbl.header = 'Credentials'
         tbl.headeri = opts[:heading_size]
         framework.db.creds.each do |cred|
-          if !(opts[:hosts].nil? or opts[:hosts].empty?) && !(opts[:hosts].include? cred.service.host.address)
+          if !(opts[:hosts].nil? || opts[:hosts].empty?) && !(opts[:hosts].include? cred.service.host.address)
             next
           end
-          if !opts[:ports].nil? && !opts[:ports].any? { |p| cred.service.port.eql? p }
+          if !opts[:ports].nil? && opts[:ports].none? { |p| cred.service.port.eql? p }
             next
           end
 
@@ -268,10 +268,10 @@ module Msf
         tbl.header = 'Hosts'
         tbl.headeri = opts[:heading_size]
         framework.db.hosts.each do |host|
-          if !(opts[:hosts].nil? or opts[:hosts].empty?) && !(opts[:hosts].include? host.address)
+          if !(opts[:hosts].nil? || opts[:hosts].empty?) && !(opts[:hosts].include? host.address)
             next
           end
-          if !opts[:ports].nil? && !(host.services.map { |s| s[:port] }).any? { |p| opts[:ports].include? p }
+          if !opts[:ports].nil? && (host.services.map { |s| s[:port] }).none? { |p| opts[:ports].include? p }
             next
           end
 
@@ -311,10 +311,10 @@ module Msf
         tbl.header = 'Loot'
         tbl.headeri = opts[:heading_size]
         framework.db.loots.each do |loot|
-          if !(opts[:hosts].nil? or opts[:hosts].empty?) && !(opts[:hosts].include? loot.host.address)
+          if !(opts[:hosts].nil? || opts[:hosts].empty?) && !(opts[:hosts].include? loot.host.address)
             next
           end
-          if !(opts[:ports].nil? or opts[:ports].empty?) && (loot.service.nil? or loot.service.port.nil? or !opts[:ports].include? loot.service.port)
+          if !(opts[:ports].nil? || opts[:ports].empty?) && (loot.service.nil? || loot.service.port.nil? || !opts[:ports].include?(loot.service.port))
             next
           end
 
@@ -355,10 +355,10 @@ module Msf
         tbl.header = 'Services'
         tbl.headeri = opts[:heading_size]
         framework.db.services.each do |service|
-          if !(opts[:hosts].nil? or opts[:hosts].empty?) && !(opts[:hosts].include? service.host.address)
+          if !(opts[:hosts].nil? || opts[:hosts].empty?) && !(opts[:hosts].include? service.host.address)
             next
           end
-          if !(opts[:ports].nil? or opts[:ports].empty?) && !opts[:ports].any? { |p| service[:port].eql? p }
+          if !(opts[:ports].nil? || opts[:ports].empty?) && opts[:ports].none? { |p| service[:port].eql? p }
             next
           end
 
@@ -395,10 +395,10 @@ module Msf
         tbl.header = 'Vulns'
         tbl.headeri = opts[:heading_size]
         framework.db.vulns.each do |vuln|
-          if !(opts[:hosts].nil? or opts[:hosts].empty?) && !(opts[:hosts].include? vuln.host.address)
+          if !(opts[:hosts].nil? || opts[:hosts].empty?) && !(opts[:hosts].include? vuln.host.address)
             next
           end
-          if !(opts[:ports].nil? or opts[:ports].empty?) && !opts[:ports].any? { |p| vuln.service.port.eql? p }
+          if !(opts[:ports].nil? || opts[:ports].empty?) && opts[:ports].none? { |p| vuln.service.port.eql? p }
             next
           end
 
@@ -534,7 +534,7 @@ module Msf
               level = '=' * (-headeri + 7)
               str << "#{level} #{header} #{level}"
             else
-              str << "#{header}"
+              str << header.to_s
             end
             str << "\n"
           end

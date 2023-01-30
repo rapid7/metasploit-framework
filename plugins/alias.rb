@@ -24,7 +24,8 @@ module Msf
       #
       # Returns the hash of commands supported by this dispatcher.
       #
-      def commands # driver.dispatcher_stack[3].commands
+      # driver.dispatcher_stack[3].commands
+      def commands
         {
           'alias' => 'create or view an alias.'
           #			"alias_clear" => "clear an alias (or all aliases).",
@@ -40,7 +41,7 @@ module Msf
         # we parse args manually instead of using @@alias.opts.parse to handle special cases
         case args.length
         when 0 # print the list of current aliases
-          if @aliases.length == 0
+          if @aliases.empty?
             return print_status('No aliases currently defined')
           else
             tbl = Rex::Text::Table.new(
@@ -56,7 +57,7 @@ module Msf
             return print(tbl.to_s)
           end
         when 1 # display the alias if one matches this name (or help)
-          return cmd_alias_help if args[0] == '-h' or args[0] == '--help'
+          return cmd_alias_help if (args[0] == '-h') || (args[0] == '--help')
 
           if @aliases.keys.include?(args[0])
             print_status("\'#{args[0]}\' is aliased to \'#{@aliases[args[0]]}\'")
@@ -92,7 +93,7 @@ module Msf
           if clear
             # clear all aliases if "*"
             if name == '*'
-              @aliases.keys.each do |a|
+              @aliases.each_key do |a|
                 deregister_alias(a)
               end
               print_status 'Cleared all aliases'
@@ -121,7 +122,7 @@ module Msf
           # print_good "Alias validity = #{is_valid_alias.to_s}"
           is_sys_cmd = Rex::FileUtils.find_full_path(name)
           is_already_alias = @aliases.keys.include?(name)
-          if is_valid_alias and !is_sys_cmd and !is_already_alias
+          if is_valid_alias && !is_sys_cmd && !is_already_alias
             register_alias(name, value)
           elsif force
             if !is_valid_alias
@@ -133,7 +134,7 @@ module Msf
           else
             print_error("#{name} already exists as a system command, use -f to force override") if is_sys_cmd
             print_error("#{name} is already an alias, use -f to force override") if is_already_alias
-            if !is_valid_alias and !force
+            if !is_valid_alias && !force
               print_error("\'#{name}\' is not a permitted name or \'#{value}\' is not valid/permitted")
               print_error("It's possible the responding dispatcher isn't loaded yet, try changing to the proper context or using -f to force")
             end
@@ -259,7 +260,7 @@ module Msf
         driver.dispatcher_stack.each do |dispatcher|
           next unless dispatcher.respond_to?(:commands)
           next if dispatcher.commands.nil?
-          next if (dispatcher.commands.length == 0)
+          next if dispatcher.commands.empty?
 
           if dispatcher.respond_to?("cmd_#{value.split(' ').first}")
             # print_status "Dispatcher (#{dispatcher.name}) responds to cmd_#{value.split(" ").first}"
@@ -280,7 +281,7 @@ module Msf
         # gather all the current commands the driver's dispatcher's have
         driver.dispatcher_stack.each do |dispatcher|
           next unless dispatcher.respond_to?(:commands)
-          next if (dispatcher.commands.nil? or dispatcher.commands.length == 0)
+          next if (dispatcher.commands.nil? || dispatcher.commands.empty?)
 
           items.concat(dispatcher.commands.keys)
         end
@@ -289,7 +290,7 @@ module Msf
         return items
       end
 
-    end # end AliasCommandDispatcher class
+    end
 
     #
     # The constructor is called when an instance of the plugin is created.  The
@@ -334,5 +335,5 @@ module Msf
       'Adds the ability to alias console commands'
     end
 
-  end ## End Plugin Class
-end ## End Module
+  end
+end

@@ -47,7 +47,7 @@ module Msf
         end
 
         @mythread = ::Thread.new do
-          while true
+          loop do
             print_line('--- test thread ---')
             select(nil, nil, nil, 5)
           end

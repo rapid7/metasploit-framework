@@ -54,7 +54,7 @@ module Msf
 
       # Verify the database is connected and usable
       def database?
-        if !(framework.db and framework.db.usable)
+        if !(framework.db && framework.db.usable)
           return false
         else
           return true
@@ -65,7 +65,7 @@ module Msf
       # true if correct number of arguments and help was not requested.
       def args?(args, min = 1, max = nil)
         if !max then max = min end
-        if (args.length < min or args.length > max or args[0] == '-h')
+        if ((args.length < min) || (args.length > max) || (args[0] == '-h'))
           return false
         end
 
@@ -98,7 +98,7 @@ module Msf
       def cmd_besecure_ssl_verify(*args)
         if args?(args)
           @ssl_verify = args[0]
-          if @ssl_verify != 'yes' and @ssl_verify != 'no'
+          if (@ssl_verify != 'yes') && (@ssl_verify != 'no')
             @ssl_verify = 'yes'
           end
           print_good(@ssl_verify)
@@ -316,7 +316,7 @@ module Msf
           print_status('Only the NBE and XML formats are supported for importing.')
         end
       end
-    end # End beSECURE class
+    end
 
     #------------------------------
     # Plugin initialization

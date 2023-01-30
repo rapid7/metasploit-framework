@@ -68,7 +68,7 @@ module Msf
 
     def start_event_queue
       self.queue_thread = Rex::ThreadFactory.spawn('rss_plugin', false) do
-        while true
+        loop do
           while (event = queue.shift)
             generate_feed(event)
           end

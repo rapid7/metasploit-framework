@@ -26,7 +26,7 @@ module Msf
 
       def on_socket_created(_comm, sock, param)
         # Sockets created by the exploit have MsfExploit set and MsfPayload not set
-        if (param.context['MsfExploit'] and !param.context['MsfPayload'])
+        if (param.context['MsfExploit'] && !param.context['MsfPayload'])
           sock.extend(IPSFilter::SocketTracer)
           sock.context = param.context
         end
@@ -77,10 +77,6 @@ module IPSFilter
       return r
     end
 
-    def close(*args)
-      super(*args)
-    end
-
     def ips_match(data)
       lp = localport
       rp = peerport
@@ -100,11 +96,11 @@ module IPSFilter
 
     # Extend this as needed :-)
     SIGS =
-    [
-      ['DCOM.C', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],
-      ['BLASTER', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],
-      ['REMACT', ".*\xb8\x4a\x9f\x4d\x1c\\}\xcf\x11\x86\x1e\x00\x20\xaf\x6e.*"],
-      ['x86 NOP SLED', "\x90\x90"],
-    ]
+      [
+        ['DCOM.C', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],
+        ['BLASTER', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],
+        ['REMACT', ".*\xb8\x4a\x9f\x4d\x1c\\}\xcf\x11\x86\x1e\x00\x20\xaf\x6e.*"],
+        ['x86 NOP SLED', "\x90\x90"],
+      ].freeze
   end
 end

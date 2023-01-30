@@ -288,10 +288,10 @@ module Msf
         # https://gotify.net/docs/more-pushmsg
         uri_parser = URI.parse(gotify_address)
         message_text =
-        "Platform : #{session.platform}\n" \
-        "Tunnel : #{session.tunnel_to_s}\n" \
-        "Arch : #{session.arch}\n" \
-        "Info : > #{session.info ? session.info.to_s : nil}"
+          "Platform : #{session.platform}\n" \
+          "Tunnel : #{session.tunnel_to_s}\n" \
+          "Arch : #{session.arch}\n" \
+          "Info : > #{session.info ? session.info.to_s : nil}"
         json_post_data = JSON.pretty_generate({
           title: "A #{session.platform}/#{session.type} Session is On!",
           message: message_text,

@@ -5,10 +5,11 @@
 #
 # $Revision$
 #
+require 'English'
 require 'nexpose'
 
 module Msf
-  Nexpose_yaml = "#{Msf::Config.config_directory}/nexpose.yaml" # location of the nexpose.yml containing saved nexpose creds
+  Nexpose_yaml = "#{Msf::Config.config_directory}/nexpose.yaml".freeze # location of the nexpose.yml containing saved nexpose creds
 
   class Plugin::Nexpose < Msf::Plugin
     class NexposeCommandDispatcher
@@ -44,7 +45,7 @@ module Msf
       end
 
       def nexpose_verify_db
-        if !(framework.db and framework.db.usable and framework.db.active)
+        if !(framework.db && framework.db.usable && framework.db.active)
           print_error('No database has been configured, please use db_create/db_connect first')
           return false
         end
@@ -79,9 +80,9 @@ module Msf
 
         group = 'default'
 
-        if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
-          config = { "#{group}" => { 'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port, 'trust_cert' => @trust_cert } }
-          ::File.open("#{Nexpose_yaml}", 'wb') { |f| f.puts YAML.dump(config) }
+        if ((@user && !@user.empty?) && (@host && !@host.empty?) && (@port && !@port.empty? && (@port.to_i > 0)) && (@pass && !@pass.empty?))
+          config = { group.to_s => { 'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port, 'trust_cert' => @trust_cert } }
+          ::File.open(Nexpose_yaml.to_s, 'wb') { |f| f.puts YAML.dump(config) }
           print_good("#{Nexpose_yaml} created.")
         else
           print_error('Missing username/password/server/port - relogin and then try again.')
@@ -92,8 +93,8 @@ module Msf
       def cmd_nexpose_connect(*args)
         return if !nexpose_verify_db
 
-        if !args[0] && ::File.readable?("#{Nexpose_yaml}")
-          lconfig = YAML.load_file("#{Nexpose_yaml}")
+        if !args[0] && ::File.readable?(Nexpose_yaml.to_s)
+          lconfig = YAML.load_file(Nexpose_yaml.to_s)
           @user = lconfig['default']['username']
           @pass = lconfig['default']['password']
           @host = lconfig['default']['server']
@@ -106,7 +107,7 @@ module Msf
           return
         end
 
-        if (args.length == 0 or args[0].empty? or args[0] == '-h')
+        if (args.empty? || args[0].empty? || (args[0] == '-h'))
           nexpose_usage
           return
         end
@@ -153,12 +154,12 @@ module Msf
       end
 
       def nexpose_login
-        if !((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+        if !((@user && !@user.empty?) && (@host && !@host.empty?) && (@port && !@port.empty? && (@port.to_i > 0)) && (@pass && !@pass.empty?))
           nexpose_usage
           return
         end
 
-        if (@host != 'localhost' and @host != '127.0.0.1' and (@trust_cert.nil? && @sslv != 'ok'))
+        if ((@host != 'localhost') && (@host != '127.0.0.1') && (@trust_cert.nil? && @sslv != 'ok'))
           # consider removing this message and replacing with check on trust_store, and if trust_store is not found validate @host already has a truly trusted cert?
           print_error('Warning: SSL connections are not verified in this release, it is possible for an attacker')
           print_error('         with the ability to man-in-the-middle the Nexpose traffic to capture the Nexpose')
@@ -171,7 +172,7 @@ module Msf
         begin
           cmd_nexpose_disconnect
         rescue ::Interrupt
-          raise $!
+          raise $ERROR_INFO
         rescue ::Exception
         end
 
@@ -254,7 +255,7 @@ module Msf
       def cmd_nexpose_command(*args)
         return if !nexpose_verify
 
-        if args.length == 0
+        if args.empty?
           print_error('No command was specified')
           return
         end
@@ -331,21 +332,21 @@ module Msf
       end
 
       def cmd_nexpose_discover(*args)
-        args << '-h' if args.length == 0
+        args << '-h' if args.empty?
         args << '-t'
         args << 'aggressive-discovery'
         cmd_nexpose_scan(*args)
       end
 
       def cmd_nexpose_exhaustive(*args)
-        args << '-h' if args.length == 0
+        args << '-h' if args.empty?
         args << '-t'
         args << 'exhaustive-audit'
         cmd_nexpose_scan(*args)
       end
 
       def cmd_nexpose_dos(*args)
-        args << '-h' if args.length == 0
+        args << '-h' if args.empty?
         args << '-t'
         args << 'dos-audit'
         cmd_nexpose_scan(*args)
@@ -469,14 +470,14 @@ module Msf
           count += 1
           queue = []
 
-          while ((ip = range.next_ip) and queue.length < opt_maxaddrs)
+          while ((ip = range.next_ip) && (queue.length < opt_maxaddrs))
 
-            if (exclude_range and exclude_range.include?(ip))
+            if (exclude_range && exclude_range.include?(ip))
               print_status(" >> Skipping host #{ip} due to exclusion") if opt_verbose
               next
             end
 
-            if (include_range and !include_range.include?(ip))
+            if (include_range && !include_range.include?(ip))
               print_status(" >> Skipping host #{ip} due to inclusion filter") if opt_verbose
               next
             end
@@ -526,7 +527,7 @@ module Msf
           rescue Nexpose::APIError => e
             nexpose_error_message = e.message
             nexpose_error_message.gsub!(/NexposeAPI: Action failed: /, '')
-            print_error "#{nexpose_error_message}"
+            print_error nexpose_error_message.to_s
             return
           end
 
@@ -582,7 +583,7 @@ module Msf
           next if opt_preserve
 
           # Make sure the scan has finished clean up before attempting to delete the site
-          while true
+          loop do
             info = @nsc.scan_statistics(sid)
             break if info.status == 'stopped' || info.status == 'finished'
 
@@ -646,7 +647,7 @@ module Msf
           )
 
           rids = []
-          refs.keys.each do |r|
+          refs.each_key do |r|
             rids << framework.db.find_or_create_ref(name: r)
           end
 
@@ -668,7 +669,7 @@ module Msf
 
       # Do not use this UTF-8 encoded high-ascii art for non-UTF-8 or windows consoles
       lang = Rex::Compat.getenv('LANG')
-      if (lang and lang =~ /UTF-8/)
+      if (lang && lang =~ (/UTF-8/))
         # Cygwin/Windows should not be reporting UTF-8 either...
         # (! (Rex::Compat.is_windows or Rex::Compat.is_cygwin))
         banner = ['202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200a20e29684e29684e29684202020e29684e29684202020202020202020202020e29684e29684e296842020e29684e29684e2968420202020202020202020202020202020202020202020202020202020202020202020202020202020200a20e29688e29688e29688202020e29688e2968820202020202020202020202020e29688e2968820e29684e29688e296882020202020202020202020202020202020202020202020202020202020202020202020202020202020200a20e29688e29688e29680e296882020e29688e29688202020e29684e29688e29688e29688e29688e296842020202020e29688e29688e29688e2968820202020e29688e29688e29684e29688e29688e29688e2968420202020e29684e29688e29688e29688e29688e29684202020e29684e29684e29688e29688e29688e29688e29688e29684202020e29684e29688e29688e29688e29688e2968420200a20e29688e2968820e29688e2968820e29688e296882020e29688e29688e29684e29684e29684e29684e29688e296882020202020e29688e296882020202020e29688e29688e296802020e29680e29688e296882020e29688e29688e296802020e29680e29688e296882020e29688e29688e29684e29684e29684e2968420e296802020e29688e29688e29684e29684e29684e29684e29688e29688200a20e29688e296882020e29688e29684e29688e296882020e29688e29688e29680e29680e29680e29680e29680e2968020202020e29688e29688e29688e2968820202020e29688e2968820202020e29688e296882020e29688e2968820202020e29688e29688202020e29680e29680e29680e29680e29688e29688e296842020e29688e29688e29680e29680e29680e29680e29680e29680200a20e29688e29688202020e29688e29688e296882020e29680e29688e29688e29684e29684e29684e29684e29688202020e29688e296882020e29688e29688202020e29688e29688e29688e29684e29684e29688e29688e296802020e29680e29688e29688e29684e29684e29688e29688e296802020e29688e29684e29684e29684e29684e29684e29688e296882020e29680e29688e29688e29684e29684e29684e29684e29688200a20e29680e29680202020e29680e29680e2968020202020e29680e29680e29680e29680e29680202020e29680e29680e296802020e29680e29680e296802020e29688e2968820e29680e29680e29680202020202020e29680e29680e29680e296802020202020e29680e29680e29680e29680e29680e296802020202020e29680e29680e29680e29680e2968020200a20202020202020202020202020202020202020202020202020202020202020e29688e29688202020202020202020202020202020202020202020202020202020202020202020202020200a202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200a'].pack('H*')

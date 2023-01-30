@@ -3,6 +3,7 @@
 # Efrain Torres    - et[ ] metasploit.com  2012
 #
 
+require 'English'
 require 'rabal/tree'
 
 module Msf
@@ -32,38 +33,34 @@ module Msf
       end
 
       def cmd_wmap_vulns(*args)
-        args.push('-h') if args.length == 0
+        args.push('-h') if args.empty?
 
         while (arg = args.shift)
           case arg
           when '-l'
             view_vulns
-            return
           when '-h'
             print_status('Usage: wmap_vulns [options]')
             print_line("\t-h 		Display this help text")
             print_line("\t-l 		Display web vulns table")
 
             print_line('')
-            return
           else
             print_error('Unknown flag.')
-            return
           end
+          return
         end
       end
 
       def cmd_wmap_modules(*args)
-        args.push('-h') if args.length == 0
+        args.push('-h') if args.empty?
 
         while (arg = args.shift)
           case arg
           when '-l'
             view_modules
-            return
           when '-r'
             load_wmap_modules(true)
-            return
           when '-h'
             print_status('Usage: wmap_modules [options]')
             print_line("\t-h 		Display this help text")
@@ -71,16 +68,15 @@ module Msf
             print_line("\t-r		Reload wmap modules")
 
             print_line('')
-            return
           else
             print_error('Unknown flag.')
-            return
           end
+          return
         end
       end
 
       def cmd_wmap_targets(*args)
-        args.push('-h') if args.length == 0
+        args.push('-h') if args.empty?
 
         while (arg = args.shift)
           case arg
@@ -111,7 +107,7 @@ module Msf
       end
 
       def cmd_wmap_sites(*args)
-        args.push('-h') if args.length == 0
+        args.push('-h') if args.empty?
 
         while (arg = args.shift)
           case arg
@@ -145,10 +141,10 @@ module Msf
 
             return unless u
 
-            if l.nil? or l.empty?
+            if l.nil? || l.empty?
               l = 200
               o = 'true'
-            elsif l == 'true' or l == 'false'
+            elsif (l == 'true') || (l == 'false')
               # Add check if unicode parameters is the second one
               o = l
               l = 200
@@ -163,7 +159,7 @@ module Msf
               view_site_tree(u, l, o)
             else
               # Parameters are digits
-              if !lastsites or lastsites.length == 0
+              if !lastsites || lastsites.empty?
                 view_sites
                 print_status('Web sites ids. referenced from previous table.')
               end
@@ -183,7 +179,7 @@ module Msf
               end
 
               # Skip the DB entirely if no matches
-              return if target_whitelist.length == 0
+              return if target_whitelist.empty?
 
               unless targets
                 self.targets = Hash.new
@@ -215,7 +211,7 @@ module Msf
           self.rpcarr = Hash.new
         end
 
-        args.push('-h') if args.length == 0
+        args.push('-h') if args.empty?
 
         while (arg = args.shift)
           case arg
@@ -368,7 +364,7 @@ module Msf
         mname = ''
         inipathname = '/'
 
-        args.push('-h') if args.length == 0
+        args.push('-h') if args.empty?
 
         while (arg = args.shift)
           case arg
@@ -435,7 +431,7 @@ module Msf
           end
         end
 
-        if (rpcarr.length == 0) and (mode & wmap_show == 0)
+        if rpcarr.empty? && (mode & wmap_show == 0)
           print_error('NO WMAP NODES DEFINED. Executing local modules')
           self.runlocal = true
         end
@@ -445,7 +441,7 @@ module Msf
           return
         end
 
-        if targets.keys.length == 0
+        if targets.keys.empty?
           print_error('Targets have not been selected.')
           return
         end
@@ -556,7 +552,7 @@ module Msf
             end
 
             # Module not part of profile or not match
-            next unless (using_p and eprofile.include? xref[0].split('/').last) or (using_m and xref[0].to_s.match(mname)) or (!using_m and !using_p)
+            next unless (using_p && eprofile.include?(xref[0].split('/').last)) || (using_m && xref[0].to_s.match(mname)) || (!using_m && !using_p)
 
             idx += 1
 
@@ -596,11 +592,11 @@ module Msf
                     rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
                   end
                 rescue ::Exception
-                  print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                  print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                 end
               end
             rescue ::Exception
-              print_status(" >> Exception from #{xref[0]}: #{$!}")
+              print_status(" >> Exception from #{xref[0]}: #{$ERROR_INFO}")
             end
           end
 
@@ -619,7 +615,7 @@ module Msf
             end
 
             # Module not part of profile or not match
-            next unless (using_p and eprofile.include? xref[0].split('/').last) or (using_m and xref[0].to_s.match(mname)) or (!using_m and !using_p)
+            next unless (using_p && eprofile.include?(xref[0].split('/').last)) || (using_m && xref[0].to_s.match(mname)) || (!using_m && !using_p)
 
             idx += 1
 
@@ -660,11 +656,11 @@ module Msf
                     rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
                   end
                 rescue ::Exception
-                  print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                  print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                 end
               end
             rescue ::Exception
-              print_status(" >> Exception from #{xref[0]}: #{$!}")
+              print_status(" >> Exception from #{xref[0]}: #{$ERROR_INFO}")
             end
           end
 
@@ -683,7 +679,7 @@ module Msf
             end
 
             # Module not part of profile or not match
-            next unless (using_p and eprofile.include? xref[0].split('/').last) or (using_m and xref[0].to_s.match(mname)) or (!using_m and !using_p)
+            next unless (using_p && eprofile.include?(xref[0].split('/').last)) || (using_m && xref[0].to_s.match(mname)) || (!using_m && !using_p)
 
             idx += 1
 
@@ -744,7 +740,7 @@ module Msf
                   # Fixing paths
                   #
 
-                  if node.is_leaf? and !node.is_root?
+                  if node.is_leaf? && !node.is_root?
                     #
                     # Later we can add here more checks to see if its a file
                     #
@@ -766,13 +762,13 @@ module Msf
 
                   case wtype
                   when :wmap_file
-                    if node.is_leaf? and !node.is_root?
+                    if node.is_leaf? && !node.is_root?
                       #
                       # Check if an exclusion regex has been defined
                       #
                       excludefilestr = framework.datastore['WMAP_EXCLUDE'] || wmap_exclude_files
 
-                      if !(strpath.match(excludefilestr) && (!usinginipath or (usinginipath and strpath.match(inipathname))))
+                      if !(strpath.match(excludefilestr) && (!usinginipath || (usinginipath && strpath.match(inipathname))))
                         modopts['PATH'] = strpath
                         print_status("Path: #{strpath}")
 
@@ -781,12 +777,12 @@ module Msf
                             rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
                           end
                         rescue ::Exception
-                          print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                          print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                         end
                       end
                     end
                   when :wmap_dir
-                    if ((node.is_leaf? and !strpath.include? '.') or node.is_root? or !node.is_leaf?) && (!usinginipath or (usinginipath and strpath.match(inipathname)))
+                    if ((node.is_leaf? && !strpath.include?('.')) || node.is_root? || !node.is_leaf?) && (!usinginipath || (usinginipath && strpath.match(inipathname)))
 
                       modopts['PATH'] = strpath
                       print_status("Path: #{strpath}")
@@ -796,14 +792,14 @@ module Msf
                           rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
                         end
                       rescue ::Exception
-                        print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                        print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                       end
                     end
                   end
                 end
               end
             rescue ::Exception
-              print_status(" >> Exception from #{xref[0]}: #{$!}")
+              print_status(" >> Exception from #{xref[0]}: #{$ERROR_INFO}")
             end
           end
 
@@ -822,7 +818,7 @@ module Msf
             end
 
             # Module not part of profile or not match
-            next unless (using_p and eprofile.include? xref[0].split('/').last) or (using_m and xref[0].to_s.match(mname)) or (!using_m and !using_p)
+            next unless (using_p && eprofile.include?(xref[0].split('/').last)) || (using_m && xref[0].to_s.match(mname)) || (!using_m && !using_p)
 
             idx += 1
 
@@ -892,7 +888,7 @@ module Msf
                     pn, pv, pt = p
                     if pn
                       if !pn.empty?
-                        if !pv or pv.empty?
+                        if !pv || pv.empty?
                           # TODO: add value based on param name
                           pv = 'aaa'
                         end
@@ -905,9 +901,9 @@ module Msf
                     end
                   end
 
-                  datastr = temparr.join('&') if (temparr and !temparr.empty?)
+                  datastr = temparr.join('&') if (temparr && !temparr.empty?)
 
-                  if (utest_query.has_key?(signature(form.path, datastr)) == false)
+                  if (utest_query.key?(signature(form.path, datastr)) == false)
 
                     modopts['METHOD'] = form.method.upcase
                     modopts['PATH'] = form.path
@@ -924,7 +920,7 @@ module Msf
                     #
                     # TODO: Add headers, etc.
                     #
-                    if !usinginipath or (usinginipath and form.path.match(inipathname))
+                    if !usinginipath || (usinginipath && form.path.match(inipathname))
 
                       print_status "Path #{form.path}"
                       # print_status("Unique PATH #{modopts['PATH']}")
@@ -938,7 +934,7 @@ module Msf
                         end
                         utest_query[signature(form.path, datastr)] = 1
                       rescue ::Exception
-                        print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                        print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                       end
                     end
                   else
@@ -947,7 +943,7 @@ module Msf
                 end
               end
             rescue ::Exception
-              print_status(" >> Exception from #{xref[0]}: #{$!}")
+              print_status(" >> Exception from #{xref[0]}: #{$ERROR_INFO}")
             end
           end
 
@@ -968,7 +964,7 @@ module Msf
             end
 
             # Module not part of profile or not match
-            next unless !(using_p and eprofile.include? xref[0].split('/').last) or (using_m and xref[0].to_s.match(mname)) or (!using_m and !using_p)
+            next unless !(using_p && eprofile.include?(xref[0].split('/').last)) || (using_m && xref[0].to_s.match(mname)) || (!using_m && !using_p)
 
             idx += 1
 
@@ -1029,7 +1025,7 @@ module Msf
                     pn, pv, pt = p
                     if pn
                       if !pn.empty?
-                        if !pv or pv.empty?
+                        if !pv || pv.empty?
                           # TODO: add value based on param name
                           pv = 'aaa'
                         end
@@ -1041,7 +1037,7 @@ module Msf
                     end
                   end
 
-                  datastr = temparr.join('&') if (temparr and !temparr.empty?)
+                  datastr = temparr.join('&') if (temparr && !temparr.empty?)
 
                   modopts['METHOD'] = req.method.upcase
                   modopts['PATH'] = req.path
@@ -1055,7 +1051,7 @@ module Msf
                   #
                   # TODO: Add method, headers, etc.
                   #
-                  next unless !usinginipath or (usinginipath and req.path.match(inipathname))
+                  next unless !usinginipath || (usinginipath && req.path.match(inipathname))
 
                   print_status "Path #{req.path}"
                   # print_status("Query PATH #{modopts['PATH']}")
@@ -1068,12 +1064,12 @@ module Msf
                       rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
                     end
                   rescue ::Exception
-                    print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                    print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                   end
                 end
               end
             rescue ::Exception
-              print_status(" >> Exception from #{xref[0]}: #{$!}")
+              print_status(" >> Exception from #{xref[0]}: #{$ERROR_INFO}")
             end
           end
 
@@ -1094,7 +1090,7 @@ module Msf
             end
 
             # Module not part of profile or not match
-            next unless !(using_p and eprofile.include? xref[0].split('/').last) or (using_m and xref[0].to_s.match(mname)) or (!using_m and !using_p)
+            next unless !(using_p && eprofile.include?(xref[0].split('/').last)) || (using_m && xref[0].to_s.match(mname)) || (!using_m && !using_p)
 
             idx += 1
 
@@ -1141,11 +1137,11 @@ module Msf
                     rpcnode = rpc_round_exec(xref[0], xref[1], modopts, njobs)
                   end
                 rescue ::Exception
-                  print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+                  print_status(" >> Exception during launch from #{xref[0]}: #{$ERROR_INFO}")
                 end
               end
             rescue ::Exception
-              print_status(" >> Exception from #{xref[0]}: #{$!}")
+              print_status(" >> Exception from #{xref[0]}: #{$ERROR_INFO}")
             end
           end
 
@@ -1168,7 +1164,7 @@ module Msf
       end
 
       def view_targets
-        if targets.nil? or targets.keys.length == 0
+        if targets.nil? || targets.keys.empty?
           print_status 'No targets have been defined'
           return
         end
@@ -1357,7 +1353,7 @@ module Msf
         end
 
         # Skip the DB entirely if no matches
-        return if target_whitelist.length == 0
+        return if target_whitelist.empty?
 
         if !targets
           # First time targets are defined
@@ -1418,7 +1414,7 @@ module Msf
       # lastsites contains a temporary array with vhost,url strings so the id can be
       # referenced in the array and prevent new sites added in the db to corrupt previous id list.
       def process_ids(idsstr)
-        if !lastsites or lastsites.length == 0
+        if !lastsites || lastsites.empty?
           view_sites
           print_status('Web sites ids. referenced from previous table.')
         end
@@ -1438,7 +1434,7 @@ module Msf
         end
 
         # Skip the DB entirely if no matches
-        return if target_whitelist.length == 0
+        return if target_whitelist.empty?
 
         if !targets
           self.targets = Hash.new
@@ -1500,7 +1496,7 @@ module Msf
         end
 
         # Skip the DB entirely if no matches
-        return if site_whitelist.length == 0
+        return if site_whitelist.empty?
 
         site_whitelist.each do |ent|
           vhost, target = ent
@@ -1574,7 +1570,7 @@ module Msf
       # Recursive function for printing the tree structure
       #
       def print_tree_recursive(tree, max_level, indent, prefix, is_last, unicode)
-        if !tree.nil? and tree.depth <= max_level
+        if !tree.nil? && (tree.depth <= max_level)
           print(' ' * indent)
 
           # Prefix serve to print the superior hierarchy
@@ -1603,7 +1599,7 @@ module Msf
           i = 1
           new_prefix = prefix + [is_last]
           tree.children.each_pair do |_, child|
-            is_last = !(i < c)
+            is_last = i >= c
             print_tree_recursive(child, max_level, indent, new_prefix, is_last, unicode)
             i += 1
           end
@@ -1616,7 +1612,7 @@ module Msf
       #
       def print_tree(tree, ip, max_level, unicode)
         indent = 4
-        if !tree.nil? and tree.depth <= max_level
+        if !tree.nil? && (tree.depth <= max_level)
           if tree.depth == 0
             print_line "\n" + (' ' * indent) + "%cya[#{tree.name}] (#{ip})%clr"
           end
@@ -1624,7 +1620,7 @@ module Msf
           i = 1
           c = tree.children.count
           tree.children.each_pair do |_, child|
-            print_tree_recursive(child, max_level, indent, [], !(i < c), unicode)
+            print_tree_recursive(child, max_level, indent, [], i >= c, unicode)
             i += 1
           end
 
@@ -1648,7 +1644,7 @@ module Msf
 
         query.split(/[&;]/n).each do |pairs|
           key, value = pairs.split('=', 2)
-          if params.has_key?(key)
+          if params.key?(key)
             # Error
           else
             params[key] = value
@@ -1664,7 +1660,7 @@ module Msf
 
         begin
           istr = "#{host}|#{port}|#{ssl}|#{user}|#{pass}"
-          if rpcarr.has_key?(istr) and !bypass_exist and !rpcarr[istr].nil?
+          if rpcarr.key?(istr) && !bypass_exist && !rpcarr[istr].nil?
             print_error("Connection already exists #{istr}")
           else
             begin
@@ -1733,7 +1729,7 @@ module Msf
         end
 
         if sess
-          if (jobify == false and sess.interactive?)
+          if ((jobify == false) && sess.interactive?)
             print_line
             driver.run_single("sessions -q -i #{sess.sid}")
           else
@@ -1810,7 +1806,7 @@ module Msf
             # print_status(">>>#{res} #{mod}")
 
             if res
-              if res.has_key?('job_id')
+              if res.key?('job_id')
                 return
               else
                 print_error("Unable to execute module in node #{k} #{res}")
@@ -1823,7 +1819,7 @@ module Msf
           idx += 1
         end
 
-        if runlocal and !masstop
+        if runlocal && !masstop
           local_module_exec(mod, mtype, opts, nmaxjobs)
         end
       end
@@ -1909,14 +1905,14 @@ module Msf
 
         idx = 0
         rpcarr.each do |_k, rpccon|
-          if idx == i.to_i or i.upcase == 'ALL'
+          if (idx == i.to_i) || (i.upcase == 'ALL')
             # begin
             if !rpccon
               print_error("No connection to node #{idx}")
             else
               n = rpccon.call('job.list')
               n.each do |id, name|
-                if j == id.to_s or j.upcase == 'ALL'
+                if (j == id.to_s) || (j.upcase == 'ALL')
                   rpccon.call('job.stop', id)
                   print_status("Node #{idx} Killed job id #{id} #{name}")
                 end
@@ -2121,7 +2117,7 @@ module Msf
       end
 
       def active_rpc_nodes
-        if rpcarr.length == 0
+        if rpcarr.empty?
           return 0
         else
           idx = 0
@@ -2197,7 +2193,7 @@ module Msf
 
       # Load all wmap modules
       def load_wmap_modules(reload)
-        if reload or !wmapmodules
+        if reload || !wmapmodules
           print_status('Loading wmap modules...')
 
           self.wmapmodules = []

@@ -33,7 +33,7 @@ module Msf
         )
 
         # This is ugly.
-        if (args.length == 0)
+        if args.empty?
           print_line('Usage: token_adduser [options] <username> <password>')
           print_line(opts.usage)
           return

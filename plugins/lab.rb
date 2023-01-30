@@ -3,7 +3,7 @@
 # $Revision$
 ##
 
-$:.unshift(File.join(__dir__, '..', 'lib', 'lab'))
+$LOAD_PATH.unshift(File.join(__dir__, '..', 'lib', 'lab'))
 
 require 'yaml'
 
@@ -70,7 +70,7 @@ module Msf
 
         res = args[0]
         good_res = nil
-        if (File.file? res and File.readable? res)
+        if (File.file?(res) && File.readable?(res))
           # then the provided argument is an absolute path and is gtg.
           good_res = res
         elsif [
@@ -79,7 +79,7 @@ module Msf
           # ::Msf::Config.user_plugins_directory + File::SEPARATOR + "lab"
         ].each do |dir|
                 res_path = dir + File::SEPARATOR + res
-                if (File.file?(res_path) and File.readable?(res_path))
+                if (File.file?(res_path) && File.readable?(res_path))
                   good_res = res_path
                   break
                 end
@@ -99,10 +99,10 @@ module Msf
       def cmd_lab_load_tabs(str, words)
         tabs = []
         # return tabs if words.length > 1
-        if (str and str =~ /^#{Regexp.escape(File::SEPARATOR)}/)
+        if (str && str =~ (/^#{Regexp.escape(File::SEPARATOR)}/))
           # then you are probably specifying a full path so let's just use normal file completion
           return tab_complete_filenames(str, words)
-        elsif (!(words[1]) or !words[1].match(%r{^/}))
+        elsif (!(words[1]) || !words[1].match(%r{^/}))
           # then let's start tab completion in the data/lab directory
           begin
             [
@@ -295,7 +295,7 @@ module Msf
         return lab_usage if args.empty?
 
         if args[0] == 'all'
-          @controller.each { |vm| vm.suspend }
+          @controller.each(&:suspend)
         else
           args.each do |arg|
             if @controller.includes_hostname?(arg) && @controller.find_by_hostname(arg).running?
@@ -311,7 +311,7 @@ module Msf
 
         if args[0] == 'all'
           print_line 'Resetting all lab vms.'
-          @controller.each { |vm| vm.reset }
+          @controller.each(&:reset)
         else
           args.each do |arg|
             if @controller.includes_hostname?(arg) && @controller.find_by_hostname(arg).running?
@@ -444,7 +444,7 @@ module Msf
       ##
 
       def longest_cmd_size
-        commands.keys.map { |x| x.size }.sort.last
+        commands.keys.map(&:size).max
       end
 
       # No extended help yet, but this is where more detailed documentation
@@ -580,5 +580,5 @@ module Msf
       'Adds the ability to manage VMs'
     end
 
-  end ## End Class
-end ## End Module
+  end
+end

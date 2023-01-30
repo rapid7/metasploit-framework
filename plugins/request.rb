@@ -6,7 +6,7 @@ module Msf
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
-      HELP_REGEX = /^-?-h(?:elp)?$/
+      HELP_REGEX = /^-?-h(?:elp)?$/.freeze
 
       def name
         'Request'
@@ -33,7 +33,7 @@ module Msf
       # @return [nil]
       def cmd_request(*args)
         # short circuit the whole deal if they need help
-        return help if args.length == 0
+        return help if args.empty?
         return help if args.length == 1 && args.first =~ HELP_REGEX
 
         # detect the request type from the uri which must be the last arg given
@@ -268,7 +268,7 @@ module Msf
           opts[:headers]['Authorization'] = auth_str
         end
 
-        uri.path = '/' if uri.path.length == 0
+        uri.path = '/' if uri.path.empty?
 
         begin
           http_client.connect
@@ -322,7 +322,7 @@ module Msf
       # @return [nil]
       def output_line(opts, line)
         if opts[:output_file].nil?
-          if line[-2..-1] == "\r\n"
+          if line[-2..] == "\r\n"
             print_line(line[0..-3])
           elsif line[-1] == "\n"
             print_line(line[0..-2])
@@ -370,5 +370,5 @@ module Msf
       'Make requests from within Metasploit using various protocols.'
     end
 
-  end # end class
-end # end module
+  end
+end

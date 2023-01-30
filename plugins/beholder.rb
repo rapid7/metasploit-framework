@@ -44,7 +44,7 @@ module Msf
         driver.print_status("Beholder is logging to #{config[:base]}")
         bool_options = %i[screenshot webcam keystrokes automigrate]
         bool_options.each do |o|
-          config[o] = !!(config[o].to_s =~ /^[yt1]/i)
+          config[o] = !(config[o].to_s =~ /^[yt1]/i).nil?
         end
 
         int_options = %i[idle freq]
@@ -55,7 +55,7 @@ module Msf
         ::FileUtils.mkdir_p(config[:base])
 
         loop do
-          framework.sessions.keys.each do |sid|
+          framework.sessions.each_key do |sid|
             if state[sid].nil? ||
                (state[sid][:last_update] + config[:freq] < Time.now.to_f)
               process(sid)
@@ -100,7 +100,7 @@ module Msf
       end
 
       def store_keystrokes(sid, data)
-        return unless data.length > 0
+        return if data.empty?
 
         filename = capture_filename(sid) + '_keystrokes.txt'
         ::File.open(::File.join(config[:base], filename), 'wb') { |fd| fd.write(data) }
@@ -302,7 +302,7 @@ module Msf
       def parse_config(*args)
         new_config = args.map { |x| x.split('=', 2) }
         new_config.each do |c|
-          unless @@beholder_config.has_key?(c.first.to_sym)
+          unless @@beholder_config.key?(c.first.to_sym)
             print_error("Invalid configuration option: #{c.first}")
             next
           end
