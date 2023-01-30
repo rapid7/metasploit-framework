@@ -21,7 +21,7 @@ The following actions are supported:
 
 ### List
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/keytab) > run keytab_file=./example.keytab
 
 Keytab entries
@@ -38,7 +38,7 @@ Keytab entries
 
 Adding an entry using a known password hash/key which has been extracted from a Domain Controller - for instance by using the `auxiliary/gather/windows_secrets_dump` module:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/keytab) > run action=ADD keytab_file=./example.keytab principal=krbtgt realm=DEMO.LOCAL enctype=AES256 key=e1c5500ffb883e713288d8037651821b9ecb0dfad89e01d1b920fe136879e33c
 
 [*] modifying existing keytab
@@ -47,7 +47,7 @@ msf6 auxiliary(admin/kerberos/keytab) > run action=ADD keytab_file=./example.key
 
 Adding entries using a specified password:
 
-```
+```msf
 msf6 auxiliary(admin/kerberos/keytab) > run action=ADD keytab_file=./example.keytab principal=Administrator realm=DEMO.LOCAL enctype=ALL password=p4$$w0rd
 
 [*] modifying existing keytab
@@ -59,7 +59,7 @@ msf6 auxiliary(admin/kerberos/keytab) > run action=ADD keytab_file=./example.key
 
 Export Kerberos encryption keys stored in the Metasploit database to a keytab file. This functionality is useful in conjunction with secrets dump
 
-```
+```msf
 # Secrets dump
 msf6 > use auxiliary/gather/windows_secrets_dump
 msf6 auxiliary(gather/windows_secrets_dump) > run smbuser=Administrator smbpass=p4$$w0rd rhosts=192.168.123.13
@@ -136,7 +136,6 @@ should be viewable in Wireshark.
 
 For example the previous TGS-REQ authenticator blob is now decrypted in the Wireshark UI. Wireshark on Linux may not show
 the decrypted packet information in the packet details pane, instead it appears as a separate tab in the packet bytes pane:
-
 
 ```
 tgs-req

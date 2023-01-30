@@ -82,7 +82,7 @@ In case you're wondering why the web server must terminate after a period of tim
 
 The output for the above example should look something like this:
 
-```
+```msf
 msf exploit(test) > run
 [*] Exploit running as background job.
 

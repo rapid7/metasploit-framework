@@ -10,7 +10,7 @@ Note that any port can be used to run an application which communicates via HTTP
 
 This document is generic advice for running and debugging HTTP based Metasploit modules, but it is best to use a Metasploit module which is specific to the application that you are pentesting. For instance:
 
-```
+```msf
 msf6 > search tomcat http
 ```
 
@@ -48,7 +48,7 @@ run http://example.com HttpTrace=true verbose=true
 
 For instance:
 
-```
+```msf
 msf6 > use scanner/http/title
 msf6 auxiliary(scanner/http/title) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1

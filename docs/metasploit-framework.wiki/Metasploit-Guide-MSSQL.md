@@ -41,7 +41,7 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 
 Connect to a Microsoft SQL Server instance and run a query:
 
-```
+```msf
 msf6 > use auxiliary/admin/mssql/mssql_sql
 msf6 auxiliary(admin/mssql/mssql_sql) > run 192.168.123.13 domaincontrollerrhost=192.168.123.13 username=administrator password=p4$$w0rd mssql::auth=kerberos mssql::rhostname=dc3.demo.local mssqldomain=demo.local sql='select auth_scheme from sys.dm_exec_connections where session_id=@@spid'
 [*] Reloading module...

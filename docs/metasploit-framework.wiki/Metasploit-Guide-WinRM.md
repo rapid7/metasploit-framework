@@ -40,7 +40,7 @@ Metasploit has support for multiple WinRM modules, including:
 
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
-```
+```msf
 msf6 > search winrm
 ```
 
@@ -69,7 +69,7 @@ run https://192.168.123.139:5986
 
 Example:
 
-```
+```msf
 msf6 auxiliary(scanner/winrm/winrm_auth_methods) > run http://192.168.123.139:5985
 
 [+] 192.168.123.139:5985: Negotiate protocol supported
@@ -122,7 +122,7 @@ run http://user:pass@192.168.123.139:5985
 
 Example:
 
-```
+```msf
 msf6 auxiliary(scanner/winrm/winrm_login) > run http://user:pass@192.168.123.139:5985
 
 [!] No active DB -- Credential data will not be saved!
@@ -145,7 +145,7 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 
 Open a WinRM session:
 
-```
+```msf
 msf6 > use auxiliary/scanner/winrm/winrm_login
 msf6 auxiliary(scanner/winrm/winrm_login) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd win::rmauth=kerberos domaincontrollerrhost=192.168.123.13 winrm::rhostname=dc3.demo.local domain=demo.local
 

@@ -34,7 +34,7 @@ OPTIONS:
 
 The second method of adding favorites allows adding multiple modules at once:
 
-```shell
+```msf
 msf6 > favorite exploit/multi/handler exploit/windows/smb/psexec
 [+] Added exploit/multi/handler to the favorite modules file
 [+] Added exploit/windows/smb/psexec to the favorite modules file
@@ -73,7 +73,7 @@ msf6 > favorite -d exploit/multi/handler exploit/windows/smb/psexec
 
 #### Clearing the favorites list
 
-```shell
+```msf
 msf6 > show favorites
 
 Favorites

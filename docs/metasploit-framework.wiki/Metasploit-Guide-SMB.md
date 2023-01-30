@@ -23,7 +23,7 @@ Metasploit has support for multiple SMB modules, including:
 
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
-```
+```msf
 msf6 > search mysql
 ```
 
@@ -192,7 +192,7 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 
 Running psexec against a host:
 
-```
+```msf
 msf6 > use exploit/windows/smb/psexec
 msf6 exploit(windows/smb/psexec) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd smb::auth=kerberos domaincontrollerrhost=192.168.123.13 smb::rhostname=dc3.demo.local domain=demo.local
 

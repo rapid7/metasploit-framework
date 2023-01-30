@@ -9,7 +9,7 @@ Many modules dump hashes from various software.  Anything from the OS: [Windows]
 ## Hash Identify Example
 
 In this first, simple, example we will simply show loading the library and calling its function.
-```
+```ruby
 require 'metasploit/framework/hashes/identify'
 puts identify_hash "$1$28772684$iEwNOgGugqO9.bIz5sk8k/"
 # note, bad hashes return an empty string since nil is not accepted when creating credentials in msf.
@@ -17,7 +17,7 @@ puts identify_hash "This_is a Fake Hash"
 puts identify_hash "_9G..8147mpcfKT8g0U."
 ```
 In practice, we receive the following output from this:
-```
+```ruby
 msf5 > irb
 [*] Starting IRB shell...
 [*] You are in the "framework" object
