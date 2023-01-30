@@ -143,7 +143,8 @@ module Msf
         res = @manager.get_task_data(@hid_tasks[args[0]])
 
         tbl = Rex::Text::Table.new(
-          'Columns' => ['Title', 'Payload'])
+          'Columns' => ['Title', 'Payload']
+        )
 
         res['data'].each do |d|
           d['value'].each do |v|
@@ -192,7 +193,7 @@ module Msf
         host = url.split('/')[2]
         port = 80
         host, port = host.split(':') if host.include?(':')
-        path = '/' + (url.split('/')[3..(url.split('/').length - 1)].join('/'))
+        path = '/' + url.split('/')[3..(url.split('/').length - 1)].join('/')
         query = url.split('?')[1]
         web_vuln_info[:web_site] = url
         web_vuln_info[:path] = path
