@@ -60,9 +60,19 @@ CN=Administrator CN=Users DC=adf3 DC=local
  Name                Attributes
  ----                ----------
  badpwdcount         0
- pwdlastset          133184302034979121
+ description         Built-in account for administering the computer/domain
+ lastlogoff          1601-01-01 00:00:00 UTC
+ lastlogon           2023-01-23 11:02:49 UTC
+ logoncount          159
+ memberof            CN=Group Policy Creator Owners,CN=Users,DC=domain,DC=local || CN=Domain Admins,CN=Users,DC=domain,DC=local |
+                     | CN=Enterprise Admins,CN=Users,DC=domain,DC=local || CN=Schema Admins,CN=Users,DC=domain,DC=local || CN=Adm
+                     inistrators,CN=Builtin,DC=domain,DC=local
+ name                Administrator
+ objectsid           S-1-5-21-3402587289-1488798532-3618296993-500
+ pwdlastset          133189448681297271
  samaccountname      Administrator
  useraccountcontrol  512
+
  ... etc ...
 ```
 
