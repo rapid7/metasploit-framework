@@ -857,6 +857,10 @@ NAVIGATION_CONFIG = [
             path: 'GSoC-2022-Project-Ideas.md',
             title: without_prefix('GSoC')
           },
+          {
+            path: 'GSoC-2023-Project-Ideas.md',
+            title: without_prefix('GSoC')
+          },
         ]
       },
       {
