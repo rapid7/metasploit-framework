@@ -206,15 +206,17 @@ The `klist` command can also be used for deleting tickets from the cache.
 Metasploit stores tickets for future use in a user configurable way as controlled by the `KrbCacheMode` datastore
 option. When a user attempts to use Kerberos to authenticate to a remote service such as SMB, if the cache mode is
 read-enabled (e.g. set to `read-only` or `read-write`) and Metasploit is connected to a database, it will attempt to
-fetch an existing ticket using the following steps.
+fetch an existing ticket using the following steps targeting SMB for example purposes.
 
-1. First Metasploit will use the datastore options, including the target host and username to search though the stored
-   tickets for an SMB-specific Ticket Granting Service (TGS). If one is found, it will be used. Tickets that are expired
-   will not be used.
-2. If no TGS is found, Metasploit will repeat the search process looking for a Ticket Granting Ticket (TGT). If one is
+1. If an external ticket is specified in the `${Prefix}::Krb5Ccname` option, that ticket will be used instead of the
+   cache.
+2. When using the cache, Metasploit will first use the datastore options, including the target host and username to 
+   search though the stored tickets for an SMB-specific Ticket Granting Service (TGS). If one is found, it will be used. 
+   Tickets that are expired will not be used.
+3. If no TGS is found, Metasploit will repeat the search process looking for a Ticket Granting Ticket (TGT). If one is
    found, it will be used to contact the Key Distribution Center (KDC) and request a TGS for authentication to the SMB
    service.
-3. If no TGT is found, Metasploit will contact the KDC and authenticate using the username and password from the
+4. If no TGT is found, Metasploit will contact the KDC and authenticate using the username and password from the
    datastore to request a TGT then an SMB-specific TGS before authenticating to the SMB service.
 
 If the cache mode is write-enabled (e.g. set to `write-only` or `read-write`) then any ticket, either TGT or TGS that is
@@ -263,5 +265,19 @@ Server UserPath: c:\
 Simultaneous Users: 16777216
 #
 ```
+
+## Using external tickets with Metasploit
+A ticket obtained outside of Metasploit can be used for authentication by setting the `${Prefix}::Krb5Ccname` option
+which is prioritized over the cache. This file must be in the [MIT Credential Cache][1] (CCACHE) file formath. If the
+ticket is in the Kirbi format, it must first be converted using the `auxiliary/admin/kerberos/ticket_converter` module.
+
+When an explicit CCACHE file is specified to load a ticket from, Metasploit will first attempt to load a TGS ticket
+from the file. If the service class of the `sname` component does not match the necessary value (e.g. the sname is for
+`HOST/dc.msflab.local` instead of `CIFS/dc.msflab.local`), the value will be patched automatically. If no TGS is found,
+Metasploit will attempt to load a TGT from the file and use it to contact the KDC and issue a TGS which will be stored
+for future use when the cache is write-enabled.
+
+It is important to set the `${Prefix}::Rhostname` and `${Prefix}Domain` options correctly because they are used to
+select the appropriate ticket from the file.
 
 [1]: http://web.mit.edu/KERBEROS/krb5-devel/doc/formats/ccache_file_format.html
