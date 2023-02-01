@@ -51,6 +51,7 @@ class Library
     'SIZE_T'  => 'ULONG_PTR',
     'PSIZE_T' => 'PULONG_PTR',
     'PLPVOID' => 'PULONG_PTR',
+    'ULONG'   => 'DWORD',
     'PULONG'  => 'PDWORD'
   }.freeze
 
@@ -227,7 +228,7 @@ class Library
         # it's not a pointer (LPVOID is a pointer but is not backed by railgun memory, ala PBLOB)
         buffer = [0].pack(native)
         case param_desc[0]
-          when 'LPVOID', 'ULONG_PTR'
+          when 'LPVOID', 'PULONG_PTR', 'ULONG_PTR'
             num     = param_to_number(args[param_idx])
             buffer += [num].pack(native)
           when 'DWORD'
@@ -315,6 +316,10 @@ class Library
         return_hash['return'] = (rec_return_value != 0)
       when 'VOID'
         return_hash['return'] = nil
+      when 'PCHAR'
+        return_hash['return'] = read_string(rec_return_value)
+      when 'PWCHAR'
+        return_hash['return'] = read_wstring(rec_return_value)
       else
         raise "unexpected return type: #{function.return_type}"
     end
