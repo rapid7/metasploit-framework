@@ -30,6 +30,8 @@ module Rex
           end
 
           def initialize(options = {})
+            raise ArgumentError, "Invalid options, expected hash, got #{options.class}" unless options.is_a?(Hash)
+
             self.class.attributes.each do |attr|
               if options.has_key?(attr)
                 m = (attr.to_s + '=').to_sym

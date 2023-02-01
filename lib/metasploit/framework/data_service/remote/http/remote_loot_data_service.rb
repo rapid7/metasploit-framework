@@ -11,12 +11,13 @@ module RemoteLootDataService
     data = self.get_data(path, nil, opts)
     rv = json_to_mdm_object(data, LOOT_MDM_CLASS)
     parsed_body = JSON.parse(data.response.body, symbolize_names: true)
-    data = parsed_body[:data]
+    data = Array.wrap(parsed_body[:data])
     data.each do |loot|
       # TODO: Add an option to toggle whether the file data is returned or not
       if loot[:data] && !loot[:data].empty?
         local_path = File.join(Msf::Config.loot_directory, File.basename(loot[:path]))
         rv[data.index(loot)].path = process_file(loot[:data], local_path)
+        rv[data.index(loot)].data = decode_loot_data(loot[:data])
       end
       if loot[:host]
         host_object = to_ar(RemoteHostDataService::HOST_MDM_CLASS.constantize, loot[:host])
@@ -27,7 +28,7 @@ module RemoteLootDataService
   end
 
   def report_loot(opts)
-    self.post_data_async(LOOT_API_PATH, opts)
+    json_to_mdm_object(self.post_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS).first
   end
 
   def update_loot(opts)
@@ -41,5 +42,13 @@ module RemoteLootDataService
 
   def delete_loot(opts)
     json_to_mdm_object(self.delete_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS)
+  end
+
+  private
+
+  # The loot API returns the data encoded
+  # @see [Msf::WebServices::ServletHelper#encode_loot_data]
+  def decode_loot_data(data)
+    Base64.urlsafe_decode64(data)
   end
 end

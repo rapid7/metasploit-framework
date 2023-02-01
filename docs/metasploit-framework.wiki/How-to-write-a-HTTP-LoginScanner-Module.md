@@ -382,7 +382,7 @@ And finally, make sure your module actually works.
 
 Test for a successful login:
 
-```
+```msf
 msf auxiliary(symantec_web_gateway_login) > run
 
 [+] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Success: 'sinn3r:GoodPassword'
@@ -393,7 +393,7 @@ msf auxiliary(symantec_web_gateway_login) >
 
 Test for a failed login:
 
-```
+```msf
 msf auxiliary(symantec_web_gateway_login) > run
 
 [-] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Failed: 'sinn3r:BadPass'

@@ -1,5 +1,5 @@
 require 'digest'
-
+require 'metasploit/framework/data_service/remote/http/error'
 #
 # HTTP response helper class
 #
@@ -56,8 +56,7 @@ module ResponseDataHelper
           raise "Mdm Object conversion failed #{e.message}"
         end
       elsif response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse)
-        # raise a local exception with the message of the server-side error
-        raise parsed_body[:error][:message]
+        handle_error_response(parsed_body)
       end
     elsif response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse)
       raise response_wrapper.to_s
@@ -144,6 +143,23 @@ module ResponseDataHelper
       end
     end
     obj
+  end
+
+  private
+
+  def handle_error_response(parsed_body)
+    error = parsed_body[:error]
+    error_code = error[:code]
+    case error_code
+    when 404
+      raise Metasploit::Framework::DataService::Remote::NotFound.new(error: error)
+    when 400..499
+      raise Metasploit::Framework::DataService::Remote::ClientError.new(error: error, status_code: error_code)
+    when 500..599
+      raise Metasploit::Framework::DataService::Remote::ServerError.new(error: error, status_code: error_code)
+    else
+      raise Metasploit::Framework::DataService::Remote::HttpError.new(error: error, status_code: error_code)
+    end
   end
 
 end

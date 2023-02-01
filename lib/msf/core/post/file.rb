@@ -504,21 +504,20 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       return _write_file_meterpreter(file_name, data)
     elsif session.type == 'powershell'
-      _write_file_powershell(file_name, data)
+      return _write_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
-          _win_ansi_write_file(file_name, data)
+          return _win_ansi_write_file(file_name, data)
         else
-          _win_bin_write_file(file_name, data)
+          return _win_bin_write_file(file_name, data)
         end
       else
-        _write_file_unix_shell(file_name, data)
+        return _write_file_unix_shell(file_name, data)
       end
     else
       return false
     end
-    true
   end
 
   #
@@ -531,7 +530,7 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       return _write_file_meterpreter(file_name, data, 'ab')
     elsif session.type == 'powershell'
-      _append_file_powershell(file_name, data)
+      return _append_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
@@ -543,7 +542,6 @@ module Msf::Post::File
         return _append_file_unix_shell(file_name, data)
       end
     end
-    true
   end
 
   #
@@ -712,25 +710,38 @@ module Msf::Post::File
 
   def _write_file_powershell(file_name, data, append = false)
     offset = 0
-    chunk_size = 16256
+    chunk_size = 1000
     loop do
-      _write_file_powershell_fragment(file_name, data, offset, chunk_size, append)
-      offset += chunk_size + 1
+      success = _write_file_powershell_fragment(file_name, data, offset, chunk_size, append)
+      unless success
+        unless offset == 0
+          print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}")
+        end
+        return false
+      end
+
+      # Future writes will then append, regardless of whether this is an append or write operation
+      append = true
+      offset += chunk_size
       break if offset >= data.length
     end
+
+    true
   end
 
   def _write_file_powershell_fragment(file_name, data, offset, chunk_size, append = false)
-    chunk = data[offset..offset + chunk_size]
+    token = "_#{::Rex::Text.rand_text_alpha(32)}"
+    chunk = data[offset..(offset + chunk_size-1)]
     length = chunk.length
     compressed_chunk = Rex::Text.gzip(chunk)
     encoded_chunk = Base64.strict_encode64(compressed_chunk)
-    if offset > 0 || append
+    if append
       file_mode = 'Append'
     else
       file_mode = 'Create'
     end
     pwsh_code = <<~PSH
+      try {
       $encoded='#{encoded_chunk}';
       $gzip_bytes=[System.Convert]::FromBase64String($encoded);
       $mstream = New-Object System.IO.MemoryStream(,$gzip_bytes);
@@ -741,8 +752,14 @@ module Msf::Post::File
       $filestream.Write($file_bytes,0,$file_bytes.Length);
       $filestream.Close();
       $gzipstream.Close();
+      echo Done
+      } catch {
+      echo #{token}
+      }
     PSH
-    cmd_exec(pwsh_code)
+    result = cmd_exec(pwsh_code)
+
+    return result.include?(length.to_s) && !result.include?(token) && result.include?('Done')
   end
 
   def _read_file_powershell(filename)
@@ -839,11 +856,14 @@ protected
   def _win_ansi_write_file(file_name, data, chunk_size = 5000)
     start_index = 0
     write_length = [chunk_size, data.length].min
-    session.shell_command_token("echo | set /p=\"#{data[0, write_length]}\"> \"#{file_name}\"")
+    success = _shell_command_with_success_code("echo | set /p x=\"#{data[0, write_length]}\"> \"#{file_name}\"")
+    return false unless success
     if data.length > write_length
       # just use append to finish the rest
-      _win_ansi_append_file(file_name, data[write_length, data.length], chunk_size)
+      return _win_ansi_append_file(file_name, data[write_length, data.length], chunk_size)
     end
+
+    true
   end
 
   # Windows ansi file append for shell sessions. Writes given object content to a remote file.
@@ -859,14 +879,22 @@ protected
     write_length = [chunk_size, data.length].min
     while start_index < data.length
       begin
-        session.shell_command_token("<nul set /p=\"#{data[start_index, write_length]}\" >> \"#{file_name}\"")
+        success = _shell_command_with_success_code("echo | set /p x=\"#{data[start_index, write_length]}\">> \"#{file_name}\"")
+        unless success
+          print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}") unless start_index == 0
+          return false
+        end
         start_index += write_length
         write_length = [chunk_size, data.length - start_index].min
       rescue ::Exception => e
         print_error("Exception while running #{__method__}: #{e}")
+        print_warning("May need to manually clean up #{file_name}") unless start_index == 0
         file_rm(file_name)
+        return false
       end
     end
+
+    true
   end
 
   # Windows binary file write for shell sessions. Writes given object content to a remote file.
@@ -879,13 +907,19 @@ protected
     b64_data = Base64.strict_encode64(data)
     b64_filename = "#{file_name}.b64"
     begin
-      _win_ansi_write_file(b64_filename, b64_data, chunk_size)
-      cmd_exec("certutil -f -decode #{b64_filename} #{file_name}")
+      success = _win_ansi_write_file(b64_filename, b64_data, chunk_size)
+      return false unless success
+      vprint_status("Uploaded Base64-encoded file. Decoding using certutil")
+      success = _shell_command_with_success_code("certutil -f -decode #{b64_filename} #{file_name}")
+      return false unless success
     rescue ::Exception => e
       print_error("Exception while running #{__method__}: #{e}")
+      return false
     ensure
       file_rm(b64_filename)
     end
+
+    true
   end
 
   # Windows binary file append for shell sessions. Appends given object content to a remote file.
@@ -899,15 +933,23 @@ protected
     b64_filename = "#{file_name}.b64"
     tmp_filename = "#{file_name}.tmp"
     begin
-      _win_ansi_write_file(b64_filename, b64_data, chunk_size)
-      cmd_exec("certutil -decode #{b64_filename} #{tmp_filename}")
-      cmd_exec("copy /b #{file_name}+#{tmp_filename} #{file_name}")
+      success = _win_ansi_write_file(b64_filename, b64_data, chunk_size)
+      return false unless success
+      vprint_status("Uploaded Base64-encoded file. Decoding using certutil")
+      success = _shell_command_with_success_code("certutil -decode #{b64_filename} #{tmp_filename}")
+      return false unless success
+      vprint_status("Certutil succeeded. Appending using copy")
+      success = _shell_command_with_success_code("copy /b #{file_name}+#{tmp_filename} #{file_name}")
+      return false unless success
     rescue ::Exception => e
       print_error("Exception while running #{__method__}: #{e}")
+      return false
     ensure
       file_rm(b64_filename)
       file_rm(tmp_filename)
     end
+
+    true
   end
 
   #
@@ -937,8 +979,7 @@ protected
     # Short-circuit an empty string. The : builtin is part of posix
     # standard and should theoretically exist everywhere.
     if data.empty?
-      session.shell_command_token(": #{redirect} #{file_name}")
-      return
+      return _shell_command_with_success_code(": #{redirect} #{file_name}")
     end
 
     d = data.dup
@@ -1039,7 +1080,8 @@ protected
     # The first command needs to use the provided redirection for either
     # appending or truncating.
     cmd = command.sub('CONTENTS') { chunks.shift }
-    session.shell_command_token("#{cmd} #{redirect} \"#{file_name}\"")
+    succeeded = _shell_command_with_success_code("#{cmd} #{redirect} \"#{file_name}\"")
+    return false unless succeeded
 
     # After creating/truncating or appending with the first command, we
     # need to append from here on out.
@@ -1047,10 +1089,21 @@ protected
       vprint_status("Next chunk is #{chunk.length} bytes")
       cmd = command.sub('CONTENTS') { chunk }
 
-      session.shell_command_token("#{cmd} >> '#{file_name}'")
+      succeeded = _shell_command_with_success_code("#{cmd} >> '#{file_name}'")
+      unless succeeded
+        print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}")
+        return false
+      end
     end
 
     true
+  end
+
+  def _shell_command_with_success_code(cmd)
+    token = "_#{::Rex::Text.rand_text_alpha(32)}"
+    result = session.shell_command_token("#{cmd} && echo #{token}")
+
+    return result.include?(token)
   end
 
   #

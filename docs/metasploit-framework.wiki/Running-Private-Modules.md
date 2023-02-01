@@ -48,7 +48,7 @@ todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gis
 
 Then, in my msfconsole window:
 
-```
+```msf
 msf > reload_all
 [*] Reloading modules from all module paths...
 IIIIII    dTb.dTb        _.---._

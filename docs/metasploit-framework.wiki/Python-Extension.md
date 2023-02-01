@@ -291,7 +291,7 @@ Payload size: 6412437 bytes
 Saved as: /tmp/met-stageless.exe
 ```
 When this payload is executed, the transport is added and shown to be present in the transport list immediately:
-```
+```msf
 msf exploit(handler) > [*] Meterpreter session 2 opened (172.16.52.1:4445 -> 172.16.52.247:49159) at 2015-12-13 11:06:54 +1000
 
 msf exploit(handler) > sessions -i -1

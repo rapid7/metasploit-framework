@@ -101,6 +101,12 @@ class MetasploitModule < Msf::Auxiliary
     widths = [0, 0, 0, 0, 0, 9]
     total_width = 0
 
+    if result[:errors] && !result[:errors].empty?
+      result[:errors].each do |err|
+        print_error(err)
+      end
+    end
+
     if column_data.nil?
       print_error("No columns matched the pattern #{datastore['NAMES'].inspect}. Set the NAMES option to change this search pattern.")
       return
