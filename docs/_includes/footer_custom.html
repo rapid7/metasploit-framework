@@ -1,0 +1,17 @@
+{% comment %}
+Modification of https://github.com/just-the-docs/just-the-docs/blob/2495d3e6bb5720ae23e35caf16888f0c7f37ede0/_includes/components/footer.html
+The 'edit this page' page link now only appears when the root folder entry has content, and also includes linking directly to module documentation,
+or site wiki content
+{% endcomment %}
+
+{% if
+    site.gh_edit_link_text and
+    site.gh_edit_repository and
+    site.gh_edit_branch and
+    site.gh_edit_view_mode and
+    page.has_content == 'true'
+%}
+    <p class="text-small text-grey-dk-000 mb-0">
+        <a href="{{ site.gh_edit_repository }}/{{ site.gh_edit_view_mode }}/{{ site.gh_edit_branch }}{% if site.gh_edit_source %}/{{ site.gh_edit_source }}{% endif %}{% if page.collection and site.collections_dir %}/{{ site.collections_dir }}{% endif %}/{{ page.old_path }}" id="edit-this-page">{{ site.gh_edit_link_text }}</a>
+    </p>
+{% endif %}

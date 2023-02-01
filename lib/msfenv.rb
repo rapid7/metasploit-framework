@@ -7,6 +7,11 @@ ENV['OPENSSL_CONF'] = File.expand_path(
   File.join(File.dirname(__FILE__), '..', 'config', 'openssl.conf')
 )
 
+if ENV['KRB5CCNAME']
+  $stderr.puts 'Warning: KRB5CCNAME environment variable not supported - unsetting'
+  ENV['KRB5CCNAME'] = nil
+end
+
 # Override the normal rails default, so that msfconsole will come up in production mode instead of development mode
 # unless the `--environment` flag is passed.
 ENV['RAILS_ENV'] ||= 'production'

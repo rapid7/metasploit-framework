@@ -32,7 +32,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthPacRequest do
   end
 
   describe "#decode" do
-    it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthData" do
+    it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthDataEntry" do
       expect(pre_auth_pac_request.decode(pac_sample)).to eq(pre_auth_pac_request)
     end
 

@@ -255,12 +255,14 @@ class MetasploitModule < Msf::Auxiliary
             sz = file.end_of_file
           end
 
+          # Logging of the obtained data.
+          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
+          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
+
           # Filename is too long for the UI table, cut it.
           fname = "#{fname[0, 35]}..." if fname.length > 35
 
           pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
-          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
-          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
         end
         print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         subdirs.shift
@@ -356,15 +358,15 @@ class MetasploitModule < Msf::Auxiliary
         retry
       rescue Rex::ConnectionTimeout => e
         print_error(e.to_s)
-        return
+        next
       rescue Rex::Proto::SMB::Exceptions::LoginError => e
         print_error(e.to_s)
       rescue RubySMB::Error::RubySMBError => e
         print_error("RubySMB encountered an error: #{e}")
-        return
+        next
       rescue RuntimeError => e
         print_error e.to_s
-        return
+        next
       rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure

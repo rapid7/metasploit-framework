@@ -1,5 +1,5 @@
 ## Vulnerable Application
-This module allows users to query a LDAP server for vulnerable certificate
+The `auxiliary/gather/ldap_esc_vulnerable_cert_finder` module allows users to query a LDAP server for vulnerable certificate
 templates and will print these certificates out in a table along with which
 attack they are vulnerable to and the SIDs that can be used to enroll in that
 certificate template.
@@ -11,8 +11,8 @@ perform this enrollment operation.
 
 Currently the module is capable of checking for ESC1, ESC2, and ESC3 vulnerable certificates.
 
-### Installing ADCS
-1. Install ADCS on either a new or existing domain controller
+### Installing AD CS
+1. Install AD CS on either a new or existing domain controller
 1. Open the Server Manager
 1. Select Add roles and features
 1. Select "Active Directory Certificate Services" under the "Server Roles" section
@@ -77,7 +77,8 @@ Currently the module is capable of checking for ESC1, ESC2, and ESC3 vulnerable 
 1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
 1. The certificate should now be available to be issued by the CA server.
 
-## Verification Steps
+## Module usage
+
 1. Do: Start msfconsole
 1. Do: `use auxiliary/gather/ldap_esc_vulnerable_cert_finder`
 1. Do: `set BIND_DN <DOMAIN>\\<USERNAME to log in as>`
@@ -96,9 +97,9 @@ that are both vulnerable and enrollable.
 
 ## Scenarios
 
-### Windows Server 2022 with ADCS
-```
-msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder 
+### Windows Server 2022 with AD CS
+```msf
+msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOST 172.26.104.157
 RHOST => 172.26.104.157
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set BIND_DN DAFOREST\\Administrator
@@ -115,8 +116,7 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
    BIND_DN               DAFOREST\Administrator  no        The username to authenticate to LDAP server
    BIND_PW               theAdmin123             no        Password for the BIND_DN
    REPORT_NONENROLLABLE  false                   yes       Report nonenrollable certificate templates
-   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-
-                                                           Metasploit
+   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT                 389                     yes       The target port
    SSL                   false                   no        Enable SSL on the LDAP connection
 
@@ -234,11 +234,11 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*]          Enrollment SIDs:
 [*]             * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > 
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
 
-### Windows Server 2022 with ADCS and REPORT_NONENROLLABLE Set To TRUE
-```
+### Windows Server 2022 with AD CS and REPORT_NONENROLLABLE Set To TRUE
+```msf
 msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOST 172.26.104.157
 RHOST => 172.26.104.157
@@ -258,8 +258,7 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
    BIND_DN               DAFOREST\Administrator  no        The username to authenticate to LDAP server
    BIND_PW               theAdmin123             no        Password for the BIND_DN
    REPORT_NONENROLLABLE  true                    yes       Report nonenrollable certificate templates
-   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-
-                                                           Metasploit
+   RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT                 389                     yes       The target port
    SSL                   false                   no        Enable SSL on the LDAP connection
 
@@ -449,5 +448,5 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*]          Enrollment SIDs:
 [*]             * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > 
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```

@@ -136,7 +136,7 @@ class MsftidyDoc
         next
       end
 
-      if line =~ /^## Verification Steps$/
+      if line =~ /^## Verification Steps$/ || line =~ /^## Module usage$/
         has_verification_steps = true
         next
       end
@@ -205,8 +205,8 @@ class MsftidyDoc
 
   # This checks that the H2 headings are in the right order. Options are optional.
   def h2_order
-    unless @source =~ /^## Vulnerable Application$.+^## Verification Steps$.+(?:^## Options$.+)?^## Scenarios$/m
-      warn('H2 headings in incorrect order.  Should be: Vulnerable Application, Verification Steps, Options, Scenarios')
+    unless @source =~ /^## Vulnerable Application$.+^## (Verification Steps|Module usage)$.+(?:^## Options$.+)?^## Scenarios$/m
+      warn('H2 headings in incorrect order.  Should be: Vulnerable Application, Verification Steps/Module usage, Options, Scenarios')
     end
   end
 

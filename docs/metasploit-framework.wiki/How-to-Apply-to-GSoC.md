@@ -28,7 +28,7 @@ A listed `idea` is a seed for GSoC students to expand on and propose how to desi
 
 A place to get started with contributing to Metasploit is [here](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and expanded on [here](https://github.com/rapid7/metasploit-framework/wiki/Contributing-to-Metasploit#framework-bugs-and-features).
 
-GSoC mentors tend to look for those items that have a chance of making development and usage easier or improving the overall performance of a certain area, however by starting with understanding the most common contribution patten you can get familiar with the codebase and also the mindset of users. This will help you in creating a proposal with the end user in mind.
+GSoC mentors tend to look for those items that have a chance of making development and usage easier or improving the overall performance of a certain area, however by starting with understanding the most common contribution pattern you can get familiar with the codebase and also the mindset of users. This will help you in creating a proposal with the end user in mind.
 
 Once you have started digging feel free ask questions that help you understand the concepts you for the idea would like to propose.
 
