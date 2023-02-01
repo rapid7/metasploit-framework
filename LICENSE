@@ -57,6 +57,13 @@ Copyright: 2018
 License: GNU GPL 3
 Purpose: This supports exploits/windows/local/ms18_8120_win32k_privesc module
 
+Files: external/source/exploits/CVE-2022-1043/cve-2022-1043.c
+Copyright: 2022 Open Source Security, Inc.
+License: GNU GPL 2.0
+Purpose: This source file is necessary for users to create a stand-alone executable
+         to exploit CVE-2022-1043, a local privilege escalation vulnerability in
+         Linux kernels 5.12-rc3 - 5.14-rc7.
+
 Files: external/source/exploits/CVE-2022-22942/cve-2022-22942-dc.c
 Copyright: 2022 Open Source Security, Inc.
 License: GNU GPL 2.0
