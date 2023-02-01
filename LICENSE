@@ -140,7 +140,7 @@ Copyright: 1999-2007 Apple Inc.
 License: Apple
 Purpose: This source file is necessary for users to create a stand-alone executable
          to exploit CVE-2022-46689, a local privilege escalation vulnerability in
-         MacOSX versios macOS dirty cow
+         MacOSX versios (macOS dirty cow)
 
 Files: data/templates/to_mem_pshreflection.ps1.template
 Copyright: 2012, Matthew Graeber
