@@ -36,7 +36,7 @@ Module options (auxiliary/gather/microweber_lfi):
    LOCAL_FILE_PATH                   yes       The path of the local file.
    PASSWORD                          yes       The admin's password for Microweber
    Proxies                           no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                            yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS                            yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT            80               yes       The target port (TCP)
    SSL              false            no        Negotiate SSL/TLS for outgoing connections
    TARGETURI        /                yes       The base path for Microweber

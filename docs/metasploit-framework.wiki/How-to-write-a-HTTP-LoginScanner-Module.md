@@ -1,6 +1,6 @@
 This is a step-by-step guide on how to write a HTTP login module using the latest LoginScanner and Credential APIs.
 
-Before we begin, it's probably a good idea to read [Creating Metasploit Framework LoginScanners](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners), which explains about the APIs in-depth. The LoginScanner API can be found in the [lib/metasploit/framework/loginscanner](https://github.com/rapid7/metasploit-framework/tree/master/lib/metasploit/framework/login_scanner) directory, and the Credential API can found as a [metasploit-credential gem here](https://github.com/rapid7/metasploit-credential). You will most likely want to read them while writing the login module.
+Before we begin, it's probably a good idea to read [[Creating Metasploit Framework LoginScanners|./Creating-Metasploit-Framework-LoginScanners.md]], which explains about the APIs in-depth. The LoginScanner API can be found in the [lib/metasploit/framework/loginscanner](https://github.com/rapid7/metasploit-framework/tree/master/lib/metasploit/framework/login_scanner) directory, and the Credential API can found as a [metasploit-credential gem here](https://github.com/rapid7/metasploit-credential). You will most likely want to read them while writing the login module.
 
 ## Step 1: Set up your target environment
 

@@ -5,8 +5,8 @@ module RuboCop
     module Lint
       class ModuleEnforceNotes < Base
 
-        NO_NOTES_MSG = 'Module is missing the Notes section which must include Stability, Reliability and SideEffects] - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
-        MISSING_KEY_MSG = 'Module is missing %s from the Notes section - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
+        NO_NOTES_MSG = 'Module is missing the Notes section which must include Stability, Reliability and SideEffects] - https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html'
+        MISSING_KEY_MSG = 'Module is missing %s from the Notes section - https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html'
         REQUIRED_KEYS = %w[Stability Reliability SideEffects]
 
         def_node_matcher :find_update_info_node, <<~PATTERN

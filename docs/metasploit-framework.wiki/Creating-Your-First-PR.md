@@ -6,13 +6,13 @@ whilst also avoiding some common pitfalls and learning how some of our systems w
 
 ## Initial Steps and Important Notes
 The rest of this guide assumes you have already followed the steps at [Setting Up A Developer Environment](https://r-7.co/MSF-DEV) in order to get
-a fork of Metasploit set up and ready to run, and that you have added in your SSH keys 
-(see [Adding a New SSH Key To Your GitHub Account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)), 
+a fork of Metasploit set up and ready to run, and that you have added in your SSH keys
+(see [Adding a New SSH Key To Your GitHub Account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)),
 set up Ruby and optionally the PostgreSQL database, and done any custom shortcuts you wish to configure.
 
 ## Getting the Latest Version of Metasploit Framework
 Before making any new contributions, you will want to sure you are running the latest version of Metasploit Framework.
-To do this run `git checkout master && git fetch upstream && git pull`, where `upstream` is the branch connected to the 
+To do this run `git checkout master && git fetch upstream && git pull`, where `upstream` is the branch connected to the
 Rapid7 remote, aka Rapid7's copy of the code. You can verify that `upstream` is set correctly by running `git remote get-url upstream`
 and verifying it is set to `git@github.com:rapid7/metasploit-framework.git`.
 
@@ -51,13 +51,13 @@ done when the code is ready to be landed into Metasploit Framework to help make 
 
 ## Checking for Code Errors
 Before code can be accepted into Metasploit Framework, it must also pass our RuboCop and MsfTidy rules. These help ensure that
-all contributors are committing code that follows a common set of standards. To check if your code meets our RuboCop standards, 
+all contributors are committing code that follows a common set of standards. To check if your code meets our RuboCop standards,
 from the root of wherever you cloned your fork of Metasploit Framework to on disk, run `rubocop <path to your module from current directory>`.
 
 Specifying the `-a` parameter will ask RuboCop to check your module and if possible fix any issues that RuboCop is able to fix.
-In this case the command would be `rubocop -a <path to your module from current directory>`. It is encouraged to keep running 
-this command and fixing any issues that come up until RuboCop no longer comes back with any errors to report. Once this is 
-complete, run `git add <file>` followed by `git commit -m "RuboCop Fixes"`. You can change the commit message if you 
+In this case the command would be `rubocop -a <path to your module from current directory>`. It is encouraged to keep running
+this command and fixing any issues that come up until RuboCop no longer comes back with any errors to report. Once this is
+complete, run `git add <file>` followed by `git commit -m "RuboCop Fixes"`. You can change the commit message if you
 want, but it should mention RuboCop as it helps maintainers know what the commit is related to.
 
 As a good practice rule, you should always separate your commits that contain RuboCop changes from those that contain non-RuboCop related changes.
@@ -71,8 +71,8 @@ against your module code (if applicable), using `tools/dev/msftidy.rb <path to m
 if your module passed the tests. Try and fix any errors mentioned here.
 
 ## Writing Documentation
-The next step to do, if you are writing a module, is to write the documentation for the module. You can find some information 
-on how to write module documentation at [Writing Module Documentation](https://docs.metasploit.com/docs/development/quality/writing-module-documentation.html).
+The next step to do, if you are writing a module, is to write the documentation for the module. You can find some information
+on how to write module documentation at [[Writing Module Documentation|./Writing-Module-Documentation.md]].
 
 In general when writing documentation you will want to search for a similar documentation file under the `documentation`
 folder located in the root of the Metasploit fork. You can then copy one of these files and use it as the basis for writing
@@ -91,15 +91,15 @@ these may be okay to ignore depending on the context. A good example is if a lin
 safely ignored.
 
 ## Submitting Your Changes and Opening a PR
-Once you have gone through all of the steps above you should be ready to submit your PR. To submit your PR, first check which 
-branch points to your copy of the code. If you have followed the setup guide, it should be `origin`. You can double check this 
+Once you have gone through all of the steps above you should be ready to submit your PR. To submit your PR, first check which
+branch points to your copy of the code. If you have followed the setup guide, it should be `origin`. You can double check this
 branch's remote URL using `git remote get-url origin`. It should look something like `git@github.com:gwillcox-r7/metasploit-framework`
 with `gwillcox-r7` substituted for your username.
 
-Assuming the `origin` branch is in fact pointing to your copy of the code, run `git push origin local-branch:remote-branch` 
-and replace `local-branch` with the branch locally where your code changes are located, and `remote-branch` with what 
-you want this branch to be called on the remote repository, aka `origin` which will be your fork on GitHub.com. In most 
-cases you will want these two names to be the same to avoid confusion, but its good to know this syntax should you 
+Assuming the `origin` branch is in fact pointing to your copy of the code, run `git push origin local-branch:remote-branch`
+and replace `local-branch` with the branch locally where your code changes are located, and `remote-branch` with what
+you want this branch to be called on the remote repository, aka `origin` which will be your fork on GitHub.com. In most
+cases you will want these two names to be the same to avoid confusion, but its good to know this syntax should you
 start working with more complex situations. Note that if the branch pointing to your copy of the code is not named `origin`,
 replace the word `origin` in the command above with the name of the branch that does point to your copy of the code.
 
@@ -114,10 +114,10 @@ Compressing objects: 100% (8/8), done.
 Writing objects: 100% (8/8), 1.55 KiB | 1.55 MiB/s, done.
 Total 8 (delta 7), reused 0 (delta 0), pack-reused 0
 remote: Resolving deltas: 100% (7/7), completed with 7 local objects.
-remote: 
+remote:
 remote: Create a pull request for 'update_mssql_lib_parameters' on GitHub by visiting:
 remote:      https://github.com/gwillcox-r7/metasploit-framework/pull/new/update_mssql_lib_parameters
-remote: 
+remote:
 To github.com:gwillcox-r7/metasploit-framework
  * [new branch]            update_mssql_lib_parameters -> update_mssql_lib_parameters
 ```

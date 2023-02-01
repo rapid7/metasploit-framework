@@ -1,5 +1,5 @@
 # How to use Msf::Auxiliary::AuthBrute to write a bruteforcer
-The ```Msf::Auxiliary::AuthBrute``` mixin should no longer be used to write a login module, you should try our [LoginScanner API](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners) instead. However, some of the datastore options are still needed, so let's go over them right quick.
+The ```Msf::Auxiliary::AuthBrute``` mixin should no longer be used to write a login module, you should try our [[LoginScanner API|./Creating-Metasploit-Framework-LoginScanners.md]] instead. However, some of the datastore options are still needed, so let's go over them right quick.
 
 ### Regular options
 
