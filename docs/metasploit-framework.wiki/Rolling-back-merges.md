@@ -2,10 +2,13 @@ Since the Metasploit-framework repository's master branch is the bleeding edge o
 
 # What's a bad merge?
 
- * Anything that causes [Travis-CI](https://travis-ci.org/rapid7/metasploit-framework/builds) to fail rspec tests consistently.
+ * Anything that causes our GitHub Actions to fail consistently.
  * Anything that hits untested code that otherwise causes problems with `msfconsole`, `msfcli`, `msfvenom`, and other console commands.
 
-Sometimes, Travis-CI does choke up, due to network weather. Every build is a fresh clone, and all gems have to be reinstalled every time. Also, some rspec tests require network connections to assets on the Internet. Sometimes, Travis-CI itself is under a lot of load, and builds time out.
+Sometimes, GitHub Actions might choke up, due to network weather. Every build is a fresh
+clone, and all gems have to be reinstalled every time. Also, some rspec tests require
+network connections to assets on the Internet. Sometimes, GitHub Actions servers are under a lot of
+load, and builds time out.
 
 The best way to diagnose these problems is simply to restart the build. Note, only [Committers](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights) have rights to do this. If that doesn't clear things up, or if it's obvious that there are real failures (since you've read the rspec results and have read the tests), the first order of business is to undo your bad commit.
 
@@ -14,10 +17,6 @@ The best way to diagnose these problems is simply to restart the build. Note, on
 # A merge revert example
 
 Once, there was a bad merge on [PR #2320](https://github.com/rapid7/metasploit-framework/pull/2320). The fellow landing this pull request ran into a merge conflict while landing, thought he fixed it, and pushed the results, which ended up breaking about a dozen Rspec tests. Whoops. That was a bad merge. [PR #2624](https://github.com/rapid7/metasploit-framework/pull/2624) fixed it. Here's the procedure used.
-
-### Figure out what broke things.
-
-In this case, the failed build was pretty obvious: [Build #5216](https://travis-ci.org/rapid7/metasploit-framework/builds/13816889) was red, and rerunning Travis-CI didn't solve. Reading the build log, we can see this was [merge commit 3996557](http://github.com/rapid7/metasploit-framework/commit/3996557ec61a6eeefaa3448480012205b8825374).
 
 ### Check out the bad merge tip.
 

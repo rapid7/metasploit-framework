@@ -196,8 +196,8 @@ Related open tickets (slightly broader than Meterpreter):
 
 ### Unit testing for payloads
  * Metasploit payload classes should have specs, new specs should be created when any class is changed if there isn't an existing spec.
- * Metasploit payload tests that can run in Travis, should be automatically tested end-to-end
- * Metasploit payload tests that can't run in Travis should be run by Jenkins and target a virtual machine (local or cloud-hosted).
+ * Metasploit payload tests that can run in Github Actions, should be automatically tested end-to-end
+ * Metasploit payload tests that can't run in GitHub Actions should be run by Jenkins and target a virtual machine (local or cloud-hosted).
  * Meterpreter payloads should test every advertised console command.
  * Meterpreter payloads should test a subset of the full APIs available.
 

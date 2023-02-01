@@ -67,6 +67,10 @@ module Metasploit
           return 'nt'
         when hash.length == 65 && hash =~ /^[\da-fA-F]{32}:[\da-fA-F]{32}$/
           return 'lm'
+        when hash =~ /^[^\\\/:*?"<>|]{1,20}[:]{2,3}([^\\\/:*?"<>|]{1,20})?:[a-f0-9]{48}:[a-f0-9]{48}:[a-f0-9]{16}$/
+          return 'netntlm'
+        when hash =~ /^([^\\\/:*?"<>|]{1,20}\\)?[^\\\/:*?"<>|]{1,20}[:]{2,3}([^\\\/:*?"<>|]{1,20}:)?[^\\\/:*?"<>|]{1,20}:[a-f0-9]{32}:[a-f0-9]+$/
+          return 'netntlmv2'
           # OSX
         when hash.start_with?('$ml$') && hash.split('$').last.length == 256
           return 'pbkdf2-hmac-sha512,osx' # 10.8+

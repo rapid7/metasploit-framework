@@ -14,11 +14,22 @@ module Rex
           #   @return [String] The checksum itself
           attr_accessor :checksum
 
-          # Rex::Proto::Kerberos::Model::Checksum decoding isn't supported
+          # Decodes the Rex::Proto::Kerberos::Model::Checksum from an input
           #
-          # @raise [NotImplementedError]
+          # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [self] if decoding succeeds
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
-            raise ::NotImplementedError, 'Checksum decoding not supported'
+            case input
+            when String
+              decode_string(input)
+            when OpenSSL::ASN1::ASN1Data
+              decode_asn1(input)
+            else
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode Checksum, invalid input'
+            end
+
+            self
           end
 
           # Encodes a Rex::Proto::Kerberos::Model::Checksum into an ASN.1 String
@@ -52,6 +63,55 @@ module Rex
           def encode_checksum
             OpenSSL::ASN1::OctetString.new(checksum)
           end
+
+          # Decodes a Rex::Proto::Kerberos::Model::Checksum from an String
+          #
+          # @param input [String] the input to decode from
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
+          def decode_string(input)
+            asn1 = OpenSSL::ASN1.decode(input)
+
+            decode_asn1(asn1)
+          rescue OpenSSL::ASN1::ASN1Error
+            raise Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
+          end
+
+          # Decodes a Rex::Proto::Kerberos::Model::Checksum from an
+          # OpenSSL::ASN1::Sequence
+          #
+          # @param input [OpenSSL::ASN1::Sequence] the input to decode from
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
+          def decode_asn1(input)
+            seq_values = input.value
+
+            seq_values.each do |val|
+              case val.tag
+              when 0
+                self.type = decode_type(val)
+              when 1
+                self.checksum = decode_checksum(val)
+              else
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequestBody SEQUENCE'
+              end
+            end
+          end
+
+          # Decodes the type field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Integer]
+          def decode_type(input)
+            input.value[0].value.to_i
+          end
+
+          # Decodes the checksum field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [String]
+          def decode_checksum(input)
+            input.value[0].value
+          end
+
         end
       end
     end

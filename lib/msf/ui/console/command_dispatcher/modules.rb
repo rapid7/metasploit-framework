@@ -29,7 +29,12 @@ module Msf
           @@favorite_opts = Rex::Parser::Arguments.new(
             '-h' => [false, 'Help banner'],
             '-c' => [false, 'Clear the contents of the favorite modules file'],
-            '-d' => [false, 'Delete module(s) or the current active module from the favorite modules file']
+            '-d' => [false, 'Delete module(s) or the current active module from the favorite modules file'],
+            '-l' => [false, 'Print the list of favorite modules (alias for `show favorites`)']
+          )
+
+          @@favorites_opts = Rex::Parser::Arguments.new(
+            '-h' => [false, 'Help banner']
           )
 
           def commands
@@ -49,6 +54,7 @@ module Msf
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Interact with a module by name or search term/index",
               "favorite"   => "Add module(s) to the list of favorite modules",
+              "favorites"  => "Print the list of favorite modules (alias for `show favorites`)"
             }
           end
 
@@ -1176,10 +1182,11 @@ module Msf
           # Add modules to or delete modules from the fav_modules file
           #
           def cmd_favorite(*args)
+            valid_custom_args = ['-c', '-d', '-l']
             favs_file = Msf::Config.fav_modules_file
 
             # always display the help banner if -h is provided or if multiple options are provided
-            if args.include?('-h') || (args.include?('-c') && args.include?('-d'))
+            if args.include?('-h') || args.select{ |arg| arg if valid_custom_args.include?(arg) }.length > 1
               cmd_favorite_help
               return
             end
@@ -1220,6 +1227,14 @@ module Msf
               end
 
               favorite_del(args, false, favs_file)
+            when '-l'
+              args.delete('-l')
+              unless args.empty?
+                print_error('Option `-l` does not support arguments.')
+                cmd_favorite_help
+                return
+              end
+              cmd_show('favorites')
             else # no valid options, but there are arguments
               if args[0].start_with?('-')
                 print_error('Invalid option provided')
@@ -1229,6 +1244,30 @@ module Msf
 
               favorite_add(args, favs_file)
             end
+          end
+
+          def cmd_favorites_help
+            print_line 'Usage: favorites'
+            print_line
+            print_line 'Print the list of favorite modules (alias for `show favorites`)'
+            print @@favorites_opts.usage
+          end
+
+          #
+          # Print the list of favorite modules from the fav_modules file (alias for `show favorites`)
+          #
+          def cmd_favorites(*args)
+            if args.empty?
+              cmd_show('favorites')
+              return
+            end
+
+            # always display the help banner if the command is called with arguments
+            unless args.include?('-h')
+              print_error('Invalid option(s) provided')
+            end
+
+            cmd_favorites_help
           end
 
           #

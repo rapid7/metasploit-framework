@@ -289,7 +289,7 @@ end
 
 msfconsole output:
 
-```
+```msf
 msf6 exploit(windows/smb/msf_smb_client_test) > options
 
 Module options (exploit/windows/smb/msf_smb_client_test):
@@ -406,7 +406,7 @@ end
 
 msfconsole output:
 
-```
+```msf
 msf6 exploit(windows/smb/ruby_smb_client_test) > options
 
 Module options (exploit/windows/smb/ruby_smb_client_test):

@@ -38,7 +38,7 @@ module Msf
         name: DATASTORE_FALLBACKS,
         description: 'When enabled you can consistently set username across modules, instead of setting SMBUser/FTPUser/BIND_DN/etc',
         requires_restart: true,
-        default_value: false
+        default_value: true
       }.freeze
     ].freeze
 

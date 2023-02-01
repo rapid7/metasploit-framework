@@ -15,6 +15,11 @@ module Rex
           #   @return [Array<String>] A sequence of strings that form a name.
           attr_accessor :name_string
 
+          def ==(other)
+            name_type == other.name_type &&
+              name_string == other.name_string
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::PrincipalName
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
@@ -43,6 +48,10 @@ module Rex
             seq = OpenSSL::ASN1::Sequence.new([integer_asn1, string_asn1])
 
             seq.to_der
+          end
+
+          def to_s
+            name_string.join('/')
           end
 
           private

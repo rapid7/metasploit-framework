@@ -14,7 +14,7 @@ module Rex
           #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
           # @!attribute pa_data
-          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>] Authentication information which may
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>] Authentication information which may
           #   be needed before credentials can be issued or decrypted
           attr_accessor :pa_data
           # @!attribute req_body
@@ -142,11 +142,11 @@ module Rex
           # Decodes the pa_data from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>]
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
           def decode_asn1_pa_data(input)
             pre_auth = []
             input.value[0].value.each do |pre_auth_data|
-              pre_auth << Rex::Proto::Kerberos::Model::PreAuthData.decode(pre_auth_data)
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
             end
 
             pre_auth

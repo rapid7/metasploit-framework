@@ -32,7 +32,7 @@ So you know how in Lord of the Rings, people are totally obsessed with the One R
 
 You can use the ```session``` method to access the session object, or its alias ```client```. The best way to interact with one is via irb, here's an example of how:
 
-```
+```msf
 msf exploit(handler) > run
 
 [*] Started reverse handler on 192.168.1.64:4444 

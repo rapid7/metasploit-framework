@@ -186,7 +186,7 @@ module Msf
             begin
               return session.extapi.service.enumerate.each(&block)
             rescue Rex::Post::Meterpreter::RequestError => e
-              vprint_error("Request Error #{e} falling back to registry technique")
+              vprint_error("Request Error #{e} Falling back to registry technique")
             end
           end
 
@@ -260,7 +260,7 @@ module Msf
             begin
               return session.extapi.service.query(name)
             rescue Rex::Post::Meterpreter::RequestError => e
-              vprint_error("Request Error #{e} falling back to registry technique")
+              vprint_error("Request Error #{e} Falling back to registry technique")
             end
           end
 
@@ -337,7 +337,7 @@ module Msf
                 # Cant do remote registry changes at present
                 return false
               else
-                vprint_error("Request Error #{e} falling back to registry technique")
+                vprint_error("Request Error #{e} Falling back to registry technique")
               end
             end
           end
@@ -611,7 +611,7 @@ module Msf
             begin
               return session.extapi.service.enumerate
             rescue Rex::Post::Meterpreter::RequestError => e
-              vprint_error("Request Error #{e} falling back to registry technique")
+              vprint_error("Request Error #{e} Falling back to registry technique")
             end
           end
 

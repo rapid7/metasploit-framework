@@ -18,6 +18,7 @@ class Db
   include Msf::Ui::Console::CommandDispatcher::Common
   include Msf::Ui::Console::CommandDispatcher::Db::Common
   include Msf::Ui::Console::CommandDispatcher::Db::Analyze
+  include Msf::Ui::Console::CommandDispatcher::Db::Klist
 
   DB_CONFIG_PATH = 'framework/database'
 
@@ -47,6 +48,7 @@ class Db
       "vulns"         => "List all vulnerabilities in the database",
       "notes"         => "List all notes in the database",
       "loot"          => "List all loot in the database",
+      "klist"         => "List Kerberos tickets in the database",
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",

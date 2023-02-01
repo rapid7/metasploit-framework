@@ -35,7 +35,7 @@ DEPRECATION_REPLACEMENT = 'exploit/linux/http/dlink_upnp_exec_noauth'
 
 When the user loads that module, they should see a warning like this:
 
-```
+```msf
 msf > use exploit/windows/misc/test 
 
 [!] ************************************************************************

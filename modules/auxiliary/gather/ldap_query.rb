@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
 
           Users can also run a single query by using the RUN_SINGLE_QUERY option and then setting
           the QUERY_FILTER datastore option to the filter to send to the LDAP server and QUERY_ATTRIBUTES
-          to a comma seperated string containing the list of attributes they are interested in obtaining
+          to a comma separated string containing the list of attributes they are interested in obtaining
           from the results.
 
           As a third option can run one of several predefined queries by setting ACTION to the
@@ -136,9 +136,10 @@ class MetasploitModule < Msf::Auxiliary
     settings['queries']
   end
 
-  def perform_ldap_query(ldap, filter, attributes, base: nil)
+  def perform_ldap_query(ldap, filter, attributes, base: nil, scope: nil)
     base ||= @base_dn
-    returned_entries = ldap.search(base: base, filter: filter, attributes: attributes)
+    scope ||= Net::LDAP::SearchScope_WholeSubtree
+    returned_entries = ldap.search(base: base, filter: filter, attributes: attributes, scope: scope)
     query_result = ldap.as_json['result']['ldap_result']
 
     validate_query_result!(query_result, filter)
@@ -263,15 +264,35 @@ class MetasploitModule < Msf::Auxiliary
     generate_rex_tables(entries, 'csv')
   end
 
+  def find_schema_dn(ldap)
+    filter = '(objectClass=*)'
+    attributes = ['objectCategory']
+
+    results = perform_ldap_query(ldap, filter, attributes, base: @base_dn, scope: Net::LDAP::SearchScope_BaseObject)
+    if results.blank?
+      fail_with(Failure::UnexpectedReply, "LDAP server didn't respond to our request to find the root DN!")
+    end
+
+    # Double check that the entry has an instancetype attribute.
+    unless results[0].to_h.key?(:objectcategory)
+      fail_with(Failure::UnexpectedReply, "LDAP server didn't respond to the root DN request with the objectcategory attribute field!")
+    end
+
+    object_category_raw = results[0][:objectcategory][0]
+    schema_dn = object_category_raw.gsub(/CN=[A-Za-z0-9-]+,/, '')
+    print_good("#{peer} Discovered schema DN: #{schema_dn}")
+
+    schema_dn
+  end
+
   def query_attributes_data(ldap, entry_keys)
-    # def perform_ldap_query(ldap, filter, attributes, base: nil)
     filter = '(|'
     entry_keys.each_key do |key|
       filter += "(LDAPDisplayName=#{key})" unless key == :dn # Skip DN as it will never have a schema entry
     end
     filter += ')'
     attributes = ['LDAPDisplayName', 'isSingleValued', 'oMSyntax', 'attributeSyntax']
-    attributes_data = perform_ldap_query(ldap, filter, attributes, base: ['CN=Schema,CN=Configuration', @base_dn].join(','))
+    attributes_data = perform_ldap_query(ldap, filter, attributes, base: ['CN=Schema,CN=Configuration', @schema_dn].join(','))
 
     entry_list = {}
     for entry in attributes_data do
@@ -438,9 +459,11 @@ class MetasploitModule < Msf::Auxiliary
           print_status('Discovering base DN automatically')
 
           unless (@base_dn = discover_base_dn(ldap))
-            print_warning("Couldn't discover base DN!")
+            fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
           end
         end
+
+        @schema_dn = find_schema_dn(ldap)
 
         case action.name
         when 'RUN_QUERY_FILE'
