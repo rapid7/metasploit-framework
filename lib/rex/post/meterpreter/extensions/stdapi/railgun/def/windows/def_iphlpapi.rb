@@ -61,9 +61,9 @@ class Def_windows_iphlpapi
 
     dll.add_function('GetRTTAndHopCount', 'BOOL',[
       ["DWORD","DestIpAddress","in"],
-      ["PDWORD","HopCount","out"],
+      ["PULONG","HopCount","out"],
       ["DWORD","MaxHops","in"],
-      ["PDWORD","RTT","out"],
+      ["PULONG","RTT","out"],
       ])
 
     dll.add_function('NotifyAddrChange', 'DWORD',[
