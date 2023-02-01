@@ -2,7 +2,7 @@
 
 require 'bindata'
 require 'ruby_smb/dcerpc'
-require 'rex/proto/kerberos/ndr/type_serialization1'
+
 # full MIDL spec for PAC
 # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1d4912dd-5115-4124-94b6-fa414add575f
 module Rex::Proto::Kerberos::Pac
@@ -264,7 +264,7 @@ module Rex::Proto::Kerberos::Pac
     extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
   end
 
-  class Krb5LogonInformation < Rex::Proto::Kerberos::NDR::TypeSerialization1
+  class Krb5LogonInformation < RubySMB::Dcerpc::Ndr::TypeSerialization1
     endian :little
     # @!attribute [r] ul_type
     #   @return [Integer] Describes the type of data present
@@ -352,7 +352,7 @@ module Rex::Proto::Kerberos::Pac
     extend RubySMB::Dcerpc::Ndr::PointerClassPlugin
   end
 
-  class Krb5SerializedPacCredentialData < Rex::Proto::Kerberos::NDR::TypeSerialization1
+  class Krb5SerializedPacCredentialData < RubySMB::Dcerpc::Ndr::TypeSerialization1
     endian :little
 
     krb5_pac_credential_data_ptr :data
