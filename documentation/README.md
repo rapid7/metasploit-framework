@@ -1,13 +1,11 @@
 # Metasploit Developer Documentation
 
-*(last updated December 1, 2014)
-
 Metasploit is actively supported by a community of hundreds of
 contributors and thousands of users world-wide. As a result, the
 accompanying documentation moves quite quickly.
 
 The best source of documentation on Metasploit development is
-https://github.com/rapid7/metasploit-framework/wiki. There are many
+https://docs.metasploit.com/. There are many
 treasures there, such as:
 
   * [Evading Antivirus](https://docs.metasploit.com/docs/using-metasploit/intermediate/evading-anti-virus.html)

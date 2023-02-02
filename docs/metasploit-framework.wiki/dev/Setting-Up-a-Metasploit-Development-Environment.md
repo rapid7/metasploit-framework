@@ -247,7 +247,7 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 
 [git aliases]:https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
 [rspec]:https://www.rubyguides.com/2018/07/rspec-tutorial/
-[wiki-documentation]:https://github.com/rapid7/metasploit-framework/wiki#metasploit-development
+[wiki-documentation]:https://docs.metasploit.com/#metasploit-development
 [newbie-friendly-prs-issues]:https://github.com/rapid7/metasploit-framework/issues?q=is%3Aopen+label%3Anewbie-friendly
 [howto-PR]:https://help.github.com/articles/about-pull-requests/
 [new issue]:https://github.com/rapid7/metasploit-framework/issues/new/choose
