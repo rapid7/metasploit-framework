@@ -117,6 +117,13 @@
 
 <%= normalize_pull_requests(items[:mod_pull_requests]) %>
 
+<%- attacker_kb_references = normalize_attackerkb_references(items[:mod_refs]) %>
+<% unless attacker_kb_references.empty? %>
+## AttackerKB references
+
+<%= attacker_kb_references %>
+<% end %>
+
 <% unless items[:mod_refs].empty? %>
 ## References
 
