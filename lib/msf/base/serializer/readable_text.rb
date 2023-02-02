@@ -55,13 +55,25 @@ class ReadableText
       'Header'  => h,
       'Columns' =>
         [
+          'IsTarget',
           'Id',
           'Name',
-        ])
+        ],
+      'SortIndex' => 1,
+      'ColProps' => {
+        'IsTarget' => {
+          'Stylers' => [Msf::Ui::Console::TablePrint::RowIndicatorStyler.new],
+          'ColumnStylers' => [Msf::Ui::Console::TablePrint::OmitColumnHeader.new],
+          'Width' => 2
+        }
+      }
+    )
 
-    mod.targets.each_with_index { |target, idx|
-      tbl << [ idx.to_s, target.name || 'All' ]
-    }
+    mod.targets.each_with_index do |target, idx|
+      is_target = mod.target == target
+
+      tbl << [is_target, idx.to_s, target.name || 'All' ]
+    end
 
     tbl.to_s + "\n"
   end
@@ -72,13 +84,25 @@ class ReadableText
       'Header'  => h,
       'Columns' =>
         [
+          'IsTarget',
           'Id',
           'Name',
-        ])
+        ],
+      'SortIndex' => 1,
+      'ColProps' => {
+        'IsTarget' => {
+          'Stylers' => [Msf::Ui::Console::TablePrint::RowIndicatorStyler.new],
+          'ColumnStylers' => [Msf::Ui::Console::TablePrint::OmitColumnHeader.new],
+          'Width' => 2
+        }
+      }
+    )
 
-    mod.targets.each_with_index { |target, idx|
-      tbl << [ idx.to_s, target.name || 'All' ]
-    }
+    mod.targets.each_with_index do |target, idx|
+      is_target = mod.target == target
+
+      tbl << [is_target, idx.to_s, target.name || 'All' ]
+    end
 
     tbl.to_s + "\n"
   end
@@ -139,12 +163,24 @@ class ReadableText
       'Header'  => h,
       'Columns' =>
         [
+          'ActionEnabled',
           'Name',
           'Description'
-        ])
+        ],
+      'SortIndex' => 1,
+      'ColProps' => {
+        'ActionEnabled' => {
+          'Stylers' => [Msf::Ui::Console::TablePrint::RowIndicatorStyler.new],
+          'ColumnStylers' => [Msf::Ui::Console::TablePrint::OmitColumnHeader.new],
+          'Width' => 2
+        }
+      }
+    )
 
     mod.actions.each_with_index { |target, idx|
-      tbl << [ target.name || 'All' , target.description || '' ]
+      action_enabled = mod.action == target
+
+      tbl << [ action_enabled, target.name || 'All' , target.description || '' ]
     }
 
     tbl.to_s + "\n"
@@ -321,7 +357,7 @@ class ReadableText
     # Actions
     if mod.actions.any?
       output << "Available actions:\n"
-      output << dump_module_actions(mod, indent)
+      output << dump_module_actions(mod)
     end
 
     # Check
@@ -386,7 +422,7 @@ class ReadableText
     # Actions
     if mod.actions.any?
       output << "Available actions:\n"
-      output << dump_module_actions(mod, indent)
+      output << dump_module_actions(mod)
     end
 
     # Options

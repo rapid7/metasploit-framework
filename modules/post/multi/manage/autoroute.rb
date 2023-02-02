@@ -142,8 +142,8 @@ class MetasploitModule < Msf::Post
         ],
       'ColProps' =>
         {
-          'Subnet' => { 'MaxWidth' => 17 },
-          'Netmask' => { 'MaxWidth' => 17 },
+          'Subnet' => { 'Width' => 17 },
+          'Netmask' => { 'Width' => 17 },
         }
     )
 
@@ -161,8 +161,8 @@ class MetasploitModule < Msf::Post
         ],
       'ColProps' =>
         {
-          'Subnet' => { 'MaxWidth' => 17 },
-          'Netmask' => { 'MaxWidth' => 17 },
+          'Subnet' => { 'Width' => 17 },
+          'Netmask' => { 'Width' => 17 },
         }
     )
 
