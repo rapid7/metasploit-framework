@@ -1,6 +1,3 @@
-#define SCSIZE 2048
-unsigned char code[SCSIZE] = "PAYLOAD:";
-
 #ifdef _MSC_VER
 	#pragma comment (linker, "/export:GdipAlloc=c:/windows/system32/gdiplus.GdipAlloc,@34")
 	#pragma comment (linker, "/export:GdipCloneBrush=c:/windows/system32/gdiplus.GdipCloneBrush,@46")
