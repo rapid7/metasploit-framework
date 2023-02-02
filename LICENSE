@@ -135,7 +135,7 @@ Purpose: The built result is used in:
            payloads/stages/windows/vncinject.rb
            payloads/stages/windows/x64/vncinject.rb
 
-Files: external/source/exploits/CVE-2022-22942/cve-2022-22942-dc.c
+Files: external/source/exploits/CVE-2022-46689/vm_unaligned_copy_switch_race.c
 Copyright: 1999-2007 Apple Inc.
 License: Apple
 Purpose: This source file is necessary for users to create a stand-alone executable
