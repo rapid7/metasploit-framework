@@ -80,8 +80,6 @@ module Msf
 
           mod.options.sorted.each do |e|
             name, _opt = e
-            next unless Msf::OptCondition.show_option(mod, _opt)
-
             res << name
           end
           # Exploits provide these three default options

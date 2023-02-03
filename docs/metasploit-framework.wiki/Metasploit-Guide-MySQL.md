@@ -13,7 +13,7 @@ Metasploit has support for multiple MySQL modules, including:
 
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
-```
+```msf
 msf6 > search mysql
 ```
 

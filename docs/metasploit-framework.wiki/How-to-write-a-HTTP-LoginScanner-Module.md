@@ -1,6 +1,6 @@
 This is a step-by-step guide on how to write a HTTP login module using the latest LoginScanner and Credential APIs.
 
-Before we begin, it's probably a good idea to read [Creating Metasploit Framework LoginScanners](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners), which explains about the APIs in-depth. The LoginScanner API can be found in the [lib/metasploit/framework/loginscanner](https://github.com/rapid7/metasploit-framework/tree/master/lib/metasploit/framework/login_scanner) directory, and the Credential API can found as a [metasploit-credential gem here](https://github.com/rapid7/metasploit-credential). You will most likely want to read them while writing the login module.
+Before we begin, it's probably a good idea to read [[Creating Metasploit Framework LoginScanners|./Creating-Metasploit-Framework-LoginScanners.md]], which explains about the APIs in-depth. The LoginScanner API can be found in the [lib/metasploit/framework/loginscanner](https://github.com/rapid7/metasploit-framework/tree/master/lib/metasploit/framework/login_scanner) directory, and the Credential API can found as a [metasploit-credential gem here](https://github.com/rapid7/metasploit-credential). You will most likely want to read them while writing the login module.
 
 ## Step 1: Set up your target environment
 
@@ -382,7 +382,7 @@ And finally, make sure your module actually works.
 
 Test for a successful login:
 
-```
+```msf
 msf auxiliary(symantec_web_gateway_login) > run
 
 [+] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Success: 'sinn3r:GoodPassword'
@@ -393,7 +393,7 @@ msf auxiliary(symantec_web_gateway_login) >
 
 Test for a failed login:
 
-```
+```msf
 msf auxiliary(symantec_web_gateway_login) > run
 
 [-] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Failed: 'sinn3r:BadPass'

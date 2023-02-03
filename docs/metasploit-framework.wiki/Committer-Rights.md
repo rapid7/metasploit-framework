@@ -2,7 +2,7 @@
 
 The term "Metasploit Committers" describes people who have direct write access to the [Rapid7 Metasploit-Framework fork](https://github.com/rapid7/metasploit-framework). These are the people who can land changes to this main fork of the Framework. However, it is not necessary to have committer rights in order to contribute to Metasploit. Much of our code comes from non-committers.
 
-We encourage anyone to fork the Metasploit project, make changes, fix bugs, and notify the core committers about those changes via [Pull Requests](http://github.com/rapid7/metasploit-framework/pulls). The process for getting started is most comprehensively documented in the [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) setup guide.
+We encourage anyone to fork the Metasploit project, make changes, fix bugs, and notify the core committers about those changes via [Pull Requests](http://github.com/rapid7/metasploit-framework/pulls). The process for getting started is most comprehensively documented in the [[Metasploit Development Environment|./dev/Setting-Up-a-Metasploit-Development-Environment.md]] setup guide.
 
 Metasploit committers are a mix of [Rapid7](http://rapid7.com) employees and outside contributors. Anyone can become a contributor, with the following expectations:
 
@@ -24,7 +24,7 @@ If you reject a pull request, be clear in the pull request why it was rejected, 
 
 Even if someone else approves of a pull request, and it is shown to be broken later, then it is still your responsibility to correct it. Make every effort to get a fix or revert in as soon as possible, whether you wrote the code, landed it, or approved it. Blame is shared equally.
 
-A list of committer public keys [is here](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys).
+A list of committer public keys [[is here|./Committer-Keys.md]].
 
 # How to Gain Commit Rights
 
@@ -45,7 +45,7 @@ Breaches of trust in terms of malicious or malformed code, or the demonstration 
 
 # Useful Links for Committers
 
-  * [http://r-7.co/MSF-DEV](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) is pretty much required reading.
+  * [[Setting Up a Metasploit Development Environment|./dev/Setting-Up-a-Metasploit-Development-Environment.md]] is pretty much required reading.
   * So is [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md)
   * Check out the Apache Software Foundation's [Guide for Committers](https://www.apache.org/dev/committers). It's illuminating.
   * [Producing Open Source Software](http://www.producingoss.com/gl/) by Ken Fogel is a must-read.

@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 2.6'
+  spec.required_ruby_version = '>= 2.7'
 
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
@@ -120,8 +120,10 @@ Gem::Specification.new do |spec|
   end
   # Gem for handling Cookies
   spec.add_runtime_dependency 'http-cookie'
-   # Needed for some modules (polkit_auth_bypass.rb)
+  # Needed for some modules (polkit_auth_bypass.rb)
   spec.add_runtime_dependency 'unix-crypt'
+  # Needed for Kerberos structure parsing
+  spec.add_runtime_dependency 'rasn1'
 
   #
   # File Parsing Libraries

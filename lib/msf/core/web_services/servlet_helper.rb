@@ -54,9 +54,13 @@ module Msf::WebServices::ServletHelper
 
   def print_error_and_create_response(error: , message:, code:)
     print_error "Error handling request: #{error.message}.", error
+    create_error_response(error: error, message: message, code: code)
+  end
+
+  def create_error_response(error:, message:, code:)
     error_response = {
-        code: code,
-        message: "#{message} #{error.message}"
+      code: code,
+      message: "#{message} #{error.message}"
     }
     set_json_error_response(response: error_response, code: code)
   end

@@ -8,16 +8,27 @@ module Rex
         # definition.
         class AuthorizationData < Element
           # @!attribute elements
-          #   @return [Hash{Symbol => <Integer, String>}] The type of the authorization data
+          #   @return [Array<Hash{Symbol => Integer, String)}>] The type of the authorization data
           #   @option [Integer] :type
           #   @option [String] :data
           attr_accessor :elements
 
-          # Rex::Proto::Kerberos::Model::AuthorizationData decoding isn't supported
+          # Decodes the Rex::Proto::Kerberos::Model::AuthorizationData from an input
           #
-          # @raise [NotImplementedError]
+          # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
+          # @return [self] if decoding succeeds
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
-            raise ::NotImplementedError, 'Authorization Data decoding not supported'
+            case input
+            when String
+              decode_string(input)
+            when OpenSSL::ASN1::ASN1Data
+              decode_asn1(input)
+            else
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode AuthorizationData, invalid input'
+            end
+
+            self
           end
 
           # Encodes a Rex::Proto::Kerberos::Model::AuthorizationData into an ASN.1 String
@@ -39,6 +50,42 @@ module Rex
             seq.to_der
           end
 
+          # Decodes a Rex::Proto::Kerberos::Model::AuthorizationData from an String
+          #
+          # @param input [String] the input to decode from
+          def decode_string(input)
+            asn1 = OpenSSL::ASN1.decode(input)
+
+            decode_asn1(asn1)
+          end
+
+          # Decodes a Rex::Proto::Kerberos::Model::AuthorizationData
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
+          #
+          #    TransitedEncoding       ::= SEQUENCE {
+          #            ad-type         [0] Int32 -- must be registered --,
+          #            ad-data         [1] OCTET STRING
+          #    }
+          def decode_asn1(input)
+            self.elements = []
+            input.each do |elem|
+              element = {}
+              elem.value.each do |val|
+                case val.tag
+                when 0  # ad-type         [0] Int32
+                  element[:type] = decode_type(val)
+                when 1  # ad-data        [1] OCTET STRING
+                  element[:data] = decode_data(val)
+                else
+                  raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode AuthorizationData SEQUENCE'
+                end
+              end
+              self.elements << element
+            end
+          end
+
           # Encrypts the Rex::Proto::Kerberos::Model::AuthorizationData
           #
           # @param etype [Integer] the crypto schema to encrypt
@@ -48,19 +95,20 @@ module Rex
           def encrypt(etype, key)
             data = self.encode
 
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = encrypt_rc4_hmac(data, key, 5)
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.encrypt(data, key, 5)
           end
 
 
           private
+
+          # Decodes the type from an OpenSSL::ASN1::ASN1Data
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Integer]
+          def decode_type(input)
+            input.value[0].value.to_i
+          end
 
           # Encodes the type
           #
@@ -70,6 +118,14 @@ module Rex
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int
+          end
+
+          # Decodes the value from an OpenSSL::ASN1::ASN1Data
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [String]
+          def decode_data(input)
+            input.value[0].value
           end
 
           # Encodes the data

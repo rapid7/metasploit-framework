@@ -10,7 +10,7 @@ clone, and all gems have to be reinstalled every time. Also, some rspec tests re
 network connections to assets on the Internet. Sometimes, GitHub Actions servers are under a lot of
 load, and builds time out.
 
-The best way to diagnose these problems is simply to restart the build. Note, only [Committers](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights) have rights to do this. If that doesn't clear things up, or if it's obvious that there are real failures (since you've read the rspec results and have read the tests), the first order of business is to undo your bad commit.
+The best way to diagnose these problems is simply to restart the build. Note, only [[Committers|./Committer-Rights.md]] have rights to do this. If that doesn't clear things up, or if it's obvious that there are real failures (since you've read the rspec results and have read the tests), the first order of business is to undo your bad commit.
 
 **Note**: in branches other than `master`, you can usually just fix things normally with new commits. There are plenty of "whoops" commit messages in our history.
 

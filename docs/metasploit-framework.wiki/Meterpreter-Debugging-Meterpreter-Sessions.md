@@ -7,7 +7,7 @@ There are currently two main ways to debug Meterpreter sessions:
 
 This can be enabled for any Meterpreter session, and does not require a debug Metasploit build:
 
-```
+```msf
 msf6 > setg SessionTlvLogging true
 SessionTlvLogging => true
 ```

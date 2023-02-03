@@ -33,7 +33,7 @@ class Creds
   end
 
   def allowed_cred_types
-    %w(password ntlm hash) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
+    %w(password ntlm hash KrbEncKey) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
   end
 
   #
@@ -396,13 +396,15 @@ class Creds
     # If we get here, we're searching.  Delete implies search
 
     if ptype
-      type = case ptype
+      type = case ptype.downcase
              when 'password'
                Metasploit::Credential::Password
              when 'hash'
                Metasploit::Credential::PasswordHash
              when 'ntlm'
                Metasploit::Credential::NTLMHash
+             when 'KrbEncKey'.downcase
+               Metasploit::Credential::KrbEncKey
              when *Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
                opts[:jtr_format] = ptype
                Metasploit::Credential::NonreplayableHash

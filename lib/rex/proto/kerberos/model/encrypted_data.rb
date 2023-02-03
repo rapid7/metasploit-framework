@@ -16,6 +16,12 @@ module Rex
           #   @return [String] The enciphered text
           attr_accessor :cipher
 
+          def ==(other)
+            etype == other.etype &&
+              kvno == other.kvno &&
+              cipher == other.cipher
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::EncryptedData
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
@@ -55,30 +61,23 @@ module Rex
             seq.to_der
           end
 
-          # Decrypts the cipher with etype encryption schema
+          # Decrypts the cipher with etype encryption schema, presuming that the
+          # data is an ASN1 structure
           #
           # @param key [String] the key to decrypt
           # @param msg_type [Integer] the message type
           # @return [String] the decrypted `cipher`
           # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decryption doesn't succeed
           # @raise [NotImplementedError] if encryption isn't supported
-          def decrypt(key, msg_type)
+          def decrypt_asn1(key, msg_type)
             if cipher.nil? || cipher.empty?
               return ''
             end
 
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = decrypt_rc4_hmac(cipher, key, msg_type)
-              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'EncryptedData failed to decrypt' if res.length < 8
-              res = res[8, res.length - 1]
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.decrypt_asn1(cipher, key, msg_type)
           end
+
 
           private
 

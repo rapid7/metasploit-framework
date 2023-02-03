@@ -59,7 +59,7 @@ jobs:
                   comment: `
                     Thanks for your pull request! Before this can be merged, we need the following documentation for your module:
 
-                    - [Writing Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
+                    - [Writing Module Documentation](https://docs.metasploit.com/docs/development/quality/writing-module-documentation.html)
                     - [Template](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
                     - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
                   `

@@ -1185,8 +1185,8 @@ class Core
             ],
           'ColProps' =>
             {
-              'Subnet'  => { 'MaxWidth' => 17 },
-              'Netmask' => { 'MaxWidth' => 17 },
+              'Subnet'  => { 'Width' => 17 },
+              'Netmask' => { 'Width' => 17 },
             })
 
         # IPv6 Table
@@ -1203,8 +1203,8 @@ class Core
             ],
           'ColProps' =>
             {
-              'Subnet'  => { 'MaxWidth' => 17 },
-              'Netmask' => { 'MaxWidth' => 17 },
+              'Subnet'  => { 'Width' => 17 },
+              'Netmask' => { 'Width' => 17 },
             })
 
         # Populate Route Tables

@@ -102,7 +102,7 @@ Regardless of your choice, you'll want to make sure that, when inside the `~/git
 
 ```
 $ cd ~/git/metasploit-framework
-$ cat .ruby-version 
+$ cat .ruby-version
 3.0.2
 $ ruby -v
 ruby 3.0.2p107 (2021-07-07 revision 0db68f0233) [x86_64-linux]
@@ -209,7 +209,7 @@ rake spec
 ```
 
 You should see over 9000 tests run, mostly resulting in green dots, a few in yellow stars, and no red errors.
- 
+
 # Great!  Now what?
 
 We're excited to see your upcoming contributions of new modules, documentation, and fixes!  Check out our [wiki documentation][wiki-documentation] and, if you're looking for inspiration, keep an eye out for [newbie-friendly pull requests and issues][newbie-friendly-prs-issues].   Please [submit your new pull requests][howto-PR] and reach out to us on [Slack] for community help.
@@ -217,7 +217,7 @@ We're excited to see your upcoming contributions of new modules, documentation, 
 Finally, we welcome your feedback on this guide, so feel free to reach out to us on [Slack] or open a [new issue].  For their significant contributions to this guide, we would like to thank [@kernelsmith], [@corelanc0d3r], and [@ffmike].
 
 [commercial-installer]:http://metasploit.com/download
-[open-source-installer]:https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers
+[open-source-installer]:https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
 [kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
 [parrot-user-instructions]:https://parrotsec.org/docs/installation.html
 [CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
@@ -240,14 +240,14 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [find]:https://linux.die.net/man/1/find
 [$PATH]:https://askubuntu.com/questions/109381/how-to-add-path-of-a-program-to-path-environment-variable
 
-[msf-web-service]:https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service
+[msf-web-service]:https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html
 
 [git-horror]:https://mikegerwitz.com/papers/git-horror-story#trust-ensure
-[signing-howto]:https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys#signing-howto
+[signing-howto]:https://docs.metasploit.com/docs/development/maintainers/committer-keys.html#signing-howto
 
 [git aliases]:https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
 [rspec]:https://www.rubyguides.com/2018/07/rspec-tutorial/
-[wiki-documentation]:https://github.com/rapid7/metasploit-framework/wiki#metasploit-development
+[wiki-documentation]:https://docs.metasploit.com/#metasploit-development
 [newbie-friendly-prs-issues]:https://github.com/rapid7/metasploit-framework/issues?q=is%3Aopen+label%3Anewbie-friendly
 [howto-PR]:https://help.github.com/articles/about-pull-requests/
 [new issue]:https://github.com/rapid7/metasploit-framework/issues/new/choose
