@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Post
           'c2Vlcgo'
         ],
         'SessionTypes' => %w[shell meterpreter],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(

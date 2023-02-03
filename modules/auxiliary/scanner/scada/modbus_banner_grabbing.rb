@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://en.wikipedia.org/wiki/Modbus#Modbus_TCP_frame_format_(primarily_used_on_Ethernet_networks)' ],
           [ 'URL', 'https://github.com/industrialarmy/Hello_Proto' ],
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

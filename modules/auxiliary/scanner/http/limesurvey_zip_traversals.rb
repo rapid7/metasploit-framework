@@ -43,7 +43,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.secsignal.org/en/news/cve-2019-9960-arbitrary-file-download-in-limesurvey/'],
           ['URL', 'https://github.com/LimeSurvey/LimeSurvey/commit/1ed10d3c423187712b8f6a8cb2bc9d5cc3b2deb8']
         ],
-        'DisclosureDate' => '2020-04-02'
+        'DisclosureDate' => '2020-04-02',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

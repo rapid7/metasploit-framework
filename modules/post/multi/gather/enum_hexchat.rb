@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Post
         'DefaultAction' => 'ALL',
         'References' => [
           ['URL', 'https://hexchat.readthedocs.io/en/latest/settings.html']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

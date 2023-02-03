@@ -9,40 +9,45 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(
-        update_info(
-          info,
-          'Name' => 'SAP Internet Graphics Server (IGS) XMLCHART XXE',
-          'Description' => %q{
-            This module exploits CVE-2018-2392 and CVE-2018-2393, two XXE vulnerabilities within the XMLCHART page
-            of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. These
-            vulnerabilities occur due to a lack of appropriate validation on the Extension HTML tag when
-            submitting a POST request to the XMLCHART page to generate a new chart.
+      update_info(
+        info,
+        'Name' => 'SAP Internet Graphics Server (IGS) XMLCHART XXE',
+        'Description' => %q{
+          This module exploits CVE-2018-2392 and CVE-2018-2393, two XXE vulnerabilities within the XMLCHART page
+          of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. These
+          vulnerabilities occur due to a lack of appropriate validation on the Extension HTML tag when
+          submitting a POST request to the XMLCHART page to generate a new chart.
 
-            Successful exploitation will allow unauthenticated remote attackers to read files from the server as the user
-            from which the IGS service is started, which will typically be the SAP admin user. Alternatively attackers
-            can also abuse the XXE vulnerability to conduct a denial of service attack against the vulnerable
-            SAP IGS server.
-          },
-          'Author' => [
-            'Yvan Genuer', # @_1ggy The researcher who originally found this vulnerability
-            'Vladimir Ivanov' # @_generic_human_ This Metasploit module
-          ],
-          'License' => MSF_LICENSE,
-          'References' => [
-            [ 'CVE', '2018-2392' ],
-            [ 'CVE', '2018-2393' ],
-            [ 'URL', 'https://download.ernw-insight.de/troopers/tr18/slides/TR18_SAP_IGS-The-vulnerable-forgotten-component.pdf' ]
-          ],
-          'Actions' => [
-            [ 'READ', { 'Description' => 'Remote file read' } ],
-            [ 'DOS', { 'Description' => 'Denial Of Service' } ]
-          ],
-          'DefaultAction' => 'READ',
-          'DefaultOptions' => {
-            'SSL' => false # Disable SSL (by default SAP IGS does not use SSL/TLS)
-          },
-          'DisclosureDate' => '2018-03-14'
-        )
+          Successful exploitation will allow unauthenticated remote attackers to read files from the server as the user
+          from which the IGS service is started, which will typically be the SAP admin user. Alternatively attackers
+          can also abuse the XXE vulnerability to conduct a denial of service attack against the vulnerable
+          SAP IGS server.
+        },
+        'Author' => [
+          'Yvan Genuer', # @_1ggy The researcher who originally found this vulnerability
+          'Vladimir Ivanov' # @_generic_human_ This Metasploit module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2018-2392' ],
+          [ 'CVE', '2018-2393' ],
+          [ 'URL', 'https://download.ernw-insight.de/troopers/tr18/slides/TR18_SAP_IGS-The-vulnerable-forgotten-component.pdf' ]
+        ],
+        'Actions' => [
+          [ 'READ', { 'Description' => 'Remote file read' } ],
+          [ 'DOS', { 'Description' => 'Denial Of Service' } ]
+        ],
+        'DefaultAction' => 'READ',
+        'DefaultOptions' => {
+          'SSL' => false # Disable SSL (by default SAP IGS does not use SSL/TLS)
+        },
+        'DisclosureDate' => '2018-03-14',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
     )
     register_options(
       [

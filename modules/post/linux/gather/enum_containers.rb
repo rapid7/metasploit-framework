@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['stealthcopter'],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(

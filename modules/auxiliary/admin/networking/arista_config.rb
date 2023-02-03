@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
           This module imports an Arista device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die' ]
+        'Author' => [ 'h00die' ],
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
 
