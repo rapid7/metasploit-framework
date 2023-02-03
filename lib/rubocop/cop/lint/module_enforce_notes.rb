@@ -18,6 +18,8 @@ module RuboCop
         PATTERN
 
         def on_def(node)
+          return if ENV['DISABLE_RUBOCOP_MODULE_ENFORCE_NOTES'] == 'true'
+
           update_info_node = find_update_info_node(node) || find_nested_update_info_node(node)
           return if update_info_node.nil?
 

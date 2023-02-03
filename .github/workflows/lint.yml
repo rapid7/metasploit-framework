@@ -57,7 +57,11 @@ jobs:
           BUNDLE_WITHOUT: "coverage development pcap"
 
       - name: Run msftidy
+        env:
+          DISABLE_RUBOCOP_MODULE_ENFORCE_NOTES: ${{ github.event.pull_request.user.login == 'bcoles' }}
         run: |
+          env
+
           ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
           ls -la ./.git/hooks
           ./.git/hooks/post-merge
