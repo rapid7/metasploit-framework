@@ -160,7 +160,7 @@ module DNS
         method = :send_tcp
       end
 
-      ans = self.__send__(method,packet,packet_data)
+      ans = self.__send__(method, packet, packet_data)
 
       unless (ans and ans[0].length > 0)
         @logger.fatal "No response from nameservers list: aborting"
@@ -226,7 +226,14 @@ module DNS
               got_something = false
               loop do
                 buffer = ""
-                ans = socket.recv(2)
+                attempts = 3
+                begin
+                  ans = socket.recv(2)
+                rescue Errno::ECONNRESET
+                  @logger.warn "TCP Socket got Errno::ECONNRESET from #{ns}:#{@config[:port]} #{@config[:proxies]}"
+                  attempts -= 1
+                  retry if attempts > 0
+                end
                 if ans.size == 0
                   if got_something
                     break #Proper exit from loop
@@ -444,7 +451,7 @@ module DNS
       resolve = req.dup
       # Find cached items, remove request from resolved packet
       req.question.each do |ques|
-        cached = self.cache.find(ques.qname, ques.qtype)
+        cached = self.cache.find(ques.qname, ques.qtype.to_s)
         next if cached.empty?
         req.instance_variable_set(:@answer, (req.answer + cached).uniq)
         resolve.question.delete(ques)
