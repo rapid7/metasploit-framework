@@ -27,41 +27,39 @@ AKA (_deprecated_*) | anything | ~~`['AKA', 'shellshock']`~~
 ## Code example of references in a module
 
 ```ruby
-require 'msf/core'
-
 class MetasploitModule < Msf::Exploit::Remote
   Rank = NormalRanking
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Code Example",
-      'Description'    => %q{
-        This is an example of a module using references
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'Unknown' ],
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Code Example',
+        'Description' => %q{
+          This is an example of a module using references
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Unknown' ],
+        'References' => [
           [ 'CVE', '2014-9999' ],
           ['BID', '1234'],
           ['URL', 'http://example.com/blog.php?id=123']
         ],
-      'Platform'       => 'win',
-      'Targets'        =>
-        [
+        'Platform' => 'win',
+        'Targets' => [
           [ 'Example', { 'Ret' => 0x41414141 } ]
         ],
-      'Payload'        =>
-        {
+        'Payload' => {
           'BadChars' => "\x00"
         },
-      'Privileged'     => false,
-      'DisclosureDate' => "Apr 1 2014",
-      'DefaultTarget'  => 0,
-      'Notes'          => {
-          'AKA'        => [ 'shellshock' ]
+        'Privileged' => false,
+        'DisclosureDate' => '2014-04-01',
+        'DefaultTarget' => 0,
+        'Notes' => {
+          'AKA' => [ 'shellshock' ]
         }
-      ))
+      )
+    )
   end
 
   def exploit
