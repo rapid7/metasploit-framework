@@ -3,45 +3,42 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
 
   def initialize
     super(
-      'Name'            => 'Password Cracker: OSX',
-      'Description'     => %Q{
+      'Name' => 'Password Cracker: OSX',
+      'Description' => %(
           This module uses John the Ripper or Hashcat to identify weak passwords that have been
         acquired from OSX systems. The module will only crack xsha from OSX 10.4-10.6, xsha512
         from 10.7,  and PBKDF2 from OSX 10.8+.
-      },
-      'Author'          =>
-        [
-          'h00die' # hashcat integration
-        ] ,
-      'License'         => MSF_LICENSE,  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
-      'Actions'         =>
-        [
-          ['john', 'Description' => 'Use John the Ripper'],
-          ['hashcat', 'Description' => 'Use Hashcat'],
-        ],
+      ),
+      'Author' => [
+        'h00die' # hashcat integration
+      ],
+      'License' => MSF_LICENSE, # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+      'Actions' => [
+        ['john', { 'Description' => 'Use John the Ripper' }],
+        ['hashcat', { 'Description' => 'Use Hashcat' }],
+      ],
       'DefaultAction' => 'john',
     )
 
     register_options(
       [
-        OptBool.new('XSHA',[false, 'Include XSHA hashes from 10.4-10.6', true]),
-        OptBool.new('XSHA512',[false, 'Include XSHA512 hashes from 10.7', true]),
-        OptBool.new('PBKDF2',[false, 'Include PBKDF2-HMAC-SHA512 hashes from 10.8+', true]),
-        OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
-        OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
+        OptBool.new('XSHA', [false, 'Include XSHA hashes from 10.4-10.6', true]),
+        OptBool.new('XSHA512', [false, 'Include XSHA512 hashes from 10.7', true]),
+        OptBool.new('PBKDF2', [false, 'Include PBKDF2-HMAC-SHA512 hashes from 10.8+', true]),
+        OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
+        OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true])
       ]
     )
-
   end
 
   def show_command(cracker_instance)
     return unless datastore['ShowCommand']
+
     if action.name == 'john'
       cmd = cracker_instance.john_crack_command
     elsif action.name == 'hashcat'
@@ -60,14 +57,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    def process_crack(results, hashes, cred, hash_type, method)
+    def process_crack(results, _hashes, cred, hash_type, method)
       return results if cred['core_id'].nil? # make sure we have good data
+
       # make sure we dont add the same one again
-      if results.select {|r| r.first == cred['core_id']}.empty?
+      if results.select { |r| r.first == cred['core_id'] }.empty?
         results << [cred['core_id'], hash_type, cred['username'], cred['password'], method]
       end
 
-      create_cracked_credential( username: cred['username'], password: cred['password'], core_id: cred['core_id'])
+      create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
       results
     end
 
@@ -75,13 +73,15 @@ class MetasploitModule < Msf::Auxiliary
       passwords.each do |password_line|
         password_line.chomp!
         next if password_line.blank?
-        fields = password_line.split(":")
+
+        fields = password_line.split(':')
         # If we don't have an expected minimum number of fields, this is probably not a hash line
         if action.name == 'john'
-          next unless fields.count >=3
+          next unless fields.count >= 3
+
           cred = {}
           cred['username'] = fields.shift
-          cred['core_id']  = fields.pop
+          cred['core_id'] = fields.pop
           if hash_type == 'xsha512'
             4.times { fields.pop } # Get rid of extra :
           end
@@ -89,12 +89,15 @@ class MetasploitModule < Msf::Auxiliary
           results = process_crack(results, hashes, cred, hash_type, method)
         elsif action.name == 'hashcat'
           next unless fields.count >= 2
+
           hash = fields.shift
           password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
           next if hash.include?("Hashfile '") && hash.include?("' on line ") # skip error lines
+
           hashes.each do |h|
             next unless h['hash'].upcase == hash.upcase
-            cred = {'core_id' => h['id'], 'username' => h['un'], 'password' => password}
+
+            cred = { 'core_id' => h['id'], 'username' => h['un'], 'password' => password }
             results = process_crack(results, hashes, cred, hash_type, method)
           end
         end
@@ -103,8 +106,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Cracked Hashes',
-      'Indent'   => 1,
+      'Header' => 'Cracked Hashes',
+      'Indent' => 1,
       'Columns' => ['DB ID', 'Hash Type', 'Username', 'Cracked Password', 'Method']
     )
 
@@ -186,7 +189,7 @@ class MetasploitModule < Msf::Auxiliary
         # Turn on KoreLogic rules if the user asked for it
         if action.name == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
-          print_status "Applying KoreLogic ruleset..."
+          print_status 'Applying KoreLogic ruleset...'
         end
         show_command cracker_instance
         cracker_instance.crack do |line|
@@ -197,7 +200,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good(print_results(tbl, results))
       end
 
-      #give a final print of results
+      # give a final print of results
       print_good(print_results(tbl, results))
     end
     if datastore['DeleteTempFiles']
@@ -210,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
   def hash_file(hashes_regex)
     hashes = []
     wrote_hash = false
-    hashlist = Rex::Quickfile.new("hashes_tmp")
+    hashlist = Rex::Quickfile.new('hashes_tmp')
     # Convert names from JtR to DB
     hashes_regex = hashes_regex.join('|')
     regex = Regexp.new hashes_regex
@@ -218,11 +221,12 @@ class MetasploitModule < Msf::Auxiliary
       next unless core.private.jtr_format =~ regex
       # only add hashes which havne't been cracked
       next unless already_cracked_pass(core.private.data).nil?
+
       if action.name == 'john'
         hashlist.puts hash_to_jtr(core)
       elsif action.name == 'hashcat'
         # hashcat hash files dont include the ID to reference back to so we build an array to reference
-        hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
+        hashes << { 'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id }
         hashlist.puts hash_to_hashcat(core)
       end
       wrote_hash = true

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
   include Msf::Exploit::Deprecated
@@ -14,44 +13,42 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'            => 'Password Cracker: Databases',
-      'Description'     => %Q{
+      'Name' => 'Password Cracker: Databases',
+      'Description' => %(
           This module uses John the Ripper or Hashcat to identify weak passwords that have been
         acquired from the mssql_hashdump, mysql_hashdump, postgres_hashdump, or oracle_hashdump modules.
         Passwords that have been successfully cracked are then saved as proper credentials.
         Due to the complexity of some of the hash types, they can be very slow.  Setting the
         ITERATION_TIMEOUT is highly recommended.
-      },
-      'Author'          =>
-        [
-          'theLightCosine',
-          'hdm',
-          'h00die' # hashcat integration
-        ] ,
-      'License'         => MSF_LICENSE,  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
-      'Actions'         =>
-        [
-          ['john', 'Description' => 'Use John the Ripper'],
-          ['hashcat', 'Description' => 'Use Hashcat'],
-        ],
+      ),
+      'Author' => [
+        'theLightCosine',
+        'hdm',
+        'h00die' # hashcat integration
+      ],
+      'License' => MSF_LICENSE, # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+      'Actions' => [
+        ['john', { 'Description' => 'Use John the Ripper' }],
+        ['hashcat', { 'Description' => 'Use Hashcat' }],
+      ],
       'DefaultAction' => 'john',
     )
 
     register_options(
       [
-        OptBool.new('MSSQL',[false, 'Include MSSQL hashes', true]),
-        OptBool.new('MYSQL',[false, 'Include MySQL hashes', true]),
-        OptBool.new('ORACLE',[false, 'Include Oracle hashes', true]),
-        OptBool.new('POSTGRES',[false, 'Include Postgres hashes', true]),
-        OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
-        OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
+        OptBool.new('MSSQL', [false, 'Include MSSQL hashes', true]),
+        OptBool.new('MYSQL', [false, 'Include MySQL hashes', true]),
+        OptBool.new('ORACLE', [false, 'Include Oracle hashes', true]),
+        OptBool.new('POSTGRES', [false, 'Include Postgres hashes', true]),
+        OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
+        OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true])
       ]
     )
-
   end
 
   def show_command(cracker_instance)
     return unless datastore['ShowCommand']
+
     if action.name == 'john'
       cmd = cracker_instance.john_crack_command
     elsif action.name == 'hashcat'
@@ -70,14 +67,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    def process_crack(results, hashes, cred, hash_type, method)
+    def process_crack(results, _hashes, cred, hash_type, method)
       return results if cred['core_id'].nil? # make sure we have good data
+
       # make sure we dont add the same one again
-      if results.select {|r| r.first == cred['core_id']}.empty?
+      if results.select { |r| r.first == cred['core_id'] }.empty?
         results << [cred['core_id'], hash_type, cred['username'], cred['password'], method]
       end
 
-      create_cracked_credential( username: cred['username'], password: cred['password'], core_id: cred['core_id'])
+      create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
       results
     end
 
@@ -85,13 +83,15 @@ class MetasploitModule < Msf::Auxiliary
       passwords.each do |password_line|
         password_line.chomp!
         next if password_line.blank?
-        fields = password_line.split(":")
+
+        fields = password_line.split(':')
         # If we don't have an expected minimum number of fields, this is probably not a hash line
         if action.name == 'john'
           cred = {}
           # we branch here since postgres (dynamic_1034) doesn't include the core_id
           if ['dynamic_1034'].include? hash_type
-            next unless fields.count >=2
+            next unless fields.count >= 2
+
             cred['username'] = fields.shift
             cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
             cred['core_id'] = nil
@@ -103,22 +103,26 @@ class MetasploitModule < Msf::Auxiliary
             combined = []
             pots.each_line do |p|
               next unless p.starts_with?('$dynamic_1034$')
+
               hashes.each do |h|
                 next unless p.starts_with? "#{h['hash'].split(':')[1]}$HEX$"
+
                 cred['core_id'] = h['id']
                 break
               end
             end
           else
-            #mysql*, mssql*, oracle*
-            next unless fields.count >=3
+            # mysql*, mssql*, oracle*
+            next unless fields.count >= 3
+
             cred['username'] = fields.shift
-            cred['core_id']  = fields.pop
+            cred['core_id'] = fields.pop
             cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
           end
           results = process_crack(results, hashes, cred, hash_type, method)
         elsif action.name == 'hashcat'
           next unless fields.count >= 2
+
           case hash_type
           when 'dynamic_1034'
             # for postgres we get 3 fields, hash:un:pass.
@@ -137,14 +141,14 @@ class MetasploitModule < Msf::Auxiliary
 
           hashes.each do |h|
             case hash_type
-            when 'mssql05','mssql12', 'mysql'
+            when 'mssql05', 'mssql12', 'mysql'
               # mssql\d\d comes back as 0x then the rest uppercase, so we need to upcase everything to match correctly
               next unless h['hash'].upcase == hash.upcase
             when 'mssql'
               # for whatever reason hashcat zeroes out part of the hash in --show.
               # show: 0x0100a607ba7c0000000000000000000000000000000000000000b6d6261460d3f53b279cc6913ce747006a2e3254:FOO
               # orig: 0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254
-              hash_zero_format = "#{h['hash'][0..13]}#{'0'*40}#{h['hash'][54..hash.length]}".upcase
+              hash_zero_format = "#{h['hash'][0..13]}#{'0' * 40}#{h['hash'][54..hash.length]}".upcase
               next unless hash_zero_format == hash.upcase
             when 'mysql-sha1'
               # add the * back to the beginning to match up and fix casing
@@ -156,9 +160,11 @@ class MetasploitModule < Msf::Auxiliary
             else
               next unless h['hash'] == hash
             end
-            cred = {'core_id' => h['id'],
-                    'username' => h['un'],
-                    'password' => password}
+            cred = {
+              'core_id' => h['id'],
+              'username' => h['un'],
+              'password' => password
+            }
             results = process_crack(results, hashes, cred, hash_type, method)
           end
         end
@@ -167,8 +173,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Cracked Hashes',
-      'Indent'   => 1,
+      'Header' => 'Cracked Hashes',
+      'Indent' => 1,
       'Columns' => ['DB ID', 'Hash Type', 'Username', 'Cracked Password', 'Method']
     )
 
@@ -260,12 +266,10 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status "Cracking #{format} hashes in wordlist mode..."
-      if action.name == 'john'
-        # Turn on KoreLogic rules if the user asked for it
-        if datastore['KORELOGIC']
-          cracker_instance.rules = 'KoreLogicRules'
-          print_status "Applying KoreLogic ruleset..."
-        end
+      # Turn on KoreLogic rules if the user asked for it
+      if action.name == 'john' && datastore['KORELOGIC']
+        cracker_instance.rules = 'KoreLogicRules'
+        print_status 'Applying KoreLogic ruleset...'
       end
       show_command cracker_instance
       cracker_instance.crack do |line|
@@ -292,7 +296,7 @@ class MetasploitModule < Msf::Auxiliary
         # Turn on KoreLogic rules if the user asked for it
         if action.name == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
-          print_status "Applying KoreLogic ruleset..."
+          print_status 'Applying KoreLogic ruleset...'
         end
         show_command cracker_instance
         cracker_instance.crack do |line|
@@ -303,7 +307,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good(print_results(tbl, results))
       end
 
-      #give a final print of results
+      # give a final print of results
       print_good(print_results(tbl, results))
     end
     if datastore['DeleteTempFiles']
@@ -316,23 +320,24 @@ class MetasploitModule < Msf::Auxiliary
   def hash_file(hashes_regex)
     hashes = []
     wrote_hash = false
-    hashlist = Rex::Quickfile.new("hashes_tmp")
+    hashlist = Rex::Quickfile.new('hashes_tmp')
     # Convert names from JtR to db
     hashes_regex = hashes_regex.join('|')
     hashes_regex = hashes_regex.gsub('oracle', 'des|oracle')\
-              .gsub('dynamic_1506', 'raw-sha1|oracle11|oracle12c|dynamic_1506')\
-              .gsub('oracle11', 'raw-sha1|oracle11')\
-              .gsub('dynamic_1034', 'postgres|raw-md5')
+                               .gsub('dynamic_1506', 'raw-sha1|oracle11|oracle12c|dynamic_1506')\
+                               .gsub('oracle11', 'raw-sha1|oracle11')\
+                               .gsub('dynamic_1034', 'postgres|raw-md5')
     regex = Regexp.new hashes_regex
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       next unless core.private.jtr_format =~ regex
       # only add hashes which havne't been cracked
       next unless already_cracked_pass(core.private.data).nil?
+
       if action.name == 'john'
         hashlist.puts hash_to_jtr(core)
       elsif action.name == 'hashcat'
         # hashcat hash files dont include the ID to reference back to so we build an array to reference
-        hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
+        hashes << { 'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id }
         hashlist.puts hash_to_hashcat(core)
       end
       wrote_hash = true
@@ -342,14 +347,15 @@ class MetasploitModule < Msf::Auxiliary
         next unless core.private.jtr_format =~ regex
         # only add hashes which havne't been cracked
         next unless already_cracked_pass(core.private.data).nil?
+
         if action.name == 'john'
           # hashcat hash files dont include the ID to reference back to so we build an array to reference
           # however, for postgres, john doesn't take an id either
-          hashes << {'hash' => hash_to_jtr(core), 'un' => core.public.username, 'id' => core.id}
+          hashes << { 'hash' => hash_to_jtr(core), 'un' => core.public.username, 'id' => core.id }
           hashlist.puts hash_to_jtr(core)
         elsif action.name == 'hashcat'
           # hashcat hash files dont include the ID to reference back to so we build an array to reference
-          hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
+          hashes << { 'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id }
           hashlist.puts hash_to_hashcat(core)
         end
         wrote_hash = true
