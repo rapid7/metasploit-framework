@@ -165,9 +165,9 @@ module BindAwsSsm
         OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
       ], Msf::Handler::BindAwsSsm)
 
-    self.bind_thread = nil
-    self.conn_thread = nil
-    self.bind_sock   = nil
+    self.listener_threads = []
+    self.conn_threads = []
+    self.listener_pairs   = {}
   end
 
   #
@@ -177,8 +177,9 @@ module BindAwsSsm
     # Kill any remaining handle_connection threads that might
     # be hanging around
     stop_handler
-    self.bind_thread = nil
-    self.conn_thread = nil
+    conn_threads.each { |thr|
+      thr.kill
+    }
   end
 
   #
@@ -209,9 +210,10 @@ module BindAwsSsm
     if (exploit_config and exploit_config['active_timeout'])
       ctimeout = exploit_config['active_timeout'].to_i
     end
+    self.listener_pairs[datastore['EC2_ID']] = true
 
     # Start a new handling thread
-    self.bind_thread = framework.threads.spawn("BindAwsSsmHandler-#{datastore['EC2_ID']}", false) {
+    self.listener_threads = framework.threads.spawn("BindAwsSsmHandler-#{datastore['EC2_ID']}", false) {
       ssm_client = nil
 
       print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
@@ -253,15 +255,19 @@ module BindAwsSsm
           :retry_wait   => datastore['SessionRetryWait'].to_i,
         }
 
-        self.conn_thread = framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
+        self.conn_threads << framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
           begin
             raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['SSM_FORCE_COMMANDS']
+            # Call API to start SSM session
             session_init = client_copy.start_session({
               target: datastore['EC2_ID'],
               document_name: datastore['SSM_SESSION_DOC']
             })
+            # Create WebSocket from parameters
             ssm_sock = connect_ssm_ws(session_init)
+            # Create Channel from WebSocket
             chan = ssm_sock.to_ssm_channel
+            # Configure Channel
             chan._start_ssm_keepalive if datastore['SSM_KEEP_ALIVE']
             chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
             chan.params.peerhost = peer_info['IpAddress']
@@ -269,12 +275,13 @@ module BindAwsSsm
             chan.params.peerhostname = peer_info['ComputerName']
             chan.update_term_size
           rescue Rex::Proto::Http::WebSocket::ConnectionError
+            # Graceful fail-down to command-exec wrapper session type
             info_copy['CommandDocument'] = datastore['SSM_COMMAND_DOC']
             chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
           rescue => e
             elog('Exception raised from BindAwsSsm.handle_connection', error: e)
           end
-          self.bind_sock = chan
+          self.listener_pairs[datastore['EC2_ID']] = chan
           handle_connection(chan.lsock, { datastore: datastore })
         }
       else
@@ -297,15 +304,12 @@ module BindAwsSsm
   end
 
   def stop_handler
-    if (self.conn_thread and self.conn_thread.alive? == true)
-      self.bind_thread.kill
-      self.bind_thread = nil
+    # Stop the listener threads
+    self.listener_threads.each do |t|
+      t.kill
     end
-
-    if (self.bind_thread and self.bind_thread.alive? == true)
-      self.bind_thread.kill
-      self.bind_thread = nil
-    end
+    self.listener_threads = []
+    self.listener_pairs = {}
   end
 
 private
@@ -320,6 +324,7 @@ private
     else
       nil
     end
+    # Attempt to assume role from current context
     credentials = if datastore['ROLE_ARN'] and datastore['ROLE_SID']
       ::Aws::AssumeRoleCredentials.new(
         client: ::Aws::STS::Client.new(
@@ -355,11 +360,30 @@ private
     return [client, peer_info]
   end
 
+  def create_session(ssm, opts = {})
+    # If there is a parent payload, then use that in preference.
+    s = Sessions::AwsSsmCommandShellBind.new(ssm, opts)
+    # Pass along the framework context
+    s.framework = framework
+
+    # Associate this system with the original exploit
+    # and any relevant information
+    s.set_from_exploit(assoc_exploit)
+
+    # If the session is valid, register it with the framework and
+    # notify any waiters we may have.
+    if s
+      register_session(s)
+    end
+
+    return s
+  end
+
 protected
 
-  attr_accessor :bind_thread # :nodoc:
-  attr_accessor :conn_thread # :nodoc:
-  attr_accessor :bind_sock # :nodoc:
+  attr_accessor :conn_threads # :nodoc:
+  attr_accessor :listener_threads # :nodoc:
+  attr_accessor :listener_pairs # :nodoc:
 
 
   module AwsSsmSessionChannelExt
