@@ -20,7 +20,7 @@ module MetasploitModule
         'Platform' => 'unix',
         'Arch' => ARCH_CMD,
         'Handler' => Msf::Handler::BindAwsSsm,
-        'Session' => Msf::Sessions::CommandShell,
+        'Session' => Msf::Sessions::CommandShellUnix,
         'PayloadType' => 'cmd',
         'RequiredCmd' => 'generic',
         'Payload' => {

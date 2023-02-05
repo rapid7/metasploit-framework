@@ -149,20 +149,20 @@ module BindAwsSsm
 
     register_options(
       [
-        OptString.new('AWS_EC2_ID', [true, 'The EC2 ID of the instance ', '']),
-        OptString.new('AWS_REGION', [true, 'AWS region containing the instance', 'us-east-1']),
-        OptString.new('AWS_AK', [false, 'AWS access key', nil]),
-        OptString.new('AWS_SK', [false, 'AWS secret key', nil]),
-        OptString.new('AWS_ROLE_ARN', [false, 'AWS assumed role ARN', nil]),
-        OptString.new('AWS_ROLE_SID', [false, 'AWS assumed role session ID', nil]),
+        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', '']),
+        OptString.new('REGION', [true, 'AWS region containing the instance', 'us-east-1']),
+        OptString.new('ACCESS_KEY_ID', [false, 'AWS access key', nil]),
+        OptString.new('SECRET_ACCESS_KEY', [false, 'AWS secret key', nil]),
+        OptString.new('ROLE_ARN', [false, 'AWS assumed role ARN', nil]),
+        OptString.new('ROLE_SID', [false, 'AWS assumed role session ID', nil]),
       ], Msf::Handler::BindAwsSsm)
 
     register_advanced_options(
       [
-        OptString.new('AWS_SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
-        OptString.new('AWS_SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
-        OptBool.new('AWS_SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false]),
-        OptBool.new('AWS_SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
+        OptString.new('SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
+        OptString.new('SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
+        OptBool.new('SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false]),
+        OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
       ], Msf::Handler::BindAwsSsm)
 
     self.bind_thread = nil
@@ -211,14 +211,14 @@ module BindAwsSsm
     end
 
     # Start a new handling thread
-    self.bind_thread = framework.threads.spawn("BindAwsSsmHandler-#{datastore['AWS_EC2_ID']}", false) {
+    self.bind_thread = framework.threads.spawn("BindAwsSsmHandler-#{datastore['EC2_ID']}", false) {
       ssm_client = nil
 
-      print_status("Started #{human_name} handler against #{datastore['AWS_EC2_ID']}:#{datastore['AWS_REGION']}")
+      print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
 
-      if (datastore['AWS_EC2_ID'] == nil or datastore['AWS_EC2_ID'].strip.empty?)
+      if (datastore['EC2_ID'] == nil or datastore['EC2_ID'].strip.empty?)
         raise ArgumentError,
-          "AWS_EC2_ID is not defined; SSM handler cannot function.",
+          "EC2_ID is not defined; SSM handler cannot function.",
           caller
       end
 
@@ -255,21 +255,21 @@ module BindAwsSsm
 
         self.conn_thread = framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
           begin
-            raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['AWS_SSM_FORCE_COMMANDS']
+            raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['SSM_FORCE_COMMANDS']
             session_init = client_copy.start_session({
-              target: datastore['AWS_EC2_ID'],
-              document_name: datastore['AWS_SSM_SESSION_DOC']
+              target: datastore['EC2_ID'],
+              document_name: datastore['SSM_SESSION_DOC']
             })
             ssm_sock = connect_ssm_ws(session_init)
             chan = ssm_sock.to_ssm_channel
-            chan._start_ssm_keepalive if datastore['AWS_SSM_KEEP_ALIVE']
+            chan._start_ssm_keepalive if datastore['SSM_KEEP_ALIVE']
             chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
             chan.params.peerhost = peer_info['IpAddress']
             chan.params.peerport = 0
             chan.params.peerhostname = peer_info['ComputerName']
             chan.update_term_size
           rescue Rex::Proto::Http::WebSocket::ConnectionError
-            info_copy['CommandDocument'] = datastore['AWS_SSM_COMMAND_DOC']
+            info_copy['CommandDocument'] = datastore['SSM_COMMAND_DOC']
             chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
           rescue => e
             elog('Exception raised from BindAwsSsm.handle_connection', error: e)
@@ -285,7 +285,7 @@ module BindAwsSsm
 
   # A URI describing what the payload is configured to use for transport
   def payload_uri
-    "ssm://#{datastore['AWS_EC2_ID']}:0"
+    "ssm://#{datastore['EC2_ID']}:0"
   end
 
   def comm_string
@@ -315,39 +315,39 @@ private
   #
   def get_ssm_session
     # Configure AWS credentials
-    credentials = if datastore['AWS_AK'] and datastore['AWS_SK']
-      ::Aws::Credentials.new(datastore['AWS_AK'], datastore['AWS_SK'])
+    credentials = if datastore['ACCESS_KEY_ID'] and datastore['SECRET_ACCESS_KEY']
+      ::Aws::Credentials.new(datastore['ACCESS_KEY_ID'], datastore['SECRET_ACCESS_KEY'])
     else
       nil
     end
-    credentials = if datastore['AWS_ROLE_ARN'] and datastore['AWS_ROLE_SID']
+    credentials = if datastore['ROLE_ARN'] and datastore['ROLE_SID']
       ::Aws::AssumeRoleCredentials.new(
         client: ::Aws::STS::Client.new(
-          region: datastore['AWS_REGION'],
+          region: datastore['REGION'],
           credentials: credentials
         ),
-        role_arn: datastore['AWS_ROLE_ARN'],
-        role_session_name: datastore['AWS_ROLE_SID']
+        role_arn: datastore['ROLE_ARN'],
+        role_session_name: datastore['ROLE_SID']
       )
     else
       credentials
     end
 
     client = ::Aws::SSM::Client.new(
-      region: datastore['AWS_REGION'],
+      region: datastore['REGION'],
       credentials: credentials,
     )
     # Verify the connection params and availability of instance
     inv_params = { filters: [
       {
         key: "AWS:InstanceInformation.InstanceId",
-        values: [datastore['AWS_EC2_ID']],
+        values: [datastore['EC2_ID']],
         type: "Equal",
       }
     ]}
     inventory = client.get_inventory(inv_params)
     # Extract peer info
-    if inventory.entities[0] and inventory.entities[0].id == datastore['AWS_EC2_ID']
+    if inventory.entities[0] and inventory.entities[0].id == datastore['EC2_ID']
       peer_info = inventory.entities[0].data['AWS:InstanceInformation'].content[0]
     else
       raise "SSM target not found"
