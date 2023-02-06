@@ -86,3 +86,36 @@ def hash_to_jtr(cred)
   end
   nil
 end
+
+# This method takes a {framework.db.cred}, and normalizes it
+# from the JTR format to the DB format.
+#
+# @param [credClass] a credential from framework.db
+# @return [Array] All of the hash types that may be in the DB that apply
+def jtr_to_db(cred_type)
+  case cred_type
+  when 'descrypt' # from aix module
+    return ['des']
+  when 'oracle' # from databases module
+    return ['des', 'oracle']
+  when 'dynamic_1506'
+    return ['raw-sha1', 'oracle11', 'oracle12c', 'dynamic_1506']
+  when 'oracle11'
+    return ['raw-sha1', 'oracle11']
+  when 'dynamic_1034'
+    return ['postgres', 'raw-md5']
+  when 'md5crypt' # from linux module
+    return ['md5']
+  when 'descrypt'
+    return ['des']
+  when 'bsdicrypt'
+    return ['bsdi']
+  when 'sha256crypt'
+    return ['sha256']
+  when 'sha512crypt'
+    return ['sha512']
+  when 'bcrypt'
+    return ['bf']
+  end
+  return [cred_type]
+end
