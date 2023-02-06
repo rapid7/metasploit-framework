@@ -86,7 +86,6 @@ class MetasploitModule < Msf::Auxiliary
           cred['core_id'] = fields.pop
           4.times { fields.pop } # Get rid of extra :
           cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-          results = process_cracker_results(results, cred, hash_type, method)
         elsif action.name == 'hashcat'
           cred['core_id'] = fields.shift
           cred['hash'] = fields.shift
@@ -96,8 +95,8 @@ class MetasploitModule < Msf::Auxiliary
           # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
           # so we can now just go grab the username from the DB
           cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
-          results = process_cracker_results(results, cred, hash_type, method)
         end
+        results = process_cracker_results(results, cred, hash_type, method)
       end
       results
     end
