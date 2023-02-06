@@ -416,7 +416,7 @@ module DNS
         end
         hostname = ent.pop
         begin
-          self.cache.add_static(hostname, ent.first) unless MATCH_HOSTNAME.match hostname
+          self.cache.add_static(hostname, ent.first) if MATCH_HOSTNAME.match hostname
         rescue => e
           # Deal with edge-cases in users' hostsfile
           @logger.error(e)
