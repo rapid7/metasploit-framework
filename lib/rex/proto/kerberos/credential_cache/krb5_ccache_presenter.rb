@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'base64'
+require 'rex/proto/kerberos/pac/krb5_pac'
 
 module Rex::Proto::Kerberos::CredentialCache
   class Krb5CcachePresenter
@@ -47,8 +48,6 @@ module Rex::Proto::Kerberos::CredentialCache
       end.join("\n")
       output.join("\n")
     end
-
-    protected
 
     # @return [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache]
     attr_reader :ccache
@@ -107,11 +106,10 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
-    # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
+    # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInfo] logon_info
     # @return [String] A human readable representation of a Logon Information
-    def present_logon_info(info_buffer)
-      validation_info = info_buffer.buffer.pac_element.data
-
+    def present_logon_info(logon_info)
+      validation_info = logon_info.data
       output = []
       output << 'Validation Info:'
 
@@ -156,10 +154,9 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
-    # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
+    # @param [Rex::Proto::Kerberos::Pac::Krb5ClientInfo] client_info
     # @return [String] A human readable representation of a Client Info
-    def present_client_info(info_buffer)
-      client_info = info_buffer.buffer.pac_element
+    def present_client_info(client_info)
       output = []
       output << 'Client Info:'
       output << "Name: '#{client_info.name.encode('utf-8')}'".indent(2)
@@ -167,39 +164,55 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
-    # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
+    # @param [Rex::Proto::Kerberos::Pac::Krb5PacServerChecksum] server_checksum
     # @return [String] A human readable representation of a Server Checksum
-    def present_server_checksum(info_buffer)
-      server_checksum = info_buffer.buffer.pac_element
-
+    def present_server_checksum(server_checksum)
       sig = server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
       "Pac Server Checksum:\n" +
         "Signature: #{sig}".indent(2)
     end
 
-    # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
+    # @param [Rex::Proto::Kerberos::Pac::Krb5PacPrivServerChecksum] priv_server_checksum
     # @return [String] A human readable representation of a Privilege Server Checksum
-    def present_priv_server_checksum(info_buffer)
-      priv_server_checksum = info_buffer.buffer.pac_element
-
+    def present_priv_server_checksum(priv_server_checksum)
       sig = priv_server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
       "Pac Privilege Server Checksum:\n" +
         "Signature: #{sig}".indent(2)
+    end
+
+    # @param [Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo] upn_and_dns_info
+    # @return [String] A human readable representation of a UPN and DNS information element
+    def present_upn_and_dns_information(upn_and_dns_info)
+      output = []
+      output << 'UPN and DNS Information:'
+      output << "UPN: #{upn_and_dns_info.upn.encode('utf-8')}".indent(2)
+      output << "DNS Domain Name: #{upn_and_dns_info.dns_domain_name.encode('utf-8')}".indent(2)
+
+      output << "Flags: #{upn_and_dns_info.flags}".indent(2)
+
+      if upn_and_dns_info.has_s_flag?
+        output << "SAM Name: #{upn_and_dns_info.sam_name.encode('utf-8')}".indent(2)
+        output << "SID: #{upn_and_dns_info.sid}".indent(2)
+      end
+      output.join("\n")
     end
 
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
     # @return [String] A human readable representation of a Pac Info Buffer
     def present_pac_info_buffer(info_buffer)
       ul_type = info_buffer.ul_type.to_i
+      pac_element = info_buffer.buffer.pac_element
       case ul_type
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::LOGON_INFORMATION
-        present_logon_info(info_buffer)
+        present_logon_info(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::CLIENT_INFORMATION
-        present_client_info(info_buffer)
+        present_client_info(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::SERVER_CHECKSUM
-        present_server_checksum(info_buffer)
+        present_server_checksum(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
-        present_priv_server_checksum(info_buffer)
+        present_priv_server_checksum(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
+        present_upn_and_dns_information(pac_element)
       else
         ul_type_name = Rex::Proto::Kerberos::Pac::Krb5PacElementType.const_name(ul_type)
         ul_type_name = ul_type_name.gsub('_', ' ').capitalize if ul_type_name

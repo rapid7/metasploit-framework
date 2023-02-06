@@ -2,6 +2,7 @@
 
 require 'bindata'
 require 'ruby_smb/dcerpc'
+require 'rex/proto/ms_dtyp'
 
 # full MIDL spec for PAC
 # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1d4912dd-5115-4124-94b6-fa414add575f
@@ -381,6 +382,148 @@ module Rex::Proto::Kerberos::Pac
     end
   end
 
+  # See [2.10 UPN_DNS_INFO](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1c0d6e11-6443-4846-b744-f9f810a504eb)
+  class Krb5UpnDnsInfo < BinData::Record
+    auto_call_delayed_io
+    endian :little
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
+    virtual :ul_type, value: Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
+
+    # @!attribute [rw] upn_length
+    #   @return [Integer] The length of the UPN
+    uint16 :upn_length, value: -> { upn.num_bytes }
+
+    # @!attribute [rw] upn_offset
+    #   @return [Integer] The relative offset of the UPN from the beginning of this structure
+    uint16 :upn_offset
+
+    # @!attribute [rw] dns_domain_name_length
+    #   @return [Integer] The length of the DNS domain name
+    uint16 :dns_domain_name_length, value: -> { dns_domain_name.num_bytes }
+
+    # @!attribute [rw] dns_domain_name_offset
+    #   @return [Integer] The relative offset of the DNS domain name from the beginning of this structure
+    uint16 :dns_domain_name_offset
+
+    # @!attribute [rw] flags
+    #   @return [Integer]
+    #   U flag (bit 0) The user account object does not have the userPrincipalName attribute.
+    #   S flag (bit 1) The structure has been extended with the user account’s SAM Name and SID.
+    #   The remaining bits are ignored.
+    uint32 :flags
+
+    # @!attribute [rw] sam_name_length
+    #   @return [Integer] The length of the SAM name
+    #   Only available if the S flag is set
+    uint16 :sam_name_length, value: -> { sam_name.num_bytes }, onlyif: :has_s_flag?
+
+    # @!attribute [rw] sam_name_offset
+    #   @return [Integer] The relative offset of the SAM name from the beginning of this structure
+    #   Only available if the S flag is set
+    uint16 :sam_name_offset, onlyif: :has_s_flag?
+
+    # @!attribute [rw] sid_length
+    #   @return [Integer] The length of the SID
+    #   Only available if the S flag is set
+    uint16 :sid_length, value: -> { sid.num_bytes }, onlyif: :has_s_flag?
+
+    # @!attribute [rw] sid_offset
+    #   @return [Integer] The relative offset of the SID from the beginning of this structure
+    #   Only available if the S flag is set
+    uint16 :sid_offset, onlyif: :has_s_flag?
+
+    # @!attribute [rw] upn
+    #   @return [String] The UPN (User Principal Name) (e.g. test@windomain.local)
+    delayed_io :upn, read_abs_offset: -> { self.abs_offset + upn_offset } do
+      string16 read_length: :upn_length
+    end
+
+    # @!attribute [rw] dns_domain_name
+    #   @return [String] The DNS Domain Name (e.g. WINDOMAIN.LOCAL)
+    delayed_io :dns_domain_name, read_abs_offset: -> { self.abs_offset + dns_domain_name_offset } do
+      string16 read_length: :dns_domain_name_length
+    end
+
+    # @!attribute [rw] sam_name
+    #   @return [String] The SAM Name (e.g. test)
+    delayed_io :sam_name, read_abs_offset: -> { self.abs_offset + sam_name_offset }, onlyif: -> { has_s_flag? } do
+      string16 read_length: :sam_name_length
+    end
+
+    # @!attribute [rw] sid
+    #   @return [MsDtypSid] The SID (e.g. S-1-5-32-544)
+    delayed_io :sid, read_abs_offset: -> { self.abs_offset + sid_offset }, onlyif: -> { has_s_flag? } do
+      ms_dtyp_sid
+    end
+
+    # def initialize_instance(*args)
+    #   super
+    #   set_offsets!
+    # end
+    # @return [Boolean] Returns the value of the S flag
+    def has_s_flag?
+      flags.anybits?(0b10)
+    end
+
+    # @param [Boolean] bool The value to set the S flag to
+    # @return [void]
+    def set_s_flag(bool)
+      set_flag_bit(1, bool)
+    end
+
+    # @return [Boolean] Returns the value of the U flag
+    def has_u_flag?
+      flags.anybits?(0b01)
+    end
+
+    # @param [Boolean] bool The value to set the U flag to
+    # @return [void]
+    def set_u_flag(bool)
+      set_flag_bit(0, bool)
+    end
+
+    # @param [Integer] upn The relative offset for the upn
+    # @param [Integer] dns_domain_name The relative offset for the dns_domain_name
+    # @param [Integer] sam_name The relative offset for the sam_name
+    # @param [Integer] sid The relative offset for the sid
+    # @return [void]
+    #
+    # Allows you to specify the offsets for the contents, otherwise defaults them
+    def set_offsets!(upn: nil, dns_domain_name: nil, sam_name: nil, sid: nil)
+      self.upn_offset = upn || calc_upn_offset
+      self.dns_domain_name_offset = dns_domain_name || calc_dns_domain_name_offset
+      self.sam_name_offset = sam_name || calc_sam_name_offset
+      self.sid_offset = sid || calc_sid_offset
+    end
+
+    private
+
+    def set_flag_bit(position, bool)
+      if bool
+        self.flags |= (1 << position)
+      else
+        self.flags &= ~(1 << position)
+      end
+    end
+
+    def calc_upn_offset
+      has_s_flag? ? 24 : 16
+    end
+
+    def calc_dns_domain_name_offset
+      upn_offset + upn_length
+    end
+
+    def calc_sam_name_offset
+      dns_domain_name_offset + dns_domain_name_length
+    end
+
+    def calc_sid_offset
+      sam_name_offset + sam_name_length
+    end
+  end
+
   class Krb5PacElement < BinData::Choice
     mandatory_parameter :data_length
 
@@ -389,6 +532,7 @@ module Rex::Proto::Kerberos::Pac
     krb5_pac_server_checksum Krb5PacElementType::SERVER_CHECKSUM
     krb5_pac_priv_server_checksum Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
     krb5_pac_credential_info Krb5PacElementType::CREDENTIAL_INFORMATION, data_length: :data_length
+    krb5_upn_dns_info Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
     unknown_pac_element :default, data_length: :data_length, selection: :selection
   end
 

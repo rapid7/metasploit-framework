@@ -150,7 +150,7 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     bcrypt (3.1.18)
     bcrypt_pbkdf (1.1.0)
-    bindata (2.4.14)
+    bindata (2.4.15)
     bson (4.15.0)
     builder (3.2.4)
     byebug (11.1.3)
