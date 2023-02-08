@@ -48,6 +48,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_thread_create
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )

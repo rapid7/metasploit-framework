@@ -49,7 +49,8 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction' => 'Dump',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -114,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_good('Received serialized auth info')
 
     # HACK: Strip assumed ZeroMQ header and leave assumed MessagePack "load"
-    res[4..-1]
+    res[4..]
   end
 
   def extract_root_key(auth_info)

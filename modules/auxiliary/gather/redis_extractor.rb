@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => ['Geoff Rainville noncenz[at]ultibits.com'],
         'License' => MSF_LICENSE,
-        'References' => [['URL', 'https://redis.io/topics/protocol']]
+        'References' => [['URL', 'https://redis.io/topics/protocol']],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(

