@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    winver = sysinfo["OS"]
+    winver = sysinfo['OS']
 
     fail_with(Failure::NoTarget, 'Module not valid for Windows 2000') if winver =~ /2000/
     fail_with(Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
@@ -85,13 +85,13 @@ class MetasploitModule < Msf::Post
       print_status("Trying to gather #{file_path}")
       path = file_path[3, file_path.length - 3]
       data = fs.file(path)
-      file_name = file_path.split("\\")[-1]
-      stored_path = store_loot("windows.file", 'application/octet-stream', session, data, file_name, "Windows file")
+      file_name = file_path.split('\\')[-1]
+      stored_path = store_loot('windows.file', 'application/octet-stream', session, data, file_name, 'Windows file')
       print_good("Saving file : #{stored_path}")
     ensure
       client.railgun.kernel32.CloseHandle(@handle)
     end
-    print_status("Post Successful")
+    print_status('Post Successful')
   end
 
   def read(size)

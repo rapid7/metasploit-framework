@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
         cmd_out = cmd_exec(manage_bde,
                            "-protectors -add #{drive_letter}: -RecoveryPassword")
         recovery_key = cmd_out.match(/((\d{6}-){7}\d{6})/)
-        id_key_tmp = cmd_out.match(/(\{[^\}]+\})/)
+        id_key_tmp = cmd_out.match(/(\{[^}]+\})/)
         if !recovery_key.nil?
           recovery_key = recovery_key[1]
           id_key_tmp = id_key_tmp[1]

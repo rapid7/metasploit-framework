@@ -40,10 +40,10 @@ class MetasploitModule < Msf::Post
 
     wlan_connections = "Wireless LAN Active Connections: \n"
 
-    wlan_handle = open_handle()
+    wlan_handle = open_handle
     unless wlan_handle
       print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
-      print_error("On Windows XP this could also mean the Wireless Zero Configuration Service is turned off")
+      print_error('On Windows XP this could also mean the Wireless Zero Configuration Service is turned off')
       return
     end
 
@@ -74,22 +74,22 @@ class MetasploitModule < Msf::Post
     end
 
     # strip out any nullbytes for safe loot storage
-    network_list.gsub!(/\x00/, "")
-    store_loot("host.windows.wlan.networks", "text/plain", session, network_list, "wlan_networks.txt", "Available Wireless LAN Networks")
+    network_list.gsub!(/\x00/, '')
+    store_loot('host.windows.wlan.networks', 'text/plain', session, network_list, 'wlan_networks.txt', 'Available Wireless LAN Networks')
 
     # close the Wlan API Handle
     closehandle = @wlanapi.WlanCloseHandle(wlan_handle, nil)
     if closehandle['return'] == 0
-      print_status("WlanAPI Handle Closed Successfully")
+      print_status('WlanAPI Handle Closed Successfully')
     else
-      print_error("There was an error closing the Handle")
+      print_error('There was an error closing the Handle')
     end
   end
 
   def open_handle
     begin
       wlhandle = @wlanapi.WlanOpenHandle(2, nil, 4, 4)
-    rescue
+    rescue StandardError
       return nil
     end
     return wlhandle['phClientHandle']
@@ -101,77 +101,77 @@ class MetasploitModule < Msf::Post
     bss_list = @wlanapi.WlanGetNetworkBssList(wlan_handle, guid, nil, 3, true, nil, 4)
     pointer = bss_list['ppWlanBssList']
     totalsize = @host_process.memory.read(pointer, 4)
-    totalsize = totalsize.unpack("V")[0]
+    totalsize = totalsize.unpack('V')[0]
 
     pointer = (pointer + 4)
     numitems = @host_process.memory.read(pointer, 4)
-    numitems = numitems.unpack("V")[0]
+    numitems = numitems.unpack('V')[0]
 
     print_status("Number of Networks: #{numitems}")
 
     # Iterate through each BSS
-    (1..numitems).each do |i|
+    (1..numitems).each do |_i|
       bss = {}
 
       # If the length of the SSID is 0 then something is wrong. Skip this one
       pointer = (pointer + 4)
       len_ssid = @host_process.memory.read(pointer, 4)
-      unless len_ssid.unpack("V")[0]
+      unless len_ssid.unpack('V')[0]
         next
       end
 
       # Grabs the ESSID
       pointer = (pointer + 4)
       ssid = @host_process.memory.read(pointer, 32)
-      bss['ssid'] = ssid.gsub(/\x00/, "")
+      bss['ssid'] = ssid.gsub(/\x00/, '')
 
       # Grab the BSSID/MAC Address of the AP
       pointer = (pointer + 36)
       bssid = @host_process.memory.read(pointer, 6)
-      bssid = bssid.unpack("H*")[0]
-      bssid.insert(2, ":")
-      bssid.insert(5, ":")
-      bssid.insert(8, ":")
-      bssid.insert(11, ":")
-      bssid.insert(14, ":")
+      bssid = bssid.unpack('H*')[0]
+      bssid.insert(2, ':')
+      bssid.insert(5, ':')
+      bssid.insert(8, ':')
+      bssid.insert(11, ':')
+      bssid.insert(14, ':')
       bss['bssid'] = bssid
 
       # Get the BSS Type
       pointer = (pointer + 8)
       bsstype = @host_process.memory.read(pointer, 4)
-      bsstype = bsstype.unpack("V")[0]
+      bsstype = bsstype.unpack('V')[0]
       case bsstype
       when 1
-        bss['type'] = "Infrastructure"
+        bss['type'] = 'Infrastructure'
       when 2
-        bss['type'] = "Independent"
+        bss['type'] = 'Independent'
       when 3
-        bss['type'] = "Any"
+        bss['type'] = 'Any'
       else
-        bss['type'] = "Unknown BSS Type"
+        bss['type'] = 'Unknown BSS Type'
       end
 
       # Get the Physical Association Type
       pointer = (pointer + 4)
       phy_type = @host_process.memory.read(pointer, 4)
-      phy_type = phy_type.unpack("V")[0]
+      phy_type = phy_type.unpack('V')[0]
       case phy_type
       when 1
-        bss['physical'] = "Frequency-hopping spread-spectrum (FHSS)"
+        bss['physical'] = 'Frequency-hopping spread-spectrum (FHSS)'
       when 2
-        bss['physical'] = "Direct sequence spread spectrum (DSSS)"
+        bss['physical'] = 'Direct sequence spread spectrum (DSSS)'
       when 3
-        bss['physical'] = "Infrared (IR) baseband"
+        bss['physical'] = 'Infrared (IR) baseband'
       when 4
-        bss['physical'] = "Orthogonal frequency division multiplexing (OFDM)"
+        bss['physical'] = 'Orthogonal frequency division multiplexing (OFDM)'
       when 5
-        bss['physical'] = "High-rate DSSS (HRDSSS)"
+        bss['physical'] = 'High-rate DSSS (HRDSSS)'
       when 6
-        bss['physical'] = "Extended rate PHY type"
+        bss['physical'] = 'Extended rate PHY type'
       when 7
-        bss['physical'] = "802.11n PHY type"
+        bss['physical'] = '802.11n PHY type'
       else
-        bss['physical'] = "Unknown Association Type"
+        bss['physical'] = 'Unknown Association Type'
       end
 
       # Get the Received Signal Strength Indicator
@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Post
       # Get the signal strength
       pointer = (pointer + 4)
       signal = @host_process.memory.read(pointer, 4)
-      bss['signal'] = signal.unpack("V")[0]
+      bss['signal'] = signal.unpack('V')[0]
 
       # skip all the rest of the data points as they aren't particularly useful
       pointer = (pointer + 296)
@@ -198,13 +198,13 @@ class MetasploitModule < Msf::Post
     pointer = iflist['ppInterfaceList']
 
     numifs = @host_process.memory.read(pointer, 4)
-    numifs = numifs.unpack("V")[0]
+    numifs = numifs.unpack('V')[0]
 
     interfaces = []
 
     # Set the pointer ahead to the first element in the array
     pointer = (pointer + 8)
-    (1..numifs).each do |i|
+    (1..numifs).each do |_i|
       interface = {}
       # Read the GUID (16 bytes)
       interface['guid'] = @host_process.memory.read(pointer, 16)
@@ -216,26 +216,26 @@ class MetasploitModule < Msf::Post
       state = @host_process.memory.read(pointer, 4)
       pointer = (pointer + 4)
       # Turn the state into human readable form
-      state = state.unpack("V")[0]
+      state = state.unpack('V')[0]
       case state
       when 0
-        interface['state'] = "The interface is not ready to operate."
+        interface['state'] = 'The interface is not ready to operate.'
       when 1
-        interface['state'] = "The interface is connected to a network."
+        interface['state'] = 'The interface is connected to a network.'
       when 2
-        interface['state'] = "The interface is the first node in an ad hoc network. No peer has connected."
+        interface['state'] = 'The interface is the first node in an ad hoc network. No peer has connected.'
       when 3
-        interface['state'] = "The interface is disconnecting from the current network."
+        interface['state'] = 'The interface is disconnecting from the current network.'
       when 4
-        interface['state'] = "The interface is not connected to any network."
+        interface['state'] = 'The interface is not connected to any network.'
       when 5
-        interface['state'] = "The interface is attempting to associate with a network."
+        interface['state'] = 'The interface is attempting to associate with a network.'
       when 6
-        interface['state'] = "Auto configuration is discovering the settings for the network."
+        interface['state'] = 'Auto configuration is discovering the settings for the network.'
       when 7
-        interface['state'] = "The interface is in the process of authenticating."
+        interface['state'] = 'The interface is in the process of authenticating.'
       else
-        interface['state'] = "Unknown State"
+        interface['state'] = 'Unknown State'
       end
       interfaces << interface
     end
@@ -243,7 +243,9 @@ class MetasploitModule < Msf::Post
   end
 
   def getle_signed_int(str)
-    arr, bits, num = str.unpack('V*'), 0, 0
+    arr = str.unpack('V*')
+    bits = 0
+    num = 0
     arr.each do |int|
       num += int << bits
       bits += 32
@@ -253,10 +255,10 @@ class MetasploitModule < Msf::Post
 
   # Convert the GUID to human readable form
   def guid_to_string(guid)
-    aguid = guid.unpack("H*")[0]
-    sguid = "{" + aguid[6, 2] + aguid[4, 2] + aguid[2, 2] + aguid[0, 2]
-    sguid << "-" + aguid[10, 2] + aguid[8, 2] + "-" + aguid[14, 2] + aguid[12, 2] + "-" + aguid[16, 4]
-    sguid << "-" + aguid[20, 12] + "}"
+    aguid = guid.unpack('H*')[0]
+    sguid = '{' + aguid[6, 2] + aguid[4, 2] + aguid[2, 2] + aguid[0, 2]
+    sguid << '-' + aguid[10, 2] + aguid[8, 2] + '-' + aguid[14, 2] + aguid[12, 2] + '-' + aguid[16, 4]
+    sguid << '-' + aguid[20, 12] + '}'
     return sguid
   end
 end

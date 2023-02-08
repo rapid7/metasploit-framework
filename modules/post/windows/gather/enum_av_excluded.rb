@@ -10,24 +10,24 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Windows Antivirus Exclusions Enumeration',
-        'Description'   => %q(
+        'Name' => 'Windows Antivirus Exclusions Enumeration',
+        'Description' => %q{
           This module will enumerate the file, directory, process and
           extension-based exclusions from supported AV products, which
           currently includes Microsoft Defender, Microsoft Security
           Essentials/Antimalware, and Symantec Endpoint Protection.
-        ),
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Andrew Smith', # original metasploit module
           'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
         ],
-        'Platform'      => [ 'win' ],
+        'Platform' => [ 'win' ],
         # XXX: this will work with 'shell' when the sysinfo parts are removed
         # and https://github.com/rapid7/metasploit-framework/issues/6328 and
         # perhaps https://github.com/rapid7/metasploit-framework/issues/6316
         # are fixed
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ]
       )
     )
 
@@ -97,9 +97,9 @@ class MetasploitModule < Msf::Post
       return
     end
     table = Rex::Text::Table.new(
-      'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
-      'Indent'    => 1,
-      'Columns'   => [ exclusion_type.capitalize ]
+      'Header' => "#{product} excluded #{exclusion_type.pluralize}",
+      'Indent' => 1,
+      'Columns' => [ exclusion_type.capitalize ]
     )
     exclusions.map { |exclusion| table << [exclusion] }
     print_line(table.to_s)
@@ -138,6 +138,6 @@ class MetasploitModule < Msf::Post
       excluded_sep
     end
 
-    print_error "No supported AV identified" unless found
+    print_error 'No supported AV identified' unless found
   end
 end

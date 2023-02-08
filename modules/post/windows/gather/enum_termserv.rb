@@ -32,9 +32,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    userhives = load_missing_hives()
+    userhives = load_missing_hives
     userhives.each do |hive|
-      next if hive['HKU'] == nil
+      next if hive['HKU'].nil?
 
       print_status("Doing enumeration for #{hive['SID']}")
       root_key, base_key = session.sys.registry.splitkey("#{hive['HKU']}\\Software\\Microsoft\\Terminal\ Server\ Client")
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
         if tmpkey_values.include?('Default')
           defaultkey = session.sys.registry.open_key(root_key, base_key + '\\Default', KEY_READ)
           print_good('Systems connected to:')
-          (defaultkey.enum_value).each do |x|
+          defaultkey.enum_value.each do |x|
             if x.name =~ /^MRU/
               print_good("--> #{defaultkey.query_value(x.name).data}")
             end
