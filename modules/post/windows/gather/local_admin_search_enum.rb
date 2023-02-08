@@ -59,40 +59,40 @@ class MetasploitModule < Msf::Post
 
     if is_system?
       # running as SYSTEM and will not pass any network credentials
-      print_error "Running as SYSTEM, module should be run with USER level rights"
+      print_error 'Running as SYSTEM, module should be run with USER level rights'
       return
     else
       @adv = client.railgun.advapi32
 
       # Get domain and domain controller if options left blank
-      if datastore['DOMAIN'].nil? or datastore['DOMAIN'].empty?
+      if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
         user = client.sys.config.getuid
         datastore['DOMAIN'] = user.split('\\')[0]
       end
 
-      if @domain_controller.nil? and datastore['ENUM_GROUPS']
+      if @domain_controller.nil? && datastore['ENUM_GROUPS']
         @dc_error = false
 
         # Uses DC which applied policy since it would be a DC this device normally talks to
-        cmd = "gpresult /SCOPE COMPUTER"
+        cmd = 'gpresult /SCOPE COMPUTER'
         # If Vista/2008 or later add /R
         if (sysinfo['OS'] =~ /Build [6-9]\d\d\d/)
-          cmd << " /R"
+          cmd << ' /R'
         end
-        res = cmd_exec("cmd.exe", "/c #{cmd}")
+        res = cmd_exec('cmd.exe', "/c #{cmd}")
 
         # Check if RSOP data exists, if not disable group check
-        unless res =~ /does not have RSOP data./
+        if res =~ /does not have RSOP data./
+          @dc_error = true
+          print_error('User never logged into device, will not enumerate users and groups. Manually specify DC.')
+        else
           dc_applied = /Group Policy was applied from:\s*(.*)\s*/.match(res)
           if dc_applied
             @domain_controller = dc_applied[1].strip
           else
             @dc_error = true
-            print_error("Could not read RSOP data, will not enumerate users and groups. Manually specify DC.")
+            print_error('Could not read RSOP data, will not enumerate users and groups. Manually specify DC.')
           end
-        else
-          @dc_error = true
-          print_error("User never logged into device, will not enumerate users and groups. Manually specify DC.")
         end
       end
     end
@@ -132,32 +132,32 @@ class MetasploitModule < Msf::Post
     end
     # For each entry returned, get domain and name of logged in user
     begin
-      count.times { |i|
+      count.times do |_i|
         temp = {}
-        userptr = mem[(base + 0), 4].unpack("V*")[0]
+        userptr = mem[(base + 0), 4].unpack('V*')[0]
         temp[:user] = client.railgun.memread(userptr, 255).split("\0\0")[0].split("\0").join
-        nameptr = mem[(base + 4), 4].unpack("V*")[0]
+        nameptr = mem[(base + 4), 4].unpack('V*')[0]
         temp[:domain] = client.railgun.memread(nameptr, 255).split("\0\0")[0].split("\0").join
 
         # Ignore if empty or machine account
-        unless temp[:user].empty? or temp[:user][-1, 1] == "$"
+        unless temp[:user].empty? || (temp[:user][-1, 1] == '$')
 
           # Check if enumerated user's domain matches supplied domain, if there was
           # an error, or if option disabled
-          data = ""
-          if datastore['DOMAIN'].upcase == temp[:domain].upcase and not @dc_error and datastore['ENUM_GROUPS']
-            data << " - Groups: #{enum_groups(temp[:user]).chomp(", ")}"
+          data = ''
+          if (datastore['DOMAIN'].upcase == temp[:domain].upcase) && !@dc_error && datastore['ENUM_GROUPS']
+            data << " - Groups: #{enum_groups(temp[:user]).chomp(', ')}"
           end
           line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
 
           # Write user and groups to notes database
-          db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", "localadmin.user.loggedin")
+          db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", 'localadmin.user.loggedin')
           userlist << line unless userlist.include? line
 
         end
 
-        base = base + 8
-      }
+        base += 8
+      end
     rescue ::Exception => e
       print_error("Issue enumerating users on #{host}")
       vprint_error(e.backtrace)
@@ -168,14 +168,14 @@ class MetasploitModule < Msf::Post
   # http://msdn.microsoft.com/en-us/library/windows/desktop/aa370653(v=vs.85).aspx
   # Enumerate groups for identified users
   def enum_groups(user)
-    grouplist = ""
+    grouplist = ''
 
     dc = "\\\\#{@domain_controller}"
     begin
       # Connect to DC and enumerate groups of user
       usergroups = client.railgun.netapi32.NetUserGetGroups(dc, user, 0, 4, -1, 4, 4)
     rescue ::Exception => e
-      print_error("Issue connecting to DC, try manually setting domain and DC")
+      print_error('Issue connecting to DC, try manually setting domain and DC')
       vprint_error(e.to_s)
       return grouplist
     end
@@ -194,9 +194,9 @@ class MetasploitModule < Msf::Post
 
     begin
       # For each entry returned, get group
-      count.to_i.times { |i|
+      count.to_i.times do |i|
         temp = {}
-        groupptr = mem[(base + 0), 4].unpack("V*")[0]
+        groupptr = mem[(base + 0), 4].unpack('V*')[0]
         temp[:group] = client.railgun.memread(groupptr, 255).split("\0\0")[0].split("\0").join
 
         # Add group to string to be returned
@@ -204,8 +204,8 @@ class MetasploitModule < Msf::Post
         if (i % 5) == 2
           grouplist << "\n\t-   "
         end
-        base = base + 4
-      }
+        base += 4
+      end
     rescue ::Exception => e
       print_error("Issue enumerating groups for user #{user}, check domain")
       vprint_error(e.backtrace)
@@ -226,21 +226,21 @@ class MetasploitModule < Msf::Post
     # use railgun and OpenSCManagerA api to connect to remote host
     manag = @adv.OpenSCManagerA("\\\\#{host}", nil, 0xF003F) # SC_MANAGER_ALL_ACCESS
 
-    if (manag["return"] != 0) # we have admin rights
+    if (manag['return'] != 0) # we have admin rights
       result = "#{host.ljust(16)} #{user} - Local admin found\n"
       # Run enumerate users on all hosts if option was set
 
       if datastore['ENUM_USERS']
-        enum_users(host).each { |i|
+        enum_users(host).each do |i|
           result << i
-        }
+        end
       end
 
       # close the handle if connection was made
-      @adv.CloseServiceHandle(manag["return"])
+      @adv.CloseServiceHandle(manag['return'])
       # Append data to loot table within database
       print_good(result.chomp("\n")) unless result.nil?
-      db_loot(host, user, "localadmin.user")
+      db_loot(host, user, 'localadmin.user')
     else
       # we dont have admin rights
       print_error("#{host.ljust(16)} #{user} - No Local Admin rights")
@@ -250,10 +250,10 @@ class MetasploitModule < Msf::Post
   # Write to notes database
   def db_note(host, data, type)
     report_note(
-      :type => type,
-      :data => data,
-      :host => host,
-      :update => :unique_data
+      type: type,
+      data: data,
+      host: host,
+      update: :unique_data
     )
   end
 

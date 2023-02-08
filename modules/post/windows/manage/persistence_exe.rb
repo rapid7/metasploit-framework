@@ -259,7 +259,7 @@ class MetasploitModule < Msf::Post
     result = cmd_exec_with_result(cmd)
     unless result[1]
       print_error(
-        "Unable to connect to the remote host. Check credentials, `RemoteExePath`, "\
+        'Unable to connect to the remote host. Check credentials, `RemoteExePath`, '\
         "`LocalExePath` and SMB version compatibility on both hosts. Error: #{result[0]}"
       )
       return false
@@ -345,7 +345,7 @@ class MetasploitModule < Msf::Post
         @clean_up_rc << "reg setval -k '#{TaskSch::TASK_REG_KEY.gsub('\\') { '\\\\' }}\\\\#{task_name}' "\
                         "-v '#{TaskSch::TASK_SD_REG_VALUE}' "\
                         "-d '#{TaskSch::DEFAULT_SD}' "\
-                        "-t 'REG_BINARY'#{ " -w '64'" unless @old_os}\n"
+                        "-t 'REG_BINARY'#{" -w '64'" unless @old_os}\n"
       end
     end
 

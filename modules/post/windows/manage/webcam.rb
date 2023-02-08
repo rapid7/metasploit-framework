@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'sinn3r'],
         'Platform' => [ 'win'],
-        'SessionTypes' => [ "meterpreter" ],
+        'SessionTypes' => [ 'meterpreter' ],
         'Actions' => [
           [ 'LIST', { 'Description' => 'Show a list of webcams' } ],
           [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ]
@@ -48,8 +48,8 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    if not action
-      print_error("Invalid action")
+    if !action
+      print_error('Invalid action')
       return
     end
 
@@ -73,8 +73,8 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    if not webcams[datastore['INDEX'] - 1]
-      print_error("#{rhost} - No such index: #{datastore['INDEX'].to_s}")
+    if !(webcams[datastore['INDEX'] - 1])
+      print_error("#{rhost} - No such index: #{datastore['INDEX']}")
       return
     end
 

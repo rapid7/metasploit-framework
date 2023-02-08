@@ -217,6 +217,10 @@ Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'
 
+Style/MutableConstant:
+  Enabled: false
+  Description: 'We cannot support this yet without a lot of things breaking'
+
 Style/RedundantReturn:
   Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
   Enabled: false
@@ -251,6 +255,18 @@ Naming/VariableNumber:
 
 Style/NumericPredicate:
   Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
+Style/EvenOdd:
+  Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
+Style/FloatDivision:
+  Description: 'Not a safe rule to run on Metasploit without manual verification as the right hand side may be a string'
+  Enabled: false
+
+Style/FormatString:
+  Description: 'Not a safe rule to run on Metasploit without manual verification that the format is not redefined/shadowed'
   Enabled: false
 
 Style/Documentation:

@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, '').split(',')
       @user_fields.push(*additional_fields)
     end
 
@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Post
     domain_ip = client.net.resolve.resolve_host(domain)[:ip]
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header' => "Domain Users",
+      'Header' => 'Domain Users',
       'Indent' => 1,
       'SortIndex' => -1,
       'Columns' => @user_fields
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Post
 
       result.each do |field|
         if field.nil?
-          row << ""
+          row << ''
         else
           row << field[:value]
         end
@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Post
     inner_filter << '(!(lockoutTime>=1))' if datastore['EXCLUDE_LOCKED']
     inner_filter << '(!(userAccountControl:1.2.840.113556.1.4.803:=2))' if datastore['EXCLUDE_DISABLED']
     inner_filter << "(memberof:1.2.840.113556.1.4.1941:=#{datastore['GROUP_MEMBER']})" if datastore['GROUP_MEMBER']
-    inner_filter << "(#{datastore['FILTER']})" if datastore['FILTER'] != ""
+    inner_filter << "(#{datastore['FILTER']})" if datastore['FILTER'] != ''
     case datastore['UAC']
     when 'ANY'
     when 'NO_PASSWORD'

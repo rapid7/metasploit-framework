@@ -3,27 +3,29 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Common
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Windows Gather EMET Protected Paths',
-      'Description'   => %q( This module will enumerate the EMET protected paths on the target host.),
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'vysec <vincent.yiu[at]mwrinfosecurity.com>' ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather EMET Protected Paths',
+        'Description' => %q{ This module will enumerate the EMET protected paths on the target host.},
+        'License' => MSF_LICENSE,
+        'Author' => [ 'vysec <vincent.yiu[at]mwrinfosecurity.com>' ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
-  def print_status(msg='')
+  def print_status(msg = '')
     super("#{peer} - #{msg}")
   end
 
-  def print_good(msg='')
+  def print_good(msg = '')
     super("#{peer} - #{msg}")
   end
 
