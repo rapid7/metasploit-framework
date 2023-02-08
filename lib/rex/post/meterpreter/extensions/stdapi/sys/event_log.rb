@@ -66,7 +66,13 @@ class EventLog
   end
 
   def self.finalize(client,handle)
-    proc { self.close(client,handle) }
+    proc do
+      begin
+        self.close(client,handle)
+      rescue => e
+        elog("finalize method for EventLog failed", error: e)
+      end
+    end
   end
 
   #
