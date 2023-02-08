@@ -14,7 +14,9 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Solaris Gather Dump Password Hashes for Solaris Systems',
-        'Description' => %q{ Post Module to dump the password hashes for all users on a Solaris System},
+        'Description' => %q{
+          Post module to dump the password hashes for all users on a Solaris System
+        },
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'solaris' ],

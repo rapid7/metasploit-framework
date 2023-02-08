@@ -251,6 +251,7 @@ class MetasploitModule < Msf::Post
   # @return [FalseClass] keylogger failed to start
   def start_keylogger
     begin
+      # Stop keyscan if it was already running for some reason.
       session.ui.keyscan_stop
     rescue StandardError
       nil
