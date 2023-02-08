@@ -12,7 +12,9 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Solaris Gather Installed Packages',
-        'Description' => %q{ Post Module to enumerate installed packages on a Solaris System},
+        'Description' => %q{
+          Post module to enumerate installed packages on a Solaris System
+        },
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'solaris' ],
