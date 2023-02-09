@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
-  def print_results(tbl, cracked_hashes)
+  def append_results(tbl, cracked_hashes)
     cracked_hashes.each do |row|
       unless tbl.rows.include? row
         tbl << row
@@ -59,19 +59,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    def process_cracker_results(results, cred, hash_type, method)
-      return results if cred['core_id'].nil? # make sure we have good data
-
-      # make sure we dont add the same one again
-      if results.select { |r| r.first == cred['core_id'] }.empty?
-        results << [cred['core_id'], hash_type, cred['username'], cred['password'], method]
-      end
-
-      create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
-      results
-    end
-
-    def check_results(passwords, results, hash_type, _hashes, method)
+    def check_results(passwords, results, hash_type, method)
       passwords.each do |password_line|
         password_line.chomp!
         next if password_line.blank?
@@ -80,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
         # If we don't have an expected minimum number of fields, this is probably not a hash line
         next unless fields.count >= 3
 
-        cred = {}
+        cred = { 'hash_type' => hash_type, 'method' => method }
         if action.name == 'john'
           cred['username'] = fields.shift
           cred['core_id'] = fields.pop
@@ -96,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
           # so we can now just go grab the username from the DB
           cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
         end
-        results = process_cracker_results(results, cred, hash_type, method)
+        results = process_cracker_results(results, cred)
       end
       results
     end
@@ -163,8 +151,8 @@ class MetasploitModule < Msf::Auxiliary
 
       # first check if anything has already been cracked so we don't report it incorrectly
       print_status "Checking #{format} hashes already cracked..."
-      results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Already Cracked/POT')
-      vprint_good(print_results(tbl, results)) unless results.empty?
+      results = check_results(cracker_instance.each_cracked_password, results, format, 'Already Cracked/POT')
+      vprint_good(append_results(tbl, results)) unless results.empty?
       job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
       next if job['cred_ids_left_to_crack'].empty?
 
@@ -175,8 +163,8 @@ class MetasploitModule < Msf::Auxiliary
         cracker_instance.crack do |line|
           vprint_status("    #{line.chomp}")
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Single')
-        vprint_good(print_results(tbl, results)) unless results.empty?
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Single')
+        vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
 
@@ -186,8 +174,8 @@ class MetasploitModule < Msf::Auxiliary
         cracker_instance.crack do |line|
           vprint_status("    #{line.chomp}")
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Normal')
-        vprint_good(print_results(tbl, results)) unless results.empty?
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Normal')
+        vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
       end
@@ -199,34 +187,34 @@ class MetasploitModule < Msf::Auxiliary
         cracker_instance.crack do |line|
           vprint_status("    #{line.chomp}")
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Incremental')
-        vprint_good(print_results(tbl, results)) unless results.empty?
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Incremental')
+        vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
       end
 
-      if datastore['WORDLIST']
-        print_status "Cracking #{format} hashes in wordlist mode..."
-        cracker_instance.mode_wordlist(wordlist.path)
-        # Turn on KoreLogic rules if the user asked for it
-        if action.name == 'john' && datastore['KORELOGIC']
-          cracker_instance.rules = 'KoreLogicRules'
-          print_status 'Applying KoreLogic ruleset...'
-        end
-        show_command cracker_instance
-        cracker_instance.crack do |line|
-          vprint_status("    #{line.chomp}")
-        end
+      next unless datastore['WORDLIST']
 
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Wordlist')
-        vprint_good(print_results(tbl, results)) unless results.empty?
-        job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
-        next if job['cred_ids_left_to_crack'].empty?
+      print_status "Cracking #{format} hashes in wordlist mode..."
+      cracker_instance.mode_wordlist(wordlist.path)
+      # Turn on KoreLogic rules if the user asked for it
+      if action.name == 'john' && datastore['KORELOGIC']
+        cracker_instance.rules = 'KoreLogicRules'
+        print_status 'Applying KoreLogic ruleset...'
+      end
+      show_command cracker_instance
+      cracker_instance.crack do |line|
+        vprint_status("    #{line.chomp}")
       end
 
-      # give a final print of results
-      print_good(print_results(tbl, results))
+      results = check_results(cracker_instance.each_cracked_password, results, format, 'Wordlist')
+      vprint_good(append_results(tbl, results)) unless results.empty?
+      job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
+      next if job['cred_ids_left_to_crack'].empty?
     end
+
+    # give a final print of results
+    print_good(append_results(tbl, results))
 
     if datastore['DeleteTempFiles']
       cleanup_files.each do |f|

@@ -119,17 +119,28 @@ module Msf
       wordlist.to_file(max_len)
     end
 
-    def already_cracked_pass(hash)
+    # This method determines if a given password hash already been cracked in the database
+    #
+    # @param hash [String] password hash to check against the database
+    # @return [Boolean] if the password has been cracked in the db
+    def password_cracked?(hash)
       framework.db.creds({ pass: hash }).each do |test_cred|
         test_cred.public.cores.each do |core|
           if core.origin_type == 'Metasploit::Credential::Origin::CrackedPassword'
-            return core.private.data
+            return true
           end
         end
       end
-      nil
+      false
     end
 
+    # This method creates a job for the password cracker to do. A job is categorized by the hash type
+    # and will include the hash type (type), formatted_hashlist (hashes in the cracker's format),
+    # creds (db objects for each hash), and cred_ids_left_to_crack (array of db ids that aren't cracked yet)
+    #
+    # @param jtr_type [String] hash type we're cracking such as md5, sha1
+    # @param cracker [String] the password cracker to use such as 'john' or 'hashcat'
+    # @return [Hash] of the data needed to crack as described above
     def hash_job(jtr_type, cracker)
       # create the base data
       job = { 'type' => jtr_type, 'formatted_hashlist' => [], 'creds' => [], 'cred_ids_left_to_crack' => [] }
@@ -137,7 +148,7 @@ module Msf
       framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
         next unless job['db_formats'].include? core.private.jtr_format
         # only add hashes which havne't been cracked
-        next unless already_cracked_pass(core.private.data).nil?
+        next if password_cracked?(core.private.data)
 
         job['creds'] << core
         job['cred_ids_left_to_crack'] << core.id
@@ -152,6 +163,24 @@ module Msf
       end
 
       return nil
+    end
+
+    # This method takes a reuslts table, and a newly cracked cred, and adds the cred to the table if
+    # it isn't there already.  It also creates the cracked credential in the database.
+    #
+    # @param results [Hash] Hash of the newly cracked cred information, should have hash_type, method, username
+    #   core_id, and password fields.
+    # @return [Array] Array of results for printing in a table
+    def process_cracker_results(results, cred)
+      return results if cred['core_id'].nil? # make sure we have good data
+
+      # make sure we dont add the same one again
+      if results.select { |r| r.first == cred['core_id'] }.empty?
+        results << [cred['core_id'], cred['hash_type'], cred['username'], cred['password'], cred['method']]
+      end
+
+      create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
+      results
     end
   end
 end

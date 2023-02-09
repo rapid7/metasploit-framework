@@ -111,9 +111,9 @@ def jtr_to_db(cred_type)
   when 'bsdicrypt'
     return ['bsdi']
   when 'sha256crypt'
-    return ['sha256']
+    return ['sha256,crypt']
   when 'sha512crypt'
-    return ['sha512']
+    return ['sha512,crypt']
   when 'bcrypt'
     return ['bf']
   end
