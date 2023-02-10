@@ -317,9 +317,9 @@ class Library
       when 'VOID'
         return_hash['return'] = nil
       when 'PCHAR'
-        return_hash['return'] = read_string(rec_return_value)
+        return_hash['return'] = rec_return_value == 0 ? nil : read_string(rec_return_value)
       when 'PWCHAR'
-        return_hash['return'] = read_wstring(rec_return_value)
+        return_hash['return'] = rec_return_value == 0 ? nil : read_wstring(rec_return_value)
       else
         raise "unexpected return type: #{function.return_type}"
     end
