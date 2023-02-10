@@ -99,7 +99,7 @@ module Rex::Proto::Kerberos::CredentialCache
         output << 'Cipher:'.indent(4)
         output << Base64.strict_encode64(ticket.enc_part.cipher).indent(6)
       else
-        output << "Decrypted (with key: #{key.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join}):".indent(4)
+        output << "Decrypted (with key: #{key.bytes.map { |x| x.to_s(16).rjust(2, '0').to_s }.join}):".indent(4)
         output << present_encrypted_ticket_part(ticket, key).indent(6)
       end
 
@@ -164,20 +164,49 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
+    # @param [String] header
+    # @param [String] signature
+    # @return [String] A human readable representation of a Checksum
+    def present_checksum(header:, signature:)
+      sig = signature.bytes.map { |x| x.to_s(16).rjust(2, '0').to_s }.join
+      "#{header}\n" +
+        "Signature: #{sig}".indent(2)
+    end
+
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacServerChecksum] server_checksum
     # @return [String] A human readable representation of a Server Checksum
     def present_server_checksum(server_checksum)
-      sig = server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
-      "Pac Server Checksum:\n" +
-        "Signature: #{sig}".indent(2)
+      signature = server_checksum.signature
+      header = 'Pac Server Checksum:'
+
+      present_checksum(header: header, signature: signature)
     end
 
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacPrivServerChecksum] priv_server_checksum
     # @return [String] A human readable representation of a Privilege Server Checksum
     def present_priv_server_checksum(priv_server_checksum)
-      sig = priv_server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
-      "Pac Privilege Server Checksum:\n" +
-        "Signature: #{sig}".indent(2)
+      signature = priv_server_checksum.signature
+      header = 'Pac Privilege Server Checksum:'
+
+      present_checksum(header: header, signature: signature)
+    end
+
+    # @param [Rex::Proto::Kerberos::Pac::Krb5TicketChecksum] ticket_checksum
+    # @return [String] A human readable representation of a Ticket Checksum
+    def present_ticket_checksum(ticket_checksum)
+      signature = ticket_checksum.signature
+      header = 'Ticket Checksum:'
+
+      present_checksum(header: header, signature: signature)
+    end
+
+    # @param [Rex::Proto::Kerberos::Pac::Krb5FullPacChecksum] full_pac_checksum
+    # @return [String] A human readable representation of a Full Pac Checksum
+    def present_full_pac_checksum(full_pac_checksum)
+      signature = full_pac_checksum.signature
+      header = 'Full Pac Checksum:'
+
+      present_checksum(header: header, signature: signature)
     end
 
     # @param [Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo] upn_and_dns_info
@@ -213,11 +242,15 @@ module Rex::Proto::Kerberos::CredentialCache
         present_priv_server_checksum(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
         present_upn_and_dns_information(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::TICKET_CHECKSUM
+        present_ticket_checksum(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::FULL_PAC_CHECKSUM
+        present_full_pac_checksum(pac_element)
       else
         ul_type_name = Rex::Proto::Kerberos::Pac::Krb5PacElementType.const_name(ul_type)
         ul_type_name = ul_type_name.gsub('_', ' ').capitalize if ul_type_name
         "#{ul_type_name || "Unknown ul type #{ul_type}"}:\n" +
-          "#{info_buffer.to_s}".indent(2)
+          info_buffer.to_s.indent(2)
       end
     end
 
@@ -276,7 +309,7 @@ module Rex::Proto::Kerberos::CredentialCache
     # @param [Rex::Proto::Kerberos::Pac::UserSessionKey] user_session_key
     # @return [String] A human readable representation of a User Session Key
     def present_user_session_key(user_session_key)
-      user_session_key.session_key.flat_map(&:data).map { |x| "#{x.to_i.to_s(16).rjust(2, '0')}" }.join
+      user_session_key.session_key.flat_map(&:data).map { |x| x.to_i.to_s(16).rjust(2, '0').to_s }.join
     end
 
     # @param [RubySMB::Dcerpc::Ndr::NdrFileTime] time
