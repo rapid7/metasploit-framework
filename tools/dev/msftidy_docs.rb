@@ -117,7 +117,7 @@ class MsftidyDoc
 
   def check_start_with_vuln_app
     unless @lines.first =~ /^## Vulnerable Application$/
-      warn('Docs should start with ## Vulnerable Application')
+      error('Docs should start with ## Vulnerable Application')
     end
   end
 
@@ -168,15 +168,15 @@ class MsftidyDoc
     end
 
     unless has_vulnerable_application
-      warn('Missing Section: ## Vulnerable Application')
+      error('Missing Section: ## Vulnerable Application')
     end
 
     unless has_verification_steps
-      warn('Missing Section: ## Verification Steps')
+      error('Missing Section: ## Verification Steps')
     end
 
     unless has_scenarios
-      warn('Missing Section: ## Scenarios')
+      error('Missing Section: ## Scenarios')
     end
 
     unless has_options
@@ -185,28 +185,28 @@ class MsftidyDoc
     end
 
     if has_bad_description
-      warn('Descriptions should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
+      error('Descriptions should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
     end
 
     if has_bad_intro
-      warn('Intro/Introduction should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
+      error('Intro/Introduction should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
     end
 
     if has_bad_scenario_sub
-      warn('Scenario sub-sections should include the vulnerable application version and OS tested on in an H3, not just ### Version and OS')
+      error('Scenario sub-sections should include the vulnerable application version and OS tested on in an H3, not just ### Version and OS')
     end
   end
 
   def check_newline_eof
     if @source !~ /(?:\r\n|\n)\z/m
-      warn('Please add a newline at the end of the file')
+      error('Please add a newline at the end of the file')
     end
   end
 
   # This checks that the H2 headings are in the right order. Options are optional.
   def h2_order
     unless @source =~ /^## Vulnerable Application$.+^## (Verification Steps|Module usage)$.+(?:^## Options$.+)?^## Scenarios$/m
-      warn('H2 headings in incorrect order.  Should be: Vulnerable Application, Verification Steps/Module usage, Options, Scenarios')
+      error('H2 headings in incorrect order.  Should be: Vulnerable Application, Verification Steps/Module usage, Options, Scenarios')
     end
   end
 
@@ -221,13 +221,13 @@ class MsftidyDoc
       tback = ln.scan(/```/)
       if tback.length > 0
         if tback.length.even?
-          warn("Should use single backquotes (`) for single line literals instead of triple backquotes (```)", idx)
+          error("Should use single backquotes (`) for single line literals instead of triple backquotes (```)", idx)
         else
           in_codeblock = !in_codeblock
         end
 
         if ln =~ /^\s+```/
-          warn("Code blocks using triple backquotes (```) should not be indented", idx)
+          error("Code blocks using triple backquotes (```) should not be indented", idx)
         end
       end
 
@@ -241,24 +241,24 @@ class MsftidyDoc
       end
 
       if in_options && ln =~ /^\s*\*\*[a-z]+\*\*$/i # catch options in old format like **command** instead of ### comand
-        warn("Options should use ### instead of bolds (**)", idx)
+        error("Options should use ### instead of bolds (**)", idx)
       end
 
       # this will catch either bold or h2/3 universal options.  Defaults aren't needed since they're not unique to this exploit
       if in_options && ln =~ /^\s*[\*#]{2,3}\s*(rhost|rhosts|rport|lport|lhost|srvhost|srvport|ssl|uripath|session|proxies|payload)\*{0,2}$/i
-        warn('Universal options such as rhost(s), rport, lport, lhost, srvhost, srvport, ssl, uripath, session, proxies, payload can be removed.', idx)
+        error('Universal options such as rhost(s), rport, lport, lhost, srvhost, srvport, ssl, uripath, session, proxies, payload can be removed.', idx)
       end
       # find spaces at EOL not in a code block which is ``` or starts with four spaces
       if !in_codeblock && ln =~ /[ \t]$/ && !(ln =~ /^    /)
-        warn("Spaces at EOL", idx)
+        error("Spaces at EOL", idx)
       end
 
       if ln =~ /Example steps in this format/
-        warn("Instructional text not removed", idx)
+        error("Instructional text not removed", idx)
       end
 
       if ln =~ /^# /
-        warn("No H1 (#) headers.  If this is code, indent.", idx)
+        error("No H1 (#) headers.  If this is code, indent.", idx)
       end
 
       l = 140
