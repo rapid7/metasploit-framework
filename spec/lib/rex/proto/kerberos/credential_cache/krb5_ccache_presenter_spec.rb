@@ -253,4 +253,45 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
       end
     end
   end
+
+  describe '#present_upn_and_dns_information' do
+    let(:upn) { 'test@windomain.local' }
+    let(:dns_domain_name) { 'WINDOMAIN.LOCAL' }
+    let(:sam_name) { 'test' }
+    let(:sid) { 'S-1-5-32-544' }
+
+    context 'with no sam name or sid' do
+      let(:flags) { 0b01 }
+      let(:upn_and_dns_info) do
+        Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo.new(upn: upn, dns_domain_name: dns_domain_name, flags: flags)
+      end
+      it 'returns the correct string' do
+        expect(subject.present_upn_and_dns_information(upn_and_dns_info)).to eq <<~EOF.rstrip
+          UPN and DNS Information:
+            UPN: test@windomain.local
+            DNS Domain Name: WINDOMAIN.LOCAL
+            Flags: 1
+        EOF
+      end
+    end
+
+    context 'with sam name and sid' do
+      let(:flags) { 0b11 }
+      let(:upn_and_dns_info) do
+        Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo.new(
+          upn: upn, dns_domain_name: dns_domain_name, sam_name: sam_name, sid: sid, flags: flags
+        )
+      end
+      it 'returns the correct string' do
+        expect(subject.present_upn_and_dns_information(upn_and_dns_info)).to eq <<~EOF.rstrip
+          UPN and DNS Information:
+            UPN: test@windomain.local
+            DNS Domain Name: WINDOMAIN.LOCAL
+            Flags: 3
+            SAM Name: test
+            SID: S-1-5-32-544
+        EOF
+      end
+    end
+  end
 end

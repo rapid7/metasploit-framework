@@ -36,7 +36,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
         ],
         'DisclosureDate' => '2020-01-07',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

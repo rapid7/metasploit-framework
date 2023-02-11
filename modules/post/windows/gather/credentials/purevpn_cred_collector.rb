@@ -43,16 +43,16 @@ class MetasploitModule < Msf::Post
 
   def run
     if session.type != 'meterpreter'
-      print_error ('Only meterpreter sessions are supported by this post module')
+      print_error('Only meterpreter sessions are supported by this post module')
       return
     end
 
     locations = get_locations
     content = get_content(locations)
-    if content && content !~ /^\-1\r\n$/
+    if content && content !~ /^-1\r\n$/
       get_client_creds(content)
     else
-      print_status("No username/password found")
+      print_status('No username/password found')
     end
   end
 
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Checking for login configuration at: #{location}")
       begin
         files = session.fs.dir.entries(location)
-        files.map { |i| i.downcase }.uniq
+        files.map(&:downcase).uniq
         if files.include?(datfile)
           filepath = location + datfile
           print_status("Configuration file found: #{filepath}")

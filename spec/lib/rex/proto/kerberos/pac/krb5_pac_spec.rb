@@ -300,3 +300,133 @@ RSpec.describe Rex::Proto::Kerberos::Pac::Krb5PacCredentialInfo do
     end
   end
 end
+
+RSpec.describe Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo do
+  let(:upn) { 'test@windomain.local' }
+  let(:dns_domain_name) { 'WINDOMAIN.LOCAL' }
+  let(:sam_name) { 'test' }
+  let(:sid) { 'S-1-5-32-544' }
+
+  let(:sample) do
+    "\x28\x00\x10\x00\x1e\x00\x38\x00\x01\x00\x00\x00\x00\x00\x00\x00" \
+    "\x74\x00\x65\x00\x73\x00\x74\x00\x40\x00\x77\x00\x69\x00\x6e\x00" \
+    "\x64\x00\x6f\x00\x6d\x00\x61\x00\x69\x00\x6e\x00\x2e\x00\x6c\x00" \
+    "\x6f\x00\x63\x00\x61\x00\x6c\x00\x57\x00\x49\x00\x4e\x00\x44\x00" \
+    "\x4f\x00\x4d\x00\x41\x00\x49\x00\x4e\x00\x2e\x00\x4c\x00\x4f\x00" \
+    "\x43\x00\x41\x00\x4c\x00"
+  end
+
+  let(:sample_ext) do
+    "\x28\x00\x18\x00\x1e\x00\x40\x00\x02\x00\x00\x00\x08\x00\x5e\x00" \
+    "\x10\x00\x66\x00\x00\x00\x00\x00\x74\x00\x65\x00\x73\x00\x74\x00" \
+    "\x40\x00\x77\x00\x69\x00\x6e\x00\x64\x00\x6f\x00\x6d\x00\x61\x00" \
+    "\x69\x00\x6e\x00\x2e\x00\x6c\x00\x6f\x00\x63\x00\x61\x00\x6c\x00" \
+    "\x57\x00\x49\x00\x4e\x00\x44\x00\x4f\x00\x4d\x00\x41\x00\x49\x00" \
+    "\x4e\x00\x2e\x00\x4c\x00\x4f\x00\x43\x00\x41\x00\x4c\x00\x74\x00" \
+    "\x65\x00\x73\x00\x74\x00\x01\x02\x00\x00\x00\x00\x00\x05\x20\x00" \
+    "\x00\x00\x20\x02\x00\x00"
+  end
+
+  context 'with non-extended upn dns info' do
+    describe '#read' do
+      it 'correctly parses the binary data' do
+        upn_dns_info = described_class.read(sample)
+        expect(upn_dns_info.to_binary_s).to eq(sample)
+      end
+
+      it 'creates a valid upn dns info structure' do
+        upn_dns_info = described_class.new(
+          upn: upn,
+          dns_domain_name: dns_domain_name,
+          flags: 1
+        )
+
+        upn_dns_info.set_offsets!
+
+        parsed_sample = described_class.read(sample)
+        expect(upn_dns_info).to eq(parsed_sample)
+      end
+
+      it 'ignores sam/sid values if set' do
+        upn_dns_info = described_class.new(
+          upn: upn,
+          dns_domain_name: dns_domain_name,
+          sam_name: sam_name,
+          sid: sid,
+          flags: 1
+        )
+        upn_dns_info.set_offsets!
+
+        parsed_sample = described_class.read(sample)
+        expect(upn_dns_info).to eq(parsed_sample)
+      end
+    end
+
+    describe '#write' do
+      it 'outputs the expected binary representation' do
+        upn_dns_info = described_class.new(
+          upn: upn,
+          dns_domain_name: dns_domain_name,
+          flags: 1
+        )
+        upn_dns_info.set_offsets!
+
+        binary = upn_dns_info.to_binary_s
+        expect(binary).to eq(sample)
+      end
+
+      it 'ignores sam/sid values if set' do
+        upn_dns_info = described_class.new(
+          upn: upn,
+          dns_domain_name: dns_domain_name,
+          sam_name: sam_name,
+          sid: sid,
+          flags: 1
+        )
+        upn_dns_info.set_offsets!
+
+        binary = upn_dns_info.to_binary_s
+        expect(binary).to eq(sample)
+      end
+    end
+  end
+
+  context 'with extended upn dns info' do
+    describe '#read' do
+      it 'correctly parses the binary data' do
+        upn_dns_info = described_class.read(sample_ext)
+        expect(upn_dns_info.to_binary_s).to eq(sample_ext)
+      end
+
+      it 'creates a valid upn dns info structure' do
+        upn_dns_info = described_class.new(
+          upn: upn,
+          dns_domain_name: dns_domain_name,
+          sam_name: sam_name,
+          sid: sid,
+          flags: 2
+        )
+        upn_dns_info.set_offsets!
+
+        parsed_sample = described_class.read(sample_ext)
+        expect(upn_dns_info).to eq(parsed_sample)
+      end
+    end
+
+    describe '#write' do
+      it 'outputs the expected binary representation' do
+        upn_dns_info = described_class.new(
+          upn: upn,
+          dns_domain_name: dns_domain_name,
+          sam_name: sam_name,
+          sid: sid,
+          flags: 2
+        )
+        upn_dns_info.set_offsets!
+
+        binary = upn_dns_info.to_binary_s
+        expect(binary).to eq(sample_ext)
+      end
+    end
+  end
+end

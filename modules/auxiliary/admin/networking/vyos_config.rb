@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a VyOS device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die' ]
+        'Author' => [ 'h00die' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

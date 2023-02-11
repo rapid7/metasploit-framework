@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Windows Gather Directory Permissions Enumeration",
+        'Name' => 'Windows Gather Directory Permissions Enumeration',
         'Description' => %q{
           This module enumerates directories and lists the permissions set
           on found directories. Please note: if the PATH option isn't specified,
@@ -55,28 +55,28 @@ class MetasploitModule < Msf::Post
       dirs = []
     end
 
-    if maxdepth >= 1 or maxdepth < 0
+    if (maxdepth >= 1) || (maxdepth < 0)
       dirs.each do |d|
         next if d =~ /^(\.|\.\.)$/
 
         realpath = dpath + '\\' + d
-        if session.fs.file.stat(realpath).directory?
-          perm = check_dir_perms(realpath, token)
-          if perm_filter and perm and perm.include?(perm_filter)
-            print_status(perm + "\t" + realpath)
-          end
-          enum_subdirs(perm_filter, realpath, maxdepth - 1, token)
+        next unless session.fs.file.stat(realpath).directory?
+
+        perm = check_dir_perms(realpath, token)
+        if perm_filter && perm && perm.include?(perm_filter)
+          print_status(perm + "\t" + realpath)
         end
+        enum_subdirs(perm_filter, realpath, maxdepth - 1, token)
       end
     end
   end
 
   def get_paths
     p = datastore['PATH']
-    return [p] if not p.nil? and not p.empty?
+    return [p] if !p.nil? && !p.empty?
 
     begin
-      p = cmd_exec("cmd.exe", "/c echo %PATH%")
+      p = cmd_exec('cmd.exe', '/c echo %PATH%')
     rescue Rex::Post::Meterpreter::RequestError => e
       vprint_error(e.message)
       return []
@@ -90,9 +90,9 @@ class MetasploitModule < Msf::Post
   end
 
   def get_token
-    print_status("Getting impersonation token...")
+    print_status('Getting impersonation token...')
     begin
-      t = get_imperstoken()
+      t = get_imperstoken
     rescue ::Exception => e
       # Failure due to timeout, access denied, etc.
       t = nil
@@ -111,15 +111,15 @@ class MetasploitModule < Msf::Post
       print_status("Checking directory permissions from: #{path}")
 
       perm = check_dir_perms(path, token)
-      if not perm.nil?
-        # Show the permission of the parent directory
-        if perm_filter and perm.include?(perm_filter)
-          print_status(perm + "\t" + path)
-        end
+      next if perm.nil?
 
-        # call recursive function to loop through and check all sub directories
-        enum_subdirs(perm_filter, path, depth, token)
+      # Show the permission of the parent directory
+      if perm_filter && perm.include?(perm_filter)
+        print_status(perm + "\t" + path)
       end
+
+      # call recursive function to loop through and check all sub directories
+      enum_subdirs(perm_filter, path, depth, token)
     end
   end
 
@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Post
 
     paths = get_paths
     if paths.empty?
-      print_error("Unable to get the path")
+      print_error('Unable to get the path')
       return
     end
 
@@ -140,11 +140,11 @@ class MetasploitModule < Msf::Post
 
     t = get_token
 
-    unless t
-      print_error("Getting impersonation token failed")
-    else
-      print_status("Got token: #{t.to_s}...")
+    if t
+      print_status("Got token: #{t}...")
       enum_perms(perm_filter, t, depth, paths)
+    else
+      print_error('Getting impersonation token failed')
     end
   end
 end

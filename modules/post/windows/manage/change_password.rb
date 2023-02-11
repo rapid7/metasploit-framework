@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Windows Manage Change Password",
+        'Name' => 'Windows Manage Change Password',
         'Description' => %q{
           This module will attempt to change the password of the targeted account.
           The typical usage is to change a newly created account's password on a

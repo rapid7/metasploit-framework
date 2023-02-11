@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Windows Manage PowerShell Download and/or Execute",
+        'Name' => 'Windows Manage PowerShell Download and/or Execute',
         'Description' => %q{
           This module will download and execute a PowerShell script over a meterpreter session.
           The user may also enter text substitutions to be made in memory before execution.
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
   def run
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return 0 if !(session.type == "meterpreter" || have_powershell?)
+    return 0 if !(session.type == 'meterpreter' || have_powershell?)
 
     # End of file marker
     eof = Rex::Text.rand_text_alpha(8)
@@ -101,12 +101,12 @@ class MetasploitModule < Msf::Post
     # If the compressed size is > 8100 bytes, launch stager
     if (compressed_script.size > 8100)
       print_error("Compressed size: #{compressed_script.size}")
-      error_msg = "Compressed size may cause command to exceed "
+      error_msg = 'Compressed size may cause command to exceed '
       error_msg += "cmd.exe's 8kB character limit."
       print_error(error_msg)
       print_status('Launching stager:')
       script = stage_to_env(compressed_script, env_suffix)
-      print_good("Payload successfully staged.")
+      print_good('Payload successfully staged.')
     else
       print_good("Compressed size: #{compressed_script.size}")
       script = compressed_script
