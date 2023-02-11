@@ -176,7 +176,7 @@ module BindAwsInstanceConnect
 
   # A URI describing what the payload is configured to use for transport
   def payload_uri
-    "ssm://#{datastore['EC2_ID']}:0"
+    "serial+ssh://#{datastore['EC2_ID']}:#{datastore['INSTANCE_PORT'].to_i}"
   end
 
   def comm_string
@@ -259,7 +259,7 @@ private
       check_host_ip: false,
       proxy: Rex::Socket::SSHFactory.new(framework, self, datastore['Proxies']),
       auth_methods: ['publickey'],
-      key_data: [ ssh_key.to_s ],
+      key_data: [ssh_key.to_s],
       port: datastore['RPORT'] || 22
     }
     opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
