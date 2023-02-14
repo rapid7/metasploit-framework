@@ -685,7 +685,7 @@ require 'digest/sha1'
 
     # dynamic size upgrading is only available when MSF selects the template because there's currently no way to
     # determine the amount of space that is available in the template provided by the user so it's assumed to be 4KiB
-    match = {4096 => '', 262144 => '.256kib'}.find { |k,v| size < k }
+    match = {4096 => '', 262144 => '.256kib'}.find { |k,v| size <= k }
     if match
       opts[:exe_max_sub_length] = match.first
       size_suffix = match.last
