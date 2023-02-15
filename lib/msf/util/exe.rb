@@ -691,8 +691,17 @@ require 'digest/sha1'
       size_suffix = match.last
     end
 
-    arch = {ARCH_X86 => 'x86', ARCH_X64 => 'x64'}.fetch(arch)
-    flavor = '_' + flavor if flavor.present? && !flavor.start_with?('_')
+    arch = {ARCH_X86 => 'x86', ARCH_X64 => 'x64'}.fetch(arch, nil)
+    raise ArgumentError, 'The specified arch is not supported, no DLL templates are available for it.' if arch.nil?
+
+    if flavor.present?
+      unless %w[mixed_mode dccw_gdiplus].include?(flavor)
+        raise ArgumentError, 'The specified flavor is not supported, no DLL templates are available for it.'
+      end
+
+      flavor = '_' + flavor
+    end
+
     set_template_default(opts, "template_#{arch}_windows#{flavor}#{size_suffix}.dll")
   end
 
