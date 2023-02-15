@@ -87,14 +87,15 @@ print_line("udp_sweep")
 run_single("use auxiliary/scanner/discovery/udp_sweep")
 run_single("run -j")
 
+# Removed commas before the nmap scan.
 if ( nmap == 1 )
 	print_line("Module: db_nmap")
 	if (verbose == 1)
-		print_line("Using Nmap with the following options: -v -n #{nmapopts} #{framework.datastore['RHOSTS']}")
-		run_single("db_nmap -v -n #{nmapopts} #{framework.datastore['RHOSTS']}")
+		print_line("Using Nmap with the following options: -v -n #{nmapopts} #{framework.datastore['RHOSTS'].gsub(',',' ')}")
+		run_single("db_nmap -v -n #{nmapopts} #{framework.datastore['RHOSTS'].gsub(',',' ')}")
 	else
-		print_line("Using Nmap with the following options: -n #{nmapopts} #{framework.datastore['RHOSTS']}")
-		run_single("db_nmap -n #{nmapopts} #{framework.datastore['RHOSTS']}")
+		print_line("Using Nmap with the following options: -n #{nmapopts} #{framework.datastore['RHOSTS'].gsub(',',' ')}")
+		run_single("db_nmap -n #{nmapopts} #{framework.datastore['RHOSTS'].gsub(',',' ')}")
 	end
 else
 	print_line("Module: portscan/tcp")
