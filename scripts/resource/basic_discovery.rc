@@ -19,6 +19,9 @@ if (framework.datastore['RHOSTS'] == nil)
 	return
 end
 
+#Remove any commas present in the RHOSTS
+framework.datastore['RHOSTS'] = framework.datastore['RHOSTS'].gsub(',','')
+
 if (framework.datastore['NMAPOPTS'] != nil)
 	nmapopts = framework.datastore['NMAPOPTS']
 else
