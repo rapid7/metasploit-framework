@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'DLL_Cool_J' ],
         'Platform' => [ 'win'],
-        'SessionTypes' => [ 'meterpreter']
+        'SessionTypes' => [ 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK],
+          'Reliability' => []
+        }
       )
     )
 

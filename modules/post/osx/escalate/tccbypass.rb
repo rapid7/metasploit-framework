@@ -32,7 +32,9 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://github.com/mattshockl/CVE-2020-9934'],
         ],
         'Notes' => {
-          'SideEffects' => [ ARTIFACTS_ON_DISK, SCREEN_EFFECTS ]
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ CONFIG_CHANGES, ARTIFACTS_ON_DISK, SCREEN_EFFECTS ],
+          'Reliability' => []
         },
         'Platform' => [ 'osx' ],
         'SessionTypes' => [ 'shell', 'meterpreter' ]

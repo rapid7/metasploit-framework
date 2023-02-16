@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
           ['ROUTEROS', { 'Description' => 'Import RouterOS Config File' }],
           ['SWOS', { 'Description' => 'Import SwOS Config File' }],
         ],
-        'DefaultAction' => 'ROUTEROS'
+        'DefaultAction' => 'ROUTEROS',
+        'Notes' => {
+          'Stability' => [],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

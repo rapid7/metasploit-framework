@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Post
         'References' => [
           ['URL', 'https://securelist.com/a-fanny-equation-i-am-your-father-stuxnet/68787'],
           ['CVE', '2010-2568']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

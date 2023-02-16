@@ -5,8 +5,6 @@ can be used to verify merge commits made to <https://github.com/rapid7/metasploi
 
 Keybase.io is used by Metasploit as an easy way to verify identities of committers. If you're a committer on metasploit-framework, and you need an invite, just ask.
 
-<sup>Altering this table's layout will almost certainly break [import-dev-keys.sh](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/import-dev-keys.sh), so please don't.</sup>
-
 | Github Username                                   | Keybase.io Username                                |
 | ------------------------------------------------- | -------------------------------------------------- |
 | [@adfoster-r7](https://github.com/adfoster-r7)    | [adfosterr7](https://keybase.io/adfosterr7)        |

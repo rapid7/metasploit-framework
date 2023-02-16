@@ -17,7 +17,12 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           [ 'URL', 'https://honeyscore.shodan.io/']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(

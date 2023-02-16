@@ -164,8 +164,6 @@ Please note: The `normalize_uri` method will always follow these rules:
 ## Full Example
 
 ```ruby
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient

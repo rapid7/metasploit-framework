@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
     certtoremove = datastore['CERTID']
 
     open_key = nil
-    key = "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\SystemCertificates\\ROOT\\Certificates"
+    key = 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\SystemCertificates\\ROOT\\Certificates'
     rkey, bkey = client.sys.registry.splitkey(key)
 
     # Check if the requested cert is actually in the registry to start with
@@ -47,14 +47,14 @@ class MetasploitModule < Msf::Post
     keys = open_key.enum_key
 
     if (keys.length > 1)
-      if (keys.include?(certtoremove))
+      if keys.include?(certtoremove)
         # We found our target
       else
-        print_error("The specified CA is not in the registry.")
+        print_error('The specified CA is not in the registry.')
         return
       end
     else
-      print_error("These are not the CAs you are looking for (i.e. this registry branch is empty)")
+      print_error('These are not the CAs you are looking for (i.e. this registry branch is empty)')
     end
 
     open_key = client.sys.registry.open_key(rkey, bkey, KEY_WRITE + 0x0000)

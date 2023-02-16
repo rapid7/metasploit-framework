@@ -4,24 +4,26 @@
 ##
 
 class MetasploitModule < Msf::Post
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Multi Manage the screensaver of the target computer',
-      'Description'   => %q{
-        This module allows you to turn on or off the screensaver of the target computer and also
-        lock the current session.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Eliott Teissonniere'],
-      'Platform'      => [ 'linux', 'osx', 'win' ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
-      'Actions'       =>
-        [
-          [ 'LOCK',  { 'Description' => 'Lock the current session' } ],
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Manage the screensaver of the target computer',
+        'Description' => %q{
+          This module allows you to turn on or off the screensaver of the target computer and also
+          lock the current session.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Eliott Teissonniere'],
+        'Platform' => [ 'linux', 'osx', 'win' ],
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Actions' => [
+          [ 'LOCK', { 'Description' => 'Lock the current session' } ],
           [ 'START', { 'Description' => 'Start the screensaver, may lock the current session' } ],
-          [ 'STOP',  { 'Description' => 'Stop the screensaver, user may be prompted for its password' }]
+          [ 'STOP', { 'Description' => 'Stop the screensaver, user may be prompted for its password' }]
         ]
-    ))
+      )
+    )
   end
 
   #
@@ -87,12 +89,12 @@ class MetasploitModule < Msf::Post
     end
 
     case action.name
-     when 'LOCK'
-       return lock_session
-     when 'START'
-       return start_screensaver
-     when 'STOP'
-       return stop_screensaver
+    when 'LOCK'
+      return lock_session
+    when 'START'
+      return start_screensaver
+    when 'STOP'
+      return stop_screensaver
     end
   end
 end

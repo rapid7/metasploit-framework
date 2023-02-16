@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '28139' ],
           [ 'OSVDB', '28138' ]
         ],
-        'DisclosureDate' => '2006-08-23'
+        'DisclosureDate' => '2006-08-23',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        }
       )
     )
 

