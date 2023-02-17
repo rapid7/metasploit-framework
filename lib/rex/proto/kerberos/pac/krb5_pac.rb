@@ -674,15 +674,15 @@ module Rex::Proto::Kerberos::Pac
       calculate_checksums!(service_key: service_key, krbtgt_key: krbtgt_key)
     end
 
+    def calculate_checksum(signature_type, key, data)
+      checksummer = Rex::Proto::Kerberos::Crypto::Checksum.from_checksum_type(signature_type)
+      checksummer.checksum(key, Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT, data)
+    end
+
     private
 
     def num_bytes_to_align(n, align: 8)
       (align - (n % align)) % align
-    end
-
-    def calculate_checksum(signature_type, key, data)
-      checksummer = Rex::Proto::Kerberos::Crypto::Checksum.from_checksum_type(signature_type)
-      checksummer.checksum(key, Rex::Proto::Kerberos::Crypto::KeyUsage::KERB_NON_KERB_CKSUM_SALT, data)
     end
   end
 end
