@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -20,19 +22,21 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('DOMAIN', [true, 'The target domain without TLD (Ex: victim rather than victim.org)']),
-        OptBool.new('PERMUTATIONS', [false, 'Prepend and append permutated keywords to domain (This option can take minutes to complete)', false]),
+        OptBool.new('PERMUTATIONS',
+                    [false,
+                     'Prepend and append permutated keywords to domain', false]),
         OptBool.new('ENUM_A', [true, 'Enumerate DNS A record', true]),
         OptBool.new('ENUM_CNAME', [true, 'Enumerate DNS CNAME record', true]),
         OptBool.new('ENUM_MX', [true, 'Enumerate DNS MX record', true]),
         OptBool.new('ENUM_NS', [true, 'Enumerate DNS NS record', true]),
         OptBool.new('ENUM_SOA', [true, 'Enumerate DNS SOA record', true]),
-        OptBool.new('ENUM_TXT', [true, 'Enumerate DNS TXT record', true]),
+        OptBool.new('ENUM_TXT', [true, 'Enumerate DNS TXT record', true])
       ]
     )
   end
 
   def dns_enum(target_domains)
-    for domain in target_domains do
+    target_domains.each do |domain|
       next unless dns_get_a(domain)
 
       print_good("Discovered Target Domain: #{domain} \n")
@@ -42,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       dns_get_mx(domain) if datastore['ENUM_MX']
       dns_get_soa(domain) if datastore['ENUM_SOA']
       dns_get_txt(domain) if datastore['ENUM_TXT']
-      end
+    end
   end
 
   def run
@@ -67,72 +71,69 @@ class MetasploitModule < Msf::Auxiliary
       '.azureedge.net',
       '.search.windows.net',
       '.azure-api.net',
-      '.azurecr.io',
+      '.azurecr.io'
     ]
 
     # Array of keywords to prepend and append
-    permutations = [
-      'root',
-      'web',
-      'api',
-      'azure',
-      'azure-logs',
-      'data',
-      'database',
-      'data-private',
-      'data-public',
-      'dev',
-      'development',
-      'demo',
-      'files',
-      'filestorage',
-      'internal',
-      'keys',
-      'logs',
-      'private',
-      'prod',
-      'production',
-      'public',
-      'service',
-      'services',
-      'splunk',
-      'sql',
-      'staging',
-      'storage',
-      'storageaccount',
-      'test',
-      'useast',
-      'useast2',
-      'centralus',
-      'northcentralus',
-      'westcentralus',
-      'westus',
-      'westus2',
+    permutations = %w[
+      root
+      web
+      api
+      azure
+      azure-logs
+      data
+      database
+      data-private
+      data-public
+      dev
+      development
+      demo
+      files
+      filestorage
+      internal
+      keys
+      logs
+      private
+      prod
+      production
+      public
+      service
+      services
+      splunk
+      sql
+      staging
+      storage
+      storageaccount
+      test
+      useast
+      useast2
+      centralus
+      northcentralus
+      westcentralus
+      westus
+      westus2
     ]
 
     # Create permutated array of keywords and target domain
     if datastore['PERMUTATIONS']
-      permutated_domains = Array.new
-      for keywords in permutations do
-        permutated_domains.append(domain + '-' + keywords)
-        permutated_domains.append(keywords + '-' + domain)
+      permutated_domains = []
+      permutations.each do |keywords|
+        permutated_domains.append("#{domain}-#{keywords}")
+        permutated_domains.append("#{keywords}-#{domain}")
       end
-      # Normal list of subdomains
-      target_domains = Array.new
-      for tld in subdomains do
+      # Permutated and Normal list of subdomains
+      target_domains = []
+      subdomains.each do |tld|
         target_domains.append(domain + tld)
-      end
-      # Permutated list of subdomains
-      for tld in subdomains do
-        for domain in permutated_domains do
+        permutated_domains.each do |domain|
           target_domains.append(domain + tld)
         end
       end
       # Query DNS records of permutated and normal target subdomains
     else
       # Query DNS records of normal target subdomains
-      target_domains = Array.new
-      for tld in subdomains do
+      target_domains = []
+      subdomains.each do |tld|
         target_domains.append(domain + tld)
       end
     end
