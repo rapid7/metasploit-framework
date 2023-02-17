@@ -173,7 +173,7 @@ module ModuleCommandDispatcher
   def report_vuln(instance)
     framework.db.report_vuln(
       workspace: instance.workspace,
-      host: instance.rhost,
+      host: instance.datastore['RHOST'],
       name: instance.name,
       info: "This was flagged as vulnerable by the explicit check of #{instance.fullname}.",
       refs: instance.references
