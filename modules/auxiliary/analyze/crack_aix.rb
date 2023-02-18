@@ -79,11 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       results
     end
 
-    tbl = Rex::Text::Table.new(
-      'Header' => 'Cracked Hashes',
-      'Indent' => 1,
-      'Columns' => ['DB ID', 'Hash Type', 'Username', 'Cracked Password', 'Method']
-    )
+    tbl = tbl = cracker_results_table
 
     hash_types_to_crack = ['descrypt']
     jobs_to_do = []

@@ -145,13 +145,23 @@ module Msf
       # create the base data
       job = { 'type' => jtr_type, 'formatted_hashlist' => [], 'creds' => [], 'cred_ids_left_to_crack' => [] }
       job['db_formats'] = jtr_to_db(jtr_type)
-      if jtr_type == 'dynamic_1034'
+      if jtr_type == 'dynamic_1034' # postgres
         creds = framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::PostgresMD5')
+      elsif ['lm', 'nt'].include? jtr_type
+        creds = framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NTLMHash')
       else
         creds = framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash')
       end
       creds.each do |core|
-        next unless job['db_formats'].include? core.private.jtr_format
+        jtr_format = core.private.jtr_format
+
+        # Unfortunately NTLMHash always set JtR Format to 'nt,lm' so we have to do a special case here
+        # to figure out which it is
+        if jtr_format == 'nt,lm'
+          jtr_format = core.private.data.start_with?('aad3b435b51404eeaad3b435b51404ee') ? 'nt' : 'lm'
+        end
+
+        next unless job['db_formats'].include? jtr_format
         # only add hashes which havne't been cracked
         next if password_cracked?(core.private.data)
 
@@ -201,6 +211,17 @@ module Msf
         tbl << row
       end
       tbl.to_s
+    end
+
+    # This method returns a cracker results table
+    #
+    # @return [Rex::Text::Table] table for printing results
+    def cracker_results_table
+      Rex::Text::Table.new(
+        'Header' => 'Cracked Hashes',
+        'Indent' => 1,
+        'Columns' => ['DB ID', 'Hash Type', 'Username', 'Cracked Password', 'Method']
+      )
     end
   end
 end

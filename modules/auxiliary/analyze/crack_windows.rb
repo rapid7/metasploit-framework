@@ -65,32 +65,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
-  # XXX figure this nonsense out
-  puts 'figure out this function'
-  def append_results(tbl, cracked_hashes)
-    cracked_hashes.each do |row|
-      # 'core_id' field is stored as an Integer in cracked_hashes (first
-      # element) and table rows are all strings. This field needs to be
-      # converted to string before checking if the row already exists in the
-      # table, otherwise, the comparison will be done between a number and a
-      # string. Also, the entry needs to be dup'ed to avoid modifying the
-      # original array of hashes.
-      row = row.dup
-      row[0] = row[0].to_s if row[0].is_a?(Numeric)
-      unless tbl.rows.include? row
-        tbl << row
-      end
-    end
-    tbl.to_s
-  end
-
   def run
-    def process_cracker_results(results, cred, hash_type, method)
+    # we have to overload the process_cracker_results from password_cracker.rb since LANMAN
+    # is a special case where we may need to do some combining
+    def process_cracker_results(results, cred)
       return results if cred['core_id'].nil? # make sure we have good data
 
       # make sure we dont add the same one again
       if results.select { |r| r.first == cred['core_id'] }.empty?
-        results << [cred['core_id'], hash_type, cred['username'], cred['password'], method]
+        results << [cred['core_id'], cred['hash_type'], cred['username'], cred['password'], cred['method']]
       end
 
       # however, a special case for LANMAN where it may come back as ???????D (jtr) or [notfound]D (hashcat)
@@ -98,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
       results.map! do |r|
         if r.first == cred['core_id'] &&
            r[3] =~ half_lm_regex
-          [cred['core_id'], hash_type, cred['username'], cred['password'], method]
+          [cred['core_id'], cred['hash_type'], cred['username'], cred['password'], cred['method']]
         else
           r
         end
@@ -122,6 +105,8 @@ class MetasploitModule < Msf::Auxiliary
           cred['username'] = fields.shift
           cred['core_id'] = fields.pop
           case hash_type
+          when 'mscash', 'mscash2', 'netntlm', 'netntlmv2'
+            cred['password'] = fields.shift
           when 'lm', 'nt'
             # If we don't have an expected minimum number of fields, this is probably not a NTLM hash
             next unless fields.count >= 6
@@ -145,65 +130,35 @@ class MetasploitModule < Msf::Auxiliary
             # have a line like:
             #  username:???????WORD:...:...:::
             cred['password'] = john_lm_upper_to_ntlm(password, nt_hash)
-          when 'mscash', 'mscash2'
-            cred['password'] = fields.shift
-          when 'netntlm', 'netntlmv2'
-            cred['password'] = fields.shift
           end
           next if cred['password'].nil?
         elsif action.name == 'hashcat'
           next unless fields.count >= 2
 
-          # grab the hash, unless its netntlm* since those have username built in
-          if ['netntlmv2', 'netntlm'].include? hash_type
-            hash = fields
+          cred['core_id'] = fields.shift
+
+          if ['netntlm', 'netntlmv2'].include? hash_type
+            # we could grab the username here, but no need since we grab it later based on core_id, which is safer
+            6.times { fields.shift } # Get rid of a bunch of extra fields
           else
-            hash = fields.shift
+            cred['hash'] = fields.shift
           end
 
-          next if (hash.include?("Hashfile '") && hash.include?("' on line ")) || hash.include?(' Token length exception') || hash.include?('* Token length exception') # skip error lines
+          fields.pop if hash_type == 'mscash' # Get rid of username
 
-          hashes.each do |h|
-            case hash_type
-            when 'lm'
-              next unless h['hash'].split(':')[0] == hash
-            when 'nt'
-              next unless h['hash'].split(':')[1] == hash
-            when 'mscash'
-              salt = fields.first
-              next unless h['hash'].start_with?("M\$#{salt}##{hash}")
+          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+          next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
 
-              password = fields[1..-1].join(':') # Anything after the salt must be the password. This accounts for passwords with : in them
-            when 'mscash2'
-              next unless h['hash'].split(':')[0] == hash
-            when 'netntlm', 'netntlmv2'
-              password = hash[6..-1].join(':') # grab the password
-              hash_to_check = hash[0..5].join(':') # strip off the password
-              # capitalize username since thats how hashcat returns it for v2
-              if hash_type == 'netntlmv2'
-                h['hash'] = h['hash'].split(':')
-                h['hash'][0] = h['hash'][0].upcase
-                h['hash'] = h['hash'].join(':')
-              end
-              next unless h['hash'] == hash_to_check
-            end
-            password ||= fields.join(':') # If not already set, anything left must be the password. This accounts for passwords with : in them
-
-            cred['core_id'] = h['id']
-            cred['username'] = h['un']
-            cred['password'] = password
-          end
+          # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
+          # so we can now just go grab the username from the DB
+          cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
         end
         results = process_cracker_results(results, cred)
       end
       results
     end
 
-    tbl = Rex::Text::Table.new(
-      'Header' => 'Cracked Hashes',
-      'Indent' => 1,
-      'Columns' => ['DB ID', 'Hash Type', 'Username', 'Cracked Password', 'Method']
-    )
+    tbl = cracker_results_table
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
     hash_types_to_crack = []
@@ -268,6 +223,8 @@ class MetasploitModule < Msf::Auxiliary
       print_status "Checking #{format} hashes already cracked..."
       results = check_results(cracker_instance.each_cracked_password, results, format, 'Already Cracked/POT')
       vprint_good(append_results(tbl, results)) unless results.empty?
+      job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
+      next if job['cred_ids_left_to_crack'].empty?
 
       if action.name == 'john'
         print_status "Cracking #{format} hashes in single mode..."
@@ -278,6 +235,8 @@ class MetasploitModule < Msf::Auxiliary
         end
         results = check_results(cracker_instance.each_cracked_password, results, format, 'Single')
         vprint_good(append_results(tbl, results)) unless results.empty?
+        job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
+        next if job['cred_ids_left_to_crack'].empty?
 
         if datastore['NORMAL']
           print_status "Cracking #{format} hashes in normal mode..."
@@ -288,6 +247,8 @@ class MetasploitModule < Msf::Auxiliary
           end
           results = check_results(cracker_instance.each_cracked_password, results, format, 'Normal')
           vprint_good(append_results(tbl, results)) unless results.empty?
+          job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
+          next if job['cred_ids_left_to_crack'].empty?
         end
       end
 
@@ -300,6 +261,8 @@ class MetasploitModule < Msf::Auxiliary
         end
         results = check_results(cracker_instance.each_cracked_password, results, format, 'Incremental')
         vprint_good(append_results(tbl, results)) unless results.empty?
+        job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
+        next if job['cred_ids_left_to_crack'].empty?
       end
 
       if datastore['WORDLIST']
@@ -318,6 +281,8 @@ class MetasploitModule < Msf::Auxiliary
         results = check_results(cracker_instance.each_cracked_password, results, format, 'Wordlist')
 
         vprint_good(append_results(tbl, results)) unless results.empty?
+        job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
+        next if job['cred_ids_left_to_crack'].empty?
       end
 
       # give a final print of results

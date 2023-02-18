@@ -83,6 +83,7 @@ def hash_to_jtr(cred)
       # /raw-sha512/
       # /raw-sha256/
       # /xsha/
+      # /mscash2/
       # This also handles *other* type credentials which aren't guaranteed to have a public
 
       return "#{cred.public.nil? ? ' ' : cred.public.username}:#{cred.private.data}:#{cred.id}:"
