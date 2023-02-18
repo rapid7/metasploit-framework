@@ -13,7 +13,7 @@ def hash_to_jtr(cred)
       # UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
       hash_string = cred.private.data
       hash_string.gsub!(/^md5/, '')
-      return "#{cred.public.username}:$dynamic_1034$#{hash_string}"
+      return "#{cred.public.username}:$dynamic_1034$#{hash_string}:#{cred.id}:"
     end
   when 'Metasploit::Credential::NonreplayableHash'
     case cred.private.jtr_format
@@ -53,6 +53,9 @@ def hash_to_jtr(cred)
     when /md5|des|bsdi|crypt|bf|sha256|sha512|xsha512/
       # md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
       return "#{cred.public.username}:#{cred.private.data}:::::#{cred.id}:"
+    when /xsha/
+      # xsha512
+      return "#{cred.public.username}:#{cred.private.data.upcase}:::::#{cred.id}:"
     when /netntlm/
       return "#{cred.private.data}::::::#{cred.id}:"
     when /qnx/
@@ -79,6 +82,7 @@ def hash_to_jtr(cred)
       # /ssha/
       # /raw-sha512/
       # /raw-sha256/
+      # /xsha/
       # This also handles *other* type credentials which aren't guaranteed to have a public
 
       return "#{cred.public.nil? ? ' ' : cred.public.username}:#{cred.private.data}:#{cred.id}:"
@@ -97,13 +101,15 @@ def jtr_to_db(cred_type)
   when 'descrypt' # from aix module
     return ['des']
   when 'oracle' # from databases module
-    return ['des', 'oracle']
+    return ['des,oracle']
   when 'dynamic_1506'
-    return ['raw-sha1', 'oracle11', 'oracle12c', 'dynamic_1506']
+    return ['dynamic_1506']
   when 'oracle11'
-    return ['raw-sha1', 'oracle11']
+    return ['raw-sha1,oracle']
+  when 'oracle12c'
+    return ['pbkdf2,oracle12c']
   when 'dynamic_1034'
-    return ['postgres', 'raw-md5']
+    return ['raw-md5,postgres']
   when 'md5crypt' # from linux module
     return ['md5']
   when 'descrypt'

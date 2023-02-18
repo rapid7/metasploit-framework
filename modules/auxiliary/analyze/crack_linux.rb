@@ -16,6 +16,12 @@ class MetasploitModule < Msf::Auxiliary
         acquired from unshadowed passwd files from Unix/Linux systems. The module will only crack
         MD5, BSDi and DES implementations by default. However, it can also crack
         Blowfish and SHA(256/512), but it is much slower.
+        MD5 is format 500 in hashcat.
+        DES is format 1500 in hashcat.
+        BSDI is format 12400 in hashcat.
+        BLOWFISH is format 3200 in hashcat.
+        SHA256 is format 7400 in hashcat.
+        SHA512 is format 1800 in hashcat.
       },
       'Author' => [
         'theLightCosine',
@@ -53,15 +59,6 @@ class MetasploitModule < Msf::Auxiliary
       cmd = cracker_instance.hashcat_crack_command
     end
     print_status("   Cracking Command: #{cmd.join(' ')}")
-  end
-
-  def append_results(tbl, cracked_hashes)
-    cracked_hashes.each do |row|
-      next if tbl.rows.include? row
-
-      tbl << row
-    end
-    tbl.to_s
   end
 
   def run
@@ -149,8 +146,7 @@ class MetasploitModule < Msf::Auxiliary
     cleanup_files = [wordlist.path]
     jobs_to_do.each do |job|
       format = job['type']
-      hashes = job['formatted_hashlist']
-      hash_file = Rex::Quickfile.new("hashes_tmp_#{job['type']}")
+      hash_file = Rex::Quickfile.new("hashes_#{job['type']}_")
       hash_file.puts job['formatted_hashlist']
       hash_file.close
       cracker.hash_path = hash_file.path
@@ -183,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
 
-        print_status "Cracking #{format} hashes in normal mode"
+        print_status "Cracking #{format} hashes in normal mode..."
         cracker_instance.mode_normal
         show_command cracker_instance
         cracker_instance.crack do |line|

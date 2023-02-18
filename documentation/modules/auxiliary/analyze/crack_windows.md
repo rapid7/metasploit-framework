@@ -5,18 +5,25 @@
 
   * `LANMAN` based passwords
   * `NTLM` based passwords
+  * `M$ CASH hashes (1 and 2)` based passwords
+  * `NETNTLM` and `NETNTLMV2` based passwords
 
-| Common | John     | Hashcat |
-|--------|----------|---------|
-| lanman | lm       | 3000    |
-| ntlm   | nt       | 1000    |
+| Common    | John      | Hashcat |
+| --------- | --------- | ------- |
+| lanman    | lm        | 3000    |
+| ntlm      | nt        | 1000    |
+| mscash    | mscash    | 1100    |
+| mscash2   | mscash2   | 2100    |
+| netntlm   | netntlm   | 5500    |
+| netntlmv2 | netntlmv2 | 5600    |
+
 
   Sources of hashes can be found here:
   [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
 ## Verification Steps
 
-  1. Have at least one user with an `ntlm`, or `lanman` password hash in the database
+  1. Have at least one user with an uncracked windows based password hash in the database
   2. Start msfconsole
   3. Do: ```use auxiliary/analyze/crack_windows```
   4. Do: set cracker of choice
@@ -74,6 +81,10 @@
 
    Crack LANMAN hashes.  Default is `true`.
 
+   **MSCASH**
+
+   Crack MSCASH hashes.  Default is `true`.
+
    **MUTATE**
 
    Apply common mutations to the Wordlist (SLOW).  Mutations are:
@@ -87,6 +98,14 @@
    * `'5' => 's'`
 
    Default is `false`.
+
+   **NETNTLM**
+
+   Crack NETNTLM hashes.  Default is `true`.
+
+   **NETNTLMV2**
+
+   Crack NETNTLMV2 hashes.  Default is `true`.
 
    **NTLM**
 
@@ -141,6 +160,8 @@ creds add user:lm_password ntlm:e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb11
 creds add user:lm2_password ntlm:e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c jtr:lm
 creds add user:lm2_pot_password ntlm:e52cac67419fafe2fafe108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c jtr:lm
 creds add user:nt_password ntlm:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c jtr:nt
+creds add user:u4-netntlm hash:u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c jtr:netntlm
+creds add user:admin hash:admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030 jtr:netntlmv2
 echo "" > /root/.msf4/john.pot
 echo "\$LM\$E52CAC67419FAFE2:passwor" >> /root/.msf4/john.pot
 echo "\$LM\$FAFE108F3FA6CB6D:d" >> /root/.msf4/john.pot

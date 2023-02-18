@@ -15,7 +15,6 @@ class MetasploitModule < Msf::Auxiliary
           This module uses John the Ripper or Hashcat to identify weak passwords that have been
         acquired from passwd files on AIX systems.  These utilize DES hashing.
         DES is format 1500 in Hashcat.
-        DES is descrypt in JTR.
       ),
       'Author' => [
         'theLightCosine',
@@ -47,15 +46,6 @@ class MetasploitModule < Msf::Auxiliary
       cmd = cracker_instance.hashcat_crack_command
     end
     print_status("   Cracking Command: #{cmd.join(' ')}")
-  end
-
-  def append_results(tbl, cracked_hashes)
-    cracked_hashes.each do |row|
-      unless tbl.rows.include? row
-        tbl << row
-      end
-    end
-    tbl.to_s
   end
 
   def run
@@ -134,8 +124,7 @@ class MetasploitModule < Msf::Auxiliary
 
     jobs_to_do.each do |job|
       format = job['type']
-      hashes = job['formatted_hashlist']
-      hash_file = Rex::Quickfile.new("hashes_tmp_#{job['type']}")
+      hash_file = Rex::Quickfile.new("hashes_#{job['type']}_")
       hash_file.puts job['formatted_hashlist']
       hash_file.close
       cracker.hash_path = hash_file.path
@@ -168,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
 
-        print_status "Cracking #{format} hashes in normal mode"
+        print_status "Cracking #{format} hashes in normal mode..."
         cracker_instance.mode_normal
         show_command cracker_instance
         cracker_instance.crack do |line|

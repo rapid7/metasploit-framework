@@ -145,7 +145,12 @@ module Msf
       # create the base data
       job = { 'type' => jtr_type, 'formatted_hashlist' => [], 'creds' => [], 'cred_ids_left_to_crack' => [] }
       job['db_formats'] = jtr_to_db(jtr_type)
-      framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
+      if jtr_type == 'dynamic_1034'
+        creds = framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::PostgresMD5')
+      else
+        creds = framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash')
+      end
+      creds.each do |core|
         next unless job['db_formats'].include? core.private.jtr_format
         # only add hashes which havne't been cracked
         next if password_cracked?(core.private.data)
@@ -158,14 +163,15 @@ module Msf
           job['formatted_hashlist'] << hash_to_hashcat(core)
         end
       end
+
       if job['creds'].length > 0
         return job
       end
 
-      return nil
+      nil
     end
 
-    # This method takes a reuslts table, and a newly cracked cred, and adds the cred to the table if
+    # This method takes a results table, and a newly cracked cred, and adds the cred to the table if
     # it isn't there already.  It also creates the cracked credential in the database.
     #
     # @param results [Hash] Hash of the newly cracked cred information, should have hash_type, method, username
@@ -181,6 +187,20 @@ module Msf
 
       create_cracked_credential(username: cred['username'], password: cred['password'], core_id: cred['core_id'])
       results
+    end
+
+    # This method appends a list of cracked hashes to the list used to generate the printed table
+    #
+    # @param tbl [Array] Array of all results that have been cracked
+    # @param cracked_hashes [Array] Array of results to add to the table
+    # @return [String] the table in string format for printing
+    def append_results(tbl, cracked_hashes)
+      cracked_hashes.each do |row|
+        next if tbl.rows.include? row
+
+        tbl << row
+      end
+      tbl.to_s
     end
   end
 end
