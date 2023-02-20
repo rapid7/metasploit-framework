@@ -228,4 +228,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'win32api'
 
   spec.add_runtime_dependency 'zeitwerk'
+
+  # Required for PNG payload support
+  spec.add_runtime_dependency 'chunky_png'
 end
