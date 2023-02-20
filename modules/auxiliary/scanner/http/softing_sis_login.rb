@@ -17,9 +17,9 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Softing dataFEED Secure Integration Server Login Utility',
+        'Name' => 'Softing Secure Integration Server Login Utility',
         'Description' => %q{
-          This module will attempt to authenticate to a Softing dataFEED Secure Integration Server.
+          This module will attempt to authenticate to a Softing Secure Integration Server.
         },
         'Author' => [ 'Imran E. Dawoodjee <imrandawoodjee.infosec[at]gmail.com>' ],
         'License' => MSF_LICENSE,
@@ -42,8 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('USERNAME', [false, 'The username to specify for authentication. Not required if SIGNATURE is set.', 'admin']),
-        OptString.new('PASSWORD', [false, 'The password to specify for authentication. Not required if SIGNATURE is set.', 'admin']),
-        OptString.new('SIGNATURE', [false, 'The signature to use for authentication.', ''])
+        OptString.new('PASSWORD', [false, 'The password to specify for authentication. Not required if SIGNATURE is set.', 'admin'])
       ]
     )
   end
@@ -74,10 +73,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_good_cred(ip, port, result)
+    service_name = datastore['SSL'] ? 'https' : 'http'
+
     service_data = {
       address: ip,
       port: port,
-      service_name: 'http',
+      service_name: service_name,
       protocol: 'tcp',
       workspace_id: myworkspace_id
     }
@@ -132,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     unless scanner(ip).check_setup
-      print_brute(level: :error, ip: ip, msg: 'Target is not Softing dataFEED Secure Integration Server')
+      print_brute(level: :error, ip: ip, msg: 'Target is not Softing Secure Integration Server')
       return
     end
 

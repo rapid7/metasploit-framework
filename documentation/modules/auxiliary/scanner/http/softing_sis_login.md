@@ -42,6 +42,20 @@ msf6 auxiliary(scanner/http/softing_sis_login) > run
 msf6 auxiliary(scanner/http/softing_sis_login) > 
 ```
 
+`creds` output:
+
+```
+msf6 auxiliary(scanner/http/softing_sis_login) > creds
+Credentials
+===========
+
+host            origin          service          public  private  realm  private_type  JtR Format
+----            ------          -------          ------  -------  -----  ------------  ----------
+192.168.50.119  192.168.50.119  8099/tcp (http)  admin   admin           Password      
+
+msf6 auxiliary(scanner/http/softing_sis_login) > 
+```
+
 ### Different admin password, SSL in use
 
 In this scenario, the default password for the `admin` user has been changed, and SSL was used.
@@ -62,5 +76,20 @@ msf6 auxiliary(scanner/http/softing_sis_login) > run
 [+] 192.168.50.119:443 - Success: 'admin:admin123'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/softing_sis_login) > 
+```
+
+`creds` output:
+
+```
+msf6 auxiliary(scanner/http/softing_sis_login) > creds
+Credentials
+===========
+
+host            origin          service          public  private  realm  private_type  JtR Format
+----            ------          -------          ------  -------  -----  ------------  ----------
+192.168.50.119  192.168.50.119  8099/tcp (http)  admin   admin           Password      
+192.168.50.119  192.168.50.119  443/tcp (https)  admin   admin123        Password      
+
 msf6 auxiliary(scanner/http/softing_sis_login) > 
 ```
