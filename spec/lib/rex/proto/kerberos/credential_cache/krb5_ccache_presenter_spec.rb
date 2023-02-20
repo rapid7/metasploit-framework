@@ -179,7 +179,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                 Client Name: 'Administrator'
                 Client Realm: 'WINDOMAIN.LOCAL'
                 Ticket etype: 18 (AES256)
-                Encryption Key: 3835366238646261363736326161393037386566633133613535323934333739
+                Session Key: 3835366238646261363736326161393037386566633133613535323934333739
                 Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
                 PAC:
                   Validation Info:
@@ -200,7 +200,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Last Successful Interactive Logon: No Time Set (0)
                     Last Failed Interactive Logon: No Time Set (0)
                     Failed Interactive Logon Count: 0
-                    SID Count: 0
+                    Extra SID Count: 0
                     Resource Group Count: 0
                     Group Count: 5
                     Group IDs:
