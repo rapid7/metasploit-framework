@@ -2,7 +2,7 @@
 
 There are currently {{ site.metasploit_total_module_count }} Metasploit modules:
 
-{{ site.metasploit_nested_module_counts | module_tree }}
+{{ site.metasploit_nested_module_counts | module_tree: "All Modules", true }}
 
 ## Module types
 

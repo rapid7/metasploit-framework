@@ -45,14 +45,32 @@
     width: 90%;
 }
 
+.module-controls {
+    line-height: 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.module-controls a {
+    line-height: 1;
+    padding: 0.5rem;
+    display: inline-block;
+}
+
+.module-controls span {
+    display: inline-block;
+}
+
 .module-structure a, .module-structure a:hover {
     background-image: none;
 }
 
-.module-structure a:hover .target {
+.module-structure a .target {
     pointer-events: none;
     display: inline-block;
     text-decoration: none;
+}
+
+.module-structure a:hover .target {
     background-image: linear-gradient(rgba(114, 83, 237, 0.45) 0%, rgba(114, 83, 237, 0.45) 100%);
     background-repeat: repeat-x;
     background-position: 0 100%;
@@ -68,6 +86,11 @@
     margin-left: 7px !important;
     padding-left: 20px !important;
     border-left: 1px dashed #d1d7de;
+}
+
+/* Never allow the top-most files/folders to be collapsed */
+.module-structure > li.folder > ul {
+    display: block;
 }
 
 .module-structure li p {

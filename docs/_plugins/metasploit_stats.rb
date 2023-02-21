@@ -6,6 +6,10 @@ require 'pathname'
 # Helper class for extracting information related to Metasploit framework's stats
 #
 class MetasploitStats
+  def total_module_count
+    modules.length
+  end
+
   # @return [Hash<String, Integer>] A map of module type to the amount of modules
   def module_counts
     module_counts_by_type = modules.group_by { |mod| mod['type'].to_s }.transform_values { |mods| mods.count }.sort_by(&:first).to_h
@@ -71,11 +75,27 @@ end
 module ModuleFilter
   # @param [Array<Hash>] modules The array of Metasploit cache information
   # @return [String] The module tree HTML representation of the given modules
-  def module_tree(modules)
+  def module_tree(modules, title = 'Modules', show_controls = false)
     rendered_children = render_modules(modules)
+    controls = <<~EOF
+        <div class="module-controls">
+            <span><a href="#" data-expand-all>Expand All</a></span>
+            <span><a href="#" data-collapse-all>Collapse All</a></span>
+        </div>
+    EOF
 
     <<~EOF
-      <ul class="module-structure">#{rendered_children}</ul>
+      <div class="module-list">
+        #{show_controls ? controls : ''}
+
+        <ul class="module-structure">
+          <li class="folder"><a href=\"#\"><div class=\"target\">#{title}</div></a>
+            <ul class="open">
+              #{rendered_children}
+            </ul>
+          </li>
+        </ul>
+      </div>
     EOF
   end
 
@@ -85,7 +105,8 @@ module ModuleFilter
   # @return [String] The rendered tree HTML representation of the given modules
   def render_modules(modules)
     modules.map do |mod|
-      result = "<li#{render_child_modules?(mod) ? ' class="folder"' : ''}>#{heading_for_mod(mod)}"
+      classes = render_child_modules?(mod) ? ' class="folder"' : ''
+      result = "<li#{classes}>#{heading_for_mod(mod)}"
       if render_child_modules?(mod)
         result += "\n<ul>#{render_modules(mod[:children].sort_by { |mod| "#{render_child_modules?(mod) ? 0 : 1}-#{mod[:name]}" })}</ul>\n"
       end
@@ -126,7 +147,7 @@ Jekyll::Hooks.register :site, :after_init do |site|
 
     metasploit_stats = MetasploitStats.new
 
-    site.config['metasploit_total_module_count'] = metasploit_stats.module_counts.sum { |_type, count| count }
+    site.config['metasploit_total_module_count'] = metasploit_stats.total_module_count
     site.config['metasploit_module_counts'] = metasploit_stats.module_counts
     site.config['metasploit_nested_module_counts'] = metasploit_stats.nested_module_counts
 
