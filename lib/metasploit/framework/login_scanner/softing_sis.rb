@@ -10,24 +10,6 @@ module Metasploit
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
-        # Return the authentication token to calculate the signature
-        # the authentication token is 32 hexadecimal characters [0-9][a-f]
-        #
-        # @return [String] The authentication token for Secure Integration Server (SIS)
-        def get_auth_token
-          uri = normalize_uri("#{uri}/runtime/core/user/admin/authentication-token")
-
-          res = send_request({
-            'method' => 'GET',
-            'uri' => uri,
-            'cookie' => 'lang=en; user=guest'
-          })
-
-          # extract the authetication token from the JSON response
-          res_json = res.get_json_document
-          res_json['authentication-token']
-        end
-
         # Check if the target is Softing Secure Integration Server
         #
         # @return [Boolean] TrueClass if target is SIS, otherwise FalseClass
@@ -53,7 +35,28 @@ module Metasploit
         def do_login(user, pass)
           # prep the data needed for login
           protocol = ssl ? 'https' : 'http'
-          auth_token = get_auth_token
+          # attempt to get an authentication token
+          auth_token_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication-token")
+
+          auth_res = send_request({
+            'method' => 'GET',
+            'uri' => auth_token_uri,
+            'cookie' => 'lang=en; user=guest'
+          })
+
+          # convert the response to JSON
+          res_json = auth_res.get_json_document 
+          # if the response code is 404, the user does not exist
+          if auth_res.code == 404
+            return { status: LOGIN_STATUS::INCORRECT, proof: res_json['Message'] }
+          end
+          # if the response code is 403, the user exists but access is denied
+          if auth_res.code == 403
+            return { status: LOGIN_STATUS::DENIED_ACCESS, proof: res_json['Message']}
+          end
+
+          # we got authentication token
+          auth_token = res_json['authentication-token']
           login_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication")
           # calculate signature to use when logging in
           signature = Digest::MD5.hexdigest(auth_token + pass + auth_token + user + auth_token)

