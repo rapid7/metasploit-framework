@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'SAMR Computer Management',
         'Description' => %q{
-          Add, lookup and delete computer accounts via MS-SAMR. By default
+          Add, lookup and delete computer / machine accounts via MS-SAMR. By default
           standard active directory users can add up to 10 new computers to the
           domain. Administrative privileges however are required to delete the
           created accounts.

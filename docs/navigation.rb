@@ -183,6 +183,10 @@ NAVIGATION_CONFIG = [
               {
                 path: '../../documentation/modules/auxiliary/admin/kerberos/ticket_converter.md',
                 title: 'Converting kirbi and ccache files'
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/ldap/rbcd.md',
+                title: 'RBCD - Resource-based constrained delegation'
               }
             ]
           },
