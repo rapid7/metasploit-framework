@@ -24,7 +24,7 @@ Difficulty: 4/5
 
 ### LDAP Capture Capabilities
 
-Metasploit's LDAP service mixin provides a service to enable interaction over the LDAP protocol. The current implementation is the bare minimum to enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP features would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow Metasploit to intercept and log authentication information. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
+Metasploit's LDAP service mixin provides a service to enable interaction over the LDAP protocol. The current implementation is the bare minimum to enable support for attacking the [2021 Log4Shell vulnerability](https://attackerkb.com/topics/in9sPR2Bzt/cve-2021-44228-log4shell?referrer=msf_docs). Enhancement/Extension of the mixin to enable various additional LDAP features would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow Metasploit to intercept and log authentication information. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
 
 Size: Medium  
 Difficulty: 3/5
@@ -58,7 +58,7 @@ Difficulty: 4/5
 
 Enhance existing Metasploit Goliath dashboard that allows observation of an active engagement. Data visualization would include, but not be limited to: host node graph with activity indicators and heat maps. The main idea here is to create a visualization tool that helps users understand data that has been gathered into Metasploit during usage in some useful way. Proposals should note where the service will live, how a user will use the service, and how you will provide a maintainable and extendable consumer for the data that is exposed.
 
-See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [Metasploit-Data-Service-Enhancements-(Goliath)](./Metasploit-Data-Service-Enhancements-Goliath)
+See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [[Metasploit-Data-Service-Enhancements-(Goliath)|./Metasploit-Data-Service-Enhancements-Goliath]
 
 Size: Medium/Large (Depends on proposal)  
 Difficulty 3/5
