@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -23,8 +21,10 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('DOMAIN', [true, 'The target domain without TLD (Ex: victim rather than victim.org)']),
         OptBool.new('PERMUTATIONS',
-                    [false,
-                     'Prepend and append permutated keywords to domain', false]),
+                    [
+                      false,
+                      'Prepend and append permutated keywords to domain', false
+                    ]),
         OptBool.new('ENUM_A', [true, 'Enumerate DNS A record', true]),
         OptBool.new('ENUM_CNAME', [true, 'Enumerate DNS CNAME record', true]),
         OptBool.new('ENUM_MX', [true, 'Enumerate DNS MX record', true]),
