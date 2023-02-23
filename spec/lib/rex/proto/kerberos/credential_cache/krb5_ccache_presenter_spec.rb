@@ -124,10 +124,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: 2022-11-28 15:51:29 +0000
-            Start time: 2022-11-28 15:51:29 +0000
-            End time: 2032-11-25 15:51:29 +0000
-            Renew Till: 2032-11-25 15:51:29 +0000
+            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -157,10 +157,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: 2022-11-28 15:51:29 +0000
-            Start time: 2022-11-28 15:51:29 +0000
-            End time: 2032-11-25 15:51:29 +0000
-            Renew Till: 2032-11-25 15:51:29 +0000
+            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -170,10 +170,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
               Key Version Number: 2
               Decrypted (with key: 4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326):
                 Times:
-                  Auth time: 2022-11-28 15:51:29 UTC
-                  Start time: 2022-11-28 15:51:29 UTC
-                  End time: 2032-11-25 15:51:29 UTC
-                  Renew Till: 2032-11-25 15:51:29 UTC
+                  Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+                  Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+                  End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+                  Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
                 Client Addresses: 0
                 Transited: tr_type: 0, Contents: ""
                 Client Name: 'Administrator'
