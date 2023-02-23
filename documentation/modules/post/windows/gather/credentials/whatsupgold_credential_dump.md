@@ -98,7 +98,7 @@ WHERE
 
 Output must be encoded VARBINARY per above, and must be well-formed CSV (i.e. no trailing whitespace).
 If using `sqlcmd`, ensure the `-W` and `-I` parameters are included to strip trailing whitespace and
-allow quoted identifyers. Suggested syntax for `sqlcmd` using Windows authentication is below, where
+allow quoted identifiers. Suggested syntax for `sqlcmd` using Windows authentication is below, where
 the contents of `solarwinds_sql_query.sql` is the text of the SQL query above:
 
 `sqlcmd -d "<DBNAME>" -S <MSSQL_INSTANCE> -E -i sql_query.sql -o wug_dump.csv -h-1 -s"," -w 65535 -W -I`
