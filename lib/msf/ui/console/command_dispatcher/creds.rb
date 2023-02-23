@@ -323,7 +323,7 @@ class Creds
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format', 'cracked_password' ]
     delete_count = 0
     search_term = nil
 
@@ -432,6 +432,7 @@ class Creds
     opts[:workspace] = framework.db.workspace
     query = framework.db.creds(opts)
     matched_cred_ids = []
+    cracked_cred_ids = []
 
     if output_file&.ends_with?('.hcat')
       output_file = ::File.open(output_file, 'wb')
@@ -471,6 +472,11 @@ class Creds
           jtr_val = core.private.jtr_format ? core.private.jtr_format : ''
         end
 
+        cracked_hash_origin = Metasploit::Credential::Origin::CrackedPassword.find_by(metasploit_credential_core_id: core.id)
+        cracked_password_core = query.find_by(origin_id: cracked_hash_origin.id, origin_type: "Metasploit::Credential::Origin::CrackedPassword") if cracked_hash_origin.present?
+        cracked_cred_ids << cracked_password_core.id if cracked_password_core.present?
+        cracked_password_val = cracked_password_core.present? ? cracked_password_core.private.data : ''
+
         if service.nil?
           host = ''
           service_info = ''
@@ -488,7 +494,8 @@ class Creds
           private_val,
           realm_val,
           human_val, #private type
-          jtr_val
+          jtr_val,
+          cracked_password_val
         ]
       end
     end
@@ -502,8 +509,8 @@ class Creds
     end
 
     if mode == :delete
-      result = framework.db.delete_credentials(ids: matched_cred_ids.uniq)
-      delete_count = result.size
+      delete_count = matched_cred_ids.size
+      result = framework.db.delete_credentials(ids: matched_cred_ids.concat(cracked_cred_ids).uniq)
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -535,6 +542,11 @@ class Creds
 
   def filtered_query(query, opts, origin_ranges, host_ranges)
     query.each do |core|
+      # we will not show the cracked password in a seperate row instead we will show in seperate column
+      if core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+        next
+      end
+
       # Exclude non-blank username creds if that's what we're after
       if opts[:user] == '' && core.public && !(core.public.username.blank?)
         next
