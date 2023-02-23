@@ -32,10 +32,10 @@ class MetasploitModule < Msf::Post
   def run
     clamav_socket = datastore['CLAMAV_UNIX_SOCKET']
     print_status("Checking file path #{clamav_socket} exists and is writable... ")
-    if writable?(datastore[CLAMAV_UNIX_SOCKET].to_s)
+    if writable?(datastore[CLAMAV_UNIX_SOCKET])
       print_good('File does exist and is writable!')
 
-      Socket.unix(datastore[CLAMAV_UNIX_SOCKET].to_s) do |sock|
+      Socket.unix(datastore[CLAMAV_UNIX_SOCKET]) do |sock|
         print_status('Shutting down ClamAV!')
         sock.write('SHUTDOWN')
       end
