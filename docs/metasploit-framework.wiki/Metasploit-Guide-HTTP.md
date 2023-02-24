@@ -161,7 +161,7 @@ Module advanced options (auxiliary/scanner/http/title):
 ```
 
 ### HTTP Multiple-Headers
-Additional headers can be set via the ```HTTPRawHeaders``` option.
+Additional headers can be set via the `HTTPRawHeaders` option.
 A file containing a ERB template will be used to append to the headers section of the HTTP request.
 An example of an ERB template file is shown below.
 ```
