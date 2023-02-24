@@ -169,7 +169,7 @@ Header-Name-Here: <%= 'content of header goes here' %>
 ```
 
 The following output shows leveraging the scraper scanner module with an additional header stored in ```additional_headers.txt```.
-```
+```msf
 msf6 auxiliary(scanner/http/scraper) > cat additional_headers.txt
 [*] exec: cat additional_headers.txt
 
