@@ -310,13 +310,18 @@ class Console::CommandDispatcher::Stdapi::Net
 
       when 'add'
         # Satisfy check to see that formatting is correct
-        unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-          print_error "Invalid IP Address"
+        unless Rex::Socket.is_ip_addr?(args[0])
+          print_error "Invalid subnet: #{args[0]}"
           return false
         end
 
-        unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-          print_error 'Invalid Subnet mask'
+        unless Rex::Socket.is_ip_addr?(args[1])
+          print_error "Invalid subnet mask: #{args[1]}"
+          return false
+        end
+
+        unless Rex::Socket.is_ip_addr?(args[2])
+          print_error "Invalid gateway address: #{args[2]}"
           return false
         end
 
@@ -325,13 +330,18 @@ class Console::CommandDispatcher::Stdapi::Net
         client.net.config.add_route(*args)
       when 'delete'
         # Satisfy check to see that formatting is correct
-        unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-          print_error 'Invalid IP Address'
+        unless Rex::Socket.is_ip_addr?(args[0])
+          print_error "Invalid subnet: #{args[0]}"
           return false
         end
 
-        unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-          print_error 'Invalid Subnet mask'
+        unless Rex::Socket.is_ip_addr?(args[1])
+          print_error "Invalid subnet mask: #{args[1]}"
+          return false
+        end
+
+        unless Rex::Socket.is_ip_addr?(args[2])
+          print_error "Invalid gateway address: #{args[2]}"
           return false
         end
 
