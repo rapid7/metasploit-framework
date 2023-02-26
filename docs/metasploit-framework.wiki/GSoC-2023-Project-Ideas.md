@@ -22,13 +22,6 @@ Metasploit's LDAP service mixin provides a service to enable interaction over th
 Size: Medium  
 Difficulty: 3/5
 
-### Enhanced LDAP Query & Collection
-
-When preforming security assessment on a network with centralized login such as LDAP or Active Directory these services are sometimes exposed directly on the network. While Metasploit has capabilities to collect various pieces of information from these services when a user has been able to gain code execution inside a target system by utilizing tooling such as `Sharphound` or by leveraging SMB services via the `secrets_dump` module, these methods are somewhat indirect. A network base capability to query exposed services may have value. An interactive terminal plugin allowing users to connect directly to LDAP or Active Directory providing capabilities similar to the existing `requests` plugin could enable users search for valuable information in these services without the need to compromise a target or interact with a secondary service. 
-
-Size: Medium/Large (Depends on proposal)  
-Difficulty: 3/5
-
 ### Improving post-exploit API to be more consistent, work smoothly across session types
 
 The Metasploit post-exploitation API is intended to provide a unified interface between different Meterpreter, shell, PowerShell, mainframe, and other session types. However, there are areas where the implementation is not consistent, and could use improvements:
@@ -51,7 +44,7 @@ Difficulty: 4/5
 
 Enhance existing Metasploit Goliath dashboard that allows observation of an active engagement. Data visualization would include, but not be limited to: host node graph with activity indicators and heat maps. The main idea here is to create a visualization tool that helps users understand data that has been gathered into Metasploit during usage in some useful way. Proposals should note where the service will live, how a user will use the service, and how you will provide a maintainable and extendable consumer for the data that is exposed.
 
-See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [Metasploit-Data-Service-Enhancements-(Goliath)](./Metasploit-Data-Service-Enhancements-Goliath)
+See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [[Metasploit-Data-Service-Enhancements-(Goliath)|./Metasploit-Data-Service-Enhancements-Goliath]]
 
 Size: Medium/Large (Depends on proposal)  
 Difficulty 3/5

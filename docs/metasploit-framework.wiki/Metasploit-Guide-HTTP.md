@@ -159,3 +159,30 @@ Module advanced options (auxiliary/scanner/http/title):
    VERBOSE               false                                              no        Enable detailed status messages
    WORKSPACE                                                                no        Specify the workspace for this module
 ```
+
+### HTTP Multiple-Headers
+Additional headers can be set via the `HTTPRawHeaders` option.
+A file containing a ERB template will be used to append to the headers section of the HTTP request.
+An example of an ERB template file is shown below.
+```
+Header-Name-Here: <%= 'content of header goes here' %>
+```
+
+The following output shows leveraging the scraper scanner module with an additional header stored in ```additional_headers.txt```.
+```msf
+msf6 auxiliary(scanner/http/scraper) > cat additional_headers.txt
+[*] exec: cat additional_headers.txt
+
+X-Cookie-Header: <%= 'example-cookie' %>
+msf6 auxiliary(scanner/http/scraper) > set HTTPRAWHEADERS additional_headers.txt
+HTTPRAWHEADERS => additional_headers.txt
+msf6 auxiliary(scanner/http/scraper) > exploit
+
+####################
+# Request:
+####################
+GET / HTTP/1.0
+Host: 172.16.0.63:8000
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15
+X-Cookie-Header: example-cookie
+```

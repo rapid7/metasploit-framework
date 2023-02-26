@@ -368,7 +368,7 @@ module Msf
           vprint_status("LDAP Handle: #{session_handle}")
 
           vprint_status('Setting Sizelimit Option')
-          wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, size_limit)
+          wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, [size_limit].pack('V'))
 
           vprint_status('Binding to LDAP server')
           bind_result = wldap32.ldap_bind_sA(session_handle, nil, nil, LDAP_AUTH_NEGOTIATE)

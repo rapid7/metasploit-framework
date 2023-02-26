@@ -82,10 +82,10 @@ module Rex::Proto::Kerberos::CredentialCache
       end
 
       output << 'Times:'
-      output << "Auth time: #{cred.authtime}".indent(2)
-      output << "Start time: #{cred.starttime}".indent(2)
-      output << "End time: #{cred.endtime}".indent(2)
-      output << "Renew Till: #{cred.renew_till}".indent(2)
+      output << "Auth time: #{present_time(cred.authtime)}".indent(2)
+      output << "Start time: #{present_time(cred.starttime)}".indent(2)
+      output << "End time: #{present_time(cred.endtime)}".indent(2)
+      output << "Renew Till: #{present_time(cred.renew_till)}".indent(2)
 
       output << 'Ticket:'
       output << "Ticket Version Number: #{ticket.tkt_vno}".indent(2)
@@ -113,12 +113,12 @@ module Rex::Proto::Kerberos::CredentialCache
       output = []
       output << 'Validation Info:'
 
-      output << "Logon Time: #{present_time(validation_info.logon_time)}".indent(2)
-      output << "Logoff Time: #{present_time(validation_info.logoff_time)}".indent(2)
-      output << "Kick Off Time: #{present_time(validation_info.kick_off_time)}".indent(2)
-      output << "Password Last Set: #{present_time(validation_info.password_last_set)}".indent(2)
-      output << "Password Can Change: #{present_time(validation_info.password_can_change)}".indent(2)
-      output << "Password Must Change: #{present_time(validation_info.password_must_change)}".indent(2)
+      output << "Logon Time: #{present_ndr_file_time(validation_info.logon_time)}".indent(2)
+      output << "Logoff Time: #{present_ndr_file_time(validation_info.logoff_time)}".indent(2)
+      output << "Kick Off Time: #{present_ndr_file_time(validation_info.kick_off_time)}".indent(2)
+      output << "Password Last Set: #{present_ndr_file_time(validation_info.password_last_set)}".indent(2)
+      output << "Password Can Change: #{present_ndr_file_time(validation_info.password_can_change)}".indent(2)
+      output << "Password Must Change: #{present_ndr_file_time(validation_info.password_must_change)}".indent(2)
 
       output << "Logon Count: #{validation_info.logon_count}".indent(2)
       output << "Bad Password Count: #{validation_info.bad_password_count}".indent(2)
@@ -129,8 +129,8 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "User Account Control: #{validation_info.user_account_control}".indent(2)
       output << "Sub Auth Status: #{validation_info.sub_auth_status}".indent(2)
 
-      output << "Last Successful Interactive Logon: #{present_time(validation_info.last_successful_i_logon)}".indent(2)
-      output << "Last Failed Interactive Logon: #{present_time(validation_info.last_failed_i_logon)}".indent(2)
+      output << "Last Successful Interactive Logon: #{present_ndr_file_time(validation_info.last_successful_i_logon)}".indent(2)
+      output << "Last Failed Interactive Logon: #{present_ndr_file_time(validation_info.last_failed_i_logon)}".indent(2)
       output << "Failed Interactive Logon Count: #{validation_info.failed_i_logon_count}".indent(2)
 
       output << "SID Count: #{validation_info.sid_count}".indent(2)
@@ -160,7 +160,7 @@ module Rex::Proto::Kerberos::CredentialCache
       output = []
       output << 'Client Info:'
       output << "Name: '#{client_info.name.encode('utf-8')}'".indent(2)
-      output << "Client ID: #{present_time(client_info.client_id)}".indent(2)
+      output << "Client ID: #{present_ndr_file_time(client_info.client_id)}".indent(2)
       output.join("\n")
     end
 
@@ -231,10 +231,10 @@ module Rex::Proto::Kerberos::CredentialCache
       ticket_enc_part = Rex::Proto::Kerberos::Model::TicketEncPart.decode(decrypted_part)
       output = []
       output << 'Times:'
-      output << "Auth time: #{ticket_enc_part.authtime}".indent(2)
-      output << "Start time: #{ticket_enc_part.starttime}".indent(2)
-      output << "End time: #{ticket_enc_part.endtime}".indent(2)
-      output << "Renew Till: #{ticket_enc_part.renew_till}".indent(2)
+      output << "Auth time: #{present_time(ticket_enc_part.authtime)}".indent(2)
+      output << "Start time: #{present_time(ticket_enc_part.starttime)}".indent(2)
+      output << "End time: #{present_time(ticket_enc_part.endtime)}".indent(2)
+      output << "Renew Till: #{present_time(ticket_enc_part.renew_till)}".indent(2)
 
       output << "Client Addresses: #{ticket_enc_part.caddr.to_a.length}"
       unless ticket_enc_part.caddr.to_a.empty?
@@ -281,14 +281,21 @@ module Rex::Proto::Kerberos::CredentialCache
 
     # @param [RubySMB::Dcerpc::Ndr::NdrFileTime] time
     # @return [String] A human readable representation of the time
-    def present_time(time)
+    def present_ndr_file_time(time)
       if time.get == Rex::Proto::Kerberos::Pac::NEVER_EXPIRE
         'Never Expires (inf)'
       elsif time.get == 0
         'No Time Set (0)'
       else
-        time.to_time.to_s
+        present_time(time.to_time)
       end
+    end
+
+
+    # @param [Time] time
+    # @return [String] A human readable representation of the time in the users timezone
+    def present_time(time)
+      time.localtime.to_s
     end
   end
 end

