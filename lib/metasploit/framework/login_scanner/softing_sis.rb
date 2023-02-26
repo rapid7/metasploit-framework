@@ -14,12 +14,21 @@ module Metasploit
         #
         # @return [Boolean] TrueClass if target is SIS, otherwise FalseClass
         def check_setup
-          uri = normalize_uri("#{uri}/js/language.js")
+          # we can interact with this endpoint as an unauthenticated user
+          uri = normalize_uri("#{uri}/runtime/core/product-version")
           res = send_request({ 'uri' => uri })
+          # make sure we get a response, and that the check was successful
+          unless res && res.code == 200
+            return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: res.to_s }
+          end
 
-          # "/js/language.js" should contain "Secure Integration Server"
-          if res && res.body.include?('Secure Integration Server')
-            return true
+          # convert the response to JSON
+          # we expect to see a response like {"version" : "1.22.0.8686"}
+          res_json = res.get_json_document
+          # if we successfully get the version
+          if res_json['version']
+            # return true
+            return res_json['version']
           end
 
           false
@@ -38,25 +47,38 @@ module Metasploit
           # attempt to get an authentication token
           auth_token_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication-token")
 
+          # send the request to get an authentication token
           auth_res = send_request({
             'method' => 'GET',
             'uri' => auth_token_uri,
             'cookie' => 'lang=en; user=guest'
           })
 
-          # convert the response to JSON
-          res_json = auth_res.get_json_document 
+          # check if we get a response
+          unless auth_res
+            return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: auth_res.to_s }
+          end
+
           # if the response code is 404, the user does not exist
           if auth_res.code == 404
             return { status: LOGIN_STATUS::INCORRECT, proof: res_json['Message'] }
           end
+
           # if the response code is 403, the user exists but access is denied
           if auth_res.code == 403
-            return { status: LOGIN_STATUS::DENIED_ACCESS, proof: res_json['Message']}
+            return { status: LOGIN_STATUS::DENIED_ACCESS, proof: res_json['Message'] }
           end
 
-          # we got authentication token
+          # convert the response to JSON
+          res_json = auth_res.get_json_document
+          # get authentication token
           auth_token = res_json['authentication-token']
+          # check that the token is not blank
+          if auth_token.blank?
+            framework_module.vprint_error('Received empty authentication token!')
+            return { status: LOGIN_STATUS::INCORRECT, proof: auth_res.body.to_s }
+          end
+
           login_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication")
           # calculate signature to use when logging in
           signature = Digest::MD5.hexdigest(auth_token + pass + auth_token + user + auth_token)

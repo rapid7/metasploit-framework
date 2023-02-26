@@ -41,64 +41,38 @@ class MetasploitModule < Msf::Auxiliary
     # credentials are "admin:admin" by default
     register_options(
       [
-        OptString.new('USERNAME', [false, 'The username to specify for authentication. Not required if SIGNATURE is set.', 'admin']),
-        OptString.new('PASSWORD', [false, 'The password to specify for authentication. Not required if SIGNATURE is set.', 'admin'])
+        OptString.new('USERNAME', [false, 'The username to specify for authentication.', 'admin']),
+        OptString.new('PASSWORD', [false, 'The password to specify for authentication.', 'admin'])
       ]
     )
   end
 
   def scanner(ip)
-    @scanner ||= lambda {
-      cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
-        username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS']
-      )
+    cred_collection = build_credential_collection(
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
+    )
 
-      return Metasploit::Framework::LoginScanner::SoftingSIS.new(
-        configure_http_login_scanner(
-          host: ip,
-          port: datastore['RPORT'],
-          cred_details: cred_collection,
-          stop_on_success: datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-          connection_timeout: 5
-        )
+    return Metasploit::Framework::LoginScanner::SoftingSIS.new(
+      configure_http_login_scanner(
+        host: ip,
+        port: datastore['RPORT'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
       )
-    }.call
+    )
   end
 
-  def report_good_cred(ip, port, result)
-    service_name = datastore['SSL'] ? 'https' : 'http'
-
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: service_name,
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      module_fullname: fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      last_attempted_at: DateTime.now,
-      status: result.status,
-      proof: result.proof
-    }.merge(service_data)
-
-    create_credential_login(login_data)
+  def report_good_cred(result)
+    service_data = { status: result.status }.merge(service_details)
+    store_valid_credential(
+      user: result.credential.public,
+      private: result.credential.private,
+      proof: result.proof,
+      service_data: service_data
+    )
   end
 
   def report_bad_cred(ip, rport, result)
@@ -120,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
-        report_good_cred(ip, rport, result)
+        report_good_cred(result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute(level: :verror, ip: ip, msg: result.proof)
         report_bad_cred(ip, rport, result)
@@ -135,11 +109,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    unless scanner(ip).check_setup
+    softing_ver = scanner(ip).check_setup
+    # if we get "false", throw the error
+    unless softing_ver
       print_brute(level: :error, ip: ip, msg: 'Target is not Softing Secure Integration Server')
       return
     end
 
+    # otherwise, report the version
+    print_brute(level: :good, ip: ip, msg: "Softing Secure Integration Server #{softing_ver}")
     bruteforce(ip)
   end
 
