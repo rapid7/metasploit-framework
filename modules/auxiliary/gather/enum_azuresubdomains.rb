@@ -14,7 +14,12 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => 'This module can be used for enumerating public Azure services by locating valid subdomains through various DNS queries.',
         'Author' => ['RoseSecurity <RoseSecurityConsulting[at]protonmail.me>'],
         'References' => ['www.netspi.com/blog/technical/cloud-penetration-testing/enumerating-azure-services'],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
       )
     register_options(
@@ -125,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       target_domains = []
       subdomains.each do |tld|
         target_domains.append(domain + tld)
-        permutated_domains.each do |domain|
+        permutated_domains.each do |_subdomain|
           target_domains.append(domain + tld)
         end
       end
