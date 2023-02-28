@@ -480,13 +480,12 @@ class Console::CommandDispatcher::Stdapi::Net
               'PeerHost'          => lhost,
               'PeerPort'          => lport,
               'MeterpreterRelay'  => true)
-            rport = relay.opts['LocalPort']
           rescue Exception => e
             print_error("Failed to create relay: #{e.to_s}")
             return false
           end
 
-          print_status("Reverse TCP relay created: (remote) #{netloc(rhost, rport)} -> (local) #{netloc(channel.params.localhost, channel.params.localport)}")
+          print_status("Reverse TCP relay created: (remote) #{netloc(channel.params.localhost, channel.params.localport)} -> (local) #{netloc(lhost, lport)}")
         else
           # Validate parameters
           unless lport && rhost && rport
