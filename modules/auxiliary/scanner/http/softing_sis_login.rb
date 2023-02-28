@@ -96,13 +96,13 @@ class MetasploitModule < Msf::Auxiliary
         print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         report_good_cred(result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute(level: :verror, ip: ip, msg: result.proof)
+        print_brute(level: :verror, ip: ip, msg: result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
+        print_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::DENIED_ACCESS
-        vprint_brute(level: :verror, ip: ip, msg: "Access denied: '#{result.credential}'")
+        print_brute(level: :verror, ip: ip, msg: "Access denied: '#{result.credential}'")
         report_bad_cred(ip, rport, result)
       end
     end
