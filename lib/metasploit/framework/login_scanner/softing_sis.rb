@@ -59,20 +59,20 @@ module Metasploit
             return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: auth_res.to_s }
           end
 
+          # convert the response to JSON
+          auth_json = auth_res.get_json_document
           # if the response code is 404, the user does not exist
-          if auth_res.code == 404
-            return { status: LOGIN_STATUS::INCORRECT, proof: res_json['Message'] }
+          if auth_res.code == 404 && auth_json && auth_json['Message']
+            return { status: LOGIN_STATUS::INCORRECT, proof: auth_json['Message'] }
           end
 
           # if the response code is 403, the user exists but access is denied
-          if auth_res.code == 403
-            return { status: LOGIN_STATUS::DENIED_ACCESS, proof: res_json['Message'] }
+          if auth_res.code == 403 && auth_json && auth_json['Message']
+            return { status: LOGIN_STATUS::DENIED_ACCESS, proof: auth_json['Message'] }
           end
 
-          # convert the response to JSON
-          res_json = auth_res.get_json_document
           # get authentication token
-          auth_token = res_json['authentication-token']
+          auth_token = auth_json['authentication-token']
           # check that the token is not blank
           if auth_token.blank?
             framework_module.vprint_error('Received empty authentication token!')
@@ -104,7 +104,7 @@ module Metasploit
           # the response is in JSON format
           res_json = res.get_json_document
           # a successful response will contain {"Message": "Success"}
-          if res.code.to_i == 200 && res_json && res_json['Message'] == 'Success'
+          if res.code == 200 && res_json && res_json['Message'] == 'Success'
             return { status: LOGIN_STATUS::SUCCESSFUL, proof: res.body }
           end
 
