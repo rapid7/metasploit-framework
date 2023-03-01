@@ -201,6 +201,16 @@ module Msf
             case ref.ctx_id
             when 'MSB'
               normalized << "* [#{ref.ctx_val}](#{ref.site})"
+            when 'BID'
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            when 'EDB'
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            when 'ZDI'
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            when 'WPVDB'
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            when 'PACKETSTORM'
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
             when 'URL'
               normalized << "* [#{ref.site}](#{ref.site})"
             when 'OSVDB'

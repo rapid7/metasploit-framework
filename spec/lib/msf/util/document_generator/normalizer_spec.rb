@@ -157,6 +157,16 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
       it 'returns the reference list in HTML' do
         expect(subject.send(:normalize_references, msf_mod.references)).to include('* [http://')
       end
+
+      it 'returns the references list with packetstorm URL' do
+        refs = [Msf::Module::SiteReference.new('PACKETSTORM', '171208')]
+        expect(subject.send(:normalize_references, refs)).to include('* [PACKETSTORM-171208]')
+      end
+
+      it 'returns the references list with 51030 URL' do
+        refs = [Msf::Module::SiteReference.new('EDB', '51030')]
+        expect(subject.send(:normalize_references, refs)).to include('* [EDB-51030]')
+      end
     end
   end
 
