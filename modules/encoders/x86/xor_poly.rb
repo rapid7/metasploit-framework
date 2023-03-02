@@ -67,14 +67,13 @@ class MetasploitModule < Msf::Encoder::Xor
     push = 0b0101_0000
     mov = 0b1011_1000
 
-
     reg1 = regs[rand(6)]
     regs.delete(reg1)
     reg2 = regs[rand(5)]
     regs.delete(reg2)
     reg3 = regs[rand(4)]
     regs.delete(reg3)
-    reg4 = regs[rand(3)] #reg4 is useless and used for nopLike operations
+    reg4 = regs[rand(3)] # reg4 is useless and used for nopLike operations
     regs.delete(reg4)
 
     # NOPS
