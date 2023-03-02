@@ -26,10 +26,10 @@ class MetasploitModule < Msf::Encoder
       raise BadcharError if state.badchars.include?(c)
     end
 
-    # Modern versions of PHP choke on unquoted litteral strings.
+    # Modern versions of PHP choke on unquoted literal strings.
     quote = "'"
     if state.badchars.include?("'")
-      raise BadcharError if state.badchars.include?('"')
+      raise BadcharError.new, "The #{self.name} encoder failed to encode the decoder stub without bad characters." if state.badchars.include?('"')
 
       quote = '"'
     end
