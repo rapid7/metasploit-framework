@@ -2,22 +2,25 @@ require 'fileutils'
 require 'uri'
 require 'open3'
 require 'optparse'
+require 'did_you_mean'
 require_relative './navigation'
 
-# Temporary build module to help migrate and build the Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
-# supported by Jekyll, as well as creating a hierarchical folder structure for nested documentation
+# This build module was used to migrate the old Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
+# supported by Jekyll. Jekyll was chosen as it was written in Ruby, which should reduce the barrier to entry for contributions.
+#
+# The build script took the flatlist of markdown files from the wiki, and converted them into the hierarchical folder structure
+# for nested documentation. This configuration is defiend in `navigation.rb`
+#
+# In the future a different site generator could be used, but it should be possible to use this build script again to migrate to a new format
 #
 # For now the doc folder only contains the key files for building the docs site and no content. The content is created on demand
-# from the metasploit-framework wiki on each build
-#
-# In the future, the markdown files will be committed directly to the metasploit-framework directory, the wiki history will be
-# merged with metasploit-framework, and the old wiki will no longer be updated.
+# from the `metasploit-framework.wiki` folder on each build
 module Build
   # The metasploit-framework.wiki files that are committed to Metasploit framework's repository
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
-  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki
+  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki - should no longer be required for normal workflows
   OLD_WIKI_PATH = 'metasploit-framework.wiki.old'.freeze
-  PRODUCTION_BUILD_ARTIFACTS = '_site'.freeze
+  RELEASE_BUILD_ARTIFACTS = '_site'.freeze
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
   # for each build. This allows changes to be made to the existing wiki until it's migrated
@@ -46,13 +49,18 @@ module Build
     def validate!
       configured_paths = all_file_paths
       missing_paths = available_paths.map { |path| path.gsub("#{WIKI_PATH}/", '') } - ignored_paths - existing_docs - configured_paths
-      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
+      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')} - add navigation entries to navigation.rb for these files" if missing_paths.any?
 
       each do |page|
         page_keys = page.keys
         allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
-        raise ConfigValidationError, "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
+
+        suggestion = DidYouMean::SpellChecker.new(dictionary: allowed_keys).correct(invalid_keys[0]).first
+        error = "#{page} had invalid keys #{invalid_keys.join(', ')}."
+        error += " Did you mean #{suggestion}?" if suggestion
+
+        raise ConfigValidationError, error  if invalid_keys.any?
       end
 
       # Ensure unique folder names
@@ -179,16 +187,22 @@ module Build
       @config.enum_for(:each).map { |page| page }
     end
 
-    # scans for absolute links to the old wiki such as 'https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service'
+    # scans for absolute links to the old wiki such as 'https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html'
     def extract_absolute_wiki_links(markdown)
       new_links = {}
 
-      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_-]+))}) do |full_match, old_path|
+      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_#-]+))}) do |full_match, old_path|
         full_match = full_match.gsub(/[).]+$/, '')
         old_path = URI.decode_www_form_component(old_path.gsub(/[).]+$/, ''))
 
-        new_path = new_path_for(old_path)
-        replacement = "{% link docs/#{new_path} %}"
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+
+        new_path = new_path_for(old_path, old_path_anchor)
+        replacement = "{% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""}"
 
         link = {
           full_match: full_match,
@@ -208,18 +222,26 @@ module Build
     #   '[[Custom name|Relative Path]]'
     #   '[[Custom name|relative-path]]'
     #   '[[Custom name|./relative-path.md]]'
+    #   '[[Custom name|./relative-path.md#section-anchor-to-link-to]]'
+    # Note that the page target resource file is validated for existence at build time - but the section anchors are not
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
-      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.-]+))?\]\])/) do |full_match, left, right|
+
+      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.#-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
-        new_path = new_path_for(old_path)
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+        new_path = new_path_for(old_path, old_path_anchor)
         if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
           raise "Link for #{full_match} previously resolved to #{existing_links[full_match][:new_path]}, but now resolves to #{new_path}"
         end
 
         link_text = left
-        replacement = "[#{link_text}]({% link docs/#{new_path} %})"
+        replacement = "[#{link_text}]({% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""})"
 
         link = {
           full_match: full_match,
@@ -236,18 +258,39 @@ module Build
       new_links
     end
 
-    def new_path_for(old_path)
-      old_path = old_path.gsub(' ', '-')
+    def new_path_for(old_path, old_path_anchor)
+      # Strip out any leading `./` or `/` before the relative path.
+      # This is needed for our later code that does additional filtering for
+      # potential ambiguity with absolute paths since those comparisons occur
+      # against filenames without the leading ./ and / parts.
+      old_path = old_path.gsub(/^[.\/]+/, '')
+
+      # Replace any spaces in the file name with - separators, then
+      # make replace anchors with an empty string.
+      old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
+
       matched_pages = pages.select do |page|
         !page[:folder] &&
           (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
             File.basename(page[:path]).downcase == "#{File.basename(old_path)}".downcase)
       end
       if matched_pages.empty?
-        raise "Missing path for #{old_path}"
+        raise "Link not found: #{old_path}"
       end
+      # Additional filter for absolute paths if there's potential ambiguity
       if matched_pages.count > 1
-        raise "Duplicate paths for #{old_path}"
+        refined_pages = matched_pages.select do |page|
+          !page[:folder] &&
+            (page[:path].downcase == "#{old_path}.md".downcase ||
+              page[:path].downcase == old_path.downcase)
+        end
+
+        if refined_pages.count != 1
+          page_paths = matched_pages.map { |page| page[:path] }
+          raise "Duplicate paths for #{old_path} - possible page paths found: #{page_paths}"
+        end
+
+        matched_pages = refined_pages
       end
 
       matched_pages.first.fetch(:new_path)
@@ -276,7 +319,11 @@ module Build
         '@zeroSteiner',
         '@harmj0y',
       ]
+      # These tags look like Github/Twitter handles, but are actually ruby/java code snippets
       ignored_tags = [
+        '@spid',
+        '@adf3',
+        '@LDAP-DC3',
         '@harmj0yDescription',
         '@phpsessid',
         '@http_client',
@@ -368,7 +415,8 @@ module Build
           **page.slice(:title, :has_children, :nav_order),
           parent: (page[:parents][-1] || {})[:title],
           warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
-          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated"
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated",
+          has_content: !page[:path].nil?
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
@@ -382,7 +430,7 @@ module Build
         new_path = File.join(result_folder, page[:new_path])
         FileUtils.mkdir_p(File.dirname(new_path))
 
-        if page[:folder]
+        if page[:folder] && page[:path].nil?
           new_docs_content = preamble.rstrip + "\n"
         else
           old_path = File.join(WIKI_PATH, page[:path])
@@ -414,7 +462,7 @@ module Build
     def link_corrector_for(config)
       link_corrector = LinkCorrector.new(config)
       config.each do |page|
-        unless page[:folder]
+        unless page[:path].nil?
           content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
           link_corrector.extract(content)
         end
@@ -424,8 +472,8 @@ module Build
     end
   end
 
-  # Serve the production build at http://127.0.0.1:4000/metasploit-framework/
-  class ProductionServer
+  # Serve the release build at http://127.0.0.1:4000/metasploit-framework/
+  class ReleaseBuildServer
     autoload :WEBrick, 'webrick'
 
     def self.run
@@ -434,7 +482,7 @@ module Build
           Port: 4000
         }
       )
-      server.mount('/', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
+      server.mount('/', WEBrick::HTTPServlet::FileHandler, RELEASE_BUILD_ARTIFACTS)
       trap('INT') do
         server.shutdown
       rescue StandardError
@@ -539,11 +587,18 @@ module Build
     end
 
     if options[:production]
-      FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
       run_command('JEKYLL_ENV=production bundle exec jekyll build')
 
       if options[:serve]
-        ProductionServer.run
+        ReleaseBuildServer.run
+      end
+    elsif options[:staging]
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
+      run_command('JEKYLL_ENV=production bundle exec jekyll build --config _config.yml,_config_staging.yml')
+
+      if options[:serve]
+        ReleaseBuildServer.run
       end
     elsif options[:serve]
       run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
@@ -565,6 +620,10 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--production', 'Run a production build') do |production|
       options[:production] = production
+    end
+
+    opts.on('--staging', 'Run a staging build for deploying to gh-pages') do |staging|
+      options[:staging] = staging
     end
 
     opts.on('--serve', 'serve the docs site') do |serve|
@@ -589,6 +648,10 @@ if $PROGRAM_NAME == __FILE__
     opts.on('--create-wiki-to-framework-migration-branch') do
       options[:create_wiki_to_framework_migration_branch] = true
     end
+  end
+  if ARGV.length == 0
+    puts options_parser.help
+    exit 1
   end
   options_parser.parse!
 

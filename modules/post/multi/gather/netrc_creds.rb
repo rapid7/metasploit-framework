@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
       end
 
       # save whatever remains of this last cred if it is worth saving
-      creds << cred if (cred[:host] and cred[:user] and cred[:pass])
+      creds << cred if (cred[:host] && cred[:user] && cred[:pass])
     end
 
     # print out everything we've found

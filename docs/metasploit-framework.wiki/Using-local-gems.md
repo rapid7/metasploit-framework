@@ -2,7 +2,7 @@
 Often times when testing Gem file updates, particularly from other repositories such as [rex-powershell](https://github.com/rapid7/rex-powershell) or [rex-text](https://github.com/rapid7/rex-text), one will need to find some way of testing whether the updated Gem file works as expected within Metasploit Framework. There are many different ways to do this, however this guide will only focus on one method for simplicities sake, as this is the one that has been known to work with the least amount of prerequisite setup.
 
 ## Instructions
-1. Set up a working Metasploit development setup as described at the [Setting Up a Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) wiki page. Be sure to set up your SSH keys as part of this setup.
+1. Set up a working Metasploit development setup as described at the [[Setting Up a Development Environment|./dev/Setting-Up-a-Metasploit-Development-Environment.md]] wiki page. Be sure to set up your SSH keys as part of this setup.
 2. Clone whatever PR it is that you wish to work on. For example to work on <https://github.com/rapid7/rex-text/pull/30>, do `git clone git@github.com:rapid7/rex-text.git`, then `cd rex-text`, followed by `git checkout origin/pr/30`.
 3. Go to the location of your git clone of Metasploit Framework and do `cp Gemfile.local.example Gemfile.local`. Ensure that no file named `Gemfile.local.lock` exists. If one does, remove it.
 4. Inside your `Gemfile.local` file, edit it so it looks something like the following:

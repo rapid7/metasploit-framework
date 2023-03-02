@@ -5,8 +5,6 @@ can be used to verify merge commits made to <https://github.com/rapid7/metasploi
 
 Keybase.io is used by Metasploit as an easy way to verify identities of committers. If you're a committer on metasploit-framework, and you need an invite, just ask.
 
-<sup>Altering this table's layout will almost certainly break [import-dev-keys.sh](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/import-dev-keys.sh), so please don't.</sup>
-
 | Github Username                                   | Keybase.io Username                                |
 | ------------------------------------------------- | -------------------------------------------------- |
 | [@adfoster-r7](https://github.com/adfoster-r7)    | [adfosterr7](https://keybase.io/adfosterr7)        |
@@ -78,7 +76,7 @@ Please select what kind of key you want:
    (4) RSA (sign only)
 Your selection? 4
 RSA keys may be between 1024 and 4096 bits long.
-What keysize do you want? (2048) 
+What keysize do you want? (2048)
 Requested keysize is 2048 bits
 Please specify how long the key should be valid.
          0 = key does not expire
@@ -96,7 +94,7 @@ from the Real Name, Comment and Email Address in this form:
 
 Real name: Dade Murphy
 Email address: dmurphy@thegibson.example
-Comment: 
+Comment:
 You selected this USER-ID:
     "Dade Murphy <dmurphy@thegibson.example>"
 
@@ -120,7 +118,7 @@ Enter passphrase: [...]
 
 Using `git c` and `git m` from now on will sign every commit with your `DEADBEEF` key. However, note that rebasing or cherry-picking commits will change the commit hash, and therefore, unsign the commit -- to resign the most recent, use `git c --amend`.
 
-[msf-committers]:https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights
+[msf-committers]:https://docs.metasploit.com/docs/development/maintainers/committer-rights.html
 [pro-sharing]:https://filippo.io/on-keybase-dot-io-and-encrypted-private-key-sharing/
 [con-sharing]:https://www.tbray.org/ongoing/When/201x/2014/03/19/Keybase#p-5
 [tracking]:https://github.com/keybase/keybase-issues/issues/100

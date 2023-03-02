@@ -8,19 +8,22 @@ class MetasploitModule < Msf::Post
   DEFAULT_FRAMELIST = File.join(Msf::Config.data_directory, 'wordlists', 'can_flood_frames.txt')
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'CAN Flood',
-      'Description'  => 'This module floods a CAN interface with supplied frames.',
-      'Author'       => 'Pietro Biondi',
-      'License'      => MSF_LICENSE,
-      'Platform'     => 'hardware',
-      'SessionTypes' => ['hwbridge']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'CAN Flood',
+        'Description' => 'This module floods a CAN interface with supplied frames.',
+        'Author' => 'Pietro Biondi',
+        'License' => MSF_LICENSE,
+        'Platform' => 'hardware',
+        'SessionTypes' => ['hwbridge']
+      )
+    )
 
     register_options([
-      OptString.new('CANBUS',    [true, 'CAN interface']),
+      OptString.new('CANBUS', [true, 'CAN interface']),
       OptString.new('FRAMELIST', [true, 'Path to frame list file', DEFAULT_FRAMELIST]),
-      OptInt.new('ROUNDS',       [true, 'Number of executed rounds', 200])
+      OptInt.new('ROUNDS', [true, 'Number of executed rounds', 200])
     ])
   end
 

@@ -217,6 +217,10 @@ Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'
 
+Style/MutableConstant:
+  Enabled: false
+  Description: 'We cannot support this yet without a lot of things breaking'
+
 Style/RedundantReturn:
   Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
   Enabled: false
@@ -251,6 +255,18 @@ Naming/VariableNumber:
 
 Style/NumericPredicate:
   Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
+Style/EvenOdd:
+  Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
+Style/FloatDivision:
+  Description: 'Not a safe rule to run on Metasploit without manual verification as the right hand side may be a string'
+  Enabled: false
+
+Style/FormatString:
+  Description: 'Not a safe rule to run on Metasploit without manual verification that the format is not redefined/shadowed'
   Enabled: false
 
 Style/Documentation:
@@ -349,6 +365,191 @@ Naming/MethodParameterName:
   Enabled: true
   Description: 'Whoever made this requirement never looked at crypto methods, IV'
   MinNameLength: 2
+
+Naming/PredicateName:
+  Enabled: true
+  # Current methods that break the rule, so that we don't add additional methods that break the convention
+  AllowedMethods:
+    - has_additional_info?
+    - has_advanced_options?
+    - has_auth
+    - has_auto_target?
+    - has_bad_activex?
+    - has_badchars?
+    - has_chars?
+    - has_check?
+    - has_command?
+    - has_content_type_extension?
+    - has_datastore_cred?
+    - has_evasion_options?
+    - has_fatal_errors?
+    - has_fields
+    - has_files?
+    - has_flag?
+    - has_function_name?
+    - has_gcc?
+    - has_h2_headings
+    - has_input_name?
+    - has_j_security_check?
+    - has_key?
+    - has_match?
+    - has_module
+    - has_object_ref
+    - has_objects_list
+    - has_options?
+    - has_page?
+    - has_passphrase?
+    - has_pid?
+    - has_pkt_line_data?
+    - has_prereqs?
+    - has_privacy_waiver?
+    - has_privates?
+    - has_protected_mode_prompt?
+    - has_proxy?
+    - has_read_data?
+    - has_ref?
+    - has_required_args
+    - has_required_module_options?
+    - has_requirements
+    - has_rop?
+    - has_s_flag?
+    - has_service_cred?
+    - has_subscriber?
+    - has_subtree?
+    - has_text
+    - has_tlv?
+    - has_u_flag?
+    - has_users?
+    - has_vuln?
+    - has_waiver?
+    - have_auth_error?
+    - have_powershell?
+    - is_accessible?
+    - is_admin?
+    - is_alive?
+    - is_alpha_web_server?
+    - is_android?
+    - is_app_binom3?
+    - is_app_carlogavazzi?
+    - is_app_cnpilot?
+    - is_app_epaduo?
+    - is_app_epmp1000?
+    - is_app_infovista?
+    - is_app_ironport?
+    - is_app_metweblog?
+    - is_app_oilom?
+    - is_app_openmind?
+    - is_app_popad?
+    - is_app_radware?
+    - is_app_rfreader?
+    - is_app_sentry?
+    - is_app_sevone?
+    - is_app_splunk?
+    - is_app_ssl_vpn?
+    - is_array_type?
+    - is_auth_required?
+    - is_author_blacklisted?
+    - is_badchar
+    - is_base64?
+    - is_bind?
+    - is_cached_size_accurate?
+    - is_cgi_enabled?
+    - is_cgi_exploitable?
+    - is_check_interesting?
+    - is_child_of?
+    - is_clr_enabled
+    - is_connect?
+    - is_dlink?
+    - is_dn?
+    - is_dynamic?
+    - is_error_code
+    - is_exception?
+    - is_exploit_module?
+    - is_exploitable?
+    - is_fqdn?
+    - is_glob?
+    - is_groupwise?
+    - is_guest_mode_enabled?
+    - is_hash_from_empty_pwd?
+    - is_high_integrity?
+    - is_hostname?
+    - is_ie?
+    - is_imc?
+    - is_imc_som?
+    - is_in_admin_group?
+    - is_interface?
+    - is_ip_targeted?
+    - is_key_wanted?
+    - is_leaf?
+    - is_local?
+    - is_logged_in?
+    - is_loggedin
+    - is_loopback_address?
+    - is_mac?
+    - is_match
+    - is_md5_format?
+    - is_module_arch?
+    - is_module_platform?
+    - is_module_wanted?
+    - is_multi_platform_exploit?
+    - is_not_null?
+    - is_null_pointer
+    - is_null_pointer?
+    - is_num?
+    - is_num_type?
+    - is_numeric
+    - is_online?
+    - is_parseable
+    - is_pass_ntlm_hash?
+    - is_passwd_method?
+    - is_password_required?
+    - is_payload_compatible?
+    - is_payload_platform_compatible?
+    - is_pointer_type?
+    - is_pri_key?
+    - is_proficy?
+    - is_rdp_up
+    - is_remote_exploit?
+    - is_resource_taken?
+    - is_rf?
+    - is_rmi?
+    - is_root?
+    - is_routable?
+    - is_running?
+    - is_scan_complete
+    - is_secure_admin_disabled?
+    - is_session_type?
+    - is_signature_correct?
+    - is_single_object?
+    - is_struct_type?
+    - is_supermicro?
+    - is_superuser?
+    - is_sws?
+    - is_system?
+    - is_system_user?
+    - is_target?
+    - is_target_suitable?
+    - is_trial_enabled?
+    - is_trustworthy
+    - is_uac_enabled?
+    - is_url_alive
+    - is_usable?
+    - is_uuid?
+    - is_valid?
+    - is_valid_bus?
+    - is_valid_snmp_value
+    - is_value_wanted?
+    - is_version_compat?
+    - is_version_tested?
+    - is_vmware?
+    - is_vul
+    - is_vulnerable?
+    - is_warbird?
+    - is_windows?
+    - is_writable
+    - is_writable?
+    - is_x86?
+    - is_zigbee_hwbridge_session?
 
 # %q() is super useful for long strings split over multiple lines and
 # is very common in module constructors for things like descriptions

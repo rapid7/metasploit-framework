@@ -7,6 +7,53 @@ def without_prefix(prefix)
   proc { |value| value.sub(/^#{prefix}/, '') }
 end
 
+=begin
+Modify `NAVIGATION_CONFIG` to add additional items to the wiki site.
+The two support options are:
+
+1) If you are adding a new wiki page, which won't appear in msfconsole by default:
+
+- Add your new page to `metasploit-framework.wiki`
+- Add a new entry to NAVIGATION_CONFIG:
+```ruby
+{
+  path: 'My-New-Page.md'
+}
+```
+
+The title will be automatically derived from the markdown file. If you wish to override this title, use:
+
+```ruby
+{
+  path: 'My-New-Page.md',
+  title: 'Custom title for navigation link'
+}
+```
+
+You can also programmatically change titles with procs, i.e. using the `without_prefix` helper to generate
+a title from the filename with a being prefix removed:
+
+```ruby
+{
+  nav_order: 7,
+  path: 'Metasploit-Guide-PostgreSQL.md',
+  title: without_prefix('Metasploit Guide ')
+}
+```
+
+2) If you are embedding existing Metasploit module documentation into the wiki site, use relative paths:
+
+```ruby
+{
+  path: '../../documentation/modules/auxiliary/admin/kerberos/forge_ticket.md',
+  title: 'Silver and golden tickets'
+}
+```
+
+These module docs will appear in msfconsole as well as the generated docs site. Note that msfconsole does not
+support Mermaid syntax - used for generating sequence diagrams/charts/etc on the rendered docs site.
+
+=end
 NAVIGATION_CONFIG = [
   {
     path: 'Home.md',
@@ -17,9 +64,14 @@ NAVIGATION_CONFIG = [
     nav_order: 2
   },
   {
+    path: 'Modules.md',
+    title: 'Modules',
+    nav_order: 3
+  },
+  {
     title: 'Pentesting',
     folder: 'pentesting',
-    nav_order: 3,
+    nav_order: 4,
     children: [
       {
         path: 'Metasploit-Guide-Setting-Module-Options.md',
@@ -37,39 +89,134 @@ NAVIGATION_CONFIG = [
         title: without_prefix('Metasploit Guide ')
       },
       {
+        nav_order: 5,
+        path: 'Metasploit-Guide-Kubernetes.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+      {
+        nav_order: 5,
         path: 'Metasploit-Guide-HTTP.md',
         title: 'HTTP + HTTPS'
       },
       {
+        nav_order: 6,
         path: 'Metasploit-Guide-MySQL.md',
         title: without_prefix('Metasploit Guide ')
       },
       {
+        nav_order: 7,
         path: 'Metasploit-Guide-PostgreSQL.md',
         title: without_prefix('Metasploit Guide ')
       },
       {
+        nav_order: 8,
         path: 'Metasploit-Guide-SMB.md',
         title: without_prefix('Metasploit Guide ')
       },
       {
+        nav_order: 9,
         path: 'Metasploit-Guide-SSH.md',
         title: without_prefix('Metasploit Guide ')
       },
       {
+        nav_order: 10,
         path: 'Metasploit-Guide-WinRM.md',
         title: without_prefix('Metasploit Guide ')
       },
+
       {
-        path: 'Metasploit-Guide-Kubernetes.md',
+        nav_order: 11,
+        path: 'Metasploit-Guide-MSSQL.md',
         title: without_prefix('Metasploit Guide ')
-      }
+      },
+      {
+        nav_order: 12,
+        path: 'Metasploit-Guide-LDAP.md',
+        title: without_prefix('Metasploit Guide ')
+      },
+
+      {
+        title: 'Active Directory',
+        folder: 'active-directory',
+        nav_order: 13,
+        children: [
+          {
+            title: 'Kerberos',
+            folder: 'kerberos',
+            children: [
+              {
+                path: 'kerberos/overview.md',
+                title: 'Overview',
+                nav_order: 0
+              },
+              {
+                path: 'kerberos/service_authentication.md',
+                title: 'Authenticating to SMB/WinRM/etc',
+                nav_order: 1
+              },
+              {
+                path: '../../documentation/modules/auxiliary/scanner/kerberos/kerberos_login.md',
+                title: 'Kerberos login enumeration and bruteforcing',
+                nav_order: 2
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/kerberos/get_ticket.md',
+                title: 'Get Ticket granting tickets and service tickets',
+                nav_order: 3,
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/kerberos/forge_ticket.md',
+                title: 'Forging tickets',
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/kerberos/inspect_ticket.md',
+                title: 'Inspecting tickets',
+              },
+              {
+                path: 'kerberos/kerberoasting.md',
+                title: 'Kerberoasting',
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/kerberos/keytab.md',
+                title: 'Keytab support and decrypting wireshark traffic'
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/kerberos/ticket_converter.md',
+                title: 'Converting kirbi and ccache files'
+              }
+            ]
+          },
+          {
+            title: 'AD CS',
+            folder: 'ad-certificates',
+            children: [
+              {
+                path: 'ad-certificates/overview.md',
+                title: 'Overview',
+                nav_order: 0,
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/dcerpc/icpr_cert.md',
+                title: 'Request certificates'
+              },
+              {
+                path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
+                title: 'Vulnerable cert finder'
+              },
+              {
+                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
+                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
+              },
+            ]
+          }
+        ]
+      },
     ]
   },
   {
     title: 'Using Metasploit',
     folder: 'using-metasploit',
-    nav_order: 4,
+    nav_order: 5,
     children: [
       {
         title: 'Getting Started',
@@ -97,20 +244,24 @@ NAVIGATION_CONFIG = [
             nav_order: 2
           },
           {
-            path: 'How-to-use-msfvenom.md',
+            path: 'How-to-use-a-Metasploit-module-appropriately.md',
             nav_order: 3
           },
           {
-            path: 'How-to-use-a-Metasploit-module-appropriately.md'
+            path: 'How-payloads-work.md',
+            nav_order: 4
           },
           {
-            path: 'How-payloads-work.md'
+            path: 'Module-Documentation.md',
+            nav_order: 5
           },
           {
-            path: 'Module-Documentation.md'
+            path: 'How-to-use-a-reverse-shell-in-Metasploit.md',
+            nav_order: 6
           },
           {
-            path: 'How-to-use-a-reverse-shell-in-Metasploit.md'
+            path: 'How-to-use-msfvenom.md',
+            nav_order: 7
           },
         ]
       },
@@ -230,6 +381,18 @@ NAVIGATION_CONFIG = [
               },
             ]
           },
+          {
+            title: 'RPC',
+            folder: 'RPC',
+            children: [
+              {
+                path: 'How-to-use-Metasploit-Messagepack-RPC.md'
+              },
+              {
+                path: 'How-to-use-Metasploit-JSON-RPC.md'
+              },
+            ]
+          },
         ]
       },
       {
@@ -264,7 +427,7 @@ NAVIGATION_CONFIG = [
   {
     title: 'Development',
     folder: 'development',
-    nav_order: 5,
+    nav_order: 6,
     children: [
       {
         title: 'Get Started ',
@@ -699,6 +862,10 @@ NAVIGATION_CONFIG = [
             path: 'GSoC-2022-Project-Ideas.md',
             title: without_prefix('GSoC')
           },
+          {
+            path: 'GSoC-2023-Project-Ideas.md',
+            title: without_prefix('GSoC')
+          },
         ]
       },
       {
@@ -766,6 +933,6 @@ NAVIGATION_CONFIG = [
   },
   {
     path: 'Contact.md',
-    nav_order: 5
+    nav_order: 7
   },
 ].freeze

@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
   # The OS X version uses an AppleScript to do this
   #
   def osx_set_wallpaper(file)
-    remote_file = upload_wallpaper("/tmp/", file)
+    remote_file = upload_wallpaper('/tmp/', file)
     script = %(osascript -e 'tell application "Finder" to set desktop picture to POSIX file "#{remote_file}"')
     begin
       cmd_exec(script)
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
   # The Windows version uses the SystemParametersInfo call
   #
   def win_set_wallpaper(file)
-    remote_file = upload_wallpaper("%TEMP%\\", file)
+    remote_file = upload_wallpaper('%TEMP%\\', file)
     client.railgun.user32.SystemParametersInfoA(0x0014, nil, remote_file, 0x2) != 0
   end
 

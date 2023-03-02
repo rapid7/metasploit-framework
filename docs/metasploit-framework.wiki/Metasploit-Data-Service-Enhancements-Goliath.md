@@ -25,14 +25,14 @@ The current data storage mechanism couples the metasploit core framework code to
 * The ability to support/use different data storage technologies is difficult
 * Promotes a monolithic architecture where poor performance in any segment of the software affects the entire system (large network scans)
 
-Our solution to this is a data service proxy.  A data service proxy allows us to separate core metasploit framework code from the underlying data service technology.  The `framework.db` reference to data services is no longer tied directly to the underlying data storage, but instead all calls are proxied to an underlying implementation.
+Our solution to this is a data service proxy.  A data service proxy allows us to separate core Metasploit Framework code from the underlying data service technology.  The `framework.db` reference to data services is no longer tied directly to the underlying data storage, but instead all calls are proxied to an underlying implementation.
 
 Currently we plan to support the legacy data storage technology stack (RAILS/PostgreSQL) which we hope to eventually phase out.  The new implementation will use a RESTful (https://en.wikipedia.org/wiki/Representational_state_transfer) approach whereby calls to `framework.db` can be proxied to a remote web service that supports the same data service API.  We have built a web service that runs atop the current data storage service for the community.
 
 This approach enables us to:
-* More easily enhance the metasploit data model 
-* Run a web-based data service independent of the metasploit framework
-    * Reduces the memory used by a metasploit framework instance using a data service by no longer requiring a DB client
+* More easily enhance the Metasploit data model
+* Run a web-based data service independent of the Metasploit Framework
+    * Reduces the memory used by a Metasploit Framework instance using a data service by no longer requiring a DB client
     *  Increases throughput as storage calls don't necessarily need to be asynchronous
     *  Allow teams to collaborate easily by connecting to a centralized data service
 * Quickly build out data services that leverage different technology stacks
@@ -41,4 +41,4 @@ This approach enables us to:
 
 ## Usage
 
-For more information on setting up the web service and using the data services see [Metasploit Web Service](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).
+For more information on setting up the web service and using the data services see [[Metasploit Web Service|./Metasploit-Web-Service.md]].

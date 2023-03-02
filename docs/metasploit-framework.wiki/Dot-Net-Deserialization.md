@@ -12,7 +12,7 @@ compatibility of each.
 
 | Gadget Chain Name           | BinaryFormatter | LosFormatter | SoapFormatter |
 | --------------------------- | --------------- | ------------ | ------------- |
-| ClaimsPrincipal             | Yes             | Yes          | Yes           | 
+| ClaimsPrincipal             | Yes             | Yes          | Yes           |
 | TextFormattingRunProperties | Yes             | Yes          | Yes           |
 | TypeConfuseDelegate         | Yes             | Yes          | No            |
 | WindowsIdentity             | Yes             | Yes          | Yes           |
@@ -134,5 +134,5 @@ payloads such as Meterpreter.
 [5]: https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/util/dot_net_deserialization/types
 [6]: https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/util/dot_net_deserialization.rb
 [7]: https://github.com/rapid7/metasploit-framework/blob/master/spec/lib/msf/util/dot_net_deserialization_spec.rb
-[8]: https://github.com/rapid7/metasploit-framework/wiki/How-to-use-command-stagers
-[9]: https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit
+[8]: https://docs.metasploit.com/docs/development/developing-modules/guides/how-to-use-command-stagers.html
+[9]: https://docs.metasploit.com/docs/development/developing-modules/libraries/how-to-use-powershell-in-an-exploit.html

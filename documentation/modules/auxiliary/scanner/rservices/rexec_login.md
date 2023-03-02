@@ -22,19 +22,19 @@ The following was done on Kali linux:
   A run against the configuration from these docs
 
   ```
-    msf > use auxiliary/scanner/rservices/rexec_login 
+    msf > use auxiliary/scanner/rservices/rexec_login
     msf auxiliary(rexec_login) > set username test
     username => test
     msf auxiliary(rexec_login) > set password 'test'
     password => test
     msf auxiliary(rexec_login) > run
-    
+
     [*] 127.0.0.1:512         - 127.0.0.1:512 - Starting rexec sweep
     [+] 127.0.0.1:512         - 127.0.0.1:512, rexec 'test' : 'test'
     [!] 127.0.0.1:512         - *** auxiliary/scanner/rservices/rexec_login is still calling the deprecated report_auth_info method! This needs to be updated!
     [!] 127.0.0.1:512         - *** For detailed information about LoginScanners and the Credentials objects see:
-    [!] 127.0.0.1:512         -      https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners
-    [!] 127.0.0.1:512         -      https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module
+    [!] 127.0.0.1:512         -      https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/creating-metasploit-framework-loginscanners.html
+    [!] 127.0.0.1:512         -      https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/how-to-write-a-http-loginscanner-module.html
     [!] 127.0.0.1:512         - *** For examples of modules converted to just report credentials without report_auth_info, see:
     [!] 127.0.0.1:512         -      https://github.com/rapid7/metasploit-framework/pull/5376
     [!] 127.0.0.1:512         -      https://github.com/rapid7/metasploit-framework/pull/5377
@@ -49,14 +49,14 @@ Utilizing [rexec-brute](https://nmap.org/nsedoc/scripts/rexec-brute.html)
 
   ```
     nmap -p 512 --script rexec-brute 127.0.0.1
-    
+
     Starting Nmap 7.40 ( https://nmap.org ) at 2017-04-27 21:23 EDT
     Nmap scan report for localhost (127.0.0.1)
     Host is up (0.000037s latency).
     PORT    STATE SERVICE
     512/tcp open  exec
-    | rexec-brute: 
-    |   Accounts: 
+    | rexec-brute:
+    |   Accounts:
     |     test:test - Valid credentials
     |_  Statistics: Performed 7085940 guesses in 629 seconds, average tps: 9231.6
   ```

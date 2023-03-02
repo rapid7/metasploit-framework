@@ -1,45 +1,20 @@
-acammack-r7 <acammack-r7@github>       <acammack@aus-mbp-1099.aus.rapid7.com>
-acammack-r7 <acammack-r7@github>       <adam_cammack@rapid7.com>
-acammack-r7 <acammack-r7@github>       <Adam_Cammack@rapid7.com>
-adamgalway-r7 <adamgalway-r7@github>   <adam_galway@rapid7.com>
 adfoster-r7 <adfoster-r7@github>       <alandavid_foster@rapid7.com>
-bcook-r7 <bcook-r7@github>             <bcook@rapid7.com>
-bcook-r7 <bcook-r7@github>             <busterb@gmail.com>
-bturner-r7 <bturner-r7@github>         <brandon_turner@rapid7.com>
 bwatters-r7 <bwatters-r7@github>       <bwatters@rapid7.com>
 cdelafuente-r7 <cdelafuente-r7@github> Christophe De La Fuente <christophe_delafuente@rapid7.com>
 cdoughty-r7 <cdoughty-r7@github>       <chris_doughty@rapid7.com>
 cgranleese-r7 <cgranleese-r7@github>   <christopher_granleese@rapid7.com>
 dheiland-r7 <dheiland-r7@github>       <dh@layereddefense.com>
 dwelch-r7 <dwelch-r7@github>           <dean_welch@rapid7.com>
-ecarey-r7 <ecarey-r7@github>           <e@ipwnstuff.com>
 gwillcox-r7 <gwillcox-r7@github>       <Grant_Willcox@rapid7.com>
-jbarnett-r7 <jbarnett-r7@github>       <James_Barnett@rapid7.com>
-jbarnett-r7 <jbarnett-r7@github>       <jbarnett@rapid7.com>
-jinq102030 <jinq102030@github>         <Jin_Qian@rapid7.com>
-jinq102030 <jinq102030@github>         <jqian@rapid7.com>
 jmartin-r7 <jmartin-r7@github>         <Jeffrey_Martin@rapid7.com>
-lsato-r7 <lsato-r7@github>             <lsato@rapid7.com>
-lvarela-r7 <lvarela-r7@github>         <“leonardo_varela@rapid7.com”>
 mkienow-r7 <mkienow-r7@github>         <matthew_kienow@rapid7.com>
-pbarry-r7 <pbarry-r7@github>           <pearce_barry@rapid7.com>
 pdeardorff-r7 <pdeardorff-r7@github>   <paul_deardorff@rapid7.com>
 pdeardorff-r7 <pdeardorff-r7@github>   <Paul_Deardorff@rapid7.com>
-sgonzalez-r7 <sgonzalez-r7@github>     <sgonzalez@rapid7.com>
-sgonzalez-r7 <sgonzalez-r7@github>     <sonny_gonzalez@rapid7.com>
-shuckins-r7 <shuckins-r7@github>       <samuel_huckins@rapid7.com>
-sjanusz-r7 <sjanusz-r7@github>         <simon_janusz@rapid7.com>
 smcintyre-r7 <smcintyre-r7@github>     <spencer_mcintyre@rapid7.com>
 space-r7 <space-r7@github>             <shelby_pace@rapid7.com>
-tdoan-r7 <tdoan-r7@github>             <thao_doan@rapid7.com>
 todb-r7 <todb-r7@github>               <tod_beardsley@rapid7.com>
 todb-r7 <todb-r7@github>               <todb@metasploit.com>
 todb-r7 <todb-r7@github>               <todb@packetfu.com>
-wchen-r7 <wchen-r7@github>             <msfsinn3r@gmail.com> # aka sinn3r
-wchen-r7 <wchen-r7@github>             <wei_chen@rapid7.com>
-wvu-r7 <wvu-r7@github>                 <William_Vu@rapid7.com>
-wvu-r7 <wvu-r7@github>                 <wvu@nmt.edu>
-wwalker-r7 <wwalker-r7@github>         <wyatt_walker@rapid7.com>
 
 # Above this line are current Rapid7 employees. Below this paragraph are
 # volunteers, former employees, and potential Rapid7 employees who, at
@@ -48,9 +23,15 @@ wwalker-r7 <wwalker-r7@github>         <wyatt_walker@rapid7.com>
 # periodically. If you're on this list and would like to not be, just
 # let todb@metasploit.com know.
 
+acammack-r7 <acammack-r7@github>       <acammack@aus-mbp-1099.aus.rapid7.com>
+acammack-r7 <acammack-r7@github>       <adam_cammack@rapid7.com>
+acammack-r7 <acammack-r7@github>       <Adam_Cammack@rapid7.com>
+adamgalway-r7 <adamgalway-r7@github>   <adam_galway@rapid7.com>
 asoto-r7 <asoto-r7@github>             <aaron_soto@rapid7.com>
 bannedit <bannedit@github>             David Rude <bannedit0@gmail.com>
 bcoles <bcoles@github>                 bcoles <bcoles@gmail.com>
+bcook-r7 <bcook-r7@github>             <bcook@rapid7.com>
+bcook-r7 <bcook-r7@github>             <busterb@gmail.com>
 bokojan <bokojan@github>               parzamendi-r7 <peter_arzamendi@rapid7.com>
 bpatterson-r7 <bpatterson-r7@github>   <bpatterson@rapid7.com>
 bpatterson-r7 <bpatterson-r7@github>   <Brian_Patterson@rapid7.com>
@@ -58,6 +39,7 @@ brandonprry <brandonprry@github>       <bperry@brandons-mbp.attlocal.net>
 brandonprry <brandonprry@github>       Brandon Perry <bperry@bperry-rapid7.(none)>
 brandonprry <brandonprry@github>       Brandon Perry <bperry.volatile@gmail.com>
 brandonprry <brandonprry@github>       Brandon Perry <brandon.perry@zenimaxonline.com>
+bturner-r7 <bturner-r7@github>         <brandon_turner@rapid7.com>
 bwall <bwall@github>                   Brian Wallace <bwall@openbwall.com>
 bwall <bwall@github>                   (B)rian (Wall)ace <nightstrike9809@gmail.com>
 ceballosm <ceballosm@github>           Mario Ceballos <mc@metasploit.com>
@@ -75,6 +57,7 @@ DanielRTeixeira <DanielRTeixeira@github> Daniel Teixeira <danieljcrteixeira@gmai
 dmaloney-r7 <dmaloney-r7@github>       <David_Maloney@rapid7.com>
 dmaloney-r7 <dmaloney-r7@github>       <DMaloney@rapid7.com>
 dmohanty-r7 <dmohanty-r7@github>       <Dev_Mohanty@rapid7.com>
+ecarey-r7 <ecarey-r7@github>           <e@ipwnstuff.com>
 efraintorres <efraintorres@github>     efraintorres <etlownoise@gmail.com>
 efraintorres <efraintorres@github>     et <>
 egypt <egypt@github>                   <egypt@metasploit.com> # aka egypt
@@ -97,6 +80,8 @@ hdm <hdm@github>                       HD Moore <hdm@digitaloffense.net>
 hdm <hdm@github>                       HD Moore <hd_moore@rapid7.com>
 hdm <hdm@github>                       HD Moore <x@hdm.io>
 jabra <jabra@github>                   <jabra@spl0it.org>
+jbarnett-r7 <jbarnett-r7@github>       <James_Barnett@rapid7.com>
+jbarnett-r7 <jbarnett-r7@github>       <jbarnett@rapid7.com>
 jcran <jcran@github>                   <jcran@0x0e.org>
 jcran <jcran@github>                   <jcran@pentestify.com>
 jcran <jcran@github>                   <jcran@pwnieexpress.com>
@@ -105,6 +90,8 @@ jduck <jduck@github>                   <github.jdrake@qoop.org>
 jduck <jduck@github>                   <jdrake@qoop.org>
 jgor <jgor@github>                     jgor <jgor@indiecom.org>
 jhart-r7 <jhart-r7@github>             <jon_hart@rapid7.com>
+jinq102030 <jinq102030@github>         <Jin_Qian@rapid7.com>
+jinq102030 <jinq102030@github>         <jqian@rapid7.com>
 joevennix <joevennix@github>           Joe Vennix <joevennix@gmail.com>
 joevennix <joevennix@github>           <Joe_Vennix@rapid7.com>
 joevennix <joevennix@github>           <joev@metasploit.com>
@@ -123,6 +110,8 @@ lsanchez-r7 <lsanchez-r7@github>       <lance@AUS-MAC-1041.local>
 lsanchez-r7 <lsanchez-r7@github>       <lance.sanchez+github@gmail.com>
 lsanchez-r7 <lsanchez-r7@github>       <lance.sanchez@gmail.com>
 lsanchez-r7 <lsanchez-r7@github>       <lance.sanchez@rapid7.com>
+lsato-r7 <lsato-r7@github>             <lsato@rapid7.com>
+lvarela-r7 <lvarela-r7@github>         <“leonardo_varela@rapid7.com”>
 m-1-k-3 <m-1-k-3@github>               m-1-k-3 <github@s3cur1ty.de>
 m-1-k-3 <m-1-k-3@github>               m-1-k-3 <m1k3@s3cur1ty.de>
 m-1-k-3 <m-1-k-3@github>               m-1-k-3 <michael.messner@integralis.com>
@@ -137,6 +126,7 @@ nullbind <nullbind@github>             nullbind <scott.sutherland@nullbind.com>
 nullbind <nullbind@github>             Scott Sutherland <scott.sutherland@nullbind.com>
 ohdae <ohdae@github>                   ohdae <bindshell@live.com>
 oj <oj@github>                         <oj@buffered.io>
+pbarry-r7 <pbarry-r7@github>           <pearce_barry@rapid7.com>
 r3dy <r3dy@github>                     Royce Davis <r3dy@Royces-MacBook-Pro.local>
 r3dy <r3dy@github>                     Royce Davis <rdavis@Royces-MacBook-Pro-2.local>
 r3dy <r3dy@github>                     Royce Davis <royce.e.davis@gmail.com>
@@ -155,6 +145,10 @@ scriptjunkie <scriptjunkie@github>     scriptjunkie <scriptjunkie@scriptjunkie.u
 sdavis-r7 <sdavis-r7@github>           <scott_davis@rapid7.com>
 sdavis-r7 <sdavis-r7@github>           <Scott_Davis@rapid7.com>
 sdavis-r7 <sdavis-r7@github>           <sdavis@rapid7.com>
+sgonzalez-r7 <sgonzalez-r7@github>     <sgonzalez@rapid7.com>
+sgonzalez-r7 <sgonzalez-r7@github>     <sonny_gonzalez@rapid7.com>
+shuckins-r7 <shuckins-r7@github>       <samuel_huckins@rapid7.com>
+sjanusz-r7 <sjanusz-r7@github>         <simon_janusz@rapid7.com>
 skape <skape@???>                      Matt Miller <mmiller@hick.org>
 smashery <smashery@github>             Ashley Donaldson <smashery@gmail.com>
 spoonm <spoonm@github>                 Spoon M <spoonm@gmail.com>
@@ -163,6 +157,7 @@ stufus <stufus@github>                 Stuart <stufus@users.noreply.github.com>
 swtornio <swtornio@github>             Steve Tornio <swtornio@gmail.com>
 Tasos Laskos <Tasos_Laskos@rapid7.com> Tasos Laskos <Tasos_Laskos@rapid7.com>
 tatanus <tatanus@github>               <adam_compton@rapid7.com>
+tdoan-r7 <tdoan-r7@github>             <thao_doan@rapid7.com>
 techpeace <techpeace@github>           Matt Buck <Matthew_Buck@rapid7.com>
 techpeace <techpeace@github>           Matt Buck <techpeace@gmail.com>
 timwr <timwr@github>                   <timrlw@gmail.com>
@@ -170,12 +165,15 @@ TomSellers <TomSellers@github>         Tom Sellers <tom@fadedcode.net>
 trevrosen <trevrosen@github>           Trevor Rosen <trevor@catapult-creative.com>
 trevrosen <trevrosen@github>           Trevor Rosen <Trevor_Rosen@rapid7.com>
 TrustedSec <davek@trustedsec.com>      trustedsec <davek@trustedsec.com>
-wwebb-r7 <wwebb-r7@github>             <William_Webb@rapid7.com>
 void-in <void-in@github>               void_in <root@localhost.localdomain>
 void-in <void-in@github>               void-in <root@localhost.localdomain>
 void-in <void-in@github>               <void-in@users.noreply.github.com>
 void-in <void-in@github>               void-in <waqas.bsquare@gmail.com>
 void-in <void-in@github>               Waqas Ali <waqas.bsquare@gmail.com>
+wchen-r7 <wchen-r7@github>             <msfsinn3r@gmail.com> # aka sinn3r
+wchen-r7 <wchen-r7@github>             <wei_chen@rapid7.com>
+wwalker-r7 <wwalker-r7@github>         <wyatt_walker@rapid7.com>
+wwebb-r7 <wwebb-r7@github>             <William_Webb@rapid7.com>
 zeroSteiner <zeroSteiner@github>       Spencer McIntyre <zeroSteiner@gmail.com>
 
 # Aliases for utility author names. Since they're fake, typos abound

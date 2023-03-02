@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>']
+        'Author' => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
   end

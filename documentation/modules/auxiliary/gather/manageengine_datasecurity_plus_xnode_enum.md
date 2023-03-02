@@ -1,7 +1,7 @@
 ## Vulnerable Application
 The module exploits default admin credentials for the DataEngine Xnode server in DataSecurity Plus versions prior to 6.0.1 (6011)
 in order to dump the contents of Xnode data repositories (tables), which may contain varying amounts of Active Directory information
-including domain names, host names, usernames and SIDs. The module can also be used against patched 
+including domain names, host names, usernames and SIDs. The module can also be used against patched
 DataSecurity Plus versions if the correct credentials are provided.
 
 The module's `check` method attempts to authenticate to the remote Xnode server. The default credentials are `atom`:`chegan`.
@@ -76,7 +76,7 @@ Dump all data from the available data repositories (tables). If true, CONFIG_FIL
 ## Scenarios
 ### ManageEngine DataSecurity Plus 6.0.1 (6010) on Windows Server 2012
 ```
-msf6 auxiliary(gather/manageengine_datasecurity_plus_xnode_enum) > options 
+msf6 auxiliary(gather/manageengine_datasecurity_plus_xnode_enum) > options
 
 Module options (auxiliary/gather/manageengine_datasecurity_plus_xnode_enum):
 
@@ -86,7 +86,7 @@ Module options (auxiliary/gather/manageengine_datasecurity_plus_xnode_enum):
                 ine_xnode/CVE-2020-11532/datasecurity_plus_xnode_conf.yaml
    DUMP_ALL     false                                                          no        Dump all data from the available data repositories (tables). If true, CONFIG_FILE will be ignored.
    PASSWORD     chegan                                                         yes       Password used to authenticate to the Xnode server
-   RHOSTS       192.168.1.41                                                   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS       192.168.1.41                                                   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT        29119                                                          yes       The target port (TCP)
    USERNAME     atom                                                           yes       Username used to authenticate to the Xnode server
 

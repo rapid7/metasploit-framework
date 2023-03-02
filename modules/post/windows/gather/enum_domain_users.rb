@@ -9,28 +9,32 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI
   include Msf::Post::Windows::Accounts
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'	       => 'Windows Gather Enumerate Active Domain Users',
-      'Description'  => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'	=> 'Windows Gather Enumerate Active Domain Users',
+        'Description' => %q{
           This module will enumerate computers included in the primary Domain and attempt
           to list all locations the targeted user has sessions on. If the HOST option is specified
           the module will target only that host. If the HOST is specified and USER is set to nil, all users
           logged into that host will be returned.'
         },
-        'License'      => MSF_LICENSE,
-        'Author'       => [
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Etienne Stalmans <etienne[at]sensepost.com>',
           'Ben Campbell'
         ],
-        'Platform'     => [ 'win' ],
+        'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]
-    ))
+      )
+    )
     register_options(
       [
         OptString.new('USER', [false, 'Target User for NetSessionEnum']),
         OptString.new('HOST', [false, 'Target a specific host']),
-      ])
+      ]
+    )
   end
 
   def run
@@ -50,11 +54,11 @@ class MetasploitModule < Msf::Post
       domain = get_domain
 
       if domain.blank?
-        fail_with(Failure::Unknown, "Machine is not part of a domain.")
+        fail_with(Failure::Unknown, 'Machine is not part of a domain.')
       else
         domain = domain.split('.').first.upcase
         print_status("Using domain: #{domain}")
-        print_status("Getting list of domain hosts...")
+        print_status('Getting list of domain hosts...')
       end
 
       hosts = net_server_enum(SV_TYPE_ALL, domain)
@@ -70,11 +74,11 @@ class MetasploitModule < Msf::Post
 
       sessions.flatten!
     else
-      fail_with(Failure::BadConfig, "Invalid options, either HOST or USER must be specified.")
+      fail_with(Failure::BadConfig, 'Invalid options, either HOST or USER must be specified.')
     end
 
-    if sessions.nil? or sessions.count == 0
-      fail_with(Failure::Unknown, "No sessions found")
+    if sessions.nil? || (sessions.count == 0)
+      fail_with(Failure::Unknown, 'No sessions found')
     else
       print_status("#{sessions.count} session(s) identified")
 
@@ -86,4 +90,3 @@ class MetasploitModule < Msf::Post
     end
   end
 end
-

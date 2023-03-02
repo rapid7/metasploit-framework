@@ -133,7 +133,7 @@ class Railgun
   #
   def util
     if @util.nil?
-      @util = Util.new(self, client.arch)
+      @util = Util.new(self, client.native_arch)
     end
 
     return @util

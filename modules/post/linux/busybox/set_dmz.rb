@@ -7,18 +7,18 @@ class MetasploitModule < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'BusyBox DMZ Configuration',
-      'Description'  => %q{
+      'Name' => 'BusyBox DMZ Configuration',
+      'Description' => %q{
         This module will be applied on a session connected to a BusyBox shell. It allows to manage
         traffic forwarding to a target host through the BusyBox device.
       },
-      'Author'       => 'Javier Vicente Vallejo',
-      'License'      => MSF_LICENSE,
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell']
+      'Author' => 'Javier Vicente Vallejo',
+      'License' => MSF_LICENSE,
+      'Platform' => ['linux'],
+      'SessionTypes' => ['shell']
     )
 
-     register_options([
+    register_options([
       OptAddress.new('TARGET_HOST', [ true, 'The address of the target host']),
       OptBool.new('DELETE', [true, 'Remove host from the DMZ, otherwise will add it', false])
     ])

@@ -62,7 +62,7 @@ single_scanner
 multi_scanner
 ```
 
-The `remote_exploit_cmd_stager` module type is used when writing an exploit for command execution or code injection vulnerabilities and provides the command to inject into the vulnerable code based on the [flavor](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-command-stagers) specified for the command stager.
+The `remote_exploit_cmd_stager` module type is used when writing an exploit for command execution or code injection vulnerabilities and provides the command to inject into the vulnerable code based on the [[flavor|./How-to-use-command-stagers.md]] specified for the command stager.
 
 The `capture_server` module type is used when a module is designed to simulate a service to capture credentials for connecting clients.
 

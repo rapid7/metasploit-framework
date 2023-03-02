@@ -345,253 +345,201 @@ msf6 auxiliary(gather/ldap_query) >
 ### ENUM_COMPUTERS with Table Output
 
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query
-msf6 auxiliary(gather/ldap_query) > show options
+msf6 > use auxiliary/gather/ldap_query 
+msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+RHOSTS => 192.168.159.10
+msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+USERNAME => aliddle
+msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+PASSWORD => Password1!
+msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+DOMAIN => msflab.local
+msf6 auxiliary(gather/ldap_query) > enum_computers output_format=table
+[*] Running module against 192.168.159.10
 
-Module options (auxiliary/gather/ldap_query):
-
-   Name           Current Setting  Required  Description
-   ----           ---------------  --------  -----------
-   BASE_DN                         no        LDAP base DN if you already have it
-   BIND_DN                         no        The username to authenticate to LDAP server
-   BIND_PW                         no        Password for the BIND_DN
-   OUTPUT_FORMAT  table            yes       The output format to use (Accepted: csv, table, json)
-   RHOSTS                          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-M
-                                             etasploit
-   RPORT          389              yes       The target port
-   SSL            false            no        Enable SSL on the LDAP connection
-
-msf6 auxiliary(gather/ldap_query) > set ACTION 
-set ACTION ENUM_ACCOUNTS             set ACTION ENUM_DOMAIN_CONTROLLERS   set ACTION ENUM_ORGROLES
-set ACTION ENUM_ALL_OBJECT_CATEGORY  set ACTION ENUM_EXCHANGE_RECIPIENTS  set ACTION ENUM_ORGUNITS
-set ACTION ENUM_ALL_OBJECT_CLASS     set ACTION ENUM_EXCHANGE_SERVERS     set ACTION RUN_QUERY_FILE
-set ACTION ENUM_COMPUTERS            set ACTION ENUM_GROUPS               
-msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_COMPUTERS 
-ACTION => ENUM_COMPUTERS
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.20.161.209
-RHOSTS => 172.20.161.209
-msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
-BIND_PW => thePassword123
-msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
-BIND_DN => normal@daforest.com
-msf6 auxiliary(gather/ldap_query) > run
-[*] Running module against 172.20.161.209
-
-[+] Successfully bound to the LDAP server!
 [*] Discovering base DN automatically
-[+] 172.20.161.209:389 Discovered base DN: DC=daforest,DC=com
-[*] CN=WIN-F7DQC9SR0HD OU=Domain Controllers DC=daforest DC=com
-===========================================================
+[+] 192.168.159.10:389 Discovered base DN: DC=msflab,DC=local
+[+] 192.168.159.10:389 Discovered schema DN: DC=msflab,DC=local
+CN=DC OU=Domain Controllers DC=msflab DC=local
+==============================================
 
  Name                    Attributes
  ----                    ----------
- distinguishedname       CN=WIN-F7DQC9SR0HD,OU=Domain Controllers,DC=daforest,DC=com
- dnshostname             WIN-F7DQC9SR0HD.daforest.com
- name                    WIN-F7DQC9SR0HD
- operatingsystemversion  10.0 (20348)
+ distinguishedname       CN=DC,OU=Domain Controllers,DC=msflab,DC=local
+ dnshostname             DC.msflab.local
+ lastlogontimestamp      2023-01-30 13:46:10 UTC
+ name                    DC
+ objectsid               S-1-5-21-3402587289-1488798532-3618296993-1001
+ operatingsystem         Windows Server 2019 Standard
+ operatingsystemversion  10.0 (17763)
+ primarygroupid          516
+ samaccountname          DC$
+ serviceprincipalname    Dfsr-12F9A27C-BF97-4787-9364-D31B6C55EB04/DC.msflab.local || ldap/DC.msflab.local/ForestDnsZones.msflab.local || ldap/DC.msflab.local/DomainDnsZones.msflab.local || TERMSRV/DC || TERMSRV/DC.msflab.local || DNS/D
+                         C.msflab.local || GC/DC.msflab.local/msflab.local || RestrictedKrbHost/DC.msflab.local || RestrictedKrbHost/DC || RPC/741f826d-2ac1-44c4-a07e-f717b0f6eaf6._msdcs.msflab.local || HOST/DC/MSFLAB || HOST/DC.msflab.
+                         local/MSFLAB || HOST/DC || HOST/DC.msflab.local || HOST/DC.msflab.local/msflab.local || E3514235-4B06-11D1-AB04-00C04FC2DCD2/741f826d-2ac1-44c4-a07e-f717b0f6eaf6/msflab.local || ldap/DC/MSFLAB || ldap/741f826d-2
+                         ac1-44c4-a07e-f717b0f6eaf6._msdcs.msflab.local || ldap/DC.msflab.local/MSFLAB || ldap/DC || ldap/DC.msflab.local || ldap/DC.msflab.local/msflab.local
 
-[*] CN=FSRWLPT1000000 OU=Testing DC=daforest DC=com
-===============================================
+CN=DESKTOP-24B2FAJP CN=Computers DC=msflab DC=local
+===================================================
 
- Name               Attributes
- ----               ----------
- description        Created with secframe.com/badblood.
- displayname        FSRWLPT1000000
- distinguishedname  CN=FSRWLPT1000000,OU=Testing,DC=daforest,DC=com
- name               FSRWLPT1000000
+ Name                Attributes
+ ----                ----------
+ distinguishedname   CN=DESKTOP-24B2FAJP,CN=Computers,DC=msflab,DC=local
+ lastlogontimestamp  2023-01-18 00:28:30 UTC
+ name                DESKTOP-24B2FAJP
+ objectsid           S-1-5-21-3402587289-1488798532-3618296993-1603
+ primarygroupid      515
+ samaccountname      DESKTOP-24B2FAJP$
 
-[*] CN=TSTWVIR1000000 OU=FSR OU=People DC=daforest DC=com
-=====================================================
+CN=DESKTOP-CXXIBPAE CN=Computers DC=msflab DC=local
+===================================================
 
- Name               Attributes
- ----               ----------
- description        Created with secframe.com/badblood.
- displayname        TSTWVIR1000000
- distinguishedname  CN=TSTWVIR1000000,OU=FSR,OU=People,DC=daforest,DC=com
- name               TSTWVIR1000000
+ Name                Attributes
+ ----                ----------
+ distinguishedname   CN=DESKTOP-CXXIBPAE,CN=Computers,DC=msflab,DC=local
+ lastlogontimestamp  2023-01-18 14:08:29 UTC
+ name                DESKTOP-CXXIBPAE
+ objectsid           S-1-5-21-3402587289-1488798532-3618296993-1604
+ primarygroupid      515
+ samaccountname      DESKTOP-CXXIBPAE$
 
-*cut for brevity*
+CN=DESKTOP-MO5E49K8 CN=Computers DC=msflab DC=local
+===================================================
 
-[*] CN=WVIR1000013 OU=Test OU=BDE OU=Tier 2 DC=daforest DC=com
-==========================================================
-
- Name               Attributes
- ----               ----------
- description        Created with secframe.com/badblood.
- displayname        WVIR1000013
- distinguishedname  CN=WVIR1000013,OU=Test,OU=BDE,OU=Tier 2,DC=daforest,DC=com
- name               WVIR1000013
+ Name                Attributes
+ ----                ----------
+ distinguishedname   CN=DESKTOP-MO5E49K8,CN=Computers,DC=msflab,DC=local
+ lastlogontimestamp  2023-01-18 14:09:58 UTC
+ name                DESKTOP-MO5E49K8
+ objectsid           S-1-5-21-3402587289-1488798532-3618296993-1605
+ primarygroupid      515
+ samaccountname      DESKTOP-MO5E49K8$
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) > 
+msf6 auxiliary(gather/ldap_query) >
 ```
 
 ### ENUM_COMPUTERS with CSV Output
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query             
-msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_COMPUTERS 
-ACTION => ENUM_COMPUTERS
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.20.161.209
-RHOSTS => 172.20.161.209
-msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
-BIND_PW => thePassword123
-msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
-BIND_DN => normal@daforest.com
-msf6 auxiliary(gather/ldap_query) > set OUTPUT_FORMAT csv 
-OUTPUT_FORMAT => csv
-msf6 auxiliary(gather/ldap_query) > show options
+msf6 > use auxiliary/gather/ldap_query 
+msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+RHOSTS => 192.168.159.10
+msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+USERNAME => aliddle
+msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+PASSWORD => Password1!
+msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+DOMAIN => msflab.local
+msf6 auxiliary(gather/ldap_query) > enum_computers output_format=csv
+[*] Running module against 192.168.159.10
 
-Module options (auxiliary/gather/ldap_query):
-
-   Name           Current Setting      Required  Description
-   ----           ---------------      --------  -----------
-   BASE_DN                             no        LDAP base DN if you already have it
-   BIND_DN        normal@daforest.com  no        The username to authenticate to LDAP server
-   BIND_PW        thePassword123       no        Password for the BIND_DN
-   OUTPUT_FORMAT  csv                  yes       The output format to use (Accepted: csv, table, json)
-   RHOSTS         172.20.161.209       yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Usi
-                                                 ng-Metasploit
-   RPORT          389                  yes       The target port
-   SSL            false                no        Enable SSL on the LDAP connection
-
-
-Auxiliary action:
-
-   Name            Description
-   ----            -----------
-   ENUM_COMPUTERS  Dump all objects containing an objectCategory of Computer.
-
-
-msf6 auxiliary(gather/ldap_query) > run
-[*] Running module against 172.20.161.209
-
-[+] Successfully bound to the LDAP server!
 [*] Discovering base DN automatically
-[+] 172.20.161.209:389 Discovered base DN: DC=daforest,DC=com
-[*] Name,Attributes
-"dn","CN=WIN-F7DQC9SR0HD,OU=Domain Controllers,DC=daforest,DC=com"
-"distinguishedname","CN=WIN-F7DQC9SR0HD,OU=Domain Controllers,DC=daforest,DC=com"
-"name","WIN-F7DQC9SR0HD"
-"operatingsystemversion","10.0 (20348)"
-"dnshostname","WIN-F7DQC9SR0HD.daforest.com"
+[+] 192.168.159.10:389 Discovered base DN: DC=msflab,DC=local
+[+] 192.168.159.10:389 Discovered schema DN: DC=msflab,DC=local
+Name,Attributes
+"dn","CN=DC,OU=Domain Controllers,DC=msflab,DC=local"
+"distinguishedname","CN=DC,OU=Domain Controllers,DC=msflab,DC=local"
+"name","DC"
+"primarygroupid","516"
+"objectsid","S-1-5-21-3402587289-1488798532-3618296993-1001"
+"samaccountname","DC$"
+"operatingsystem","Windows Server 2019 Standard"
+"operatingsystemversion","10.0 (17763)"
+"dnshostname","DC.msflab.local"
+"serviceprincipalname","Dfsr-12F9A27C-BF97-4787-9364-D31B6C55EB04/DC.msflab.local || ldap/DC.msflab.local/ForestDnsZones.msflab.local || ldap/DC.msflab.local/DomainDnsZones.msflab.local || TERMSRV/DC || TERMSRV/DC.msflab.local || DNS/DC.msflab.local || GC/DC.msflab.local/msflab.local || RestrictedKrbHost/DC.msflab.local || RestrictedKrbHost/DC || RPC/741f826d-2ac1-44c4-a07e-f717b0f6eaf6._msdcs.msflab.local || HOST/DC/MSFLAB || HOST/DC.msflab.local/MSFLAB || HOST/DC || HOST/DC.msflab.local || HOST/DC.msflab.local/msflab.local || E3514235-4B06-11D1-AB04-00C04FC2DCD2/741f826d-2ac1-44c4-a07e-f717b0f6eaf6/msflab.local || ldap/DC/MSFLAB || ldap/741f826d-2ac1-44c4-a07e-f717b0f6eaf6._msdcs.msflab.local || ldap/DC.msflab.local/MSFLAB || ldap/DC || ldap/DC.msflab.local || ldap/DC.msflab.local/msflab.local"
+"lastlogontimestamp","2023-01-30 13:46:10 UTC"
 
-[*] Name,Attributes
-"dn","CN=FSRWLPT1000000,OU=Testing,DC=daforest,DC=com"
-"description","Created with secframe.com/badblood."
-"distinguishedname","CN=FSRWLPT1000000,OU=Testing,DC=daforest,DC=com"
-"displayname","FSRWLPT1000000"
-"name","FSRWLPT1000000"
+Name,Attributes
+"dn","CN=DESKTOP-24B2FAJP,CN=Computers,DC=msflab,DC=local"
+"distinguishedname","CN=DESKTOP-24B2FAJP,CN=Computers,DC=msflab,DC=local"
+"name","DESKTOP-24B2FAJP"
+"primarygroupid","515"
+"objectsid","S-1-5-21-3402587289-1488798532-3618296993-1603"
+"samaccountname","DESKTOP-24B2FAJP$"
+"lastlogontimestamp","2023-01-18 00:28:30 UTC"
 
-[*] Name,Attributes
-"dn","CN=TSTWVIR1000000,OU=FSR,OU=People,DC=daforest,DC=com"
-"description","Created with secframe.com/badblood."
-"distinguishedname","CN=TSTWVIR1000000,OU=FSR,OU=People,DC=daforest,DC=com"
-"displayname","TSTWVIR1000000"
-"name","TSTWVIR1000000"
+Name,Attributes
+"dn","CN=DESKTOP-CXXIBPAE,CN=Computers,DC=msflab,DC=local"
+"distinguishedname","CN=DESKTOP-CXXIBPAE,CN=Computers,DC=msflab,DC=local"
+"name","DESKTOP-CXXIBPAE"
+"primarygroupid","515"
+"objectsid","S-1-5-21-3402587289-1488798532-3618296993-1604"
+"samaccountname","DESKTOP-CXXIBPAE$"
+"lastlogontimestamp","2023-01-18 14:08:29 UTC"
 
-*cut for brevity*
-
-[*] Name,Attributes
-"dn","CN=WVIR1000013,OU=Test,OU=BDE,OU=Tier 2,DC=daforest,DC=com"
-"description","Created with secframe.com/badblood."
-"distinguishedname","CN=WVIR1000013,OU=Test,OU=BDE,OU=Tier 2,DC=daforest,DC=com"
-"displayname","WVIR1000013"
-"name","WVIR1000013"
+Name,Attributes
+"dn","CN=DESKTOP-MO5E49K8,CN=Computers,DC=msflab,DC=local"
+"distinguishedname","CN=DESKTOP-MO5E49K8,CN=Computers,DC=msflab,DC=local"
+"name","DESKTOP-MO5E49K8"
+"primarygroupid","515"
+"objectsid","S-1-5-21-3402587289-1488798532-3618296993-1605"
+"samaccountname","DESKTOP-MO5E49K8$"
+"lastlogontimestamp","2023-01-18 14:09:58 UTC"
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) > 
+msf6 auxiliary(gather/ldap_query) >
 ```
 
 ### ENUM_COMPUTERS with JSON Output
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query             
-msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_COMPUTERS 
-ACTION => ENUM_COMPUTERS
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.20.161.209
-RHOSTS => 172.20.161.209
-msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
-BIND_PW => thePassword123
-msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
-BIND_DN => normal@daforest.com
-msf6 auxiliary(gather/ldap_query) > set OUTPUT_FORMAT json 
-OUTPUT_FORMAT => json
-msf6 auxiliary(gather/ldap_query) > show options
+msf6 > use auxiliary/gather/ldap_query 
+msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+RHOSTS => 192.168.159.10
+msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+USERNAME => aliddle
+msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+PASSWORD => Password1!
+msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+DOMAIN => msflab.local
+msf6 auxiliary(gather/ldap_query) > enum_computers output_format=json
+[*] Running module against 192.168.159.10
 
-Module options (auxiliary/gather/ldap_query):
-
-   Name           Current Setting      Required  Description
-   ----           ---------------      --------  -----------
-   BASE_DN                             no        LDAP base DN if you already have it
-   BIND_DN        normal@daforest.com  no        The username to authenticate to LDAP server
-   BIND_PW        thePassword123       no        Password for the BIND_DN
-   OUTPUT_FORMAT  json                 yes       The output format to use (Accepted: csv, table, json)
-   RHOSTS         172.20.161.209       yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Usi
-                                                 ng-Metasploit
-   RPORT          389                  yes       The target port
-   SSL            false                no        Enable SSL on the LDAP connection
-
-
-Auxiliary action:
-
-   Name            Description
-   ----            -----------
-   ENUM_COMPUTERS  Dump all objects containing an objectCategory of Computer.
-
-
-msf6 auxiliary(gather/ldap_query) > run
-[*] Running module against 172.20.161.209
-
-[+] Successfully bound to the LDAP server!
 [*] Discovering base DN automatically
-[+] 172.20.161.209:389 Discovered base DN: DC=daforest,DC=com
-[*] CN=WIN-F7DQC9SR0HD OU=Domain Controllers DC=daforest DC=com
+[+] 192.168.159.10:389 Discovered base DN: DC=msflab,DC=local
+[+] 192.168.159.10:389 Discovered schema DN: DC=msflab,DC=local
+[*] CN=DC OU=Domain Controllers DC=msflab DC=local
 {
-  "dn": "CN=WIN-F7DQC9SR0HD,OU=Domain Controllers,DC=daforest,DC=com",
-  "distinguishedname": "CN=WIN-F7DQC9SR0HD,OU=Domain Controllers,DC=daforest,DC=com",
-  "name": "WIN-F7DQC9SR0HD",
-  "operatingsystemversion": "10.0 (20348)",
-  "dnshostname": "WIN-F7DQC9SR0HD.daforest.com"
+  "dn": "CN=DC,OU=Domain Controllers,DC=msflab,DC=local",
+  "distinguishedname": "CN=DC,OU=Domain Controllers,DC=msflab,DC=local",
+  "name": "DC",
+  "primarygroupid": "516",
+  "objectsid": "S-1-5-21-3402587289-1488798532-3618296993-1001",
+  "samaccountname": "DC$",
+  "operatingsystem": "Windows Server 2019 Standard",
+  "operatingsystemversion": "10.0 (17763)",
+  "dnshostname": "DC.msflab.local",
+  "serviceprincipalname": "Dfsr-12F9A27C-BF97-4787-9364-D31B6C55EB04/DC.msflab.local || ldap/DC.msflab.local/ForestDnsZones.msflab.local || ldap/DC.msflab.local/DomainDnsZones.msflab.local || TERMSRV/DC || TERMSRV/DC.msflab.local || DNS/DC.msflab.local || GC/DC.msflab.local/msflab.local || RestrictedKrbHost/DC.msflab.local || RestrictedKrbHost/DC || RPC/741f826d-2ac1-44c4-a07e-f717b0f6eaf6._msdcs.msflab.local || HOST/DC/MSFLAB || HOST/DC.msflab.local/MSFLAB || HOST/DC || HOST/DC.msflab.local || HOST/DC.msflab.local/msflab.local || E3514235-4B06-11D1-AB04-00C04FC2DCD2/741f826d-2ac1-44c4-a07e-f717b0f6eaf6/msflab.local || ldap/DC/MSFLAB || ldap/741f826d-2ac1-44c4-a07e-f717b0f6eaf6._msdcs.msflab.local || ldap/DC.msflab.local/MSFLAB || ldap/DC || ldap/DC.msflab.local || ldap/DC.msflab.local/msflab.local",
+  "lastlogontimestamp": "2023-01-30 13:46:10 UTC"
 }
-[*] CN=FSRWLPT1000000 OU=Testing DC=daforest DC=com
+[*] CN=DESKTOP-24B2FAJP CN=Computers DC=msflab DC=local
 {
-  "dn": "CN=FSRWLPT1000000,OU=Testing,DC=daforest,DC=com",
-  "description": "Created with secframe.com/badblood.",
-  "distinguishedname": "CN=FSRWLPT1000000,OU=Testing,DC=daforest,DC=com",
-  "displayname": "FSRWLPT1000000",
-  "name": "FSRWLPT1000000"
+  "dn": "CN=DESKTOP-24B2FAJP,CN=Computers,DC=msflab,DC=local",
+  "distinguishedname": "CN=DESKTOP-24B2FAJP,CN=Computers,DC=msflab,DC=local",
+  "name": "DESKTOP-24B2FAJP",
+  "primarygroupid": "515",
+  "objectsid": "S-1-5-21-3402587289-1488798532-3618296993-1603",
+  "samaccountname": "DESKTOP-24B2FAJP$",
+  "lastlogontimestamp": "2023-01-18 00:28:30 UTC"
 }
-[*] CN=TSTWVIR1000000 OU=FSR OU=People DC=daforest DC=com
+[*] CN=DESKTOP-CXXIBPAE CN=Computers DC=msflab DC=local
 {
-  "dn": "CN=TSTWVIR1000000,OU=FSR,OU=People,DC=daforest,DC=com",
-  "description": "Created with secframe.com/badblood.",
-  "distinguishedname": "CN=TSTWVIR1000000,OU=FSR,OU=People,DC=daforest,DC=com",
-  "displayname": "TSTWVIR1000000",
-  "name": "TSTWVIR1000000"
+  "dn": "CN=DESKTOP-CXXIBPAE,CN=Computers,DC=msflab,DC=local",
+  "distinguishedname": "CN=DESKTOP-CXXIBPAE,CN=Computers,DC=msflab,DC=local",
+  "name": "DESKTOP-CXXIBPAE",
+  "primarygroupid": "515",
+  "objectsid": "S-1-5-21-3402587289-1488798532-3618296993-1604",
+  "samaccountname": "DESKTOP-CXXIBPAE$",
+  "lastlogontimestamp": "2023-01-18 14:08:29 UTC"
 }
-*cut for brevity*
-[*] CN=WLPT1000014 OU=AZR OU=Stage DC=daforest DC=com
+[*] CN=DESKTOP-MO5E49K8 CN=Computers DC=msflab DC=local
 {
-  "dn": "CN=WLPT1000014,OU=AZR,OU=Stage,DC=daforest,DC=com",
-  "description": "Created with secframe.com/badblood.",
-  "distinguishedname": "CN=WLPT1000014,OU=AZR,OU=Stage,DC=daforest,DC=com",
-  "displayname": "WLPT1000014",
-  "name": "WLPT1000014"
-}
-[*] CN=WWKS1000016 OU=T1-Roles OU=Tier 1 OU=Admin DC=daforest DC=com
-{
-  "dn": "CN=WWKS1000016,OU=T1-Roles,OU=Tier 1,OU=Admin,DC=daforest,DC=com",
-  "description": "Created with secframe.com/badblood.",
-  "distinguishedname": "CN=WWKS1000016,OU=T1-Roles,OU=Tier 1,OU=Admin,DC=daforest,DC=com",
-  "displayname": "WWKS1000016",
-  "name": "WWKS1000016"
-}
-[*] CN=WVIR1000013 OU=Test OU=BDE OU=Tier 2 DC=daforest DC=com
-{
-  "dn": "CN=WVIR1000013,OU=Test,OU=BDE,OU=Tier 2,DC=daforest,DC=com",
-  "description": "Created with secframe.com/badblood.",
-  "distinguishedname": "CN=WVIR1000013,OU=Test,OU=BDE,OU=Tier 2,DC=daforest,DC=com",
-  "displayname": "WVIR1000013",
-  "name": "WVIR1000013"
+  "dn": "CN=DESKTOP-MO5E49K8,CN=Computers,DC=msflab,DC=local",
+  "distinguishedname": "CN=DESKTOP-MO5E49K8,CN=Computers,DC=msflab,DC=local",
+  "name": "DESKTOP-MO5E49K8",
+  "primarygroupid": "515",
+  "objectsid": "S-1-5-21-3402587289-1488798532-3618296993-1605",
+  "samaccountname": "DESKTOP-MO5E49K8$",
+  "lastlogontimestamp": "2023-01-18 14:09:58 UTC"
 }
 [*] Auxiliary module execution completed
 msf6 auxiliary(gather/ldap_query) > 

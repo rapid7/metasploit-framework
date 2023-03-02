@@ -35,7 +35,13 @@ class RegistryKey
   end
 
   def self.finalize(client,hkey)
-    proc { self.close(client,hkey) }
+    proc do
+      begin
+        self.close(client,hkey)
+      rescue => e
+        elog("finalize method for RegistryKey failed", error: e)
+      end
+    end
   end
 
   ##

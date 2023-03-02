@@ -8,8 +8,6 @@ module Rex
         # as pre authenticated data
         class PreAuthEncTimeStamp < Element
 
-          CRYPTO_MSG_TYPE = 1
-
           # @!attribute pa_time_stamp
           #   @return [Time] client's time
           attr_accessor :pa_time_stamp
@@ -55,16 +53,8 @@ module Rex
           # @raise [NotImplementedError] if encryption schema isn't supported
           def encrypt(etype, key)
             data = self.encode
-
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = encrypt_rc4_hmac(data, key, CRYPTO_MSG_TYPE)
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.encrypt(data, key, Rex::Proto::Kerberos::Crypto::KeyUsage::AS_REQ_PA_ENC_TIMESTAMP)
           end
 
           private

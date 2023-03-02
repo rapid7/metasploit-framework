@@ -127,6 +127,7 @@ module Metasploit
         # @return [String] the format number for Hashcat
         def jtr_format_to_hashcat_format(format)
           case format
+          # nix
           when 'md5crypt'
             '500'
           when 'descrypt'
@@ -139,10 +140,20 @@ module Metasploit
             '1800'
           when 'bcrypt'
             '3200'
+          # windows
           when 'lm', 'lanman'
             '3000'
           when 'nt', 'ntlm'
             '1000'
+          when 'mscash'
+            '1100'
+          when 'mscash2'
+            '2100'
+          when 'netntlm'
+            '5500'
+          when 'netntlmv2'
+            '5600'
+          # dbs
           when 'mssql'
             '131'
           when 'mssql05'
@@ -165,16 +176,19 @@ module Metasploit
             '300'
           when 'PBKDF2-HMAC-SHA512' # osx 10.8+
             '7100'
+          # osx
           when 'xsha' # osx 10.4-6
             '122'
           when 'xsha512' # osx 10.7
             '1722'
+          # webapps
           when 'PBKDF2-HMAC-SHA1' # Atlassian
             '12001'
           when 'phpass' # Wordpress/PHPass, Joomla, phpBB3
             '400'
           when 'mediawiki' # mediawiki b type
             '3711'
+          # mobile
           when 'android-samsung-sha1'
             '5800'
           when 'android-sha1'
@@ -201,10 +215,6 @@ module Metasploit
             '1411'
           when 'ssha512'
             '1711'
-          when 'mscash'
-            '1100'
-          when 'mscash2'
-            '2100'
           when 'Raw-MD5u'
             '30'
           end

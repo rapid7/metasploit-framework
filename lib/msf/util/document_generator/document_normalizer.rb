@@ -67,7 +67,7 @@ module Msf
         EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
 
         # Special messages
-        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-CVE-is-not-available)|
+        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://docs.metasploit.com/docs/using-metasploit/other/why-cve-is-not-available.html)|
 
 
         # Returns the module document in HTML form.

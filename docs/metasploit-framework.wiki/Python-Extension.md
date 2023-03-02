@@ -291,7 +291,7 @@ Payload size: 6412437 bytes
 Saved as: /tmp/met-stageless.exe
 ```
 When this payload is executed, the transport is added and shown to be present in the transport list immediately:
-```
+```msf
 msf exploit(handler) > [*] Meterpreter session 2 opened (172.16.52.1:4445 -> 172.16.52.247:49159) at 2015-12-13 11:06:54 +1000
 
 msf exploit(handler) > sessions -i -1
@@ -331,7 +331,7 @@ Hell no! But the goal is to get closer and closer to perfect as we go. It's up t
 
 Please do, making good use of the Github issues feature. Better still, create a PR for one!
 
-  [transport]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control
+  [transport]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-transport-control.html
   [inveigh]: https://github.com/Kevin-Robertson/Inveigh
 
 ## Currently Loadable Native Libraries

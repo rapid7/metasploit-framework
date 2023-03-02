@@ -180,12 +180,10 @@ module Msf
         def query_ldap(session_handle, base, scope, filter, fields)
           vprint_status('Searching LDAP directory')
           search = wldap32.ldap_search_sA(session_handle, base, scope, filter, nil, 0, 4)
-          vprint_status("search: #{search}")
-
           if search['return'] == LDAP_SIZELIMIT_EXCEEDED
             print_error('LDAP_SIZELIMIT_EXCEEDED, parsing what we retrieved, try increasing the MAX_SEARCH value [0:LDAP_NO_LIMIT]')
           elsif search['return'] != Error::SUCCESS
-            print_error('No results')
+            print_error("Search returned LDAP error #{search['return']} (#{ERROR_CODE_TO_CONSTANT.fetch(search['return'], 'Unknown')})")
             wldap32.ldap_msgfree(search['res'])
             return
           end
@@ -198,10 +196,7 @@ module Msf
             return
           end
 
-          print_status("Entries retrieved: #{search_count}")
-
-          pEntries = []
-          entry_results = []
+          vprint_status("Entries retrieved: #{search_count}")
 
           if datastore['MAX_SEARCH'] == 0
             max_search = search_count
@@ -209,136 +204,40 @@ module Msf
             max_search = [datastore['MAX_SEARCH'], search_count].min
           end
 
-          0.upto(max_search - 1) do |i|
-            if (i == 0)
-              pEntries[0] = wldap32.ldap_first_entry(session_handle, search['res'])['return']
-            end
+          entry = wldap32.ldap_first_entry(session_handle, search['res'])['return']
 
-            if (pEntries[i] == 0)
-              print_error('Failed to get entry')
-              wldap32.ldap_msgfree(search['res'])
-              return
-            end
-
-            vprint_status("Entry #{i}: 0x#{pEntries[i].to_s(16)}")
-
-            entry = get_entry(pEntries[i])
-
-            # Entries are a linked list...
-            if client.arch == ARCH_X64
-              pEntries[i + 1] = entry[4]
-            else
-              pEntries[i + 1] = entry[3]
-            end
-
-            ber = get_ber(entry)
-
+          entry_results = []
+          while entry != 0 && (entry_results.length < max_search)
             field_results = []
             fields.each do |field|
-              vprint_status("Field: #{field}")
-
-              values = get_values_from_ber(ber, field)
-
               values_result = ''
-              values_result = values.join(',') if values
-              vprint_status("Values #{values}")
+              values = wldap32.ldap_get_values(session_handle, entry, field)
+              if values['return'] != 0
+                count_values = wldap32.ldap_count_values(values['return'])
+                if count_values['return'] != 0
+                  if client.native_arch == ARCH_X64
+                    value_pointers = client.railgun.memread(values['return'], 8 * count_values['return']).unpack('Q*')
+                  else
+                    value_pointers = client.railgun.memread(values['return'], 4 * count_values['return']).unpack('V*')
+                  end
+                  values_result = value_pointers.map { |ptr| client.railgun.util.read_string(ptr) }.join(',')
+                end
+                wldap32.ldap_value_free(values['return'])
+              end
 
               field_results << { type: 'unknown', value: values_result }
             end
 
             entry_results << field_results
+            entry = wldap32.ldap_next_entry(session_handle, entry)['return']
           end
+
+          wldap32.ldap_msgfree(search['res'])
 
           return {
             fields: fields,
             results: entry_results
           }
-        end
-
-        # Gets the LDAP Entry
-        #
-        # @param pEntry [Integer] Pointer to the Entry
-        # @return [Array] Entry data structure
-        def get_entry(pEntry)
-          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            raise "Session doesn't support Railgun!"
-          end
-
-          return client.railgun.memread(pEntry, 41).unpack('VVVVVVVVVvCCC')
-        end
-
-        # Get BER Element data structure from LDAPMessage
-        #
-        # @param msg [String] The LDAP Message from the server
-        # @return [String] The BER data structure
-        def get_ber(msg)
-          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            raise "Session doesn't support Railgun!"
-          end
-
-          ber = client.railgun.memread(msg[2], 60).unpack('V*')
-
-          # BER Pointer is different between x86 and x64
-          if client.arch == ARCH_X64
-            ber_data = client.railgun.memread(ber[4], ber[0])
-          else
-            ber_data = client.railgun.memread(ber[3], ber[0])
-          end
-
-          return ber_data
-        end
-
-        # Search through the BER data structure for our Attribute.
-        # This doesn't attempt to parse the BER structure correctly
-        # instead it finds the first occurance of our field name
-        # tries to check the length of that value.
-        #
-        # @param ber_data [String] BER data structure
-        # @param field [String] Attribute name
-        # @return [Array] Values for the given +field+
-        def get_values_from_ber(ber_data, field)
-          field_offset = ber_data.index(field)
-
-          unless field_offset
-            vprint_status("Field not found in BER: #{field}")
-            return nil
-          end
-
-          # Value starts after our field string
-          values_offset = field_offset + field.length
-          values_start_offset = values_offset + 8
-          values_len_offset = values_offset + 5
-          curr_len_offset = values_offset + 7
-
-          values_length = ber_data[values_len_offset].unpack('C')[0]
-          values_end_offset = values_start_offset + values_length
-
-          curr_length = ber_data[curr_len_offset].unpack('C')[0]
-          curr_start_offset = values_start_offset
-
-          if (curr_length >= 127)
-            curr_length = ber_data[curr_len_offset + 1, 4].unpack('N')[0]
-            curr_start_offset += 4
-          end
-
-          curr_end_offset = curr_start_offset + curr_length
-
-          values = []
-          while (curr_end_offset < values_end_offset)
-            values << ber_data[curr_start_offset..curr_end_offset]
-
-            break unless ber_data[curr_end_offset] == "\x04"
-
-            curr_len_offset = curr_end_offset + 1
-            curr_length = ber_data[curr_len_offset].unpack('C')[0]
-            curr_start_offset = curr_end_offset + 2
-            curr_end_offset = curr_end_offset + curr_length + 2
-          end
-
-          # Strip trailing 0 or \x04 which is used to delimit values
-          values.map! { |x| x[0..x.length - 2] }
-
-          return values
         end
 
         # Shortcut to the WLDAP32 Railgun Object
@@ -365,10 +264,10 @@ module Msf
             raise "Unable to initialize ldap server: #{init_result['ErrorMessage']}"
           end
 
-          vprint_status("LDAP Handle: #{session_handle}")
+          vprint_status("LDAP Handle: 0x#{session_handle.to_s(16)}")
 
-          vprint_status('Setting Sizelimit Option')
-          wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, size_limit)
+          vprint_status('Setting the size limit option')
+          wldap32.ldap_set_option(session_handle, LDAP_OPT_SIZELIMIT, [size_limit].pack('V'))
 
           vprint_status('Binding to LDAP server')
           bind_result = wldap32.ldap_bind_sA(session_handle, nil, nil, LDAP_AUTH_NEGOTIATE)

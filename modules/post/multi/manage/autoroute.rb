@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
     if datastore['ACTION'].to_s.empty?
       datastore['CMD'].to_s.downcase.to_sym
     else
-      wlog("Warning, deprecated use of 'ACTION' datastore option for #{self.fullname}'. Use 'CMD' instead.")
+      wlog("Warning, deprecated use of 'ACTION' datastore option for #{fullname}'. Use 'CMD' instead.")
       datastore['ACTION'].to_s.downcase.to_sym
     end
   end
@@ -74,12 +74,12 @@ class MetasploitModule < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    case route_cmd()
+    case route_cmd
     when :print
-      print_routes()
+      print_routes
     when :add
       if validate_cmd(datastore['SUBNET'], netmask)
-        print_status("Adding a route to %s/%s..." % [datastore['SUBNET'], netmask])
+        print_status('Adding a route to %s/%s...' % [datastore['SUBNET'], netmask])
         add_route(datastore['SUBNET'], netmask)
       end
     when :autoadd
@@ -88,10 +88,10 @@ class MetasploitModule < Msf::Post
       add_default
     when :delete
       if datastore['SUBNET']
-        print_status("Deleting route to %s/%s..." % [datastore['SUBNET'], netmask])
+        print_status('Deleting route to %s/%s...' % [datastore['SUBNET'], netmask])
         delete_route(datastore['SUBNET'], netmask)
       else
-        delete_all_routes()
+        delete_all_routes
       end
     end
   end
@@ -100,9 +100,9 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def delete_all_routes
-    if Rex::Socket::SwitchBoard.routes.size > 0
-      print_status("Deleting all routes associated with session: #{session.sid.to_s}.")
-      while true
+    if !Rex::Socket::SwitchBoard.routes.empty?
+      print_status("Deleting all routes associated with session: #{session.sid}.")
+      loop do
         count = 0
         Rex::Socket::SwitchBoard.each do |route|
           if route.comm == session
@@ -111,13 +111,13 @@ class MetasploitModule < Msf::Post
           end
         end
         Rex::Socket::SwitchBoard.each do |route|
-          count = count + 1 if route.comm == session
+          count += 1 if route.comm == session
         end
         break if count == 0
       end
-      print_status("Deleted all routes")
+      print_status('Deleted all routes')
     else
-      print_status("No routes associated with this session to delete.")
+      print_status('No routes associated with this session to delete.')
     end
   end
 
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Post
     # IPv4 Table
     tbl_ipv4 = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header' => "IPv4 Active Routing Table",
+      'Header' => 'IPv4 Active Routing Table',
       'Prefix' => "\n",
       'Postfix' => "\n",
       'Columns' =>
@@ -142,15 +142,15 @@ class MetasploitModule < Msf::Post
         ],
       'ColProps' =>
         {
-          'Subnet' => { 'MaxWidth' => 17 },
-          'Netmask' => { 'MaxWidth' => 17 },
+          'Subnet' => { 'Width' => 17 },
+          'Netmask' => { 'Width' => 17 }
         }
     )
 
     # IPv6 Table
     tbl_ipv6 = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header' => "IPv6 Active Routing Table",
+      'Header' => 'IPv6 Active Routing Table',
       'Prefix' => "\n",
       'Postfix' => "\n",
       'Columns' =>
@@ -161,14 +161,14 @@ class MetasploitModule < Msf::Post
         ],
       'ColProps' =>
         {
-          'Subnet' => { 'MaxWidth' => 17 },
-          'Netmask' => { 'MaxWidth' => 17 },
+          'Subnet' => { 'Width' => 17 },
+          'Netmask' => { 'Width' => 17 }
         }
     )
 
     # Populate Route Tables
-    Rex::Socket::SwitchBoard.each { |route|
-      if (route.comm.kind_of?(Msf::Session))
+    Rex::Socket::SwitchBoard.each do |route|
+      if route.comm.is_a?(Msf::Session)
         gw = "Session #{route.comm.sid}"
       else
         gw = route.comm.name.split(/::/)[-1]
@@ -176,17 +176,17 @@ class MetasploitModule < Msf::Post
 
       tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
       tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
-    }
+    end
 
     # Print Route Tables
-    print_status(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
-    print_status(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+    print_status(tbl_ipv4.to_s) if !tbl_ipv4.rows.empty?
+    print_status(tbl_ipv6.to_s) if !tbl_ipv6.rows.empty?
     if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
-      print_status("There are currently no routes defined.")
-    elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
-      print_status("There are currently no IPv4 routes defined.")
-    elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
-      print_status("There are currently no IPv6 routes defined.")
+      print_status('There are currently no routes defined.')
+    elsif tbl_ipv4.rows.empty? && !tbl_ipv6.rows.empty?
+      print_status('There are currently no IPv4 routes defined.')
+    elsif !tbl_ipv4.rows.empty? && tbl_ipv6.rows.empty?
+      print_status('There are currently no IPv6 routes defined.')
     end
   end
 
@@ -202,7 +202,7 @@ class MetasploitModule < Msf::Post
     begin
       rw = Rex::Socket::RangeWalker.new(ip.strip)
       (rw.valid? && rw.length == 1) ? true : false
-    rescue
+    rescue StandardError
       false
     end
   end
@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [string class] IPv4 netmask
   def cidr_to_netmask(cidr)
-    int = cidr.gsub(/\x2f/, "").to_i
+    int = cidr.gsub(/\x2f/, '').to_i
     Rex::Socket.addr_ctoa(int)
   end
 
@@ -225,7 +225,7 @@ class MetasploitModule < Msf::Post
     when /^[0-9]{1,3}\.[0-9]/ # Close enough, if it's wrong it'll fail out later.
       datastore['NETMASK']
     else
-      "255.255.255.0"
+      '255.255.255.0'
     end
   end
 
@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Post
     if origin
       origin = " from #{origin}"
     else
-      origin = ""
+      origin = ''
     end
 
     begin
@@ -252,9 +252,9 @@ class MetasploitModule < Msf::Post
         print_error("Could not add route to subnet #{subnet}/#{netmask}#{origin}.")
         return false
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => re
+    rescue ::Rex::Post::Meterpreter::RequestError => e
       print_error("Could not add route to subnet #{subnet}/#{netmask}#{origin}.")
-      print_error("#{re.class} #{re.message}\n#{re.backtrace * "\n"}")
+      print_error("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       return false
     end
   end
@@ -268,13 +268,11 @@ class MetasploitModule < Msf::Post
   # @return [true]  If removed
   # @return [false] If not
   def delete_route(subnet, netmask)
-    begin
-      Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
-    rescue ::Rex::Post::Meterpreter::RequestError => re
-      print_error("Could not remove route to subnet #{subnet}/#{netmask}")
-      print_error("#{re.class} #{re.message}\n#{re.backtrace * "\n"}")
-      return false
-    end
+    Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
+  rescue ::Rex::Post::Meterpreter::RequestError => e
+    print_error("Could not remove route to subnet #{subnet}/#{netmask}")
+    print_error("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    return false
   end
 
   # This function will exclude loopback, multicast, and default routes
@@ -303,7 +301,7 @@ class MetasploitModule < Msf::Post
   def autoadd_routes
     return unless route_compatible?
 
-    print_status("Searching for subnets to autoroute.")
+    print_status('Searching for subnets to autoroute.')
     found = false
 
     begin
@@ -313,16 +311,16 @@ class MetasploitModule < Msf::Post
         subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
         next unless is_routable?(subnet, route.netmask)
 
-        if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask)
-          found = true if add_route(subnet, route.netmask, "host's routing table")
+        if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask) && add_route(subnet, route.netmask, "host's routing table")
+          found = true
         end
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => re
-      print_status("Unable to get routes from session, trying interface list.")
+    rescue ::Rex::Post::Meterpreter::RequestError => e
+      print_status('Unable to get routes from session, trying interface list.')
     end
 
     if !autoadd_interface_routes && !found # Check interface list for more possible routes
-      print_status("Did not find any new subnets to add.")
+      print_status('Did not find any new subnets to add.')
     end
   end
 
@@ -347,15 +345,13 @@ class MetasploitModule < Msf::Post
 
           subnet = get_subnet(ip_addr, netmask)
 
-          if subnet
-            if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
-              found = true if add_route(subnet, netmask, interface.mac_name)
-            end
+          if subnet && !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask) && add_route(subnet, netmask, interface.mac_name)
+            found = true
           end
         end
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => error
-      print_error("Unable to get interface information from session.")
+    rescue ::Rex::Post::Meterpreter::RequestError => e
+      print_error('Unable to get interface information from session.')
     end
     return found
   end
@@ -372,9 +368,9 @@ class MetasploitModule < Msf::Post
 
     nets = ip_addr.split('.')
     masks = netmask.split('.')
-    output = ""
+    output = ''
 
-    (0..3).each do |index|
+    4.times do |index|
       octet = get_subnet_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
       return nil if !octet
 
@@ -421,7 +417,7 @@ class MetasploitModule < Msf::Post
     mask = '0.0.0.0'
 
     switch_board = Rex::Socket::SwitchBoard.instance
-    print_status("Attempting to add a default route.")
+    print_status('Attempting to add a default route.')
 
     if !switch_board.route_exists?(subnet, mask)
       add_route(subnet, mask)
@@ -438,7 +434,7 @@ class MetasploitModule < Msf::Post
   # @return [false class] Session is not
   def session_good?
     if !session.info
-      print_error("Session is not yet fully established. Try again in a bit.")
+      print_error('Session is not yet fully established. Try again in a bit.')
       return false
     end
     return true
@@ -468,22 +464,22 @@ class MetasploitModule < Msf::Post
   # @return [false class] Not so much
   def validate_cmd(subnet = nil, netmask = nil)
     if subnet.nil?
-      print_error "Missing subnet option"
+      print_error 'Missing subnet option'
       return false
     end
 
-    unless (check_ip(subnet))
-      print_error "Subnet invalid (must be IPv4)"
+    unless check_ip(subnet)
+      print_error 'Subnet invalid (must be IPv4)'
       return false
     end
 
-    if (netmask and !(Rex::Socket.addr_atoc(netmask)))
-      print_error "Netmask invalid (must define contiguous IP addressing)"
+    if (netmask && !Rex::Socket.addr_atoc(netmask))
+      print_error 'Netmask invalid (must define contiguous IP addressing)'
       return false
     end
 
-    if (netmask and !check_ip(netmask))
-      print_error "Netmask invalid"
+    if (netmask && !check_ip(netmask))
+      print_error 'Netmask invalid'
       return false
     end
     return true

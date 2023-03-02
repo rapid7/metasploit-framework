@@ -1,6 +1,6 @@
 # Contributing to Metasploit
 Thank you for your interest in making Metasploit -- and therefore, the
-world -- a better place!  Before you get started, please review our [Code of Conduct](https://github.com/rapid7/metasploit-framework/wiki/Code-Of-Conduct). This helps us ensure our community is positive and supportive for everyone involved.
+world -- a better place!  Before you get started, please review our [Code of Conduct](./CODE_OF_CONDUCT.md). This helps us ensure our community is positive and supportive for everyone involved.
 
 ## Code Free Contributions
 Before we get into the details of contributing code, you should know there are multiple ways you can add to Metasploit without any coding experience:
@@ -15,9 +15,9 @@ Before we get into the details of contributing code, you should know there are m
 
 
 ## Code Contributions
-For those of you who are looking to add code to Metasploit, your first step is to set up a [development environment]. Once that's done, we recommend beginners start by adding a [proof-of-concept exploit from ExploitDB,](https://www.exploit-db.com/search?verified=true&hasapp=true&nomsf=true) as a new module to the Metasploit framework. These exploits have been verified as recreatable and their ExploitDB page includes a copy of the exploitable software. This makes testing your module locally much simpler, and most importantly the exploits don't have an existing Metasploit implementation. ExploitDB can be slow to update however, so please double check that there isn't an existing module before beginning development! If you're certain the exploit you've chosen isn't already in Metasploit, read our [writing an exploit guide](https://github.com/rapid7/metasploit-framework/wiki/Get-Started-Writing-an-Exploit). It will help you to get started and avoid some common mistakes.
+For those of you who are looking to add code to Metasploit, your first step is to set up a [development environment]. Once that's done, we recommend beginners start by adding a [proof-of-concept exploit from ExploitDB,](https://www.exploit-db.com/search?verified=true&hasapp=true&nomsf=true) as a new module to the Metasploit framework. These exploits have been verified as recreatable and their ExploitDB page includes a copy of the exploitable software. This makes testing your module locally much simpler, and most importantly the exploits don't have an existing Metasploit implementation. ExploitDB can be slow to update however, so please double check that there isn't an existing module before beginning development! If you're certain the exploit you've chosen isn't already in Metasploit, read our [writing an exploit guide](https://docs.metasploit.com/docs/development/developing-modules/guides/get-started-writing-an-exploit.html). It will help you to get started and avoid some common mistakes.
 
-Once you have finished your new module and tested it locally to ensure it's working as expected, check out our [guide for accepting modules](https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Accepting-Modules-and-Enhancements#module-additions). This will give you a good idea of how to clean up your code so that it's likely to get accepted.
+Once you have finished your new module and tested it locally to ensure it's working as expected, check out our [guide for accepting modules](https://docs.metasploit.com/docs/development/maintainers/process/guidelines-for-accepting-modules-and-enhancements.html#module-additions). This will give you a good idea of how to clean up your code so that it's likely to get accepted.
 
 Finally, follow our short list of do's and don'ts below to make sure your valuable contributions actually make it into Metasploit's master branch! We try to consider all our pull requests fairly and in detail, but if you do not follow these rules, your contribution
 will be closed. We need to ensure the code we're adding to master is written to a high standard.
@@ -83,7 +83,7 @@ If you need some more guidance, talk to the main body of open source contributor
 Finally, **thank you** for taking the few moments to read this far! You're already way ahead of the
 curve, so keep it up!
 
-[Code of Conduct]:https://github.com/rapid7/metasploit-framework/wiki/CODE_OF_CONDUCT.md
+[Code of Conduct]:https://docs.metasploit.com/docs/code-of-conduct.html
 [Submit bugs and feature requests]:http://r-7.co/MSF-BUGv1
 [Help fellow users with open issues]:https://github.com/rapid7/metasploit-framework/issues
 [help fellow committers test recently submitted pull requests]:https://github.com/rapid7/metasploit-framework/pulls
@@ -101,7 +101,7 @@ curve, so keep it up!
 [PR#9966]:https://github.com/rapid7/metasploit-framework/pull/9966
 [pre-commit hook]:https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb
 [API]:https://rapid7.github.io/metasploit-framework/api
-[module documentation]:https://github.com/rapid7/metasploit-framework/wiki/Module-Documentation
+[module documentation]:https://docs.metasploit.com/docs/using-metasploit/basics/module-documentation.html
 [scripts]:https://github.com/rapid7/metasploit-framework/tree/master/scripts
 [RSpec]:http://rspec.info
 [Better Specs]:http://www.betterspecs.org/
