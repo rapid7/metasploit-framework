@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.3.5)
+    metasploit-framework (6.3.6)
       actionpack (~> 7.0)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
