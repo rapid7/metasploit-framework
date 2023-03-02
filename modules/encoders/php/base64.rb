@@ -26,6 +26,13 @@ class MetasploitModule < Msf::Encoder
       raise BadcharError if state.badchars.include?(c)
     end
 
+    # Modern versions of PHP choke on unquoted litteral strings.
+    quote = "'"
+    if state.badchars.include?("'")
+      raise BadcharError if state.badchars.include?('"')
+      quote = '"'
+    end
+
     # PHP escapes quotes by default with magic_quotes_gpc, so we use some
     # tricks to get around using them.
     #
@@ -94,6 +101,6 @@ class MetasploitModule < Msf::Encoder
     # cause a syntax error.  Remove any trailing dots.
     b64.chomp!(".")
 
-    return "eval(base64_decode(" + b64 + "));"
+    return "eval(base64_decode(" + quote + b64 + quote + "));"
   end
 end
