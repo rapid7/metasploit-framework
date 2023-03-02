@@ -229,6 +229,9 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'zeitwerk'
 
-  # Required for PNG payload support
+  # Required for PNG payload support.
+  # WARNING: Chunky_PNG is vulnerable to decompression bomb attacks.
+  # Do not use this to process untrusted PNG files! This is only to be used
+  # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
 end
