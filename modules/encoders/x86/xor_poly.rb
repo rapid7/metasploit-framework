@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Encoder::Xor
   def initialize
     super(
       'Name' => 'XOR POLY Encoder',
-      'Description' => 'An x86 Simple POLY Xor encoding method.',
+      'Description' => 'An x86 Simple POLY Xor encoding method. using polymorphism Register swapping, and instructions modification',
       'Author' => [ 'Arthur RAOUT' ],
       'Arch' => ARCH_X86,
       'License' => MSF_LICENSE,
@@ -20,14 +20,12 @@ class MetasploitModule < Msf::Encoder::Xor
       )
   end
 
-  # Indicate that this module can preserve some registers
-  # ...which is currently not true. This is a temp fix
-  # until the full preserve_registers functionality is
-  # implemented.
+  # Indicate that this module can preserve the registers used
   def can_preserve_registers?
     true
   end
 
+  # select a permutation from table
   def choose_permutation(state, table)
     table = table.shuffle
     for i in 0..table.length - 1
@@ -57,30 +55,27 @@ class MetasploitModule < Msf::Encoder::Xor
   end
 
   def decoder_stub(state)
-    # calculate the (negative) block count . We should check this against state.badchars.
     state.decoder_key_size = 4
     state.decoder_key_pack = 'V'
+    # calculate the (negative) and positiv block count.
     block_count = [-(((state.buf.length - 1) / state.decoder_key_size) + 1)].pack('V')
     block_count_positive = [(((state.buf.length - 1) / state.decoder_key_size) + 1)].pack('V')
 
-    # EAX    ECX     EDX     EBX     ESI     EDI
     regs = [0b0000, 0b0001, 0b0010, 0b0011, 0b0110, 0b0111]
 
-    # POP | REG
     pop = 0b0101_1000
-    # PUSH | REG
     push = 0b0101_0000
-
     mov = 0b1011_1000
+
 
     reg1 = regs[rand(6)]
     regs.delete(reg1)
-    reg2 = regs[rand(5)] # Fixed to ECX register for now as long as we use Loop instruction, will be set to random when loop replaced by  manual jmp
-    regs.delete(reg2) # remove it from the list
-    reg3 = regs[rand(4)] # random register
-    regs.delete(reg3) # remove it from the list
-    reg4 = regs[rand(3)] # random register    reg4 is useless and used for nopLike operations
-    regs.delete(reg4) # remove it from the list
+    reg2 = regs[rand(5)]
+    regs.delete(reg2)
+    reg3 = regs[rand(4)]
+    regs.delete(reg3)
+    reg4 = regs[rand(3)] #reg4 is useless and used for nopLike operations
+    regs.delete(reg4)
 
     # NOPS
     nop_nop_nop_nop = "\x90\x90\x90\x90" # 4 bytes
@@ -182,6 +177,7 @@ class MetasploitModule < Msf::Encoder::Xor
     jmp = decoder.index(xor_rel_reg1_reg3) - decoder.index('SS')
     decoder.sub! 'SS', [jmp].pack('C')
     decoder.sub! 'LL', [decoder_len - 6].pack('C')
+    # example of decoder generated
     # e800000000     call loc._start.continue
     # 58             pop eax
     # 83e805         sub eax, 5
