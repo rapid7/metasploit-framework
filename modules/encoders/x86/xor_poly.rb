@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Encoder::Xor
     raise 'No permutation found for the badchar set :' + state.badchars.inspect
   end
 
-  # generate instruciton for a push
+  # generate instruction for a push
   def register_preservation_generate(flag, regs)
     ret = ''
     pop = 0b0101_1000
