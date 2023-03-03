@@ -106,7 +106,7 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
-    # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInfo] logon_info
+    # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInformation] logon_info
     # @return [String] A human readable representation of a Logon Information
     def present_logon_info(logon_info)
       validation_info = logon_info.data
@@ -133,12 +133,13 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "Last Failed Interactive Logon: #{present_ndr_file_time(validation_info.last_failed_i_logon)}".indent(2)
       output << "Failed Interactive Logon Count: #{validation_info.failed_i_logon_count}".indent(2)
 
-      output << "SID Count: #{validation_info.sid_count}".indent(2)
+      output << "Extra SID Count: #{validation_info.sid_count}".indent(2)
+      output << validation_info.extra_sids.map { |extra_sid| "SID: #{extra_sid.sid}, Attributes: #{extra_sid.attributes}".indent(4) } if validation_info.extra_sids.any?
       output << "Resource Group Count: #{validation_info.resource_group_count}".indent(2)
 
       output << "Group Count: #{validation_info.group_count}".indent(2)
       output << 'Group IDs:'.indent(2)
-      output << validation_info.group_memberships.map { |group| "Relative ID: #{group.relative_id}, Attributes: #{group.attributes}".indent(4) }
+      output << validation_info.group_memberships.map { |group| "Relative ID: #{group.relative_id}, Attributes: #{group.attributes}".indent(4) } if validation_info.group_memberships.any?
 
       output << "Logon Domain ID: #{validation_info.logon_domain_id}".indent(2)
 
@@ -281,7 +282,7 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "Client Name: '#{ticket_enc_part.cname}'"
       output << "Client Realm: '#{ticket_enc_part.crealm}'"
       output << "Ticket etype: #{ticket_enc_part.key.type} (#{Rex::Proto::Kerberos::Crypto::Encryption.const_name(ticket_enc_part.key.type)})"
-      output << "Encryption Key: #{ticket_enc_part.key.value.unpack1('H*')}"
+      output << "Session Key: #{ticket_enc_part.key.value.unpack1('H*')}"
       output << "Flags: 0x#{ticket_enc_part.flags.to_i.to_s(16).rjust(8, '0')} (#{ticket_enc_part.flags.enabled_flag_names.join(', ')})"
 
       auth_data_data = ticket_enc_part.authorization_data.elements.first[:data]

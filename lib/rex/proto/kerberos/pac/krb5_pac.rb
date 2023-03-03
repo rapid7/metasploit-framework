@@ -194,9 +194,18 @@ module Rex::Proto::Kerberos::Pac
     #   @return [Integer] List of GROUP_MEMBERSHIP structures that contains the groups to which the account belongs in the account domain
     pgroup_membership_array :group_memberships, type: [:group_membership, { byte_align: 4 }]
 
+    # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73
     # @!attribute [rw] user_flags
     #   @return [Integer] A set of bit flags that describe the user's logon information
-    ndr_uint32 :user_flags
+    ndr_uint32 :user_flags,
+               initial_value: -> do
+                 value = 0
+                 # Bit D: Indicates that the ExtraSids field is populated and contains additional SIDs.
+                 value |= (1 << 5) if self.sid_count > 0
+                 # Bit H: Indicates that the ResourceGroupIds field is populated.
+                 value |= (1 << 9) if self.resource_group_count > 0
+                 value
+               end
 
     # @!attribute [rw] user_session_key
     #   @return [Integer] A session key that is used for cryptographic operations on a session
@@ -245,16 +254,16 @@ module Rex::Proto::Kerberos::Pac
 
     # @!attribute [rw] sid_count
     #   @return [Integer] Total number of SIDs present in the ExtraSids member
-    ndr_uint32 :sid_count
+    ndr_uint32 :sid_count, initial_value: -> { extra_sids.length }
 
-    # @!attribute [rw] extra_sids_ptr
-    #   @return [Integer] A pointer to a list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs
+    # @!attribute [rw] extra_sids
+    #   @return [Integer] A list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs
     #   corresponding to groups in domains other than the account domain to which the principal belongs
-    krb5_sid_and_attributes_ptr :extra_sids_ptr
+    krb5_sid_and_attributes_ptr :extra_sids # :extra_sids_ptr
 
-    # @!attribute [rw] resource_group_domain_sid_ptr
-    #   @return [Integer] Pointer to SID of the domain for the server whose resources the client is authenticating to
-    prpc_sid :resource_group_domain_sid_ptr # prpc_sid :resource_group_domain_sid_ptr
+    # @!attribute [rw] resource_group_domain_sid
+    #   @return [Integer] SID of the domain for the server whose resources the client is authenticating to
+    prpc_sid :resource_group_domain_sid # :resource_group_domain_sid_ptr
 
     # @!attribute [rw] resource_group_count
     #   @return [Integer] Number of resource group identifiers stored in ResourceGroupIds
