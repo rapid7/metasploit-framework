@@ -232,7 +232,7 @@ The full list of available functions is as follows:
 #### meterpreter.transport
 
 * `meterpreter.transport.list()` - list all transports in the target.
-* `meterpreter.transport.add(url, session_expiry, comm_timeout, retry_total, retry_wait, ua, proxy_host, proxy_user, proxy_pass, cert_hash)` - allows for transports to be added to the Meterpreter session. All but the `url` parameter come with a sane default. Full details of each of these parameters can be found in the [transport][] documentation.
+* `meterpreter.transport.add(url, session_expiry, comm_timeout, retry_total, retry_wait, ua, proxy_host, proxy_user, proxy_pass, cert_hash)` - allows for transports to be added to the Meterpreter session. All but the `url` parameter come with a sane default. Full details of each of these parameters can be found in the [[transport|meterpreter-transport-control]] documentation.
 
 It is not possible to delete transports using the python extension as this opens the door to many kinds of failure.
 
@@ -331,7 +331,6 @@ Hell no! But the goal is to get closer and closer to perfect as we go. It's up t
 
 Please do, making good use of the Github issues feature. Better still, create a PR for one!
 
-  [transport]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-transport-control.html
   [inveigh]: https://github.com/Kevin-Robertson/Inveigh
 
 ## Currently Loadable Native Libraries

@@ -12,7 +12,7 @@ The Meterpreter that we have known and loved for years has always had the abilit
 
 Recent modifications to Meterpreter have changed this. Meterpreter has a new [[configuration system|Meterpreter-Configuration]] that supports multiple transports and it now supports the addition of new transports while the session is still running. With the extra transports configured, Meterpreter allows the user to cycle through those transports without shutting down the session.
 
-Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the [Meterpreter Reliable Network Communication][].
+Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the [[Meterpreter Reliable Network Communication|[[reliable network communication documentation|./Meterpreter-Reliable-Network-Communication.md]].
 
 This document describes how multiple transports are added to an existing Meterpreter session.
 
@@ -78,7 +78,7 @@ The first part of the output is the session expiry time. To learn more about exp
 
 The above output shows that we have one transport enabled that is using `TCP`. We can infer that the transport was a `reverse_tcp` (rather than `bind_tcp`) due to the fact that there is a host IP address in the transport URL. If it was a `bind_tcp`, this would be blank.
 
-`Comms T/O` refers to the communications timeout value. `Retry Total` is the total time to attempt reconnects on this transport, and `Retry Wait` indicates how often a retry of the current transport should happen. Each of these is documented in depth in the [Timeout documentation][].
+`Comms T/O` refers to the communications timeout value. `Retry Total` is the total time to attempt reconnects on this transport, and `Retry Wait` indicates how often a retry of the current transport should happen. Each of these is documented in depth in the [[Timeout documentation|./meterpreter-timeout-control.md]].
 
 The verbose version of this command shows more detail about the transport, but only in cases where extra detail is available (such as `reverse_http/s`). The following command shows the output of the `list` sub-command with the verbose flag (`-v`) after an `HTTP` transport has been added:
 
@@ -362,6 +362,3 @@ The following Meterpreter implementations currently support the transport comman
  * Android
  * Java
  * Python
-
-  [Timeout documentation]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-timeout-control.html
-  [Reliable Network documentation]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-reliable-network-communication.html
