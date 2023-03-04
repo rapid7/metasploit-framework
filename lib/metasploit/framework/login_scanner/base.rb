@@ -45,6 +45,20 @@ module Metasploit
           # @!attribute bruteforce_speed
           #   @return [Integer] The desired speed, with 5 being 'fast' and 0 being 'slow.'
           attr_accessor :bruteforce_speed
+          # @!attribute maxconsecutiveerrors
+          #   @return [Integer] Maximum consecutive errors allowed
+          attr_accessor :maxconsecutiveerrors
+          # @!attribute maxerrorcount
+          #   @return [Integer] Maximum Errors allowed
+          attr_accessor :maxerrorcount
+
+          validates :maxconsecutiveerrors,
+                    presence: true,
+                    numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 1,
+                      less_than_or_equal_to:    :maxerrorcount
+                    }
 
           validates :connection_timeout,
                     presence: true,
@@ -247,8 +261,8 @@ module Metasploit
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1
                   total_error_count += 1
-                  break if consecutive_error_count >= 3
-                  break if total_error_count >= 10
+                  break if consecutive_error_count >= maxconsecutiveerrors
+                  break if total_error_count >= maxerrorcount
                 end
               end
             end
