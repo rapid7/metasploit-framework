@@ -166,6 +166,7 @@ require 'digest/sha1'
       if plat.index(Msf::Module::Platform::Linux)
         return to_linux_aarch64_elf(framework, code)
       end
+
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_aarch64_macho(framework, code)
       end
@@ -2159,6 +2160,8 @@ require 'digest/sha1'
           to_osx_arm_macho(framework, code, exeopts)
         when ARCH_PPC
           to_osx_ppc_macho(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_osx_aarch64_macho(framework, code, exeopts)
         end
       end
       fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
