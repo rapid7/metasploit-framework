@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
         OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true]),
         OptInt.new('MaxErrorCount', [true, "Total errors allowed while connecting", 10]),
-        OptInt.new('MaxConsecutiveErrors', [true, "Max Consicutive errors allowed while connecting", 3])
+        OptInt.new('MaxConsecutiveErrorCount', [true, "Maximum consecutive errors allowed while connecting", 3])
       ]
     )
 
@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
       framework: framework,
       framework_module: self,
       skip_gather_proof: !datastore['GatherProof'],
-      max_consecutive_errors: datastore['MaxConsecutiveErrors'],
+      max_consecutive_error_count: datastore['MaxConsecutiveErrorCount'],
       max_error_count: datastore['MaxErrorCount']
     )
 
