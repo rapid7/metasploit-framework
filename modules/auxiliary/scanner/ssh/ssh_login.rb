@@ -111,8 +111,8 @@ class MetasploitModule < Msf::Auxiliary
       framework: framework,
       framework_module: self,
       skip_gather_proof: !datastore['GatherProof'],
-      maxconsecutiveerrors: datastore['MaxConsecutiveErrors'],
-      maxerrorcount: datastore['MaxErrorCount']
+      max_consecutive_errors: datastore['MaxConsecutiveErrors'],
+      max_error_count: datastore['MaxErrorCount']
     )
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
