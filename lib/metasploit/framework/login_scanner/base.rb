@@ -311,6 +311,8 @@ module Metasploit
           # @return [void]
           def set_sane_defaults
             self.connection_timeout = 30 if self.connection_timeout.nil?
+            self.max_consecutive_errors = 3 if self.max_consecutive_errors.nil?
+            self.max_error_count = 10 if self.max_error_count.nil?
           end
 
           # This method validates that the credentials supplied
