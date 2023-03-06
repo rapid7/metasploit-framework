@@ -509,8 +509,8 @@ class Creds
     end
 
     if mode == :delete
-      delete_count = matched_cred_ids.size
       result = framework.db.delete_credentials(ids: matched_cred_ids.concat(cracked_cred_ids).uniq)
+      delete_count = result.size
     end
 
     # Finally, handle the case where the user wants the resulting list
