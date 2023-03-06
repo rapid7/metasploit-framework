@@ -39,6 +39,7 @@ module MetasploitModule
       scheme: 'https',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('aarch64-apple-darwin', generate_config(opts)).to_binary :exec
+    mo = MetasploitPayloads::Mettle.new('aarch64-apple-darwin', generate_config(opts)).to_binary :exec
+    Payload::MachO.new(mo).sign
   end
 end

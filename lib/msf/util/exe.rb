@@ -886,13 +886,7 @@ require 'digest/sha1'
     mo = self.get_file_contents(opts[:template])
     bo = self.find_payload_tag(mo, "Invalid OSX Aarch64 Mach-O template: missing \"PAYLOAD:\" tag")
     mo[bo, code.length] = code
-    require "macho"
-    file = MachO::MachOFile.new_from_bin(mo)
-    hash_index = mo.index(["a9fd64ffbf779c67c0578a547f441b4ee8192f5484d14993b7898c00cf9b8328"].pack("H*"))
-    new_digest = Digest::SHA256.digest(
-      file.serialize[0...file[:LC_CODE_SIGNATURE][0].dataoff].bytes.each_slice(4096).to_a[8].pack("C*")
-    )
-    mo[hash_index...hash_index+32] = new_digest
+    Payload::MachO.new(mo).sign
     mo
   end
 

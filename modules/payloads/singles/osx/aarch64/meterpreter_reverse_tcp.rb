@@ -40,13 +40,6 @@ module MetasploitModule
       stageless: true
     }.merge(mettle_logging_config)
     mo = MetasploitPayloads::Mettle.new('aarch64-apple-darwin', generate_config(opts)).to_binary :exec
-    require "macho"
-    file = MachO::MachOFile.new_from_bin(mo)
-    hash_index = mo.index(["f091725182ee6dd2ff53529230de1a2461899568078a440c03205c9cb5897d00"].pack("H*"))
-    new_digest = Digest::SHA256.digest(
-      file.serialize[0...file[:LC_CODE_SIGNATURE][0].dataoff].bytes.each_slice(4096).to_a[157].pack("C*")
-    )
-    mo[hash_index...hash_index+32] = new_digest
-    mo
+    Payload::MachO.new(mo).sign
   end
 end
