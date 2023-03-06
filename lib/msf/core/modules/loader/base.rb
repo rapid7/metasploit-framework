@@ -448,7 +448,7 @@ class Msf::Modules::Loader::Base
   #
   # @abstract Override to return the path to the module on the file system so that errors can be reported correctly.
   #
-  # @param path (see #load_module)
+  # @param parent_path (see #load_module)
   # @param type (see #load_module)
   # @param module_reference_name (see #load_module)
   # @return [String] The path to module.

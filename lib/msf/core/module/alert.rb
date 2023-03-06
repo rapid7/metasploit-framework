@@ -52,8 +52,8 @@ module Msf::Module::Alert
       get_alerts(:error)
     end
 
-    # @param [Symbol] the alert level to return
-    # @return [Array<String, Proc>] a list of `level` alerts, either in string
+    # @param level [Symbol] The alert level to return
+    # @return [Array<String, Proc>] A list of `level` alerts, either in string
     #   or block form. Blocks expect to be executed in the context of a fully
     #   initialized module instance and will return `nil` if the alert they are
     #   looking for does not apply or a string or array of strings, each
@@ -163,7 +163,7 @@ module Msf::Module::Alert
   # Similar to {ClassMethods#get_alerts}, but executes each registered block in
   # the context of this module instance and returns a flattened list of strings.
   # (see {ClassMethods#get_alerts})
-  # @param [Symbol] the alert level to return
+  # @param level [Symbol] The alert level to return
   # @return [Array<String>]
   def get_alerts(level)
     self.alerts ||= {}
