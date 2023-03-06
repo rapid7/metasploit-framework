@@ -115,7 +115,7 @@ module Msf::DBManager::Loot
 
       # If the user updates the path attribute (or filename) we need to update the file
       # on disk to reflect that.
-      if opts[:path] && File.exists?(loot.path)
+      if opts[:path] && File.exist?(loot.path)
         File.rename(loot.path, opts[:path])
       end
 
