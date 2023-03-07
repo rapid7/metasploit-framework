@@ -824,6 +824,9 @@ NAVIGATION_CONFIG = [
           },
           {
             path: 'Loading-Test-Modules.md'
+          },
+          {
+            path: 'Measuring-Metasploit-Performance.md'
           }
         ]
       },
