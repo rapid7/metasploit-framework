@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'uri'
 
+require 'rex/mime'
 require 'rex/socket'
 require 'rex/text'
 
@@ -32,8 +33,10 @@ class ClientRequest
     'uri'                    => '/',
     'vars_get'               => {},
     'vars_post'              => {},
+    'vars_form_data'         => [],
     'version'                => '1.1',
     'vhost'                  => nil,
+    'ssl_server_name_indication' => nil,
 
     #
     # Evasion options
@@ -63,6 +66,8 @@ class ClientRequest
     'pad_post_params_count'  => 8,       # integer
     'uri_fake_end'           => false,   # bool
     'uri_fake_params_start'  => false,   # bool
+    'shuffle_get_params'     => false,   # bool
+    'shuffle_post_params'    => false,   # bool
     'header_folding'         => false,   # bool
     'chunked_size'           => 0,        # integer
 
@@ -97,6 +102,8 @@ class ClientRequest
     # Start POST data string
     pstr = opts['data'] ? opts['data'].dup : ""
 
+    ctype = opts['ctype']
+
     if opts['cgi']
       uri_str = set_uri
 
@@ -109,6 +116,8 @@ class ClientRequest
         end
       end
       if opts.key?("vars_get") && opts['vars_get']
+        opts['vars_get'] = Hash[opts['vars_get'].to_a.shuffle] if (opts['shuffle_get_params'])
+
         opts['vars_get'].each_pair do |var,val|
           var = var.to_s
 
@@ -134,6 +143,8 @@ class ClientRequest
         end
       end
 
+      opts['vars_post'] = Hash[opts['vars_post'].to_a.shuffle] if (opts['shuffle_post_params'])
+
       opts['vars_post'].each_pair do |var,val|
         var = var.to_s
         unless val.is_a?(Array)
@@ -147,6 +158,43 @@ class ClientRequest
           pstr << (opts['encode_params'] ? set_encode_uri(v) : v)
         end
       end
+
+      if opts['vars_form_data'] && opts['vars_form_data'].length > 0
+        unless opts['vars_form_data'].is_a?(::Array)
+          raise ::ArgumentError, "request_cgi: The provided `form_data` option is not valid. Expected: Array, Got: #{opts['form_data'].class}"
+        end
+
+        form_data = Rex::MIME::Message.new
+        # Initialize or reuse the previous form data boundary to ensure idempotency
+        opts['vars_form_data_boundary'] ||= form_data.bound
+        form_data.bound = opts['vars_form_data_boundary']
+
+        opts['vars_form_data'].each do |field_hash|
+          # The name of the HTTP form field
+          field_name = field_hash.fetch('name', nil)
+          unless field_name.is_a?(::String) || field_name == nil
+            raise ::ArgumentError, "to_s: The provided field `name` option is not valid. Expected: String, Got: #{field_name.class}"
+          end
+
+          mime_type = field_hash.fetch('content_type', nil)
+          encoding = field_hash.fetch('encoding', nil)
+
+          file_contents = get_file_data(field_hash['data'])
+          filename = field_hash.fetch('filename') { get_filename(field_hash['data']) }
+
+          content_disposition = 'form-data'
+          content_disposition << "; name=\"#{field_name}\"" if field_name
+          # NOTE: The file name is intentionally unescaped, as exploits such as playsms_filename_exec embed payloads into the file name which shouldn't be escaped
+          content_disposition << "; filename=\"#{filename}\"" if filename
+
+          form_data.add_part(file_contents, mime_type, encoding, content_disposition)
+        end
+
+        pstr += form_data.to_s
+      end
+
+      ctype ||= "multipart/form-data; boundary=#{opts['vars_form_data_boundary']}" if opts['vars_form_data_boundary']
+      ctype ||= 'application/x-www-form-urlencoded' if opts['method'] == 'POST'
     else
       if opts['encode']
         qstr = set_encode_uri(qstr)
@@ -197,7 +245,7 @@ class ClientRequest
     req << set_connection_header
     req << set_extra_headers
 
-    req << set_content_type_header
+    req << set_content_type_header(ctype)
     req << set_content_len_header(pstr.length)
     req << set_chunked_header
     req << opts['raw_headers']
@@ -395,8 +443,8 @@ class ClientRequest
   #
   # Return the content type header
   #
-  def set_content_type_header
-    opts['ctype'] ? set_formatted_header("Content-Type", opts['ctype']) : ""
+  def set_content_type_header(ctype)
+    ctype ? set_formatted_header("Content-Type", ctype) : ""
   end
 
   #
@@ -478,6 +526,13 @@ class ClientRequest
     "\r\n" + chunked + "0\r\n\r\n"
   end
 
+  def get_file_data(file)
+    file.respond_to?('read') ? (file.rewind; contents = file.read; file.rewind; contents) : file.to_s
+  end
+
+  def get_filename(data)
+    data.is_a?(::Pathname) || data.is_a?(::File) ? ::File.basename(data) : nil
+  end
 
 end
 

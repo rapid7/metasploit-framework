@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'	=>
         [
-          [ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
+          [ 'URL', 'https://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
           [ 'OSVDB', '59440' ],
           [ 'BID', '36842' ],
           [ 'CVE', '2009-3733' ],

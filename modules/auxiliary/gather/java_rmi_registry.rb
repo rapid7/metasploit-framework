@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'http://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
+          ['URL', 'https://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
         ]
     )
 

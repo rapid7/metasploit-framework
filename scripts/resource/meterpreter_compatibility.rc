@@ -1,0 +1,44 @@
+# Outputs the currently supported Meterpreter commands as JSON for the currently opened Meterpreter sessions
+# Usage:
+# msf> resource scripts/resource/meterpreter_compatibility.rc
+
+<ruby>
+require 'json'
+
+# Attempt to load all known extensions
+framework.sessions.values.map do |session|
+  next unless session.type == 'meterpreter'
+
+  Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |extension_name|
+    session.core.use(extension_name)
+  rescue ::RuntimeError
+    puts "failed loading #{extension_name}"
+    # noop
+  end
+end
+
+# Create an array of supported session information
+session_data = framework.sessions.values.map do |session|
+  next unless session.type == 'meterpreter'
+
+  supported_commands = session.commands.map do |command_id|
+    command_name = Rex::Post::Meterpreter::CommandMapper.get_command_name(command_id)
+
+    {
+      id: command_id,
+      name: command_name
+    }
+  end
+
+  {
+    session_type: session.session_type,
+    commands: supported_commands
+  }
+end.compact
+
+result = {
+  sessions: session_data
+}
+
+puts JSON.fast_generate(result)
+</ruby>

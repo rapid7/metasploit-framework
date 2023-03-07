@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
+  include Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options
 
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
@@ -36,6 +38,13 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
       'License' => MSF_LICENSE
+    )
+
+    register_advanced_options(
+      [
+        *kerberos_storage_options(protocol: 'SMB'),
+        *kerberos_auth_options(protocol: 'SMB', auth_methods: Msf::Exploit::Remote::AuthOption::SMB_OPTIONS),
+      ]
     )
 
     deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
@@ -92,6 +101,7 @@ class MetasploitModule < Msf::Auxiliary
 
       dialect = simple.client.dialect
       if simple.client.is_a? RubySMB::Client
+        info[:signing_required] = simple.client.signing_required
         if dialect == '0x0311'
           info[:capabilities][:compression] = simple.client.server_compression_algorithms.map do |algorithm|
             RubySMB::SMB2::CompressionCapabilities::COMPRESSION_ALGORITHM_MAP[algorithm]
@@ -119,6 +129,8 @@ class MetasploitModule < Msf::Auxiliary
             info[:auth_domain] = simple.client.default_domain
           end
         end
+      else
+        info[:signing_required] = simple.client.peer_require_signing
       end
 
       info[:preferred_dialect] = dialect unless info.key? :preferred_dialect
@@ -192,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
           desc << " (#{name} capabilities:#{values.join(', ')})"
         end
 
-        if simple.client.peer_require_signing
+        if info[:signing_required]
           desc << ' (signatures:required)'
         else
           desc << ' (signatures:optional)'
@@ -222,7 +234,7 @@ class MetasploitModule < Msf::Auxiliary
 
         if res['os'] && res['os'] != 'Unknown'
           description = smb_os_description(res, nd_smb_fingerprint)
-          desc = description[:text]
+          desc << description[:text]
           nd_fingerprint_match = description[:fingerprint_match]
           nd_smb_fingerprint = description[:smb_fingerprint]
 
@@ -274,6 +286,15 @@ class MetasploitModule < Msf::Auxiliary
         else
           lines << { type: :status, message: '  Host could not be identified', verbose: true }
         end
+
+        report_service(
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          name: 'smb',
+          info: desc
+        )
+
 
         # Report a smb.fingerprint hash of attributes for OS fingerprinting
         report_note(

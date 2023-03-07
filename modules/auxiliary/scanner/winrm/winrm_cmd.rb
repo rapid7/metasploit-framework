@@ -23,10 +23,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD', [ true, 'The windows command to run', 'ipconfig /all' ]),
-        OptString.new('USERNAME', [ true, 'The username to authenticate as']),
-        OptString.new('PASSWORD', [ true, 'The password to authenticate with'])
+        OptString.new('USERNAME', [ true, 'The username to authenticate as'])
       ]
     )
+  end
+
+  def run
+    check_winrm_parameters
+    super
   end
 
   def run_host(ip)
@@ -36,23 +40,49 @@ class MetasploitModule < Msf::Auxiliary
     ssl = datastore['SSL']
     schema = ssl ? 'https' : 'http'
     endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
-    conn = Net::MsfWinRM::RexWinRMConnection.new(
-      {
-        endpoint: endpoint,
+    opts = {
+      endpoint: endpoint,
         host: rhost,
         port: rport,
         uri: uri,
         ssl: ssl,
-        user: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
         transport: :rexhttp,
         no_ssl_peer_verification: true,
         operation_timeout: 1,
         timeout: 20,
         retry_limit: 1,
         realm: datastore['DOMAIN']
-      }
-    )
+    }
+    case datastore['Winrm::Auth']
+    when Msf::Exploit::Remote::AuthOption::KERBEROS
+      kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
+        host: datastore['DomainControllerRhost'],
+        hostname: datastore['Winrm::Rhostname'],
+        realm: datastore['DOMAIN'],
+        username: datastore['USERNAME'],
+        password: datastore['PASSWORD'],
+        timeout: 20, # datastore['timeout']
+        framework: framework,
+        framework_module: self,
+        cache_file: datastore['Winrm::Krb5Ccname'].blank? ? nil : datastore['Winrm::Krb5Ccname'],
+        mutual_auth: true,
+        use_gss_checksum: true,
+        ticket_storage: kerberos_ticket_storage,
+        offered_etypes: Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Winrm::KrbOfferedEncryptionTypes'])
+      )
+      opts = opts.merge({
+        user: '', # Need to provide it, otherwise the WinRM module complains
+        password: '', # Need to provide it, otherwise the WinRM module complains
+        kerberos_authenticator: kerberos_authenticator,
+        vhost: datastore['RHOSTNAME']
+      })
+    else
+      opts = opts.merge({
+        user: datastore['USERNAME'],
+        password: datastore['PASSWORD'],
+      })
+    end
+    conn = Net::MsfWinRM::RexWinRMConnection.new(opts)
 
     begin
       shell = conn.shell(:powershell)
@@ -68,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       path = store_loot('winrm.cmd_results', 'text/plain', ip, data, 'winrm_cmd_results.txt', 'WinRM CMD Results')
       print_good "Results saved to #{path}"
     ensure
-      shell.close
+      shell.close if shell
     end
   end
 end

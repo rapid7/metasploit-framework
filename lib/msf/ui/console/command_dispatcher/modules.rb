@@ -17,19 +17,24 @@ module Msf
           include Rex::Text::Color
 
           @@search_opts = Rex::Parser::Arguments.new(
-            '-h' => [false, 'Help banner'],
-            '-I' => [false, 'Ignore the command if the only match has the same name as the search'],
-            '-o' => [true,  'Send output to a file in csv format'],
-            '-S' => [true,  'Regex pattern used to filter search results'],
-            '-u' => [false, 'Use module if there is one result'],
-            '-s' => [true, 'Sort search results by the specified column in ascending order'],
-            '-r' => [true, 'Reverse the order of search results to descending order']
+            ['-h', '--help']            => [false, 'Help banner'],
+            ['-I', '--ignore']          => [false, 'Ignore the command if the only match has the same name as the search'],
+            ['-o', '--output']          => [true,  'Send output to a file in csv format', '<filename>'],
+            ['-S', '--filter']          => [true,  'Regex pattern used to filter search results', '<filter>'],
+            ['-u', '--use']             => [false, 'Use module if there is one result'],
+            ['-s', '--sort-ascending']  => [true, 'Sort search results by the specified column in ascending order', '<column>'],
+            ['-r', '--sort-descending'] => [true, 'Reverse the order of search results to descending order', '<column>']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
             '-h' => [false, 'Help banner'],
             '-c' => [false, 'Clear the contents of the favorite modules file'],
-            '-d' => [false, 'Delete module(s) or the current active module from the favorite modules file']
+            '-d' => [false, 'Delete module(s) or the current active module from the favorite modules file'],
+            '-l' => [false, 'Print the list of favorite modules (alias for `show favorites`)']
+          )
+
+          @@favorites_opts = Rex::Parser::Arguments.new(
+            '-h' => [false, 'Help banner']
           )
 
           def commands
@@ -49,6 +54,7 @@ module Msf
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Interact with a module by name or search term/index",
               "favorite"   => "Add module(s) to the list of favorite modules",
+              "favorites"  => "Print the list of favorite modules (alias for `show favorites`)"
             }
           end
 
@@ -127,6 +133,7 @@ module Msf
               end
             else
               print(Serializer::ReadableText.dump_module(mod))
+              print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
             end
           end
 
@@ -288,7 +295,7 @@ module Msf
 
             added = "Loaded #{overall} modules:\n"
 
-            totals.each_pair { |type, count|
+            totals.sort_by { |type, _count| type }.each { |type, count|
               added << "    #{count} #{type} modules\n"
             }
 
@@ -343,13 +350,7 @@ module Msf
             print_line "Prepending a value with '-' will exclude any matching results."
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
-            print_line "OPTIONS:"
-            print_line "  -h                   Show this help information"
-            print_line "  -o <file>            Send output to a file in csv format"
-            print_line "  -S <string>          Regex pattern used to filter search results"
-            print_line "  -u                   Use module if there is one result"
-            print_line "  -s <search_column>   Sort the research results based on <search_column> in ascending order"
-            print_line "  -r                   Reverse the search results order to descending order"
+            print @@search_opts.usage
             print_line
             print_line "Keywords:"
             {
@@ -408,9 +409,9 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-            sort         = 'name'
-            sort_options = ['rank','disclosure_date','name','date','type','check']
-            desc         = false
+            sort_attribute  = 'name'
+            valid_sort_attributes = ['rank','disclosure_date','name','date','type','check']
+            reverse_sort = false
             ignore_use_exact_match = false
 
             @@search_opts.parse(args) do |opt, idx, val|
@@ -427,9 +428,9 @@ module Msf
               when '-I'
                 ignore_use_exact_match = true
               when '-s'
-                sort = val
+                sort_attribute = val
               when '-r'
-                desc = true
+                reverse_sort = true
               else
                 match += val + ' '
               end
@@ -444,6 +445,11 @@ module Msf
               cached = true
             end
 
+            if sort_attribute && !valid_sort_attributes.include?(sort_attribute)
+              print_error("Supported options for the -s flag are: #{valid_sort_attributes}")
+              return false
+            end
+
             begin
               if cached
                 print_status('Displaying cached results')
@@ -451,21 +457,18 @@ module Msf
                 search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
-                if sort and sort_options.include?(sort)
-                  if sort == 'date'
-                    sort = 'disclosure_date'
-                  end
-                  if sort != 'check'
-                    @module_search_results.sort_by! { |meta| meta.send(sort) }
+                @module_search_results.sort_by! do |module_metadata|
+                  if sort_attribute == 'check'
+                    module_metadata.check ? 0 : 1
+                  elsif sort_attribute == 'disclosure_date' || sort_attribute == 'date'
+                    # Not all modules have disclosure_date, i.e. multi/handler
+                    module_metadata.disclosure_date || Time.utc(0)
                   else
-                    @module_search_results.sort_by! { |meta| meta.send(sort) ? 0 : 1} # Taken from https://stackoverflow.com/questions/14814966/is-it-possible-to-sort-a-list-of-objects-depending-on-the-individual-objects-re
+                    module_metadata.send(sort_attribute)
                   end
-                elsif sort
-                  print_error("Supported options for the -s flag are: #{sort_options}")
-                  return false
                 end
 
-                if desc
+                if reverse_sort
                   @module_search_results.reverse!
                 end
               end
@@ -731,7 +734,7 @@ module Msf
                 end
                 unless mod_resolved
                   elog("Module #{mod_name} not found, and no loading errors found. If you're using a custom module" \
-                    ' refer to our wiki: https://github.com/rapid7/metasploit-framework/wiki/Running-Private-Modules')
+                    ' refer to our wiki: https://docs.metasploit.com/docs/using-metasploit/intermediate/running-private-modules.html')
 
                   # Avoid trying to use the search result if it exactly matches
                   # the module we were trying to load. The module cannot be
@@ -1159,7 +1162,7 @@ module Msf
             readable = false
             contents = ''
 
-            if File.exists?(favs_file)
+            if File.exist?(favs_file)
               exists = true
             end
 
@@ -1179,10 +1182,11 @@ module Msf
           # Add modules to or delete modules from the fav_modules file
           #
           def cmd_favorite(*args)
+            valid_custom_args = ['-c', '-d', '-l']
             favs_file = Msf::Config.fav_modules_file
 
             # always display the help banner if -h is provided or if multiple options are provided
-            if args.include?('-h') || (args.include?('-c') && args.include?('-d'))
+            if args.include?('-h') || args.select{ |arg| arg if valid_custom_args.include?(arg) }.length > 1
               cmd_favorite_help
               return
             end
@@ -1223,6 +1227,14 @@ module Msf
               end
 
               favorite_del(args, false, favs_file)
+            when '-l'
+              args.delete('-l')
+              unless args.empty?
+                print_error('Option `-l` does not support arguments.')
+                cmd_favorite_help
+                return
+              end
+              cmd_show('favorites')
             else # no valid options, but there are arguments
               if args[0].start_with?('-')
                 print_error('Invalid option provided')
@@ -1232,6 +1244,30 @@ module Msf
 
               favorite_add(args, favs_file)
             end
+          end
+
+          def cmd_favorites_help
+            print_line 'Usage: favorites'
+            print_line
+            print_line 'Print the list of favorite modules (alias for `show favorites`)'
+            print @@favorites_opts.usage
+          end
+
+          #
+          # Print the list of favorite modules from the fav_modules file (alias for `show favorites`)
+          #
+          def cmd_favorites(*args)
+            if args.empty?
+              cmd_show('favorites')
+              return
+            end
+
+            # always display the help banner if the command is called with arguments
+            unless args.include?('-h')
+              print_error('Invalid option(s) provided')
+            end
+
+            cmd_favorites_help
           end
 
           #
@@ -1383,7 +1419,7 @@ module Msf
           def show_favorites # :nodoc:
             favs_file = Msf::Config.fav_modules_file
 
-            unless File.exists?(favs_file)
+            unless File.exist?(favs_file)
               print_error("The favorite modules file does not exist")
               return
             end
@@ -1445,6 +1481,7 @@ module Msf
               [ 'LogLevel', framework.datastore['LogLevel'] || "0", 'Verbosity of logs (default 0, max 3)' ],
               [ 'MinimumRank', framework.datastore['MinimumRank'] || "0", 'The minimum rank of exploits that will run without explicit confirmation' ],
               [ 'SessionLogging', framework.datastore['SessionLogging'] || "false", 'Log all input and output for sessions' ],
+              [ 'SessionTlvLogging', framework.datastore['SessionTlvLogging'] || "false", 'Log all incoming and outgoing TLV packets' ],
               [ 'TimestampOutput', framework.datastore['TimestampOutput'] || "false", 'Prefix all console output with a timestamp' ],
               [ 'Prompt', framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../,"") , "The prompt string" ],
               [ 'PromptChar', framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../,""), "The prompt character" ],
@@ -1458,11 +1495,11 @@ module Msf
           def show_targets(mod) # :nodoc:
             case mod
             when Msf::Exploit
-              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
-              print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '', "\nExploit targets:")
+              print("#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
             when Msf::Evasion
-              mod_targs = Serializer::ReadableText.dump_evasion_targets(mod, '   ')
-              print("\nEvasion targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+              mod_targs = Serializer::ReadableText.dump_evasion_targets(mod, '', "\nEvasion targets:")
+              print("#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
             end
           end
 
@@ -1492,6 +1529,7 @@ module Msf
                 print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
+            print("\nView the full module info with the #{Msf::Ui::Tip.highlight('info')}, or #{Msf::Ui::Tip.highlight('info -d')} command.\n\n")
           end
 
           def show_evasion_options(mod) # :nodoc:

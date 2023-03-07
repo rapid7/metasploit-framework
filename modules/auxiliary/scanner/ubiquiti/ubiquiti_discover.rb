@@ -17,9 +17,9 @@ class MetasploitModule < Msf::Auxiliary
         'License'     => MSF_LICENSE,
         'References'  =>
           [
-            ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A'],
+            ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A'],
             ['URL', 'https://community.ubnt.com/t5/airMAX-General-Discussion/airOS-airMAX-and-management-access/td-p/2654023'],
-            ['URL', 'https://blog.rapid7.com/2019/02/01/ubiquiti-discovery-service-exposures/']
+            ['URL', 'https://www.rapid7.com/blog/post/2019/02/01/ubiquiti-discovery-service-exposures/']
           ]
       )
     )

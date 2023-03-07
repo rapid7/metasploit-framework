@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       ),
       'References'     =>
         [
-          ['URL', 'http://www.zerodayinitiative.com/advisories/ZDI-14-419/'],
+          ['URL', 'https://www.zerodayinitiative.com/advisories/ZDI-14-419/'],
           ['CVE', '2014-8270']
         ],
       'Author'         =>

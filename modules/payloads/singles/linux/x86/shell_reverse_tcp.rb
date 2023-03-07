@@ -29,7 +29,7 @@ module MetasploitModule
     ])
   end
 
-  def generate
+  def generate(_opts = {})
     # pad the shell path to a multiple of 4 with slashes
     shell = datastore['CMD']
     remainder = shell.bytes.length % 4

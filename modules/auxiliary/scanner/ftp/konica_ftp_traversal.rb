@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'EDB', '38260'],
           [ 'CVE', '2015-7603'],
-          [ 'URL', 'http://shinnai.altervista.org/exploits/SH-0024-20150922.html']
+          [ 'URL', 'https://shinnai.altervista.org/exploits/SH-0024-20150922.html']
         ],
       'DisclosureDate' => '2015-09-22'
     ))

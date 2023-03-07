@@ -25,7 +25,7 @@ metadata = {
     'date': '2018-03-22',
     'license': 'MSF_LICENSE',
     'references': [
-        {'type': 'url', 'ref': 'https://blog.rapid7.com/2017/12/28/regifting-python-in-metasploit/'},
+        {'type': 'url', 'ref': 'https://www.rapid7.com/blog/post/2017/12/28/regifting-python-in-metasploit/'},
         {'type': 'aka', 'ref': 'Coldstone'}
     ],
     'type': 'single_scanner',

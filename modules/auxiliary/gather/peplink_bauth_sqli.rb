@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://gist.github.com/red0xff/c4511d2f427efcb8b018534704e9607a' ]
         ],
         'Targets' => [['Wildcard Target', {}]],
-        'DefaultTarget' => 0
+        'DefaultTarget' => 0,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(

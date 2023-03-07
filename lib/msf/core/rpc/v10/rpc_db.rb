@@ -757,7 +757,8 @@ public
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
-  # @option xopts [Array<String>]  :payloads  All returned modules will support this payload
+  # @option xopts [Map<String, Object>]  :analyze_options  All returned modules will support these options
+  # * [Array<Sting>] :payloads Modules returned will be compatible with at least one payload
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -774,15 +775,19 @@ def rpc_analyze_host(xopts)
   ::ApplicationRecord.connection_pool.with_connection {
     _opts, _wspace = init_db_opts_workspace(xopts)
     ret = {
-      host: []
+      host: {}
     }
     opts = fix_options(xopts)
+    opts.deep_symbolize_keys!
     host = self.framework.db.get_host(opts)
+    # consider expanding to support a list of hosts?
     return ret unless host
 
+    # as a consumer options should be a filter object not a top level param
     analyze_options = {}
-    analyze_options[:payloads] = opts[:payloads] if opts[:payloads]
+    analyze_options = opts[:analyze_options] if opts[:analyze_options]
     analyze_result = self.framework.analyze.host(host, **analyze_options)
+    # this should just serialize the result as hosts details why did it end up limited?
     module_suggestions = analyze_result[:results].sort_by { |result| result.mod.fullname }
     host_detail = {
       address: host.address,
@@ -791,10 +796,16 @@ def rpc_analyze_host(xopts)
         {
           mtype: mod.type,
           mname: mod.fullname,
+          state: result.state,
+          description: result.description,
+          options: {
+            invalid: result.invalid,
+            missing: result.missing
+          }
         }
       end
     }
-    ret[:host] << host_detail
+    ret[:host] = host_detail
     ret
   }
 end

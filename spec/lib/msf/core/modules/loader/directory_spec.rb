@@ -25,7 +25,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
         let(:framework) do
-          framework = double('Msf::Framework', :datastore => {})
+          framework = double('Msf::Framework', datastore: Msf::DataStore.new)
 
           events = double('Events')
           allow(events).to receive(:on_module_load)

@@ -32,7 +32,8 @@ metadata = {
   ],
   date: '2017-06-29',
   references: [
-    { type: 'url', ref: 'http://smbloris.com/' }
+    { type: 'url', ref: 'https://web.archive.org/web/20170804072329/https://smbloris.com/' },
+    { type: 'aka', ref: 'SMBLoris'}
   ],
   type: 'dos',
   options: {

@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SHOST', [false, "Source IP Address"]),
         OptString.new('SMAC', [false, "Source MAC Address"]),
+        OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
     ])
 
     deregister_options('SNAPLEN', 'FILTER')
@@ -74,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      etime = ::Time.now.to_f + (hosts.length * 0.05)
+      etime = ::Time.now.to_f + datastore['TIMEOUT']
 
       while (::Time.now.to_f < etime)
         while(reply = getreply())
@@ -210,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::Packet.parse(pkt)
     return unless p.is_ipv6?
     return unless p.ipv6_next == 0x3a
-    return unless p.payload[0,2] == "\x88\x00"
+    return unless p.icmpv6_type == 136 && p.icmpv6_code == 0
     p
   end
 end

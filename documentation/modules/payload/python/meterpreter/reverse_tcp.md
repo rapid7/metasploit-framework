@@ -42,7 +42,7 @@ If your exploit supports Python, here is how to load it:
 1. In msfconsole, select the exploit.
 2. Configure the options for that exploit.
 3. Do: ```set PAYLOAD python/meterpreter/reverse_tcp```
-4. Set the ```LHOST``` datastore option, which is the [IP that the payload should connect to](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-a-reverse-shell-in-Metasploit).
+4. Set the ```LHOST``` datastore option, which is the [IP that the payload should connect to](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-a-reverse-shell-in-metasploit.html).
 5. Do ```exploit```. If the exploit is successful, it should execute that payload.
 
 Another way to use the Python Meterpreter is to generate it as a Python file. Normally, you would

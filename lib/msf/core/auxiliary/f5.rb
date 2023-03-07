@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 module Msf
   ###
@@ -63,7 +63,7 @@ module Msf
         shell = result[3].strip
         cred = credential_data.dup
         cred[:username] = username
-        cred[:jtr_format] = identify_hash(hash)
+        cred[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(hash)
         cred[:private_data] = hash
         create_credential_and_login(cred)
         print_good("#{thost}:#{tport} Username '#{username}' with description '#{description}' and shell #{shell} with hash #{hash}")
@@ -166,7 +166,7 @@ module Msf
         file = result[2].strip
         cred = credential_data.dup
         cred[:username] = username
-        cred[:jtr_format] = identify_hash(hash)
+        cred[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(hash)
         cred[:private_data] = hash
         create_credential_and_login(cred)
         print_good("#{thost}:#{tport} SSL Key '#{username}' and hash #{hash} for #{file}")
@@ -185,7 +185,7 @@ module Msf
         key = result[1].strip
         cred = credential_data.dup
         cred[:username] = "F5 #{key_type} hash"
-        cred[:jtr_format] = identify_hash(key) # will come bacy empty
+        cred[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(key) # will come bacy empty
         cred[:private_data] = key
         create_credential_and_login(cred)
         print_good("#{thost}:#{tport} F5 #{key_type} hash #{key}")

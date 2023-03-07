@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     @tag ||= Rex::Text.rand_text_alpha(8)
-    @eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']))
+    @eot ||= ::File.read(datastore['EOTFILE'], ::File.size(datastore['EOTFILE']), mode: 'rb')
 
     if(request.uri =~ /#{@tag}$/)
       content = @eot.dup

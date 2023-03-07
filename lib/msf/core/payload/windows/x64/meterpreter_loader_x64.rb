@@ -84,8 +84,8 @@ module Payload::Windows::MeterpreterLoader_x64
       uuid:              opts[:uuid],
       transports:        opts[:transport_config] || [transport_config(opts)],
       extensions:        [],
-      stageless:         opts[:stageless] == true
-    }
+      stageless:         opts[:stageless] == true,
+    }.merge(meterpreter_logging_config(opts))
 
     # create the configuration instance based off the parameters
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
@@ -95,8 +95,10 @@ module Payload::Windows::MeterpreterLoader_x64
   end
 
   def stage_meterpreter(opts={})
+    ds = opts[:datastore] || datastore
+    debug_build = ds['MeterpreterDebugBuild']
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll', debug: debug_build))
 
     asm_opts = {
       rdi_offset: offset,

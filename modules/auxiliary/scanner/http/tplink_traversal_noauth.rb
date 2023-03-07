@@ -35,15 +35,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
+
     begin
-      words = File.open(wordfile, "rb") do |f|
-        f.read
-      end
-    rescue
-      return []
+      File.readlines(wordfile, chomp: true)
+    rescue ::StandardError => e
+      elog(e)
+      []
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def find_files(file)

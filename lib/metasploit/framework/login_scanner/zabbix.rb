@@ -49,7 +49,7 @@ module Metasploit
             end
 
             if res.body.to_s !~ /Zabbix ([^\s]+) Copyright .* by Zabbix/m # Regex check for older versions of Zabbix prior to version 3.
-              if res.body.to_s !~ /<a target="_blank" class="grey link-alt" href="http[sS]{0,1}:\/\/www\.zabbix\.com\/documentation\/(\d+\.\d+)\/">Help<\/a>/m
+              if res.body.to_s !~ /href="http[sS]{0,1}:\/\/www\.zabbix\.com\/documentation\/(\d+\.\d+)\/">Help<\/a>/m
 	              return "Unexpected HTTP body (is this really Zabbix?)" # If both the regex for the old and new versions
                                                                        # fail to match, the target likely isn't Zabbix.
               end

@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['URL', 'http://qbeukes.blogspot.com/2009/11/advanced-digi-discovery-protocol_21.html'],
-          ['URL', 'http://www.digi.com/wiki/developer/index.php/Advanced_Device_Discovery_Protocol_%28ADDP%29'],
+          ['URL', 'https://www.digi.com/resources/documentation/digidocs/90001537/#References/r_Advanced_Device_Discovery_Prot.htm?Highlight=advanced%20device%20discovery%20protocol'],
         ],
       'License'     => MSF_LICENSE
     )

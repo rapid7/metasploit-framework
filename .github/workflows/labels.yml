@@ -1,4 +1,23 @@
 name: Labels
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  # This action can update/close issues
+  issues: write
+  discussions: none
+  packages: none
+  pages: none
+  # This action can update/close pull requests
+  pull-requests: write
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 on:
   pull_request_target:
     types: [labeled]
@@ -9,7 +28,7 @@ jobs:
   handle-labels:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@v6
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -40,7 +59,7 @@ jobs:
                   comment: `
                     Thanks for your pull request! Before this can be merged, we need the following documentation for your module:
 
-                    - [Writing Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
+                    - [Writing Module Documentation](https://docs.metasploit.com/docs/development/quality/writing-module-documentation.html)
                     - [Template](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
                     - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
                   `
@@ -153,7 +172,7 @@ jobs:
 
                     This includes:
 
-                    - All of the item points within this [tempate](https://github.com/rapid7/metasploit-framework/blob/master/.github/ISSUE_TEMPLATE/bug_report.md)
+                    - All of the item points within this [template](https://github.com/rapid7/metasploit-framework/blob/master/.github/ISSUE_TEMPLATE/bug_report.md)
                     - The result of the \`debug\` command in your Metasploit console
                     - Screenshots showing the issues you're having
                     - Exact replication steps
@@ -183,16 +202,16 @@ jobs:
 
             if (config.comment) {
               const precedingWhitespaceLength = config.comment.split("\n")[1].search(/\S/);
-              const commentWithoutPreceedingWhitespace = config.comment.split("\n").map(line => line.substring(precedingWhitespaceLength)).join("\n").trim();
-              await github.issues.createComment({
+              const commentWithoutPrecedingWhitespace = config.comment.split("\n").map(line => line.substring(precedingWhitespaceLength)).join("\n").trim();
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: commentWithoutPreceedingWhitespace
+                body: commentWithoutPrecedingWhitespace
               });
             }
             if (config.close) {
-              await github.issues.update({
+              await github.rest.issues.update({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,

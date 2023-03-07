@@ -33,11 +33,16 @@ class MetasploitModule < Msf::Auxiliary
           ['CWE', '22'],
           ['EDB', '49398'],
           ['PACKETSTORM', '160849'],
-          ['URL', 'http://www.openwall.com/lists/oss-security/2021/01/05/2'],
+          ['URL', 'https://www.openwall.com/lists/oss-security/2021/01/05/2'],
           ['URL', 'https://www.tenable.com/cve/CVE-2020-17519']
         ],
         'DefaultOptions' => { 'RPORT' => 8081 },
-        'DisclosureDate' => '2021-01-05'
+        'DisclosureDate' => '2021-01-05',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
       )
     )
 

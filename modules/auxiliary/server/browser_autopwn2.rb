@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => '2015-07-05',
       'References'     =>
         [
-          [ 'URL', 'https://blog.rapid7.com/2015/07/16/the-new-metasploit-browser-autopwn-strikes-faster-and-smarter--part-2' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2015/07/16/the-new-metasploit-browser-autopwn-strikes-faster-and-smarter--part-2' ]
         ],
       'Actions'     =>
         [

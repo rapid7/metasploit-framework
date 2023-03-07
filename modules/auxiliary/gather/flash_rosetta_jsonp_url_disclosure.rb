@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2014-4671'],
           ['URL', 'http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/'],
           ['URL', 'https://github.com/mikispag/rosettaflash'],
-          ['URL', 'http://quaxio.com/jsonp_handcrafted_flash_files/']
+          ['URL', 'https://www.quaxio.com/jsonp_handcrafted_flash_files/']
         ],
       'DisclosureDate' => '2014-07-08',
       'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],

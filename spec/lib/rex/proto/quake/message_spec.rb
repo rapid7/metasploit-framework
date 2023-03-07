@@ -64,7 +64,7 @@ RSpec.describe Rex::Proto::Quake do
         "sv_maxclients" => "8",
         "voip" => "1"
       }
-      actual_info = subject.decode_info(IO.read(File.join(File.dirname(__FILE__), 'info_response.bin')))
+      actual_info = subject.decode_info(File.binread(File.join(File.dirname(__FILE__), 'info_response.bin')))
       expect(actual_info).to eq(expected_info)
     end
   end
@@ -96,7 +96,7 @@ RSpec.describe Rex::Proto::Quake do
         "timelimit" => "25",
         "version" => "ioq3 1.36+svn2202-1/Ubuntu linux-x86_64 Dec 12 2011"
       }
-      actual_status = subject.decode_status(IO.read(File.join(File.dirname(__FILE__), 'status_response.bin')))
+      actual_status = subject.decode_status(File.binread(File.join(File.dirname(__FILE__), 'status_response.bin')))
       expect(actual_status).to eq(expected_status)
     end
   end

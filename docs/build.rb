@@ -2,749 +2,87 @@ require 'fileutils'
 require 'uri'
 require 'open3'
 require 'optparse'
+require 'did_you_mean'
+require 'kramdown'
+require_relative './navigation'
 
-# Temporary build module to help migrate the Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
-# supported by Jekyll, as well as creating a hierarchical folder structure for nested documentation
+# This build module was used to migrate the old Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
+# supported by Jekyll. Jekyll was chosen as it was written in Ruby, which should reduce the barrier to entry for contributions.
+#
+# The build script took the flatlist of markdown files from the wiki, and converted them into the hierarchical folder structure
+# for nested documentation. This configuration is defined in `navigation.rb`
+#
+# In the future a different site generator could be used, but it should be possible to use this build script again to migrate to a new format
 #
 # For now the doc folder only contains the key files for building the docs site and no content. The content is created on demand
-# from the metasploit-framework wiki on each build
-#
-# In the future, the markdown files will be committed directly to the metasploit-framework directory, the wiki history will be
-# merged with metasploit-framework, and the old wiki will no longer be updated.
+# from the `metasploit-framework.wiki` folder on each build
 module Build
+  # The metasploit-framework.wiki files that are committed to Metasploit framework's repository
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
-  PRODUCTION_BUILD_ARTIFACTS = '_site'
+  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki - should no longer be required for normal workflows
+  OLD_WIKI_PATH = 'metasploit-framework.wiki.old'.freeze
+  RELEASE_BUILD_ARTIFACTS = '_site'.freeze
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
   # for each build. This allows changes to be made to the existing wiki until it's migrated
   # into the main framework repo
   module Git
     def self.clone_wiki!
-      unless File.exist?(WIKI_PATH)
-        Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{WIKI_PATH}", exception: true
+      unless File.exist?(OLD_WIKI_PATH)
+        Build.run_command "git clone https://github.com/rapid7/metasploit-framework.wiki.git #{OLD_WIKI_PATH}", exception: true
       end
 
-      Build.run_command "cd #{WIKI_PATH}; git pull", exception: true
+      Build.run_command "cd #{OLD_WIKI_PATH}; git pull", exception: true
     end
   end
 
-  # Configuration for generating the new website hierachy, from the existing metasploit-framework wiki
+  class ConfigValidationError < StandardError
+  end
+
+  # Configuration for generating the new website hierarchy, from the existing metasploit-framework wiki
   class Config
     include Enumerable
-    def initialize
-      @config = [
-        {
-          path: 'Home.md',
-          nav_order: 1
-        },
-        {
-          path: 'Code-Of-Conduct.md',
-          nav_order: 2
-        },
-        {
-          title: 'Using Metasploit',
-          folder: 'using-metasploit',
-          nav_order: 3,
-          children: [
-            {
-              title: 'Getting Started',
-              folder: 'getting-started',
-              nav_order: 1,
-              children: [
-                {
-                  path: 'Nightly-Installers.md',
-                  nav_order: 1
-                },
-                {
-                  path: 'Reporting-a-Bug.md',
-                  nav_order: 4
-                },
-              ]
-            },
-            {
-              title: 'Basics',
-              folder: 'basics',
-              nav_order: 2,
-              children: [
-                {
-                  path: 'Using-Metasploit.md',
-                  title: 'Running modules',
-                  nav_order: 2
-                },
-                {
-                  path: 'How-to-use-msfvenom.md',
-                  nav_order: 3
-                },
-                {
-                  path: 'How-to-use-a-Metasploit-module-appropriately.md'
-                },
-                {
-                  path: 'How-payloads-work.md'
-                },
-                {
-                  path: 'Module-Documentation.md'
-                },
-                {
-                  path: 'How-to-use-a-reverse-shell-in-Metasploit.md'
-                },
-              ]
-            },
-            {
-              title: 'Intermediate',
-              folder: 'intermediate',
-              nav_order: 3,
-              children: [
-                {
-                  path: 'Evading-Anti-Virus.md'
-                },
-                {
-                  path: 'Payload-UUID.md'
-                },
-                {
-                  path: 'Running-Private-Modules.md'
-                },
-                {
-                  path: 'Exploit-Ranking.md'
-                },
-                {
-                  path: 'Hashes-and-Password-Cracking.md'
-                },
-                {
-                  path: 'msfdb:-Database-Features-&-How-to-Set-up-a-Database-for-Metasploit.md',
-                  new_base_name: 'Metasploit-Database-Support.md',
-                  title: 'Database Support'
-                },
-              ]
-            },
-            {
-              title: 'Advanced',
-              folder: 'advanced',
-              nav_order: 4,
-              children: [
-                {
-                  path: 'Metasploit-Web-Service.md'
-                },
-                {
-                  title: 'Meterpreter',
-                  folder: 'meterpreter',
-                  children: [
-                    {
-                      path: 'Meterpreter.md',
-                      title: 'Overview',
-                      nav_order: 1
-                    },
-                    {
-                      path: 'Meterpreter-Transport-Control.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Unicode-Support.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Paranoid-Mode.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'The-ins-and-outs-of-HTTP-and-HTTPS-communications-in-Meterpreter-and-Metasploit-Stagers.md'
-                    },
-                    {
-                      path: 'Meterpreter-Timeout-Control.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Wishlist.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Sleep-Control.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Configuration.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Reliable-Network-Communication.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Debugging-Dead-Meterpreter-Sessions.md'
-                    },
-                    {
-                      path: 'Meterpreter-HTTP-Communication.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'Meterpreter-Stageless-Mode.md',
-                      title: without_prefix('Meterpreter ')
-                    },
-                    {
-                      path: 'How-to-get-started-with-writing-a-Meterpreter-script.md'
-                    },
-                    {
-                      path: 'Powershell-Extension.md'
-                    },
-                    {
-                      path: 'Python-Extension.md'
-                    },
-                  ]
-                },
-              ]
-            },
-            {
-              title: 'Other',
-              folder: 'other',
-              children: [
-                {
-                  title: 'Oracle Support',
-                  folder: 'oracle-support',
-                  children: [
-                    {
-                      path: 'Oracle-Usage.md'
-                    },
-                    {
-                      path: 'How-to-get-Oracle-Support-working-with-Kali-Linux.md'
-                    },
-                  ]
-                },
-                {
-                  path: 'Information-About-Unmet-Browser-Exploit-Requirements.md'
-                },
-                {
-                  path: 'Why-CVE-is-not-available.md'
-                },
-                {
-                  path: 'How-to-use-the-Favorite-command.md'
-                },
-              ]
-            },
-          ]
-        },
-        {
-          title: 'Development',
-          folder: 'development',
-          nav_order: 4,
-          children: [
-            {
-              title: 'Get Started ',
-              folder: 'get-started',
-              nav_order: 1,
-              children: [
-                {
-                  path: 'Contributing-to-Metasploit.md',
-                  nav_order: 1
-                },
-                {
-                  path: 'dev/Setting-Up-a-Metasploit-Development-Environment.md',
-                  nav_order: 2
-                },
-                {
-                  path: 'Sanitizing-PCAPs.md',
-                  nav_order: 3
-                },
-                {
-                  path: "Navigating-and-Understanding-Metasploit's-Codebase.md",
-                  new_base_name: 'Navigating-and-Understanding-Metasploits-Codebase.md',
-                  title: 'Navigating the codebase'
-                },
-                {
-                  title: 'Git',
-                  folder: 'git',
-                  children: [
-                    {
-                      path: 'Keeping-in-sync-with-rapid7-master.md'
-                    },
-                    {
-                      path: 'git/Git-cheatsheet.md'
-                    },
-                    {
-                      path: 'git/Using-Git.md'
-                    },
-                    {
-                      path: 'git/Git-Reference-Sites.md'
-                    },
-                    {
-                      path: 'Remote-Branch-Pruning.md'
-                    },
-                  ]
-                },
-              ]
-            },
-            {
-              title: 'Developing Modules',
-              folder: 'developing-modules',
-              nav_order: 2,
-              children: [
-                {
-                  title: 'Guides',
-                  folder: 'guides',
-                  nav_order: 2,
-                  children: [
-                    {
-                      path: 'How-to-get-started-with-writing-a-post-module.md',
-                      title: 'Writing a post module'
-                    },
-                    {
-                      path: 'Get-Started-Writing-an-Exploit.md',
-                      title: 'Writing an exploit'
-                    },
-                    {
-                      path: 'How-to-write-a-browser-exploit-using-HttpServer.md',
-                      title: 'Writing a browser exploit'
-                    },
-                    {
-                      title: 'Scanners',
-                      folder: 'scanners',
-                      nav_order: 2,
-                      children: [
-                        {
-                          path: 'How-to-write-a-HTTP-LoginScanner-Module.md',
-                          title: 'Writing a HTTP LoginScanner'
-                        },
-                        {
-                          path: 'Creating-Metasploit-Framework-LoginScanners.md',
-                          title: 'Writing an FTP LoginScanner'
-                        },
-                      ]
-                    },
-                    {
-                      path: 'How-to-get-started-with-writing-an-auxiliary-module.md',
-                      title: 'Writing an auxiliary module'
-                    },
-                    {
-                      path: 'How-to-use-command-stagers.md'
-                    },
-                    {
-                      path: 'How-to-write-a-check()-method.md',
-                      new_base_name: 'How-to-write-a-check-method.md'
-                    },
-                    {
-                      path: 'How-to-check-Microsoft-patch-levels-for-your-exploit.md'
-                    },
-                  ]
-                },
-                {
-                  title: 'Libraries',
-                  folder: 'libraries',
-                  children: [
-                    {
-                      path: 'API.md',
-                      nav_order: 0
-                    },
-                    {
-                      title: 'Compiling C',
-                      folder: 'c',
-                      children: [
-                        {
-                          path: 'How-to-use-Metasploit-Framework-Compiler-Windows-to-compile-C-code.md',
-                          title: 'Overview',
-                          nav_order: 1
-                        },
-                        {
-                          path: 'How-to-XOR-with-Metasploit-Framework-Compiler.md',
-                          title: 'XOR Support'
-                        },
-                        {
-                          path: 'How-to-decode-Base64-with-Metasploit-Framework-Compiler.md',
-                          title: 'Base64 Support'
-                        },
-                        {
-                          path: 'How-to-decrypt-RC4-with-Metasploit-Framework-Compiler.md',
-                          title: 'RC4 Support'
-                        },
-                      ]
-                    },
-                    {
-                      path: 'How-to-log-in-Metasploit.md',
-                      title: 'Logging'
-                    },
-                    {
-                      path: 'How-to-use-Railgun-for-Windows-post-exploitation.md',
-                      title: 'Railgun'
-                    },
-                    {
-                      path: 'How-to-zip-files-with-Msf-Util-EXE.to_zip.md',
-                      new_base_name: 'How-to-zip-files-with-Msf-Util-EXE-to_zip.md',
-                      title: 'Zip'
-                    },
-                    {
-                      path: 'Handling-Module-Failures-with-`fail_with`.md',
-                      new_base_name: 'Handling-Module-Failures-with-fail_with.md',
-                      title: 'Fail_with'
-                    },
-                    {
-                      path: 'How-to-use-Msf-Auxiliary-AuthBrute-to-write-a-bruteforcer.md',
-                      title: 'AuthBrute'
-                    },
-                    {
-                      path: 'How-to-Use-the-FILEFORMAT-mixin-to-create-a-file-format-exploit.md',
-                      title: 'Fileformat'
-                    },
-                    {
-                      path: 'SQL-Injection-(SQLi)-Libraries.md',
-                      new_base_name: 'SQL-Injection-Libraries.md',
-                      title: 'SQL Injection'
-                    },
-                    {
-                      path: 'How-to-use-Powershell-in-an-exploit.md',
-                      title: 'Powershell'
-                    },
-                    {
-                      path: 'How-to-use-the-Seh-mixin-to-exploit-an-exception-handler.md',
-                      title: 'SEH Exploitation'
-                    },
-                    {
-                      path: 'How-to-clean-up-files-using-FileDropper.md',
-                      title: 'FileDropper'
-                    },
-                    {
-                      path: 'How-to-use-PhpEXE-to-exploit-an-arbitrary-file-upload-bug.md',
-                      title: 'PhpExe'
-                    },
-                    {
-                      title: 'HTTP',
-                      folder: 'http',
-                      children: [
-                        {
-                          path: 'How-to-send-an-HTTP-request-using-Rex-Proto-Http-Client.md'
-                        },
-                        {
-                          path: 'How-to-parse-an-HTTP-response.md'
-                        },
-                        {
-                          path: 'How-to-write-a-module-using-HttpServer-and-HttpClient.md'
-                        },
-                        {
-                          path: 'How-to-Send-an-HTTP-Request-Using-HttpClient.md'
-                        },
-                        {
-                          path: 'How-to-write-a-browser-exploit-using-BrowserExploitServer.md',
-                          title: 'BrowserExploitServer'
-                        },
-                      ]
-                    },
-                    {
-                      title: 'Deserialization',
-                      folder: 'deserialization',
-                      children: [
-                        {
-                          path: 'Dot-Net-Deserialization.md'
-                        },
-                        {
-                          path: 'Generating-`ysoserial`-Java-serialized-objects.md',
-                          new_base_name: 'Generating-ysoserial-Java-serialized-objects.md',
-                          title: 'Java Deserialization'
-                        }
-                      ]
-                    },
-                    {
-                      title: 'Obfuscation',
-                      folder: 'obfuscation',
-                      children: [
-                        {
-                          path: 'How-to-obfuscate-JavaScript-in-Metasploit.md',
-                          title: 'JavaScript Obfuscation'
-                        },
-                        {
-                          path: 'How-to-use-Metasploit-Framework-Obfuscation-CRandomizer.md',
-                          title: 'C Obfuscation'
-                        },
-                      ]
-                    },
-                    {
-                      path: 'How-to-use-the-Msf-Exploit-Remote-Tcp-mixin.md',
-                      title: 'TCP'
-                    },
-                    {
-                      path: 'How-to-do-reporting-or-store-data-in-module-development.md',
-                      title: 'Reporting and Storing Data'
-                    },
-                    {
-                      path: 'How-to-use-WbemExec-for-a-write-privilege-attack-on-Windows.md',
-                      title: 'WbemExec'
-                    },
-                    {
-                      title: 'SMB',
-                      folder: 'smb',
-                      children: [
-                        {
-                          path: 'What-my-Rex-Proto-SMB-Error-means.md'
-                        },
 
-                        {
-                          path: 'Guidelines-for-Writing-Modules-with-SMB.md'
-                        },
-                      ]
-                    },
-                    {
-                      path: 'Using-ReflectiveDLL-Injection.md',
-                      title: 'ReflectiveDLL Injection'
-                    },
-                  ]
-                },
-                {
-                  title: 'External Modules',
-                  folder: 'external-modules',
-                  nav_order: 3,
-                  children: [
-                    {
-                      path: 'Writing-External-Metasploit-Modules.md',
-                      title: 'Overview',
-                      nav_order: 1
-                    },
-                    {
-                      path: 'Writing-External-Python-Modules.md',
-                      title: 'Writing Python Modules'
-                    },
-                    {
-                      path: 'Writing-External-GoLang-Modules.md',
-                      title: 'Writing GoLang Modules'
-                    },
-                  ]
-                },
-                {
-                  title: 'Module metadata',
-                  folder: 'module-metadata',
-                  nav_order: 3,
-                  children: [
-                    {
-                      path: 'How-to-use-datastore-options.md'
-                    },
-                    {
-                      path: 'Module-Reference-Identifiers.md'
-                    },
-                    {
-                      path: 'Definition-of-Module-Reliability,-Side-Effects,-and-Stability.md',
-                      new_base_name: 'Definition-of-Module-Reliability-Side-Effects-and-Stability.md'
-                    },
-                  ]
-                }
-              ]
-            },
-            {
-              title: 'Maintainers',
-              folder: 'maintainers',
-              children: [
-                {
-                  title: 'Process',
-                  folder: 'process',
-                  children: [
-                    {
-                      path: 'Guidelines-for-Accepting-Modules-and-Enhancements.md'
-                    },
-                    {
-                      path: 'How-to-deprecate-a-Metasploit-module.md'
-                    },
-                    {
-                      path: 'Landing-Pull-Requests.md'
-                    },
-                    {
-                      path: 'Assigning-Labels.md'
-                    },
-                    {
-                      path: 'Adding-Release-Notes-to-PRs.md',
-                      title: 'Release Notes'
-                    },
-                    {
-                      path: 'Rolling-back-merges.md'
-                    },
-                    {
-                      path: 'Unstable-Modules.md'
-                    },
-                  ]
-                },
-                {
-                  path: 'Committer-Rights.md'
-                },
-                {
-                  title: 'Ruby Gems',
-                  folder: 'ruby-gems',
-                  children: [
-                    {
-                      path: 'How-to-add-and-update-gems-in-metasploit-framework.md',
-                      title: 'Adding and Updating'
-                    },
-                    {
-                      path: 'Testing-Rex-and-other-Gem-File-Updates-With-Gemfile.local-and-Gemfile.local.example.md',
-                      new_base_name: 'using-local-gems.md',
-                      title: 'Using local Gems'
-                    },
-                    {
-                      path: 'Merging-Metasploit-Payload-Gem-Updates.md'
-                    },
-                  ]
-                },
-                {
-                  path: 'Committer-Keys.md'
-                },
-                {
-                  path: 'Metasploit-Loginpalooza.md'
-                },
-                {
-                  path: 'Metasploit-Hackathons.md'
-                },
-                {
-                  path: 'Downloads-by-Version.md'
-                }
-              ]
-            },
-            {
-              title: 'Quality',
-              folder: 'quality',
-              children: [
-                {
-                  path: 'Style-Tips.md'
-                },
-                {
-                  path: 'Msftidy.md'
-                },
-                {
-                  path: 'Using-Rubocop.md'
-                },
-                {
-                  path: 'Common-Metasploit-Module-Coding-Mistakes.md'
-                },
-                {
-                  path: 'Writing-Module-Documentation.md'
-                },
-              ]
-            },
-            {
-              title: 'Google Summer of Code',
-              folder: 'google-summer-of-code',
-              children: [
-                {
-                  path: 'GSoC-2020-Project-Ideas.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'How-to-Apply-to-GSoC.md'
-                },
-                {
-                  path: 'GSoC-2017-Student-Proposal.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'GSoC-2021-Project-Ideas.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'GSoC-2017-Project-Ideas.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'GSoC-2018-Project-Ideas.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'GSoC-2017-Mentor-Organization-Application.md',
-                  title: without_prefix('GSoC')
-                },
-                {
-                  path: 'GSoC-2019-Project-Ideas.md',
-                  title: without_prefix('GSoC')
-                },
-              ]
-            },
-            {
-              title: 'Proposals',
-              folder: 'propsals',
-              children: [
-                {
-                  path: 'Bundled-Modules-Proposal.md'
-                },
-                {
-                  path: 'MSF6-Feature-Proposals.md'
-                },
-                {
-                  path: 'RFC---Metasploit-URL-support.md',
-                  new_base_name: 'Metasploit-URL-support-proposal.md'
-                },
-                {
-                  path: 'Uberhandler.md'
-                },
-                {
-                  path: 'Work-needed-to-allow-msfdb-to-use-postgresql-common.md'
-                },
-                {
-                  path: 'Payload-Rename-Justification.md'
-                },
-              ]
-            },
-            {
-              title: 'Roadmap',
-              folder: 'roadmap',
-              children: [
-                {
-                  path: 'Metasploit-Framework-Wish-List.md'
-                },
-                {
-                  path: 'Metasploit-5.0-Release-Notes.md',
-                  new_base_name: 'Metasploit-5-Release-Notes.md',
-                  title: 'Metasploit Framework 5.0 Release Notes'
-                },
-                {
-                  path: '2017-Roadmap-Review.md'
-                },
-                {
-                  path: 'Metasploit-6.0-Development-Notes.md',
-                  new_base_name: 'Metasploit-6-Release-Notes.md',
-                  title: 'Metasploit Framework 6.0 Release Notes'
-                },
-                {
-                  path: '2017-Roadmap.md'
-                },
-                {
-                  path: 'Metasploit-Breaking-Changes.md'
-                },
-                {
-                  path: 'Metasploit-Data-Service-Enhancements-(Goliath).md',
-                  new_base_name: 'Metasploit-Data-Service-Enhancements-Goliath.md',
-                  title: 'Metasploit Data Service'
-                },
-              ]
-            },
-          ]
-        },
-        {
-          path: 'Contact.md',
-          nav_order: 5
-        },
-      ]
+    def initialize(config)
+      @config = config
     end
 
     def validate!
       configured_paths = all_file_paths
       missing_paths = available_paths.map { |path| path.gsub("#{WIKI_PATH}/", '') } - ignored_paths - existing_docs - configured_paths
-      raise "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
+      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')} - add navigation entries to navigation.rb for these files" if missing_paths.any?
 
       each do |page|
         page_keys = page.keys
-        allowed_keys = %i[path new_base_name nav_order title new_path folder children has_children parents]
+        allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
-        raise "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
+
+        suggestion = DidYouMean::SpellChecker.new(dictionary: allowed_keys).correct(invalid_keys[0]).first
+        error = "#{page} had invalid keys #{invalid_keys.join(', ')}."
+        error += " Did you mean #{suggestion}?" if suggestion
+
+        raise ConfigValidationError, error  if invalid_keys.any?
       end
 
       # Ensure unique folder names
       folder_titles = to_enum.select { |page| page[:folder] }.map { |page| page[:title] }
       duplicate_folder = folder_titles.tally.select { |_name, count| count > 1 }
-      raise "Duplicate folder titles, will cause issues: #{duplicate_folder}" if duplicate_folder.any?
+      raise ConfigValidationError, "Duplicate folder titles, will cause issues: #{duplicate_folder}" if duplicate_folder.any?
 
       # Ensure no folder titles match file titles
       page_titles = to_enum.reject { |page| page[:folder] }.map { |page| page[:title] }
       title_collisions = (folder_titles & page_titles).tally
-      raise "Duplicate folder/page titles, will cause issues: #{title_collisions}" if title_collisions.any?
+      raise ConfigValidationError, "Duplicate folder/page titles, will cause issues: #{title_collisions}" if title_collisions.any?
 
       # Ensure there are no files being migrated to multiple places
       page_paths = to_enum.reject { |page| page[:path] }.map { |page| page[:title] }
       duplicate_page_paths = page_paths.tally.select { |_name, count| count > 1 }
-      raise "Duplicate paths, will cause issues: #{duplicate_page_paths}" if duplicate_page_paths.any?
+      raise ConfigValidationError, "Duplicate paths, will cause issues: #{duplicate_page_paths}" if duplicate_page_paths.any?
 
       # Ensure new file paths are only alphanumeric and hyphenated
       new_paths = to_enum.map { |page| page[:new_path] }
-      invalid_new_paths = new_paths.select { |path| File.basename(path) !~ /^[a-zA-Z0-9_-]*\.md$/ }
-      raise "Only alphanumeric and hyphenated file names required: #{invalid_new_paths}" if invalid_new_paths.any?
+      invalid_new_paths = new_paths.reject { |path| File.basename(path) =~ /^[a-zA-Z0-9_-]*\.md$/ }
+      raise ConfigValidationError, "Only alphanumeric and hyphenated file names required: #{invalid_new_paths}" if invalid_new_paths.any?
     end
 
     def available_paths
@@ -753,8 +91,6 @@ module Build
 
     def ignored_paths
       [
-        '_Sidebar.md',
-        'dev/_Sidebar.md',
       ]
     end
 
@@ -812,10 +148,6 @@ module Build
       child
     end
 
-    def without_prefix(prefix)
-      proc { |value| value.gsub(/^#{prefix}/, '') }
-    end
-
     attr_reader :config
   end
 
@@ -825,6 +157,10 @@ module Build
     def initialize(config)
       @config = config
       @links = {}
+    end
+
+    def syntax_errors_for(markdown)
+      MarkdownLinkSyntaxVerifier.errors_for(markdown)
     end
 
     def extract(markdown)
@@ -856,16 +192,22 @@ module Build
       @config.enum_for(:each).map { |page| page }
     end
 
-    # scans for absolute links to the old wiki such as 'https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service'
+    # scans for absolute links to the old wiki such as 'https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html'
     def extract_absolute_wiki_links(markdown)
       new_links = {}
 
-      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_-]+))}) do |full_match, old_path|
+      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_#-]+))}) do |full_match, old_path|
         full_match = full_match.gsub(/[).]+$/, '')
         old_path = URI.decode_www_form_component(old_path.gsub(/[).]+$/, ''))
 
-        new_path = new_path_for(old_path)
-        replacement = "{% link docs/#{new_path} %}"
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+
+        new_path = new_path_for(old_path, old_path_anchor)
+        replacement = "{% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""}"
 
         link = {
           full_match: full_match,
@@ -880,19 +222,31 @@ module Build
       new_links
     end
 
-    # Scans for substrings such as '[[Reference Sites|Git Reference Sites]]'
+    # Scans for Github wiki flavor links such as:
+    #   '[[Relative Path]]'
+    #   '[[Custom name|Relative Path]]'
+    #   '[[Custom name|relative-path]]'
+    #   '[[Custom name|./relative-path.md]]'
+    #   '[[Custom name|./relative-path.md#section-anchor-to-link-to]]'
+    # Note that the page target resource file is validated for existence at build time - but the section anchors are not
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
-      markdown.scan(/(\[\[([\w_ '().:,-]+)(?:\|([\w_ '():,.-]+))?\]\])/) do |full_match, left, right|
+
+      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.#-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
-        new_path = new_path_for(old_path)
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+        new_path = new_path_for(old_path, old_path_anchor)
         if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
           raise "Link for #{full_match} previously resolved to #{existing_links[full_match][:new_path]}, but now resolves to #{new_path}"
         end
 
         link_text = left
-        replacement = "[#{link_text}]({% link docs/#{new_path} %})"
+        replacement = "[#{link_text}]({% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""})"
 
         link = {
           full_match: full_match,
@@ -909,17 +263,39 @@ module Build
       new_links
     end
 
-    def new_path_for(old_path)
-      old_path = old_path.gsub(' ', '-')
+    def new_path_for(old_path, old_path_anchor)
+      # Strip out any leading `./` or `/` before the relative path.
+      # This is needed for our later code that does additional filtering for
+      # potential ambiguity with absolute paths since those comparisons occur
+      # against filenames without the leading ./ and / parts.
+      old_path = old_path.gsub(/^[.\/]+/, '')
+
+      # Replace any spaces in the file name with - separators, then
+      # make replace anchors with an empty string.
+      old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
+
       matched_pages = pages.select do |page|
         !page[:folder] &&
-          page.fetch(:path).downcase.end_with?(old_path.downcase + '.md')
+          (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
+            File.basename(page[:path]).downcase == "#{File.basename(old_path)}".downcase)
       end
       if matched_pages.empty?
-        raise "Missing path for #{old_path}"
+        raise "Link not found: #{old_path}"
       end
+      # Additional filter for absolute paths if there's potential ambiguity
       if matched_pages.count > 1
-        raise "Duplicate paths for #{old_path}"
+        refined_pages = matched_pages.select do |page|
+          !page[:folder] &&
+            (page[:path].downcase == "#{old_path}.md".downcase ||
+              page[:path].downcase == old_path.downcase)
+        end
+
+        if refined_pages.count != 1
+          page_paths = matched_pages.map { |page| page[:path] }
+          raise "Duplicate paths for #{old_path} - possible page paths found: #{page_paths}"
+        end
+
+        matched_pages = refined_pages
       end
 
       matched_pages.first.fetch(:new_path)
@@ -937,15 +313,22 @@ module Build
         '@jlee-r7',
         '@jmartin-r7',
         '@mcfakepants',
+        '@Op3n4M3',
+        '@gwillcox-r7',
         '@red0xff',
         '@mkienow-r7',
         '@pbarry-r7',
         '@schierlm',
         '@timwr',
         '@zerosteiner',
-        '@harmj0y'
+        '@zeroSteiner',
+        '@harmj0y',
       ]
+      # These tags look like Github/Twitter handles, but are actually ruby/java code snippets
       ignored_tags = [
+        '@spid',
+        '@adf3',
+        '@LDAP-DC3',
         '@harmj0yDescription',
         '@phpsessid',
         '@http_client',
@@ -965,6 +348,15 @@ module Build
         '@scanner',
         '@yieldparam',
         '@yieldreturn',
+        '@compressed',
+        '@content',
+        '@path',
+        '@sha1',
+        '@type',
+        '@git_repo_uri',
+        '@git_addr',
+        '@git_objs',
+        '@refs',
       ]
 
       # Replace any dangling github usernames, i.e. `@foo` - but not `[@foo](http://...)` or `email@example.com`
@@ -980,10 +372,103 @@ module Build
     end
   end
 
+  # Verifies that markdown links are not relative. Instead the Github wiki flavored syntax should be used.
+  #
+  # Example bad: `[Human readable text](./some-documentation-link)`
+  # Example good: `[[Human readable text|./some-documentation-link]]`
+  class MarkdownLinkSyntaxVerifier
+    # Detects the usage of bad syntax and returns an array of detected errors
+    #
+    # @param [String] markdown The markdown
+    # @return [Array<String>] An array of human readable errors that should be resolved
+    def self.errors_for(markdown)
+      document = Kramdown::Document.new(markdown)
+      document.to_validated_wiki_page
+      warnings = document.warnings.select { |warning| warning.start_with?(Kramdown::Converter::ValidatedWikiPage::WARNING_PREFIX) }
+      warnings
+    end
+
+    # Implementation detail: There doesn't seem to be a generic AST visitor pattern library for Ruby; We instead implement
+    # Kramdown's Markdown to HTML Converter API, override the link converter method, and warn on any invalid links that are identified.
+    # The {MarkdownLinkVerifier} will ignore the HTML result, and return any detected errors instead.
+    #
+    # https://kramdown.gettalong.org/rdoc/Kramdown/Converter/Html.html
+    class Kramdown::Converter::ValidatedWikiPage < Kramdown::Converter::Html
+      WARNING_PREFIX = '[WikiLinkValidation]'
+
+      def convert_a(el, indent)
+        link_href = el.attr['href']
+        if relative_link?(link_href)
+          link_text = el.children.map { |child| convert(child) }.join
+          warning "Invalid docs link syntax found on line #{el.options[:location]}: Invalid relative link #{link_href} found. Please use the syntax [[#{link_text}|#{link_href}]] instead"
+        end
+
+        if absolute_docs_link?(link_href)
+          begin
+            example_path = ".#{URI.parse(link_href).path}"
+          rescue URI::InvalidURIError
+            example_path = "./path-to-markdown-file"
+          end
+
+          link_text = el.children.map { |child| convert(child) }.join
+          warning "Invalid docs link syntax found on line #{el.options[:location]}: Invalid absolute link #{link_href} found. Please use relative links instead, i.e. [[#{link_text}|#{example_path}]] instead"
+        end
+
+        super
+      end
+
+      private
+
+      def warning(text)
+        super "#{WARNING_PREFIX} #{text}"
+      end
+
+      def relative_link?(link_path)
+        !(link_path.start_with?('http:') || link_path.start_with?('https:') || link_path.start_with?('mailto:') || link_path.start_with?('#'))
+      end
+
+      # @return [TrueClass, FalseClass] True if the link is to a Metasploit docs page that isn't either the root home page or the API site, otherwise false
+      def absolute_docs_link?(link_path)
+        link_path.include?('docs.metasploit.com') && !link_path.include?('docs.metasploit.com/api') && !(link_path == 'https://docs.metasploit.com/')
+      end
+    end
+  end
+
+  # Parses a wiki page and can add/remove/update a deprecation notice
+  class WikiDeprecationText
+    MAINTAINER_MESSAGE_PREFIX = "<!-- Maintainers: "
+    private_constant :MAINTAINER_MESSAGE_PREFIX
+
+    USER_MESSAGE_PREFIX = '**Documentation Update:'.freeze
+    private_constant :USER_MESSAGE_PREFIX
+
+    def self.upsert(original_wiki_content, old_path:, new_url:)
+      history_link = old_path.include?("#{WIKI_PATH}/Home.md") ? './Home/_history' : './_history'
+      maintainer_message = "#{MAINTAINER_MESSAGE_PREFIX} Please do not modify this file directly, create a pull request instead -->\n\n"
+      user_message = "#{USER_MESSAGE_PREFIX} This Wiki page should be viewable at [#{new_url}](#{new_url}). Or if it is no longer available, see this page's [previous history](#{history_link})**\n\n"
+      deprecation_text = maintainer_message + user_message
+      "#{deprecation_text}"
+    end
+
+    def self.remove(original_wiki_content)
+      original_wiki_content
+        .gsub(/^#{Regexp.escape(MAINTAINER_MESSAGE_PREFIX)}.*$\s+/, '')
+        .gsub(/^#{Regexp.escape(USER_MESSAGE_PREFIX)}.*$\s+/, '')
+    end
+  end
+
   # Converts Wiki markdown pages into a valid Jekyll format
   class WikiMigration
-    def run(config)
-      config.validate!
+    # Implements two core components:
+    # - Converts the existing Wiki markdown pages into a Jekyll format
+    # - Optionally updates the existing Wiki markdown pages with a link to the new website location
+    def run(config, options = {})
+      begin
+        config.validate!
+      rescue
+        puts "[!] Validation failed. Please verify navigation.rb is valid, as well as the markdown file"
+        raise
+      end
 
       # Clean up new docs folder in preparation for regenerating it entirely from the latest wiki
       result_folder = File.join('.', 'docs')
@@ -996,6 +481,9 @@ module Build
           layout: 'default',
           **page.slice(:title, :has_children, :nav_order),
           parent: (page[:parents][-1] || {})[:title],
+          warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated",
+          has_content: !page[:path].nil?
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
@@ -1009,14 +497,27 @@ module Build
         new_path = File.join(result_folder, page[:new_path])
         FileUtils.mkdir_p(File.dirname(new_path))
 
-        if page[:folder]
-          content = preamble.rstrip + "\n"
+        if page[:folder] && page[:path].nil?
+          new_docs_content = preamble.rstrip + "\n"
         else
-          content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
-          content = preamble + content
-          content = link_corrector.rerender(content)
+          old_path = File.join(WIKI_PATH, page[:path])
+          previous_content = File.read(old_path, encoding: Encoding::UTF_8)
+          new_docs_content = preamble + WikiDeprecationText.remove(previous_content)
+          new_docs_content = link_corrector.rerender(new_docs_content)
+
+          # Update the old Wiki with links to the new website
+          if options[:update_wiki_deprecation_notice]
+            new_url = options[:update_wiki_deprecation_notice][:new_website_url]
+            if page[:new_path] != 'home.md'
+              new_url += 'docs/' + page[:new_path].gsub('.md', '.html')
+            end
+            updated_wiki_content = WikiDeprecationText.upsert(previous_content, old_path: old_path, new_url: new_url)
+            old_wiki_path = File.join(WIKI_PATH, page[:path])
+            File.write(old_wiki_path, updated_wiki_content, mode: 'w', encoding: Encoding::UTF_8)
+          end
         end
-        File.write(new_path, content, mode: 'w', encoding: Encoding::UTF_8)
+
+        File.write(new_path, new_docs_content, mode: 'w', encoding: Encoding::UTF_8)
       end
 
       # Now that the docs folder is created, time to move the home.md file out
@@ -1027,19 +528,31 @@ module Build
 
     def link_corrector_for(config)
       link_corrector = LinkCorrector.new(config)
+      errors = []
       config.each do |page|
-        unless page[:folder]
+        unless page[:path].nil?
           content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
+          syntax_errors = link_corrector.syntax_errors_for(content)
+          errors << { path: page[:path], messages: syntax_errors } if syntax_errors.any?
+
           link_corrector.extract(content)
         end
+      end
+
+      if errors.any?
+        errors.each do |error|
+          $stderr.puts "[!] Error #{File.join(WIKI_PATH, error[:path])}:\n#{error[:messages].map { |message| "\t- #{message}\n" }.join}"
+        end
+
+        raise "Errors found in markdown syntax"
       end
 
       link_corrector
     end
   end
 
-  # Serve the production build at http://127.0.0.1:4000/metasploit-framework/
-  class ProductionServer
+  # Serve the release build at http://127.0.0.1:4000/metasploit-framework/
+  class ReleaseBuildServer
     autoload :WEBrick, 'webrick'
 
     def self.run
@@ -1048,10 +561,7 @@ module Build
           Port: 4000
         }
       )
-      server.mount_proc('/') do |_req, res|
-        res.set_redirect(WEBrick::HTTPStatus::TemporaryRedirect, '/metasploit-framework/')
-      end
-      server.mount('/metasploit-framework', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
+      server.mount('/', WEBrick::HTTPServlet::FileHandler, RELEASE_BUILD_ARTIFACTS)
       trap('INT') do
         server.shutdown
       rescue StandardError
@@ -1064,8 +574,8 @@ module Build
   end
 
   def self.run_command(command, exception: true)
-    puts command
-    result = ""
+    puts "[*] #{command}"
+    result = ''
     ::Open3.popen2e(
       { 'BUNDLE_GEMFILE' => File.join(Dir.pwd, 'Gemfile') },
       '/bin/bash', '--login', '-c', command
@@ -1075,21 +585,20 @@ module Build
       while wait_thread.alive?
         ready = IO.select([stdout_and_stderr], nil, nil, 1)
 
-        if ready
-          reads, _writes, _errors = ready
+        next unless ready
+        reads, _writes, _errors = ready
 
-          reads.to_a.each do |io|
-            data = io.read_nonblock(1024)
-            puts data
-            result += data
-          rescue EOFError, Errno::EAGAIN
-            # noop
-          end
+        reads.to_a.each do |io|
+          data = io.read_nonblock(1024)
+          puts data
+          result += data
+        rescue EOFError, Errno::EAGAIN
+          # noop
         end
       end
 
       if !wait_thread.value.success? && exception
-        raise "command did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
+        raise "command #{command.inspect} did not succeed, exit status #{wait_thread.value.exitstatus.inspect}"
       end
     end
 
@@ -1097,20 +606,78 @@ module Build
   end
 
   def self.run(options)
-    Git.clone_wiki! unless options[:skip_wiki_pull]
+    Git.clone_wiki! if options[:wiki_pull]
 
-    unless options[:skip_migration]
-      config = Config.new
+    # Create a new branch based on the commits from https://github.com/rapid7/metasploit-framework/wiki to move
+    # Wiki files into the metasploit-framework repo
+    if options[:create_wiki_to_framework_migration_branch]
+      starting_branch = run_command("git rev-parse --abbrev-ref HEAD").chomp
+      new_wiki_branch_name = "move-all-docs-into-folder"
+      new_framework_branch_name = "merge-metasploit-framework-wiki-into-metasploit-framework"
+
+      begin
+        # Create a new folder and branch in the old metasploit wiki for where we'd like it to be inside of the metasploit-framework repo
+        Dir.chdir(OLD_WIKI_PATH) do
+          # Reset the repo back
+          run_command("git checkout master", exception: false)
+          run_command("git reset HEAD --hard", exception: false)
+          run_command("rm -rf metasploit-framework.wiki", exception: false)
+
+          # Create a new folder to move the wiki contents into
+          FileUtils.mkdir_p("metasploit-framework.wiki")
+          run_command("mv *[^metasploit-framework.wiki]* metasploit-framework.wiki", exception: false)
+
+          # Create a new branch + commit
+          run_command("git branch -D #{new_wiki_branch_name}", exception: false)
+          run_command("git checkout -b #{new_wiki_branch_name}")
+          run_command("git add metasploit-framework.wiki")
+          run_command("git commit -am 'Put markdown files into new folder metasploit-framework.wiki in preparation for migration'")
+        end
+
+        # Create a new branch that can be used to create a pull request
+        run_command("git branch -D #{new_framework_branch_name}", exception: false)
+        run_command("git checkout -b #{new_framework_branch_name}")
+        run_command("git remote remove wiki", exception: false)
+        run_command("git remote add -f wiki #{File.join(Dir.pwd, OLD_WIKI_PATH)}", exception: false)
+        # run_command("git remote update wiki")
+        run_command("git merge -m 'Migrate docs from https://github.com/rapid7/metasploit-framework/wiki to main repository' wiki/#{new_wiki_branch_name} --allow-unrelated-histories")
+
+        puts "new branch #{new_framework_branch_name} successfully created"
+      ensure
+        run_command("git checkout #{starting_branch}")
+      end
+    end
+
+    if options[:copy_old_wiki]
+      FileUtils.copy_entry(OLD_WIKI_PATH, WIKI_PATH, preserve = false, dereference_root = false, remove_destination = true)
+      # Remove any deprecation text that might be present after copying the old wiki
+      Dir.glob(File.join(WIKI_PATH, '**', '*.md')) do |path|
+        previous_content = File.read(path, encoding: Encoding::UTF_8)
+        new_content = WikiDeprecationText.remove(previous_content)
+
+        File.write(path, new_content, mode: 'w', encoding: Encoding::UTF_8)
+      end
+    end
+
+    unless options[:build_content]
+      config = Config.new(NAVIGATION_CONFIG)
       migrator = WikiMigration.new
-      migrator.run(config)
+      migrator.run(config, options)
     end
 
     if options[:production]
-      FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
-      run_command('JEKYLL_ENV=production jekyll build')
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
+      run_command('JEKYLL_ENV=production bundle exec jekyll build')
 
       if options[:serve]
-        ProductionServer.run
+        ReleaseBuildServer.run
+      end
+    elsif options[:staging]
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
+      run_command('JEKYLL_ENV=production bundle exec jekyll build --config _config.yml,_config_staging.yml')
+
+      if options[:serve]
+        ReleaseBuildServer.run
       end
     elsif options[:serve]
       run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
@@ -1119,7 +686,10 @@ module Build
 end
 
 if $PROGRAM_NAME == __FILE__
-  options = {}
+  options = {
+    copy_old_wiki: false,
+    wiki_pull: false
+  }
   options_parser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
 
@@ -1127,21 +697,40 @@ if $PROGRAM_NAME == __FILE__
       return print(opts.help)
     end
 
-    opts.on('--skip-wiki-pull', 'Skip pulling the Metasploit Wiki') do |skip_wiki_pull|
-      options[:skip_wiki_pull] = skip_wiki_pull
-    end
-
-    opts.on('--skip-migration', 'Skip building the content') do |skip_migration|
-      options[:skip_migration] = skip_migration
-    end
-
     opts.on('--production', 'Run a production build') do |production|
       options[:production] = production
+    end
+
+    opts.on('--staging', 'Run a staging build for deploying to gh-pages') do |staging|
+      options[:staging] = staging
     end
 
     opts.on('--serve', 'serve the docs site') do |serve|
       options[:serve] = serve
     end
+
+    opts.on('--[no]-copy-old-wiki [FLAG]', TrueClass, 'Copy the content from the old wiki to the new local wiki folder') do |copy_old_wiki|
+      options[:copy_old_wiki] = copy_old_wiki
+    end
+
+    opts.on('--[no-]-wiki-pull', FalseClass, 'Pull the Metasploit Wiki') do |wiki_pull|
+      options[:wiki_pull] = wiki_pull
+    end
+
+    opts.on('--update-wiki-deprecation-notice [WEBSITE_URL]', 'Updates the old wiki deprecation notes') do |new_website_url|
+      new_website_url ||= 'https://docs.metasploit.com/'
+      options[:update_wiki_deprecation_notice] = {
+        new_website_url: new_website_url
+      }
+    end
+
+    opts.on('--create-wiki-to-framework-migration-branch') do
+      options[:create_wiki_to_framework_migration_branch] = true
+    end
+  end
+  if ARGV.length == 0
+    puts options_parser.help
+    exit 1
   end
   options_parser.parse!
 

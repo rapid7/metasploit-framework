@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' =>
         [
-          ['URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-133-01'],
+          ['URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-16-133-01'],
           ['CVE', '2016-2296'],
           ['CVE', '2016-2298']
         ],

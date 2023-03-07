@@ -41,7 +41,15 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
         OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
 
-      ])
+      ]
+    )
+
+    # overwriting the default user-agent. Shodan is checking it and delivering a html response when using the default ua (see #16189 and #16223)
+    register_advanced_options(
+      [
+        OptString.new('UserAgent', [false, 'The User-Agent header to use for all requests', 'Wget/1.21.2 (linux-gnu)' ])
+      ]
+    )
 
     deregister_http_client_options
   end

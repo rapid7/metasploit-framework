@@ -110,7 +110,7 @@ class Auxiliary::Web::HTTP
       opts[:target].port,
       {},
       opts[:target].ssl,
-      'SSLv23',
+      'Auto',
       nil,
       username,
       password

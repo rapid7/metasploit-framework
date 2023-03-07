@@ -27,7 +27,7 @@ module MetasploitModule
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD
-  def generate
+  def generate(_opts = {})
     cmd_str = datastore['CMD'] || ''
     # Split the cmd string into arg chunks
     cmd_parts = Shellwords.shellsplit(cmd_str)

@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author'        => ['Wyatt Dahlenburg (@wdahlenb)'],
         'Platform'      => ['linux'],
         'SessionTypes'  => ['shell', 'meterpreter'],
-        'References'    => [['URL', 'https://help.github.com/en/articles/testing-your-ssh-connection']]
+        'References'    => [['URL', 'https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection']]
       )
     )
 

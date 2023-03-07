@@ -21,7 +21,7 @@ module MetasploitModule
           'Dave Hardy' # davehardy20
         ],
       'References'    => [
-          ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit/']
+          ['URL', 'https://blog.nettitude.com/uk/interactive-powershell-session-via-metasploit']
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'windows',
@@ -33,7 +33,7 @@ module MetasploitModule
       ))
   end
 
-  def generate
+  def generate(_opts = {})
     generate_powershell_code("Bind")
   end
 end

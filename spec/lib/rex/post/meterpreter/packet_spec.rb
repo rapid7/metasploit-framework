@@ -45,6 +45,46 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
     expect(tlv).to respond_to :from_r
   end
 
+  context "TLV with value mapped to a single type" do
+    subject(:tlv) {
+      Rex::Post::Meterpreter::Tlv.new(
+        Rex::Post::Meterpreter::TLV_TYPE_RESULT,
+        0
+      )
+    }
+
+    it "should have a single type" do
+      expect(tlv.inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=RESULT          meta=INT        value=0>"
+    end
+  end
+
+  context "TLV with value mapped to multiple types" do
+    subject(:tlv) {
+      Rex::Post::Meterpreter::Tlv.new(
+        151074, # Multiple TLV Types are defined as this value, as described here: https://github.com/rapid7/metasploit-framework/pull/16258#discussion_r817878469
+        0
+      )
+    }
+
+    # https://github.com/rapid7/metasploit-framework/pull/16258#discussion_r817878469
+    it "should handle multiple types in alphabetical order" do
+      expect(tlv.inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=oneOf(EXT_WINDOW_ENUM_PID,PEINJECTOR_SHELLCODE_SIZE,SNIFFER_INTERFACE_ID,WEBCAM_INTERFACE_ID) meta=INT        value=0>"
+    end
+  end
+
+  context "TLV with an unknown TLV type" do
+    subject(:tlv) {
+      Rex::Post::Meterpreter::Tlv.new(
+        -1,
+        0
+      )
+    }
+
+    it "should have an unknown type" do
+      expect(tlv.inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=unknown--1      meta=unknown-meta-type value=\"0\">"
+    end
+  end
+
   context "A String TLV" do
     it "should return the correct TLV type" do
       expect(tlv.type).to eq Rex::Post::Meterpreter::TLV_TYPE_STRING
@@ -130,7 +170,7 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
       end
 
       it "should show the correct type and meta type in inspect" do
-        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND-ID      meta=INT        value=1001 command=stdapi_fs_chdir>"
+        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND_ID      meta=INT        value=1001 command=stdapi_fs_chdir>"
         expect(tlv.inspect).to eq tlv_to_s
       end
     end
@@ -147,7 +187,7 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
       end
 
       it "should show the correct type and meta type in inspect" do
-        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND-ID      meta=INT        value=31337 command=unknown>"
+        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND_ID      meta=INT        value=31337 command=unknown>"
         expect(tlv.inspect).to eq tlv_to_s
       end
     end

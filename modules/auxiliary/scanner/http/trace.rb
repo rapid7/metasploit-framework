@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2005-3398'], # early case where this vector applied to a specific application.
-          ['URL', 'https://www.owasp.org/index.php/Cross_Site_Tracing']
+          ['URL', 'https://owasp.org/www-community/attacks/Cross_Site_Tracing']
         ]
     )
   end

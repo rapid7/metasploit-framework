@@ -18,8 +18,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'URL', 'http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
-          [ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ]
+          [ 'URL', 'https://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx' ],
+          [ 'URL', 'https://en.wikipedia.org/wiki/Modbus:TCP' ]
         ],
       'Author'      => [ 'EsMnemon <esm[at]mnemonic.no>' ],
       'DisclosureDate' => 'Nov 1 2011',

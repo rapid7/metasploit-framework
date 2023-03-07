@@ -1,4 +1,4 @@
-module Msf::Ui::Console::CommandDispatcher::Analyze
+module Msf::Ui::Console::CommandDispatcher::Db::Analyze
 
   def cmd_analyze_help
     print_line "Usage: analyze [OPTIONS] [addr1 addr2 ...]"
@@ -64,7 +64,7 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
           reported_module = true
           print_status("Analysis for #{eval_host.address} ->")
           found_modules.each do |res|
-            print_status("  " + res.mod.fullname + " - " + res.to_s)
+            print_status("  " + res.mod.fullname + " - " + res.description)
           end
 
           suggested_modules[eval_host.address] = found_modules

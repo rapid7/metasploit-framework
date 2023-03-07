@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2014-1812'],
           ['MSB', 'MS14-025'],
-          ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
+          ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-gppref/d315342d-41c0-47e3-ab96-7039eb91f5b4'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
           ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']

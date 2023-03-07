@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Detect anonymous (read/write) FTP server access.',
       'References'  =>
         [
-          ['URL', 'http://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
+          ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
         ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE

@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
 
   def run
     host = session.session_host
-    screenshot = Msf::Config.get_config_root + '/logs/' + host + '.jpg'
+    screenshot = Msf::Config.config_directory + '/logs/' + host + '.jpg'
 
     # If no PID is specified, don't migrate.
     if datastore['PID'] != ''
@@ -146,13 +146,11 @@ class MetasploitModule < Msf::Post
   end
 
   def migrate
-    begin
-      session.core.migrate(datastore['PID'].to_i)
-      print_good('Migration successful')
-      return datastore['PID']
-    rescue StandardError
-      fail_with(Failure::Unknown, 'Migration failed! Unable to take a screenshot under the desired process!')
-      return nil
-    end
+    session.core.migrate(datastore['PID'].to_i)
+    print_good('Migration successful')
+    return datastore['PID']
+  rescue StandardError
+    fail_with(Failure::Unknown, 'Migration failed! Unable to take a screenshot under the desired process!')
+    return nil
   end
 end

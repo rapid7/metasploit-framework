@@ -49,7 +49,7 @@ module MetasploitModule
     return datastore['CMD'] || ''
   end
 
-  def generate
+  def generate(_opts = {})
 
     shellcode =
       "\x66\x06\x06\x24" + # li a2,1638

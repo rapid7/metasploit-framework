@@ -15,6 +15,7 @@ module Metasploit
         DEFAULT_REALM        = nil
         DEFAULT_PORT         = 80
         DEFAULT_SSL_PORT     = 443
+        DEFAULT_HTTP_SUCCESS_CODES = [ 200, 201 ].append(*(300..309))
         LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
         LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
         PRIVATE_TYPES        = [ :password ]
@@ -117,6 +118,14 @@ module Metasploit
         #   @return [Integer] How many fake post variables to insert into the request
         attr_accessor :evade_pad_post_params_count
 
+        # @!attribute evade_shuffle_get_params
+        #   @return [Boolean] Randomize order of GET parameters
+        attr_accessor :evade_shuffle_get_params
+
+        # @!attribute evade_shuffle_post_params
+        #   @return [Boolean] Randomize order of POST parameters
+        attr_accessor :evade_shuffle_post_params
+
         # @!attribute evade_uri_fake_end
         #   @return [Boolean] Whether to add a fake end of URI (eg: /%20HTTP/1.0/../../)
         attr_accessor :evade_uri_fake_end
@@ -169,6 +178,19 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
+        # @!attribute kerberos_authenticator_factory
+        # @return [Func<username, password, realm> : Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP] A factory method for creating a kerberos authenticator
+        attr_accessor :kerberos_authenticator_factory
+
+        # @!attribute keep_connection_alive
+        # @return [Boolean] Whether to keep the connection open after a successful login
+        attr_accessor :keep_connection_alive
+
+        # @!attribute http_success_codes
+        # @return [Array][Int] list of valid http response codes
+        attr_accessor :http_success_codes
+
+        validate :validate_http_codes
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -211,37 +233,14 @@ module Metasploit
         # @option opts [Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
         # @option opts [String]  'proxies' The proxies setting
         # @option opts [Credential] 'credential' A credential object
+        # @option opts [Rex::Proto::Http::Client] 'http_client' object that can be used by the function
         # @option opts ['Hash'] 'context' A context
         # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         # @return [Rex::Proto::Http::Response] The HTTP response
         # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
         def send_request(opts)
-          rhost           = opts['host'] || host
-          rport           = opts['rport'] || port
-          cli_ssl         = opts['ssl'] || ssl
-          cli_ssl_version = opts['ssl_version'] || ssl_version
-          cli_proxies     = opts['proxies'] || proxies
-          username        = opts['credential'] ? opts['credential'].public : http_username
-          password        = opts['credential'] ? opts['credential'].private : http_password
-          realm           = opts['credential'] ? opts['credential'].realm : nil
-          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
-
-          res = nil
-          cli = Rex::Proto::Http::Client.new(
-            rhost,
-            rport,
-            context,
-            cli_ssl,
-            cli_ssl_version,
-            cli_proxies,
-            username,
-            password
-          )
-          configure_http_client(cli)
-
-          if realm
-            cli.set_config('domain' => realm)
-          end
+          close_client = !opts.key?(:http_client)
+          cli = opts.fetch(:http_client) { create_client(opts) }
 
           begin
             cli.connect
@@ -255,7 +254,10 @@ module Metasploit
           rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure
-            cli.close
+            # If we didn't create the client, don't close it
+            if close_client
+              cli.close
+            end
           end
 
           res
@@ -284,19 +286,72 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
 
+          request_opts = {'credential'=>credential, 'uri'=>uri, 'method'=>method}
+          if keep_connection_alive
+            request_opts[:http_client] = create_client(request_opts)
+          end
+
           begin
-            response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
-            if response && response.code == 200
+            response = send_request(request_opts)
+            if response && http_success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
+          rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+            mapped_err = Metasploit::Framework::LoginScanner::Kerberos.login_status_for_kerberos_error(e)
+            result_opts.merge!(status: mapped_err, proof: e)
+          ensure
+            if request_opts.key?(:http_client)
+              if result_opts[:status] == Metasploit::Model::Login::Status::SUCCESSFUL
+                result_opts[:connection] = request_opts[:http_client]
+              else
+                request_opts[:http_client].close
+              end
+            end
           end
 
           Result.new(result_opts)
         end
 
         private
+
+        def create_client(opts)
+          rhost           = opts['host'] || host
+          rport           = opts['rport'] || port
+          cli_ssl         = opts['ssl'] || ssl
+          cli_ssl_version = opts['ssl_version'] || ssl_version
+          cli_proxies     = opts['proxies'] || proxies
+          username        = opts['credential'] ? opts['credential'].public : http_username
+          password        = opts['credential'] ? opts['credential'].private : http_password
+          realm           = opts['credential'] ? opts['credential'].realm : nil
+          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
+
+          kerberos_authenticator = nil
+          if kerberos_authenticator_factory
+            kerberos_authenticator = kerberos_authenticator_factory.call(username, password, realm)
+          end
+
+          res = nil
+          cli = Rex::Proto::Http::Client.new(
+            rhost,
+            rport,
+            context,
+            cli_ssl,
+            cli_ssl_version,
+            cli_proxies,
+            username,
+            password,
+            kerberos_authenticator: kerberos_authenticator
+          )
+          configure_http_client(cli)
+
+          if realm
+            cli.set_config('domain' => realm)
+          end
+
+          cli
+        end
 
         # This method is responsible for mapping the caller's datastore options to the
         # Rex::Proto::Http::Client configuration parameters.
@@ -327,6 +382,8 @@ module Metasploit
             'pad_get_params_count'   => evade_pad_get_params_count,
             'pad_post_params'        => evade_pad_post_params,
             'pad_post_params_count'  => evade_pad_post_params_count,
+            'shuffle_get_params'     => evade_shuffle_get_params,
+            'shuffle_post_params'    => evade_shuffle_post_params,
             'uri_fake_end'           => evade_uri_fake_end,
             'uri_fake_params_start'  => evade_uri_fake_params_start,
             'header_folding'         => evade_header_folding,
@@ -355,6 +412,7 @@ module Metasploit
           self.connection_timeout ||= 20
           self.uri = '/' if self.uri.blank?
           self.method = 'GET' if self.method.blank?
+          self.http_success_codes = DEFAULT_HTTP_SUCCESS_CODES if self.http_success_codes.nil?
 
           # Note that this doesn't cover the case where ssl is unset and
           # port is something other than a default. In that situtation,
@@ -386,6 +444,15 @@ module Metasploit
           (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')
         end
 
+        private
+
+        def validate_http_codes
+          errors.add(:http_success_codes, "HTTP codes must be an Array") unless @http_success_codes.is_a?(Array)
+          @http_success_codes.each do |code|
+            next if code >= 200 && code < 400
+            errors.add(:http_success_codes, "Invalid HTTP code provided #{code}")
+          end
+        end
       end
     end
   end

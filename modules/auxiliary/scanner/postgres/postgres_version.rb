@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.postgresql.org' ]
+          [ 'URL', 'https://www.postgresql.org/' ]
         ]
     ))
 

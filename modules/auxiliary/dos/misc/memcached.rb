@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' =>
         [
-          [ 'URL', 'https://code.google.com/p/memcached/issues/detail?id=192' ],
+          [ 'URL', 'https://code.google.com/archive/p/memcached/issues/192' ],
           [ 'CVE', '2011-4971' ],
           [ 'OSVDB', '92867' ]
         ],

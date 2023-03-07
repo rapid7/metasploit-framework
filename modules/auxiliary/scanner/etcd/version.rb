@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         to obtain the version of etcd.
       ),
       'References' => [
-        ['URL', 'https://elweb.co/the-security-footgun-in-etcd']
+        ['URL', 'https://gcollazo.com/the-security-footgun-in-etcd/']
       ],
       'Author' => [
         'Giovanni Collazo <hello@gcollazo.com>', # discovery

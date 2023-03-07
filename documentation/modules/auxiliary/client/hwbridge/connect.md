@@ -57,7 +57,7 @@ on setting up the [BAFX 34t5](https://bafxpro.com/products/obdreader) with Kali 
  Prints out all the JSON packets that come from the HWBridge API.  Useful for troubleshooting
  a device.
 
- This module also supports all the other HTTP Client options typical to Metaplsoit.
+ This module also supports all the other HTTP Client options typical to Metasploit.
 
 ## Sample Connection
 

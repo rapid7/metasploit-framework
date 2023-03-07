@@ -136,7 +136,9 @@ module Session
   # Returns a pretty representation of the tunnel.
   #
   def tunnel_to_s
-    "#{(tunnel_local || '??')} -> #{(tunnel_peer || '??')} #{comm_channel}"
+    tunnel_str = "#{tunnel_local || '??'} -> #{tunnel_peer || '??'}"
+    tunnel_str << " #{comm_channel}" if comm_channel
+    tunnel_str
   end
 
   ##

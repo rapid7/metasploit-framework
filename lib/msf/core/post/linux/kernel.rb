@@ -54,6 +54,21 @@ module Kernel
   end
 
   #
+  # Returns the kernel hardware architecture
+  # Based on values from https://en.wikipedia.org/wiki/Uname
+  #
+  # @return [String]
+  #
+  def kernel_arch
+    arch = kernel_hardware
+    return ARCH_X64 if arch == 'x86_64' || arch == 'amd64'
+    return ARCH_AARCH64 if arch == 'aarch64' || arch == 'arm64'
+    return ARCH_ARMLE if arch.start_with?'arm'
+    return ARCH_X86 if arch.end_with?'86'
+    arch
+  end
+
+  #
   # Returns the kernel boot config
   #
   # @return [Array]

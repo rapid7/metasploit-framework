@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Read in contents of file
-    content = File.read(datastore['PDFINJECT'])
+    content = File.binread(datastore['PDFINJECT'])
 
     # Check for place holder - below ..should.. cover most scenarios.
     newdata = ''

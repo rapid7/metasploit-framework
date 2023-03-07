@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('FTPROOT',    [ true,  "The FTP root directory to serve files from", '/tmp/ftproot' ]),
-        OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"]),
-        OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"]),
+        OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"], fallbacks: ['USERNAME']),
+        OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"], fallbacks: ['PASSWORD']),
       ])
   end
 
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     c.put("150 Opening BINARY mode data connection for #{arg}\r\n")
-    conn.put(::File.read(path, ::File.size(path)))
+    conn.put(::File.read(path, ::File.size(path), mode: 'rb'))
     c.put("226 Transfer complete.\r\n")
     conn.close
   end

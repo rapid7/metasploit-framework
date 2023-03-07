@@ -24,7 +24,7 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShell))
   end
 
-  def generate
+  def generate(_opts = {})
     port    = (datastore['CPORT'] || '0').to_i
     payload =
       Rex::Arch::Sparc.set(port, "l6") +

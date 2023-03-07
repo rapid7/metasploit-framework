@@ -22,8 +22,8 @@ class MetasploitModule < Msf::Auxiliary
     ],
       'References'     =>
     [
-      ['URL', 'http://www.ietf.org/rfc/rfc1734.txt'],
-      ['URL', 'http://www.ietf.org/rfc/rfc1939.txt'],
+      ['URL', 'https://www.ietf.org/rfc/rfc1734.txt'],
+      ['URL', 'https://www.ietf.org/rfc/rfc1939.txt'],
     ],
       'License'     => MSF_LICENSE
   )

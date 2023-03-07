@@ -83,14 +83,30 @@ class Cipher
 
     user_struct = username + ("\0" * (64 - username.length)) + password + ("\0" * (64 - password.length))
 
-    dh_peer = OpenSSL::PKey::DH.new(key_length * 8, generator)
-    dh_peer.set_key(peer_public_key, nil)
+    # OpenSSL 3.0+
+    if OpenSSL::PKey.respond_to?(:generate_key)
+      dh = OpenSSL::PKey::DH.new(
+        OpenSSL::ASN1::Sequence(
+          [
+            OpenSSL::ASN1::Integer(prime_modulus),
+            OpenSSL::ASN1::Integer(generator),
+          ]
+        ).to_der
+      )
+      dh = OpenSSL::PKey.generate_key(dh)
 
-    dh = OpenSSL::PKey::DH.new(dh_peer)
-    dh.set_pqg(prime_modulus, nil, generator)
-    dh.generate_key!
+      shared_key = dh.compute_key(peer_public_key)
+    else
+      dh_peer = OpenSSL::PKey::DH.new(key_length * 8, generator)
+      dh_peer.set_key(peer_public_key, nil)
+      dh_peer_pub_key = dh_peer.pub_key
 
-    shared_key = dh.compute_key(dh_peer.pub_key)
+      dh = OpenSSL::PKey::DH.new(dh_peer)
+      dh.set_pqg(prime_modulus, nil, generator)
+      dh.generate_key!
+
+      shared_key = dh.compute_key(dh_peer_pub_key)
+    end
 
     md5 = OpenSSL::Digest.new('MD5')
     key_digest = md5.digest(shared_key)

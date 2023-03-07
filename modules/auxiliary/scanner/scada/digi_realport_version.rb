@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Detect serial servers that speak the RealPort protocol.',
       'References'  =>
         [
-          ['URL', 'http://www.digi.com/pdf/fs_realport.pdf'],
-          ['URL', 'http://www.digi.com/support/productdetail?pid=2229&type=drivers']
+          ['URL', 'https://www.digi.com/resources/library/technical-briefs/fs_realport'],
+          ['URL', 'https://web.archive.org/web/20151012224641/http://www.digi.com/support/productdetail?pid=2229&type=drivers']
         ],
       'Author'      =>
         [

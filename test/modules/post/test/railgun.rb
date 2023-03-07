@@ -1,5 +1,3 @@
-
-
 lib = File.join(Msf::Config.install_root, "test", "lib")
 require 'module_test'
 
@@ -9,14 +7,17 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::FileInfo
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Railgun API Tests',
-      'Description'   => %q{ This module will test railgun api functions },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Spencer McIntyre' ],
-      'Platform'      => [ 'linux', 'osx', 'windows' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Railgun API Tests',
+        'Description' => %q{ This module will test railgun api functions },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Spencer McIntyre' ],
+        'Platform' => [ 'linux', 'osx', 'windows' ]
+      )
+    )
   end
 
   def test_api_function_calls_libc
@@ -89,6 +90,7 @@ class MetasploitModule < Msf::Post
 
   def test_api_function_file_info_windows
     return unless session.platform == 'windows'
+
     it "Should retrieve the win32k file version" do
       path = expand_path('%WINDIR%\\system32\\win32k.sys')
       major, minor, build, revision, brand = file_version(path)
@@ -98,6 +100,7 @@ class MetasploitModule < Msf::Post
 
   def test_api_function_calls_windows
     return unless session.platform == 'windows'
+
     it "Should include error information in the results" do
       ret = true
       result = session.railgun.kernel32.GetCurrentProcess()

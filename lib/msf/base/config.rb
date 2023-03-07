@@ -22,7 +22,7 @@ class Config < Hash
   # The installation's root directory for the distribution
   InstallRoot = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-  # Determines the base configuration directory.
+  # Determines the base configuration directory. This method should be considered `private`.
   #
   # @return [String] the base configuration directory
   def self.get_config_root

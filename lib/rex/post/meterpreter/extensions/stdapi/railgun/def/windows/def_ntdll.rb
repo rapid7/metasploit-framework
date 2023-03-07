@@ -123,6 +123,12 @@ class Def_windows_ntdll
       ["PBLOB","UnicodeString","inout"],
       ])
 
+    dll.add_function('RtlGetNtVersionNumbers', 'VOID',[
+      ["PDWORD","MajorVersion","inout"],
+      ["PDWORD","MinorVersion","inout"],
+      ["PDWORD","BuildNumber","inout"]
+    ])
+
     dll.add_function('RtlInitAnsiString', 'VOID',[
       ["PBLOB","DestinationString","inout"],
       ["PBLOB","SourceString","inout"],

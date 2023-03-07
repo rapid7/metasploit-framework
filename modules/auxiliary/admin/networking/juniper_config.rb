@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
           ['JUNOS', { 'Description' => 'Import JunOS Config File' }],
           ['SCREENOS', { 'Description' => 'Import ScreenOS Config File' }],
         ],
-        'DefaultAction' => 'JUNOS'
+        'DefaultAction' => 'JUNOS',
+        'Notes' => {
+          'Stability' => [],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

@@ -111,6 +111,8 @@ class Client
     end
 
     shutdown_passive_dispatcher
+
+    shutdown_tlv_logging
   end
 
   #
@@ -164,6 +166,9 @@ class Client
         self.ssl_cert = ::File.read(opts[:ssl_cert])
       end
     end
+    # Use the debug build if specified
+    self.debug_build = opts[:debug_build]
+
 
     # Protocol specific dispatch mixins go here, this may be neader with explicit Client classes
     opts[:dispatch_ext].each {|dx| self.extend(dx)} if opts[:dispatch_ext]
@@ -494,6 +499,10 @@ class Client
   # The timestamp of the last received response
   #
   attr_accessor :last_checkin
+  #
+  # Whether or not to use a debug build for loaded extensions
+  #
+  attr_accessor :debug_build
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
@@ -502,4 +511,3 @@ protected
 end
 
 end; end; end
-

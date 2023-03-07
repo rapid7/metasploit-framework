@@ -73,6 +73,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
     end
 
+    # Extract the MeterpreterDebugBuild option if specified by the user
+    if opts[:datastore]
+      opts[:debug_build] = opts[:datastore]['MeterpreterDebugBuild']
+    end
+
     # Don't pass the datastore into the init_meterpreter method
     opts.delete(:datastore)
 
@@ -130,6 +135,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     session.encode_unicode = datastore['EnableUnicodeEncoding']
 
     session.init_ui(self.user_input, self.user_output)
+
+    initialize_tlv_logging(datastore['SessionTlvLogging']) unless datastore['SessionTlvLogging'].nil?
 
     verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
     begin
@@ -252,11 +259,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     @shell = nil
   end
 
-  def shell_command(cmd)
+  def shell_command(cmd, timeout = 5)
     # Send the shell channel's stdin.
     shell_write(cmd + "\n")
 
-    timeout = 5
     etime = ::Time.now.to_f + timeout
     buff = ""
 
@@ -406,7 +412,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   def update_session_info
     # sys.config.getuid, and fs.dir.getwd cache their results, so update them
-    fs.dir.getwd
+    fs&.dir&.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
@@ -736,4 +742,3 @@ end
 
 end
 end
-

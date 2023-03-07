@@ -1,7 +1,7 @@
 
 module MetasploitModule
 
-  CachedSize = 481
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -26,7 +26,7 @@ module MetasploitModule
       ))
   end
 
-  def generate
+  def generate(_opts = {})
     super + command_string
   end
 

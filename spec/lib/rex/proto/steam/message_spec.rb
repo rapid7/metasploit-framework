@@ -39,7 +39,7 @@ RSpec.describe Rex::Proto::Steam do
         players: "22/32", bots: 0, game_version: "1.0.0.6", type: "Dedicated",
         environment: "Linux", visibility: "public", VAC: "secured"
       }
-      actual_info = steam.a2s_info_decode(IO.read(File.join(File.dirname(__FILE__), 'steam_info.bin')))
+      actual_info = steam.a2s_info_decode(File.binread(File.join(File.dirname(__FILE__), 'steam_info.bin')))
       expect(actual_info).to eq(expected_info)
     end
   end

@@ -9,7 +9,7 @@ module Redcarpet
         code = $1 if code =~ /^<ruby>(.+)<\/ruby>/m
 
         "<pre>" \
-          "<code>#{code}</code>" \
+          "<code>#{CGI.escape_html(code)}</code>" \
         "</pre>"
       end
 
@@ -67,7 +67,7 @@ module Msf
         EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
 
         # Special messages
-        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-CVE-is-not-available)|
+        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://docs.metasploit.com/docs/using-metasploit/other/why-cve-is-not-available.html)|
 
 
         # Returns the module document in HTML form.

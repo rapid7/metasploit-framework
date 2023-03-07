@@ -40,11 +40,11 @@ module Msf
     end
 
     # @return [OptRhosts]
-    def self.RHOSTS(default= nil, required=true, desc="The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit")
+    def self.RHOSTS(default= nil, required=true, desc="The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html")
       Msf::OptRhosts.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
-    def self.RHOST(default=nil, required=true, desc="The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit")
+    def self.RHOST(default=nil, required=true, desc="The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html")
       Msf::OptRhosts.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 

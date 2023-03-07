@@ -4,23 +4,27 @@
 ##
 
 class MetasploitModule < Msf::Post
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Open a file or URL on the target computer',
-      'Description'   => %q{
-        This module will open any file or URL specified with the URI format on the
-        target computer via the embedded commands such as 'open' or 'xdg-open'.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Eliott Teissonniere'],
-      'Platform'      => [ 'osx', 'linux', 'win' ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Open a file or URL on the target computer',
+        'Description' => %q{
+          This module will open any file or URL specified with the URI format on the
+          target computer via the embedded commands such as 'open' or 'xdg-open'.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Eliott Teissonniere'],
+        'Platform' => [ 'osx', 'linux', 'win' ],
+        'SessionTypes' => [ 'shell', 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
         OptString.new('URI', [true, 'URI path to open'])
-      ])
+      ]
+    )
   end
 
   #

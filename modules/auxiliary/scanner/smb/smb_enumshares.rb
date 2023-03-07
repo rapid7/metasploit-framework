@@ -46,6 +46,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('SpiderShares', [false, 'Spider shares recursively', false]),
         OptBool.new('ShowFiles', [true, 'Show detailed information when spidering', false]),
+        OptString.new('Share', [ false, 'Show only the specified share']),
+        OptRegexp.new('HIGHLIGHT_NAME_PATTERN', [true, 'PCRE regex of resource names to highlight', 'username|password|user|pass|Groups.xml']),
         OptBool.new('SpiderProfiles', [false, 'Spider only user profiles when share is a disk share', true]),
         OptEnum.new('LogSpider', [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0, 1, 2, 3]]),
         OptInt.new('MaxDepth', [true, 'Max number of subdirectories to spider', 999]),
@@ -182,7 +184,11 @@ class MetasploitModule < Msf::Auxiliary
       begin
         tree = simple.client.tree_connect("\\\\#{ip}\\#{share_name}")
       rescue RubySMB::Error::UnexpectedStatusCode, RubySMB::Error::InvalidPacket => e
-        vprint_error("Error when trying to connect to share #{share_name} - #{e.status_code.name}")
+        if datastore['Share'].nil?
+          vprint_error("Error when trying to connect to share #{share_name} - #{e.status_code.name}")
+        else
+          print_error("Error when trying to connect to share #{share_name} - #{e.status_code.name}")
+        end
         print_status("Spidering #{share_name} complete") unless datastore['ShowFiles']
         next
       end
@@ -225,7 +231,12 @@ class MetasploitModule < Msf::Auxiliary
         pretty_tbl = Rex::Text::Table.new(
           'Header' => header,
           'Indent' => 1,
-          'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
+          'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ],
+          'ColProps' => {
+            'Name' => {
+              'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new([datastore['HIGHLIGHT_NAME_PATTERN']])]
+            }
+          }
         )
 
         files.each do |file|
@@ -244,12 +255,14 @@ class MetasploitModule < Msf::Auxiliary
             sz = file.end_of_file
           end
 
+          # Logging of the obtained data.
+          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
+          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
+
           # Filename is too long for the UI table, cut it.
           fname = "#{fname[0, 35]}..." if fname.length > 35
 
           pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
-          detailed_tbl << [ip.to_s, fa || 'Unknown', share_name, subdirs.first + '\\', fname, tcr, tac, twr, tch, sz]
-          logdata << "#{ip}\\#{share_name}#{subdirs.first}\\#{fname.encode}\n"
         end
         print_good(pretty_tbl.to_s) if datastore['ShowFiles']
         subdirs.shift
@@ -282,14 +295,26 @@ class MetasploitModule < Msf::Auxiliary
       begin
         print_status 'Starting module'
         if rport == SMB1_PORT
-          connect(versions: [1])
+          # force library in smb1 mode otherwise simple.client is a
+          # `Rex::Proto::SMB::Client` that does not supply `net_share_enum_all`
+          connect(versions: [1], backend: :ruby_smb)
         else
           connect(versions: [1, 2, 3])
         end
         smb_login
 
         begin
-          shares = simple.client.net_share_enum_all(ip)
+          # Return all shares if `Shares` option has not been set
+          if datastore['Share'].nil?
+            shares = simple.client.net_share_enum_all(ip)
+          else
+            # Return specific share if the `Share` option has been set
+            simple.client.net_share_enum_all(ip).each { |share| shares = [share] if share[:name] == datastore['Share'] }
+            # Return an error if `Share` option has been set but no matches were found
+            if shares.empty?
+              print_error("No shares match #{datastore['Share']}")
+            end
+          end
         rescue RubySMB::Error::UnexpectedStatusCode => e
           print_error("Error when trying to enumerate shares - #{e.status_code.name}")
           next
@@ -333,15 +358,15 @@ class MetasploitModule < Msf::Auxiliary
         retry
       rescue Rex::ConnectionTimeout => e
         print_error(e.to_s)
-        return
+        next
       rescue Rex::Proto::SMB::Exceptions::LoginError => e
         print_error(e.to_s)
       rescue RubySMB::Error::RubySMBError => e
         print_error("RubySMB encountered an error: #{e}")
-        return
+        next
       rescue RuntimeError => e
         print_error e.to_s
-        return
+        next
       rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure

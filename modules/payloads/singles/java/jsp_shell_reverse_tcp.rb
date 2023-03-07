@@ -31,7 +31,7 @@ module MetasploitModule
   end
 
 
-  def generate
+  def generate(_opts = {})
 
     if( !datastore['LHOST'] or datastore['LHOST'].empty? )
       return super

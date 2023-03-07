@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes/identify'
+require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
@@ -18,26 +18,24 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => ['ddz', 'hdm', 'h00die'],
       'License' => MSF_LICENSE,
-      'Actions' =>
-        [
-          [ 'Capture', 'Description' => 'Run SMTP capture server' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Capture'
-        ],
+      'Actions' => [
+        [ 'Capture', { 'Description' => 'Run SMTP capture server' } ]
+      ],
+      'PassiveActions' => [
+        'Capture'
+      ],
       'DefaultAction' => 'Capture',
-      'References' =>
-        [
-          [ 'URL', 'https://www.samlogic.net/articles/smtp-commands-reference-auth.htm' ],
-          [ 'URL', 'tools.ietf.org/html/rfc5321' ],
-          [ 'URL', 'http://fehcom.de/qmail/smtpauth.html' ]
-        ],
+      'References' => [
+        [ 'URL', 'https://www.samlogic.net/articles/smtp-commands-reference-auth.htm' ],
+        [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc5321' ],
+        [ 'URL', 'http://fehcom.de/qmail/smtpauth.html' ]
+      ],
     )
 
     register_options(
       [
-        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 25 ])
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 25 ]),
+        OptBool.new('AUTHPROMPT', [ true, 'Require authentication from clients', false ])
       ]
     )
   end
@@ -59,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     # if only a username is submitted, it will appear as \00un\00
     # we already cut off the empty username, so nowe we want to add on the empty password
     if data.length == 1
-      data << ""
+      data << ''
     end
     data
   end
@@ -169,7 +167,11 @@ class MetasploitModule < Msf::Auxiliary
 
     case cmd.upcase
     when 'HELO', 'EHLO'
-      client.put "250 OK\r\n"
+      if datastore['AUTHPROMPT']
+        client.put "250 AUTH LOGIN PLAIN\r\n"
+      else
+        client.put "250 OK\r\n"
+      end
       return
 
     when 'MAIL'
@@ -249,7 +251,6 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Unknown command: #{arg}")
     end
     client.put "503 Server Error\r\n"
-
   end
 
   def report_cred(opts)
@@ -267,7 +268,7 @@ class MetasploitModule < Msf::Auxiliary
         username: opts[:user],
         private_data: opts[:password],
         private_type: :nonreplayable_hash,
-        jtr_format: identify_hash(opts[:password])
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(opts[:password])
       }.merge(service_data)
     else
       credential_data = {

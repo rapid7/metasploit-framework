@@ -5,6 +5,9 @@ module Msf::DBManager::Import::Qualys
   include Msf::DBManager::Import::Qualys::Asset
   include Msf::DBManager::Import::Qualys::Scan
 
+  TCP_QID = 82023
+  UDP_QID = 82004
+
   #
   # Qualys report parsing/handling
   #

@@ -128,7 +128,8 @@ class MetasploitModule < Msf::Post
         '/etc/passwd',
         '/etc/master.passwd',
         '%WINDIR%\\system32\\notepad.exe',
-        '%WINDIR%\\system32\\calc.exe'
+        '%WINDIR%\\system32\\calc.exe',
+        File.expand_path(__FILE__)
       ].each do |path|
         ret = true if file?(path)
       end

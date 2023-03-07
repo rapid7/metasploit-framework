@@ -1,4 +1,3 @@
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -15,23 +14,26 @@ class MetasploitModule < Msf::Post
   include Msf::ModuleTest::PostTest
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'registry_post_testing',
-        'Description'   => %q{ This module will test Post::Windows::Registry API methods },
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'registry_post_testing',
+        'Description' => %q{ This module will test Post::Windows::Registry API methods },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'kernelsmith', # original
           'egypt',       # PostTest conversion
         ],
-        'Platform'      => [ 'windows' ]
-      ))
+        'Platform' => [ 'windows' ]
+      )
+    )
   end
 
   def test_0_registry_read
     it "should evaluate key existence" do
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
-      k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
+      k_dne = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
 
       (k_exists && !k_dne)
     end
@@ -39,7 +41,7 @@ class MetasploitModule < Msf::Post
     pending "should evaluate value existence" do
       # these methods are not implemented
       v_exists = registry_value_exist?(%q#HKCU\Environment#, "TEMP")
-      v_dne    = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
+      v_dne = registry_value_exist?(%q#HKLM\\Non\Existent\Key#, "asdf")
 
       (v_exists && !v_dne)
     end
@@ -55,8 +57,36 @@ class MetasploitModule < Msf::Post
 
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_NATIVE)
       ret &&= !!(valinfo["Data"] == valdata)
+
+      ret
+    end
+
+    it "should read values with a 32-bit view" do
+      if session.type == 'shell' && cmd_exec('cmd.exe /c reg  QUERY /?') !~ /\/reg:\d\d/
+        skip('the target does not support non-native views')
+      end
+
+      ret = true
+      valinfo = registry_getvalinfo(%q#HKCU\Environment#, "TEMP")
+      ret &&= !!(valinfo["Data"])
+      ret &&= !!(valinfo["Type"])
+
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_32_BIT)
       ret &&= !!(valinfo["Data"] == valdata)
+
+      ret
+    end
+
+    it "should read values with a 64-bit view" do
+      if session.type == 'shell' && cmd_exec('cmd.exe /c reg  QUERY /?') !~ /\/reg:\d\d/
+        skip('the target does not support non-native views')
+      end
+
+      ret = true
+      valinfo = registry_getvalinfo(%q#HKCU\Environment#, "TEMP")
+      ret &&= !!(valinfo["Data"])
+      ret &&= !!(valinfo["Type"])
+
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_64_BIT)
       ret &&= !!(valinfo["Data"] == valdata)
 
@@ -99,7 +129,6 @@ class MetasploitModule < Msf::Post
 
       ret
     end
-
   end
 
   def test_1_registry_write
@@ -107,18 +136,18 @@ class MetasploitModule < Msf::Post
       ret = registry_createkey(%q#HKCU\test_key#)
     end
 
-    it "should write REG_SZ values" do
+    it "should write REG_BINARY values" do
       ret = true
-      registry_setvaldata(%q#HKCU\test_key#, "test_val_str", "str!", "REG_SZ")
-      registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
-      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_str")
+      value = Random.bytes(32)
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_bin", value, "REG_BINARY")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_bin")
       if (valinfo.nil?)
         ret = false
       else
-        # type == REG_SZ means string
-        ret &&= !!(valinfo["Type"] == 1)
+        # type == REG_BINARY means string
+        ret &&= !!(valinfo["Type"] == 3)
         ret &&= !!(valinfo["Data"].kind_of? String)
-        ret &&= !!(valinfo["Data"] == "str!")
+        ret &&= !!(valinfo["Data"] == value)
       end
 
       ret
@@ -135,6 +164,72 @@ class MetasploitModule < Msf::Post
         ret &&= !!(valinfo["Data"].kind_of? Numeric)
         ret &&= !!(valinfo["Data"] == 1234)
       end
+
+      ret
+    end
+
+    it "should write REG_EXPAND_SZ values" do
+      ret = true
+      value = '%SystemRoot%\system32'
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_expand_str", value, "REG_EXPAND_SZ")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_expand_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_EXPAND_SZ means string
+        ret &&= !!(valinfo["Type"] == 2)
+        ret &&= !!(valinfo["Data"].kind_of? String)
+        ret &&= !!(valinfo["Data"] == value)
+      end
+
+      ret
+    end
+
+    it "should write REG_MULTI_SZ values" do
+      ret = true
+      values = %w[ val0 val1 ]
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_multi_str", values, "REG_MULTI_SZ")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_multi_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_MULTI_SZ means string array
+        ret &&= !!(valinfo["Type"] == 7)
+        ret &&= !!(valinfo["Data"].kind_of? Array)
+        ret &&= !!(valinfo["Data"] == values)
+      end
+
+      ret
+    end
+
+    it "should write REG_QWORD values" do
+      ret = true
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_qword", 1234, "REG_QWORD")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_qword")
+      if (valinfo.nil?)
+        ret = false
+      else
+        ret &&= !!(valinfo["Type"] == 11)
+        ret &&= !!(valinfo["Data"].kind_of? Numeric)
+        ret &&= !!(valinfo["Data"] == 1234)
+      end
+
+      ret
+    end
+
+    it "should write REG_SZ values" do
+      ret = true
+      registry_setvaldata(%q#HKCU\test_key#, "test_val_str", "str!", "REG_SZ")
+      valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_SZ means string
+        ret &&= !!(valinfo["Type"] == 1)
+        ret &&= !!(valinfo["Data"].kind_of? String)
+        ret &&= !!(valinfo["Data"] == "str!")
+      end
+
       ret
     end
 
@@ -172,7 +267,6 @@ class MetasploitModule < Msf::Post
       ret
     end
 
-
     it "should delete unicode keys" do
       ret = registry_deleteval(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
       valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
@@ -185,9 +279,6 @@ class MetasploitModule < Msf::Post
 
       ret
     end
-
   end
 
 end
-
-

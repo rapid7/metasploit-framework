@@ -8,9 +8,14 @@ module Msf::Payload::Stager
 
   include Msf::Payload::TransportConfig
 
+  attr_accessor :stage_arch
+  attr_accessor :stage_platform
+
   def initialize(info={})
     super
 
+    self.stage_arch = self.arch
+    self.stage_platform = self.platform
     register_advanced_options(
       [
         Msf::OptBool.new("EnableStageEncoding", [ false, "Encode the second stage payload", false ]),
@@ -170,6 +175,7 @@ module Msf::Payload::Stager
   # @param (see handle_connection_stage)
   # @return (see handle_connection_stage)
   def handle_connection(conn, opts={})
+
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
@@ -287,7 +293,9 @@ module Msf::Payload::Stager
         'Encoder'            => stage_enc_mod,
         'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
         'ForceSaveRegisters' => true,
-        'ForceEncode'        => true)
+        'ForceEncode'        => true,
+        'Arch'               => self.stage_arch,
+        'Platform'           => self.stage_platform)
 
       if encp.encoder
         if stage_enc_mod

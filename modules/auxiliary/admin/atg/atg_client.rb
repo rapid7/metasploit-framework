@@ -25,13 +25,13 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          ['URL', 'https://blog.rapid7.com/2015/01/22/the-internet-of-gas-station-tank-gauges'],
-          ['URL', 'http://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
+          ['URL', 'https://www.rapid7.com/blog/post/2015/01/22/the-internet-of-gas-station-tank-gauges/'],
+          ['URL', 'https://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
           ['URL', 'https://github.com/sjhilt/GasPot'],
           ['URL', 'https://github.com/mushorg/conpot'],
-          ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
-          ['URL', 'http://www.chipkin.com/files/liz/576013-635.pdf'],
-          ['URL', 'http://www.veeder.com/gold/download.cfm?doc_id=6227']
+          ['URL', 'https://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
+          ['URL', 'https://cdn.chipkin.com/files/liz/576013-635.pdf'],
+          ['URL', 'https://docs.veeder.com/gold/download.cfm?doc_id=6227']
         ],
       'DefaultAction'  => 'INVENTORY',
       'Actions'        =>

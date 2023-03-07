@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2015-7297'],
-          ['URL', 'https://www.trustwave.com/Resources/SpiderLabs-Blog/Joomla-SQL-Injection-Vulnerability-Exploit-Results-in-Full-Administrative-Access/']
+          ['URL', 'https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/joomla-sql-injection-vulnerability-exploit-results-in-full-administrative-access/']
         ],
       'Author'         =>
         [

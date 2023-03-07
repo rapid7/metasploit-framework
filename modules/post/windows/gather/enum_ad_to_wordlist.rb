@@ -26,28 +26,31 @@ class MetasploitModule < Msf::Post
     'description'
   ]
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'         => 'Windows Active Directory Wordlist Builder',
-      'Description'  => %q{
-        This module will gather information from the default Active Domain (AD) directory
-        and use these words to seed a wordlist. By default it enumerates user accounts to
-        build the wordlist.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       => ['Thomas Ring'],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter']
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Active Directory Wordlist Builder',
+        'Description' => %q{
+          This module will gather information from the default Active Domain (AD) directory
+          and use these words to seed a wordlist. By default it enumerates user accounts to
+          build the wordlist.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Thomas Ring'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter']
+      )
+    )
 
     register_options([
       OptString.new('FIELDS', [true, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', DEFAULT_FIELDS.join(',')]),
-      OptString.new('FILTER', [true, 'Search filter.','(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'])
+      OptString.new('FILTER', [true, 'Search filter.', '(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'])
     ])
   end
 
   def run
-    fields = datastore['FIELDS'].gsub(/\s+/,'').split(',')
+    fields = datastore['FIELDS'].gsub(/\s+/, '').split(',')
     search_filter = datastore['FILTER']
     q = nil
 
@@ -65,15 +68,15 @@ class MetasploitModule < Msf::Post
     q[:results].each do |result|
       result.each do |field|
         search_words(field[:value])
-      end # result.each
-    end # q.each
+      end
+    end
 
     # build array of words to output sorted on frequency
-    ordered_dict = @words_dict.sort_by { |k,v| v }.reverse
-    ordered_dict.collect! { |k, v| k }
+    ordered_dict = @words_dict.sort_by { |_k, v| v }.reverse
+    ordered_dict.collect! { |k, _v| k }
 
     if ordered_dict.blank?
-      print_error("The wordlist is empty")
+      print_error('The wordlist is empty')
       return
     end
 
@@ -86,14 +89,15 @@ class MetasploitModule < Msf::Post
     return if field.blank?
     return if field =~ /^\s*$/ || field.length < 3
 
-    field.gsub!(/[\(\)\"]/, '') # clear up common punctuation in descriptions
+    field.gsub!(/[()"]/, '') # clear up common punctuation in descriptions
     field.downcase!             # clear up case
 
-    words = field.split(/\s+|=|\/|,|\+/)
+    words = field.split(%r{\s+|=|/|,|\+})
     return if words.empty?
 
     words.each do |word|
       next if word.length < 3 || word.length > 24
+
       if @words_dict[word]
         @words_dict[word] += 1
       else
@@ -102,4 +106,3 @@ class MetasploitModule < Msf::Post
     end
   end
 end
-

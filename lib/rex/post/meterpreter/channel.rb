@@ -153,7 +153,11 @@ class Channel
   def self.finalize(client, cid)
     proc {
       unless cid.nil?
-        self._close(client, cid)
+        begin
+          self._close(client, cid)
+        rescue => e
+          elog("finalize method for Channel failed", error: e)
+        end
       end
     }
   end
@@ -377,11 +381,12 @@ class Channel
   # Stub close handler.
   #
   def dio_close_handler(packet)
+    temp_cid = nil
     @mutex.synchronize {
-      cid = self.cid
+      temp_cid = self.cid
       self.cid = nil
     }
-    client.remove_channel(cid)
+    client.remove_channel(temp_cid)
 
     # Trap IOErrors as parts of the channel may have already been closed
     begin
@@ -467,4 +472,3 @@ protected
 end
 
 end; end; end
-

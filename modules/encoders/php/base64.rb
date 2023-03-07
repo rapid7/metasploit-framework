@@ -8,22 +8,30 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'             => 'PHP Base64 Encoder',
-      'Description'      => %q{
+      'Name' => 'PHP Base64 Encoder',
+      'Description' => %q{
         This encoder returns a base64 string encapsulated in
         eval(base64_decode()), increasing the size by a bit more than
         one third.
       },
-      'Author'           => 'egypt',
-      'License'          => BSD_LICENSE,
-      'Arch'             => ARCH_PHP)
+      'Author' => 'egypt',
+      'License' => BSD_LICENSE,
+      'Arch' => ARCH_PHP)
   end
 
   def encode_block(state, buf)
     # Have to have these for the decoder stub, so if they're not available,
     # there's nothing we can do here.
-    %w{c h r ( ) . e v a l b a s e 6 4 _ d e c o d e ;}.uniq.each do |c|
+    %w[c h r ( ) . e v a l b a s e 6 4 _ d e c o d e ;].uniq.each do |c|
       raise BadcharError if state.badchars.include?(c)
+    end
+
+    # Modern versions of PHP choke on unquoted literal strings.
+    quote = "'"
+    if state.badchars.include?("'")
+      raise BadcharError.new, "The #{self.name} encoder failed to encode the decoder stub without bad characters." if state.badchars.include?('"')
+
+      quote = '"'
     end
 
     # PHP escapes quotes by default with magic_quotes_gpc, so we use some
@@ -50,9 +58,7 @@ class MetasploitModule < Msf::Encoder
 
     # The first character must not be a non-alpha character or PHP chokes.
     i = 0
-    while (b64[i].chr =~ %r{[0-9/+]})
-      b64[i] = "chr(#{b64[i]})."
-    end
+    b64[i] = "chr(#{b64[i]})." while (b64[i].chr =~ %r{[0-9/+]})
 
     # Similarly, when we seperate large payloads into chunks to avoid the
     # 998-byte problem mentioned above, we have to make sure that the first
@@ -60,20 +66,18 @@ class MetasploitModule < Msf::Encoder
     # will create a broken string in the case of 99 consecutive digits,
     # slashes, and plusses in the base64 encoding, but the likelihood of
     # that is low enough that I don't care.
-    i = 900;
+    i = 900
     while i < b64.length
-      while (b64[i].chr =~ %r{[0-9/+]})
-        i += 1
-      end
-      b64.insert(i,'.')
+      i += 1 while (b64[i].chr =~ %r{[0-9/+]})
+      b64.insert(i, '.')
       i += 900
     end
 
     # Plus characters ('+') in a uri are converted to spaces, so replace
     # them with something that PHP will turn into a plus.  Slashes cause
     # parse errors on the server side, so do the same for them.
-    b64.gsub!("+", ".chr(43).")
-    b64.gsub!("/", ".chr(47).")
+    b64.gsub!('+', '.chr(43).')
+    b64.gsub!('/', '.chr(47).')
 
     state.badchars.each_byte do |byte|
       # Last ditch effort, if any of the normal characters used by base64
@@ -88,12 +92,12 @@ class MetasploitModule < Msf::Encoder
     # we'll have two dots next to each other, so fix it up.  Note that this
     # is searching for literal dots, not a regex matching any two
     # characters
-    b64.gsub!("..", ".")
+    b64.gsub!('..', '.')
 
     # Some of the shenanigans above could have appended a dot, which will
     # cause a syntax error.  Remove any trailing dots.
-    b64.chomp!(".")
+    b64.chomp!('.')
 
-    return "eval(base64_decode(" + b64 + "));"
+    return 'eval(base64_decode(' + quote + b64 + quote + '));'
   end
 end

@@ -46,7 +46,7 @@ module Msf
 
     def valid?(value, check_empty: nil)
       return false unless super
-      return false unless File.exist?(File.expand_path(value)) # no memory: locations
+      return false unless value && File.file?(File.expand_path(value)) # no memory: locations
 
       begin
         self.class.assert_compatible(Rex::PeParsey::Pe.new_from_file(value, true), @arch)
@@ -67,8 +67,9 @@ module Msf
   module Payload::Windows::PEInject
     def initialize(info = {})
       super
+
       register_options([
-        OptInjectablePE.new('PE', [ true, 'The local path to the PE file to upload' ], arch: arch.first)
+        OptInjectablePE.new('PE', [ true, 'The local path to the PE file to upload' ], arch: info.fetch('AdaptedArch', arch.first))
       ], self.class)
     end
 
@@ -83,7 +84,7 @@ module Msf
     # Transmits the reflective PE payload to the remote
     # computer so that it can be loaded into memory.
     #
-    def handle_connection(conn, _opts = {})
+    def handle_connection(conn, opts = {})
       data = ''
       begin
         File.open(pe_path, 'rb') do |f|
@@ -96,7 +97,7 @@ module Msf
       end
 
       print_status('Premapping PE file...')
-      pe_map = create_pe_memory_map(data)
+      pe_map = create_pe_memory_map(data, opts)
       print_status("Mapped PE size #{pe_map[:bytes].length}")
       opts = {}
       opts[:is_dll] = pe_map[:is_dll]
@@ -113,10 +114,10 @@ module Msf
       conn.close
     end
 
-    def create_pe_memory_map(file)
+    def create_pe_memory_map(file, opts = {})
       pe = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(file))
       begin
-        OptInjectablePE.assert_compatible(pe, arch.first)
+        OptInjectablePE.assert_compatible(pe, opts.fetch(:arch, arch.first))
       rescue Msf::ValidationError => e
         print_error("PE validation error: #{e.message}")
         raise

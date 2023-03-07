@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => 'Fatih Ozavci', # viproy.com/fozavci
       'License'     =>  MSF_LICENSE,
       'References'  => [
-        [ 'URL', 'http://en.wikipedia.org/wiki/CDP_Spoofing' ]
+        [ 'URL', 'https://en.wikipedia.org/wiki/CDP_Spoofing' ]
       ],
       'Actions'     => [
         ['Spoof', { 'Description' => 'Sends CDP packets' }]

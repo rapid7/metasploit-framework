@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'MSB', 'MS17-010'],
           [ 'URL', 'https://zerosum0x0.blogspot.com/2017/04/doublepulsar-initial-smb-backdoor-ring.html'],
           [ 'URL', 'https://github.com/countercept/doublepulsar-detection-script'],
-          [ 'URL', 'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx']
+          [ 'URL', 'https://web.archive.org/web/20170513050203/https://technet.microsoft.com/en-us/library/security/ms17-010.aspx']
         ],
       'License'        => MSF_LICENSE,
       'Notes' =>

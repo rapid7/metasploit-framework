@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['EDB', '31459'],
-          ['URL', 'http://developer.joomla.org/security/578-20140301-core-sql-injection.html']
+          ['URL', 'https://developer.joomla.org/security/578-20140301-core-sql-injection.html']
         ],
       'DisclosureDate' => '2014-03-02'
     ))

@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           'antti <antti.rantasaari[at]netspi.com>'
         ],
       'License'     => MSF_LICENSE,
-      'References'  => [[ 'URL','http://msdn.microsoft.com/en-us/library/ms174427.aspx']]
+      'References'  => [[ 'URL','https://docs.microsoft.com/en-us/sql/t-sql/functions/suser-sname-transact-sql']]
       ))
 
     register_options(

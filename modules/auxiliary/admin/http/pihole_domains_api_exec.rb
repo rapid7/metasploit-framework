@@ -95,13 +95,13 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'tab' => 'api'
       },
-      'keep_cookies' => 'true'
+      'keep_cookies' => true
     )
 
     # check if we got hit by a login prompt
     if res && res.body.include?('Sign in to start your session')
-      cookie = login
-      fail_with(Failure::BadConfig, 'Incorrect Password') if cookie.nil?
+      res = login(datastore['PASSWORD'])
+      fail_with(Failure::BadConfig, 'Incorrect Password') if res.nil?
     end
 
     token = get_token('api')
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
         'field' => 'API',
         'token' => token
       },
-      'keep_cookies' => 'true',
+      'keep_cookies' => true,
       'method' => 'POST'
     )
     fail_with(Failure::UnexpectedReply, 'Unable to save settings') unless res && res.body.include?('The API settings have been updated')

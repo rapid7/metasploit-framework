@@ -19,14 +19,14 @@ module Payload::Windows::BindTcp_x64
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     conf = {
       port:     datastore['LPORT'],
       reliable: false
     }
 
     # Generate the more advanced stager if we have the space
-    if self.available_space && required_space <= self.available_space
+    if self.available_space && cached_size && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end

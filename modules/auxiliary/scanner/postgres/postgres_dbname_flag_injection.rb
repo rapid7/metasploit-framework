@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-1899' ],
-          [ 'URL', 'http://www.postgresql.org/support/security/faq/2013-04-04/' ]
+          [ 'URL', 'https://www.postgresql.org/support/security/faq/2013-04-04/' ]
         ]
     ))
 

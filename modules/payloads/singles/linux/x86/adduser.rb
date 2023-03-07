@@ -40,7 +40,7 @@ module MetasploitModule
   #
   # Dynamically builds the adduser payload based on the user's options.
   #
-  def generate_stage(opts={})
+  def generate(opts={})
     user    = datastore['USER']  || 'metasploit'
     pass    = datastore['PASS']  || 'metasploit'
     shell   = datastore['SHELL'] || '/bin/sh'

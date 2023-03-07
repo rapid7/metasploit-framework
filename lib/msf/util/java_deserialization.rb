@@ -67,7 +67,7 @@ class JavaDeserialization
       # Open the JSON file and parse it
       path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
       begin
-        json = JSON.parse(File.read(path))
+        json = JSON.parse(File.read(path, mode: 'rb'))
       rescue Errno::ENOENT, JSON::ParserError
         raise RuntimeError, "Unable to load JSON data from: #{path}"
       end

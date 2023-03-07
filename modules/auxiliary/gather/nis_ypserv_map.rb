@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      => 'wvu',
       'References'  => [
-        ['URL', 'https://tools.ietf.org/html/rfc1831'],
-        ['URL', 'https://tools.ietf.org/html/rfc4506']
+        ['URL', 'https://datatracker.ietf.org/doc/html/rfc1831'],
+        ['URL', 'https://datatracker.ietf.org/doc/html/rfc4506']
       ],
       'License'     => MSF_LICENSE
     ))

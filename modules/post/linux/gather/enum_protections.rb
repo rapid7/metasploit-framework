@@ -9,23 +9,26 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Linux::System
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Linux Gather Protection Enumeration',
-      'Description'   => %q{
-        This module checks whether popular system hardening mechanisms are
-        in place, such as SMEP, SMAP, SELinux, PaX and grsecurity. It also
-        tries to find installed applications that can be used to hinder,
-        prevent, or detect attacks, such as tripwire, snort, and apparmor.
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Gather Protection Enumeration',
+        'Description' => %q{
+          This module checks whether popular system hardening mechanisms are
+          in place, such as SMEP, SMAP, SELinux, PaX and grsecurity. It also
+          tries to find installed applications that can be used to hinder,
+          prevent, or detect attacks, such as tripwire, snort, and apparmor.
 
-        This module is meant to identify Linux Secure Modules (LSM) in addition
-        to various antivirus, IDS/IPS, firewalls, sandboxes and other security
-        related software.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => 'ohdae <bindshell[at]live.com>',
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
-    ))
+          This module is meant to identify Linux Secure Modules (LSM) in addition
+          to various antivirus, IDS/IPS, firewalls, sandboxes and other security
+          related software.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'ohdae <bindshell[at]live.com>',
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter']
+      )
+    )
   end
 
   def run
@@ -49,10 +52,10 @@ class MetasploitModule < Msf::Post
 
   def report(data)
     report_note(
-      :host   => session,
-      :type   => 'linux.protection',
-      :data   => data,
-      :update => :unique_data
+      host: session,
+      type: 'linux.protection',
+      data: data,
+      update: :unique_data
     )
   end
 
@@ -70,19 +73,19 @@ class MetasploitModule < Msf::Post
     end
 
     if kaiser_enabled?
-      r = "KAISER is enabled"
+      r = 'KAISER is enabled'
       print_good r
       report r
     end
 
     if smep_enabled?
-      r = "SMEP is enabled"
+      r = 'SMEP is enabled'
       print_good r
       report r
     end
 
     if smap_enabled?
-      r = "SMAP is enabled"
+      r = 'SMAP is enabled'
       print_good r
       report r
     end
@@ -108,37 +111,33 @@ class MetasploitModule < Msf::Post
     if selinux_installed?
       if selinux_enforcing?
         r = 'SELinux is installed and enforcing'
-        print_good r
-        report r
       else
         r = 'SELinux is installed, but in permissive mode'
-        print_good r
-        report r
       end
+      print_good r
+      report r
     end
 
     if yama_installed?
       if yama_enabled?
         r = 'Yama is installed and enabled'
-        print_good r
-        report r
       else
         r = 'Yama is installed, but not enabled'
-        print_good r
-        report r
       end
+      print_good r
+      report r
     end
   end
 
   def find_apps
-    apps = %w(
+    apps = %w[
       truecrypt bulldog ufw iptables fw-settings logrotate logwatch
       chkrootkit clamav snort tiger firestarter avast lynis
       rkhunter tcpdump webmin jailkit pwgen proxychains bastille
       psad wireshark nagios apparmor oz-seccomp honeyd thpot
       aa-status gradm gradm2 getenforce aide tripwire paxctl
       paxctld paxtest firejail auditd
-    )
+    ]
 
     apps.each do |app|
       next unless command_exists? app

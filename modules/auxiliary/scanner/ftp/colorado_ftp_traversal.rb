@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'EDB', '40231'],
           [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
-          [ 'URL', 'http://www.securityfocus.com/archive/1/539186']
+          [ 'URL', 'https://bugtraq.securityfocus.com/archive/1/539186']
         ],
       'DisclosureDate' => '2016-08-11'
     ))
@@ -38,8 +38,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 2 ]),
         OptString.new('PATH', [ true, 'Path to the file to disclose, relative to the root dir.', 'conf\\xml-users.xml']),
-        OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser']), #override default
-        OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123']) #override default
+        OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser'], fallbacks: ['USERNAME']), #override default
+        OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123'], fallbacks: ['PASSWORD']) #override default
       ])
 
   end

@@ -51,6 +51,7 @@ class Driver < Msf::Ui::Driver
   #
   # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
   #   unrecognized commands to be executed by the system shell
+  # @option opts [Boolean] 'Readline' (true) Whether to use the readline or not
   # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
   #   readline library instead of RBReadline
   # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
@@ -90,6 +91,10 @@ class Driver < Msf::Ui::Driver
     # handle if one is supplied
     input = opts['LocalInput']
     input ||= Rex::Ui::Text::Input::Stdio.new
+
+    if !opts['Readline']
+      input.disable_readline
+    end
 
     if (opts['LocalOutput'])
       if (opts['LocalOutput'].kind_of?(String))
@@ -388,6 +393,8 @@ class Driver < Msf::Ui::Driver
     case var.downcase
     when 'sessionlogging'
       handle_session_logging(val) if glob
+    when 'sessiontlvlogging'
+      handle_session_tlv_logging(val) if glob
     when 'consolelogging'
       handle_console_logging(val) if glob
     when 'loglevel'
@@ -407,6 +414,8 @@ class Driver < Msf::Ui::Driver
     case var.downcase
     when 'sessionlogging'
       handle_session_logging('0') if glob
+    when 'sessiontlvlogging'
+      handle_session_tlv_logging('false') if glob
     when 'consolelogging'
       handle_console_logging('0') if glob
     when 'loglevel'
@@ -474,12 +483,9 @@ protected
     [method, method+".exe"].each do |cmd|
       if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
-        print_status("exec: #{line}")
-        print_line('')
-
         self.busy = true
         begin
-          system(line)
+          run_unknown_command(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
@@ -498,6 +504,12 @@ protected
     end
 
     super
+  end
+
+  def run_unknown_command(command)
+    print_status("exec: #{command}")
+    print_line('')
+    system(command)
   end
 
   ##
@@ -558,9 +570,9 @@ protected
       return false
     elsif active_module && (active_module.exploit? || active_module.evasion?)
       return false unless active_module.is_payload_compatible?(val)
-    elsif active_module
+    elsif active_module && !framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
       active_module.datastore.clear_non_user_defined
-    elsif framework
+    elsif framework && !framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
       framework.datastore.clear_non_user_defined
     end
   end
@@ -591,6 +603,53 @@ protected
   ensure
     # Restore warning
     $VERBOSE = verbose
+  end
+
+  def handle_session_tlv_logging(val)
+    return false if val.nil?
+
+    if val.casecmp?('console') || val.casecmp?('true') || val.casecmp?('false')
+      return true
+    elsif val.start_with?('file:') && !val.split('file:').empty?
+      pathname = ::Pathname.new(val.split('file:').last)
+
+      # Check if we want to write the log to file
+      if ::File.file?(pathname)
+        if ::File.writable?(pathname)
+          return true
+        else
+          print_status "No write permissions for log output file: #{pathname}"
+          return false
+        end
+        # Check if we want to write the log file to a directory
+      elsif ::File.directory?(pathname)
+        if ::File.writable?(pathname)
+          return true
+        else
+          print_status "No write permissions for log output directory: #{pathname}"
+          return false
+        end
+        # Check if the subdirectory exists
+      elsif ::File.directory?(pathname.dirname)
+        if ::File.writable?(pathname.dirname)
+          return true
+        else
+          print_status "No write permissions for log output directory: #{pathname.dirname}"
+          return false
+        end
+      else
+        # Else the directory doesn't exist. Check if we can create it.
+        begin
+          ::FileUtils.mkdir_p(pathname.dirname)
+          return true
+        rescue ::StandardError => e
+          print_status "Error when trying to create directory #{pathname.dirname}: #{e.message}"
+          return false
+        end
+      end
+    end
+
+    false
   end
 
   # Require the appropriate readline library based on the user's preference.

@@ -44,7 +44,7 @@ RUN apt-get update && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN curl https://dlcdn.apache.org/struts/2.5.28/struts-2.5.28-all.zip > struts-all.zip && \
+RUN curl https://archive.apache.org/dist/struts/2.5.28/struts-2.5.28-all.zip > struts-all.zip && \
 	unzip struts-all.zip && \
 	cp /struts-2.5.28/apps/struts2-showcase.war /bitnami/tomcat/webapps/
 ```
@@ -62,6 +62,11 @@ File containing additional URIs to check, one per line. These values will be app
 starting with `#` will be treated as comments. Lines may also contain the string `${jndi:uri}` which will be used as the
 injection point. This enables query parameters to be included in the request which are required for certain
 applications.
+
+### LEAK_PARAMS
+Additional parameters to leak, separated by the `^` character. For example the following would leak the USER and PATH
+environment variables: `${env:USER}^${env:PATH}`. See the [Log4j Lookups][log4j-lookups] wiki page for more information
+on available parameters.
 
 ### LDAP_TIMEOUT
 Time in seconds to wait to receive LDAP connections.
@@ -104,3 +109,5 @@ msf6 auxiliary(scanner/http/log4shell_scanner) > run http://10.10.235.209:8983/ 
 [*] Sleeping 30 seconds for any last LDAP connections
 [*] Auxiliary module execution completed
 ```
+
+[log4j-lookups]: https://logging.apache.org/log4j/2.x/manual/lookups.html

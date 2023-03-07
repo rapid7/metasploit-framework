@@ -28,7 +28,8 @@ class PayloadSet < ModuleSet
     [
       Payload::Type::Single,
       Payload::Type::Stager,
-      Payload::Type::Stage
+      Payload::Type::Stage,
+      Payload::Type::Adapter
     ].each { |type|
       self.payload_type_modules[type] = {}
     }
@@ -88,6 +89,17 @@ class PayloadSet < ModuleSet
       # Add it to the set
       add_single(p, name, op[5])
       new_keys.push name
+
+      _adapters.each_pair { |adapter_name, ep|
+        adapter_mod, _, adapter_platform, adapter_arch, adapter_inst = ep
+        next unless adapter_inst.compatible?(p.new)
+
+        ap = build_payload(handler, mod, adapter_mod)
+
+        combined  = build_adapted_name(adapter_name, p.refname)
+        add_single(ap, combined, ep[5])
+        new_keys.push combined
+      }
     }
 
     # Recalculate staged payloads
@@ -166,6 +178,21 @@ class PayloadSet < ModuleSet
           'paths' => op[5]['paths'] + ip[5]['paths'],
           'type'  => op[5]['type']})
         new_keys.push combined
+
+        _adapters.each_pair { |adapter_name, ep|
+          adapter_mod, _, adapter_platform, adapter_arch, adapter_inst = ep
+          next unless adapter_inst.compatible?(p.new)
+
+          ap = build_payload(handler, stager_mod, stage_mod, adapter_mod)
+
+          combined  = build_adapted_name(adapter_name, p.refname)
+          ap.refname = combined
+          ap.framework = framework
+          ap.file_path = ep[5]['files'][0]
+
+          self[combined] = ap
+          new_keys.push combined
+        }
       }
     }
 
@@ -196,7 +223,7 @@ class PayloadSet < ModuleSet
   # @return [void]
   def add_module(payload_module, reference_name, modinfo={})
 
-    if (md = reference_name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
+    if (md = reference_name.match(/^(adapters|singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
       ptype = md[1]
       reference_name  = md[2]
     end
@@ -389,6 +416,10 @@ class PayloadSet < ModuleSet
 
 protected
 
+  def _adapters
+    return payload_type_modules[Payload::Type::Adapter] || {}
+  end
+
   #
   # Return the hash of single payloads
   #
@@ -425,6 +456,15 @@ protected
     klass.include(*modules.reverse)
 
     return klass
+  end
+
+  def build_adapted_name(aname, pname)
+    aparts = aname.split('/')
+    pparts = pname.split('/')
+    pparts.shift if aparts.last.start_with?(pparts.first)
+    aparts.each { |apart| pparts.delete(apart) if pparts.include?(apart) }
+
+    (aparts + pparts).join('/')
   end
 
   attr_accessor :payload_type_modules # :nodoc:

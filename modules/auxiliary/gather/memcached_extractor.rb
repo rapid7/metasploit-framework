@@ -54,12 +54,13 @@ class MetasploitModule < Msf::Auxiliary
   def enumerate_keys
     keys = []
     enumerate_slab_ids.each do |sid|
+      sock.send("stats cachedump #{sid} #{max_keys}\r\n", 0)
       loop do
-        sock.send("stats cachedump #{sid} #{max_keys}\r\n", 0)
         data = sock.recv(4096)
-        break if !data || data.length == 0 || data == "END\r\n"
+        break if !data || data.length == 0 || data == "END\r\n" || data == "ERROR\r\n"
         matches = data.scan(/^ITEM (?<key>.*) \[/)
-        keys = keys + matches.flatten! if matches
+        break if matches.empty?
+        keys = keys + matches.flatten!
         break if data =~ /^END/
       end
     end
@@ -86,9 +87,10 @@ class MetasploitModule < Msf::Auxiliary
     sock.send("lru_crawler metadump all\r\n", 0)
     loop do
       data = sock.recv(4096)
-      break if !data || data.length == 0 || data == "END\r\n"
+      break if !data || data.length == 0 || data == "END\r\n" || data == "ERROR\r\n"
       matches = data.scan(/^key=(?<key>.*) exp=/)
-      keys = keys + matches.flatten! if matches
+      break if matches.empty?
+      keys = keys + matches.flatten!
       break if data =~ /^END/
       data = ''
     end

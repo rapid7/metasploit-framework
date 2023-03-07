@@ -13,7 +13,7 @@ module Metasploit
       #
       class SSH
         include Metasploit::Framework::LoginScanner::Base
-
+        include Msf::Exploit::Remote::SSH
         #
         # CONSTANTS
         #
@@ -52,16 +52,10 @@ module Metasploit
         # @note The caller *must* close {#ssh_socket}
         def attempt_login(credential)
           self.ssh_socket = nil
-          factory = Rex::Socket::SSHFactory.new(framework,framework_module, proxies)
-          opt_hash = {
+          opt_hash = ssh_client_defaults.merge({
             :port            => port,
-            :use_agent       => false,
-            :config          => false,
-            :verbose         => verbosity,
-            :proxy           => factory,
-            :non_interactive => true,
-            :verify_host_key => :never
-          }
+            :verbose         => verbosity
+          })
           case credential.private_type
           when :password, nil
             opt_hash.update(
@@ -86,15 +80,23 @@ module Metasploit
                 opt_hash
               )
             end
-          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error, Errno::ECONNRESET => e
+          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error, Errno::ECONNRESET, Errno::EPIPE => e
             result_options.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
-          rescue Net::SSH::Exception
-            result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: e)
+          rescue Net::SSH::Exception => e
+            status = Metasploit::Model::Login::Status::INCORRECT
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT if e.message.split("\n").first == 'could not settle on kex algorithm'
+
+            result_options.merge!(status: status, proof: e)
           end
 
           unless result_options.has_key? :status
             if ssh_socket
-              proof = gather_proof unless skip_gather_proof
+              begin
+                proof = gather_proof unless skip_gather_proof
+              rescue StandardError => e
+                elog('Failed to gather SSH proof', error: e)
+                proof = nil
+              end
               result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
             else
               result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: nil)

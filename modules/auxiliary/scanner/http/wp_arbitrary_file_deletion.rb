@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
             ['WPVDB', '9100'],
             ['EDB', '44949'],
             ['PACKETSTORM', '148333'],
-            ['URL', 'https://blog.ripstech.com/2018/wordpress-file-delete-to-code-execution/'],
+            ['URL', 'https://blog.sonarsource.com/wordpress-file-delete-to-code-execution/'],
             ['URL', 'https://blog.vulnspy.com/2018/06/27/Wordpress-4-9-6-Arbitrary-File-Delection-Vulnerbility-Exploit/']
           ],
       'Privileged'     => false,

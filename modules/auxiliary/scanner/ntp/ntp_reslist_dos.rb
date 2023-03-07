@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
-          ['URL', 'http://r-7.co/R7-2014-12']
+          ['URL', 'https://www.rapid7.com/blog/post/2014/08/25/r7-2014-12-more-amplification-vulnerabilities-in-ntp-allow-even-more-drdos-attacks/']
         ],
       'DisclosureDate' => 'Aug 25 2014',
       'License'        => MSF_LICENSE

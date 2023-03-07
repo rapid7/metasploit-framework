@@ -39,7 +39,6 @@ metadata = {
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'cve', 'ref': '2018-15727'},
-        {'type': 'url', 'ref': 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15727'},
         {'type': 'url', 'ref': 'https://grafana.com/blog/2018/08/29/grafana-5.2.3-and-4.6.4-released-with-important-security-fix/'}
     ],
     'type': 'single_scanner',
@@ -87,7 +86,7 @@ def decrypt_version5(cookie):
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
     aesgcm = AESGCM(key)
     nonce = binascii.unhexlify(cookie[:24])
-    ct = binascii.unhexlify(cookie[24:len(cookie)])
+    ct = binascii.unhexlify(cookie[24:])
     username = str(aesgcm.decrypt(nonce, ct, None), 'ascii')
     return username
 
@@ -98,7 +97,7 @@ def decrypt_version4(cookie):
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
     aesgcm = AESGCM(key)
     nonce = binascii.unhexlify(cookie[:24])
-    ct = binascii.unhexlify(cookie[24:len(cookie)])
+    ct = binascii.unhexlify(cookie[24:])
     username = str(aesgcm.decrypt(nonce, ct, None), 'ascii')
     return username
 

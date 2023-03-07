@@ -342,7 +342,7 @@ module Msf::Sessions
       begin
         completed_event.wait(timeout)
         true
-      rescue TimeoutError
+      rescue ::Timeout::Error
         false
       end
     end

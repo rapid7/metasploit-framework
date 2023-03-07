@@ -16,12 +16,13 @@ RSpec::Matchers.define :have_datastore_values do |expected|
   end
 
   def http_options_for(datastores)
-    http_keys = %w[RHOSTS RPORT VHOST SSL HttpUsername HttpPassword TARGETURI URI]
+    dynamic_keys = %w[RHOSTNAME]
+    http_keys = %w[RHOSTS RPORT VHOST SSL HttpUsername HttpPassword HttpQueryString TARGETURI URI]
     smb_keys = %w[RHOSTS RPORT SMBDomain SMBUser SMBPass SMBSHARE RPATH]
     mysql_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
     postgres_keys = %w[RHOSTS RPORT USERNAME PASSWORD DATABASE]
     ssh_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
-    required_keys = http_keys + smb_keys + mysql_keys + postgres_keys + ssh_keys
+    required_keys = dynamic_keys + http_keys + smb_keys + mysql_keys + postgres_keys + ssh_keys
     datastores.map do |datastore|
       # Workaround: Manually convert the datastore to a hash ourselves as `datastore.to_h` coerces all datatypes into strings
       # which prevents this test suite from validating types correctly. i.e. The tests need to ensure that RPORT is correctly
@@ -99,7 +100,43 @@ RSpec.describe Msf::RhostsWalker do
           [
             Msf::Opt::RHOSTS,
             Msf::Opt::RPORT(3000),
-            Msf::OptString.new('TARGETURI', [true, 'Path to application', '/default_app'])
+            Msf::OptString.new('TARGETURI', [true, 'Path to application', '/default_app']),
+          ]
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:http_mod_with_query_string) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Exploit::Remote::HttpClient
+
+      def initialize
+        super(
+          'Name' => 'mock http module',
+          'Description' => 'mock http module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options(
+          [
+            Msf::Opt::RHOSTS,
+            Msf::Opt::RPORT(3000),
+            Msf::OptString.new('TARGETURI', [true, 'Path to application', '/default_app']),
+          ]
+        )
+
+        register_advanced_options(
+          [
+            Msf::OptString.new('HttpQueryString', [ false, 'The HTTP query string', nil ])
           ]
         )
       end
@@ -232,6 +269,32 @@ RSpec.describe Msf::RhostsWalker do
         register_options(
           [
             Msf::OptString.new('SMBSHARE', [true, 'Target share', 'default_share_value']),
+          ]
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:kerberos_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      def initialize
+        super(
+          'Name' => 'mock kerberos module',
+          'Description' => 'mock kerberos module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options(
+          [
+            Msf::OptString.new('RHOSTNAME', [false, 'The dns rhost name, required for kerberos']),
           ]
         )
       end
@@ -397,7 +460,7 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates RHOSTS with a single ip' do
       aux_mod.datastore['RHOSTS'] = '127.0.0.1'
       expected = [
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 }
       ]
       expect(each_host_for(aux_mod)).to have_datastore_values(expected)
     end
@@ -405,9 +468,9 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates multiple RHOSTS separated by spaces' do
       aux_mod.datastore['RHOSTS'] = '127.0.0.1 127.0.0.2 127.0.0.3'
       expected = [
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 },
-        { 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000 },
-        { 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000 },
       ]
       expect(each_host_for(aux_mod)).to have_datastore_values(expected)
     end
@@ -415,10 +478,10 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a single ipv4 address range' do
       aux_mod.datastore['RHOSTS'] = '127.0.0.0/30'
       expected = [
-        { 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000 },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 },
-        { 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000 },
-        { 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000 }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000 }
       ]
       expect(each_host_for(aux_mod)).to have_datastore_values(expected)
     end
@@ -427,8 +490,8 @@ RSpec.describe Msf::RhostsWalker do
       temp_file = create_tempfile("127.0.0.0\n127.0.0.1")
       aux_mod.datastore['RHOSTS'] = "file:#{temp_file}"
       expected = [
-        { 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000 },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000 },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000 },
       ]
       expect(each_host_for(aux_mod)).to have_datastore_values(expected)
     end
@@ -436,7 +499,7 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a single http value' do
       http_mod.datastore['RHOSTS'] = 'http://www.example.com/foo'
       expected = [
-        { 'RHOSTS' => '233.252.0.0', 'RPORT' => 80, 'VHOST' => 'www.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+        { 'RHOSTNAME' => 'www.example.com', 'RHOSTS' => '233.252.0.0', 'RPORT' => 80, 'VHOST' => 'www.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -445,8 +508,8 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates resolving a single http value to multiple ip addresses' do
       http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo'
       expected = [
-        { 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -465,10 +528,10 @@ RSpec.describe Msf::RhostsWalker do
       )
       http_mod.datastore['RHOSTS'] = 'http://example.com/ http://user@example.com/ http://user:password@example.com http://:@example.com'
       expected = [
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'admin', 'HttpPassword' => 'admin', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'admin', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'admin', 'HttpPassword' => 'admin', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'admin', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -477,19 +540,31 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a query string containing commas' do
       http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo?filter=a,b,c'
       expected = [
-        { 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
       ]
+
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
+    end
+
+    it 'enumerates a query string containing commas and sets HttpQueryString if the datastore option is available' do
+      http_mod_with_query_string.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo?filter=a,b,c'
+      expected = [
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo', 'HttpQueryString' => 'filter=a,b,c' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo', 'HttpQueryString' => 'filter=a,b,c' },
+      ]
+
+      expect(each_host_for(http_mod_with_query_string)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod_with_query_string)).to be_empty
     end
 
     it 'handles values wrapped in quotes as atomic values' do
       http_mod.datastore['RHOSTS'] = '127.0.0.1 "http://user:this is a password@example.com" http://user:password@example.com'
       expected = [
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'this is a password', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'this is a password', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -508,12 +583,12 @@ RSpec.describe Msf::RhostsWalker do
       )
       http_mod.datastore['RHOSTS'] = '127.0.0.1 https://example.com "http://user:this is a password@example.com" http://user:password@example.com http://user:password@example.com/ http://user:password@example.com/path'
       expected = [
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => 'admin', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 443, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => 'admin', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'this is a password', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/path' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => 'admin', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 443, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => 'admin', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'this is a password', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/path' }
       ]
 
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
@@ -534,23 +609,48 @@ RSpec.describe Msf::RhostsWalker do
 
       http_mod.datastore['RHOSTS'] = 'http://example.com/ http://example.com/ http://user@example.com/ http://user:password@example.com http://:@example.com'
       expected = [
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => nil, 'HttpPassword' => nil, 'TARGETURI' => '/' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => nil, 'HttpPassword' => nil, 'TARGETURI' => '/' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => nil, 'TARGETURI' => '/' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => nil, 'HttpPassword' => nil, 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => nil, 'HttpPassword' => nil, 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => nil, 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
     end
 
+    it 'allows the user to specify a rhostname' do
+      kerberos_mod.datastore['RHOSTS'] = '192.0.2.2'
+      kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
+
+      expected = [
+        { "RHOSTNAME"=> 'example.com', "RHOSTS"=>"192.0.2.2" }
+      ]
+
+      expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
+      expect(each_error_for(kerberos_mod)).to be_empty
+    end
+
+    it 'preserves a RHOSTNAME even if RHOSTS resolved with a hostname' do
+      kerberos_mod.datastore['RHOSTS'] = 'multiple_ips.example.com'
+      kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
+
+      expected = [
+        {"RHOSTNAME"=> "example.com", "RHOSTS"=>"198.51.100.1"},
+        {"RHOSTNAME"=> "example.com", "RHOSTS"=>"203.0.113.1"}
+      ]
+
+      expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
+      expect(each_error_for(kerberos_mod)).to be_empty
+    end
+
     it 'enumerates a cidr scheme with a single http value' do
       http_mod.datastore['RHOSTS'] = 'cidr:/30:http://127.0.0.1:3000/foo/bar'
       expected = [
-        { 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
-        { 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
-        { 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -559,10 +659,10 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a cidr scheme with a domain' do
       http_mod.datastore['RHOSTS'] = 'cidr:/30:https://example.com:8080/foo/bar'
       expected = [
-        { 'RHOSTS' => '192.0.2.0', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
-        { 'RHOSTS' => '192.0.2.1', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
-        { 'RHOSTS' => '192.0.2.3', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' }
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.0', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.1', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.3', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -571,14 +671,14 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a cidr scheme with a domain with multiple ip addresses' do
       http_mod.datastore['RHOSTS'] = 'cidr:/30:http://multiple_ips.example.com/foo'
       expected = [
-        { 'RHOSTS' => '198.51.100.0', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.2', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.3', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.0', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.2', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.3', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.0', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.2', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.3', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.0', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.2', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.3', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -588,8 +688,8 @@ RSpec.describe Msf::RhostsWalker do
       temp_file = create_tempfile("https://www.example.com/\n127.0.0.1")
       http_mod.datastore['RHOSTS'] = "file:#{temp_file}"
       expected = [
-        { 'RHOSTS' => '233.252.0.0', 'RPORT' => 443, 'VHOST' => 'www.example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
+        { 'RHOSTNAME' => 'www.example.com', 'RHOSTS' => '233.252.0.0', 'RPORT' => 443, 'VHOST' => 'www.example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -599,14 +699,14 @@ RSpec.describe Msf::RhostsWalker do
       temp_file = create_tempfile("127.0.0.1\n233.252.0.0")
       http_mod.datastore['RHOSTS'] = "cidr:/30:file:#{temp_file}"
       expected = [
-        { 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -615,15 +715,16 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a cidr scheme with a file' do
       temp_file = create_tempfile("127.0.0.1\n233.252.0.0")
       http_mod.datastore['RHOSTS'] = "cidr:/30:file:#{temp_file}"
+
       expected = [
-        { 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '233.252.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.2', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '233.252.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -632,9 +733,9 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates multiple ipv6 urls' do
       http_mod.datastore['RHOSTS'] = 'http://[::]:8000/ http://[::ffff:7f00:1]:8000/ http://[::1]:8000/'
       expected = [
-        { 'RHOSTS' => '::', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::ffff:7f00:1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::ffff:7f00:1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -644,12 +745,12 @@ RSpec.describe Msf::RhostsWalker do
       temp_file = create_tempfile("http://[::]:8000/\nhttp://[::ffff:7f00:1]:8000/\nhttp://[::1]:8000/")
       http_mod.datastore['RHOSTS'] = "cidr:/127:file:#{temp_file}"
       expected = [
-        { 'RHOSTS' => '::', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::ffff:7f00:0', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::ffff:7f00:1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::ffff:7f00:0', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::ffff:7f00:1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -658,8 +759,8 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates cidr scheme with a ipv6 scope' do
       http_mod.datastore['RHOSTS'] = 'cidr:%eth2/127:http://[::]:8000/'
       expected = [
-        { 'RHOSTS' => '::%eth2', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '::1%eth2', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::%eth2', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '::1%eth2', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -669,7 +770,7 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates smb schemes for scanners when no user or password are specified' do
         smb_scanner_mod.datastore['RHOSTS'] = 'smb://example.com/'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => '', 'SMBPass' => '' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => '', 'SMBPass' => '' }
         ]
         expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
       end
@@ -678,8 +779,8 @@ RSpec.describe Msf::RhostsWalker do
         smb_scanner_mod.datastore.import_options(
           Msf::OptionContainer.new(
             [
-              Msf::OptString.new('SMBUser', [true, 'The username to authenticate as', 'db2admin']),
-              Msf::OptString.new('SMBPass', [true, 'The password for the specified username', 'db2admin'])
+              Msf::OptString.new('SMBUser', [true, 'The username to authenticate as', 'db2admin'], fallbacks: ['USERNAME']),
+              Msf::OptString.new('SMBPass', [true, 'The password for the specified username', 'db2admin'], fallbacks: ['PASSWORD']),
             ]
           ),
           smb_scanner_mod.class,
@@ -687,10 +788,10 @@ RSpec.describe Msf::RhostsWalker do
         )
         smb_scanner_mod.datastore['RHOSTS'] = 'smb://example.com/ smb://user@example.com/ smb://user:password@example.com smb://:@example.com'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'db2admin', 'SMBPass' => 'db2admin' },
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => 'db2admin' },
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => 'password' },
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => '', 'SMBPass' => '' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'db2admin', 'SMBPass' => 'db2admin' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => 'db2admin' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => 'password' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => '', 'SMBPass' => '' }
         ]
         expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
       end
@@ -698,7 +799,7 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates smb schemes for scanners when a user and password are specified' do
         smb_scanner_mod.datastore['RHOSTS'] = 'smb://user:pass@example.com/'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
         ]
         expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
       end
@@ -706,7 +807,7 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates smb schemes for scanners when a domain, user and password are specified' do
         smb_scanner_mod.datastore['RHOSTS'] = 'smb://domain;user:pass@example.com/'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => 'domain', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => 'domain', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
         ]
         expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
       end
@@ -714,7 +815,7 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates smb schemes for ' do
         smb_scanner_mod.datastore['RHOSTS'] = 'smb://domain;user:pass@example.com/'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => 'domain', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => 'domain', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
         ]
         expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
       end
@@ -722,10 +823,10 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates smb schemes for when the module has SMBSHARE and RPATHS available' do
         smb_share_mod.datastore['RHOSTS'] = 'smb://user@example.com smb://user@example.com/ smb://user@example.com/share_name smb://user@example.com/share_name/path/to/file.txt'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'default_share_value', 'RPATH' => nil },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'default_share_value', 'RPATH' => nil },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'share_name', 'RPATH' => '' },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'share_name', 'RPATH' => 'path/to/file.txt' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'default_share_value', 'RPATH' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'default_share_value', 'RPATH' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'share_name', 'RPATH' => '' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => '', 'SMBSHARE' => 'share_name', 'RPATH' => 'path/to/file.txt' }
         ]
         expect(each_host_for(smb_share_mod)).to have_datastore_values(expected)
       end
@@ -742,7 +843,7 @@ RSpec.describe Msf::RhostsWalker do
       it 'handles complex passwords' do
         http_mod.datastore['RHOSTS'] = '"http://user:a b c p4$$w0rd@123@!@example.com/"'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'a b c p4$$w0rd@123@!', 'TARGETURI' => '/' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'a b c p4$$w0rd@123@!', 'TARGETURI' => '/' }
         ]
         expect(each_error_for(http_mod)).to be_empty
         expect(each_host_for(http_mod)).to have_datastore_values(expected)
@@ -753,9 +854,9 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates mysql schemes' do
         mysql_mod.datastore['RHOSTS'] = 'mysql://mysql:@example.com "mysql://user:a b c@example.com/" "mysql://user:a+b+c=@example.com:9001/database_name"'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'mysql', 'PASSWORD' => '', 'DATABASE' => 'information_schema' },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'information_schema' },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a+b+c=', 'DATABASE' => 'database_name' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'mysql', 'PASSWORD' => '', 'DATABASE' => 'information_schema' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'information_schema' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a+b+c=', 'DATABASE' => 'database_name' }
         ]
         expect(each_error_for(mysql_mod)).to be_empty
         expect(each_host_for(mysql_mod)).to have_datastore_values(expected)
@@ -766,9 +867,9 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates postgres schemes' do
         postgres_mod.datastore['RHOSTS'] = 'postgres://postgres:@example.com "postgres://user:a b c@example.com/" "postgres://user:a b c@example.com:9001/database_name"'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
         ]
         expect(each_error_for(postgres_mod)).to be_empty
         expect(each_host_for(postgres_mod)).to have_datastore_values(expected)
@@ -779,8 +880,8 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates tcp schemes' do
         ssh_mod.datastore['RHOSTS'] = '"tcp://user:a b c@example.com" "tcp://example.com:3000"'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 22, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' },
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3000, 'USERNAME' => nil, 'PASSWORD' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 22, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 3000, 'USERNAME' => nil, 'PASSWORD' => nil },
         ]
         expect(each_error_for(ssh_mod)).to be_empty
         expect(each_host_for(ssh_mod)).to have_datastore_values(expected)
@@ -791,7 +892,7 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates ssh schemes' do
         ssh_mod.datastore['RHOSTS'] = '"ssh://user:a b c@example.com/"'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 22, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 22, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' }
         ]
         expect(each_error_for(ssh_mod)).to be_empty
         expect(each_host_for(ssh_mod)).to have_datastore_values(expected)
@@ -804,25 +905,25 @@ RSpec.describe Msf::RhostsWalker do
       temp_file_b = create_tempfile("https://www.example.com/\n127.0.0.1\ncidr:/31:http://127.0.0.1/tomcat/manager\nfile:#{temp_file_a}")
       http_mod.datastore['RHOSTS'] = "127.0.0.1 cidr:/31:http://192.0.2.0/tomcat/manager https://192.0.2.0:8080/manager/html file:#{temp_file_b}"
       expected = [
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.0', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
-        { 'RHOSTS' => '192.0.2.1', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
-        { 'RHOSTS' => '192.0.2.0', 'RPORT' => 8080, 'VHOST' => nil, 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/manager/html' },
-        { 'RHOSTS' => '233.252.0.0', 'RPORT' => 443, 'VHOST' => 'www.example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.0', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
-        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
-        { 'RHOSTS' => '192.0.2.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '127.0.0.5', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
-        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 9000, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.0', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.1', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.2', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '198.51.100.3', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.0', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.1', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.2', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
-        { 'RHOSTS' => '203.0.113.3', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' }
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '192.0.2.0', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '192.0.2.1', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '192.0.2.0', 'RPORT' => 8080, 'VHOST' => nil, 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/manager/html' },
+        { 'RHOSTNAME' => 'www.example.com', 'RHOSTS' => '233.252.0.0', 'RPORT' => 443, 'VHOST' => 'www.example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.0', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '192.0.2.0', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => nil, 'RHOSTS' => '127.0.0.5', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 9000, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.0', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.2', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.3', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.0', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.2', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.3', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' }
       ]
 
       expect(each_error_for(http_mod)).to be_empty

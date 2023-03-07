@@ -25,7 +25,7 @@ module MetasploitModule
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::Pingback
     ))
-    def generate_stage
+    def generate(opts={})
       # 22 -> "0x00,0x16"
       # 4444 -> "0x11,0x5c"
       encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first

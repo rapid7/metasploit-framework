@@ -6,6 +6,7 @@ This module allows you to collect login information for PureVPN client, specific
 
 Versions before 6.0 should be vulnerable. For testing purposes, you may find the vulnerable version here:
 
+Download links are provided for reference only and are not maintained by the project. Utilize at your own risk!
 * [https://jumpshare.com/v/LZcpUqJcThY1v7WlH95m](https://jumpshare.com/v/LZcpUqJcThY1v7WlH95m)
 * [https://s3.amazonaws.com/purevpn-dialer-assets/windows/app/purevpn_setup.exe](https://s3.amazonaws.com/purevpn-dialer-assets/windows/app/purevpn_setup.exe)
 

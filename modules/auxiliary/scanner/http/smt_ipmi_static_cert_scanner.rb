@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2013-3619' ],
-          [ 'URL', 'https://blog.rapid7.com/2013/11/06/supermicro-ipmi-firmware-vulnerabilities']
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/']
         ],
       'DisclosureDate' => 'Nov 06 2013'
     )
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if result
       print_good("#{ip}:#{rport} - Vulnerable to CVE-2013-3619 (Static SSL Certificate)")
-      # Report with the the SSL Private Key hash for the host
+      # Report with the SSL Private Key hash for the host
       digest = OpenSSL::Digest::SHA1.new(pkey.public_key.to_der).to_s.scan(/../).join(":")
       report_note(
         :host  => ip,

@@ -27,15 +27,24 @@ class MetasploitModule < Msf::Auxiliary
         },
         'References' => [
           %w[CVE 2018-13379],
-          ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
           %w[EDB 47287],
-          %w[EDB 47288]
+          %w[EDB 47288],
+          ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
+          ['URL', 'https://i.blackhat.com/USA-19/Wednesday/us-19-Tsai-Infiltrating-Corporate-Intranet-Like-NSA.pdf'],
+          ['URL', 'https://devco.re/blog/2019/08/09/attacking-ssl-vpn-part-2-breaking-the-Fortigate-ssl-vpn/']
         ],
         'Author' => [
+          'Meh Chang', # discovery and PoC
+          'Orange Tsai', # discovery and PoC
           'lynx (Carlos Vieira)', # initial module author from edb
           'mekhalleh (RAMELLA Sébastien)' # Metasploit module author (Zeop Entreprise)
         ],
         'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
         'DefaultOptions' => {
           'RPORT' => 10_443,
           'SSL' => true

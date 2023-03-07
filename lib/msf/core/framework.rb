@@ -62,6 +62,9 @@ class Framework
     # Allow specific module types to be loaded
     types = options[:module_types] || Msf::MODULE_TYPES
 
+    self.features = FeatureManager.instance
+    self.features.load_config
+
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
@@ -69,7 +72,6 @@ class Framework
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
-    self.features = FeatureManager.instance
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
@@ -246,7 +248,7 @@ class Framework
     )
     return true unless ::File.exist?(path)
 
-    data = ::File.read(path)
+    data = ::File.read(path, mode: 'rb')
     return true unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
 
     false
@@ -537,4 +539,3 @@ class FrameworkEventSubscriber
 
 end
 end
-

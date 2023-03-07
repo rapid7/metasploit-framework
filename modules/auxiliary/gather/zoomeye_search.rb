@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           'Grant Willcox' # Additional fixes to refine searches, improve quality of info saved and improve error handling.
         ],
         'References' => [
-          ['URL', 'https://github.com/zoomeye/SDK'],
+          ['URL', 'https://github.com/knownsec/ZoomEye-python'],
           ['URL', 'https://www.zoomeye.org/api/doc'],
           ['URL', 'https://www.zoomeye.org/help/manual']
         ],

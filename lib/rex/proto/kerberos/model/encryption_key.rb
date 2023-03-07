@@ -15,11 +15,16 @@ module Rex
           #   @return [String] the key itself
           attr_accessor :value
 
+          def ==(other)
+            type == other.type &&
+              value == other.value
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::EncryptionKey
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -27,7 +32,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode EncryptionKey, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode EncryptionKey, invalid input'
             end
 
             self
