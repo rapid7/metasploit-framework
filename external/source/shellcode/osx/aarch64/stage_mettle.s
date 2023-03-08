@@ -74,9 +74,9 @@ _main:
     mov x15, x0
     
     /* make stack space */
-    /* mmap(addr=0, length=0x4000, prot=3, flags=0x1002, fd=0, offset=0) */
+    /* mmap(addr=0, length=0x40000, prot=3, flags=0x1002, fd=0, offset=0) */
     mov x0, xzr
-    mov x1, 0x4000
+    mov x1, 0x40000
     mov x2, 3
     mov x3, 0x1002
     mov x4, xzr
@@ -86,13 +86,13 @@ _main:
     //mov x1, sp
     //bic sp, x1, #15
     //sub sp, sp, 0x1000
-    add x0, x0, 0x2000
+    add x0, x0, 0x20000
     mov sp, x0
 
     mov x0, x13
 
     /* jump to main_osx */
-    blr x15
+    br x15
 
 failed:
     mov    x0, 0

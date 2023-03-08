@@ -59,11 +59,11 @@ class Msf::Payload::MachO
     code_signature_index = @macho[:LC_CODE_SIGNATURE][0].dataoff
     code_signature = raw_data[code_signature_index..]
     s_magic, s_length, s_count, code_indexes = code_signature.unpack("N3a*")
-    raise "Invalid Magic!" if s_magic != 0xfade0cc0
+    raise "Invalid kSecCodeMagicEmbeddedSignature magic for macho" if s_magic != 0xfade0cc0
     indexes = code_indexes.unpack("N#{s_count*2}a*")
     code_directory = indexes.pop
     magic, length, version, flags, hash_offset, ident_offset, n_special_slots, n_code_slots, code_limit, hash_size, hash_type, platform, page_size, spare2, hash_list = code_directory.unpack("N9C4Na*")
-    raise "Invalid Magic2!" if magic != 0xfade0c02
+    raise "Invalid kSecCodeMagicCodeDirectory magic for macho" if magic != 0xfade0c02
     pagesize = 2**page_size
     page_index = 0
     raw_data.bytes.each_slice(pagesize) do |page|

