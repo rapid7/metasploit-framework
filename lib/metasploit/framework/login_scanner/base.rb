@@ -45,6 +45,20 @@ module Metasploit
           # @!attribute bruteforce_speed
           #   @return [Integer] The desired speed, with 5 being 'fast' and 0 being 'slow.'
           attr_accessor :bruteforce_speed
+          # @!attribute max_consecutive_error_count
+          #   @return [Integer] Maximum consecutive errors allowed
+          attr_accessor :max_consecutive_error_count
+          # @!attribute max_error_count
+          #   @return [Integer] Maximum errors allowed
+          attr_accessor :max_error_count
+
+          validates :max_consecutive_error_count,
+                    presence: true,
+                    numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 1,
+                      less_than_or_equal_to:    :max_error_count
+                    }
 
           validates :connection_timeout,
                     presence: true,
@@ -247,8 +261,8 @@ module Metasploit
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1
                   total_error_count += 1
-                  break if consecutive_error_count >= 3
-                  break if total_error_count >= 10
+                  break if consecutive_error_count >= max_consecutive_error_count
+                  break if total_error_count >= max_error_count
                 end
               end
             end
@@ -297,6 +311,8 @@ module Metasploit
           # @return [void]
           def set_sane_defaults
             self.connection_timeout = 30 if self.connection_timeout.nil?
+            self.max_consecutive_error_count = 3 if self.max_consecutive_error_count.nil?
+            self.max_error_count = 10 if self.max_error_count.nil?
           end
 
           # This method validates that the credentials supplied
