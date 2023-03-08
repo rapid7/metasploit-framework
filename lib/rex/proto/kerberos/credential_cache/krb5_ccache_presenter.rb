@@ -99,14 +99,14 @@ module Rex::Proto::Kerberos::CredentialCache
         output << 'Cipher:'.indent(4)
         output << Base64.strict_encode64(ticket.enc_part.cipher).indent(6)
       else
-        output << "Decrypted (with key: #{key.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join}):".indent(4)
+        output << "Decrypted (with key: #{key.bytes.map { |x| x.to_s(16).rjust(2, '0').to_s }.join}):".indent(4)
         output << present_encrypted_ticket_part(ticket, key).indent(6)
       end
 
       output.join("\n")
     end
 
-    # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInfo] logon_info
+    # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInformation] logon_info
     # @return [String] A human readable representation of a Logon Information
     def present_logon_info(logon_info)
       validation_info = logon_info.data
@@ -133,12 +133,13 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "Last Failed Interactive Logon: #{present_ndr_file_time(validation_info.last_failed_i_logon)}".indent(2)
       output << "Failed Interactive Logon Count: #{validation_info.failed_i_logon_count}".indent(2)
 
-      output << "SID Count: #{validation_info.sid_count}".indent(2)
+      output << "Extra SID Count: #{validation_info.sid_count}".indent(2)
+      output << validation_info.extra_sids.map { |extra_sid| "SID: #{extra_sid.sid}, Attributes: #{extra_sid.attributes}".indent(4) } if validation_info.extra_sids.any?
       output << "Resource Group Count: #{validation_info.resource_group_count}".indent(2)
 
       output << "Group Count: #{validation_info.group_count}".indent(2)
       output << 'Group IDs:'.indent(2)
-      output << validation_info.group_memberships.map { |group| "Relative ID: #{group.relative_id}, Attributes: #{group.attributes}".indent(4) }
+      output << validation_info.group_memberships.map { |group| "Relative ID: #{group.relative_id}, Attributes: #{group.attributes}".indent(4) } if validation_info.group_memberships.any?
 
       output << "Logon Domain ID: #{validation_info.logon_domain_id}".indent(2)
 
@@ -164,20 +165,49 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
+    # @param [String] header
+    # @param [String] signature
+    # @return [String] A human readable representation of a Checksum
+    def present_checksum(header:, signature:)
+      sig = signature.bytes.map { |x| x.to_s(16).rjust(2, '0').to_s }.join
+      "#{header}\n" +
+        "Signature: #{sig}".indent(2)
+    end
+
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacServerChecksum] server_checksum
     # @return [String] A human readable representation of a Server Checksum
     def present_server_checksum(server_checksum)
-      sig = server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
-      "Pac Server Checksum:\n" +
-        "Signature: #{sig}".indent(2)
+      signature = server_checksum.signature
+      header = 'Pac Server Checksum:'
+
+      present_checksum(header: header, signature: signature)
     end
 
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacPrivServerChecksum] priv_server_checksum
     # @return [String] A human readable representation of a Privilege Server Checksum
     def present_priv_server_checksum(priv_server_checksum)
-      sig = priv_server_checksum.signature.bytes.map { |x| "#{x.to_s(16).rjust(2, '0')}" }.join
-      "Pac Privilege Server Checksum:\n" +
-        "Signature: #{sig}".indent(2)
+      signature = priv_server_checksum.signature
+      header = 'Pac Privilege Server Checksum:'
+
+      present_checksum(header: header, signature: signature)
+    end
+
+    # @param [Rex::Proto::Kerberos::Pac::Krb5TicketChecksum] ticket_checksum
+    # @return [String] A human readable representation of a Ticket Checksum
+    def present_ticket_checksum(ticket_checksum)
+      signature = ticket_checksum.signature
+      header = 'Ticket Checksum:'
+
+      present_checksum(header: header, signature: signature)
+    end
+
+    # @param [Rex::Proto::Kerberos::Pac::Krb5FullPacChecksum] full_pac_checksum
+    # @return [String] A human readable representation of a Full Pac Checksum
+    def present_full_pac_checksum(full_pac_checksum)
+      signature = full_pac_checksum.signature
+      header = 'Full Pac Checksum:'
+
+      present_checksum(header: header, signature: signature)
     end
 
     # @param [Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo] upn_and_dns_info
@@ -213,11 +243,15 @@ module Rex::Proto::Kerberos::CredentialCache
         present_priv_server_checksum(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
         present_upn_and_dns_information(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::TICKET_CHECKSUM
+        present_ticket_checksum(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::FULL_PAC_CHECKSUM
+        present_full_pac_checksum(pac_element)
       else
         ul_type_name = Rex::Proto::Kerberos::Pac::Krb5PacElementType.const_name(ul_type)
         ul_type_name = ul_type_name.gsub('_', ' ').capitalize if ul_type_name
         "#{ul_type_name || "Unknown ul type #{ul_type}"}:\n" +
-          "#{info_buffer.to_s}".indent(2)
+          info_buffer.to_s.indent(2)
       end
     end
 
@@ -248,7 +282,7 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "Client Name: '#{ticket_enc_part.cname}'"
       output << "Client Realm: '#{ticket_enc_part.crealm}'"
       output << "Ticket etype: #{ticket_enc_part.key.type} (#{Rex::Proto::Kerberos::Crypto::Encryption.const_name(ticket_enc_part.key.type)})"
-      output << "Encryption Key: #{ticket_enc_part.key.value.unpack1('H*')}"
+      output << "Session Key: #{ticket_enc_part.key.value.unpack1('H*')}"
       output << "Flags: 0x#{ticket_enc_part.flags.to_i.to_s(16).rjust(8, '0')} (#{ticket_enc_part.flags.enabled_flag_names.join(', ')})"
 
       auth_data_data = ticket_enc_part.authorization_data.elements.first[:data]
@@ -276,7 +310,7 @@ module Rex::Proto::Kerberos::CredentialCache
     # @param [Rex::Proto::Kerberos::Pac::UserSessionKey] user_session_key
     # @return [String] A human readable representation of a User Session Key
     def present_user_session_key(user_session_key)
-      user_session_key.session_key.flat_map(&:data).map { |x| "#{x.to_i.to_s(16).rjust(2, '0')}" }.join
+      user_session_key.session_key.flat_map(&:data).map { |x| x.to_i.to_s(16).rjust(2, '0').to_s }.join
     end
 
     # @param [RubySMB::Dcerpc::Ndr::NdrFileTime] time

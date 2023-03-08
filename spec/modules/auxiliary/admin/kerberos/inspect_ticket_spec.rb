@@ -497,7 +497,7 @@ RSpec.describe 'kerberos inspect ticket' do
                 Client Name: 'Administrator'
                 Client Realm: 'WINDOMAIN.LOCAL'
                 Ticket etype: 18 (AES256)
-                Encryption Key: 3031363031303130376565306436383863393961393338383633346165303431
+                Session Key: 3031363031303130376565306436383863393961393338383633346165303431
                 Flags: 0x50a00000 (FORWARDABLE, PROXIABLE, RENEWABLE, PRE_AUTHENT)
                 PAC:
                   Validation Info:
@@ -518,7 +518,7 @@ RSpec.describe 'kerberos inspect ticket' do
                     Last Successful Interactive Logon: No Time Set (0)
                     Last Failed Interactive Logon: No Time Set (0)
                     Failed Interactive Logon Count: 0
-                    SID Count: 0
+                    Extra SID Count: 0
                     Resource Group Count: 0
                     Group Count: 5
                     Group IDs:
@@ -623,7 +623,7 @@ RSpec.describe 'kerberos inspect ticket' do
                 Client Name: 'Administrator'
                 Client Realm: 'WINDOMAIN.LOCAL'
                 Ticket etype: 23 (RC4_HMAC)
-                Encryption Key: 66383738646463363738633761643766
+                Session Key: 66383738646463363738633761643766
                 Flags: 0x50a00000 (FORWARDABLE, PROXIABLE, RENEWABLE, PRE_AUTHENT)
                 PAC:
                   Validation Info:
@@ -644,7 +644,7 @@ RSpec.describe 'kerberos inspect ticket' do
                     Last Successful Interactive Logon: No Time Set (0)
                     Last Failed Interactive Logon: No Time Set (0)
                     Failed Interactive Logon Count: 0
-                    SID Count: 0
+                    Extra SID Count: 0
                     Resource Group Count: 0
                     Group Count: 5
                     Group IDs:
