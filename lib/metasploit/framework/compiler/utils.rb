@@ -17,6 +17,7 @@ module Metasploit
               line
             end
           }.join
+
           code
         end
 
