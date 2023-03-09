@@ -317,9 +317,7 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
-    output << "\n"
+    output << dump_description(mod, indent)
 
     # References
     output << dump_references(mod, indent)
@@ -373,9 +371,7 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
-    output << "\n"
+    output << dump_description(mod, indent)
 
     # References
     output << dump_references(mod, indent)
@@ -433,9 +429,7 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
-    output << "\n"
+    output << dump_description(mod, indent)
 
     # References
     output << dump_references(mod, indent)
@@ -482,9 +476,7 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
-    output << "\n"
+    output << dump_description(mod, indent)
 
     # References
     output << dump_references(mod, indent)
@@ -524,9 +516,8 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
-    output << "\n\n"
+    output << dump_description(mod, indent)
+    output << "\n"
 
     return output
   end
@@ -556,9 +547,7 @@ class ReadableText
     output << dump_traits(mod)
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
-    output << "\n"
+    output << dump_description(mod, indent)
 
     output << dump_references(mod, indent)
 
@@ -1141,17 +1130,44 @@ class ReadableText
     return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
   end
 
-  # Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
-  # a bit to add indention
+  # Dumps the module description
   #
-  # @param str [String] the string to wrap.
-  # @param indent [Integer] the indentation amount.
-  # @param col [Integer] the column wrap width.
-  # @return [String] the wrapped string.
-  def self.word_wrap(str, indent = DefaultIndent, col = DefaultColumnWrap)
-    return Rex::Text.wordwrap(str, indent, col)
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation string
+  # @return [String] the string description
+  def self.dump_description(mod, indent)
+    description = mod.description
+
+    output = "Description:\n"
+    output << word_wrap_description(description, indent)
+    output << "\n\n"
   end
 
+  # @param str [String] the string to wrap.
+  # @param indent [String] the indentation string
+  # @return [String] the wrapped string.
+  def self.word_wrap_description(str, indent = '')
+    return '' if str.blank?
+
+    str_lines = str.strip.lines(chomp: true)
+    # Calculate the preceding whitespace length of each line
+    smallest_preceding_whitespace = nil
+    str_lines[1..].to_a.each do |line|
+      preceding_whitespace = line[/^\s+/]
+      if preceding_whitespace && (smallest_preceding_whitespace.nil? || preceding_whitespace.length < smallest_preceding_whitespace)
+        smallest_preceding_whitespace = preceding_whitespace.length
+      end
+    end
+
+    # Normalize any existing left-most whitespace on each line; Ignoring the first line which won't have any preceding whitespace
+    result = str_lines.map.with_index do |line, index|
+      next if line.blank?
+
+      "#{indent}#{index == 0 || smallest_preceding_whitespace.nil? ? line : line[smallest_preceding_whitespace..]}"
+    end.join("\n")
+
+    result
+  end
 end
 
 end end
