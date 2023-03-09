@@ -442,6 +442,12 @@ class MetasploitModule < Msf::Auxiliary
       salt: salt
     }
 
+    secret << {
+      enctype: Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC,
+      key: OpenSSL::Digest::MD4.digest(raw_secret),
+      salt: nil
+    }
+
     secret
   end
 
