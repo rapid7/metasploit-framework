@@ -51,7 +51,9 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
         OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
-        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true]),
+        OptInt.new('MaxErrorCount', [true, "Total errors allowed while connecting", 10]),
+        OptInt.new('MaxConsecutiveErrorCount', [true, "Maximum consecutive errors allowed while connecting", 3])
       ]
     )
 
@@ -161,7 +163,9 @@ class MetasploitModule < Msf::Auxiliary
       connection_timeout: datastore['SSH_TIMEOUT'],
       framework: framework,
       framework_module: self,
-      skip_gather_proof: !datastore['GatherProof']
+      skip_gather_proof: !datastore['GatherProof'],
+      max_consecutive_error_count: datastore['MaxConsecutiveErrorCount'],
+      max_error_count: datastore['MaxErrorCount']
     )
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
