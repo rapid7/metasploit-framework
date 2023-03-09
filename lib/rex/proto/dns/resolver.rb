@@ -436,7 +436,7 @@ module DNS
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
-    # @return [Dnsruby::Message] DNS response
+    # @return [Dnsruby::Message, nil] DNS response on success, nil on failure.
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       case argument
       when Dnsruby::Message
