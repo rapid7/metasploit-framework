@@ -86,6 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     keytab_path = datastore['KEYTAB_FILE']
     keytab = read_or_initialize_keytab(keytab_path)
 
+    # Kerberos encryption keys, most likely extracted from running secrets dump
     kerberos_key_creds = framework.db.creds(type: 'Metasploit::Credential::KrbEncKey')
     keytab_entries = kerberos_key_creds.map do |cred|
       {
@@ -100,6 +101,28 @@ class MetasploitModule < Msf::Auxiliary
           data: cred.private.key
         }
       }
+    end
+
+    # Additionally append NTHASH values, which don't require a salt
+    nthash_creds = framework.db.creds(type: 'Metasploit::Credential::NTLMHash')
+    keytab_entries += nthash_creds.map do |cred|
+      nthash = cred.private.to_s.split(':').last
+      {
+        realm: cred.realm&.value.to_s,
+        components: cred.public.username.split('/'),
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_PRINCIPAL,
+        timestamp: Time.at(0).utc,
+        vno8: datastore['KVNO'],
+        vno: datastore['KVNO'],
+        keyblock: {
+          enctype: Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC,
+          data: [nthash].pack('H*')
+        }
+      }
+    end
+
+    if keytab_entries.empty?
+      print_status('No entries to export')
     end
 
     keytab.key_entries.concat(keytab_entries)
