@@ -10,6 +10,7 @@ PATH
       aws-sdk-s3
       bcrypt
       bcrypt_pbkdf
+      bootsnap
       bson
       chunky_png
       dnsruby
@@ -152,6 +153,8 @@ GEM
     bcrypt (3.1.18)
     bcrypt_pbkdf (1.1.0)
     bindata (2.4.15)
+    bootsnap (1.16.0)
+      msgpack (~> 1.2)
     bson (4.15.0)
     builder (3.2.4)
     byebug (11.1.3)
