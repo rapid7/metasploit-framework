@@ -62,10 +62,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'Malformed Packet',
         'Notes' => {
-          'Stability' => [],
-          'Reliability' => [
+          'Stability' => [
             CRASH_SERVICE_DOWN # possible that a malformed packet may crash the service
           ],
+          'Reliability' => [],
           'SideEffects' => [
             IOC_IN_LOGS,
             ACCOUNT_LOCKOUTS, # timing attack submits a password
