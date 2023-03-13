@@ -380,7 +380,7 @@ class Driver < Msf::Ui::Driver
                 "then restore the removed files from quarantine or reinstall the framework.\e[0m"\
                 "\n\n"
 
-      $stderr.puts(Msf::Serializer::ReadableText.word_wrap(avdwarn, 0, 80))
+      $stderr.puts(Rex::Text.wordwrap(avdwarn, 0, 80))
   end
 
   #

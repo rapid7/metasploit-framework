@@ -261,8 +261,8 @@ class Core
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
 
     banner << "\n"
-    banner << Msf::Serializer::ReadableText.word_wrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
-    banner << Msf::Serializer::ReadableText.word_wrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
+    banner << Rex::Text.wordwrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
+    banner << Rex::Text.wordwrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
 
     # Display the banner
     print_line(banner)
