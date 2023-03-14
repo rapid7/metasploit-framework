@@ -189,6 +189,23 @@ module Rex::Proto::Amqp::Version091
     end
     uint8               :frame_end, initial_value: 0xce
 
+    def initialize_shared_instance
+      super
+
+      define_singleton_method(:arguments=) do |args|
+        if args.class.const_defined?(:CLASS_ID)
+          self.class_id = args.class::CLASS_ID
+        end
+        if args.class.const_defined?(:METHOD_ID)
+          self.method_id = args.class::METHOD_ID
+        end
+
+        index = @field_names.index(:arguments)
+        instantiate_obj_at(index) if @field_objs[index].nil?
+        @field_objs[index].assign(args)
+      end
+    end
+
     def initialize_instance
       super
 
