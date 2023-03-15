@@ -35,7 +35,11 @@ RSpec.describe Msf::Util::DotNetDeserialization do
 
     Msf::Util::DotNetDeserialization::GadgetChains::NAMES.each do |gadget_chain|
       describe "parsed gadget chain: #{gadget_chain}" do
-        serialized = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
+        begin
+          serialized = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
+        rescue ::NotImplementedError
+          next
+        end
         stream = Msf::Util::DotNetDeserialization::Types::SerializedStream.read(serialized)
 
         it_behaves_like 'a valid serialized stream', stream

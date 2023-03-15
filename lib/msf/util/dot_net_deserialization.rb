@@ -67,6 +67,8 @@ module DotNetDeserialization
     case formatter
     when :BinaryFormatter
       formatted = Formatters::BinaryFormatter.generate(stream)
+    when :JsonNetFormatter
+      formatted = Formatters::JsonNetFormatter.generate(stream)
     when :LosFormatter
       formatted = Formatters::LosFormatter.generate(stream)
     when :SoapFormatter
@@ -94,6 +96,8 @@ module DotNetDeserialization
       stream = GadgetChains::DataSet.generate(cmd)
     when :DataSetTypeSpoof
       stream = GadgetChains::DataSetTypeSpoof.generate(cmd)
+    when :ObjectDataProvider
+      stream = GadgetChains::ObjectDataProvider.generate(cmd)
     when :TextFormattingRunProperties
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
