@@ -30,7 +30,7 @@ module Metasploit
           File.write(src_file, src)
 
           opt_level = OPTIMIZATION_FLAGS.include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
-          
+
           cmd << "#{self.mingw_bin} "
           cmd << "#{src_file} -I #{INCLUDE_DIR} "
           if self.include_dirs
