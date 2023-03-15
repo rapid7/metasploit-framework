@@ -2,10 +2,10 @@
 
 require 'bindata'
 
-##########################################
+####################################################
 # Method arguments see:
 # https://www.rabbitmq.com/amqp-0-9-1-reference.html
-##########################################
+####################################################
 module Rex::Proto::Amqp::Version091::Frames::MethodArguments
 
   require 'rex/proto/amqp/version_0_9_1/types'

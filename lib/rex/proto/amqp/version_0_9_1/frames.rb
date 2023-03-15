@@ -10,6 +10,7 @@ module Rex::Proto::Amqp::Version091::Frames
   ############################################
   # Frames
   ############################################
+  # see: https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf
   # section 4.2.2
   class AmqpVersion091ProtocolHeader < BinData::Record
     endian :big
