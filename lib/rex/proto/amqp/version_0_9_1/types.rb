@@ -73,6 +73,10 @@ module Rex::Proto::Amqp::Version091::Types
     search_prefix   :amqp_version091
   end
 
+  class AmqpVersion091FieldValue < BinData::Record
+    search_prefix   :amqp_version091
+  end
+
   class AmqpVersion091FieldValuePair < BinData::Record
     search_prefix   :amqp_version091
   end
@@ -80,18 +84,24 @@ module Rex::Proto::Amqp::Version091::Types
   ##########################################
   # Compound Types
   ##########################################
-  class AmqpVersion091FieldArray < BinData::Array
+  class AmqpVersion091FieldValueArray < BinData::Array
+    endian            :big
+    search_prefix     :amqp_version091
+    default_parameter type: :field_value
+  end
+
+  class AmqpVersion091FieldValuePairArray < BinData::Array
     endian            :big
     search_prefix     :amqp_version091
     default_parameter type: :field_value_pair
   end
 
-  class AmqpVersion091FieldTable < BinData::Primitive
-    endian          :big
-    search_prefix   :amqp_version091
+  class AmqpVersion091FieldArray < BinData::Primitive
+    endian             :big
+    search_prefix      :amqp_version091
 
-    uint32          :content_length, initial_value: -> { content.num_bytes }
-    field_array     :content, read_until: -> { content.num_bytes == content_length }
+    uint32             :content_length, initial_value: -> { content.num_bytes }
+    field_value_array  :content, read_until: -> { content.num_bytes == content_length }
 
     def get
       self.content
@@ -99,6 +109,54 @@ module Rex::Proto::Amqp::Version091::Types
 
     def set(v)
       self.content = v
+    end
+
+    # Coerce the table into a Ruby array without the AMQP type metadata.
+    #
+    # @return [Array<Object>]
+    def coerce
+      content.map do |item|
+        case item.data_type
+        when 'A'.ord # field-array
+          item.data.coerce
+        when 'F'.ord # field-table
+          item.data.coerce
+        else
+          item.data.snapshot
+        end
+      end
+    end
+  end
+
+  class AmqpVersion091FieldTable < BinData::Primitive
+    endian                  :big
+    search_prefix           :amqp_version091
+
+    uint32                  :content_length, initial_value: -> { content.num_bytes }
+    field_value_pair_array  :content, read_until: -> { content.num_bytes == content_length }
+
+    def get
+      self.content
+    end
+
+    def set(v)
+      self.content = v
+    end
+
+    # Coerce the table into a Ruby hash without the AMQP type metadata.
+    #
+    # @return [Hash<String, Object>]
+    def coerce
+      content.map do |item|
+        case item.data.data_type
+        when 'A'.ord # field-array
+          [item.name.to_s, item.data.data.coerce]
+        when 'F'.ord # field-table
+          [item.name.to_s, item.data.data.coerce]
+        else
+          [item.name.to_s, item.data.data.snapshot]
+        end
+      end.to_h
     end
   end
 
