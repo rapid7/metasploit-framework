@@ -183,7 +183,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                 Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
                 PAC:
                   Validation Info:
-                    Logon Time: 2022-11-28 15:51:29 +0000
+                    Logon Time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
                     Logoff Time: Never Expires (inf)
                     Kick Off Time: Never Expires (inf)
                     Password Last Set: No Time Set (0)
@@ -220,7 +220,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Logon Domain Name: 'WINDOMAIN.LOCAL'
                   Client Info:
                     Name: 'Administrator'
-                    Client ID: 2022-11-28 15:51:29 +0000
+                    Client ID: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
                   Pac Server Checksum:
                     Signature: 5eb9400bcab42babcd598210
                   Pac Privilege Server Checksum:

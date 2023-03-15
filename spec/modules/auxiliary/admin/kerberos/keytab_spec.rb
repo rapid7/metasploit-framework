@@ -2,6 +2,7 @@ require 'rspec'
 
 RSpec.describe 'kerberos keytab' do
   include_context 'Msf::UIDriver'
+  include_context 'Msf::DBManager'
   include_context 'Msf::Simple::Framework#modules loading'
 
   let(:subject) do
@@ -43,10 +44,15 @@ RSpec.describe 'kerberos keytab' do
   let(:keytab_file) { Tempfile.new('keytab') }
 
   before(:each) do
+    Timecop.freeze(Time.parse('Jul 15, 2022 12:33:40.000000000 GMT'))
     subject.datastore['VERBOSE'] = false
     allow(driver).to receive(:input).and_return(driver_input)
     allow(driver).to receive(:output).and_return(driver_output)
     subject.init_ui(driver_input, driver_output)
+  end
+
+  after(:each) do
+    Timecop.return
   end
 
   describe '#add_keytab_entry' do
@@ -66,7 +72,7 @@ RSpec.describe 'kerberos keytab' do
           subject.add_keytab_entry
 
           subject.list_keytab_entries
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
           keytab saved to #{keytab_file.path}
           Keytab entries
           ==============
@@ -88,7 +94,7 @@ RSpec.describe 'kerberos keytab' do
           subject.add_keytab_entry
 
           subject.list_keytab_entries
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
           keytab saved to #{keytab_file.path}
           Keytab entries
           ==============
@@ -115,7 +121,7 @@ RSpec.describe 'kerberos keytab' do
           subject.add_keytab_entry
 
           subject.list_keytab_entries
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
           keytab saved to #{keytab_file.path}
           Keytab entries
           ==============
@@ -144,7 +150,7 @@ RSpec.describe 'kerberos keytab' do
           subject.add_keytab_entry
 
           subject.list_keytab_entries
-          expect(@output.join("\n")).to match_table <<~TABLE
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
             keytab saved to #{keytab_file.path}
             Keytab entries
             ==============
@@ -176,7 +182,7 @@ RSpec.describe 'kerberos keytab' do
 
       it 'lists the available keytab entries' do
         subject.list_keytab_entries
-        expect(@output.join("\n")).to match_table <<~TABLE
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
           Keytab entries
           ==============
 
@@ -187,6 +193,114 @@ RSpec.describe 'kerberos keytab' do
            1     23 (RC4_HMAC)  Administrator@DOMAIN.LOCAL  8846f7eaee8fb117ad06bdd830b7586c                                  #{Time.parse('2022-10-01 17:51:29 +0000').to_time}
 
         TABLE
+      end
+    end
+  end
+
+  describe '#export_keytab_entries' do
+    context 'when the keytab file does not exist' do
+      before(:each) do
+        File.delete(keytab_file.path)
+        subject.datastore['KEYTAB_FILE'] = keytab_file.path
+        framework.db.delete_credentials(ids: (framework.db.creds || []).map(&:id))
+      end
+
+      after(:each) do
+        framework.db.delete_credentials(ids: (framework.db.creds || []).map(&:id))
+      end
+
+      context 'when there is no database active' do
+        before(:each) do
+          allow(subject.framework.db).to receive(:active).and_return(false)
+        end
+
+        it 'notifies the user that there is no database active' do
+          subject.export_keytab_entries
+
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
+            export not available, because the database is not active.
+          TABLE
+        end
+      end
+
+      context 'when there are no kerberos or ntlm creds present in the database' do
+        it 'notifies the user that there are no entries to export' do
+          subject.export_keytab_entries
+
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
+            No entries to export
+            keytab saved to #{keytab_file.path} 
+
+          TABLE
+        end
+      end
+
+      context 'when there are kerberos and ntlm creds present in the database' do
+        def report_creds(
+          user, hash, type: :ntlm_hash, jtr_format: '', realm_key: nil, realm_value: nil,
+          rhost: '192.0.2.2', rport: '445', myworkspace_id: nil, module_fullname: nil
+        )
+          service_data = {
+            address: rhost,
+            port: rport,
+            service_name: 'smb',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
+          }
+          credential_data = {
+            module_fullname: module_fullname,
+            origin_type: :service,
+            private_data: hash,
+            private_type: type,
+            jtr_format: jtr_format,
+            username: user
+          }.merge(service_data)
+          credential_data[:realm_key] = realm_key if realm_key
+          credential_data[:realm_value] = realm_value if realm_value
+
+          cl = framework.db.create_credential_and_login(credential_data)
+          cl.respond_to?(:core_id) ? cl.core_id : nil
+        end
+
+        before(:each) do
+          report_creds(
+            'user_without_realm', 'aad3b435b51404eeaad3b435b51404ee:e02bc503339d51f71d913c245d35b50b',
+            type: :ntlm_hash, module_fullname: subject.fullname, myworkspace_id: framework.db.default_workspace.id
+          )
+          report_creds(
+            'user_with_realm', 'aad3b435b51404eeaad3b435b51404ee:32ede47af254546a82b1743953cc4950',
+            type: :ntlm_hash, module_fullname: subject.fullname, myworkspace_id: framework.db.default_workspace.id,
+            realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN, realm_value: 'example.local'
+          )
+          krb_key = {
+            enctype: Rex::Proto::Kerberos::Crypto::Encryption::AES256,
+            salt: "DEMO.LOCALuser_with_krbkey".b,
+            key: 'c4a3f31d64afa648a6d08d0776563e1238b976d0b90f79ea072194368294e929'
+          }
+          report_creds(
+            'user_with_krbkey', Metasploit::Credential::KrbEncKey.build_data(**krb_key),
+            type: :krb_enc_key, module_fullname: subject.fullname, myworkspace_id: framework.db.default_workspace.id,
+            realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN, realm_value: 'demo.local'
+          )
+        end
+
+        it 'exports the creds' do
+          subject.export_keytab_entries
+          subject.list_keytab_entries
+
+          expect(@combined_output.join("\n")).to match_table <<~TABLE
+            keytab saved to #{keytab_file.path}
+            Keytab entries
+            ==============
+            
+             kvno  type           principal                      hash                                                                                                                              date
+             ----  ----           ---------                      ----                                                                                                                              ----
+             1     18 (AES256)    user_with_krbkey@demo.local    63346133663331643634616661363438613664303864303737363536336531323338623937366430623930663739656130373231393433363832393465393239  #{Time.parse('1970-01-01 01:00:00 +0100').to_time}
+             1     23 (RC4_HMAC)  user_without_realm@            e02bc503339d51f71d913c245d35b50b                                                                                                  #{Time.parse('1970-01-01 01:00:00 +0100').to_time}
+             1     23 (RC4_HMAC)  user_with_realm@example.local  32ede47af254546a82b1743953cc4950                                                                                                  #{Time.parse('1970-01-01 01:00:00 +0100').to_time}
+
+          TABLE
+        end
       end
     end
   end
