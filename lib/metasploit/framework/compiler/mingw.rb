@@ -16,6 +16,7 @@ module Metasploit
           if self.show_compile_cmd
             print("#{cmd}\n")
           end
+
           stdin_err, status = Open3.capture2e(cmd)
           stdin_err
         end
