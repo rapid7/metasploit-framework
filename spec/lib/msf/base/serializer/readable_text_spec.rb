@@ -206,4 +206,150 @@ RSpec.describe Msf::Serializer::ReadableText do
       end
     end
   end
+
+  describe '.dump_description' do
+    context 'when the module description is nil' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: nil
+        )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+
+        TABLE
+      end
+    end
+
+    context 'when the module description has no whitespace' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: 'this is a module description'
+        )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+           this is a module description
+        TABLE
+      end
+    end
+
+    context 'when the module description is a single line' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: %q{ This is a description; with module details etc. }
+        )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+           This is a description; with module details etc.
+
+        TABLE
+      end
+    end
+
+    context 'when the first line has less preceding whitespace than the subsequent lines' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: 'Listen for a connection. First, the port will need to be knocked from
+                          the IP defined in KHOST. This IP will work as an authentication method
+                          (you can spoof it with tools like hping). After that you could get your
+                          shellcode from any IP. The socket will appear as "closed," thus helping to
+                          hide the shellcode',
+        )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+           Listen for a connection. First, the port will need to be knocked from
+           the IP defined in KHOST. This IP will work as an authentication method
+           (you can spoof it with tools like hping). After that you could get your
+           shellcode from any IP. The socket will appear as "closed," thus helping to
+           hide the shellcode
+        TABLE
+      end
+    end
+
+    context 'when the first line has more whitespace than the subsequent lines' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: %q{
+                             Login credentials to the Motorola WR850G router with
+                    firmware v4.03 can be obtained via a simple GET request
+                    if issued while the administrator is logged in.  A lot
+                    more information is available through this request, but
+                    you can get it all and more after logging in.
+                  },
+          )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+           Login credentials to the Motorola WR850G router with
+           firmware v4.03 can be obtained via a simple GET request
+           if issued while the administrator is logged in.  A lot
+           more information is available through this request, but
+           you can get it all and more after logging in.
+        TABLE
+      end
+    end
+
+    context 'when there are two blank lines in a row' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: "Run a meterpreter server in Android.\n\nTunnel communication over HTTP"
+        )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+           Run a meterpreter server in Android.
+
+           Tunnel communication over HTTP
+        TABLE
+      end
+    end
+
+    context 'when the module description spans multiple lines' do
+      it 'dumps the module description' do
+        mod = instance_double(
+          Msf::Module,
+          description: %q{
+            This is a description; with module details etc.
+
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer quis mattis lacus. Nam nisi diam, commodo id eu.
+
+            This is a list of important items to consider:
+              - Item A
+              - Item B
+              - Item C
+
+          }
+        )
+
+        result = described_class.dump_description(mod, '  ')
+        expect(result).to match_table <<~TABLE
+         Description:
+           This is a description; with module details etc.
+
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer quis mattis lacus. Nam nisi diam, commodo id eu.
+
+           This is a list of important items to consider:
+             - Item A
+             - Item B
+             - Item C
+
+        TABLE
+      end
+    end
+  end
 end
