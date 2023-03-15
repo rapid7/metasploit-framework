@@ -334,7 +334,7 @@ module Metasploit
             kerberos_authenticator = kerberos_authenticator_factory.call(username, password, realm)
           end
 
-          http_logger_subscriber = Rex::Proto::Http::HttpLoggerSubscriber.new(logger: framework_module)
+          http_logger_subscriber = framework_module.nil? ? nil : Rex::Proto::Http::HttpLoggerSubscriber.new(logger: framework_module)
           res = nil
           cli = Rex::Proto::Http::Client.new(
             rhost,
