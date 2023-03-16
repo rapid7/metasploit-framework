@@ -1,8 +1,8 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @jmartin-r7, @gwillcox-r7
+Mentors: @jmartin-r7
 
-Slack Contacts: @Op3n4M3, @gwillcox-r7 on [Metasploit Slack](https://metasploit.slack.com/)
+Slack Contacts: @Op3n4M3 on [Metasploit Slack](https://metasploit.slack.com/)
 
 For any questions about these projects reach out on the Metasploit Slack in the `#gsoc` channel or DM one of the mentors using the Slack contacts listed above. Note that mentors may be busy so please don't expect an immediate response, however we will endeavor to respond as soon as possible. If you'd prefer not to join Slack, you can also email `msfdev [@] metasploit [dot] com` and we will respond to your questions there if email is preferable.
 
