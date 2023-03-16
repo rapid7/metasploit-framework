@@ -527,6 +527,10 @@ NAVIGATION_CONFIG = [
                 path: 'How-to-use-command-stagers.md'
               },
               {
+                path: 'How-to-use-fetch-payloads.md',
+                title: 'How to use Fetch Payloads'
+              },
+              {
                 old_wiki_path: 'How-to-write-a-check()-method.md',
                 path: 'How-to-write-a-check-method.md'
               },
