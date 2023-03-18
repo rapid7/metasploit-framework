@@ -445,8 +445,9 @@ class Creds
       tbl = Rex::Text::Table.new(tbl_opts)
     end
 
-    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin|
+    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin, cracked_password_core|
       matched_cred_ids << core.id
+      cracked_cred_ids << cracked_password_core.id if cracked_password_core.present?
 
       if output_file && output_formatter
         formatted = output_formatter.call(core)
@@ -472,11 +473,6 @@ class Creds
           jtr_val = core.private.jtr_format ? core.private.jtr_format : ''
         end
 
-        cracked_hash_origin = Metasploit::Credential::Origin::CrackedPassword.find_by(metasploit_credential_core_id: core.id)
-        cracked_password_core = query.find_by(origin_id: cracked_hash_origin.id, origin_type: "Metasploit::Credential::Origin::CrackedPassword") if cracked_hash_origin.present?
-        cracked_cred_ids << cracked_password_core.id if cracked_password_core.present?
-        cracked_password_val = cracked_password_core.present? ? cracked_password_core.private.data : ''
-
         if service.nil?
           host = ''
           service_info = ''
@@ -495,7 +491,7 @@ class Creds
           realm_val,
           human_val, #private type
           jtr_val,
-          cracked_password_val
+          cracked_password_core&.private&.data
         ]
       end
     end
@@ -543,8 +539,10 @@ class Creds
   def filtered_query(query, opts, origin_ranges, host_ranges)
     query.each do |core|
       # we will not show the cracked password in a seperate row instead we will show in seperate column
-      if core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+      if core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && query.find_by(id: core.origin.metasploit_credential_core_id).present?
         next
+      elsif core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+        core = framework.db.creds.find_by(id: core.origin.metasploit_credential_core_id)
       end
 
       # Exclude non-blank username creds if that's what we're after
@@ -570,11 +568,13 @@ class Creds
         next
       end
 
+      cracked_password_core = core.public.cores.where(origin_type: "Metasploit::Credential::Origin::CrackedPassword").joins("LEFT JOIN metasploit_credential_origin_cracked_passwords ON metasploit_credential_origin_cracked_passwords.id = metasploit_credential_cores.origin_id").find_by("metasploit_credential_origin_cracked_passwords.metasploit_credential_core_id = (?)", core.id)
+
       if core.logins.empty?
         service = service_from_origin(core)
         next if service.nil? && host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
 
-        yield core, service, origin
+        yield core, service, origin, cracked_password_core
       else
         core.logins.each do |login|
           service = framework.db.services(id: login.service_id).first
@@ -586,7 +586,7 @@ class Creds
             next
           end
 
-          yield core, service, origin
+          yield core, service, origin, cracked_password_core
         end
       end
     end

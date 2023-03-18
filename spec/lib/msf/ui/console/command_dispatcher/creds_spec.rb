@@ -142,6 +142,48 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               ])
             end
           end
+          context 'showing new column of cracked_password for all the cracked passwords' do
+            it 'should show the cracked password in the new column named cracked_passwords' do
+              common_public = FactoryBot.create(:metasploit_credential_username, username: "this_username")
+              core = FactoryBot.create(:metasploit_credential_core,
+                origin: FactoryBot.create(:metasploit_credential_origin_import),
+                private: FactoryBot.create(:metasploit_credential_nonreplayable_hash, data: "some_hash"),
+                public: common_public,
+                realm: nil,
+                workspace: framework.db.workspace)
+              cracked_core = FactoryBot.create(:metasploit_credential_core,
+                origin: Metasploit::Credential::Origin::CrackedPassword.create!(metasploit_credential_core_id: core.id),
+                private: FactoryBot.create(:metasploit_credential_password, data: "this_cracked_password"),
+                public: common_public,
+                realm: nil,
+                workspace: framework.db.workspace)
+              creds.cmd_creds()
+              expect(@output).to eq([
+                "Credentials",
+                "===========",
+                "",
+                "host  origin  service  public         private        realm  private_type        JtR Format  cracked_password",
+                "----  ------  -------  ------         -------        -----  ------------        ----------  ----------------",
+                "                       thisuser       thispass              Password                        ",
+                "                                      nonblank_pass         Password                        ",
+                "                       nonblank_user                        Password                        ",
+                "                       this_username  some_hash             Nonreplayable hash              this_cracked_password"
+              ])
+            end
+            it "should show the user given passwords on private column instead of cracked_password column" do
+              creds.cmd_creds()
+              expect(@output).to eq([
+                "Credentials",
+                "===========",
+                "",
+                "host  origin  service  public         private        realm  private_type  JtR Format  cracked_password",
+                "----  ------  -------  ------         -------        -----  ------------  ----------  ----------------",
+                "                       thisuser       thispass              Password                  ",
+                "                                      nonblank_pass         Password                  ",
+                "                       nonblank_user                        Password                  "
+              ])
+            end
+          end
         end
       end
 
@@ -210,6 +252,31 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 '----  ------  -------  ------    -------   -----  ------------  ----------  ----------------',
                 '                       thisuser  thispass         Password                  '
               ])
+            end
+            it 'should show all the cores whose private is either password or the private is cracked password' do
+              common_public = FactoryBot.create(:metasploit_credential_username, username: "this_username")
+              core = FactoryBot.create(:metasploit_credential_core,
+                origin: FactoryBot.create(:metasploit_credential_origin_import),
+                private: FactoryBot.create(:metasploit_credential_nonreplayable_hash, data: "some_hash"),
+                public: common_public,
+                realm: nil,
+                workspace: framework.db.workspace)
+              cracked_core = FactoryBot.create(:metasploit_credential_core,
+                origin: Metasploit::Credential::Origin::CrackedPassword.create!(metasploit_credential_core_id: core.id),
+                private: FactoryBot.create(:metasploit_credential_password, data: "this_cracked_password"),
+                public: common_public,
+                realm: nil,
+                workspace: framework.db.workspace)
+              creds.cmd_creds('-t', 'password')
+              expect(@output).to eq([
+                "Credentials",
+                "===========",
+                "",
+                "host  origin  service  public         private    realm  private_type        JtR Format  cracked_password",
+                "----  ------  -------  ------         -------    -----  ------------        ----------  ----------------",
+                "                       thisuser       thispass          Password                        ",
+                "                       this_username  some_hash         Nonreplayable hash              this_cracked_password"
+                ])
             end
           end
 
