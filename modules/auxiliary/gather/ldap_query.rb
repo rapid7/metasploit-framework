@@ -140,9 +140,8 @@ class MetasploitModule < Msf::Auxiliary
     base ||= @base_dn
     scope ||= Net::LDAP::SearchScope_WholeSubtree
     returned_entries = ldap.search(base: base, filter: filter, attributes: attributes, scope: scope)
-    query_result = ldap.as_json['result']['ldap_result']
-
-    validate_query_result!(query_result, filter)
+    query_result_table = ldap.get_operation_result.table
+    validate_query_result!(query_result_table, filter)
 
     if returned_entries.nil? || returned_entries.empty?
       print_error("No results found for #{filter}.")

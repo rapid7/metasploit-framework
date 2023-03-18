@@ -6,7 +6,7 @@ The Windows API comes with two ways to talk via HTTP/S, they are [WinInet][] and
 
 The [WinInet][] API was designed for use in desktop applications. It provides all the features required by applications to use HTTP/S while delegating much of the responsibilty of handling implementation detail to the underlying API and OS. This API can result in some user interface elements appearing if not handled correctly.
 
-[WinInet][] comes with some limitations, one of which is that it's close to impossible to do any kind of custom validation, parsing, or handling of SSL communications. One of the needs of Metasploit users is to be able to enable a [Paranoid Mode][] that forces Meterpreter to only talk with the appropriate endpoint. The goal is to prevent shells from being hijacked by unauthorised users. In order to do this, one of the things that was implemented was the verification of the SHA1 hash of the SSL certificate that Meterpreter reads from the server. If this hash doesn't match the one that Meterpreter is configured with, Meterpreter will shut down. [WinInet][] doesn't make this process possible without a _lot_ of custom work.
+[WinInet][] comes with some limitations, one of which is that it's close to impossible to do any kind of custom validation, parsing, or handling of SSL communications. One of the needs of Metasploit users is to be able to enable a [[Paranoid Mode|./meterpreter-paranoid-mode.md]] that forces Meterpreter to only talk with the appropriate endpoint. The goal is to prevent shells from being hijacked by unauthorised users. In order to do this, one of the things that was implemented was the verification of the SHA1 hash of the SSL certificate that Meterpreter reads from the server. If this hash doesn't match the one that Meterpreter is configured with, Meterpreter will shut down. [WinInet][] doesn't make this process possible without a _lot_ of custom work.
 
 For applications such as this, [WinHTTP][] is the "preferred" option as deemed by Microsoft. This API is designed to work under a service, and provides a greater number of ways to interact with communications made over HTTP/S. With this API it was trivial to implement the SHA1 hash verification and force Meterpreter to shut down when a MITM is detected.
 
@@ -61,5 +61,4 @@ HTTP/S communications in Windows is a hairy beast, and trying to cater for all c
   [WinInet]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa383630%28v=vs.85%29.aspx
   [WinHTTP]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa382925%28v=vs.85%29.aspx
   [winhttp_wininet]: https://msdn.microsoft.com/en-us/library/windows/desktop/hh227298%28v=vs.85%29.aspx
-  [Paranoid Mode]: https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-paranoid-mode.html
   [OJ]: https://github.com/OJ

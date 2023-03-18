@@ -17,6 +17,8 @@ module Rex::Proto::Kerberos::Pac
     TICKET_CHECKSUM                               = 0x00000010
     PAC_ATTRIBUTES                                = 0x00000011
     PAC_REQUESTOR                                 = 0x00000012
+    # https://support.microsoft.com/en-gb/topic/kb5020805-how-to-manage-kerberos-protocol-changes-related-to-cve-2022-37967-997e9acc-67c5-48e1-8d0d-190269bf4efb
+    FULL_PAC_CHECKSUM                             = 0x00000013
 
     #
     # Return a string representation of the constant for a number

@@ -12,7 +12,7 @@ module Msf::Auxiliary::ManageEngineXnode::Config
   # @return [Hash, Integer] Hash containing the data repositories (tables) and their fields (columns) to dump if reading the config file succeeded, error code otherwise
   def grab_config(config_file)
     # get the specified data repositories (tables) and fields (columns) to dump from the config file
-    return CONFIG_FILE_DOES_NOT_EXIST unless File.exists? config_file
+    return CONFIG_FILE_DOES_NOT_EXIST unless File.exist?(config_file)
 
     begin
       config_contents = File.read(config_file)

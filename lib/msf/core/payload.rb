@@ -62,15 +62,14 @@ class Payload < Msf::Module
     # If this is an adapted or staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
     # information hash accordingly.
-    if (self.class.include?(Msf::Payload::Adapter) || self.class.include?(Msf::Payload::Single)) and
-      self.class.include?(Msf::Payload::Stager)
-      self.module_info['Stage'] = {}
+    if (self.class.include?(Msf::Payload::Adapter) || self.class.include?(Msf::Payload::Single)) and self.class.include?(Msf::Payload::Stager)
 
       if self.module_info['Payload']
         self.module_info['Stage']['Payload']  = self.module_info['Payload']['Payload'] || ""
         self.module_info['Stage']['Assembly'] = self.module_info['Payload']['Assembly'] || ""
         self.module_info['Stage']['Offsets']  = self.module_info['Payload']['Offsets'] || {}
-      else
+      elsif !self.module_info['Stage']
+        self.module_info['Stage'] = {}
         self.module_info['Stage']['Payload']  = ""
         self.module_info['Stage']['Assembly'] = ""
         self.module_info['Stage']['Offsets']  = {}
@@ -136,6 +135,8 @@ class Payload < Msf::Module
   #
   def payload_type_s
     case payload_type
+      when Type::Adapter
+        return "adapter"
       when Type::Stage
         return "stage"
       when Type::Stager

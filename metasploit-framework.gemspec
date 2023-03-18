@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.108'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.122'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.20'
   # Needed by msfgui and other rpc components
@@ -228,4 +228,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'win32api'
 
   spec.add_runtime_dependency 'zeitwerk'
+
+  # Required for PNG payload support.
+  # WARNING: Chunky_PNG is vulnerable to decompression bomb attacks.
+  # Do not use this to process untrusted PNG files! This is only to be used
+  # to generate PNG files, not to parse untrusted PNG files.
+  spec.add_runtime_dependency 'chunky_png'
 end

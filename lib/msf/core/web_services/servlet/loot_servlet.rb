@@ -67,7 +67,7 @@ module Msf::WebServices::LootServlet
         # Give the file a unique name to prevent accidental overwrites. Only do this if there is actually a file
         # on disk. If there is not a file on disk we assume that this DB record is for tracking a file outside
         # of metasploit, so we don't want to assign them a unique file name and overwrite that.
-        if opts[:path] && File.exists?(db_record.path)
+        if opts[:path] && File.exist?(db_record.path)
           filename = File.basename(opts[:path])
           opts[:path] = File.join(Msf::Config.loot_directory, "#{SecureRandom.hex(10)}-#{filename}")
         end

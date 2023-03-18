@@ -1,8 +1,8 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @jmartin-r7, @gwillcox-r7
+Mentors: @jmartin-r7
 
-Slack Contacts: @Op3n4M3, @gwillcox-r7 on [Metasploit Slack](https://metasploit.slack.com/)
+Slack Contacts: @Op3n4M3 on [Metasploit Slack](https://metasploit.slack.com/)
 
 For any questions about these projects reach out on the Metasploit Slack in the `#gsoc` channel or DM one of the mentors using the Slack contacts listed above. Note that mentors may be busy so please don't expect an immediate response, however we will endeavor to respond as soon as possible. If you'd prefer not to join Slack, you can also email `msfdev [@] metasploit [dot] com` and we will respond to your questions there if email is preferable.
 
@@ -17,16 +17,9 @@ Difficulty: 4/5
 
 ### LDAP Capture Capabilities
 
-Metasploit's LDAP service mixin provides a service to enable interaction over the LDAP protocol. The current implementation is the bare minimum to enable support for attacking the [2021 Log4Shell vulnerability](). Enhancement/Extension of the mixin to enable various additional LDAP features would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow Metasploit to intercept and log authentication information. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
+Metasploit's LDAP service mixin provides a service to enable interaction over the LDAP protocol. The current implementation is the bare minimum to enable support for attacking the [2021 Log4Shell vulnerability](https://attackerkb.com/topics/in9sPR2Bzt/cve-2021-44228-log4shell?referrer=msf_docs). Enhancement/Extension of the mixin to enable various additional LDAP features would enable extended usage of this service for additional tasks. Support for various protocol level authentication methods would allow Metasploit to intercept and log authentication information. Specific items of interest are [SPNEGO](https://en.wikipedia.org/wiki/SPNEGO) and [StartTLS](https://ldapwiki.com/wiki/StartTLS) support to enable compatibility with the widest variety of clients and a new capture module that log authentication information from clients.
 
 Size: Medium  
-Difficulty: 3/5
-
-### Enhanced LDAP Query & Collection
-
-When preforming security assessment on a network with centralized login such as LDAP or Active Directory these services are sometimes exposed directly on the network. While Metasploit has capabilities to collect various pieces of information from these services when a user has been able to gain code execution inside a target system by utilizing tooling such as `Sharphound` or by leveraging SMB services via the `secrets_dump` module, these methods are somewhat indirect. A network base capability to query exposed services may have value. An interactive terminal plugin allowing users to connect directly to LDAP or Active Directory providing capabilities similar to the existing `requests` plugin could enable users search for valuable information in these services without the need to compromise a target or interact with a secondary service. 
-
-Size: Medium/Large (Depends on proposal)  
 Difficulty: 3/5
 
 ### Improving post-exploit API to be more consistent, work smoothly across session types
@@ -53,7 +46,7 @@ Enhance existing Metasploit Goliath dashboard that allows observation of an acti
 
 See [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176) for a demo video of Goliath in action. You can also read more on Metasploit Goliath at [[Metasploit-Data-Service-Enhancements-(Goliath)|./Metasploit-Data-Service-Enhancements-Goliath]]
 
-Size: Medium/Large (Depends on proposal)  
+Size: Medium/Large (Depends on proposal)
 Difficulty 3/5
 
 ## Submit your own

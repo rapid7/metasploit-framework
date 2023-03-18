@@ -1,4 +1,4 @@
-This page lists the keys in use by [Metasploit committers][msf-committers] and
+This page lists the keys in use by [[Metasploit committers|committer-rights]] and
 can be used to verify merge commits made to <https://github.com/rapid7/metasploit-framework>.
 
 # Keybase.io identities
@@ -118,7 +118,6 @@ Enter passphrase: [...]
 
 Using `git c` and `git m` from now on will sign every commit with your `DEADBEEF` key. However, note that rebasing or cherry-picking commits will change the commit hash, and therefore, unsign the commit -- to resign the most recent, use `git c --amend`.
 
-[msf-committers]:https://docs.metasploit.com/docs/development/maintainers/committer-rights.html
 [pro-sharing]:https://filippo.io/on-keybase-dot-io-and-encrypted-private-key-sharing/
 [con-sharing]:https://www.tbray.org/ongoing/When/201x/2014/03/19/Keybase#p-5
 [tracking]:https://github.com/keybase/keybase-issues/issues/100

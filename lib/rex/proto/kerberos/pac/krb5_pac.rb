@@ -104,6 +104,18 @@ module Rex::Proto::Kerberos::Pac
     virtual :ul_type, value: Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
   end
 
+  class Krb5TicketChecksum < Krb5PacSignatureData
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
+    virtual :ul_type, value: Krb5PacElementType::TICKET_CHECKSUM
+  end
+
+  class Krb5FullPacChecksum < Krb5PacSignatureData
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
+    virtual :ul_type, value: Krb5PacElementType::FULL_PAC_CHECKSUM
+  end
+
   # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73
   class Krb5ValidationInfo < RubySMB::Dcerpc::Ndr::NdrStruct
     default_parameters byte_align: 8
@@ -182,9 +194,18 @@ module Rex::Proto::Kerberos::Pac
     #   @return [Integer] List of GROUP_MEMBERSHIP structures that contains the groups to which the account belongs in the account domain
     pgroup_membership_array :group_memberships, type: [:group_membership, { byte_align: 4 }]
 
+    # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73
     # @!attribute [rw] user_flags
     #   @return [Integer] A set of bit flags that describe the user's logon information
-    ndr_uint32 :user_flags
+    ndr_uint32 :user_flags,
+               initial_value: -> do
+                 value = 0
+                 # Bit D: Indicates that the ExtraSids field is populated and contains additional SIDs.
+                 value |= (1 << 5) if self.sid_count > 0
+                 # Bit H: Indicates that the ResourceGroupIds field is populated.
+                 value |= (1 << 9) if self.resource_group_count > 0
+                 value
+               end
 
     # @!attribute [rw] user_session_key
     #   @return [Integer] A session key that is used for cryptographic operations on a session
@@ -233,16 +254,16 @@ module Rex::Proto::Kerberos::Pac
 
     # @!attribute [rw] sid_count
     #   @return [Integer] Total number of SIDs present in the ExtraSids member
-    ndr_uint32 :sid_count
+    ndr_uint32 :sid_count, initial_value: -> { extra_sids.length }
 
-    # @!attribute [rw] extra_sids_ptr
-    #   @return [Integer] A pointer to a list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs
+    # @!attribute [rw] extra_sids
+    #   @return [Integer] A list of KERB_SID_AND_ATTRIBUTES structures that contain a list of SIDs
     #   corresponding to groups in domains other than the account domain to which the principal belongs
-    krb5_sid_and_attributes_ptr :extra_sids_ptr
+    krb5_sid_and_attributes_ptr :extra_sids # :extra_sids_ptr
 
-    # @!attribute [rw] resource_group_domain_sid_ptr
-    #   @return [Integer] Pointer to SID of the domain for the server whose resources the client is authenticating to
-    prpc_sid :resource_group_domain_sid_ptr # prpc_sid :resource_group_domain_sid_ptr
+    # @!attribute [rw] resource_group_domain_sid
+    #   @return [Integer] SID of the domain for the server whose resources the client is authenticating to
+    prpc_sid :resource_group_domain_sid # :resource_group_domain_sid_ptr
 
     # @!attribute [rw] resource_group_count
     #   @return [Integer] Number of resource group identifiers stored in ResourceGroupIds
@@ -531,6 +552,8 @@ module Rex::Proto::Kerberos::Pac
     krb5_client_info Krb5PacElementType::CLIENT_INFORMATION
     krb5_pac_server_checksum Krb5PacElementType::SERVER_CHECKSUM
     krb5_pac_priv_server_checksum Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
+    krb5_ticket_checksum Krb5PacElementType::TICKET_CHECKSUM
+    krb5_full_pac_checksum Krb5PacElementType::FULL_PAC_CHECKSUM
     krb5_pac_credential_info Krb5PacElementType::CREDENTIAL_INFORMATION, data_length: :data_length
     krb5_upn_dns_info Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
     unknown_pac_element :default, data_length: :data_length, selection: :selection
@@ -589,20 +612,47 @@ module Rex::Proto::Kerberos::Pac
     end
 
     # Calculates the checksums, can only be done after all other fields are set
-    def calculate_checksums!(key: nil)
+    # @param [String] service_key Service key to calculate the server checksum
+    # @param [String] krbtgt_key key to calculate priv server (KDC) and full checksums with, if not specified `service_key` is used
+    #
+    # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/962edb93-fa3c-48ea-a0a6-062f760eb69c
+    # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/37bf87b9-1d56-475a-b2b2-e3948b29194d
+    def calculate_checksums!(service_key: nil, krbtgt_key: nil)
       server_checksum = nil
       priv_server_checksum = nil
+      full_pac_checksum = nil
       pac_info_buffers.each do |info_buffer|
         pac_element = info_buffer.buffer.pac_element
-        if pac_element.ul_type == 6
+        case pac_element.ul_type
+        when Krb5PacElementType::SERVER_CHECKSUM
           server_checksum = pac_element
-        elsif pac_element.ul_type == 7
+        when Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM
           priv_server_checksum = pac_element
+        when Krb5PacElementType::FULL_PAC_CHECKSUM
+          full_pac_checksum = pac_element
+        else
+          next
         end
       end
-      server_checksum.signature = calculate_checksum(server_checksum.signature_type, key, to_binary_s)
 
-      priv_server_checksum.signature = calculate_checksum(priv_server_checksum.signature_type, key, server_checksum.signature)
+      missing_checksums = []
+      missing_checksums << Krb5PacElementType::SERVER_CHECKSUM if server_checksum.nil?
+      missing_checksums << Krb5PacElementType::PRIVILEGE_SERVER_CHECKSUM if priv_server_checksum.nil?
+      raise Rex::Proto::Kerberos::Pac::Error::MissingInfoBuffer.new(ul_types: missing_checksums) unless missing_checksums.empty?
+
+      if krbtgt_key.nil?
+        krbtgt_key = service_key
+      end
+
+      # https://bugzilla.samba.org/show_bug.cgi?id=15231
+      # https://i.blackhat.com/EU-22/Thursday-Briefings/EU-22-Tervoort-Breaking-Kerberos-RC4-Cipher-and-Spoofing-Windows-PACs-wp.pdf
+      if full_pac_checksum
+        full_pac_checksum.signature = calculate_checksum(full_pac_checksum.signature_type, krbtgt_key, to_binary_s)
+      end
+
+      server_checksum.signature = calculate_checksum(server_checksum.signature_type, service_key, to_binary_s)
+
+      priv_server_checksum.signature = calculate_checksum(priv_server_checksum.signature_type, krbtgt_key, server_checksum.signature)
     end
 
     # Calculates the offsets for pac_elements if they haven't yet been set
@@ -619,9 +669,9 @@ module Rex::Proto::Kerberos::Pac
 
     # Call this when you are done setting fields in the object
     # in order to finalise the data
-    def sign!(key: nil)
+    def sign!(service_key: nil, krbtgt_key: nil)
       calculate_offsets!
-      calculate_checksums!(key: key)
+      calculate_checksums!(service_key: service_key, krbtgt_key: krbtgt_key)
     end
 
     private
