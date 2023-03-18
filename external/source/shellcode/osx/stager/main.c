@@ -234,7 +234,7 @@ typedef NSModule (*NSLinkModule_ptr)(NSObjectFileImage objectFileImage, const ch
 typedef NSSymbol (*NSLookupSymbolInModule_ptr)(NSModule module, const char *symbolName);
 typedef void * (*NSAddressOfSymbol_ptr)(NSSymbol symbol);
 
-typedef /*Loader*/void * (*JustInTimeLoaderMake_ptr)(void *apis, void *ma, const char* path, const struct FileID * fileId, uint64_t sliceOffset, bool willNeverUnload, bool leaveMapped, bool overridesCache, uint16_t overridesDylibIndex);
+typedef /*Loader*/void * (*JustInTimeLoaderMake_ptr)(void *apis, void *ma, const char* path, const struct FileID * fileId, uint64_t sliceOffset, bool willNeverUnload, bool leaveMapped, bool overridesCache, uint16_t overridesDylibIndex, uint64_t layout);
 typedef void * (*AnalyzeSegmentsLayout_ptr)(void *ma, uintptr_t * vmSpace, bool * hasZeroFill);
 typedef void * (*VMAllocate_ptr)(uint64_t target_task, void * address, uint64_t size, int flags);
 typedef void * (*VMDeallocate_ptr)(uint64_t target_task, void * address, uint64_t size);
@@ -245,6 +245,7 @@ typedef void * (*Mprotect_ptr)(void * sdg, void * dst, uint64_t length, int prot
 typedef void (*WithLoadersWriteLock_ptr)(void *apis, void * callback);
 typedef void (*LoadDependents_ptr)(void *topLoader, const struct diagnostics * diag, void * apis, const struct LoadOptions * lo);
 typedef void (*RunInitializers_ptr)(void *topLoader, void * apis);
+typedef void * (*HandleFromLoader_ptr)(void *loader, bool firstOnly);
 typedef void (*IncDlRefCount_ptr)(void *apis, void * topLoader);
 typedef void (*NotifyLoad_ptr)(void * apis, struct ArrayOfLoaderPointers * newLoaders);
 typedef void (*NotifyDebuggerLoad_ptr)(void * apis, const struct ArrayOfLoaderPointers * aolp);
@@ -281,7 +282,7 @@ void printf_sdyld_arm64(char * a, void * b, uint64_t sdyld) {
 }*/
 #define printf_sdyld(a,b) print(a);
 #else
-typedef uint64_t (*SimpleDPrintf_ptr)(uint64_t fd, const char * fmt, const void * a);
+typedef uint64_t (*SimpleDPrintf_ptr)(uint64_t fd, const char * fmt, ...);
 void printf_sdyld_x86_64(char * a, void * b, uint64_t sdyld) {
   SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
   SimpleDPrintf_func(1, a, b);
@@ -391,11 +392,12 @@ int main(int argc, char** argv)
 #endif
     // sdyld will be the address of dyld4, which contains mangled symbols.
     uint64_t sdyld = find_macho(base, 0x1000);
+    uint64_t offset2 = sdyld;
 #ifdef DEBUG
     printf("sdyld: %lld\n", sdyld);
 #endif
-    JustInTimeLoaderMake_ptr JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", sdyld);
-    while (!JustInTimeLoaderMake_func) {
+    MMap_ptr MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", offset2);
+    while (!MMap_func) {
       sdyld = find_macho(sdyld + 0x1000, 0x1000);
       if (sdyld == 1) {
 #ifdef DEBUG
@@ -404,27 +406,47 @@ int main(int argc, char** argv)
         return 1;
       }
       //printf("Dyld: %lld\n", sdyld);
-      JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", sdyld);
+      MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", offset2);
     }
-    //printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
-    //printf("JITLMP: %lld\n", JustInTimeLoaderMake_func);
-    //SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
+    //printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
+    JustInTimeLoaderMake_ptr JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", offset2);
+    bool ventura = false;
+    if (!JustInTimeLoaderMake_func) {
+      offset2 = offset;
+      ventura = true;
+      MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", offset2);
+      JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld39MachOFileEPKcRKNS_6FileIDEybbbtPKN6mach_o6LayoutE", offset2);
+    }
+    if (ventura) {
+#ifdef DEBUG
+      print("Ventura!\n");
+#endif
+    }
 #ifdef DEBUG
     //printf_sdyld("SimpleDPrintf_func: %lld\n", SimpleDPrintf_func);
-    printf_sdyld("Errno: %lld\n", *(uint64_t*)find_symbol(sdyld, "_errno", sdyld));
+    printf_sdyld("Errno: %lld\n", *(uint64_t*)find_symbol(sdyld, "_errno", offset2));
 #endif
     // Loader::mapSegments
     uintptr_t vmSpace = 0;
     bool hasZeroFill;
-    AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = find_symbol(sdyld, "__ZNK5dyld313MachOAnalyzer21analyzeSegmentsLayoutERyRb", sdyld);
-#ifdef DEBUG
-    print("Analyzing Segments.\n");
-#endif
     *(uint32_t*)buffer = 0xfeedfacf;
 #ifdef DEBUG
     printf_sdyld("Buffer: %lld\n", buffer);
 #endif
-    AnalyzeSegmentsLayout_func((void*)buffer, &vmSpace, &hasZeroFill);
+    if (ventura) {
+      // MachOFile =~= MachOAnalyzer
+      AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile21analyzeSegmentsLayoutERyRb", offset2);
+#ifdef DEBUG
+      print("Analyzing Segments.\n");
+#endif
+      AnalyzeSegmentsLayout_func((void*)buffer, &vmSpace, &hasZeroFill);
+    } else {
+      AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = find_symbol(sdyld, "__ZNK5dyld313MachOAnalyzer21analyzeSegmentsLayoutERyRb", offset2);
+#ifdef DEBUG
+      print("Analyzing Segments.\n");
+#endif
+      AnalyzeSegmentsLayout_func((void*)buffer, &vmSpace, &hasZeroFill);
+    };
 #ifdef DEBUG
     printf_sdyld("vmSpace: %lld\n", vmSpace);
 #endif
@@ -443,8 +465,8 @@ int main(int argc, char** argv)
     printf_sdyld("Translated: %s\n", isTranslated ? "true" : "false");
 #endif
     uintptr_t loadAddress = 0;
-    VMAllocate_ptr VMAllocate_func = find_symbol(sdyld, "_vm_allocate", sdyld);
-    uint64_t mach_task_self = *(uint64_t*)find_symbol(sdyld, "_mach_task_self_", sdyld);
+    VMAllocate_ptr VMAllocate_func = find_symbol(sdyld, "_vm_allocate", offset2);
+    uint64_t mach_task_self = *(uint64_t*)find_symbol(sdyld, "_mach_task_self_", offset2);
     void * vmallocate_ret = VMAllocate_func(mach_task_self, &loadAddress, vmSpace, /*VM_FLAGS_ANYWHERE: */0x1);
 #ifdef DEBUG
     printf_sdyld("VMAllocate Ret: %lld\n", vmallocate_ret);
@@ -452,7 +474,12 @@ int main(int argc, char** argv)
 #endif
     // Put regions together...
     // JustInTimeLoader::withRegions via MachOAnalyzer::getAllSegmentsInfos
-    WithRegions_ptr WithRegions_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld313MachOAnalyzerEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", sdyld);
+    WithRegions_ptr WithRegions_func = 0;
+    if (ventura) {
+      WithRegions_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld39MachOFileEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", offset2);
+    } else {
+      WithRegions_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld313MachOAnalyzerEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", offset2);
+    };
     WithRegions_func((void*)buffer, ^(struct ArrayOfRegions * rptr) {
 #ifdef DEBUG
         printf_sdyld("Region Ptrs: %lld\n", rptr);
@@ -478,9 +505,8 @@ int main(int argc, char** argv)
           if ( (region.vmOffset == 0) && (segIndex > 0) )
             continue;
           int perms = region.perms;
-          MMap_ptr MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", sdyld);
 #ifdef DEBUG
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
           printf_sdyld("Addr: %lld\n", (void*)(loadAddress + region.vmOffset));
           printf_sdyld("Size: %lld\n", (size_t)region.fileSize);
           printf_sdyld("Perms: %lld\n", region.perms);
@@ -492,26 +518,25 @@ int main(int argc, char** argv)
           void* segAddress = MMap_func(*(void **)(apis+ 8), (void*)(loadAddress + region.vmOffset), (size_t)region.fileSize, PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
           lastOffset = loadAddress + region.vmOffset + region.fileSize;
 #ifdef DEBUG
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
           printf_sdyld("Buffer: %lld\n", buffer);
           printf_sdyld("BufferO: %lld\n", buffer + sliceOffset + region.fileOffset);
 #endif
           memcpy2(segAddress, (const void *)(buffer + sliceOffset + region.fileOffset), (size_t)region.fileSize);
 #ifdef DEBUG
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
 #endif
-          Mprotect_ptr Mprotect_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate8mprotectEPvmi", sdyld);
+          Mprotect_ptr Mprotect_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate8mprotectEPvmi", offset2);
           Mprotect_func(*(void **)(apis+ 8), segAddress, (size_t)region.fileSize, perms);
 #ifdef DEBUG
           printf_sdyld("SegAddress: %lld\n", segAddress);
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", sdyld));
+          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
 #endif
           ++segIndex;
         }
     });
     // Okay, we should be good to go with JustInTimeLoader::make.
     // __ZNK5dyld39MachOFile11installNameEv: ""
-    WithLoadersWriteLock_ptr WithLoadersWriteLock_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState20withLoadersWriteLockEU13block_pointerFvvE", sdyld);
     // We cannot use __block as it corrupts the stack, so we have to use a malloc technique to pass data.
     uintptr_t structspace = 0;
     uint64_t structspacesize = sizeof(void *)+ // rtopLoader
@@ -523,7 +548,7 @@ int main(int argc, char** argv)
         sizeof(struct diagnostics); // diag
     VMAllocate_func(mach_task_self, &structspace, structspacesize, 0x1);
     uint64_t * rtopLoader = (uint64_t *)(structspace);;
-    WithLoadersWriteLock_func(apis, ^(){
+    if (ventura) {
       struct Loaded * loaded = (struct Loaded*)(apis+32);
       uintptr_t startLoaderCount = loaded->size;
 #ifdef DEBUG
@@ -540,7 +565,7 @@ int main(int argc, char** argv)
       printf_sdyld("LoadAddress: %lld\n", loadAddress);
       printf_sdyld("JITLMP: %lld\n", JustInTimeLoaderMake_func);
 #endif
-      void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0);
+      void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0, 0);
 #ifdef DEBUG
       printf_sdyld("TopLoader: %lld\n", topLoader);
       printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
@@ -584,7 +609,7 @@ int main(int argc, char** argv)
       depOptions->canBeDylib       = true;
       depOptions->rpathStack       = loadChain;
       depOptions->useFallBackPaths = true;
-      LoadDependents_ptr LoadDependents_func = find_symbol(sdyld, "__ZN5dyld46Loader14loadDependentsER11DiagnosticsRNS_12RuntimeStateERKNS0_11LoadOptionsE", sdyld);
+      LoadDependents_ptr LoadDependents_func = find_symbol(sdyld, "__ZN5dyld46Loader14loadDependentsER11DiagnosticsRNS_12RuntimeStateERKNS0_11LoadOptionsE", offset2);
       struct diagnostics * diag = (struct diagnostics *)(depOptions+sizeof(struct LoadOptions));
       diag->_buffer = 0;
       LoadDependents_func(topLoader, diag, apis, depOptions);
@@ -604,16 +629,16 @@ int main(int argc, char** argv)
       void * * newLoaders = &loaded->elements[startLoaderCount];
       struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
       if (newLoadersCount != 0) {
-        NotifyDebuggerLoad_ptr NotifyDebuggerLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState18notifyDebuggerLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+        NotifyDebuggerLoad_ptr NotifyDebuggerLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState18notifyDebuggerLoadERKNSt3__14spanIPKNS_6LoaderELm18446744073709551615EEE", offset2);
         NotifyDebuggerLoad_func(apis, &newLoadersArray);
         if (*(char *)(apis + 0x7f) != '\0') {
-          AddWeakDefs_ptr AddWeakDefs_func = find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKN5dyld35ArrayIPKS0_EE", sdyld);
+          AddWeakDefs_ptr AddWeakDefs_func = find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKNSt3__14spanIPKS0_Lm18446744073709551615EEE", offset2);
           AddWeakDefs_func(apis, &newLoadersArray);
 #ifdef DEBUG
           print("WeakRefed\n");
 #endif
         }
-        ApplyFixups_ptr ApplyFixups_func = find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", sdyld);
+        ApplyFixups_ptr ApplyFixups_func = find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", offset2);
         struct DyldCacheDataConstLazyScopedWriter dcdclsw = { apis, false };
         for (int i = 0; i != newLoadersCount; ++i) {
 #ifdef DEBUG
@@ -629,47 +654,196 @@ int main(int argc, char** argv)
 #endif
         }
         // TODO: Figure out if we need addPermanentRanges.
-        NotifyDtrace_ptr NotifyDtrace_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+        NotifyDtrace_ptr NotifyDtrace_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKNSt3__14spanIPKNS_6LoaderELm18446744073709551615EEE", offset2);
         NotifyDtrace_func(apis, &newLoadersArray);
-        RebindMissingFlatLazySymbols_ptr RebindMissingFlatLazySymbols_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState28rebindMissingFlatLazySymbolsERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+        RebindMissingFlatLazySymbols_ptr RebindMissingFlatLazySymbols_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState28rebindMissingFlatLazySymbolsERKNSt3__14spanIPKNS_6LoaderELm18446744073709551615EEE", offset2);
         RebindMissingFlatLazySymbols_func(apis, &newLoadersArray);
         for (int i = 0; i != newLoadersCount; ++i) {
           void * ldr = newLoaders[i];
 #ifdef DEBUG
           print("Setting up locals.\n");
 #endif
-          GetMA_ptr GetMA_func = find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", sdyld);
+          GetMA_ptr GetMA_func = find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", offset2);
           const void* * ma = GetMA_func(ldr, apis);
-          HasThreadLocalVariables_ptr HasThreadLocalVariables_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", sdyld);
+          HasThreadLocalVariables_ptr HasThreadLocalVariables_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", offset2);
           if (HasThreadLocalVariables_func(ma) == true) {
 #ifdef DEBUG
             print("Has local variables.\n");
 #endif
-            SetUpTLVs_ptr SetUpTLVs_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", sdyld);
+            SetUpTLVs_ptr SetUpTLVs_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", offset2);
             SetUpTLVs_func(apis, ma);
           }
         };
       }
-      IncDlRefCount_ptr IncDlRefCount_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", sdyld);
+      IncDlRefCount_ptr IncDlRefCount_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", offset2);
       IncDlRefCount_func(apis, topLoader);
 #ifdef DEBUG
       print("Notifying.\n");
 #endif
-      NotifyLoad_ptr NotifyLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", sdyld);
+      NotifyLoad_ptr NotifyLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKNSt3__14spanIPKNS_6LoaderELm18446744073709551615EEE", offset2);
       NotifyLoad_func(apis, &newLoadersArray);
 #ifdef DEBUG
       print("Initializing\n");
 #endif
-      RunInitializers_ptr RunInitializers_func = find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", sdyld);
+      RunInitializers_ptr RunInitializers_func = find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", offset2);
       RunInitializers_func(topLoader, apis);
       *rtopLoader = (uint64_t)topLoader;
-    });
+    } else {
+      WithLoadersWriteLock_ptr WithLoadersWriteLock_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState20withLoadersWriteLockEU13block_pointerFvvE", offset2);
+      WithLoadersWriteLock_func(apis, ^(){
+        struct Loaded * loaded = (struct Loaded*)(apis+32);
+        uintptr_t startLoaderCount = loaded->size;
+#ifdef DEBUG
+        printf_sdyld("Loaded Size: %lld\n", loaded->size);
+        printf_sdyld("Loaded first: %lld\n", (loaded->elements));
+        printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
+#endif
+        struct FileID * fileid = (struct FileID *)(rtopLoader+sizeof(void *));// = { 0, 0, false };
+        fileid->iNode = 0;
+        fileid->modTime = 0;
+        fileid->isValid = false;
+#ifdef DEBUG
+        printf_sdyld("Apis: %lld\n", apis);
+        printf_sdyld("LoadAddress: %lld\n", loadAddress);
+        printf_sdyld("JITLMP: %lld\n", JustInTimeLoaderMake_func);
+#endif
+        void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0, 0);
+#ifdef DEBUG
+        printf_sdyld("TopLoader: %lld\n", topLoader);
+        printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
+        printf_sdyld("Loaded Size: %lld\n", loaded->size);
+        printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
+#endif
+        struct PartialLoader * pl = (struct PartialLoader *)topLoader;
+#ifdef DEBUG
+        printf_sdyld("LoadAddress: %lld\n", pl->mappedAddress);
+        printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
+        printf_sdyld("hidden: %lld\n", pl->hidden);
+        printf_sdyld("Magic: %lld\n", pl->magic);
+        printf_sdyld("IsPrebuilt: %lld\n", pl->isPrebuilt);
+#endif
+        pl->lateLeaveMapped = 1;
+        pl = (struct PartialLoader *)topLoader;
+#ifdef DEBUG
+        printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
+#endif
+        struct LoadChain * loadChainMain = (struct LoadChain *)(fileid+sizeof(struct FileID));// = { 0, *(void **)(apis+24) };
+        loadChainMain->previous = 0;
+        loadChainMain->image = *(void **)(apis+24);
+#ifdef DEBUG
+        printf_sdyld("mainExecutableLoader: %lld\n", *(void **)(apis+24));
+        printf_sdyld("mainExecutableLoader: %lld\n", loadChainMain->image);
+#endif
+        struct LoadChain * loadChainCaller = (struct LoadChain *)(loadChainMain+sizeof(struct LoadChain));// = { &loadChainMain, &(loaded->elements[0]) };
+        loadChainCaller->previous = &loadChainMain;
+        loadChainCaller->image = &(loaded->elements[0]);
+#ifdef DEBUG
+        printf_sdyld("LoadedElements: %lld\n", &(loaded->elements[0]));
+        printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
+#endif
+        struct LoadChain * loadChain = (struct LoadChain *)(loadChainCaller+sizeof(struct LoadChain));// = { &loadChainCaller, topLoader };
+        loadChain->previous = &loadChainCaller;
+        loadChain->image = topLoader;
+        struct LoadOptions * depOptions = (struct LoadOptions *)(loadChain+sizeof(struct LoadChain));
+        depOptions->staticLinkage    = false;
+        depOptions->rtldLocal        = false; // RTLD_LOCAL only effects top level dylib
+        depOptions->rtldNoDelete     = true;
+        depOptions->canBeDylib       = true;
+        depOptions->rpathStack       = loadChain;
+        depOptions->useFallBackPaths = true;
+        LoadDependents_ptr LoadDependents_func = find_symbol(sdyld, "__ZN5dyld46Loader14loadDependentsER11DiagnosticsRNS_12RuntimeStateERKNS0_11LoadOptionsE", offset2);
+        struct diagnostics * diag = (struct diagnostics *)(depOptions+sizeof(struct LoadOptions));
+        diag->_buffer = 0;
+        LoadDependents_func(topLoader, diag, apis, depOptions);
+        if (diag->_buffer != 0) {
+#ifdef DEBUG
+          print("Error\n");
+#endif
+        };
+#ifdef DEBUG
+        printf_sdyld("buffer: %lld\n", diag->_buffer);
+        printf_sdyld("startLoaderCount: %lld\n", startLoaderCount);
+#endif
+        uint64_t newLoadersCount = loaded->size - startLoaderCount;
+#ifdef DEBUG
+        printf_sdyld("newLoadersCount: %lld\n", newLoadersCount);
+#endif
+        void * * newLoaders = &loaded->elements[startLoaderCount];
+        struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
+        if (newLoadersCount != 0) {
+          NotifyDebuggerLoad_ptr NotifyDebuggerLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState18notifyDebuggerLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", offset2);
+          NotifyDebuggerLoad_func(apis, &newLoadersArray);
+          if (*(char *)(apis + 0x7f) != '\0') {
+            AddWeakDefs_ptr AddWeakDefs_func = find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKN5dyld35ArrayIPKS0_EE", offset2);
+            AddWeakDefs_func(apis, &newLoadersArray);
+#ifdef DEBUG
+            print("WeakRefed\n");
+#endif
+          }
+          ApplyFixups_ptr ApplyFixups_func = find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", offset2);
+          struct DyldCacheDataConstLazyScopedWriter dcdclsw = { apis, false };
+          for (int i = 0; i != newLoadersCount; ++i) {
+#ifdef DEBUG
+            print("Fixing Up!\n");
+#endif
+            void * ldr = newLoaders[i];
+#ifdef DEBUG
+            printf_sdyld("Ldr: %lld\n", ldr);
+#endif
+            ApplyFixups_func(ldr, diag, apis, &dcdclsw, true);
+#ifdef DEBUG
+            printf_sdyld("Diag: %lld\n", diag->_buffer);
+#endif
+          }
+          // TODO: Figure out if we need addPermanentRanges.
+          NotifyDtrace_ptr NotifyDtrace_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKN5dyld35ArrayIPKNS_6LoaderEEE", offset2);
+          NotifyDtrace_func(apis, &newLoadersArray);
+          RebindMissingFlatLazySymbols_ptr RebindMissingFlatLazySymbols_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState28rebindMissingFlatLazySymbolsERKN5dyld35ArrayIPKNS_6LoaderEEE", offset2);
+          RebindMissingFlatLazySymbols_func(apis, &newLoadersArray);
+          for (int i = 0; i != newLoadersCount; ++i) {
+            void * ldr = newLoaders[i];
+#ifdef DEBUG
+            print("Setting up locals.\n");
+#endif
+            GetMA_ptr GetMA_func = find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", offset2);
+            const void* * ma = GetMA_func(ldr, apis);
+            HasThreadLocalVariables_ptr HasThreadLocalVariables_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", offset2);
+            if (HasThreadLocalVariables_func(ma) == true) {
+#ifdef DEBUG
+              print("Has local variables.\n");
+#endif
+              SetUpTLVs_ptr SetUpTLVs_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", offset2);
+              SetUpTLVs_func(apis, ma);
+            }
+          };
+        }
+        IncDlRefCount_ptr IncDlRefCount_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", offset2);
+        IncDlRefCount_func(apis, topLoader);
+#ifdef DEBUG
+        print("Notifying.\n");
+#endif
+        NotifyLoad_ptr NotifyLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", offset2);
+        NotifyLoad_func(apis, &newLoadersArray);
+#ifdef DEBUG
+        print("Initializing\n");
+#endif
+        RunInitializers_ptr RunInitializers_func = find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", offset2);
+        RunInitializers_func(topLoader, apis);
+        *rtopLoader = (uint64_t)topLoader;
+      });
+    }
     uintptr_t flags = 0;
-    void* handle = (void*)((((uintptr_t)*rtopLoader) << 1) | flags);
+    void* handle = 0;
+    if (ventura) {
+      HandleFromLoader_ptr HandleFromLoader_func = find_symbol(sdyld, "__ZN5dyld4L16handleFromLoaderEPKNS_6LoaderEb", offset2);
+      handle = HandleFromLoader_func((void *)*rtopLoader, false);
+    } else {
+      handle = (void*)((((uintptr_t)*rtopLoader) << 1) | flags);
+    }
 #ifdef DEBUG
     printf_sdyld("Handle: %lld\n", handle);
 #endif
-    VMDeallocate_ptr VMDeallocate_func = find_symbol(sdyld, "_vm_deallocate", sdyld);
+    VMDeallocate_ptr VMDeallocate_func = find_symbol(sdyld, "_vm_deallocate", offset2);
     VMDeallocate_func(mach_task_self, (void *)structspace, structspacesize);
 #ifdef DEBUG
     printf_sdyld("VMDeallocated: %lld\n", structspace);
