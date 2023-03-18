@@ -157,30 +157,25 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 public: common_public,
                 realm: nil,
                 workspace: framework.db.workspace)
-              creds.cmd_creds()
+              creds.cmd_creds('-u', 'this_username')
               expect(@output).to eq([
                 "Credentials",
                 "===========",
                 "",
-                "host  origin  service  public         private        realm  private_type        JtR Format  cracked_password",
-                "----  ------  -------  ------         -------        -----  ------------        ----------  ----------------",
-                "                       thisuser       thispass              Password                        ",
-                "                                      nonblank_pass         Password                        ",
-                "                       nonblank_user                        Password                        ",
-                "                       this_username  some_hash             Nonreplayable hash              this_cracked_password"
+                "host  origin  service  public         private    realm  private_type        JtR Format  cracked_password",
+                "----  ------  -------  ------         -------    -----  ------------        ----------  ----------------",
+                "                       this_username  some_hash         Nonreplayable hash              this_cracked_password"
               ])
             end
             it "should show the user given passwords on private column instead of cracked_password column" do
-              creds.cmd_creds()
+              creds.cmd_creds('-u', 'thisuser')
               expect(@output).to eq([
                 "Credentials",
                 "===========",
                 "",
-                "host  origin  service  public         private        realm  private_type  JtR Format  cracked_password",
-                "----  ------  -------  ------         -------        -----  ------------  ----------  ----------------",
-                "                       thisuser       thispass              Password                  ",
-                "                                      nonblank_pass         Password                  ",
-                "                       nonblank_user                        Password                  "
+                "host  origin  service  public    private   realm  private_type  JtR Format  cracked_password",
+                "----  ------  -------  ------    -------   -----  ------------  ----------  ----------------",
+                "                       thisuser  thispass         Password                  "
               ])
             end
           end
