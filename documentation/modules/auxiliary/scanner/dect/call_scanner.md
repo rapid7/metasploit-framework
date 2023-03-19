@@ -11,3 +11,5 @@ DECT stands for Digital Enhanced Cordless Telecommunications. The wireless stand
 ## Options
 
 Call scanner currently has no options.
+
+## Scenarios
