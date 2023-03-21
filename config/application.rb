@@ -47,7 +47,7 @@ module Metasploit
       when "test"
         config.eager_load = false
       when "production"
-        config.eager_load = true
+        config.eager_load = false
       end
 
       if ActiveRecord.respond_to?(:legacy_connection_handling=)
