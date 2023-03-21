@@ -44,6 +44,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enumerate_regions
+    return [datastore['REGION']] if datastore['REGION']
     regions = []
 
     ec2 = Aws::EC2::Resource.new(
@@ -69,27 +70,30 @@ class MetasploitModule < Msf::Auxiliary
     mac_addr = i.network_interfaces.select { |iface|
       iface.private_ip_address == i.private_ip_address
     }.first.mac_address
+    iname = i.tags.find {|t| t.key == 'Name'} ? i.tags.find {|t| t.key == 'Name'}.value : i.private_dns_name
+    iinfo = i.tags.find {|t| t.key == 'Description'} ? i.tags.find {|t| t.key == 'Description'}.value : nil
     report_host(
       host: i.private_ip_address,
       mac: mac_addr,
       os_name: i.platform_details,
       os_flavor: i.architecture,
-      name: i.private_dns_name,
+      name: iname,
+      info: iinfo,
       comments: "ec2-id: #{i.id}"
     )
     report_note(
       host: i.private_ip_address,
-      type: 'public_ip',
+      type: 'ec2.public_ip',
       data: i.public_ip_address
     ) if i.public_ip_address
     report_note(
       host: i.private_ip_address,
-      type: 'public_dns',
+      type: 'ec2.public_dns',
       data: i.public_dns_name
     ) if i.public_ip_address and not i.public_dns_name.empty?
     report_note(
       host: i.private_ip_address,
-      type: 'hypervisor',
+      type: 'ec2.hypervisor',
       data: i.hypervisor
     ) if i.hypervisor
 
@@ -97,16 +101,25 @@ class MetasploitModule < Msf::Auxiliary
       print_good "    Security Group: #{s.group_id}"
       report_note(
         host: i.private_ip_address,
-        type: "security_group #{s.group_id}",
+        type: "ec2.#{s.group_id}",
         data: s.group_name
+      )
+    end
+
+    i.tags.each do |t|
+      print_good "    Tag: #{t.key} = #{t.value}"
+      report_note(
+        host: i.private_ip_address,
+        type: "ec2.tag #{t.key}",
+        data: t.value
       )
     end
   end
 
   def run
-    regions = datastore['REGION'] ? [datastore['REGION']] : regions = enumerate_regions()
+    regions = enumerate_regions
 
-    regions.each do |region|
+    regions.uniq.each do |region|
       vprint_status "Checking #{region}..."
       ec2 = Aws::EC2::Resource.new(
         region: region,
