@@ -6,6 +6,7 @@
 require 'aws-sdk-ec2'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
   def initialize(info = {})
     super(
       update_info(
@@ -16,7 +17,10 @@ class MetasploitModule < Msf::Auxiliary
                           API of Amazon Web Services to list all EC2 instances associated
                           with the account
                          ),
-        'Author'      => ['Aaron Soto <aaron.soto@rapid7.com>'],
+        'Author'      => [
+          'Aaron Soto <aaron.soto@rapid7.com>',
+          'RageLtMan <rageltman[at]sempervictus>'
+        ],
         'License'     => MSF_LICENSE
       )
     )
@@ -61,8 +65,41 @@ class MetasploitModule < Msf::Auxiliary
     print_good "    Creation Date:  #{i.launch_time}"
     print_good "    Public IP:      #{i.public_ip_address} (#{i.public_dns_name})"
     print_good "    Private IP:     #{i.public_ip_address} (#{i.private_dns_name})"
+    # Report hosts and info
+    mac_addr = i.network_interfaces.select { |iface|
+      iface.private_ip_address == i.private_ip_address
+    }.first.mac_address
+    report_host(
+      host: i.private_ip_address,
+      mac: mac_addr,
+      os_name: i.platform_details,
+      os_flavor: i.architecture,
+      name: i.private_dns_name,
+      comments: "ec2-id: #{i.id}"
+    )
+    report_note(
+      host: i.private_ip_address,
+      type: 'public_ip',
+      data: i.public_ip_address
+    ) if i.public_ip_address
+    report_note(
+      host: i.private_ip_address,
+      type: 'public_dns',
+      data: i.public_dns_name
+    ) if i.public_ip_address and not i.public_dns_name.empty?
+    report_note(
+      host: i.private_ip_address,
+      type: 'hypervisor',
+      data: i.hypervisor
+    ) if i.hypervisor
+
     i.security_groups.each do |s|
       print_good "    Security Group: #{s.group_id}"
+      report_note(
+        host: i.private_ip_address,
+        type: "security_group #{s.group_id}",
+        data: s.group_name
+      )
     end
   end
 
