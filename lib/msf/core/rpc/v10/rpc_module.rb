@@ -737,9 +737,7 @@ private
   end
 
   def _run_exploit(mod, opts)
-    if mod.datastore['PAYLOAD']
-      opts['PAYLOAD'] = mod.datastore['PAYLOAD']
-    else
+    if opts['PAYLOAD'].blank?
       opts['PAYLOAD'] = Msf::Payload.choose_payload(mod)
     end
 

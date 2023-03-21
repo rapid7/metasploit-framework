@@ -51,6 +51,7 @@ class Library
     'SIZE_T'  => 'ULONG_PTR',
     'PSIZE_T' => 'PULONG_PTR',
     'PLPVOID' => 'PULONG_PTR',
+    'ULONG'   => 'DWORD',
     'PULONG'  => 'PDWORD'
   }.freeze
 
@@ -272,8 +273,8 @@ class Library
     [packet, layouts]
   end
 
-  def build_response(packet, function, layouts, arch)
-    case arch
+  def build_response(packet, function, layouts, client)
+    case client.native_arch
     when ARCH_X64
       native = 'Q<'
     when ARCH_X86
@@ -300,7 +301,7 @@ class Library
     # process return value
     case function.return_type
       when 'LPVOID', 'ULONG_PTR'
-        if arch == ARCH_X64
+        if client.native_arch == ARCH_X64
           return_hash['return'] = rec_return_value
         else
           return_hash['return'] = rec_return_value & 0xffffffff
@@ -315,6 +316,20 @@ class Library
         return_hash['return'] = (rec_return_value != 0)
       when 'VOID'
         return_hash['return'] = nil
+      when 'PCHAR'
+        return_hash['return'] = rec_return_value == 0 ? nil : client.railgun.util.read_string(rec_return_value)
+        return_hash['&return'] = rec_return_value
+      when 'PWCHAR'
+        return_hash['return'] = rec_return_value == 0 ? nil : client.railgun.util.read_wstring(rec_return_value)
+        return_hash['&return'] = rec_return_value
+      when 'PULONG_PTR'
+        if client.native_arch == ARCH_X64
+          return_hash['return'] = rec_return_value == 0 ? nil : client.railgun.util.memread(rec_return_value, 8)&.unpack1('Q<')
+          return_hash['&return'] = rec_return_value
+        else
+          return_hash['return'] = rec_return_value == 0 ? nil : client.railgun.util.memread(rec_return_value, 4)&.unpack1('V')
+          return_hash['&return'] = rec_return_value
+        end
       else
         raise "unexpected return type: #{function.return_type}"
     end
@@ -374,7 +389,7 @@ class Library
 
     response = client.send_request(request)
 
-    build_response(response, function, layouts, client.native_arch)
+    build_response(response, function, layouts, client)
   end
 
   # perform type conversions as necessary to reduce the datatypes to their primitives

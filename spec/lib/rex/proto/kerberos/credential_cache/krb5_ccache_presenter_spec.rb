@@ -124,10 +124,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: 2022-11-28 15:51:29 +0000
-            Start time: 2022-11-28 15:51:29 +0000
-            End time: 2032-11-25 15:51:29 +0000
-            Renew Till: 2032-11-25 15:51:29 +0000
+            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -157,10 +157,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: 2022-11-28 15:51:29 +0000
-            Start time: 2022-11-28 15:51:29 +0000
-            End time: 2032-11-25 15:51:29 +0000
-            Renew Till: 2032-11-25 15:51:29 +0000
+            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+            End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -170,20 +170,20 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
               Key Version Number: 2
               Decrypted (with key: 4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326):
                 Times:
-                  Auth time: 2022-11-28 15:51:29 UTC
-                  Start time: 2022-11-28 15:51:29 UTC
-                  End time: 2032-11-25 15:51:29 UTC
-                  Renew Till: 2032-11-25 15:51:29 UTC
+                  Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+                  Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+                  End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+                  Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
                 Client Addresses: 0
                 Transited: tr_type: 0, Contents: ""
                 Client Name: 'Administrator'
                 Client Realm: 'WINDOMAIN.LOCAL'
                 Ticket etype: 18 (AES256)
-                Encryption Key: 3835366238646261363736326161393037386566633133613535323934333739
+                Session Key: 3835366238646261363736326161393037386566633133613535323934333739
                 Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
                 PAC:
                   Validation Info:
-                    Logon Time: 2022-11-28 15:51:29 +0000
+                    Logon Time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
                     Logoff Time: Never Expires (inf)
                     Kick Off Time: Never Expires (inf)
                     Password Last Set: No Time Set (0)
@@ -200,7 +200,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Last Successful Interactive Logon: No Time Set (0)
                     Last Failed Interactive Logon: No Time Set (0)
                     Failed Interactive Logon Count: 0
-                    SID Count: 0
+                    Extra SID Count: 0
                     Resource Group Count: 0
                     Group Count: 5
                     Group IDs:
@@ -220,7 +220,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Logon Domain Name: 'WINDOMAIN.LOCAL'
                   Client Info:
                     Name: 'Administrator'
-                    Client ID: 2022-11-28 15:51:29 +0000
+                    Client ID: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
                   Pac Server Checksum:
                     Signature: 5eb9400bcab42babcd598210
                   Pac Privilege Server Checksum:

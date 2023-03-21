@@ -136,8 +136,6 @@ class EncodedPayload
     # If the exploit needs the payload to be encoded, we need to run the list of
     # encoders in ranked precedence and try to encode with them.
     if needs_encoding
-      encoders = pinst.compatible_encoders
-
       # Make sure the encoder name from the user has the same String#encoding
       # as the framework's list of encoder names so we can compare them later.
       # This is important for when we get input from RPC.
@@ -151,6 +149,8 @@ class EncodedPayload
       elsif (reqs['Encoder'])
         wlog("#{pinst.refname}: Failed to find preferred encoder #{reqs['Encoder']}")
         raise NoEncodersSucceededError, "Failed to find preferred encoder #{reqs['Encoder']}"
+      else
+        encoders = compatible_encoders
       end
 
       encoders.each { |encname, encmod|
@@ -557,6 +557,20 @@ protected
     end
 
     false
+  end
+
+  def compatible_encoders
+    arch = reqs['Arch'] || pinst.arch
+    platform = reqs['Platform'] || pinst.platform
+
+    encoders = []
+
+    framework.encoders.each_module_ranked(
+      'Arch' => arch, 'Platform' => platform) { |name, mod|
+      encoders << [ name, mod ]
+    }
+
+    encoders
   end
 end
 

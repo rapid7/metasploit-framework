@@ -43,9 +43,9 @@ class LibraryFunction
     'LPVOID'     => ['in', 'return'], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we don't want to back it up with actual mem ala PBLOB
     'ULONG_PTR'  => ['in', 'return'],
     'PDWORD'     => ['in', 'out', 'inout'], # todo: support for functions that return pointers to strings
-    'PULONG_PTR' => ['in', 'out', 'inout'],
-    'PWCHAR'     => ['in', 'out', 'inout'],
-    'PCHAR'      => ['in', 'out', 'inout'],
+    'PULONG_PTR' => ['in', 'out', 'inout', 'return'],
+    'PWCHAR'     => ['in', 'out', 'inout', 'return'],
+    'PCHAR'      => ['in', 'out', 'inout', 'return'],
     'PBLOB'      => ['in', 'out', 'inout'],
   }.freeze
 
