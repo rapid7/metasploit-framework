@@ -71,11 +71,6 @@ SERVICE_RESOURCE_LOSS  = 'service-resource-loss'
 OS_RESOURCE_LOSS       = 'os-resource-loss'
 
 #
-# Acceptable Stability ratings
-#
-ACCEPTABLE_STABILITY_TRAITS = [CRASH_SAFE, CRASH_SERVICE_RESTARTS, CRASH_SERVICE_DOWN, CRASH_OS_RESTARTS, CRASH_OS_DOWN, SERVICE_RESOURCE_LOSS, OS_RESOURCE_LOSS]
-
-#
 # Side-effect traits
 #
 
@@ -95,11 +90,6 @@ AUDIO_EFFECTS     = 'audio-effects'
 PHYSICAL_EFFECTS  = 'physical-effects'
 
 #
-# Acceptable Side-effect ratings
-#
-ACCEPTABLE_SIDE_EFFECT_TRAITS = [ARTIFACTS_ON_DISK, CONFIG_CHANGES, IOC_IN_LOGS, ACCOUNT_LOCKOUTS, SCREEN_EFFECTS, AUDIO_EFFECTS, PHYSICAL_EFFECTS]
-
-#
 # Reliability
 #
 
@@ -109,11 +99,6 @@ FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
 REPEATABLE_SESSION = 'repeatable-session'
 # The module isn't expected to get a shell reliably (such as only once).
 UNRELIABLE_SESSION = 'unreliable-session'
-
-#
-# Acceptable Reliability ratings
-#
-ACCEPTABLE_RELIABILITY_TRAITS = [FIRST_ATTEMPT_FAIL, REPEATABLE_SESSION, UNRELIABLE_SESSION]
 
 module HttpClients
   IE = "MSIE"

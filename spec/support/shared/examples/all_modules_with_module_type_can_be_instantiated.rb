@@ -24,13 +24,29 @@ RSpec.shared_examples_for 'all modules with module type can be instantiated' do 
         module_reference_name = module_reference_pathname.to_path.gsub(module_extension_regexp, '')
 
         context module_reference_name do
-          it 'can be instantiated' do
-            load_and_create_module(
-                module_type: module_type,
-                modules_path: modules_path,
-                reference_name: module_reference_name
+          def framework
+            @framework ||= Msf::Simple::Framework.create(
+              'ConfigDirectory' => Rails.application.paths['modules'].expanded.first,
+              'DeferModuleLoads' => true
             )
           end
+
+          before(:all) do
+            @module = load_and_create_module(
+              module_type: module_type,
+              modules_path: modules_path,
+              reference_name: module_reference_name
+            )
+          end
+
+          subject { @module }
+
+          it 'can be instantiated' do
+            expect { subject }.to_not raise_exception
+            expect(subject).to_not be_nil
+          end
+
+          it_behaves_like 'a module with valid metadata'
         end
       end
     end
