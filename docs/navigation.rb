@@ -1,7 +1,7 @@
 # This file maps the files within `metasploit-framework.wiki/` to the navigational menu
 # Modify this file to change the doc site's navigation/hierarchy
 
-# @param path [String] the prefix to remove from a string
+# @param prefix [String] The prefix to remove from a string
 # @return [proc<String, String>] When called with a string, the returned string has the prefix removed
 def without_prefix(prefix)
   proc { |value| value.sub(/^#{prefix}/, '') }
@@ -243,30 +243,35 @@ NAVIGATION_CONFIG = [
         nav_order: 2,
         children: [
           {
-            path: 'Using-Metasploit.md',
-            title: 'Running modules',
+            path: 'Metasploit-Filesystem-Explained.md',
+            title: "Metasploit's Filesystem Explained",
             nav_order: 2
           },
           {
-            path: 'How-to-use-a-Metasploit-module-appropriately.md',
+            path: 'Using-Metasploit.md',
+            title: 'Running modules',
             nav_order: 3
           },
           {
-            path: 'How-payloads-work.md',
+            path: 'How-to-use-a-Metasploit-module-appropriately.md',
             nav_order: 4
           },
           {
-            path: 'Module-Documentation.md',
+            path: 'How-payloads-work.md',
             nav_order: 5
           },
           {
-            path: 'How-to-use-a-reverse-shell-in-Metasploit.md',
+            path: 'Module-Documentation.md',
             nav_order: 6
           },
           {
-            path: 'How-to-use-msfvenom.md',
+            path: 'How-to-use-a-reverse-shell-in-Metasploit.md',
             nav_order: 7
           },
+          {
+            path: 'How-to-use-msfvenom.md',
+            nav_order: 8
+          }
         ]
       },
       {
