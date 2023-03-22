@@ -175,12 +175,13 @@ Lint/DeprecatedGemVersion:
   Exclude:
     - 'metasploit-framework.gemspec'
 
-Metrics/ClassLength:
+Metrics/ModuleLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
-  Enabled: true
-  Exclude:
-    - 'modules/**/*'
-    - 'test/modules/**/*'
+  Enabled: false
+
+Metrics/ClassLength:
+  Description: 'Most Metasploit classes are quite large. This is ok.'
+  Enabled: false
 
 Style/ClassAndModuleChildren:
   Enabled: false
