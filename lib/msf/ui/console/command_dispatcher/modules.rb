@@ -1162,7 +1162,7 @@ module Msf
             readable = false
             contents = ''
 
-            if File.exists?(favs_file)
+            if File.exist?(favs_file)
               exists = true
             end
 
@@ -1419,7 +1419,7 @@ module Msf
           def show_favorites # :nodoc:
             favs_file = Msf::Config.fav_modules_file
 
-            unless File.exists?(favs_file)
+            unless File.exist?(favs_file)
               print_error("The favorite modules file does not exist")
               return
             end

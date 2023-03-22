@@ -2,7 +2,7 @@
 
 This is a guide for setting up a developer environment to contribute modules, documentation, and fixes to the Metasploit Framework. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you:
 
- - Install the [open-source Omnibus installer][open-source-installer], or
+ - Install the [[open-source Omnibus installer|./nightly-installers.md]], or
  - Use the pre-installed Metasploit on [Kali Linux][kali-user-instructions] or [Parrot Linux][parrot-user-instructions].
 
 If you want to contribute to Metasploit, start by reading our [CONTRIBUTING.md], then follow the rest of this guide.
@@ -155,7 +155,7 @@ cd ~/git/metasploit-framework
 $ ./msfconsole -qx "db_status; exit"
 ```
 
-Congratulations! You have now set up the [Metasploit Web Service (REST API)][msf-web-service] and the backend database.
+Congratulations! You have now set up the [[Metasploit Web Service (REST API)|./metasploit-web-service.md]] and the backend database.
 
 ## Optional: Tips to speed up common workflows
 
@@ -167,7 +167,7 @@ Making sure you're in the right directory to run `msfconsole` can become tedious
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
 ```
 
-Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [how][signing-howto]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
+Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [[how|./committer-keys.md#signing-your-commits-and-merges]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
 
 ```
 cd *path to your cloned MSF repository on disk*
@@ -212,12 +212,11 @@ You should see over 9000 tests run, mostly resulting in green dots, a few in yel
 
 # Great!  Now what?
 
-We're excited to see your upcoming contributions of new modules, documentation, and fixes!  Check out our [wiki documentation][wiki-documentation] and, if you're looking for inspiration, keep an eye out for [newbie-friendly pull requests and issues][newbie-friendly-prs-issues].   Please [submit your new pull requests][howto-PR] and reach out to us on [Slack] for community help.
+We're excited to see your upcoming contributions of new modules, documentation, and fixes! If you're looking for inspiration, keep an eye out for [newbie-friendly pull requests and issues][newbie-friendly-prs-issues].   Please [submit your new pull requests][howto-PR] and reach out to us on [Slack] for community help.
 
 Finally, we welcome your feedback on this guide, so feel free to reach out to us on [Slack] or open a [new issue].  For their significant contributions to this guide, we would like to thank [@kernelsmith], [@corelanc0d3r], and [@ffmike].
 
 [commercial-installer]:http://metasploit.com/download
-[open-source-installer]:https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
 [kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
 [parrot-user-instructions]:https://parrotsec.org/docs/installation.html
 [CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
@@ -240,14 +239,10 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [find]:https://linux.die.net/man/1/find
 [$PATH]:https://askubuntu.com/questions/109381/how-to-add-path-of-a-program-to-path-environment-variable
 
-[msf-web-service]:https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html
-
 [git-horror]:https://mikegerwitz.com/papers/git-horror-story#trust-ensure
-[signing-howto]:https://docs.metasploit.com/docs/development/maintainers/committer-keys.html#signing-howto
 
 [git aliases]:https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
 [rspec]:https://www.rubyguides.com/2018/07/rspec-tutorial/
-[wiki-documentation]:https://docs.metasploit.com/#metasploit-development
 [newbie-friendly-prs-issues]:https://github.com/rapid7/metasploit-framework/issues?q=is%3Aopen+label%3Anewbie-friendly
 [howto-PR]:https://help.github.com/articles/about-pull-requests/
 [new issue]:https://github.com/rapid7/metasploit-framework/issues/new/choose

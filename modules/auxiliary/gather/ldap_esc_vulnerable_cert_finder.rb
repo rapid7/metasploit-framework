@@ -145,9 +145,9 @@ class MetasploitModule < Msf::Auxiliary
       controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
 
       returned_entries = ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
-      query_result = ldap.as_json['result']['ldap_result']
+      query_result_table = ldap.get_operation_result.table
 
-      validate_query_result!(query_result, filter)
+      validate_query_result!(query_result_table, filter)
 
       if returned_entries.blank?
         vprint_error("No results found for #{filter}.")
