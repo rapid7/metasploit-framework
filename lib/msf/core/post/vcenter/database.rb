@@ -217,7 +217,7 @@ module Msf
         # @param pg_password [String] postgress password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
-        # @param vc_sym_key [String] sym key from virtual center
+        # @param _vc_sym_key [String] sym key from virtual center
         # @return [Array] list of hash tables where each table is a user, nil on error
         #
         def get_vpx_vms(pg_password, vcdb_user, vcdb_name, _vc_sym_key)
