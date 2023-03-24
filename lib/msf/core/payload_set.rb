@@ -158,7 +158,7 @@ class PayloadSet < ModuleSet
     payload = build_payload(handler, single_mod, adapter_mod)
 
     adapted_name = build_adapted_name(adapter_name, single_payload.refname)
-    add_single(payload, adapted_name, adapted_modinfo)
+    add_single(payload, adapted_name, adapted_modinfo, adapted_refname: single_payload.refname, adapter_refname: adapter_name)
 
     payload
   end
@@ -264,6 +264,8 @@ class PayloadSet < ModuleSet
 
     # Sets the modules derived name
     payload.refname = staged_refname
+    payload.stage_refname = stage_name
+    payload.stager_refname = stager_name
 
     # Add the stage
     add_stage(payload, staged_refname, stage_name, handler_type, {
@@ -287,6 +289,11 @@ class PayloadSet < ModuleSet
     payload.refname = adapted_refname
     payload.framework = framework
     payload.file_path = adapter_modinfo['files'][0]
+    payload.adapted_refname = staged_payload.refname
+    payload.adapter_refname = adapter_name
+    payload.stage_refname = staged_payload.stage_refname
+    payload.stager_refname = staged_payload.stager_refname
+
     self[payload.refname] = payload
     payload
   end
@@ -307,10 +314,13 @@ class PayloadSet < ModuleSet
   #   +type+ argument.
   # @return [void]
   def add_module(payload_module, reference_name, modinfo={})
+    if modinfo['cached_metadata']
+      return add_cached_module(modinfo['cached_metadata'])
+    end
 
-    if (md = reference_name.match(/^(adapters|singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
-      ptype = md[1]
-      reference_name  = md[2]
+    if (match_data = reference_name.match(/^(adapters|singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
+      ptype = match_data[1]
+      reference_name  = match_data[2]
     end
 
     # Duplicate the Payload base class and extend it with the module
@@ -337,6 +347,52 @@ class PayloadSet < ModuleSet
     # also convey other information about the module, such as
     # the platforms and architectures it supports
     payload_type_modules[instance.payload_type][reference_name] = pinfo
+  end
+
+  def add_cached_module(cached_module_metadata)
+    case cached_module_metadata.payload_type
+    when Payload::Type::Single
+      single_name = cached_module_metadata.ref_name
+      single_info = _singles[single_name]
+      calculate_single_payload(single_name: single_name, single_info: single_info)
+    when Payload::Type::Stager
+      stager_refname = cached_module_metadata.stager_refname
+      stager_info = _stagers[stager_refname]
+      stage_name = cached_module_metadata.stage_refname
+      stage_info = _stages[stage_name]
+
+      calculate_staged_payload(stage_name: stage_name,
+                               stager_name: stager_refname,
+                               stage_info: stage_info,
+                               stager_info: stager_info)
+
+    when Payload::Type::Adapter
+      adapter_name = cached_module_metadata.adapter_refname
+      adapter_info = _adapters[adapter_name]
+
+      if cached_module_metadata.staged
+        stage_name = cached_module_metadata.stage_refname
+
+        stage_info = _stages[stage_name]
+        stager_name= cached_module_metadata.stager_refname
+        stager_info = _stagers[stager_name]
+        staged_payload = self[cached_module_metadata.adapted_refname]
+
+        calculate_adapted_staged_payload(staged_payload: staged_payload,
+                                         adapter_name: adapter_name,
+                                         stage_info: stage_info,
+                                         stager_info: stager_info,
+                                         adapter_info: adapter_info)
+      else
+        single_name = cached_module_metadata.adapted_refname
+        single_info = _singles[single_name]
+        single_payload = self[single_name]
+        calculate_adapted_single_payload(adapter_name: adapter_name,
+                                         adapter_info: adapter_info,
+                                         single_info: single_info,
+                                         single_payload: single_payload)
+      end
+    end
   end
 
   #
@@ -398,10 +454,12 @@ class PayloadSet < ModuleSet
   # This method adds a single payload to the set and adds it to the singles
   # hash.
   #
-  def add_single(p, name, modinfo)
+  def add_single(p, name, modinfo, adapted_refname: nil, adapter_refname: nil)
     p.framework = framework
     p.refname = name
     p.file_path = modinfo['files'][0]
+    p.adapted_refname = adapted_refname
+    p.adapter_refname = adapter_refname
 
     # Associate this class with the single payload's name
     self[name] = p

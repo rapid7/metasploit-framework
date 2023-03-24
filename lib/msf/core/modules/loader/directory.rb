@@ -73,6 +73,14 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   def read_module_content(parent_path, type, module_reference_name)
     full_path = module_path(parent_path, type, module_reference_name)
 
+    read_module_content_from_path(full_path)
+  end
+
+  # Loads the module content from the on disk file.
+  #
+  # @param (see Msf::Modules::Loader::Base#read_module_content_from_path)
+  # @return (see Msf::Modules::Loader::Base#read_module_content_from_path)
+  def read_module_content_from_path(full_path)
     module_content = ''
 
     begin

@@ -2,6 +2,291 @@
 require 'spec_helper'
 
 
+RSpec.shared_examples_for 'base#load_module' do
+
+  it 'should call file_changed? with the module_path' do
+    expect(module_manager).to receive(:file_changed?).with(module_path).and_return(false)
+
+    subject.load_module(parent_path, type, module_reference_name, force: false, cached_metadata: cached_metadata)
+  end
+
+  context 'without file changed' do
+    before(:example) do
+      allow(module_manager).to receive(:file_changed?).and_return(false)
+    end
+
+    it 'should return false if :force is false' do
+      expect(subject.load_module(parent_path, type, module_reference_name, :force => false, cached_metadata: cached_metadata)).to be_falsey
+    end
+
+    it 'should not call #read_module_content_from_path' do
+      expect(subject).not_to receive(:read_module_content_from_path)
+      subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)
+    end
+  end
+
+  context 'with file changed' do
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
+    let(:module_full_name) do
+      File.join('auxiliary', module_reference_name)
+    end
+
+    let(:namespace_module) do
+      Msf::Modules.const_get(relative_name)
+    end
+
+    let(:relative_name) do
+      'Auxiliary__Rspec__Mock'
+    end
+
+    before(:example) do
+      # capture in a local so that instance_eval can access it
+      relative_name = self.relative_name
+
+      # remove module from previous examples so reload error aren't logged
+      if Msf::Modules.const_defined? relative_name
+        Msf::Modules.instance_eval do
+          remove_const relative_name
+        end
+      end
+
+      # create an namespace module that can be restored
+      module Msf
+        module Modules
+          module Auxiliary__Rspec__Mock
+            class MetasploitModule < Msf::Auxiliary
+
+            end
+          end
+        end
+      end
+
+      @original_namespace_module = Msf::Modules::Auxiliary__Rspec__Mock
+
+      module_set = double('Module Set')
+      allow(module_set).to receive(:delete).with(module_reference_name)
+
+      allow(module_manager).to receive(:delete).with(module_reference_name)
+      allow(module_manager).to receive(:file_changed?).with(module_path).and_return(true)
+      allow(module_manager).to receive(:module_set).with(type).and_return(module_set)
+    end
+
+    it 'should call #namespace_module_transaction with the module full name and :reload => true' do
+      allow(subject).to receive(:read_module_content_from_path).and_return(module_content)
+
+      expect(subject).to receive(:namespace_module_transaction).with(module_full_name, hash_including(:reload => true))
+
+      subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)
+    end
+
+    it 'should set the parent_path on the namespace_module to match the parent_path passed to #load_module' do
+      allow(module_manager).to receive(:on_module_load)
+
+      allow(subject).to receive(:read_module_content_from_path).and_return(module_content)
+
+      expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_truthy
+
+      expect(namespace_module.parent_path).to eq parent_path
+    end
+
+    it 'should call #read_module_content_from_path to get the module content so that #read_module_content_from_path can be overridden to change loading behavior' do
+      allow(module_manager).to receive(:on_module_load)
+
+      expect(subject).to receive(:read_module_content_from_path).with(module_path).and_return(module_content)
+
+      expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_truthy
+    end
+
+    it 'should call namespace_module.module_eval_with_lexical_scope with the module_path' do
+      allow(subject).to receive(:read_module_content_from_path).and_return(malformed_module_content)
+      allow(module_manager).to receive(:on_module_load)
+
+      # if the module eval error includes the module_path then the module_path was passed along correctly
+      expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/, error: an_instance_of(NoMethodError))
+      expect(subject.load_module(parent_path, type, module_reference_name, :reload => true, cached_metadata: cached_metadata)).to be_falsey
+    end
+
+    context 'with empty module content' do
+      before(:example) do
+        allow(subject).to receive(:read_module_content_from_path).with(module_path).and_return('')
+      end
+
+      it 'should return false' do
+        expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_falsey
+      end
+
+      it 'should not attempt to make a new namespace_module' do
+        expect(subject).not_to receive(:namespace_module_transaction)
+        expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_falsey
+      end
+    end
+
+    context 'with errors from namespace_module_eval_with_lexical_scope' do
+      before(:example) do
+        @namespace_module = double('Namespace Module', :'parent_path=' => nil)
+        module_content = double('Module Content', empty?: false)
+
+        allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
+        allow(subject).to receive(:read_module_content_from_path).and_return(module_content)
+      end
+
+      context 'with Interrupt' do
+        it 'should re-raise' do
+          allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(Interrupt)
+
+          expect {
+            subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)
+          }.to raise_error(Interrupt)
+        end
+      end
+
+      context 'with other Exception' do
+        let(:backtrace) do
+          [
+            'Backtrace Line 1',
+            'Backtrace Line 2'
+          ]
+        end
+
+        let(:error) do
+          error_class.new(error_message)
+        end
+
+        let(:error_class) do
+          ArgumentError
+        end
+
+        let(:error_message) do
+          'This is rspec.  Your argument is invalid.'
+        end
+
+        before(:example) do
+          allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(error)
+
+          @module_load_error_by_path = {}
+          allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
+
+          allow(error).to receive(:backtrace).and_return(backtrace)
+        end
+
+        it 'should record the load error using the original error' do
+          expect(subject).to receive(:load_error).with(module_path, error)
+          expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_falsey
+        end
+
+        it 'should return false' do
+          expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_falsey
+        end
+      end
+    end
+
+    context 'without module_eval errors' do
+      before(:example) do
+        @namespace_module = double('Namespace Module')
+        allow(@namespace_module).to receive(:parent_path=)
+        allow(@namespace_module).to receive(:module_eval_with_lexical_scope).with(module_content, module_path)
+        allow(@namespace_module).to receive(:const_defined?).with('Metasploit3', false).and_return(false)
+        allow(@namespace_module).to receive(:const_defined?).with('Metasploit4', false).and_return(false)
+        allow(@namespace_module).to receive(:const_defined?).with('MetasploitModule', false).and_return(true)
+        allow(@namespace_module).to receive(:const_get).with('Metasploit3', false).and_return(false)
+        allow(@namespace_module).to receive(:const_get).with('Metasploit4', false).and_return(false)
+        allow(@namespace_module).to receive(:const_get).with('MetasploitModule', false).and_return(true)
+        allow(@namespace_module).to receive(:module_load_warnings)
+
+        allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
+
+        allow(subject).to receive(:read_module_content_from_path).with(module_path).and_return(module_content)
+
+        @module_load_error_by_path = {}
+        allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
+        allow(module_manager).to receive(:on_module_load)
+        # remove the mocked namespace_module since happy-path/real loading is occurring in this context
+        allow(subject).to receive(:namespace_module_transaction).and_call_original
+      end
+
+      it 'should log load information' do
+        expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
+        expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_truthy
+      end
+
+      it 'should delete any pre-existing load errors from module_manager.module_load_error_by_path' do
+        original_load_error = "Back in my day this module didn't load"
+        module_manager.module_load_error_by_path[module_path] = original_load_error
+
+        expect(module_manager.module_load_error_by_path[module_path]).to eq original_load_error
+        expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_truthy
+        expect(module_manager.module_load_error_by_path[module_path]).to be_nil
+      end
+
+      it 'should return true' do
+        expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_truthy
+      end
+
+      it 'should call module_manager.on_module_load' do
+        expect(module_manager).to receive(:on_module_load)
+        expect(subject.load_module(parent_path, type, module_reference_name, cached_metadata: cached_metadata)).to be_truthy
+      end
+
+      context 'with :recalculate_by_type' do
+        it 'should set the type to be recalculated' do
+          recalculate_by_type = {}
+
+          expect(
+            subject.load_module(
+              parent_path,
+              type,
+              module_reference_name,
+              :recalculate_by_type => recalculate_by_type,
+              cached_metadata: cached_metadata
+            )
+          ).to eq true
+          expect(recalculate_by_type[type]).to be_truthy
+        end
+      end
+
+      context 'with :count_by_type' do
+        it 'should set the count to 1 if it does not exist' do
+          count_by_type = {}
+
+          expect(count_by_type.has_key?(type)).to be_falsey
+          expect(
+            subject.load_module(
+              parent_path,
+              type,
+              module_reference_name,
+              :count_by_type => count_by_type,
+              cached_metadata: cached_metadata
+            )
+          ).to eq true
+          expect(count_by_type[type]).to eq 1
+        end
+
+        it 'should increment the count if it does exist' do
+          original_count = 1
+          count_by_type = {
+            type => original_count
+          }
+
+          expect(
+            subject.load_module(
+              parent_path,
+              type,
+              module_reference_name,
+              :count_by_type => count_by_type,
+              cached_metadata: cached_metadata
+            )
+          ).to eq true
+
+          incremented_count = original_count + 1
+          expect(count_by_type[type]).to eq incremented_count
+        end
+      end
+    end
+  end
+end
+
+
 RSpec.describe Msf::Modules::Loader::Base do
   include_context 'Msf::Modules::Loader::Base'
 
@@ -31,8 +316,12 @@ RSpec.describe Msf::Modules::Loader::Base do
     "#{type}/#{module_reference_name}"
   end
 
+  let(:module_rel_path) do
+    'auxiliary/rspec/mock.rb'
+  end
+
   let(:module_path) do
-    parent_pathname.join('auxiliary', 'rspec', 'mock.rb').to_s
+    parent_pathname.join(module_rel_path).to_s
   end
 
   let(:module_reference_name) do
@@ -244,7 +533,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
     end
 
-    context '#load_module' do
+    describe '#load_module' do
       let(:parent_path) do
         parent_pathname.to_s
       end
@@ -254,285 +543,44 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       before(:example) do
-        allow(subject).to receive(:module_path).and_return(module_path)
+        allow(subject).to receive(:read_module_content_from_path)
       end
 
-      it 'should call file_changed? with the module_path' do
-        expect(module_manager).to receive(:file_changed?).with(module_path).and_return(false)
-
-        subject.load_module(parent_path, type, module_reference_name, :force => false)
-      end
-
-      context 'without file changed' do
-        before(:example) do
-          allow(module_manager).to receive(:file_changed?).and_return(false)
-        end
-
-        it 'should return false if :force is false' do
-          expect(subject.load_module(parent_path, type, module_reference_name, :force => false)).to be_falsey
-        end
-
-        it 'should not call #read_module_content' do
-          expect(subject).not_to receive(:read_module_content)
-          subject.load_module(parent_path, type, module_reference_name)
-        end
-      end
-
-      context 'with file changed' do
-        include_context 'Metasploit::Framework::Spec::Constants cleaner'
-
-        let(:module_full_name) do
-          File.join('auxiliary', module_reference_name)
-        end
-
-        let(:namespace_module) do
-          Msf::Modules.const_get(relative_name)
-        end
-
-        let(:relative_name) do
-          'Auxiliary__Rspec__Mock'
-        end
+      context 'with no metadata cache' do
 
         before(:example) do
-          # capture in a local so that instance_eval can access it
-          relative_name = self.relative_name
-
-          # remove module from previous examples so reload error aren't logged
-          if Msf::Modules.const_defined? relative_name
-            Msf::Modules.instance_eval do
-              remove_const relative_name
-            end
-          end
-
-          # create an namespace module that can be restored
-          module Msf
-            module Modules
-              module Auxiliary__Rspec__Mock
-                class MetasploitModule < Msf::Auxiliary
-
-                end
-              end
-            end
-          end
-
-          @original_namespace_module = Msf::Modules::Auxiliary__Rspec__Mock
-
-          module_set = double('Module Set')
-          allow(module_set).to receive(:delete).with(module_reference_name)
-
-          allow(module_manager).to receive(:delete).with(module_reference_name)
-          allow(module_manager).to receive(:file_changed?).with(module_path).and_return(true)
-          allow(module_manager).to receive(:module_set).with(type).and_return(module_set)
+          allow(subject).to receive(:module_path).and_return(module_path)
         end
 
-        it 'should call #namespace_module_transaction with the module full name and :reload => true' do
-          allow(subject).to receive(:read_module_content).and_return(module_content)
+        let(:cached_metadata) { nil }
 
-          expect(subject).to receive(:namespace_module_transaction).with(module_full_name, hash_including(:reload => true))
+        include_examples 'base#load_module'
+      end
 
-          subject.load_module(parent_path, type, module_reference_name)
+      context 'with metadata cache' do
+
+        let(:metadata_hash) do
+          {
+            'name' => 'Rspec mock',
+            'fullname' => module_full_name,
+            'rank' => 300,
+            'disclosure_date' => nil,
+            'type' => type,
+            'author' => ['rspec'],
+            'description' => 'Mock rspec module',
+            'references' => ['CVE-1234-1234'],
+            'mod_time' => '2023-01-24 14:30:39 +0000',
+            'path' => "/modules/#{module_rel_path}",
+            'is_install_path' => true,
+            'ref_name' => module_reference_name
+          }
         end
 
-        it 'should set the parent_path on the namespace_module to match the parent_path passed to #load_module' do
-          allow(module_manager).to receive(:on_module_load)
-
-          allow(subject).to receive(:read_module_content).and_return(module_content)
-
-          expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-
-          expect(namespace_module.parent_path).to eq parent_path
+        let(:cached_metadata) do
+          Msf::Modules::Metadata::Obj.from_hash(metadata_hash)
         end
 
-        it 'should call #read_module_content to get the module content so that #read_module_content can be overridden to change loading behavior' do
-          allow(module_manager).to receive(:on_module_load)
-
-          expect(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
-
-          expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-        end
-
-        it 'should call namespace_module.module_eval_with_lexical_scope with the module_path' do
-          allow(subject).to receive(:read_module_content).and_return(malformed_module_content)
-          allow(module_manager).to receive(:on_module_load)
-
-          # if the module eval error includes the module_path then the module_path was passed along correctly
-          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/, error: an_instance_of(NoMethodError))
-          expect(subject.load_module(parent_path, type, module_reference_name, :reload => true)).to be_falsey
-        end
-
-        context 'with empty module content' do
-          before(:example) do
-            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return('')
-          end
-
-          it 'should return false' do
-            expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-          end
-
-          it 'should not attempt to make a new namespace_module' do
-            expect(subject).not_to receive(:namespace_module_transaction)
-            expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-          end
-        end
-
-        context 'with errors from namespace_module_eval_with_lexical_scope' do
-          before(:example) do
-            @namespace_module = double('Namespace Module', :'parent_path=' => nil)
-            module_content = double('Module Content', empty?: false)
-
-            allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
-            allow(subject).to receive(:read_module_content).and_return(module_content)
-          end
-
-          context 'with Interrupt' do
-            it 'should re-raise' do
-              allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(Interrupt)
-
-              expect {
-                subject.load_module(parent_path, type, module_reference_name)
-              }.to raise_error(Interrupt)
-            end
-          end
-
-          context 'with other Exception' do
-            let(:backtrace) do
-              [
-                'Backtrace Line 1',
-                'Backtrace Line 2'
-              ]
-            end
-
-            let(:error) do
-              error_class.new(error_message)
-            end
-
-            let(:error_class) do
-              ArgumentError
-            end
-
-            let(:error_message) do
-              'This is rspec.  Your argument is invalid.'
-            end
-
-            before(:example) do
-              allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(error)
-
-              @module_load_error_by_path = {}
-              allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
-
-              allow(error).to receive(:backtrace).and_return(backtrace)
-            end
-
-            it 'should record the load error using the original error' do
-              expect(subject).to receive(:load_error).with(module_path, error)
-              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-            end
-
-            it 'should return false' do
-              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-            end
-          end
-        end
-
-        context 'without module_eval errors' do
-          before(:example) do
-            @namespace_module = double('Namespace Module')
-            allow(@namespace_module).to receive(:parent_path=)
-            allow(@namespace_module).to receive(:module_eval_with_lexical_scope).with(module_content, module_path)
-            allow(@namespace_module).to receive(:const_defined?).with('Metasploit3', false).and_return(false)
-            allow(@namespace_module).to receive(:const_defined?).with('Metasploit4', false).and_return(false)
-            allow(@namespace_module).to receive(:const_defined?).with('MetasploitModule', false).and_return(true)
-            allow(@namespace_module).to receive(:const_get).with('Metasploit3', false).and_return(false)
-            allow(@namespace_module).to receive(:const_get).with('Metasploit4', false).and_return(false)
-            allow(@namespace_module).to receive(:const_get).with('MetasploitModule', false).and_return(true)
-            allow(@namespace_module).to receive(:module_load_warnings)
-
-            allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
-
-            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
-
-            @module_load_error_by_path = {}
-            allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
-            allow(module_manager).to receive(:on_module_load)
-            # remove the mocked namespace_module since happy-path/real loading is occurring in this context
-            allow(subject).to receive(:namespace_module_transaction).and_call_original
-          end
-
-          it 'should log load information' do
-            expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
-            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-          end
-
-          it 'should delete any pre-existing load errors from module_manager.module_load_error_by_path' do
-            original_load_error = "Back in my day this module didn't load"
-            module_manager.module_load_error_by_path[module_path] = original_load_error
-
-            expect(module_manager.module_load_error_by_path[module_path]).to eq original_load_error
-            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-            expect(module_manager.module_load_error_by_path[module_path]).to be_nil
-          end
-
-          it 'should return true' do
-            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-          end
-
-          it 'should call module_manager.on_module_load' do
-            expect(module_manager).to receive(:on_module_load)
-            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-          end
-
-          context 'with :recalculate_by_type' do
-            it 'should set the type to be recalculated' do
-              recalculate_by_type = {}
-
-              expect(
-                subject.load_module(
-                  parent_path,
-                  type,
-                  module_reference_name,
-                  :recalculate_by_type => recalculate_by_type
-                )
-              ).to eq true
-              expect(recalculate_by_type[type]).to be_truthy
-            end
-          end
-
-          context 'with :count_by_type' do
-            it 'should set the count to 1 if it does not exist' do
-              count_by_type = {}
-
-              expect(count_by_type.has_key?(type)).to be_falsey
-              expect(
-                subject.load_module(
-                  parent_path,
-                  type,
-                  module_reference_name,
-                  :count_by_type => count_by_type
-                )
-              ).to eq true
-              expect(count_by_type[type]).to eq 1
-            end
-
-            it 'should increment the count if it does exist' do
-              original_count = 1
-              count_by_type = {
-                  type => original_count
-              }
-
-              expect(
-                subject.load_module(
-                  parent_path,
-                  type,
-                  module_reference_name,
-                  :count_by_type => count_by_type
-                )
-              ).to eq true
-
-              incremented_count = original_count + 1
-              expect(count_by_type[type]).to eq incremented_count
-            end
-          end
-        end
+        include_examples 'base#load_module'
       end
     end
 
@@ -1018,12 +1066,12 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
     end
 
-    context '#read_module_content' do
+    context '#read_module_content_from_path' do
       it 'should be abstract' do
         type = Msf::MODULE_AUX
 
         expect {
-          subject.send(:read_module_content, parent_pathname.to_s, type, module_reference_name)
+          subject.send(:read_module_content_from_path, module_path)
         }.to raise_error(NotImplementedError)
       end
     end
