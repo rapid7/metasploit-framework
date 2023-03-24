@@ -1283,6 +1283,10 @@ module Msf
           #
           def tab_complete_module(str, words)
             res = []
+            module_metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
+            module_metadata.each do |m|
+              res << "#{m.type}/#{m.ref_name}"
+            end
             framework.modules.module_types.each do |mtyp|
               mset = framework.modules.module_names(mtyp)
               mset.each do |mref|
@@ -1291,7 +1295,7 @@ module Msf
             end
 
             return dangerzone_modules_to_codenames(res.sort) if dangerzone_active?
-            return res.sort
+            return res.uniq.sort
           end
 
           def print_april_fools_module_use

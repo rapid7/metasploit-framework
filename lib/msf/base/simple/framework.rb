@@ -120,9 +120,7 @@ module Framework
     # instance
     framework.events.add_general_subscriber(framework)
 
-    unless opts['DeferModuleLoads']
-      framework.init_module_paths
-    end
+    framework.init_module_paths(defer_module_loads: opts['DeferModuleLoads'])
 
     return framework
   end

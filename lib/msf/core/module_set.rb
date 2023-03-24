@@ -22,7 +22,8 @@ class Msf::ModuleSet < Hash
   # @param [String] name the module reference name
   # @return [Msf::Module] instance of the of the Msf::Module subclass with the given reference name
   def [](name)
-    if (super == Msf::SymbolicModule)
+    module_instance = super
+    if module_instance == Msf::SymbolicModule || module_instance.nil?
       create(name)
     end
 
