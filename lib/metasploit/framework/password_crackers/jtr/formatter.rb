@@ -1,8 +1,8 @@
 # This method takes a {framework.db.cred}, and normalizes it
 # to the string format JTR is expecting.
 #
-# @param [credClass] a credential from framework.db
-# @return [String] the hash in jtr format or nil on no mach
+# @param cred [credClass] A credential from framework.db
+# @return [String] The hash in jtr format or nil on no match.
 def hash_to_jtr(cred)
   case cred.private.type
   when 'Metasploit::Credential::NTLMHash'

@@ -559,7 +559,7 @@ module Msf::Post::File
   # Upload a binary and write it as an executable file +remote+ on the
   # remote filesystem.
   #
-  # @param remote [String] Destination file name on the remote filesystem
+  # @param path [String] Path to the destination file on the remote filesystem
   # @param data [String] Data to be uploaded
   def upload_and_chmodx(path, data)
     print_status "Writing '#{path}' (#{data.size} bytes) ..."
@@ -587,8 +587,8 @@ module Msf::Post::File
   #
   # Read a local exploit file binary from the data directory
   #
-  # @param path [String] Directory in the exploits folder
-  # @param path [String] Filename in the data folder
+  # @param data_directory [String] Name of data directory within the exploits folder
+  # @param file [String] Filename in the data folder to use.
   def exploit_data(data_directory, file)
     file_path = ::File.join(::Msf::Config.data_directory, 'exploits', data_directory, file)
     ::File.binread(file_path)
@@ -597,8 +597,8 @@ module Msf::Post::File
   #
   # Read a local exploit source file from the external exploits directory
   #
-  # @param path [String] Directory in the exploits folder
-  # @param path [String] Filename in the source folder
+  # @param source_directory [String] Directory in the external/source/exploits directory to use as the source directory.
+  # @param file [String] Filename in the source folder to use.
   def exploit_source(source_directory, file)
     file_path = ::File.join( Msf::Config.install_root, 'external', 'source', 'exploits', source_directory, file)
     ::File.read(file_path)

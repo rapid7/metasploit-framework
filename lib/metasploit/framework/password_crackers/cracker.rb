@@ -123,8 +123,8 @@ module Metasploit
         # This method takes a {framework.db.cred.private.jtr_format} (string), and
         # returns the string number associated to the hashcat format
         #
-        # @param[String] a jtr_format string
-        # @return [String] the format number for Hashcat
+        # @param format [String] A jtr_format string
+        # @return [String] The format number for Hashcat
         def jtr_format_to_hashcat_format(format)
           case format
           # nix
@@ -237,7 +237,7 @@ module Metasploit
 
         # This method sets the appropriate parameters to run a cracker in wordlist mode
         #
-        # @param[String] a file location of the wordlist to use
+        # @param file [String] A file location of the wordlist to use
         def mode_wordlist(file)
           self.increment_length = nil
           self.incremental = nil
@@ -278,7 +278,7 @@ module Metasploit
 
         # This method sets the john to single mode
         #
-        # @param[String] a file location of the wordlist to use
+        # @param file [String] A file location of the wordlist to use
         def mode_single(file)
           if cracker == 'john'
             self.wordlist = file
@@ -292,8 +292,7 @@ module Metasploit
         # This method follows a decision tree to determine the path
         # to the cracker binary we should use.
         #
-        # @return [NilClass] if a binary path could not be found
-        # @return [String] the path to the selected JtR binary
+        # @return [String, NilClass] Returns Nil if a binary path could not be found, or a String containing the path to the selected JTR binary on success.
         def binary_path
           # Always prefer a manually entered path
           if cracker_path && ::File.file?(cracker_path)

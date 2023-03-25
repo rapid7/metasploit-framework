@@ -21,8 +21,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def initialize(driver)
     super
-    output, is_success = modified_files
-    @modified_files = is_success ? output : []
+    @modified_files = modified_file_paths(print_errors: false)
   end
 
   def name
@@ -79,20 +78,21 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     load full_path
   end
 
-  def reload_changed_files
+  # @return [Array<String>] The list of modified file paths since startup
+  def modified_file_paths(print_errors: true)
     files, is_success = modified_files
 
     unless is_success
-      print_error("Git is not available")
-      return
+      print_error("Git is not available") if print_errors
+      files = []
     end
 
-    @modified_files |= files
-    @modified_files.each do |file|
+    @modified_files ||= []
+    @modified_files |= files.map do |file|
       next if file.end_with?('_spec.rb') || file.end_with?("spec_helper.rb")
-      f = File.join(Msf::Config.install_root, file)
-      reload_file(f, print_errors: false)
-    end
+      File.join(Msf::Config.install_root, file)
+    end.compact
+    @modified_files
   end
 
   def cmd_irb_help
@@ -260,6 +260,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   # Reload Ruby library files from specified paths
   #
   def cmd_reload_lib(*args)
+    files = []
     options = OptionParser.new do |opts|
       opts.banner = 'Usage: reload_lib lib/to/reload.rb [...]'
       opts.separator ''
@@ -272,16 +273,21 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
       opts.on '-a', '--all', 'Reload all* changed files in your current Git working tree.
                                      *Excludes modules and non-Ruby files.' do
-        return reload_changed_files
+        files.concat(modified_file_paths)
       end
     end
 
     # The remaining unparsed arguments are files
-    files = options.order(args)
+    files.concat(options.order(args))
+    files.uniq!
 
     return print(options.help) if files.empty?
 
-    files.each { |file| reload_file(file) }
+    files.each do |file|
+      reload_file(file)
+    rescue ScriptError, StandardError => e
+      print_error("Error while reloading file #{file.inspect}: #{e}:\n#{e.backtrace.to_a.map { |line| "  #{line}" }.join("\n")}")
+    end
   end
 
   #
