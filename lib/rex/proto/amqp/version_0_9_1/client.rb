@@ -1,5 +1,6 @@
 class Rex::Proto::Amqp::Version091::Client
 
+  require 'rex/stopwatch'
   require 'rex/proto/amqp/error'
   require 'rex/proto/amqp/version_0_9_1/frames'
   require 'rex/proto/amqp/version_0_9_1/client/channel'
