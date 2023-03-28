@@ -1,4 +1,23 @@
-RSpec.shared_examples_for 'a module with valid metadata' do
+require 'active_model'
+
+# class IsAnArray < ActiveModel::Validator
+#   def validate(mod)
+#     unless mod.author.is_a?(Array)
+#       mod.errors.add :author, 'must be an array'
+#     end
+#   end
+# end
+
+class ModuleValidator < SimpleDelegator
+  include ActiveModel::Validations
+
+  attr_reader :mod
+
+  def initialize(mod)
+    super
+    @mod = mod
+  end
+
   #
   # Acceptable Stability ratings
   #
@@ -59,184 +78,164 @@ RSpec.shared_examples_for 'a module with valid metadata' do
     'OVE'
   ]
 
+  def validate_excellent_ranking
+    if rank_to_s == 'excellent' && !stability.include?('crash-safe')
+      errors.add :stability, 'module must have CRASH_SAFE stability value if module has an ExcellentRanking'
+    end
+  end
+
+  def validate_authors
+    unless author.is_a?(Array)
+      errors.add :author, 'module authors must be an array'
+    end
+  end
+
+  def validate_references
+    unless references.is_a?(Array)
+      errors.add :references, 'module references must be an array'
+    end
+  end
+
+  def validate_description
+    unless description.is_a?(String)
+      errors.add :description, 'module description must be a string'
+    end
+  end
+
+  def validate_stability
+    unless stability.is_a?(Array)
+      errors.add :stability, 'module stability must be an array'
+    end
+  end
+
+  def validate_side_effects
+    unless side_effects.is_a?(Array)
+      errors.add :side_effects, 'module side effects must be an array'
+    end
+  end
+
+  def validate_reliability
+    unless reliability.is_a?(Array)
+      errors.add :reliability, 'module reliability must be an array'
+    end
+  end
+
+  def requires_author?
+    #
+    # Module types that require authors
+    #
+    requires_authors = %w[exploits auxiliary post]
+    requires_authors.include?(type)
+  end
+
+  def payload?
+    type == 'payload'
+  end
+
+  def has_notes?
+    !notes.empty?
+  end
+
+  validates :mod, presence: true
+
+  with_options if: :has_notes? do |mod|
+    mod.validates :stability,
+                  presence: true,
+                  if: :validate_excellent_ranking
+
+    mod.validates :stability,
+                  inclusion: { in: valid_stability_values, message: 'must include a valid stability value' },
+                  if: :validate_stability
+
+    mod.validates :side_effects,
+                  inclusion: { in: valid_side_effect_values, message: 'must include a valid side effect value' },
+                  if: :validate_side_effects
+
+    mod.validates :reliability,
+                  inclusion: { in: valid_reliability_values, message: 'must include a valid reliability value' },
+                  if: :validate_reliability
+  end
+
+  validates :references,
+            presence: true,
+            inclusion: { in: valid_ctx_id_values, message: 'must include a valid reference' },
+            if: :validate_references
+
+  validates :license,
+            presence: true,
+            inclusion: { in: LICENSES, message: 'must include a valid license' }
+
+  validates :rank,
+            presence: true,
+            inclusion: { in: Msf::RankingName.keys, message: 'must include a valid ranking' }
+
+  # validates :author_to_s, # TODO: Bad error message
+  #           format: { with: /\A[^@.]+\z/, message: 'must not include Twitter handles, please. Try leaving it in a comment instead.'}
+
+  validates :author,
+            presence: true,
+            if: :requires_author? && :validate_authors
+
+  validates :name,
+            presence: true,
+            format: { with: /\A[^&<>]+\z/, message: 'must not contain the characters ^&<>' }
+
+  validates :file_path,
+            presence: true,
+            if: -> { file_path.split('/').last.match(/^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/) }
+
+  validates :description,
+            presence: true,
+            if: :validate_description,
+            unless: :payload?
+end
+
+RSpec.shared_examples_for 'a module with valid metadata' do
+
+  # def get_reference_ctx_id
+  #   references_ctx_id_list = []
+  #   subject.references.each { |ref| references_ctx_id_list << ref.ctx_id }
   #
-  # Module name bad characters
-  #
-  module_name_bad_chars = %w[& < = >]
-
-  # RSpec's API doesn't support a way to to not run tests without them appearing as 'skipped' in the console output
-  def mark_as_passed(example)
-    example.instance_variable_set(:@executed, true)
-  end
-
-  around(:each, :has_notes) do |example|
-    if subject.notes.empty?
-      mark_as_passed(example)
-    else
-      example.run
-    end
-  end
-
-  around(:each, :has_excellent_ranking) do |example|
-    if subject.rank_to_s == 'excellent'
-      example.run
-    else
-      mark_as_passed(example)
-    end
-  end
-
-  around(:each, :is_an_exploit) do |example|
-    # Only exploits require notes
-    if subject.exploit?
-      example.run
-    else
-      mark_as_passed(example)
-    end
-  end
-
-  around(:each, :is_a_payload) do |example|
-    # Only exploits require notes
-    if subject.payload?
-      example.run
-    else
-      mark_as_passed(example)
-    end
-  end
-
-
-  context 'when notes are present', :has_notes do
-    describe '#stability' do
-      context 'when the module has an excellent stability rating', :has_excellent_ranking do
-        it 'has valid Stability notes values' do
-          expect(subject.stability).to be_kind_of(Array)
-          expect(subject.stability - valid_stability_values).to be_empty
-        end
-
-        it 'includes crash-safe in the stability notes' do
-          expect(subject.stability).to include('crash-safe')
-        end
-      end
-    end
-
-    describe '#side_effects' do
-      it 'has valid Side Effect notes values' do
-        expect(subject.side_effects).to be_kind_of(Array)
-        expect(subject.side_effects - valid_side_effect_values).to be_empty
-      end
-    end
-
-    describe '#reliability' do
-      it 'has valid Reliability notes values' do
-        expect(subject.reliability).to be_kind_of(Array)
-        expect(subject.reliability - valid_reliability_values).to be_empty
-      end
-    end
-  end
-
-  describe '#references' do
-    context 'the module' do
-      it 'has valid References values' do
-        expect(subject.references).to be_kind_of(Array)
-        references_ctx_id_list = []
-        subject.references.each { |ref| references_ctx_id_list << ref.ctx_id }
-        expect(references_ctx_id_list - valid_ctx_id_values).to be_empty
-      end
-
-      # it 'has a CVE present', :is_an_exploit do
-      #   references_ctx_id_list = []
-      #   required_references = %w[CVE BID ZDI MSB WPVDB EDB]
-      #   subject.references.each { |ref| references_ctx_id_list << ref.ctx_id }
-      #
-      #   # if !references_ctx_id_list.include?(acceptable_refs)
-      #   #   $stderr.puts subject.file_path
-      #   # end
-      #
-      #   expect(references_ctx_id_list & required_references).to_not be_empty
-      # end
-    end
-  end
-
-  describe '#license' do
-    context 'the module' do
-      it 'has a valid license value' do
-        expect(subject.license).to be_in(LICENSES)
-      end
-    end
-  end
-
-  describe '#ranking' do
-    context 'when the module has a ranking present' do
-      it 'has a valid ranking value' do
-        expect(subject.rank).to be_in(Msf::RankingName.keys)
-      end
-    end
-  end
-
-  describe '#authors' do
-    context 'the module' do
-      it 'has valid authors values' do
-        expect(subject.references).to be_kind_of(Array)
-        expect(subject.author).to_not be_empty
-      end
-    end
-  end
-
-  describe '#name' do
-    context 'the module name' do
-      it ' should not contain bad characters' do
-        expect(subject.name).to_not include(*module_name_bad_chars)
-      end
-    end
-  end
-
-  describe '#file_path' do
-    context 'when the module has a file path' do
-      let(:module_path) do
-        subject.file_path.split('/').last
-      end
-
-      it 'should be snake case' do
-        expect(module_path).to match(/^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/)
-      end
-
-      # Not sure if this is needed as it is caught in the above regex.
-      # Will leave here for now as I am attempting to replicate `msftidy.rb` which
-      # may be allowing for edges I haven't considered
-      it "should a '.rb' file" do
-        expect(module_path).to end_with('.rb')
-      end
-    end
-  end
-
-  # ## TODO - Need to figure out if this can be moved from `msfidy.rb` or not
-  # describe '#disclosure_date' do
-  #   context 'the module' do
-  #     it 'has a disclosure date present', :is_an_exploit do
-  #       expect(subject.disclosure_date).to be_kind_of(Date)
-  #     end
-  #   end
+  #   references_ctx_id_list
   # end
 
-  describe '#description' do
-    context 'the module' do
-      it 'has a description present', :is_a_payload do
-        expect(subject.description).to be_kind_of(String)
-        expect(subject.description).to_not be_empty
-      end
-    end
-  end
-
-  ## TODO - As of 21/03/2023
-  #         3534 examples, 1857 failures
-  # describe '#notes' do
-  #   context 'the module' do
-  #     it 'has notes present', focus: true do
-  #       # Only exploits require notes
-  #       next unless subject.exploit?
-  #
-  #       # expect(subject.notes).to be_kind_of(Hash)
-  #       expect(subject.notes).to_not be_empty
-  #     end
-  #   end
+  # let(:mod) do
+  #   framework = instance_double(Msf::Framework)
+  #   instance_double(
+  #     Msf::Exploit,
+  #     framework: framework,
+  #     name: 'Testing bad chars',
+  #     author: ['Foobar'], # TODO: Only exploits, auxiliary and post require authors
+  #     license: MSF_LICENSE,
+  #     references: ['CVE'], # TODO: Needs to access the keys and compare
+  #     rank_to_s: 'excellent',
+  #     rank: 600,
+  #     notes: {},
+  #     stability: ['crash-safe'],
+  #     side_effects: ['artifacts-on-disk'],
+  #     reliability: ['first-attempt-fail'],
+  #     file_path: 'modules/exploits/windows/smb/cve_2020_0796_smbghost.rb',
+  #     description: %q{
+  #         A vulnerability exists within the Microsoft Server Message Block 3.1.1 (SMBv3) protocol that can be leveraged to
+  #         execute code on a vulnerable server. This remove exploit implementation leverages this flaw to execute code
+  #         in the context of the kernel, finally yielding a session as NT AUTHORITY\SYSTEM in spoolsv.exe. Exploitation
+  #         can take a few minutes as the necessary data is gathered.
+  #       }
+  #   )
   # end
+
+  it 'verifies modules metadata' do
+
+    # aggregate_failures do
+
+      # Verify we have a instance of the module
+      expect(subject).to_not be_nil
+
+      validator = ModuleValidator.new(subject)
+
+      validator.validate
+      # expect(validator).to be_valid
+      expect(validator.errors.full_messages).to be_kind_of(Array)
+    # end
+  end
 end

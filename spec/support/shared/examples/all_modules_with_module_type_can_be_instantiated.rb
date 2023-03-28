@@ -23,27 +23,15 @@ RSpec.shared_examples_for 'all modules with module type can be instantiated' do 
         module_reference_pathname = module_pathname.relative_path_from(type_pathname)
         module_reference_name = module_reference_pathname.to_path.gsub(module_extension_regexp, '')
 
-        context module_reference_name do
-          def framework
-            @framework ||= Msf::Simple::Framework.create(
-              'ConfigDirectory' => Rails.application.paths['modules'].expanded.first,
-              'DeferModuleLoads' => true
-            )
-          end
+        # next unless module_reference_name.include?('windows/smb/cve_2020_0796_smbghost')
 
-          before(:all) do
-            @module = load_and_create_module(
+        context module_reference_name do
+          subject do
+            load_and_create_module(
               module_type: module_type,
               modules_path: modules_path,
               reference_name: module_reference_name
             )
-          end
-
-          subject { @module }
-
-          it 'can be instantiated' do
-            expect { subject }.to_not raise_exception
-            expect(subject).to_not be_nil
           end
 
           it_behaves_like 'a module with valid metadata'
