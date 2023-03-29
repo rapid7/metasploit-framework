@@ -77,7 +77,7 @@ module Msf
             ),
             OptMeterpreterDebugLogging.new(
               'MeterpreterDebugLogging',
-              [false, 'The Meterpreter debug logging configuration, see https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Debugging-Meterpreter-Sessions']
+              [false, 'The Meterpreter debug logging configuration, see https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-debugging-meterpreter-sessions.html']
             )
           ],
           self.class

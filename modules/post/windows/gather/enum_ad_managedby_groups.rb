@@ -7,30 +7,34 @@ class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
-  USER_FIELDS = ['cn',
-                 'distinguishedname',
-                 'managedBy',
-                 'description'].freeze
+  USER_FIELDS = [
+    'cn',
+    'distinguishedname',
+    'managedBy',
+    'description'
+  ].freeze
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'         => 'Windows Gather Active Directory Managed Groups',
-      'Description'  => %{
-        This module will enumerate AD groups on the specified domain which are specifically managed.
-        It cannot at the moment identify whether the 'Manager can update membership list' option
-        option set; if so, it would allow that member to update the contents of that group. This
-        could either be used as a persistence mechanism (for example, set your user as the 'Domain
-        Admins' group manager) or could be used to detect privilege escalation opportunities
-        without having domain admin privileges.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       => [
-        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
-      ],
-      'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Active Directory Managed Groups',
+        'Description' => %q{
+          This module will enumerate AD groups on the specified domain which are specifically managed.
+          It cannot at the moment identify whether the 'Manager can update membership list' option
+          option set; if so, it would allow that member to update the contents of that group. This
+          could either be used as a persistence mechanism (for example, set your user as the 'Domain
+          Admins' group manager) or could be used to detect privilege escalation opportunities
+          without having domain admin privileges.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional group fields to retrieve, comma separated.', nil]),
@@ -43,7 +47,7 @@ class MetasploitModule < Msf::Post
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, '').split(',')
       @user_fields.push(*additional_fields)
     end
 
@@ -73,10 +77,10 @@ class MetasploitModule < Msf::Post
   # Takes the results of LDAP query, parses them into a table
   def parse_results(results)
     results_table = Rex::Text::Table.new(
-      'Header'     => "Groups with Managers",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => @user_fields
+      'Header' => 'Groups with Managers',
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => @user_fields
     )
 
     results.each do |result|
@@ -84,7 +88,7 @@ class MetasploitModule < Msf::Post
 
       result.each do |field|
         if field.nil?
-          row << ""
+          row << ''
         else
           row << field[:value]
         end
@@ -95,10 +99,10 @@ class MetasploitModule < Msf::Post
           if !m.nil? && !m[:results].empty?
             row << m[:results][0][0][:value]
           else
-            row << ""
+            row << ''
           end
-        rescue
-          row << ""
+        rescue StandardError
+          row << ''
         end
       end
       results_table << row

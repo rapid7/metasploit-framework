@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'gwillcox-r7' ],
         'Platform' => %w[win linux osx bsd solaris android],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
   end

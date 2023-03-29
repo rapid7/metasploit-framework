@@ -1,14 +1,7 @@
-#
-# $Id$
-#
-# This plugin provides management and interaction with an external session aggregator.
-#
-# $Revision$
-#
-
 module Msf
-  Aggregator_yaml = "#{Msf::Config.config_directory}/aggregator.yaml" # location of the aggregator.yml containing saved aggregator creds
+  Aggregator_yaml = "#{Msf::Config.config_directory}/aggregator.yaml".freeze # location of the aggregator.yml containing saved aggregator creds
 
+  # This plugin provides management and interaction with an external session aggregator.
   class Plugin::Aggregator < Msf::Plugin
     class AggregatorCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
@@ -16,22 +9,22 @@ module Msf
       @response_queue = []
 
       def name
-        "Aggregator"
+        'Aggregator'
       end
 
       def commands
         {
-          'aggregator_connect'         => "Connect to a running Aggregator instance ( host[:port] )",
-          'aggregator_save'            => "Save connection details to an Aggregator instance",
-          'aggregator_disconnect'      => "Disconnect from an active Aggregator instance",
-          'aggregator_addresses'       => "List all remote ip addresses available for ingress",
-          'aggregator_cables'          => "List all remote listeners for sessions",
-          'aggregator_cable_add'       => "Setup remote https listener for sessions",
-          'aggregator_cable_remove'    => "Stop remote listener for sessions",
-          'aggregator_default_forward' => "forward a unlisted/unhandled sessions to a specified listener",
-          'aggregator_sessions'        => "List all remote sessions currently available from the Aggregator instance",
-          'aggregator_session_forward' => "forward a session to a specified listener",
-          'aggregator_session_park'    => "Park an existing session on the Aggregator instance"
+          'aggregator_connect' => 'Connect to a running Aggregator instance ( host[:port] )',
+          'aggregator_save' => 'Save connection details to an Aggregator instance',
+          'aggregator_disconnect' => 'Disconnect from an active Aggregator instance',
+          'aggregator_addresses' => 'List all remote ip addresses available for ingress',
+          'aggregator_cables' => 'List all remote listeners for sessions',
+          'aggregator_cable_add' => 'Setup remote https listener for sessions',
+          'aggregator_cable_remove' => 'Stop remote listener for sessions',
+          'aggregator_default_forward' => 'forward a unlisted/unhandled sessions to a specified listener',
+          'aggregator_sessions' => 'List all remote sessions currently available from the Aggregator instance',
+          'aggregator_session_forward' => 'forward a session to a specified listener',
+          'aggregator_session_park' => 'Park an existing session on the Aggregator instance'
         }
       end
 
@@ -45,20 +38,20 @@ module Msf
       end
 
       def usage(*lines)
-        print_status("Usage: ")
+        print_status('Usage: ')
         lines.each do |line|
           print_status("       #{line}")
         end
       end
 
       def usage_save
-        usage("aggregator_save")
+        usage('aggregator_save')
       end
 
       def usage_connect
-        usage("aggregator_connect host[:port]",
-              " -OR- ",
-              "aggregator_connect host port")
+        usage('aggregator_connect host[:port]',
+              ' -OR- ',
+              'aggregator_connect host port')
       end
 
       def usage_cable_add
@@ -74,18 +67,18 @@ module Msf
       end
 
       def usage_session_forward
-        usage("aggregator_session_forward remote_id")
+        usage('aggregator_session_forward remote_id')
       end
 
       def usage_default_forward
-        usage("aggregator_session_forward")
+        usage('aggregator_session_forward')
       end
 
-      def show_session(details, target, local_id)
+      def show_session(details, _target, local_id)
         status = pad_space("  #{local_id}", 4)
         status += "  #{details['ID']}"
         status = pad_space(status, 15)
-        status += "  meterpreter "
+        status += '  meterpreter '
         status += "#{guess_target_platform(details['OS'])} "
         status = pad_space(status, 43)
         status += "#{details['USER']} @ #{details['HOSTNAME']} "
@@ -106,12 +99,12 @@ module Msf
         print_status "\tRegistered: Not Yet Implemented"
         print_status "\t   Forward: #{target}"
         print_status "\tSession ID: #{local_id}" unless local_id.nil?
-        print_status ""
+        print_status ''
       end
 
       def cmd_aggregator_save(*args)
         # if we are logged in, save session details to aggregator.yaml
-        if args.length > 0 || args[0] == "-h"
+        if !args.empty? || args[0] == '-h'
           usage_save
           return
         end
@@ -121,30 +114,28 @@ module Msf
           return
         end
 
-        group = "default"
+        group = 'default'
 
-        if (@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0)
-          config = { "#{group}" => { 'server' => @host, 'port' => @port } }
-          ::File.open("#{Aggregator_yaml}", "wb") { |f| f.puts YAML.dump(config) }
+        if (@host && !@host.empty?) && (@port && !@port.empty? && @port.to_i > 0)
+          config = { group.to_s => { 'server' => @host, 'port' => @port } }
+          ::File.open(Aggregator_yaml.to_s, 'wb') { |f| f.puts YAML.dump(config) }
           print_good("#{Aggregator_yaml} created.")
         else
-          print_error("Missing server/port - reconnect and then try again.")
+          print_error('Missing server/port - reconnect and then try again.')
           return
         end
       end
 
       def cmd_aggregator_connect(*args)
-        if !args[0]
-          if ::File.readable?("#{Aggregator_yaml}")
-            lconfig = YAML.load_file("#{Aggregator_yaml}")
-            @host = lconfig['default']['server']
-            @port = lconfig['default']['port']
-            aggregator_login
-            return
-          end
+        if !args[0] && ::File.readable?(Aggregator_yaml.to_s)
+          lconfig = YAML.load_file(Aggregator_yaml.to_s)
+          @host = lconfig['default']['server']
+          @port = lconfig['default']['port']
+          aggregator_login
+          return
         end
 
-        if args.length == 0 || args[0].empty? || args[0] == "-h"
+        if args.empty? || args[0].empty? || args[0] == '-h'
           usage_connect
           return
         end
@@ -166,17 +157,17 @@ module Msf
 
       def cmd_aggregator_sessions(*args)
         case args.length
-          when 0
-            isDetailed = false
-          when 1
-            unless args[0] == "-v"
-              usage_sessions
-              return
-            end
-            isDetailed = true
-          else
+        when 0
+          is_detailed = false
+        when 1
+          unless args[0] == '-v'
             usage_sessions
             return
+          end
+          is_detailed = true
+        else
+          usage_sessions
+          return
         end
         return unless aggregator_verify
 
@@ -192,29 +183,31 @@ module Msf
           local_id = nil
           framework.sessions.each_pair do |key, value|
             next unless value.conn_id == session_id
+
             local_id = key
           end
           # filter session that do not have details as forwarding options (this may change later)
           next unless details && details['ID']
+
           session_map[details['ID']] = [details, target, local_id]
         end
 
-        print_status("Remote sessions")
-        print_status("===============")
-        print_status("")
-        if session_map.length == 0
-          print_status("No remote sessions.")
+        print_status('Remote sessions')
+        print_status('===============')
+        print_status('')
+        if session_map.empty?
+          print_status('No remote sessions.')
         else
-          unless isDetailed
-            print_status("  Id  Remote Id  Type                      Information          Connection")
-            print_status("  --  ---------  ----                      -----------          ----------")
+          unless is_detailed
+            print_status('  Id  Remote Id  Type                      Information          Connection')
+            print_status('  --  ---------  ----                      -----------          ----------')
           end
           session_map.keys.sort.each do |key|
             details, target, local_id = session_map[key]
-            unless isDetailed
-              show_session(details, target, local_id)
-            else
+            if is_detailed
               show_session_detailed(details, target, local_id)
+            else
+              show_session(details, target, local_id)
             end
           end
         end
@@ -226,7 +219,7 @@ module Msf
         address_list = @aggregator.available_addresses
         return if address_list.nil?
 
-        print_status("Remote addresses found:")
+        print_status('Remote addresses found:')
         address_list.each do |addr|
           print_status("    #{addr}")
         end
@@ -235,51 +228,51 @@ module Msf
       def cmd_aggregator_cable_add(*args)
         host, port, certificate = nil
         case args.length
-          when 1
-            host, port = args[0].split(':', 2)
-          when 2
-            host, port = args[0].split(':', 2)
-            if port.nil?
-              port = args[1]
-            else
-              certificate = args[1]
-            end
-          when 3
-            host, port, certificate = args
+        when 1
+          host, port = args[0].split(':', 2)
+        when 2
+          host, port = args[0].split(':', 2)
+          if port.nil?
+            port = args[1]
           else
-            usage_cable_add
-            return
-        end
-
-        if !aggregator_verify || args.length == 0 || args[0] == '-h' || \
-            port.nil? || port.to_i <= 0
+            certificate = args[1]
+          end
+        when 3
+          host, port, certificate = args
+        else
           usage_cable_add
           return
         end
 
-        certificate = File.new(certificate).read if certificate && File.exists?(certificate)
+        if !aggregator_verify || args.empty? || args[0] == '-h' || \
+           port.nil? || port.to_i <= 0
+          usage_cable_add
+          return
+        end
+
+        certificate = File.new(certificate).read if certificate && File.exist?(certificate)
 
         @aggregator.add_cable(Metasploit::Aggregator::Cable::HTTPS, host, port, certificate)
       end
 
       def cmd_aggregator_cables(*_args)
         return if !aggregator_verify
+
         res = @aggregator.cables
-        print_status("Remote Cables:")
+        print_status('Remote Cables:')
         res.each do |k|
           print_status("    #{k}")
         end
-
       end
 
       def cmd_aggregator_cable_remove(*args)
         case args.length
-          when 1
-            host, port = args[0].split(':', 2)
-          when 2
-            host, port = args
+        when 1
+          host, port = args[0].split(':', 2)
+        when 2
+          host, port = args
         end
-        if !aggregator_verify || args.length == 0 || args[0] == '-h' || host.nil?
+        if !aggregator_verify || args.empty? || args[0] == '-h' || host.nil?
           usage_cable_remove
           return
         end
@@ -290,24 +283,22 @@ module Msf
         return if !aggregator_verify
 
         case args.length
-          when 1
-            session_id = args[0]
-            s = framework.sessions.get(session_id)
-            unless s.nil?
-              if @aggregator.sessions.keys.include? s.conn_id
-                @aggregator.release_session(s.conn_id)
-                framework.sessions.deregister(s)
-              else
-                # TODO: determine if we can add a transport and route with the
-                # aggregator. For now, just report action not taken.
-                print_status("#{session_id} does not originate from the aggregator connection.")
-              end
-            else
-              print_status("#{session_id} is not a valid session.")
-            end
+        when 1
+          session_id = args[0]
+          s = framework.sessions.get(session_id)
+          if s.nil?
+            print_status("#{session_id} is not a valid session.")
+          elsif @aggregator.sessions.keys.include? s.conn_id
+            @aggregator.release_session(s.conn_id)
+            framework.sessions.deregister(s)
           else
-            usage('aggregator_session_park session_id')
-            return
+            # TODO: determine if we can add a transport and route with the
+            # aggregator. For now, just report action not taken.
+            print_status("#{session_id} does not originate from the aggregator connection.")
+          end
+        else
+          usage('aggregator_session_park session_id')
+          return
         end
       end
 
@@ -322,18 +313,19 @@ module Msf
 
         remote_id = nil
         case args.length
-          when 1
-            remote_id = args[0]
-          else
-            usage_session_forward
-            return
+        when 1
+          remote_id = args[0]
+        else
+          usage_session_forward
+          return
         end
         # find session with ID matching request
         @aggregator.sessions.each do |session|
           session_uri, _target = session
           details = @aggregator.session_details(session_uri)
           next unless details['ID'] == remote_id
-            return @aggregator.obtain_session(session_uri, @aggregator.uuid)
+
+          return @aggregator.obtain_session(session_uri, @aggregator.uuid)
         end
         print_error("#{remote_id} was not found.")
       end
@@ -353,8 +345,9 @@ module Msf
           unless sessions.nil?
             sessions.each_pair do |session, console|
               next unless local_sessions_by_id.keys.include?(session)
+
               if console == @aggregator.uuid
-                 # park each session locally addressed
+                # park each session locally addressed
                 cmd_aggregator_session_park(framework.sessions.key(local_sessions_by_id[session]))
               else
                 # simple disconnect session that were from the default forward
@@ -374,24 +367,23 @@ module Msf
       end
 
       def aggregator_login
-
-        if !((@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0))
+        if !((@host && !@host.empty?) && (@port && !@port.empty? && @port.to_i > 0))
           usage_connect
           return
         end
 
-        if @host != "localhost" and @host != "127.0.0.1"
-          print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
-          print_error("         with the ability to man-in-the-middle the Aggregator traffic to capture the Aggregator")
-          print_error("         traffic, if you are running this on an untrusted network.")
+        if (@host != 'localhost') && (@host != '127.0.0.1')
+          print_error('Warning: SSL connections are not verified in this release, it is possible for an attacker')
+          print_error('         with the ability to man-in-the-middle the Aggregator traffic to capture the Aggregator')
+          print_error('         traffic, if you are running this on an untrusted network.')
           return
         end
 
         # Wrap this so a duplicate session does not prevent access
         begin
           cmd_aggregator_disconnect
-        rescue ::Interrupt => i
-          raise i
+        rescue ::Interrupt => e
+          raise e
         rescue ::Exception
         end
 
@@ -427,10 +419,10 @@ module Msf
 
         multi_handler = framework.exploits.create('multi/handler')
 
-        multi_handler.datastore['LHOST']                = "127.0.0.1"
+        multi_handler.datastore['LHOST'] = '127.0.0.1'
         # multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_https"
-        multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_http"
-        multi_handler.datastore['LPORT']                = "#{port}"
+        multi_handler.datastore['PAYLOAD'] = 'multi/meterpreter/reverse_http'
+        multi_handler.datastore['LPORT'] = port.to_s
 
         # %w(DebugOptions PrependMigrate PrependMigrateProc
         #  InitialAutoRunScript AutoRunScript CAMPAIGN_ID HandlerSSLCert
@@ -441,13 +433,13 @@ module Msf
         # end
 
         multi_handler.datastore['ExitOnSession'] = false
-        multi_handler.datastore['EXITFUNC']      = 'thread'
+        multi_handler.datastore['EXITFUNC'] = 'thread'
 
         multi_handler.exploit_simple(
-            'LocalInput' => nil,
-            'LocalOutput' => nil,
-            'Payload' => multi_handler.datastore['PAYLOAD'],
-            'RunAsJob' => true
+          'LocalInput' => nil,
+          'LocalOutput' => nil,
+          'Payload' => multi_handler.datastore['PAYLOAD'],
+          'RunAsJob' => true
         )
         @payload_job_ids << multi_handler.job_id
         # requester = Metasploit::Aggregator::Http::SslRequester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
@@ -458,26 +450,24 @@ module Msf
       # borrowed from Msf::Sessions::Meterpreter for now
       def guess_target_platform(os)
         case os
-          when /windows/i
-            Msf::Module::Platform::Windows.realname.downcase
-          when /darwin/i
-            Msf::Module::Platform::OSX.realname.downcase
-          when /mac os ?x/i
-            # this happens with java on OSX (for real!)
-            Msf::Module::Platform::OSX.realname.downcase
-          when /freebsd/i
-            Msf::Module::Platform::FreeBSD.realname.downcase
-          when /openbsd/i, /netbsd/i
-            Msf::Module::Platform::BSD.realname.downcase
-          else
-            Msf::Module::Platform::Linux.realname.downcase
+        when /windows/i
+          Msf::Module::Platform::Windows.realname.downcase
+        when /darwin/i
+          Msf::Module::Platform::OSX.realname.downcase
+        when /mac os ?x/i
+          # this happens with java on OSX (for real!)
+          Msf::Module::Platform::OSX.realname.downcase
+        when /freebsd/i
+          Msf::Module::Platform::FreeBSD.realname.downcase
+        when /openbsd/i, /netbsd/i
+          Msf::Module::Platform::BSD.realname.downcase
+        else
+          Msf::Module::Platform::Linux.realname.downcase
         end
       end
 
       def pad_space(status, length)
-        while status.length < length
-          status << " "
-        end
+        status << ' ' while status.length < length
         status
       end
 
@@ -502,13 +492,13 @@ module Msf
       # Require the metasploit/aggregator gem, but fail nicely if it's not there.
       #
       begin
-        require "metasploit/aggregator"
+        require 'metasploit/aggregator'
       rescue LoadError
-        raise "WARNING: metasploit/aggregator is not avaiable for now."
+        raise 'WARNING: metasploit/aggregator is not avaiable for now.'
       end
 
       add_console_dispatcher(AggregatorCommandDispatcher)
-      print_status("Aggregator interaction has been enabled")
+      print_status('Aggregator interaction has been enabled')
     end
 
     def cleanup
@@ -516,11 +506,11 @@ module Msf
     end
 
     def name
-      "aggregator"
+      'aggregator'
     end
 
     def desc
-      "Interacts with the external Session Aggregator"
+      'Interacts with the external Session Aggregator'
     end
   end
 end

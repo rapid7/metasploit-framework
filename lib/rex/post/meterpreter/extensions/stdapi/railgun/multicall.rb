@@ -90,7 +90,7 @@ class MultiCaller
       lib_name, function, args = f
       library = @parent.get_library(lib_name)
       function = library.functions[function] unless function.instance_of? LibraryFunction
-      function_results << library.build_response(call_results.shift, function, call_layouts.shift, @client.native_arch)
+      function_results << library.build_response(call_results.shift, function, call_layouts.shift, @client)
     end
 
     function_results

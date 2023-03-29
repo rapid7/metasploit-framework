@@ -153,7 +153,11 @@ class Channel
   def self.finalize(client, cid)
     proc {
       unless cid.nil?
-        self._close(client, cid)
+        begin
+          self._close(client, cid)
+        rescue => e
+          elog("finalize method for Channel failed", error: e)
+        end
       end
     }
   end

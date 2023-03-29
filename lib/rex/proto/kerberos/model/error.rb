@@ -36,7 +36,7 @@ module Rex
             # Override the equality test for ErrorCodes. Equality is
             # always tested against the #value of the error code.
             #
-            # @param [Object] other_object the object to test equality against
+            # @param other [Object] The object to test equality against
             # @raise [ArgumentError] if the other object is not either another ErrorCode or a Integer
             # @return [Boolean] whether the equality test passed
             def ==(other)
@@ -58,8 +58,12 @@ module Rex
             end
           end
 
+          # Core Kerberos specification and errors:
           # https://datatracker.ietf.org/doc/html/rfc4120#section-7.5.9
           # https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4768#table-2-kerberos-ticket-flags
+          #
+          # Additional errors added by PKINIT:
+          # https://www.rfc-editor.org/rfc/rfc4556#section-3.1.3
           module ErrorCodes
             KDC_ERR_NONE = ErrorCode.new('KDC_ERR_NONE', 0, 'No error')
             KDC_ERR_NAME_EXP = ErrorCode.new('KDC_ERR_NAME_EXP', 1, "Client's entry in database has expired")
@@ -87,6 +91,10 @@ module Rex
             KDC_ERR_KEY_EXPIRED = ErrorCode.new('KDC_ERR_KEY_EXPIRED', 23, 'Password has expired - change password to reset')
             KDC_ERR_PREAUTH_FAILED = ErrorCode.new('KDC_ERR_PREAUTH_FAILED', 24, 'Pre-authentication information was invalid')
             KDC_ERR_PREAUTH_REQUIRED = ErrorCode.new('KDC_ERR_PREAUTH_REQUIRED', 25, 'Additional pre-authentication required')
+            KDC_ERR_SERVER_NOMATCH = ErrorCode.new('KDC_ERR_SERVER_NOMATCH', 26, "Requested server and ticket don't match")
+            KDC_ERR_MUST_USE_USER2USER = ErrorCode.new('KDC_ERR_MUST_USE_USER2USER', 27, 'Server principal valid for user2user only')
+            KDC_ERR_PATH_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_PATH_NOT_ACCEPTED', 28, 'KDC Policy rejects transited path')
+            KDC_ERR_SVC_UNAVAILABLE = ErrorCode.new('KDC_ERR_SVC_UNAVAILABLE', 29, 'A service is not available')
             KRB_AP_ERR_BAD_INTEGRITY = ErrorCode.new('KRB_AP_ERR_BAD_INTEGRITY', 31, 'Integrity check on decrypted field failed')
             KRB_AP_ERR_TKT_EXPIRED = ErrorCode.new('KRB_AP_ERR_TKT_EXPIRED', 32, 'Ticket expired')
             KRB_AP_ERR_TKT_NYV = ErrorCode.new('KRB_AP_ERR_TKT_NYV', 33, 'Ticket not yet valid')
@@ -106,9 +114,30 @@ module Rex
             KRB_AP_ERR_METHOD = ErrorCode.new('KRB_AP_ERR_METHOD', 48, 'Alternative authentication method required')
             KRB_AP_ERR_BADSEQ = ErrorCode.new('KRB_AP_ERR_BADSEQ', 49, 'Incorrect sequence number in message')
             KRB_AP_ERR_INAPP_CKSUM = ErrorCode.new('KRB_AP_ERR_INAPP_CKSUM', 50, 'Inappropriate type of checksum in message')
+            KRB_AP_PATH_NOT_ACCEPTED = ErrorCode.new('KRB_AP_PATH_NOT_ACCEPTED', 51, 'Policy rejects transited path')
+            KRB_ERR_RESPONSE_TOO_BIG = ErrorCode.new('KRB_ERR_RESPONSE_TOO_BIG', 52, 'Response too big for UDP; retry with TCP')
             KRB_ERR_GENERIC = ErrorCode.new('KRB_ERR_GENERIC', 60, 'Generic error')
             KRB_ERR_FIELD_TOOLONG = ErrorCode.new('KRB_ERR_FIELD_TOOLONG', 61, 'Field is too long for this implementation')
+            KDC_ERR_CLIENT_NOT_TRUSTED = ErrorCode.new('KDC_ERR_CLIENT_NOT_TRUSTED', 62, 'PKINIT - KDC_ERR_CLIENT_NOT_TRUSTED')
+            KDC_ERR_KDC_NOT_TRUSTED = ErrorCode.new('KDC_ERR_KDC_NOT_TRUSTED', 63, 'PKINIT - KDC_ERR_KDC_NOT_TRUSTED')
+            KDC_ERR_INVALID_SIG = ErrorCode.new('KDC_ERR_INVALID_SIG', 64, 'PKINIT - KDC_ERR_INVALID_SIG')
+            KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED', 65, 'PKINIT - KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED')
+            KDC_ERR_CERTIFICATE_MISMATCH = ErrorCode.new('KDC_ERR_CERTIFICATE_MISMATCH', 66, 'PKINIT - KDC_ERR_CERTIFICATE_MISMATCH')
+            KRB_AP_ERR_NO_TGT = ErrorCode.new('KRB_AP_ERR_NO_TGT', 67, 'No TGT available to validate USER-TO-USER')
             KDC_ERR_WRONG_REALM = ErrorCode.new('KDC_ERR_WRONG_REALM', 68, 'Wrong Realm / domain')
+            KRB_AP_ERR_USER_TO_USER_REQUIRED = ErrorCode.new('KRB_AP_ERR_USER_TO_USER_REQUIRED', 69, 'Ticket must be for USER-TO-USER')
+            KDC_ERR_CANT_VERIFY_CERTIFICATE = ErrorCode.new('KDC_ERR_CANT_VERIFY_CERTIFICATE', 70, 'PKINIT - KDC_ERR_CANT_VERIFY_CERTIFICATE')
+            KDC_ERR_INVALID_CERTIFICATE = ErrorCode.new('KDC_ERR_INVALID_CERTIFICATE', 71, 'PKINIT - KDC_ERR_INVALID_CERTIFICATE')
+            KDC_ERR_REVOKED_CERTIFICATE = ErrorCode.new('KDC_ERR_REVOKED_CERTIFICATE', 72, 'PKINIT - KDC_ERR_REVOKED_CERTIFICATE')
+            KDC_ERR_REVOCATION_STATUS_UNKNOWN = ErrorCode.new('KDC_ERR_REVOCATION_STATUS_UNKNOWN', 73, 'PKINIT - KDC_ERR_REVOCATION_STATUS_UNKNOWN')
+            KDC_ERR_REVOCATION_STATUS_UNAVAILABLE = ErrorCode.new('KDC_ERR_REVOCATION_STATUS_UNAVAILABLE', 74, 'PKINIT - KDC_ERR_REVOCATION_STATUS_UNAVAILABLE')
+            KDC_ERR_CLIENT_NAME_MISMATCH = ErrorCode.new('KDC_ERR_CLIENT_NAME_MISMATCH', 75, 'PKINIT - KDC_ERR_CLIENT_NAME_MISMATCH')
+            KDC_ERR_KDC_NAME_MISMATCH = ErrorCode.new('KDC_ERR_KDC_NAME_MISMATCH', 76, 'PKINIT - KDC_ERR_KDC_NAME_MISMATCH')
+            KDC_ERR_INCONSISTENT_KEY_PURPOSE = ErrorCode.new('KDC_ERR_INCONSISTENT_KEY_PURPOSE', 77, 'PKINIT - KDC_ERR_INCONSISTENT_KEY_PURPOSE')
+            KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED', 78, 'PKINIT - KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED')
+            KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED = ErrorCode.new('KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED', 79, 'PKINIT - KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED')
+            KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED = ErrorCode.new('KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED', 80, 'PKINIT - KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED')
+            KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED = ErrorCode.new('KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED', 81, 'PKINIT - KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED')
 
             # Allow lookup of errors via numerical value
             ERROR_MAP = ErrorCodes.constants.each_with_object({}) do |const, map|
@@ -121,10 +150,49 @@ module Rex
 
           # Runtime Error which can be raised by the Rex::Proto::Kerberos API
           class KerberosError < ::StandardError
+            # @return [Rex::Proto::Kerberos::Model::Error::ErrorCode] A ErrorCode generated from a KDC
+            attr_reader :error_code
+
+            # @return [Rex::Proto::Kerberos::Model::KdcResponse, Rex::Proto::Kerberos::Model::EncKdcResponse] The response associated with this error
+            attr_reader :res
+
+            def initialize(message = nil, error_code: nil, res: nil)
+              error_code ||= res&.error_code
+              @error_code = error_code
+              @res = res
+
+              super(message || message_for(error_code))
+            end
+
+            def message_for(error_code)
+              return "Kerberos Error" unless error_code
+
+              if error_code == ErrorCodes::KRB_AP_ERR_SKEW && res&.respond_to?(:stime)
+                now = Time.now
+                skew = (res.stime - now).abs.to_i
+                return "#{error_code}. Local time: #{now}, Server time: #{res.stime}, off by #{skew} seconds"
+              end
+
+              "Kerberos Error - #{error_code}"
+            end
           end
 
           # Runtime Decoding Error which can be raised by the Rex::Proto::Kerberos API
           class KerberosDecodingError < KerberosError
+            def initialize(message = nil)
+              super(message || "Kerberos Decoding Error")
+            end
+          end
+
+          # Runtime Error which can be raised by the Rex::Proto::Kerberos API when the Kerberos target does not support
+          # the chosen Encryption method
+          class KerberosEncryptionNotSupported < KerberosError
+            # @return [Number] One of the encryption types defined within Rex::Proto::Kerberos::Crypto
+            attr_reader :encryption_type
+
+            def initialize(message = nil, encryption_type: nil)
+              super(message || "Kerberos target does not support the required encryption")
+            end
           end
         end
       end

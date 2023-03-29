@@ -408,7 +408,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::ApReq do
       ticket = Rex::Proto::Kerberos::Model::Ticket.decode(ticket_der)
 
       authenticator = Rex::Proto::Kerberos::Model::EncryptedData.new(
-        etype: Rex::Proto::Kerberos::Crypto::RC4_HMAC,
+        etype: Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC,
         cipher: cipher
       )
 

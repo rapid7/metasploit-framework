@@ -36,36 +36,36 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def print_prefetch_key_value()
+  def print_prefetch_key_value
     # Checks if Prefetch registry key exists and what value it has.
-    prefetch_key_value = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters", "EnablePrefetcher")
+    prefetch_key_value = registry_getvaldata('HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters', 'EnablePrefetcher')
     if prefetch_key_value == 0
-      print_error("EnablePrefetcher Value: (0) = Disabled (Non-Default).")
+      print_error('EnablePrefetcher Value: (0) = Disabled (Non-Default).')
     elsif prefetch_key_value == 1
-      print_good("EnablePrefetcher Value: (1) = Application launch prefetching enabled (Non-Default).")
+      print_good('EnablePrefetcher Value: (1) = Application launch prefetching enabled (Non-Default).')
     elsif prefetch_key_value == 2
-      print_good("EnablePrefetcher Value: (2) = Boot prefetching enabled (Non-Default, excl. Win2k3).")
+      print_good('EnablePrefetcher Value: (2) = Boot prefetching enabled (Non-Default, excl. Win2k3).')
     elsif prefetch_key_value == 3
-      print_good("EnablePrefetcher Value: (3) = Applaunch and boot enabled (Default Value, excl. Win2k3).")
+      print_good('EnablePrefetcher Value: (3) = Applaunch and boot enabled (Default Value, excl. Win2k3).')
     else
-      print_error("No value or unknown value. Results might vary.")
+      print_error('No value or unknown value. Results might vary.')
     end
   end
 
   def print_timezone_key_values(key_value)
     # Looks for timezone information from registry.
-    timezone = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", key_value)
-    tz_bias = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", "Bias")
-    if timezone.nil? or tz_bias.nil?
+    timezone = registry_getvaldata('HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation', key_value)
+    tz_bias = registry_getvaldata('HKLM\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation', 'Bias')
+    if timezone.nil? || tz_bias.nil?
       print_line("Couldn't find key/value for timezone from registry.")
     else
-      print_good("Remote: Timezone is %s." % timezone)
+      print_good('Remote: Timezone is %s.' % timezone)
       if tz_bias < 0xfff
-        print_good("Remote: Localtime bias to UTC: -%s minutes." % tz_bias)
+        print_good('Remote: Localtime bias to UTC: -%s minutes.' % tz_bias)
       else
         offset = 0xffffffff
         bias = offset - tz_bias
-        print_good("Remote: Localtime bias to UTC: +%s minutes." % bias)
+        print_good('Remote: Localtime bias to UTC: +%s minutes.' % bias)
       end
     end
   end
@@ -114,24 +114,24 @@ class MetasploitModule < Msf::Post
       unless filepath_data.blank?
         fpath_data_array = filepath_data.split("\\\x00D\x00E\x00V\x00I\x00C\x00E")
         fpath_data_array.each do |path|
-          unless path.blank?
-            fpath_name = path.split("\\").last.gsub(/\0/, '')
-            if fpath_name == name
-              filepath << path
-            end
+          next if path.blank?
+
+          fpath_name = path.split('\\').last.gsub(/\0/, '')
+          if fpath_name == name
+            filepath << path
           end
         end
       end
     end
     if filepath.blank?
-      filepath << "*** Filepath not found ***"
+      filepath << '*** Filepath not found ***'
     end
 
     return [last_exec, path_hash, run_count, name, filepath[0]]
   end
 
   def run
-    print_status("Prefetch Gathering started.")
+    print_status('Prefetch Gathering started.')
 
     # Check to see what Windows Version is running.
     # Needed for offsets.
@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Post
 
     if sysnfo =~ /(Windows XP|2003|.NET)/
 
-      if not is_admin?
+      if !is_admin?
         print_error(error_msg)
         return nil
       end
@@ -156,10 +156,10 @@ class MetasploitModule < Msf::Post
       runcount_offset = 0x90
       filetime_offset = 0x78
       # Registry key for timezone
-      key_value = "StandardName"
+      key_value = 'StandardName'
 
     elsif sysnfo =~ /(Windows 7)/
-      if not is_admin?
+      if !is_admin?
         print_error(error_msg)
         return nil
       end
@@ -171,48 +171,48 @@ class MetasploitModule < Msf::Post
       runcount_offset = 0x98
       filetime_offset = 0x78
       # Registry key for timezone
-      key_value = "TimeZoneKeyName"
+      key_value = 'TimeZoneKeyName'
     else
-      print_error("No offsets for the target Windows version. Currently works only on WinXP, Win2k3 and Win7.")
+      print_error('No offsets for the target Windows version. Currently works only on WinXP, Win2k3 and Win7.')
       return nil
     end
 
     table = Rex::Text::Table.new(
-      'Header' => "Prefetch Information",
+      'Header' => 'Prefetch Information',
       'Indent' => 1,
       'Columns' =>
       [
-        "Last execution (filetime)",
-        "Run Count",
-        "Hash",
-        "Filename",
-        "Filepath"
+        'Last execution (filetime)',
+        'Run Count',
+        'Hash',
+        'Filename',
+        'Filepath'
       ]
     )
 
     print_prefetch_key_value
     print_timezone_key_values(key_value)
-    print_good("Current UTC Time: %s" % Time.now.utc)
+    print_good('Current UTC Time: %s' % Time.now.utc)
     sys_root = session.sys.config.getenv('SYSTEMROOT')
-    full_path = sys_root + "\\Prefetch\\"
-    file_type = "*.pf"
-    print_status("Gathering information from remote system. This will take awhile..")
+    full_path = sys_root + '\\Prefetch\\'
+    file_type = '*.pf'
+    print_status('Gathering information from remote system. This will take awhile..')
 
     # Goes through the files in Prefetch directory, creates file paths for the
     # gather_pf_info function that enumerates all the pf info
 
     getfile_prefetch_filenames = client.fs.file.search(full_path, file_type)
-    if getfile_prefetch_filenames.empty? or getfile_prefetch_filenames.nil?
+    if getfile_prefetch_filenames.empty? || getfile_prefetch_filenames.nil?
       print_error("Could not find/access any .pf files. Can't continue. (Might be temporary error..)")
       return nil
     else
       getfile_prefetch_filenames.each do |file|
-        if file.empty? or file.nil?
+        if file.empty? || file.nil?
           next
         else
           filename = ::File.join(file['path'], file['name'])
           pf_entry = gather_pf_info(name_offset, hash_offset, runcount_offset, filetime_offset, filename)
-          if not pf_entry.nil?
+          if !pf_entry.nil?
             table << pf_entry
           end
         end
@@ -221,9 +221,9 @@ class MetasploitModule < Msf::Post
 
     # Stores and prints out results
     results = table.to_s
-    loot = store_loot("prefetch_info", "text/plain", session, results, nil, "Prefetch Information")
+    loot = store_loot('prefetch_info', 'text/plain', session, results, nil, 'Prefetch Information')
     print_line("\n" + results + "\n")
-    print_status("Finished gathering information from prefetch files.")
+    print_status('Finished gathering information from prefetch files.')
     print_status("Results stored in: #{loot}")
   end
 end

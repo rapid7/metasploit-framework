@@ -11,21 +11,21 @@
     ```
     C:> tnsping staticdb
     ...
-    
+
     Used TNSNAMES adapter to resolve the alias
     Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = staticdb)))
     OK (0 msec)
     ```
 
     If `tnsping` fails, make sure the listener is setup correctly.
-    See [this Oracle doc](https://docs.oracle.com/cd/E11882_01/network.112/e41945/listenercfg.htm#NETAG294) for more information about its configuration. 
+    See [this Oracle doc](https://docs.oracle.com/cd/E11882_01/network.112/e41945/listenercfg.htm#NETAG294) for more information about its configuration.
 
   4. Make sure to create a user on the DB that has a known password, and sufficient privileges to select any table. This is necessary for getting the hashes.
   5. Test that the module's hash query works locally. Once your user is created with sufficient privileges, connect to the DB as the user, and proceed to run the following query
     * 12c: `SELECT name, spare4 FROM sys.user$ where password is not null and name <> \'ANONYMOUS\'`
     * pre-12c: `SELECT name, password FROM sys.user$ where password is not null and name<> \'ANONYMOUS\'`
   6. Set up your MSF environment to support Oracle. You need gem ruby-oci8, as well as Oracle Instant Client.
-     [View the setup tutorial here](https://github.com/rapid7/metasploit-framework/wiki/How-to-get-Oracle-Support-working-with-Kali-Linux)
+     [View the setup tutorial here](https://docs.metasploit.com/docs/using-metasploit/other/oracle-support/how-to-get-oracle-support-working-with-kali-linux.html)
   7. Make sure you have a database connected to MSF (postgresql). This can be done through `msfdb` tool or through `db_connect` command in `msfconsole`.
 
 ## Verification Steps
@@ -81,7 +81,7 @@ msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
  ...
  SCOTT                  S:BF6D4E3791075A348BA76EF533E38F7211513CCE2A3513EE3E3D4A5A4DE0;H:3814C74599475EB73043A1211742EE59;T:0911BAC55EEF63F0C1769E816355BE29492C9D01980DC36C95A86C9CE47F93790631DE3D9A60C90451CFF152E25D9E94F612A1493EC82AF8E3C4D0432B06BA4C2C693B932332BC14D2D66CEF098A4699
  ...
- 
+
 [+] Hash Table has been saved
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -90,7 +90,7 @@ Credentials
 ===========
 
 host       origin     service            public  private                                                                                                                                                                                                                                                               realm  private_type        JtR Format
-----       ------     -------            ------  -------      
+----       ------     -------            ------  -------
 ...                                                                                                                                                                                                                                                         -----  ------------        ----------
 127.0.0.1  127.0.0.1  1522/tcp (oracle)  SCOTT   S:BF6D4E3791075A348BA76EF533E38F7211513CCE2A3513EE3E3D4A5A4DE0;H:3814C74599475EB73043A1211742EE59;T:0911BAC55EEF63F0C1769E816355BE29492C9D01980DC36C95A86C9CE47F93790631DE3D9A60C90451CFF152E25D9E94F612A1493EC82AF8E3C4D0432B06BA4C2C693B932332BC14D2D66CEF098A4699         Nonreplayable hash  oracle12c
 ```

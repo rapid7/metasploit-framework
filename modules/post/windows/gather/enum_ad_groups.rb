@@ -8,24 +8,28 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::LDAP
   #  include Msf::Post::Windows::Accounts
 
-  USER_FIELDS = ['name',
-                 'distinguishedname',
-                 'description'].freeze
+  USER_FIELDS = [
+    'name',
+    'distinguishedname',
+    'description'
+  ].freeze
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'         => 'Windows Gather Active Directory Groups',
-      'Description'  => %(
-        This module will enumerate AD groups on the specified domain.
-            ),
-      'License'      => MSF_LICENSE,
-      'Author'       => [
-        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
-      ],
-      'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Active Directory Groups',
+        'Description' => %q{
+          This module will enumerate AD groups on the specified domain.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
@@ -37,14 +41,14 @@ class MetasploitModule < Msf::Post
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, '').split(',')
       @user_fields.push(*additional_fields)
     end
 
     max_search = datastore['MAX_SEARCH']
 
     begin
-      f = ""
+      f = ''
       f = "(#{datastore['FILTER']})" if datastore['FILTER']
       q = query("(&(objectClass=group)#{f})", max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
@@ -65,15 +69,15 @@ class MetasploitModule < Msf::Post
   # and records and usernames as {Metasploit::Credential::Core}s in
   # the database.
   #
-  # @param [Array<Array<Hash>>] the LDAP query results to parse
-  # @return [Rex::Text::Table] the table containing all the result data
+  # @param results [Array<Array<Hash>>] The LDAP query results to parse
+  # @return [Rex::Text::Table] The table containing all the result data
   def parse_results(results)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header'     => "Domain Groups",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => @user_fields
+      'Header' => 'Domain Groups',
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => @user_fields
     )
 
     results.each do |result|
@@ -81,7 +85,7 @@ class MetasploitModule < Msf::Post
 
       result.each do |field|
         if field.nil?
-          row << ""
+          row << ''
         else
           row << field[:value]
         end

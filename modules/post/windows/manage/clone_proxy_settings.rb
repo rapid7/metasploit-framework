@@ -38,8 +38,8 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_settings(data)
-    print_status "\tProxy Counter = #{(data[4, 1].unpack('C*'))[0]}"
-    case (data[8, 1].unpack('C*'))[0]
+    print_status "\tProxy Counter = #{data[4, 1].unpack('C*')[0]}"
+    case data[8, 1].unpack('C*')[0]
     when 1
       print_status "\tSetting: No proxy settings"
     when 3
@@ -61,16 +61,16 @@ class MetasploitModule < Msf::Post
     end
 
     cursor = 12
-    proxyserver = data[cursor + 4, (data[cursor, 1].unpack('C*'))[0]]
-    print_status "\tProxy Server: #{proxyserver}" if proxyserver != ""
+    proxyserver = data[cursor + 4, data[cursor, 1].unpack('C*')[0]]
+    print_status "\tProxy Server: #{proxyserver}" if proxyserver != ''
 
-    cursor = cursor + 4 + (data[cursor].unpack('C*'))[0]
-    additionalinfo = data[cursor + 4, (data[cursor, 1].unpack('C*'))[0]]
-    print_status "\tAdditional Info: #{additionalinfo}" if additionalinfo != ""
+    cursor = cursor + 4 + data[cursor].unpack('C*')[0]
+    additionalinfo = data[cursor + 4, data[cursor, 1].unpack('C*')[0]]
+    print_status "\tAdditional Info: #{additionalinfo}" if additionalinfo != ''
 
-    cursor = cursor + 4 + (data[cursor].unpack('C*'))[0]
-    autoconfigurl = data[cursor + 4, (data[cursor, 1].unpack('C*'))[0]]
-    print_status "\tAutoConfigURL: #{autoconfigurl}" if autoconfigurl != ""
+    cursor = cursor + 4 + data[cursor].unpack('C*')[0]
+    autoconfigurl = data[cursor + 4, data[cursor, 1].unpack('C*')[0]]
+    print_status "\tAutoConfigURL: #{autoconfigurl}" if autoconfigurl != ''
   end
 
   def target_settings(dst_root_key, dst_base_key)
@@ -79,10 +79,10 @@ class MetasploitModule < Msf::Post
         dst_key = session.sys.registry.open_remote_key(datastore['RHOST'], dst_root_key)
       rescue ::Rex::Post::Meterpreter::RequestError
         print_error("Unable to contact remote registry service on #{datastore['RHOST']}")
-        print_status("Attempting to start service remotely...")
+        print_status('Attempting to start service remotely...')
         begin
           service_start('RemoteRegistry', datastore['RHOST'])
-        rescue
+        rescue StandardError
           print_error('Unable to read registry or start the service, exiting...')
           return
         end
@@ -106,13 +106,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if datastore['SID'] == "" and !datastore['RHOST']
+    if (datastore['SID'] == '') && !datastore['RHOST']
       print_error('No reason to copy the settings on top of themselves, please set a SID or/and RHOST')
       return
     end
 
     # Pull current user's settings
-    src_root_key, src_base_key = session.sys.registry.splitkey("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections")
+    src_root_key, src_base_key = session.sys.registry.splitkey('HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections')
     src_open_key = session.sys.registry.open_key(src_root_key, src_base_key)
     src_values = src_open_key.query_value('DefaultConnectionSettings')
     src_data = src_values.data
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Post
     if datastore['SID']
       dst_root_key, dst_base_key = session.sys.registry.splitkey("HKU\\#{datastore['SID']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections")
     else
-      dst_root_key, dst_base_key = session.sys.registry.splitkey("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections")
+      dst_root_key, dst_base_key = session.sys.registry.splitkey('HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections')
     end
 
     target_settings(dst_root_key, dst_base_key)
@@ -136,10 +136,10 @@ class MetasploitModule < Msf::Post
         dst_key = session.sys.registry.open_remote_key(datastore['RHOST'], dst_root_key)
       rescue ::Rex::Post::Meterpreter::RequestError
         print_error("Unable to contact remote registry service on #{datastore['RHOST']}")
-        print_status("Attempting to start service remotely...")
+        print_status('Attempting to start service remotely...')
         begin
           service_start('RemoteRegistry', datastore['RHOST'])
-        rescue
+        rescue StandardError
           print_error('Unable to read registry or start the service, exiting...')
           return
         end

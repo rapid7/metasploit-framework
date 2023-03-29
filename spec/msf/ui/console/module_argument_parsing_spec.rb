@@ -37,6 +37,24 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
       expect(subject.send(opts[:method_name], ['-o', 'RHOSTS=192.168.172.1'])).to include(expected_result)
     end
 
+    it 'allows setting namespaced datastore options' do
+      expected_result = {
+        datastore_options: {
+          'SMB::PROTOCOLVERSION' => '1,2'
+        }
+      }
+      expect(subject.send(opts[:method_name], ['SMB::ProtocolVersion=1,2'])).to include(expected_result)
+    end
+
+    it 'allows setting datastore options with underscores' do
+      expected_result = {
+        datastore_options: {
+          'USER_FILE' => './example.txt'
+        }
+      }
+      expect(subject.send(opts[:method_name], ['user_file=./example.txt'])).to include(expected_result)
+    end
+
     it 'allows setting multiple options individually' do
       expected_result = {
         datastore_options: {

@@ -79,12 +79,12 @@ class MetasploitModule < Msf::Post
     end
 
     host_processes = client.sys.process.get_processes
-    if host_processes.length < 1
-      print_bad("No running processes found on the target host.")
+    if host_processes.empty?
+      print_bad('No running processes found on the target host.')
       return false
     end
 
-    theprocess = host_processes.find { |x| x["pid"] == pid }
+    theprocess = host_processes.find { |x| x['pid'] == pid }
 
     !theprocess.nil?
   end
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Post
 
   def run_dll(dll_path)
     print_status("Running module against #{sysinfo['Computer']}") unless sysinfo.nil?
-    if datastore['PID'] > 0 or datastore['WAIT'] == 0
+    if (datastore['PID'] > 0) || (datastore['WAIT'] == 0)
       print_warning('Output unavailable')
     end
 
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Post
     end
 
     if hprocess.nil?
-      print_bad("Execution finished")
+      print_bad('Execution finished')
       return
     end
 
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Post
       sleep(datastore['WAIT'])
     end
 
-    if datastore['PID'] <= 0 and datastore['WAIT'] != 0
+    if (datastore['PID'] <= 0) && (datastore['WAIT'] != 0)
       read_output(process)
     end
 
@@ -190,13 +190,13 @@ class MetasploitModule < Msf::Post
     begin
       loop do
         output = process.channel.read
-        if !output.nil? and output.length > 0
+        if !output.nil? && !output.empty?
           output.split("\n").each { |x| print_good(x) }
         end
-        break if output.nil? or output.length == 0
+        break if output.nil? || output.empty?
       end
     rescue Rex::TimeoutError => e
-      vprint_warning("Time out exception: wait limit exceeded (5 sec)")
+      vprint_warning('Time out exception: wait limit exceeded (5 sec)')
     rescue ::Exception => e
       print_error("Exception: #{e.inspect}")
     end

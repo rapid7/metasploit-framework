@@ -1,6 +1,6 @@
 # Intro
 
-This article will discuss the various libraries, dependencies, and functionality built in to metasploit for dealing with password hashes, and cracking them.  In general, this will not cover storing credentials in the database, which can be read about [here](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners#the-scan-block).  Metasploit currently support cracking passwords with [John the Ripper](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/analyze) and  [hashcat](https://github.com/rapid7/metasploit-framework/pull/11695).
+This article will discuss the various libraries, dependencies, and functionality built in to metasploit for dealing with password hashes, and cracking them.  In general, this will not cover storing credentials in the database, which can be read about [[here|./Creating-Metasploit-Framework-LoginScanners.md]].  Metasploit currently support cracking passwords with [John the Ripper](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/analyze) and  [hashcat](https://github.com/rapid7/metasploit-framework/pull/11695).
 
 # Hashes
 
@@ -9,7 +9,7 @@ Many modules dump hashes from various software.  Anything from the OS: [Windows]
 ## Hash Identify Example
 
 In this first, simple, example we will simply show loading the library and calling its function.
-```
+```ruby
 require 'metasploit/framework/hashes/identify'
 puts identify_hash "$1$28772684$iEwNOgGugqO9.bIz5sk8k/"
 # note, bad hashes return an empty string since nil is not accepted when creating credentials in msf.
@@ -17,7 +17,7 @@ puts identify_hash "This_is a Fake Hash"
 puts identify_hash "_9G..8147mpcfKT8g0U."
 ```
 In practice, we receive the following output from this:
-```
+```ruby
 msf5 > irb
 [*] Starting IRB shell...
 [*] You are in the "framework" object

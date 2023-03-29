@@ -82,7 +82,7 @@ Module options (auxiliary/gather/hikvision_info_disclosure_cve_2017_7921):
    ----     ---------------  --------  -----------
    PRINT    true             no        Print output to console (not applicable for snapshot)
    Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS   192.168.100.180  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS   192.168.100.180  yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT    80               yes       The target port (TCP)
    SSL      false            no        Negotiate SSL/TLS for outgoing connections
    VHOST                     no        HTTP server virtual host

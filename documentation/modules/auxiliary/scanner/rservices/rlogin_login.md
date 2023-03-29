@@ -22,7 +22,7 @@ The following was done on Kali linux:
   A run against the configuration from these docs
 
   ```
-    msf > use auxiliary/scanner/rservices/rlogin_login 
+    msf > use auxiliary/scanner/rservices/rlogin_login
     msf auxiliary(rlogin_login) > set rhosts 10.1.2.3
     rhosts => 10.1.2.3
     msf auxiliary(rlogin_login) > set password test
@@ -30,7 +30,7 @@ The following was done on Kali linux:
     msf auxiliary(rlogin_login) > set username test
     username => test
     msf auxiliary(rlogin_login) > run
-    
+
     [*] 10.1.2.3:513     - 10.1.2.3:513 - Starting rlogin sweep
     [*] 10.1.2.3:513     - 10.1.2.3:513 - Attempting: 'test':"test" from 'root'
     [*] 10.1.2.3:513     - 10.1.2.3:513 - Prompt: Password:
@@ -38,8 +38,8 @@ The following was done on Kali linux:
     [+] 10.1.2.3:513     - 10.1.2.3:513, rlogin 'test' successful with password "test"
     [!] 10.1.2.3:513     - *** auxiliary/scanner/rservices/rlogin_login is still calling the deprecated report_auth_info method! This needs to be updated!
     [!] 10.1.2.3:513     - *** For detailed information about LoginScanners and the Credentials objects see:
-    [!] 10.1.2.3:513     -      https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners
-    [!] 10.1.2.3:513     -      https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module
+    [!] 10.1.2.3:513     -      https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/creating-metasploit-framework-loginscanners.html
+    [!] 10.1.2.3:513     -      https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/how-to-write-a-http-loginscanner-module.html
     [!] 10.1.2.3:513     - *** For examples of modules converted to just report credentials without report_auth_info, see:
     [!] 10.1.2.3:513     -      https://github.com/rapid7/metasploit-framework/pull/5376
     [!] 10.1.2.3:513     -      https://github.com/rapid7/metasploit-framework/pull/5377
@@ -54,15 +54,15 @@ Utilizing [rlogin-brute](https://nmap.org/nsedoc/scripts/rlogin-brute.html)
 
   ```
     nmap -p 513 --script rlogin-brute 10.1.2.3
-    
+
     Starting Nmap 7.40 ( https://nmap.org ) at 2017-05-11 20:07 EDT
     Nmap scan report for test (10.1.2.3)
     Host is up (0.000039s latency).
     PORT    STATE SERVICE
     513/tcp open  login
-    | rlogin-brute: 
+    | rlogin-brute:
     |   Accounts: No valid accounts found
     |_  Statistics: Performed 6662201 guesses in 609 seconds, average tps: 10491.0
-    
+
     Nmap done: 1 IP address (1 host up) scanned in 608.75 seconds
   ```

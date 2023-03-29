@@ -3,27 +3,28 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Windows Gather Active Directory BitLocker Recovery',
-      'Description'  => %q{
-        This module will enumerate BitLocker recovery passwords in the default AD
-        directory. This module does require Domain Admin or other delegated privileges.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       => ['Ben Campbell <ben.campbell[at]mwrinfosecurity.com>'],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
-      'References'   =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Active Directory BitLocker Recovery',
+        'Description' => %q{
+          This module will enumerate BitLocker recovery passwords in the default AD
+          directory. This module does require Domain Admin or other delegated privileges.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Ben Campbell <ben.campbell[at]mwrinfosecurity.com>'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'References' => [
           ['URL', 'https://technet.microsoft.com/en-us/library/cc771778%28v=ws.10%29.aspx']
         ]
-    ))
+      )
+    )
 
     register_options([
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', true]),
@@ -33,7 +34,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    fields = datastore['FIELDS'].gsub(/\s+/, "").split(',')
+    fields = datastore['FIELDS'].gsub(/\s+/, '').split(',')
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
 
@@ -51,10 +52,10 @@ class MetasploitModule < Msf::Post
 
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header'     => 'BitLocker Recovery Passwords',
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => fields
+      'Header' => 'BitLocker Recovery Passwords',
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => fields
     )
 
     q[:results].each do |result|

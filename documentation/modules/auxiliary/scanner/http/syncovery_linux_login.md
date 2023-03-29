@@ -58,7 +58,7 @@ Module options (auxiliary/scanner/http/syncovery_linux_login):
    PASSWORD          pass             no        The password to Syncovery (default: pass)
    PASS_FILE                          no        File containing passwords, one per line
    Proxies                            no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS            192.168.178.26   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS            192.168.178.26   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT             8999             yes       The target port (TCP)
    SSL               false            no        Negotiate SSL/TLS for outgoing connections
    STOP_ON_SUCCESS   true             yes       Stop guessing when a credential works for a host

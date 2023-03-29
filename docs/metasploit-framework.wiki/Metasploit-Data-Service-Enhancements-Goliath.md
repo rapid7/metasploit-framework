@@ -30,7 +30,7 @@ Our solution to this is a data service proxy.  A data service proxy allows us to
 Currently we plan to support the legacy data storage technology stack (RAILS/PostgreSQL) which we hope to eventually phase out.  The new implementation will use a RESTful (https://en.wikipedia.org/wiki/Representational_state_transfer) approach whereby calls to `framework.db` can be proxied to a remote web service that supports the same data service API.  We have built a web service that runs atop the current data storage service for the community.
 
 This approach enables us to:
-* More easily enhance the metasploit data model
+* More easily enhance the Metasploit data model
 * Run a web-based data service independent of the Metasploit Framework
     * Reduces the memory used by a Metasploit Framework instance using a data service by no longer requiring a DB client
     *  Increases throughput as storage calls don't necessarily need to be asynchronous
@@ -41,4 +41,4 @@ This approach enables us to:
 
 ## Usage
 
-For more information on setting up the web service and using the data services see [Metasploit Web Service](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).
+For more information on setting up the web service and using the data services see [[Metasploit Web Service|./Metasploit-Web-Service.md]].

@@ -61,43 +61,31 @@ class Msf::WebServices::HttpDBManagerService
     Rails.application.require_environment!
   end
 
-  # def init_servlets(http_server)
-  #   servlet_path = File.dirname(__FILE__) + '/servlet/*'
-  #   Dir.glob(servlet_path).collect{|file_path|
-  #     servlet_class = File.basename(file_path, '.rb').classify
-  #     require file_path
-  #     servlet_class_constant = servlet_class.constantize
-  #     http_server.mount servlet_class_constant.api_path, servlet_class_constant
-  #   }
-  # end
-
-
-
-end
-
-
-def print_line(msg)
-  $console_printer.print_line(msg)
-end
-
-def print_warning(msg)
-  $console_printer.print_warning(msg)
-end
-
-def print_good(msg)
-  $console_printer.print_good(msg)
-end
-
-def print_error(msg, exception = nil)
-  unless exception.nil?
-    msg += "\n    Call Stack:"
-    exception.backtrace.each {|line|
-      msg += "\n"
-      msg += "\t #{line}"
-    }
+  def print_line(msg)
+    $console_printer.print_line(msg)
   end
 
-  $console_printer.print_error(msg)
+  def print_warning(msg)
+    $console_printer.print_warning(msg)
+  end
+
+  def print_good(msg)
+    $console_printer.print_good(msg)
+  end
+
+  def print_error(msg, exception = nil)
+    unless exception.nil?
+      msg += "\n    Call Stack:"
+      exception.backtrace.each {|line|
+        msg += "\n"
+        msg += "\t #{line}"
+      }
+    end
+
+    $console_printer.print_error(msg)
+  end
+
+
 end
 
 $console_printer = Rex::Ui::Text::Output::Stdio.new

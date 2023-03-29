@@ -122,7 +122,7 @@ class DataStore < Hash
 
     # Split on the delimeter
     option_str.split(delim).each { |opt|
-      var, val = opt.split('=')
+      var, val = opt.split('=', 2)
 
       next if (var =~ /^\s+$/)
 

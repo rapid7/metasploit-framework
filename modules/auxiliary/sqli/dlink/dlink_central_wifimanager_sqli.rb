@@ -40,7 +40,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultOptions' => { 'SSL' => true },
         'DefaultAction' => 'SQLI_DUMP',
-        'DisclosureDate' => '2019-07-06'
+        'DisclosureDate' => '2019-07-06',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
