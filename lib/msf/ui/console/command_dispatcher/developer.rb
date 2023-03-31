@@ -91,7 +91,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     @modified_files |= files.map do |file|
       next if file.end_with?('_spec.rb') || file.end_with?("spec_helper.rb")
       File.join(Msf::Config.install_root, file)
-    end
+    end.compact
     @modified_files
   end
 
@@ -286,7 +286,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     files.each do |file|
       reload_file(file)
     rescue ScriptError, StandardError => e
-      print_error("Error while reloading file #{file}: #{e}")
+      print_error("Error while reloading file #{file.inspect}: #{e}:\n#{e.backtrace.to_a.map { |line| "  #{line}" }.join("\n")}")
     end
   end
 

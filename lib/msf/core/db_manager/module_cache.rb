@@ -122,7 +122,7 @@ module Msf::DBManager::ModuleCache
   #
   # @return [void]
   def purge_all_module_details
-    return if not self.migrated
+    return unless self.migrated
     return if self.modules_caching
 
     ::ApplicationRecord.connection_pool.with_connection do
