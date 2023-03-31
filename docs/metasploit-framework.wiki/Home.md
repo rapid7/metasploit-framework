@@ -65,6 +65,7 @@ Are you anxious to get your [[Metasploit Development Environment|./dev/Setting-U
 - [[Using ReflectiveDll Injection]]
 - [[Oracle Usage]]
 - [[Definition of Module Reliability, Side Effects, and Stability|./Definition-of-Module-Reliability-Side-Effects-and-Stability.md]]
+- [[How to cleanup after module execution]]
 
 # Metasploit Payloads #
 

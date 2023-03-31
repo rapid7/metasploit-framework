@@ -357,6 +357,9 @@ module Build
         '@git_addr',
         '@git_objs',
         '@refs',
+        '@conf_content',
+        '@need_cleanup',
+        '@repo_name'
       ]
 
       # Replace any dangling github usernames, i.e. `@foo` - but not `[@foo](http://...)` or `email@example.com`

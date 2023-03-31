@@ -695,6 +695,10 @@ NAVIGATION_CONFIG = [
                 path: 'Using-ReflectiveDLL-Injection.md',
                 title: 'ReflectiveDLL Injection'
               },
+              {
+                path: 'How-to-cleanup-after-module-execution.md',
+                title: 'Cleanup'
+              },
             ]
           },
           {
