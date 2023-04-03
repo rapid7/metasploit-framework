@@ -5,8 +5,8 @@ Framework itself implements this method to disconnect connections, call the hand
 Here is an example that restores a configuration file after being deleted by the module:
 ```ruby
 def cleanup
-  unless @conf_content.nil?
-    write_file(conf_file, @conf_content)
+  unless self.conf_content.nil?
+    write_file(self.conf_file, self.conf_content)
   end
 
   super
@@ -17,11 +17,11 @@ Here is another example of a `cleanup` method that deletes a temporary Git repos
 ```ruby
 def cleanup
   super
-  return unless @need_cleanup
+  return unless need_cleanup?
 
   print_status('Cleaning up')
-  uri = normalize_uri(datastore['USERNAME'], @repo_name, '/settings')
-  res = http_post_request(uri, action: 'delete', repo_name: @repo_name)
+  uri = normalize_uri(datastore['USERNAME'], self.repo_name, '/settings')
+  res = http_post_request(uri, action: 'delete', repo_name: self.repo_name)
 
   unless res
     fail_with(Failure::Unreachable, 'Unable to reach the settings page')
@@ -31,7 +31,7 @@ def cleanup
     fail_with(Failure::UnexpectedReply, 'Delete repository failure')
   end
 
-  print_status("Repository #{@repo_name} deleted.")
+  print_status("Repository #{self.repo_name} deleted.")
 
   nil
 end
