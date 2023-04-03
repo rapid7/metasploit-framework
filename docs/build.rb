@@ -181,7 +181,7 @@ module Build
         new_markdown.gsub!(link[:full_match], link[:replacement])
       end
 
-      fix_github_username_links(new_markdown)
+      new_markdown
     end
 
     attr_reader :links
@@ -299,76 +299,6 @@ module Build
       end
 
       matched_pages.first.fetch(:new_path)
-    end
-
-    def fix_github_username_links(content)
-      known_github_names = [
-        '@0a2940',
-        '@ChrisTuncer',
-        '@TomSellers',
-        '@asoto-r7',
-        '@busterb',
-        '@bwatters-r7',
-        '@jbarnett-r7',
-        '@jlee-r7',
-        '@jmartin-r7',
-        '@mcfakepants',
-        '@Op3n4M3',
-        '@gwillcox-r7',
-        '@red0xff',
-        '@mkienow-r7',
-        '@pbarry-r7',
-        '@schierlm',
-        '@timwr',
-        '@zerosteiner',
-        '@zeroSteiner',
-        '@harmj0y',
-      ]
-      # These tags look like Github/Twitter handles, but are actually ruby/java code snippets
-      ignored_tags = [
-        '@spid',
-        '@adf3',
-        '@LDAP-DC3',
-        '@harmj0yDescription',
-        '@phpsessid',
-        '@http_client',
-        '@abstract',
-        '@accepts_all_logins',
-        '@addresses',
-        '@aliases',
-        '@channel',
-        '@client',
-        '@dep',
-        '@handle',
-        '@instance',
-        '@param',
-        '@pid',
-        '@process',
-        '@return',
-        '@scanner',
-        '@yieldparam',
-        '@yieldreturn',
-        '@compressed',
-        '@content',
-        '@path',
-        '@sha1',
-        '@type',
-        '@git_repo_uri',
-        '@git_addr',
-        '@git_objs',
-        '@refs',
-      ]
-
-      # Replace any dangling github usernames, i.e. `@foo` - but not `[@foo](http://...)` or `email@example.com`
-      content.gsub(/(?<![\[|\w])@[\w-]+/) do |username|
-        if known_github_names.include? username
-          "[#{username}](https://www.github.com/#{username.gsub('@', '')})"
-        elsif ignored_tags.include? username
-          username
-        else
-          raise "Unexpected username: '#{username}'"
-        end
-      end
     end
   end
 

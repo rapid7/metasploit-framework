@@ -198,7 +198,7 @@ Filling in the blanks (provided by the original PR's information from GitHub) ge
 https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
 ````
 
-I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in upstream/pr/1217, and then the integration of the PR could continue.
+I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once [@schierlm](https://github.com/schierlm) landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in upstream/pr/1217, and then the integration of the PR could continue.
 
 # Collaboration between contributors
 
@@ -206,7 +206,7 @@ Note the important bit here: **you do not need commit rights to Rapid7 to branch
 
 # Landing to upstream
 
-Back to PR #1217. Turns out, my change was enough to land the original chunk of work. So, someone else (@jlee-r7) was able to to do something like this:
+Back to PR #1217. Turns out, my change was enough to land the original chunk of work. So, someone else ([@jlee-r7](https://github.com/jlee-r7)) was able to to do something like this:
 
 ````
 $ git fetch upstream
