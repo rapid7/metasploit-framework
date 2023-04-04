@@ -25,7 +25,7 @@ end
 class ModuleValidator < SimpleDelegator
   include ActiveModel::Validations
 
-  validate :validate_filename_is_snake_case, :validate_reference_ctx_id, :validate_author_bad_chars
+  validate :validate_filename_is_snake_case, :validate_reference_ctx_id, :validate_author_bad_chars, :validate_target_platforms
 
   attr_reader :mod
 
@@ -74,6 +74,14 @@ class ModuleValidator < SimpleDelegator
   #
   VALID_REFERENCE_CTX_ID_VALUES = %w[CVE CWE BID MSB EDB US-CERT-VU ZDI URL WPVDB PACKETSTORM LOGO SOUNDTRACK OSVDB VTS OVE]
 
+  def validate_notes_values_are_arrays
+    notes.each do |k, v|
+      unless v.is_a?(Array)
+        errors.add :notes, "#{k}'s value must be an array, got #{v.inspect}"
+      end
+    end
+  end
+
   def validate_crash_safe_not_present_in_stability_notes
     if rank == Msf::ExcellentRanking && !stability.include?(Msf::CRASH_SAFE)
       errors.add :stability, "must have CRASH_SAFE value if module has an ExcellentRanking, instead found #{stability.inspect}"
@@ -82,7 +90,7 @@ class ModuleValidator < SimpleDelegator
 
   def validate_filename_is_snake_case
     unless file_path.split('/').last.match?(/^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/)
-      errors.add :file_path, 'must be snake case'
+      errors.add :file_path, "must be snake case, instead found #{file_path.inspect}"
     end
   end
 
@@ -91,24 +99,32 @@ class ModuleValidator < SimpleDelegator
     invalid_references = references_ctx_id_list - VALID_REFERENCE_CTX_ID_VALUES
 
     invalid_references.each do |ref|
-      errors.add :references, "#{ref} is not valid, must be in #{VALID_REFERENCE_CTX_ID_VALUES}"
+      if ref == 'NOCVE'
+        errors.add :references, "#{ref} please include NOCVE values in the 'notes' section, rather than in 'references'."
+      elsif ref == 'AKA'
+        errors.add :references, "#{ref} please include AKA values in the 'notes' section, rather than in 'references'."
+      else
+        errors.add :references, "#{ref} is not valid, must be in #{VALID_REFERENCE_CTX_ID_VALUES}"
+      end
     end
   end
 
   def validate_author_bad_chars
     author.each do |i|
       if i.name =~ /^@.+$/
-        errors.add :author, 'must not include Twitter handles, please. Try leaving it in a comment instead.'
+        errors.add :author, "must not include username handles, found #{i.name.inspect}. Try leaving it in a comment instead."
       end
     end
   end
 
-  def requires_authors?
-    %w[exploit auxiliary post].include?(type)
-  end
-
-  def payload?
-    type == 'payload'
+  def validate_target_platforms
+    if platform.blank? && type == 'exploit'
+      targets.each do |target|
+        if target.platform.blank?
+          errors.add :platform, 'must be included either within targets or platform module metadata'
+        end
+      end
+    end
   end
 
   def has_notes?
@@ -119,7 +135,7 @@ class ModuleValidator < SimpleDelegator
 
   with_options if: :has_notes? do |mod|
 
-    mod.validate :validate_crash_safe_not_present_in_stability_notes
+    mod.validate :validate_crash_safe_not_present_in_stability_notes, :validate_notes_values_are_arrays
 
     mod.validates :stability,
                   array_inclusion: { in: VALID_STABILITY_VALUES }
@@ -144,7 +160,7 @@ class ModuleValidator < SimpleDelegator
 
   validates :name,
             presence: true,
-            format: { with: /\A[^&<>]+\z/, message: 'must not contain the characters ^&<>' }
+            format: { with: /\A[^&<>]+\z/, message: 'must not contain the characters &<>' }
 
   validates :description,
             presence: true

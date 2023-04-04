@@ -23,8 +23,6 @@ RSpec.shared_examples_for 'all modules with module type can be instantiated' do 
         module_reference_pathname = module_pathname.relative_path_from(type_pathname)
         module_reference_name = module_reference_pathname.to_path.gsub(module_extension_regexp, '')
 
-        # next unless module_reference_name.include?('windows/smb/cve_2020_0796_smbghost')
-
         context module_reference_name do
           subject do
             load_and_create_module(
