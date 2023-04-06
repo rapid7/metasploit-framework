@@ -282,6 +282,32 @@ RSpec.describe Msf::RhostsWalker do
     mod
   end
 
+  let(:kerberos_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      def initialize
+        super(
+          'Name' => 'mock kerberos module',
+          'Description' => 'mock kerberos module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options(
+          [
+            Msf::OptString.new('RHOSTNAME', [false, 'The dns rhost name, required for kerberos']),
+          ]
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
   def each_host_for(mod)
     replicant = mod.replicant
     described_class.new(replicant.datastore['RHOSTS'], replicant.datastore).to_enum
@@ -591,6 +617,31 @@ RSpec.describe Msf::RhostsWalker do
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
+    end
+
+    it 'allows the user to specify a rhostname' do
+      kerberos_mod.datastore['RHOSTS'] = '192.0.2.2'
+      kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
+
+      expected = [
+        { "RHOSTNAME"=> 'example.com', "RHOSTS"=>"192.0.2.2" }
+      ]
+
+      expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
+      expect(each_error_for(kerberos_mod)).to be_empty
+    end
+
+    it 'preserves a RHOSTNAME even if RHOSTS resolved with a hostname' do
+      kerberos_mod.datastore['RHOSTS'] = 'multiple_ips.example.com'
+      kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
+
+      expected = [
+        {"RHOSTNAME"=> "example.com", "RHOSTS"=>"198.51.100.1"},
+        {"RHOSTNAME"=> "example.com", "RHOSTS"=>"203.0.113.1"}
+      ]
+
+      expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
+      expect(each_error_for(kerberos_mod)).to be_empty
     end
 
     it 'enumerates a cidr scheme with a single http value' do

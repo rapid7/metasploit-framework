@@ -53,19 +53,20 @@ Here's the most basic example of an auxiliary module. We'll explain a bit more a
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Module name',
-      'Description'    => %q{
-        Say something that the user might want to know.
-      },
-      'Author'         => [ 'Name' ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Module name',
+        'Description' => %q{
+          Say something that the user might want to know.
+        },
+        'Author' => [ 'Name' ],
+        'License' => MSF_LICENSE
+      )
+    )
   end
 
   def run
@@ -89,21 +90,22 @@ Because the ```Msf::Auxiliary::Scanner``` mixin is so popular, we figured you wa
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Module name',
-      'Description'    => %q{
-        Say something that the user might want to know.
-      },
-      'Author'         => [ 'Name' ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Module name',
+        'Description' => %q{
+          Say something that the user might want to know.
+        },
+        'Author' => [ 'Name' ],
+        'License' => MSF_LICENSE
+      )
+    )
   end
 
   def run_host(ip)

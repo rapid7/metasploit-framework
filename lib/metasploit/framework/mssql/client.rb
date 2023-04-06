@@ -22,7 +22,112 @@ module Metasploit
           connect
           mssql_prelogin
 
-          if windows_authentication
+          if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
+            idx = 0
+            pkt = ''
+            pkt_hdr = ''
+            pkt_hdr =  [
+              TYPE_TDS7_LOGIN, #type
+              STATUS_END_OF_MESSAGE, #status
+              0x0000, #length
+              0x0000, # SPID
+              0x01,   # PacketID (unused upon specification
+              # but ms network monitor stil prefer 1 to decode correctly, wireshark don't care)
+              0x00   #Window
+            ]
+
+            pkt << [
+              0x00000000,   # Size
+              0x71000001,   # TDS Version
+              0x00000000,   # Dummy Size
+              0x00000007,   # Version
+              rand(1024+1), # PID
+              0x00000000,   # ConnectionID
+              0xe0,         # Option Flags 1
+              0x83,         # Option Flags 2
+              0x00,         # SQL Type Flags
+              0x00,         # Reserved Flags
+              0x00000000,   # Time Zone
+              0x00000000    # Collation
+            ].pack('VVVVVVCCCCVV')
+
+            cname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
+            aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) ) #application and library name
+            sname = Rex::Text.to_unicode( rhost )
+
+            framework_module.fail_with(Msf::Exploit::Failure::BadConfig, 'The Mssql::Rhostname option is required when using kerberos authentication.') if hostname.blank?
+            kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::MSSQL.new(
+              host: domain_controller_rhost,
+              hostname: hostname,
+              mssql_port: rport,
+              realm: domain_name,
+              username: user,
+              password: pass,
+              framework: framework,
+              framework_module: framework_module,
+              ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::WriteOnly.new(framework: framework, framework_module: framework_module)
+            )
+
+            kerberos_result = kerberos_authenticator.authenticate
+            ssp_security_blob = kerberos_result[:security_blob]
+
+            idx = pkt.size + 50 # lengths below
+
+            pkt << [idx, cname.length / 2].pack('vv')
+            idx += cname.length
+
+            pkt << [0, 0].pack('vv') # User length offset must be 0
+            pkt << [0, 0].pack('vv') # Password length offset must be 0
+
+            pkt << [idx, aname.length / 2].pack('vv')
+            idx += aname.length
+
+            pkt << [idx, sname.length / 2].pack('vv')
+            idx += sname.length
+
+            pkt << [0, 0].pack('vv') # unused
+
+            pkt << [idx, aname.length / 2].pack('vv')
+            idx += aname.length
+
+            pkt << [idx, 0].pack('vv') # locales
+
+            pkt << [idx, 0].pack('vv') #db
+
+            # ClientID (should be mac address)
+            pkt << Rex::Text.rand_text(6)
+
+            # SSP
+            pkt << [idx, ssp_security_blob.length].pack('vv')
+            idx += ssp_security_blob.length
+
+            pkt << [idx, 0].pack('vv') # AtchDBFile
+
+            pkt << cname
+            pkt << aname
+            pkt << sname
+            pkt << aname
+            pkt << ssp_security_blob
+
+            # Total packet length
+            pkt[0, 4] = [pkt.length].pack('V')
+
+            pkt_hdr[2] = pkt.length + 8
+
+            pkt = pkt_hdr.pack("CCnnCC") + pkt
+
+            # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
+            # has a strange behavior that differs from the specifications
+            # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
+            # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
+            resp = mssql_send_recv(pkt, 15, false)
+
+            info = {:errors => []}
+            info = mssql_parse_reply(resp, info)
+
+            return false if not info
+            return info[:login_ack] ? true : false
+          elsif auth == Msf::Exploit::Remote::AuthOption::NTLM || windows_authentication
             idx = 0
             pkt = ''
             pkt_hdr = ''
@@ -399,6 +504,18 @@ module Metasploit
         end
 
         protected
+
+        def auth
+          raise NotImplementedError
+        end
+
+        def domain_controller_rhost
+          raise NotImplementedError
+        end
+
+        def hostname
+          raise NotImplementedError
+        end
 
         def windows_authentication
           raise NotImplementedError

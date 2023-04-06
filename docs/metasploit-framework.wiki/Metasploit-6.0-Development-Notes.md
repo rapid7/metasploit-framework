@@ -22,7 +22,7 @@ Metasploit 6 adds support for SMB client connections using the version 3 dialect
 
 While many modules were updated to use the RubySMB SMB 3 implementation, not all were updated. Notably many older exploits that pre-date the release of SMB 3 were not updated and continue to use the original Rex implementation of the protocol. For those modules that have been updated however, users will be able to use them without any changes to their work flow. By default the newest dialect will be negotiated with the remote server and if it is one of the dialects within version 3 that supports encryption, the framework will use encryption by default. Users can alter this behavior by setting the `SMB::AlwaysEncrypt` and `SMB::ProtocolVersion` options. `SMB::AlwaysEncrypt` enforces encryption for SMB 3 connections even when the server does not require it (defaults to: `true`) while `SMB::ProtocolVersion` is a comma separated list of versions to allow the framework to negotiate (default: `1,2,3`).
 
-Module authors looking to write SMB modules should note the move towards the [RubySMB](https://github.com/rapid7/ruby_smb) protocol stack instead of the legacy Rex implementation. Much of the functionality is standardized within the [mixins](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/exploit/smb) however some edge-case functionality must still be ported over to RubySMB. For information on writing modules target SMB for Metasploit, see [Guidelines for Writing Modules with SMB](https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Writing-Modules-with-SMB).
+Module authors looking to write SMB modules should note the move towards the [RubySMB](https://github.com/rapid7/ruby_smb) protocol stack instead of the legacy Rex implementation. Much of the functionality is standardized within the [mixins](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/exploit/smb) however some edge-case functionality must still be ported over to RubySMB. For information on writing modules target SMB for Metasploit, see [[Guidelines for Writing Modules with SMB|./Guidelines-for-Writing-Modules-with-SMB.md]].
 
 ## Pull Requests
 
@@ -48,6 +48,6 @@ A complete list of pull requests included as part of the initial version 6 work:
 
 You can get Metasploit 6.0 by checking out the [6.0.0 tag](https://github.com/rapid7/metasploit-framework/releases/tag/6.0.0) in the Metasploit GitHub project.
 
-Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://github.com/rapid7/metasploit-framework/wiki), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can't find something you want in our wiki, ask Google or the community what they recommend. 
+Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://docs.metasploit.com/), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can't find something you want in our wiki, ask Google or the community what they recommend.
 
 See all the ways to stay informed and get involved at <https://metasploit.com>.

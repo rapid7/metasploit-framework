@@ -20,6 +20,12 @@ RSpec.shared_context 'Msf::UIDriver' do
     instance
   end
 
+  def reset_logging!
+    @output = []
+    @error = []
+    @combined_output = []
+  end
+
   def capture_logging(target)
     append_output = proc do |string = ''|
       lines = string.split("\n")

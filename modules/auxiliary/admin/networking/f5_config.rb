@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
           This module imports an F5 device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['h00die']
+        'Author' => ['h00die'],
+        'Notes' => {
+          'Stability' => [],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

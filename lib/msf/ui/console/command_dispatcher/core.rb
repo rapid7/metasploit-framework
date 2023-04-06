@@ -261,8 +261,8 @@ class Core
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
 
     banner << "\n"
-    banner << Msf::Serializer::ReadableText.word_wrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
-    banner << Msf::Serializer::ReadableText.word_wrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
+    banner << Rex::Text.wordwrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
+    banner << Rex::Text.wordwrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
 
     # Display the banner
     print_line(banner)
@@ -712,8 +712,8 @@ class Core
   #
   # Tab completion for the features command
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # @param _str [String] The string currently being typed before tab was hit
+  # @param words [Array<String>] The previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   def cmd_features_tabs(_str, words)
     if words.length == 1
@@ -1185,8 +1185,8 @@ class Core
             ],
           'ColProps' =>
             {
-              'Subnet'  => { 'MaxWidth' => 17 },
-              'Netmask' => { 'MaxWidth' => 17 },
+              'Subnet'  => { 'Width' => 17 },
+              'Netmask' => { 'Width' => 17 },
             })
 
         # IPv6 Table
@@ -1203,8 +1203,8 @@ class Core
             ],
           'ColProps' =>
             {
-              'Subnet'  => { 'MaxWidth' => 17 },
-              'Netmask' => { 'MaxWidth' => 17 },
+              'Subnet'  => { 'Width' => 17 },
+              'Netmask' => { 'Width' => 17 },
             })
 
         # Populate Route Tables

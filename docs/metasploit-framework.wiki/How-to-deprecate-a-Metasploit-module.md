@@ -35,7 +35,7 @@ DEPRECATION_REPLACEMENT = 'exploit/linux/http/dlink_upnp_exec_noauth'
 
 When the user loads that module, they should see a warning like this:
 
-```
+```msf
 msf > use exploit/windows/misc/test 
 
 [!] ************************************************************************
@@ -48,8 +48,6 @@ msf > use exploit/windows/misc/test
 ## Code example
 
 ```ruby
-require 'msf/core'
-
 class MetasploitModule < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
@@ -58,22 +56,25 @@ class MetasploitModule < Msf::Exploit::Remote
   deprecated(Date.new(2014, 9, 21), 'exploit/linux/http/dlink_upnp_exec_noauth')
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Msf::Module::Deprecated Example',
-      'Description' => %q{
-        This shows how to use Msf::Module::Deprecated.
-      },
-      'Author'      => [ 'sinn3r' ],
-      'License'     => MSF_LICENSE,
-      'References'  => [ [ 'URL', 'http://metasploit.com' ] ],
-      'DisclosureDate' => 'Apr 01 2014',
-      'Targets'        => [ [ 'Automatic', { } ] ],
-      'DefaultTarget'  => 0
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Msf::Module::Deprecated Example',
+        'Description' => %q{
+          This shows how to use Msf::Module::Deprecated.
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE,
+        'References' => [ [ 'URL', 'http://metasploit.com' ] ],
+        'DisclosureDate' => '2014-04-01',
+        'Targets' => [ [ 'Automatic', {} ] ],
+        'DefaultTarget' => 0
+      )
+    )
   end
 
   def exploit
-    print_debug("Code example")
+    print_debug('Code example')
   end
 
 end

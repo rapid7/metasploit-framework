@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
                      'found (timing attack only)', 10
                    ]),
         OptBool.new('CHECK_FALSE',
-                    [false, 'Check for false positives (random username)', false])
+                    [false, 'Check for false positives (random username)', true])
       ]
     )
 

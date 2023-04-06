@@ -2,22 +2,26 @@ require 'fileutils'
 require 'uri'
 require 'open3'
 require 'optparse'
+require 'did_you_mean'
+require 'kramdown'
 require_relative './navigation'
 
-# Temporary build module to help migrate and build the Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
-# supported by Jekyll, as well as creating a hierarchical folder structure for nested documentation
+# This build module was used to migrate the old Metasploit wiki https://github.com/rapid7/metasploit-framework/wiki into a format
+# supported by Jekyll. Jekyll was chosen as it was written in Ruby, which should reduce the barrier to entry for contributions.
+#
+# The build script took the flatlist of markdown files from the wiki, and converted them into the hierarchical folder structure
+# for nested documentation. This configuration is defined in `navigation.rb`
+#
+# In the future a different site generator could be used, but it should be possible to use this build script again to migrate to a new format
 #
 # For now the doc folder only contains the key files for building the docs site and no content. The content is created on demand
-# from the metasploit-framework wiki on each build
-#
-# In the future, the markdown files will be committed directly to the metasploit-framework directory, the wiki history will be
-# merged with metasploit-framework, and the old wiki will no longer be updated.
+# from the `metasploit-framework.wiki` folder on each build
 module Build
   # The metasploit-framework.wiki files that are committed to Metasploit framework's repository
   WIKI_PATH = 'metasploit-framework.wiki'.freeze
-  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki
+  # A locally cloned version of https://github.com/rapid7/metasploit-framework/wiki - should no longer be required for normal workflows
   OLD_WIKI_PATH = 'metasploit-framework.wiki.old'.freeze
-  PRODUCTION_BUILD_ARTIFACTS = '_site'.freeze
+  RELEASE_BUILD_ARTIFACTS = '_site'.freeze
 
   # For now we Git clone the existing metasploit wiki and generate the Jekyll markdown files
   # for each build. This allows changes to be made to the existing wiki until it's migrated
@@ -46,13 +50,18 @@ module Build
     def validate!
       configured_paths = all_file_paths
       missing_paths = available_paths.map { |path| path.gsub("#{WIKI_PATH}/", '') } - ignored_paths - existing_docs - configured_paths
-      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')}" if missing_paths.any?
+      raise ConfigValidationError, "Unhandled paths #{missing_paths.join(', ')} - add navigation entries to navigation.rb for these files" if missing_paths.any?
 
       each do |page|
         page_keys = page.keys
         allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
         invalid_keys = page_keys - allowed_keys
-        raise ConfigValidationError, "#{page} had invalid keys #{invalid_keys.join(', ')}" if invalid_keys.any?
+
+        suggestion = DidYouMean::SpellChecker.new(dictionary: allowed_keys).correct(invalid_keys[0]).first
+        error = "#{page} had invalid keys #{invalid_keys.join(', ')}."
+        error += " Did you mean #{suggestion}?" if suggestion
+
+        raise ConfigValidationError, error  if invalid_keys.any?
       end
 
       # Ensure unique folder names
@@ -150,6 +159,10 @@ module Build
       @links = {}
     end
 
+    def syntax_errors_for(markdown)
+      MarkdownLinkSyntaxVerifier.errors_for(markdown)
+    end
+
     def extract(markdown)
       extracted_absolute_wiki_links = extract_absolute_wiki_links(markdown)
       @links = @links.merge(extracted_absolute_wiki_links)
@@ -168,7 +181,7 @@ module Build
         new_markdown.gsub!(link[:full_match], link[:replacement])
       end
 
-      fix_github_username_links(new_markdown)
+      new_markdown
     end
 
     attr_reader :links
@@ -179,16 +192,22 @@ module Build
       @config.enum_for(:each).map { |page| page }
     end
 
-    # scans for absolute links to the old wiki such as 'https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service'
+    # scans for absolute links to the old wiki such as 'https://docs.metasploit.com/docs/using-metasploit/advanced/metasploit-web-service.html'
     def extract_absolute_wiki_links(markdown)
       new_links = {}
 
-      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_-]+))}) do |full_match, old_path|
+      markdown.scan(%r{(https?://github.com/rapid7/metasploit-framework/wiki/([\w().%_#-]+))}) do |full_match, old_path|
         full_match = full_match.gsub(/[).]+$/, '')
         old_path = URI.decode_www_form_component(old_path.gsub(/[).]+$/, ''))
 
-        new_path = new_path_for(old_path)
-        replacement = "{% link docs/#{new_path} %}"
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+
+        new_path = new_path_for(old_path, old_path_anchor)
+        replacement = "{% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""}"
 
         link = {
           full_match: full_match,
@@ -208,18 +227,26 @@ module Build
     #   '[[Custom name|Relative Path]]'
     #   '[[Custom name|relative-path]]'
     #   '[[Custom name|./relative-path.md]]'
+    #   '[[Custom name|./relative-path.md#section-anchor-to-link-to]]'
+    # Note that the page target resource file is validated for existence at build time - but the section anchors are not
     def extract_relative_links(markdown)
       existing_links = @links
       new_links = {}
-      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.-]+))?\]\])/) do |full_match, left, right|
+
+      markdown.scan(/(\[\[([\w\/_ '().:,-]+)(?:\|([\w\/_ '():,.#-]+))?\]\])/) do |full_match, left, right|
         old_path = (right || left)
-        new_path = new_path_for(old_path)
+        begin
+          old_path_anchor = URI.parse(old_path).fragment
+        rescue URI::InvalidURIError
+          old_path_anchor = nil
+        end
+        new_path = new_path_for(old_path, old_path_anchor)
         if existing_links[full_match] && existing_links[full_match][:new_path] != new_path
           raise "Link for #{full_match} previously resolved to #{existing_links[full_match][:new_path]}, but now resolves to #{new_path}"
         end
 
         link_text = left
-        replacement = "[#{link_text}]({% link docs/#{new_path} %})"
+        replacement = "[#{link_text}]({% link docs/#{new_path} %}#{old_path_anchor ? "##{old_path_anchor}" : ""})"
 
         link = {
           full_match: full_match,
@@ -236,86 +263,103 @@ module Build
       new_links
     end
 
-    def new_path_for(old_path)
-      old_path = old_path.gsub(' ', '-')
+    def new_path_for(old_path, old_path_anchor)
+      # Strip out any leading `./` or `/` before the relative path.
+      # This is needed for our later code that does additional filtering for
+      # potential ambiguity with absolute paths since those comparisons occur
+      # against filenames without the leading ./ and / parts.
+      old_path = old_path.gsub(/^[.\/]+/, '')
+
+      # Replace any spaces in the file name with - separators, then
+      # make replace anchors with an empty string.
+      old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
+
       matched_pages = pages.select do |page|
         !page[:folder] &&
           (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
             File.basename(page[:path]).downcase == "#{File.basename(old_path)}".downcase)
       end
       if matched_pages.empty?
-        raise "Missing path for #{old_path}"
+        raise "Link not found: #{old_path}"
       end
+      # Additional filter for absolute paths if there's potential ambiguity
       if matched_pages.count > 1
-        raise "Duplicate paths for #{old_path}"
+        refined_pages = matched_pages.select do |page|
+          !page[:folder] &&
+            (page[:path].downcase == "#{old_path}.md".downcase ||
+              page[:path].downcase == old_path.downcase)
+        end
+
+        if refined_pages.count != 1
+          page_paths = matched_pages.map { |page| page[:path] }
+          raise "Duplicate paths for #{old_path} - possible page paths found: #{page_paths}"
+        end
+
+        matched_pages = refined_pages
       end
 
       matched_pages.first.fetch(:new_path)
     end
+  end
 
-    def fix_github_username_links(content)
-      known_github_names = [
-        '@0a2940',
-        '@ChrisTuncer',
-        '@TomSellers',
-        '@asoto-r7',
-        '@busterb',
-        '@bwatters-r7',
-        '@jbarnett-r7',
-        '@jlee-r7',
-        '@jmartin-r7',
-        '@mcfakepants',
-        '@Op3n4M3',
-        '@gwillcox-r7',
-        '@red0xff',
-        '@mkienow-r7',
-        '@pbarry-r7',
-        '@schierlm',
-        '@timwr',
-        '@zerosteiner',
-        '@zeroSteiner',
-        '@harmj0y',
-      ]
-      ignored_tags = [
-        '@harmj0yDescription',
-        '@phpsessid',
-        '@http_client',
-        '@abstract',
-        '@accepts_all_logins',
-        '@addresses',
-        '@aliases',
-        '@channel',
-        '@client',
-        '@dep',
-        '@handle',
-        '@instance',
-        '@param',
-        '@pid',
-        '@process',
-        '@return',
-        '@scanner',
-        '@yieldparam',
-        '@yieldreturn',
-        '@compressed',
-        '@content',
-        '@path',
-        '@sha1',
-        '@type',
-        '@git_repo_uri',
-        '@git_addr',
-        '@git_objs',
-        '@refs',
-      ]
+  # Verifies that markdown links are not relative. Instead the Github wiki flavored syntax should be used.
+  #
+  # Example bad: `[Human readable text](./some-documentation-link)`
+  # Example good: `[[Human readable text|./some-documentation-link]]`
+  class MarkdownLinkSyntaxVerifier
+    # Detects the usage of bad syntax and returns an array of detected errors
+    #
+    # @param [String] markdown The markdown
+    # @return [Array<String>] An array of human readable errors that should be resolved
+    def self.errors_for(markdown)
+      document = Kramdown::Document.new(markdown)
+      document.to_validated_wiki_page
+      warnings = document.warnings.select { |warning| warning.start_with?(Kramdown::Converter::ValidatedWikiPage::WARNING_PREFIX) }
+      warnings
+    end
 
-      # Replace any dangling github usernames, i.e. `@foo` - but not `[@foo](http://...)` or `email@example.com`
-      content.gsub(/(?<![\[|\w])@[\w-]+/) do |username|
-        if known_github_names.include? username
-          "[#{username}](https://www.github.com/#{username.gsub('@', '')})"
-        elsif ignored_tags.include? username
-          username
-        else
-          raise "Unexpected username: '#{username}'"
+    # Implementation detail: There doesn't seem to be a generic AST visitor pattern library for Ruby; We instead implement
+    # Kramdown's Markdown to HTML Converter API, override the link converter method, and warn on any invalid links that are identified.
+    # The {MarkdownLinkVerifier} will ignore the HTML result, and return any detected errors instead.
+    #
+    # https://kramdown.gettalong.org/rdoc/Kramdown/Converter/Html.html
+    class Kramdown::Converter::ValidatedWikiPage < Kramdown::Converter::Html
+      WARNING_PREFIX = '[WikiLinkValidation]'
+
+      def convert_a(el, indent)
+        link_href = el.attr['href']
+        if relative_link?(link_href)
+          link_text = el.children.map { |child| convert(child) }.join
+          warning "Invalid docs link syntax found on line #{el.options[:location]}: Invalid relative link #{link_href} found. Please use the syntax [[#{link_text}|#{link_href}]] instead"
         end
+
+        if absolute_docs_link?(link_href)
+          begin
+            example_path = ".#{URI.parse(link_href).path}"
+          rescue URI::InvalidURIError
+            example_path = "./path-to-markdown-file"
+          end
+
+          link_text = el.children.map { |child| convert(child) }.join
+          warning "Invalid docs link syntax found on line #{el.options[:location]}: Invalid absolute link #{link_href} found. Please use relative links instead, i.e. [[#{link_text}|#{example_path}]] instead"
+        end
+
+        super
+      end
+
+      private
+
+      def warning(text)
+        super "#{WARNING_PREFIX} #{text}"
+      end
+
+      def relative_link?(link_path)
+        !(link_path.start_with?('http:') || link_path.start_with?('https:') || link_path.start_with?('mailto:') || link_path.start_with?('#'))
+      end
+
+      # @return [TrueClass, FalseClass] True if the link is to a Metasploit docs page that isn't either the root home page or the API site, otherwise false
+      def absolute_docs_link?(link_path)
+        link_path.include?('docs.metasploit.com') && !link_path.include?('docs.metasploit.com/api') && !(link_path == 'https://docs.metasploit.com/')
       end
     end
   end
@@ -368,7 +412,8 @@ module Build
           **page.slice(:title, :has_children, :nav_order),
           parent: (page[:parents][-1] || {})[:title],
           warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
-          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated"
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated",
+          has_content: !page[:path].nil?
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
@@ -382,7 +427,7 @@ module Build
         new_path = File.join(result_folder, page[:new_path])
         FileUtils.mkdir_p(File.dirname(new_path))
 
-        if page[:folder]
+        if page[:folder] && page[:path].nil?
           new_docs_content = preamble.rstrip + "\n"
         else
           old_path = File.join(WIKI_PATH, page[:path])
@@ -413,19 +458,31 @@ module Build
 
     def link_corrector_for(config)
       link_corrector = LinkCorrector.new(config)
+      errors = []
       config.each do |page|
-        unless page[:folder]
+        unless page[:path].nil?
           content = File.read(File.join(WIKI_PATH, page[:path]), encoding: Encoding::UTF_8)
+          syntax_errors = link_corrector.syntax_errors_for(content)
+          errors << { path: page[:path], messages: syntax_errors } if syntax_errors.any?
+
           link_corrector.extract(content)
         end
+      end
+
+      if errors.any?
+        errors.each do |error|
+          $stderr.puts "[!] Error #{File.join(WIKI_PATH, error[:path])}:\n#{error[:messages].map { |message| "\t- #{message}\n" }.join}"
+        end
+
+        raise "Errors found in markdown syntax"
       end
 
       link_corrector
     end
   end
 
-  # Serve the production build at http://127.0.0.1:4000/metasploit-framework/
-  class ProductionServer
+  # Serve the release build at http://127.0.0.1:4000/metasploit-framework/
+  class ReleaseBuildServer
     autoload :WEBrick, 'webrick'
 
     def self.run
@@ -434,7 +491,7 @@ module Build
           Port: 4000
         }
       )
-      server.mount('/', WEBrick::HTTPServlet::FileHandler, PRODUCTION_BUILD_ARTIFACTS)
+      server.mount('/', WEBrick::HTTPServlet::FileHandler, RELEASE_BUILD_ARTIFACTS)
       trap('INT') do
         server.shutdown
       rescue StandardError
@@ -539,11 +596,18 @@ module Build
     end
 
     if options[:production]
-      FileUtils.remove_dir(PRODUCTION_BUILD_ARTIFACTS, true)
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
       run_command('JEKYLL_ENV=production bundle exec jekyll build')
 
       if options[:serve]
-        ProductionServer.run
+        ReleaseBuildServer.run
+      end
+    elsif options[:staging]
+      FileUtils.remove_dir(RELEASE_BUILD_ARTIFACTS, true)
+      run_command('JEKYLL_ENV=production bundle exec jekyll build --config _config.yml,_config_staging.yml')
+
+      if options[:serve]
+        ReleaseBuildServer.run
       end
     elsif options[:serve]
       run_command('bundle exec jekyll serve --config _config.yml,_config_development.yml --incremental')
@@ -565,6 +629,10 @@ if $PROGRAM_NAME == __FILE__
 
     opts.on('--production', 'Run a production build') do |production|
       options[:production] = production
+    end
+
+    opts.on('--staging', 'Run a staging build for deploying to gh-pages') do |staging|
+      options[:staging] = staging
     end
 
     opts.on('--serve', 'serve the docs site') do |serve|
@@ -589,6 +657,10 @@ if $PROGRAM_NAME == __FILE__
     opts.on('--create-wiki-to-framework-migration-branch') do
       options[:create_wiki_to_framework_migration_branch] = true
     end
+  end
+  if ARGV.length == 0
+    puts options_parser.help
+    exit 1
   end
   options_parser.parse!
 

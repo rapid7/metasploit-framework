@@ -2,7 +2,7 @@ This is an update of the original blog post about how to get Oracle support work
 
 Due to licensing issues, we cannot ship Oracle's proprietary client access libraries by default. As a result, you may see this error when running a Metasploit module:
 
-```
+```msf
 msf auxiliary(oracle_login) > run
 
 [-] Failed to load the OCI library: cannot load such file -- oci8
@@ -11,7 +11,7 @@ msf auxiliary(oracle_login) > run
 msf auxiliary(oracle_login) > run
 ```
 or
-```
+```msf
 msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
 
 [-] Failed to load the OCI library: cannot load such file -- oci8

@@ -1,6 +1,6 @@
 GSoC Project Ideas in no particular order.
 
-Mentors: @busterb, @zerosteiner, @timwr, @asoto-r7, @jmartin-r7, @pbarry-r7, @mkienow-r7, @jbarnett-r7
+Mentors: [@busterb](https://github.com/busterb), [@zerosteiner](https://github.com/zerosteiner), [@timwr](https://github.com/timwr), [@asoto-r7](https://github.com/asoto-r7), [@jmartin-r7](https://github.com/jmartin-r7), [@pbarry-r7](https://github.com/pbarry-r7), [@mkienow-r7](https://github.com/mkienow-r7), [@jbarnett-r7](https://github.com/jbarnett-r7)
 
 ## Enhance Metasploit Framework
 

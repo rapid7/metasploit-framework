@@ -87,7 +87,7 @@ Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
                 ine_xnode/CVE-2020-11532/adaudit_plus_xnode_conf.yaml
    DUMP_ALL     false                                                          no        Dump all data from the available data repositories (tables). If true, CONFIG_FILE will be ignored.
    PASSWORD     chegan                                                         yes       Password used to authenticate to the Xnode server
-   RHOSTS       192.168.1.41                                                   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS       192.168.1.41                                                   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT        29118                                                          yes       The target port (TCP)
    USERNAME     atom                                                           yes       Username used to authenticate to the Xnode server
 
@@ -115,7 +115,7 @@ msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > set rhosts 192.168
 rhosts => 192.168.1.25
 msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > set password custom_password
 password => custom_password
-msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > options 
+msf6 auxiliary(gather/manageengine_adaudit_plus_xnode_enum) > options
 
 Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
 
@@ -125,7 +125,7 @@ Module options (auxiliary/gather/manageengine_adaudit_plus_xnode_enum):
                 ode_conf.yaml
    DUMP_ALL     false                                                                                                           no        Dump all data from the available data repositories (tables). If true, CONFIG_FILE will be ignored.
    PASSWORD     custom_password                                                                                                 yes       Password used to authenticate to the Xnode server
-   RHOSTS       192.168.1.25                                                                                                    yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS       192.168.1.25                                                                                                    yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT        29118                                                                                                           yes       The target port (TCP)
    USERNAME     atom                                                                                                            yes       Username used to authenticate to the Xnode server
 

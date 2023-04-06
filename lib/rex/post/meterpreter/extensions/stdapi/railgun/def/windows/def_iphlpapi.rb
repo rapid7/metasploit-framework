@@ -43,12 +43,12 @@ class Def_windows_iphlpapi
 
     dll.add_function('GetBestInterface', 'DWORD',[
       ["DWORD","dwDestAddr","in"],
-      ["PDWORD","pdwBestIfIndex","inout"],
+      ["PDWORD","pdwBestIfIndex","out"],
       ])
 
     dll.add_function('GetBestInterfaceEx', 'DWORD',[
       ["PBLOB","pDestAddr","in"],
-      ["PDWORD","pdwBestIfIndex","inout"],
+      ["PDWORD","pdwBestIfIndex","out"],
       ])
 
     dll.add_function('GetFriendlyIfIndex', 'DWORD',[
@@ -56,14 +56,14 @@ class Def_windows_iphlpapi
       ])
 
     dll.add_function('GetNumberOfInterfaces', 'DWORD',[
-      ["PDWORD","pdwNumIf","inout"],
+      ["PDWORD","pdwNumIf","out"],
       ])
 
     dll.add_function('GetRTTAndHopCount', 'BOOL',[
       ["DWORD","DestIpAddress","in"],
-      ["PDWORD","HopCount","inout"],
+      ["PULONG","HopCount","out"],
       ["DWORD","MaxHops","in"],
-      ["PDWORD","RTT","inout"],
+      ["PULONG","RTT","out"],
       ])
 
     dll.add_function('NotifyAddrChange', 'DWORD',[

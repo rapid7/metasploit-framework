@@ -29,7 +29,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://us-cert.cisa.gov/ncas/alerts/aa20-195a' ]
         ],
         'Notes' => {
-          'AKA' => [ 'RECON' ]
+          'AKA' => [ 'RECON' ],
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS],
+          'Reliability' => []
         },
         'Actions' => [
           [ 'ADD', { 'Description' => 'Add the specified user' } ],

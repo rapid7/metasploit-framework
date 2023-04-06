@@ -53,7 +53,12 @@ class MetasploitModule < Msf::Post
         'DefaultAction' => 'TOGGLE_RADIO_MUTE',
         'Platform' => 'Android',
         'DisclosureDate' => '2020-12-02',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS, CONFIG_CHANGES, IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

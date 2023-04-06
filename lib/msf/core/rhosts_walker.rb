@@ -330,14 +330,14 @@ module Msf
 
     def set_hostname(datastore, result, hostname)
       hostname = Rex::Socket.is_ip_addr?(hostname) ? nil : hostname
-      result['RHOSTNAME'] = hostname if result['RHOSTNAME'].blank?
+      result['RHOSTNAME'] = hostname if datastore['RHOSTNAME'].blank?
       result['VHOST'] = hostname if datastore.options.include?('VHOST') && datastore['VHOST'].blank?
     end
 
     def set_username(datastore, result, username)
       # Preference setting application specific values first
       username_set = false
-      option_names = %w[SMBUser FtpUser Username user USERNAME username]
+      option_names = %w[SMBUser FtpUser Username user USER USERNAME username]
       option_names.each do |option_name|
         if datastore.options.include?(option_name)
           result[option_name] = username

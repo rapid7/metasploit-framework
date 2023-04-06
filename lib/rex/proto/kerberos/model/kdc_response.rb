@@ -4,7 +4,7 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class provides a representation of a Kerberos KDC-REQ (response) data
+        # This class provides a representation of a Kerberos KDC-REP (response) data
         # definition
         class KdcResponse < Element
           # @!attribute pvno
@@ -13,6 +13,9 @@ module Rex
           # @!attribute msg_type
           #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
+          # @!attribute pa_data
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>,nil] An array of PreAuthDataEntry. nil if not present.
+          attr_accessor :pa_data
           # @!attribute crealm
           #   @return [String] The realm part of the client's principal identifier
           attr_accessor :crealm
@@ -73,6 +76,8 @@ module Rex
                 self.pvno = decode_pvno(val)
               when 1
                 self.msg_type = decode_msg_type(val)
+              when 2
+                self.pa_data = decode_pa_data(val)
               when 3
                 self.crealm = decode_crealm(val)
               when 4
@@ -82,7 +87,7 @@ module Rex
               when 6
                 self.enc_part = decode_enc_part(val)
               else
-                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KDC-RESPONSE SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode KDC-RESPONSE SEQUENCE (#{val.tag})"
               end
             end
           end
@@ -101,6 +106,19 @@ module Rex
           # @return [Integer]
           def decode_msg_type(input)
             input.value[0].value.to_i
+          end
+
+          # Decodes the pa_data field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
+          def decode_pa_data(input)
+            pre_auth = []
+            input.value[0].value.each do |pre_auth_data|
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
+            end
+
+            pre_auth
           end
 
           # Decodes the crealm field

