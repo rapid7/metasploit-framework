@@ -397,7 +397,7 @@ module DNS
       hf = Rex::Compat.is_windows ? '%WINDIR%/system32/drivers/etc/hosts' : '/etc/hosts'
       entries = File.read(hf).lines.map(&:strip).select do |entry|
         Rex::Socket.is_ip_addr?(entry.gsub(/\s+/,' ').split(' ').first) and
-        not entry.match(/::.*ip6-/)
+        not entry.match(/::.*ip6-/) # Ignore Debian/Ubuntu-specific notation for IPv6 hosts
       end.map do |entry|
         entry.gsub(/\s+/,' ').split(' ')
       end
