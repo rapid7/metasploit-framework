@@ -11,17 +11,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'        => 'Amazon Web Services EC2 instance enumeration',
-        'Description' => %q(
-                          Provided AWS credentials, this module will call the authenticated
-                          API of Amazon Web Services to list all EC2 instances associated
-                          with the account
-                         ),
-        'Author'      => [
+        'Name' => 'Amazon Web Services EC2 instance enumeration',
+        'Description' => %q{
+          Provided AWS credentials, this module will call the authenticated
+          API of Amazon Web Services to list all EC2 instances associated
+          with the account
+        },
+        'Author' => [
           'Aaron Soto <aaron.soto@rapid7.com>',
           'RageLtMan <rageltman[at]sempervictus>'
         ],
-        'License'     => MSF_LICENSE
+        'License' => MSF_LICENSE
       )
     )
 
@@ -35,16 +35,17 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def handle_aws_errors(e)
-    if e.class.module_parents.include?(Aws)
-      fail_with(Failure::UnexpectedReply, e.message)
+  def handle_aws_errors(err)
+    if err.class.module_parents.include?(Aws)
+      fail_with(Failure::UnexpectedReply, err.message)
     else
-      raise e
+      raise err
     end
   end
 
   def enumerate_regions
     return [datastore['REGION']] if datastore['REGION']
+
     regions = []
 
     ec2 = Aws::EC2::Resource.new(
@@ -61,55 +62,59 @@ class MetasploitModule < Msf::Auxiliary
     regions
   end
 
-  def describe_ec2_instance(i)
-    print_good "  #{i.id} (#{i.state.name})"
-    print_good "    Creation Date:  #{i.launch_time}"
-    print_good "    Public IP:      #{i.public_ip_address} (#{i.public_dns_name})"
-    print_good "    Private IP:     #{i.public_ip_address} (#{i.private_dns_name})"
+  def describe_ec2_instance(inst)
+    print_good "  #{inst.id} (#{inst.state.name})"
+    print_good "    Creation Date:  #{inst.launch_time}"
+    print_good "    Public IP:      #{inst.public_ip_address} (#{inst.public_dns_name})"
+    print_good "    Private IP:     #{inst.public_ip_address} (#{inst.private_dns_name})"
     # Report hosts and info
-    mac_addr = i.network_interfaces.select { |iface|
-      iface.private_ip_address == i.private_ip_address
-    }.first.mac_address
-    iname = i.tags.find {|t| t.key == 'Name'} ? i.tags.find {|t| t.key == 'Name'}.value : i.private_dns_name
-    iinfo = i.tags.find {|t| t.key == 'Description'} ? i.tags.find {|t| t.key == 'Description'}.value : nil
+    mac_addr = inst.network_interfaces.select do |iface|
+      iface.private_ip_address == inst.private_ip_address
+    end.first.mac_address
+    iname = inst.tags.find { |t| t.key == 'Name' } ? inst.tags.find { |t| t.key == 'Name' }.value : inst.private_dns_name
+    iinfo = inst.tags.find { |t| t.key == 'Description' } ? inst.tags.find { |t| t.key == 'Description' }.value : nil
     report_host(
-      host: i.private_ip_address,
+      host: inst.private_ip_address,
       mac: mac_addr,
-      os_name: i.platform_details,
-      os_flavor: i.architecture,
+      os_name: inst.platform_details,
+      os_flavor: inst.architecture,
       name: iname,
       info: iinfo,
-      comments: "ec2-id: #{i.id}"
+      comments: "ec2-id: #{inst.id}"
     )
-    report_note(
-      host: i.private_ip_address,
-      type: 'ec2.public_ip',
-      data: i.public_ip_address
-    ) if i.public_ip_address
-    report_note(
-      host: i.private_ip_address,
-      type: 'ec2.public_dns',
-      data: i.public_dns_name
-    ) if i.public_ip_address and not i.public_dns_name.empty?
-    report_note(
-      host: i.private_ip_address,
-      type: 'ec2.hypervisor',
-      data: i.hypervisor
-    ) if i.hypervisor
-
-    i.security_groups.each do |s|
+    if inst.public_ip_address
+      report_note(
+        host: inst.private_ip_address,
+        type: 'ec2.public_ip',
+        data: inst.public_ip_address
+      )
+    end
+    if inst.public_ip_address && !inst.public_dns_name.empty?
+      report_note(
+        host: inst.private_ip_address,
+        type: 'ec2.public_dns',
+        data: inst.public_dns_name
+      )
+    end
+    if inst.hypervisor
+      report_note(
+        host: inst.private_ip_address,
+        type: 'ec2.hypervisor',
+        data: inst.hypervisor
+      )
+    end
+    inst.security_groups.each do |s|
       print_good "    Security Group: #{s.group_id}"
       report_note(
-        host: i.private_ip_address,
+        host: inst.private_ip_address,
         type: "ec2.#{s.group_id}",
         data: s.group_name
       )
     end
-
-    i.tags.each do |t|
+    inst.tags.each do |t|
       print_good "    Tag: #{t.key} = #{t.value}"
       report_note(
-        host: i.private_ip_address,
+        host: inst.private_ip_address,
         type: "ec2.tag #{t.key}",
         data: t.value
       )
