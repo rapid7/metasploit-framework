@@ -40,14 +40,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def handle_aws_errors(err)
-    if err.class.module_parents.include?(Aws)
-      fail_with(Failure::UnexpectedReply, err.message)
-    else
-      raise err
-    end
-  end
-
   def enumerate_regions
     return [datastore['REGION']] if datastore['REGION']
 
@@ -147,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue Seahorse::Client::NetworkingError => e
     print_error e.message
     print_error 'Confirm region name (eg. us-west-2) is valid or blank before retrying'
-  rescue ::Exception => e
-    handle_aws_errors(e)
+  rescue Aws::EC2::Errors::ServiceError => e
+    fail_with(Failure::UnexpectedReply, e.message)
   end
 end
