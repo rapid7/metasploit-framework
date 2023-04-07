@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           'Aaron Soto <aaron.soto@rapid7.com>',
           'RageLtMan <rageltman[at]sempervictus>'
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'SideEffects' => [IOC_IN_LOGS],
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => []
+        }
       )
     )
 
