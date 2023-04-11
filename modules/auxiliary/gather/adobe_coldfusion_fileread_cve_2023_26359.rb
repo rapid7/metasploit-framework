@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     vars_get = { 'method' => datastore['CFC_METHOD'], '_cfclient' => 'true', 'returnFormat' => 'wddx' }
 
     # If the CFC_METHOD required parameters, extract them from CFC_METHOD_PARAMETERS and add to the vars_get Hash.
-    unless datastore['CFC_METHOD_PARAMETERS'] && datastore['CFC_METHOD_PARAMETERS'].empty?
+    unless datastore['CFC_METHOD_PARAMETERS'].blank?
       datastore['CFC_METHOD_PARAMETERS'].split('&').each do |pair|
         k, v = pair.split('=', 2)
         vars_get[k] = v
