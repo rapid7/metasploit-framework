@@ -182,6 +182,3 @@ def get_stderr(&block)
   end
   tmp.string
 end
-
-# TODO: We'll move this into a better place
-require_relative 'module_validator.rb'

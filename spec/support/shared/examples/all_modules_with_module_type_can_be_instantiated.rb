@@ -1,4 +1,4 @@
-RSpec.shared_examples_for 'all modules with module type can be instantiated' do |options={}|
+RSpec.shared_examples_for 'all modules with module type can be instantiated' do |options = {}|
   options.assert_valid_keys(:module_type, :modules_pathname, :type_directory)
 
   module_type = options.fetch(:module_type)
@@ -14,7 +14,7 @@ RSpec.shared_examples_for 'all modules with module type can be instantiated' do 
 
   context module_type do
     type_pathname = modules_pathname.join(type_directory)
-    module_extension = ".rb"
+    module_extension = '.rb'
     module_extension_regexp = /#{Regexp.escape(module_extension)}$/
 
     Dir.glob(type_pathname.join('**', "*#{module_extension}")) do |module_path|

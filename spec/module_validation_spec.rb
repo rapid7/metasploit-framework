@@ -1,4 +1,4 @@
-RSpec.describe ModuleValidator do
+RSpec.describe ModuleValidation::Validator do
   let(:mod_class) { Msf::Exploit }
   let(:mod_options) do
     {
@@ -17,7 +17,7 @@ RSpec.describe ModuleValidator do
         'Stability' => [Msf::CRASH_SAFE],
         'SideEffects' => [Msf::ARTIFACTS_ON_DISK],
         'Reliability' => [Msf::FIRST_ATTEMPT_FAIL],
-        'AKA' => ['SMBGhost', 'CoronaBlue']
+        'AKA' => %w[SMBGhost CoronaBlue]
       },
       stability: [Msf::CRASH_SAFE],
       side_effects: [Msf::ARTIFACTS_ON_DISK],
@@ -25,7 +25,7 @@ RSpec.describe ModuleValidator do
       file_path: 'modules/exploits/windows/smb/cve_2020_0796_smbghost.rb',
       type: 'exploit',
       platform: Msf::Module::PlatformList.new(Msf::Module::Platform::Windows),
-      targets: [Msf::Module::Target.new("Windows 10 v1903-1909 x64", {"Platform"=>"win", "Arch"=>["x64"]})],
+      targets: [Msf::Module::Target.new('Windows 10 v1903-1909 x64', { 'Platform' => 'win', 'Arch' => ['x64'] })],
       description: %q{
           A vulnerability exists within the Microsoft Server Message Block 3.1.1 (SMBv3) protocol that can be leveraged to
           execute code on a vulnerable server. This remove exploit implementation leverages this flaw to execute code
@@ -61,13 +61,13 @@ RSpec.describe ModuleValidator do
           'Stability' => [Msf::CRASH_SAFE],
           'SideEffects' => [Msf::ARTIFACTS_ON_DISK],
           'Reliability' => [Msf::FIRST_ATTEMPT_FAIL],
-          'AKA' => ['SMBGhost', 'CoronaBlue'],
+          'AKA' => %w[SMBGhost CoronaBlue],
           'NOCVE' => 'Reason not given'
         })
       end
 
       it 'has errors' do
-        expect(subject.errors.full_messages).to eq ["Notes NOCVE's value must be an array, got \"Reason not given\""]
+        expect(subject.errors.full_messages).to eq ['Notes note value "NOCVE" must be an array, got "Reason not given"']
       end
     end
 
@@ -125,8 +125,8 @@ RSpec.describe ModuleValidator do
         expect(subject.errors.full_messages).to eq [
           'References url is not valid, must be in ["CVE", "CWE", "BID", "MSB", "EDB", "US-CERT-VU", "ZDI", "URL", "WPVDB", "PACKETSTORM", "LOGO", "SOUNDTRACK", "OSVDB", "VTS", "OVE"]',
           'References FOO is not valid, must be in ["CVE", "CWE", "BID", "MSB", "EDB", "US-CERT-VU", "ZDI", "URL", "WPVDB", "PACKETSTORM", "LOGO", "SOUNDTRACK", "OSVDB", "VTS", "OVE"]',
-          "References NOCVE please include NOCVE values in the 'notes' section, rather than in 'references'.",
-          "References AKA please include AKA values in the 'notes' section, rather than in 'references'."
+          "References NOCVE please include NOCVE values in the 'notes' section, rather than in 'references'",
+          "References AKA please include AKA values in the 'notes' section, rather than in 'references'"
         ]
       end
     end
@@ -170,7 +170,7 @@ RSpec.describe ModuleValidator do
       end
 
       it 'has errors' do
-        expect(subject.errors.full_messages).to eq ['Author must not include username handles, found "@Foobar". Try leaving it in a comment instead.']
+        expect(subject.errors.full_messages).to eq ['Author must not include username handles, found "@Foobar". Try leaving it in a comment instead']
       end
     end
 
@@ -216,7 +216,7 @@ RSpec.describe ModuleValidator do
 
     context 'when the platform is missing and targets does not contain platform values' do
       let(:mod_options) do
-        super().merge(platform: nil, targets: [Msf::Module::Target.new('Windows 10 v1903-1909 x64', {'Arch'=>['x64']})])
+        super().merge(platform: nil, targets: [Msf::Module::Target.new('Windows 10 v1903-1909 x64', { 'Arch' => ['x64'] })])
       end
 
       it 'has errors' do
