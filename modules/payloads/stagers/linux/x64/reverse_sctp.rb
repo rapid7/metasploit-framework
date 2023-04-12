@@ -4,22 +4,24 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 130
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux::ReverseSctp_x64
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Reverse SCTP Stager',
-      'Description'   => 'Connect back to the attacker',
-      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::ReverseSctp,
-      'Stager'        => { 'Payload' => '' }))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Reverse SCTP Stager',
+        'Description' => 'Connect back to the attacker',
+        'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::ReverseSctp,
+        'Stager' => { 'Payload' => '' }
+      )
+    )
   end
-
 end
