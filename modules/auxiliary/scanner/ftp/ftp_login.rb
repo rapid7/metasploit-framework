@@ -70,6 +70,7 @@ class MetasploitModule < Msf::Auxiliary
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
         connection_timeout: 30,
+        ftp_timeout: datastore['FTPTimeout'],
         framework: framework,
         framework_module: self,
         ssl: datastore['SSL'],
