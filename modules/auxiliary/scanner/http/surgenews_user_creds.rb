@@ -149,12 +149,12 @@ class MetasploitModule < Msf::Auxiliary
 
     # Read user credentials from nwauth.add
     users = parse_user_db read_file 'nwauth.add'
-    if users.nil?
+    if users.blank?
       vprint_error 'Found no user credentials in nwauth.add'
-    else
-      vprint_status "Found #{users.length} users in nwauth.add"
+      return
     end
-
+    vprint_status "Found #{users.length} users in nwauth.add"
+    
     users.each do |user|
       next if user.empty?
 
