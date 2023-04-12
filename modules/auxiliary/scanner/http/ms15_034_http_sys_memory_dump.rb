@@ -162,11 +162,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      if check_host(ip) == Exploit::CheckCode::Safe
-        print_error("Target is not vulnerable")
+      vuln_status = check_host(ip)
+      case vuln_status
+      when Exploit::CheckCode::Safe
+        print_error('Target is not vulnerable')
         return
+      when Exploit::CheckCode::Unknown
+        print_error('An unknown error occurred when trying to check the target! Observe the traffic with HTTPTrace turned on and try to debug.')
+        return
+      when Exploit::CheckCode::Vulnerable
+        print_good('Target is vulnerable!')
       else
-        print_good("Target may be vulnerable...")
+        print_error('An unknown status code was returned from check_host!')
+        return
       end
 
       content_length = get_file_size
