@@ -55,10 +55,8 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if not res
-      vprint_error("Server timed out")
-    elsif res and res.body =~ /Error 404 requested page cannot be found/
-      vprint_error("Either the file doesn't exist, or you don't have the permission to get it")
-    else
+      print_error("Server timed out")
+    elsif res.code == 200
       # We don't save the body by default, because there's also other junk in it.
       # But we still have a SAVE option just in case
       print_good("#{datastore['FILE']} retrieved")
@@ -74,6 +72,8 @@ class MetasploitModule < Msf::Auxiliary
         )
         print_good("File saved as: #{p}")
       end
+    else
+      print_error("Either the file doesn't exist, or you don't have the permission to get it")
     end
   end
 end
