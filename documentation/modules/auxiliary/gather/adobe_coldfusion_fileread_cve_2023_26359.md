@@ -9,7 +9,9 @@ To successfully read back the contents of an arbitrary file, you must set the mo
 ColdFusion Component (CFC) endpoint on the target server. You must also set the CFC_METHOD option to the name of a
 remote method from that `CFC_ENDPOINT`. While the vulnerability is triggered regardless of remote method begin invoked,
 in order for ColdFusion to emit the `TARGETFILE` contents in the HTTP response, the remote method invoked must return
-a result. If the CFC_METHOD requires parameters, they can be provided via the `CFC_METHOD_PARAMETERS` option.
+a result. If the CFC_METHOD requires parameters, they can be provided via the `CFC_METHOD_PARAMETERS` option. By default
+a CFC endpoint and method from the ColdFusion Administrator (CFIDE) are provided, which is accessible in many but not
+all configurations.
 
 ## Testing
 To setup a test environment, the following steps can be performed.
@@ -18,8 +20,9 @@ To setup a test environment, the following steps can be performed.
 Update 5](https://cfdownload.adobe.com/pub/adobe/coldfusion/2021/cfinstaller/cf2021u5/ColdFusion_2021_GUI_WWEJ_win64.exe)
 installer and install it.
 3. Configure the ColdFusion server for production use and enable the Secure Profile during setup.
-4. Install a web application on top of ColdFusion in order to expose CFC endpoints. Alternatively, create a test
-CFC endpoint called `testing.cfc` in the `wwwroot` folder with the following contents:
+4. If the default CFIDE endpoints are not accessible (e.g. The server is configured with a Secure profile), install a 
+web application on top of ColdFusion in order to expose CFC endpoints. Alternatively, create a test CFC endpoint
+called `testing.cfc` in the `wwwroot` folder with the following contents:
 ```
 component testing {
 	

