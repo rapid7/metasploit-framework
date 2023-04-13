@@ -298,7 +298,7 @@ class MsfAutoload
   def config_paths
     [
       { path: "#{__dir__}/msf/", namespace: Msf },
-      { path: "#{__dir__}/rex/", namespace: Rex },
+      { path: "#{__dir__}/rex/", namespace: Rex }
     ]
   end
 
@@ -334,3 +334,6 @@ autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
 
 require 'rexml/document'
+
+# XXX: Should be removed once the `lib/metasploit` folder is loaded by Zeitwerk
+require 'metasploit/framework/hashes'

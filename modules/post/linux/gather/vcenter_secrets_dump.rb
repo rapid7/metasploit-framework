@@ -4,7 +4,6 @@
 ##
 
 require 'metasploit/framework/credential_collection'
-require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
