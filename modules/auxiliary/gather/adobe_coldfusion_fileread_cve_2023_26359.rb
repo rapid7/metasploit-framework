@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'The CFC_ENDPOINT must point to a .cfc file')
     end
 
-    if datastore['TARGETFILE'].empty? || datastore['TARGETFILE'].end_with?('.cfc') || datastore['TARGETFILE'].end_with?('.cfm')
+    if datastore['TARGETFILE'].empty? || datastore['TARGETFILE'].end_with?('.cfc', '.cfm')
       fail_with(Failure::BadConfig, 'The TARGETFILE must not point to a .cfc or .cfm file')
     end
 
