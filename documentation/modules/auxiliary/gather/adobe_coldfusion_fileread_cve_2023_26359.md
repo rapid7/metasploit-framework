@@ -6,7 +6,7 @@ in Adobe ColdFusion. The vulnerability affects ColdFusion 2021 Update 5 and earl
 
 ## Options
 To successfully read back the contents of an arbitrary file, you must set the modules `CFC_ENDPOINT` option to a valid
-ColdFusion Component (CFC) endpoint on the target server. You must also set the CFC_METHOD option to the name of a
+ColdFusion Component (CFC) endpoint on the target server. You must also set the `CFC_ENDPOINT` option to the name of a
 remote method from that `CFC_ENDPOINT`. While the vulnerability is triggered regardless of remote method begin invoked,
 in order for ColdFusion to emit the `TARGETFILE` contents in the HTTP response, the remote method invoked must return
 a result. If the CFC_METHOD requires parameters, they can be provided via the `CFC_METHOD_PARAMETERS` option. By default
