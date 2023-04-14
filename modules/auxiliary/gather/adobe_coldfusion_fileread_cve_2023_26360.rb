@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2023-26360'],
-          ['URL', 'https://attackerkb.com/topics/1iRdvtUgtW/cve-2023-26359/rapid7-analysis']
+          ['URL', 'https://attackerkb.com/topics/F36ClHTTIQ/cve-2023-26360/rapid7-analysis']
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

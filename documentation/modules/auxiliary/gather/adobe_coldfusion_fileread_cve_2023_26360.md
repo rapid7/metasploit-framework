@@ -2,7 +2,7 @@
 This module leverages an unauthenticated arbitrary file read vulnerability due to deserialization of untrusted data
 in Adobe ColdFusion. The vulnerability affects ColdFusion 2021 Update 5 and earlier as well as ColdFusion 2018 Update
 15 and earlier. For a full technical analysis of the vulnerability read the
-[Rapid7 AttackerKB Analysis](https://attackerkb.com/topics/1iRdvtUgtW/cve-2023-26359/rapid7-analysis).
+[Rapid7 AttackerKB Analysis](https://attackerkb.com/topics/F36ClHTTIQ/cve-2023-26360/rapid7-analysis).
 
 ## Options
 To successfully read back the contents of an arbitrary file, you must set the modules `CFC_ENDPOINT` option to a valid
