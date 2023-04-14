@@ -389,17 +389,22 @@ module DNS
     #
     # @param config [Hash] Resolver config
     #
-    # @return nil
+    # @return [nil]
     def initialize(config = {})
       super(config)
       self.cache = Rex::Proto::DNS::Cache.new
       # Read hostsfile into cache
       hf = Rex::Compat.is_windows ? '%WINDIR%/system32/drivers/etc/hosts' : '/etc/hosts'
-      entries = File.read(hf).lines.map(&:strip).select do |entry|
-        Rex::Socket.is_ip_addr?(entry.gsub(/\s+/,' ').split(' ').first) and
-        not entry.match(/::.*ip6-/) # Ignore Debian/Ubuntu-specific notation for IPv6 hosts
-      end.map do |entry|
-        entry.gsub(/\s+/,' ').split(' ')
+      entries = begin
+        File.read(hf).lines.map(&:strip).select do |entry|
+          Rex::Socket.is_ip_addr?(entry.gsub(/\s+/,' ').split(' ').first) and
+          not entry.match(/::.*ip6-/) # Ignore Debian/Ubuntu-specific notation for IPv6 hosts
+        end.map do |entry|
+          entry.gsub(/\s+/,' ').split(' ')
+        end
+      rescue => e
+        @logger.error(e)
+        []
       end
       entries.each do |ent|
         next if ent.first =~ /^127\./
