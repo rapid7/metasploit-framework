@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if not res
-      print_error("Server timed out")
+      vprint_error("Server timed out")
     elsif res.code == 200
       # We don't save the body by default, because there's also other junk in it.
       # But we still have a SAVE option just in case
