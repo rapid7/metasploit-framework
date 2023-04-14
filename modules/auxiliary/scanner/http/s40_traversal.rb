@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved as: #{p}")
       end
     else
-      print_error("Either the file doesn't exist, or you don't have the permission to get it")
+      vprint_error("Either the file doesn't exist, or you don't have the permission to get it")
     end
   end
 end
