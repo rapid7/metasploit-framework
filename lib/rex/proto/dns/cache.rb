@@ -21,7 +21,7 @@ module DNS
     # Find entries in cache, substituting names for '*' in return
     #
     # @param search [String] Name or address to search for
-    # @param type [Dnsruby::Types::*] Record type to search for
+    # @param type [Dnsruby::Types] Record type to search for
     #
     # @return [Array] Records found
     def find(search, type = Dnsruby::Types::A)
@@ -61,7 +61,7 @@ module DNS
     #
     # @param name [String] Name of record
     # @param address [String] Address of record
-    # @param type [Dnsruby::Types::*] Record type to add
+    # @param type [Dnsruby::Types] Record type to add
     # @param replace [TrueClass, FalseClass] Replace existing records
     def add_static(name, address, type = Dnsruby::Types::A, replace = false)
       if Rex::Socket.is_ip_addr?(address.to_s) and

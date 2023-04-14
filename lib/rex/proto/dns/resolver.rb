@@ -113,7 +113,7 @@ module DNS
     #
     # Send DNS request over appropriate transport and process response
     #
-    # @param argument
+    # @param argument [Object] An object holding the DNS message to be processed.
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
@@ -437,7 +437,7 @@ module DNS
     # send remainder of DNS queries over appropriate transport and
     # cache answers before returning to caller.
     #
-    # @param argument
+    # @param argument [Object] An object holding the DNS message to be processed.
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
