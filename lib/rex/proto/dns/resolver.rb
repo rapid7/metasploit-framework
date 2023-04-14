@@ -164,7 +164,6 @@ module DNS
       unless (ans and ans[0].length > 0)
         @logger.fatal "No response from nameservers list: aborting"
         raise NoResponseError
-        return nil
       end
 
       @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
@@ -181,7 +180,7 @@ module DNS
         end
       end
 
-      return response
+      response
     end
 
     #
