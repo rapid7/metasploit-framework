@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
           'sf', # MSF Module & Rapid7 Analysis
         ],
         'References' => [
-          ['CVE', '2023-26359'],
           ['CVE', '2023-26360'],
           ['URL', 'https://attackerkb.com/topics/1iRdvtUgtW/cve-2023-26359/rapid7-analysis']
         ],
