@@ -97,12 +97,12 @@ class Core
     ["-d", "--delete-all"]     => [ false, "Delete saved options for all modules from the config file."                     ])
 
   # set command options
-  @@set_opts = Rex::Parser::Arguments.new(
+  @@setg_opts = Rex::Parser::Arguments.new(
     ["-h", "--help"] => [ false, "Help banner."],
     ["-c", "--clear"] => [ false, "Clear the values, explicitly setting to nil (default)"]
   )
 
-  @@set_opts = Rex::Parser::Arguments.new(
+  @@set_opts = @@setg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
 
@@ -111,7 +111,6 @@ class Core
     ["-h", "--help"] => [ false, "Help banner."],
   )
 
-  # unset command options
   @@unset_opts = @@unsetg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
