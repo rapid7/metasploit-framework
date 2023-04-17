@@ -120,14 +120,6 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good("Found #{nbr_contact} contacts.")
 
-    path = store_loot(
-      'dolibarr',
-      'application/CSV',
-      vhost,
-      nil,
-      '.csv'
-    )
-
     csv_string = CSV.generate do |csv| # Loop to write into csv
       csv << contact_entry
       nbr_contact.times do |num| # Loop on every contact
@@ -145,9 +137,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    finalcsv = File.open(path.to_s, 'w+')
-    finalcsv.puts(csv_string)
-    finalcsv.close
+    path = store_loot(
+      'dolibarr',
+      'application/CSV',
+      vhost,
+      csv_string,
+      '.csv'
+    )
 
     print_good("#{rhost}:#{rport} - File saved in: #{path}")
   end
