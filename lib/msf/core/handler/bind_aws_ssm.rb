@@ -6,8 +6,8 @@ require 'aws-sdk-ssm'
 ###
 #
 # This module implements the AWS SSM handler.  This means that
-# it will attempt to connect to a remote host through the AWS SSM pipe for 
-# a period of time (typically the duration of an exploit) to see if a the 
+# it will attempt to connect to a remote host through the AWS SSM pipe for
+# a period of time (typically the duration of an exploit) to see if a the
 # agent has started listening.
 #
 ###
@@ -40,7 +40,7 @@ module BindAwsSsm
       # self.lsock.peerinfo  = peer_info['ComputerName'] + ':0'
       self.lsock.peerinfo  = peer_info['IpAddress'] + ':0'
       # Fudge the portspec since each client request is actually a new connection w/ a new source port, for now
-      self.lsock.localinfo = Rex::Socket.source_address(@ssmclient.config.endpoint.to_s.sub('https://','')) + ':0'
+      self.lsock.localinfo = Rex::Socket.source_address(@ssmclient.config.endpoint.to_s.sub('https://', '')) + ':0'
 
       monitor_shell_stdout
     end
@@ -53,7 +53,7 @@ module BindAwsSsm
     # funneling the data to the shell's stdin on the other side.
     #
     def monitor_shell_stdout
-      @monitor_thread = @framework.threads.spawn("AwsSsmSessionHandlerMonitor", false) {
+      @monitor_thread = @framework.threads.spawn('AwsSsmSessionHandlerMonitor', false) {
         begin
           while true
             Rex::ThreadSafe.sleep(0.5) while @cursor.nil?
@@ -73,13 +73,13 @@ module BindAwsSsm
       maxw = opts[:timeout] ? opts[:timeout] : 30
       start = Time.now
       resp = @ssmclient.list_command_invocations(command_id: @cursor, instance_id: @peer_info['InstanceId'], details: true)
-      while (resp.command_invocations.empty? or resp.command_invocations[0].status == "InProgress") and
+      while (resp.command_invocations.empty? or resp.command_invocations[0].status == 'InProgress') and
         (Time.now - start).to_i.abs < maxw do
         Rex::ThreadSafe.sleep(1)
         resp = @ssmclient.list_command_invocations(command_id: @cursor, instance_id: @peer_info['InstanceId'], details: true)
       end
       # SSM script invocation states are: InProgress, Success, TimedOut, Cancelled, Failed
-      if resp.command_invocations[0].status == "Success" or  resp.command_invocations[0].status == "Failed"
+      if resp.command_invocations[0].status == 'Success' or resp.command_invocations[0].status == 'Failed'
         # The big limitation: SSM command outputs are only 2500 chars max, otherwise you have to write to S3 and read from there
         output = resp.command_invocations.map {|c| c.command_plugins.map {|p| p.output}.join}.join
         @cursor = nil
@@ -123,21 +123,21 @@ module BindAwsSsm
   # 'bind_tcp'.
   #
   def self.handler_type
-    return "bind_aws_ssm"
+    return 'bind_aws_ssm'
   end
 
   #
   # Returns the connection oriented general handler type, in this case bind.
   #
   def self.general_handler_type
-    "bind"
+    'bind'
   end
 
   # A string suitable for displaying to the user
   #
   # @return [String]
   def human_name
-    "bind AWS SSM"
+    'bind AWS SSM'
   end
 
   #
@@ -162,12 +162,12 @@ module BindAwsSsm
         OptString.new('SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
         OptString.new('SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
         OptBool.new('SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false]),
-        OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
+        OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true]),
       ], Msf::Handler::BindAwsSsm)
 
     self.listener_threads = []
     self.conn_threads = []
-    self.listener_pairs   = {}
+    self.listener_pairs = {}
   end
 
   #
@@ -177,6 +177,7 @@ module BindAwsSsm
     # Kill any remaining handle_connection threads that might
     # be hanging around
     stop_handler
+
     conn_threads.each { |thr|
       thr.kill
     }
@@ -210,19 +211,19 @@ module BindAwsSsm
     if (exploit_config and exploit_config['active_timeout'])
       ctimeout = exploit_config['active_timeout'].to_i
     end
+
+    # Ignore this if one of the requried options is missing
+    return if datastore['EC2_ID'].blank?
+
+    # Only try the same host/port combination once
+    return if self.listener_pairs[datastore['EC2_ID']]
     self.listener_pairs[datastore['EC2_ID']] = true
 
     # Start a new handling thread
-    self.listener_threads = framework.threads.spawn("BindAwsSsmHandler-#{datastore['EC2_ID']}", false) {
+    self.listener_threads << framework.threads.spawn("BindAwsSsmHandler-#{datastore['EC2_ID']}", false) do
       ssm_client = nil
 
       print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
-
-      if (datastore['EC2_ID'] == nil or datastore['EC2_ID'].strip.empty?)
-        raise ArgumentError,
-          "EC2_ID is not defined; SSM handler cannot function.",
-          caller
-      end
 
       stime = Time.now.to_i
 
@@ -242,24 +243,25 @@ module BindAwsSsm
       end
 
       # Valid client connection?
-      if (ssm_client)
+      if ssm_client
         # Increment the has connection counter
         self.pending_connections += 1
 
         # Timeout and datastore options need to be passed through to the client
         opts = {
-          :datastore    => datastore,
-          :expiration   => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-          :retry_total  => datastore['SessionRetryTotal'].to_i,
-          :retry_wait   => datastore['SessionRetryWait'].to_i,
+          datastore: datastore,
+          expiration: datastore['SessionExpirationTimeout'].to_i,
+          comm_timeout: datastore['SessionCommunicationTimeout'].to_i,
+          retry_total: datastore['SessionRetryTotal'].to_i,
+          retry_wait: datastore['SessionRetryWait'].to_i
         }
 
-        self.conn_threads << framework.threads.spawn("BindAwsSsmHandlerSession", false, ssm_client, peer_info) { |client_copy, info_copy|
+        self.conn_threads << framework.threads.spawn('BindAwsSsmHandlerSession', false, ssm_client, peer_info) do |client_copy, info_copy|
           begin
             raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['SSM_FORCE_COMMANDS']
+
             # Call API to start SSM session
-            session_init = client_copy.start_session({
+            session_init=client_copy.start_session({
               target: datastore['EC2_ID'],
               document_name: datastore['SSM_SESSION_DOC']
             })
@@ -283,24 +285,16 @@ module BindAwsSsm
           end
           self.listener_pairs[datastore['EC2_ID']] = chan
           handle_connection(chan.lsock, { datastore: datastore })
-        }
+        end
       else
-        wlog("No connection received before the handler completed")
+        wlog('No connection received before the handler completed')
       end
-    }
+    end
   end
 
   # A URI describing what the payload is configured to use for transport
   def payload_uri
     "ssm://#{datastore['EC2_ID']}:0"
-  end
-
-  def comm_string
-    if bind_sock.nil?
-      "(setting up)"
-    else
-      via_string(bind_sock.client) if bind_sock.respond_to?(:client)
-    end
   end
 
   def stop_handler
@@ -345,9 +339,9 @@ private
     # Verify the connection params and availability of instance
     inv_params = { filters: [
       {
-        key: "AWS:InstanceInformation.InstanceId",
+        key: 'AWS:InstanceInformation.InstanceId',
         values: [datastore['EC2_ID']],
-        type: "Equal",
+        type: 'Equal',
       }
     ]}
     inventory = client.get_inventory(inv_params)
@@ -355,7 +349,7 @@ private
     if inventory.entities[0] and inventory.entities[0].id == datastore['EC2_ID']
       peer_info = inventory.entities[0].data['AWS:InstanceInformation'].content[0]
     else
-      raise "SSM target not found"
+      raise 'AWS SSM target not found'
     end
     return [client, peer_info]
   end

@@ -28,7 +28,7 @@ module Msf::Sessions
     # Returns the session description.
     #
     def desc
-      'SSM command shell'
+      'AWS SSM command shell'
     end
 
     ##
