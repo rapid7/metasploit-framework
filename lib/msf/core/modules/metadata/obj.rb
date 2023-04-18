@@ -36,7 +36,7 @@ class Obj
   attr_reader :autofilter_ports
   # @return [Array<String>]
   attr_reader :autofilter_services
-  # @return [Array<String>]
+  # @return [Array<String>, nil]
   attr_reader :targets
   # @return [Time]
   attr_reader :mod_time
@@ -171,30 +171,31 @@ class Obj
   #######
 
   def init_from_hash(obj_hash)
-    @name               = obj_hash['name']
-    @fullname           = obj_hash['fullname']
-    @aliases            = obj_hash['aliases'] || []
-    @disclosure_date    = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
-    @rank               = obj_hash['rank']
-    @type               = obj_hash['type']
-    @description        = obj_hash['description']
-    @author             = obj_hash['author'].nil? ? [] : obj_hash['author']
-    @references         = obj_hash['references']
-    @platform           = obj_hash['platform']
-    @arch               = obj_hash['arch']
-    @rport              = obj_hash['rport']
-    @mod_time           = Time.parse(obj_hash['mod_time'])
-    @ref_name           = obj_hash['ref_name']
-    @path               = obj_hash['path']
-    @is_install_path    = obj_hash['is_install_path']
-    @targets            = obj_hash['targets'].nil? ? [] : obj_hash['targets']
-    @check              = obj_hash['check'] ? true : false
-    @post_auth          = obj_hash['post_auth']
-    @default_credential = obj_hash['default_credential']
-    @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
-    @needs_cleanup      = obj_hash['needs_cleanup']
-    @session_types      = obj_hash['session_types']
-
+    @name                = obj_hash['name']
+    @fullname            = obj_hash['fullname']
+    @aliases             = obj_hash['aliases'] || []
+    @disclosure_date     = obj_hash['disclosure_date'].nil? ? nil : Date.parse(obj_hash['disclosure_date'])
+    @rank                = obj_hash['rank']
+    @type                = obj_hash['type']
+    @description         = obj_hash['description']
+    @author              = obj_hash['author'].nil? ? [] : obj_hash['author']
+    @references          = obj_hash['references']
+    @platform            = obj_hash['platform']
+    @arch                = obj_hash['arch']
+    @rport               = obj_hash['rport']
+    @mod_time            = Time.parse(obj_hash['mod_time'])
+    @ref_name            = obj_hash['ref_name']
+    @path                = obj_hash['path']
+    @is_install_path     = obj_hash['is_install_path']
+    @targets             = obj_hash['targets']
+    @check               = obj_hash['check'] ? true : false
+    @post_auth           = obj_hash['post_auth']
+    @default_credential  = obj_hash['default_credential']
+    @notes               = obj_hash['notes'].nil? ? {} : obj_hash['notes']
+    @needs_cleanup       = obj_hash['needs_cleanup']
+    @session_types       = obj_hash['session_types']
+    @autofilter_ports    = obj_hash['autofilter_ports']
+    @autofilter_services = obj_hash['autofilter_services']
   end
 
   def sort_platform_string
