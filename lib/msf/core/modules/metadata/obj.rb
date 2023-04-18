@@ -36,7 +36,7 @@ class Obj
   attr_reader :autofilter_ports
   # @return [Array<String>]
   attr_reader :autofilter_services
-  # @return [Array<String>]
+  # @return [Array<String>, nil]
   attr_reader :targets
   # @return [Time]
   attr_reader :mod_time
@@ -174,7 +174,7 @@ class Obj
     @name                = obj_hash['name']
     @fullname            = obj_hash['fullname']
     @aliases             = obj_hash['aliases'] || []
-    @disclosure_date     = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
+    @disclosure_date     = obj_hash['disclosure_date'].nil? ? nil : Date.parse(obj_hash['disclosure_date'])
     @rank                = obj_hash['rank']
     @type                = obj_hash['type']
     @description         = obj_hash['description']
