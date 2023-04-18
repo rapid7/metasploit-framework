@@ -175,7 +175,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
           close
         else
           raise Rex::Proto::Http::WebSocket::ConnectionError.new(
-            msg: 'Unknown SSM message type', message_type: ssm_frame.header.message_type
+            msg: "Unknown AWS SSM message type: #{ssm_frame.header.message_type}"
           )
         end
         nil
@@ -261,13 +261,13 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
   #
   # Initiates a WebSocket session based on the params of SSM::Client#start_session
   #
-  # @param [Aws::SSM::Types::StartSessionResponse] :session_init Paramters returned by #start_session
+  # @param [Aws::SSM::Types::StartSessionResponse] :session_init Parameters returned by #start_session
   # @param [Integer] :timeout
   #
   # @return [Socket] Socket representing the authenticates SSM WebSocket connection
   def connect_ssm_ws(session_init, timeout = 20)
     # hack-up a "graceful fail-down" in the caller
-    # raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'WebSocket sesssions still need structs/parsing')
+    # raise Rex::Proto::Http::WebSocket::ConnectionError.new(msg: 'WebSocket sessions still need structs/parsing')
     ws_key = session_init.token_value
     ssm_id = session_init.session_id
     ws_url = URI.parse(session_init.stream_url)
