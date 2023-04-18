@@ -110,13 +110,9 @@ class MetasploitModule < Msf::Auxiliary
       next unless datastore['CreateSession']
 
       socket = get_ssm_socket(client, ssm_host['InstanceId'])
-      if ssm_host['PlatformType'].casecmp?('Windows')
-        sess = Msf::Sessions::CommandShellWindows.new(socket.lsock)
-      else
-        sess = Msf::Sessions::CommandShellUnix.new(socket.lsock)
-      end
+      sess = Msf::Sessions::AwsSsmCommandShellBind.new(socket.lsock, { datastore: datastore, aws_ssm_host_info: ssm_host })
 
-      start_session(self, "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{ssm_host['InstanceId']})", datastore, false, socket.lsock, sess)
+      start_session(self, sess.info, datastore, false, socket.lsock, sess)
     end
   rescue Seahorse::Client::NetworkingError => e
     print_error e.message
