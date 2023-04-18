@@ -261,7 +261,7 @@ module BindAwsSsm
             raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['SSM_FORCE_COMMANDS']
 
             # Call API to start SSM session
-            session_init=client_copy.start_session({
+            session_init = client_copy.start_session({
               target: datastore['EC2_ID'],
               document_name: datastore['SSM_SESSION_DOC']
             })
@@ -368,6 +368,7 @@ private
     # notify any waiters we may have.
     if s
       register_session(s)
+      s.info = "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{datastore['EC2_ID']})"
     end
 
     return s
