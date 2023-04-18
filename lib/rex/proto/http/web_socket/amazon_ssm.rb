@@ -93,7 +93,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         else
           @ack_message = acknowledge_output(output_frame)
           # TODO: handle Payload::* types
-          if [PayloadType::Output, PayloadType::Error].any? {|e| e == output_frame.payload_type }
+          if [PayloadType::Output, PayloadType::Error].any? { |e| e == output_frame.payload_type }
             if @filter_echo.is_a?(String) and output_frame.payload_data.strip == @filter_echo.strip
               dlog("SsmChannel: filtering output #{@filter_echo}")
               @filter_echo = true
@@ -121,6 +121,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
 
       def update_term_size
         return unless ::IO.console
+
         rows, cols = ::IO.console.winsize
         unless rows == self.rows && cols == self.cols
           set_term_size(rows, cols)
@@ -154,6 +155,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
 
       def on_data_read(data, _data_type)
         return data if data.blank?
+
         ssm_frame = SsmFrame.read(data)
         case ssm_frame.header.message_type.strip
         when 'output_stream_data'
@@ -273,7 +275,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
     ws_url = URI.parse(session_init.stream_url)
     opts   = {}
     opts['vhost']   = ws_url.host
-    opts['uri']     = ws_url.to_s.sub(/^.*#{ws_url.host}/,'')
+    opts['uri']     = ws_url.to_s.sub(/^.*#{ws_url.host}/, '')
     opts['headers'] = {
       'Connection'            => 'Upgrade',
       'Upgrade'               => 'WebSocket',
@@ -282,10 +284,11 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
     }
     ctx = {
       'Msf'        => framework,
-      'MsfExploit' => self,
+      'MsfExploit' => self
     }
     http_client = Rex::Proto::Http::Client.new(ws_url.host, 443, ctx, true)
     raise Rex::Proto::Http::WebSocket::ConnectionError.new if http_client.nil?
+
     # Send upgrade request
     req = http_client.request_raw(opts)
     res = http_client.send_recv(req, timeout)
@@ -307,7 +310,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
     ssm_wsock_init = JSON.generate({
       MessageSchemaVersion: '1.0',
       RequestId: UUID.rand,
-      TokenValue: ws_key,
+      TokenValue: ws_key
     })
     socket.put_wstext(ssm_wsock_init)
     # Extend with interface
