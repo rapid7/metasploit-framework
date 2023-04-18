@@ -23,26 +23,29 @@ module Msf::Sessions
     #
     include Msf::Session::Provider::SingleCommandShell
 
+    def initialize(conn, opts=nil)
+      super
+
+      if opts && (ssm_peer_info = opts.fetch(:aws_ssm_host_info))
+        case ssm_peer_info['PlatformType']
+        when 'Linux'
+          @platform = 'linux'
+        when 'MacOS'
+          @platform = 'osx'
+        when 'Windows'
+          @platform = 'win'
+        end
+
+        @info = "AWS SSM #{ssm_peer_info['ResourceType']} (#{ssm_peer_info['InstanceId']})"
+      end
+    end
+
     ##
     #
     # Returns the session description.
     #
     def desc
       'AWS SSM command shell'
-    end
-
-    ##
-    # Intercept point from Msf::Sessions::CommandShell#shell_read
-    ##
-    def shell_read(length=-1, timeout=1)
-      super(length, timeout)
-    end
-
-    ##
-    # Intercept point from Msf::Sessions::CommandShell#shell_write
-    ##
-    def shell_write(buf)
-      super(buf)
     end
   end
 end

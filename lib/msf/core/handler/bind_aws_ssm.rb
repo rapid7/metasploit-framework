@@ -238,7 +238,7 @@ module BindAwsSsm
         end
         break if ssm_client
 
-        # Wait a second before trying again
+        # Wait a half-second before trying again
         Rex::ThreadSafe.sleep(0.5)
       end
 
@@ -284,7 +284,8 @@ module BindAwsSsm
             elog('Exception raised from BindAwsSsm.handle_connection', error: e)
           end
           self.listener_pairs[datastore['EC2_ID']] = chan
-          handle_connection(chan.lsock, { datastore: datastore })
+
+          handle_connection(chan.lsock, { datastore: datastore, aws_ssm_host_info: peer_info })
         end
       else
         wlog('No connection received before the handler completed')
@@ -368,7 +369,6 @@ private
     # notify any waiters we may have.
     if s
       register_session(s)
-      s.info = "AWS SSM #{datastore['ACCESS_KEY_ID']} (#{datastore['EC2_ID']})"
     end
 
     return s

@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 70
+  CachedSize = 0
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -13,16 +13,14 @@ module MetasploitModule
     super(
       merge_info(
         info,
-        'Name' => 'Unix Command Shell, Bind SSM (via AWS API)',
+        'Name' => 'Command Shell, Bind SSM (via AWS API)',
         'Description' => 'Creates an interactive shell using AWS SSM',
         'Author' => 'RageLtMan <rageltman[at]sempervictus>',
         'License' => MSF_LICENSE,
-        'Platform' => 'unix',
-        'Arch' => ARCH_CMD,
+        'Platform' => '',
+        'Arch' => ARCH_ALL,
         'Handler' => Msf::Handler::BindAwsSsm,
-        'Session' => Msf::Sessions::CommandShellUnix,
-        'PayloadType' => 'cmd',
-        'RequiredCmd' => 'generic',
+        'Session' => Msf::Sessions::AwsSsmCommandShellBind,
         'Payload' => {
           'Offsets' => {},
           'Payload' => ''
@@ -31,18 +29,9 @@ module MetasploitModule
     )
   end
 
-  #
-  # Constructs the payload
-  #
-  def generate(_opts = {})
-    vprint_good(command_string)
-    return super + command_string
-  end
+  def on_session(session)
+    super
 
-  #
-  # Returns the command string to use for execution
-  #
-  def command_string
-    ''
+    session.arch.clear  # undo the ARCH_ALL amalgamation
   end
 end

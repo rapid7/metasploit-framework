@@ -130,7 +130,7 @@ Shell Banner:
       end
 
       # Only populate +session.info+ with a captured banner if the shell is responsive and verified
-      session.info = session_info
+      session.info = session_info if session.info.blank?
       session
     else
       # Encrypted shells need all information read before anything is written, so we read in the banner here. However we
