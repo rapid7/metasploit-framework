@@ -2,13 +2,13 @@
 ### Dolibarr 16 pre-auth contact database dump
 
 Dolibarr version 16 < 16.0.5 is vulnerable to a pre-authentication contact database dump.
-An unauthenticated attacker may retreive a company’s entire customer file, prospects, suppliers,
+An unauthenticated attacker may retrieve a company’s entire customer file, prospects, suppliers,
 and potentially employee information if a contact file exists.
 Both public and private notes are also included in the dump.
 
 ### Dolibarr GitHub Repository & Dolibarr setup with vulnerable docker image
 
-If you need to setup Dolibarr, this is the official GitHub Repository from Dolibarr or via docker with a unofficial but working image and docker-compose.
+If you need to setup Dolibarr, this is the official GitHub Repository from Dolibarr or via docker with an unofficial but working image and docker-compose.
 ``` 
 Official GitHub Repository:
 
@@ -20,7 +20,7 @@ Unofficial image with docker-compose:
 
 docker pull tuxgasy/dolibarr:16.0.4
 
-Important: This image dont contains database. So you need to link it with a database container.
+Important: This image does not contain a database. So you need to link it with a database container.
 
 Use Docker Compose to integrate it with MariaDB (you can also use MySQL if you prefer).
 
