@@ -55,13 +55,12 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown('Connection failed') unless res
     return Exploit::CheckCode::Safe unless res.code == 200
 
-    /Dolibarr (?<version>\d+.*\.\d+)/ =~ res.body
-    version = Rex::Version.new(version)
+    version = res.body.scan(/Dolibarr ([\d.]+-*[a-zA-Z]*)/).flatten.first
 
-    if version.between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
+    if Rex::Version.new(version).between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
       print_good("Detected vulnerable Dolibarr version: #{version}")
       return Exploit::CheckCode::Appears
-    elsif version == '0'
+    elsif version.blank?
       print_warning('Dolibarr version not found - proceeding anyway...')
       return Exploit::CheckCode::Detected
     else
@@ -139,4 +138,3 @@ class MetasploitModule < Msf::Auxiliary
   end
 
 end
-
