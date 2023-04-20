@@ -30,7 +30,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' => {
+        'ConnectTimeout' => 30
+      }
     )
 
     register_options(
@@ -43,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false]),
-        OptInt.new('CONNECTION_TIMEOUT', [true, 'Connection timeout for the FTP login scanner', 30])
       ]
     )
 
@@ -70,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
-        connection_timeout: datastore['CONNECTION_TIMEOUT'],
+        connection_timeout: datastore['ConnectTimeout'],
         ftp_timeout: datastore['FTPTimeout'],
         framework: framework,
         framework_module: self,
