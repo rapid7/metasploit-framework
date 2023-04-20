@@ -3,7 +3,7 @@
 
 Joomla versions between 4.0.0 and 4.2.7, inclusive, contain an improper API access vulnerability.
 This vulnerability allows unauthenticated users access to webservice endpoints which contain
-sensitive information.  Specifically for this module we exploit the users and config/application
+sensitive information. Specifically for this module we exploit the users and config/application
 endpoints.
 
 This module was tested against Joomla 4.2.7 running on Docker.
@@ -28,7 +28,7 @@ Browse to port 80, and finish the installation
 
 1. Install the application, and finish the configuration
 2. Start msfconsole
-3. Do: `use auxiliary/scanner/http/joomla_improper_access_checks`
+3. Do: `use auxiliary/scanner/http/joomla_api_improper_access_checks`
 4. Do: `set rhosts [ip]`
 5. Do: `run`
 6. You should get sensitive information about the users and configuration
