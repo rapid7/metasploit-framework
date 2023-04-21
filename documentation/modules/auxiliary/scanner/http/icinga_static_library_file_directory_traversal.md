@@ -11,7 +11,6 @@ This module was tested against Icingaweb 2.9.5 running on Docker.
 
 ```
 sudo apt-get install docker.io -y
-sudo docker network create joomla-network
 sudo docker run -p 8080:8080 icinga/icingaweb2:2.9.5
 ```
 
