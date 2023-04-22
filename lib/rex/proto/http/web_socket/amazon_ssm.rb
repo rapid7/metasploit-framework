@@ -87,6 +87,10 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         output_frame.uuid
       end
 
+      def strip_ctl_bytes(tty_out)
+        tty_out.gsub(/\e\[(?:[0-9];?)+m/, '').gsub(/^\e.+;/,'')
+      end
+
       def handle_output_data(output_frame)
         if @ack_message == output_frame.uuid
           # wlog("SsmChannel: repeat output #{output_frame.uuid}")
@@ -99,7 +103,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
               @filter_echo = true
               return nil
             else
-              return output_frame.payload_data
+              return @filter_text ? strip_ctl_bytes(output_frame.payload_data) : output_frame.payload_data
             end
           else
             wlog("SsmChannel got unhandled output payload type: #{Payload.from_val(output_frame.payload_type)}")
@@ -143,12 +147,13 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       attr_reader :run_ssm_pub, :out_seq_num, :ack_seq_num, :ack_message
       attr_accessor :filter_echo
 
-      def initialize(websocket, filter_echo = false)
+      def initialize(websocket, filter_echo = false, filter_text = true)
         @ack_seq_num = 0
         @out_seq_num = 0
         @run_ssm_pub = true
         @ack_message = nil
         @filter_echo = filter_echo
+        @filter_text = filter_text
 
         super(websocket, write_type: :binary)
       end
