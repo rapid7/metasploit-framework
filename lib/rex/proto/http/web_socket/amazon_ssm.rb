@@ -87,8 +87,13 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         output_frame.uuid
       end
 
-      def strip_ctl_bytes(tty_out)
-        tty_out.gsub(/\e\[(?:[0-9];?)+m/, '').gsub(/^\e.+;/,'')
+
+      def strip_shell_clr(tty_out)
+        tty_out.gsub(/\x1B\[(;?[0-9]{1,3})+[mGK]/,'')
+      end
+
+      def strip_shell_fmt(tty_out)
+        strip_shell_clr(tty_out).gsub(/^\e.+;.*\a/,'')
       end
 
       def handle_output_data(output_frame)
@@ -103,7 +108,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
               @filter_echo = true
               return nil
             else
-              return @filter_text ? strip_ctl_bytes(output_frame.payload_data) : output_frame.payload_data
+              return @filter_text ? strip_shell_fmt(output_frame.payload_data) : output_frame.payload_data
             end
           else
             wlog("SsmChannel got unhandled output payload type: #{Payload.from_val(output_frame.payload_type)}")
