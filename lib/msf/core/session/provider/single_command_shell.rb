@@ -147,7 +147,7 @@ module SingleCommandShell
       shell_data = "#{delimiter}#{command_separator}#{shell_data}"
     end
     shell_write(shell_data)
-    res = shell_read_until_token(token, 1, timeout)
+    res = shell_read_until_token(token, 0, timeout)
     res
   end
 
