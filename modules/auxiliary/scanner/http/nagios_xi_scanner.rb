@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
       return rce_check(nagios_version_result, real_target: true)
     end
     
-    # Try to authenticate with nagios_xi_login. Error check with auth_result
+    # Authenticate to ensure we can access the NagiosXI version
     auth_result, err_msg, auth_cookies, version = authenticate(username, password, finish_install)
     case auth_result
     when AUTH_RESULTS[:connection_failed]
