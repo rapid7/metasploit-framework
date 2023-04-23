@@ -155,65 +155,22 @@ class MetasploitModule < Msf::Auxiliary
       # Check if the Nagios XI version matches any exploit modules
       return rce_check(nagios_version_result, real_target: true)
     end
-
-    # Use nagios_xi_login to try and authenticate. If authentication succeeds, nagios_xi_login returns
-    # an array containing the http response body of a get request to index.php and the session cookies
-    login_result, res_array = nagios_xi_login(username, password, finish_install)
-    case login_result
-    when 1..3 # An error occurred
-      print_error("#{rhost}:#{rport} - #{res_array[0]}")
-      return
-    when 4 # Nagios XI is not fully installed
-      install_result = install_nagios_xi(password)
-      if install_result
-        print_error("#{rhost}:#{rport} - #{install_result[1]}")
-        return
-      end
-
-      login_result, res_array = login_after_install_or_license(username, password, finish_install)
-      case login_result
-      when 1..3 # An error occurred
-        print_error("#{rhost}:#{rport} - #{res_array[0]}")
-        return
-      when 4 # Nagios XI is still not fully installed
-        print_error("#{rhost}:#{rport} - Failed to install Nagios XI on the target.")
-        return
-      end
-    end
-
-    # when 5 is excluded from the case statement above to prevent having to use this code block twice.
-    # Including when 5 would require using this code block once at the end of the `when 4` code block above, and once here.
-    if login_result == 5 # the Nagios XI license agreement has not been signed
-      auth_cookies, nsp = res_array
-      sign_license_result = sign_license_agreement(auth_cookies, nsp)
-      if sign_license_result
-        print_error("#{rhost}:#{rport} - #{sign_license_result[1]}")
-        return
-      end
-
-      login_result, res_array = login_after_install_or_license(username, password, finish_install)
-      case login_result
-      when 1..3
-        print_error("#{rhost}:#{rport} - #{res_array[0]}")
-        return
-      when 5 # the Nagios XI license agreement still has not been signed
-        print_error("#{rhost}:#{rport} - Failed to sign the license agreement.")
-        return
-      end
+    
+    # Try to authenticate with nagios_xi_login. Error check with auth_result
+    auth_result, err_msg, auth_cookies, version = authenticate(username, password, finish_install)
+    case auth_result
+    when AUTH_RESULTS[:connection_failed]
+      return CheckCode::Unknown(err_msg)
+    when AUTH_RESULTS[:unexpected_error], AUTH_RESULTS[:not_fully_installed], AUTH_RESULTS[:failed_to_handle_license_agreement], AUTH_RESULTS[:failed_to_extract_tokens], AUTH_RESULTS[:unable_to_obtain_version]
+      return CheckCode::Detected(err_msg)
+    when AUTH_RESULTS[:not_nagios_application]
+      return CheckCode::Safe(err_msg)
     end
 
     print_good('Successfully authenticated to Nagios XI')
-
-    # Obtain the Nagios XI version
-    nagios_version = nagios_xi_version(res_array[0])
-    if nagios_version.nil?
-      print_error("#{rhost}:#{rport} - Unable to obtain the Nagios XI version from the dashboard")
-      return
-    end
-
-    print_status("Target is Nagios XI with version #{nagios_version}")
+    print_status("Target is Nagios XI with version #{version}")
 
     # Check if the Nagios XI version matches any exploit modules
-    rce_check(nagios_version, real_target: true)
+    rce_check(version, real_target: true)
   end
 end
