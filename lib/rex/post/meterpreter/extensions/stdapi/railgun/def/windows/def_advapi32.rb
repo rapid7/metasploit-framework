@@ -1269,7 +1269,6 @@ class Def_windows_advapi32
     dll.add_function('ConvertStringSidToSidW', 'BOOL',[
       ["PWCHAR","StringSid","in"],
       ["PLPVOID","pSid","out"],
-      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('CopySid', 'BOOL',[
