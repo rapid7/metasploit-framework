@@ -2,7 +2,9 @@
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ; Compatible: Windows 7 / Server 2003 and newer
 ; Architecture: x64
-; Size: 200 bytes
+; Original Size: 203 bytes
+;
+; 2023-04-24 Hotfix by Helvio to avoid NULLBYTE
 ;-----------------------------------------------------------------------------;
 
 [BITS 64]
@@ -54,7 +56,9 @@ not_lowercase:                ;
   ; their may be a PE32 module present in the PEB's module list, (typicaly the main module).
   ; as we are using the win64 PEB ([gs:96]) we wont see the wow64 modules present in the win32 PEB ([fs:48])
   jne get_next_mod1           ; if not, proceed to the next module
-  mov eax, dword [rax+0x88]   ; Get export tables RVA
+  xor rsi, rsi                ; clear rsi
+  mov sil, 0x88               ; Set rsi as 0x88 using only 1 byte register (sil)
+  mov eax, dword [rax+rsi]    ; Get export tables RVA => use rsi to calculate 0x88 to avoid NULLBYTE
   test rax, rax               ; Test if no export address table is present
   jz get_next_mod1            ; If no EAT present, process the next module
   add rax, rdx                ; Add the modules base address
