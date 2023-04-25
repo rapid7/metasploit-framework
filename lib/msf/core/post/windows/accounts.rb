@@ -211,17 +211,14 @@ module Msf
           nil
         end
 
-        ##
-        # resolve_sid(sid, system_name = nil)
         #
-        # Summary:
-        #   Retrieves the name, domain, and type of account for the given sid
+        # Retrieves the name, domain, and type of account for the given
+        # Security Identifier (SID).
         #
-        # Parameters:
-        #   sid         - A SID string (e.g. S-1-5-32-544)
-        #   system_name - Where to search. If nil, first local system then trusted DCs
+        # @param [String] sid         - A SID string (e.g. S-1-5-32-544)
+        # @param [String] system_name - Where to search. If nil, first local system then trusted DCs
         #
-        # Returns:
+        # @return [Hash]
         #   {
         #     name:   account name (e.g. "SYSTEM")
         #     domain: domain where the account name was found. May have values such as
@@ -233,16 +230,56 @@ module Msf
         #
         #   OR nil if there was an exceptional Windows error (example: ran out of memory)
         #
-        # Caveats:
+        # @note Caveats:
         #   If a valid mapping is not found, only { mapped: false } will be returned
         #   nil is returned if there is an *exceptional* Windows error. That error is printed.
         #   If an invalid system_name is provided, there will be a Windows error and nil returned
-        ##
+        #
         def resolve_sid(sid, system_name = nil)
-          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
-            return nil
+          return { type: :invalid, mapped: false } if sid.blank?
+          return { type: :invalid, mapped: false } unless sid.starts_with?('S-1-')
+
+          if session.type == 'powershell'
+            return _powershell_resolve_sid(sid, system_name)
           end
 
+          unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+            raise 'Session does not support Railgun'
+          end
+
+          _meterpreter_resolve_sid(sid, system_name)
+        end
+
+        private
+
+        #
+        # see #resolve_sid
+        #
+        # @note Caveats:
+        #    return hard-coded SID type: :unknown
+        #
+        def _powershell_resolve_sid(sid, system_name = nil)
+          raise "Could not resolve #{sid} on system #{system_name}. Operation not supported on remote hosts on PowerShell sessions." unless system_name.blank?
+
+          nt_account = cmd_exec("$objSID = New-Object System.Security.Principal.SecurityIdentifier('#{sid}');$objSID.Translate([System.Security.Principal.NTAccount]).value")
+
+          return { mapped: false } if nt_account.blank?
+          return { mapped: false } unless nt_account.include?("\\")
+
+          domain, name = nt_account.split("\\")
+
+          {
+            name: name,
+            domain: domain,
+            type: :unknown,
+            mapped: true
+          }
+        end
+
+        #
+        # see #resolve_sid
+        #
+        def _meterpreter_resolve_sid(sid, system_name = nil)
           adv = client.railgun.advapi32
 
           # Second param is the size of the buffer where the pointer will be written
@@ -335,8 +372,6 @@ module Msf
             mapped: true
           }
         end
-
-        private
 
         ##
         # Converts a WinAPI's SID_NAME_USE enum to a symbol

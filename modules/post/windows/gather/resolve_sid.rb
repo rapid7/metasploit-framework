@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'chao-mu'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => ['meterpreter'],
+        'SessionTypes' => %w[meterpreter powershell],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
