@@ -167,7 +167,7 @@ Making sure you're in the right directory to run `msfconsole` can become tedious
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
 ```
 
-Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [[how|./committer-keys.md#signing-your-commits-and-merges]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
+Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [[how|./committer-keys.md#signing-your-commits-and-merges]]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
 
 ```
 cd *path to your cloned MSF repository on disk*
@@ -176,7 +176,7 @@ git config commit.gpgsign true
 
 Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
-```rc
+```
 [alias]
 # An easy, colored oneline log format that shows signed/unsigned status
 nicelog = log --pretty=format:'%Cred%h%Creset -%Creset %s %Cgreen(%cr) %C(bold blue)<%aE>%Creset [%G?]'
