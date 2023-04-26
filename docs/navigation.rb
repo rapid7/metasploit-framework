@@ -606,10 +606,6 @@ NAVIGATION_CONFIG = [
                 title: 'SEH Exploitation'
               },
               {
-                path: 'How-to-clean-up-files-using-FileDropper.md',
-                title: 'FileDropper'
-              },
-              {
                 path: 'How-to-use-PhpEXE-to-exploit-an-arbitrary-file-upload-bug.md',
                 title: 'PhpExe'
               },

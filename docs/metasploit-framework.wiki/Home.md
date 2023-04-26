@@ -33,7 +33,6 @@ Are you anxious to get your [[Metasploit Development Environment|./dev/Setting-U
 - [[Exploit Ranking]]
 - [[Module Reference Identifiers]]
 - [[How to check Microsoft patch levels for your exploit]]
-- [[How to clean up files using FileDropper]]
 - [[How to deprecate a Metasploit module]]
 - [[How to do reporting or store data in module development]]
 - [[How to log in Metasploit]]
