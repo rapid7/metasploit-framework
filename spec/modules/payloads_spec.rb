@@ -1162,6 +1162,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/powershell_reverse_tcp_ssl'
   end
 
+  context 'cmd/windows/python' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/python'
+                          ],
+                          reference_name: 'cmd/windows/python'
+  end
+
   context 'cmd/windows/reverse_lua' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
