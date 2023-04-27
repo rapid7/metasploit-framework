@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 130
+  CachedSize = 136
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux::ReverseSctp_x64
