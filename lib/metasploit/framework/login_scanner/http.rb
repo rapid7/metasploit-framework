@@ -244,8 +244,7 @@ module Metasploit
 
           begin
             cli.connect
-            # Send CGI compatible request by default
-            req = opts[:cgi] ? cli.request_cgi(opts) : cli.request_raw(opts)
+            req = cli.request_cgi(opts)
 
             # Authenticate by default
             res = if opts['authenticate'].nil? || opts['authenticate']

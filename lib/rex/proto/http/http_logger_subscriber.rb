@@ -14,6 +14,7 @@ class HttpLoggerSubscriber < HttpSubscriber
     @logger = logger
   end
 
+  # (see Rex::Proto::Http::HttpSubscriber#on_request)
   def on_request(request)
     if @logger.datastore['HttpTrace']
       http_trace_colors = @logger.datastore['HttpTraceColors'].blank? ? 'red/blu' : @logger.datastore['HttpTraceColors'] # Set the default colors if none were provided.
@@ -26,7 +27,8 @@ class HttpLoggerSubscriber < HttpSubscriber
       @logger.print_line("%clr#{request_color}#{request}%clr")
     end
   end
-  
+
+  # (see Rex::Proto::HttpSubscriber#on_response)
   def on_response(response)
     if @logger.datastore['HttpTrace']
       http_trace_colors = @logger.datastore['HttpTraceColors'].blank? ? 'red/blu' : @logger.datastore['HttpTraceColors'] # Set the default colors if none were provided.

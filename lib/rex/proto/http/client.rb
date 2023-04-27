@@ -232,16 +232,16 @@ class Client
   # @return (see #read_response)
   def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
+    subscriber.on_request(req)
     if req.respond_to?(:opts) && req.opts['ntlm_transform_request'] && self.ntlm_client
       req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
     elsif req.respond_to?(:opts) && req.opts['krb_transform_request'] && self.krb_encryptor
       req = req.opts['krb_transform_request'].call(self.krb_encryptor, req)
     end
-    subscriber.on_request(req)
+    
     send_request(req, t)
 
     res = read_response(t, :original_request => req)
-    subscriber.on_response(res)
     if req.respond_to?(:opts) && req.opts['ntlm_transform_response'] && self.ntlm_client
       req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
     elsif req.respond_to?(:opts) && req.opts['krb_transform_response'] && self.krb_encryptor
@@ -249,6 +249,7 @@ class Client
     end
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
+    subscriber.on_response(res)
     res
   end
 
@@ -796,7 +797,7 @@ class Client
   # When parsing the request, thunk off the first response from the server, since junk
   attr_accessor :junk_pipeline
 
-  # HTTP subscriber
+  # @return [Rex::Proto::Http::HttpSubscriber] The HTTP subscriber
   attr_accessor :subscriber
 
 protected

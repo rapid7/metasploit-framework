@@ -38,8 +38,8 @@ module Metasploit
               'method' => method,
               'uri' => uri,
               'vars_post' => {
-                 'data%5BLogin%5D%5Bowner_name%5D' => 'admin',
-                 'data%5BLogin%5D%5Bowner_passwd%5D' => cred
+                'data[Login][owner_name]' => 'admin',
+                'data[Login][owner_passwd]' => cred
               }
             })
 
