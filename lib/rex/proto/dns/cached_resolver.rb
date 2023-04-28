@@ -43,7 +43,13 @@ module DNS
           hostname = ent.pop
           next unless MATCH_HOSTNAME.match hostname
           begin
-            self.cache.add_static(hostname, ent.first)
+            if Rex::Socket.is_ipv4?(ent.first)
+              self.cache.add_static(hostname, ent.first, Dnsruby::Types::A)
+            elsif Rex::Socket.is_ipv6?(ent.first)
+              self.cache.add_static(hostname, ent.first, Dnsruby::Types::AAAA)
+            else
+              raise "Unknown IP address format #{ent.first} in hosts file!"
+            end
           rescue => e
             # Deal with edge-cases in users' hostsfile
             @logger.error(e)
@@ -51,7 +57,15 @@ module DNS
         end
         hostname = ent.pop
         begin
-          self.cache.add_static(hostname, ent.first) if MATCH_HOSTNAME.match hostname
+          if MATCH_HOSTNAME.match hostname
+            if Rex::Socket.is_ipv4?(ent.first)
+              self.cache.add_static(hostname, ent.first, Dnsruby::Types::A)
+            elsif Rex::Socket.is_ipv6?(ent.first)
+              self.cache.add_static(hostname, ent.first, Dnsruby::Types::AAAA)
+            else
+              raise "Unknown IP address format #{ent.first} in hosts file!"
+            end
+          end
         rescue => e
           # Deal with edge-cases in users' hostsfile
           @logger.error(e)
