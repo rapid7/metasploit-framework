@@ -88,6 +88,18 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       end
 
 
+      def pause_publication
+        msg = SsmFrame.create_pause_pub
+        @publication = false
+        @websocket.put_wsbinary(msg.to_binary_s)
+      end
+
+      def start_publication
+        msg = SsmFrame.create_start_pub
+        @publication = true
+        @websocket.put_wsbinary(msg.to_binary_s)
+      end
+
       def strip_shell_clr(tty_out)
         tty_out.gsub(/\x1B\[(;?[0-9]{1,3})+[mGK]/,'')
       end
@@ -159,6 +171,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         @ack_message = nil
         @filter_echo = filter_echo
         @filter_text = filter_text
+        @publication = true
 
         super(websocket, write_type: :binary)
       end
@@ -174,8 +187,12 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
           # update ACK seqno
           handle_acknowledge(ssm_frame)
         when 'start_publication'
+          @out_seq_num = @ack_seq_num if @out_seq_num > 0
+          @publication = true
           # handle session resumption - foregrounding or resumption of input
         when 'pause_publication'
+          # @websocket.put_wsbinary(ssm_frame.to_ack.to_binary_s)
+          @publication = false
           # handle session suspension - backgrounding or general idle
         when 'input_stream_data'
           # this is supposed to be a one way street
@@ -194,6 +211,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       end
 
       def on_data_write(data)
+        start_publication if not @publication
         @filter_echo = data if @filter_echo and data.is_a?(String)
         frame = SsmFrame.create(data)
         frame.header.sequence_number = @out_seq_num
@@ -244,6 +262,41 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         frame
       end
 
+      def create_pause_pub
+        uuid = UUID.rand
+        time = Time.now
+        data = JSON.generate({
+          MessageType: 'pause_publication',
+          SchemaVersion: 1,
+          MessageId: uuid,
+          CreateData: time.strftime("%Y-%m-%dT%T.%LZ")
+        })
+        frame = SsmFrame.new( header: {
+          message_type: 'pause_publication',
+          created_date: (time.to_f * 1000).to_i,
+          message_id: UUID.pack(uuid)
+        })
+        frame.payload_data   = data
+        frame.payload_digest = Digest::SHA256.digest(data)
+        frame.payload_length = data.length
+        frame.payload_type   = 0
+        frame
+      end
+
+      def create_start_pub
+        data = 'start_publication'
+        frame = SsmFrame.new( header: {
+          message_type: data,
+          created_date: (Time.now.to_f * 1000).to_i,
+          message_id: UUID.pack(UUID.rand)
+        })
+        frame.payload_data   = data
+        frame.payload_digest = Digest::SHA256.digest(data)
+        frame.payload_length = data.length
+        frame.payload_type   = 0
+        frame
+      end
+
       def from_ws_frame(wsframe)
         SsmFrame.read(wsframe.payload_data)
       end
@@ -254,7 +307,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
     end
 
     def to_ack
-      data   = JSON.generate({
+      data = JSON.generate({
         AcknowledgedMessageType: header.message_type.strip,
         AcknowledgedMessageId: uuid,
         AcknowledgedMessageSequenceNumber: header.sequence_number.to_i,
