@@ -54,17 +54,18 @@ module Rex::Proto::MsDtyp
 
     def set(val)
       # allow assignment from the human-readable string representation
-      raise ArgumentError.new("Invalid SID: #{val}") unless val.is_a?(String) && val =~ /^S-1-(\d+)(-\d+)+$/
+      raise ArgumentError.new("Invalid SID: #{val}") unless val.is_a?(String) && val =~ /^S-1-(\d+)(-\d+)*$/
 
       _, _, ia, sa = val.split('-', 4)
       self.identifier_authority = [ia.to_i].pack('Q>')[2..].bytes
-      self.sub_authority = sa.split('-').map(&:to_i)
+      self.sub_authority = sa.nil? ? [] : sa.split('-').map(&:to_i)
     end
 
     def get
       str = 'S-1'
       str << "-#{("\x00\x00" + identifier_authority.to_binary_s).unpack1('Q>')}"
-      str << '-' + sub_authority.map(&:to_s).join('-')
+      str << '-' + sub_authority.map(&:to_s).join('-') unless sub_authority.empty?
+      str
     end
 
     def rid
