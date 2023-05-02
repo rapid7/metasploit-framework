@@ -35,7 +35,7 @@ PATH
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.20)
       mqtt
-      msgpack
+      msgpack (~> 1.6.0)
       nessus_rest
       net-ldap
       net-smtp
@@ -270,7 +270,7 @@ GEM
     mini_portile2 (2.8.1)
     minitest (5.18.0)
     mqtt (0.6.0)
-    msgpack (1.7.0)
+    msgpack (1.6.1)
     multi_json (1.15.0)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
