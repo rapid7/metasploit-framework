@@ -1,26 +1,34 @@
 
 ## Vulnerable Application
 
-Icingaweb versions between 2.9.0-2.9.5, 2.8.0-2.8.5 (inclusive) suffer from an
+Icingaweb versions from 2.9.0 to 2.9.5 inclusive, and 2.8.0 to 2.8.5 inclusive suffer from an
 unauthenticated directory traversal vulnerability. The vulnerability is triggered
-through the icinga-php-thirdparty library, and the file to read is an absolute path.
+through the icinga-php-thirdparty library, which allows unauthenticated users 
+to retrieve arbitrary files from the targets filesystem via a GET request to
+`/lib/icinga/icinga-php-thirdparty/<absolute path to target file on disk>` as the user
+running the Icingaweb server, which will typically be the `incinga` user.
+
+This can then be used to retrieve sensitive configuration information from the target
+such as the configuration of various services, which may reveal sensitive login or configuration information,
+the `/etc/passwd` file to get a list of valid usernames for password guessing attacks, or other sensitive files 
+which may exist as part of additional functionality available on the target server.
 
 This module was tested against Icingaweb 2.9.5 running on Docker.
 
-## Install Icingaweb on Ubuntu 22.04
+## Install Icingaweb 2.9.5 on a Ubuntu 22.04 Docker Image
 
 ```
 sudo apt-get install docker.io -y
 sudo docker run -p 8080:8080 icinga/icingaweb2:2.9.5
 ```
 
-Browse to port 8080 to confirm  the site loads. No need to configure.
+Browse to port 8080 to confirm the site loads. No need to configure.
 
 ## Verification Steps
 
 1. Install the application
 2. Start msfconsole
-3. Do: `use auxiliary/scanner/http/scanner/http/icinga_static_library_file_directory_traversal`
+3. Do: `use auxiliary/scanner/http/icinga_static_library_file_directory_traversal`
 4. Do: `set rhosts [ip]`
 5. Do: `set file [file]`
 6. Do: `run`
@@ -28,7 +36,7 @@ Browse to port 8080 to confirm  the site loads. No need to configure.
 
 ## Scenarios
 
-### Version 2.9.5 from Docker
+### Icingaweb 2.9.5 on Ubuntu 22.04 running on Docker
 
 ```
 [*] Processing icinga.rb for ERB directives.
