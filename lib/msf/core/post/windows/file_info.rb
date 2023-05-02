@@ -176,11 +176,11 @@ module Msf
           return VsFixedFileInfo.read(ffi)
         rescue BinData::ValidityError, IOError => e
           msg = "Unable to parse the VS_FIXEDFILEINFO structure from filepath #{filepath}: #{e}"
-          elog(msg)
+          elog(msg, error: e)
           raise FileInfoError, msg
         rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError => e
           msg = "Communication error while getting file information for #{filepath}: #{e}"
-          elog(msg)
+          elog(msg, error: e)
           raise FileInfoError, msg
         end
       end
