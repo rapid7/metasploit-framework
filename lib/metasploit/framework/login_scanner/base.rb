@@ -253,6 +253,8 @@ module Metasploit
               end
             end
             nil
+          rescue => e
+            elog('Attempt may not yield a result', error: e)
           end
 
           # Raise an exception if this scanner's attributes are not valid.

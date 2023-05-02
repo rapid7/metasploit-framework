@@ -161,6 +161,8 @@ module Metasploit
 
           shutdown_socket
           nil
+        rescue => e
+          elog('Attempt may not yield a result', error: e)
         end
 
         # Queue up and possibly send any requests, based on the queue limit and final flag
