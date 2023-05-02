@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           through the icinga-php-thirdparty library, which allows unauthenticated users
           to retrieve arbitrary files from the targets filesystem via a GET request to
           /lib/icinga/icinga-php-thirdparty/<absolute path to target file on disk> as the user
-          running the Icingaweb server, which will typically be the incinga user.
+          running the Icingaweb server, which will typically be the www-data user.
 
           This can then be used to retrieve sensitive configuration information from the target
           such as the configuration of various services, which may reveal sensitive login
