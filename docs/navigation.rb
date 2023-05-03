@@ -243,35 +243,30 @@ NAVIGATION_CONFIG = [
         nav_order: 2,
         children: [
           {
-            path: 'Metasploit-Filesystem-Explained.md',
-            title: "Metasploit's Filesystem Explained",
+            path: 'Using-Metasploit.md',
+            title: 'Running modules',
             nav_order: 2
           },
           {
-            path: 'Using-Metasploit.md',
-            title: 'Running modules',
+            path: 'How-to-use-a-Metasploit-module-appropriately.md',
             nav_order: 3
           },
           {
-            path: 'How-to-use-a-Metasploit-module-appropriately.md',
+            path: 'How-payloads-work.md',
             nav_order: 4
           },
           {
-            path: 'How-payloads-work.md',
+            path: 'Module-Documentation.md',
             nav_order: 5
           },
           {
-            path: 'Module-Documentation.md',
+            path: 'How-to-use-a-reverse-shell-in-Metasploit.md',
             nav_order: 6
           },
           {
-            path: 'How-to-use-a-reverse-shell-in-Metasploit.md',
+            path: 'How-to-use-msfvenom.md',
             nav_order: 7
           },
-          {
-            path: 'How-to-use-msfvenom.md',
-            nav_order: 8
-          }
         ]
       },
       {
