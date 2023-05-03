@@ -251,10 +251,10 @@ module Metasploit
                   break if total_error_count >= 10
                 end
               end
+            rescue => e
+              elog('Attempt may not yield a result', error: e)
             end
             nil
-          rescue => e
-            elog('Attempt may not yield a result', error: e)
           end
 
           # Raise an exception if this scanner's attributes are not valid.
