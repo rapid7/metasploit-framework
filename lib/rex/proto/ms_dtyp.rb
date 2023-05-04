@@ -80,7 +80,7 @@ module Rex::Proto::MsDtyp
     def self.random_generate
       # Taken from the "D" format as specified in
       # https://learn.microsoft.com/en-us/dotnet/api/system.guid.tostring?view=net-7.0
-      "{#{Rex::Text.rand_text_alphanumeric(8)}-#{Rex::Text.rand_text_alphanumeric(4)}-#{Rex::Text.rand_text_alphanumeric(4)}-#{Rex::Text.rand_text_alphanumeric(4)}-#{Rex::Text.rand_text_alphanumeric(12)}}".downcase
+      "{#{Rex::Text.rand_text_hex(8)}-#{Rex::Text.rand_text_hex(4)}-#{Rex::Text.rand_text_hex(4)}-#{Rex::Text.rand_text_hex(4)}-#{Rex::Text.rand_text_hex(12)}}".downcase
     end
   end
 
