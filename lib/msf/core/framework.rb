@@ -199,6 +199,8 @@ class Framework
   #
   # @return [Metasploit::Framework::DataService::DataProxy]
   def db
+    return @db if @db
+
     synchronize {
       @db ||= get_db
     }
@@ -209,6 +211,8 @@ class Framework
   #
   # @return [Msf::SessionManager]
   def sessions
+    return @sessions if @sessions
+
     synchronize {
       @sessions ||= Msf::SessionManager.new(self)
     }
@@ -219,6 +223,8 @@ class Framework
   #
   # @return [Msf::ThreadManager]
   def threads
+    return @threads if @threads
+
     synchronize {
       @threads ||= Msf::ThreadManager.new(self)
     }

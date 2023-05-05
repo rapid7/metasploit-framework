@@ -35,11 +35,17 @@ class RemoteRegistryKey
 
   def self.finalize(client, hkey)
     proc do
-      begin
-        self.close(client, hkey)
-      rescue => e
-        elog("finalize method for RemoteRegistryKey failed", error: e)
+      # Schedule the finalizing logic out-of-band; as this logic might be called in the context of a Signal.trap, which can't synchronize mutexes
+      client.framework.sessions.schedule do
+        begin
+          self.close(client, hkey)
+        rescue => e
+          elog("finalize method for RemoteRegistryKey failed", error: e)
+        end
       end
+
+      # Schedule the finalizing logic out-of-band; as this logic might be called in the context of a Signal.trap, which can't synchronize mutexes
+      client.framework.sessions.schedule(deferred_close_proc)
     end
   end
 
