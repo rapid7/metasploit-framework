@@ -78,11 +78,15 @@ class MetasploitModule < Msf::Auxiliary
       # To decode the ObjectType we need to do another query to CN=Configuration,DC=daforest,DC=com
       # and look at either schemaIDGUID or rightsGUID fields to see if they match this value.
       if (object_type = ace_body[:object_type]) && !(object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
-        # If an object type was specified, only process the rest if it is one of these two
+        # If an object type was specified, only process the rest if it is one of these two (note that objects with no
+        # object types will be processed to make sure we can detect vulnerable templates post exploiting ESC4).
         next
       end
 
-      next if (ace_body.access_mask.protocol & CONTROL_ACCESS) == 0
+      # Skip entry if it is not related to an extended access control right, where extended access control right is
+      # described as ADS_RIGHT_DS_CONTROL_ACCESS in the ObjectType field of ACCESS_ALLOWED_OBJECT_ACE. This is
+      # detailed further at https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-access_allowed_object_ace
+      next unless (ace_body.access_mask.protocol & CONTROL_ACCESS) == CONTROL_ACCESS
 
       if ace_type_name.match(/ALLOWED/)
         allowed_sids << ace_body[:sid].to_s
