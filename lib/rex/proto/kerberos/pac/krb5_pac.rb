@@ -39,6 +39,103 @@ module Rex::Proto::Kerberos::Pac
     ndr_uint32 :attributes
   end
 
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/311aab27-ebdf-47f7-b939-13dc99b15341
+  class GroupAttributes < BinData::Record
+    endian :big
+
+    2.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    bit1 :resource
+
+    25.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    bit1 :owner
+    bit1 :enabled
+    bit1 :enabled_by_default
+    bit1 :mandatory
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73
+  class UserFlagAttributes < BinData::Record
+    endian :big
+
+    18.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    bit1 :used_lmv2_auth_and_ntlmv2_session_key
+    bit1 :used_lmv2_auth_and_session_key
+
+    bit1 :used_ntlmv2_auth_and_session_key
+    bit1 :profile_path_populated
+    bit1 :resource_group_ids
+    bit1 :accepts_ntlmv2
+
+    bit1 :machine_account
+    bit1 :sub_authentication
+    bit1 :extra_sids
+    bit1 :_reserved_27
+
+    bit1 :lan_manager
+    bit1 :_reserved_29
+    bit1 :no_encryption
+    bit1 :guest
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/4df07fab-1bbc-452f-8e92-7853a3c7e380
+  # Protocol revision 45.0 contains USER_ACCOUNT Codes in section 2.2.1.12
+  class UserAccountAttributes < BinData::Record
+    endian :big
+
+    10.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    bit1 :use_aes_keys
+    bit1 :partial_secrets_account
+
+    bit1 :no_auth_data_required
+    bit1 :trusted_to_authenticate_for_delegation
+    bit1 :password_expired
+    bit1 :dont_require_preauth
+
+    bit1 :use_des_key_only
+    bit1 :not_delegated
+    bit1 :trusted_for_delegation
+    bit1 :smartcard_required
+
+    bit1 :encrypted_test_password_allowed
+    bit1 :account_auto_lock
+    bit1 :dont_expire_password
+    bit1 :server_trust_account
+
+    bit1 :workstation_trust_account
+    bit1 :interdomain_trust_account
+    bit1 :mns_logon_account
+    bit1 :normal_account
+
+    bit1 :temp_duplicate_account
+    bit1 :password_not_required
+    bit1 :home_directory_required
+    bit1 :account_disabled
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1c0d6e11-6443-4846-b744-f9f810a504eb
+  class UpnDnsInfoAttributes < BinData::Record
+    endian :big
+
+    30.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    bit1 :sam_name_and_sid
+    bit1 :upn_name_constructed
+  end
+
   class Krb5SidAndAttributesPtr < RubySMB::Dcerpc::Ndr::NdrConfArray
     default_parameters byte_align: 1, type: :krb5_sid_and_attributes
 
