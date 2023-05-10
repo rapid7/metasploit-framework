@@ -156,7 +156,7 @@ module Msf::Post::File
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
-        f = session.shell_command_token("test -d \"#{path}\" && echo true")
+        f = session.shell_command_token("test -d '#{path}' && echo true")
       end
       return false if f.nil? || f.empty?
       return false unless f =~ /true/

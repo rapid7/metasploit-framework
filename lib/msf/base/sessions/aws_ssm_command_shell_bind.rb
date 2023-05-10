@@ -23,6 +23,13 @@ module Msf::Sessions
     #
     include Msf::Session::Provider::SingleCommandShell
 
+    def shell_command_token_unix(cmd, timeout=10)
+      res = super
+
+      res.gsub!("\r\n", "\n") if res
+      res
+    end
+
     def initialize(conn, opts=nil)
       super
 
@@ -30,14 +37,32 @@ module Msf::Sessions
         case ssm_peer_info['PlatformType']
         when 'Linux'
           @platform = 'linux'
+          @session_type = 'shell'
         when 'MacOS'
           @platform = 'osx'
+          @session_type = 'shell'
         when 'Windows'
-          @platform = 'win'
+          @platform = 'windows'
+          @session_type = 'powershell'
+          extend(Msf::Sessions::PowerShell::Mixin)
         end
 
         @info = "AWS SSM #{ssm_peer_info['ResourceType']} (#{ssm_peer_info['InstanceId']})"
       end
+    end
+
+    def type
+      @session_type.dup
+    end
+
+    def bootstrap(*args)
+      if @platform == 'linux'
+        # The session from SSM-SessionManagerRunShell starts with a TTY which breaks the post API so change the settings
+        # and make it behave in a way consistent with other shell sessions
+        shell_command('stty -echo cbreak;pipe=$(mktemp -u);mkfifo -m 600 $pipe;cat $pipe & sh 1>$pipe 2>$pipe')
+      end
+
+      super
     end
 
     ##

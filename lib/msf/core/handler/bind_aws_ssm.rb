@@ -32,7 +32,7 @@ module BindAwsSsm
       @peer_info = peer_info
       @ssmclient = ssmclient
       @cursor    = nil
-      @cmd_doc   = peer_info['CommandDocument'].blank? ? 'AWS-RunShellScript' : peer_info['CommandDocument']
+      @cmd_doc   = peer_info['CommandDocument']
 
       initialize_abstraction
 
@@ -160,9 +160,8 @@ module BindAwsSsm
     register_advanced_options(
       [
         OptString.new('SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
-        OptString.new('SSM_COMMAND_DOC', [true, 'The SSM document to use for command requests', 'AWS-RunShellScript']),
-        OptBool.new('SSM_FORCE_COMMANDS', [false, 'Force the session to use command abstraction without WebSockets', false]),
         OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true]),
+        OptInt.new('SSM_PUBLISH_TIMEOUT', [true, 'Timeout in seconds to wait for publishing to start', 10])
       ], Msf::Handler::BindAwsSsm)
 
     self.listener_threads = []
@@ -233,7 +232,7 @@ module BindAwsSsm
         rescue Rex::ConnectionError => e
           vprint_error(e.message)
         rescue
-          wlog("Exception caught in SSM handler: #{$!.class} #{$!}")
+          wlog("Exception caught in AWS SSM handler: #{$!.class} #{$!}")
           break
         end
         break if ssm_client
@@ -258,17 +257,23 @@ module BindAwsSsm
 
         self.conn_threads << framework.threads.spawn('BindAwsSsmHandlerSession', false, ssm_client, peer_info) do |client_copy, info_copy|
           begin
-            raise Rex::Proto::Http::WebSocket::ConnectionError if datastore['SSM_FORCE_COMMANDS']
-
-            # Call API to start SSM session
-            session_init = client_copy.start_session({
+            session_params = {
               target: datastore['EC2_ID'],
               document_name: datastore['SSM_SESSION_DOC']
-            })
+            }
+
+            # Call API to start SSM session
+            session_init = client_copy.start_session(session_params)
             # Create WebSocket from parameters
             ssm_sock = connect_ssm_ws(session_init)
             # Create Channel from WebSocket
             chan = ssm_sock.to_ssm_channel
+            # Waiting for the channel to start publishing
+            (datastore['SSM_PUBLISH_TIMEOUT'] || 10).times do
+              break if chan.publishing?
+              sleep 1
+            end
+            raise Rex::TimeoutError.new('Timed out while waiting for the channel to start publishing.') unless chan.publishing?
             # Configure Channel
             chan._start_ssm_keepalive if datastore['SSM_KEEP_ALIVE']
             chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
@@ -276,13 +281,12 @@ module BindAwsSsm
             chan.params.peerport = 0
             chan.params.peerhostname = peer_info['ComputerName']
             chan.update_term_size
-          rescue Rex::Proto::Http::WebSocket::ConnectionError
-            # Graceful fail-down to command-exec wrapper session type
-            info_copy['CommandDocument'] = datastore['SSM_COMMAND_DOC']
-            chan = AwsSsmSessionChannel.new(framework, client_copy, info_copy)
           rescue => e
-            elog('Exception raised from BindAwsSsm.handle_connection', error: e)
+            print_error("AWS SSM handler failed: #{e.message}")
+            elog('Exception raised from BindAwsSsm', error: e)
+            return
           end
+
           self.listener_pairs[datastore['EC2_ID']] = chan
 
           handle_connection(chan.lsock, { datastore: datastore, aws_ssm_host_info: peer_info })
