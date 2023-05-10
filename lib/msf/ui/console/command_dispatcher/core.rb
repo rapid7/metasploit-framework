@@ -1935,8 +1935,7 @@ class Core
       message = "Unknown datastore option: #{name}."
       suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
       message << " Did you mean #{suggestion}?" if suggestion
-      print_error(message)
-      return false
+      print_warning(message)
     end
 
     # If the driver indicates that the value is not valid, bust out.

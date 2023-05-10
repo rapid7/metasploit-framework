@@ -606,10 +606,6 @@ NAVIGATION_CONFIG = [
                 title: 'SEH Exploitation'
               },
               {
-                path: 'How-to-clean-up-files-using-FileDropper.md',
-                title: 'FileDropper'
-              },
-              {
                 path: 'How-to-use-PhpEXE-to-exploit-an-arbitrary-file-upload-bug.md',
                 title: 'PhpExe'
               },
@@ -694,6 +690,10 @@ NAVIGATION_CONFIG = [
               {
                 path: 'Using-ReflectiveDLL-Injection.md',
                 title: 'ReflectiveDLL Injection'
+              },
+              {
+                path: 'How-to-cleanup-after-module-execution.md',
+                title: 'Cleanup'
               },
             ]
           },
