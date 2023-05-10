@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
       contacts.each do |contact|
         csv << contact_fields.map do |element|
           if contact[element.to_s].is_a?(String) || contact[element.to_s].is_a?(Integer)
-            contact[element.to_s]&.to_s.strip || ''
+            contact[element.to_s]&.to_s&.strip || ''
           else
             ''
           end
