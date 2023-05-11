@@ -1,0 +1,2 @@
+Contains `modules_metadata_base.json` which contains information about all modules within Metasploit, as well as
+`schema.rb` which describes current state of the database schema maintained by Rails ActiveRecord.
