@@ -227,8 +227,21 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       end
     end
 
-    def to_ssm_channel(filter_echo = true)
-      SsmChannel.new(self, filter_echo)
+    def to_ssm_channel(filter_echo: true, publish_timeout: 10)
+      chan = SsmChannel.new(self, filter_echo)
+
+      if publish_timeout
+        # Waiting for the channel to start publishing
+        (publish_timeout * 2).times do
+          break if chan.publishing?
+
+          sleep 0.5
+        end
+
+        raise Rex::TimeoutError.new('Timed out while waiting for the channel to start publishing.') unless chan.publishing?
+      end
+
+      chan
     end
   end
 

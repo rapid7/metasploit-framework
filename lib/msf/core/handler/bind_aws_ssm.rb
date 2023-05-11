@@ -160,8 +160,7 @@ module BindAwsSsm
     register_advanced_options(
       [
         OptString.new('SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
-        OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true]),
-        OptInt.new('SSM_PUBLISH_TIMEOUT', [true, 'Timeout in seconds to wait for publishing to start', 10])
+        OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
       ], Msf::Handler::BindAwsSsm)
 
     self.listener_threads = []
@@ -268,12 +267,6 @@ module BindAwsSsm
             ssm_sock = connect_ssm_ws(session_init)
             # Create Channel from WebSocket
             chan = ssm_sock.to_ssm_channel
-            # Waiting for the channel to start publishing
-            (datastore['SSM_PUBLISH_TIMEOUT'] || 10).times do
-              break if chan.publishing?
-              sleep 1
-            end
-            raise Rex::TimeoutError.new('Timed out while waiting for the channel to start publishing.') unless chan.publishing?
             # Configure Channel
             chan._start_ssm_keepalive if datastore['SSM_KEEP_ALIVE']
             chan.params.comm = Rex::Socket::Comm::Local unless chan.params.comm
