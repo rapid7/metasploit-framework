@@ -30,14 +30,14 @@ module Metasploit
 
           begin
             # Refactor to access Metasploit::Framework::LoginScanner::HTTP#send_request()
-            # to send request to the HTTP server and obtain a response      
+            # to send request to the HTTP server and obtain a response
             response = send_request({
               'uri' => uri,
               'method' => 'POST',
               'vars_post' =>
                {
-                 'userName' => Rex::Text.uri_encode(credential.public),
-                 'password' => Rex::Text.uri_encode(credential.private),
+                 'userName' => credential.public,
+                 'password' => credential.private,
                  'submit' => '+Login+'
                }
             })

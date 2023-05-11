@@ -33,13 +33,12 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            cred = Rex::Text.uri_encode(credential.private) 
             res = send_request({
               'method' => method,
               'uri' => uri,
               'vars_post' => {
                 'data[Login][owner_name]' => 'admin',
-                'data[Login][owner_passwd]' => cred
+                'data[Login][owner_passwd]' => credential.private
               }
             })
 

@@ -42,8 +42,7 @@ module Metasploit
         def check_setup
           begin
             res = send_request({
-              'uri' => normalize_uri('/'),
-              'cgi' => false
+              'uri' => normalize_uri('/')
             })
             return "Connection failed" if res.nil?
 
@@ -100,8 +99,7 @@ module Metasploit
             'data'    => data,
             'headers' => {
               'Content-Type'   => 'application/x-www-form-urlencoded'
-            },
-            'cgi' => false
+            }
           }
 
           send_request(opts)
@@ -114,8 +112,7 @@ module Metasploit
             'method'  => 'GET',
             'headers' => {
               'Cookie'  => "#{self.zsession}"
-            },
-            'cgi' => false
+            }
           }
           send_request(opts)
         end

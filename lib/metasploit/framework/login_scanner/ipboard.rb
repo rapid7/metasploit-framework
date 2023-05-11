@@ -16,7 +16,7 @@ module Metasploit
         attr_accessor :http_password
 
         # (see Base#attempt_login)
-        def attempt_login(credential) 
+        def attempt_login(credential)
           result_opts = {
               credential: credential,
               host: host,

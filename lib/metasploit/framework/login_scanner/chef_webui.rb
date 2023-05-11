@@ -47,8 +47,7 @@ module Metasploit
         def check_setup
           begin
             res = send_request({
-              'uri' => normalize_uri('/users/login'),
-              'cgi' => false
+              'uri' => normalize_uri('/users/login')
             })
             return "Connection failed" if res.nil?
 
@@ -71,7 +70,7 @@ module Metasploit
         #
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
-        def send_request(opts) 
+        def send_request(opts)
           res = super(opts)
 
           # Save the session ID cookie
@@ -102,8 +101,7 @@ module Metasploit
             'headers' => {
               'Content-Type'   => 'application/x-www-form-urlencoded',
               'Cookie'         => "#{self.session_name}=#{self.session_id}"
-            },
-            'cgi' => false
+            }
           }
 
           send_request(opts)
@@ -120,8 +118,7 @@ module Metasploit
 
           # Obtain a CSRF token first
           res = send_request({
-            'uri' => normalize_uri('/users/login'),
-            'cgi' => false  
+            'uri' => normalize_uri('/users/login')
           })
           unless (res && res.code == 200 && res.body =~ /input name="authenticity_token" type="hidden" value="([^"]+)"/m)
             return {:status => Metasploit::Model::Login::Status::UNTRIED, :proof => res.body}
@@ -136,8 +133,7 @@ module Metasploit
               'method'  => 'GET',
               'headers' => {
                 'Cookie'  => "#{self.session_name}=#{self.session_id}"
-              },
-              'cgi' => false
+              }
             }
             res = send_request(opts)
             if (res && res.code == 200 && res.body.to_s =~ /New password for the User/)

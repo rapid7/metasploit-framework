@@ -32,7 +32,6 @@ module Metasploit
           begin
             res = send_request({
               'uri' => '/common/index.jsf',
-              'cgi' => false
             })
             return "Connection failed" if res.nil?
             if !([200, 302].include?(res.code))
