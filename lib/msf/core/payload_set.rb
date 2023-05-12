@@ -71,7 +71,7 @@ class PayloadSet < ModuleSet
 
     # Recalculate single payloads
     _singles.each_pair do |single_name, single_info|
-      single_payload = calculate_single_payload(name: single_name, single_info: single_info)
+      single_payload = calculate_single_payload(single_name: single_name, single_info: single_info)
       next unless single_payload
 
       new_keys.push single_name
@@ -127,7 +127,7 @@ class PayloadSet < ModuleSet
     flush_blob_cache
   end
 
-  def calculate_single_payload(name:, single_info:)
+  def calculate_single_payload(single_name:, single_info:)
     mod, handler, _single_platform, _single_arch, single_inst, single_modinfo = single_info
 
     # if the payload has a dependency, check
@@ -135,7 +135,7 @@ class PayloadSet < ModuleSet
     payload_dependencies = single_inst.dependencies
     unless payload_dependencies.empty?
       supported = payload_dependencies.all?(&:available?)
-      elog("Dependency for #{name} is not supported") unless supported
+      elog("Dependency for #{single_name} is not supported") unless supported
       return nil unless supported
     end
 
@@ -144,7 +144,7 @@ class PayloadSet < ModuleSet
     payload = build_payload(handler, mod)
 
     # Add it to the set
-    add_single(payload, name, single_modinfo)
+    add_single(payload, single_name, single_modinfo)
 
     payload
   end
