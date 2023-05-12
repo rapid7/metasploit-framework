@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2011-02-03',
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
+          'Stability' => [CRASH_SERVICE_DOWN],
           'Reliability' => [REPEATABLE_SESSION],
           'SideEffects' => []
         }
