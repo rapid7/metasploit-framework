@@ -51,6 +51,10 @@ if load_metasploit
       require f
     }
   end
+
+  # Fail the test suite if the test environment database has not been migrated
+  migration_manager = Class.new.extend(Msf::DBManager::Migration)
+  fail "Run `RAILS_ENV=test rake db:migrate` before running tests" if migration_manager.needs_migration?
 end
 
 RSpec.configure do |config|

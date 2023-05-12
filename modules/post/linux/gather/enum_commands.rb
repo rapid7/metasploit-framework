@@ -9,77 +9,88 @@ class MetasploitModule < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'Testing commands needed in a function',
-      'Description'  => %q{
-        This module will be applied on a session connected to a shell. It will check which commands are available in the system.
+      'Name' => 'Gather Available Shell Commands',
+      'Description' => %q{
+        This module will check which shell commands are available on a system."
       },
-      'Author'       => 'Alberto Rafael Rodriguez Iglesias <albertocysec[at]gmail.com>',
-      'License'      => MSF_LICENSE,
-      'Platform'     => ['linux'],
-      'SessionTypes' => ['shell', 'meterpreter']
+      'Author' => 'Alberto Rafael Rodriguez Iglesias <albertocysec[at]gmail.com>',
+      'License' => MSF_LICENSE,
+      'Platform' => ['linux', 'unix'],
+      'SessionTypes' => ['shell', 'meterpreter'],
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'Reliability' => [],
+        'SideEffects' => []
+      }
     )
-    register_options(
-      [
-        OptString.new('DIR', [false, 'Optional directory name to list, default current session path',''])
-      ])
+    register_options([
+      OptString.new('DIR', [false, 'Optional directory name to list (in addition to default system PATH and common paths)', ''])
+    ])
   end
 
-  DIRS = [
-    "/root/local/bin/",
-    "/usr/local/sbin/",
-    "/usr/local/bin/",
-    "/usr/sbin/",
-    "/usr/bin/",
-    "/sbin/",
-    "/bin/",
-    "/usr/local/go/bin/"
-  ]
-
   def run
-    dir = datastore['DIR']
+    path = get_path
+
+    print_warning('System PATH is empty!') if path.blank?
+
+    paths = []
+    path.split(':').each do |p|
+      paths << p.chomp('/')
+    end
+
+    common_dirs = [
+      '/root/local/bin',
+      '/usr/local/sbin',
+      '/usr/local/bin',
+      '/usr/sbin',
+      '/usr/bin',
+      '/sbin',
+      '/bin',
+      '/usr/local/go/bin'
+    ]
+
+    common_dirs << datastore['DIR'] unless datastore['DIR'].blank?
+
+    common_dirs.each do |p|
+      paths << p.chomp('/')
+    end
+
     binaries = []
 
-    # Explore the $PATH directories
-    path_dirs = cmd_exec("echo $PATH").split(':')
-    path_dirs.each do |d|
-      elems = dir(d)
-      path = pwd()
-      elems.each do |elem|
-        binaries.insert(-1, "#{d}/#{elem}")
+    paths.sort.uniq.each do |p|
+      next unless directory?(p)
+
+      files = dir(p)
+
+      next if files.blank?
+
+      files.each do |f|
+        binaries << "#{p}/#{f.strip}"
       end
     end
 
-    # Explore common directories with binaries:
-    DIRS.each do |d|
-#      if dir_exist?(d)
-        elems = dir(d)
-        path = pwd()
-        elems.each do |elem|
-          binaries.insert(-1, "#{d}#{elem}")
-        end
+    # BusyBox commands
+    busybox_path = nil
+    if command_exists?('busybox')
+      busybox_path = 'busybox'
+    elsif command_exists?('/bin/busybox')
+      busybox_path = '/bin/busybox'
     end
 
-    # Busybox commands
-    if command_exists?("busybox")
-      output = cmd_exec("busybox")
-      busybox_cmds = output.split(':')[-1].chomp.split(',')
-      busybox_cmds.each do |cmd|
-        binaries.insert(-1, "busybox #{cmd}")
-        print_good("busybox #{cmd}")
+    unless busybox_path.blank?
+      busybox_cmds = cmd_exec("#{busybox_path} --list")
+      busybox_cmds.each_line do |cmd|
+        binaries << "busybox #{cmd.strip}"
       end
-    elsif command_exists?("/bin/busybox")
-      output = cmd_exec("(bin/busybox")
     end
 
-# A recursive ls through the whole system could be added to find extra binaries
+    # A recursive `ls /` or `find / -executable -type f`
+    # could be added to find extra binaries.
 
-    binaries.uniq
-    binaries.sort
+    print_good("Found #{binaries.sort.uniq.length} executable binaries/commands")
 
-    print_good("The following binaries/commands are available")
-    binaries.each do |bin|
-      print_line("#{bin}")
+    binaries.uniq.sort.each do |bin|
+      print_line(bin)
     end
-
   end
 end

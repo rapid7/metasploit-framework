@@ -40,7 +40,7 @@ If you already have msfconsole running, use a `reload_all` command to pick up yo
 mkdir -p $HOME/.msf4/modules/exploits/test
 curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gist.github.com/todb-r7/5935519/raw/17f7e40ab9054051c1f7e0655c6f8c8a1787d4f5/test_module.rb
 todb@ubuntu:~$ mkdir -p $HOME/.msf4/modules/exploits/test
-todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gist.github.com/todb-r7/5935519/raw/6e5d2da61c82b0aa8cec36825363118e9dd5f86b/test_module.rb 
+todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gist.github.com/todb-r7/5935519/raw/6e5d2da61c82b0aa8cec36825363118e9dd5f86b/test_module.rb
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  1140    0  1140    0     0   3607      0 --:--:-- --:--:-- --:--:--  7808
@@ -48,7 +48,7 @@ todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gis
 
 Then, in my msfconsole window:
 
-```
+```msf
 msf > reload_all
 [*] Reloading modules from all module paths...
 IIIIII    dTb.dTb        _.---._
@@ -65,7 +65,7 @@ I love shells --egypt
 + -- --=[ 1122 exploits - 707 auxiliary - 192 post
 + -- --=[ 307 payloads - 30 encoders - 8 nops
 
-msf > use exploit/test/test_module 
+msf > use exploit/test/test_module
 msf exploit(test_module) > info
 
        Name: Fake Test Module
@@ -99,9 +99,9 @@ References:
 
 msf exploit(test_module) > exploit
 
-[*] Started reverse handler on 192.168.145.1:4444 
+[*] Started reverse handler on 192.168.145.1:4444
 [+] Hello, world!
-msf exploit(test_module) > 
+msf exploit(test_module) >
 ```
 
 ## Troubleshooting
@@ -116,7 +116,7 @@ That's really all there is to it. The most common problems that people (includin
 
 Note that the `$HOME` directory for Metasploit Community Edition is going to be `root` and not your own user directory, so if you are expecting modules to show up in the Metasploit Pro web UIs, you will want to stash your external modules in `/root/.msf4/modules`. Of course, this means you need root access to the machine in question, but hey, you're a l33t Metasploit user, so that shouldn't be too hard.
 
-Also note that if your modules are not displaying in the web UI, you should restart Pro service.  
+Also note that if your modules are not displaying in the web UI, you should restart Pro service.
 
 ### Windows
 
@@ -126,7 +126,7 @@ For Windows users, the above is all true, except for accessing the modules from 
 
 Any module that requires on changes to core library functions, such as new protocol parsers or other library mixins, aren't going to work out for you this way -- you're going to end up spewing errors all over the place as your module tries to load these classes. It's possible to write modules as completely self-contained in nearly all cases (thanks to Ruby's open class architecture), but such modules nearly always get refactored later to make the protocol and other mixin bits available to other modules.
 
-In this case, it would be better to work with modules like that using a proper GitHub checkout with a development branch -- see the [dev environment setup docs](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) for tons more on that.
+In this case, it would be better to work with modules like that using a proper GitHub checkout with a development branch -- see the [[dev environment setup docs|./dev/Setting-Up-a-Metasploit-Development-Environment.md]] for tons more on that.
 
 ## A final warning
 

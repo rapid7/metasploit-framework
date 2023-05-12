@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'Hoa Nguyen - SunCSR Team' # Metasploit module
         ],
         'DisclosureDate' => '2020-02-19',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -61,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with Failure::Unreachable, 'Connection failed' unless res
     fail_with Failure::NotVulnerable, 'Connection failed. Nothing was downloaded' if res.code != 200
-    fail_with Failure::NotVulnerable, 'Nothing was downloaded. Change the DEPTH parameter' if res.body.length.zero?
+    fail_with Failure::NotVulnerable, 'Nothing was downloaded. Change the DEPTH parameter' if res.body.empty?
 
     print_status('Downloading file...')
     print_line("\n#{res.body}\n")

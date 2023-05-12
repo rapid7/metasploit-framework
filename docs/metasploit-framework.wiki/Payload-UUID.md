@@ -44,7 +44,7 @@ $ cat ~/.msf4/payloads.json
 ```
 
 Once this payload is launched, the output of the ```sessions -l -v``` command will show the UUID, whether or not the UUID is registered, and any locally-assigned name of the UUID:
-```
+```msf
 msf exploit(handler) > run -j
 [*] 127.0.0.1:36235 (UUID: 68017d72958c40f6/x86=1/windows=1/2015-06-26T00:04:09Z) Staging Native payload ...
 [*] Meterpreter session 1 opened (127.1.1.1:4444 -> 127.0.0.1:36235) at 2015-06-25 17:12:40 -0700

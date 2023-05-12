@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Msf
   module Ui
     module Console
@@ -18,21 +17,21 @@ module Msf
             Msf::Util::EXE.to_executable_fmt_formats
 
           @@generate_opts = Rex::Parser::Arguments.new(
-            "-p" => [ true,  "The platform of the payload" ],
-            "-n" => [ true,  "Prepend a nopsled of [length] size on to the payload" ],
-            "-f" => [ true,  "Output format: #{@@supported_formats.join(',')}" ],
-            "-E" => [ false, "Force encoding" ],
-            "-e" => [ true,  "The encoder to use" ],
-            "-P" => [ true,  "Total desired payload size, auto-produce appropriate NOP sled length"],
-            "-S" => [ true,  "The new section name to use when generating (large) Windows binaries"],
-            "-b" => [ true,  "The list of characters to avoid example: '\\x00\\xff'" ],
-            "-i" => [ true,  "The number of times to encode the payload" ],
-            "-x" => [ true,  "Specify a custom executable file to use as a template" ],
-            "-k" => [ false, "Preserve the template behavior and inject the payload as a new thread" ],
-            "-o" => [ true,  "The output file name (otherwise stdout)" ],
-            "-O" => [ true,  "Deprecated: alias for the '-o' option" ],
-            "-v" => [ false, "Verbose output (display stage in addition to stager)" ],
-            "-h" => [ false, "Show this message" ],
+            '-p' => [ true, 'The platform of the payload' ],
+            '-n' => [ true, 'Prepend a nopsled of [length] size on to the payload' ],
+            '-f' => [ true, "Output format: #{@@supported_formats.join(',')}" ],
+            '-E' => [ false, 'Force encoding' ],
+            '-e' => [ true, 'The encoder to use' ],
+            '-P' => [ true, 'Total desired payload size, auto-produce appropriate NOP sled length'],
+            '-S' => [ true, 'The new section name to use when generating (large) Windows binaries'],
+            '-b' => [ true, "The list of characters to avoid example: '\\x00\\xff'" ],
+            '-i' => [ true, 'The number of times to encode the payload' ],
+            '-x' => [ true, 'Specify a custom executable file to use as a template' ],
+            '-k' => [ false, 'Preserve the template behavior and inject the payload as a new thread' ],
+            '-o' => [ true, 'The output file name (otherwise stdout)' ],
+            '-O' => [ true, "Deprecated: alias for the '-o' option" ],
+            '-v' => [ false, 'Verbose output (display stage in addition to stager)' ],
+            '-h' => [ false, 'Show this message' ]
           )
 
           #
@@ -40,8 +39,9 @@ module Msf
           #
           def commands
             super.update(
-              "generate" => "Generates a payload",
-              "to_handler" => "Creates a handler with the specified payload"
+              'generate' => 'Generates a payload',
+              'to_handler' => 'Creates a handler with the specified payload',
+              'exploit' => 'Creates a handler with the specified payload'
             )
           end
 
@@ -49,12 +49,12 @@ module Msf
             handler = framework.modules.create('exploit/multi/handler')
 
             handler_opts = {
-              'Payload'     => mod.refname,
-              'LocalInput'  => driver.input,
+              'Payload' => mod.refname,
+              'LocalInput' => driver.input,
               'LocalOutput' => driver.output,
-              'RunAsJob'    => true,
-              'Options'     => {
-                'ExitOnSession' => false,
+              'RunAsJob' => true,
+              'Options' => {
+                'ExitOnSession' => false
               }
             }
 
@@ -65,19 +65,21 @@ module Msf
             print_status "Payload Handler Started as Job #{job_id}"
           end
 
+          alias cmd_exploit cmd_to_handler
+
           #
           # Returns the command dispatcher name.
           #
           def name
-            "Payload"
+            'Payload'
           end
 
           def cmd_generate_help
-            print_line "Usage: generate [options]"
+            print_line 'Usage: generate [options]'
             print_line
-            print_line "Generates a payload. Datastore options may be supplied after normal options."
+            print_line 'Generates a payload. Datastore options may be supplied after normal options.'
             print_line
-            print_line "Example: generate -f python LHOST=127.0.0.1"
+            print_line 'Example: generate -f python LHOST=127.0.0.1'
             print @@generate_opts.usage
           end
 
@@ -87,19 +89,19 @@ module Msf
           def cmd_generate(*args)
             # Parse the arguments
             encoder_name = nil
-            sled_size    = nil
-            pad_nops     = nil
-            sec_name     = nil
-            option_str   = nil
-            badchars     = nil
-            format       = "ruby"
-            ofile        = nil
-            iter         = 1
-            force        = nil
-            template     = nil
-            plat         = nil
-            keep         = false
-            verbose      = false
+            sled_size = nil
+            pad_nops = nil
+            sec_name = nil
+            option_str = nil
+            badchars = nil
+            format = 'ruby'
+            ofile = nil
+            iter = 1
+            force = nil
+            template = nil
+            plat = nil
+            keep = false
+            verbose = false
 
             @@generate_opts.parse(args) do |opt, _idx, val|
               case opt
@@ -156,21 +158,21 @@ module Msf
             # Generate the payload
             begin
               buf = mod.generate_simple(
-                'BadChars'    => badchars,
-                'Encoder'     => encoder_name,
-                'Format'      => format,
+                'BadChars' => badchars,
+                'Encoder' => encoder_name,
+                'Format' => format,
                 'NopSledSize' => sled_size,
-                'PadNops'     => pad_nops,
-                'SecName'     => sec_name,
-                'OptionStr'   => option_str,
+                'PadNops' => pad_nops,
+                'SecName' => sec_name,
+                'OptionStr' => option_str,
                 'ForceEncode' => force,
-                'Template'    => template,
-                'Platform'    => plat,
+                'Template' => template,
+                'Platform' => plat,
                 'KeepTemplateWorking' => keep,
                 'Iterations' => iter,
                 'Verbose' => verbose
               )
-            rescue
+            rescue StandardError
               log_error("Payload generation failed: #{$ERROR_INFO}")
               return false
             end
@@ -180,7 +182,7 @@ module Msf
               puts(buf)
             else
               print_status("Writing #{buf.length} bytes to #{ofile}...")
-              fd = File.open(ofile, "wb")
+              fd = File.open(ofile, 'wb')
               fd.write(buf)
               fd.close
             end
@@ -192,19 +194,19 @@ module Msf
           #
           def cmd_generate_tabs(str, words)
             fmt = {
-              '-b' => [ true                                              ],
-              '-E' => [ nil                                               ],
-              '-e' => [ framework.encoders.map { |refname, mod| refname } ],
-              '-h' => [ nil                                               ],
-              '-o' => [ :file                                             ],
-              '-P' => [ true                                              ],
-              '-S' => [ true                                              ],
-              '-f' => [ @@supported_formats                               ],
-              '-p' => [ true                                              ],
-              '-k' => [ nil                                               ],
-              '-x' => [ :file                                             ],
-              '-i' => [ true                                              ],
-              '-v' => [ nil                                               ]
+              '-b' => [ true ],
+              '-E' => [ nil ],
+              '-e' => [ framework.encoders.map { |refname, _mod| refname } ],
+              '-h' => [ nil ],
+              '-o' => [ :file ],
+              '-P' => [ true ],
+              '-S' => [ true ],
+              '-f' => [ @@supported_formats ],
+              '-p' => [ true ],
+              '-k' => [ nil ],
+              '-x' => [ :file ],
+              '-i' => [ true ],
+              '-v' => [ nil ]
             }
             flags = tab_complete_generic(fmt, str, words)
             options = tab_complete_option(active_module, str, words)

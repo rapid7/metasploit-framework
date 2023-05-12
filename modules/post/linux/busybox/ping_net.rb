@@ -8,21 +8,22 @@ class MetasploitModule < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'BusyBox Ping Network Enumeration',
-      'Description'  => %q{
+      'Name' => 'BusyBox Ping Network Enumeration',
+      'Description' => %q{
         This module will be applied on a session connected to a BusyBox shell. It will ping a range
         of IP addresses from the router or device executing BusyBox.
       },
-      'Author'       => 'Javier Vicente Vallejo',
-      'License'      => MSF_LICENSE,
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell']
+      'Author' => 'Javier Vicente Vallejo',
+      'License' => MSF_LICENSE,
+      'Platform' => ['linux'],
+      'SessionTypes' => ['shell']
     )
 
     register_options(
       [
         OptAddressRange.new('RANGE', [true, 'IP range to ping'])
-      ])
+      ]
+    )
   end
 
   def run

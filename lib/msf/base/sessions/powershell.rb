@@ -59,7 +59,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     etime = ::Time.now.to_f + timeout
 
     buff = ''
-    # Keep reading data until the marker has been received or the 30 minture timeout has occured
+    # Keep reading data until the marker has been received or the 30 minute timeout has occured
     while (::Time.now.to_f < etime)
       res = shell_read(-1, timeout)
       break unless res

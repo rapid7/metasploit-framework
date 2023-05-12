@@ -825,7 +825,11 @@ class RbMysql
     # @private
     def self.finalizer(protocol, statement_id)
       proc do
-        protocol.gc_stmt statement_id
+        begin
+          protocol.gc_stmt statement_id
+        rescue => e
+          elog("finalize method for Stmt failed", error: e)
+        end
       end
     end
 

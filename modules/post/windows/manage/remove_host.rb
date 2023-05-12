@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
   def run
     hosttoremove = datastore['DOMAIN']
     # remove hostname from hosts file
-    fd = client.fs.file.new("C:\\WINDOWS\\System32\\drivers\\etc\\hosts", "r+b")
+    fd = client.fs.file.new('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', 'r+b')
 
     # Get a temporary file path
     meterp_temp = Tempfile.new('meterp')
@@ -55,8 +55,7 @@ class MetasploitModule < Msf::Post
     fdray = fd.read.split("\r\n")
 
     fdray.each do |line|
-      if line.match("\t#{hosttoremove}$")
-      else
+      unless line.match("\t#{hosttoremove}$")
         newfile += "#{line}\r\n"
       end
     end
@@ -67,6 +66,6 @@ class MetasploitModule < Msf::Post
     meterp_temp.close
 
     client.fs.file.upload_file('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', meterp_temp)
-    print_good("Done!")
+    print_good('Done!')
   end
 end

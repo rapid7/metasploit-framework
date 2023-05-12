@@ -67,7 +67,7 @@ module Msf
         EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
 
         # Special messages
-        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-CVE-is-not-available)|
+        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://docs.metasploit.com/docs/using-metasploit/other/why-cve-is-not-available.html)|
 
 
         # Returns the module document in HTML form.
@@ -185,6 +185,23 @@ module Msf
           targets.collect { |c| "* #{c.name}" } * "\n"
         end
 
+        # Returns the markdown format for module AttackerKB references.
+        #
+        # @param refs [Array] AttackerKB references , with the CVE as the key and the link as the value.
+        # @return [String]
+        def normalize_attackerkb_references(refs)
+          normalized = ''
+
+          # Grabs module CVE's if available and adds each AttackerKB link to the hash
+          refs.each do |ref|
+            next unless ref.ctx_id == 'CVE'
+
+            cve = "#{ref.ctx_id}-#{ref.ctx_val}"
+            link = "https://attackerkb.com/topics/#{ref.ctx_id}-#{ref.ctx_val}?referrer=msfconsole"
+            normalized << "* [#{cve}](#{link})\n"
+          end
+          normalized
+        end
 
         # Returns the markdown format for module references.
         #

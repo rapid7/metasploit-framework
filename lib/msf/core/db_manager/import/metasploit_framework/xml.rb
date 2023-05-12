@@ -171,7 +171,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         begin
           unserialized_body = Base64.urlsafe_decode64(unserialized_body).b
         rescue ArgumentError => e
-          print_error("Data format suggests response body is not encoded: #{e}")
+          elog("Data format suggests response body is not encoded", e)
         end
       end
 

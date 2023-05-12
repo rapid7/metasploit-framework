@@ -1,6 +1,6 @@
-Metasploit Framework 5.0 has released! 
+Metasploit Framework 5.0 has released!
 
-Metasploit 5.0 brings many new features, including new database and automation APIs, evasion modules and libraries, language support, improved performance, and ease-of-use. 
+Metasploit 5.0 brings many new features, including new database and automation APIs, evasion modules and libraries, language support, improved performance, and ease-of-use.
 
 See the release announcement [here](https://blog.rapid7.com/2019/01/10/metasploit-framework-5-0-released).
 
@@ -12,7 +12,7 @@ The following is a high-level overview of Metasploit 5.0's features and capabili
 
 * A JSON-RPC API enables users to integrate Metasploit with additional tools and languages.
 
-* This release adds a common web service framework to expose both the database and the automation APIs; this framework supports advanced authentication and concurrent operations. Read more about how to set up and run these new services [here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).
+* This release adds a common web service framework to expose both the database and the automation APIs; this framework supports advanced authentication and concurrent operations. Read more about how to set up and run these new services [[here|./Metasploit-Web-Service.md]].
 
 * Adds `evasion` module type and libraries to let users generate evasive payloads without having to install external tools. Read the research underpinning evasion modules [here](https://www.rapid7.com/info/encapsulating-antivirus-av-evasion-techniques-in-metasploit-framework). Rapid7's first evasion modules are [here](https://github.com/rapid7/metasploit-framework/pull/10759).
 
@@ -28,6 +28,6 @@ The following is a high-level overview of Metasploit 5.0's features and capabili
 
 You can get Metasploit 5.0 by checking out the [5.0.0 tag](https://github.com/rapid7/metasploit-framework/releases/tag/5.0.0) in the Metasploit GitHub project.
 
-Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://github.com/rapid7/metasploit-framework/wiki), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can't find something you want in our wiki, ask Google or the community what they recommend. 
+Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://docs.metasploit.com/), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can't find something you want in our wiki, ask Google or the community what they recommend.
 
 See all the ways to stay informed and get involved at <https://metasploit.com>.

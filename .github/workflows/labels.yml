@@ -59,7 +59,7 @@ jobs:
                   comment: `
                     Thanks for your pull request! Before this can be merged, we need the following documentation for your module:
 
-                    - [Writing Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
+                    - [Writing Module Documentation](https://docs.metasploit.com/docs/development/quality/writing-module-documentation.html)
                     - [Template](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
                     - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
                   `
@@ -191,6 +191,14 @@ jobs:
                     Closing this issue. If you believe this issue has been closed in error, please provide any relevant output and logs which may be useful in diagnosing the issue.
                   `
                 },
+                attic: {
+                  close: true,
+                  comment: `
+                    Thanks for your contribution to Metasploit Framework! We've looked at this issue, and unfortunately we do not currently have the bandwidth to prioritize this issue.
+            
+                    We've labeled this as \`attic\` and closed it for now. If you believe this issue has been closed in error, or that it should be prioritized, please comment with additional information.
+                  `
+                }
               }
             };
 

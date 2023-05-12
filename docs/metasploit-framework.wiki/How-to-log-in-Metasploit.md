@@ -15,7 +15,7 @@ msf > irb
 By default, all the log errors are on level 0 - the least informative level. But of course, you can change this by setting the datastore option, like this:
 
 
-```
+```msf
 msf > setg LogLevel 3
 LogLevel => 3
 msf >

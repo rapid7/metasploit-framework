@@ -11,7 +11,7 @@ The help page includes:
 ### How to use it
 After you load a module, you can type ```info -d``` to generate a help page that provides basic usage information and displays the PR history for the module. 
 
-```
+```msf
 msf> use auxiliary/scanner/smb/smb_login
 msf (smb_login)> info -d
 ```

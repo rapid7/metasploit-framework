@@ -20,6 +20,13 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::EncryptedData] The encrypted part of the ticket
           attr_accessor :enc_part
 
+          def ==(other)
+            tkt_vno == other.tkt_vno &&
+              realm == other.realm &&
+              sname == other.sname &&
+              enc_part == other.enc_part
+          end
+
           # Decodes the Rex::Proto::Kerberos::Model::KrbError from an input
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from

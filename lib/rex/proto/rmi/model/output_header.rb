@@ -14,7 +14,7 @@ module Rex
           #   @return [Integer] the Java RMI version
           attr_accessor :version
           # @!attribute protocol
-          #   @return [Integer] the protocol where the the messages are wrapped within
+          #   @return [Integer] the protocol where the messages are wrapped within
           attr_accessor :protocol
 
           private

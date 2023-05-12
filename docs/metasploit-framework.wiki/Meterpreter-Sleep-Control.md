@@ -8,7 +8,7 @@ For these reasons, and more, the new `sleep` command in Meterpreter was created.
 
 ## Silent shells
 
-Noise during an assessment is not necessarily a good thing. With the advent of Meterpreter's new support and control of [multiple transports](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control), Meterpreter has the ability to change transports and therefore change the traffic pattern for communication. However, sometimes this isn't enough and sometimes users want to be able to shut the session off temporarily.
+Noise during an assessment is not necessarily a good thing. With the advent of Meterpreter's new support and control of [[multiple transports|./Meterpreter-Transport-Control.md]], Meterpreter has the ability to change transports and therefore change the traffic pattern for communication. However, sometimes this isn't enough and sometimes users want to be able to shut the session off temporarily.
 
 The `sleep` command is designed to do just that: make the current Meterpreter session go to sleep for a specified period of time, and the wake up again once that time has expired.
 

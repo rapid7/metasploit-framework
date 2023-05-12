@@ -149,7 +149,13 @@ module Shell
         if input.eof? || line == nil
           self.stop_count += 1
           next if self.stop_count > 1
-          run_single('quit')
+
+          if block
+            block.call('quit')
+          elsif respond_to?(:run_single)
+            # PseudoShell does not provide run_single
+            run_single('quit')
+          end
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.

@@ -51,7 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'SideEffects' => [ CONFIG_CHANGES ], # This module will change the configuration by
           # resetting the router to the default factory password.
-          'Stability' => [ CRASH_SERVICE_DOWN ] # This module will crash the target service after it is run.
+          'Stability' => [ CRASH_SERVICE_DOWN ], # This module will crash the target service after it is run.
+          'Reliability' => []
         },
         'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ], # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
         'DisclosureDate' => '2020-06-15',
