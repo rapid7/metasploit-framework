@@ -16,12 +16,6 @@ module Metasploit
 
         # (see Base#attempt_login)
         def attempt_login(credential)
-          http_client = Rex::Proto::Http::Client.new(
-            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
-          )
-
-          configure_http_client(http_client)
-
           result_opts = {
               credential: credential,
               host: host,
@@ -35,14 +29,18 @@ module Metasploit
           end
 
           begin
-            http_client.connect
-            body = "userName=#{Rex::Text.uri_encode(credential.public)}&password=#{Rex::Text.uri_encode(credential.private)}&submit=+Login+"
-            request = http_client.request_cgi(
+            # Refactor to access Metasploit::Framework::LoginScanner::HTTP#send_request()
+            # to send request to the HTTP server and obtain a response
+            response = send_request({
               'uri' => uri,
-              'method' => "POST",
-              'data' => body,
-            )
-            response = http_client.send_recv(request)
+              'method' => 'POST',
+              'vars_post' =>
+               {
+                 'userName' => credential.public,
+                 'password' => credential.private,
+                 'submit' => '+Login+'
+               }
+            })
 
             if response && response.code == 200 && response.body.include?("upload")
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response)

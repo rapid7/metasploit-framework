@@ -1,6 +1,6 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @zerosteiner, @jmartin-r7
+Mentors: [@zerosteiner](https://github.com/zerosteiner), [@jmartin-r7](https://github.com/jmartin-r7)
 
 ## Enhance Metasploit Framework
 

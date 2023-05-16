@@ -17,7 +17,7 @@ apt-get install nmap
 ```
 
 In addition, if you encounter errors due to OCI libraries not being found, please see the
-[How to get Oracle Support working with Kali Linux](https://github.com/rapid7/metasploit-framework/wiki/How-to-get-Oracle-Support-working-with-Kali-Linux).
+[How to get Oracle Support working with Kali Linux](https://docs.metasploit.com/docs/using-metasploit/other/oracle-support/how-to-get-oracle-support-working-with-kali-linux.html).
 
 For Oracle Server, please follow the following
 [guide](https://tutorialforlinux.com/2019/09/17/how-to-install-oracle-12c-r2-database-on-ubuntu-18-04-bionic-64-bit-easy-guide/).

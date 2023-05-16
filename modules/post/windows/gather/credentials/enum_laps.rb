@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
               stdapi_net_resolve_hosts
             ]
           }
-        },
+        }
       )
     )
 
@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Post
   # and records and usernames as {Metasploit::Credential::Core}s in
   # the database if datastore option STORE_DB is true.
   #
-  # @param [Array<Array<Hash>>] the LDAP query results to parse
+  # @param results [Array<Array<Hash>>] The LDAP query results to parse
   # @return [Rex::Text::Table] the table containing all the result data
   def parse_results(results)
     laps_results = []
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Post
 
       result.each do |field|
         if field.nil?
-          row << ""
+          row << ''
         else
           if field[:type] == :number
             value = convert_windows_nt_time_format(field[:value])
@@ -113,15 +113,15 @@ class MetasploitModule < Msf::Post
       dn = result[FIELDS.index('distinguishedName')][:value]
       expiration = convert_windows_nt_time_format(result[FIELDS.index('ms-MCS-AdmPwdExpirationTime')][:value])
 
-      unless password.to_s.empty?
-        results_table << row
-        laps_results << {
-          hostname: hostname,
-          password: password,
-          dn: dn,
-          expiration: expiration
-        }
-      end
+      next if password.to_s.empty?
+
+      results_table << row
+      laps_results << {
+        hostname: hostname,
+        password: password,
+        dn: dn,
+        expiration: expiration
+      }
     end
 
     if datastore['STORE_DB']
@@ -189,6 +189,6 @@ class MetasploitModule < Msf::Post
   def convert_windows_nt_time_format(windows_time)
     unix_time = windows_time.to_i / 10000000 - 11644473600
     ruby_time = Time.at(unix_time)
-    ruby_time.strftime("%d/%m/%Y %H:%M:%S GMT %z")
+    ruby_time.strftime('%d/%m/%Y %H:%M:%S GMT %z')
   end
 end

@@ -3,6 +3,15 @@ module Msf::Payload::Adapter
   # size can't be a single value and must be set to dynamic
   CachedSize = :dynamic
 
+  def initialize(info={})
+    super
+
+    if self.is_a?(Msf::Payload::Stager)
+      self.stage_arch = Rex::Transformer.transform(module_info['AdaptedArch'], Array, [ String ], 'AdaptedArch')
+      self.stage_platform = Msf::Module::PlatformList.transform(module_info['AdaptedPlatform'])
+    end
+  end
+
   def compatible?(mod)
     if mod.type == Msf::MODULE_PAYLOAD
       return false if Set.new([module_info['AdaptedArch']]) != mod.arch.to_set

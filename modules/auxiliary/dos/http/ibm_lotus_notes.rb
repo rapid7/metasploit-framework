@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           'Dhiraj Mishra',
         ],
         'References'     => [
-          [ 'EXPLOIT-DB', '42602'],
+          [ 'EDB', '42602'],
           [ 'CVE', '2017-1129' ],
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21999385' ]
         ],

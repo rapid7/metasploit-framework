@@ -6,40 +6,43 @@
 class MetasploitModule < Msf::Post
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'OS X Manage Sonic Pi',
-      'Description'   => %q{
-        This module controls Sonic Pi via its local OSC server.
+    super(
+      update_info(
+        info,
+        'Name' => 'OS X Manage Sonic Pi',
+        'Description' => %q{
+          This module controls Sonic Pi via its local OSC server.
 
-        The server runs on 127.0.0.1:4557 and receives OSC messages over UDP.
+          The server runs on 127.0.0.1:4557 and receives OSC messages over UDP.
 
-        Yes, this is RCE, but it's local. I suggest playing music. :-)
-      },
-      'Author'        => [
-        'Sam Aaron', # Sonic Pi
-        'wvu'        # Module and Sonic Pi example
-      ],
-      'References'    => [
-        %w[URL https://sonic-pi.net/],
-        %w[URL https://github.com/samaaron/sonic-pi/wiki/Sonic-Pi-Internals----GUI-Ruby-API],
-        %w[URL http://opensoundcontrol.org/spec-1_0]
-      ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'osx',
-      'SessionTypes'  => %w[meterpreter shell],
-      'Actions'       => [
-        ['Run',  'Description' => 'Run Sonic Pi code'],
-        ['Stop', 'Description' => 'Stop all jobs']
-      ],
-      'DefaultAction' => 'Run',
-      'Notes'         => {
-        'SideEffects' => [AUDIO_EFFECTS, SCREEN_EFFECTS]
-      }
-    ))
+          Yes, this is RCE, but it's local. I suggest playing music. :-)
+        },
+        'Author' => [
+          'Sam Aaron', # Sonic Pi
+          'wvu'        # Module and Sonic Pi example
+        ],
+        'References' => [
+          %w[URL https://sonic-pi.net/],
+          %w[URL https://github.com/samaaron/sonic-pi/wiki/Sonic-Pi-Internals----GUI-Ruby-API],
+          %w[URL http://opensoundcontrol.org/spec-1_0]
+        ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'osx',
+        'SessionTypes' => %w[meterpreter shell],
+        'Actions' => [
+          ['Run', { 'Description' => 'Run Sonic Pi code' }],
+          ['Stop', { 'Description' => 'Stop all jobs' }]
+        ],
+        'DefaultAction' => 'Run',
+        'Notes' => {
+          'SideEffects' => [AUDIO_EFFECTS, SCREEN_EFFECTS]
+        }
+      )
+    )
 
     register_options([
-      OptAddress.new('OSC_HOST',    [true, 'OSC server host', '127.0.0.1']),
-      OptPort.new('OSC_PORT',       [true, 'OSC server port', 4557]),
+      OptAddress.new('OSC_HOST', [true, 'OSC server host', '127.0.0.1']),
+      OptPort.new('OSC_PORT', [true, 'OSC server port', 4557]),
       OptBool.new('START_SONIC_PI', [true, 'Start Sonic Pi', false]),
       OptPath.new(
         'FILE',

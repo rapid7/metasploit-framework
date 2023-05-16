@@ -178,10 +178,17 @@ module Metasploit
         # @return [String]
         attr_accessor :http_password
 
+        # @!attribute kerberos_authenticator_factory
+        # @return [Func<username, password, realm> : Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP] A factory method for creating a kerberos authenticator
+        attr_accessor :kerberos_authenticator_factory
+
+        # @!attribute keep_connection_alive
+        # @return [Boolean] Whether to keep the connection open after a successful login
+        attr_accessor :keep_connection_alive
+
         # @!attribute http_success_codes
         # @return [Array][Int] list of valid http response codes
         attr_accessor :http_success_codes
-
 
         validate :validate_http_codes
 
@@ -226,41 +233,19 @@ module Metasploit
         # @option opts [Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
         # @option opts [String]  'proxies' The proxies setting
         # @option opts [Credential] 'credential' A credential object
+        # @option opts [Rex::Proto::Http::Client] 'http_client' object that can be used by the function
         # @option opts ['Hash'] 'context' A context
         # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         # @return [Rex::Proto::Http::Response] The HTTP response
         # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
         def send_request(opts)
-          rhost           = opts['host'] || host
-          rport           = opts['rport'] || port
-          cli_ssl         = opts['ssl'] || ssl
-          cli_ssl_version = opts['ssl_version'] || ssl_version
-          cli_proxies     = opts['proxies'] || proxies
-          username        = opts['credential'] ? opts['credential'].public : http_username
-          password        = opts['credential'] ? opts['credential'].private : http_password
-          realm           = opts['credential'] ? opts['credential'].realm : nil
-          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
-
-          res = nil
-          cli = Rex::Proto::Http::Client.new(
-            rhost,
-            rport,
-            context,
-            cli_ssl,
-            cli_ssl_version,
-            cli_proxies,
-            username,
-            password
-          )
-          configure_http_client(cli)
-
-          if realm
-            cli.set_config('domain' => realm)
-          end
+          close_client = !opts.key?(:http_client)
+          cli = opts.fetch(:http_client) { create_client(opts) }
 
           begin
             cli.connect
             req = cli.request_cgi(opts)
+
             # Authenticate by default
             res = if opts['authenticate'].nil? || opts['authenticate']
                     cli.send_recv(req)
@@ -270,7 +255,10 @@ module Metasploit
           rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure
-            cli.close
+            # If we didn't create the client, don't close it
+            if close_client
+              cli.close
+            end
           end
 
           res
@@ -299,19 +287,74 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
 
+          request_opts = {'credential'=>credential, 'uri'=>uri, 'method'=>method}
+          if keep_connection_alive
+            request_opts[:http_client] = create_client(request_opts)
+          end
+
           begin
-            response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
+            response = send_request(request_opts)
             if response && http_success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
+          rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+            mapped_err = Metasploit::Framework::LoginScanner::Kerberos.login_status_for_kerberos_error(e)
+            result_opts.merge!(status: mapped_err, proof: e)
+          ensure
+            if request_opts.key?(:http_client)
+              if result_opts[:status] == Metasploit::Model::Login::Status::SUCCESSFUL
+                result_opts[:connection] = request_opts[:http_client]
+              else
+                request_opts[:http_client].close
+              end
+            end
           end
 
           Result.new(result_opts)
         end
 
         private
+
+        def create_client(opts)
+          rhost           = opts['host'] || host
+          rport           = opts['rport'] || port
+          cli_ssl         = opts['ssl'] || ssl
+          cli_ssl_version = opts['ssl_version'] || ssl_version
+          cli_proxies     = opts['proxies'] || proxies
+          username        = opts['credential'] ? opts['credential'].public : http_username
+          password        = opts['credential'] ? opts['credential'].private : http_password
+          realm           = opts['credential'] ? opts['credential'].realm : nil
+          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
+
+          kerberos_authenticator = nil
+          if kerberos_authenticator_factory
+            kerberos_authenticator = kerberos_authenticator_factory.call(username, password, realm)
+          end
+
+          http_logger_subscriber = framework_module.nil? ? nil : Rex::Proto::Http::HttpLoggerSubscriber.new(logger: framework_module)
+          res = nil
+          cli = Rex::Proto::Http::Client.new(
+            rhost,
+            rport,
+            context,
+            cli_ssl,
+            cli_ssl_version,
+            cli_proxies,
+            username,
+            password,
+            kerberos_authenticator: kerberos_authenticator,
+            subscriber: http_logger_subscriber
+          )
+          configure_http_client(cli)
+
+          if realm
+            cli.set_config('domain' => realm)
+          end
+
+          cli
+        end
 
         # This method is responsible for mapping the caller's datastore options to the
         # Rex::Proto::Http::Client configuration parameters.
@@ -417,3 +460,4 @@ module Metasploit
     end
   end
 end
+

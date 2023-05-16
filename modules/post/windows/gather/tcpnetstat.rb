@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_tcptable(buffer)
-    entries = buffer[0, 4].unpack("V*")[0]
+    entries = buffer[0, 4].unpack('V*')[0]
     print_status("Total TCP Entries: #{entries}")
 
     rtable = Rex::Text::Table.new(
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
     offset = 4
     (1..entries).each do
       x = {}
-      x[:state] = case buffer[(offset + 0), 4].unpack("V*")[0]
+      x[:state] = case buffer[(offset + 0), 4].unpack('V*')[0]
                   when 1
                     'CLOSED'
                   when 2
@@ -71,15 +71,15 @@ class MetasploitModule < Msf::Post
                   else
                     'UNDEFINED'
                   end
-      x[:lhost] = Rex::Socket.addr_itoa(buffer[(offset + 4), 4].unpack("N")[0])
-      x[:lport] = buffer[(offset + 8), 4].unpack("n")[0]
-      x[:rhost] = Rex::Socket.addr_itoa(buffer[(offset + 12), 4].unpack("N")[0])
-      if x[:state] == "LISTEN"
-        x[:rport] = "_"
+      x[:lhost] = Rex::Socket.addr_itoa(buffer[(offset + 4), 4].unpack('N')[0])
+      x[:lport] = buffer[(offset + 8), 4].unpack('n')[0]
+      x[:rhost] = Rex::Socket.addr_itoa(buffer[(offset + 12), 4].unpack('N')[0])
+      if x[:state] == 'LISTEN'
+        x[:rport] = '_'
       else
-        x[:rport] = buffer[(offset + 16), 4].unpack("n")[0]
+        x[:rport] = buffer[(offset + 16), 4].unpack('n')[0]
       end
-      offset = offset + 20
+      offset += 20
       rtable << [x[:state], x[:lhost], x[:lport], x[:rhost], x[:rport]]
     end
     print_status(rtable.to_s)

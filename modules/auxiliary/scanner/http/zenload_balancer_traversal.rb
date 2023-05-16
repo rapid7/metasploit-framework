@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['EDB', '48308']
         ],
-        'DisclosureDate' => '2020-04-10'
+        'DisclosureDate' => '2020-04-10',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

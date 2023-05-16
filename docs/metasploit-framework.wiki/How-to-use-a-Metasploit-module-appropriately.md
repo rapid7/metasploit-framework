@@ -6,7 +6,7 @@ In this documentation, understand that we require you no exploit development kno
 
 Each Metasploit module comes with some metadata that explains what it's about, and to see that you must load it first. An example:
 
-```
+```msf
 msf > use exploit/windows/smb/ms08_067_netapi
 ```
 
@@ -20,11 +20,11 @@ This may sound surprising, but sometimes we get asked questions that are already
 
 * **Which ones have been tested**: When a module is developed, usually the exploit isn't tested against every single setup if there are too many. Usually the developers will just try to test whatever they can get their hands on. So if your target isn't mentioned here, keep in mind there is no guarantee it's going to work 100%. The safest thing to do is to actually recreate the environment your target has, and test the exploit before hitting the real thing.
 
-* **What conditions the server must meet in order to be exploitable**: Quite often, a vulnerability requires multiple conditions to be exploitable. In some cases you can rely on the exploit's [check command](How-to-write-a-check-method.md), because when Metasploit flags something as vulnerable, it actually exploited the bug. For browser exploits using the BrowserExploitServer mixin, it will also check exploitable requirements before loading the exploit. But automation isn't always there, so you should try to find this information before running that "exploit" command. Sometimes it's just common sense, really. For example: a web application's file upload feature might be abused to upload a web-based backdoor, and stuff like that usually requires the upload folder to be accessible for the user. If your target doesn't meet the requirement(s), there is no point to try.
+* **What conditions the server must meet in order to be exploitable**: Quite often, a vulnerability requires multiple conditions to be exploitable. In some cases you can rely on the exploit's [[check command|How-to-write-a-check-method.md]], because when Metasploit flags something as vulnerable, it actually exploited the bug. For browser exploits using the BrowserExploitServer mixin, it will also check exploitable requirements before loading the exploit. But automation isn't always there, so you should try to find this information before running that "exploit" command. Sometimes it's just common sense, really. For example: a web application's file upload feature might be abused to upload a web-based backdoor, and stuff like that usually requires the upload folder to be accessible for the user. If your target doesn't meet the requirement(s), there is no point to try.
 
 You can use the info command to see the module's description:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > info
 ```
 
@@ -36,13 +36,13 @@ If the exploit supports automatic targeting, it is always the first item on the 
 
 The "show options" command will tell you which target is selected. For example:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > show options
 ```
 
 The "show targets" command will give you a list of targets supported:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > show targets
 ```
 
@@ -50,13 +50,13 @@ msf exploit(ms08_067_netapi) > show targets
 
 All Metasploit modules come with most datastore options pre-configured. However, they may not be suitable for the particular setup you're testing. To do a quick double-check, usually the "show options" command is enough:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > show options
 ```
 
 However, "show options" only shows you all the basic options. It does not show you the evasive or advanced options (try "show evasion" and "show advanced"), the command you should use that shows you all the datastore options is actually the "set" command:
 
-```
+```msf
 msf exploit(ms08_067_netapi) > set
 ```
 

@@ -358,7 +358,6 @@ Pulling it all together, we get a new `ftp_login` module that looks something li
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 

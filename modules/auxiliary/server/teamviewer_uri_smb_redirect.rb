@@ -34,7 +34,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://community.teamviewer.com/t5/Announcements/Statement-on-CVE-2020-13699/td-p/98448' ]
         ],
         'Notes' => {
-          'SideEffects' => [IOC_IN_LOGS]
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )

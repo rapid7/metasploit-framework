@@ -5,7 +5,8 @@ require 'rubocop/cop/lint/module_enforce_notes'
 
 RSpec.describe RuboCop::Cop::Lint::ModuleEnforceNotes do
   subject(:cop) { described_class.new(config) }
-  let(:config) { RuboCop::Config.new }
+  let(:empty_rubocop_config) { { } }
+  let(:config) { RuboCop::Config.new(empty_rubocop_config) }
 
   it 'requires Notes to be present when keys are present' do
     expect_offense(<<~RUBY)

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'bindata'
+require 'rex/post/channel'
 
 module Rex::Proto::Http::WebSocket
   class WebSocketError < StandardError

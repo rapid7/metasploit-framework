@@ -27,7 +27,7 @@ module Msf::DBManager::Adapter
   # Scan through available drivers
   #
   def initialize_adapter
-    ApplicationRecord.default_timezone = :utc
+    ActiveRecord.default_timezone = :utc
 
     if connection_established? && ApplicationRecord.connection_db_config.configuration_hash[:adapter] == ADAPTER
       dlog("Already established connection to #{ADAPTER}, so reusing active connection.")

@@ -8,22 +8,24 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Linux::System
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Linux Gather User History',
-      'Description'  => %q{
-        This module gathers the following user-specific information:
-        shell history, MySQL history, PostgreSQL history, MongoDB history,
-        Vim history, lastlog, and sudoers.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Gather User History',
+        'Description' => %q{
+          This module gathers the following user-specific information:
+          shell history, MySQL history, PostgreSQL history, MongoDB history,
+          Vim history, lastlog, and sudoers.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           # based largely on get_bash_history function by Stephen Haywood
           'ohdae <bindshell[at]live.com>'
         ],
-      'Platform'     => ['linux'],
-      'SessionTypes' => ['shell', 'meterpreter']
-    ))
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter']
+      )
+    )
   end
 
   def run
@@ -38,7 +40,7 @@ class MetasploitModule < Msf::Post
     users = [user] if user != 'root' || users.blank?
 
     vprint_status("Retrieving history for #{users.length} users")
-    shells = %w{ash bash csh ksh sh tcsh zsh}
+    shells = %w[ash bash csh ksh sh tcsh zsh]
     users.each do |u|
       home = get_home_dir(u)
       shells.each do |shell|
@@ -59,7 +61,7 @@ class MetasploitModule < Msf::Post
   def save(msg, data, ctype = 'text/plain')
     ltype = 'linux.enum.users'
     loot = store_loot(ltype, ctype, session, data, nil, msg)
-    print_good("#{msg} stored in #{loot.to_s}")
+    print_good("#{msg} stored in #{loot}")
   end
 
   def execute(cmd)

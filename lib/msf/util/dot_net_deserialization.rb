@@ -67,6 +67,8 @@ module DotNetDeserialization
     case formatter
     when :BinaryFormatter
       formatted = Formatters::BinaryFormatter.generate(stream)
+    when :JsonNetFormatter
+      formatted = Formatters::JsonNetFormatter.generate(stream)
     when :LosFormatter
       formatted = Formatters::LosFormatter.generate(stream)
     when :SoapFormatter
@@ -76,6 +78,25 @@ module DotNetDeserialization
     end
 
     formatted
+  end
+
+  # Get a list of gadget chains that are compatible with the specified formatter.
+  #
+  # @param formatter [Symbol] The formatter to get gadget chains for.
+  # @return [Array<Symbol>]
+  def self.formatter_compatible_gadget_chains(formatter)
+    case formatter
+    when :BinaryFormatter, :LosFormatter
+      chains = GadgetChains::NAMES.select { |name| GadgetChains.const_get(name) <= (Types::SerializedStream) }
+    when :JsonNetFormatter
+      chains = %i[ ObjectDataProvider ]
+    when :SoapFormatter
+      chains = %i[ ClaimsPrincipal TextFormattingRunProperties WindowsIdentity ]
+    else
+      raise NotImplementedError, 'The specified formatter is not implemented'
+    end
+
+    chains
   end
 
   # Generate a serialized data blob using the specified gadget chain to execute
@@ -94,6 +115,8 @@ module DotNetDeserialization
       stream = GadgetChains::DataSet.generate(cmd)
     when :DataSetTypeSpoof
       stream = GadgetChains::DataSetTypeSpoof.generate(cmd)
+    when :ObjectDataProvider
+      stream = GadgetChains::ObjectDataProvider.generate(cmd)
     when :TextFormattingRunProperties
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate

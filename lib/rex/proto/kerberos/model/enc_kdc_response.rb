@@ -4,6 +4,22 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # Based on https://datatracker.ietf.org/doc/html/rfc6806.html#section-11
+        #    EncKDCRepPart   ::= SEQUENCE {
+        #            key             [0] EncryptionKey,
+        #            last-req        [1] LastReq,
+        #            nonce           [2] UInt32,
+        #            key-expiration  [3] KerberosTime OPTIONAL,
+        #            flags           [4] TicketFlags,
+        #            authtime        [5] KerberosTime,
+        #            starttime       [6] KerberosTime OPTIONAL,
+        #            endtime         [7] KerberosTime,
+        #            renew-till      [8] KerberosTime OPTIONAL,
+        #            srealm          [9] Realm,
+        #            sname           [10] PrincipalName,
+        #            caddr           [11] HostAddresses OPTIONAL
+        #            encrypted-pa-data [12] SEQUENCE OF PA-DATA OPTIONAL
+        #    }
         class EncKdcResponse < Element
           # @!attribute key
           #   @return [Rex::Proto::Kerberos::Model::EncryptionKey] The session key
@@ -20,7 +36,7 @@ module Rex
           #   KDC and specifies the time that the client's secret key is due to expire
           attr_accessor :key_expiration
           # @!attribute flags
-          #   @return [Integer] This field indicates which of various options were used or
+          #   @return [Rex::Proto::Kerberos::Model::KdcOptionFlags] This field indicates which of various options were used or
           #   requested when the ticket was issued
           attr_accessor :flags
           # @!attribute auth_time
@@ -44,6 +60,12 @@ module Rex
           # @!attribute sname
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
+          # @!attribute caddr
+          #   @return [Rex::Proto::Kerberos::Model::HostAddress] These are the addresses from which the ticket can be used
+          attr_accessor :caddr
+          # @!attribute pa_data
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>,nil] An array of PreAuthDataEntry. nil if not present.
+          attr_accessor :pa_data
 
           # Decodes the Rex::Proto::Kerberos::Model::EncKdcResponse from an input
           #
@@ -110,8 +132,12 @@ module Rex
                 self.srealm = decode_srealm(val)
               when 10
                 self.sname = decode_sname(val)
+              when 11
+                self.caddr = decode_caddr(val)
+              when 12
+                self.pa_data = decode_pa_data(val)
               else
-                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode ENC-KDC-RESPONSE SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode tag #{val.tag.inspect} in ENC-KDC-RESPONSE SEQUENCE"
               end
             end
           end
@@ -156,9 +182,19 @@ module Rex
           # Decodes the flags field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Integer]
+          # @return [Rex::Proto::Kerberos::Model::KdcOptionFlags]
           def decode_flags(input)
-            input.value[0].value.to_i
+            flags = input.value[0].value.unpack1('N')
+            # == OpenSSL::ASN1::BitString
+            #
+            # === Additional attributes
+            # _unused_bits_: if the underlying BIT STRING's
+            # length is a multiple of 8 then _unused_bits_ is 0. Otherwise
+            # _unused_bits_ indicates the number of bits that are to be ignored in
+            # the final octet of the BitString's _value_.
+            unused_bits = input.value[0].unused_bits
+            flags >>= unused_bits
+            Rex::Proto::Kerberos::Model::KdcOptionFlags.new(flags)
           end
 
           # Decodes the auth_time field
@@ -207,6 +243,31 @@ module Rex
           # @return [Rex::Proto::Kerberos::Type::PrincipalName]
           def decode_sname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
+          end
+
+          # Decodes the caddr field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Model::HostAddress>]
+          def decode_caddr(input)
+            caddr = []
+            input.value[0].value.each do |host_address_data|
+              caddr << Rex::Proto::Kerberos::Model::HostAddress.decode(host_address_data)
+            end
+            caddr
+          end
+
+          # Decodes the pa_data field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
+          def decode_pa_data(input)
+            pre_auth = []
+            input.value[0].value.each do |pre_auth_data|
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
+            end
+
+            pre_auth
           end
         end
       end

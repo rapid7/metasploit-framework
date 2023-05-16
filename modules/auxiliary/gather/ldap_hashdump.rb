@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
@@ -212,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
     ltype.gsub!(/ /, '_')
     ltype.gsub!(/,/, '.')
     ltype.gsub!(/(ou=|fn=|cn=|o=|dc=|c=)/i, '')
-    ltype.gsub!(/[^a-z0-9._\-]+/i, '')
+    ltype.gsub!(/[^a-z0-9._-]+/i, '')
     ltype = ltype.last(16)
 
     ldif_filename = store_loot(

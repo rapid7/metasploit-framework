@@ -1,6 +1,12 @@
 module Msf::DBManager::Connection
   # Returns true if we are ready to load/store data
   def active
+    # In a Rails test scenario there will be a connection established already, and it needs to be checked manually to see if a migration is required
+    # This check normally happens in after_establish_connection, but that might not always get called - for instance during RSpec tests
+    if Rails.env.test? && migrated.nil? && usable && connection_established?
+      self.migrated = !needs_migration?
+    end
+
     # usable and migrated a just Boolean attributes, so check those first because they don't actually contact the
     # database.
     usable && migrated && connection_established?
@@ -11,8 +17,6 @@ module Msf::DBManager::Connection
   #
   # @return [void]
   def after_establish_connection(opts={})
-    self.migrated = false
-
     begin
       # Migrate the database, if needed
       migrate(opts)
@@ -32,7 +36,6 @@ module Msf::DBManager::Connection
   # Connects this instance to a database
   #
   def connect(opts={})
-
     return false if not @usable
 
     nopts = opts.dup
@@ -47,8 +50,6 @@ module Msf::DBManager::Connection
     nopts['wait_timeout'] ||= 300
 
     begin
-      self.migrated = false
-
       # Check ApplicationRecord was already connected by Rails::Application.initialize! or some other API.
       unless connection_established?
         create_db(nopts)
@@ -129,7 +130,7 @@ module Msf::DBManager::Connection
   def disconnect
     begin
       ApplicationRecord.remove_connection
-      self.migrated = false
+      self.migrated = nil
       self.modules_cached = false
     rescue ::Exception => e
       self.error = e
