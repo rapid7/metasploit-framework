@@ -19,4 +19,4 @@ formatter:
     extra_args: []
 require_paths: []
 plugins: []
-max_files: 8000
+max_files: 0
