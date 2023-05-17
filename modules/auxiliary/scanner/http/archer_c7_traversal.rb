@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::Unreachable, 'Connection failed') unless res
 
-    fail_with(Failure::NotFound, "The file does not appear to exist") if res.body.to_s.include?('Error 404 requested page cannot be found')
+    fail_with(Failure::NotFound, 'The file does not appear to exist') if res.body.to_s.include?('Error 404 requested page cannot be found')
 
     # We don't save the body by default, because there's also other junk in it.
     # But we still have a SAVE option just in case
