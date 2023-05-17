@@ -19,6 +19,8 @@ Gemfile.local.lock
 .yardoc
 # Mac OS X files
 .DS_Store
+# Ignore Solargraph config file
+.solargraph.yml
 # database config for testing
 config/database.yml
 # target config file for testing
