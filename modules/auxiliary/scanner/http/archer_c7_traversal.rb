@@ -13,7 +13,8 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Archer C7 Directory Traversal Vulnerability',
         'Description' => %q{
-          This module takes a vulnerability in the PATH_INFO found at /login/. The vulnernability is known to affect TP-Link Archer C5 C7 and C9 routers of varying versions.
+          This module exploits a directory traversal vulnerability in the PATH_INFO found at /login/
+          on TP-Link Archer C5, C7, and C9 routers of varying versions.
         },
         'References' => [
           [ 'BID', '74050 ' ],
