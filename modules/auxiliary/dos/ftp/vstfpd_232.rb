@@ -103,8 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         ftp.disconnect
       end
     end
-
-    sleep(1) until stopping?
+    sleep(1) until 10.times
 
     # Stop the threads
     threads.each(&:kill)
