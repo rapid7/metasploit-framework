@@ -31,11 +31,11 @@ module Rex::Proto::Kerberos::CredentialCache
     private_constant :AD_TYPE_MAP
 
     # Tracks the currently supported BinData types that can be formatted by the
-    # Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter#print_bindata_model method.
-    BIT_LENGTHS = {
+    # Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter#print_bin_data_model method.
+    BIN_DATA_BIT_LENGTHS = {
       ::BinData::Bit1 => 1
     }.freeze
-    private_constant :BIT_LENGTHS
+    private_constant :BIN_DATA_BIT_LENGTHS
 
     # @param [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache] ccache
     def initialize(ccache)
@@ -124,32 +124,34 @@ module Rex::Proto::Kerberos::CredentialCache
     # .... .... .... .... .... .... .... ...1 Flag 31: The flag 31 is SET
     #
     # @param model The BinData object
-    # @param [Integer] bit_length The length of desired byte output - number of dots in example above
+    # @param [Integer, Nil] bit_length The length of desired byte output - number of dots in example above
     # @return [String] Formatted output
-    def print_bindata_model(model, bit_length: nil)
+    def print_bin_data_model(model, bit_length: nil)
       rows = []
-      model_keys = []
-      model_values = []
 
-      bit_length ||= model.num_bytes * 8
+      # i.e. [[:field_name_1,  1], [:field_name_2, 0]]
       fields_and_values = model.to_enum(:each_pair).to_a
+      fields = fields_and_values.map { |field, _value| field }
+      values = fields_and_values.map { |_field, value| value }
 
       # For now we only support bit1 flags from BinData, this could be extended in the future
       fields_and_values.each do |field, value|
-        model_keys << field
-        model_values << value
-        unless BIT_LENGTHS.keys.include?(value.class)
-          raise TypeError, "Unsupported field type #{value.class} - expected #{BIT_LENGTHS.keys.join(',')}"
+        unless BIN_DATA_BIT_LENGTHS.keys.include?(value.class)
+          raise TypeError, "Unsupported field type #{value.class} for field #{field.inspect} - expected one of #{BIN_DATA_BIT_LENGTHS.keys.join(',')}"
         end
       end
 
-      if bit_length < model_keys.length
-        raise ArgumentError, "Bit length(#{bit_length}) should not be less that the number of flags(#{model_keys.length}) within the BinData model"
+      # calculate the bit length; we can't rely on BinData's `num_bytes` in the senario of the model being 4 bits wide.
+      calculated_bit_length = values.sum { |value| BIN_DATA_BIT_LENGTHS.fetch(value.class) }
+      bit_length ||= calculated_bit_length
+
+      if bit_length != calculated_bit_length
+        raise ArgumentError, "Not implemented. Bit length(#{bit_length}) should equal the bit length of the model #{calculated_bit_length}"
       end
 
-      padding = Array.new(bit_length - model_keys.length, :_reserved_)
-      flag_keys = padding + model_keys
-      binary_value = model_values.join
+      padding = Array.new(bit_length - fields.length, :_reserved_)
+      flag_keys = padding + fields
+      binary_value = values.join
 
       bit_length.times do |i|
         next if flag_keys[i].start_with?('_reserved_')
@@ -175,7 +177,7 @@ module Rex::Proto::Kerberos::CredentialCache
         group_memberships.map do |group|
           group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read([group.attributes].pack('N'))
           output << "Relative ID: #{group.relative_id}\nAttributes: #{group.attributes}".indent(4)
-          output << print_bindata_model(group_attributes, bit_length: 32).to_s.indent(6)
+          output << print_bin_data_model(group_attributes, bit_length: 32).to_s.indent(6)
         end
         output
       end
@@ -187,7 +189,7 @@ module Rex::Proto::Kerberos::CredentialCache
       output = []
       user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read([user_flags].pack('N'))
       output << "User Flags: #{user_flags}".indent(2)
-      output << print_bindata_model(user_attributes, bit_length: 32).to_s.indent(4)
+      output << print_bin_data_model(user_attributes, bit_length: 32).to_s.indent(4)
     end
 
     # @param [RubySMB::Dcerpc::Ndr::NdrUint32] user_account_flags
@@ -196,7 +198,7 @@ module Rex::Proto::Kerberos::CredentialCache
       output = []
       user_account_attributes = Rex::Proto::Kerberos::Pac::UserAccountAttributes.read([user_account_flags].pack('N'))
       output << "User Account Control: #{user_account_flags}".indent(2)
-      output << print_bindata_model(user_account_attributes, bit_length: 32).to_s.indent(4)
+      output << print_bin_data_model(user_account_attributes, bit_length: 32).to_s.indent(4)
     end
 
     # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInformation] logon_info
@@ -313,7 +315,7 @@ module Rex::Proto::Kerberos::CredentialCache
 
       output << "Flags: #{upn_and_dns_info.flags}".indent(2)
       upn_and_dns_info_attributes = Rex::Proto::Kerberos::Pac::UpnDnsInfoAttributes.read([upn_and_dns_info.flags].pack('N'))
-      output << print_bindata_model(upn_and_dns_info_attributes, bit_length: 32).to_s.indent(4)
+      output << print_bin_data_model(upn_and_dns_info_attributes, bit_length: 32).to_s.indent(4)
 
       if upn_and_dns_info.has_s_flag?
         output << "SAM Name: #{upn_and_dns_info.sam_name.encode('utf-8')}".indent(2)

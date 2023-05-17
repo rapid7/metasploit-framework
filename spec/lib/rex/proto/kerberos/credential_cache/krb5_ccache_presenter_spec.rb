@@ -1,16 +1,5 @@
 # frozen_string_literal: true
 
-# Dummy BinData model
-class DummyAttributes < BinData::Record
-  endian :little
-
-  bit1 :foo
-  bit2 :bar
-
-  bit3 :owner
-  bit2 :mandatory
-end
-
 RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
   subject do
     described_class.new(ccache)
@@ -373,28 +362,27 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
       end
     end
 
-    describe '#print_bindata_model' do
+    describe '#print_bin_data_model' do
       context 'when the bindata object has fields that are not 1bit' do
         it 'should raise an exception' do
-          binary_value = [7].pack('N')
-          dummy_attributes = DummyAttributes.read(binary_value)
-          expect { subject.print_bindata_model(dummy_attributes, bit_length: 32) }.to raise_error TypeError, 'Unsupported field type BinData::Bit2 - expected BinData::Bit1'
+          model = Rex::Proto::Kerberos::Pac::UserSessionKey.new
+          expect { subject.print_bin_data_model(model) }.to raise_error TypeError, 'Unsupported field type RubySMB::Dcerpc::Ndr::NdrFixArray for field :session_key - expected one of BinData::Bit1'
         end
       end
 
-      context 'when a bit length less than the number of flags is passed' do # better description
+      context 'when a bit length less than the number of flags is passed' do
         it 'should raise an exception' do
-          binary_value = [7].pack('N')
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_ALL].pack('N')
           group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
-          expect { subject.print_bindata_model(group_attributes, bit_length: 2) }.to raise_error ArgumentError, 'Bit length(2) should not be less that the number of flags(32) within the BinData model'
+          expect { subject.print_bin_data_model(group_attributes, bit_length: 2) }.to raise_error ArgumentError, 'Not implemented. Bit length(2) should equal the bit length of the model 32'
         end
       end
 
       context 'when passed GroupAttributes' do
-        it 'should return formatted flag descriptions for GROUP_MEMBERSHIP flags with RESOURCE set' do
-          binary_value = [536870912].pack('N')
+        it 'should format flags when the SE_GROUP_RESOURCE flags are set' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_RESOURCE].pack('N')
           group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
-          expect(subject.print_bindata_model(group_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(group_attributes)).to match_table <<~TABLE
             ..1. .... .... .... .... .... .... .... Resource: The RESOURCE bit is SET
             .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
             .... .... .... .... .... .... .... .0.. Enabled: The ENABLED bit is NOT SET
@@ -403,10 +391,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           TABLE
         end
 
-        it 'should return formatted flag descriptions for GROUP_MEMBERSHIP flags with ENABLED, ENABLED_BY_DEFAULT and MANDATORY set' do
-          binary_value = [7].pack('N')
+        it 'should format flags when the SE_GROUP_MANDATORY | SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_ENABLED flags are set' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_ALL].pack('N')
           group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
-          expect(subject.print_bindata_model(group_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(group_attributes)).to match_table <<~TABLE
             ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
             .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
             .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
@@ -415,10 +403,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           TABLE
         end
 
-        it 'should return formatted flag descriptions for GROUP_MEMBERSHIP flags with OWNER set' do
-          binary_value = [8].pack('N')
+        it 'should format flags when the SE_GROUP_OWNER flag is set' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_OWNER].pack('N')
           group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
-          expect(subject.print_bindata_model(group_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(group_attributes)).to match_table <<~TABLE
             ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
             .... .... .... .... .... .... .... 1... Owner: The OWNER bit is SET
             .... .... .... .... .... .... .... .0.. Enabled: The ENABLED bit is NOT SET
@@ -432,7 +420,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
         it 'should return formatted user descriptions for nothing being set' do
           binary_value = [0].pack('N')
           user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
-          expect(subject.print_bindata_model(user_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
             .... .... .... .... ..0. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is NOT SET
             .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
             .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
@@ -451,7 +439,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
         it 'should return formatted user descriptions for MACHINE_ACCOUNT being set' do
           binary_value = [32].pack('N')
           user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
-          expect(subject.print_bindata_model(user_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
             .... .... .... .... ..0. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is NOT SET
             .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
             .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
@@ -470,7 +458,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
         it 'should return formatted user descriptions for USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY, NO_ENCRYPTION and GUEST being set' do
           binary_value = [8195].pack('N')
           user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
-          expect(subject.print_bindata_model(user_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
             .... .... .... .... ..1. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is SET
             .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
             .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
@@ -489,7 +477,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
         it 'should return formatted user descriptions for every flag being set' do
           binary_value = [16363].pack('N')
           user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
-          expect(subject.print_bindata_model(user_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
             .... .... .... .... ..1. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is SET
             .... .... .... .... ...1 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is SET
             .... .... .... .... .... 1... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is SET
@@ -510,7 +498,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
         it 'should return formatted user account descriptions for nothing being set' do
           binary_value = [0].pack('N')
           useraccount_attributes = Rex::Proto::Kerberos::Pac::UserAccountAttributes.read(binary_value)
-          expect(subject.print_bindata_model(useraccount_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(useraccount_attributes)).to match_table <<~TABLE
             .... .... ..0. .... .... .... .... .... Use Aes Keys: The USE_AES_KEYS bit is NOT SET
             .... .... ...0 .... .... .... .... .... Partial Secrets Account: The PARTIAL_SECRETS_ACCOUNT bit is NOT SET
             .... .... .... 0... .... .... .... .... No Auth Data Required: The NO_AUTH_DATA_REQUIRED bit is NOT SET
@@ -539,7 +527,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
         it 'should return formatted user account descriptions for DONT_EXPIRE_PASSWORD and NORMAL_ACCOUNT being set' do
           binary_value = [528].pack('N')
           useraccount_attributes = Rex::Proto::Kerberos::Pac::UserAccountAttributes.read(binary_value)
-          expect(subject.print_bindata_model(useraccount_attributes, bit_length: 32)).to match_table <<~TABLE
+          expect(subject.print_bin_data_model(useraccount_attributes)).to match_table <<~TABLE
             .... .... ..0. .... .... .... .... .... Use Aes Keys: The USE_AES_KEYS bit is NOT SET
             .... .... ...0 .... .... .... .... .... Partial Secrets Account: The PARTIAL_SECRETS_ACCOUNT bit is NOT SET
             .... .... .... 0... .... .... .... .... No Auth Data Required: The NO_AUTH_DATA_REQUIRED bit is NOT SET
