@@ -98,9 +98,10 @@ module Common
     print_line
   end
 
-  def set_creds_from_database(public, private, realm, sorm)
-    if public.empty? && private.empty?
-      print_status("Invalid")
+  def set_creds_from_database(publics, privates, realms, multi_creds)
+    if publics.nil? || privates.nil?
+      print_status("Unable to fill: Invalid Credentials. Check for creds index and credential options to be filled")
+      return
     end
     mydatastore = active_module.datastore
     user_options = ['USERNAME', 'HttpUsername', 'SMBUser', 'DBUSER', 'FTPUSER', 'SMTPUSERNAME', 'NCSUSER', 'IMAPUSER', 'GitUsername', 'IAX_USER', 'POP2USER']
@@ -108,22 +109,22 @@ module Common
     domain_options = ['DOMAIN', 'SMBDomain', 'DOMAINNAME']
 
     # options to check if present for active module
-    if sorm == 1
+    if multi_creds == 1
       if mydatastore.options.include?('USER_FILE') && mydatastore.options.include?('PASS_FILE')
         user_file = Rex::Quickfile.new("creds-user-file")
         mydatastore['USER_FILE'] = user_file.path
-        user_file.write(public.join("\n")+"\n")
+        user_file.write(publics.join("\n")+"\n")
         user_file.close
         pass_file = Rex::Quickfile.new("creds-pass-file")
         mydatastore['PASS_FILE'] = pass_file.path
-        pass_file.write(public.join("\n")+"\n")
+        pass_file.write(publics.join("\n")+"\n")
         pass_file.close
         if mydatastore.options.include?('USERPASS_FILE')
           i = 0
           userpass_file = Rex::Quickfile.new("creds-userpass-file")
           mydatastore['USERPASS_FILE'] = 'file:'+userpass_file.path
-          while i < public.length do
-            userpass_file.write(public[i]+"\s"+private[i]+"\n")
+          while i < publics.length do
+            userpass_file.write(publics[i]+"\s"+privates[i]+"\n")
             i += 1
           end
           userpass_file.close
@@ -132,21 +133,21 @@ module Common
     else
       user_options.each do |user_option|
         if mydatastore.options.include?(user_option)
-          mydatastore[user_option] = public[0]
+          mydatastore[user_option] = publics[0]
           print_line "#{user_option} => #{mydatastore[user_option]}"
           break
         end
       end
       pass_options.each do |pass_option|
         if mydatastore.options.include?(pass_option)
-          mydatastore[pass_option] = private[0]
+          mydatastore[pass_option] = privates[0]
           print_line "#{pass_option} => #{mydatastore[pass_option]}"
           break
         end
       end
       domain_options.each do |domain_option|
         if mydatastore.options.include?(domain_option)
-          mydatastore[domain_option] = realm[0]
+          mydatastore[domain_option] = realms[0]
           print_line "#{domain_option} => #{mydatastore[domain_option]}"
           break
         end

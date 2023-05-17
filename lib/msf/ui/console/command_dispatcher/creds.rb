@@ -346,7 +346,7 @@ class Creds
       usernames << user
       passwd = core.private ? core.private.data : ''
       passwords << passwd
-      realm_val = core.realm ? core.realm.value : ''
+      realm_val = core.realm ? core.realm.value : '.' # Basic domain is .
       realms << realm_val
     end
     if !args.empty?
@@ -354,38 +354,39 @@ class Creds
       choice = arguments[0][1].split(':') if !arguments[0][1].nil?
       clength = (choice.nil?) ? 0 : choice.length
       indices = arguments[0][0].split('-').map! {|i| i.to_i}
-      sorm = 0
+      multi_creds = 0
     else
-      print_error("Invalid Arguments")
+      print_error("Invalid Arguments. Usage - creds fill <index>")
       return
     end
-    if (indices[0] == 0) || (indices[1] == 0) # check if a valid argument
-      print_error("Invalid parameter, #{arguments[0]}")
-      return
-    else
-      indices.map! {|i| i -= 1}
-    end
-    if (indices.length == 2) && mydatastore.options.include?('USER_FILE')
-      sorm += 1
-      if (indices[1] < indices[0])
-        print_error("Invalid parameter, #{arguments[0]}")
+    if (indices.length == 2) && (indices[0] != indices[1])
+      multi_creds += 1
+      if (indices[0].empty?) || (indices[1] < 0)
+        print_error("Invalid parameter, #{arguments[0]}. Use correct index")
         return
       end
       if clength == 0
         user = usernames[indices[0]..indices[1]]
         pass = passwords[indices[0]..indices[1]]
         realm = realms[indices[0]..indices[1]]
-        set_creds_from_database(user, pass, realm, sorm)
+        if (user.empty? && pass.empty?)
+          print_status("Invalid Credentials, #{args}. Check for the range of credential indices.")
+        end
+        set_creds_from_database(user, pass, realm, multi_creds)
       else
-        print_error("Invalid Arguments,, #{choice}")
+        print_error("Invalid Arguments. Unable to fill the creds to #{choice}. ")
         return
       end
     elsif indices.length == 1
+      if  (indices[0].empty?)
+        print_error("Invalid parameter, #{arguments[0]}. Use correct index")
+        return
+      end
       if clength == 0
         user = usernames[indices[0]..indices[0]]
         pass = passwords[indices[0]..indices[0]]
         realm = realms[indices[0]..indices[0]]
-        set_creds_from_database(user, pass, realm, sorm)
+        set_creds_from_database(user, pass, realm, multi_creds)
       else
         if mydatastore.options.include?(choice[0]) && mydatastore.options.include?(choice[1])
           mydatastore[choice[0]] = usernames[indices[0]]
@@ -393,7 +394,7 @@ class Creds
           print_line "#{choice[0]} => #{mydatastore[choice[0]]}"
           print_line "#{choice[1]} => #{mydatastore[choice[1]]}"
         else
-          print_error("Invalid arguments, #{choice}")
+          print_error("Invalid arguments. #{choice} are not present as options.")
           return
         end
       end
@@ -410,11 +411,11 @@ class Creds
     svcs          = []
     rhosts        = []
     opts          = {}
-    count = 0
+    count = -1
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'id', 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
     delete_count = 0
     search_term = nil
 
@@ -571,7 +572,6 @@ class Creds
         end
 
         tbl << [
-          count,
           host,
           origin,
           service_info,
