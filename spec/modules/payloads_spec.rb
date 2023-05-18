@@ -508,6 +508,30 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'bsdi/x86/shell_reverse_tcp'
   end
 
+  context 'cmd/linux/http/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/x64'
+                          ],
+                          reference_name: 'cmd/linux/http/x64'
+  end
+
+  context 'cmd/linux/https/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/x64'
+                          ],
+                          reference_name: 'cmd/linux/https/x64'
+  end
+
+  context 'cmd/linux/tftp/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/x64'
+                          ],
+                          reference_name: 'cmd/linux/tftp/x64'
+  end
+
   context 'cmd/mainframe/generic_jcl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1136,6 +1160,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/generic'
   end
 
+  context 'cmd/windows/http/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/http/x64'
+                          ],
+                          reference_name: 'cmd/windows/http/x64'
+  end
+
+  context 'cmd/windows/https/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/https/x64'
+                          ],
+                          reference_name: 'cmd/windows/https/x64'
+  end
+
   context 'cmd/windows/powershell' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -1238,6 +1278,14 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/jjs_reverse_tcp'
+  end
+
+  context 'cmd/windows/tftp/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/tftp/x64'
+                          ],
+                          reference_name: 'cmd/windows/tftp/x64'
   end
 
   context 'firefox/exec' do
