@@ -39,7 +39,7 @@ module MetasploitModule
 
     register_advanced_options(
       [
-        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'NONE', ['SUID', 'SUDO', 'NONE']]),
+        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'SUDO', ['SUID', 'SUDO', 'NONE']]),
       ]
     )
   end
