@@ -14,13 +14,13 @@ module MetasploitModule
       merge_info(
         info,
         'Name' => 'Add user with useradd',
-        'Description' => %w[
+        'Description' => %q{
           Creates a new user. By default the new user is set with sudo
           but other options exist to make the new user automatically
           root but this is not automatically set since the new user will
           be treated as root (and login may be difficult). The new user
           can also be set as just a standard user if desired.
-        ],
+        },
         'Author' => 'Nick Cottrell <Rad10Logic>',
         'License' => MSF_LICENSE,
         'Platform' => 'unix',
