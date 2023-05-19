@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Sticky Keys Persistance Module',
+        'Name' => 'Sticky Keys Persistence Module',
         'Description' => %q{
           This module makes it possible to apply the 'sticky keys' hack to a session with appropriate
           rights. The hack provides a means to get a SYSTEM shell using UI-level interaction at an RDP

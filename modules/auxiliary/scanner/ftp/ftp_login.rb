@@ -30,7 +30,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' => {
+        'ConnectTimeout' => 30
+      }
     )
 
     register_options(
@@ -42,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false])
+        OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false]),
       ]
     )
 
@@ -69,7 +72,8 @@ class MetasploitModule < Msf::Auxiliary
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
-        connection_timeout: 30,
+        connection_timeout: datastore['ConnectTimeout'],
+        ftp_timeout: datastore['FTPTimeout'],
         framework: framework,
         framework_module: self,
         ssl: datastore['SSL'],

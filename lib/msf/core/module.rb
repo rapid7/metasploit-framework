@@ -184,7 +184,7 @@ module Msf
       end
     end
 
-    # @param[Constant] One or more Ruby constants
+    # @param rb_modules [Constant] One or more Ruby constants
     # @return [void]
     def register_extensions(*rb_modules)
       datastore[REPLICANT_EXTENSION_DS_KEY] = [] unless datastore[REPLICANT_EXTENSION_DS_KEY].present?

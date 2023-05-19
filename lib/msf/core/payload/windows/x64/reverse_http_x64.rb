@@ -122,7 +122,7 @@ module Payload::Windows::ReverseHttp_x64
   # Generate the URI for the initial stager
   #
   def generate_small_uri
-    generate_uri_uuid_mode(:init_native, 5)
+    generate_uri_uuid_mode(:init_native, 30)
   end
 
   #

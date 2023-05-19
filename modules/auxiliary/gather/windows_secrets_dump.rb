@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes'
 require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary

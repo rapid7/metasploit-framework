@@ -97,12 +97,12 @@ class Core
     ["-d", "--delete-all"]     => [ false, "Delete saved options for all modules from the config file."                     ])
 
   # set command options
-  @@set_opts = Rex::Parser::Arguments.new(
+  @@setg_opts = Rex::Parser::Arguments.new(
     ["-h", "--help"] => [ false, "Help banner."],
     ["-c", "--clear"] => [ false, "Clear the values, explicitly setting to nil (default)"]
   )
 
-  @@set_opts = Rex::Parser::Arguments.new(
+  @@set_opts = @@setg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
 
@@ -111,7 +111,6 @@ class Core
     ["-h", "--help"] => [ false, "Help banner."],
   )
 
-  # unset command options
   @@unset_opts = @@unsetg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
@@ -712,8 +711,8 @@ class Core
   #
   # Tab completion for the features command
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # @param _str [String] The string currently being typed before tab was hit
+  # @param words [Array<String>] The previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   def cmd_features_tabs(_str, words)
     if words.length == 1
@@ -1936,8 +1935,7 @@ class Core
       message = "Unknown datastore option: #{name}."
       suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
       message << " Did you mean #{suggestion}?" if suggestion
-      print_error(message)
-      return false
+      print_warning(message)
     end
 
     # If the driver indicates that the value is not valid, bust out.

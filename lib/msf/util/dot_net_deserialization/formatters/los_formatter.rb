@@ -21,6 +21,10 @@ module LosFormatter
   end
 
   def self.generate(stream)
+    unless stream.is_a?(Types::SerializedStream)
+      raise ::NotImplementedError, 'Stream is not supported by this formatter'
+    end
+
     stream = stream.to_binary_s
     formatted  = ObjectStateFormatter.new(token: TOKEN_BINARY_SERIALIZED).to_binary_s
     formatted << DotNetDeserialization.encode_7bit_int(stream.length)

@@ -56,6 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('SessionKey', [ false, 'The session key, if not set - one will be generated' ]),
+        OptBool.new('IncludeTicketChecksum', [ false, 'Adds the Ticket Checksum to the PAC', false])
       ]
     )
 
@@ -95,7 +96,8 @@ class MetasploitModule < Msf::Auxiliary
       user_id: datastore['USER_RID'],
       domain_sid: datastore['DOMAIN_SID'],
       extra_sids: extra_sids,
-      session_key: datastore['SessionKey'].blank? ? nil : datastore['SessionKey'].strip
+      session_key: datastore['SessionKey'].blank? ? nil : datastore['SessionKey'].strip,
+      ticket_checksum: datastore['IncludeTicketChecksum']
     )
 
     Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self)

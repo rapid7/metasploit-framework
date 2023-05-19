@@ -4,7 +4,6 @@
 ##
 
 require 'unix_crypt'
-require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Linux::Priv

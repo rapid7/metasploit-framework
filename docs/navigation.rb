@@ -1,7 +1,7 @@
 # This file maps the files within `metasploit-framework.wiki/` to the navigational menu
 # Modify this file to change the doc site's navigation/hierarchy
 
-# @param path [String] the prefix to remove from a string
+# @param prefix [String] The prefix to remove from a string
 # @return [proc<String, String>] When called with a string, the returned string has the prefix removed
 def without_prefix(prefix)
   proc { |value| value.sub(/^#{prefix}/, '') }
@@ -527,6 +527,10 @@ NAVIGATION_CONFIG = [
                 path: 'How-to-use-command-stagers.md'
               },
               {
+                path: 'How-to-use-fetch-payloads.md',
+                title: 'How to use Fetch Payloads'
+              },
+              {
                 old_wiki_path: 'How-to-write-a-check()-method.md',
                 path: 'How-to-write-a-check-method.md'
               },
@@ -604,10 +608,6 @@ NAVIGATION_CONFIG = [
               {
                 path: 'How-to-use-the-Seh-mixin-to-exploit-an-exception-handler.md',
                 title: 'SEH Exploitation'
-              },
-              {
-                path: 'How-to-clean-up-files-using-FileDropper.md',
-                title: 'FileDropper'
               },
               {
                 path: 'How-to-use-PhpEXE-to-exploit-an-arbitrary-file-upload-bug.md',
@@ -694,6 +694,10 @@ NAVIGATION_CONFIG = [
               {
                 path: 'Using-ReflectiveDLL-Injection.md',
                 title: 'ReflectiveDLL Injection'
+              },
+              {
+                path: 'How-to-cleanup-after-module-execution.md',
+                title: 'Cleanup'
               },
             ]
           },

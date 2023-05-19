@@ -152,7 +152,7 @@ Copyright: 2017 Yukihiro Matsumoto
 License: Ruby
 
 Files: lib/msf/core/modules/external/python/async_timeout/*
-Copyright: 2016-2017 Andrew Svetlov
+Copyright: 2016-2023 Andrew Svetlov
 License: Apache 2.0
 
 Files: lib/msf/core/web_services/public/*
@@ -227,7 +227,7 @@ Purpose: This module contains the source code for FUSE, which this module
 Files: modules/exploits/linux/local/ntfs3g_priv_esc.rb
 Copyright: 2017
 License: GPLv2
-Purpose: The Ruby file contains the text of several modules from exploit-db 
+Purpose: The Ruby file contains the text of several modules from exploit-db
          which it compiles and uploads to the target to elevate privileges.
 
 Files: modules/exploits/unix/fileformat/metasploit_libnotify_cmd_injection.rb
@@ -239,7 +239,7 @@ Purpose: This module targets a vulnerability in Metasploit Framework versions
 Files: modules/exploits/windows/smb/ms04_007_killbill.rb
 Copyright: 2004, Solar Eclipse
 License: GPL
-Purpose: The module exploits the Windows ASN.1 vulnerability in Windows 2000 
+Purpose: The module exploits the Windows ASN.1 vulnerability in Windows 2000
          SP2-SP4 and Windows XP SP0-SP1. It contains code ported from a GPLv2
          module.
 
@@ -255,7 +255,7 @@ Purpose: This module allows us to create an x64 Windows messagebox payload.
 Files: modules/post/linux/dos/xen_420_dos.rb
 Copyright: 2016
 License: GPL
-Purpose: This module crashes the Xen 4.2.0 hypervisor when run in a 
+Purpose: This module crashes the Xen 4.2.0 hypervisor when run in a
          paravirtualized VM. It contains a short code section licensed through
          GPL.
 

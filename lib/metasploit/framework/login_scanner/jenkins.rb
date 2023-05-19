@@ -37,10 +37,7 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
-            configure_http_client(cli)
-            cli.connect
-            req = cli.request_cgi({
+            res = send_request({
               'method'=> method,
               'uri'=> uri,
               'vars_post'=> {
@@ -48,7 +45,7 @@ module Metasploit
                 'j_password'=> credential.private
                 }
             })
-            res = cli.send_recv(req)
+
             if res && res.headers['location'] && !res.headers['location'].include?('loginError')
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.headers)
             else

@@ -245,6 +245,7 @@ module Metasploit
           begin
             cli.connect
             req = cli.request_cgi(opts)
+
             # Authenticate by default
             res = if opts['authenticate'].nil? || opts['authenticate']
                     cli.send_recv(req)
@@ -332,6 +333,7 @@ module Metasploit
             kerberos_authenticator = kerberos_authenticator_factory.call(username, password, realm)
           end
 
+          http_logger_subscriber = framework_module.nil? ? nil : Rex::Proto::Http::HttpLoggerSubscriber.new(logger: framework_module)
           res = nil
           cli = Rex::Proto::Http::Client.new(
             rhost,
@@ -342,7 +344,8 @@ module Metasploit
             cli_proxies,
             username,
             password,
-            kerberos_authenticator: kerberos_authenticator
+            kerberos_authenticator: kerberos_authenticator,
+            subscriber: http_logger_subscriber
           )
           configure_http_client(cli)
 
@@ -457,3 +460,4 @@ module Metasploit
     end
   end
 end
+

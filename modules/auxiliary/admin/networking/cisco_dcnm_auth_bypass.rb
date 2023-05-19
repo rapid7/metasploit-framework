@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'POST',
       'headers' => h,
       'vars_post' => d,
-      'uri' => normalize_uri(target_uri.path + 'fm/fmrest/dbadmin/addUser')
+      'uri' => normalize_uri(target_uri.path, 'fm/fmrest/dbadmin/addUser')
     })
 
     if r && r.body != 'Access denied'

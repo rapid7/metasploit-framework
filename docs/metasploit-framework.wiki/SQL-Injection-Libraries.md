@@ -1,4 +1,4 @@
-SQL Injection library support was added in 2020 by @red0xff during the Google Summer of Code.
+SQL Injection library support was added in 2020 by [@red0xff](https://github.com/red0xff)  during the Google Summer of Code.
 
 ## Supported Databases
 
