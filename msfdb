@@ -78,7 +78,7 @@ require 'msfenv'
     retry_max: 10,
     retry_delay: 5.0,
     ws_user: nil,
-    add_data_service: true,
+    add_data_service: false,
     data_service_name: nil,
     use_defaults: false,
     delete_existing_data: true
@@ -921,6 +921,7 @@ def parse_args(args)
       if !n
         @options[:add_data_service] = false
       else
+        @options[:add_data_service] = true
         @options[:data_service_name] = n
       end
     }
@@ -987,8 +988,7 @@ def prompt_for_component(command)
     return :database
   end
 
-  enable_webservice = ask_yn("Would you like to #{command} the webservice? (Not Required)", default: 'no')
-  if enable_webservice
+  if @options[:add_data_service] == true
     :all
   else
     :database
