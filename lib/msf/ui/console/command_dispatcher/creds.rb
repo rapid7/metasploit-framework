@@ -495,7 +495,7 @@ class Creds
           rhosts << host unless host.blank?
           service_info = build_service_info(service)
         end
-
+        cracked_password_val = cracked_password_core&.private&.data.to_s
         tbl << [
           host,
           origin,
@@ -505,7 +505,7 @@ class Creds
           realm_val,
           human_val, #private type
           jtr_val,
-          cracked_password_core&.private&.data
+          cracked_password_val
         ]
       end
     end
