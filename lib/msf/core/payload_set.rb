@@ -70,131 +70,52 @@ class PayloadSet < ModuleSet
     new_keys = []
 
     # Recalculate single payloads
-    _singles.each_pair { |name, op|
-      mod, handler = op
+    _singles.each_pair do |single_name, single_info|
+      single_payload = calculate_single_payload(single_name: single_name, single_info: single_info)
+      next unless single_payload
 
-      # if the payload has a dependency, check
-      # if it is supported on the system
-      payload_dependencies = op[4].dependencies
-      unless payload_dependencies.empty?
-        supported = payload_dependencies.all?(&:available?)
-        elog("Dependency for #{name} is not supported") unless supported
-        next unless supported
+      new_keys.push single_name
+
+      _adapters.each_pair do |adapter_name, adapter_info|
+        adapted_single = calculate_adapted_single_payload(adapter_name: adapter_name,
+                                                          adapter_info: adapter_info,
+                                                          single_info: single_info,
+                                                          single_payload: single_payload)
+        next unless adapted_single
+
+        new_keys.push adapted_single.refname
       end
-
-      # Build the payload dupe using the determined handler
-      # and module
-      p = build_payload(handler, mod)
-
-      # Add it to the set
-      add_single(p, name, op[5])
-      new_keys.push name
-
-      _adapters.each_pair { |adapter_name, ep|
-        adapter_mod, _, adapter_platform, adapter_arch, adapter_inst = ep
-        next unless adapter_inst.compatible?(p.new)
-
-        ap = build_payload(handler, mod, adapter_mod)
-
-        combined  = build_adapted_name(adapter_name, p.refname)
-        add_single(ap, combined, ep[5])
-        new_keys.push combined
-      }
-    }
+    end
 
     # Recalculate staged payloads
-    _stagers.each_pair { |stager_name, op|
-      stager_mod, handler, stager_platform, stager_arch, stager_inst = op
+    _stagers.each_pair do |stager_name, stager_info|
+      _stager_mod, _handler, _stager_platform, _stager_arch, stager_inst, _stager_modinfo = stager_info
 
-      # Pass if the stager has a dependency
-      # and doesn't have the dependency installed
-      stager_dependencies = stager_inst.dependencies
-      unless stager_dependencies.empty?
-        supported = stager_dependencies.all?(&:available?)
-        elog("Dependency for #{stager_name} is not supported") unless supported
-        next unless supported
-      end
+      next unless stager_dependencies_available?(stager_name: stager_name, stager_dependencies: stager_inst.dependencies)
 
       # Walk the array of stages
-      _stages.each_pair { |stage_name, ip|
-        stage_mod, _, stage_platform, stage_arch, stage_inst = ip
+      _stages.each_pair do |stage_name, stage_info|
 
-        #
-        # if the stager or stage has a dependency, check
-        # if they are compatible
-        #
-        unless stager_dependencies.empty? && stage_inst.dependencies.empty?
-          next unless stager_dependencies == stage_inst.dependencies
+        staged_payload = calculate_staged_payload(stage_name: stage_name,
+                                                  stager_name: stager_name,
+                                                  stage_info: stage_info,
+                                                  stager_info: stager_info)
+        next unless staged_payload
+
+        new_keys.push staged_payload.refname
+
+        _adapters.each_pair do |adapter_name, adapter_info|
+          adapted_staged_payload = calculate_adapted_staged_payload(staged_payload: staged_payload,
+                                                                    adapter_name: adapter_name,
+                                                                    stage_info: stage_info,
+                                                                    stager_info: stager_info,
+                                                                    adapter_info: adapter_info)
+          next unless adapted_staged_payload
+
+          new_keys.push adapted_staged_payload.refname
         end
-
-        # No intersection between platforms on the payloads?
-        if ((stager_platform) and
-            (stage_platform) and
-            (stager_platform & stage_platform).empty?)
-          dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}", 'core', LEV_2)
-          next
-        end
-
-        # No intersection between architectures on the payloads?
-        if ((stager_arch) and
-            (stage_arch) and
-            ((stager_arch & stage_arch).empty?))
-          dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}", 'core', LEV_2)
-          next
-        end
-
-        # If the stage has a convention, make sure it's compatible with
-        # the stager's
-        if ((stage_inst) and (stage_inst.compatible?(stager_inst) == false))
-          dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.", 'core', LEV_2)
-          next
-        end
-
-        # Build the payload dupe using the handler, stager,
-        # and stage
-        p = build_payload(handler, stager_mod, stage_mod)
-
-        # If the stager has an alias for the handler type (such as is the
-        # case for ordinal based stagers), use it in preference of the
-        # handler's actual type.
-        if (stager_mod.respond_to?('handler_type_alias') == true)
-          handler_type = stager_mod.handler_type_alias
-        else
-          handler_type = handler.handler_type
-        end
-
-        # Associate the name as a combination of the stager and stage
-        combined  = stage_name
-
-        # If a valid handler exists for this stager, then combine it
-        combined += '/' + handler_type
-
-        # Sets the modules derived name
-        p.refname = combined
-
-        # Add the stage
-        add_stage(p, combined, stage_name, handler_type, {
-          'files' => op[5]['files'] + ip[5]['files'],
-          'paths' => op[5]['paths'] + ip[5]['paths'],
-          'type'  => op[5]['type']})
-        new_keys.push combined
-
-        _adapters.each_pair { |adapter_name, ep|
-          adapter_mod, _, adapter_platform, adapter_arch, adapter_inst = ep
-          next unless adapter_inst.compatible?(p.new)
-
-          ap = build_payload(handler, stager_mod, stage_mod, adapter_mod)
-
-          combined  = build_adapted_name(adapter_name, p.refname)
-          ap.refname = combined
-          ap.framework = framework
-          ap.file_path = ep[5]['files'][0]
-
-          self[combined] = ap
-          new_keys.push combined
-        }
-      }
-    }
+      end
+    end
 
     # Blow away anything that was cached but didn't exist during the
     # recalculation
@@ -204,6 +125,170 @@ class PayloadSet < ModuleSet
     end
 
     flush_blob_cache
+  end
+
+  def calculate_single_payload(single_name:, single_info:)
+    mod, handler, _single_platform, _single_arch, single_inst, single_modinfo = single_info
+
+    # if the payload has a dependency, check
+    # if it is supported on the system
+    payload_dependencies = single_inst.dependencies
+    unless payload_dependencies.empty?
+      supported = payload_dependencies.all?(&:available?)
+      elog("Dependency for #{single_name} is not supported") unless supported
+      return nil unless supported
+    end
+
+    # Build the payload dupe using the determined handler
+    # and module
+    payload = build_payload(handler, mod)
+
+    # Add it to the set
+    add_single(payload, single_name, single_modinfo)
+
+    payload
+  end
+
+  def calculate_adapted_single_payload(adapter_name:, adapter_info:, single_info:, single_payload:)
+    adapter_mod, _, _adapter_platform, _adapter_arch, adapter_inst, adapted_modinfo = adapter_info
+    single_mod, handler, _single_platform, _single_arch, _single_inst, _single_modinfo = single_info
+
+    return nil unless adapter_inst.compatible?(single_payload.new)
+
+    payload = build_payload(handler, single_mod, adapter_mod)
+
+    adapted_name = build_adapted_name(adapter_name, single_payload.refname)
+    add_single(payload, adapted_name, adapted_modinfo)
+
+    payload
+  end
+
+  def stager_dependencies_available?(stager_name:, stager_dependencies:)
+    # Pass if the stager has a dependency
+    # and doesn't have the dependency installed
+    supported = true # Default to true for stagers with no dependencies
+    unless stager_dependencies.empty?
+      supported = stager_dependencies.all?(&:available?)
+      elog("Dependency for #{stager_name} is not supported") unless supported
+    end
+    supported
+  end
+
+  def stage_and_stager_compatible?(stager_info:, stage_info:, stager_name:, stage_name:)
+    _stager_mod, _handler, stager_platform, stager_arch, stager_inst = stager_info
+    _stage_mod, _, stage_platform, stage_arch, stage_inst = stage_info
+
+    stager_dependencies = stager_inst.dependencies
+    stage_dependencies = stage_inst.dependencies
+
+    unless stager_dependencies.empty? && stage_dependencies.empty?
+      return false unless stager_dependencies == stage_dependencies
+    end
+
+    # No intersection between platforms on the payloads?
+    if ((stager_platform) and
+      (stage_platform) and
+      (stager_platform & stage_platform).empty?)
+      dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}", 'core', LEV_2)
+      return false
+    end
+
+    # No intersection between architectures on the payloads?
+    if ((stager_arch) and
+      (stage_arch) and
+      ((stager_arch & stage_arch).empty?))
+      dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}", 'core', LEV_2)
+      return false
+    end
+
+    # If the stage has a convention, make sure it's compatible with
+    # the stager's
+    if ((stage_inst) and (stage_inst.compatible?(stager_inst) == false))
+      dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.", 'core', LEV_2)
+      return false
+    end
+
+    # No intersection between platforms on the payloads?
+    if ((stager_platform) and
+      (stage_platform) and
+      (stager_platform & stage_platform).empty?)
+      dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}", 'core', LEV_2)
+      return false
+    end
+
+    # No intersection between architectures on the payloads?
+    if ((stager_arch) and
+      (stage_arch) and
+      ((stager_arch & stage_arch).empty?))
+      dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}", 'core', LEV_2)
+      return false
+    end
+
+    # If the stage has a convention, make sure it's compatible with
+    # the stager's
+    if ((stage_inst) and (stage_inst.compatible?(stager_inst) == false))
+      dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.", 'core', LEV_2)
+      return false
+    end
+    true
+  end
+
+  def calculate_staged_payload(stage_name:, stager_name:, stage_info:, stager_info:)
+    # if the stager or stage has a dependency, check
+    # if they are compatible
+    return nil unless stage_and_stager_compatible?(stager_info: stager_info,
+                                                   stage_info: stage_info,
+                                                   stager_name: stager_name,
+                                                   stage_name: stage_name)
+
+    stager_mod, handler, _stager_platform, _stager_arch, _stager_inst, stager_modinfo = stager_info
+    stage_mod, _, _stage_platform, _stage_arch, _stage_inst, stage_modinfo = stage_info
+    # Build the payload dupe using the handler, stager,
+    # and stage
+    payload = build_payload(handler, stager_mod, stage_mod)
+
+    # If the stager has an alias for the handler type (such as is the
+    # case for ordinal based stagers), use it in preference of the
+    # handler's actual type.
+    if (stager_mod.respond_to?('handler_type_alias') == true)
+      handler_type = stager_mod.handler_type_alias
+    else
+      handler_type = handler.handler_type
+    end
+
+    # Associate the name as a combination of the stager and stage
+    staged_refname = stage_name
+
+    # If a valid handler exists for this stager, then combine it
+    staged_refname += '/' + handler_type
+
+    # Sets the modules derived name
+    payload.refname = staged_refname
+
+    # Add the stage
+    add_stage(payload, staged_refname, stage_name, handler_type, {
+      'files' => stager_modinfo['files'] + stage_modinfo['files'],
+      'paths' => stager_modinfo['paths'] + stage_modinfo['paths'],
+      'type' => stager_modinfo['type'] })
+
+    payload
+  end
+
+  def calculate_adapted_staged_payload(staged_payload:, adapter_name:, stage_info:, stager_info:, adapter_info:)
+    stage_mod, _, _stage_platform, _stage_arch, _stage_inst = stage_info
+    stager_mod, handler, _stager_platform, _stager_arch, _stager_inst, _stager_modinfo = stager_info
+    adapter_mod, _, _adapter_platform, _adapter_arch, adapter_inst, adapter_modinfo = adapter_info
+
+    return nil unless adapter_inst.compatible?(staged_payload.new)
+
+    payload = build_payload(handler, stager_mod, stage_mod, adapter_mod)
+
+    adapted_refname = build_adapted_name(adapter_name, staged_payload.refname)
+    payload.refname = adapted_refname
+    payload.framework = framework
+    payload.file_path = adapter_modinfo['files'][0]
+    self[payload.refname] = payload
+    payload
   end
 
   # This method is called when a new payload module class is loaded up.  For
@@ -474,4 +559,3 @@ protected
 end
 
 end
-
