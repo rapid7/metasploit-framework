@@ -11,7 +11,7 @@ This module attempts to spider files from an archer c7 router using a known trav
 
 ## Scenarios
 
-### Archer C7
+### Archer C7_V1_141204_US
 
 ```
 msf6 > use auxiliary/scanner/http/archer_c7_traversal
