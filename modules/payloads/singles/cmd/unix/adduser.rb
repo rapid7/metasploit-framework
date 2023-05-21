@@ -59,7 +59,7 @@ module MetasploitModule
   end
 
   def user
-    fail_with('User cannot have any of these characters') unless datastore['USER'] =~ /^[a-z][-a-z0-9]*$/
+    fail_with(Failure::BadConfig, 'User must fit within this regex /[a-z][-a-z0-9]*/') unless datastore['USER'] =~ /^[a-z][-a-z0-9]*$/
     datastore['USER']
   end
 
