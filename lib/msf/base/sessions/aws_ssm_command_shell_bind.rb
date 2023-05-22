@@ -23,6 +23,10 @@ module Msf::Sessions
     #
     include Msf::Session::Provider::SingleCommandShell
 
+    def abort_foreground_supported
+      false
+    end
+
     def shell_command_token_unix(cmd, timeout=10)
       res = super
 
@@ -43,7 +47,7 @@ module Msf::Sessions
           @session_type = 'shell'
         when 'Windows'
           @platform = 'windows'
-          @session_type = 'powershell'
+          @session_type = 'powershell:winpty'
           extend(Msf::Sessions::PowerShell::Mixin)
         end
 
@@ -59,7 +63,7 @@ module Msf::Sessions
       if @platform == 'linux'
         # The session from SSM-SessionManagerRunShell starts with a TTY which breaks the post API so change the settings
         # and make it behave in a way consistent with other shell sessions
-        shell_command('stty -echo cbreak;pipe=$(mktemp -u);mkfifo -m 600 $pipe;cat $pipe & sh 1>$pipe 2>$pipe')
+        shell_command('stty -echo cbreak;pipe=$(mktemp -u);mkfifo -m 600 $pipe;cat $pipe & sh 1>$pipe 2>$pipe; rm $pipe; exit')
       end
 
       super

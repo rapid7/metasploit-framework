@@ -38,7 +38,6 @@ module Rex::Proto::Http::WebSocket
       # @!attribute [r] params
       #   @return [Rex::Socket::Parameters]
       attr_reader :params
-      # Boolean flag to control frame masking on output
 
       # @param [WebSocket::Interface] websocket the WebSocket that this channel is being opened on
       # @param [nil, Symbol] read_type the data type(s) to read from the WebSocket, one of :binary, :text or nil (for both

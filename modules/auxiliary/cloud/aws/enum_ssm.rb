@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('LIMIT', [false, 'Only return the specified number of results from each region']),
         OptString.new('FILTER_EC2_ID', [false, 'Look for specific EC2 instance ID']),
-        OptString.new('REGION', [true, 'AWS Region (eg. "us-west-2")']),
+        OptString.new('REGION', [true, 'AWS Region (e.g. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])
       ]
@@ -90,8 +90,9 @@ class MetasploitModule < Msf::Auxiliary
       }
     end
 
+    inv_params[:max_results] = datastore['LIMIT'] if datastore['LIMIT']
+
     ssm_ec2 = client.get_inventory(inv_params).entities.map { |e| e.data['AWS:InstanceInformation'].content }.flatten
-    ssm_ec2 = ssm_ec2[0...datastore['LIMIT']] if datastore['LIMIT']
     ssm_ec2.each do |ssm_host|
       report_host(
         host: ssm_host['IpAddress'],

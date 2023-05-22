@@ -120,7 +120,7 @@ module BindAwsSsm
   end
   #
   # Returns the handler specific string representation, in this case
-  # 'bind_tcp'.
+  # 'bind_aws_ssm'.
   #
   def self.handler_type
     return 'bind_aws_ssm'

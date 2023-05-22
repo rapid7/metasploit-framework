@@ -100,14 +100,6 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
         @websocket.put_wsbinary(msg.to_binary_s)
       end
 
-      def strip_shell_clr(tty_out)
-        tty_out.gsub(/\x1B\[(;?[0-9]{1,3})+[mGK]/,'')
-      end
-
-      def strip_shell_fmt(tty_out)
-        strip_shell_clr(tty_out).gsub(/^\e.+;.*\a/,'')
-      end
-
       def handle_output_data(output_frame)
         return nil if @ack_message == output_frame.uuid
 
@@ -118,16 +110,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
           return nil
         end
 
-        payload_data = output_frame.payload_data.value
-
-
-        if @filter_echo.is_a?(String) and payload_data.strip == @filter_echo.strip
-          dlog("SsmChannel: filtering output #{@filter_echo}")
-          @filter_echo = true
-          return nil
-        end
-
-        @filter_text ? strip_shell_fmt(payload_data) : payload_data
+        output_frame.payload_data.value
       end
 
       def handle_acknowledge(ack_frame)
@@ -163,15 +146,12 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
     class SsmChannel < Rex::Proto::Http::WebSocket::Interface::Channel
       include SsmChannelMethods
       attr_reader :run_ssm_pub, :out_seq_num, :ack_seq_num, :ack_message
-      attr_accessor :filter_echo
 
-      def initialize(websocket, filter_echo = false, filter_text = true)
+      def initialize(websocket)
         @ack_seq_num = 0
         @out_seq_num = 0
         @run_ssm_pub = true
         @ack_message = nil
-        @filter_echo = filter_echo
-        @filter_text = filter_text
         @publication = false
 
         super(websocket, write_type: :binary)
@@ -215,7 +195,6 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
 
       def on_data_write(data)
         start_publication if not @publication
-        @filter_echo = data if @filter_echo and data.is_a?(String)
         frame = SsmFrame.create(data)
         frame.header.sequence_number = @out_seq_num
         @out_seq_num += 1
@@ -227,8 +206,8 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
       end
     end
 
-    def to_ssm_channel(filter_echo: true, publish_timeout: 10)
-      chan = SsmChannel.new(self, filter_echo)
+    def to_ssm_channel(publish_timeout: 10)
+      chan = SsmChannel.new(self)
 
       if publish_timeout
         # Waiting for the channel to start publishing

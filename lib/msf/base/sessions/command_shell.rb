@@ -406,7 +406,7 @@ Shell Banner:
     print_line("Usage: download [src] [dst]")
     print_line
     print_line("Downloads remote files to the local machine.")
-    print_line("This command does not support to download a FOLDER yet")
+    print_line("Only files are supported.")
     print_line
   end
 
@@ -432,6 +432,9 @@ Shell Banner:
     # Write file to local machine
     File.binwrite(dst, content)
     print_good("Done")
+
+  rescue NotImplementedError => e
+    print_error(e.message)
   end
 
   def cmd_upload_help
@@ -469,6 +472,9 @@ Shell Banner:
       elog(e)
       return
     end
+
+  rescue NotImplementedError => e
+    print_error(e.message)
   end
 
   def cmd_source_help
@@ -793,6 +799,8 @@ protected
   end
 
   def _file_transfer
+    raise NotImplementedError.new('Session does not support file transfers.') if @session_type.ends_with?(':winpty')
+
     FileTransfer.new(self)
   end
 end
