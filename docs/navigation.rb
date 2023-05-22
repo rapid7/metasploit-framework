@@ -197,20 +197,26 @@ NAVIGATION_CONFIG = [
               {
                 path: 'ad-certificates/overview.md',
                 title: 'Overview',
-                nav_order: 0,
+                nav_order: 0
+              },
+              {
+                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
+                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit',
+                nav_order: 1
+              },
+              {
+                path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
+                title: 'Vulnerable cert finder',
+                nav_order: 2
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/ldap/ad_cs_cert_template.md',
+                title: 'Manage certificate templates'
               },
               {
                 path: '../../documentation/modules/auxiliary/admin/dcerpc/icpr_cert.md',
                 title: 'Request certificates'
-              },
-              {
-                path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
-                title: 'Vulnerable cert finder'
-              },
-              {
-                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
-                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
-              },
+              }
             ]
           }
         ]
