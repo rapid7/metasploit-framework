@@ -6,10 +6,20 @@ module Rex
       module Pac
         VERSION = 0
         NETLOGON_FLAG = 0x20000
-        SE_GROUP_MANDATORY = 1
-        SE_GROUP_ENABLED_BY_DEFAULT = 2
-        SE_GROUP_ENABLED = 4
+
+        # Kerberos:
+        # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/311aab27-ebdf-47f7-b939-13dc99b15341
+        # Reference with details on flags:
+        # https://learn.microsoft.com/en-gb/windows/win32/api/winnt/ns-winnt-token_groups?redirectedfrom=MSDN#members
+        SE_GROUP_MANDATORY = 0x00000001
+        SE_GROUP_ENABLED_BY_DEFAULT = 0x00000002
+        SE_GROUP_ENABLED = 0x00000004
+        SE_GROUP_OWNER = 0x00000008
+        SE_GROUP_RESOURCE = 0x20000000
+
+        # XXX: Does not include some of the newer SE_GROUP_* flags
         SE_GROUP_ALL = SE_GROUP_MANDATORY | SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_ENABLED
+
         USER_NORMAL_ACCOUNT = 0x00000010
         USER_DONT_EXPIRE_PASSWORD = 0x00000200
         PAC_LOGON_INFO = 1

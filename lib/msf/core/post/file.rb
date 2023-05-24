@@ -305,7 +305,7 @@ module Msf::Post::File
       end
       return !!stat
     elsif session.type == 'powershell'
-      return cmd_exec("[System.IO.File]::Exists( \"#{path}\")")&.include?('True')
+      return cmd_exec("Test-Path \"#{path}\"")&.include?('True')
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")

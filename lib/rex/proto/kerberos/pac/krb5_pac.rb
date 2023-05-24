@@ -39,6 +39,227 @@ module Rex::Proto::Kerberos::Pac
     ndr_uint32 :attributes
   end
 
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/311aab27-ebdf-47f7-b939-13dc99b15341
+  #
+  # [SIDATT] https://learn.microsoft.com/en-gb/windows/win32/api/winnt/ns-winnt-token_groups?redirectedfrom=MSDN
+  class GroupAttributes < BinData::Record
+    endian :big
+
+    2.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] resource
+    #   @return [BinData::Bit1] This setting means that the group is a domain-local or resource group. Corresponds to SE_GROUP_RESOURCE. For more information, see [SIDATT].
+    bit1 :resource
+
+    25.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] owner
+    #   @return [BinData::Bit1] This setting means that the group can be assigned as an owner of a resource. Corresponds to SE_GROUP_OWNER. For more information, see [SIDATT].
+    bit1 :owner
+
+    # @!attribute [rw] enabled
+    #   @return [BinData::Bit1] This setting means that the group is enabled for use. Corresponds to SE_GROUP_ENABLED. For more information, see [SIDATT].
+    bit1 :enabled
+
+    # @!attribute [rw] enabled_by_default
+    #   @return [BinData::Bit1] This setting means that the group is marked as enabled by default. Corresponds to SE_GROUP_ENABLED_BY_DEFAULT. For more information, see [SIDATT].
+    bit1 :enabled_by_default
+
+    # @!attribute [rw] mandatory
+    #   @return [BinData::Bit1] This setting means that the group is mandatory for the user and cannot be disabled. Corresponds to SE_GROUP_MANDATORY. For more information, see [SIDATT].
+    bit1 :mandatory
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/69e86ccc-85e3-41b9-b514-7d969cd0ed73
+  class UserFlagAttributes < BinData::Record
+    endian :big
+
+    18.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] used_lmv2_auth_and_ntlmv2_session_key
+    #   @return [BinData::Bit1] The LMv2 response from the LmChallengeResponseFields ([MS-NLMP] section 2.2.1.3) was used for authentication and the NTLMv2 response from the NtChallengeResponseFields ([MS-NLMP] section 2.2.1.3) was used session key generation.
+    bit1 :used_lmv2_auth_and_ntlmv2_session_key
+
+    # @!attribute [rw] used_lmv2_auth_and_session_key
+    #   @return [BinData::Bit1] The LMv2 response from the LmChallengeResponseFields ([MS-NLMP] section 2.2.1.3) was used for authentication and session key generation.
+    bit1 :used_lmv2_auth_and_session_key
+
+    # @!attribute [rw] used_ntlmv2_auth_and_session_key
+    #   @return [BinData::Bit1] The NTLMv2 response from the NtChallengeResponseFields ([MS-NLMP] section 2.2.1.3) was used for authentication and session key generation.
+    bit1 :used_ntlmv2_auth_and_session_key
+
+    # @!attribute [rw] profile_path_populated
+    #   @return [BinData::Bit1] Indicates that ProfilePath is populated.
+    bit1 :profile_path_populated
+
+    # @!attribute [rw] resource_group_ids
+    #   @return [BinData::Bit1] Indicates that the ResourceGroupIds field is populated.
+    bit1 :resource_group_ids
+
+    # @!attribute [rw] accepts_ntlmv2
+    #   @return [BinData::Bit1] Indicates that the domain controller understands NTLMv2.
+    bit1 :accepts_ntlmv2
+
+    # @!attribute [rw] machine_account
+    #   @return [BinData::Bit1] Indicates that the account is a machine account.
+    bit1 :machine_account
+
+    # @!attribute [rw] sub_authentication
+    #   @return [BinData::Bit1] Sub-authentication used; session key came from the sub-authentication package.
+    bit1 :sub_authentication
+
+    # @!attribute [rw] extra_sids
+    #   @return [BinData::Bit1] Indicates that the ExtraSids field is populated and contains additional SIDs.
+    bit1 :extra_sids
+
+    1.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] lan_manager
+    #   @return [BinData::Bit1] LAN Manager key was used for authentication.
+    bit1 :lan_manager
+
+    1.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] no_encryption
+    #   @return [BinData::Bit1] No encryption is available.
+    bit1 :no_encryption
+
+    # @!attribute [rw] guest
+    #   @return [BinData::Bit1] Authentication was done via the GUEST account; no password was used
+    bit1 :guest
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/b10cfda1-f24f-441b-8f43-80cb93e786ec
+  #
+  # [RFC4120] https://www.rfc-editor.org/rfc/rfc4120
+  # [RFC3961] https://www.ietf.org/rfc/rfc3961.txt
+  # [MS-KILE] https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/2a32282e-dd48-4ad9-a542-609804b02cc9
+  # [MS-LSAD] https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lsad/1b5471ef-4c33-4a91-b079-dfcbb82f05cc
+  class UserAccountAttributes < BinData::Record
+    endian :big
+
+    10.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] use_aes_keys
+    #   @return [BinData::Bit1] This bit is ignored by clients and servers.
+    bit1 :use_aes_keys
+
+    # @!attribute [rw] partial_secrets_account
+    #   @return [BinData::Bit1] Specifies that the object is a read-only domain controller (RODC).
+    bit1 :partial_secrets_account
+
+    # @!attribute [rw] no_auth_data_required
+    #   @return [BinData::Bit1] This bit is used by the Kerberos protocol. It indicates that when the key distribution center (KDC) is issuing a service ticket for this account, the privilege attribute certificate (PAC) is not to be included. For more information, see [RFC4120].
+    bit1 :no_auth_data_required
+
+    # @!attribute [rw] trusted_to_authenticate_for_delegation
+    #   @return [BinData::Bit1] This bit is used by the Kerberos protocol, as specified in [MS-KILE] section 3.3.1.1.
+    bit1 :trusted_to_authenticate_for_delegation
+
+    # @!attribute [rw] password_expired
+    #   @return [BinData::Bit1] Specifies that the password age on the user has exceeded the maximum password age policy.
+    bit1 :password_expired
+
+    # @!attribute [rw] dont_require_preauth
+    #   @return [BinData::Bit1] This bit is used by the Kerberos protocol. It indicates that the account is not required to present valid preauthentication data, as described in [RFC4120] section 7.5.2.
+    bit1 :dont_require_preauth
+
+    # @!attribute [rw] use_des_key_only
+    #   @return [BinData::Bit1] This bit is used by the Kerberos protocol. It indicates that only des-cbc-md5 or des-cbc-crc keys (as defined in [RFC3961]) are used in the Kerberos protocol for this account.
+    bit1 :use_des_key_only
+
+    # @!attribute [rw] not_delegated
+    #   @return [BinData::Bit1] This bit is used by the Kerberos protocol. It indicates that the ticket-granting tickets (TGTs) of this account and the service tickets obtained by this account are not marked as forwardable or proxiable when the forwardable or proxiable ticket flags are requestedFor more information, see [RFC4120].
+    bit1 :not_delegated
+
+    # @!attribute [rw] trusted_for_delegation
+    #   @return [BinData::Bit1] This bit is used by the Kerberos protocol. It indicates that the "OK as Delegate" ticket flag (described in[RFC4120] section 2.8) is to be set.
+    bit1 :trusted_for_delegation
+
+    # @!attribute [rw] smartcard_required
+    #   @return [BinData::Bit1] Specifies that the user can authenticate only with a smart card.
+    bit1 :smartcard_required
+
+    # @!attribute [rw] encrypted_test_password_allowed
+    #   @return [BinData::Bit1] Specifies that the cleartext password is to be persisted.
+    bit1 :encrypted_test_password_allowed
+
+    # @!attribute [rw] account_auto_lock
+    #   @return [BinData::Bit1] Specifies that the account has been locked out.
+    bit1 :account_auto_lock
+
+    # @!attribute [rw] dont_expire_password
+    #   @return [BinData::Bit1] Specifies that the maximum-password-age policy does not apply to this user.
+    bit1 :dont_expire_password
+
+    # @!attribute [rw] server_trust_account
+    #   @return [BinData::Bit1] Specifies that the object is a DC.
+    bit1 :server_trust_account
+
+    # @!attribute [rw] workstation_trust_account
+    #   @return [BinData::Bit1] Specifies that the object is a member workstation or server.
+    bit1 :workstation_trust_account
+
+    # @!attribute [rw] interdomain_trust_account
+    #   @return [BinData::Bit1] Specifies that the object represents a trust object. For more information about trust objects, see [MS-LSAD].
+    bit1 :interdomain_trust_account
+
+    # @!attribute [rw] mns_logon_account
+    #   @return [BinData::Bit1] This bit is ignored by clients and servers.
+    bit1 :mns_logon_account
+
+    # @!attribute [rw] normal_account
+    #   @return [BinData::Bit1] Specifies that the user is not a computer object.
+    bit1 :normal_account
+
+    # @!attribute [rw] temp_duplicate_account
+    #   @return [BinData::Bit1] This bit is ignored by clients and servers.
+    bit1 :temp_duplicate_account
+
+    # @!attribute [rw] password_not_required
+    #   @return [BinData::Bit1] Specifies that the password-length policy does not apply to this user.
+    bit1 :password_not_required
+
+    # @!attribute [rw] home_directory_required
+    #   @return [BinData::Bit1] Specifies that the homeDirectory attribute is required.
+    bit1 :home_directory_required
+
+    # @!attribute [rw] account_disabled
+    #   @return [BinData::Bit1] Specifies that the account is not enabled for authentication.
+    bit1 :account_disabled
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1c0d6e11-6443-4846-b744-f9f810a504eb
+  #
+  # [MS-ADA3] https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada3/4517e835-3ee6-44d4-bb95-a94b6966bfb0
+  class UpnDnsInfoAttributes < BinData::Record
+    endian :big
+
+    30.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] sam_name_and_sid
+    #   @return [BinData::Bit1] The UPN_DNS_INFO structure has been extended with the user account’s SAM Name and SID.
+    bit1 :sam_name_and_sid
+
+    # @!attribute [rw] upn_name_constructed
+    #   @return [BinData::Bit1] The user account object does not have the userPrincipalName attribute ([MS-ADA3] section 2.349) set. A UPN constructed by concatenating the user name with the DNS domain name of the account domain is provided.
+    bit1 :upn_name_constructed
+  end
+
   class Krb5SidAndAttributesPtr < RubySMB::Dcerpc::Ndr::NdrConfArray
     default_parameters byte_align: 1, type: :krb5_sid_and_attributes
 
