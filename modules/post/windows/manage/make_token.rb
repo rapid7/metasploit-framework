@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Post
 
   def run
     # Make sure we meet the requirements before running the script
-    fail_with(Failure::NoTarget, 'This exploit requires a meterpreter session') unless session.type == 'meterpreter'
+    fail_with(Failure::NoTarget, 'This module requires a meterpreter session') unless session.type == 'meterpreter'
 
     # check/set vars
     user = datastore['USER']
