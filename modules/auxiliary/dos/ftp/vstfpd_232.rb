@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
         'Description'	=> %q{
           This module triggers a Denial of Service condition in the VSFTPD server in versions before 2.3.3. So far, it has been tested on 2.3.2, but is reported to work on 2.3.0 as well.
         },
-        'Author' => [ 'Nick Cottrell <ncottrellweb[at]gmail.com>', 'Anna Graterol <annagraterol95[at]gmail.com>', 'Mana Mostaani <mana.mostaani[at]gmail.com>' ],
+        'Author' => [
+          'Nick Cottrell (Rad10Logic) <ncottrellweb[at]gmail.com>', # Module Creator
+          'Anna Graterol <annagraterol95[at]gmail.com>', # Vuln researcher
+          'Mana Mostaani <mana.mostaani[at]gmail.com>',
+          'Maksymilian Arciemowicz' # Original EDB PoC
+        ],
         'License' => MSF_LICENSE,
         'References' => [
           [ 'BID', '46617' ],
