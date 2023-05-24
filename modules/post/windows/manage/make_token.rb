@@ -50,15 +50,14 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptString.new('LOGONTYPE', [true, 'The type of logon operation to perform. Using LOGON32_LOGON_INTERACTIVE may cause issues within the session (typically due to the token filtering done by the UserAccountControl mechanism in Windows). Use with caution', 'LOGON32_LOGON_NEW_CREDENTIALS'])
+      	OptEnum.new('LOGONTYPE', [true, 'The type of logon operation to perform. Using LOGON32_LOGON_INTERACTIVE may cause issues within the session (typically due to the token filtering done by the UserAccountControl mechanism in Windows). Use with caution', 'LOGON32_LOGON_NEW_CREDENTIALS', ['LOGON32_LOGON_BATCH', 'LOGON32_LOGON_INTERACTIVE', 'LOGON32_LOGON_NETWORK', 'LOGON32_LOGON_NETWORK_CLEARTEXT', 'LOGON32_LOGON_NEW_CREDENTIALS', 'LOGON32_LOGON_SERVICE', 'LOGON32_LOGON_UNLOCK']]),
       ]
     )
   end
 
   def run
-    # Make sure we meet the requirements before running the script, note no need to return
-    # unless error
-    return unless session.type == 'meterpreter'
+    # Make sure we meet the requirements before running the script
+    fail_with(Failure::NoTarget, 'This exploit requires a meterpreter session') unless session.type == 'meterpreter'
 
     # check/set vars
     user = datastore['USER']
