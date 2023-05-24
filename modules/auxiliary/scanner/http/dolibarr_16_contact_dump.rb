@@ -8,7 +8,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Module::Failure
-  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -50,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def check
+  def check_host(_ip)
     res = send_request_cgi!({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path)
