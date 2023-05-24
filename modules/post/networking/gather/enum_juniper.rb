@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Juniper
   include Msf::Exploit::Deprecated
@@ -63,7 +62,7 @@ class MetasploitModule < Msf::Post
     elsif /^Product Name: (?<ver>.+)/i =~ system_out
       vprint_status("Original OS Guess #{os_type}, is now JunOS #{ver}")
       os_type = 'junos'
-    elsif /^version (?<ver>[\.\dR]+);/i =~ system_out
+    elsif /^version (?<ver>[.\dR]+);/i =~ system_out
       vprint_status("Original OS Guess #{os_type}, is now JunOS #{ver}")
       os_type = 'junos'
     end

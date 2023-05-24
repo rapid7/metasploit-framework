@@ -225,7 +225,6 @@ RSpec.describe Rex::Proto::Http::Client do
     expect(cli).to respond_to :password
     expect(cli).to respond_to :junk_pipeline
   end
-
   # Not super sure why these are protected...
   # Me either...
   # Same here...
@@ -243,7 +242,6 @@ RSpec.describe Rex::Proto::Http::Client do
       cli.config['method'] = 'POST'
       cli
     end
-
     let(:file_path) do
       ::File.join(::Msf::Config.install_root, 'spec', 'file_fixtures', 'string_list.txt')
     end
@@ -253,7 +251,6 @@ RSpec.describe Rex::Proto::Http::Client do
     let(:mock_boundary_suffix) do
       'MockBoundary1234'
     end
-
     before(:each) do
       allow(Rex::Text).to receive(:rand_text_numeric).with(30).and_return(mock_boundary_suffix)
     end
@@ -269,17 +266,13 @@ RSpec.describe Rex::Proto::Http::Client do
         Content-Length: 0\r
         \r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse field name and file object as data' do
       vars_form_data = [
         { 'name' => 'field1', 'data' => file, 'content_type' => 'text/plain' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       # We are gsub'ing here as HttpClient does this gsub to non-binary file data
       file_contents = file.read.gsub("\r", '').gsub("\n", "\r\n")
       expected = <<~EOF
@@ -296,17 +289,13 @@ RSpec.describe Rex::Proto::Http::Client do
         #{file_contents}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse field name and binary file object as data' do
       vars_form_data = [
         { 'name' => 'field1', 'data' => file, 'encoding' => 'binary' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -321,17 +310,13 @@ RSpec.describe Rex::Proto::Http::Client do
         #{file.read}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse field name and binary file object as data with filename override' do
       vars_form_data = [
         { 'name' => 'field1', 'data' => file, 'encoding' => 'binary', 'content_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -347,18 +332,14 @@ RSpec.describe Rex::Proto::Http::Client do
         #{file.read}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse data correctly when provided with a string' do
       data = 'hello world'
       vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'filename' => 'file1' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -372,18 +353,14 @@ RSpec.describe Rex::Proto::Http::Client do
         #{data}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse data correctly when provided with a string and content type' do
       data = 'hello world'
       vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'filename' => 'file1', 'content_type' => 'text/plain' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -398,18 +375,14 @@ RSpec.describe Rex::Proto::Http::Client do
         #{data}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse data correctly when provided with a string, content type and filename' do
       data = 'hello world'
       vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'content_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -424,18 +397,14 @@ RSpec.describe Rex::Proto::Http::Client do
         #{data}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse data correctly when provided with a number' do
       data = 123
       vars_form_data = [
         { 'name' => 'file1', 'data' => data, 'content_type' => 'text/plain' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -450,20 +419,15 @@ RSpec.describe Rex::Proto::Http::Client do
         #{data}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should parse dat correctly when provided with an IO object' do
       require 'stringio'
-
       str = 'Hello World!'
       vars_form_data = [
         { 'name' => 'file1', 'data' => ::StringIO.new(str), 'content_type' => 'text/plain', 'filename' => 'my_file.txt' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -478,17 +442,13 @@ RSpec.describe Rex::Proto::Http::Client do
         #{str}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle nil data values correctly' do
       vars_form_data = [
         { 'name' => 'nil_value', 'data' => nil }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       # This could potentially return one less '\r'.
       expected = <<~EOF
         POST / HTTP/1.1\r
@@ -503,18 +463,14 @@ RSpec.describe Rex::Proto::Http::Client do
         \r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle nil field values correctly' do
       vars_form_data = [
         { 'name' => nil, 'data' => '123' },
         { 'data' => '456' },
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -532,17 +488,13 @@ RSpec.describe Rex::Proto::Http::Client do
         456\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle nil field values and data correctly' do
       vars_form_data = [
         { 'name' => nil, 'data' => nil }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -556,10 +508,8 @@ RSpec.describe Rex::Proto::Http::Client do
         \r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should raise an error on non-string field names' do
       invalid_names = [
         false,
@@ -568,7 +518,6 @@ RSpec.describe Rex::Proto::Http::Client do
         ['hello'],
         { k: 'val' }
       ]
-
       invalid_names.each do |name|
         vars_form_data = [
           { 'name' => name, 'data' => '123' }
@@ -584,9 +533,7 @@ RSpec.describe Rex::Proto::Http::Client do
       vars_form_data = [
         { 'name' => 'field1', 'data' => binary_data, 'encoding' => 'binary' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -601,10 +548,8 @@ RSpec.describe Rex::Proto::Http::Client do
         #{binary_data}\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle duplicate file and field names correctly' do
       vars_form_data = [
         { 'name' => 'file', 'data' => 'file1_content', 'filename' => 'duplicate.txt' },
@@ -613,9 +558,7 @@ RSpec.describe Rex::Proto::Http::Client do
         # Note, this won't actually attempt to read a file - the content will be set to 'file.txt'
         { 'name' => 'file', 'data' => 'file.txt', 'filename' => 'duplicate.txt' }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -641,17 +584,13 @@ RSpec.describe Rex::Proto::Http::Client do
         file.txt\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'does not encode special characters in file name by default as it may be used as part of an exploit' do
       vars_form_data = [
         { 'name' => 'file', 'data' => 'abc', 'content_type' => 'text/plain', 'encoding' => '8bit', 'filename' => "'t \"e 'st.txt'" }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -667,17 +606,13 @@ RSpec.describe Rex::Proto::Http::Client do
         abc\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle nil filename values correctly' do
       vars_form_data = [
         { 'name' => 'example_name', 'data' => 'example_data', 'filename' => nil }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -693,14 +628,11 @@ RSpec.describe Rex::Proto::Http::Client do
       EOF
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle nil encoding values correctly' do
       vars_form_data = [
         { 'name' => 'example_name', 'data' => 'example_data', 'encoding' => nil }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -714,17 +646,13 @@ RSpec.describe Rex::Proto::Http::Client do
         example_data\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
     end
-
     it 'should handle nil content type values correctly' do
       vars_form_data = [
         { 'name' => 'example_name', 'data' => 'example_data', 'content_type' => nil }
       ]
-
       request = cli.request_cgi({ 'vars_form_data' => vars_form_data })
-
       expected = <<~EOF
         POST / HTTP/1.1\r
         Host: #{ip}\r
@@ -738,8 +666,38 @@ RSpec.describe Rex::Proto::Http::Client do
         example_data\r
         -----------------------------MockBoundary1234--\r
       EOF
-
       expect(request.to_s).to eq(expected)
+    end
+
+    it 'should not hang when parsing a HEAD response' do
+      response = <<~EOF
+HTTP/1.1 200 OK
+Date: Thu, 15 Dec 2022 02:52:42 GMT
+Server: Apache
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+Pragma: no-cache
+Vary: Accept-Encoding
+Access-Control-Allow-Origin: *
+Connection: close
+Content-Type: text/html; charset=UTF-8
+Content-Length: 1000
+
+
+      EOF
+
+      conn = double
+      allow(conn).to receive(:put)
+      allow(conn).to receive(:peerinfo)
+      allow(conn).to receive(:closed?).and_return(false)
+
+      expect(conn).to receive(:get_once).at_least(:once).and_return(response, nil)
+      allow(Rex::Socket::Tcp).to receive(:create).and_return(conn)
+
+      request = cli.request_cgi('method' => 'HEAD')
+      resp = cli.send_recv(request,5)
+
+      expect(resp.headers['Content-Length']).to eq('1000')
     end
   end
 end

@@ -295,6 +295,14 @@ RSpec.describe Rex::Proto::Kerberos::Model::KrbError do
     "\x03\x02\x01\x17"
   end
 
+  # Response from a kerberos server on Ubuntu
+  let(:contains_etext) do
+    ['7e8180307ea003020105a10302011ea411180f323032323036323131303234343' +
+     '15aa505020304e968a603020106a7061b0444433034a8143012a003020101a10b' +
+     '30091b07756e69636f6465a9061b0444433034aa193017a003020101a110300e1' +
+     'b066b72627467741b0444433034ab121b10434c49454e545f4e4f545f464f554e44'].pack('H*')
+  end
+
   describe "#decode" do
     context "when generic error" do
       it "returns the Rex::Proto::Kerberos::Model::KrbError decoded" do
@@ -372,5 +380,13 @@ RSpec.describe Rex::Proto::Kerberos::Model::KrbError do
         expect(krb_error.e_data.length).to eq(46)
       end
     end
+
+    context "when ubuntu kerberos server" do
+      it "decodes the e-text" do
+        krb_error.decode(contains_etext)
+        expect(krb_error.etext).to eq("CLIENT_NOT_FOUND")
+      end
+    end
+
   end
 end

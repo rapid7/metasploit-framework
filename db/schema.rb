@@ -10,15 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_07_120211) do
-
+ActiveRecord::Schema[7.0].define(version: 2022_12_09_005658) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "api_keys", id: :serial, force: :cascade do |t|
     t.text "token"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "async_callbacks", id: :serial, force: :cascade do |t|
@@ -27,16 +26,16 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "listener_uri"
     t.string "target_host"
     t.string "target_port"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "automatic_exploitation_match_results", id: :serial, force: :cascade do |t|
     t.integer "match_id"
     t.integer "run_id"
     t.string "state", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["match_id"], name: "index_automatic_exploitation_match_results_on_match_id"
     t.index ["run_id"], name: "index_automatic_exploitation_match_results_on_run_id"
   end
@@ -44,8 +43,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   create_table "automatic_exploitation_match_sets", id: :serial, force: :cascade do |t|
     t.integer "workspace_id"
     t.integer "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_automatic_exploitation_match_sets_on_user_id"
     t.index ["workspace_id"], name: "index_automatic_exploitation_match_sets_on_workspace_id"
   end
@@ -54,8 +53,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "module_detail_id"
     t.string "state"
     t.integer "nexpose_data_vulnerability_definition_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "match_set_id"
     t.string "matchable_type"
     t.integer "matchable_id"
@@ -68,8 +67,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "workspace_id"
     t.integer "user_id"
     t.integer "match_set_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["match_set_id"], name: "index_automatic_exploitation_runs_on_match_set_id"
     t.index ["user_id"], name: "index_automatic_exploitation_runs_on_user_id"
     t.index ["workspace_id"], name: "index_automatic_exploitation_runs_on_workspace_id"
@@ -77,11 +76,11 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "clients", id: :serial, force: :cascade do |t|
     t.integer "host_id"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "ua_string", limit: 1024, null: false
     t.string "ua_name", limit: 64
     t.string "ua_ver", limit: 32
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "credential_cores_tasks", id: false, force: :cascade do |t|
@@ -96,8 +95,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "creds", id: :serial, force: :cascade do |t|
     t.integer "service_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "user", limit: 2048
     t.string "pass", limit: 4096
     t.boolean "active", default: true
@@ -110,9 +109,9 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   create_table "events", id: :serial, force: :cascade do |t|
     t.integer "workspace_id"
     t.integer "host_id"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "name"
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
     t.boolean "critical"
     t.boolean "seen"
     t.string "username"
@@ -123,7 +122,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "host_id"
     t.integer "service_id"
     t.integer "vuln_id"
-    t.datetime "attempted_at"
+    t.datetime "attempted_at", precision: nil
     t.boolean "exploited"
     t.string "fail_reason"
     t.string "username"
@@ -141,8 +140,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "session_uuid", limit: 8
     t.string "name", limit: 2048
     t.string "payload", limit: 2048
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "host_details", id: :serial, force: :cascade do |t|
@@ -157,7 +156,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "hosts", id: :serial, force: :cascade do |t|
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.inet "address", null: false
     t.string "mac"
     t.string "comm"
@@ -169,7 +168,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "os_lang"
     t.string "arch"
     t.integer "workspace_id", null: false
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
     t.text "purpose"
     t.string "info", limit: 65536
     t.text "comments"
@@ -197,8 +196,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "listeners", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "workspace_id", default: 1, null: false
     t.integer "task_id"
     t.boolean "enabled", default: true
@@ -217,8 +216,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "ltype", limit: 512
     t.string "path", limit: 1024
     t.text "data"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "content_type"
     t.text "name"
     t.text "info"
@@ -227,8 +226,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "macros", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "owner"
     t.text "name"
     t.text "description"
@@ -243,8 +242,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "public_id"
     t.integer "realm_id"
     t.integer "workspace_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "logins_count", default: 0
     t.index ["origin_type", "origin_id"], name: "index_metasploit_credential_cores_on_origin_type_and_origin_id"
     t.index ["private_id"], name: "index_metasploit_credential_cores_on_private_id"
@@ -264,65 +263,66 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "service_id", null: false
     t.string "access_level"
     t.string "status", null: false
-    t.datetime "last_attempted_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "last_attempted_at", precision: nil
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["core_id", "service_id"], name: "index_metasploit_credential_logins_on_core_id_and_service_id", unique: true
     t.index ["service_id", "core_id"], name: "index_metasploit_credential_logins_on_service_id_and_core_id", unique: true
   end
 
   create_table "metasploit_credential_origin_cracked_passwords", id: :serial, force: :cascade do |t|
     t.integer "metasploit_credential_core_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["metasploit_credential_core_id"], name: "originating_credential_cores"
   end
 
   create_table "metasploit_credential_origin_imports", id: :serial, force: :cascade do |t|
     t.text "filename", null: false
     t.integer "task_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["task_id"], name: "index_metasploit_credential_origin_imports_on_task_id"
   end
 
   create_table "metasploit_credential_origin_manuals", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_metasploit_credential_origin_manuals_on_user_id"
   end
 
   create_table "metasploit_credential_origin_services", id: :serial, force: :cascade do |t|
     t.integer "service_id", null: false
     t.text "module_full_name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["service_id", "module_full_name"], name: "unique_metasploit_credential_origin_services", unique: true
   end
 
   create_table "metasploit_credential_origin_sessions", id: :serial, force: :cascade do |t|
     t.text "post_reference_name", null: false
     t.integer "session_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["session_id", "post_reference_name"], name: "unique_metasploit_credential_origin_sessions", unique: true
   end
 
   create_table "metasploit_credential_privates", id: :serial, force: :cascade do |t|
     t.string "type", null: false
     t.text "data", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "jtr_format"
+    t.index "type, decode(md5(data), 'hex'::text)", name: "index_metasploit_credential_privates_on_type_and_data_pkcs12", unique: true, where: "((type)::text = 'Metasploit::Credential::Pkcs12'::text)"
     t.index "type, decode(md5(data), 'hex'::text)", name: "index_metasploit_credential_privates_on_type_and_data_sshkey", unique: true, where: "((type)::text = 'Metasploit::Credential::SSHKey'::text)"
-    t.index ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, where: "(NOT ((type)::text = 'Metasploit::Credential::SSHKey'::text))"
+    t.index ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, where: "(NOT (((type)::text = 'Metasploit::Credential::SSHKey'::text) OR ((type)::text = 'Metasploit::Credential::Pkcs12'::text)))"
   end
 
   create_table "metasploit_credential_publics", id: :serial, force: :cascade do |t|
     t.string "username", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "type", null: false
     t.index ["username"], name: "index_metasploit_credential_publics_on_username", unique: true
   end
@@ -330,8 +330,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   create_table "metasploit_credential_realms", id: :serial, force: :cascade do |t|
     t.string "key", null: false
     t.string "value", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["key", "value"], name: "index_metasploit_credential_realms_on_key_and_value", unique: true
   end
 
@@ -361,7 +361,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "module_details", id: :serial, force: :cascade do |t|
-    t.datetime "mtime"
+    t.datetime "mtime", precision: nil
     t.text "file"
     t.string "mtype"
     t.text "refname"
@@ -371,7 +371,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.text "description"
     t.string "license"
     t.boolean "privileged"
-    t.datetime "disclosure_date"
+    t.datetime "disclosure_date", precision: nil
     t.integer "default_target"
     t.text "default_action"
     t.string "stance"
@@ -402,7 +402,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "module_runs", id: :serial, force: :cascade do |t|
-    t.datetime "attempted_at"
+    t.datetime "attempted_at", precision: nil
     t.text "fail_detail"
     t.string "fail_reason"
     t.text "module_fullname"
@@ -414,8 +414,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "trackable_type"
     t.integer "user_id"
     t.string "username"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["session_id"], name: "index_module_runs_on_session_id"
     t.index ["user_id"], name: "index_module_runs_on_user_id"
   end
@@ -428,8 +428,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "nexpose_consoles", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "enabled", default: true
     t.text "owner"
     t.text "address"
@@ -444,12 +444,12 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
   end
 
   create_table "notes", id: :serial, force: :cascade do |t|
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "ntype", limit: 512
     t.integer "workspace_id", default: 1, null: false
     t.integer "service_id"
     t.integer "host_id"
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
     t.boolean "critical"
     t.boolean "seen"
     t.text "data"
@@ -471,13 +471,13 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "raw_payload_hash"
     t.string "build_status"
     t.string "build_opts"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "profiles", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "active", default: true
     t.text "name"
     t.text "owner"
@@ -486,9 +486,9 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "refs", id: :serial, force: :cascade do |t|
     t.integer "ref_id"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "name", limit: 512
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
     t.index ["name"], name: "index_refs_on_name"
   end
 
@@ -497,8 +497,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "created_by"
     t.string "path", limit: 1024
     t.text "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "reports", id: :serial, force: :cascade do |t|
@@ -507,9 +507,9 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "rtype"
     t.string "path", limit: 1024
     t.text "options"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "downloaded_at"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "downloaded_at", precision: nil
     t.integer "task_id"
     t.string "name", limit: 63
   end
@@ -522,12 +522,12 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "services", id: :serial, force: :cascade do |t|
     t.integer "host_id"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.integer "port", null: false
     t.string "proto", limit: 16, null: false
     t.string "state"
     t.string "name"
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
     t.text "info"
     t.index ["host_id", "port", "proto"], name: "index_services_on_host_id_and_port_and_proto", unique: true
     t.index ["name"], name: "index_services_on_name"
@@ -543,7 +543,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.binary "output"
     t.string "remote_path"
     t.string "local_path"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
   end
 
   create_table "sessions", id: :serial, force: :cascade do |t|
@@ -555,11 +555,11 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "port"
     t.string "platform"
     t.text "datastore"
-    t.datetime "opened_at", null: false
-    t.datetime "closed_at"
+    t.datetime "opened_at", precision: nil, null: false
+    t.datetime "closed_at", precision: nil
     t.string "close_reason"
     t.integer "local_id"
-    t.datetime "last_seen"
+    t.datetime "last_seen", precision: nil
     t.integer "module_run_id"
     t.index ["module_run_id"], name: "index_sessions_on_module_run_id"
   end
@@ -571,51 +571,51 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.boolean "report_summary", default: false, null: false
     t.boolean "report_detail", default: false, null: false
     t.boolean "critical", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "task_creds", id: :serial, force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "cred_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "task_hosts", id: :serial, force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "host_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "task_services", id: :serial, force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "service_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "task_sessions", id: :serial, force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "session_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "tasks", id: :serial, force: :cascade do |t|
     t.integer "workspace_id", default: 1, null: false
     t.string "created_by"
     t.string "module"
-    t.datetime "completed_at"
+    t.datetime "completed_at", precision: nil
     t.string "path", limit: 1024
     t.string "info"
     t.string "description"
     t.integer "progress"
     t.text "options"
     t.text "error"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "result"
     t.string "module_uuid", limit: 8
     t.binary "settings"
@@ -626,8 +626,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "crypted_password"
     t.string "password_salt"
     t.string "persistence_token"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "fullname"
     t.string "email"
     t.string "phone"
@@ -638,7 +638,7 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "vuln_attempts", id: :serial, force: :cascade do |t|
     t.integer "vuln_id"
-    t.datetime "attempted_at"
+    t.datetime "attempted_at", precision: nil
     t.boolean "exploited"
     t.string "fail_reason"
     t.string "username"
@@ -661,26 +661,26 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "nx_vuln_id"
     t.float "nx_severity"
     t.float "nx_pci_severity"
-    t.datetime "nx_published"
-    t.datetime "nx_added"
-    t.datetime "nx_modified"
+    t.datetime "nx_published", precision: nil
+    t.datetime "nx_added", precision: nil
+    t.datetime "nx_modified", precision: nil
     t.text "nx_tags"
     t.text "nx_vuln_status"
     t.text "nx_proof_key"
     t.string "src"
     t.integer "nx_scan_id"
-    t.datetime "nx_vulnerable_since"
+    t.datetime "nx_vulnerable_since", precision: nil
     t.string "nx_pci_compliance_status"
   end
 
   create_table "vulns", id: :serial, force: :cascade do |t|
     t.integer "host_id"
     t.integer "service_id"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "name"
-    t.datetime "updated_at"
+    t.datetime "updated_at", precision: nil
     t.string "info", limit: 65536
-    t.datetime "exploited_at"
+    t.datetime "exploited_at", precision: nil
     t.integer "vuln_detail_count", default: 0
     t.integer "vuln_attempt_count", default: 0
     t.integer "origin_id"
@@ -696,8 +696,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "web_forms", id: :serial, force: :cascade do |t|
     t.integer "web_site_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "path"
     t.string "method", limit: 1024
     t.text "params"
@@ -707,15 +707,15 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "web_pages", id: :serial, force: :cascade do |t|
     t.integer "web_site_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "path"
     t.text "query"
     t.integer "code", null: false
     t.text "cookie"
     t.text "auth"
     t.text "ctype"
-    t.datetime "mtime"
+    t.datetime "mtime", precision: nil
     t.text "location"
     t.text "headers"
     t.binary "body"
@@ -726,8 +726,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "web_sites", id: :serial, force: :cascade do |t|
     t.integer "service_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "vhost", limit: 2048
     t.text "comments"
     t.text "options"
@@ -738,8 +738,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "web_vulns", id: :serial, force: :cascade do |t|
     t.integer "web_site_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "path", null: false
     t.string "method", limit: 1024, null: false
     t.text "params"
@@ -773,8 +773,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.string "respcode", limit: 16
     t.text "resphead"
     t.text "response"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "wmap_targets", id: :serial, force: :cascade do |t|
@@ -783,8 +783,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
     t.integer "port"
     t.integer "ssl"
     t.integer "selected"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "workspace_members", id: false, force: :cascade do |t|
@@ -794,8 +794,8 @@ ActiveRecord::Schema.define(version: 2019_05_07_120211) do
 
   create_table "workspaces", id: :serial, force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "boundary", limit: 4096
     t.string "description", limit: 4096
     t.integer "owner_id"

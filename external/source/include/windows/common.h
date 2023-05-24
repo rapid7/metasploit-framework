@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <windows.h>
 
 #ifdef DEBUGTRACE
@@ -67,6 +68,13 @@ const static EPROCESS_OFFSETS EprocessOffsetsWin10v2009 = { 0x448, 0x4b8, 0x440 
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v21H1 = { 0x448, 0x4b8, 0x440 };
 /* Windows 10 v21H2 (10.0.19044) */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v21H2 = { 0x448, 0x4b8, 0x440 };
+/* Windows 10 v21H2 (10.0.19045) */
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v22H2 = { 0x448, 0x4b8, 0x440 };
+/* Windows 11 v21H2 (10.0.22000) - https://www.vergiliusproject.com/kernels/x64/Windows%2011/21H2%20(RTM)/_EPROCESS */
+const static EPROCESS_OFFSETS EprocessOffsetsWin11v21H2 = { 0x448, 0x4b8, 0x440 };
+/* Windows 2022 (10.0.20348) */
+const static EPROCESS_OFFSETS EprocessOffsetsWinServer2022 = { 0x448, 0x4b8, 0x440 };
+
 #endif
 
 /*

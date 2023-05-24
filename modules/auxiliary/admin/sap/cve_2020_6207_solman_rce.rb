@@ -43,7 +43,12 @@ class MetasploitModule < Msf::Auxiliary
           ['SECSTORE', { 'Description' => 'Get file with SolMan credentials from connected agent' }]
         ],
         'DefaultAction' => 'LIST',
-        'DisclosureDate' => '2020-10-03'
+        'DisclosureDate' => '2020-10-03',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(

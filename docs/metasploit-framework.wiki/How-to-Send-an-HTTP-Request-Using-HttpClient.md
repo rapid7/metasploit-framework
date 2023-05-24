@@ -1,16 +1,16 @@
-The [HttpClient mixin](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient) can be included with an exploit module in order to facilitate easier HTTP communications with a target machine.
+The [HttpClient mixin](https://docs.metasploit.com/api/Msf/Exploit/Remote/HttpClient) can be included with an exploit module in order to facilitate easier HTTP communications with a target machine.
 
 ## There are mainly two common methods you will see:
 
-* **[send\_request\_raw](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
- 
+* **[send\_request\_raw](https://docs.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://docs.metasploit.com/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
+
 Here's a basic example of how to use `send_request_raw`:
 
 ```ruby
 	send_request_raw({'uri'=>'/index.php'})
 ```
 
-* **[send\_request\_cgi](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
+* **[send\_request\_cgi](https://docs.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://docs.metasploit.com/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
 
 
 
@@ -31,7 +31,7 @@ send_request_cgi({
 
 ## Cookies & CookieJars
 
-Part of send\_request\_cgi functionality is the ability to collect, edit, and send cookies via the HttpClient's  `cookie_jar` variable, an instance of the [HttpCookieJar](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/http/http_cookie_jar.rb) class. 
+Part of send\_request\_cgi functionality is the ability to collect, edit, and send cookies via the HttpClient's  `cookie_jar` variable, an instance of the [HttpCookieJar](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/http/http_cookie_jar.rb) class.
 
 A HttpCookieJar is a collection of [HttpCookie](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/http/http_cookie.rb). The Jar can be populated manually with it's `add` method, or automatically via the `keep_cookies` option that can be passed to [send\_request\_cgi](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/lib/msf/core/exploit/remote/http_client.rb#L385).
 
@@ -59,7 +59,7 @@ res = @http_client.send_request_cgi({
   }
 })
 ```
-The cookies returned by the server with a successful login need to be attached to all future requests, so `'keep_cookies' => true,` is used to add all returned cookies to the HttpClient CookieJar and attach them to all subsequent requests. 
+The cookies returned by the server with a successful login need to be attached to all future requests, so `'keep_cookies' => true,` is used to add all returned cookies to the HttpClient CookieJar and attach them to all subsequent requests.
 
 ### `cookie` option
 Shown below is the request used to login to a gitlab account in the [artical\_proxy\_auth\_bypass\_service\_cmds\_peform\_command\_injection module](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/modules/exploits/linux/http/artica_proxy_auth_bypass_service_cmds_peform_command_injection.rb#L115)
@@ -136,7 +136,7 @@ register_options(
 )
 ```
 
-**2** - Load your TARGETURI with [`target_uri`](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
+**2** - Load your TARGETURI with [`target_uri`](https://docs.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
 
 In this example, we'll just load the path:
 
@@ -144,7 +144,7 @@ In this example, we'll just load the path:
 uri = target_uri.path
 ```
 
-**3** - When you want to join another URI, always use [`normalize_uri`](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
+**3** - When you want to join another URI, always use [`normalize_uri`](https://docs.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
 
 Example:
 
@@ -164,8 +164,6 @@ Please note: The `normalize_uri` method will always follow these rules:
 ## Full Example
 
 ```ruby
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient

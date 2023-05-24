@@ -62,15 +62,14 @@ class Payload < Msf::Module
     # If this is an adapted or staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
     # information hash accordingly.
-    if (self.class.include?(Msf::Payload::Adapter) || self.class.include?(Msf::Payload::Single)) and
-      self.class.include?(Msf::Payload::Stager)
-      self.module_info['Stage'] = {}
+    if (self.class.include?(Msf::Payload::Adapter) || self.class.include?(Msf::Payload::Single)) and self.class.include?(Msf::Payload::Stager)
 
       if self.module_info['Payload']
         self.module_info['Stage']['Payload']  = self.module_info['Payload']['Payload'] || ""
         self.module_info['Stage']['Assembly'] = self.module_info['Payload']['Assembly'] || ""
         self.module_info['Stage']['Offsets']  = self.module_info['Payload']['Offsets'] || {}
-      else
+      elsif !self.module_info['Stage']
+        self.module_info['Stage'] = {}
         self.module_info['Stage']['Payload']  = ""
         self.module_info['Stage']['Assembly'] = ""
         self.module_info['Stage']['Offsets']  = {}
@@ -136,6 +135,8 @@ class Payload < Msf::Module
   #
   def payload_type_s
     case payload_type
+      when Type::Adapter
+        return "adapter"
       when Type::Stage
         return "stage"
       when Type::Stager
@@ -461,6 +462,66 @@ class Payload < Msf::Module
     }
 
     return nops
+  end
+
+  # Select a reasonable default payload and minimally configure it
+  # @param [Msf::Module] mod
+  def self.choose_payload(mod)
+    compatible_payloads = mod.compatible_payloads(
+      excluded_platforms: ['Multi'] # We don't want to select a multi payload
+    ).map(&:first)
+
+    # XXX: Determine LHOST based on global LHOST, RHOST or an arbitrary internet address
+    lhost = mod.datastore['LHOST'] || Rex::Socket.source_address(mod.datastore['RHOST'] || '50.50.50.50')
+
+    configure_payload = lambda do |payload|
+      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+        payload_defaults = { 'PAYLOAD' => payload }
+
+        # Set LHOST if this is a reverse payload
+        if payload.index('reverse')
+          payload_defaults['LHOST'] = lhost
+        end
+        mod.datastore.import_defaults_from_hash(payload_defaults, imported_by: 'choose_payload')
+      else
+        mod.datastore['PAYLOAD'] = payload
+        # Set LHOST if this is a reverse payload
+        if payload.index('reverse')
+          mod.datastore['LHOST'] = lhost
+        end
+      end
+
+      payload
+    end
+
+    # If there is only one compatible payload, return it immediately
+    if compatible_payloads.length == 1
+      return configure_payload.call(compatible_payloads.first)
+    end
+
+    # XXX: This approach is subpar, and payloads should really be ranked!
+    preferred_payloads = [
+      # These payloads are generally reliable and common enough in practice
+      '/meterpreter/reverse_tcp',
+      '/shell/reverse_tcp',
+      'cmd/unix/reverse_bash',
+      'cmd/unix/reverse_netcat',
+      'cmd/windows/powershell_reverse_tcp',
+      # Fall back on a generic payload to autoselect a specific payload
+      'generic/shell_reverse_tcp',
+      'generic/shell_bind_tcp'
+    ]
+
+    # XXX: This is not efficient in the slightest
+    preferred_payloads.each do |type|
+      payload = compatible_payloads.find { |name| name.end_with?(type) }
+
+      next unless payload
+
+      return configure_payload.call(payload)
+    end
+
+    nil
   end
 
   #

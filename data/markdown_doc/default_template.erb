@@ -15,7 +15,7 @@
 <% end %>
 
 ## Module Ranking
-<%# https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking %>
+<%# https://docs.metasploit.com/docs/using-metasploit/intermediate/exploit-ranking.html %>
 
 **<%= items[:mod_rank_name] %>**
 
@@ -47,7 +47,7 @@
 <% end %>
 
 ## Module Traits
-<%# https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability %>
+<%# https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html %>
 
 <% unless items[:mod_side_effects].empty? %>
 ### Side Effects
@@ -116,6 +116,13 @@
 ## Related Pull Requests
 
 <%= normalize_pull_requests(items[:mod_pull_requests]) %>
+
+<%- attacker_kb_references = normalize_attackerkb_references(items[:mod_refs]) %>
+<% unless attacker_kb_references.empty? %>
+## AttackerKB references
+
+<%= attacker_kb_references %>
+<% end %>
 
 <% unless items[:mod_refs].empty? %>
 ## References

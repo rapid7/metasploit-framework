@@ -12,7 +12,7 @@ The Meterpreter that we have known and loved for years has always had the abilit
 
 Recent modifications to Meterpreter have changed this. Meterpreter has a new [[configuration system|Meterpreter-Configuration]] that supports multiple transports and it now supports the addition of new transports while the session is still running. With the extra transports configured, Meterpreter allows the user to cycle through those transports without shutting down the session.
 
-Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the [Meterpreter Reliable Network Communication][].
+Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the [[Meterpreter Reliable Network Communication|[[reliable network communication documentation|./Meterpreter-Reliable-Network-Communication.md]].
 
 This document describes how multiple transports are added to an existing Meterpreter session.
 
@@ -74,11 +74,11 @@ Session Expiry  : @ 2015-06-09 19:56:05
     *     tcp://10.1.10.40:6000  300        3600         10
 ```
 
-The first part of the output is the session expiry time. To learn more about expiry time, see [Meterpreter Timeout Control][]. 
+The first part of the output is the session expiry time. To learn more about expiry time, see [Meterpreter Timeout Control][].
 
 The above output shows that we have one transport enabled that is using `TCP`. We can infer that the transport was a `reverse_tcp` (rather than `bind_tcp`) due to the fact that there is a host IP address in the transport URL. If it was a `bind_tcp`, this would be blank.
 
-`Comms T/O` refers to the communications timeout value. `Retry Total` is the total time to attempt reconnects on this transport, and `Retry Wait` indicates how often a retry of the current transport should happen. Each of these is documented in depth in the [Timeout documentation][].
+`Comms T/O` refers to the communications timeout value. `Retry Total` is the total time to attempt reconnects on this transport, and `Retry Wait` indicates how often a retry of the current transport should happen. Each of these is documented in depth in the [[Timeout documentation|./meterpreter-timeout-control.md]].
 
 The verbose version of this command shows more detail about the transport, but only in cases where extra detail is available (such as `reverse_http/s`). The following command shows the output of the `list` sub-command with the verbose flag (`-v`) after an `HTTP` transport has been added:
 
@@ -88,8 +88,8 @@ Session Expiry  : @ 2015-06-09 19:56:05
 
     Curr  URL                                                                                                    Comms T/O  Retry Total  Retry Wait  User Agent               Proxy Host  Proxy User  Proxy Pass  Cert Hash
     ----  ---                                                                                                    ---------  -----------  ----------  ----------               ----------  ----------  ----------  ---------
-    *     tcp://10.1.10.40:6000                                                                                  300        3600         10                                                                       
-          http://10.1.10.40:5105/jpdUntK69qiVKZQrwETonAkuobdXaVJovSXlqkvd7s5WB58Xbc3fNoZ5Cld4kAfVJgbVFsgvSpH_N/  100000     50000        2500        Totes-Legit Browser/1.1                                      
+    *     tcp://10.1.10.40:6000                                                                                  300        3600         10
+          http://10.1.10.40:5105/jpdUntK69qiVKZQrwETonAkuobdXaVJovSXlqkvd7s5WB58Xbc3fNoZ5Cld4kAfVJgbVFsgvSpH_N/  100000     50000        2500        Totes-Legit Browser/1.1
 ```
 
 ### Adding transports
@@ -174,7 +174,7 @@ meterpreter > transport next
 [+] Successfully changed to the next transport, killing current session.
 
 [*] 10.1.10.35 - Meterpreter session 1 closed.  Reason: User exit
-msf exploit(handler) > 
+msf exploit(handler) >
 [*] 10.1.10.40:46130 (UUID: 8e97549ed2baf6a8/x86_64=2/windows=1/2015-06-02T09:56:05Z) Attaching orphaned/stageless session ...
 [*] Meterpreter session 2 opened (10.1.10.40:5105 -> 10.1.10.40:46130) at 2015-06-02 20:53:54 +1000
 
@@ -273,7 +273,7 @@ Session Expiry  : @ 2015-07-10 07:39:08
     ----  ---                    ---------  -----------  ----------
     *     tcp://10.1.10.40:5000  300        3600         10
 
-meterpreter > 
+meterpreter >
 ```
 
 ### Resilient transports
@@ -350,7 +350,7 @@ The session is back up and running as if nothing had gone wrong.
 
 In the case where Meterpreter is configured with only a single transport mechanism, this process still takes place. Meterpreter's transport list implementation is a cyclic linked-list, and once the end of the list has been reached, it simply starts from the beginning again. This means that if there's a list of one transport then Meterpreter will continually attempt to use that one transport until the session expires. This works for both `TCP` and `HTTP/S`.
 
-For important detail on network resiliency, please see the [reliable network communication documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication).
+For important detail on network resiliency, please see the [[reliable network communication documentation|./Meterpreter-Reliable-Network-Communication.md]]
 
 ## Supported Meterpreters
 
@@ -362,6 +362,3 @@ The following Meterpreter implementations currently support the transport comman
  * Android
  * Java
  * Python
-
-  [Timeout documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control
-  [Reliable Network documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication

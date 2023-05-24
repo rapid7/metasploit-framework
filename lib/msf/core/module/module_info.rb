@@ -150,7 +150,15 @@ module Msf::Module::ModuleInfo
   # Merges the module description.
   #
   def merge_info_description(info, val)
-    merge_info_string(info, 'Description', val, ". ", true)
+    key = 'Description'
+    unless info[key]
+      info[key] = val
+      return
+    end
+
+    current_value = Msf::Serializer::ReadableText.word_wrap_description(info[key])
+    new_value = Msf::Serializer::ReadableText.word_wrap_description(val)
+    info[key] = current_value.end_with?('.') ? "#{current_value}\n#{val}" : "#{current_value}.\n\n#{new_value}"
   end
 
   #

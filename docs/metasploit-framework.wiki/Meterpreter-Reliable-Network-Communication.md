@@ -2,9 +2,9 @@ Of the many recent changes to Meterpreter, reliable network communication is one
 
 In the case of HTTP/S transports, some resiliency features were present. Thanks to its stateless nature, HTTP/S transports would continue to attempt to talk to Metasploit after network outages or other unexpected problems as each command request/response is transmitted over a fresh connection. TCP based transports had nothing that would attempt to reconnect should some kind of network issue occur.
 
-Revamped [transport](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control) implementations have provided support for resiliency even for TCP based communcations. Any session that isn't properly terminated by Metasploit will continue to function behind the scenes while Meterpreter attempts to re-establish communications with Metasploit.
+Revamped [[transport|./Meterpreter-Transport-Control.md]] implementations have provided support for resiliency even for TCP based communcations. Any session that isn't properly terminated by Metasploit will continue to function behind the scenes while Meterpreter attempts to re-establish communications with Metasploit.
 
-It is also possible to control the behaviour of this functionality a little via the use of the various timeout values that can be specified when adding transports to the session, and also on the fly for the current transport. For full details, please see the [timeout documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control) for details on those timeout values.
+It is also possible to control the behaviour of this functionality a little via the use of the various timeout values that can be specified when adding transports to the session, and also on the fly for the current transport. For full details, please see the [[timeout documentation|./Meterpreter-Timeout-Control.md]] for details on those timeout values.
 
 Behind the scenes, Meterpreter now maintains a circular linked list of transports in memory while running. When a transport fails, Meterpreter will shut down and clean up the current transport mechanism resources, and will move onto the next one in the list. From there, Meterpreter will use this transport configuration to attempt to reconnect to Metasploit. It will continue to make these attempts until one of the following occurs:
 

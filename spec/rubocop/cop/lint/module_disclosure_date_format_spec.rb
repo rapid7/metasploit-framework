@@ -5,7 +5,8 @@ require 'rubocop/cop/lint/module_disclosure_date_format'
 
 RSpec.describe RuboCop::Cop::Lint::ModuleDisclosureDateFormat do
   subject(:cop) { described_class.new(config) }
-  let(:config) { RuboCop::Config.new }
+  let(:empty_rubocop_config) { { } }
+  let(:config) { RuboCop::Config.new(empty_rubocop_config) }
 
   before(:each) do
     Timecop.freeze(2020, 10, 02, 12)

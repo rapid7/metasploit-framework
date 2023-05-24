@@ -44,8 +44,9 @@ module Metasploit
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             success = false
+          ensure
+            disconnect
           end
-
 
           if success
             result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL

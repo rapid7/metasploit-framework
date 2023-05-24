@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'PassiveActions' => [
           'Another Action'
         ],
-        # https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability
+        # https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html
         'Notes' => {
           'Stability' => [],
           'Reliability' => [],

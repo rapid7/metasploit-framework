@@ -30,6 +30,7 @@ module Auxiliary::Report
       framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -39,6 +40,7 @@ module Auxiliary::Report
       framework.db.create_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -48,6 +50,7 @@ module Auxiliary::Report
       framework.db.create_credential_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -57,6 +60,7 @@ module Auxiliary::Report
       framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -66,6 +70,7 @@ module Auxiliary::Report
       framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
+      nil
     end
   end
 
@@ -196,8 +201,8 @@ module Auxiliary::Report
   def report_auth_info(opts={})
     print_warning("*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!")
     print_warning('*** For detailed information about LoginScanners and the Credentials objects see:')
-    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners')
-    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module')
+    print_warning('     https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/creating-metasploit-framework-loginscanners.html')
+    print_warning('     https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/how-to-write-a-http-loginscanner-module.html')
     print_warning('*** For examples of modules converted to just report credentials without report_auth_info, see:')
     print_warning('     https://github.com/rapid7/metasploit-framework/pull/5376')
     print_warning('     https://github.com/rapid7/metasploit-framework/pull/5377')
@@ -205,7 +210,7 @@ module Auxiliary::Report
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-    if opts[:host].kind_of?(::Mdm::Host)
+    if opts[:host].is_a?(::Mdm::Host)
       host = opts[:host].address
     else
       host = opts[:host]
@@ -230,7 +235,7 @@ module Auxiliary::Report
         proto = "tcp"
     end
 
-    if opts[:service] && opts[:service].kind_of?(Mdm::Service)
+    if opts[:service] && opts[:service].is_a?(Mdm::Service)
       port         = opts[:service].port
       proto        = opts[:service].proto
       service_name = opts[:service].name
@@ -390,7 +395,7 @@ module Auxiliary::Report
   # +filename+ and +info+ are only stored as metadata, and therefore both are
   # ignored if there is no database
   #
-  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil)
+  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil, &block)
     if ! ::File.directory?(Msf::Config.loot_directory)
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
@@ -398,7 +403,7 @@ module Auxiliary::Report
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
-      if parts.length > 1 and parts[-1].length <= 4
+      if parts.length > 1 and parts[-1].length <= 6
         ext = parts[-1]
       end
     end
@@ -441,7 +446,8 @@ module Auxiliary::Report
         conf[:service] = service if service
       end
 
-      framework.db.report_loot(conf)
+      loot = framework.db.report_loot(conf)
+      yield loot if block_given?
     end
 
     return full_path.dup

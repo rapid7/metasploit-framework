@@ -35,7 +35,7 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - 2.7
+          - '2.7'
 
     name: Lint msftidy
     steps:
@@ -51,7 +51,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
         env:
           BUNDLE_WITHOUT: "coverage development pcap"

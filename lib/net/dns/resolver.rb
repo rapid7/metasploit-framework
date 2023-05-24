@@ -165,7 +165,7 @@ module Net # :nodoc:
       #   my $res = Net::DNS::Resolver->new(config_file => '/my/dns.conf');
       #
       # This is supported on both UNIX and Windows.  Values pulled from a custom
-      # configuration file override the the system's defaults, but can still be
+      # configuration file override the system's defaults, but can still be
       # overridden by the other arguments to Resolver::new.
       #
       # Explicit arguments to Resolver::new override both the system's defaults

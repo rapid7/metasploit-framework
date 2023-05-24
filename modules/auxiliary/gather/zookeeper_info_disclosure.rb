@@ -24,9 +24,14 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2020-10-14',
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'VERBOSE' => true }
+        'DefaultOptions' => { 'VERBOSE' => true },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
-      )
+    )
 
     register_options(
       [

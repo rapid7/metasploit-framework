@@ -2,8 +2,8 @@
 # to the string format hashcat is expecting.
 # https://hashcat.net/wiki/doku.php?id=example_hashes
 #
-# @param [credClass] a credential from framework.db
-# @return [String] the hash in jtr format or nil on no mach
+# @param cred [credClass] A credential from framework.db
+# @return [String] The hash in jtr format or nil on no match.
 def hash_to_hashcat(cred)
   case cred.private.type
   when 'Metasploit::Credential::NTLMHash'

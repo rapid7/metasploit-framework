@@ -63,7 +63,7 @@ Module options (auxiliary/scanner/ssl/ssl_version):
 
    Name        Current Setting  Required  Description
    ----        ---------------  --------  -----------
-   RHOSTS      172.217.12.238   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS      172.217.12.238   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT       443              yes       The target port (TCP)
    SSLCipher   All              yes       SSL cipher to test (Accepted: All, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256, TLS_AES_128_GCM_SHA256, ECDHE-ECDSA-AES256-GCM-SHA384, ECDHE-RSA-A
                                           ES256-GCM-SHA384, DHE-RSA-AES256-GCM-SHA384, ECDHE-ECDSA-CHACHA20-POLY1305, ECDHE-RSA-CHACHA20-POLY1305, DHE-RSA-CHACHA20-POLY1305, ECDHE-ECDSA-AES128-GCM-
@@ -78,7 +78,7 @@ Module options (auxiliary/scanner/ssl/ssl_version):
    SSLVersion  All              yes       SSL version to test (Accepted: All, SSLv3, TLSv1.0, TLSv1.2, TLSv1.3)
    THREADS     1                yes       The number of concurrent threads (max one per host)
 
-msf6 auxiliary(scanner/ssl/ssl_version) > 
+msf6 auxiliary(scanner/ssl/ssl_version) >
 ```
 
 ### Expired certificate
@@ -120,7 +120,7 @@ Module options (auxiliary/scanner/ssl/ssl_version):
 
    Name        Current Setting     Required  Description
    ----        ---------------     --------  -----------
-   RHOSTS      expired.badssl.com  yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS      expired.badssl.com  yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT       443                 yes       The target port (TCP)
    SSLCipher   All                 yes       SSL cipher to test (Accepted: All, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256, TLS_AES_128_GCM_SHA256, ECDHE-ECDSA-AES256-GCM-SHA384, ECDHE-RS
                                              A-AES256-GCM-SHA384, DHE-RSA-AES256-GCM-SHA384, ECDHE-ECDSA-CHACHA20-POLY1305, ECDHE-RSA-CHACHA20-POLY1305, DHE-RSA-CHACHA20-POLY1305, ECDHE-ECDSA-AES12
@@ -135,5 +135,5 @@ Module options (auxiliary/scanner/ssl/ssl_version):
    SSLVersion  All                 yes       SSL version to test (Accepted: All, SSLv3, TLSv1.0, TLSv1.2, TLSv1.3)
    THREADS     1                   yes       The number of concurrent threads (max one per host)
 
-msf6 auxiliary(scanner/ssl/ssl_version) > 
+msf6 auxiliary(scanner/ssl/ssl_version) >
 ```

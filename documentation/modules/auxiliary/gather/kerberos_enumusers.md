@@ -45,7 +45,7 @@ msf6 auxiliary(gather/kerberos_enumusers) > run rhost=192.168.123.228 domain=dom
 msf6 auxiliary(gather/kerberos_enumusers) > 
 ```
 
-### ASREPRoast Cracking
+### ASREPRoasting
 
 Accounts that have `Do not require Kerberos preauthentication` enabled, will receive an ASREP response with a ticket present.
 The technique of cracking this token offline is called ASREPRoasting.

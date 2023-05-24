@@ -225,23 +225,104 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
                    @tag=27,
                    @tag_class=:UNIVERSAL,
                    @tagging=nil,
-                   @value="DEMO.LOCAL">]>]>]>]>]>]>
+                   @value="DEMO.LOCAL">]>]>]>]>,
+      #<OpenSSL::ASN1::ASN1Data:0x00007fa16254d610
+       @indefinite_length=false,
+       @tag=11,
+       @tag_class=:CONTEXT_SPECIFIC,
+       @value=
+        [#<OpenSSL::ASN1::Sequence:0x00007fa16254d638
+          @indefinite_length=false,
+          @tag=16,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value=
+           [#<OpenSSL::ASN1::Sequence:0x00007fa16254d660
+             @indefinite_length=false,
+             @tag=16,
+             @tag_class=:UNIVERSAL,
+             @tagging=nil,
+             @value=
+              [#<OpenSSL::ASN1::ASN1Data:0x00007fa16254d728
+                @indefinite_length=false,
+                @tag=0,
+                @tag_class=:CONTEXT_SPECIFIC,
+                @value=
+                 [#<OpenSSL::ASN1::Integer:0x00007fa16254d750
+                   @indefinite_length=false,
+                   @tag=2,
+                   @tag_class=:UNIVERSAL,
+                   @tagging=nil,
+                   @value=#<OpenSSL::BN 2>>]>,
+               #<OpenSSL::ASN1::ASN1Data:0x00007fa16254d688
+                @indefinite_length=false,
+                @tag=1,
+                @tag_class=:CONTEXT_SPECIFIC,
+                @value=
+                 [#<OpenSSL::ASN1::OctetString:0x00007fa16254d6b0
+                   @indefinite_length=false,
+                   @tag=4,
+                   @tag_class=:UNIVERSAL,
+                   @tagging=nil,
+                   @value="\xC0\x00\x02\x02">]>]>]>]>,
+      #<OpenSSL::ASN1::ASN1Data:0x00007ffd80e8cbc0
+       @indefinite_length=false,
+       @tag=12,
+       @tag_class=:CONTEXT_SPECIFIC,
+       @value=
+        [#<OpenSSL::ASN1::Sequence:0x00007ffd80e8cbe8
+          @indefinite_length=false,
+          @tag=16,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value=
+           [#<OpenSSL::ASN1::Sequence:0x00007ffd80e8cc10
+             @indefinite_length=false,
+             @tag=16,
+             @tag_class=:UNIVERSAL,
+             @tagging=nil,
+             @value=
+              [#<OpenSSL::ASN1::ASN1Data:0x00007ffd80e8ccd8
+                @indefinite_length=false,
+                @tag=1,
+                @tag_class=:CONTEXT_SPECIFIC,
+                @value=
+                 [#<OpenSSL::ASN1::Integer:0x00007ffd80e8cd00
+                   @indefinite_length=false,
+                   @tag=2,
+                   @tag_class=:UNIVERSAL,
+                   @tagging=nil,
+                   @value=#<OpenSSL::BN 165>>]>,
+               #<OpenSSL::ASN1::ASN1Data:0x00007ffd80e8cc38
+                @indefinite_length=false,
+                @tag=2,
+                @tag_class=:CONTEXT_SPECIFIC,
+                @value=
+                 [#<OpenSSL::ASN1::OctetString:0x00007ffd80e8cc60
+                   @indefinite_length=false,
+                   @tag=4,
+                   @tag_class=:UNIVERSAL,
+                   @tagging=nil,
+                   @value="\x1F\x00\x00\x00">]>]>]>]>]>]>
 =end
   let(:enc_as_resp) do
-    "\x79\x81\xdd\x30\x81\xda\xa0\x1b\x30\x19\xa0\x03\x02\x01\x17\xa1" +
-    "\x12\x04\x10\xca\x5a\x4a\x62\x9f\xe5\x72\xc3\xdb\xd3\xbe\xac\x5e" +
-    "\xc6\x6a\xc7\xa1\x1c\x30\x1a\x30\x18\xa0\x03\x02\x01\x00\xa1\x11" +
-    "\x18\x0f\x32\x30\x31\x34\x31\x32\x30\x39\x30\x31\x30\x39\x30\x39" +
-    "\x5a\xa2\x06\x02\x04\x18\xf4\x10\x2c\xa3\x11\x18\x0f\x32\x30\x31" +
-    "\x35\x30\x31\x30\x35\x31\x36\x30\x38\x32\x39\x5a\xa4\x07\x03\x05" +
-    "\x00\x50\xe0\x00\x00\xa5\x11\x18\x0f\x32\x30\x31\x34\x31\x32\x30" +
-    "\x39\x30\x31\x30\x39\x30\x39\x5a\xa6\x11\x18\x0f\x32\x30\x31\x34" +
-    "\x31\x32\x30\x39\x30\x31\x30\x39\x30\x39\x5a\xa7\x11\x18\x0f\x32" +
-    "\x30\x31\x34\x31\x32\x30\x39\x31\x31\x30\x39\x30\x39\x5a\xa8\x11" +
-    "\x18\x0f\x32\x30\x31\x34\x31\x32\x31\x36\x30\x31\x30\x39\x30\x39" +
-    "\x5a\xa9\x0c\x1b\x0a\x44\x45\x4d\x4f\x2e\x4c\x4f\x43\x41\x4c\xaa" +
-    "\x1f\x30\x1d\xa0\x03\x02\x01\x01\xa1\x16\x30\x14\x1b\x06\x6b\x72" +
-    "\x62\x74\x67\x74\x1b\x0a\x44\x45\x4d\x4f\x2e\x4c\x4f\x43\x41\x4c"
+    "\x79\x82\x01\x05\x30\x82\x01\x01\xa0\x1b\x30\x19\xa0\x03\x02\x01" +
+    "\x17\xa1\x12\x04\x10\xca\x5a\x4a\x62\x9f\xe5\x72\xc3\xdb\xd3\xbe" +
+    "\xac\x5e\xc6\x6a\xc7\xa1\x1c\x30\x1a\x30\x18\xa0\x03\x02\x01\x00" +
+    "\xa1\x11\x18\x0f\x32\x30\x31\x34\x31\x32\x30\x39\x30\x31\x30\x39" +
+    "\x30\x39\x5a\xa2\x06\x02\x04\x18\xf4\x10\x2c\xa3\x11\x18\x0f\x32" +
+    "\x30\x31\x35\x30\x31\x30\x35\x31\x36\x30\x38\x32\x39\x5a\xa4\x07" +
+    "\x03\x05\x00\x50\xe0\x00\x00\xa5\x11\x18\x0f\x32\x30\x31\x34\x31" +
+    "\x32\x30\x39\x30\x31\x30\x39\x30\x39\x5a\xa6\x11\x18\x0f\x32\x30" +
+    "\x31\x34\x31\x32\x30\x39\x30\x31\x30\x39\x30\x39\x5a\xa7\x11\x18" +
+    "\x0f\x32\x30\x31\x34\x31\x32\x30\x39\x31\x31\x30\x39\x30\x39\x5a" +
+    "\xa8\x11\x18\x0f\x32\x30\x31\x34\x31\x32\x31\x36\x30\x31\x30\x39" +
+    "\x30\x39\x5a\xa9\x0c\x1b\x0a\x44\x45\x4d\x4f\x2e\x4c\x4f\x43\x41" +
+    "\x4c\xaa\x1f\x30\x1d\xa0\x03\x02\x01\x01\xa1\x16\x30\x14\x1b\x06" +
+    "\x6b\x72\x62\x74\x67\x74\x1b\x0a\x44\x45\x4d\x4f\x2e\x4c\x4f\x43" +
+    "\x41\x4c\xab\x11\x30\x0f\x30\x0d\xa0\x03\x02\x01\x02\xa1\x06\x04" +
+    "\x04\xc0\x00\x02\x02\xac\x12\x30\x10\x30\x0e\xa1\x04\x02\x02\x00" +
+    "\xa5\xa2\x06\x04\x04\x1f\x00\x00\x00"
   end
 
   describe "#decode" do
@@ -252,7 +333,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
 
       it "decodes the key correctly" do
         enc_kdc_response.decode(enc_as_resp)
-        expect(enc_kdc_response.key.type).to eq(Rex::Proto::Kerberos::Crypto::RC4_HMAC)
+        expect(enc_kdc_response.key.type).to eq(Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC)
       end
 
       it "decodes the last_req correctly" do
@@ -272,7 +353,8 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
 
       it "decodes the flags correctly" do
         enc_kdc_response.decode(enc_as_resp)
-        expect(enc_kdc_response.flags).to eq(0)
+        expect(enc_kdc_response.flags).to eq(0x50e00000)
+        expect(enc_kdc_response.flags.enabled_flag_names).to eq(%i[FORWARDABLE PROXIABLE RENEWABLE INITIAL PRE_AUTHENT])
       end
 
       it "decodes the auth_time correctly" do
@@ -303,6 +385,22 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncKdcResponse do
       it "decodes the sname correctly" do
         enc_kdc_response.decode(enc_as_resp)
         expect(enc_kdc_response.sname.name_string).to eq(['krbtgt', 'DEMO.LOCAL'])
+      end
+
+      it "decodes the caddr correctly" do
+        enc_kdc_response.decode(enc_as_resp)
+        expect(enc_kdc_response.caddr.length).to eq(1)
+        expect(enc_kdc_response.caddr.first&.type).to eq(Rex::Proto::Kerberos::Model::AddressType::IPV4)
+        expect(enc_kdc_response.caddr.first&.address).to eq(Rex::Socket.addr_aton("192.0.2.2"))
+      end
+
+      it "decodes the pa_data correctly" do
+        enc_kdc_response.decode(enc_as_resp)
+
+        expect(enc_kdc_response.pa_data.length).to eql(1)
+        expect(enc_kdc_response.pa_data.first&.type).to eql(Rex::Proto::Kerberos::Model::PreAuthType::PA_SUPPORTED_ETYPES)
+        # SupportedEnctypes: 0x0000001f, des-cbc-crc, des-cbc-md5, rc4-hmac, aes128-cts-hmac-sha1-96, aes256-cts-hmac-sha1-96
+        expect(enc_kdc_response.pa_data.first&.value).to eql("\x1F\x00\x00\x00")
       end
     end
   end

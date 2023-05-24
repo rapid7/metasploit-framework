@@ -32,7 +32,12 @@ class MetasploitModule < Msf::Auxiliary
           ['DumpAll', { 'Description' => 'Dump all tables used by vbulletin.' }]
         ],
         'DefaultAction' => 'DumpUser',
-        'DisclosureDate' => '2020-03-12'
+        'DisclosureDate' => '2020-03-12',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

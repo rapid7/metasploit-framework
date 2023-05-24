@@ -65,14 +65,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def fail_with_ldap_error(message)
-    ldap_result = @ldap.as_json['result']['ldap_result']
-    return if ldap_result['resultCode'] == 0
+    ldap_result = @ldap.get_operation_result.table
+    return if ldap_result[:code] == 0
 
     print_error(message)
     # Codes taken from https://ldap.com/ldap-result-code-reference-core-ldapv3-result-codes
-    case ldap_result['resultCode']
+    case ldap_result[:code]
     when 1
-      fail_with(Failure::Unknown, "An LDAP operational error occurred. The error was: #{ldap_result['errorMessage'].strip}")
+      fail_with(Failure::Unknown, "An LDAP operational error occurred. The error was: #{ldap_result[:error_message].strip}")
     when 16
       fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist.')
     when 50
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unknown, 'The LDAP operation failed due to an object class violation.')
     end
 
-    fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result['resultCode']} message: #{ldap_result['errorMessage'].strip}")
+    fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result[:code]} message: #{ldap_result[:error_message].strip}")
   end
 
   def get_delegate_from_obj

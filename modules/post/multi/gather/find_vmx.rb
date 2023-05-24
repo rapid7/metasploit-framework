@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => ['theLightCosine'],
-        'Platform' => %w{bsd linux osx unix win},
+        'Platform' => %w[bsd linux osx unix win],
         'SessionTypes' => ['shell', 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
       output << "\n"
     end
     print_good output
-    store_loot('vmware_vms', "text/plain", session, output, "vmware_vms.txt", "VMWare Virtual Machines")
+    store_loot('vmware_vms', 'text/plain', session, output, 'vmware_vms.txt', 'VMWare Virtual Machines')
   end
 
   def nix_shell_search
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
       begin
         parse = session.shell_command("cat #{filename}")
         vms << parse_vmx(parse, filename)
-      rescue
+      rescue StandardError
         print_error "Could not read #{filename} properly"
       end
     end
@@ -84,16 +84,16 @@ class MetasploitModule < Msf::Post
 
   def meterp_search
     vms = []
-    res = session.fs.file.search(nil, "*.vmx", true, -1)
+    res = session.fs.file.search(nil, '*.vmx', true, -1)
     res.each do |vmx|
       filename = "#{vmx['path']}\\#{vmx['name']}"
-      next if filename.end_with? ".vmxf"
+      next if filename.end_with? '.vmxf'
 
       begin
         config = client.fs.file.new(filename, 'r')
         parse = config.read
         vms << parse_vmx(parse, filename)
-      rescue
+      rescue StandardError
         print_error "Could not read #{filename} properly"
       end
     end
@@ -102,39 +102,37 @@ class MetasploitModule < Msf::Post
 
   def parse_vmx(vmx_data, filename)
     vm = {}
-    unless vmx_data.nil? or vmx_data.empty?
+    unless vmx_data.nil? || vmx_data.empty?
       vm['SharedFolders'] = []
       vmx_data.each_line do |line|
-        data = line.split("=")
+        data = line.split('=')
         vm['path'] = filename
         case data[0]
-        when "memsize "
-          vm['memsize'] = data[1].gsub!("\"", '').lstrip.chomp
-        when "displayName "
-          vm['name'] = data[1].gsub!("\"", '').lstrip.chomp
-        when "guestOS "
-          vm['os'] = data[1].gsub!("\"", '').lstrip.chomp
-        when "ethernet0.connectionType "
-          vm['eth_type'] = data[1].gsub!("\"", '').lstrip.chomp
-        when "ethernet0.generatedAddress "
-          vm['mac'] = data[1].gsub!("\"", '').lstrip.chomp
-        when "numvcpus "
-          vm['cpus'] = data[1].gsub!("\"", '').lstrip.chomp
-        when "sharedFolder0.hostPath "
-          vm['SharedFolders'] << data[1].gsub!("\"", '').lstrip.chomp
+        when 'memsize '
+          vm['memsize'] = data[1].gsub!('"', '').lstrip.chomp
+        when 'displayName '
+          vm['name'] = data[1].gsub!('"', '').lstrip.chomp
+        when 'guestOS '
+          vm['os'] = data[1].gsub!('"', '').lstrip.chomp
+        when 'ethernet0.connectionType '
+          vm['eth_type'] = data[1].gsub!('"', '').lstrip.chomp
+        when 'ethernet0.generatedAddress '
+          vm['mac'] = data[1].gsub!('"', '').lstrip.chomp
+        when 'numvcpus '
+          vm['cpus'] = data[1].gsub!('"', '').lstrip.chomp
+        when 'sharedFolder0.hostPath '
+          vm['SharedFolders'] << data[1].gsub!('"', '').lstrip.chomp
         end
       end
-      vm['cpus'] ||= "1"
+      vm['cpus'] ||= '1'
     end
     return vm
   end
 
   def session_has_search_ext
-    begin
-      return !!(session.fs and session.fs.file)
-    rescue NoMethodError
-      return false
-    end
+    return !!(session.fs and session.fs.file)
+  rescue NoMethodError
+    return false
   end
 
 end

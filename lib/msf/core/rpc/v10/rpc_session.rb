@@ -56,12 +56,35 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Stops a session.
+  # Stops a session - alias for killing a session in `msfconsole`
   #
   # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] Unknown session ID.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A message that says 'success'.
+  # @example Here's how you would use this from the client:
+  #  # You have an active session, you run session list to view the session number, then pass that session number to the `stop` command:
+  # >> rpc.call('session.list')
+  #  {7=>
+  #   {"type"=>"meterpreter",
+  #    "tunnel_local"=>"192.168.xxx.xxx:4444",
+  #    "tunnel_peer"=>"192.168.xxx.xxx:64688",
+  #    "via_exploit"=>"exploit/windows/smb/ms17_010_eternalblue",
+  #    "via_payload"=>"payload/windows/x64/meterpreter/reverse_tcp",
+  #    "desc"=>"Meterpreter",
+  #    "info"=>"NT AUTHORITY\\SYSTEM @ DC1",
+  #    "workspace"=>"default",
+  #    "session_host"=>"192.168.xxx.xxx",
+  #    "session_port"=>445,
+  #    "target_host"=>"192.168.xxx.xxx",
+  #    "username"=>"foo",
+  #    "uuid"=>"h9pbmuoh",
+  #    "exploit_uuid"=>"tcjj1fqo",
+  #    "routes"=>"",
+  #    "arch"=>"x86",
+  #    "platform"=>"windows"}}
+  # >> rpc.call('session.stop', 7)
+  # => {"result"=>"success"}
   def rpc_stop( sid)
 
     s = self.framework.sessions[sid.to_i]
@@ -487,4 +510,3 @@ private
 end
 end
 end
-
