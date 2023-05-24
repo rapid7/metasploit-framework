@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Encoder
   end
 
   def encode_buf(buf)
-    base64 = Rex::Text.encode_base64(Rex::Text.to_unicode("cmd.exe /c start #{buf}"))
+    base64 = Rex::Text.encode_base64(Rex::Text.to_unicode("cmd.exe /c 'start #{buf.gsub("'", "''")} '"))
     cmd = "powershell -w hidden -nop -e #{base64}"
   end
 end
