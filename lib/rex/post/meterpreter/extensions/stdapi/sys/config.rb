@@ -173,7 +173,6 @@ class Config
     req = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_UPDATE_TOKEN)
     req.add_tlv(TLV_TYPE_HANDLE, token_handle.to_i)
     res = client.send_request(req)
-    client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_TOKEN_UPDATE_RESULT) )
   end
 
   #
