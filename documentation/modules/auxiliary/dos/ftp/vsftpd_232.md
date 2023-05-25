@@ -8,7 +8,9 @@ resources of the machine.
 
 ## Vulnerable Application
 
-This is an auxiliary for DOSing a VSFTPD server from version 2.3.3 and below.
+This is an auxiliary for DOSing a VSFTPD server from version 2.3.3 and below. The
+vulnerability has been directly tested on versions 2.3.0, 2.3.1, and 2.3.2 and have
+shown success.
 
 ### Install on Arch Linux
 
