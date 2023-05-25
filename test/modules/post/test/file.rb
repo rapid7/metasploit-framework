@@ -1,4 +1,4 @@
-lib = File.join(Msf::Config.install_root, 'test', 'lib')
+lib = File.join(Msf::Config.install_root, "test", "lib")
 $LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
 
