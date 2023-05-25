@@ -45,6 +45,17 @@ class MetasploitModule < Msf::Encoder
   end
 
   def encode_buf(buf)
+    # From https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.3
+    # To include a single quotation mark in a single-quoted string, use a second consecutive single quote. For example:
+    # 'don''t' would be the string "don't" but using single quotes.
+    #
+    # Note that we can't use double quotes here as double quote strings in PowerShell are classed as expandable strings
+    # and we don't want expansion here, as this might cause any potential elements starting with $ to be interpreted
+    # as a variable within the string to be replaced by that variable's value.
+    #
+    # The use of quotes also ensures that we get around the issue with cmd.exe understanding & as a symbol for
+    # "also execute this command", whereas in PowerShell it is a reserved character, so not quoting the string
+    # will result in the & being interpreted by PowerShell and the command failing on an interpretation error in PowerShell itself.
     base64 = Rex::Text.encode_base64(Rex::Text.to_unicode("cmd.exe /c 'start #{buf.gsub("'", "''")} '"))
     cmd = "powershell -w hidden -nop -e #{base64}"
   end
