@@ -1,3 +1,11 @@
+VSFTPD is a popular ftp server written in C. The vulnerability causes a DOS on
+the service by leveraging a long recursive glob statement on the server. When
+we fill the 4096 character buffer with this recursive glob search, it makes the
+current thread spend all of that time unwinding that glob statement which can
+use up all the resources on that core. Sending this glob on all threads leave no
+availability for anyone else to access the server while taking up all of the CPU
+resources of the machine.
+
 ## Vulnerable Application
 
 This is an auxiliary for DOSing a VSFTPD server from version 2.3.3 and below.
