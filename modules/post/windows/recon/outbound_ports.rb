@@ -161,8 +161,9 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    if sysinfo['OS'] =~ /XP/
-      print_error('Windows XP is not supported')
+    version = get_version_info
+    if version.xp_or_2003?
+      print_error('Windows XP/Server 2003 is not supported')
       return
     end
 

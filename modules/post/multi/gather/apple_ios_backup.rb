@@ -6,6 +6,7 @@
 require 'English'
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Windows::Version
 
   def initialize(info = {})
     super(
@@ -29,7 +30,6 @@ class MetasploitModule < Msf::Post
               core_channel_write
               stdapi_sys_config_getenv
               stdapi_sys_config_getuid
-              stdapi_sys_config_sysinfo
             ]
           }
         }
@@ -57,9 +57,9 @@ class MetasploitModule < Msf::Post
     when 'windows'
       @platform = :windows
       drive = session.sys.config.getenv('SystemDrive')
-      os = session.sys.config.sysinfo['OS']
+      version = get_version_info
 
-      if os =~ /Windows 7|Vista|2008/
+      if version.build_number >= Msf::WindowsVersion::Vista_SP0
         @appdata = '\\AppData\\Roaming'
         @users = drive + '\\Users'
       else

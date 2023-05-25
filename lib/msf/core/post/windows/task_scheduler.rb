@@ -263,20 +263,19 @@ module Msf
 
         def check_compatibility
           # Check Windows version to make sure we will use the correct supported command flags
-          # - `schtasks.exe` on Windows prior to Windows Server 2003 SP2 has
+          # - `schtasks.exe` on Windows prior to Windows Server 2003 SP1 has
           #   some different `/create` option flags.
-          # - `schtasks.exe` on Windows until Server 2003 SP2 has some
-          #   different `/query` option flags.
+          # - `schtasks.exe` on Windows prior to Vista has some
+          #   different `/query` option flags - set @old_os to true
           # Also, on these OSes, `reg.exe` does not support the `/reg:64` flag.
+
           @old_schtasks = false
           @old_os = false
-          return unless sysinfo
-          match = sysinfo['OS'].match(/(?<version>[\d.]+) Build/)
-          return unless match
 
-          if Rex::Version.new((match[:version])) < Rex::Version.new('6.0')
+          version = get_version_info
+          if version.build_number < Msf::WindowsVersion::Vista_SP0
             @old_os = true
-            unless sysinfo['OS'].include?('5.2 Build 3790, Service Pack 2')
+            if version.build_number < Msf::WindowsVersion::Server2003_SP1
               @old_schtasks = true
             end
             if datastore['ScheduleRemoteSystem'].present?

@@ -122,8 +122,8 @@ class MetasploitModule < Msf::Post
     end
 
     # Checks the Windows Version.
-    wver = sysinfo['OS']
-    print_status("Target OS: #{wver}")
+    version = get_version_info
+    print_status("Target OS: #{version.product_name}")
 
     # Load the usernames from SAM Registry key
     names_key = registry_enumkeys(reg_key + '\\Names')

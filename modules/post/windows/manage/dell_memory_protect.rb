@@ -62,39 +62,38 @@ class MetasploitModule < Msf::Post
   end
 
   def get_eproc_offsets
-    sysinfo_value = sysinfo['OS']
-    unless sysinfo_value =~ /Windows/
-      print_status("Target is not Windows. Found #{sysinfo_value}")
+    unless session.platform == 'windows'
+      print_status("Target is not Windows. Found #{session.platform}")
       return nil
     end
 
-    build_num = sysinfo_value.match(/Build (\d+)/)[1].to_i
-    vprint_status("Windows Build Number = #{build_num}")
+    version = get_version_info
+    vprint_status("Windows Build Number = #{version.build_number}")
 
     # UniqueProcessIdOffset, ActiveProcessLinksOffset, SignatureLevelOffset
     offsets = {
-      10240 => [ 0x02e8, 0x02f0, 0x06a8 ], # Gold
-      10586 => [ 0x02e8, 0x02f0, 0x06b0 ], # 2015 update
-      14393 => [ 0x02e8, 0x02f0, 0x06c8 ], # 2016 update
-      15063 => [ 0x02e0, 0x02e8, 0x06c8 ], # April 2017 update
-      16299 => [ 0x02e0, 0x02e8, 0x06c8 ], # Fall 2017 update
-      17134 => [ 0x02e0, 0x02e8, 0x06c8 ], # April 2018 update
-      17763 => [ 0x02e0, 0x02e8, 0x06c8 ], # October 2018 update
-      18362 => [ 0x02e8, 0x02f0, 0x06f8 ], # May 2019 update
-      18363 => [ 0x02e8, 0x02f0, 0x06f8 ], # November 2019 update
-      19041 => [ 0x0440, 0x0448, 0x0878 ], # May 2020 update
-      19042 => [ 0x0440, 0x0448, 0x0878 ], # October 2020 update
-      19043 => [ 0x0440, 0x0448, 0x0878 ], # May 2021 update
-      19044 => [ 0x0440, 0x0448, 0x0878 ], # October 2021 update
-      22000 => [ 0x0440, 0x0448, 0x0878 ]  # Win 11 June/September 2021
+      Msf::WindowsVersion::Win10_1507 => [ 0x02e8, 0x02f0, 0x06a8 ], # Gold
+      Msf::WindowsVersion::Win10_1511 => [ 0x02e8, 0x02f0, 0x06b0 ], # 2015 update
+      Msf::WindowsVersion::Win10_1607 => [ 0x02e8, 0x02f0, 0x06c8 ], # 2016 update
+      Msf::WindowsVersion::Win10_1703 => [ 0x02e0, 0x02e8, 0x06c8 ], # April 2017 update
+      Msf::WindowsVersion::Win10_1709 => [ 0x02e0, 0x02e8, 0x06c8 ], # Fall 2017 update
+      Msf::WindowsVersion::Win10_1803 => [ 0x02e0, 0x02e8, 0x06c8 ], # April 2018 update
+      Msf::WindowsVersion::Win10_1809 => [ 0x02e0, 0x02e8, 0x06c8 ], # October 2018 update
+      Msf::WindowsVersion::Win10_1903 => [ 0x02e8, 0x02f0, 0x06f8 ], # May 2019 update
+      Msf::WindowsVersion::Win10_1909 => [ 0x02e8, 0x02f0, 0x06f8 ], # November 2019 update
+      Msf::WindowsVersion::Win10_2004 => [ 0x0440, 0x0448, 0x0878 ], # May 2020 update
+      Msf::WindowsVersion::Win10_20H2 => [ 0x0440, 0x0448, 0x0878 ], # October 2020 update
+      Msf::WindowsVersion::Win10_21H1 => [ 0x0440, 0x0448, 0x0878 ], # May 2021 update
+      Msf::WindowsVersion::Win10_21H2 => [ 0x0440, 0x0448, 0x0878 ], # October 2021 update
+      Msf::WindowsVersion::Win11_21H2 => [ 0x0440, 0x0448, 0x0878 ]  # Win 11 June/September 2021
     }
 
-    unless offsets.key?(build_num)
-      print_status("Unknown offsets for Windows build #{build_num}")
+    unless offsets.key?(version.build_number)
+      print_status("Unknown offsets for Windows build #{version.build_number}")
       return nil
     end
 
-    return offsets[build_num]
+    return offsets[version.build_number]
   end
 
   def run
@@ -104,7 +103,7 @@ class MetasploitModule < Msf::Post
 
     offsets = get_eproc_offsets
     if offsets.nil?
-      fail_with(Failure::NoTarget, 'Unsupported targeted')
+      fail_with(Failure::NoTarget, 'Unsupported target')
     end
 
     if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86

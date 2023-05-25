@@ -43,7 +43,8 @@ class MetasploitModule < Msf::Post
 
     # Due to a bug in Windows XP you need to install IPv6
     # http://support.microsoft.com/kb/555744/en-us
-    if sysinfo['OS'] =~ (/XP/) && !check_ipv6
+    version = get_version_info
+    if version.build_number.between?(Msf::WindowsVersion::XP_SP0, Msf::WindowsVersion::XP_SP2) && !check_ipv6
       return
     end
 
@@ -113,7 +114,8 @@ class MetasploitModule < Msf::Post
 
   def fw_enable_ports
     print_status("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
-    if sysinfo['OS'] =~ /Windows 7|Vista|2008|2012/
+    version = get_version_info
+    if version.build_number >= Msf::WindowsVersion::Vista_SP0
       cmd_exec('netsh', "advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LOCAL_PORT']}\"")
     else
       cmd_exec('netsh', "firewall set portopening protocol=TCP port=\"#{datastore['LOCAL_PORT']}\"")
