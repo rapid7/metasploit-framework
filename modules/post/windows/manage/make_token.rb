@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('DOMAIN', [true, 'Domain to use' ]),
-        OptString.new('USER', [true, 'Username to use' ]),
+        OptString.new('USERNAME', [true, 'Username to use' ]),
         OptString.new('PASSWORD', [true, 'Password to use' ])
       ]
     )
