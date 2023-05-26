@@ -1,6 +1,17 @@
 ## Vulnerable Application
 
-This module attempts to spider files from an archer c7 router using a known traversal vulnerability
+This module attempts to spider files from an archer c7 router using a known traversal
+vulnerability
+
+## Options
+
+### FILE
+
+This option sets what file you want to collect from the router.
+
+### SAVE
+
+Use this option to save the file found as loot
 
 ## Verification Steps
 
