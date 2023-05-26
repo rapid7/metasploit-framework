@@ -10,7 +10,7 @@ Also works against NiFi <= 1.13.0, but the module needs to be adjusted:
 
 ### Docker Install
 
-Apache manages Docker installs for nifi with version numbers, simply select the version number you wish to install. Examples:
+Apache manages Docker installs for NiFi with version numbers, simply select the version number you wish to install. Examples:
 
 ```
 docker run -p 8443:8443 -d apache/nifi:1.21.0
@@ -34,7 +34,7 @@ docker run -p 8080:8080 -d apache/nifi:1.11.0
 1. Do: `use auxiliary/scanner/http/apache_nifi_version`
 1. Do: `set rhosts [ip]`
 1. Do: `run`
-1. You should get back the version number of the nifi instance
+1. You should get back the version number of the NiFi instance
 
 ## Options
 

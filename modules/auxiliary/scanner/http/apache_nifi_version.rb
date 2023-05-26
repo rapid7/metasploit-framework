@@ -56,7 +56,5 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_bad("Apache NiFi not detected on #{ip}")
     end
-  rescue ::Rex::ConnectionError
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
   end
 end
