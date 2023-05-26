@@ -1,3 +1,9 @@
+## Vulnerable Application
+
+This is an auxiliary for DOSing a VSFTPD server from version 2.3.3 and below. The
+vulnerability has been directly tested on versions 2.3.0, 2.3.1, and 2.3.2 and have
+shown success.
+
 VSFTPD is a popular ftp server written in C. The vulnerability causes a DOS on
 the service by leveraging a long recursive glob statement on the server. When
 we fill the 4096 character buffer with this recursive glob search, it makes the
@@ -6,11 +12,13 @@ use up all the resources on that core. Sending this glob on all threads leave no
 availability for anyone else to access the server while taking up all of the CPU
 resources of the machine.
 
-## Vulnerable Application
+## Options
 
-This is an auxiliary for DOSing a VSFTPD server from version 2.3.3 and below. The
-vulnerability has been directly tested on versions 2.3.0, 2.3.1, and 2.3.2 and have
-shown success.
++---------+----------------------------------------------+
+| FTPUSER | The username used to log into the FTP server |
++---------+----------------------------------------------+
+| FTPPASS | The password used to log into the FTP server |
++---------+----------------------------------------------+
 
 ### Install on Arch Linux
 
@@ -147,4 +155,5 @@ msf6 auxiliary(dos/ftp/vstfpd_232) > run
 [*] Auxiliary module execution completed
 ```
 
-You can verify that it works by either attempting to ftp into the machine after or checking htop on the machine. If the CPU is at max capacity, that would be due to the DOS.
+You can verify that it works by either attempting to ftp into the machine after or checking
+htop on the machine. If the CPU is at max capacity, that would be due to the DOS.
