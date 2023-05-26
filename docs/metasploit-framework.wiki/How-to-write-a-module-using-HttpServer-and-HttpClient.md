@@ -7,13 +7,10 @@ Say you want to exploit a web server or web application. You have code execution
 Here is how you can set it up:
 
 ```ruby
-
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Exploit::Remote
   Rank = NormalRanking
@@ -21,34 +18,37 @@ class MetasploitModule < Msf::Exploit::Remote
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer::HTML
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "HttpClient and HttpServer Example",
-      'Description'    => %q{
-        This demonstrates how to use two mixins (HttpClient and HttpServer) at the same time,
-        but this allows the HttpServer to terminate after a delay.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'sinn3r' ],
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'HttpClient and HttpServer Example',
+        'Description' => %q{
+          This demonstrates how to use two mixins (HttpClient and HttpServer) at the same time,
+          but this allows the HttpServer to terminate after a delay.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'References' => [
           ['URL', 'http://metasploit.com']
         ],
-      'Payload'        => { 'BadChars' => "\x00" },
-      'Platform'       => 'win',
-      'Targets'        =>
-        [
+        'Payload' => { 'BadChars' => "\x00" },
+        'Platform' => 'win',
+        'Targets' => [
           [ 'Automatic', {} ],
         ],
-      'Privileged'     => false,
-      'DisclosureDate' => "Dec 09 2013",
-      'DefaultTarget'  => 0))
+        'Privileged' => false,
+        'DisclosureDate' => '2013-12-09',
+        'DefaultTarget' => 0
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('TARGETURI', [true, 'The path to some web application', '/']),
-          OptInt.new('HTTPDELAY',    [false, 'Number of seconds the web server will wait before termination', 10])
-        ], self.class)
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The path to some web application', '/']),
+        OptInt.new('HTTPDELAY', [false, 'Number of seconds the web server will wait before termination', 10])
+      ], self.class
+    )
   end
 
   def on_request_uri(cli, req)
@@ -58,15 +58,13 @@ class MetasploitModule < Msf::Exploit::Remote
 
   def primer
     print_status("Sending a malicious request to #{target_uri.path}")
-    send_request_cgi({'uri'=>normalize_uri(target_uri.path)})
+    send_request_cgi({ 'uri' => normalize_uri(target_uri.path) })
   end
 
   def exploit
-    begin
-      Timeout.timeout(datastore['HTTPDELAY']) { super }
-    rescue Timeout::Error
-      # When the server stops due to our timeout, this is raised
-    end
+    Timeout.timeout(datastore['HTTPDELAY']) { super }
+  rescue Timeout::Error
+    # When the server stops due to our timeout, this is raised
   end
 end
 ```
@@ -82,7 +80,7 @@ In case you're wondering why the web server must terminate after a period of tim
 
 The output for the above example should look something like this:
 
-```
+```msf
 msf exploit(test) > run
 [*] Exploit running as background job.
 

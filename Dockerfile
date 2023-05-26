@@ -1,4 +1,4 @@
-FROM ruby:3.0.4-alpine3.15 AS builder
+FROM ruby:3.0.5-alpine3.15 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set clean 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -49,7 +49,7 @@ RUN mkdir -p $TOOLS_HOME/bin && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.0.4-alpine3.15
+FROM ruby:3.0.5-alpine3.15
 LABEL maintainer="Rapid7"
 
 ENV APP_HOME=/usr/src/metasploit-framework

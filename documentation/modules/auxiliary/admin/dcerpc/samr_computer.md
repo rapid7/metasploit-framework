@@ -60,7 +60,7 @@ msf6 auxiliary(admin/dcerpc/samr_computer) > set SMBUser aliddle
 SMBUser => aliddle
 msf6 auxiliary(admin/dcerpc/samr_computer) > set SMBPass Password1
 SMBPass => Password1
-msf6 auxiliary(admin/dcerpc/samr_computer) > show options 
+msf6 auxiliary(admin/dcerpc/samr_computer) > show options
 
 Module options (auxiliary/admin/dcerpc/samr_computer):
 
@@ -68,7 +68,7 @@ Module options (auxiliary/admin/dcerpc/samr_computer):
    ----               ---------------  --------  -----------
    COMPUTER_NAME                       no        The computer name
    COMPUTER_PASSWORD                   no        The password for the new computer
-   RHOSTS             192.168.159.96   yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RHOSTS             192.168.159.96   yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT              445              yes       The target port (TCP)
    SMBDomain          .                no        The Windows domain to use for authentication
    SMBPass            Password1        no        The password for the specified username
@@ -94,7 +94,7 @@ Credentials
 
 host            origin          service        public             private                           realm   private_type  JtR Format
 ----            ------          -------        ------             -------                           -----   ------------  ----------
-192.168.159.96  192.168.159.96  445/tcp (smb)  DESKTOP-2X8F54QG$  MCoDkNALd3SdGR1GoLhqniEkWa8Me9FY  MSFLAB  Password      
+192.168.159.96  192.168.159.96  445/tcp (smb)  DESKTOP-2X8F54QG$  MCoDkNALd3SdGR1GoLhqniEkWa8Me9FY  MSFLAB  Password
 
 msf6 auxiliary(admin/dcerpc/samr_computer) >
 ```

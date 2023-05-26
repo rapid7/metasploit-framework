@@ -13,7 +13,7 @@ Metasploit has support for multiple PostgreSQL modules, including:
 
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
-```
+```msf
 msf6 > search postgres
 ```
 
@@ -97,7 +97,7 @@ psql postgres://postgres:mysecretpassword@localhost:5432
 
 Metasploit's output will be:
 
-```
+```msf
 msf6 auxiliary(server/capture/postgresql) >
 [*] Started service listener on 0.0.0.0:5432
 [*] Server started.

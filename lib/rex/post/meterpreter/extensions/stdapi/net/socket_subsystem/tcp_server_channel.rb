@@ -31,7 +31,7 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   # Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket. All incoming requests from the meterpreter
   # for a COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN will be processed here. We create a new TcpClientChannel for each request
   # received and store it in the respective tcp server channels list of new pending client channels.
-  # These new tcp client channels are passed off via a call the the tcp server channels accept() method.
+  # These new tcp client channels are passed off via a call the tcp server channels accept() method.
   #
   def self.request_handler(client, packet)
     return false unless packet.method == COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN

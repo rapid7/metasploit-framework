@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://twitter.com/steaIth/status/1364940271054712842'],
           ['URL', 'https://gitlab.alpinelinux.org/alpine/aports/-/issues/12539'],
           ['CVE', '2021-29133']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

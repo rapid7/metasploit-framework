@@ -341,7 +341,7 @@ RSpec.describe Msf::Ui::Debug do
 
     framework = instance_double(
       ::Msf::Framework,
-      datastore: {}
+      datastore: Msf::DataStore.new
     )
 
     driver = instance_double(
@@ -374,13 +374,17 @@ RSpec.describe Msf::Ui::Debug do
   it 'correctly retrieves and parses a populated global datastore' do
     allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
-    framework = instance_double(
-      ::Msf::Framework,
-      datastore: {
+    framework_datastore = Msf::DataStore.new
+    framework_datastore.merge!(
+      {
         'key1' => 'val1',
         'key2' => 'val2',
         'key3' => 'val3'
       }
+    )
+    framework = instance_double(
+      ::Msf::Framework,
+      datastore: framework_datastore
     )
 
     driver = instance_double(
@@ -416,13 +420,17 @@ RSpec.describe Msf::Ui::Debug do
   it 'correctly retrieves and parses a populated global datastore and current module' do
     allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
-    framework = instance_double(
-      ::Msf::Framework,
-      datastore: {
+    datastore = Msf::DataStore.new
+    datastore.merge!(
+      {
         'key1' => 'val1',
         'key2' => 'val2',
         'key3' => 'val3'
       }
+    )
+    framework = instance_double(
+      ::Msf::Framework,
+      datastore: datastore
     )
 
     driver = instance_double(
@@ -467,18 +475,23 @@ RSpec.describe Msf::Ui::Debug do
   it 'correctly retrieves and parses active module variables' do
     allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
+    framework_datastore = Msf::DataStore.new
     framework = instance_double(
       ::Msf::Framework,
-      datastore: {}
+      datastore: framework_datastore
     )
 
-    active_module = instance_double(
-      Msf::Module,
-      datastore: {
+    module_datastore = Msf::ModuleDataStore.new(framework_datastore)
+    module_datastore.merge!(
+      {
         'key7' => 'val7',
         'key8' => 'default_val8',
         'key9' => 'val9'
-      },
+      }
+    )
+    active_module = instance_double(
+      Msf::Module,
+      datastore: module_datastore,
       refname: 'active/module/variables'
     )
 
@@ -515,13 +528,17 @@ RSpec.describe Msf::Ui::Debug do
   it 'preferences the framework datastore values over config stored values' do
     allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'module.ini'))
 
-    framework = instance_double(
-      ::Msf::Framework,
-      datastore: {
+    framework_datastore = Msf::DataStore.new
+    framework_datastore.merge!(
+      {
         'key1' => 'val1',
         'key2' => 'val2',
         'key3' => 'val3'
       }
+    )
+    framework = instance_double(
+      ::Msf::Framework,
+      datastore: framework_datastore
     )
 
     driver = instance_double(
@@ -566,9 +583,10 @@ RSpec.describe Msf::Ui::Debug do
   it 'correctly retrieves and parses Database information' do
     allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'db.ini'))
 
+    framework_datastore = Msf::DataStore.new
     framework = instance_double(
       ::Msf::Framework,
-      datastore: {}
+      datastore: framework_datastore
     )
 
     driver = instance_double(
@@ -1585,7 +1603,7 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspace.id.to_s(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
+        | #{workspace.id.to_fs(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
@@ -1648,7 +1666,7 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspace.id.to_s(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
+        | #{workspace.id.to_fs(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
@@ -1739,11 +1757,11 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[1].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[3].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[4].id.to_s(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
+        | #{workspaces[0].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[1].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[2].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[3].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id.to_fs(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>
@@ -1812,11 +1830,11 @@ RSpec.describe Msf::Ui::Debug do
 
         | ID | Hosts | Vulnerabilities | Notes | Services |
         |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id.to_s(:delimited)} | 1 | 1 | 1 | 1 |
-        | #{workspaces[1].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id.to_s(:delimited)} | 1 | 1 | 1 | 1 |
-        | #{workspaces[3].id.to_s(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[4].id.to_s(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
+        | #{workspaces[0].id.to_fs(:delimited)} | 1 | 1 | 1 | 1 |
+        | #{workspaces[1].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[2].id.to_fs(:delimited)} | 1 | 1 | 1 | 1 |
+        | #{workspaces[3].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+        | #{workspaces[4].id.to_fs(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
         | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
         </details>

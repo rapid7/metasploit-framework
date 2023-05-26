@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Post
       # delete any comments
       lines.delete_if { |l| l =~ /^#/ }
       # trim any leading/trailing whitespace
-      lines.map { |l| l.strip! }
+      lines.map(&:strip!)
       # turn any multi-line config options into a single line to ease parsing
       (lines.size - 1).downto(0) do |i|
         # if the line we are reading doesn't signify a new configuration section...
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Post
         # been found, then save if there is enough to save
         parse_fetchmailrc_line(line).each do |cred|
           cred = defaults.merge(cred)
-          if (cred[:host] and cred[:protocol])
+          if (cred[:host] && cred[:protocol])
             if (cred[:users].size == cred[:passwords].size)
               cred[:users].each_index do |i|
                 cred_table << [ cred[:users][i], cred[:passwords][i], cred[:host], cred[:protocol], cred[:port] ]
@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Post
     cred[:host] = (line =~ /\s+smtphost\s+(\S+)/ ? ::Regexp.last_match(1) : 'localhost')
     cred[:protocol] = 'esmtp'
     # save the ESMTP credentials if we've found enough
-    creds << cred if (cred[:users] and cred[:passwords] and cred[:host])
+    creds << cred if (cred[:users] && cred[:passwords] && cred[:host])
     # return all found credentials
     creds
   end

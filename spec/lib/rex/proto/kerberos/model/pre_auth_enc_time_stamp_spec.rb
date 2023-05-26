@@ -47,7 +47,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp do
 
   let(:msg_type) { 1 }
   let(:password) { 'juan' }
-  let(:enc_type) { Rex::Proto::Kerberos::Crypto::RC4_HMAC }
+  let(:enc_type) { Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC }
 
   describe "#decode" do
     it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp" do
@@ -82,7 +82,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp do
       pre_auth_enc_time_stamp.decode(time_stamp_raw)
       cipher = pre_auth_enc_time_stamp.encrypt(enc_type, password)
       ed = Rex::Proto::Kerberos::Model::EncryptedData.new(etype: enc_type, cipher: cipher)
-      plain = ed.decrypt(password, msg_type)
+      plain = ed.decrypt_asn1(password, msg_type)
       pre_auth_enc_time_stamp.decode(plain)
       expect(pre_auth_enc_time_stamp.pa_time_stamp.to_s).to eq('2014-12-09 01:09:09 UTC')
     end

@@ -154,3 +154,81 @@ typedef VOID(__stdcall* fRtlGetNtVersionNumbers)(
 
 #define TYPE_WINDOW 1
 typedef PVOID(__stdcall* fHMValidateHandle)(HANDLE hHandle, DWORD dwType);
+
+//
+// Taken from ntdef.h
+//
+
+// Unicode strings are counted 16-bit character strings. If they are
+// NULL terminated, Length does not include trailing NULL.
+typedef struct _UNICODE_STRING {
+	USHORT Length;
+	USHORT MaximumLength;
+#ifdef MIDL_PASS
+	[size_is(MaximumLength / 2), length_is((Length) / 2)] USHORT* Buffer;
+#else // MIDL_PASS
+	_Field_size_bytes_part_opt_(MaximumLength, Length) PWCH   Buffer;
+#endif // MIDL_PASS
+} UNICODE_STRING, *PUNICODE_STRING;
+
+typedef struct _OBJECT_ATTRIBUTES {
+	ULONG Length;
+	HANDLE RootDirectory;
+	PUNICODE_STRING ObjectName;
+	ULONG Attributes;
+	PVOID SecurityDescriptor;        // Points to type SECURITY_DESCRIPTOR
+	PVOID SecurityQualityOfService;  // Points to type SECURITY_QUALITY_OF_SERVICE
+} OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
+
+//
+// Taken from wdm.h
+//
+typedef struct _IO_STATUS_BLOCK {
+	union {
+		NTSTATUS Status;
+		PVOID    Pointer;
+	};
+	ULONG_PTR Information;
+} IO_STATUS_BLOCK, * PIO_STATUS_BLOCK;
+
+typedef NTSTATUS(__stdcall* fNtCreateFile)(
+	PHANDLE FileHandle,
+	ACCESS_MASK DesiredAccess,
+	POBJECT_ATTRIBUTES ObjectAttributes,
+	PIO_STATUS_BLOCK IoStatusBlock,
+	PLARGE_INTEGER AllocationSize,
+	ULONG FileAttributes,
+	ULONG ShareAccess,
+	ULONG CreateDisposition,
+	ULONG CreateOptions,
+	PVOID EaBuffer,
+	ULONG EaLength
+	);
+
+typedef NTSTATUS(__stdcall* fNtDeviceIoControlFile)(
+	HANDLE FileHandle,
+	HANDLE Event,
+	PVOID ApcRoutine, // PIO_APC_ROUTINE is just a pointer to a function
+	PVOID ApcContext,
+	PIO_STATUS_BLOCK IoStatusBlock,
+	ULONG IoControlCode,
+	PVOID InputBuffer,
+	ULONG InputBufferLength,
+	PVOID OutputBuffer,
+	ULONG OutputBufferLength
+	);
+
+typedef NTSTATUS(__stdcall* fNtCreateIoCompletion)(
+	PHANDLE IoCompletionHandle,
+	ACCESS_MASK DesiredAccess,
+	POBJECT_ATTRIBUTES ObjectAttributes,
+	ULONG NumberOfConcurrentThreads
+	);
+
+typedef NTSTATUS(__stdcall* fNtSetIoCompletion)(
+	HANDLE IoCompletionHandle,
+	ULONG CompletionKey,
+	PIO_STATUS_BLOCK IoStatusBlock,
+	NTSTATUS CompletionStatus,
+	ULONG NumberOfBytesTransferred
+	);

@@ -1263,12 +1263,12 @@ class Def_windows_advapi32
 
     dll.add_function('ConvertStringSidToSidA', 'BOOL',[
       ["PCHAR","StringSid","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('ConvertStringSidToSidW', 'BOOL',[
       ["PWCHAR","StringSid","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('CopySid', 'BOOL',[

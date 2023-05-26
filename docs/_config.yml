@@ -30,6 +30,9 @@ exclude:
   - README.md
 
 # just-the-docs config
+mermaid_enabled: true
+mermaid:
+  version: "9.2.2"
 heading_anchors: true
 aux_links_new_tab: true
 aux_links:
@@ -38,7 +41,7 @@ aux_links:
 
 nav_cache: true
 
-# False until the wiki's markdown files are migrated into the Metasploit repository
+# We set gh_edit_link to false to opt out of the default edit link support - and instead use a custom implementation in _includes/footer_custom.html
 gh_edit_link: false
 gh_edit_link_text: 'Edit this page on GitHub'
 gh_edit_repository: 'https://github.com/rapid7/metasploit-framework'

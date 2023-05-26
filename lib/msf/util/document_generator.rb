@@ -33,9 +33,9 @@ module Msf
         user_path = File.join(PullRequestFinder::USER_MANUAL_BASE_PATH, "#{mod.fullname}.md")
         global_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
 
-        if File.exists?(user_path)
+        if File.exist?(user_path)
           kb_path = user_path
-        elsif File.exists?(global_path)
+        elsif File.exist?(global_path)
           kb_path = global_path
         end
 

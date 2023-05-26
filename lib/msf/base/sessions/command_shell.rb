@@ -461,10 +461,11 @@ Shell Banner:
 
     begin
       content = File.binread(src)
-      _file_transfer.write_file(dst, content)
-      print_good("File <#{dst}> upload finished")
+      result = _file_transfer.write_file(dst, content)
+      print_good("File <#{dst}> upload finished") if result
+      print_error("Error occured while uploading <#{src}> to <#{dst}>") unless result
     rescue => e
-      print_error("Error occurs while uploading <#{src}> to <#{dst}> - #{e.message}")
+      print_error("Error occured while uploading <#{src}> to <#{dst}> - #{e.message}")
       elog(e)
       return
     end

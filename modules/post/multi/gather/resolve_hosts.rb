@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'Ben Campbell' ],
-        'Platform' => %w{win python},
+        'Platform' => %w[win python],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
@@ -46,14 +46,14 @@ class MetasploitModule < Msf::Post
     end
 
     if datastore['HOSTFILE']
-      ::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
+      ::File.open(datastore['HOSTFILE'], 'rb').each_line do |hostname|
         hostname.strip!
         hosts << hostname unless hostname.empty?
       end
     end
 
     if hosts.empty?
-      fail_with(Failure::BadConfig, "No hostnames to resolve.")
+      fail_with(Failure::BadConfig, 'No hostnames to resolve.')
     end
 
     hosts.uniq!

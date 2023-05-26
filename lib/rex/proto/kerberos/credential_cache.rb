@@ -1,14 +1,10 @@
 # -*- coding: binary -*-
 
-module Rex
-  module Proto
-    module Kerberos
-      module CredentialCache
-        VERSION = 0x0504
-        HEADER = "\x00\x08\xff\xff\xff\xff\x00\x00\x00\x00"
-      end
-    end
-  end
+module Rex::Proto::Kerberos::CredentialCache
+  require 'rex/proto/kerberos/credential_cache/krb5_ccache'
+  require 'rex/proto/kerberos/credential_cache/krb5_ccache_credential'
+  require 'rex/proto/kerberos/credential_cache/krb5_ccache_credential_authdata'
+  require 'rex/proto/kerberos/credential_cache/krb5_ccache_credential_keyblock'
+  require 'rex/proto/kerberos/credential_cache/krb5_ccache_principal'
+  require 'rex/proto/kerberos/credential_cache/primitive'
 end
-
-require 'rex/proto/kerberos/credential_cache/cache'

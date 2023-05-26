@@ -7,7 +7,7 @@ An updated list of the application timeline can be found at https://developers.g
 
 ## Important Dates
 
-- GSoC Applications Open: April 4th at 1800 UTC 
+- GSoC Applications Open: April 4th at 1800 UTC
 - GSoC Applications Close: April 19th at 1800 UTC for 2022 GSoC applications. **No late submissions will be accepted, period.**
 - Accepted applications announced: May 20th at 1800 UTC
 - Programming Starts: June 13th.
@@ -19,16 +19,16 @@ An updated list of the application timeline can be found at https://developers.g
 You can find the current list of GSoC ideas at [[GSoC-2022-Project-Ideas]]. Please see the note at the bottom of this page if you are interested in submitting your own idea, as this will require approval.
 
 # Getting started
-Students interesting in GSoC, can start by reading Google's official guides.  
+Students interesting in GSoC, can start by reading Google's official guides.
 <https://developers.google.com/open-source/gsoc/help/student-advice>
 
 Review all of the [student guide](https://google.github.io/gsocguides/student/) and carefully read the [proposal writing section](https://google.github.io/gsocguides/student/writing-a-proposal.html).
 
 A listed `idea` is a seed for GSoC students to expand on and propose how to design and implement a solution.  You can start by investigating the code base and how existing users interaction with `msfconsole` functionality. Think through scenarios on how a user might want to interact with the proposed idea.
 
-A place to get started with contributing to Metasploit is [here](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and expanded on [here](https://github.com/rapid7/metasploit-framework/wiki/Contributing-to-Metasploit#framework-bugs-and-features).
+A place to get started with contributing to Metasploit is [here](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and expanded on [[here|./Contributing-to-Metasploit.md]].
 
-GSoC mentors tend to look for those items that have a chance of making development and usage easier or improving the overall performance of a certain area, however by starting with understanding the most common contribution patten you can get familiar with the codebase and also the mindset of users. This will help you in creating a proposal with the end user in mind.
+GSoC mentors tend to look for those items that have a chance of making development and usage easier or improving the overall performance of a certain area, however by starting with understanding the most common contribution pattern you can get familiar with the codebase and also the mindset of users. This will help you in creating a proposal with the end user in mind.
 
 Once you have started digging feel free ask questions that help you understand the concepts you for the idea would like to propose.
 
@@ -50,14 +50,14 @@ A brief description of what you would like to work on. See [[GSoC-2022-Project-I
 
 ## Skillz
 
-What programming languages are you familiar with, in order of proficiency? Most of Metasploit is written in Ruby; for any project you will most likely need at least a passing knowledge of it. If you want to work on Meterpreter or Mettle, C will be necessary as well. 
+What programming languages are you familiar with, in order of proficiency? Most of Metasploit is written in Ruby; for any project you will most likely need at least a passing knowledge of it. If you want to work on Meterpreter or Mettle, C will be necessary as well.
 
 What other projects have you worked on before?
 
 
 ## Your project
 
-Fill in the details. What exactly do you want to accomplish? 
+Fill in the details. What exactly do you want to accomplish?
 
 # Past Submissions
 If you are interested in looking at past accepted submissions and projects, you can find them at https://summerofcode.withgoogle.com/archive, and clicking on any year from 2017 onwards (with the exception of 2019 as Metasploit did not participate this year). Then click on the `Security` tag, and search for `Metasploit`. Scroll down to the bottom and you will see past successful applications and the associated code for each successful submission. Submissions from 2020 onwards also include copies of the proposal that was sent in by the accepted contributor.

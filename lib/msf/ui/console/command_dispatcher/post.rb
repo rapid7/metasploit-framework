@@ -77,7 +77,7 @@ class Post
     begin
       mod.run_simple(
         'Action'         => args[:action],
-        'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
+        'Options'      => args[:datastore_options],
         'LocalInput'     => driver.input,
         'LocalOutput'    => driver.output,
         'RunAsJob'       => jobify,

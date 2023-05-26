@@ -1,4 +1,4 @@
-The Loginpalooza contest is over! Congrats and thanks to @TomSellers, @ChrisTuncer, and @0a2940!
+The Loginpalooza contest is over! Congrats and thanks to [@TomSellers](https://github.com/TomSellers), [@ChrisTruncer](https://github.com/ChrisTruncer), and [@0a2940](https://github.com/0a2940)!
 
 The list of [modules to refactor](#modules-to-refactor) is still here. Modules that get refactored should be removed from the list entirely.
 

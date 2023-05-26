@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2020-05-19',
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'ScannerRecvWindow' => 0 }
+        'DefaultOptions' => { 'ScannerRecvWindow' => 0 },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

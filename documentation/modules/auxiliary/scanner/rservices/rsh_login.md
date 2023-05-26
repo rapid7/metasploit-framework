@@ -30,20 +30,20 @@ The following was done on Kali linux:
   A run against the configuration from these docs
 
   ```
-    msf > use auxiliary/scanner/rservices/rsh_login 
+    msf > use auxiliary/scanner/rservices/rsh_login
     msf auxiliary(rsh_login) > set rhosts 10.1.2.3
     rhosts => 10.1.2.3
     msf auxiliary(rsh_login) > set username root
     username => root
     msf auxiliary(rsh_login) > run
-    
+
     [*] 10.1.2.3:514     - 10.1.2.3:514 - Starting rsh sweep
     [*] 10.1.2.3:514     - 10.1.2.3:514 - Attempting rsh with username 'root' from 'root'
     [+] 10.1.2.3:514     - 10.1.2.3:514, rsh 'root' from 'root' with no password.
     [!] 10.1.2.3:514     - *** auxiliary/scanner/rservices/rsh_login is still calling the deprecated report_auth_info method! This needs to be updated!
     [!] 10.1.2.3:514     - *** For detailed information about LoginScanners and the Credentials objects see:
-    [!] 10.1.2.3:514     -      https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners
-    [!] 10.1.2.3:514     -      https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module
+    [!] 10.1.2.3:514     -      https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/creating-metasploit-framework-loginscanners.html
+    [!] 10.1.2.3:514     -      https://docs.metasploit.com/docs/development/developing-modules/guides/scanners/how-to-write-a-http-loginscanner-module.html
     [!] 10.1.2.3:514     - *** For examples of modules converted to just report credentials without report_auth_info, see:
     [!] 10.1.2.3:514     -      https://github.com/rapid7/metasploit-framework/pull/5376
     [!] 10.1.2.3:514     -      https://github.com/rapid7/metasploit-framework/pull/5377

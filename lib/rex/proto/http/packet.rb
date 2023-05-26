@@ -71,7 +71,10 @@ class Packet
   # Parses the supplied buffer.  Returns one of the two parser processing
   # codes (Completed, Partial, or Error).
   #
-  def parse(buf)
+  # @param [String] buf The buffer to parse; possibly not a complete request/response
+  # @param [Hash] opts Parsing options
+  # @option [Boolean] orig_method The HTTP method used in an associated request, if applicable
+  def parse(buf, opts={})
 
     # Append the incoming buffer to the buffer queue.
     self.bufq += buf.to_s
@@ -80,13 +83,15 @@ class Packet
 
       # Process the header
       if(self.state == ParseState::ProcessingHeader)
-        parse_header
+        parse_header(opts)
       end
 
       # Continue on to the body if the header was processed
       if(self.state == ParseState::ProcessingBody)
-        # Chunked encoding sets the parsing state on its own
-        if (self.body_bytes_left == 0 and not self.transfer_chunked)
+        # Chunked encoding sets the parsing state on its own.
+        # HEAD requests can return immediately.
+        orig_method = opts.fetch(:orig_method) { '' }
+        if (self.body_bytes_left == 0 && (!self.transfer_chunked || orig_method == 'HEAD'))
           self.state = ParseState::Completed
         else
           parse_body
@@ -280,24 +285,27 @@ protected
 
   ##
   #
-  # Parsing
+  # Parse the HTTP header returned by the target server.
   #
+  # @param [Hash] opts Parsing options
+  # @option [Boolean] orig_method The HTTP method used in an associated request, if applicable
   ##
-
-  def parse_header
+  def parse_header(opts)
 
     head,data = self.bufq.split(/\r?\n\r?\n/, 2)
 
-    return if not data
+    return if data.nil?
 
     self.headers.from_s(head)
     self.bufq = data || ""
 
     # Set the content-length to -1 as a placeholder (read until EOF)
     self.body_bytes_left = -1
+    orig_method = opts.fetch(:orig_method) { '' }
+    self.body_bytes_left = 0 if orig_method == 'HEAD'
 
-    # Extract the content length if it was specified
-    if (self.headers['Content-Length'])
+    # Extract the content length if it was specified (ignoring it for HEAD requests, per RFC9110)
+    if (self.headers['Content-Length'] && orig_method != 'HEAD')
       self.body_bytes_left = self.headers['Content-Length'].to_i
     end
 

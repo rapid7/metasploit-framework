@@ -17,7 +17,7 @@ module Msf::WebServices
   #                            Needed when using self-signed SSL certificates.
   # MSF_WS_DATA_SERVICE_SKIP_VERIFY - (Boolean) Skip validating authenticity of server's certificate.
   # MSF_WS_DATA_SERVICE_LOGGER - (String) The logger that framework will use. By default logs will be
-  #                             placed in ``~/.msf4/logs`
+  #                             placed in `~/.msf4/logs`
   module FrameworkExtension
     FALSE_VALUES = [nil, false, 0, '0', 'f', 'false', 'off', 'no'].to_set
 

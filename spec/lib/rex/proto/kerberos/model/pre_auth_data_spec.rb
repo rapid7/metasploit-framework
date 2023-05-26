@@ -2,9 +2,9 @@
 require 'spec_helper'
 
 
-RSpec.describe Rex::Proto::Kerberos::Model::PreAuthData do
+RSpec.describe Rex::Proto::Kerberos::Model::PreAuthDataEntry do
 
-  subject(:pre_auth_data) do
+  subject(:pre_auth_data_entry) do
     described_class.new
   end
 
@@ -84,51 +84,51 @@ RSpec.describe Rex::Proto::Kerberos::Model::PreAuthData do
 
   describe "#decode" do
     context "when PAC-ENC-TIMESTAMP" do
-      it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthData" do
-        expect(pre_auth_data.decode(timestamp_sample)).to eq(pre_auth_data)
+      it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthDataEntry" do
+        expect(pre_auth_data_entry.decode(timestamp_sample)).to eq(pre_auth_data_entry)
       end
 
       it "decodes type" do
-        pre_auth_data.decode(timestamp_sample)
-        expect(pre_auth_data.type).to eq(2)
+        pre_auth_data_entry.decode(timestamp_sample)
+        expect(pre_auth_data_entry.type).to eq(2)
       end
 
       it "decodes value" do
-        pre_auth_data.decode(timestamp_sample)
-        expect(pre_auth_data.value.length).to eq(63)
+        pre_auth_data_entry.decode(timestamp_sample)
+        expect(pre_auth_data_entry.value.length).to eq(63)
       end
     end
 
     context "when PA-PAC-REQUEST" do
-      it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthData" do
-        expect(pre_auth_data.decode(pac_sample)).to eq(pre_auth_data)
+      it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthDataEntry" do
+        expect(pre_auth_data_entry.decode(pac_sample)).to eq(pre_auth_data_entry)
       end
 
       it "decodes type" do
-        pre_auth_data.decode(pac_sample)
-        expect(pre_auth_data.type).to eq(128)
+        pre_auth_data_entry.decode(pac_sample)
+        expect(pre_auth_data_entry.type).to eq(128)
       end
 
       it "decodes value" do
-        pre_auth_data.decode(pac_sample)
-        expect(pre_auth_data.value.length).to eq(7)
+        pre_auth_data_entry.decode(pac_sample)
+        expect(pre_auth_data_entry.value.length).to eq(7)
       end
     end
   end
 
   describe "#encode" do
     context "when PAC-ENC-TIMESTAMP" do
-      it "encodes Rex::Proto::Kerberos::Model::PreAuthData correctly" do
-        pre_auth_data.decode(timestamp_sample)
-        expect(pre_auth_data.encode).to eq(timestamp_sample)
+      it "encodes Rex::Proto::Kerberos::Model::PreAuthDataEntry correctly" do
+        pre_auth_data_entry.decode(timestamp_sample)
+        expect(pre_auth_data_entry.encode).to eq(timestamp_sample)
       end
 
     end
 
     context "when PA-PAC-REQUEST" do
-      it "encodes Rex::Proto::Kerberos::Model::PreAuthData correctly" do
-        pre_auth_data.decode(pac_sample)
-        expect(pre_auth_data.encode).to eq(pac_sample)
+      it "encodes Rex::Proto::Kerberos::Model::PreAuthDataEntry correctly" do
+        pre_auth_data_entry.decode(pac_sample)
+        expect(pre_auth_data_entry.encode).to eq(pac_sample)
       end
 
     end

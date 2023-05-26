@@ -46,13 +46,13 @@ Any user of Metasploit will tell you that they know what `LHOST` and `LPORT` mea
 
 A **handler** obviously needs to listen on a host/IP for the incoming connection. In cases where the `LHOST` value, for example the address that the target is able to reach, is the same as that which the host can listen on, no extra work has to be done. The `LHOST` value is used by the handler.
 
-However, if some kind of NAT or port forward is enabled, or if the handler is behind a firewall, then setting `LHOST` isn't enough. In order to listen on the appropriate interface, another setting must be used called `ReverseListenerBindHost`. This value tells the **handler** to listen on a different interface/IP, but it doesn't change the fact that the `LHOST` value is given to the target when the **stage** is uploaded.
+However, if some kind of NAT or port forward is enabled, or if the handler is behind a firewall, then setting `LHOST` isn't enough. In order to listen on the appropriate interface, another setting must be used called `ReverseListenerBindAddress`. This value tells the **handler** to listen on a different interface/IP, but it doesn't change the fact that the `LHOST` value is given to the target when the **stage** is uploaded.
 
-In short, `LHOST` must always remain the IP/host that is routable from the target, and if this value is not the same as what the listener needs to bind to, then change the `ReverseListenerBindHost` value. If you're attacking something across the Internet and you specify an internal IP in `LHOST`, you're doing it wrong.
+In short, `LHOST` must always remain the IP/host that is routable from the target, and if this value is not the same as what the listener needs to bind to, then change the `ReverseListenerBindAddress` value. If you're attacking something across the Internet and you specify an internal IP in `LHOST`, you're doing it wrong.
 
 ## LPORT
 
-The principles of `LHOST` and  `ReverseListenerBindHost` can be applied to `LPORT` and `ReverseListenerBindPort` as well. If you have port forwarding in place, and your listener needs to bind to a different port, then you need to make use of the `ReverseListenerBindPort` setting.
+The principles of `LHOST` and  `ReverseListenerBindAddress` can be applied to `LPORT` and `ReverseListenerBindPort` as well. If you have port forwarding in place, and your listener needs to bind to a different port, then you need to make use of the `ReverseListenerBindPort` setting.
 
 The classic example of this case is where an attacker wants to make use of port `443`, but rightfully doesn't want to run Metasploit as `root` just so they can directly bind to ports lower than `1024`. Instead, the set up a port forward (on their router, or using `iptables`) so that `443` forwards to `8443`, with a goal of accepting connections on that port instead.
 

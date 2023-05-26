@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows \'Run As\' Using Powershell',
-        'Description' => %q( This module will start a process as another user using powershell. ),
+        'Description' => %q{ This module will start a process as another user using powershell. },
         'License' => MSF_LICENSE,
         'Author' => ['p3nt4'],
         'Platform' => ['win'],
@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    raise "Powershell is required" if !have_powershell?
+    raise 'Powershell is required' if !have_powershell?
 
     # Variable Setup
     user = datastore['user']
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
     end
     scr = " -c \"#{scr}\""
     # Execute script
-    p = client.sys.process.execute("powershell.exe", scr,
+    p = client.sys.process.execute('powershell.exe', scr,
                                    'Channelized' => channelized,
                                    'Desktop' => false,
                                    'Session' => false,

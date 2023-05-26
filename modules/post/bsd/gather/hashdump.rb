@@ -3,22 +3,23 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super( update_info( info,
-      'Name'          => 'BSD Dump Password Hashes',
-      'Description'   => %q{ Post module to dump the password hashes for all users on a BSD system. },
-      'License'       => MSF_LICENSE,
-      'Author'        => ['bcoles'],
-      'Platform'      => ['bsd'],
-      'SessionTypes'  => ['shell', 'meterpreter']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'BSD Dump Password Hashes',
+        'Description' => %q{ Post module to dump the password hashes for all users on a BSD system. },
+        'License' => MSF_LICENSE,
+        'Author' => ['bcoles'],
+        'Platform' => ['bsd'],
+        'SessionTypes' => ['shell', 'meterpreter']
+      )
+    )
   end
 
   def run
@@ -53,7 +54,7 @@ class MetasploitModule < Msf::Post
       credential_data = {
         jtr_format: jtr_format,
         origin_type: :session,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         private_type: :nonreplayable_hash,
         private_data: hash_parts[1],
         session_id: session_db_id,
@@ -81,7 +82,8 @@ class MetasploitModule < Msf::Post
       user = sl.scan(/(^\w*):/).join
       pf.each_line do |pl|
         next unless pl.match(/^#{user}:/)
-        unshadowed << pl.gsub(/:\*:/,":#{pass}:")
+
+        unshadowed << pl.gsub(/:\*:/, ":#{pass}:")
       end
     end
 

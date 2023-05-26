@@ -13,7 +13,7 @@ class ManagedRemoteDataService
   include Singleton
 
   #
-  # Returns true if the the managed data service process is running.
+  # Returns true if the managed data service process is running.
   #
   def running?
     return @running

@@ -33,7 +33,7 @@ class Creds
   end
 
   def allowed_cred_types
-    %w(password ntlm hash) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
+    %w(password ntlm hash KrbEncKey) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
   end
 
   #
@@ -104,6 +104,7 @@ class Creds
       password:     'Private, private_type Password.',
       ntlm:         'Private, private_type NTLM Hash.',
       postgres:     'Private, private_type postgres MD5',
+      pkcs12:       'Private, private_type pkcs12 archive file, must be a file path.',
       'ssh-key' =>  'Private, private_type SSH key, must be a file path.',
       hash:         'Private, private_type Nonreplayable hash',
       jtr:          'Private, private_type John the Ripper hash type.',
@@ -126,6 +127,8 @@ class Creds
     print_line "   creds add ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
     print_line "   # Add a Postgres MD5"
     print_line "   creds add user:postgres postgres:md5be86a79bf2043622d58d5453c47d4860"
+    print_line "   # Add a user with a PKCS12 file archive"
+    print_line "   creds add user:alice pkcs12:/path/to/certificate.pfx"
     print_line "   # Add a user with an SSH key"
     print_line "   creds add user:sshadmin ssh-key:/path/to/id_rsa"
     print_line "   # Add a user and a NonReplayableHash"
@@ -203,14 +206,14 @@ class Creds
     end
 
     begin
-      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'postgres')
+      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'pkcs12', 'postgres')
     rescue ArgumentError => e
       print_error(e.message)
     end
 
     # Verify we only have one type of private
-    if params.slice('password','ntlm','ssh-key','hash', 'postgres').length > 1
-      private_keys = params.slice('password','ntlm','ssh-key','hash', 'postgres').keys
+    if params.slice('password','ntlm','ssh-key','hash', 'pkcs12', 'postgres').length > 1
+      private_keys = params.slice('password','ntlm','ssh-key','hash', 'pkcs12', 'postgres').keys
       print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
       return
     end
@@ -262,6 +265,17 @@ class Creds
       end
       data[:private_type] = :ssh_key
       data[:private_data] = key_data
+    end
+
+    if params.key? 'pkcs12'
+      begin
+        # pkcs12 is a binary format, but for persisting we Base64 encode it
+        pkcs12_data = Base64.strict_encode64(File.binread(params['pkcs12']))
+      rescue ::Errno::EACCES, ::Errno::ENOENT => e
+        print_error("Failed to add pkcs12 archive: #{e}")
+      end
+      data[:private_type] = :pkcs12
+      data[:private_data] = pkcs12_data
     end
 
     if params.key? 'hash'
@@ -396,13 +410,15 @@ class Creds
     # If we get here, we're searching.  Delete implies search
 
     if ptype
-      type = case ptype
+      type = case ptype.downcase
              when 'password'
                Metasploit::Credential::Password
              when 'hash'
                Metasploit::Credential::PasswordHash
              when 'ntlm'
                Metasploit::Credential::NTLMHash
+             when 'KrbEncKey'.downcase
+               Metasploit::Credential::KrbEncKey
              when *Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
                opts[:jtr_format] = ptype
                Metasploit::Credential::NonreplayableHash
@@ -452,7 +468,12 @@ class Creds
 
       unless tbl.nil?
         public_val = core.public ? core.public.username : ''
-        private_val = core.private ? core.private.to_s : ''
+        if core.private
+          # Show the human readable description by default, unless the user ran with `--verbose` and wants to see the cred data
+          private_val = truncate ? core.private.to_s : core.private.data
+        else
+          private_val = ''
+        end
         if truncate && private_val.to_s.length > 87
           private_val = "#{private_val[0,87]} (TRUNCATED)"
         end

@@ -182,10 +182,49 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcRequestBody do
           @tag=2,
           @tag_class=:UNIVERSAL,
           @tagging=nil,
-          @value=#<OpenSSL::BN:0x007ff9c30198d8>>]>]>]>
+          @value=#<OpenSSL::BN 23>>]>]>,
+   #<OpenSSL::ASN1::ASN1Data:0x00007f91a51d4c58
+    @indefinite_length=false,
+    @tag=9,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Sequence:0x00007f91a51d4c80
+       @indefinite_length=false,
+       @tag=16,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=
+        [#<OpenSSL::ASN1::Sequence:0x00007f91a51d4cd0
+          @indefinite_length=false,
+          @tag=16,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value=
+           [#<OpenSSL::ASN1::ASN1Data:0x00007f91a51d4de8
+             @indefinite_length=false,
+             @tag=0,
+             @tag_class=:CONTEXT_SPECIFIC,
+             @value=
+              [#<OpenSSL::ASN1::Integer:0x00007f91a51d4e38
+                @indefinite_length=false,
+                @tag=2,
+                @tag_class=:UNIVERSAL,
+                @tagging=nil,
+                @value=#<OpenSSL::BN 2>>]>,
+            #<OpenSSL::ASN1::ASN1Data:0x00007f91a51d4cf8
+             @indefinite_length=false,
+             @tag=1,
+             @tag_class=:CONTEXT_SPECIFIC,
+             @value=
+              [#<OpenSSL::ASN1::OctetString:0x00007f91a51d4d48
+                @indefinite_length=false,
+                @tag=4,
+                @tag_class=:UNIVERSAL,
+                @tagging=nil,
+                @value="\xC0\x00\x02\x02">]>]>]>]>]>
 =end
   let(:sample_as_req) do
-    "\x30\x81\x93\xa0\x07\x03\x05\x00" +
+    "\x30\x81\xa6\xa0\x07\x03\x05\x00" +
     "\x50\x80\x00\x00\xa1\x11\x30\x0f" +
     "\xa0\x03\x02\x01\x01\xa1\x08\x30" +
     "\x06\x1b\x04\x6a\x75\x61\x6e\xa2" +
@@ -203,7 +242,10 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcRequestBody do
     "\x31\x39\x37\x30\x30\x31\x30\x31" +
     "\x30\x30\x30\x30\x30\x30\x5a\xa7" +
     "\x06\x02\x04\x18\xf4\x10\x2c\xa8" +
-    "\x05\x30\x03\x02\x01\x17"
+    "\x05\x30\x03\x02\x01\x17\xa9\x11" +
+    "\x30\x0f\x30\x0d\xa0\x03\x02\x01" +
+    "\x02\xa1\x06\x04\x04\xc0\x00\x02" +
+    "\x02"
   end
 
 =begin
@@ -478,7 +520,15 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcRequestBody do
 
       it "decodes etype" do
         kdc_request_body.decode(sample_as_req)
-        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::RC4_HMAC])
+        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC])
+      end
+
+      it "decodes addresses" do
+        kdc_request_body.decode(sample_as_req)
+
+        expect(kdc_request_body.addresses.length).to eq(1)
+        expect(kdc_request_body.addresses.first&.type).to eq(Rex::Proto::Kerberos::Model::AddressType::IPV4)
+        expect(kdc_request_body.addresses.first&.address).to eq(Rex::Socket.addr_aton("192.0.2.2"))
       end
 
       it "doesn't decode enc_auth_data" do
@@ -535,7 +585,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::KdcRequestBody do
 
       it "decodes etype" do
         kdc_request_body.decode(sample_tgs_req)
-        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::RC4_HMAC])
+        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC])
       end
 
       it "decodes enc_auth_data" do

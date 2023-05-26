@@ -77,6 +77,11 @@ module Rex::Proto::MsDtyp
   # weirdly doesn't mention this needs to be 4 byte aligned for us to read it correctly,
   # which the RubySMB::Dcerpc::Uuid definition takes care of.
   class MsDtypGuid < RubySMB::Dcerpc::Uuid
+    def self.random_generate
+      # Taken from the "D" format as specified in
+      # https://learn.microsoft.com/en-us/dotnet/api/system.guid.tostring?view=net-7.0
+      "{#{Rex::Text.rand_text_hex(8)}-#{Rex::Text.rand_text_hex(4)}-#{Rex::Text.rand_text_hex(4)}-#{Rex::Text.rand_text_hex(4)}-#{Rex::Text.rand_text_hex(12)}}".downcase
+    end
   end
 
   # Definitions taken from [2.4.4.1 ACE_HEADER](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/628ebb1d-c509-4ea0-a10f-77ef97ca4586)

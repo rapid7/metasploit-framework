@@ -1,7 +1,7 @@
 Metasploit includes a library for leveraging .NET deserialization attacks. Using
 it within a module is very straight forward, the module author just needs to
 know two things: the gadget chain and the formatter. The library uses the same
-names for each of these values as the [YSoSerial.NET][1] project for
+names for each of these values as the [YSoSerial.NET][ysoserial] project for
 compatibility, although the Metasploit library only supports a subset of the
 functionality.
 
@@ -12,7 +12,7 @@ compatibility of each.
 
 | Gadget Chain Name           | BinaryFormatter | LosFormatter | SoapFormatter |
 | --------------------------- | --------------- | ------------ | ------------- |
-| ClaimsPrincipal             | Yes             | Yes          | Yes           | 
+| ClaimsPrincipal             | Yes             | Yes          | Yes           |
 | TextFormattingRunProperties | Yes             | Yes          | Yes           |
 | TypeConfuseDelegate         | Yes             | Yes          | No            |
 | WindowsIdentity             | Yes             | Yes          | Yes           |
@@ -69,7 +69,7 @@ serialized = ::Msf::Util::DotNetDeserialization.generate(
 The library also has an interface available as a standalone command line tool
 which is suitable for creating payloads for single-use research purposes. This
 tool `dot_net.rb` is available in the `tools/payloads/ysoserial` directory. The
-arguments for this tool are aligned with those of [YSoSerial.NET][1], allowing
+arguments for this tool are aligned with those of [YSoSerial.NET][ysoserial], allowing
 the arguments of basic invocations to be the same. It should be noted however
 that the [supported](#support-matrix) gadgets and formatters are not the same.
 
@@ -109,13 +109,13 @@ generate functions while the `-f` / `--formatter` arguments maps to the
 ## Making Changes
 
 Adding new gadget chains and formatters involves creating a new file in the
-respective library directory: [`lib/msf/util/dot_net_deserialization`][2]. The
-"native" gadget chain type is implemented following the [MS-NRBF][3] format and
-the [Bindata][4] records as defined in [`types/`][5] subdirectory. Once the new
+respective library directory: [`lib/msf/util/dot_net_deserialization`][dot-net-deserialization-root]. The
+"native" gadget chain type is implemented following the [MS-NRBF] format and
+the [Bindata][] records as defined in [`types/`][dot-net-deserialization-types] subdirectory. Once the new
 gadget chain or formatter is implemented, it needs to be added to the main
-library file ([`dot_net_deserialization.rb`][6]).
+library file ([`dot_net_deserialization.rb`][dot-net-deserialization-rb]).
 
-Since serialization chain generate is deterministic, a [unit test][7] should be
+Since serialization chain generate is deterministic, a [unit test][unit-test] should be
 added for any new gadget chain to ensure that the checksum of the
 BinaryFormatter representation is consistent.
 
@@ -124,15 +124,13 @@ Since the .NET deserialization gadgets run operating system commands, the
 following resources can be helpful for module developers to deliver native
 payloads such as Meterpreter.
 
-* [How to use command stagers][8]
-* [How to use Powershell in an exploit][9]
+* [[How to use command stagers|./how-to-use-command-stagers.md]]
+* [[How to use Powershell in an exploit|./how-to-use-powershell-in-an-exploit.md]]
 
-[1]: https://github.com/pwntester/ysoserial.net
-[2]: https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/util/dot_net_deserialization
-[3]: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/75b9fe09-be15-475f-85b8-ae7b7558cfe5
-[4]: https://github.com/dmendel/bindata
-[5]: https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/util/dot_net_deserialization/types
-[6]: https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/util/dot_net_deserialization.rb
-[7]: https://github.com/rapid7/metasploit-framework/blob/master/spec/lib/msf/util/dot_net_deserialization_spec.rb
-[8]: https://github.com/rapid7/metasploit-framework/wiki/How-to-use-command-stagers
-[9]: https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit
+[ysoserial]: https://github.com/pwntester/ysoserial.net
+[dot-net-deserialization-root]: https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/util/dot_net_deserialization
+[MS-NRBF]: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/75b9fe09-be15-475f-85b8-ae7b7558cfe5
+[Bindata]: https://github.com/dmendel/bindata
+[dot-net-deserialization-types]: https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/util/dot_net_deserialization/types
+[dot-net-deserialization-rb]: https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/util/dot_net_deserialization.rb
+[unit-test]: https://github.com/rapid7/metasploit-framework/blob/master/spec/lib/msf/util/dot_net_deserialization_spec.rb

@@ -123,10 +123,11 @@ module Metasploit
         # This method takes a {framework.db.cred.private.jtr_format} (string), and
         # returns the string number associated to the hashcat format
         #
-        # @param[String] a jtr_format string
-        # @return [String] the format number for Hashcat
+        # @param format [String] A jtr_format string
+        # @return [String] The format number for Hashcat
         def jtr_format_to_hashcat_format(format)
           case format
+          # nix
           when 'md5crypt'
             '500'
           when 'descrypt'
@@ -139,10 +140,20 @@ module Metasploit
             '1800'
           when 'bcrypt'
             '3200'
+          # windows
           when 'lm', 'lanman'
             '3000'
           when 'nt', 'ntlm'
             '1000'
+          when 'mscash'
+            '1100'
+          when 'mscash2'
+            '2100'
+          when 'netntlm'
+            '5500'
+          when 'netntlmv2'
+            '5600'
+          # dbs
           when 'mssql'
             '131'
           when 'mssql05'
@@ -165,16 +176,19 @@ module Metasploit
             '300'
           when 'PBKDF2-HMAC-SHA512' # osx 10.8+
             '7100'
+          # osx
           when 'xsha' # osx 10.4-6
             '122'
           when 'xsha512' # osx 10.7
             '1722'
+          # webapps
           when 'PBKDF2-HMAC-SHA1' # Atlassian
             '12001'
           when 'phpass' # Wordpress/PHPass, Joomla, phpBB3
             '400'
           when 'mediawiki' # mediawiki b type
             '3711'
+          # mobile
           when 'android-samsung-sha1'
             '5800'
           when 'android-sha1'
@@ -201,10 +215,6 @@ module Metasploit
             '1411'
           when 'ssha512'
             '1711'
-          when 'mscash'
-            '1100'
-          when 'mscash2'
-            '2100'
           when 'Raw-MD5u'
             '30'
           end
@@ -227,7 +237,7 @@ module Metasploit
 
         # This method sets the appropriate parameters to run a cracker in wordlist mode
         #
-        # @param[String] a file location of the wordlist to use
+        # @param file [String] A file location of the wordlist to use
         def mode_wordlist(file)
           self.increment_length = nil
           self.incremental = nil
@@ -268,7 +278,7 @@ module Metasploit
 
         # This method sets the john to single mode
         #
-        # @param[String] a file location of the wordlist to use
+        # @param file [String] A file location of the wordlist to use
         def mode_single(file)
           if cracker == 'john'
             self.wordlist = file
@@ -282,8 +292,7 @@ module Metasploit
         # This method follows a decision tree to determine the path
         # to the cracker binary we should use.
         #
-        # @return [NilClass] if a binary path could not be found
-        # @return [String] the path to the selected JtR binary
+        # @return [String, NilClass] Returns Nil if a binary path could not be found, or a String containing the path to the selected JTR binary on success.
         def binary_path
           # Always prefer a manually entered path
           if cracker_path && ::File.file?(cracker_path)
