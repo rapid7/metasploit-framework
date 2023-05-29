@@ -4,11 +4,8 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  # include Msf::Exploit::Git::SmartHttp
   include Msf::Exploit::Remote::HttpClient
-  # include Msf::Exploit::Remote::HttpServer
   include Msf::Exploit::Remote::HTTP::Gitlab
-  # include Msf::Exploit::RubyDeserialization
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
