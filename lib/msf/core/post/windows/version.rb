@@ -17,6 +17,20 @@ module Msf::Post::Windows::Version
     )
   end
 
+  def registry_query(key, value)
+    cmd = 'reg query "' + key + '" /v ' + value
+    vprint_line("Running registry query: #{cmd}")
+    raw_output = cmd_exec(cmd)
+    vprint_line("Output: #{raw_output}")
+    regexp = "#{value}\\s+REG_\\w+\\s+(.*)"
+    groups = raw_output.match(regexp)
+    if groups.nil?
+      return nil
+    end
+
+    groups[1]
+  end
+
   def get_version_info
     if session.type == 'meterpreter'
       result = session.railgun.ntdll.RtlGetVersion(input_os_version_info_ex)
@@ -29,31 +43,59 @@ module Msf::Post::Windows::Version
 
       Msf::WindowsVersion.new(major, minor, build, service_pack, product_type)
     else
-      build_num_raw = cmd_exec('systeminfo')
-      bn_groups = build_num_raw.match(/OS Version:\s+(\d+)\.(\d+)\.(\d+).*((Service Pack\s+(\d+))|N\/A)/)
-      if bn_groups.nil?
+      build_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber')
+      version_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion')
+      if build_str.nil? or version_str.nil?
         print_error("Couldn't retrieve the target's build number!")
         raise RuntimeError.new("Couldn't retrieve the target's build number!")
+      end
+
+      build_num = build_str.to_i
+      version_match = version_str.match(/(\d+)\.(\d+)/)
+      if version_match.nil?
+        print_error("Couldn't retrieve the target's build number!")
+        raise RuntimeError.new("Couldn't retrieve the target's build number!")
+      end
+      major, minor = version_match.captures
+      major = major.to_i
+      minor = minor.to_i
+        
+      product = registry_query('HKLM\SYSTEM\CurrentControlSet\Control\ProductOptions', 'ProductType')
+      case product
+      when /WinNT/
+        product_type = Msf::WindowsVersion::VER_NT_WORKSTATION
+      when /LanmanNT/
+        product_type = Msf::WindowsVersion::VER_NT_DOMAIN_CONTROLLER
+      when /ServerNT/
+        product_type = Msf::WindowsVersion::VER_NT_SERVER
       else
-        sp = bn_groups[6]
-        sp = 0 if sp.nil?
-        workstation = 'Standalone Workstation'
-        dc = 'Domain Controller'
-        server = 'Standalone Server'
-        product_regex_output = build_num_raw.match(/((#{workstation})|(#{dc})|(#{server}))/)
-        if product_regex_output.nil?
-          product_type = Msf::WindowsVersion::UnknownProduct
-        else
-          case product_regex_output[1]
-          when workstation
-            product_type = Msf::WindowsVersion::VER_NT_WORKSTATION
-          when dc
-            product_type = Msf::WindowsVersion::VER_NT_DOMAIN_CONTROLLER
-          when server
-            product_type = Msf::WindowsVersion::VER_NT_SERVER
+        product_type = Msf::WindowsVersion::UnknownProduct
+      end
+
+      if major == 6 and minor == 3 and build_num > 9600 # 9600 is Windows 8.1 build number
+        # This is Windows 10+ - the version numbering is calculated differently
+        major = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber')
+        minor = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber')
+        if major.nil? or minor.nil?
+          print_error("Couldn't retrieve the target's build number!")
+          raise RuntimeError.new("Couldn't retrieve the target's build number!")
+        end
+
+        major = major.to_i(16)
+        minor = minor.to_i(16)
+        Msf::WindowsVersion.new(major, minor, build_num, 0, product_type)
+      else
+        # Pre-Windows 10
+        service_pack_raw = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion')
+        service_pack = 0
+        unless service_pack_raw.nil?
+          match = service_pack_raw.match(/Service Pack (\d+)/)
+          unless match.nil?
+            service_pack = match[1].to_i
           end
         end
-        Msf::WindowsVersion.new(bn_groups[1].to_i, bn_groups[2].to_i, bn_groups[3].to_i, sp, product_type)
+
+        Msf::WindowsVersion.new(major, minor, build_num, service_pack, product_type)
       end
     end
   end
