@@ -14,11 +14,11 @@ resources of the machine.
 
 ## Options
 
-+---------+----------------------------------------------+
-| FTPUSER | The username used to log into the FTP server |
-+---------+----------------------------------------------+
-| FTPPASS | The password used to log into the FTP server |
-+---------+----------------------------------------------+
+### FTPUSER
+The username used to log into the FTP server
+
+### FTPPASS
+The password used to log into the FTP server
 
 ### Install on Arch Linux
 
