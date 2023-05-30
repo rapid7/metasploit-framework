@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Gitlab version 16.0 contains a directory traversal for arbitrary file read as the gitlab user.
+GitLab version 16.0 contains a directory traversal for arbitrary file read as the `gitlab` user.
 In order to exploit this vulnerability, a user must be able to create a project and groups.
 When exploiting this vulnerability, a group (or subgroup under the group) must be created
 for each level of the traversal. If the depth is 11 for the dir traversal, then a group
@@ -9,11 +9,11 @@ With all these requirements satisfied a dummy file is uploaded, and the full
 traversal is then executed. Cleanup is performed by deleting the first group which
 cascades to deleting all other objects created.
 
-Tested on Docker image of gitlab 16.0
+Tested on a Docker image of GitLab 16.0
 
 ### Install
 
-A docker image is available:
+A Docker image is available:
 
 ```
 sudo docker run --detach \
@@ -49,7 +49,7 @@ sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 
 ### DEPTH
 
-Depth for Path Traversal (also groups creation), 11 seems pretty safe but it may work with less. Defaults to `11`
+Depth for path traversal (also groups creation). 11 seems pretty safe but it may work with less. Defaults to `11`.
 
 ### FILE
 
@@ -57,7 +57,7 @@ File to read. Defaults to `/etc/passwd`
 
 ## Scenarios
 
-### Docker Gitlab 16.0
+### Docker GitLab 16.0
 
 ```
 msf6 > use auxiliary/scanner/http/gitlab_subgroups_file_read
