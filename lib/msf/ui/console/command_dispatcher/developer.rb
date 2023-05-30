@@ -200,6 +200,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_line 'Usage: edit [file/to/edit]'
     print_line
     print_line "Edit the currently active module or a local file with #{local_editor}."
+    print_line 'To change the preferred editor, you can "setg LocalEditor".'
     print_line 'If a library file is specified, it will automatically be reloaded after editing.'
     print_line 'Otherwise, you can reload the active module with "reload" or "rerun".'
     print_line
@@ -301,6 +302,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_line 'Usage: log'
     print_line
     print_line 'Display framework.log paged to the end if possible.'
+    print_line 'To change the preferred pager, you can "setg LocalPager".'
     print_line 'For full effect, "setg LogLevel 3" before running modules.'
     print_line
     print_line "Log location: #{File.join(Msf::Config.log_directory, 'framework.log')}"
