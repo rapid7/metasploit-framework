@@ -19,9 +19,7 @@ module Msf::Post::Windows::Version
 
   def registry_query(key, value)
     cmd = 'reg query "' + key + '" /v ' + value
-    vprint_line("Running registry query: #{cmd}")
     raw_output = cmd_exec(cmd)
-    vprint_line("Output: #{raw_output}")
     regexp = "#{value}\\s+REG_\\w+\\s+(.*)"
     groups = raw_output.match(regexp)
     if groups.nil?
@@ -41,6 +39,19 @@ module Msf::Post::Windows::Version
     result
   end
 
+  def get_version_info_fallback_impl
+        build_num_raw = cmd_exec('ver')
+        groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(\.(\d+))?/)
+        if groups.nil?
+          return nil
+        end
+
+        major, minor, build, unused, revision = groups.captures
+        revision = 0 if revision.nil?
+        # Default to workstation, since it'll likely be an older OS - pre Server editions
+        return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, Msf::WindowsVersion::VER_NT_WORKSTATION)
+  end
+
   def get_version_info_impl
     if session.type == 'meterpreter'
       result = session.railgun.ntdll.RtlGetVersion(input_os_version_info_ex)
@@ -56,28 +67,18 @@ module Msf::Post::Windows::Version
       # Command shell - we'll try reg commands, and fall back to `ver`
       build_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber')
       if build_str.nil?
-        # May be pre-XP, which doesn't have `reg`. If we're in a CMD shell, we'll hopefully have `ver`
-        # This seems to be language-pack-independent
-        build_num_raw = cmd_exec('ver')
-        groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(\.(\d+))?/)
-        if groups.nil?
-          return nil
-        end
-
-        major, minor, build, unused, revision = groups.captures
-        revision = 0 if revision.nil?
-        return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, Msf::WindowsVersion::UnknownProduct)
+        return get_version_info_fallback_impl
       end
 
       version_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion')
       if version_str.nil?
-        return nil
+        return get_version_info_fallback_impl
       end
 
       build_num = build_str.to_i
       version_match = version_str.match(/(\d+)\.(\d+)/)
       if version_match.nil?
-        return nil
+        return get_version_info_fallback_impl
       end
 
       major, minor = version_match.captures
@@ -93,7 +94,7 @@ module Msf::Post::Windows::Version
       when /ServerNT/
         product_type = Msf::WindowsVersion::VER_NT_SERVER
       else
-        product_type = Msf::WindowsVersion::UnknownProduct
+        product_type = Msf::WindowsVersion::VER_NT_WORKSTATION
       end
 
       if major == 6 and minor == 3 and build_num > 9600 # 9600 is Windows 8.1 build number
@@ -101,7 +102,7 @@ module Msf::Post::Windows::Version
         major = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber')
         minor = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber')
         if major.nil? or minor.nil?
-          return nil
+          return get_version_info_fallback_impl
         end
 
         major = major.to_i(16)
