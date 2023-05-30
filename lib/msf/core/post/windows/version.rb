@@ -32,6 +32,16 @@ module Msf::Post::Windows::Version
   end
 
   def get_version_info
+    result = get_version_info_impl
+    if result.nil?
+      print_error("Couldn't retrieve the target's build number!")
+      raise RuntimeError.new("Couldn't retrieve the target's build number!")
+    end
+
+    result
+  end
+
+  def get_version_info_impl
     if session.type == 'meterpreter'
       result = session.railgun.ntdll.RtlGetVersion(input_os_version_info_ex)
       os_version_info_ex = unpack_version_info(result['VersionInformation'])
@@ -43,19 +53,33 @@ module Msf::Post::Windows::Version
 
       Msf::WindowsVersion.new(major, minor, build, service_pack, product_type)
     else
+      # Command shell - we'll try reg commands, and fall back to `ver`
       build_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber')
+      if build_str.nil?
+        # May be pre-XP, which doesn't have `reg`. If we're in a CMD shell, we'll hopefully have `ver`
+        # This seems to be language-pack-independent
+        build_num_raw = cmd_exec('ver')
+        groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(\.(\d+))?/)
+        if groups.nil?
+          return nil
+        end
+
+        major, minor, build, unused, revision = groups.captures
+        revision = 0 if revision.nil?
+        return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, Msf::WindowsVersion::UnknownProduct)
+      end
+
       version_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion')
-      if build_str.nil? or version_str.nil?
-        print_error("Couldn't retrieve the target's build number!")
-        raise RuntimeError.new("Couldn't retrieve the target's build number!")
+      if version_str.nil?
+        return nil
       end
 
       build_num = build_str.to_i
       version_match = version_str.match(/(\d+)\.(\d+)/)
       if version_match.nil?
-        print_error("Couldn't retrieve the target's build number!")
-        raise RuntimeError.new("Couldn't retrieve the target's build number!")
+        return nil
       end
+
       major, minor = version_match.captures
       major = major.to_i
       minor = minor.to_i
@@ -77,8 +101,7 @@ module Msf::Post::Windows::Version
         major = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber')
         minor = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber')
         if major.nil? or minor.nil?
-          print_error("Couldn't retrieve the target's build number!")
-          raise RuntimeError.new("Couldn't retrieve the target's build number!")
+          return nil
         end
 
         major = major.to_i(16)
