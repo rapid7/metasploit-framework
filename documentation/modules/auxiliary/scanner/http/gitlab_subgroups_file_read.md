@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-GitLab version 16.0 contains a directory traversal for arbitrary file read as the `gitlab` user.
+GitLab version 16.0 contains an authenticated directory traversal for arbitrary file read as the `gitlab` user.
 In order to exploit this vulnerability, a user must be able to create a project and groups.
 When exploiting this vulnerability, a group (or subgroup under the group) must be created
 for each level of the traversal. If the depth is 11 for the dir traversal, then a group
