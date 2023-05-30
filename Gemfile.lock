@@ -1,3 +1,18 @@
+GIT
+  remote: https://github.com/adfoster-r7/packetfu
+  revision: 2e1fdca17131521045efc1bb6982d905b0bf9d1c
+  branch: add-tests-for-newer-ruby-versions
+  specs:
+    packetfu (1.1.13)
+      pcaprub (~> 0.13.1)
+
+GIT
+  remote: https://github.com/adfoster-r7/rex-text
+  revision: eb2d70642a6c4cc4f3ff405db1f44da2fad13360
+  branch: add-support-for-ruby-3.3.0-preview1
+  specs:
+    rex-text (0.2.51)
+
 PATH
   remote: .
   specs:
@@ -294,8 +309,6 @@ GEM
     openssl-ccm (1.2.3)
     openssl-cmac (2.0.2)
     openvas-omp (0.0.4)
-    packetfu (1.1.13)
-      pcaprub
     parallel (1.23.0)
     parser (3.2.2.1)
       ast (~> 2.4.1)
@@ -391,7 +404,6 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.3)
-    rex-text (0.2.50)
     rex-zip (0.1.4)
       rex-text
     rexml (3.2.5)
@@ -516,9 +528,11 @@ DEPENDENCIES
   memory_profiler
   metasploit-framework!
   octokit
+  packetfu!
   pry-byebug
   rake
   redcarpet
+  rex-text!
   rspec-rails
   rspec-rerun
   rubocop

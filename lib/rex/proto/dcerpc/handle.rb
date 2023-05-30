@@ -24,6 +24,7 @@ class Handle
     uuid_re = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}'
     rev_re = '\d+.\d+'
     proto_re = '(?:' + @@protocols.join('|') + ')'
+    # TODO:
     re = Regexp.new("(#{uuid_re}):(#{rev_re})\@(#{proto_re}):(.*?)\\[(.*)\\]$", true, 'n')
     match = re.match(handle)
     raise ArgumentError if !match

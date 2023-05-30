@@ -3,6 +3,9 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'packetfu', git: 'https://github.com/adfoster-r7/packetfu', branch: 'add-tests-for-newer-ruby-versions'
+gem 'rex-text', git: 'https://github.com/adfoster-r7/rex-text', branch: 'add-support-for-ruby-3.3.0-preview1'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
