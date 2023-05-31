@@ -27,7 +27,7 @@ docker run -p 8080:8080 -d apache/nifi:1.13.0
 
 Versions > 1.13.0 dynamically create a username and password. To view them in the docker logs, use the following command:
 ```
-docker log <container> | grep Generated
+docker logs <container> | grep Generated
 ```
 
 
@@ -72,20 +72,40 @@ msf6 auxiliary(scanner/http/nifi_login) > run
 [*] Auxiliary module execution completed
 ```
 
-### Docker image of Apache NiFi 1.13.0
+### Docker image of Apache NiFi 1.21.0
 ```
-msf6 > use auxiliary/scanner/http/nifi_login
-msf6 auxiliary(scanner/http/nifi_login) > set rhosts 127.0.0.1
-rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/nifi_login) > set ssl false
-[!] Changing the SSL option's value may require changing RPORT!
-ssl => false
-msf6 auxiliary(scanner/http/nifi_login) > set rport 8080
-rport => 8080
-msf6 auxiliary(scanner/http/nifi_login) > run
+msf6 > use auxiliary/scanner/http/apache_nifi_login
+msf6 auxiliary(scanner/http/apache_nifi_login) > set RHOST 127.0.0.1
+RHOST => 127.0.0.1
+msf6 auxiliary(scanner/http/apache_nifi_login) > set RPORT 8443
+RPORT => 8443
+msf6 auxiliary(scanner/http/apache_nifi_login) > set USERNAME test
+USERNAME => test
+msf6 auxiliary(scanner/http/apache_nifi_login) > set PASSWORD test
+PASSWORD => test
+msf6 auxiliary(scanner/http/apache_nifi_login) > run
 
 [*] Checking 127.0.0.1
-[+] 127.0.0.1:8080        - User login not supported, try visiting /nifi to gain access
+[-] 127.0.0.1:8443        - Apache NiFi - Failed to login as 'test' with password 'test'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/apache_nifi_login) > set USERNAME a43c5a33-1635-46aa-8773-ef65f572fa0e
+USERNAME => a43c5a33-1635-46aa-8773-ef65f572fa0e
+msf6 auxiliary(scanner/http/apache_nifi_login) > set PASSWORD QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u
+PASSWORD => QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u
+msf6 auxiliary(scanner/http/apache_nifi_login) > run
+
+[*] Checking 127.0.0.1
+[+] 127.0.0.1:8443        - Apache NiFi - Login successful as 'a43c5a33-1635-46aa-8773-ef65f572fa0e' with password 'QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u'
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/apache_nifi_login) > creds
+Credentials
+===========
+
+host       origin     service           public                                private                           realm  private_type  JtR Format
+----       ------     -------           ------                                -------                           -----  ------------  ----------
+127.0.0.1  127.0.0.1  8443/tcp (https)  a43c5a33-1635-46aa-8773-ef65f572fa0e  QUicCmARFZKeaO1QqPTdnJlB/IPCjJ3u         Password      
+
+msf6 auxiliary(scanner/http/apache_nifi_login) > 
 ```
