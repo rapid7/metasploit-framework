@@ -9,7 +9,6 @@ module Msf
     VER_NT_WORKSTATION = 1
     VER_NT_DOMAIN_CONTROLLER = 2
     VER_NT_SERVER = 3
-    UnknownProduct = -1
 
     Win2000 = Rex::Version.new('5.0.2195')
     XP_SP0 = Rex::Version.new('5.1.2600.0')

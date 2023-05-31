@@ -14,13 +14,13 @@ RSpec.describe Msf::Post::Windows::Version do
   end
 
   def respond_to_reg_query(subject, key, value, result, type)
-    command = "reg query \"#{key}\" /v #{value}"
+    command = "cmd.exe /c reg query \"#{key}\" /v \"#{value}\""
     output = "\r\n#{key}\r\n    #{value}    #{type}    #{result}\r\n"
     allow(subject).to receive(:cmd_exec).with(command) { output }
   end
 
   let(:current_version_key) do
-    'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+    'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
   end
 
   let(:current_build_number) do
@@ -44,7 +44,7 @@ RSpec.describe Msf::Post::Windows::Version do
   end
 
   let(:product_type_key) do
-    'HKLM\SYSTEM\CurrentControlSet\Control\ProductOptions'
+    'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ProductOptions'
   end
 
   let(:product_type) do
@@ -103,8 +103,8 @@ RSpec.describe Msf::Post::Windows::Version do
     end
 
     it "Windows 2000 German" do
+      allow(subject).to receive(:cmd_exec).with("cmd.exe /c reg query \"#{current_version_key}\" /v \"#{current_build_number}\"") { "Der Befehl \"reg\" ist entweder falsch geschrieben oder\r\nkonnte nicht gefunden werden." }
       allow(subject).to receive(:cmd_exec).with("ver") { "Microsoft Windows 2000 [Version 5.00.2195]" }
-      allow(subject).to receive(:cmd_exec).with("reg query \"#{current_version_key}\" /v #{current_build_number}") { "Der Befehl \"reg\" ist entweder falsch geschrieben oder\r\nkonnte nicht gefunden werden." }
       allow(subject).to receive_message_chain('session.type').and_return('shell')
       version = subject.get_version_info
       expect(version.build_number).to eq(Msf::WindowsVersion::Win2000)

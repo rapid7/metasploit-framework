@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 module Msf::Post::Windows::Version
+include Msf::Post::Windows::Registry
 
   def initialize(info = {})
     super(
@@ -15,18 +16,6 @@ module Msf::Post::Windows::Version
         }
       )
     )
-  end
-
-  def registry_query(key, value)
-    cmd = 'reg query "' + key + '" /v ' + value
-    raw_output = cmd_exec(cmd)
-    regexp = "#{value}\\s+REG_\\w+\\s+(.*)"
-    groups = raw_output.match(regexp)
-    if groups.nil?
-      return nil
-    end
-
-    groups[1]
   end
 
   def get_version_info
@@ -65,12 +54,12 @@ module Msf::Post::Windows::Version
       Msf::WindowsVersion.new(major, minor, build, service_pack, product_type)
     else
       # Command shell - we'll try reg commands, and fall back to `ver`
-      build_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber')
+      build_str = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
       if build_str.nil?
         return get_version_info_fallback_impl
       end
 
-      version_str = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion')
+      version_str = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
       if version_str.nil?
         return get_version_info_fallback_impl
       end
@@ -85,7 +74,7 @@ module Msf::Post::Windows::Version
       major = major.to_i
       minor = minor.to_i
         
-      product = registry_query('HKLM\SYSTEM\CurrentControlSet\Control\ProductOptions', 'ProductType')
+      product = shell_registry_getvaldata('HKLM\SYSTEM\CurrentControlSet\Control\ProductOptions', 'ProductType', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
       case product
       when /WinNT/
         product_type = Msf::WindowsVersion::VER_NT_WORKSTATION
@@ -99,18 +88,16 @@ module Msf::Post::Windows::Version
 
       if major == 6 and minor == 3 and build_num > 9600 # 9600 is Windows 8.1 build number
         # This is Windows 10+ - the version numbering is calculated differently
-        major = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber')
-        minor = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber')
+        major = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
+        minor = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
         if major.nil? or minor.nil?
           return get_version_info_fallback_impl
         end
 
-        major = major.to_i(16)
-        minor = minor.to_i(16)
         Msf::WindowsVersion.new(major, minor, build_num, 0, product_type)
       else
         # Pre-Windows 10
-        service_pack_raw = registry_query('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion')
+        service_pack_raw = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
         service_pack = 0
         unless service_pack_raw.nil?
           match = service_pack_raw.match(/Service Pack (\d+)/)
