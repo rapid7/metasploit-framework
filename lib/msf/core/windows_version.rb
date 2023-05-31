@@ -69,12 +69,19 @@ module Msf
       Server2016Plus = 'Windows Server 2016+'.freeze
     end
 
-    def initialize(major, minor, build, service_pack, product_type)
+    def initialize(major, minor, build, service_pack, revision, product_type)
       self._major = major
       self._minor = minor
       self._build = build
       self._service_pack = service_pack
+      self._revision = revision
       self.product_type = product_type
+    end
+
+    # The specific revision number of this version
+    # This is mainly going to be present on Windows 10+, wherein it's easy to get it from the registry.
+    def revision_number
+      _revision
     end
 
     # The specific build number of this version (major.minor.build.service_pack)
@@ -132,7 +139,7 @@ module Msf
 
     private
 
-    attr_accessor :_major, :_minor, :_build, :_service_pack, :product_type
+    attr_accessor :_major, :_minor, :_build, :_service_pack, :_revision, :product_type
 
     # The major release within which this build fits
     def major_release_name
