@@ -1,6 +1,7 @@
 ## Vulnerable Application
 
-This attempts to login to Apache NiFi websites.
+This module attempts to take login details for Apache NiFi websites
+and identify if they are valid or not.
 
 Tested against NiFi major releases 1.14.0 - 1.21.0, and 1.13.0
 Also works against NiFi <= 1.13.0, but the module needs to be adjusted:
@@ -45,7 +46,7 @@ docker log <container> | grep Generated
 
 ## Scenarios
 
-### Docker image 1.18.0 and 1.13.0
+### Docker image of Apache NiFi 1.18.0
 
 ```
 msf6 > use auxiliary/scanner/http/nifi_login
@@ -71,6 +72,7 @@ msf6 auxiliary(scanner/http/nifi_login) > run
 [*] Auxiliary module execution completed
 ```
 
+### Docker image of Apache NiFi 1.13.0
 ```
 msf6 > use auxiliary/scanner/http/nifi_login
 msf6 auxiliary(scanner/http/nifi_login) > set rhosts 127.0.0.1

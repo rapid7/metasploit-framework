@@ -15,7 +15,8 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Apache NiFi Login Scanner',
         'Description' => %q{
-          This attempts to login to Apache NiFi websites.
+          This module attempts to take login details for Apache NiFi websites
+          and identify if they are valid or not.
 
           Tested against NiFi major releases 1.14.0 - 1.21.0, and 1.13.0
           Also works against NiFi <= 1.13.0, but the module needs to be adjusted:
@@ -78,20 +79,20 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
 
-    fail_with(Failure::UnexpectedReply, "Apache NiFi not detected on #{ip}") unless res.body =~ %r{js/nf/nf-namespace\.js\?([\d.]*)">}
+    fail_with(Failure::NotVulnerable, "Apache NiFi not detected on #{ip}") unless res.body =~ %r{js/nf/nf-namespace\.js\?([\d.]*)">}
 
     res = send_request_cgi!(
       'uri' => normalize_uri(target_uri.path, 'nifi-api', 'access', 'config')
     )
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
 
     res_json = res.get_json_document
 
-    unless res_json['config']['supportsLogin']
-      print_good("#{peer} - User login not supported, try visiting /nifi to gain access")
+    unless res_json.dig('config', 'supportsLogin')
+      print_error("#{peer} - User login not supported, try visiting /nifi to gain access")
       return
     end
 
