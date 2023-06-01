@@ -98,6 +98,10 @@ include Msf::Post::Windows::Registry
       else
         # Pre-Windows 10
         service_pack_raw = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
+        if service_pack_raw.nil? and major >= 6
+          # Some older versions didn't put the Service Pack value in both 32 and 64-bit versions of the registry - look there specifically
+          service_pack_raw = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_32_BIT)
+        end
         service_pack = 0
         unless service_pack_raw.nil?
           match = service_pack_raw.match(/Service Pack (\d+)/)
