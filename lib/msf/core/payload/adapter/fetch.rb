@@ -86,7 +86,6 @@ module Msf::Payload::Adapter::Fetch
   def generate(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
-    check_srvhost
     @srvexe = generate_payload_exe(opts)
     cmd = generate_fetch_commands
     vprint_status("Command to run on remote host: #{cmd}")
@@ -127,6 +126,11 @@ module Msf::Payload::Adapter::Fetch
 
   def handle_connection(conn, opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
+    super
+  end
+
+  def setup_handler
+    check_srvhost
     super
   end
 
