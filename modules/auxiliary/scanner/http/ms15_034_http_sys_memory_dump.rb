@@ -165,13 +165,13 @@ class MetasploitModule < Msf::Auxiliary
       vuln_status = check_host(ip)
       case vuln_status
       when Exploit::CheckCode::Safe
-        print_error('Target is not vulnerable')
+        print_error('The target is not exploitable.')
         return
       when Exploit::CheckCode::Unknown
-        print_error('An unknown error occurred when trying to check the target! Observe the traffic with HTTPTrace turned on and try to debug.')
+        print_error('Cannot reliably check exploitability! Observe the traffic with HTTPTrace turned on and try to debug.')
         return
       when Exploit::CheckCode::Vulnerable
-        print_good('Target is vulnerable!')
+        print_good('The target is vulnerable.')
       else
         print_error('An unknown status code was returned from check_host!')
         return
