@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test meterpreter API methods },
         'License' => MSF_LICENSE,
         'Author' => [ 'egypt'],
-        'Platform' => [ 'windows', 'linux', 'java' ],
+        'Platform' => [ 'windows', 'linux', 'java', 'osx' ],
         'SessionTypes' => [ 'meterpreter' ]
       )
     )

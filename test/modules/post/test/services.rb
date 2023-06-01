@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'kernelsmith', 'egypt' ],
         'Platform' => [ 'windows' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ]
       )
     )
     register_options(

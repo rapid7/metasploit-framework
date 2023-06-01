@@ -19,8 +19,8 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test Post::Common get envs API methods },
         'License' => MSF_LICENSE,
         'Author' => [ 'Ben Campbell'],
-        'Platform' => [ 'windows', 'linux', 'java', 'python' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'Platform' => [ 'windows', 'linux', 'unix', 'java', 'python', 'osx' ],
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ]
       )
     )
   end

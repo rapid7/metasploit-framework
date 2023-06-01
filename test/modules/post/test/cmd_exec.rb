@@ -15,8 +15,8 @@ class MetasploitModule < Msf::Post
         'Name' => 'Meterpreter cmd_exec test',
         'Description' => %q( This module will test the meterpreter cmd_exec API ),
         'License' => MSF_LICENSE,
-        'Platform' => ['windows', 'linux', 'unix'],
-        'SessionTypes' => ['meterpreter']
+        'Platform' => [ 'windows', 'linux', 'unix', 'java', 'osx' ],
+        'SessionTypes' => ['meterpreter', 'shell', 'powershell']
       )
     )
   end
