@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
+        'Platform' => ['linux', 'osx', 'unix', 'solaris', 'bsd'],
         'SessionTypes' => %w[shell meterpreter],
         'References' => [
           [ 'URL', 'http://s3tools.org/kb/item14.htm' ],
