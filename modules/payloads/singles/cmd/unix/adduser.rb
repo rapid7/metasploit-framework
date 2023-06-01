@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'unix_crypt'
+
 module MetasploitModule
   CachedSize = :dynamic
 
