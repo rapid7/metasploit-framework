@@ -188,7 +188,7 @@ module Rex::Proto::Http::WebSocket
     #
     # Read a WebSocket::Frame from the peer.
     #
-    # @return [WebSocket::Frame] the frame that was received from the peer.
+    # @return [Nil, WebSocket::Frame] the frame that was received from the peer.
     def get_wsframe(_opts = {})
       frame = Frame.new
       frame.header.read(self)
@@ -232,7 +232,8 @@ module Rex::Proto::Http::WebSocket
       frame.mask!
       put_wsframe(frame, opts = opts)
       while (frame = get_wsframe(opts))
-        break if frame.opcode == Opcode::CONNECTION_CLOSE
+        break if frame.nil?
+        break if frame.header.opcode == Opcode::CONNECTION_CLOSE
         # all other frames are dropped after our connection close request is sent
       end
 
