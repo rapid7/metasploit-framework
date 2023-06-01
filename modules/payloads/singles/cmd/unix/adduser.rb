@@ -45,8 +45,8 @@ module MetasploitModule
 
     register_advanced_options(
       [
-        OptEnum.new('RootMethod', [false, 'Set the method that the new user can obtain root', 'SUDO', ['SUID', 'SUDO', 'NONE']]),
-        OptBool.new('CheckSudoers', [false, 'Add lines to only add to sudoers if file exists', true], conditions: %w[RootMethod == SUDO])
+        OptEnum.new('RootMethod', [false, 'The method to obtain root with the new user', 'SUDO', ['SUID', 'SUDO', 'NONE']]),
+        OptBool.new('CheckSudoers', [false, 'Check if the sudoers file exists before modifying it', true], conditions: %w[RootMethod == SUDO])
       ]
     )
   end
