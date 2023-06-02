@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
+include Msf::Post::Windows
 class MetasploitModule < Msf::Encoder
   Rank = ExcellentRanking
 
@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Encoder
     # The use of quotes also ensures that we get around the issue with cmd.exe understanding & as a symbol for
     # "also execute this command", whereas in PowerShell it is a reserved character, so not quoting the string
     # will result in the & being interpreted by PowerShell and the command failing on an interpretation error in PowerShell itself.
-    base64 = Rex::Text.encode_base64(Rex::Text.to_unicode("cmd.exe /c 'start #{buf.gsub("'", "''")} '"))
+    base64 = Rex::Text.encode_base64(Rex::Text.to_unicode("cmd.exe /c 'start #{Msf::Post::Windows.escape_powershell_literal(buf)} '"))
     cmd = "powershell -w hidden -nop -e #{base64}"
   end
 end
