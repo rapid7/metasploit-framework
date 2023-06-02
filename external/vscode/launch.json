@@ -14,6 +14,8 @@
             "args": [],
             "askParameters": true,
             "localfs": true,
+            "useBundler": true,
+            "useTerminal": true,
             "debugPort": "127.0.0.1:55634"
         },
         {
@@ -21,6 +23,8 @@
             "name": "Attach with rdbg",
             "request": "attach",
             "localfs": true,
+            "useTerminal": true,
+            "useBundler": true,
             "debugPort": "127.0.0.1:55634"
         }
     ]
