@@ -67,6 +67,8 @@ class MetasploitModule < Msf::Auxiliary
     # check method almost entirely borrowed from gitlab_github_import_rce_cve_2022_2992
     self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
 
+    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError if cookie.nil?
+
     vprint_status('Trying to get the GitLab version')
 
     version = Rex::Version.new(gitlab_version)
@@ -91,6 +93,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
+    fail_with(Failure::NoAccess, 'Unable to retrieve cookie') if cookie.nil?
+
     # get our csrf token
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path)

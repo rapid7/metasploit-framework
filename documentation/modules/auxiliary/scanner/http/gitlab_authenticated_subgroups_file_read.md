@@ -38,7 +38,7 @@ sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 
 1. Install the application
 1. Start msfconsole
-1. Do: `use auxiliary/scanner/http/gitlab_subgroups_file_read`
+1. Do: `use auxiliary/scanner/http/gitlab_authenticated_subgroups_file_read`
 1. Do: `set rhosts [ip]`
 1. Do: `set username [username]`
 1. DO: `set password [password]`
