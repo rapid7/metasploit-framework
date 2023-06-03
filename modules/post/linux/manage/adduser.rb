@@ -90,11 +90,7 @@ class MetasploitModule < Msf::Post
         fail_with(Failure::NotFound, 'Cannot find a binary to add a new user cleanly')
       end
     os_platform =
-      if datastore['UseraddBinary'] == 'MANUAL'
-        'MANUAL'
-      elsif datastore['UseraddBinary']
-        ''
-      elsif session.type == 'meterpreter'
+      if session.type == 'meterpreter'
         sysinfo['OS']
       elsif active_db? && framework.db.workspace.hosts.where(address: session.session_host) && framework.db.workspace.hosts.where(address: session.session_host).first.os_name
         host = framework.db.workspace.hosts.where(address: session.session_host).first
