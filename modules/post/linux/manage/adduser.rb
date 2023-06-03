@@ -6,6 +6,7 @@ require 'unix_crypt'
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
+  include Msf::Post::Linux::System
 
   def initialize(info = {})
     super(
@@ -103,7 +104,7 @@ class MetasploitModule < Msf::Post
           host.os_name
         end
       else
-        'linux'
+        get_sysinfo[:distro]
       end
 
     case binary
