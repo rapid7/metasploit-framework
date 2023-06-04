@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   # only do a git ls-files if the .git folder exists and we have a git binary in PATH
   if File.directory?(File.join(File.dirname(__FILE__), ".git")) && Msf::Util::Helper.which("git")
     spec.files         = `git ls-files`.split($/).reject { |file|
-      file =~ /^external|^docs/
+      file =~ /^external|^docs|^\.solargraph\.yml/
     }
   end
   spec.bindir = '.'
@@ -54,6 +54,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
+  # Improves bootup performance by caching expensive computations
+  spec.add_runtime_dependency 'bootsnap'
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu'
   # Needed for some admin modules (scrutinizer_add_user.rb)
@@ -70,11 +72,12 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.122'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.130'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.20'
   # Needed by msfgui and other rpc components
-  spec.add_runtime_dependency 'msgpack'
+  # Locked until build env can handle newer version. See: https://github.com/msgpack/msgpack-ruby/issues/334
+  spec.add_runtime_dependency 'msgpack', '~> 1.6.0'
   # get list of network interfaces, like eth* from OS.
   spec.add_runtime_dependency 'network_interface'
   # NTLM authentication

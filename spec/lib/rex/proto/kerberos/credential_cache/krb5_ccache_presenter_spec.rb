@@ -194,8 +194,42 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     User ID: 500
                     Primary Group ID: 513
                     User Flags: 0
+                      .... .... .... .... ..0. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is NOT SET
+                      .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+                      .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+                      .... .... .... .... .... .0.. .... .... Profile Path Populated: The PROFILE_PATH_POPULATED bit is NOT SET
+                      .... .... .... .... .... ..0. .... .... Resource Group Ids: The RESOURCE_GROUP_IDS bit is NOT SET
+                      .... .... .... .... .... ...0 .... .... Accepts Ntlmv2: The ACCEPTS_NTLMV2 bit is NOT SET
+                      .... .... .... .... .... .... 0... .... Machine Account: The MACHINE_ACCOUNT bit is NOT SET
+                      .... .... .... .... .... .... .0.. .... Sub Authentication: The SUB_AUTHENTICATION bit is NOT SET
+                      .... .... .... .... .... .... ..0. .... Extra Sids: The EXTRA_SIDS bit is NOT SET
+                      .... .... .... .... .... .... .... 0... Lan Manager: The LAN_MANAGER bit is NOT SET
+                      .... .... .... .... .... .... .... ..0. No Encryption: The NO_ENCRYPTION bit is NOT SET
+                      .... .... .... .... .... .... .... ...0 Guest: The GUEST bit is NOT SET
                     User Session Key: 00000000000000000000000000000000
                     User Account Control: 528
+                      .... .... ..0. .... .... .... .... .... Use Aes Keys: The USE_AES_KEYS bit is NOT SET
+                      .... .... ...0 .... .... .... .... .... Partial Secrets Account: The PARTIAL_SECRETS_ACCOUNT bit is NOT SET
+                      .... .... .... 0... .... .... .... .... No Auth Data Required: The NO_AUTH_DATA_REQUIRED bit is NOT SET
+                      .... .... .... .0.. .... .... .... .... Trusted To Authenticate For Delegation: The TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION bit is NOT SET
+                      .... .... .... ..0. .... .... .... .... Password Expired: The PASSWORD_EXPIRED bit is NOT SET
+                      .... .... .... ...0 .... .... .... .... Dont Require Preauth: The DONT_REQUIRE_PREAUTH bit is NOT SET
+                      .... .... .... .... 0... .... .... .... Use Des Key Only: The USE_DES_KEY_ONLY bit is NOT SET
+                      .... .... .... .... .0.. .... .... .... Not Delegated: The NOT_DELEGATED bit is NOT SET
+                      .... .... .... .... ..0. .... .... .... Trusted For Delegation: The TRUSTED_FOR_DELEGATION bit is NOT SET
+                      .... .... .... .... ...0 .... .... .... Smartcard Required: The SMARTCARD_REQUIRED bit is NOT SET
+                      .... .... .... .... .... 0... .... .... Encrypted Test Password Allowed: The ENCRYPTED_TEST_PASSWORD_ALLOWED bit is NOT SET
+                      .... .... .... .... .... .0.. .... .... Account Auto Lock: The ACCOUNT_AUTO_LOCK bit is NOT SET
+                      .... .... .... .... .... ..1. .... .... Dont Expire Password: The DONT_EXPIRE_PASSWORD bit is SET
+                      .... .... .... .... .... ...0 .... .... Server Trust Account: The SERVER_TRUST_ACCOUNT bit is NOT SET
+                      .... .... .... .... .... .... 0... .... Workstation Trust Account: The WORKSTATION_TRUST_ACCOUNT bit is NOT SET
+                      .... .... .... .... .... .... .0.. .... Interdomain Trust Account: The INTERDOMAIN_TRUST_ACCOUNT bit is NOT SET
+                      .... .... .... .... .... .... ..0. .... Mns Logon Account: The MNS_LOGON_ACCOUNT bit is NOT SET
+                      .... .... .... .... .... .... ...1 .... Normal Account: The NORMAL_ACCOUNT bit is SET
+                      .... .... .... .... .... .... .... 0... Temp Duplicate Account: The TEMP_DUPLICATE_ACCOUNT bit is NOT SET
+                      .... .... .... .... .... .... .... .0.. Password Not Required: The PASSWORD_NOT_REQUIRED bit is NOT SET
+                      .... .... .... .... .... .... .... ..0. Home Directory Required: The HOME_DIRECTORY_REQUIRED bit is NOT SET
+                      .... .... .... .... .... .... .... ...0 Account Disabled: The ACCOUNT_DISABLED bit is NOT SET
                     Sub Auth Status: 0
                     Last Successful Interactive Logon: No Time Set (0)
                     Last Failed Interactive Logon: No Time Set (0)
@@ -204,11 +238,41 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Resource Group Count: 0
                     Group Count: 5
                     Group IDs:
-                      Relative ID: 513, Attributes: 7
-                      Relative ID: 512, Attributes: 7
-                      Relative ID: 520, Attributes: 7
-                      Relative ID: 518, Attributes: 7
-                      Relative ID: 519, Attributes: 7
+                      Relative ID: 513
+                      Attributes: 7
+                        ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+                        .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+                        .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
+                        .... .... .... .... .... .... .... ..1. Enabled By Default: The ENABLED_BY_DEFAULT bit is SET
+                        .... .... .... .... .... .... .... ...1 Mandatory: The MANDATORY bit is SET
+                      Relative ID: 512
+                      Attributes: 7
+                        ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+                        .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+                        .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
+                        .... .... .... .... .... .... .... ..1. Enabled By Default: The ENABLED_BY_DEFAULT bit is SET
+                        .... .... .... .... .... .... .... ...1 Mandatory: The MANDATORY bit is SET
+                      Relative ID: 520
+                      Attributes: 7
+                        ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+                        .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+                        .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
+                        .... .... .... .... .... .... .... ..1. Enabled By Default: The ENABLED_BY_DEFAULT bit is SET
+                        .... .... .... .... .... .... .... ...1 Mandatory: The MANDATORY bit is SET
+                      Relative ID: 518
+                      Attributes: 7
+                        ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+                        .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+                        .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
+                        .... .... .... .... .... .... .... ..1. Enabled By Default: The ENABLED_BY_DEFAULT bit is SET
+                        .... .... .... .... .... .... .... ...1 Mandatory: The MANDATORY bit is SET
+                      Relative ID: 519
+                      Attributes: 7
+                        ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+                        .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+                        .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
+                        .... .... .... .... .... .... .... ..1. Enabled By Default: The ENABLED_BY_DEFAULT bit is SET
+                        .... .... .... .... .... .... .... ...1 Mandatory: The MANDATORY bit is SET
                     Logon Domain ID: S-1-5-21-3541430928-2051711210-1391384369
                     Effective Name: 'Administrator'
                     Full Name: ''
@@ -271,6 +335,8 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
             UPN: test@windomain.local
             DNS Domain Name: WINDOMAIN.LOCAL
             Flags: 1
+              .... .... .... .... .... .... .... ..0. Sam Name And Sid: The SAM_NAME_AND_SID bit is NOT SET
+              .... .... .... .... .... .... .... ...1 Upn Name Constructed: The UPN_NAME_CONSTRUCTED bit is SET
         EOF
       end
     end
@@ -288,9 +354,204 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
             UPN: test@windomain.local
             DNS Domain Name: WINDOMAIN.LOCAL
             Flags: 3
+              .... .... .... .... .... .... .... ..1. Sam Name And Sid: The SAM_NAME_AND_SID bit is SET
+              .... .... .... .... .... .... .... ...1 Upn Name Constructed: The UPN_NAME_CONSTRUCTED bit is SET
             SAM Name: test
             SID: S-1-5-32-544
         EOF
+      end
+    end
+
+    describe '#print_bin_data_model' do
+      context 'when the bindata object has fields that are not 1bit' do
+        it 'should raise an exception' do
+          model = Rex::Proto::Kerberos::Pac::UserSessionKey.new
+          expect { subject.print_bin_data_model(model) }.to raise_error TypeError, 'Unsupported field type RubySMB::Dcerpc::Ndr::NdrFixArray for field :session_key - expected one of BinData::Bit1'
+        end
+      end
+
+      context 'when a bit length less than the number of flags is passed' do
+        it 'should raise an exception' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_ALL].pack('N')
+          group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
+          expect { subject.print_bin_data_model(group_attributes, bit_length: 2) }.to raise_error ArgumentError, 'Not implemented. Bit length(2) should equal the bit length of the model 32'
+        end
+      end
+
+      context 'when passed GroupAttributes' do
+        it 'should format flags when the SE_GROUP_RESOURCE flags are set' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_RESOURCE].pack('N')
+          group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(group_attributes)).to match_table <<~TABLE
+            ..1. .... .... .... .... .... .... .... Resource: The RESOURCE bit is SET
+            .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+            .... .... .... .... .... .... .... .0.. Enabled: The ENABLED bit is NOT SET
+            .... .... .... .... .... .... .... ..0. Enabled By Default: The ENABLED_BY_DEFAULT bit is NOT SET
+            .... .... .... .... .... .... .... ...0 Mandatory: The MANDATORY bit is NOT SET
+          TABLE
+        end
+
+        it 'should format flags when the SE_GROUP_MANDATORY | SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_ENABLED flags are set' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_ALL].pack('N')
+          group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(group_attributes)).to match_table <<~TABLE
+            ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+            .... .... .... .... .... .... .... 0... Owner: The OWNER bit is NOT SET
+            .... .... .... .... .... .... .... .1.. Enabled: The ENABLED bit is SET
+            .... .... .... .... .... .... .... ..1. Enabled By Default: The ENABLED_BY_DEFAULT bit is SET
+            .... .... .... .... .... .... .... ...1 Mandatory: The MANDATORY bit is SET
+          TABLE
+        end
+
+        it 'should format flags when the SE_GROUP_OWNER flag is set' do
+          binary_value = [Rex::Proto::Kerberos::Pac::SE_GROUP_OWNER].pack('N')
+          group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(group_attributes)).to match_table <<~TABLE
+            ..0. .... .... .... .... .... .... .... Resource: The RESOURCE bit is NOT SET
+            .... .... .... .... .... .... .... 1... Owner: The OWNER bit is SET
+            .... .... .... .... .... .... .... .0.. Enabled: The ENABLED bit is NOT SET
+            .... .... .... .... .... .... .... ..0. Enabled By Default: The ENABLED_BY_DEFAULT bit is NOT SET
+            .... .... .... .... .... .... .... ...0 Mandatory: The MANDATORY bit is NOT SET
+          TABLE
+        end
+      end
+
+      context 'when passed UserFlagsAttributes' do
+        it 'should return formatted user descriptions for nothing being set' do
+          binary_value = [0].pack('N')
+          user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
+            .... .... .... .... ..0. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is NOT SET
+            .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+            .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+            .... .... .... .... .... .0.. .... .... Profile Path Populated: The PROFILE_PATH_POPULATED bit is NOT SET
+            .... .... .... .... .... ..0. .... .... Resource Group Ids: The RESOURCE_GROUP_IDS bit is NOT SET
+            .... .... .... .... .... ...0 .... .... Accepts Ntlmv2: The ACCEPTS_NTLMV2 bit is NOT SET
+            .... .... .... .... .... .... 0... .... Machine Account: The MACHINE_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .0.. .... Sub Authentication: The SUB_AUTHENTICATION bit is NOT SET
+            .... .... .... .... .... .... ..0. .... Extra Sids: The EXTRA_SIDS bit is NOT SET
+            .... .... .... .... .... .... .... 0... Lan Manager: The LAN_MANAGER bit is NOT SET
+            .... .... .... .... .... .... .... ..0. No Encryption: The NO_ENCRYPTION bit is NOT SET
+            .... .... .... .... .... .... .... ...0 Guest: The GUEST bit is NOT SET
+          TABLE
+        end
+
+        it 'should return formatted user descriptions for MACHINE_ACCOUNT being set' do
+          binary_value = [32].pack('N')
+          user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
+            .... .... .... .... ..0. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is NOT SET
+            .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+            .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+            .... .... .... .... .... .0.. .... .... Profile Path Populated: The PROFILE_PATH_POPULATED bit is NOT SET
+            .... .... .... .... .... ..0. .... .... Resource Group Ids: The RESOURCE_GROUP_IDS bit is NOT SET
+            .... .... .... .... .... ...0 .... .... Accepts Ntlmv2: The ACCEPTS_NTLMV2 bit is NOT SET
+            .... .... .... .... .... .... 0... .... Machine Account: The MACHINE_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .0.. .... Sub Authentication: The SUB_AUTHENTICATION bit is NOT SET
+            .... .... .... .... .... .... ..1. .... Extra Sids: The EXTRA_SIDS bit is SET
+            .... .... .... .... .... .... .... 0... Lan Manager: The LAN_MANAGER bit is NOT SET
+            .... .... .... .... .... .... .... ..0. No Encryption: The NO_ENCRYPTION bit is NOT SET
+            .... .... .... .... .... .... .... ...0 Guest: The GUEST bit is NOT SET
+          TABLE
+        end
+
+        it 'should return formatted user descriptions for USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY, NO_ENCRYPTION and GUEST being set' do
+          binary_value = [8195].pack('N')
+          user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
+            .... .... .... .... ..1. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is SET
+            .... .... .... .... ...0 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+            .... .... .... .... .... 0... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is NOT SET
+            .... .... .... .... .... .0.. .... .... Profile Path Populated: The PROFILE_PATH_POPULATED bit is NOT SET
+            .... .... .... .... .... ..0. .... .... Resource Group Ids: The RESOURCE_GROUP_IDS bit is NOT SET
+            .... .... .... .... .... ...0 .... .... Accepts Ntlmv2: The ACCEPTS_NTLMV2 bit is NOT SET
+            .... .... .... .... .... .... 0... .... Machine Account: The MACHINE_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .0.. .... Sub Authentication: The SUB_AUTHENTICATION bit is NOT SET
+            .... .... .... .... .... .... ..0. .... Extra Sids: The EXTRA_SIDS bit is NOT SET
+            .... .... .... .... .... .... .... 0... Lan Manager: The LAN_MANAGER bit is NOT SET
+            .... .... .... .... .... .... .... ..1. No Encryption: The NO_ENCRYPTION bit is SET
+            .... .... .... .... .... .... .... ...1 Guest: The GUEST bit is SET
+          TABLE
+        end
+
+        it 'should return formatted user descriptions for every flag being set' do
+          binary_value = [16363].pack('N')
+          user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(user_attributes)).to match_table <<~TABLE
+            .... .... .... .... ..1. .... .... .... Used Lmv2 Auth And Ntlmv2 Session Key: The USED_LMV2_AUTH_AND_NTLMV2_SESSION_KEY bit is SET
+            .... .... .... .... ...1 .... .... .... Used Lmv2 Auth And Session Key: The USED_LMV2_AUTH_AND_SESSION_KEY bit is SET
+            .... .... .... .... .... 1... .... .... Used Ntlmv2 Auth And Session Key: The USED_NTLMV2_AUTH_AND_SESSION_KEY bit is SET
+            .... .... .... .... .... .1.. .... .... Profile Path Populated: The PROFILE_PATH_POPULATED bit is SET
+            .... .... .... .... .... ..1. .... .... Resource Group Ids: The RESOURCE_GROUP_IDS bit is SET
+            .... .... .... .... .... ...1 .... .... Accepts Ntlmv2: The ACCEPTS_NTLMV2 bit is SET
+            .... .... .... .... .... .... 1... .... Machine Account: The MACHINE_ACCOUNT bit is SET
+            .... .... .... .... .... .... .1.. .... Sub Authentication: The SUB_AUTHENTICATION bit is SET
+            .... .... .... .... .... .... ..1. .... Extra Sids: The EXTRA_SIDS bit is SET
+            .... .... .... .... .... .... .... 1... Lan Manager: The LAN_MANAGER bit is SET
+            .... .... .... .... .... .... .... ..1. No Encryption: The NO_ENCRYPTION bit is SET
+            .... .... .... .... .... .... .... ...1 Guest: The GUEST bit is SET
+          TABLE
+        end
+      end
+
+      context 'when passed UserAccountAttributes' do
+        it 'should return formatted user account descriptions for nothing being set' do
+          binary_value = [0].pack('N')
+          useraccount_attributes = Rex::Proto::Kerberos::Pac::UserAccountAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(useraccount_attributes)).to match_table <<~TABLE
+            .... .... ..0. .... .... .... .... .... Use Aes Keys: The USE_AES_KEYS bit is NOT SET
+            .... .... ...0 .... .... .... .... .... Partial Secrets Account: The PARTIAL_SECRETS_ACCOUNT bit is NOT SET
+            .... .... .... 0... .... .... .... .... No Auth Data Required: The NO_AUTH_DATA_REQUIRED bit is NOT SET
+            .... .... .... .0.. .... .... .... .... Trusted To Authenticate For Delegation: The TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION bit is NOT SET
+            .... .... .... ..0. .... .... .... .... Password Expired: The PASSWORD_EXPIRED bit is NOT SET
+            .... .... .... ...0 .... .... .... .... Dont Require Preauth: The DONT_REQUIRE_PREAUTH bit is NOT SET
+            .... .... .... .... 0... .... .... .... Use Des Key Only: The USE_DES_KEY_ONLY bit is NOT SET
+            .... .... .... .... .0.. .... .... .... Not Delegated: The NOT_DELEGATED bit is NOT SET
+            .... .... .... .... ..0. .... .... .... Trusted For Delegation: The TRUSTED_FOR_DELEGATION bit is NOT SET
+            .... .... .... .... ...0 .... .... .... Smartcard Required: The SMARTCARD_REQUIRED bit is NOT SET
+            .... .... .... .... .... 0... .... .... Encrypted Test Password Allowed: The ENCRYPTED_TEST_PASSWORD_ALLOWED bit is NOT SET
+            .... .... .... .... .... .0.. .... .... Account Auto Lock: The ACCOUNT_AUTO_LOCK bit is NOT SET
+            .... .... .... .... .... ..0. .... .... Dont Expire Password: The DONT_EXPIRE_PASSWORD bit is NOT SET
+            .... .... .... .... .... ...0 .... .... Server Trust Account: The SERVER_TRUST_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... 0... .... Workstation Trust Account: The WORKSTATION_TRUST_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .0.. .... Interdomain Trust Account: The INTERDOMAIN_TRUST_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... ..0. .... Mns Logon Account: The MNS_LOGON_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... ...0 .... Normal Account: The NORMAL_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .... 0... Temp Duplicate Account: The TEMP_DUPLICATE_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .... .0.. Password Not Required: The PASSWORD_NOT_REQUIRED bit is NOT SET
+            .... .... .... .... .... .... .... ..0. Home Directory Required: The HOME_DIRECTORY_REQUIRED bit is NOT SET
+            .... .... .... .... .... .... .... ...0 Account Disabled: The ACCOUNT_DISABLED bit is NOT SET
+          TABLE
+        end
+
+        it 'should return formatted user account descriptions for DONT_EXPIRE_PASSWORD and NORMAL_ACCOUNT being set' do
+          binary_value = [528].pack('N')
+          useraccount_attributes = Rex::Proto::Kerberos::Pac::UserAccountAttributes.read(binary_value)
+          expect(subject.print_bin_data_model(useraccount_attributes)).to match_table <<~TABLE
+            .... .... ..0. .... .... .... .... .... Use Aes Keys: The USE_AES_KEYS bit is NOT SET
+            .... .... ...0 .... .... .... .... .... Partial Secrets Account: The PARTIAL_SECRETS_ACCOUNT bit is NOT SET
+            .... .... .... 0... .... .... .... .... No Auth Data Required: The NO_AUTH_DATA_REQUIRED bit is NOT SET
+            .... .... .... .0.. .... .... .... .... Trusted To Authenticate For Delegation: The TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION bit is NOT SET
+            .... .... .... ..0. .... .... .... .... Password Expired: The PASSWORD_EXPIRED bit is NOT SET
+            .... .... .... ...0 .... .... .... .... Dont Require Preauth: The DONT_REQUIRE_PREAUTH bit is NOT SET
+            .... .... .... .... 0... .... .... .... Use Des Key Only: The USE_DES_KEY_ONLY bit is NOT SET
+            .... .... .... .... .0.. .... .... .... Not Delegated: The NOT_DELEGATED bit is NOT SET
+            .... .... .... .... ..0. .... .... .... Trusted For Delegation: The TRUSTED_FOR_DELEGATION bit is NOT SET
+            .... .... .... .... ...0 .... .... .... Smartcard Required: The SMARTCARD_REQUIRED bit is NOT SET
+            .... .... .... .... .... 0... .... .... Encrypted Test Password Allowed: The ENCRYPTED_TEST_PASSWORD_ALLOWED bit is NOT SET
+            .... .... .... .... .... .0.. .... .... Account Auto Lock: The ACCOUNT_AUTO_LOCK bit is NOT SET
+            .... .... .... .... .... ..1. .... .... Dont Expire Password: The DONT_EXPIRE_PASSWORD bit is SET
+            .... .... .... .... .... ...0 .... .... Server Trust Account: The SERVER_TRUST_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... 0... .... Workstation Trust Account: The WORKSTATION_TRUST_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .0.. .... Interdomain Trust Account: The INTERDOMAIN_TRUST_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... ..0. .... Mns Logon Account: The MNS_LOGON_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... ...1 .... Normal Account: The NORMAL_ACCOUNT bit is SET
+            .... .... .... .... .... .... .... 0... Temp Duplicate Account: The TEMP_DUPLICATE_ACCOUNT bit is NOT SET
+            .... .... .... .... .... .... .... .0.. Password Not Required: The PASSWORD_NOT_REQUIRED bit is NOT SET
+            .... .... .... .... .... .... .... ..0. Home Directory Required: The HOME_DIRECTORY_REQUIRED bit is NOT SET
+            .... .... .... .... .... .... .... ...0 Account Disabled: The ACCOUNT_DISABLED bit is NOT SET
+          TABLE
+        end
       end
     end
   end

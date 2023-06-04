@@ -194,6 +194,7 @@ class MsfAutoload
       'jboss' => 'JBoss',
       'send_uuid_x64' => 'SendUUID_x64',
       'reverse_tcp_x64' => 'ReverseTcp_x64',
+      'reverse_sctp_x64' => 'ReverseSctp_x64',
       'block_api_x64' => 'BlockApi_x64',
       'exitfunk_x64' => 'Exitfunk_x64',
       'reverse_http_x64' => 'ReverseHttp_x64',
@@ -297,7 +298,7 @@ class MsfAutoload
   def config_paths
     [
       { path: "#{__dir__}/msf/", namespace: Msf },
-      { path: "#{__dir__}/rex/", namespace: Rex },
+      { path: "#{__dir__}/rex/", namespace: Rex }
     ]
   end
 
@@ -333,3 +334,6 @@ autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
 
 require 'rexml/document'
+
+# XXX: Should be removed once the `lib/metasploit` folder is loaded by Zeitwerk
+require 'metasploit/framework/hashes'

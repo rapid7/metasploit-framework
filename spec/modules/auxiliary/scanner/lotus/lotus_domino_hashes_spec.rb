@@ -38,7 +38,7 @@ RSpec.describe 'Lotus Domino Hashes' do
     File.join(FILE_FIXTURES_PATH, 'modules', 'auxiliary', 'lotus_domino_hash_response.xml')
   end
 
-  before do
+  before(:each) do
     allow(subject).to receive(:send_request_raw).and_return(result)
     allow(subject).to receive(:report_service).and_return(service)
     allow(subject).to receive(:report_auth_info)
@@ -46,9 +46,22 @@ RSpec.describe 'Lotus Domino Hashes' do
 
   describe '#dump_hashes' do
     context 'when the service response contains credentials' do
-      it 'reports the extracted user and password' do
-        subject.dump_hashes(view_id, cookie, uri)
-        expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+      context 'when the database is connected' do
+        it 'reports the extracted user and password' do
+          subject.dump_hashes(view_id, cookie, uri)
+          expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+        end
+      end
+
+      context 'when report_service returns nil due to not having a database connected', skip_before: true do
+        before(:each) do
+          allow(subject).to receive(:report_service).and_return(nil)
+        end
+
+        it 'reports the extracted user and password' do
+          subject.dump_hashes(view_id, cookie, uri)
+          expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+        end
       end
     end
 

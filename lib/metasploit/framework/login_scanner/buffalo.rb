@@ -34,10 +34,7 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, http_username, http_password)
-            configure_http_client(cli)
-            cli.connect
-            req = cli.request_cgi({
+            res = send_request({
               'method'=>'POST',
               'uri'=>'/dynamic.pl',
               'vars_post'=> {
@@ -46,7 +43,7 @@ module Metasploit
                 'password'=>credential.private
                 }
             })
-            res = cli.send_recv(req)
+
             body = JSON.parse(res.body)
             if res && body.has_key?('success') && body['success']
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.body)

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'metasploit/framework/hashes'
 require 'bcrypt'
 
 =begin

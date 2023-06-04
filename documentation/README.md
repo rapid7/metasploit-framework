@@ -1,3 +1,7 @@
+# Folder Purpose
+This folder is primarily used to hold documentation for Metasploit's various modules, as well as the developers guide
+at `developers_guide.pdf`.
+
 # Metasploit Developer Documentation
 
 Metasploit is actively supported by a community of hundreds of
@@ -19,7 +23,7 @@ treasures there, such as:
 ## API Documentation
 
 If you are looking for API documentation, you may run `rake yard` to
-generate a navigatable view of the comment documentation used throughout
+generate a navigable view of the comment documentation used throughout
 Metasploit, or visit https://rapid7.github.io/metasploit-framework/api
 for a recently generated online version.
 

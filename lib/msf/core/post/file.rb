@@ -49,7 +49,7 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       session.fs.dir.chdir(e_path)
     elsif session.type == 'powershell'
-      cmd_exec("Set-Location -Path \"#{e_path}\"")
+      cmd_exec("Set-Location -Path \"#{e_path}\";[System.IO.Directory]::SetCurrentDirectory($(Get-Location))")
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
@@ -156,7 +156,7 @@ module Msf::Post::File
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
-        f = session.shell_command_token("test -d \"#{path}\" && echo true")
+        f = session.shell_command_token("test -d '#{path}' && echo true")
       end
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
@@ -305,7 +305,7 @@ module Msf::Post::File
       end
       return !!stat
     elsif session.type == 'powershell'
-      return cmd_exec("[System.IO.File]::Exists( \"#{path}\")")&.include?('True')
+      return cmd_exec("Test-Path \"#{path}\"")&.include?('True')
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")

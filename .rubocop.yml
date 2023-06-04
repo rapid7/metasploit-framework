@@ -79,6 +79,17 @@ Lint/UnexpectedBlockArity:
 Lint/UnmodifiedReduceAccumulator:
   Enabled: true
 
+Lint/UnusedMethodArgument:
+  Description: >-
+    Disabled on files under the lib/ directory (aka library files)
+    as this can break YARD documentation since YARD doesn't recognize
+    the _ prefix before parameter names and thinks its a different argument.
+    See https://github.com/rapid7/metasploit-framework/pull/17735
+    Also see https://github.com/rubocop/rubocop/pull/11020
+  Enabled: true
+  Exclude:
+    - 'lib/**/*'
+
 Style/ArgumentsForwarding:
   Enabled: true
 

@@ -91,10 +91,22 @@ class Evasion
     }
 
     handler.share_datastore(mod.datastore)
-    handler.exploit_simple(handler_opts)
-    job_id = handler.job_id
 
-    print_status "Payload Handler Started as Job #{job_id}"
+    replicant_handler = nil
+    handler.exploit_simple(handler_opts) do |yielded_replicant_handler|
+      replicant_handler = yielded_replicant_handler
+    end
+
+    if replicant_handler.nil?
+      print_error('Failed to run module')
+      return
+    end
+
+    if replicant_handler.error.nil?
+      job_id = handler.job_id
+
+      print_status "Payload Handler Started as Job #{job_id}"
+    end
   end
 end
 end
