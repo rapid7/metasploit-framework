@@ -78,10 +78,10 @@ class MetasploitModule < Msf::Auxiliary
        version.between?(Rex::Version.new('8.1.0'), Rex::Version.new('8.1.8')) ||
        version.between?(Rex::Version.new('8.2.0'), Rex::Version.new('8.2.7')) ||
        version.between?(Rex::Version.new('8.3.0'), Rex::Version.new('8.3.1'))
-      print_good("Detected vulnerable Grafina: #{full_version}")
+      print_good("Detected vulnerable Grafana: #{full_version}")
       return Exploit::CheckCode::Appears
     end
-    print_bad("Detected non-vulnerable Grafina: #{full_version}")
+    print_bad("Detected non-vulnerable Grafana: #{full_version}")
     return Exploit::CheckCode::Safe
   end
 
