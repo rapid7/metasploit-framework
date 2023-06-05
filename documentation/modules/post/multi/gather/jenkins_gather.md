@@ -8,6 +8,14 @@ This module has been verified against:
   1. Jenkins 2.67 on Ubuntu 16.04 in Docker
   1. Jenkins 2.67 on Windows 7 SP 1
   1. Jenkins 2.60.1
+  1. Jenkins 2.411 Docker image
+  1. Jenkins 2.410 Windows 10
+  1. Jenkins 2.410 Docker image
+  1. Jenkins 2.409 Docker image
+  1. Jenkins 2.401.1 Docker image
+  1. Jenkins 2.346.3 Docker image
+  1. Jenkins 2.103 Docker image
+  1. Jenkins 1.565 Docker image
   1. Jenkins 1.56
 
 ## Verification Steps
