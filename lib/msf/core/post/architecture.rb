@@ -17,6 +17,8 @@ module Msf::Post::Architecture
     )
   end
 
+  # Get the architecture of the target's operating system.
+  # @return [String, Nil] Returns a string containing the target OS architecture if known, or Nil if its not known.
   def get_os_architecture
     if session.type == 'meterpreter'
       return sysinfo['Architecture']
