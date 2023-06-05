@@ -18,14 +18,6 @@ module Msf::Post::Architecture
   end
 
   def get_os_architecture
-    result = get_os_architecture_impl
-    if result.nil?
-    end
-
-    result
-  end
-
-  def get_os_architecture_impl
     if session.type == 'meterpreter'
       return sysinfo['Architecture']
     else
