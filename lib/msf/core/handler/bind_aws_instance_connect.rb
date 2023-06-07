@@ -118,7 +118,7 @@ module BindAwsInstanceConnect
     self.listener_pairs[datastore['EC2_ID']] = true
 
     # Start a new handling thread
-    self.listener_threads = framework.threads.spawn("BindAwsInstanceConnectHandler-#{datastore['EC2_ID']}", false) {
+    self.listener_threads << framework.threads.spawn("BindAwsInstanceConnectHandler-#{datastore['EC2_ID']}", false) {
       instance_connect_client = nil
 
       print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
