@@ -16,6 +16,7 @@ module MetasploitModule
         'Name' => 'Unix SSH Shell, Bind Instance Connect (via AWS API)',
         'Description' => 'Creates an ssh shell using AWS Instance Connect',
         'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+        'References' => ['URL', 'https://www.sempervictus.com/single-post/a-serial-case-of-air-on-the-side-channel'],
         'License' => MSF_LICENSE,
         'Platform' => 'unix',
         'Arch' => ARCH_CMD,
