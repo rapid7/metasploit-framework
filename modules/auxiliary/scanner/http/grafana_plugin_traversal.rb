@@ -63,13 +63,16 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown unless res && res.code == 200
 
     # We need to take into account beta versions, which end with -beta<digit>. See: https://grafana.com/docs/grafana/latest/release-notes/
-    /"subTitle":"Grafana v(?<full_version>\d{1,2}\.\d{1,2}\.\d{1,2}(?:-beta\d)?) \([0-9a-f]{10}\)",/ =~ res.body
+    # Also take into account preview versions, which end with -preview. See https://grafana.com/grafana/download/10.0.0-preview?edition=oss
+    /"subTitle":"Grafana v(?<full_version>\d{1,2}\.\d{1,2}\.\d{1,2}(?:(?:-beta\d)?|(?:-preview)?)) \([0-9a-f]{10}\)",/ =~ res.body
     return Exploit::CheckCode::Safe unless full_version
 
     # However, since 8.3.1 does not have a beta, we can safely ignore the -beta suffix when comparing versions
     # In fact, this is necessary because Rex::Version doesn't correctly handle versions ending with -beta when comparing
     if /-beta\d$/ =~ full_version
       version = Rex::Version.new(full_version[0..-7])
+    elsif /-preview$/ =~ full_version
+      version = Rex::Version.new(full_version[0..-9])
     else
       version = Rex::Version.new(full_version)
     end
