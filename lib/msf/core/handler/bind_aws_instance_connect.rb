@@ -110,6 +110,7 @@ module BindAwsInstanceConnect
     if (exploit_config and exploit_config['active_timeout'])
       ctimeout = exploit_config['active_timeout'].to_i
     end
+    return if self.listener_pairs[datastore['EC2_ID']]
     self.listener_pairs[datastore['EC2_ID']] = true
 
     # Start a new handling thread
