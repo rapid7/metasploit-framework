@@ -7,15 +7,15 @@ require 'aws-sdk-ec2instanceconnect'
 #
 # This module implements the AWS InstanceConnect handler.  This means that
 # it will attempt to connect to a remote host through the AWS InstanceConnect pipe for 
-# a period of time (typically the duration of an exploit) to see if a the 
-# agent has started listening.
+# a period of time (typically the duration of an exploit) to see if the  agent has
+# started listening.
 #
 ###
 module BindAwsInstanceConnect
   include Msf::Handler
   #
   # Returns the handler specific string representation, in this case
-  # 'bind_tcp'.
+  # 'bind_aws_instance_connect'.
   #
   def self.handler_type
     return "bind_aws_instance_connect"
@@ -78,7 +78,11 @@ module BindAwsInstanceConnect
     # be hanging around
     stop_handler
     conn_threads.each { |thr|
-      thr.kill
+      begin
+        thr.kill
+      rescue => e
+        elog(e)
+      end
     }
   end
 
