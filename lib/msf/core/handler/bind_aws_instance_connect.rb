@@ -185,10 +185,10 @@ module BindAwsInstanceConnect
   end
 
   def comm_string
-    if bind_sock.nil?
+    if self.listener_pairs[datastore['EC2_ID']].nil?
       "(setting up)"
     else
-      via_string(bind_sock.client) if bind_sock.respond_to?(:client)
+      "(via #{ssh_url})"
     end
   end
 
