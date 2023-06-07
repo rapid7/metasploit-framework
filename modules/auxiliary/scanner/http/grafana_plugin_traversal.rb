@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown unless res && res.code == 200
 
     # We need to take into account beta versions, which end with -beta<digit>. See: https://grafana.com/docs/grafana/latest/release-notes/
-    # Also take into account preview versions, which end with -preview. See https://grafana.com/grafana/download/10.0.0-preview?edition=oss
+    # Also take into account preview versions, which end with -preview. See https://grafana.com/grafana/download/10.0.0-preview?edition=oss for more info.
     /"subTitle":"Grafana v(?<full_version>\d{1,2}\.\d{1,2}\.\d{1,2}(?:(?:-beta\d)?|(?:-preview)?)) \([0-9a-f]{10}\)",/ =~ res.body
     return Exploit::CheckCode::Safe unless full_version
 
