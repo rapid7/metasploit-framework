@@ -1,4 +1,4 @@
-## Overview
+## Vulnerable Application
 In its default configuration, this module creates a new network security context with the specified
 logon data (username, domain and password). Under the hood, Meterpreter's access token is cloned, and
 a new logon session is created and linked to that token. The token is then impersonated to acquire
@@ -6,26 +6,50 @@ the new network security context. This module has no effect on local actions - o
 (where the specified credential material will be used). This module does not validate the credentials
 specified.
 
+## Verification Steps
+
+1. Start msfconsole
+2. Get a Meterpreter session
+3. Do: `use post/windows/manage/make_token`
+4. Set the `USERNAME`, `PASSWORD` and `DOMAIN` options
+5. Run the module
+
 ## Options
-- **USERNAME** - Username to use 
-- **PASSWORD** - Password to use 
-- **DOMAIN** - Domain to use
-- **LOGONTYPE** - The type of logon operation to perform (defaults to `LOGON32_LOGON_NEW_CREDENTIALS`)
+### USERNAME
+Username to use
+
+### PASSWORD
+Password to use
+
+### DOMAIN
+Domain to use
+
+### LOGONTYPE
+The type of logon operation to perform (defaults to `LOGON32_LOGON_NEW_CREDENTIALS`)
 
 ### LOGONTYPE
 This module defaults to `LOGON32_LOGON_NEW_CREDENTIALS` so as to mimic the behaviour of Cobalt Strike's
-[`make_token`](https://www.cobaltstrike.com/blog/windows-access-tokens-and-alternate-credentials/) command. 
-However, any valid LOGONTYPE for the LogonUser function can be specified. More details can be found at 
-<https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-logonusera>, by checking the 
+[`make_token`](https://www.cobaltstrike.com/blog/windows-access-tokens-and-alternate-credentials/) command.
+However, any valid LOGONTYPE for the LogonUser function can be specified. More details can be found at
+<https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-logonusera>, by checking the
 `dwLogonType` flag.
 
 ## Scenarios
-This module can be used as an alternative to modules like `post/windows/manage/run_as` or `post/windows/manage/run_as_psh`, which require the creation of a new process. This module impersonates the specified credentials in the current Meterpreter session, which can be leveraged to enum or move laterally to other systems on behalf of the impersonated user.
+This module can be used as an alternative to modules like `post/windows/manage/run_as` or
+`post/windows/manage/run_as_psh`, which require the creation of a new process. This module impersonates the specified
+credentials in the current Meterpreter session, which can be leveraged to enum or move laterally to other systems on
+behalf of the impersonated user.
 
-## Limitations
-In its default configuration, this module does not require privileges to create a new security context (new access token). Despite of this, some actions with the new token might require privileges. For example, in order to create a process with an access token - with functions like [CreateProcessAsUser](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessasusera) or [CreateProcessWithToken](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createprocesswithtokenw) - administrative privileges are needed. This means that if you use this module with a non-privileged user, your new processes will not inherit `make_token`'s security context.
+### Limitations
+In its default configuration, this module does not require privileges to create a new security context (new access
+token). Despite of this, some actions with the new token might require privileges. For example, in order to create a
+process with an access token - with functions like [CreateProcessAsUser](https://learn.microsoft.com/en-
+us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessasusera) or
+[CreateProcessWithToken](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createprocesswithtokenw)
+- administrative privileges are needed. This means that if you use this module with a non-privileged user, your new
+processes will not inherit `make_token`'s security context.
 
-## Example
+### Example
 
 ```
 meterpreter > getuid
