@@ -99,19 +99,18 @@ class Memory
   #
   # Deallocate a region of memory in the context of a process.
   #
-  def free(base, length = 0)
-    return _free(base, length)
+  def free(base)
+    return _free(base)
   end
 
   #
   # Low-level memory deallocation.
   #
-  def _free(base, length)
+  def _free(base)
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_FREE)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
-    request.add_tlv(TLV_TYPE_LENGTH, length)
 
     process.client.send_request(request)
 
