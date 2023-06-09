@@ -287,7 +287,7 @@ class MetasploitModule < Msf::Post
         # for an unlimited amount of time for the newly spawned session to exit.
         wait_for_cmd_result = i + 1 < cmds.length
         # Note that non-channelized cmd_exec calls currently return an empty string
-        ret = cmd_exec(cmds.last, nil, command_timeout, { 'Channelized' => wait_for_cmd_result })
+        ret = cmd_exec(cmd, nil, command_timeout, { 'Channelized' => wait_for_cmd_result })
         if wait_for_cmd_result
           if !ret
             aborted = true
