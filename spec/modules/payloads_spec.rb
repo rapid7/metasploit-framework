@@ -556,6 +556,30 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/x64'
   end
 
+  context 'cmd/linux/http/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/x86'
+                          ],
+                          reference_name: 'cmd/linux/http/x86'
+  end
+
+  context 'cmd/linux/https/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/x86'
+                          ],
+                          reference_name: 'cmd/linux/https/x86'
+  end
+
+  context 'cmd/linux/tftp/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/x86'
+                          ],
+                          reference_name: 'cmd/linux/tftp/x86'
+  end
+
   context 'cmd/mainframe/generic_jcl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
