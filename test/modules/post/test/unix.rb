@@ -1,5 +1,5 @@
 lib = File.join(Msf::Config.install_root, "test", "lib")
-$:.push(lib) unless $:.include?(lib)
+$LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
 
 # load 'test/lib/module_test.rb'

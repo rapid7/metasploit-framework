@@ -30,6 +30,13 @@ module Rex::Proto::Kerberos::CredentialCache
     }.freeze
     private_constant :AD_TYPE_MAP
 
+    # Tracks the currently supported BinData types that can be formatted by the
+    # Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter#print_bin_data_model method.
+    BIN_DATA_BIT_LENGTHS = {
+      ::BinData::Bit1 => 1
+    }.freeze
+    private_constant :BIN_DATA_BIT_LENGTHS
+
     # @param [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache] ccache
     def initialize(ccache)
       @ccache = ccache
@@ -106,6 +113,94 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
+    # This method takes a BinData object and parses it to create a formatted output
+    # that help users visualise what each flag means as well as if it is set or not
+    #
+    # Note: For now we only support bit1 flags from BinData, this could be extended in the future
+    #
+    # Example output
+    # .... .... .... .... .... .... .... .0.. Flag 29: The flag 29 is NOT SET
+    # .... .... .... .... .... .... .... ..1. Flag 30: The flag 30 is SET
+    # .... .... .... .... .... .... .... ...1 Flag 31: The flag 31 is SET
+    #
+    # @param model The BinData object
+    # @param [Integer, Nil] bit_length The length of desired byte output - number of dots in example above
+    # @return [String] Formatted output
+    def print_bin_data_model(model, bit_length: nil)
+      rows = []
+
+      # i.e. [[:field_name_1,  1], [:field_name_2, 0]]
+      fields_and_values = model.to_enum(:each_pair).to_a
+      fields = fields_and_values.map { |field, _value| field }
+      values = fields_and_values.map { |_field, value| value }
+
+      # For now we only support bit1 flags from BinData, this could be extended in the future
+      fields_and_values.each do |field, value|
+        unless BIN_DATA_BIT_LENGTHS.keys.include?(value.class)
+          raise TypeError, "Unsupported field type #{value.class} for field #{field.inspect} - expected one of #{BIN_DATA_BIT_LENGTHS.keys.join(',')}"
+        end
+      end
+
+      # calculate the bit length; we can't rely on BinData's `num_bytes` in the senario of the model being 4 bits wide.
+      calculated_bit_length = values.sum { |value| BIN_DATA_BIT_LENGTHS.fetch(value.class) }
+      bit_length ||= calculated_bit_length
+
+      if bit_length != calculated_bit_length
+        raise ArgumentError, "Not implemented. Bit length(#{bit_length}) should equal the bit length of the model #{calculated_bit_length}"
+      end
+
+      padding = Array.new(bit_length - fields.length, :_reserved_)
+      flag_keys = padding + fields
+      binary_value = values.join
+
+      bit_length.times do |i|
+        next if flag_keys[i].start_with?('_reserved_')
+
+        dot_formatting = Array.new(bit_length, '.')
+        dot_formatting[(i - 1) - (bit_length - 1)] = binary_value[i]
+        buckets = dot_formatting.in_groups_of(4) # Issue if we don't received a multiple of 4
+        dot_formatting = buckets.map(&:join).join(' ')
+
+        human_readable_flag_name = flag_keys[i].to_s.split('_').map(&:capitalize).join(' ')
+        description = "#{human_readable_flag_name}: The #{flag_keys[i].to_s.upcase} bit is #{binary_value.chars[i] == '1' ? 'SET' : 'NOT SET'}"
+        rows << "#{dot_formatting} #{description}"
+      end
+
+      rows.join("\n")
+    end
+
+    # @param [RubySMB::Dcerpc::Samr::PgroupMembershipArray] group_memberships
+    # @return [Array] Formatted human readable representation of the group memberships
+    def print_group_memberships(group_memberships)
+      output = []
+      if group_memberships.any?
+        group_memberships.map do |group|
+          group_attributes = Rex::Proto::Kerberos::Pac::GroupAttributes.read([group.attributes].pack('N'))
+          output << "Relative ID: #{group.relative_id}\nAttributes: #{group.attributes}".indent(4)
+          output << print_bin_data_model(group_attributes, bit_length: 32).to_s.indent(6)
+        end
+        output
+      end
+    end
+
+    # @param [RubySMB::Dcerpc::Ndr::NdrUint32] user_flags
+    # @return [Array] Formatted human readable representation of the user flags
+    def print_user_flags(user_flags)
+      output = []
+      user_attributes = Rex::Proto::Kerberos::Pac::UserFlagAttributes.read([user_flags].pack('N'))
+      output << "User Flags: #{user_flags}".indent(2)
+      output << print_bin_data_model(user_attributes, bit_length: 32).to_s.indent(4)
+    end
+
+    # @param [RubySMB::Dcerpc::Ndr::NdrUint32] user_account_flags
+    # @return [Array] Formatted human readable representation of the user account flags
+    def print_user_account_flags(user_account_flags)
+      output = []
+      user_account_attributes = Rex::Proto::Kerberos::Pac::UserAccountAttributes.read([user_account_flags].pack('N'))
+      output << "User Account Control: #{user_account_flags}".indent(2)
+      output << print_bin_data_model(user_account_attributes, bit_length: 32).to_s.indent(4)
+    end
+
     # @param [Rex::Proto::Kerberos::Pac::Krb5LogonInformation] logon_info
     # @return [String] A human readable representation of a Logon Information
     def present_logon_info(logon_info)
@@ -124,9 +219,9 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "Bad Password Count: #{validation_info.bad_password_count}".indent(2)
       output << "User ID: #{validation_info.user_id}".indent(2)
       output << "Primary Group ID: #{validation_info.primary_group_id}".indent(2)
-      output << "User Flags: #{validation_info.user_flags}".indent(2)
+      output << print_user_flags(validation_info.user_flags)
       output << "User Session Key: #{present_user_session_key(validation_info.user_session_key)}".indent(2)
-      output << "User Account Control: #{validation_info.user_account_control}".indent(2)
+      output << print_user_account_flags(validation_info.user_account_control)
       output << "Sub Auth Status: #{validation_info.sub_auth_status}".indent(2)
 
       output << "Last Successful Interactive Logon: #{present_ndr_file_time(validation_info.last_successful_i_logon)}".indent(2)
@@ -139,7 +234,7 @@ module Rex::Proto::Kerberos::CredentialCache
 
       output << "Group Count: #{validation_info.group_count}".indent(2)
       output << 'Group IDs:'.indent(2)
-      output << validation_info.group_memberships.map { |group| "Relative ID: #{group.relative_id}, Attributes: #{group.attributes}".indent(4) } if validation_info.group_memberships.any?
+      output << print_group_memberships(validation_info.group_memberships)
 
       output << "Logon Domain ID: #{validation_info.logon_domain_id}".indent(2)
 
@@ -219,6 +314,8 @@ module Rex::Proto::Kerberos::CredentialCache
       output << "DNS Domain Name: #{upn_and_dns_info.dns_domain_name.encode('utf-8')}".indent(2)
 
       output << "Flags: #{upn_and_dns_info.flags}".indent(2)
+      upn_and_dns_info_attributes = Rex::Proto::Kerberos::Pac::UpnDnsInfoAttributes.read([upn_and_dns_info.flags].pack('N'))
+      output << print_bin_data_model(upn_and_dns_info_attributes, bit_length: 32).to_s.indent(4)
 
       if upn_and_dns_info.has_s_flag?
         output << "SAM Name: #{upn_and_dns_info.sam_name.encode('utf-8')}".indent(2)

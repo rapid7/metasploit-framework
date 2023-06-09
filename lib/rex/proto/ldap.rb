@@ -57,7 +57,7 @@ class Net::LDAP::Connection # :nodoc:
     yield self if block_given?
   end
 
-  # Monkeypatch upstream library for now to support :control
+  # Monkeypatch upstream library for now to support :controls
   # hash option in `args` so that we can provide controls within
   # searches. Needed so we can specify the LDAP_SERVER_SD_FLAGS_OID
   # flag for searches to prevent getting the SACL when querying for
@@ -282,6 +282,32 @@ class Net::LDAP::Connection # :nodoc:
       instrument "search_messages_unread.net_ldap_connection",
                  message_id: message_id, messages: messages
     end
+  end
+
+  # Another monkeypatch to support :controls
+  def modify(args)
+    modify_dn = args[:dn] or raise "Unable to modify empty DN"
+    ops = self.class.modify_ops args[:operations]
+
+    message_id = next_msgid
+    request    = [
+      modify_dn.to_ber,
+      ops.to_ber_sequence,
+    ].to_ber_appsequence(Net::LDAP::PDU::ModifyRequest)
+
+    controls = args.fetch(:controls, nil)
+    unless controls.nil?
+      controls = controls.to_ber_contextspecific(0)
+    end
+
+    write(request, controls, message_id)
+    pdu = queued_read(message_id)
+
+    if !pdu || pdu.app_tag != Net::LDAP::PDU::ModifyResponse
+      raise Net::LDAP::ResponseMissingOrInvalidError, "response missing or invalid"
+    end
+
+    pdu
   end
 end
 

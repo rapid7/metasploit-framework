@@ -49,6 +49,12 @@ module Msf::PostMixin
       # for its platform, capabilities, etc.
       check_for_session_readiness if session.type == "meterpreter"
 
+      if session.type.ends_with?(':winpty')
+        raise Msf::OptionValidateError.new({
+          'SESSION' => 'Session does not support post modules.'
+        })
+      end
+
       incompatibility_reasons = session_incompatibility_reasons(session)
       if incompatibility_reasons.any?
         print_warning("SESSION may not be compatible with this module:")

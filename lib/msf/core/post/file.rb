@@ -49,7 +49,7 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       session.fs.dir.chdir(e_path)
     elsif session.type == 'powershell'
-      cmd_exec("Set-Location -Path \"#{e_path}\"")
+      cmd_exec("Set-Location -Path \"#{e_path}\";[System.IO.Directory]::SetCurrentDirectory($(Get-Location))")
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
