@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good "  #{inst.id} (#{inst.state.name})"
     print_good "    Creation Date:  #{inst.launch_time}"
     print_good "    Public IP:      #{inst.public_ip_address} (#{inst.public_dns_name})"
-    print_good "    Private IP:     #{inst.public_ip_address} (#{inst.private_dns_name})"
+    print_good "    Private IP:     #{inst.private_ip_address} (#{inst.private_dns_name})"
     # Report hosts and info
     mac_addr = inst.network_interfaces.select do |iface|
       iface.private_ip_address == inst.private_ip_address
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       os_flavor: inst.architecture,
       name: iname,
       info: iinfo,
-      comments: "ec2-id: #{inst.id}"
+      comments: "ec2-id: #{inst.id} (#{inst.placement.availability_zone})"
     )
     if inst.public_ip_address
       report_note(
@@ -86,11 +86,17 @@ class MetasploitModule < Msf::Auxiliary
         data: inst.public_ip_address
       )
     end
+    #eips = inst.network_interfaces.map {|i| i.association && i.association.public_ip}.compact # <-- works in pry, breaks at runtime in AWS SDK
+    #report_note(
+    #  host: inst.private_ip_address,
+    #  type: 'ec2.public_ips',
+    #  data: eips.join(' ')
+    #) unless eips.empty?
     if inst.public_ip_address && !inst.public_dns_name.empty?
       report_note(
         host: inst.private_ip_address,
         type: 'ec2.public_dns',
-        data: inst.public_dns_name
+        data: "#{inst.public_dns_name} #{inst.public_ip_address}"
       )
     end
     if inst.hypervisor
@@ -129,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
         secret_access_key: datastore['SECRET_ACCESS_KEY']
       )
 
-      instances = ec2.instances.limit(datastore['LIMIT'])
+      instances = datastore['LIMIT'] ? ec2.instances : ec2.instances.limit(datastore['LIMIT'])
       print_status "Found #{ec2.instances.count} instances in #{region}"
 
       instances.each do |i|
