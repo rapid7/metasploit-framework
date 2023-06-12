@@ -5,7 +5,14 @@ tool written in the Java programming language. It is used to implement CI/CD wor
 for Windows, Linux, macOS and other Unix-like operating systems. This module attempts to login to Jenkins with username 
 and password combinations.
 
+Jenkins can be downloaded from [jenkins.io](https://jenkins.io/) where
+binaries are available for a variety of operating systems. Both LTS and weekly
+builds are available.
+
 This exploit has been tested against the following Jenkins versions:
+* 2.411
+* 2.410
+* 2.409
 * 2.401.1
 * 2.346.3
 * 2.103

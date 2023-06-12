@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptEnum.new('HTTP_METHOD', [true, 'The HTTP method to use for the login', 'POST', ['GET', 'POST']]),
-        Opt::RPORT(8080)
+        Opt::RPORT(8080),
+        OptString.new('TARGETURI', [ false, 'The path to the Jenkins-CI application'])
       ])
 
     deregister_options('PASSWORD_SPRAY')
@@ -33,14 +34,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    fail_with(Msf::Exploit::Failure::BadConfig, 'LOGIN_URL is no longer supported.') unless datastore['LOGIN_URL'].nil?
+    print_warning("#{self.fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
 
-    uri_results = jenkins_uri_check(target_uri)
-    login_uri = uri_results[:uri]
+    login_uri = jenkins_uri_check(target_uri)
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
         uri: normalize_uri(login_uri),
