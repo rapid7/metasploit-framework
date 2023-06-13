@@ -36,7 +36,7 @@ module Metasploit
           cmd << "#{src_file} -I #{INCLUDE_DIR} "
           if self.include_dirs
             cmd << " #{self.include_dirs} "
-          end
+         cmd << "#{self.include_dirs.map { |include_dir| "-iquote #{include_dir}" }.join(' ')} " if self.include_dirs.any?
           cmd << "-o #{exe_file} "
 
           # gives each function its own section
