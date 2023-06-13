@@ -103,6 +103,8 @@ module Buffer
         buf = Rex::Text.to_psh_comment(buf)
       when 'go','golang'
         buf = Rex::Text.to_golang_comment(buf)
+      when 'masm','ml64'
+        buf = Rex::Text.to_masm_comment(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim_comment(buf)
       when 'rust', 'rustlang'
