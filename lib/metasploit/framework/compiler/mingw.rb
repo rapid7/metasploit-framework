@@ -34,9 +34,7 @@ module Metasploit
 
           cmd << "#{self.mingw_bin} "
           cmd << "#{src_file} -I #{INCLUDE_DIR} "
-          if self.include_dirs
-            cmd << " #{self.include_dirs} "
-         cmd << "#{self.include_dirs.map { |include_dir| "-iquote #{include_dir}" }.join(' ')} " if self.include_dirs.any?
+          cmd << "#{self.include_dirs.map { |include_dir| "-iquote #{include_dir}" }.join(' ')} " if self.include_dirs.any?
           cmd << "-o #{exe_file} "
 
           # gives each function its own section
