@@ -1,7 +1,10 @@
 # -*- coding: binary -*-
 
 module Msf::Post::Windows::Version
-include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::Registry
+
+  class Error < RuntimeError
+  end
 
   def initialize(info = {})
     super(
@@ -22,23 +25,22 @@ include Msf::Post::Windows::Registry
     result = get_version_info_impl
     if result.nil?
       print_error("Couldn't retrieve the target's build number!")
-      raise RuntimeError.new("Couldn't retrieve the target's build number!")
+      raise Error, "Couldn't retrieve the target's build number!"
     end
 
     result
   end
 
   def get_version_info_fallback_impl
-        build_num_raw = cmd_exec('ver')
-        groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(\.(\d+))?/)
-        if groups.nil?
-          return nil
-        end
+    build_num_raw = cmd_exec('ver')
+    groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/)
+    if groups.nil?
+      return nil
+    end
 
-        major, minor, build, unused, revision = groups.captures
-        revision = 0 if revision.nil?
-        # Default to workstation, since it'll likely be an older OS - pre Server editions
-        return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, Msf::WindowsVersion::VER_NT_WORKSTATION)
+    major, minor, build, _revision = groups.captures
+    # Default to workstation, since it'll likely be an older OS - pre Server editions
+    return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, Msf::WindowsVersion::VER_NT_WORKSTATION)
   end
 
   def get_version_info_impl
@@ -73,24 +75,24 @@ include Msf::Post::Windows::Registry
       major, minor = version_match.captures
       major = major.to_i
       minor = minor.to_i
-        
+
       product = shell_registry_getvaldata('HKLM\SYSTEM\CurrentControlSet\Control\ProductOptions', 'ProductType', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
       case product
-      when /WinNT/
+      when 'WinNT'
         product_type = Msf::WindowsVersion::VER_NT_WORKSTATION
-      when /LanmanNT/
+      when 'LanmanNT'
         product_type = Msf::WindowsVersion::VER_NT_DOMAIN_CONTROLLER
-      when /ServerNT/
+      when 'ServerNT'
         product_type = Msf::WindowsVersion::VER_NT_SERVER
       else
         product_type = Msf::WindowsVersion::VER_NT_WORKSTATION
       end
 
-      if major == 6 and minor == 3 and build_num > 9600 # 9600 is Windows 8.1 build number
+      if (major == 6) && (minor == 3) && (build_num > 9600) # 9600 is Windows 8.1 build number
         # This is Windows 10+ - the version numbering is calculated differently
         major = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
         minor = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
-        if major.nil? or minor.nil?
+        if major.nil? || minor.nil?
           return get_version_info_fallback_impl
         end
 
@@ -98,7 +100,7 @@ include Msf::Post::Windows::Registry
       else
         # Pre-Windows 10
         service_pack_raw = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
-        if service_pack_raw.nil? and major >= 6
+        if service_pack_raw.nil? && (major >= 6)
           # Some older versions didn't put the Service Pack value in both 32 and 64-bit versions of the registry - look there specifically
           service_pack_raw = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_32_BIT)
         end
@@ -118,17 +120,18 @@ include Msf::Post::Windows::Registry
   private
 
   def empty_os_version_info_ex
-    result = [0,
-     0,
-     0,
-     0,
-     0,
-     "",
-     0,
-     0,
-     0,
-     0,
-     0
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      '',
+      0,
+      0,
+      0,
+      0,
+      0
     ]
   end
 
