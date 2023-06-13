@@ -123,10 +123,6 @@ module Msf::Payload::Adapter::Fetch
     super
   end
 
-  def setup_handler
-    super
-  end
-
   def srvhost
     datastore['FETCH_SRVHOST']
   end
