@@ -114,7 +114,7 @@ module Metasploit
             @link_script = opts[:linker_script]
             @compile_options = opts[:compile_options]
             @opt_lvl = opts[:opt_lvl]
-            @include_dirs =  '-iquote '+(opts[:include_dirs].join(' -iquote ') if opts[:include_dirs])
+            @include_dirs = opts[:include_dirs]
             @mingw_bin = MINGW_X64
           end
 
