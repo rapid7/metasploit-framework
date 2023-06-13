@@ -28,7 +28,6 @@ class MetasploitModule < Msf::Post
             'Commands' => %w[
               stdapi_fs_search
               stdapi_sys_config_getenv
-              stdapi_sys_config_sysinfo
             ]
           }
         }
@@ -139,10 +138,10 @@ class MetasploitModule < Msf::Post
     # http://www.forensicswiki.org/wiki/Prefetch
     # http://www.forensicswiki.org/wiki/Windows_Prefetch_File_Format
 
-    sysnfo = client.sys.config.sysinfo['OS']
     error_msg = "You don't have enough privileges. Try getsystem."
 
-    if sysnfo =~ /(Windows XP|2003|.NET)/
+    version = get_version_info
+    if version.xp_or_2003?
 
       if !is_admin?
         print_error(error_msg)
@@ -150,7 +149,7 @@ class MetasploitModule < Msf::Post
       end
 
       # Offsets for WinXP & Win2k3
-      print_good("Detected #{sysnfo} (max 128 entries)")
+      print_good("Detected #{version.product_name} (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       runcount_offset = 0x90
@@ -158,14 +157,14 @@ class MetasploitModule < Msf::Post
       # Registry key for timezone
       key_value = 'StandardName'
 
-    elsif sysnfo =~ /(Windows 7)/
+    elsif version.win7_or_2008r2? && !version.windows_server?
       if !is_admin?
         print_error(error_msg)
         return nil
       end
 
       # Offsets for Win7
-      print_good("Detected #{sysnfo} (max 128 entries)")
+      print_good("Detected #{version.product_name} (max 128 entries)")
       name_offset = 0x10
       hash_offset = 0x4C
       runcount_offset = 0x98

