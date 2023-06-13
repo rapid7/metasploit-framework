@@ -80,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB.new(
           host: datastore['DomainControllerRhost'],
           hostname: datastore['Smb::Rhostname'],
+          proxies: datastore['Proxies'],
           realm: realm,
           username: username,
           password: password,
@@ -96,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
       port: rport,
       local_port: datastore['CPORT'],
       stop_on_success: datastore['STOP_ON_SUCCESS'],
-      proxies: datastore['PROXIES'],
+      proxies: datastore['Proxies'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
       max_send_size: datastore['TCP::max_send_size'],

@@ -13,6 +13,9 @@ module Rex
         # @!attribute port
         #   @return [Integer] The kerberos server port
         attr_accessor :port
+        # @!attribute proxies
+        #   @return [String,nil] The proxy directive to use for the socket
+        attr_accessor :proxies
         # @!attribute timeout
         #   @return [Integer] The connect / read timeout
         attr_accessor :timeout
@@ -30,6 +33,7 @@ module Rex
         def initialize(opts = {})
           self.host = opts[:host]
           self.port     = (opts[:port] || 88).to_i
+          self.proxies  = opts[:proxies]
           self.timeout  = (opts[:timeout] || 10).to_i
           self.protocol = opts[:protocol] || 'tcp'
           self.context  = opts[:context] || {}
@@ -133,6 +137,7 @@ module Rex
           self.connection = Rex::Socket::Tcp.create(
             'PeerHost'   => host,
             'PeerPort'   => port.to_i,
+            'Proxies'    => proxies,
             'Context'    => context,
             'Timeout'    => timeout
           )
