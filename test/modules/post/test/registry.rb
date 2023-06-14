@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Post
           'kernelsmith', # original
           'egypt',       # PostTest conversion
         ],
-        'Platform' => [ 'windows' ]
+        'Platform' => [ 'windows' ],
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ]
       )
     )
   end

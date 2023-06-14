@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test railgun code used in post modules},
         'License' => MSF_LICENSE,
         'Author' => [ 'kernelsmith'],
-        'Platform' => [ 'windows' ]
+        'Platform' => [ 'linux', 'osx', 'windows' ],
+        'SessionTypes' => [ 'meterpreter' ]
       )
     )
 
