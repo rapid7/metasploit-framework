@@ -53,6 +53,8 @@ class MetasploitModule < Msf::Post
   end
 
   def test_static
+    return skip('session does not support COMMAND_ID_STDAPI_RAILGUN_API') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+
     it "should return a constant name given a const and a filter" do
       ret = true
       results = select_const_names(4, /^SERVICE/)
@@ -83,6 +85,8 @@ class MetasploitModule < Msf::Post
   end
 
   def test_datastore
+    return skip('session does not support COMMAND_ID_STDAPI_RAILGUN_API') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+
     if (datastore["WIN_CONST"])
       it "should look up arbitrary constants" do
         ret = true

@@ -111,8 +111,7 @@ class MetasploitModule < Msf::Post
 
   def test_net_config
     unless (session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES)
-      vprint_status("This meterpreter does not implement get_interfaces, skipping tests")
-      return
+      return skip("This meterpreter does not implement get_interfaces, skipping tests")
     end
 
     vprint_status("Starting networking tests")
