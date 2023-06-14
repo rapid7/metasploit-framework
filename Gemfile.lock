@@ -288,7 +288,7 @@ GEM
     network_interface (0.0.2)
     nexpose (7.3.0)
     nio4r (2.5.9)
-    nokogiri (1.14.3)
+    nokogiri (1.14.5)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     nori (2.6.0)
