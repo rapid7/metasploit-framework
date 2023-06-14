@@ -43,7 +43,7 @@ PATH
       net-ssh
       network_interface
       nexpose
-      nokogiri
+      nokogiri (~> 1.14.0)
       octokit (~> 4.0)
       openssl-ccm
       openvas-omp
@@ -288,8 +288,8 @@ GEM
     network_interface (0.0.2)
     nexpose (7.3.0)
     nio4r (2.5.9)
-    nokogiri (1.15.2)
-      mini_portile2 (~> 2.8.2)
+    nokogiri (1.14.5)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     nori (2.6.0)
     octokit (4.25.1)
