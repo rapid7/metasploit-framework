@@ -8,6 +8,7 @@ require 'module_test'
 class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
+  include Msf::ModuleTest::PostTestFileSystem
 
   def initialize(info = {})
     super(
@@ -21,32 +22,20 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ]
       )
     )
-    register_options(
-      [
-        OptBool.new("AddEntropy", [false, "Add entropy token to file and directory names.", false]),
-        OptString.new("BaseFileName", [true, "File/dir base name", "meterpreter-test"])
-      ], self.class
-    )
   end
 
   #
   # Change directory into a place that we have write access.
   #
-  # The +cleanup+ method will change it back. This method is an implementation
-  # of post/test/file.rb's method of the same name, but without the Post::File
-  # dependency.
+  # The +cleanup+ method will change it back.
   #
   def setup
-    @old_pwd = session.fs.dir.getwd
-    stat = session.fs.file.stat("/tmp") rescue nil
-    if (stat and stat.directory?)
-      tmp = "/tmp"
-    else
-      tmp = session.sys.config.getenv('TEMP')
-    end
-    vprint_status("Setup: changing working directory to #{tmp}")
-    session.fs.dir.chdir(tmp)
+    push_test_directory
+    super
+  end
 
+  def cleanup
+    pop_test_directory
     super
   end
 
@@ -379,12 +368,6 @@ class MetasploitModule < Msf::Post
     # XXX: how do we test this more thoroughly in a generic way?
   end
 =end
-
-  def cleanup
-    vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
-    session.fs.dir.chdir(@old_pwd)
-    super
-  end
 
   protected
 
