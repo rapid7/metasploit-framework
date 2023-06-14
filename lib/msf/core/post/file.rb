@@ -837,7 +837,7 @@ protected
     data
   rescue EOFError
     # Sometimes fd isn't marked EOF in time?
-    ''
+    data
   rescue ::Rex::Post::Meterpreter::RequestError => e
     print_error("Failed to open file: #{file_name}: #{e}")
     return nil
