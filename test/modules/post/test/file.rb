@@ -292,7 +292,7 @@ class MetasploitModule < Msf::Post
 
   def make_symlink(target, symlink)
     if session.platform == 'windows'
-      cmd_exec("cmd.exe /c mklink #{directory?(target) ? '/D ' : ''}#{symlink} #{target}")
+      cmd_exec("cmd.exe", "/c mklink #{directory?(target) ? '/D ' : ''}#{symlink} #{target}")
     else
       cmd_exec("ln -s $(pwd)/#{target} $(pwd)/#{symlink}")
     end
