@@ -405,7 +405,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
     begin
       start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      command = args.join(' ')
+      command = Shellwords.shelljoin(args)
 
       case profiler
       when '--cpu'
