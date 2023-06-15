@@ -125,9 +125,9 @@ different UPN effectively issues a certificate that can be used to authenticate 
 has the [KB5014754][KB5014754] patch applied and the REG_DWORD
 `HKLM\SYSTEM\CurrentControlSet\Services\Kdc\StrongCertificateBindingEnforcement` value is set to 2, then the SID for the
 account with the specified UPN should be supplied as well. In November of 2023, Microsoft will change the default value
-of `StrongCertificateBindingEnforcement` 2. If the server has the patch applied, the SID will be returned in the issued
-certificate which ensures that the required strong mapping is in place. If the strong mapping is required and the SID is
-not specified in the certificate, then Kerberos authentication wil fail with `KDC_ERR_CERTIFICATE_MISMATCH`.
+of `StrongCertificateBindingEnforcement` to 2. If the server has the patch applied, the SID will be returned in the
+issued certificate which ensures that the required strong mapping is in place. If the strong mapping is required and the
+SID is not specified in the certificate, then Kerberos authentication wil fail with `KDC_ERR_CERTIFICATE_MISMATCH`.
 
 The user must know:
 
