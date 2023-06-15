@@ -53,8 +53,12 @@ module Msf::Post::Windows::Version
       service_pack = os_version_info_ex[6]
       product_type = os_version_info_ex[9]
     
-      session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', KEY_READ)
-      Msf::WindowsVersion.new(major, minor, build, service_pack, product_type)
+      revision = 0
+      if (major >= 10)
+        revision = registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'UBR', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
+      end
+
+      Msf::WindowsVersion.new(major, minor, build, service_pack, revision, product_type)
     else
       # Command shell - we'll try reg commands, and fall back to `ver`
       build_str = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
