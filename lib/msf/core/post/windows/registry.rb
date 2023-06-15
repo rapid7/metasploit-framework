@@ -668,7 +668,7 @@ protected
 
     begin
       check = session.sys.registry.check_key_exists(root_key, base_key)
-    rescue Rex::Post::Meterpreter::RequestError, TimesoutError
+    rescue Rex::Post::Meterpreter::RequestError, Rex::TimeoutError
       return false
     end
 
