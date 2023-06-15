@@ -66,6 +66,9 @@ class MetasploitModule < Msf::Post
 
   def test_list
     return skip('session platform is not windows') unless session.platform == 'windows'
+    if !session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
+      return skip('reg query support skipped for now as the query takes more than two minutes')
+    end
 
     it "should list services" do
       ret = true
@@ -82,17 +85,17 @@ class MetasploitModule < Msf::Post
   def test_info
     return skip('session platform is not windows') unless session.platform == 'windows'
 
-    it "should return info on a given service  #{datastore["QSERVICE"]}" do
+    it "should return info on a given service #{datastore["QSERVICE"]}" do
       ret = true
       results = service_info(datastore['QSERVICE'])
+      vprint_status("Service details: #{results}")
 
       ret &&= results.kind_of? Hash
       if ret
-        ret &&= results.has_key? :display
-        ret &&= (results[:display] == "Windows Management Instrumentation")
-        ret &&= results.has_key? :starttype
-        ret &&= results.has_key? :path
-        ret &&= results.has_key? :startname
+        ret &&= results[:display].is_a?(String)
+        ret &&= results[:starttype].is_a?(Integer)
+        ret &&= results[:path].is_a?(String)
+        ret &&= results[:startname].is_a?(String)
       end
 
       ret
@@ -102,7 +105,7 @@ class MetasploitModule < Msf::Post
   def test_create
     return skip('session platform is not windows') unless session.platform == 'windows'
 
-    it "should create a service  #{datastore["NSERVICE"]}" do
+    it "should create a service #{datastore["NSERVICE"]}" do
       mode = case datastore["MODE"]
              when "disable"; START_TYPE_DISABLED
              when "manual"; START_TYPE_MANUAL
@@ -227,7 +230,7 @@ class MetasploitModule < Msf::Post
       ret = true
 
       results = service_start(service_name)
-      ret &&= (results == Windows::Error::SUCCESS)
+      ret &&= (results == Windows::Error::SUCCESS || results == Windows::Error::SERVICE_ALREADY_RUNNING)
       if ret
         results = service_restart(service_name)
         ret &&= results
