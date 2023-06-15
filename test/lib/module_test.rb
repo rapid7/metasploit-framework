@@ -92,4 +92,79 @@ module Msf
       end
     end
   end
+
+  module ModuleTest::PostTestFileSystem
+    def initialize(info = {})
+      super
+
+      register_options(
+        [
+          OptBool.new("AddEntropy", [false, "Add entropy token to file and directory names.", true]),
+          OptString.new('BaseDirectoryName', [true, 'Directory name to create', 'meterpreter-test-dir']),
+          OptString.new("BaseFileName", [true, "File/dir base name", "meterpreter-test"]),
+        ], self.class
+      )
+
+      @directory_stack = []
+    end
+
+    def push_test_directory
+      @directory_stack.push(_file_system.pwd)
+
+      # Find the temp directory
+      tmp = _file_system.get_env("TMP") || _file_system.get_env("TMPDIR")
+      # mettle fallback
+      tmp = '/tmp' if tmp.nil? && _file_system.directory?('/tmp')
+      raise "Could not find tmp directory" if tmp == nil || !_file_system.directory?(tmp)
+
+      vprint_status("Setup: changing working directory to tmp: #{tmp}")
+      _file_system.cd(tmp)
+
+      vprint_status("Setup: Creating clean directory")
+
+      if datastore["AddEntropy"]
+        entropy_value = '-' + ('a'..'z').to_a.shuffle[0, 8].join
+      else
+        entropy_value = ""
+      end
+      clean_test_directory = datastore['BaseDirectoryName'] + entropy_value
+      _file_system.mkdir(clean_test_directory)
+      _file_system.cd(clean_test_directory)
+
+      vprint_status("Setup: Now in #{_file_system.pwd}")
+    end
+
+    def pop_test_directory
+      previous_directory = @directory_stack.pop
+      unless previous_directory.nil?
+        vprint_status("Cleanup: changing working directory back to #{previous_directory}")
+        _file_system.cd(previous_directory)
+      end
+    end
+
+    # Private PostFile wrapper to ensure we don't clobber the test module's namespace with the Msf::Post::File mixin methods
+    class FileSystem
+      include Msf::Post::File
+
+      def initialize(mod)
+        @mod = mod
+        @session = mod.session
+      end
+
+      private
+
+      def vprint_status(s)
+        @mod.vprint_status(s)
+      end
+
+      def register_dir_for_cleanup(path)
+      end
+
+      attr_reader :session
+    end
+
+    def _file_system
+      FileSystem.new(self)
+    end
+  end
 end

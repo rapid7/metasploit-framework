@@ -8,6 +8,7 @@ require 'module_test'
 class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
+  include Msf::ModuleTest::PostTestFileSystem
 
   def initialize(info = {})
     super(
@@ -21,24 +22,15 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ]
       )
     )
-    register_options(
-      [
-        OptBool.new("AddEntropy", [false, "Add entropy token to file and directory names.", false]),
-        OptString.new("BaseFileName", [true, "File/dir base name", "meterpreter-test"])
-      ], self.class
-    )
   end
 
+  #
+  # Change directory into a place that we have write access.
+  #
+  # The +cleanup+ method will change it back
+  #
   def setup
-    @old_pwd = session.fs.dir.getwd
-    stat = session.fs.file.stat("/tmp") rescue nil
-    if (stat and stat.directory?)
-      tmp = "/tmp"
-    else
-      tmp = session.sys.config.getenv('TEMP')
-    end
-    vprint_status("Setup: changing working directory to #{tmp}")
-    session.fs.dir.chdir(tmp)
+    push_test_directory
 
     if datastore["AddEntropy"]
       entropy_value = '-' + ('a'..'z').to_a.shuffle[0, 8].join
@@ -52,6 +44,12 @@ class MetasploitModule < Msf::Post
     session.fs.file.rm(@file_name) rescue nil
     fd = session.fs.file.open(@file_name, "wb")
     fd.close
+    super
+  end
+
+  def cleanup
+    pop_test_directory
+    session.fs.file.rm(@file_name) rescue nil
     super
   end
 
@@ -183,13 +181,6 @@ class MetasploitModule < Msf::Post
       end
       res
     end
-  end
-
-  def cleanup
-    session.fs.file.rm(@file_name) rescue nil
-    vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
-    session.fs.dir.chdir(@old_pwd)
-    super
   end
 
 end
