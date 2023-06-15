@@ -4,20 +4,20 @@
 ##
 
 module MetasploitModule
-  include Msf::Payload::Adapter::Fetch::Https
+  include Msf::Payload::Adapter::Fetch::HTTP
   include Msf::Payload::Adapter::Fetch::LinuxOptions
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'HTTPS Fetch',
-        'Description' => 'Fetch and execute an MIPS64 payload from an HTTPS server.',
+        'Name' => 'HTTP Fetch',
+        'Description' => 'Fetch and execute a x86 payload from an HTTP server.',
         'Author' => ['Brendan Watters', 'Spencer McIntyre'],
         'Platform' => 'linux',
         'Arch' => ARCH_CMD,
         'License' => MSF_LICENSE,
-        'AdaptedArch' => ARCH_MIPS64,
+        'AdaptedArch' => ARCH_X86,
         'AdaptedPlatform' => 'linux'
       )
     )
