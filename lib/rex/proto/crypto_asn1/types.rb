@@ -4,7 +4,7 @@ require 'rasn1'
 module Rex::Proto::CryptoAsn1::Types
   class RASN1::Model
     def self.bmp_string(name, options = {})
-      custom_primitive_type_for(name, BmpString, options)
+      custom_primitive_type_for(name, RASN1::Types::BmpString, options)
     end
 
     def self.teletex_string(name, options = {})
@@ -13,6 +13,7 @@ module Rex::Proto::CryptoAsn1::Types
 
       if strict_encoding
         raise NotImplementedError.new('The ITU T.61 codec is not available.')
+
         custom_primitive_type_for(name, TeletexString, options)
       else
         custom_primitive_type_for(name, TeletexString::Permissive, options)
@@ -32,27 +33,6 @@ module Rex::Proto::CryptoAsn1::Types
     end
 
     private_class_method :custom_primitive_type_for
-  end
-
-  class BmpString < RASN1::Types::OctetString
-    ID = 30
-
-    # Get ASN.1 type
-    # @return [String]
-    def self.type
-      'BmpString'
-    end
-
-    private
-
-    def value_to_der
-      @value.to_s.dup.encode('UTF-16BE').b
-    end
-
-    def der_to_value(der, ber: false)
-      super
-      @value = der.dup.force_encoding('UTF-16BE')
-    end
   end
 
   class TeletexString < RASN1::Types::OctetString
