@@ -306,8 +306,8 @@ require 'digest/sha1'
     block = blocks.first
 
     # TODO: Allow the entry point in a different block
-    if payload.length + 256 > block[1]
-      raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+256} found:#{block[1]})"
+    if payload.length + 256 >= block[1]
+      raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+257} found:#{block[1]})"
     end
 
     # Make a copy of the entire .text section
@@ -328,8 +328,8 @@ require 'digest/sha1'
       poff += 256
       eidx = rand(poff-(entry.length + 5))
     else          # place the entry pointer after the payload
-      poff -= 256
-      eidx = rand(block[1] - (poff + payload.length)) + poff + payload.length
+      poff -= [256, poff].min
+      eidx = rand(block[1] - (poff + payload.length + 256)) + poff + payload.length
     end
 
     # Relative jump from the end of the nops to the payload
