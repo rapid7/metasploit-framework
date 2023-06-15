@@ -46,4 +46,20 @@ module Rex::Proto::CryptoAsn1
       bmp_string(:value)
     ]
   end
+
+  # see: [[MS-WCCE]: 2.2.2.7.7.4 szOID_NTDS_CA_SECURITY_EXT](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wcce/e563cff8-1af6-4e6f-a655-7571ca482e71)
+  class NtdsCaSecurityExt < RASN1::Model
+    class OtherName < RASN1::Model
+      sequence :OtherName, implicit: 0, content: [
+        objectid(:type_id),
+        octet_string(:value, explicit: 0, constructed: true)
+      ]
+    end
+
+    sequence :NtdsCaSecurityExt,
+      constructed: true,
+      content: [
+        wrapper(model(:OtherName, OtherName))
+      ]
+  end
 end
