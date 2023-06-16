@@ -144,6 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     session_init = client.start_session({
       target: ec2_id,
       document_name: 'SSM-SessionManagerRunShell'
+      # AWS-RunShellScript, AWS-RunPowerShellScript, etc
     })
     ssm_sock = connect_ssm_ws(session_init)
     chan = ssm_sock.to_ssm_channel
