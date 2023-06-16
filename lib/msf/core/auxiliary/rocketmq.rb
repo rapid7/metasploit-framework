@@ -71,7 +71,7 @@ module Msf
       # Errors will result in "UNKNOWN_VERSION_ID_<id>" and may be caused by needing to update the version table
       # from https://github.com/apache/rocketmq/blob/develop/common/src/4d82b307ef50f5cba5717d0ebafeb3cabf336873/java/org/apache/rocketmq/common/MQVersion.java
       version_list = JSON.parse(File.read(::File.join(Msf::Config.data_directory, 'rocketmq_versions_list.json'), mode: 'rb'))
-      version_list.fetch(id, "UNKNOWN_VERSION_ID_#{id})")
+      version_list.fetch(id, "UNKNOWN_VERSION_ID_#{id})").gsub('_', '.')
     end
   end
 end

@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     parsed_data = {}
     # grab some data that we need/want out of the response
     res.each do |j|
-      parsed_data['version'] = get_rocketmq_version(j['version']).gsub('_', '.') if j['version']
+      parsed_data['version'] = get_rocketmq_version(j['version']) if j['version']
       parsed_data['brokerDatas'] = j['brokerDatas'] if j['brokerDatas']
     end
 
