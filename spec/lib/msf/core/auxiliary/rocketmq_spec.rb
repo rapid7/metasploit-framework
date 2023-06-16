@@ -14,9 +14,9 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
       end
     end
 
-    context 'correctly looks up id 99999 as UNKNOWN_VERSION_ID_99999' do
+    context 'correctly looks up id 99999 as UNKNOWN.VERSION.ID.99999' do
       it 'returns that version' do
-        expect(subject.get_rocketmq_version(99999)).to eql('UNKNOWN_VERSION_ID_99999')
+        expect(subject.get_rocketmq_version(99999)).to eql('UNKNOWN.VERSION.ID.99999')
       end
     end
   end
