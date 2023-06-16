@@ -14,12 +14,22 @@ module Msf
       @failures = 0
       @skipped = 0
       super
+
+      register_options(
+        [
+          OptString.new("TestName", [false, "Run a specified test method name.", nil]),
+        ], self.class
+      )
     end
 
     def run_all_tests
-      tests = self.methods.select { |m| m.to_s =~ /^test_/ }
+      tests = datastore['TestName'].present? ? [datastore['TestName'].to_sym] : self.methods.select { |m| m.to_s =~ /^test_/ }
       tests.each { |test_method|
         begin
+          unless respond_to?(test_method)
+            print_error("test method #{test_method} not found")
+            next
+          end
           self.send(test_method)
         rescue SkipTestError => e
           # If the entire def is skipped, increment tests and skip count
@@ -50,6 +60,7 @@ module Msf
         @skipped += 1
         @current_it_msg = nil
         print_status("SKIPPED: #{msg} (#{e.message})")
+        return
       rescue ::Exception => e
         @failures += 1
         print_error("FAILED: #{msg}")
