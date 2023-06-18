@@ -33,7 +33,7 @@ module Msf::Post::Windows::Version
 
   def get_version_info_fallback_impl
     build_num_raw = cmd_exec('cmd.exe /c ver')
-    groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/)
+    groups = build_num_raw.match(/Version\s+(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/)
     if groups.nil?
       return nil
     end
