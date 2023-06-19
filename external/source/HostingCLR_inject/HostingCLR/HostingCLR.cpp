@@ -295,7 +295,7 @@ int executeSharp(LPVOID lpPayload)
 	hr = SafeArrayLock(psaEntryPointParameters);
 	if (!SUCCEEDED(hr))
 	{
-		ReportErrorThroughPipe(pipe, "Failed to lock param array w/hr 0x%08lx\n", hr);
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to lock param array w/hr 0x%08lx\n", hr);
 		goto Cleanup;
 	}
 	long uBound, lBound;
@@ -305,7 +305,7 @@ int executeSharp(LPVOID lpPayload)
 	hr = SafeArrayUnlock(psaEntryPointParameters);
 	if (!SUCCEEDED(hr))
 	{
-		ReportErrorThroughPipe(pipe, "Failed to unlock param array w/hr 0x%08lx\n", hr);
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to unlock param array w/hr 0x%08lx\n", hr);
 		goto Cleanup;
 	}
 
@@ -320,7 +320,7 @@ int executeSharp(LPVOID lpPayload)
 	case 0:
 		if (metadata.argsSize > 1) // There is always a Null byte at least, so "1" in size means "0 args"
 		{
-			ReportErrorThroughPipe(pipe, "Assembly takes no arguments, but some were provided\n");
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Assembly takes no arguments, but some were provided\n");
 			goto Cleanup;
 		}
 		// If no parameters set cElement to 0
@@ -331,18 +331,27 @@ int executeSharp(LPVOID lpPayload)
 		// If we have at least 1 parameter set cElement to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
 
+		// Here we unfortunately need to do a trick. CommandLineToArgvW treats the first argument differently, as
+		// it expects it to be a filename. This affects situations where the first argument contains backslashes,
+		// or if there are no arguments at all (it will just create one - the process's image name).
+		// To coerce it into performing the correct data transformation, we create a fake first parameter, and then
+		// ignore it in the output.
+
 		LPWSTR* szArglist;
 		int nArgs;
-		wchar_t* wtext = (wchar_t*)malloc((sizeof(wchar_t) * metadata.argsSize));
+		wchar_t* wtext = (wchar_t*)malloc((sizeof(wchar_t) * (metadata.argsSize + 2)));
+		wtext[0] = L'X'; // Fake process name
+		wtext[1] = L' '; // Separator
 
-		mbstowcs(wtext, (char*)arg_s, metadata.argsSize);
+
+		mbstowcs(wtext+2, (char*)arg_s, metadata.argsSize);
 		szArglist = CommandLineToArgvW(wtext, &nArgs);
 
 		free(wtext);
 
-		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs);
+		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs - 1); // Subtract 1, to ignore the fake process name
 
-		for (long i = 0; i < nArgs; i++)
+		for (long i = 1; i < nArgs; i++) // Start a 1 - ignoring the fake process name
 		{
 			size_t converted;
 			size_t strlength = wcslen(szArglist[i]) + 1;
@@ -353,17 +362,19 @@ int executeSharp(LPVOID lpPayload)
 
 			mbstowcs_s(&converted, sOleText1, strlength, buffer, strlength);
 			BSTR strParam1 = SysAllocString(sOleText1);
-
-			SafeArrayPutElement(vtPsa.parray, &i, strParam1);
+			long actualPosition = i - 1;
+			SafeArrayPutElement(vtPsa.parray, &actualPosition, strParam1);
 			free(buffer);
 		}
+
+		LocalFree(szArglist);
 
 		long iEventCdIdx(0);
 		hr = SafeArrayPutElement(psaStaticMethodArgs, &iEventCdIdx, &vtPsa);
 		break;
 	}
 	default:
-		ReportErrorThroughPipe(pipe, "Unexpected argument length: %d\n", numArgs);
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Unexpected argument length: %d\n", numArgs);
 		goto Cleanup;
 	}
 
