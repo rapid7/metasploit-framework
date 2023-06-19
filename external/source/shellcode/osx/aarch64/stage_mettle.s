@@ -92,7 +92,7 @@ _main:
     mov x0, x13
 
     /* jump to main_osx */
-    br x15
+    blr x15
 
 failed:
     mov    x0, 0

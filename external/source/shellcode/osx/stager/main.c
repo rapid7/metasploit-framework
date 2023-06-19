@@ -1,3 +1,5 @@
+
+
 /*
  * References:
  * @parchedmind
@@ -184,6 +186,19 @@ struct LoadOptions
     Missing     pathNotFoundHandler;// = nullptr;
 };
 
+struct InitialOptions
+{
+      bool inDyldCache;//        = false;
+      bool hasObjc;//            = false;
+      bool mayHavePlusLoad;//    = false;
+      bool roData;//             = false;
+      bool neverUnloaded;//      = false;
+      bool leaveMapped;//        = false;
+      bool roObjC;//             = false;
+      bool pre2022Binary;//      = false;
+ };
+
+
 struct Loaded {
   void* _allocator;//           = nullptr;
   void* * elements;//             = nullptr;
@@ -235,18 +250,24 @@ typedef NSSymbol (*NSLookupSymbolInModule_ptr)(NSModule module, const char *symb
 typedef void * (*NSAddressOfSymbol_ptr)(NSSymbol symbol);
 
 typedef /*Loader*/void * (*JustInTimeLoaderMake_ptr)(void *apis, void *ma, const char* path, const struct FileID * fileId, uint64_t sliceOffset, bool willNeverUnload, bool leaveMapped, bool overridesCache, uint16_t overridesDylibIndex, uint64_t layout);
+typedef /*Loader*/void * (*JustInTimeLoaderMake2_ptr)(void *apis, void *ma, const char* path, const struct FileID * fileId, uint64_t sliceOffset, bool willNeverUnload, bool leaveMapped, bool overridesCache, uint16_t overridesDylibIndex);
 typedef void * (*AnalyzeSegmentsLayout_ptr)(void *ma, uintptr_t * vmSpace, bool * hasZeroFill);
 typedef void * (*VMAllocate_ptr)(uint64_t target_task, void * address, uint64_t size, int flags);
 typedef void * (*VMDeallocate_ptr)(uint64_t target_task, void * address, uint64_t size);
 typedef void * (*WithRegions_ptr)(void *ma, void * callback);
+//typedef uint32_t (*DependentDylibCount_ptr)(void *ma, bool * alldepsarenormal);
+//typedef bool (*HasPlusLoad_ptr)(void *ma);
 typedef void * (*MMap_ptr)(void * sdg, void *addr, size_t length, int prot, int flags, int fd, uint64_t offset);
 void * memcpy2(void *dest, const void *src, size_t len);
 typedef void * (*Mprotect_ptr)(void * sdg, void * dst, uint64_t length, int prot);
 typedef void (*WithLoadersWriteLock_ptr)(void *apis, void * callback);
+//typedef void * (*LoaderLoader_ptr)(void * loader, const struct InitialOptions *, bool prebuilt, bool prebuiltApp, bool prebuiltIndex);
 typedef void (*LoadDependents_ptr)(void *topLoader, const struct diagnostics * diag, void * apis, const struct LoadOptions * lo);
+//typedef bool (*EnforceFormat_ptr)(void * ma, int malformed);
 typedef void (*RunInitializers_ptr)(void *topLoader, void * apis);
 typedef void * (*HandleFromLoader_ptr)(void *loader, bool firstOnly);
 typedef void (*IncDlRefCount_ptr)(void *apis, void * topLoader);
+//typedef void (*AddLoader_ptr)(void *apis, void * topLoader);
 typedef void (*NotifyLoad_ptr)(void * apis, struct ArrayOfLoaderPointers * newLoaders);
 typedef void (*NotifyDebuggerLoad_ptr)(void * apis, const struct ArrayOfLoaderPointers * aolp);
 typedef void (*ApplyFixups_ptr)(void * ldr, const struct diagnostics * diag, void * apis, struct DyldCacheDataConstLazyScopedWriter * dcd, bool b);
@@ -269,25 +290,13 @@ uint64_t roundUp(uint64_t numToRound, uint64_t multiple);
 //#define DEBUG
 #ifdef DEBUG
 static void print(char * str);
-#define printf(a,b) print(a);
-#endif
-
-#ifdef __aarch64__
-/*
-typedef uint64_t (*VDPrintf_ptr)(uint64_t fd, const char * fmt, ...);
-void printf_sdyld_arm64(char * a, void * b, uint64_t sdyld) {
-  VDPrintf_ptr VDPrintf_func = find_symbol(sdyld, "__simple_vdprintf", sdyld);
-  //VDPrintf_func(1, a, b);
-  printf(a,b);
-}*/
-#define printf_sdyld(a,b) print(a);
-#else
-typedef uint64_t (*SimpleDPrintf_ptr)(uint64_t fd, const char * fmt, ...);
-void printf_sdyld_x86_64(char * a, void * b, uint64_t sdyld) {
-  SimpleDPrintf_ptr SimpleDPrintf_func = find_symbol(sdyld, "__simple_dprintf", sdyld);
-  SimpleDPrintf_func(1, a, b);
+#include "printf/printf.h"
+void _putchar(char character) {
+  print(&character);
 }
-#define printf_sdyld(a,b) printf_sdyld_x86_64(a, b, sdyld);
+#else
+#define print(a)
+#define printf(a,b)
 #endif
 
 
@@ -296,9 +305,7 @@ void printf_sdyld_x86_64(char * a, void * b, uint64_t sdyld) {
 
 int main(int argc, char** argv)
 {
-#ifdef DEBUG
   print("main!\n");
-#endif
   uint64_t buffer = 0;
   uint64_t buffer_size = 0;
 #ifdef __aarch64__
@@ -313,9 +320,7 @@ int main(int argc, char** argv)
       : "=g"(buffer), "=g"(buffer_size));
 #endif
 
-#ifdef DEBUG
   print("hello world!\n");
-#endif
 
   int sierra = detect_sierra();
   uint64_t binary = DYLD_BASE_ADDR;
@@ -366,9 +371,7 @@ int main(int argc, char** argv)
     }
     NSCreateObjectFileImageFromMemory_func = find_symbol(dyld, "_NSCreateObjectFileImageFromMemory", offset);
   }
-#ifdef DEBUG
   print("good symbol!\n");
-#endif
 
   // gDyld is a special struct that libdyld.dylib uses to interface with dyld4.
   // gDyld is not present in dyld3 and back.
@@ -376,33 +379,23 @@ int main(int argc, char** argv)
   //printf("gDyld: %lld\n", gDyld);
   void * addr_main = 0;
   if (gDyld != 0) {
-#ifdef DEBUG
     print("gDyld found, using dual hijack technique.\n");
-#endif
     // Also known as the RuntimeState or Allocator.
     void* apis = ((struct libdyldDyld4Section*)gDyld)->apis;
-#ifdef DEBUG
     printf("apis: %lld\n", apis);
-    printf("config: %i\n", (int)*(void **)(apis+8));
-#endif
+    printf("config: %lld\n", *(void **)(apis+8));
     // config is offset around 0x100000 from the start of dyld4.
     uint64_t base = roundUp((uint64_t)(*(void **)(apis+8) - 0x00100000), 0x1000);
-#ifdef DEBUG
     printf("base: %lld\n", base);
-#endif
     // sdyld will be the address of dyld4, which contains mangled symbols.
     uint64_t sdyld = find_macho(base, 0x1000);
     uint64_t offset2 = sdyld;
-#ifdef DEBUG
     printf("sdyld: %lld\n", sdyld);
-#endif
     MMap_ptr MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", offset2);
     while (!MMap_func) {
       sdyld = find_macho(sdyld + 0x1000, 0x1000);
       if (sdyld == 1) {
-#ifdef DEBUG
         print("failed.\n");
-#endif
         return 1;
       }
       //printf("Dyld: %lld\n", sdyld);
@@ -410,68 +403,51 @@ int main(int argc, char** argv)
     }
     //printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
     JustInTimeLoaderMake_ptr JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld313MachOAnalyzerEPKcRKNS_6FileIDEybbbt", offset2);
+    JustInTimeLoaderMake2_ptr JustInTimeLoaderMake2_func = 0;
     bool ventura = false;
     if (!JustInTimeLoaderMake_func) {
       offset2 = offset;
       ventura = true;
       MMap_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate4mmapEPvmiiim", offset2);
-      JustInTimeLoaderMake_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld39MachOFileEPKcRKNS_6FileIDEybbbtPKN6mach_o6LayoutE", offset2);
+      JustInTimeLoaderMake2_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader4makeERNS_12RuntimeStateEPKN5dyld39MachOFileEPKcRKNS_6FileIDEybbbtPKN6mach_o6LayoutE", offset2);
     }
     if (ventura) {
-#ifdef DEBUG
       print("Ventura!\n");
-#endif
     }
-#ifdef DEBUG
-    //printf_sdyld("SimpleDPrintf_func: %lld\n", SimpleDPrintf_func);
-    printf_sdyld("Errno: %lld\n", *(uint64_t*)find_symbol(sdyld, "_errno", offset2));
-#endif
+    //printf("SimpleDPrintf_func: %lld\n", SimpleDPrintf_func);
+    printf("Errno: %lld\n", *(uint64_t*)find_symbol(sdyld, "_errno", offset2));
     // Loader::mapSegments
     uintptr_t vmSpace = 0;
     bool hasZeroFill;
     *(uint32_t*)buffer = 0xfeedfacf;
-#ifdef DEBUG
-    printf_sdyld("Buffer: %lld\n", buffer);
-#endif
+    printf("Buffer: %lld\n", buffer);
     if (ventura) {
       // MachOFile =~= MachOAnalyzer
       AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile21analyzeSegmentsLayoutERyRb", offset2);
-#ifdef DEBUG
       print("Analyzing Segments.\n");
-#endif
       AnalyzeSegmentsLayout_func((void*)buffer, &vmSpace, &hasZeroFill);
     } else {
       AnalyzeSegmentsLayout_ptr AnalyzeSegmentsLayout_func = find_symbol(sdyld, "__ZNK5dyld313MachOAnalyzer21analyzeSegmentsLayoutERyRb", offset2);
-#ifdef DEBUG
       print("Analyzing Segments.\n");
-#endif
       AnalyzeSegmentsLayout_func((void*)buffer, &vmSpace, &hasZeroFill);
     };
-#ifdef DEBUG
-    printf_sdyld("vmSpace: %lld\n", vmSpace);
-#endif
+    printf("vmSpace: %lld\n", vmSpace);
     bool isTranslated = false; // Rosetta.
     uint64_t extraAllocSize = 0;
     if ((*(uint64_t **)(apis + 8))[0x7c] != 0) {
       isTranslated = true;
-#ifdef DEBUG
       print("Rosetta.\n");
-#endif
       // TODO: Rosseta requires a bit more space...
       extraAllocSize = 0x0;
     }
     vmSpace += extraAllocSize;
-#ifdef DEBUG
-    printf_sdyld("Translated: %s\n", isTranslated ? "true" : "false");
-#endif
+    printf("Translated: %s\n", isTranslated ? "true" : "false");
     uintptr_t loadAddress = 0;
     VMAllocate_ptr VMAllocate_func = find_symbol(sdyld, "_vm_allocate", offset2);
     uint64_t mach_task_self = *(uint64_t*)find_symbol(sdyld, "_mach_task_self_", offset2);
     void * vmallocate_ret = VMAllocate_func(mach_task_self, &loadAddress, vmSpace, /*VM_FLAGS_ANYWHERE: */0x1);
-#ifdef DEBUG
-    printf_sdyld("VMAllocate Ret: %lld\n", vmallocate_ret);
-    printf_sdyld("LoadAddress: %lld\n", loadAddress);
-#endif
+    printf("VMAllocate Ret: %lld\n", vmallocate_ret);
+    printf("LoadAddress: %lld\n", loadAddress);
     // Put regions together...
     // JustInTimeLoader::withRegions via MachOAnalyzer::getAllSegmentsInfos
     WithRegions_ptr WithRegions_func = 0;
@@ -481,57 +457,45 @@ int main(int argc, char** argv)
       WithRegions_func = find_symbol(sdyld, "__ZN5dyld416JustInTimeLoader11withRegionsEPKN5dyld313MachOAnalyzerEU13block_pointerFvRKNS1_5ArrayINS_6Loader6RegionEEEE", offset2);
     };
     WithRegions_func((void*)buffer, ^(struct ArrayOfRegions * rptr) {
-#ifdef DEBUG
-        printf_sdyld("Region Ptrs: %lld\n", rptr);
-        printf_sdyld("usedCount: %lld\n", rptr->_usedCount);
-        printf_sdyld("allocCount: %lld\n", rptr->_allocCount);
-#endif
+        printf("Region Ptrs: %lld\n", rptr);
+        printf("usedCount: %lld\n", rptr->_usedCount);
+        printf("allocCount: %lld\n", rptr->_allocCount);
         uint32_t segIndex = 0;
         uint64_t sliceOffset = 0;
         uint64_t lastOffset = 0;
         for (int i = 0 ; i < rptr->_usedCount; i++) {
           const struct Region region = rptr->_elements[i];
-#ifdef DEBUG
-          printf_sdyld("Region vmOffset: %lld\n", region.vmOffset);
-          printf_sdyld("Region perms: %lld\n", region.perms);
-          printf_sdyld("Region isZeroFill: %lld\n", region.isZeroFill);
-          printf_sdyld("Region readOnlyData: %lld\n", region.readOnlyData);
-          printf_sdyld("Region fileOffset: %lld\n", region.fileOffset);
-          printf_sdyld("Region fileSize: %lld\n", region.fileSize);
+          printf("Region vmOffset: %lld\n", region.vmOffset);
+          printf("Region perms: %lld\n", region.perms);
+          printf("Region isZeroFill: %lld\n", region.isZeroFill);
+          printf("Region readOnlyData: %lld\n", region.readOnlyData);
+          printf("Region fileOffset: %lld\n", region.fileOffset);
+          printf("Region fileSize: %lld\n", region.fileSize);
           print("----\n");
-#endif
           if ( region.isZeroFill || (region.fileSize == 0) )
             continue;
           if ( (region.vmOffset == 0) && (segIndex > 0) )
             continue;
           int perms = region.perms;
-#ifdef DEBUG
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
-          printf_sdyld("Addr: %lld\n", (void*)(loadAddress + region.vmOffset));
-          printf_sdyld("Size: %lld\n", (size_t)region.fileSize);
-          printf_sdyld("Perms: %lld\n", region.perms);
-          printf_sdyld("Flags: %lld\n", MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS);
-          printf_sdyld("FD: %lld\n", (int)-1);
-          printf_sdyld("Offset: %lld\n", (size_t)(sliceOffset + region.fileOffset));
-#endif
+          printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
+          printf("Addr: %lld\n", (void*)(loadAddress + region.vmOffset));
+          printf("Size: %lld\n", (size_t)region.fileSize);
+          printf("Perms: %lld\n", region.perms);
+          printf("Flags: %lld\n", MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS);
+          printf("FD: %lld\n", (int)-1);
+          printf("Offset: %lld\n", (size_t)(sliceOffset + region.fileOffset));
           // MMap will init this with zeros.
           void* segAddress = MMap_func(*(void **)(apis+ 8), (void*)(loadAddress + region.vmOffset), (size_t)region.fileSize, PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
           lastOffset = loadAddress + region.vmOffset + region.fileSize;
-#ifdef DEBUG
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
-          printf_sdyld("Buffer: %lld\n", buffer);
-          printf_sdyld("BufferO: %lld\n", buffer + sliceOffset + region.fileOffset);
-#endif
+          printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
+          printf("Buffer: %lld\n", buffer);
+          printf("BufferO: %lld\n", buffer + sliceOffset + region.fileOffset);
           memcpy2(segAddress, (const void *)(buffer + sliceOffset + region.fileOffset), (size_t)region.fileSize);
-#ifdef DEBUG
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
-#endif
+          printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
           Mprotect_ptr Mprotect_func = find_symbol(sdyld, "__ZNK5dyld415SyscallDelegate8mprotectEPvmi", offset2);
           Mprotect_func(*(void **)(apis+ 8), segAddress, (size_t)region.fileSize, perms);
-#ifdef DEBUG
-          printf_sdyld("SegAddress: %lld\n", segAddress);
-          printf_sdyld("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
-#endif
+          printf("SegAddress: %lld\n", segAddress);
+          printf("Errno: %i\n", *(int*)find_symbol(sdyld, "_errno", offset2));
           ++segIndex;
         }
     });
@@ -546,59 +510,46 @@ int main(int argc, char** argv)
         sizeof(struct LoadChain)+ // loadChain
         sizeof(struct LoadOptions)+ // depOptions
         sizeof(struct diagnostics); // diag
+    int initialoptionsoffset = structspacesize;
     VMAllocate_func(mach_task_self, &structspace, structspacesize, 0x1);
     uint64_t * rtopLoader = (uint64_t *)(structspace);;
     if (ventura) {
       struct Loaded * loaded = (struct Loaded*)(apis+32);
       uintptr_t startLoaderCount = loaded->size;
-#ifdef DEBUG
-      printf_sdyld("Loaded Size: %lld\n", loaded->size);
-      printf_sdyld("Loaded first: %lld\n", (loaded->elements));
-      printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
-#endif
+      printf("Loaded Size: %lld\n", loaded->size);
+      printf("Loaded first: %lld\n", (loaded->elements));
+      printf("Loaded Capacity: %lld\n", loaded->capacity);
       struct FileID * fileid = (struct FileID *)(rtopLoader+sizeof(void *));// = { 0, 0, false };
       fileid->iNode = 0;
       fileid->modTime = 0;
       fileid->isValid = false;
-#ifdef DEBUG
-      printf_sdyld("Apis: %lld\n", apis);
-      printf_sdyld("LoadAddress: %lld\n", loadAddress);
-      printf_sdyld("JITLMP: %lld\n", JustInTimeLoaderMake_func);
-#endif
-      void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0, 0);
-#ifdef DEBUG
-      printf_sdyld("TopLoader: %lld\n", topLoader);
-      printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
-      printf_sdyld("Loaded Size: %lld\n", loaded->size);
-      printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
-#endif
+      printf("Apis: %lld\n", apis);
+      printf("LoadAddress: %lld\n", loadAddress);
+      printf("JITLMP: %lld\n", JustInTimeLoaderMake_func);
+      void * topLoader = JustInTimeLoaderMake2_func(apis, (void *)loadAddress, "A", fileid, 0, false, true, false, 0);
+      printf("TopLoader: %lld\n", topLoader);
+      printf("Toploader (*(int*)this): %i\n", *(int *)topLoader);
+      printf("Loaded Size: %lld\n", loaded->size);
+      printf("Loaded Capacity: %lld\n", loaded->capacity);
       struct PartialLoader * pl = (struct PartialLoader *)topLoader;
-#ifdef DEBUG
-      printf_sdyld("LoadAddress: %lld\n", pl->mappedAddress);
-      printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
-      printf_sdyld("hidden: %lld\n", pl->hidden);
-      printf_sdyld("Magic: %lld\n", pl->magic);
-      printf_sdyld("IsPrebuilt: %lld\n", pl->isPrebuilt);
-#endif
+      printf("LoadAddress: %lld\n", pl->mappedAddress);
+      printf("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
+      printf("hidden: %lld\n", pl->hidden);
+      printf("Magic: %lld\n", pl->magic);
+      printf("IsPrebuilt: %lld\n", pl->isPrebuilt);
       pl->lateLeaveMapped = 1;
       pl = (struct PartialLoader *)topLoader;
-#ifdef DEBUG
-      printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
-#endif
+      printf("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
       struct LoadChain * loadChainMain = (struct LoadChain *)(fileid+sizeof(struct FileID));// = { 0, *(void **)(apis+24) };
       loadChainMain->previous = 0;
       loadChainMain->image = *(void **)(apis+24);
-#ifdef DEBUG
-      printf_sdyld("mainExecutableLoader: %lld\n", *(void **)(apis+24));
-      printf_sdyld("mainExecutableLoader: %lld\n", loadChainMain->image);
-#endif
+      printf("mainExecutableLoader: %lld\n", *(void **)(apis+24));
+      printf("mainExecutableLoader: %lld\n", loadChainMain->image);
       struct LoadChain * loadChainCaller = (struct LoadChain *)(loadChainMain+sizeof(struct LoadChain));// = { &loadChainMain, &(loaded->elements[0]) };
       loadChainCaller->previous = &loadChainMain;
       loadChainCaller->image = &(loaded->elements[0]);
-#ifdef DEBUG
-      printf_sdyld("LoadedElements: %lld\n", &(loaded->elements[0]));
-      printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
-#endif
+      printf("LoadedElements: %lld\n", &(loaded->elements[0]));
+      printf("Toploader (*(int*)this): %i\n", *(int *)topLoader);
       struct LoadChain * loadChain = (struct LoadChain *)(loadChainCaller+sizeof(struct LoadChain));// = { &loadChainCaller, topLoader };
       loadChain->previous = &loadChainCaller;
       loadChain->image = topLoader;
@@ -614,18 +565,12 @@ int main(int argc, char** argv)
       diag->_buffer = 0;
       LoadDependents_func(topLoader, diag, apis, depOptions);
       if (diag->_buffer != 0) {
-#ifdef DEBUG
         print("Error\n");
-#endif
       };
-#ifdef DEBUG
-      printf_sdyld("buffer: %lld\n", diag->_buffer);
-      printf_sdyld("startLoaderCount: %lld\n", startLoaderCount);
-#endif
+      printf("buffer: %lld\n", diag->_buffer);
+      printf("startLoaderCount: %lld\n", startLoaderCount);
       uint64_t newLoadersCount = loaded->size - startLoaderCount;
-#ifdef DEBUG
-      printf_sdyld("newLoadersCount: %lld\n", newLoadersCount);
-#endif
+      printf("newLoadersCount: %lld\n", newLoadersCount);
       void * * newLoaders = &loaded->elements[startLoaderCount];
       struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
       if (newLoadersCount != 0) {
@@ -634,24 +579,16 @@ int main(int argc, char** argv)
         if (*(char *)(apis + 0x7f) != '\0') {
           AddWeakDefs_ptr AddWeakDefs_func = find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKNSt3__14spanIPKS0_Lm18446744073709551615EEE", offset2);
           AddWeakDefs_func(apis, &newLoadersArray);
-#ifdef DEBUG
           print("WeakRefed\n");
-#endif
         }
         ApplyFixups_ptr ApplyFixups_func = find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", offset2);
         struct DyldCacheDataConstLazyScopedWriter dcdclsw = { apis, false };
         for (int i = 0; i != newLoadersCount; ++i) {
-#ifdef DEBUG
           print("Fixing Up!\n");
-#endif
           void * ldr = newLoaders[i];
-#ifdef DEBUG
-          printf_sdyld("Ldr: %lld\n", ldr);
-#endif
+          printf("Ldr: %lld\n", ldr);
           ApplyFixups_func(ldr, diag, apis, &dcdclsw, true);
-#ifdef DEBUG
-          printf_sdyld("Diag: %lld\n", diag->_buffer);
-#endif
+          printf("Diag: %lld\n", diag->_buffer);
         }
         // TODO: Figure out if we need addPermanentRanges.
         NotifyDtrace_ptr NotifyDtrace_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKNSt3__14spanIPKNS_6LoaderELm18446744073709551615EEE", offset2);
@@ -660,16 +597,12 @@ int main(int argc, char** argv)
         RebindMissingFlatLazySymbols_func(apis, &newLoadersArray);
         for (int i = 0; i != newLoadersCount; ++i) {
           void * ldr = newLoaders[i];
-#ifdef DEBUG
           print("Setting up locals.\n");
-#endif
           GetMA_ptr GetMA_func = find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", offset2);
           const void* * ma = GetMA_func(ldr, apis);
           HasThreadLocalVariables_ptr HasThreadLocalVariables_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", offset2);
           if (HasThreadLocalVariables_func(ma) == true) {
-#ifdef DEBUG
             print("Has local variables.\n");
-#endif
             SetUpTLVs_ptr SetUpTLVs_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", offset2);
             SetUpTLVs_func(apis, ma);
           }
@@ -677,14 +610,10 @@ int main(int argc, char** argv)
       }
       IncDlRefCount_ptr IncDlRefCount_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", offset2);
       IncDlRefCount_func(apis, topLoader);
-#ifdef DEBUG
       print("Notifying.\n");
-#endif
       NotifyLoad_ptr NotifyLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKNSt3__14spanIPKNS_6LoaderELm18446744073709551615EEE", offset2);
       NotifyLoad_func(apis, &newLoadersArray);
-#ifdef DEBUG
       print("Initializing\n");
-#endif
       RunInitializers_ptr RunInitializers_func = find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", offset2);
       RunInitializers_func(topLoader, apis);
       *rtopLoader = (uint64_t)topLoader;
@@ -693,54 +622,40 @@ int main(int argc, char** argv)
       WithLoadersWriteLock_func(apis, ^(){
         struct Loaded * loaded = (struct Loaded*)(apis+32);
         uintptr_t startLoaderCount = loaded->size;
-#ifdef DEBUG
-        printf_sdyld("Loaded Size: %lld\n", loaded->size);
-        printf_sdyld("Loaded first: %lld\n", (loaded->elements));
-        printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
-#endif
+        printf("Loaded Size: %lld\n", loaded->size);
+        printf("Loaded first: %lld\n", (loaded->elements));
+        printf("Loaded Capacity: %lld\n", loaded->capacity);
         struct FileID * fileid = (struct FileID *)(rtopLoader+sizeof(void *));// = { 0, 0, false };
         fileid->iNode = 0;
         fileid->modTime = 0;
         fileid->isValid = false;
-#ifdef DEBUG
-        printf_sdyld("Apis: %lld\n", apis);
-        printf_sdyld("LoadAddress: %lld\n", loadAddress);
-        printf_sdyld("JITLMP: %lld\n", JustInTimeLoaderMake_func);
-#endif
+        printf("Apis: %lld\n", apis);
+        printf("LoadAddress: %lld\n", loadAddress);
+        printf("JITLMP: %lld\n", JustInTimeLoaderMake_func);
         void * topLoader = JustInTimeLoaderMake_func(apis, (void *)loadAddress, "", fileid, 0, false, true, false, 0, 0);
-#ifdef DEBUG
-        printf_sdyld("TopLoader: %lld\n", topLoader);
-        printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
-        printf_sdyld("Loaded Size: %lld\n", loaded->size);
-        printf_sdyld("Loaded Capacity: %lld\n", loaded->capacity);
-#endif
+        printf("TopLoader: %lld\n", topLoader);
+        printf("Toploader (*(int*)this): %i\n", *(int *)topLoader);
+        printf("Loaded Size: %lld\n", loaded->size);
+        printf("Loaded Capacity: %lld\n", loaded->capacity);
         struct PartialLoader * pl = (struct PartialLoader *)topLoader;
-#ifdef DEBUG
-        printf_sdyld("LoadAddress: %lld\n", pl->mappedAddress);
-        printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
-        printf_sdyld("hidden: %lld\n", pl->hidden);
-        printf_sdyld("Magic: %lld\n", pl->magic);
-        printf_sdyld("IsPrebuilt: %lld\n", pl->isPrebuilt);
-#endif
+        printf("LoadAddress: %lld\n", pl->mappedAddress);
+        printf("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
+        printf("hidden: %lld\n", pl->hidden);
+        printf("Magic: %lld\n", pl->magic);
+        printf("IsPrebuilt: %lld\n", pl->isPrebuilt);
         pl->lateLeaveMapped = 1;
         pl = (struct PartialLoader *)topLoader;
-#ifdef DEBUG
-        printf_sdyld("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
-#endif
+        printf("lateLeaveMapped: %lld\n", pl->lateLeaveMapped);
         struct LoadChain * loadChainMain = (struct LoadChain *)(fileid+sizeof(struct FileID));// = { 0, *(void **)(apis+24) };
         loadChainMain->previous = 0;
         loadChainMain->image = *(void **)(apis+24);
-#ifdef DEBUG
-        printf_sdyld("mainExecutableLoader: %lld\n", *(void **)(apis+24));
-        printf_sdyld("mainExecutableLoader: %lld\n", loadChainMain->image);
-#endif
+        printf("mainExecutableLoader: %lld\n", *(void **)(apis+24));
+        printf("mainExecutableLoader: %lld\n", loadChainMain->image);
         struct LoadChain * loadChainCaller = (struct LoadChain *)(loadChainMain+sizeof(struct LoadChain));// = { &loadChainMain, &(loaded->elements[0]) };
         loadChainCaller->previous = &loadChainMain;
         loadChainCaller->image = &(loaded->elements[0]);
-#ifdef DEBUG
-        printf_sdyld("LoadedElements: %lld\n", &(loaded->elements[0]));
-        printf_sdyld("Toploader (*(int*)this): %i\n", *(int *)topLoader);
-#endif
+        printf("LoadedElements: %lld\n", &(loaded->elements[0]));
+        printf("Toploader (*(int*)this): %i\n", *(int *)topLoader);
         struct LoadChain * loadChain = (struct LoadChain *)(loadChainCaller+sizeof(struct LoadChain));// = { &loadChainCaller, topLoader };
         loadChain->previous = &loadChainCaller;
         loadChain->image = topLoader;
@@ -756,18 +671,12 @@ int main(int argc, char** argv)
         diag->_buffer = 0;
         LoadDependents_func(topLoader, diag, apis, depOptions);
         if (diag->_buffer != 0) {
-#ifdef DEBUG
           print("Error\n");
-#endif
         };
-#ifdef DEBUG
-        printf_sdyld("buffer: %lld\n", diag->_buffer);
-        printf_sdyld("startLoaderCount: %lld\n", startLoaderCount);
-#endif
+        printf("buffer: %lld\n", diag->_buffer);
+        printf("startLoaderCount: %lld\n", startLoaderCount);
         uint64_t newLoadersCount = loaded->size - startLoaderCount;
-#ifdef DEBUG
-        printf_sdyld("newLoadersCount: %lld\n", newLoadersCount);
-#endif
+        printf("newLoadersCount: %lld\n", newLoadersCount);
         void * * newLoaders = &loaded->elements[startLoaderCount];
         struct ArrayOfLoaderPointers newLoadersArray = { newLoaders, newLoadersCount, newLoadersCount };
         if (newLoadersCount != 0) {
@@ -776,24 +685,16 @@ int main(int argc, char** argv)
           if (*(char *)(apis + 0x7f) != '\0') {
             AddWeakDefs_ptr AddWeakDefs_func = find_symbol(sdyld, "__ZN5dyld46Loader16addWeakDefsToMapERNS_12RuntimeStateERKN5dyld35ArrayIPKS0_EE", offset2);
             AddWeakDefs_func(apis, &newLoadersArray);
-#ifdef DEBUG
             print("WeakRefed\n");
-#endif
           }
           ApplyFixups_ptr ApplyFixups_func = find_symbol(sdyld, "__ZNK5dyld46Loader11applyFixupsER11DiagnosticsRNS_12RuntimeStateERNS_34DyldCacheDataConstLazyScopedWriterEb", offset2);
           struct DyldCacheDataConstLazyScopedWriter dcdclsw = { apis, false };
           for (int i = 0; i != newLoadersCount; ++i) {
-#ifdef DEBUG
             print("Fixing Up!\n");
-#endif
             void * ldr = newLoaders[i];
-#ifdef DEBUG
-            printf_sdyld("Ldr: %lld\n", ldr);
-#endif
+            printf("Ldr: %lld\n", ldr);
             ApplyFixups_func(ldr, diag, apis, &dcdclsw, true);
-#ifdef DEBUG
-            printf_sdyld("Diag: %lld\n", diag->_buffer);
-#endif
+            printf("Diag: %lld\n", diag->_buffer);
           }
           // TODO: Figure out if we need addPermanentRanges.
           NotifyDtrace_ptr NotifyDtrace_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState12notifyDtraceERKN5dyld35ArrayIPKNS_6LoaderEEE", offset2);
@@ -802,16 +703,12 @@ int main(int argc, char** argv)
           RebindMissingFlatLazySymbols_func(apis, &newLoadersArray);
           for (int i = 0; i != newLoadersCount; ++i) {
             void * ldr = newLoaders[i];
-#ifdef DEBUG
             print("Setting up locals.\n");
-#endif
             GetMA_ptr GetMA_func = find_symbol(sdyld, "__ZNK5dyld46Loader11loadAddressERNS_12RuntimeStateE", offset2);
             const void* * ma = GetMA_func(ldr, apis);
             HasThreadLocalVariables_ptr HasThreadLocalVariables_func = find_symbol(sdyld, "__ZNK5dyld39MachOFile23hasThreadLocalVariablesEv", offset2);
             if (HasThreadLocalVariables_func(ma) == true) {
-#ifdef DEBUG
               print("Has local variables.\n");
-#endif
               SetUpTLVs_ptr SetUpTLVs_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState9setUpTLVsEPKN5dyld313MachOAnalyzerE", offset2);
               SetUpTLVs_func(apis, ma);
             }
@@ -819,14 +716,10 @@ int main(int argc, char** argv)
         }
         IncDlRefCount_ptr IncDlRefCount_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState13incDlRefCountEPKNS_6LoaderE", offset2);
         IncDlRefCount_func(apis, topLoader);
-#ifdef DEBUG
         print("Notifying.\n");
-#endif
         NotifyLoad_ptr NotifyLoad_func = find_symbol(sdyld, "__ZN5dyld412RuntimeState10notifyLoadERKN5dyld35ArrayIPKNS_6LoaderEEE", offset2);
         NotifyLoad_func(apis, &newLoadersArray);
-#ifdef DEBUG
         print("Initializing\n");
-#endif
         RunInitializers_ptr RunInitializers_func = find_symbol(sdyld, "__ZNK5dyld46Loader38runInitializersBottomUpPlusUpwardLinksERNS_12RuntimeStateE", offset2);
         RunInitializers_func(topLoader, apis);
         *rtopLoader = (uint64_t)topLoader;
@@ -840,20 +733,14 @@ int main(int argc, char** argv)
     } else {
       handle = (void*)((((uintptr_t)*rtopLoader) << 1) | flags);
     }
-#ifdef DEBUG
-    printf_sdyld("Handle: %lld\n", handle);
-#endif
+    printf("Handle: %lld\n", handle);
     VMDeallocate_ptr VMDeallocate_func = find_symbol(sdyld, "_vm_deallocate", offset2);
     VMDeallocate_func(mach_task_self, (void *)structspace, structspacesize);
-#ifdef DEBUG
-    printf_sdyld("VMDeallocated: %lld\n", structspace);
-#endif
+    printf("VMDeallocated: %lld\n", structspace);
     NSModule nm = handle;
     NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = find_symbol(dyld, "_NSLookupSymbolInModule", offset);
     NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
-#ifdef DEBUG
-    printf_sdyld("sym_main: %lld\n", sym_main);
-#endif
+    printf("sym_main: %lld\n", sym_main);
     NSAddressOfSymbol_ptr NSAddressOfSymbol_func = find_symbol(dyld, "_NSAddressOfSymbol", offset);
     addr_main = NSAddressOfSymbol_func(sym_main);
   } else {
@@ -882,20 +769,14 @@ int main(int argc, char** argv)
     if (NSCreateObjectFileImageFromMemory_func((void*)buffer, buffer_size, &fi) != 1) {
       return 1;
     }
-#ifdef DEBUG
     print("created!\n");
-#endif
 
     NSModule nm = NSLinkModule_func(fi, "", NSLINKMODULE_OPTION_PRIVATE | NSLINKMODULE_OPTION_BINDNOW | NSLINKMODULE_OPTION_RETURN_ON_ERROR);
     if (!nm) {
-#ifdef DEBUG
       print("no nm!\n");
-#endif
       return 1;
     }
-#ifdef DEBUG
     print("good nm!\n");
-#endif
 
     NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
     if (!sym_main) {
@@ -907,9 +788,7 @@ int main(int argc, char** argv)
       return 1;
     }
 
-#ifdef DEBUG
     print("found main!\n");
-#endif
   };
   int(*main_func)(int, char**) = (int(*)(int, char**))addr_main;
   char* socket = (char*)(size_t)argc;

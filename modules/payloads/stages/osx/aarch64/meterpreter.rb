@@ -101,7 +101,7 @@ module MetasploitModule
       0x91408000,
       0x9100001f,
       0xaa0d03e0,
-      0xd61f01e0,
+      0xd63f01e0,
       0xd2800000,
       0x58000210,
       0xd4000001,
