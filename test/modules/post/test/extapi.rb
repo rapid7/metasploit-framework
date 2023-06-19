@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
       ret = false
       clipboard = session.extapi.clipboard.get_data(false)
 
-      if clipboard && clipboard.any? && clipboard.first[:type]
+      if clipboard && clipboard.any? && !clipboard.values.first.nil?
         vprint_status("Clipboard: #{clipboard}")
         ret = true
       end
@@ -67,19 +67,23 @@ class MetasploitModule < Msf::Post
       session.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
 
       clipboard = session.extapi.clipboard.get_data(false)
-      ret = clipboard && clipboard.first && (clipboard.first[:type] == :jpg) && clipboard.first[:width]
+      vprint_status("clipboard: #{clipboard}")
+
+      ret = clipboard && clipboard.values.first && clipboard.values.first['Image'] && clipboard.values.first['Image'][:width]
       ret
     end
 
     it "should set clipboard text" do
-      return skip('session does not support COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA)
+      return skip('session does not support COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA)
 
       text = Rex::Text.rand_text_alphanumeric(1024)
       ret = session.extapi.clipboard.set_text(text)
+      vprint_status("ret: #{ret}")
 
       if ret
         clipboard = session.extapi.clipboard.get_data(false)
-        ret = clipboard && clipboard.first && (clipboard.first[:type] == :text) && (clipboard.first[:data] == text)
+        vprint_status("clipboard: #{clipboard}")
+        ret = clipboard && clipboard.values.first && clipboard.values.first['Text'] == text
       end
 
       ret
@@ -90,8 +94,12 @@ class MetasploitModule < Msf::Post
 
       text = Rex::Text.rand_text_alphanumeric(1024)
       ret = session.extapi.clipboard.set_text(text)
+      vprint_status("ret: #{ret}")
+
       clipboard = session.extapi.clipboard.get_data(true)
-      ret = clipboard && clipboard.first && (clipboard.first[:type] == :text) && (clipboard.first[:data] == text)
+      vprint_status("clipboard: #{clipboard}")
+
+      ret = clipboard && clipboard.values.first && clipboard.values.first['Text'] == text
       ret
     end
 
@@ -106,9 +114,11 @@ class MetasploitModule < Msf::Post
       session.railgun.user32.keybd_event(44, 0, 'KEYEVENTF_KEYUP', 0)
 
       clipboard = session.extapi.clipboard.get_data(true)
-      if clipboard && clipboard.first && (clipboard.first[:type] == :jpg) && !(clipboard.first[:data].empty?)
+      vprint_status("clipboard: #{clipboard}")
+
+      if clipboard && clipboard.values.first && clipboard.values.first['Image'] && !clipboard.values.first['Image'][:data].empty?
         # JPG Magic Bytes
-        ret = (clipboard.first[:data][0, 2] == "\xFF\xD8")
+        ret = clipboard.values.first['Image'][:data].start_with?("\xFF\xD8".b)
       end
 
       ret
@@ -171,6 +181,7 @@ class MetasploitModule < Msf::Post
 
       ret = false
       windows = session.extapi.window.enumerate(true, nil)
+      vprint_status("Found #{windows.length} windows")
 
       if windows && windows.any?
         unknowns = windows.select { |w| w[:title] == "<unknown>" }
@@ -184,16 +195,35 @@ class MetasploitModule < Msf::Post
       return skip('session does not support COMMAND_ID_EXTAPI_WINDOW_ENUM') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_WINDOW_ENUM)
 
       windows = session.extapi.window.enumerate(true, nil)
-      parent = windows.select { |w| w[:title] =~ /program manager/i }
-      return skip("Unable to find a suitable parent, skipping test") unless parent && parent.first
-
-      ret = false
-      children = session.extapi.window.enumerate(true, parent.first[:handle])
-      if children && children.any?
-        vprint_status("First child: #{children.first}")
-        ret = true
+      # Fail the test if no windows were found
+      unless windows.any?
+        vprint_status("failed extracting any windows to enumerate")
+        return false
       end
-      ret
+
+      # Prioritize checking known parent windows; If debugging this function - visual studio's spyxx.exe is useful for viewing the window tree/hierarchy
+      possible_parent_windows = [
+        /program manager/i,
+        # windows server 2016 - Windows.UI.Core.CoreWindow
+        'Search'
+      ]
+      prioritized_windows = windows.select { |window| possible_parent_windows.any? { |title| window[:title].match?(title) } }
+
+      # Try finding any windows with children
+      (prioritized_windows + (windows - prioritized_windows)).each do |parent|
+        begin
+          children = session.extapi.window.enumerate(true, parent[:handle])
+        rescue Rex::Post::Meterpreter::RequestError => e
+          # noop - would be too noisey, enumerating a window without a child raises an error
+        end
+        if children && children.any?
+          vprint_status("First child: #{children.first} for parent: #{parent}")
+          return true
+        end
+      end
+
+      vprint_status("Failed finding any windows with children - likely to be a bug")
+      false
     end
   end
 end
