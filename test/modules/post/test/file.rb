@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Post
       f = read_file(datastore['BaseFileName'])
       ret = (f == 'foo')
       unless ret
-        print_error("Didn't read what we wrote, actual file on target: |#{f}|")
+        vprint_status("Didn't read what we wrote, actual file on target: |#{f.inspect}| - #{f.bytes.inspect}")
       end
 
       ret
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Post
       final_contents = read_file(datastore['BaseFileName'])
       ret &&= final_contents == 'foobarbaz'
       unless ret
-        print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
+        vprint_status("Didn't read what we wrote, actual file on target: |#{file_contents.inspect}| - #{file_contents.bytes.inspect}")
       end
 
       ret
