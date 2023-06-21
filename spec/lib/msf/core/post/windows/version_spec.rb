@@ -43,6 +43,10 @@ RSpec.describe Msf::Post::Windows::Version do
     'CurrentMajorVersionNumber'
   end
 
+  let(:ubr) do
+    'UBR'
+  end
+
   let(:product_type_key) do
     'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ProductOptions'
   end
@@ -81,10 +85,12 @@ RSpec.describe Msf::Post::Windows::Version do
       respond_to_reg_query(subject, current_version_key, current_version, '6.3', 'REG_SZ')
       respond_to_reg_query(subject, current_version_key, major_version, '0xa', 'REG_DWORD')
       respond_to_reg_query(subject, current_version_key, minor_version, '0x0', 'REG_DWORD')
+      respond_to_reg_query(subject, current_version_key, ubr, '0x100', 'REG_DWORD')
       respond_to_reg_query(subject, product_type_key, product_type, 'WinNT', 'REG_SZ')
       allow(subject).to receive_message_chain('session.type').and_return('shell')
       version = subject.get_version_info
       expect(version.build_number).to eq(Msf::WindowsVersion::Win10_22H2)
+      expect(version.revision_number).to eq(256)
       expect(version.windows_server?).to eq(false)
       expect(version.domain_controller?).to eq(false)
     end
@@ -94,17 +100,19 @@ RSpec.describe Msf::Post::Windows::Version do
       respond_to_reg_query(subject, current_version_key, current_version, '6.3', 'REG_SZ')
       respond_to_reg_query(subject, current_version_key, major_version, '0xa', 'REG_DWORD')
       respond_to_reg_query(subject, current_version_key, minor_version, '0x0', 'REG_DWORD')
+      respond_to_reg_query(subject, current_version_key, ubr, '0x100', 'REG_DWORD')
       respond_to_reg_query(subject, product_type_key, product_type, 'LanmanNT', 'REG_SZ')
       allow(subject).to receive_message_chain('session.type').and_return('shell')
       version = subject.get_version_info
       expect(version.build_number).to eq(Msf::WindowsVersion::Server2022)
+      expect(version.revision_number).to eq(256)
       expect(version.windows_server?).to eq(true)
       expect(version.domain_controller?).to eq(true)
     end
 
     it "Windows 2000 German" do
       allow(subject).to receive(:cmd_exec).with("cmd.exe /c reg query \"#{current_version_key}\" /v \"#{current_build_number}\"") { "Der Befehl \"reg\" ist entweder falsch geschrieben oder\r\nkonnte nicht gefunden werden." }
-      allow(subject).to receive(:cmd_exec).with("ver") { "Microsoft Windows 2000 [Version 5.00.2195]" }
+      allow(subject).to receive(:cmd_exec).with("cmd.exe /c ver") { "Microsoft Windows 2000 [Version 5.00.2195]" }
       allow(subject).to receive_message_chain('session.type').and_return('shell')
       version = subject.get_version_info
       expect(version.build_number).to eq(Msf::WindowsVersion::Win2000)

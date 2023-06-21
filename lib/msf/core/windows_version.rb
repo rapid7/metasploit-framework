@@ -21,6 +21,7 @@ module Msf
     Vista_SP0 = Server2008_SP0 = Rex::Version.new('6.0.6000.0')
     Vista_SP1 = Server2008_SP1 = Rex::Version.new('6.0.6001.1')
     Vista_SP2 = Server2008_SP2 = Rex::Version.new('6.0.6002.2')
+    Server2008_SP2_Update = Rex::Version.new('6.0.6003.2') # https://support.microsoft.com/en-us/topic/build-number-changing-to-6003-in-windows-server-2008-1335e4d4-c155-52eb-4a45-b85bd1909ca8
     Win7_SP0 = Server2008_R2_SP0 = Rex::Version.new('6.1.7600.0')
     Win7_SP1 = Server2008_R2_SP1 = Rex::Version.new('6.1.7601.1')
     Win8 = Server2012 = Rex::Version.new('6.2.9200.0')
@@ -69,12 +70,19 @@ module Msf
       Server2016Plus = 'Windows Server 2016+'.freeze
     end
 
-    def initialize(major, minor, build, service_pack, product_type)
+    def initialize(major, minor, build, service_pack, revision, product_type)
       self._major = major
       self._minor = minor
       self._build = build
       self._service_pack = service_pack
+      self._revision = revision
       self.product_type = product_type
+    end
+
+    # The specific revision number of this version
+    # This is mainly going to be present on Windows 10+, wherein it's easy to get it from the registry.
+    def revision_number
+      _revision
     end
 
     # The specific build number of this version (major.minor.build.service_pack)
@@ -132,7 +140,7 @@ module Msf
 
     private
 
-    attr_accessor :_major, :_minor, :_build, :_service_pack, :product_type
+    attr_accessor :_major, :_minor, :_build, :_service_pack, :_revision, :product_type
 
     # The major release within which this build fits
     def major_release_name

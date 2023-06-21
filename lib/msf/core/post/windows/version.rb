@@ -32,15 +32,15 @@ module Msf::Post::Windows::Version
   end
 
   def get_version_info_fallback_impl
-    build_num_raw = cmd_exec('ver')
-    groups = build_num_raw.match(/.*Version\s+(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/)
+    build_num_raw = cmd_exec('cmd.exe /c ver')
+    groups = build_num_raw.match(/Version\s+(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/)
     if groups.nil?
       return nil
     end
 
-    major, minor, build, _revision = groups.captures
+    major, minor, build, revision = groups.captures
     # Default to workstation, since it'll likely be an older OS - pre Server editions
-    return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, Msf::WindowsVersion::VER_NT_WORKSTATION)
+    return Msf::WindowsVersion.new(major.to_i, minor.to_i, build.to_i, 0, revision, Msf::WindowsVersion::VER_NT_WORKSTATION)
   end
 
   def get_version_info_impl
@@ -52,8 +52,13 @@ module Msf::Post::Windows::Version
       build = os_version_info_ex[3]
       service_pack = os_version_info_ex[6]
       product_type = os_version_info_ex[9]
+    
+      revision = 0
+      if (major >= 10)
+        revision = registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'UBR', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
+      end
 
-      Msf::WindowsVersion.new(major, minor, build, service_pack, product_type)
+      Msf::WindowsVersion.new(major, minor, build, service_pack, revision, product_type)
     else
       # Command shell - we'll try reg commands, and fall back to `ver`
       build_str = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
@@ -92,11 +97,12 @@ module Msf::Post::Windows::Version
         # This is Windows 10+ - the version numbering is calculated differently
         major = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
         minor = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
-        if major.nil? || minor.nil?
+        ubr = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'UBR', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
+        if major.nil? || minor.nil? || ubr.nil?
           return get_version_info_fallback_impl
         end
 
-        Msf::WindowsVersion.new(major, minor, build_num, 0, product_type)
+        Msf::WindowsVersion.new(major, minor, build_num, 0, ubr, product_type)
       else
         # Pre-Windows 10
         service_pack_raw = shell_registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CSDVersion', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)
@@ -112,7 +118,7 @@ module Msf::Post::Windows::Version
           end
         end
 
-        Msf::WindowsVersion.new(major, minor, build_num, service_pack, product_type)
+        Msf::WindowsVersion.new(major, minor, build_num, service_pack, 0, product_type)
       end
     end
   end

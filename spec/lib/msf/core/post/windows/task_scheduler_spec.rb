@@ -158,7 +158,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
   describe '#check_compatibility' do
     context 'with Windows XP SP2' do
       before :example do
-        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(5, 1, 2600, 2, Msf::WindowsVersion::VER_NT_WORKSTATION))
+        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(5, 1, 2600, 2, 0, Msf::WindowsVersion::VER_NT_WORKSTATION))
       end
       it 'sets `@old_schtasks` and `@old_os` to true' do
         subject.send(:check_compatibility)
@@ -169,7 +169,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
     context 'with Windows Server 2003 SP2' do
       before :example do
-        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(5, 2, 3790, 2, Msf::WindowsVersion::VER_NT_SERVER))
+        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(5, 2, 3790, 2, 0, Msf::WindowsVersion::VER_NT_SERVER))
       end
       it 'sets `@old_schtasks` to false and `@old_os` to true' do
         subject.send(:check_compatibility)
@@ -180,7 +180,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
     context 'with Windows Server 2016' do
       before :example do
-        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(10, 0, 14393, 0, Msf::WindowsVersion::VER_NT_SERVER))
+        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(10, 0, 14393, 0, 0, Msf::WindowsVersion::VER_NT_SERVER))
       end
       it 'sets `@old_schtasks` and `@old_os` to false' do
         subject.send(:check_compatibility)
