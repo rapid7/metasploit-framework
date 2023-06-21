@@ -379,7 +379,7 @@ GEM
       rex-arch
     rex-ole (0.1.7)
       rex-text
-    rex-powershell (0.1.98)
+    rex-powershell (0.1.97)
       rex-random_identifier
       rex-text
       ruby-rc4
