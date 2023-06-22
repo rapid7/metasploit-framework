@@ -86,7 +86,6 @@ class MetasploitModule < Msf::Post
     self.terminate_process = false
     self.hprocess = nil
     self.handles_to_close = []
-    self.memory_to_free = []
   end
 
   def find_required_clr(exe_path)
@@ -147,13 +146,6 @@ class MetasploitModule < Msf::Post
     end
 
     execute_assembly(exe_path, rclr)
-
-    # This has to be here, not in cleanup, because if an exception is raised
-    # on the MSF side, we don't want to prematurely clean up the DLL that may
-    # still be running.
-    memory_to_free.each do |m|
-      hprocess.memory.free(m)
-    end
   end
 
   def cleanup
@@ -219,9 +211,9 @@ class MetasploitModule < Msf::Post
     library_path = ::File.expand_path(library_path)
 
     print_status("Injecting Host into #{process.pid}...")
-    exploit_mem, offset = inject_dll_into_process(process, library_path)
-    memory_to_free.append(exploit_mem)
-    [exploit_mem, offset]
+    # Memory management note: this memory is freed by the C++ code itself upon completion
+    # of the assembly
+    inject_dll_into_process(process, library_path)
   end
 
   def open_process(pid)
@@ -377,8 +369,9 @@ class MetasploitModule < Msf::Post
     params += clr_version
     params += cln_params
 
+    # Memory management note: this memory is freed by the C++ code itself upon completion
+    # of the assembly
     allocated_memory = process.memory.allocate(payload_size, PAGE_READWRITE)
-    memory_to_free.append(allocated_memory)
     process.memory.write(allocated_memory, params + File.read(exe_path))
     print_status('Assembly copied.')
     allocated_memory
@@ -407,5 +400,5 @@ class MetasploitModule < Msf::Post
     print_status('End output.')
   end
 
-  attr_accessor :terminate_process, :hprocess, :memory_to_free, :handles_to_close
+  attr_accessor :terminate_process, :hprocess, :handles_to_close
 end
