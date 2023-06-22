@@ -42,17 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    parsed_data = {}
+    parsed_data = parse_rocketmq_data(res)
     # grab some data that we need/want out of the response
-    res.each do |j|
-      parsed_data['version'] = get_rocketmq_version(j['version']) if j['version']
-      parsed_data['brokerDatas'] = j['brokerDatas'] if j['brokerDatas']
-    end
-
-    if parsed_data == {} || parsed_data['version'].nil?
-      vprint_error('Unable to find version or other data within response.')
-      return
-    end
     output = "RocketMQ version #{parsed_data['version']}"
     output += " found with brokers: #{parsed_data['brokerDatas']}" if parsed_data['brokerDatas']
     print_good(output)

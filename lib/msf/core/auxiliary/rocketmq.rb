@@ -3,10 +3,11 @@
 module Msf
   ###
   #
-  # This module provides methods for working with Arista equipment
+  # This module provides methods for working with Apache RocketMQ
   #
   ###
   module Auxiliary::Rocketmq
+    include Msf::Exploit::Remote::Tcp
     def initialize(info = {})
       super
       register_options([ Opt::RPORT(9876) ], Msf::Auxiliary::Rocketmq)
@@ -21,7 +22,6 @@ module Msf
 
       begin
         connect
-        vprint_status('Sending request')
         sock.send(header + data_length + data, 0)
         res = sock.recv(1024)
       rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
@@ -41,6 +41,18 @@ module Msf
         return nil
       end
 
+      res
+    end
+
+    def get_rocketmq_version(id)
+      # This function takes an ID (number) and looks through rocketmq's index of verison numbers to find the real version number
+      # Errors will result in "UNKNOWN_VERSION_ID_<id>" and may be caused by needing to update the version table
+      # from https://github.com/apache/rocketmq/blob/develop/common/src/4d82b307ef50f5cba5717d0ebafeb3cabf336873/java/org/apache/rocketmq/common/MQVersion.java
+      version_list = JSON.parse(File.read(::File.join(Msf::Config.data_directory, 'rocketmq_versions_list.json'), mode: 'rb'))
+      version_list.fetch(id, "UNKNOWN_VERSION_ID_#{id}").gsub('_', '.')
+    end
+
+    def parse_rocketmq_data(res)
       # remove a response header so we have json-ish data
       res = res[8..]
 
@@ -63,15 +75,39 @@ module Msf
         vprint_error("Unable to parse json data: #{j}")
         next
       end
-      result
+
+      parsed_data = {}
+      result.each do |j|
+        parsed_data['version'] = get_rocketmq_version(j['version']) if j['version']
+        parsed_data['brokerDatas'] = j['brokerDatas'] if j['brokerDatas']
+      end
+
+      if parsed_data == {} || parsed_data['version'].nil?
+        vprint_error('Unable to find version or other data within response.')
+        return
+      end
+      parsed_data
     end
 
-    def get_rocketmq_version(id)
-      # This function takes an ID (number) and looks through rocketmq's index of verison numbers to find the real version number
-      # Errors will result in "UNKNOWN_VERSION_ID_<id>" and may be caused by needing to update the version table
-      # from https://github.com/apache/rocketmq/blob/develop/common/src/4d82b307ef50f5cba5717d0ebafeb3cabf336873/java/org/apache/rocketmq/common/MQVersion.java
-      version_list = JSON.parse(File.read(::File.join(Msf::Config.data_directory, 'rocketmq_versions_list.json'), mode: 'rb'))
-      version_list.fetch(id, "UNKNOWN_VERSION_ID_#{id}").gsub('_', '.')
+    def get_broker_port(brokerDatas, rhost)
+      # Example of brokerData:
+      # [{"brokerAddrs"=>{"0"=>"172.16.199.135:10911"}, "brokerName"=>"DESKTOP-8ATHH6O", "cluster"=>"DefaultCluster"}]
+      target_port = nil
+      brokerDatas.each do |brokerData|
+        brokerData.each do |key, broker_info|
+          next unless key == 'brokerAddrs'
+          broker_info.each do |_iterator, broker_endpoint|
+            next unless broker_endpoint.include?(rhost)
+            return broker_endpoint.match(/#{rhost}:(\d+)/)[1]
+          end
+        end
+      end
+
+      if target_port.nil?
+        print_status('autodetection failed, assuming default port of 10911')
+        target_port = 10911
+      end
+      target_port
     end
   end
 end
