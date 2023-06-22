@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
+  include Msf::Exploit::Remote::HTTP::Jenkins
 
   def initialize
     super(
@@ -22,9 +23,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/j_acegi_security_check']),
         OptEnum.new('HTTP_METHOD', [true, 'The HTTP method to use for the login', 'POST', ['GET', 'POST']]),
-        Opt::RPORT(8080)
+        Opt::RPORT(8080),
+        OptString.new('TARGETURI', [ false, 'The path to the Jenkins-CI application'])
       ])
 
     deregister_options('PASSWORD_SPRAY')
@@ -33,14 +34,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    print_warning("#{self.fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
 
+    login_uri = jenkins_uri_check(target_uri)
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
-        uri: datastore['LOGIN_URL'],
+        uri: normalize_uri(login_uri),
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
