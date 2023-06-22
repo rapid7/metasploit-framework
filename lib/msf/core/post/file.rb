@@ -831,13 +831,14 @@ protected
   def _read_file_meterpreter(file_name)
     fd = session.fs.file.new(file_name, 'rb')
 
-    data = fd.read
+    data = ''.b
+    data << fd.read
     data << fd.read until fd.eof?
 
     data
   rescue EOFError
     # Sometimes fd isn't marked EOF in time?
-    ''
+    data
   rescue ::Rex::Post::Meterpreter::RequestError => e
     print_error("Failed to open file: #{file_name}: #{e}")
     return nil
