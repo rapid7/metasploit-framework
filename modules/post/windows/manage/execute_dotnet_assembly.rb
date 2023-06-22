@@ -240,7 +240,13 @@ class MetasploitModule < Msf::Post
   end
 
   def check_process_suitability(pid)
-    arch = session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch']
+    process = session.sys.process.each_process.find { |i| i['pid'] == pid }
+    if process.nil?
+      fail_with(Failure::BadConfig, 'PID not found')
+    end
+
+    arch = process['arch']
+
     if arch != ARCH_X64
       fail_with(Failure::BadConfig, 'execute_dotnet_assembly currently only supports x64 processes')
     end
