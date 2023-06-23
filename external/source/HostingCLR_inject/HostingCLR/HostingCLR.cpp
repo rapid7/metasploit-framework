@@ -352,12 +352,6 @@ Cleanup:
 	DisconnectNamedPipe(pipe);
 	CloseHandle(pipe);
 
-	if (pMethodInfo) {
-		pMethodInfo->Release();
-	}
-	if (pAssembly) {
-		pAssembly->Release();
-	}
 	if (pEnumerator) {
 		pEnumerator->Release();
 	}
@@ -369,10 +363,11 @@ Cleanup:
 	}
 	if (pRuntimeHost) {
 		if (pCustomAppDomain) {
-			pCustomAppDomain->Release();
+			pRuntimeHost->UnloadDomain(pCustomAppDomain);
 		}
 		pRuntimeHost->Release();
 	}
+
 	if (psaStaticMethodArgs) {
 		SafeArrayDestroy(psaStaticMethodArgs);
 	}
@@ -570,6 +565,7 @@ BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID* pRuntimeInf
 				break;
 			}
 		}
+		((ICLRRuntimeInfo*)pRuntimeInfo)->Release();
 	}
 
 	return retval;
