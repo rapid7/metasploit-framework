@@ -182,6 +182,8 @@ module Rex
                      else
                        service.encode_ldap_response(pdu.message_id, 50, '', 'Not authenticated', Net::LDAP::PDU::SearchResult)
                      end
+                   when Net::LDAP::PDU::UnbindRequest
+                     nil # close client, no response can be sent over unbound comm
                    else
                      service.encode_ldap_response(
                        pdu.message_id,

@@ -1,4 +1,5 @@
 lib = File.join(Msf::Config.install_root, "test", "lib")
+$LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
 
 class MetasploitModule < Msf::Post
@@ -15,13 +16,15 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test railgun api functions },
         'License' => MSF_LICENSE,
         'Author' => [ 'Spencer McIntyre' ],
-        'Platform' => [ 'linux', 'osx', 'windows' ]
+        'Platform' => [ 'linux', 'osx', 'windows' ],
+        'SessionTypes' => [ 'meterpreter' ]
       )
     )
   end
 
   def test_api_function_calls_libc
-    return unless session.platform == 'linux' || session.platform == 'osx'
+    return skip('target is not linux or osx') unless session.platform == 'linux' || session.platform == 'osx'
+    return skip('session does not support COMMAND_ID_STDAPI_RAILGUN_API') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
 
     buffer = nil
     buffer_size = 128
@@ -89,17 +92,21 @@ class MetasploitModule < Msf::Post
   end
 
   def test_api_function_file_info_windows
-    return unless session.platform == 'windows'
+    return skip('session platform is not windows') unless session.platform == 'windows'
+    return skip('session does not support COMMAND_ID_STDAPI_RAILGUN_API') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
 
     it "Should retrieve the win32k file version" do
       path = expand_path('%WINDIR%\\system32\\win32k.sys')
       major, minor, build, revision, brand = file_version(path)
+      # XXX: These values should be asserted - as in this scenario the values are `nil`
+      # https://github.com/rapid7/metasploit-framework/commit/99e576d023cba66fa898d9ce3b52a52201f0f250
       true
     end
   end
 
   def test_api_function_calls_windows
-    return unless session.platform == 'windows'
+    return skip('session platform is not windows') unless session.platform == 'windows'
+    return skip('session does not support COMMAND_ID_STDAPI_RAILGUN_API') unless session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
 
     it "Should include error information in the results" do
       ret = true

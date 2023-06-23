@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
         # valid JSON response - valid response for check
         print_good("Response received, continuing to enumeration phase")
       end
-    rescue JSON::ParserError,
+    rescue JSON::ParserError
       print_error("Error parsing JSON: Invalid response from server")
       return
     end

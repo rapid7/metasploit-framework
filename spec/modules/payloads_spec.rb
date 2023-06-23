@@ -508,6 +508,30 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'bsdi/x86/shell_reverse_tcp'
   end
 
+  context 'cmd/linux/http/mips64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/mips64'
+                          ],
+                          reference_name: 'cmd/linux/http/mips64'
+  end
+
+  context 'cmd/linux/https/mips64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/mips64'
+                          ],
+                          reference_name: 'cmd/linux/https/mips64'
+  end
+
+  context 'cmd/linux/tftp/mips64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/mips64'
+                          ],
+                          reference_name: 'cmd/linux/tftp/mips64'
+  end
+
   context 'cmd/linux/http/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -530,6 +554,30 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/linux/tftp/x64'
                           ],
                           reference_name: 'cmd/linux/tftp/x64'
+  end
+
+  context 'cmd/linux/http/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/x86'
+                          ],
+                          reference_name: 'cmd/linux/http/x86'
+  end
+
+  context 'cmd/linux/https/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/x86'
+                          ],
+                          reference_name: 'cmd/linux/https/x86'
+  end
+
+  context 'cmd/linux/tftp/x86' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/x86'
+                          ],
+                          reference_name: 'cmd/linux/tftp/x86'
   end
 
   context 'cmd/mainframe/generic_jcl' do

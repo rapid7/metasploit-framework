@@ -1,6 +1,42 @@
 # -*- coding: binary -*-
 
 class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
+  module Mixin
+    #
+    # Takes over the shell_command of the parent
+    #
+    def shell_command(cmd, timeout = 1800)
+      # insert random marker
+      strm = Rex::Text.rand_text_alpha(15)
+      endm = Rex::Text.rand_text_alpha(15)
+
+      # Send the shell channel's stdin.
+      shell_write(";'#{strm}'\n" + cmd + "\n'#{endm}';\n")
+
+      etime = ::Time.now.to_f + timeout
+
+      buff = ''
+      # Keep reading data until the marker has been received or the 30 minute timeout has occurred
+      while (::Time.now.to_f < etime)
+        res = shell_read(-1, timeout)
+        break unless res
+
+        timeout = etime - ::Time.now.to_f
+
+        buff << res
+        next unless buff.include?(endm)
+
+        # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
+        buff = buff.split(/#{strm}\r\n/)[-1]
+        buff = buff.split(endm)[0]
+        buff.gsub!(/(?<=\r\n)PS [^>]*>/, '')
+        return buff
+      end
+      buff
+    end
+  end
+
+  include Mixin
 
   #
   # Execute any specified auto-run scripts for this session
@@ -45,36 +81,4 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     'Powershell session'
   end
 
-  #
-  # Takes over the shell_command of the parent
-  #
-  def shell_command(cmd, timeout = 1800)
-    # insert random marker
-    strm = Rex::Text.rand_text_alpha(15)
-    endm = Rex::Text.rand_text_alpha(15)
-
-    # Send the shell channel's stdin.
-    shell_write(";'#{strm}'\n" + cmd + "\n'#{endm}';\n")
-
-    etime = ::Time.now.to_f + timeout
-
-    buff = ''
-    # Keep reading data until the marker has been received or the 30 minute timeout has occured
-    while (::Time.now.to_f < etime)
-      res = shell_read(-1, timeout)
-      break unless res
-
-      timeout = etime - ::Time.now.to_f
-
-      buff << res
-      next unless buff.include?(endm)
-
-      # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
-      buff = buff.split(/#{strm}\r\n/)[-1]
-      buff = buff.split(endm)[0]
-      buff.gsub!(/(?<=\r\n)PS [^>]*>/, '')
-      return buff
-    end
-    buff
-  end
 end

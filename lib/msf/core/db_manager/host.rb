@@ -52,15 +52,41 @@ module Msf::DBManager::Host
     report_host(opts)
   end
 
+  def find_host_by_address_or_id(opts, wspace)
+    # Find the host entry in the current workspace by searching on
+    # the ID if available. If this isn't possible then try search on
+    # the IP address of the host we are currently processing, then save the database
+    # entry into the "host" variable.
+    if opts[:id]
+      host = wspace.hosts.find(opts[:id])
+    elsif opts[:address]
+      host = wspace.hosts.find_by_address(opts[:address])
+    else
+      raise ::ArgumentError, 'opts hash did not contain an :id or :address entry!'
+    end
+
+    host
+  end
+
   def add_host_tag(opts)
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    tag_name = opts[:tag_name] # This will be the string of the tag that we are using.
 
-    host_id = opts[:id]
-    tag_name = opts[:tag_name]
+    host = find_host_by_address_or_id(opts, wspace)
 
-    host = wspace.hosts.find(host_id)
+    # If a host was found
     if host
+      # Set host_id to the ID of the host entry in the database that was found.
+      host_id = host[:id]
+
+      # Then proceed to go ahead and find potential tags that might have been already
+      # created that match the one we are trying to add.
       possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.id = ? and tags.name = ?", wspace.id, host_id, tag_name).order("tags.id DESC").limit(1)
+
+      # If one exists, then use it, otherwise create a new Mdm::Tag, and update
+      # the data in the database if the entry was found to need updating (aka the tag
+      # hasn't already been applied).
+      # @type [Mdm::Tag]
       tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
       tag.name = tag_name
       tag.hosts = [host]
@@ -73,12 +99,12 @@ module Msf::DBManager::Host
   # ATM it will delete the tag from the tag table, not the host<->tag link
   def delete_host_tag(opts)
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-
-    host_id = opts[:id]
     tag_name = opts[:tag_name]
     tag_ids = []
 
-    host = wspace.hosts.find(host_id)
+    # If the command line included an address or address range then use this.
+    # Otherwise delete all entries that match the given tag.
+    host = find_host_by_address_or_id(opts, wspace)
     if host
       found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.id = ? and tags.name = ?", wspace.id, host.id, tag_name)
       found_tags.each do |t|
@@ -93,7 +119,7 @@ module Msf::DBManager::Host
         tag.destroy
       end
 
-      deleted_tags
+      return deleted_tags
     end
   end
 

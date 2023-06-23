@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     print_status("Running module against #{sysinfo['Computer']}")
-    enum_users(sysinfo['OS']).each do |user|
+    enum_users.each do |user|
       if user['userpath']
         print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."
         extract_lnk_info(user['userpath'])
@@ -60,15 +60,15 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def enum_users(os)
+  def enum_users
     users = []
     userinfo = {}
-    user = session.sys.config.getuid
+    session.sys.config.getuid
     userpath = nil
-    useroffcpath = nil
     env_vars = session.sys.config.getenvs('SystemDrive', 'USERNAME')
     sysdrv = env_vars['SystemDrive']
-    if os =~ /Windows 7|Vista|2008/
+    version = get_version_info
+    if version.build_number >= Msf::WindowsVersion::Vista_SP0
       userpath = sysdrv + '\\Users\\'
       lnkpath = '\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\'
       officelnkpath = '\\AppData\\Roaming\\Microsoft\\Office\\Recent\\'
@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Post
 
   # This is a hack because Meterpreter doesn't support exists?(file)
   def dir_entry_exists(path)
-    files = session.fs.dir.entries(path)
+    session.fs.dir.entries(path)
   rescue StandardError
     return nil
   else
@@ -114,7 +114,6 @@ class MetasploitModule < Msf::Post
   def extract_lnk_info(path)
     session.fs.dir.foreach(path) do |file_name|
       if file_name =~ /\.lnk$/ # We have a .lnk file
-        record = nil
         offset = 0 # TODO: Look at moving this to smaller scope
         lnk_file = session.fs.file.new(path + file_name, 'rb')
         record = lnk_file.sysread(0x04)
@@ -186,7 +185,7 @@ class MetasploitModule < Msf::Post
           end
         end
         lnk_file.close
-        logfile = store_loot('host.windows.lnkfileinfo', 'text/plain', session, @data_out, "#{sysinfo['Computer']}_#{file_name}.txt", 'User lnk file info')
+        store_loot('host.windows.lnkfileinfo', 'text/plain', session, @data_out, "#{sysinfo['Computer']}_#{file_name}.txt", 'User lnk file info')
       end
     end
   end

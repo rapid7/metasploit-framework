@@ -119,10 +119,6 @@ module HostDataProxy
   end
 
   def add_host_id_to_opts(opts)
-    if opts[:id]
-      return true
-    end
-
     if opts[:address]
       self.data_service_operation do |data_service|
         host = data_service.get_host(opts)

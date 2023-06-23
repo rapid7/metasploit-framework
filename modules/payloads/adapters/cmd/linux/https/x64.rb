@@ -12,7 +12,7 @@ module MetasploitModule
       update_info(
         info,
         'Name' => 'HTTPS Fetch',
-        'Description' => 'Fetch and Execute an x64 payload from an https server',
+        'Description' => 'Fetch and execute an x64 payload from an HTTPS server.',
         'Author' => 'Brendan Watters',
         'Platform' => 'linux',
         'Arch' => ARCH_CMD,

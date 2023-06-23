@@ -12,7 +12,7 @@ module MetasploitModule
       update_info(
         info,
         'Name' => 'TFTP Fetch',
-        'Description' => 'Fetch and Execute an x64 payload from a TFTP server',
+        'Description' => 'Fetch and execute an x64 payload from a TFTP server.',
         'Author' => 'Brendan Watters',
         'Platform' => 'linux',
         'Arch' => ARCH_CMD,
