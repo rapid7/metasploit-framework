@@ -553,10 +553,9 @@ class Creds
   def filtered_query(query, opts, origin_ranges, host_ranges)
     query.each do |core|
       # we will not show the cracked password in a seperate row instead we will show in seperate column
+      # calling `find_by` against this result is a rails direct interaction that may fail in json database mode
       if core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && query.find_by(id: core.origin.metasploit_credential_core_id).present?
         next
-      elsif core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
-        core = framework.db.creds.find_by(id: core.origin.metasploit_credential_core_id)
       end
 
       # Exclude non-blank username creds if that's what we're after
@@ -582,7 +581,17 @@ class Creds
         next
       end
 
-      cracked_password_core = core.public.cores.where(origin_type: "Metasploit::Credential::Origin::CrackedPassword").joins("LEFT JOIN metasploit_credential_origin_cracked_passwords ON metasploit_credential_origin_cracked_passwords.id = metasploit_credential_cores.origin_id").find_by("metasploit_credential_origin_cracked_passwords.metasploit_credential_core_id = (?)", core.id)
+      # this is a direct rails interaction that cannot cross the json db service layer, access of origin objects may  be problematic
+      cracked_password_core = nil
+
+      if !core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && core.public.cores.count > 1
+        core.public.cores.each do |potential_cracked_core|
+          next unless potential_cracked_core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+          if potential_cracked_core.origin.originating_core == core
+            cracked_password_core = potential_cracked_core
+          end
+        end
+      end
 
       if core.logins.empty?
         service = service_from_origin(core)

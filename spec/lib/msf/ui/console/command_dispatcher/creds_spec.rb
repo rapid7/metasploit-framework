@@ -267,10 +267,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 "Credentials",
                 "===========",
                 "",
-                "host  origin  service  public         private    realm  private_type        JtR Format  cracked_password",
-                "----  ------  -------  ------         -------    -----  ------------        ----------  ----------------",
-                "                       thisuser       thispass          Password                        ",
-                "                       this_username  some_hash         Nonreplayable hash              this_cracked_password"
+                "host  origin  service  public         private                realm  private_type  JtR Format  cracked_password",
+                "----  ------  -------  ------         -------                -----  ------------  ----------  ----------------",
+                "                       thisuser       thispass                      Password                  ",
+                "                       this_username  this_cracked_password         Password                  "
                 ])
             end
           end
