@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
         secret_access_key: datastore['SECRET_ACCESS_KEY']
       )
 
-      instances = datastore['LIMIT'] ? ec2.instances : ec2.instances.limit(datastore['LIMIT'])
+      instances = datastore['LIMIT'] ? ec2.instances.limit(datastore['LIMIT']) : ec2.instances
       print_status "Found #{ec2.instances.count} instances in #{region}"
 
       instances.each do |i|
