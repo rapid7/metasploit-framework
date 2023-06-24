@@ -4,20 +4,23 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::File
   include Msf::Post::Windows::Process
   include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::UserProfiles
+  include Msf::Post::Windows::WMIC
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather Virtual Environment Detection',
+        'Name' => 'Windows Gather Virtual Environment and Sandboxe Detection',
         'Description' => %q{
           This module attempts to determine whether the system is running
-          inside of a virtual environment and if so, which one. This
-          module supports detection of Hyper-V, VMWare, Virtual PC,
-          VirtualBox, Xen, and QEMU.
+          inside of a virtual environment or a sandbox and if so, which one. This
+          module supports detection of JoeSandbox, Hyper-V, VMWare, Virtual PC,
+          VirtualBox, Xen, MicrosoftSandbox, Parallels, Bochs and QEMU.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -42,6 +45,14 @@ class MetasploitModule < Msf::Post
 
   def service_exists?(service)
     get_services && get_services.include?(service)
+  end
+
+  def get_computer_model
+    wmic_query('computersystem get model')
+  end
+
+  def get_computer_manufacturer
+    wmic_query('computersystem get manufacturer')
   end
 
   def hyperv?
@@ -81,26 +92,35 @@ class MetasploitModule < Msf::Post
     key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
     return true if registry_getvaldata(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
 
+    return true if get_computer_manufacturer() =~ /microsoft corporation/i && get_computer_model() =~ /virtual/i
+
     false
   end
 
   def vmware?
-    %w[vmdebug vmmouse VMTools VMMEMCTL].each do |service|
+    %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc tpvcgateway vmware wmci vmx86].each do |service|
       return true if service_exists?(service)
     end
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemManufacturer') =~ /vmware/i
     return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vmware/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 1\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vmware/i
+    return true if registry_getvaldata('HKLM\SYSTEM\ControlSet001\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0000', 'DriverDesc') =~ /cl_vmx_svga/i
+    return true if registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'DisplayName') =~ /vmware tools/i
 
     vmwareprocs = [
+      'vmtoolsd.exe',
+      'vmwareservice.exe',
+      'vmwaretray.exe',
       'vmwareuser.exe',
-      'vmwaretray.exe'
     ]
     get_processes.each do |x|
       vmwareprocs.each do |p|
         return true if p == x['name'].downcase
       end
     end
+
+    return true if get_computer_model() =~ /vmware/i
 
     false
   end
@@ -111,8 +131,9 @@ class MetasploitModule < Msf::Post
     end
 
     vpcprocs = [
+      'vmsrvc.exe',
       'vmusrvc.exe',
-      'vmsrvc.exe'
+      'vpcmap.exe'
     ]
     get_processes.each do |x|
       vpcprocs.each do |p|
@@ -139,14 +160,19 @@ class MetasploitModule < Msf::Post
       return true if srvvals && srvvals.include?('VBOX__')
     end
 
-    key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-    return true if registry_getvaldata(key_path, 'Identifier') =~ /vbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 1\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 2\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vbox/i
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /vbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /virtualbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemProductName') =~ /virtual/i
 
-    %w[VBoxMouse VBoxGuest VBoxService VBoxSF].each do |service|
+    %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo].each do |service|
       return true if service_exists?(service)
     end
+
+    return true if get_computer_model() =~ /virtualbox/i
 
     false
   end
@@ -170,6 +196,8 @@ class MetasploitModule < Msf::Post
       return true if service_exists?(service)
     end
 
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemProductName') =~ /xen/i
+
     false
   end
 
@@ -180,10 +208,70 @@ class MetasploitModule < Msf::Post
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
     return true if registry_getvaldata(key_path, 'ProcessorNameString') =~ /qemu/i
 
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /qemu/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /qemu/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemManufacturer') =~ /qemu/i
+
+    false
+  end
+
+  def joesandbox?
+    vpcprocs = [
+      'joeboxcontrol.exe',
+      'joeboxserver.exe'
+    ]
+    get_processes.each do |x|
+      vpcprocs.each do |p|
+        return true if p == x['name'].downcase
+      end
+    end
+
+    key_path = 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion'
+    return true if registry_getvaldata(key_path, 'ProductId') == '55274-640-2673064-23950'
+    key_path = 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+    return true if registry_getvaldata(key_path, 'ProductId') == '55274-640-2673064-23950'
+
+    false
+  end
+
+  def microsoftsandbox?
+    # also known as Wundows Containers
+    usernames = [
+      'containeradministrator',
+      'wdagutilityaccount'
+    ]
+    grab_user_profiles.each do |user|
+      usernames.each do |u|
+        return true if user['UserName'].downcase == u
+      end
+      end
+    end
+
+    %w[cexecsvc].each do |service|
+      return true if service_exists?(service)
+    end
+
+    key_path = 'HKLM\SYSTEM\CurrentControlSet\Control'
+    return true if registry_getvaldata(key_path, 'ContainerType') =~ /4/i
+
+    false
+  end
+
+  def bochs?
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /bochs/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /bochs/i
+
     %w[HKLM\HARDWARE\ACPI\DSDT HKLM\HARDWARE\ACPI\FADT HKLM\HARDWARE\ACPI\RSDT].each do |key|
       srvvals = registry_enumkeys(key)
       return true if srvvals && srvvals.include?('BOCHS_')
     end
+
+    false
+  end
+
+  def parallels?
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /parallels/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /parallels/i
 
     false
   end
@@ -214,6 +302,14 @@ class MetasploitModule < Msf::Post
       report_vm('Xen')
     elsif qemu?
       report_vm('Qemu/KVM')
+    elsif joebox?
+      report_vm('JoeSandbox')
+    elsif microsoftsandbox?
+      report_vm('MicrosoftSandbox')
+    elsif bochs?
+      report_vm('Bochs')
+    elsif parallels?
+      report_vm('Parallels')
     else
       print_status('The target appears to be a Physical Machine')
     end
