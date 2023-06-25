@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Post
   end
 
   def microsoftsandbox?
-    # also known as Wundows Containers
+    # also known as Windows Containers
     usernames = [
       'containeradministrator',
       'wdagutilityaccount'
