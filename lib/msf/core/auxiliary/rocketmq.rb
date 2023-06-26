@@ -89,23 +89,22 @@ module Msf
       parsed_data
     end
 
-    def get_broker_port(brokerDatas, rhost)
+    def get_broker_port(broker_datas, rhost, default_broker_port)
       # Example of brokerData:
       # [{"brokerAddrs"=>{"0"=>"172.16.199.135:10911"}, "brokerName"=>"DESKTOP-8ATHH6O", "cluster"=>"DefaultCluster"}]
       target_port = nil
-      brokerDatas.each do |brokerData|
-        brokerData.each do |key, broker_info|
-          next unless key == 'brokerAddrs'
-          broker_info.each do |_iterator, broker_endpoint|
-            next unless broker_endpoint.include?(rhost)
-            return broker_endpoint.match(/#{rhost}:(\d+)/)[1]
-          end
+
+      broker_datas['brokerDatas'].each do |broker_data|
+        broker_data['brokerAddrs'].values.each do |broker_endpoint|
+          next unless broker_endpoint.start_with?("#{rhost}:")
+          return broker_endpoint.match(/\A#{rhost}:(\d+)\z/)[1].to_i
         end
       end
 
+
       if target_port.nil?
-        print_status('autodetection failed, assuming default port of 10911')
-        target_port = 10911
+        print_status("autodetection failed, assuming default port of #{default_broker_port}")
+        target_port = default_broker_port
       end
       target_port
     end
