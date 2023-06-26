@@ -41,8 +41,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enumerate_regions
-    return [datastore['REGION']] if datastore['REGION']
-
     regions = []
 
     ec2 = Aws::EC2::Resource.new(
@@ -125,7 +123,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    regions = enumerate_regions
+    all_regions = enumerate_regions
+    if datastore['REGION'].blank?
+      regions = all_regions
+    elsif !all_regions.include?(datastore['REGION'])
+      fail_with(Failure::BadConfig, "Invalid AWS region: #{datastore['REGION']}")
+    else
+      regions = [datastore['REGION']]
+    end
 
     regions.uniq.each do |region|
       vprint_status "Checking #{region}..."
