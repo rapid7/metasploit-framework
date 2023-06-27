@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Post
     key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
     return true if registry_getvaldata(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
 
-    return true if get_computer_manufacturer() =~ /microsoft corporation/i && get_computer_model() =~ /virtual/i
+    return true if get_computer_manufacturer =~ /microsoft corporation/i && get_computer_model =~ /virtual/i
 
     false
   end
