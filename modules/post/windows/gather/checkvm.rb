@@ -247,9 +247,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    %w[cexecsvc].each do |service|
-      return true if service_exists?(service)
-    end
+    return true if service_exists?('cexecsvc')
 
     key_path = 'HKLM\SYSTEM\CurrentControlSet\Control'
     return true if registry_getvaldata(key_path, 'ContainerType') =~ /4/i
