@@ -71,7 +71,7 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
     end
 
     it 'returns the default broker port when rhost is not found in the name server response' do
-      expect(subject.get_broker_port(expected_parsed_data_response, '172.16.199.1', 10000)).to eq(10000)
+      expect(subject.get_broker_port(expected_parsed_data_response, '172.16.199.1', default_broker_port: 10000)).to eq(10000)
     end
   end
 end
