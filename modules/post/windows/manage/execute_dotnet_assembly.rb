@@ -363,7 +363,7 @@ class MetasploitModule < Msf::Post
     else
       signature = SIGNATURES.fetch(datastore['Signature'])
     end
-    cln_params << datastore['ARGUMENTS'] if signature == SIGNATURES['Main(string[])']
+    cln_params << datastore['ARGUMENTS'] if signature == SIGNATURES['Main(string[])'] && datastore['ARGUMENTS'].present?
     cln_params << "\x00"
 
     pipe_name = pipe_name.encode(::Encoding::ASCII_8BIT)
