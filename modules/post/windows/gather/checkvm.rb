@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Post
       return true if service_exists?(service)
     end
 
-    return true if get_computer_model() =~ /virtualbox/i
+    return true if get_computer_model =~ /virtualbox/i
 
     false
   end
