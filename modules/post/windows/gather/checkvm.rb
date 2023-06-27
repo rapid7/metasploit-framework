@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather Virtual Environment and Sandboxe Detection',
+        'Name' => 'Windows Gather Virtual Environment and Sandbox Detection',
         'Description' => %q{
           This module attempts to determine whether the system is running
           inside of a virtual environment or a sandbox and if so, which one. This
