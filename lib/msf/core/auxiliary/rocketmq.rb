@@ -89,7 +89,7 @@ module Msf
       parsed_data
     end
 
-    def get_broker_port(broker_datas, rhost, default_broker_port)
+    def get_broker_port(broker_datas, rhost, default_broker_port: 10911)
       # Example of brokerData:
       # [{"brokerAddrs"=>{"0"=>"172.16.199.135:10911"}, "brokerName"=>"DESKTOP-8ATHH6O", "cluster"=>"DefaultCluster"}]
       target_port = nil
