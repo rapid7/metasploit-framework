@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    return true if get_computer_model() =~ /vmware/i
+    return true if get_computer_model =~ /vmware/i
 
     false
   end
