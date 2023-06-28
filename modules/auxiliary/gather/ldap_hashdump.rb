@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     entries_returned = 0
 
     print_status("#{peer} Connecting...")
-    ldap_new do |ldap|
+    ldap_connect do |ldap|
       if ldap.get_operation_result.code == 0
         vprint_status("#{peer} LDAP connection established")
       else
