@@ -34,6 +34,12 @@ class Cache
     }
   end
 
+  def get_module_reference(type:, reference_name:)
+    @mutex.synchronize do
+      wait_for_load
+      @module_metadata_cache["#{type}_#{reference_name}"]
+    end
+  end
   #
   # Checks for modules loaded that are not a part of the cache and updates the underlying store
   # if there are changes.
@@ -49,7 +55,7 @@ class Cache
           next if unchanged_reference_name_set.include? mn
 
           begin
-            module_instance = mt[1].create(mn)
+            module_instance = mt[1].create(mn, cache_type: Msf::ModuleManager::Cache::MEMORY)
           rescue Exception => e
             elog "Unable to create module: #{mn}. #{e.message}"
           end
