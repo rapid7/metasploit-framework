@@ -82,6 +82,7 @@ module Msf
         # short circuit the whole deal if they need help
         return help if args.empty?
         return help if args.length == 1 && args.first =~ HELP_REGEX
+        return help(args.last) if args.length == 2 && args.first =~ HELP_REGEX
 
         begin
           if args.first == 'stop'
@@ -389,6 +390,8 @@ module Msf
           print_line(@stop_opt_parser.usage)
         else
           print_line('Usage: captureg [start|stop] [options]')
+          print_line('')
+          print_line('Use captureg --help [start|stop] for more detailed usage help')
         end
       end
 
