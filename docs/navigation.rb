@@ -624,6 +624,10 @@ NAVIGATION_CONFIG = [
                 title: 'Git Mixin'
               },
               {
+                path: 'How-To-Use-The-Capture-Plugin.md',
+                title: 'Capture Plugin'
+              },
+              {
                 title: 'HTTP',
                 folder: 'http',
                 children: [
