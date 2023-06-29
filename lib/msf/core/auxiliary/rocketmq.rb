@@ -13,9 +13,11 @@ module Msf
       register_options([ Opt::RPORT(9876) ], Msf::Auxiliary::Rocketmq)
     end
 
-    def send_version_request
-      # sends a version request to the service, and returns the data as a list of hashes. nil on error
-      # https://github.com/Malayke/CVE-2023-33246_RocketMQ_RCE_EXPLOIT/blob/e27693a854a8e3b2863dc366f36002107e3595de/check.py#L68
+    # Sends a version request to the service, and returns the data as a list of hashes or nil on error
+    #
+    # @see https://github.com/Malayke/CVE-2023-33246_RocketMQ_RCE_EXPLOIT/blob/e27693a854a8e3b2863dc366f36002107e3595de/check.py#L68
+    # @return [String, nil] The data as a list of hashes or nil on error
+    def send_version_request 
       data = '{"code":105,"extFields":{"Signature":"/u5P/wZUbhjanu4LM/UzEdo2u2I=","topic":"TBW102","AccessKey":"rocketmq2"},"flag":0,"language":"JAVA","opaque":1,"serializeTypeCurrentRPC":"JSON","version":401}'
       data_length = "\x00\x00\x00" + [data.length].pack('C')
       header = "\x00\x00\x00" + [data.length + data_length.length].pack('C')
@@ -45,7 +47,7 @@ module Msf
     end
 
     def get_rocketmq_version(id)
-      # This function takes an ID (number) and looks through rocketmq's index of verison numbers to find the real version number
+      # This function takes an ID (number) and looks through rocketmq's index of version numbers to find the real version number
       # Errors will result in "UNKNOWN_VERSION_ID_<id>" and may be caused by needing to update the version table
       # from https://github.com/apache/rocketmq/blob/develop/common/src/4d82b307ef50f5cba5717d0ebafeb3cabf336873/java/org/apache/rocketmq/common/MQVersion.java
       version_list = JSON.parse(File.read(::File.join(Msf::Config.data_directory, 'rocketmq_versions_list.json'), mode: 'rb'))
@@ -102,11 +104,8 @@ module Msf
       end
 
 
-      if target_port.nil?
-        print_status("autodetection failed, assuming default port of #{default_broker_port}")
-        target_port = default_broker_port
-      end
-      target_port
+      print_status("autodetection failed, assuming default port of #{default_broker_port}")
+      default_broker_port
     end
   end
 end
