@@ -16,7 +16,7 @@ module Msf
     # Sends a version request to the service, and returns the data as a list of hashes or nil on error
     #
     # @see https://github.com/Malayke/CVE-2023-33246_RocketMQ_RCE_EXPLOIT/blob/e27693a854a8e3b2863dc366f36002107e3595de/check.py#L68
-    # @return [String, nil] The data as a list of hashes or nil on error
+    # @return [String, nil] The data as a list of hashes or nil on error.
     def send_version_request 
       data = '{"code":105,"extFields":{"Signature":"/u5P/wZUbhjanu4LM/UzEdo2u2I=","topic":"TBW102","AccessKey":"rocketmq2"},"flag":0,"language":"JAVA","opaque":1,"serializeTypeCurrentRPC":"JSON","version":401}'
       data_length = "\x00\x00\x00" + [data.length].pack('C')
@@ -46,14 +46,22 @@ module Msf
       res
     end
 
+    # This function takes an ID (number) and looks through rocketmq's index of version numbers to find the real version number
+    # Errors will result in "UNKNOWN_VERSION_ID_<id>" and may be caused by needing to update the version table
+    # from https://github.com/apache/rocketmq/blob/develop/common/src/4d82b307ef50f5cba5717d0ebafeb3cabf336873/java/org/apache/rocketmq/common/MQVersion.java
+    #
+    # @param [Integer] id The version id found in the NameServer response.
+    # @return [String] The Apache RocketMQ version string.
     def get_rocketmq_version(id)
-      # This function takes an ID (number) and looks through rocketmq's index of version numbers to find the real version number
-      # Errors will result in "UNKNOWN_VERSION_ID_<id>" and may be caused by needing to update the version table
-      # from https://github.com/apache/rocketmq/blob/develop/common/src/4d82b307ef50f5cba5717d0ebafeb3cabf336873/java/org/apache/rocketmq/common/MQVersion.java
       version_list = JSON.parse(File.read(::File.join(Msf::Config.data_directory, 'rocketmq_versions_list.json'), mode: 'rb'))
       version_list.fetch(id, "UNKNOWN_VERSION_ID_#{id}").gsub('_', '.')
     end
 
+    # This function takes a response from the send_version_request function and parses as it doesn't get returned as
+    # proper json. It returns a Hash including RocketMQ versions info and Broker info if found
+    #
+    # @param [String] res Response form the send_version_request request
+    # @return [Hash] Hash including RocketMQ versions info and Broker info if found
     def parse_rocketmq_data(res)
       # remove a response header so we have json-ish data
       res = res[8..]
@@ -91,6 +99,14 @@ module Msf
       parsed_data
     end
 
+    # This function takes the broker data from the name server response, the rhost address and a default Broker port
+    # number. The function searches the broker data for a broker instance listening on the rhost address and if found it
+    # returns the port found. If the search is unsuccessful it returns the default broker port.
+    #
+    # @param [Array] broker_datas An array containing a hash of Broker info
+    # @param [String] rhosts The RHOST address
+    # @param [Integer] default_broker_port The default broker port
+    # @return [Integer] the determined broker port
     def get_broker_port(broker_datas, rhost, default_broker_port: 10911)
       # Example of brokerData:
       # [{"brokerAddrs"=>{"0"=>"172.16.199.135:10911"}, "brokerName"=>"DESKTOP-8ATHH6O", "cluster"=>"DefaultCluster"}]
