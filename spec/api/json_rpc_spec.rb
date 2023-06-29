@@ -294,8 +294,7 @@ RSpec.describe "Metasploit's json-rpc" do
 
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do
-          res = nil
-          res.body
+          raise 'Unexpected module error'
         end
       end
 
@@ -316,7 +315,7 @@ RSpec.describe "Metasploit's json-rpc" do
         expected_error_response = {
           result: {
             status: 'errored',
-            error: "undefined method `body' for nil:NilClass"
+            error: "Unexpected module error"
           }
         }
         expect(last_json_response).to include(expected_error_response)
