@@ -3,10 +3,14 @@ module Msf
 module Handler
 
 require 'aws-sdk-ec2instanceconnect'
+require 'net/ssh'
+require 'net/ssh/command_stream'
+require 'rex/socket/ssh_factory'
+
 ###
 #
 # This module implements the AWS InstanceConnect handler.  This means that
-# it will attempt to connect to a remote host through the AWS InstanceConnect pipe for 
+# it will attempt to connect to a remote host through the AWS InstanceConnect pipe for
 # a period of time (typically the duration of an exploit) to see if the  agent has
 # started listening.
 #
@@ -49,7 +53,6 @@ module BindAwsInstanceConnect
         OptString.new('ACCESS_KEY_ID', [false, 'AWS access key', nil]),
         OptString.new('SECRET_ACCESS_KEY', [false, 'AWS secret key', nil]),
         OptString.new('INSTANCE_USER', [false, 'Username on the EC2 instance with which to log-in']),
-        OptString.new('INSTANCE_PORT', [false, 'Serial port index on the EC2 instance to use for the connection']),
         OptString.new('ROLE_ARN', [false, 'AWS assumed role ARN', nil]),
         OptString.new('ROLE_SID', [false, 'AWS assumed role session ID', nil]),
       ], Msf::Handler::BindAwsInstanceConnect)
@@ -123,13 +126,14 @@ module BindAwsInstanceConnect
 
       print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
 
-      if (datastore['EC2_ID'] == nil or datastore['EC2_ID'].strip.empty?)
+      if datastore['EC2_ID'].blank?
         raise ArgumentError,
           "EC2_ID is not defined; InstanceConnect handler cannot function.",
           caller
       end
 
       stime = Time.now.to_i
+      last_error_class = nil # track the last error class to avoid repeating the same message over and over again
 
       while (stime + ctimeout > Time.now.to_i)
         begin
@@ -139,10 +143,15 @@ module BindAwsInstanceConnect
           else
             raise Rex::ConnectionError.new('Cannot establish serial connection to ' + datastore['EC2_ID'])
           end
+        rescue Aws::Errors::ServiceError => e
+          print_error(e.message) unless e.class == last_error_class
+          last_error_class = e.class
         rescue Rex::ConnectionError => e
-          vprint_error(e.message)
-        rescue
-          wlog("Exception caught in InstanceConnect handler: #{$!.class} #{$!}")
+          print_error(e.message) unless e.class == last_error_class
+          last_error_class = e.class
+        rescue StandardError => e
+          print_error(e.message)
+          elog("Exception caught in InstanceConnect handler: #{$!.class} #{$!}", error: e)
           break
         end
         break if instance_connect_client
@@ -181,7 +190,7 @@ module BindAwsInstanceConnect
 
   # A URI describing what the payload is configured to use for transport
   def payload_uri
-    "serial+ssh://#{datastore['EC2_ID']}:#{datastore['INSTANCE_PORT'].to_i}"
+    "serial+ssh://#{datastore['EC2_ID']}:#{INSTANCE_PORT}"
   end
 
   def comm_string
@@ -202,6 +211,9 @@ module BindAwsInstanceConnect
   end
 
 private
+
+  # Any non-zero value currently triggers an exception but it looks like it may be configurable in the future.
+  INSTANCE_PORT = 0
 
   #
   # Handles key consumption or generation as appropriate for the session
@@ -239,9 +251,7 @@ private
   # Generates the SSH username for the SSH socket
   #
   def ssh_user
-    datastore['INSTANCE_USER'] || (
-      datastore['EC2_ID'] + '.port' + datastore['INSTANCE_PORT'].to_i.to_s
-    )
+    datastore['INSTANCE_USER'] || "#{datastore['EC2_ID']}.port#{INSTANCE_PORT}"
   end
 
   #
@@ -299,16 +309,16 @@ private
 
     client = ::Aws::EC2InstanceConnect::Client.new(
       region: datastore['REGION'],
-      credentials: credentials,
+      credentials: credentials
     )
     session_params = {
       instance_id: datastore['EC2_ID'],
-      ssh_public_key: pub_key,
+      serial_port: INSTANCE_PORT,
+      ssh_public_key: pub_key
     }
-    session_params[:serial_port] = datastore['INSTANCE_PORT'] if datastore['INSTANCE_PORT']
     session_params[:instance_os_user] = datastore['INSTANCE_USER'] if datastore['INSTANCE_USER']
 
-    # There are two methods for initating a session, one with user-name, one without
+    # There are two methods for initiating a session, one with user-name, one without
     resp = if datastore['INSTANCE_USER']
       client.send_ssh_public_key(session_params)
     else
