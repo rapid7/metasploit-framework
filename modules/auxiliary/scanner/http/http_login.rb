@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptString.new('HttpSuccessCodes', [ false, 'Comma seperated list of HTTP response codes or ranges to promote as successful login', '200,201,300-308']),
+        OptString.new('HttpSuccessCodes', [ false, 'Comma separated list of HTTP response codes or ranges to promote as successful login', '200,201,300-308']),
       ]
     )
 

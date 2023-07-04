@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# TODO: Split this module into two seperate SNMP and HTTP modules.
+# TODO: Split this module into two separate SNMP and HTTP modules.
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient

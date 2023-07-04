@@ -112,7 +112,7 @@ D. Usage:
 
 				!jutsu identBufFile inputFile mapFile 
 
-				This will load the inputFile as many seperate buffers broken up as the 010 template has parsed
+				This will load the inputFile as many separate buffers broken up as the 010 template has parsed
 				it, naming it as the template has named each part.
 
 		c. List registered buffers with !jutsu listBuf

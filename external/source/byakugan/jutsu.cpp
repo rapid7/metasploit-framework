@@ -823,7 +823,7 @@ void searchOpcodes(char *instructions) {
 	DWORD			length, i, j, semiCount = 1, offset = 0; 
 	ULONG64			ptr = 0;
 
-	// Split instructions into seperate strings at pipes
+	// Split instructions into separate strings at pipes
 	length = 0;
 	while (instructions[length] != NULL) {
 		if (instructions[length] == '|')
@@ -888,7 +888,7 @@ void searchVtptr(DWORD vtOffset, char *instructions) {
     DWORD           length, i, j, semiCount = 1, offset = 0;
     ULONG64         ptr = 0;
 
-    // Split instructions into seperate strings at pipes
+    // Split instructions into separate strings at pipes
     length = 0;
     while (instructions[length] != NULL) {
         if (instructions[length] == '|')

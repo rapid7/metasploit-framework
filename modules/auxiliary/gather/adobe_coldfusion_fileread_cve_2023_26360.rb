@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
       file_data = res.body[res.body.index(wddx_packet_tag) + wddx_packet_tag.length..]
 
       # If the default CFC options were used, we know the output will end with the result of calling wizardHash. So we can
-      # remove the result which is a SHA1 hash and two 32 byte random strings, comma seperated and a trailing space.
+      # remove the result which is a SHA1 hash and two 32 byte random strings, comma separated and a trailing space.
       if datastore['CFC_ENDPOINT'] == '/CFIDE/wizards/common/utils.cfc' && datastore['CFC_METHOD'] == 'wizardHash'
         file_data = file_data[0..file_data.length - (40 + 32 + 32 + 2 + 1) - 1]
       end

@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptPath.new('QUERY_FILE_PATH', [false, 'Path to the JSON or YAML file to load and run queries from'], conditions: %w[ACTION == RUN_QUERY_FILE]),
       OptString.new('QUERY_FILTER', [false, 'Filter to send to the target LDAP server to perform the query'], conditions: %w[ACTION == RUN_SINGLE_QUERY]),
-      OptString.new('QUERY_ATTRIBUTES', [false, 'Comma seperated list of attributes to retrieve from the server'], conditions: %w[ACTION == RUN_SINGLE_QUERY])
+      OptString.new('QUERY_ATTRIBUTES', [false, 'Comma separated list of attributes to retrieve from the server'], conditions: %w[ACTION == RUN_SINGLE_QUERY])
     ])
   end
 

@@ -8,7 +8,7 @@ require 'metasploit/framework/command/base'
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
 
-  # Provides an animated spinner in a seperate thread.
+  # Provides an animated spinner in a separate thread.
   #
   # See GitHub issue #4147, as this may be blocking some
   # Windows instances, which is why Windows platforms

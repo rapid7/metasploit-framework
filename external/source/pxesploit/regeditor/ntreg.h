@@ -187,7 +187,7 @@ struct ri_key {
 
 /* This is the value descriptor.
  * If the sign bit (31st bit) in the length field is set, the value is
- * stored inline this struct, and not in a seperate data chunk -
+ * stored inline this struct, and not in a separate data chunk -
  * the data then seems to be in the type field, and maybe also
  * in the flag and dummy1 field if -len > 4 bytes
  * If the name size == 0, then the struct is probably cut short right
