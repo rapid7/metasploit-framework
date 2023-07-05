@@ -153,7 +153,7 @@ class PayloadSet < ModuleSet
     adapter_mod, _, _adapter_platform, _adapter_arch, adapter_inst, adapted_modinfo = adapter_info
     single_mod, handler, _single_platform, _single_arch, _single_inst, _single_modinfo = single_info
 
-    return nil unless adapter_inst.compatible?(single_payload.new)
+    return nil unless single_payload && adapter_inst.compatible?(single_payload.new)
 
     payload = build_payload(handler, single_mod, adapter_mod)
 
@@ -281,7 +281,7 @@ class PayloadSet < ModuleSet
     stager_mod, handler, _stager_platform, _stager_arch, _stager_inst, _stager_modinfo = stager_info
     adapter_mod, _, _adapter_platform, _adapter_arch, adapter_inst, adapter_modinfo = adapter_info
 
-    return nil unless adapter_inst.compatible?(staged_payload.new)
+    return nil unless staged_payload && adapter_inst.compatible?(staged_payload.new)
 
     payload = build_payload(handler, stager_mod, stage_mod, adapter_mod)
 
