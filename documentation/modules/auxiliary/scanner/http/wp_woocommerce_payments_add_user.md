@@ -8,7 +8,7 @@ selected corresponds to an administrator account.
 
 ### Install
 
-Download, install, and Activate [woocomerce-payments 5.6.1](https://downloads.wordpress.org/plugin/woocommerce-payments.5.6.1.zip)
+Download, install, and activate [woocomerce-payments 5.6.1](https://downloads.wordpress.org/plugin/woocommerce-payments.5.6.1.zip)
 
 No configuration is required, and one does not need to install the main WooCommerce platform itself.
 
@@ -39,7 +39,7 @@ The email address for the user. Default is to create a random one.
 
 ### ADMINID
 
-The user ID number for an administrator. Defaults to `1`
+The user ID number for an WordPress administrator. Defaults to `1`.
 
 ## Scenarios
 

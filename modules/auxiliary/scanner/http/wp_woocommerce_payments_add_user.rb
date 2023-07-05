@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'User to create', '']),
         OptString.new('PASSWORD', [false, 'Password to create, random if blank', '']),
         OptString.new('EMAIL', [false, 'Email to create, random if blank', '']),
-        OptInt.new('ADMINID', [false, 'ID Number of an administrative user', 1]),
+        OptInt.new('ADMINID', [false, 'ID Number of a WordPress administrative user', 1]),
         OptString.new('TARGETURI', [true, 'The URI of the Wordpress instance', '/'])
       ]
     )
