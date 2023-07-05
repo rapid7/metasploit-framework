@@ -110,7 +110,6 @@ module Msf
     def get_broker_port(broker_datas, rhost, default_broker_port: 10911)
       # Example of brokerData:
       # [{"brokerAddrs"=>{"0"=>"172.16.199.135:10911"}, "brokerName"=>"DESKTOP-8ATHH6O", "cluster"=>"DefaultCluster"}]
-      target_port = nil
 
       broker_datas['brokerDatas'].each do |broker_data|
         broker_data['brokerAddrs'].values.each do |broker_endpoint|
