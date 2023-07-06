@@ -117,7 +117,7 @@ different services (17 including SSL enabled versions) on the same listening IP 
 A configuration file can be used to select individual services to start and once finished, all services can easily be stopped
 using a single command.
 
-To use the plugin, it must first be loaded. That will provide the captureg command (for Capture-Global) which then offers start
+To use the plugin, it must first be loaded. That will provide the `captureg` command (for Capture-Global) which then offers start
 and stop subcommands. In the following example, the plugin is loaded, and then all default services are started on the 192.168.159.128 interface.
 
 ```msf
