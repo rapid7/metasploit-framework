@@ -12,6 +12,7 @@ class Cache
   include Msf::Modules::Metadata::Search
   include Msf::Modules::Metadata::Store
   include Msf::Modules::Metadata::Maps
+  include Msf::Modules::Metadata::Stats
 
   #
   # Refreshes cached module metadata as well as updating the store
@@ -81,6 +82,7 @@ class Cache
       if has_changes
         update_store
         clear_maps
+        update_stats
       end
     }
   end
