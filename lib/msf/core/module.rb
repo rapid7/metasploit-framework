@@ -225,14 +225,6 @@ module Msf
       self.class.adapted_refname
     end
 
-    def adapter_refname
-      self.class.adapter_refname
-    end
-
-    def stage_refname
-      self.class.stage_refname
-    end
-
     # @return [String, nil] Reference name of the payloads adapter
     def adapter_refname
       self.class.adapter_refname

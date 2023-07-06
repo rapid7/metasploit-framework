@@ -550,7 +550,6 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         before(:example) do
           allow(subject).to receive(:module_path).and_return(module_path)
-          allow(subject).to receive(:read_module_content_from_path)
         end
 
         let(:cached_metadata) { nil }

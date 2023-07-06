@@ -198,7 +198,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
             reference_name,
             :force => true,
             :cached_metadata => nil
-        ).and_call_original
+          ).and_call_original
 
           load_cached_module
         end
