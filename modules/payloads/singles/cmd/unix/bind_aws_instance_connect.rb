@@ -14,16 +14,14 @@ module MetasploitModule
       merge_info(
         info,
         'Name' => 'Unix SSH Shell, Bind Instance Connect (via AWS API)',
-        'Description' => 'Creates an ssh shell using AWS Instance Connect',
+        'Description' => 'Creates an SSH shell using AWS Instance Connect',
         'Author' => 'RageLtMan <rageltman[at]sempervictus>',
         'References' => ['URL', 'https://www.sempervictus.com/single-post/a-serial-case-of-air-on-the-side-channel'],
         'License' => MSF_LICENSE,
         'Platform' => 'unix',
-        'Arch' => ARCH_CMD,
+        'Arch' => ARCH_ALL,
         'Handler' => Msf::Handler::BindAwsInstanceConnect,
-        'Session' => Msf::Sessions::AwsInstanceConnectBind,
-        'PayloadType' => 'ssh_interact',
-        'RequiredCmd' => 'generic',
+        'Session' => Msf::Sessions::AwsInstanceConnectCommandShellBind,
         'Payload' => {
           'Offsets' => {},
           'Payload' => ''
@@ -32,18 +30,9 @@ module MetasploitModule
     )
   end
 
-  #
-  # Constructs the payload
-  #
-  def generate(_opts = {})
-    vprint_good(command_string)
-    return super + command_string
-  end
+  def on_session(session)
+    super
 
-  #
-  # Returns the command string to use for execution
-  #
-  def command_string
-    ''
+    session.arch.clear  # undo the ARCH_ALL amalgamation
   end
 end

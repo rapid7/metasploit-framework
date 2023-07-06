@@ -22,21 +22,21 @@ module BindAwsInstanceConnect
   # 'bind_aws_instance_connect'.
   #
   def self.handler_type
-    return "bind_aws_instance_connect"
+    'bind_aws_instance_connect'
   end
 
   #
   # Returns the connection oriented general handler type, in this case bind.
   #
   def self.general_handler_type
-    "bind"
+    'bind'
   end
 
   # A string suitable for displaying to the user
   #
   # @return [String]
   def human_name
-    "Bind AWS InstanceConnect"
+    'bind AWS InstanceConnect'
   end
 
   #
@@ -55,6 +55,8 @@ module BindAwsInstanceConnect
         OptString.new('INSTANCE_USER', [false, 'Username on the EC2 instance with which to log-in']),
         OptString.new('ROLE_ARN', [false, 'AWS assumed role ARN', nil]),
         OptString.new('ROLE_SID', [false, 'AWS assumed role session ID', nil]),
+        OptString.new('USERNAME', [false, 'EC2 instance local username to authenticate with']),
+        OptString.new('PASSWORD', [false, 'EC2 instance local password to authenticate with'])
       ], Msf::Handler::BindAwsInstanceConnect)
 
     register_advanced_options(
@@ -167,11 +169,13 @@ module BindAwsInstanceConnect
 
         # Timeout and datastore options need to be passed through to the client
         opts = {
-          :datastore    => datastore,
-          :expiration   => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-          :retry_total  => datastore['SessionRetryTotal'].to_i,
-          :retry_wait   => datastore['SessionRetryWait'].to_i,
+          :datastore       => datastore,
+          :expiration      => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout    => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total     => datastore['SessionRetryTotal'].to_i,
+          :retry_wait      => datastore['SessionRetryWait'].to_i,
+          :serial_username => datastore['USERNAME'],
+          :serial_password => datastore['PASSWORD']
         }
 
         self.conn_threads << framework.threads.spawn("BindAwsInstanceConnectHandlerSession", false, instance_connect_client, opts) { |ssh, opts_copy|
@@ -328,7 +332,7 @@ private
   end
 
   def create_session(ssh, opts = {})
-    s = Msf::Sessions::AwsInstanceConnectBind.new(ssh, opts)
+    s = Msf::Sessions::AwsInstanceConnectCommandShellBind.new(ssh, opts)
     # Pass along the framework context
     s.framework = framework
 
