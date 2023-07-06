@@ -103,7 +103,7 @@ module Msf
     end
 
     def desc
-      'Attempt to add an account using all connected meterpreter session tokens'
+      'Attempt to add an account using all connected Meterpreter session tokens'
     end
   end
 end

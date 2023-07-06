@@ -15,7 +15,7 @@ module Msf
 
       def commands
         {
-          'token_hunt_user' => 'Scan all connected meterpreter sessions for active tokens corresponding to one or more users'
+          'token_hunt_user' => 'Scan all connected Meterpreter sessions for active tokens corresponding to one or more users'
         }
       end
 
@@ -140,7 +140,7 @@ module Msf
     end
 
     def desc
-      'Search all active meterpreter sessions for specific tokens'
+      'Search all active Meterpreter sessions for specific tokens'
     end
   end
 end
