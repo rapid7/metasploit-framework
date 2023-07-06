@@ -47,7 +47,7 @@ The current available plugins for Metasploit can be found by running the `load -
 | socket_logger    | Log socket operations to a directory as individual files                                            |
 | sounds           | Automatically plays a sound when various framework events occur                                     |
 | sqlmap           | sqlmap plugin for Metasploit                                                                        |
-| thread           | Internal test tool for testing thread usage in Metasploit'                                          |
+| thread           | Internal test tool for testing thread usage in Metasploit                                          |
 | token_adduser    | Attempt to add an account using all connected Meterpreter session tokens                            |
 | token_hunter     | Search all active Meterpreter sessions for specific tokens                                          |
 | wiki             | Outputs stored database values from the current workspace into DokuWiki or MediaWiki format         |
