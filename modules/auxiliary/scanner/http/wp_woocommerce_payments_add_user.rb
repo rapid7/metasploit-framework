@@ -108,9 +108,12 @@ class MetasploitModule < Msf::Auxiliary
             workspace_id: myworkspace_id,
             origin_type: :service,
             service_name: 'WordPress',
+            username: username,
             private_type: :password,
+            private_data: password,
             module_fullname: fullname,
             access_level: 'administrator',
+            last_attempted_at: DateTime.now,
             status: Metasploit::Model::Login::Status::SUCCESSFUL
           })
         end
