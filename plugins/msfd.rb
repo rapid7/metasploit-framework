@@ -85,7 +85,7 @@ module Msf
     # Returns the msfd plugin description.
     #
     def desc
-      'Provides a console interface to users over a listening TCP port.'
+      'Provides a console interface to users over a listening TCP port'
     end
 
     #
