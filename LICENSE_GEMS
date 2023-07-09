@@ -73,9 +73,9 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.1, "New BSD"
 metasploit-credential, 6.0.5, "New BSD"
-metasploit-framework, 6.3.24, "New BSD"
+metasploit-framework, 6.3.25, "New BSD"
 metasploit-model, 5.0.1, "New BSD"
-metasploit-payloads, 2.0.147, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.148, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.2, "New BSD"
 metasploit_payloads-mettle, 1.0.20, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
@@ -99,7 +99,7 @@ octokit, 4.25.1, MIT
 openssl-ccm, 1.2.3, MIT
 openssl-cmac, 2.0.2, MIT
 openvas-omp, 0.0.4, MIT
-packetfu, 1.1.13, BSD
+packetfu, 2.0.0, "New BSD"
 parallel, 1.23.0, MIT
 parser, 3.2.2.3, MIT
 patch_finder, 1.0.2, "New BSD"
