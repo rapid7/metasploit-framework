@@ -39,7 +39,7 @@ The email address for the user. Default is to create a random one.
 
 ### ADMINID
 
-The user ID number for an WordPress administrator. Defaults to `1`.
+The user ID number for a WordPress administrator. Defaults to `1`.
 
 ## Scenarios
 
