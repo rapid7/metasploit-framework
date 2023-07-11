@@ -85,16 +85,20 @@ class MetasploitModule < Msf::Post
   end
 
   def vmware?
-    %w[vmdebug vmmouse VMTools VMMEMCTL].each do |service|
+    %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc tpvcgateway vmware wmci vmx86].each do |service|
       return true if service_exists?(service)
     end
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemManufacturer') =~ /vmware/i
     return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vmware/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 1\Scsi Bus 0\Target Id 0\Logical Unit Id 0', 'Identifier') =~ /vmware/i
+    return true if registry_getvaldata('HKLM\SYSTEM\ControlSet001\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0000', 'DriverDesc') =~ /cl_vmx_svga|VMWare/i
 
     vmwareprocs = [
-      'vmwareuser.exe',
-      'vmwaretray.exe'
+      'vmtoolsd.exe',
+      'vmwareservice.exe',
+      'vmwaretray.exe',
+      'vmwareuser.exe'
     ]
     get_processes.each do |x|
       vmwareprocs.each do |p|
