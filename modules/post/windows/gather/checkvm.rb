@@ -188,6 +188,13 @@ class MetasploitModule < Msf::Post
     false
   end
 
+   def parallels?
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /parallels/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /parallels/i
+
+    false
+  end
+
   def report_vm(hypervisor)
     print_good("This is a #{hypervisor} Virtual Machine")
     report_note(
@@ -214,6 +221,8 @@ class MetasploitModule < Msf::Post
       report_vm('Xen')
     elsif qemu?
       report_vm('Qemu/KVM')
+    elsif parallels?
+      report_vm('Parallels')
     else
       print_status('The target appears to be a Physical Machine')
     end
