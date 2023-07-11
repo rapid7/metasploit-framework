@@ -195,6 +195,25 @@ class MetasploitModule < Msf::Post
     false
   end
 
+  def joesandbox?
+    vpcprocs = [
+      'joeboxcontrol.exe',
+      'joeboxserver.exe'
+    ]
+    get_processes.each do |x|
+      vpcprocs.each do |p|
+        return true if p == x['name'].downcase
+      end
+    end
+
+    key_path = 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion'
+    return true if registry_getvaldata(key_path, 'ProductId') == '55274-640-2673064-23950'
+    key_path = 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+    return true if registry_getvaldata(key_path, 'ProductId') == '55274-640-2673064-23950'
+
+    false
+  end
+
   def report_vm(hypervisor)
     print_good("This is a #{hypervisor} Virtual Machine")
     report_note(
@@ -223,6 +242,8 @@ class MetasploitModule < Msf::Post
       report_vm('Qemu/KVM')
     elsif parallels?
       report_vm('Parallels')
+    elsif joesandbox?
+      report_vm('JoeSandbox')
     else
       print_status('The target appears to be a Physical Machine')
     end
