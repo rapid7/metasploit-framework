@@ -23,6 +23,8 @@ sudo docker exec -it superset superset init
 
 Login to the app, click 'list users' under 'Settings', then click '+'.  make a new user with 'public' as the permission level.
 
+If you want any database credentials to be pulled, you'll need to configure a database as well.
+
 ## Verification Steps
 
 1. Install the application
