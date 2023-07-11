@@ -178,6 +178,8 @@ class MetasploitModule < Msf::Post
       return true if service_exists?(service)
     end
 
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemProductName') =~ /xen/i
+
     false
   end
 
