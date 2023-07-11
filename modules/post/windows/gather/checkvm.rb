@@ -115,6 +115,7 @@ class MetasploitModule < Msf::Post
     end
 
     vpcprocs = [
+      'vpcmap.exe',
       'vmusrvc.exe',
       'vmsrvc.exe'
     ]
