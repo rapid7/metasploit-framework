@@ -144,12 +144,15 @@ class MetasploitModule < Msf::Post
       return true if srvvals && srvvals.include?('VBOX__')
     end
 
-    key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-    return true if registry_getvaldata(key_path, 'Identifier') =~ /vbox/i
+    for i in 0..2 do
+          return true if registry_getvaldata("HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port #{i}0\Scsi Bus 0\Target Id 0\Logical Unit Id 0", 'Identifier') =~ /vbox/i
+    end
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /vbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /virtualbox/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemProductName') =~ /virtual/i
 
-    %w[VBoxMouse VBoxGuest VBoxService VBoxSF].each do |service|
+    %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo].each do |service|
       return true if service_exists?(service)
     end
 
