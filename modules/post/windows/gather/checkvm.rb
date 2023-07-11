@@ -190,6 +190,10 @@ class MetasploitModule < Msf::Post
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
     return true if registry_getvaldata(key_path, 'ProcessorNameString') =~ /qemu/i
 
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /qemu/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'VideoBiosVersion') =~ /qemu/i
+    return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemManufacturer') =~ /qemu/i
+
     %w[HKLM\HARDWARE\ACPI\DSDT HKLM\HARDWARE\ACPI\FADT HKLM\HARDWARE\ACPI\RSDT].each do |key|
       srvvals = registry_enumkeys(key)
       return true if srvvals && srvvals.include?('BOCHS_')
