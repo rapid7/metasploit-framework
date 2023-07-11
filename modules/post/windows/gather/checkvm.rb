@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => %w[meterpreter powershell shell],
+        'References' => [
+          ['URL', 'https://handlers.sans.org/tliston/ThwartingVMDetection_Liston_Skoudis.pdf'],
+          ['URL', 'https://www.heise.de/security/downloads/07/1/1/8/3/5/5/9/vmde.pdf'],
+          ['URL', 'https://evasions.checkpoint.com/techniques/registry.html']
+        ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
