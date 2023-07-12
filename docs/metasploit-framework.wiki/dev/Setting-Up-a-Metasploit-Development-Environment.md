@@ -218,7 +218,7 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 
 [commercial-installer]:https://metasploit.com/download
 [kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
-[parrot-user-instructions]:https://parrotsec.org/docs/installation.html
+[parrot-user-instructions]:https://parrotsec.org/docs/category/installation
 [CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
 
 [Ubuntu]:https://www.ubuntu.com/download/desktop
