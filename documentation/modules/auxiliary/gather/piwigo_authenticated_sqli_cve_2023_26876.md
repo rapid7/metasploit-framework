@@ -41,7 +41,7 @@
               - "8000:8000"
           mysql:
             container_name: piwigo_mysql
-            image: arm64v8/mysql (change to you arch !!)
+            image: arm64v8/mysql
             command: ["--default-authentication-plugin=mysql_native_password"]
             networks:
               - piwigo
