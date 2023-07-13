@@ -22,6 +22,7 @@ module MetasploitModule
         'Arch' => ARCH_ALL,
         'Handler' => Msf::Handler::BindAwsInstanceConnect,
         'Session' => Msf::Sessions::AwsInstanceConnectCommandShellBind,
+        'DefaultOptions' => { 'CommandShellCleanupCommand' => 'exit' },
         'Payload' => {
           'Offsets' => {},
           'Payload' => ''
