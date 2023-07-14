@@ -59,7 +59,7 @@ The current available plugins for Metasploit can be found by running the `load -
 
 The Alias plugin adds the ability to alias console commands:
 
-```
+```msf
 msf6 > load alias
 [*] Successfully loaded plugin: alias
 msf6 > alias -h
@@ -87,7 +87,7 @@ Proxies => http:localhost:8079
 
 Viewing registered aliases:
 
-```
+```msf
 msf6 > alias
 
 Current Aliases

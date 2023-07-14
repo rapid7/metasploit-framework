@@ -198,8 +198,7 @@ Asking for: https/TSTWLPT1000000
 
 Tickets in the current session can be viewed like so:
 
-```
-
+```msf
 meterpreter > kerberos_ticket_list
 [+] Kerberos tickets found in the current session.
 [00000000] - 0x00000012 - aes256_hmac

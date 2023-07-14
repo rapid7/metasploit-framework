@@ -31,14 +31,14 @@ You can inspect exactly what commits are contained in this merge with the follow
 
 Like so:
 
-````
+```
 $ git log bad-merge...bad-merge~ --oneline
 3996557 Fix conflcit lib/msf/util/exe.rb
 6296c4f Merge pull request #9 from tabassassin/retab/pr/2320
 d0a3ea6 Retab changes for PR #2320
 bff7d0e Merge for retab
 4c9e6a8 Default to exe-small
-````
+```
 
 The syntax is a little wacky, but this is saying, "Show me all the commit hashes that occur from the `bad-merge` point to one back from `bad-merge` (in other words, from right before `bad-merge` was merged). That's what the tilde (~) means. You could also use `bad-merge^` or `bad-merge^1`, they're all equivalent.
 

@@ -50,7 +50,7 @@ And then you are ready to go.
 
 The first thing you do with ObfuscateJS is you need to initialize it with the JavaScript you want to obfuscate, so in this case, begin like the following:
 
-```
+```ruby
 js = %Q|
 var arrr = new Array();
 arrr[0] = windows.document.createElement("img");
@@ -82,7 +82,7 @@ So if I want to obfuscate the variable ```arrr```, and I want to obfuscate the s
 
 In some cases, you might actually want to know the obfuscated version of a symbol name. One scenario is calling a JavaScript function from an element's event handler, such as this:
 
-```
+```html
 <html>
 <head>
 <script>
@@ -150,7 +150,7 @@ This time we'll do a "hello world" example:
 
 And here's the output:
 
-```
+```javascript
 window[(function () { var _d="t",y="ler",N="a"; return N+y+_d })()]((function () { var f='d!',B='orl',Q2='h',m='ello, w'; return Q2+m+B+f })());
 ```
 

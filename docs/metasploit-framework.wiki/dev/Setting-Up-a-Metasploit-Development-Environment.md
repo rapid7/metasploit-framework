@@ -176,7 +176,7 @@ git config commit.gpgsign true
 
 Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
-```
+```ini
 [alias]
 # An easy, colored oneline log format that shows signed/unsigned status
 nicelog = log --pretty=format:'%Cred%h%Creset -%Creset %s %Cgreen(%cr) %C(bold blue)<%aE>%Creset [%G?]'

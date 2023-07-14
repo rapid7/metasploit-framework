@@ -182,7 +182,7 @@ payloads.  All I did was give an array value for the `Platform` value and change
 
 For the `execute_command` method, nothing changes:
 
-``` ruby
+```ruby
 def execute_command(cmd, _opts = {})
 populate_values if @sid.nil? || @token.nil?
 uri = datastore['URIPATH'] + '/vendor/htmlawed/htmlawed/htmLawedTest.php'
@@ -206,7 +206,7 @@ end
 The only change in the exploit method is the use of the more generic `Type` value in the case statement.  Nothing else
 needs to change.
 
-``` ruby
+```ruby
   def exploit
     print_status("Executing #{target.name} for #{datastore['PAYLOAD']}")
     case target['Type']
@@ -221,7 +221,7 @@ needs to change.
 If you have an exploit that already supports Unix Command payloads and you'd like it to support Linux Command payloads
 like Fetch Payloads, you can simply add the `linux` value to the platform array:
 
-``` ruby
+```ruby
 'Nix Command',
   {
     'Platform' => [ 'unix', 'linux' ],

@@ -11,12 +11,12 @@ Unfortunately, at this point in time the extension only works inside x86 and x64
 # Usage
 
 As with any other extension that comes with Meterpreter, loading it is very simple:
-```
+```msf
 meterpreter > use python
 Loading extension python...success.
 ```
 Once loaded, the help system shows the commands that come with the extension:
-```
+```msf
 meterpreter > help
 
     ... snip ...
@@ -36,7 +36,7 @@ Each of these commands is discussed in detail below.
 ## python_execute
 
 The `python_execute` command is the simplest of all commands that come with the extension, and provides the means to run single-shot lines of Python code, much in the same way that the normal Python interpreter functions from the command-line when using the `-c` switch. The full help for the command is as follows:
-```
+```msf
 meterpreter > python_execute -h
 Usage: python_execute <python code> [-r result var name]
 
@@ -50,13 +50,13 @@ OPTIONS:
     -r <opt>  Name of the variable containing the result (optional)
 ```
 A very simple example of this command is shown below:
-```
+```msf
 meterpreter > python_execute "print 'Hi, from Meterpreter!'"
 [+] Content written to stdout:
 Hi, from Meterpreter!
 ```
 Notice that any output that is written to stdout is captured by Meterpreter and returned to Metasploit so that it's visible to the user. This also happens for anything written to stderr, as shown below:
-```
+```msf
 meterpreter > python_execute "x = x + 1"
 [-] Content written to stderr:
 Traceback (most recent call last):
@@ -66,25 +66,25 @@ NameError: name 'x' is not defined
 This handy feature now only allows users to see the output of their scripts, but it also means that any errors are completely visible too.
 
 A more interesting example can be seen below:
-```
+```msf
 meterpreter > python_execute "x = [y for y in range(0, 20) if y % 5 == 0]"
 [+] Command executed without returning a result
 ```
 The command above executes, but nothing was printed to stdout, or to stderr, and hence nothing was captured.
 
 The good thing is that the Python extension is persistant across calls. This means that after the above command is executed, `x` is still present in the interpreter and can be accessed with another call:
-```
+```msf
 meterpreter > python_execute "print x"
 [+] Content written to stdout:
 [0, 5, 10, 15]
 ```
 As useful as this is, developers may want to produce post-modules that make use of the data that a Python script has generated. Parsing stdout is not ideal in such a scenario, and hence this command provides the means for individual variables to be extracted directly using the `-r` paramter, as described by the help:
-```
+```msf
 meterpreter > python_execute "x = [y for y in range(0, 20) if y % 5 == 0]" -r x
 [+] x = [0, 5, 10, 15]
 ```
 Note that this command requires the first parameter to be a string that contains code that needs to be executed. However, this string can be blank, resulting in no code being executed. This means that extraction of content generated in previous calls is still possible without executing more code, or rerunning previous code snippets just to make use of the `-r` parameter:
-```
+```msf
 meterpreter > python_execute "" -r x
 [+] x = [0, 5, 10, 15]
 ```
@@ -95,7 +95,7 @@ Sometimes, single-line execution isn't enough, or is cumbersome. The `python_imp
 ## python_import
 
 This command allows for whole modules to be loaded from the attacker's machine an uploaded to the target interpreter. The full help is shown below:
-```
+```msf
 meterpreter > python_import -h
 Usage: python_import <-f file path> [-n mod name] [-r result var name]
 
@@ -114,8 +114,8 @@ OPTIONS:
 Importing of module trees is still considered a _beta_ feature, but we encourage you to use it where possible and keep us informed of any issues you may face.
 
 Consider the following script:
-```
-$ cat /tmp/drives.py
+```python
+# $ cat /tmp/drives.py
 import string
 from ctypes import windll
 
@@ -133,7 +133,7 @@ result = get_drives()
 print result
 ```
 The aim of this is to determine all the local logical drives and put the letters into a list. From there it prints that list to screen. The result of running the script is as follows:
-```
+```msf
 meterpreter > python_import -f /tmp/drives.py
 [*] Importing /tmp/drives.py ...
 [+] Content written to stdout:
@@ -146,7 +146,7 @@ This command is also intended to allow for recursive loading of modules from the
 ## python_reset
 
 It may get to a point where the content of the interpreter needs to be flushed. The `python_reset` command clears out all imports, libraries and global variables:
-```
+```msf
 meterpreter > python_execute "x = 100"
 [+] Command executed without returning a result
 meterpreter > python_execute "print x"
@@ -244,7 +244,7 @@ It is not possible to delete transports using the python extension as this opens
 
 ### Bindings example
 
-```
+```msf
 meterpreter > getuid
 Server username: WIN-TV01I7GG7JK\oj
 meterpreter > python_execute "import meterpreter.user; print meterpreter.user.getuid()"

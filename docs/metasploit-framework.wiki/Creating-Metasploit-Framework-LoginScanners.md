@@ -147,7 +147,7 @@ This method is just a stub on the Base mixin. It will be overridden in each Logi
 
 For an example let's look at the attempt_login method from `Metasploit::Framework::LoginScanner::FTP (lib/metasploit/framework/login_scanner/ftp.rb)`
  
- ```ruby
+```ruby
  # (see Base#attempt_login)
 def attempt_login(credential)
   result_options = {
@@ -170,7 +170,7 @@ def attempt_login(credential)
 
   ::Metasploit::Framework::LoginScanner::Result.new(result_options)
 end
- ```
+```
  
 ### scan!
 
