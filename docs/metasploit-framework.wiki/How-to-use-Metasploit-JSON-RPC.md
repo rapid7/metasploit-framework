@@ -89,7 +89,7 @@ First ensure you are running the Metasploit database, and are running the JSON s
 
 Request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Content-Type: application/json' \
@@ -118,7 +118,7 @@ Response:
 
 Request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Content-Type: application/json' \
@@ -155,7 +155,7 @@ Response:
 
 Request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'content-type: application/json' \
@@ -185,7 +185,7 @@ Response:
 Metasploit modules support running `check` methods which can be used to identify the success of an exploit module, or to run an
 auxiliary module against a target. For instance, with an Auxiliary module check request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Content-Type: application/json' \
@@ -205,7 +205,7 @@ curl --request POST \
 
 Or an Exploit module check request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'content-type: application/json' \
@@ -240,7 +240,7 @@ The response will contain an identifier which can be used to query for updates:
 
 Request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Content-Type: application/json' \
@@ -288,7 +288,7 @@ It is possible to poll for module results using the id returned when running a m
 
 Request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Content-Type: application/json' \
@@ -353,7 +353,7 @@ but the memory is limited to 35mb as the memory datastore used is implemented by
 
 Request:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Content-Type: application/json' \
@@ -445,7 +445,7 @@ curl --request POST \
 
 Run the analyze command:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Authorization: Bearer ' \
@@ -491,7 +491,7 @@ Response:
 
 When analyzing a host, it is also possible to specify payload requirements for additional granularity:
 
-```
+```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
   --header 'Authorization: Bearer ' \

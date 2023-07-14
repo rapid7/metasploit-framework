@@ -290,7 +290,7 @@ Active sessions
 #### Local Port Forwarding
 To set up a port forward using Metasploit, use the `portfwd` command within a supported session's console such as the Meterpreter console. Using `portfwd -h` will bring up a help menu similar to the following:
 
-```
+```msf
 meterpreter > portfwd -h
 Usage: portfwd [-h] [add | delete | list | flush] [args]
 
@@ -309,7 +309,7 @@ meterpreter >
 
 To add a port forward, use `portfwd add` and specify the `-l`, `-p` and `-r` options at a minimum to specify the local port to listen on, the report port to connect to, and the target host to connect to respectively.
 
-```
+```msf
 meterpreter > portfwd add -l 1090 -p 443 -r 169.254.37.128
 [*] Local TCP relay created: :1090 <-> 169.254.37.128:443
 meterpreter >
@@ -338,7 +338,7 @@ Note that you may need to edit your `/etc/hosts` file to map IP addresses to giv
 #### Listing Port Forwards and Removing Entries
 Can list port forwards using the `portfwd list` command. To delete all port forwards use `portfwd flush`. Alternatively to selectively delete local port forwarding entries, use `portfwd delete -l <local port>`.
 
-```
+```msf
 meterpreter > portfwd delete -l 1090
 [*] Successfully stopped TCP relay on 0.0.0.0:1090
 meterpreter > portfwd list
@@ -355,7 +355,7 @@ To set up a reverse port forward, use `portfwd add -R` within a supported sessio
 
 For example to listen on port 9093 on a target session and have it forward all traffic to the Metasploit machine at 172.20.97.72 on port 9093 we could execute `portfwd add -R -l 4444 -L 172.20.97.73 -p 9093` as shown below, which would then cause the machine who have a session on to start listening on port 9093 for incoming connections.
 
-```
+```msf
 meterpreter > portfwd add -R -l 4444 -L 172.20.97.73 -p 9093
 [*] Local TCP relay created: 172.20.97.73:4444 <-> :9093
 meterpreter > netstat -a
@@ -446,7 +446,7 @@ socks5 127.0.0.1 1080
 
 The final final should look something like this:
 
-```
+```ini
 # proxychains.conf  VER 3.1
 #
 #        HTTP, SOCKS4, SOCKS5 tunneling proxifier with DNS.
