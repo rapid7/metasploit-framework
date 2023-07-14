@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2023-04-21',
         'Notes' => {
-          'Stability' => ['CRASH_SAFE'],
-          'SideEffects' => ['IOC_IN_LOGS'],
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []
         }
       )
@@ -64,7 +64,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def login
-
     login_uri = target_uri.path.end_with?('identification.php') ? normalize_uri(target_uri.path) : normalize_uri(target_uri.path, '/identification.php')
     print_status('Try to log in..')
 
