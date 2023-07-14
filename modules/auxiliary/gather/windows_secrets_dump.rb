@@ -688,7 +688,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Decrypting hash for user: #{user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..].join.encode('utf-8')}")
 
     entinf_struct = user_record.pmsg_out.msg_getchg.p_objects.entinf
-    rid = entinf_struct.p_name.sid[-4..].unpack('<L').first
+    rid = entinf_struct.p_name.sid[-4..].unpack('L<').first
     dn = user_record.pmsg_out.msg_getchg.p_nc.string_name.to_ary[0..].join.encode('utf-8')
 
     result = {

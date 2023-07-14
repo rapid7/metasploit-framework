@@ -332,7 +332,7 @@ module WindowsRegistry
           return hash_rec.offset_nk
         end
       when LH_MAGIC
-        if hash_rec.key_name.unpack('<L').first == get_lh_hash(key)
+        if hash_rec.key_name.unpack('L<').first == get_lh_hash(key)
           return hash_rec.offset_nk
         end
       when RI_MAGIC
@@ -368,7 +368,7 @@ module WindowsRegistry
       value_list = []
       res = []
       count.times do |i|
-        value_list << @hive_data[4096+offset+i*4, 4].unpack('<l').first
+        value_list << @hive_data[4096+offset+i*4, 4].unpack('l<').first
       end
       value_list.each do |value_offset|
         if value_offset > 0
