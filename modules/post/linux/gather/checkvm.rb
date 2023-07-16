@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
+  include Msf::Post::Process
 
   def initialize(info = {})
     super(
@@ -167,6 +168,16 @@ class MetasploitModule < Msf::Post
       if xen_capabilities
         if ! xen_capabilities.include? 'control_d'
           vm = 'Xen'
+        end
+      end
+    end
+
+    # Check Processes
+    if !vm
+      get_processes do |process|
+        case process['name']
+        when /hv_vss_daemon|hv_kvp_daemon|hv_fcopy_daemon/i
+          vm = 'MS Hyper-V'
         end
       end
     end
