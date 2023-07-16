@@ -172,8 +172,16 @@ class MetasploitModule < Msf::Post
         when /^xen/i
           vm = 'Xen'
         end
-        when /innotek/i
-          vm = 'VirtualBox'
+      end
+    end
+
+    # Check cpuinfo
+    if !vm
+      cpuinfo = read_file('/proc/cpuinfo')
+      if cpuinfo
+        case cpuinfo.gsub("\n", ' ')
+        when /qemu virtual cpu|emulated by qemu|KVM processor/i
+          vm = 'Qemu/KVM'
         end
       end
     end
