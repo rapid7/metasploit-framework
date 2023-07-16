@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
         vm = 'Xen'
       when /virtio_pci|virtio_net/
         vm = 'Qemu/KVM'
-      when /hv_vmbus|hv_blkvsc|hv_netvsc|hv_utils|hv_storvsc/
+      when /hv_vmbus|hv_blkvsc|hv_netvsc|hv_utils|hv_storvsc|hv_boot|hv_balloon|hyperv_keyboard|hid_hyperv|hyperv_fb/
         vm = 'MS Hyper-V'
       end
     end
