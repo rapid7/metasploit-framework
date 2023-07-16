@@ -164,6 +164,20 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check BIOS Name
+    if !vm
+      bios_vendor = read_file('/sys/devices/virtual/dmi/id/bios_vendor')
+      if bios_vendor
+        case bios_vendor.gsub("\n", ' ')
+        when /^xen/i
+          vm = 'Xen'
+        end
+        when /innotek/i
+          vm = 'VirtualBox'
+        end
+      end
+    end
+
     # Check Xen devices
     if !vm
       xen_capabilities = read_file('/proc/xen/capabilities')
