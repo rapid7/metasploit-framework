@@ -75,6 +75,8 @@ class MetasploitModule < Msf::Post
         container = 'LXC'
       when 'systemd-nspawn'
         container = 'systemd nspawn'
+      when 'podman'
+        container = 'podman'
       end
     end
 
