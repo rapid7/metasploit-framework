@@ -120,6 +120,8 @@ class MetasploitModule < Msf::Post
           vm = 'VMWare'
         when /xen/i
           vm = 'Xen'
+        when /microsoft/i
+          vm = 'Hyper-V'
         end
       end
     end
