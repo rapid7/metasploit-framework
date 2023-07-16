@@ -54,11 +54,15 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    # Check Modules
+    # Check kernel modules
     if !vm
-      loaded_modules = cmd_exec('/sbin/lsmod')
-      case loaded_modules.to_s.gsub("\n", ' ')
-      when /vboxsf|vboxguest|vboxvideo|vboxvideo_drv/i
+      loaded_modules = read_file('/proc/modules')
+      if !loaded_modules
+        loaded_modules = cmd_exec('/sbin/lsmod').to_s
+      end
+
+      case loaded_modules.gsub("\n", ' ')
+      when /vboxsf|vboxguest|vboxvideo|vboxvideo_drv|vboxdrv/i
         vm = 'VirtualBox'
       when /vmw_ballon|vmxnet|vmw/i
         vm = 'VMware'
