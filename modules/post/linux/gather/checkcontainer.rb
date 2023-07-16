@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module attempts to determine whether the system is running
           inside of a container and if so, which one. This module supports
-          detection of Docker, LXC, and systemd nspawn.
+          detection of Docker, LXC, Podman and systemd nspawn.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'James Otten <jamesotten1[at]gmail.com>'],
@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Post
     # Check for .dockerenv file
     if container.nil? && file?('/.dockerenv')
       container = 'Docker'
+    end
+
+    # Check for /.containerenv file
+    if container.nil? && file?('/.containerenv')
+      container = 'Podman'
     end
 
     # Check cgroup on PID 1
