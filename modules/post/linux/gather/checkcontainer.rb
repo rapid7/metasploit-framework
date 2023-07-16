@@ -38,6 +38,11 @@ class MetasploitModule < Msf::Post
       container = 'Podman'
     end
 
+    # Check for /dev/lxd/sock file
+    if container.nil? && file?('/dev/lxd/sock')
+      container = 'LXC'
+    end
+
     # Check for WSL, as suggested in https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364
     if container.nil? && file?('/proc/sys/kernel/osrelease')
       osrelease = read_file('/proc/sys/kernel/osrelease')
