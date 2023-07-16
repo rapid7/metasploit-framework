@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Post
       container = 'Docker'
     end
 
+    # Check for .dockerinit file
+    if container.nil? && file?('/.dockerinit')
+      container = 'Docker'
+    end
+
     # Check for /.containerenv file
     if container.nil? && file?('/.containerenv')
       container = 'Podman'
