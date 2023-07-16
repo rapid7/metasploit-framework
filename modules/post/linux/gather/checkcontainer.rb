@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module attempts to determine whether the system is running
           inside of a container and if so, which one. This module supports
-          detection of Docker, LXC, Podman and systemd nspawn.
+          detection of Docker, WSL, LXC, Podman and systemd nspawn.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'James Otten <jamesotten1[at]gmail.com>'],
@@ -36,6 +36,17 @@ class MetasploitModule < Msf::Post
     # Check for /.containerenv file
     if container.nil? && file?('/.containerenv')
       container = 'Podman'
+    end
+
+    # Check for WSL, as suggested in https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364
+    if container.nil? && file?('/proc/sys/kernel/osrelease')
+      osrelease = read_file('/proc/sys/kernel/osrelease')
+      if osrelease
+        case cgroup.tr("\n", ' ')
+        when /WSL|Microsoft/i
+          container = 'WSL'
+        end
+      end
     end
 
     # Check cgroup on PID 1
