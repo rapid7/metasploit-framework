@@ -142,6 +142,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check Product Name
     if !vm
       product_name = read_file('/sys/class/dmi/id/product_name')
       if product_name
