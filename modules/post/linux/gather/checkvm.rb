@@ -161,6 +161,16 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check Xen devices
+    if !vm
+      xen_capabilities = read_file('/proc/xen/capabilities')
+      if xen_capabilities
+        if ! xen_capabilities.include? 'control_d'
+          vm = 'Xen'
+        end
+      end
+    end
+
     # Check dmesg Output
     if !vm
       dmesg = cmd_exec('dmesg')
