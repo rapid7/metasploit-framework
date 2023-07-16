@@ -108,6 +108,21 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check system vendor
+    if !vm
+      sys_vendor = read_file('/sys/class/dmi/id/sys_vendor')
+      if sys_vendor
+        case sys_vendor.gsub("\n", ' ')
+        when /qemu/i
+          vm = 'Qemu'
+        when /vmware/i
+          vm = 'VMWare'
+        when /xen/i
+          vm = 'Xen'
+        end
+      end
+    end
+
     # Check using lspci
     if !vm
       case get_sysinfo[:distro]
