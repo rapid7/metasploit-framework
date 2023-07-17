@@ -205,6 +205,9 @@ class MetasploitModule < Msf::Post
       vprint_status(cmd_exec(command))
       vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e"))
     else
+      # Checking that user doesnt already exist
+      fail_with(Failure::BadConfig, 'User already exists') if read_file('/etc/passwd') =~ /^#{datastore['USERNAME']}:/
+
       # Run adding user manually if set
       home = datastore['HOME'].empty? ? "/home/#{datastore['USERNAME']}" : datastore['HOME']
       uid = rand(1000..2000).to_s
