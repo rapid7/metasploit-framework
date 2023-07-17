@@ -106,8 +106,8 @@ class MetasploitModule < Msf::Post
 
     case binary
     when 'useradd'
-      vprint_status('Useradd exists. Using that')
       vprint_status("Running on #{os_platform}")
+      vprint_status('Useradd exists. Using that')
       case os_platform
       when /debian|ubuntu|fedora|centos|oracle|redhat|arch|suse|gentoo/i
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home-dir #{datastore['HOME']}"
