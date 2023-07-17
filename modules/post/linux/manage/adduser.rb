@@ -104,7 +104,13 @@ class MetasploitModule < Msf::Post
         get_sysinfo[:distro]
       end
 
-    case binary
+    binary_case = if binary =~ /useradd$/
+                    'useradd'
+                  elsif binary =~ /adduser$/
+                    'adduser'
+                  else
+                    binary end
+    case binary_case
     when 'useradd'
       vprint_status("Running on #{os_platform}")
       vprint_status('Useradd exists. Using that')
