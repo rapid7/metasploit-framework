@@ -216,7 +216,7 @@ class MetasploitModule < Msf::Post
         group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}").gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
       end
       if datastore['MissingGroups'] == 'CREATE'
-        groups_missing do |group|
+        groups_missing.each do |group|
           group_file += "\n#{group}:x:#{datastore['USERNAME']}\n"
           vprint_good("Added #{group} group")
         end
