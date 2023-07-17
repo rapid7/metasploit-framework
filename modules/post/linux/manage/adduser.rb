@@ -68,13 +68,15 @@ class MetasploitModule < Msf::Post
     group_file = read_file('/etc/group').to_s
     groups_missing = groups.reject { |group| check_group_exists?(group, group_file) }
 
-    if datastore['MissingGroups'] == 'ERROR'
-      fail_with(Failure::NotFound, "groups [#{groups_missing.join(' ')}] do not exist on the system")
-    end
-    vprint_bad("Groups [#{groups_missing.join(' ')}] do not exist on system")
-    if datastore['MissingGroups'] == 'IGNORE'
-      groups -= groups_missing
-      vprint_good("Removed #{groups_missing.join(' ')} from target groups")
+    unless groups_missing.empty?
+      if datastore['MissingGroups'] == 'ERROR'
+        fail_with(Failure::NotFound, "groups [#{groups_missing.join(' ')}] do not exist on the system")
+      end
+      vprint_bad("Groups [#{groups_missing.join(' ')}] do not exist on system")
+      if datastore['MissingGroups'] == 'IGNORE'
+        groups -= groups_missing
+        vprint_good("Removed #{groups_missing.join(' ')} from target groups")
+      end
     end
 
     # Check database to see what OS it is. If it meets specific requirements, This can all be done in a single line
