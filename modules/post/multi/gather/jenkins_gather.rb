@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptString.new('JENKINS_HOME', [ false, 'Set to the home directory of Jenkins. The Linux versions default to /var/lib/jenkins, but C:\\ProgramData\\Jenkins\\.jenkins on Windows.', ]),
+        OptString.new('JENKINS_HOME', [ false, 'Set to the home directory of Jenkins. The Linux versions default to /var/lib/jenkins, but C:\\\\ProgramData\\\\Jenkins\\\\.jenkins on Windows.', ]),
         OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true]),
         OptBool.new('SEARCH_JOBS', [false, 'Search through job history logs for interesting keywords. Increases runtime.', false])
       ]
