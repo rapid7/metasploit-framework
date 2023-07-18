@@ -49,8 +49,17 @@ class MetasploitModule < Msf::Post
     get_services && get_services.include?(service)
   end
 
+  def get_regval_str(key, valname)
+    ret = registry_getvaldata(key, valname)
+    if ret.kind_of(Array)
+      ret = ret.join
+    end
+    ret
+  end
+
+
   def hyperv?
-    physical_host = registry_getvaldata('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
+    physical_host = get_regval_str('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
     if physical_host
       report_note(
         host: session,
@@ -68,7 +77,7 @@ class MetasploitModule < Msf::Post
       return true if sfmsvals.include?('VirtualMachine')
     end
 
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vrtual/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vrtual/i
 
     %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
       srvvals = registry_enumkeys(key)
@@ -80,11 +89,11 @@ class MetasploitModule < Msf::Post
     end
 
     key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System'
-    system_bios_version = registry_getvaldata(key_path, 'SystemBiosVersion')
+    system_bios_version = get_regval_str(key_path, 'SystemBiosVersion')
     return true if system_bios_version && system_bios_version.include?('Hyper-V')
 
     key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-    return true if registry_getvaldata(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
+    return true if get_regval_str(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
 
     false
   end
@@ -94,10 +103,10 @@ class MetasploitModule < Msf::Post
       return true if service_exists?(service)
     end
 
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /vmware/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
-    return true if registry_getvaldata('HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 'DriverDesc') =~ /cl_vmx_svga|VMWare/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /vmware/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
+    return true if get_regval_str('HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 'DriverDesc') =~ /cl_vmx_svga|VMWare/i
 
     vmwareprocs = [
       'vmtoolsd.exe',
@@ -150,12 +159,12 @@ class MetasploitModule < Msf::Post
     end
 
     for i in 0..2 do
-          return true if registry_getvaldata("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0", 'Identifier') =~ /vbox/i
+          return true if get_regval_str("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0", 'Identifier') =~ /vbox/i
     end
 
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vbox/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /virtualbox/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vbox/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /virtualbox/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
 
     %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo].each do |service|
       return true if service_exists?(service)
@@ -183,21 +192,21 @@ class MetasploitModule < Msf::Post
       return true if service_exists?(service)
     end
 
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /xen/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /xen/i
 
     false
   end
 
   def qemu?
     key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-    return true if registry_getvaldata(key_path, 'Identifier') =~ /qemu|virtio/i
+    return true if get_regval_str(key_path, 'Identifier') =~ /qemu|virtio/i
 
     key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0'
-    return true if registry_getvaldata(key_path, 'ProcessorNameString') =~ /qemu/i
+    return true if get_regval_str(key_path, 'ProcessorNameString') =~ /qemu/i
 
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /qemu/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /qemu/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /qemu/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /qemu/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /qemu/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /qemu/i
 
     %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
       srvvals = registry_enumkeys(key)
@@ -208,8 +217,12 @@ class MetasploitModule < Msf::Post
   end
 
    def parallels?
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /parallels/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /parallels/i
+    bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
+    if bios_version.kind_of?(Array)
+      bios_version = bios_version.join
+    end
+    return true if bios_version =~ /parallels/i
+    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /parallels/i
 
     false
   end
@@ -226,9 +239,9 @@ class MetasploitModule < Msf::Post
     end
 
     key_path = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion'
-    return true if registry_getvaldata(key_path, 'ProductId') == '55274-640-2673064-23950'
+    return true if get_regval_str(key_path, 'ProductId') == '55274-640-2673064-23950'
     key_path = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion'
-    return true if registry_getvaldata(key_path, 'ProductId') == '55274-640-2673064-23950'
+    return true if get_regval_str(key_path, 'ProductId') == '55274-640-2673064-23950'
 
     false
   end
