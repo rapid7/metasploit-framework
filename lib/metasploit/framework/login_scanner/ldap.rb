@@ -9,6 +9,9 @@ module Metasploit
       class LDAP
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LDAP::Client
+        include Msf::Exploit::Remote::LDAP
+
+        attr_accessor :opts
 
         REALM_KEY = nil
         def attempt_login(credential)
@@ -28,25 +31,27 @@ module Metasploit
         def do_login(credential)
           opts = {
             username: credential.public,
-            password: credential.private
-          }
-          connect_opts = ldap_connect_opts(host, port, connection_timeout, ssl: false, opts: opts)
+            password: credential.private,
+            framework_module: framework_module
+          }.merge(@opts)
+
+          connect_opts = ldap_connect_opts(host, port, connection_timeout, ssl: opts[:ssl], opts: opts)
           ldap_open(connect_opts) do |ldap|
             return status_code(ldap.get_operation_result.table)
           rescue StandardError => e
-            vprint_status("Failed to connect: #{e}")
             { status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
           end
         end
 
-        def status_code(bind_result)
-          case bind_result[:code]
+        def status_code(operation_result)
+          case operation_result[:code]
           when 0
             { status: Metasploit::Model::Login::Status::SUCCESSFUL }
           else
-            { status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Bind Result: #{bind_result}" }
+            { status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Bind Result: #{operation_result}" }
           end
         end
+
       end
     end
   end

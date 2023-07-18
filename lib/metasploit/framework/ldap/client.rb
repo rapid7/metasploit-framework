@@ -3,6 +3,8 @@
 module Metasploit
   module Framework
     module LDAP
+
+      class ValidationError < RuntimeError; end
       module Client
         def ldap_connect_opts(rhost, rport, connect_timout, ssl: true, opts: {})
           connect_opts = {
@@ -23,17 +25,17 @@ module Metasploit
           case opts[:ldap_auth]
           when Msf::Exploit::Remote::AuthOption::SCHANNEL
             pfx_path = opts[:ldap_cert_file]
-            fail_with(Msf::Exploit::Remote::Failure::BadConfig, 'The LDAP::CertFile option is required when using SCHANNEL authentication.') if pfx_path.blank?
-            fail_with(Msf::Exploit::Remote::Failure::BadConfig, 'The SSL option must be enabled when using SCHANNEL authentication.') if ssl != true
+            raise ValidationError, 'The LDAP::CertFile option is required when using SCHANNEL authentication.' if pfx_path.blank?
+            raise ValidationError, 'The SSL option must be enabled when using SCHANNEL authentication.' if ssl != true
 
             unless ::File.file?(pfx_path) && ::File.readable?(pfx_path)
-              fail_with(Msf::Exploit::Remote::Failure::BadConfig, 'Failed to load the PFX certificate file. The path was not a readable file.')
+              raise ValidationError, 'Failed to load the PFX certificate file. The path was not a readable file.'
             end
 
             begin
               pkcs = OpenSSL::PKCS12.new(File.binread(pfx_path), '')
             rescue StandardError => e
-              fail_with(Msf::Exploit::Remote::Failure::BadConfig, "Failed to load the PFX file (#{e})")
+              raise ValidationError, "Failed to load the PFX file (#{e})"
             end
 
             connect_opts[:auth] = {
@@ -51,11 +53,11 @@ module Metasploit
               }
             }
           when Msf::Exploit::Remote::AuthOption::KERBEROS
-            fail_with(Msf::Exploit::Failure::BadConfig, 'The Ldap::Rhostname option is required when using Kerberos authentication.') if opts[:ldap_rhostname].blank?
-            fail_with(Msf::Exploit::Failure::BadConfig, 'The DOMAIN option is required when using Kerberos authentication.') if opts[:domain].blank?
-            fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if opts[:domain_controller_rhost].blank?
+            raise ValidationError, 'The Ldap::Rhostname option is required when using Kerberos authentication.' if opts[:ldap_rhostname].blank?
+            raise ValidationError, 'The DOMAIN option is required when using Kerberos authentication.' if opts[:domain].blank?
+            raise ValidationError, 'The DomainControllerRhost is required when using Kerberos authentication.' if opts[:domain_controller_rhost].blank?
             offered_etypes = Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(opts[:ldap_krb_offered_enc_types])
-            fail_with(Msf::Exploit::Failure::BadConfig, 'At least one encryption type is required when using Kerberos authentication.') if offered_etypes.empty?
+            raise ValidationError, 'At least one encryption type is required when using Kerberos authentication.' if offered_etypes.empty?
 
             kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::LDAP.new(
               host: opts[:domain_controller_rhost],
@@ -64,18 +66,19 @@ module Metasploit
               username: opts[:username],
               password: opts[:password],
               framework: opts[:framework],
-              framework_module: self,
+              framework_module: opts[:framework_module],
               cache_file: opts[:ldap_krb5_cname].blank? ? nil : opts[:ldap_krb5_cname],
               ticket_storage: opts[:kerberos_ticket_storage],
               offered_etypes: offered_etypes
             )
 
-            kerberos_result = kerberos_authenticator.authenticate
-
             connect_opts[:auth] = {
               method: :sasl,
               mechanism: 'GSS-SPNEGO',
-              initial_credential: kerberos_result[:security_blob],
+              initial_credential: proc do
+                kerberos_result = kerberos_authenticator.authenticate
+                kerberos_result[:security_blob]
+              end,
               challenge_response: true
             }
           when Msf::Exploit::Remote::AuthOption::NTLM
@@ -111,7 +114,7 @@ module Metasploit
             }
           when Msf::Exploit::Remote::AuthOption::PLAINTEXT
             username = opts[:username].dup
-            username << "@#{domain}" unless domain.blank?
+            username << "@#{opts[:domain]}" unless opts[:domain].blank?
             connect_opts[:auth] = {
               method: :simple,
               username: username,
@@ -120,7 +123,7 @@ module Metasploit
           when Msf::Exploit::Remote::AuthOption::AUTO
             unless opts[:username].blank? # plaintext if specified
               username = opts[:username].dup
-              username << "@#{domain}" unless domain.blank?
+              username << "@#{opts[:domain]}" unless opts[:domain].blank?
               connect_opts[:auth] = {
                 method: :simple,
                 username: username,
@@ -130,10 +133,6 @@ module Metasploit
           end
 
           connect_opts
-        end
-
-        def ldap_open(connect_opts, &block)
-          Net::LDAP.open(connect_opts, &block)
         end
       end
     end

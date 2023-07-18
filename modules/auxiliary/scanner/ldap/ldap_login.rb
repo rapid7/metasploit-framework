@@ -26,39 +26,69 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
+
+    # A password must be supplied unless doing anonymous login
+    deregister_options('BLANK_PASSWORDS')
+  end
+
+  def run
+    validate_connect_options!
+    super
+  end
+
+  def validate_connect_options!
+    # Verify we can create arbitrary connect opts, this won't make a connect ion out to the real host - but will verify the values are valid
+
+    get_connect_opts
+  rescue ValidationError => e
+    fail_with(Msf::Exploit::Remote::Failure::BadConfig, "Invalid datastore options for chosen auth type: #{e.message}")
   end
 
   def run_host(ip)
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD'],
-      realm: datastore['DOMAIN']
+      realm: datastore['DOMAIN'],
+      anonymous_login: false,
+      blank_passwords: false
     )
+
+    opts = {
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD'],
+      domain: datastore['DOMAIN'],
+      ssl: datastore['SSL'],
+      # proxies: datastore['PROXIES'],
+      domain_controller_rhost: datastore['DomainControllerRhost'],
+      ldap_auth: datastore['LDAP::Auth'],
+      ldap_cert_file: datastore['LDAP::CertFile'],
+      ldap_rhostname: datastore['Ldap::Rhostname'],
+      ldap_krb_offered_enc_types: datastore['Ldap::KrbOfferedEncryptionTypes'],
+      ldap_krb5_cname: datastore['Ldap::Krb5Ccname']
+    }
 
     scanner = Metasploit::Framework::LoginScanner::LDAP.new(
       host: ip,
       port: rport,
-      # proxies: datastore['PROXIES'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: datastore['LDAP::ConnectTimeout'].to_i,
       framework: framework,
-      framework_module: self
-      # ssl: datastore['SSL']
+      framework_module: self,
+      opts: opts
     )
 
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
         module_fullname: fullname,
-        workspace_id: myworkspace_id
+        workspace_id: myworkspace_id,
+        service_name: 'ldap',
+        protocol: 'tcp'
       )
       if result.success?
-        credential_core = create_credential(credential_data)
-        credential_data[:core] = credential_core
-        store_valid_credential(user: result.credential.public, private: result.credential.private)
-        # create_credential_login(credential_data)
+        create_credential_and_login(credential_data)
 
         print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
       else
