@@ -247,7 +247,9 @@ class MetasploitModule < Msf::Post
   def run
     print_status('Checking if the target is a Virtual Machine ...')
 
-    if hyperv?
+    if parallels?
+      report_vm('Parallels')
+    elsif hyperv?
       report_vm('Hyper-V')
     elsif vmware?
       report_vm('VMware')
@@ -259,8 +261,6 @@ class MetasploitModule < Msf::Post
       report_vm('Xen')
     elsif qemu?
       report_vm('Qemu/KVM')
-    elsif parallels?
-      report_vm('Parallels')
     elsif joesandbox?
       report_vm('JoeSandbox')
     else
