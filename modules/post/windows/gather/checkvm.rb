@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Post
 
     return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vbox/i
     return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /virtualbox/i
-    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtual/i
+    return true if registry_getvaldata('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
 
     %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo].each do |service|
       return true if service_exists?(service)
