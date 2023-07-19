@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
     if container.nil? && file?('/proc/sys/kernel/osrelease')
       osrelease = read_file('/proc/sys/kernel/osrelease')
       if osrelease
-        case cgroup.tr("\n", ' ')
+        case osrelease.tr("\n", ' ')
         when /WSL|Microsoft/i
           container = 'WSL'
         end
