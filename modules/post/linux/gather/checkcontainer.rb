@@ -39,12 +39,12 @@ class MetasploitModule < Msf::Post
     end
 
     # Check for /.containerenv file
-    if container.nil? && file?('/.containerenv')
+    if container.nil? && file?('/run/.containerenv')
       container = 'Podman'
     end
 
     # Check for /dev/lxd/sock file
-    if container.nil? && file?('/dev/lxd/sock')
+    if container.nil? && directory?('/dev/lxc')
       container = 'LXC'
     end
 
