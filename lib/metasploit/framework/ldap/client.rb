@@ -10,7 +10,8 @@ module Metasploit
           connect_opts = {
             host: rhost,
             port: rport,
-            connect_timeout: connect_timout
+            connect_timeout: connect_timout,
+            proxies: opts[:proxies]
           }
 
           if ssl

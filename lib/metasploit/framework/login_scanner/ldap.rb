@@ -48,7 +48,7 @@ module Metasploit
           when 0
             { status: Metasploit::Model::Login::Status::SUCCESSFUL }
           else
-            { status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Bind Result: #{operation_result}" }
+            { status: Metasploit::Model::Login::Status::INCORRECT, proof: "Bind Result: #{operation_result}" }
           end
         end
 
