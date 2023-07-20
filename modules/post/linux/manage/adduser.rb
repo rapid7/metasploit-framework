@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Post
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
-        d_cmd_exec("#{binary} --password #{passwd} #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' '))
+        d_cmd_exec("#{binary} --password \'#{passwd}\' #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' '))
         groups_handled = true
       else
         vprint_status('Unsure what platform were on. Using useradd in most basic/common settings')
@@ -171,7 +171,7 @@ class MetasploitModule < Msf::Post
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
-        d_cmd_exec("#{binary} --password #{passwd} #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' '))
+        d_cmd_exec("#{binary} --password \'#{passwd}\' #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' '))
         groups_handled = true
       when /alpine/i
         print_bad('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
