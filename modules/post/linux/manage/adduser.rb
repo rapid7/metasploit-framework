@@ -67,7 +67,6 @@ class MetasploitModule < Msf::Post
     groups = datastore['GROUPS'].split
     groups += ['sudo'] if datastore['SudoMethod'] == 'GROUP'
     groups = groups.uniq
-    groups_handled = false
 
     # Check to see that groups exist or fail
     group_file = read_file('/etc/group').to_s
