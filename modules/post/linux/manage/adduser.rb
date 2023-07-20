@@ -84,6 +84,9 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Automatically ignore setting groups if added additional groups is empty
+    groups_handled = groups.empty?
+
     # Check database to see what OS it is. If it meets specific requirements, This can all be done in a single line
     binary =
       if datastore['UseraddBinary']
