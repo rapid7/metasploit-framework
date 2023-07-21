@@ -143,14 +143,15 @@ class MetasploitModule < Msf::Post
 
     it "should return the proper directory separator" do
       sysinfo = session.sys.config.sysinfo
+      vprint_status("received sysinfo #{sysinfo}")
       if sysinfo["OS"] =~ /windows/i
-        sep = session.fs.file.separator
-        res = (sep == "\\")
+        expected_sep = "\\"
       else
-        sep = session.fs.file.separator
-        res = (sep == "/")
+        expected_sep = "/"
       end
-
+      sep = session.fs.file.separator
+      vprint_status("Received separator #{sep.inspect} - expected: #{expected_sep.inspect}")
+      res = (sep == expected_sep)
       res
     end
 
@@ -231,6 +232,9 @@ class MetasploitModule < Msf::Post
         (contents == "test")
       }
 
+      # XXX: On windows this can fail with:
+      #   Rex::Post::Meterpreter::RequestError : stdapi_fs_delete_file: Operation failed: The process cannot access the file because it is being used by another process.
+      # Presumably the Ruby process still has a handle to the file
       session.fs.file.rm(file_name)
       res &&= !session.fs.dir.entries.include?(file_name)
 
@@ -251,8 +255,13 @@ class MetasploitModule < Msf::Post
       if res
         fd = session.fs.file.new(remote, "rb")
         uploaded_contents = fd.read
-        until (fd.eof?)
-          uploaded_contents << fd.read
+        begin
+          until fd.eof?
+            uploaded_contents << fd.read
+          end
+        rescue EOFError
+          # An EOF can be raised on `fd.read` in the Java Meterpreter
+          vprint_status("EOF raised")
         end
         fd.close
         original_contents = ::File.read(local, mode: 'rb')

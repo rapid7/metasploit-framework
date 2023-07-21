@@ -228,7 +228,9 @@ module Msf
         # @todo Rewrite to allow operating on a remote host
         #
         def service_list
-          return meterpreter_service_list if session.type == 'meterpreter'
+          if session.type == 'meterpreter' && session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
+            return meterpreter_service_list
+          end
 
           services = []
           each_service do |s|
