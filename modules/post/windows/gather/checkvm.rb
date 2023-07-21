@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
 
   def get_regval_str(key, valname)
     ret = registry_getvaldata(key, valname)
-    if ret.kind_of(Array)
+    if ret.kind_of?(Array)
       ret = ret.join
     end
     ret
