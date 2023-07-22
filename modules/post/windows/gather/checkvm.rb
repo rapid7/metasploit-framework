@@ -103,10 +103,15 @@ class MetasploitModule < Msf::Post
     srvals
   end 
 
+  # returns true if regval matches a regex
   def regval_match?(k,v,rgx)
     return true if get_regval_str(k, v) =~ rgx
     false 
   end
+
+  def regval_eql?(k,v,eq)
+    get_regval_str(k,v) == eq
+  end 
 
   def get_regval_str(key, valname)
     ret = registry_getvaldata(key, valname)
@@ -136,7 +141,7 @@ class MetasploitModule < Msf::Post
       end 
     end
 
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vrtual/i
+    return true if regval_match?('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion', /vrtual/i)
 
     keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
@@ -151,7 +156,8 @@ class MetasploitModule < Msf::Post
     return true if system_bios_version && system_bios_version.include?('Hyper-V')
 
     key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-    return true if get_regval_str(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
+
+    return true if regval_match?(key_path, 'Identifier', /Msft    Virtual Disk    1.0/i) 
 
     false
   end
@@ -161,11 +167,36 @@ class MetasploitModule < Msf::Post
       tpvcgateway vmware wmci vmx86]
 
     return true if services?(vmware_services)
+
+    # list of lists containg registers keypath, a value and the regex to match 
+    # against
+
+    regs = [
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 
+        'SystemManufacturer', 
+        /vmware/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id \\Logical Unit Id 0', 
+        'Identifier', 
+        /vmware/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 
+        'Identifier', 
+        /vmware/i
+      ],
+      [
+        'HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 
+        'DriverDesc',
+        /cl_vmx_svga|VMWare/i
+      ]
+    ]
     
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /vmware/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
-    return true if get_regval_str('HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 'DriverDesc') =~ /cl_vmx_svga|VMWare/i
+    regs.each do |l|
+      return true if regval_match?(l[0], l[1], l[2])
+    end 
 
     processes
 
@@ -194,12 +225,32 @@ class MetasploitModule < Msf::Post
     return true if key?(keys, 'VBOX__')
 
     for i in 0..2 do
-          return true if get_regval_str("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0", 'Identifier') =~ /vbox/i
+      return true if regval_match?("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0",
+        'Identifier',
+         /vbox/i )    
     end
 
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vbox/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /virtualbox/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
+    regs = [
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System',
+        'SystemBiosVersion',
+        /vbox/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System',
+        'VideoBiosVersion',
+         /virtualbox/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 
+        'SystemProductName',
+        /virtualbox/i
+      ]
+    ]
+
+    regs.each do |l|
+      return true if regval_match?(l[0], l[1], l[2])
+    end 
 
     vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
 
@@ -223,21 +274,44 @@ class MetasploitModule < Msf::Post
 
     return true if services?(xen_services)
 
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /xen/i
+    return true if regval_match?('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
+      'SystemProductName', /xen/i )
 
     false
   end
 
   def qemu?
-    key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-    return true if get_regval_str(key_path, 'Identifier') =~ /qemu|virtio/i
-
-    key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0'
-    return true if get_regval_str(key_path, 'ProcessorNameString') =~ /qemu/i
-
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /qemu/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /qemu/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /qemu/i
+    regs = [
+      [
+        'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0',
+        'Identifier',
+        /qemu|virtio/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
+        'ProcessorNameString',
+        /qemu/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System',
+        'SystemBiosVersion',
+        /qemu/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System', 
+        'VideoBiosVersion',
+        /qemu/i
+      ],
+      [
+        'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
+        'SystemManufacturer',
+        /qemu/i
+      ]
+    ]
+   
+    regs.each do |l|
+      return true if regval_match?(l[0], l[1], l[2])
+    end 
 
     keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
