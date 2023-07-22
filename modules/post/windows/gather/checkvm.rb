@@ -121,6 +121,18 @@ class MetasploitModule < Msf::Post
     ret
   end
 
+  def parallels?
+
+    @bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
+    return true if @bios_version =~ /parallels/i
+    
+    @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
+    , 'VideoBiosVersion')
+    return true if @video_bios_version =~ /parallels/i
+
+    false
+  end
+
   def hyperv?
     physical_host = get_regval_str('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
     if physical_host
@@ -310,7 +322,7 @@ class MetasploitModule < Msf::Post
     false
   end
 
-   def parallels?
+  def parallels?
 
     @bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
     return true if @bios_version =~ /parallels/i
