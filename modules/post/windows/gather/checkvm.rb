@@ -49,6 +49,7 @@ class MetasploitModule < Msf::Post
         return true if p['name'].casecmp?(x) 
       end 
     end 
+    false
   end 
 
   # This method is currently called in vmware? but should be called # in the first method that enumerates processes in run, thus if the order of
@@ -71,6 +72,7 @@ class MetasploitModule < Msf::Post
     vm_services.each do |srvc|
       return true if service_exists?(srvc)
     end 
+    false
   end 
 
   def get_services
@@ -118,9 +120,9 @@ class MetasploitModule < Msf::Post
       return true if srvvals && srvvals.include?('VRTUAL')
     end
 
-    %w[vmicexchange vmicheartbeat vmicshutdown vmicvss].each do |service|
-      return true if service_exists?(service)
-    end
+   hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
+
+   return true if services?(hyperv_services)
 
     key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System'
     system_bios_version = get_regval_str(key_path, 'SystemBiosVersion')
@@ -133,10 +135,11 @@ class MetasploitModule < Msf::Post
   end
 
   def vmware?
-    %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc tpvcgateway vmware wmci vmx86].each do |service|
-      return true if service_exists?(service)
-    end
+    vmware_services = %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc 
+      tpvcgateway vmware wmci vmx86]
 
+    return true if services?(vmware_services)
+    
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /vmware/i
     return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
     return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
@@ -177,9 +180,8 @@ class MetasploitModule < Msf::Post
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /virtualbox/i
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
 
-    %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo].each do |service|
-      return true if service_exists?(service)
-    end
+    vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
+    return true if services?(vbox_services)
 
     false
   end
@@ -196,9 +198,9 @@ class MetasploitModule < Msf::Post
       return true if srvvals && srvvals.include?('Xen')
     end
 
-    %w[xenevtchn xennet xennet6 xensvc xenvdb].each do |service|
-      return true if service_exists?(service)
-    end
+    xen_services = %w[xenevtchn xennet xennet6 xensvc xenvdb]
+
+    return true if services?(xen_services)
 
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /xen/i
 
