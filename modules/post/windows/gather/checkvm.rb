@@ -124,11 +124,11 @@ class MetasploitModule < Msf::Post
   def parallels?
 
     @system_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
-    return true if @system_bios_version =~ /parallels/i
     
     @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
     , 'VideoBiosVersion')
-    return true if @video_bios_version =~ /parallels/i
+
+    return true if @system_bios_version =~ /parallels/i || @video_bios_version =~ /parallels/i
 
     false
   end
@@ -187,11 +187,8 @@ class MetasploitModule < Msf::Post
     return true if @system_manufacturer =~ /vmware/i
 
     regs = [
-      [
-        'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id \\Logical Unit Id 0', 
-        'Identifier', 
-        /vmware/i
-      ],
+      #'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
+     
       [
         'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 
         'Identifier', 
@@ -242,8 +239,8 @@ class MetasploitModule < Msf::Post
          /vbox/i )    
     end
 
-    return true if @system_bios_version =~ /vbox/i
-    return true if @video_bios_version =~ /virtualbox/i
+    return true if @system_bios_version =~ /vbox/i || @video_bios_version =~ /virtualbox/i
+     
 
     @system_product_name = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS','SystemProductName',)
 
@@ -277,9 +274,8 @@ class MetasploitModule < Msf::Post
   end
 
   def qemu?
-    return true if @system_bios_version =~ /qemu/i
-    return true if @video_bios_version =~ /qemu/i
-
+    return true if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
+    
     regs = [
       [
         'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0',
@@ -291,11 +287,6 @@ class MetasploitModule < Msf::Post
         'ProcessorNameString',
         /qemu/i
       ],
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
-        'SystemManufacturer',
-        
-      ]
     ]
    
     return true if @system_manufacturer =~ /qemu/i
