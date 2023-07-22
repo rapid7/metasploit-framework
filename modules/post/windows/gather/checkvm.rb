@@ -135,9 +135,9 @@ class MetasploitModule < Msf::Post
       'vmwaretray.exe',
       'vmwareuser.exe'
     ]
-    procs_present?(vmwareprocs)
-    
 
+    return true if procs_present?(vmwareprocs)
+    
     false
   end
 
@@ -146,11 +146,8 @@ class MetasploitModule < Msf::Post
       'vboxservice.exe',
       'vboxtray.exe'
     ]
-    get_processes.each do |x|
-      vboxprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
-    end
+
+    return true if procs?(vboxprocs)
 
     %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
       srvvals = registry_enumkeys(key)
@@ -176,11 +173,8 @@ class MetasploitModule < Msf::Post
     xenprocs = [
       'xenservice.exe'
     ]
-    get_processes.each do |x|
-      xenprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
-    end
+
+    return true if procs?(xenprocs)
 
     %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
       srvvals = registry_enumkeys(key)
