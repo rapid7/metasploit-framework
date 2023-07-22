@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
   end 
 
   # make only one call to get_processes and store in @processes instance variable, modify the list of dictionary elems to avoid making constant downcase calls
-  def processes
+  def procs?
     if @processes.nil?
       @processes = get_processes.each |process| do
         process['name'].downcase
@@ -135,11 +135,8 @@ class MetasploitModule < Msf::Post
       'vmwaretray.exe',
       'vmwareuser.exe'
     ]
-    get_processes.each do |x|
-      vmwareprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
-    end
+    procs_present?(vmwareprocs)
+    
 
     false
   end
