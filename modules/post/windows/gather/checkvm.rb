@@ -76,13 +76,15 @@ class MetasploitModule < Msf::Post
   end 
 
   def get_services
+    # previously @services was nil, making it an empty list as default helps
+    # remove an uneccesarry && call in service_exists?
     @services = []
     @services ||= registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
     @services
   end
 
   def service_exists?(service)
-    get_services.include?(service)
+    @services.include?(service)
   end
 
   def get_regval_str(key, valname)
