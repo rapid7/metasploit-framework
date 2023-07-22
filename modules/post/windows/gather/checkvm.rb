@@ -76,12 +76,13 @@ class MetasploitModule < Msf::Post
   end 
 
   def get_services
+    @services = []
     @services ||= registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
     @services
   end
 
   def service_exists?(service)
-    get_services && get_services.include?(service)
+    get_services.include?(service)
   end
 
   def get_regval_str(key, valname)
@@ -181,6 +182,7 @@ class MetasploitModule < Msf::Post
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
 
     vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
+
     return true if services?(vbox_services)
 
     false
