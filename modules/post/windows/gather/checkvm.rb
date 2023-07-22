@@ -78,14 +78,33 @@ class MetasploitModule < Msf::Post
   def get_services
     # previously @services was nil, making it an empty list as default helps
     # remove an uneccesarry && call in service_exists?
-    @services = []
-    @services ||= registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
+    @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
+    @services = [] if @services.nil?
     @services
   end
 
   def service_exists?(service)
     @services.include?(service)
   end
+
+  # via virtualbox?
+  # %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
+   #   srvvals = registry_enumkeys(key)
+  #    return true if srvvals && srvvals.include?('VBOX__')
+
+  # loops over a list of keys and sees if vm_key is included within them
+  def key?(keys, vm_key)
+    keys.each do |k|
+      srvals = get_servals 
+      return true if srvals.include?(vm_key)
+    end 
+  end 
+
+  def get_srvals(key)
+    srvals = registry_enumkeys(k)
+    srvals = [] if srvals.nil?
+    srvals
+  end 
 
   def get_regval_str(key, valname)
     ret = registry_getvaldata(key, valname)
@@ -94,7 +113,6 @@ class MetasploitModule < Msf::Post
     end
     ret
   end
-
 
   def hyperv?
     physical_host = get_regval_str('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
