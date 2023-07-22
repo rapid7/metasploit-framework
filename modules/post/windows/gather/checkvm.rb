@@ -225,7 +225,9 @@ class MetasploitModule < Msf::Post
     return true if key?(keys, 'VBOX__')
 
     for i in 0..2 do
-      return true if regval_match?("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0",
+      return true if regval_match?(
+        "HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target
+         Id 0\\Logical Unit Id 0",
         'Identifier',
          /vbox/i )    
     end
@@ -322,9 +324,6 @@ class MetasploitModule < Msf::Post
 
    def parallels?
     bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
-    if bios_version.kind_of?(Array)
-      bios_version = bios_version.join
-    end
     return true if bios_version =~ /parallels/i
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /parallels/i
 
