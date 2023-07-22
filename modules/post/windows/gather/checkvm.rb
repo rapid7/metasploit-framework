@@ -75,9 +75,11 @@ class MetasploitModule < Msf::Post
     false
   end 
 
+  # previously @services was nil, making it an empty list as default helps
+  # remove an uneccesarry && call in service_exists? that was implimented
+  # in order to avoid a no_method error when calling .include? on a nil
+
   def get_services
-    # previously @services was nil, making it an empty list as default helps
-    # remove an uneccesarry && call in service_exists?
     @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
     @services = [] if @services.nil?
     @services
@@ -87,24 +89,24 @@ class MetasploitModule < Msf::Post
     @services.include?(service)
   end
 
-  # via virtualbox?
-  # %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-   #   srvvals = registry_enumkeys(key)
-  #    return true if srvvals && srvvals.include?('VBOX__')
-
   # loops over a list of keys and sees if vm_key is included within them
   def key?(keys, vm_key)
     keys.each do |k|
-      srvals = get_servals 
+      srvals = get_serval(k)
       return true if srvals.include?(vm_key)
     end 
   end 
 
-  def get_srvals(key)
+  def get_srval(key)
     srvals = registry_enumkeys(k)
     srvals = [] if srvals.nil?
     srvals
   end 
+
+  def regval_match?(k,v,rgx)
+    return true if get_regval_str(k, v) =~ rgx
+    false 
+  end
 
   def get_regval_str(key, valname)
     ret = registry_getvaldata(key, valname)
@@ -136,14 +138,13 @@ class MetasploitModule < Msf::Post
 
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vrtual/i
 
-    %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('VRTUAL')
-    end
+    keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
-   hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
+    return true if key?(keys, 'VRTUAL')
+    
+    hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
 
-   return true if services?(hyperv_services)
+    return true if services?(hyperv_services)
 
     key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System'
     system_bios_version = get_regval_str(key_path, 'SystemBiosVersion')
@@ -188,10 +189,9 @@ class MetasploitModule < Msf::Post
 
     return true if procs?(vboxprocs)
 
-    %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('VBOX__')
-    end
+    keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
+
+    return true if key?(keys, 'VBOX__')
 
     for i in 0..2 do
           return true if get_regval_str("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0", 'Identifier') =~ /vbox/i
@@ -215,10 +215,9 @@ class MetasploitModule < Msf::Post
 
     return true if procs?(xenprocs)
 
-    %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('Xen')
-    end
+    keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
+
+    return true if key?(keys,'Xen')
 
     xen_services = %w[xenevtchn xennet xennet6 xensvc xenvdb]
 
@@ -240,10 +239,9 @@ class MetasploitModule < Msf::Post
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /qemu/i
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /qemu/i
 
-    %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('BOCHS_')
-    end
+    keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
+
+    return true if key?(keys, 'BOCHS_')
 
     false
   end
