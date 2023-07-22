@@ -123,8 +123,8 @@ class MetasploitModule < Msf::Post
 
   def parallels?
 
-    @bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
-    return true if @bios_version =~ /parallels/i
+    @system_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
+    return true if @system_bios_version =~ /parallels/i
     
     @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
     , 'VideoBiosVersion')
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
       end 
     end
 
-    return true if @bios_version =~ /vrtual/i
+    return true if @system_bios_version =~ /vrtual/i
 
     keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
@@ -163,9 +163,7 @@ class MetasploitModule < Msf::Post
 
     return true if services?(hyperv_services)
 
-    key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System'
-    system_bios_version = get_regval_str(key_path, 'SystemBiosVersion')
-    return true if system_bios_version && system_bios_version.include?('Hyper-V')
+    return true if @system_bios_version == 'Hyper-V'
 
     key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
 
@@ -246,14 +244,13 @@ class MetasploitModule < Msf::Post
 
     # BiosVersion and VideoBiosVersion already queried and set in prior 
     # methods
-    return true if @bios_version =~ /vbox/i
+    return true if @system_bios_version =~ /vbox/i
     return true if @video_bios_version =~ /virtualbox/i
 
-    return true if regval_match?(
-      'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
-      'SystemProductName',
-      /virtualbox/i
-    )
+    @system_product_name = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS','SystemProductName',)
+
+    return true if @system_product_name =~ /virtualbox/i
+    
       
     
 
@@ -283,14 +280,13 @@ class MetasploitModule < Msf::Post
 
     return true if services?(xen_services)
 
-    return true if regval_match?('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
-      'SystemProductName', /xen/i )
+    return true if @system_product_name =~ /xen/i
 
     false
   end
 
   def qemu?
-    return true if @bios_version =~ /qemu/i
+    return true if @system_bios_version =~ /qemu/i
     return true if @video_bios_version =~ /qemu/i
 
     regs = [
