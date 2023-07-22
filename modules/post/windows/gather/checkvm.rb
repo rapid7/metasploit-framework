@@ -181,12 +181,12 @@ class MetasploitModule < Msf::Post
     # list of lists containg registers keypath, a value and the regex to match 
     # against
 
+    @system_manufacturer = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 
+        'SystemManufacturer')
+
+    return true if @system_manufacturer =~ /vmware/i
+
     regs = [
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 
-        'SystemManufacturer', 
-        /vmware/i
-      ],
       [
         'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id \\Logical Unit Id 0', 
         'Identifier', 
@@ -242,21 +242,12 @@ class MetasploitModule < Msf::Post
          /vbox/i )    
     end
 
-    # BiosVersion and VideoBiosVersion already queried and set in prior 
-    # methods
     return true if @system_bios_version =~ /vbox/i
     return true if @video_bios_version =~ /virtualbox/i
 
     @system_product_name = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS','SystemProductName',)
 
     return true if @system_product_name =~ /virtualbox/i
-    
-      
-    
-
-    regs.each do |l|
-      return true if regval_match?(l[0], l[1], l[2])
-    end 
 
     vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
 
@@ -303,10 +294,12 @@ class MetasploitModule < Msf::Post
       [
         'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
         'SystemManufacturer',
-        /qemu/i
+        
       ]
     ]
    
+    return true if @system_manufacturer =~ /qemu/i
+
     regs.each do |l|
       return true if regval_match?(l[0], l[1], l[2])
     end 
