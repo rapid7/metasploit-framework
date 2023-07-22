@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Post
       end 
     end
 
-    return true if regval_match?('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion', /vrtual/i)
+    return true if @bios_version =~ /vrtual/i
 
     keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
@@ -232,23 +232,18 @@ class MetasploitModule < Msf::Post
          /vbox/i )    
     end
 
-    regs = [
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System',
-        'SystemBiosVersion',
-        /vbox/i
-      ],
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System',
-        'VideoBiosVersion',
-         /virtualbox/i
-      ],
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 
-        'SystemProductName',
-        /virtualbox/i
-      ]
-    ]
+    # BiosVersion and VideoBiosVersion already queried and set in prior 
+    # methods
+    return true if @bios_version =~ /vbox/i
+    return true if @video_bios_version =~ /virtualbox/i
+
+    return true if regval_match?(
+      'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
+      'SystemProductName',
+      /virtualbox/i
+    )
+      
+    
 
     regs.each do |l|
       return true if regval_match?(l[0], l[1], l[2])
@@ -283,6 +278,9 @@ class MetasploitModule < Msf::Post
   end
 
   def qemu?
+    return true if @bios_version =~ /qemu/i
+    return true if @video_bios_version =~ /qemu/i
+
     regs = [
       [
         'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0',
@@ -292,16 +290,6 @@ class MetasploitModule < Msf::Post
       [
         'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
         'ProcessorNameString',
-        /qemu/i
-      ],
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System',
-        'SystemBiosVersion',
-        /qemu/i
-      ],
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System', 
-        'VideoBiosVersion',
         /qemu/i
       ],
       [
@@ -323,9 +311,13 @@ class MetasploitModule < Msf::Post
   end
 
    def parallels?
-    bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
-    return true if bios_version =~ /parallels/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /parallels/i
+
+    @bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
+    return true if @bios_version =~ /parallels/i
+    
+    @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
+    , 'VideoBiosVersion')
+    return true if @video_bios_version =~ /parallels/i
 
     false
   end
