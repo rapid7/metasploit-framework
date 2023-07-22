@@ -65,6 +65,14 @@ class MetasploitModule < Msf::Post
     @processes = get_processes
   end 
 
+  # loops over a list of vm services and compares them to the list of running
+  # services. 
+  def services?(vm_services)
+    vm_services.each do |srvc|
+      return true if service_exists?(srvc)
+    end 
+  end 
+
   def get_services
     @services ||= registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
     @services
