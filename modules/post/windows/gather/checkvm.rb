@@ -122,7 +122,6 @@ class MetasploitModule < Msf::Post
   end
 
   def parallels?
-
     @system_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
     
     @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
@@ -135,6 +134,7 @@ class MetasploitModule < Msf::Post
 
   def hyperv?
     physical_host = get_regval_str('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
+
     if physical_host
       report_note(
         host: session,
@@ -142,6 +142,7 @@ class MetasploitModule < Msf::Post
         data: { physicalHost: physical_host },
         update: :unique_data
       )
+
       print_good("This is a Hyper-V Virtual Machine running on physical host #{physical_host}")
       return true
     end
@@ -165,9 +166,9 @@ class MetasploitModule < Msf::Post
 
     return true if @system_bios_version == 'Hyper-V'
 
-    key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
+    @scsi_port_0 = get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier')
 
-    return true if regval_match?(key_path, 'Identifier', /Msft    Virtual Disk    1.0/i) 
+    return true if @scsi_port_0 =~ /Msft    Virtual Disk    1.0/i) 
 
     false
   end
@@ -186,24 +187,16 @@ class MetasploitModule < Msf::Post
 
     return true if @system_manufacturer =~ /vmware/i
 
-    regs = [
-      #'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-     
-      [
-        'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 
-        'Identifier', 
-        /vmware/i
-      ],
-      [
-        'HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 
-        'DriverDesc',
-        /cl_vmx_svga|VMWare/i
-      ]
-    ]
-    
-    regs.each do |l|
-      return true if regval_match?(l[0], l[1], l[2])
-    end 
+    @scsi_port_1 = get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 
+        'Identifier' )
+
+    return true if @scsi_port_1 =~ /vmware/i
+
+    return true if regval_match?(
+      'HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000',
+      'DriverDesc',
+      /cl_vmx_svga|VMWare/i
+      )
 
     processes
 
@@ -275,25 +268,21 @@ class MetasploitModule < Msf::Post
 
   def qemu?
     return true if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
-    
-    regs = [
+
+    return true if @scsi_port_0 =~ /qemu|virtio/i
+
+   
       [
-        'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0',
-        'Identifier',
-        /qemu|virtio/i
-      ],
-      [
-        'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
-        'ProcessorNameString',
-        /qemu/i
+        
       ],
     ]
    
     return true if @system_manufacturer =~ /qemu/i
-
-    regs.each do |l|
-      return true if regval_match?(l[0], l[1], l[2])
-    end 
+    
+    return true if regval_match?(
+      'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
+      'ProcessorNameString',
+      /qemu/i)
 
     keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
