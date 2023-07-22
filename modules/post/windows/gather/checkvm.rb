@@ -40,6 +40,26 @@ class MetasploitModule < Msf::Post
     )
   end
 
+  # enumerates through a list processes that act as a signature to the VM
+  # and determines if they are present on the current machine
+  def processes_present?(vm_processes)
+    vm_processes.each do |x|
+      @processes.each do |p|
+        return true if p['name'] == x
+      end 
+    end 
+  end 
+
+  # make only one call to get_processes and store in @processes instance variable, modify the list of dictionary elems to avoid making constant downcase calls
+  def processes
+    if @processes.nil?
+      @processes = get_processes.each |process| do
+        process['name'].downcase
+      end 
+    end 
+    @processes
+  end 
+
   def get_services
     @services ||= registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
     @services
@@ -73,8 +93,9 @@ class MetasploitModule < Msf::Post
 
     sfmsvals = registry_enumkeys('HKLM\\SOFTWARE\\Microsoft')
     if sfmsvals
-      return true if sfmsvals.include?('Hyper-V')
-      return true if sfmsvals.include?('VirtualMachine')
+      %w[Hyper-V VirtualMachine].each do |vm| 
+        return true if sfmsvals.include?(vm)
+      end 
     end
 
     return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vrtual/i
