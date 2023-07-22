@@ -40,24 +40,29 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # enumerates through a list processes that act as a signature to the VM
-  # and determines if they are present on the current machine
-  def processes_present?(vm_processes)
+  # enumerates through a list of VM signature processes and compares them to
+  # the processes running and returns true upon a match. 
+  # casecmp? provides matching independent of case 
+  def procs?(vm_processes)
     vm_processes.each do |x|
       @processes.each do |p|
-        return true if p['name'] == x
+        return true if p['name'].casecmp?(x) 
       end 
     end 
   end 
 
-  # make only one call to get_processes and store in @processes instance variable, modify the list of dictionary elems to avoid making constant downcase calls
-  def procs?
-    if @processes.nil?
-      @processes = get_processes.each |process| do
-        process['name'].downcase
-      end 
-    end 
-    @processes
+  # This method is currently called in vmware? but should be called # in the first method that enumerates processes in run, thus if the order of
+  # the methods changes in the future ie. if vpcprocs? comes before vmware? in
+  # in the if/elsif block in run the processes call should be removed from
+  # vmware? and places inside run. 
+
+  # Another option would be to call processes before executing the long 
+  # if/elsif block in run but I found that would be unecessary if the call
+  # exits at a method that doesn't enumerate processes
+
+  # Returns list of running processes and store them in @processes instance variable.
+  def processes
+    @processes = get_processes
   end 
 
   def get_services
@@ -129,6 +134,8 @@ class MetasploitModule < Msf::Post
     return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
     return true if get_regval_str('HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 'DriverDesc') =~ /cl_vmx_svga|VMWare/i
 
+    processes
+
     vmwareprocs = [
       'vmtoolsd.exe',
       'vmwareservice.exe',
@@ -136,7 +143,7 @@ class MetasploitModule < Msf::Post
       'vmwareuser.exe'
     ]
 
-    return true if procs_present?(vmwareprocs)
+    return true if procs?(vmwareprocs)
     
     false
   end
