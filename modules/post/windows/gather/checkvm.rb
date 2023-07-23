@@ -117,8 +117,10 @@ class MetasploitModule < Msf::Post
     @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
     , 'VideoBiosVersion')
 
-    return true if @system_bios_version =~ /parallels/i || @video_bios_version =~ /parallels/i
-
+    if @system_bios_version =~ /parallels/i || @video_bios_version =~ /parallels/i
+      return true
+    end 
+    
     false
   end
 
@@ -144,7 +146,9 @@ class MetasploitModule < Msf::Post
       end 
     end
 
-    return true if @system_bios_version =~ /vrtual/i ||  @system_bios_version == 'Hyper-V'
+    if @system_bios_version =~ /vrtual/i || @system_bios_version == 'Hyper-V'
+      return true
+    end 
 
     @keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
@@ -205,7 +209,11 @@ class MetasploitModule < Msf::Post
       'vboxtray.exe'
     ]
 
-    return true if processes_exist?(vboxprocs)
+    vbox_srvcs = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
+
+    if services_exist?(vbox_srvcs) || processes_exist?(vboxprocs)
+      return true
+    end 
 
     return true if key?(@keys, 'VBOX__')
 
@@ -219,14 +227,9 @@ class MetasploitModule < Msf::Post
 
     return true if @system_bios_version =~ /vbox/i || @video_bios_version =~ /virtualbox/i
      
-
     @system_product_name = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS','SystemProductName',)
 
     return true if @system_product_name =~ /virtualbox/i
-
-    vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
-
-    return true if services_exist?(vbox_services)
 
     false
   end
@@ -236,13 +239,13 @@ class MetasploitModule < Msf::Post
       'xenservice.exe'
     ]
 
-    return true if processes_exist?(xenprocs)
+    xen_srvcs = %w[xenevtchn xennet xennet6 xensvc xenvdb]
+
+    if processes_exist?(xenprocs) || services_exist?(xen_srvcs)
+      return true
+    end  
 
     return true if key?(@keys,'Xen')
-
-    xen_services = %w[xenevtchn xennet xennet6 xensvc xenvdb]
-
-    return true if services_exist?(xen_services)
 
     return true if @system_product_name =~ /xen/i
 
@@ -250,9 +253,13 @@ class MetasploitModule < Msf::Post
   end
 
   def qemu?
-    return true if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
+    if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
+      return true 
+    end 
 
-    return true if @scsi_port_0 =~ /qemu|virtio/i || @system_manufacturer =~ /qemu/i
+    if @scsi_port_0 =~ /qemu|virtio/i || @system_manufacturer =~ /qemu/i
+      return true
+    end 
     
     return true if regval_match?(
       'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
