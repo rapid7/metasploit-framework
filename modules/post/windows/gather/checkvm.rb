@@ -41,8 +41,7 @@ class MetasploitModule < Msf::Post
   end
 
   # enumerates through a list of VM signature processes and compares them to
-  # the processes running and returns true upon a match. 
-  # casecmp? provides matching independent of case 
+  # the processes running, returns true upon a match. 
   def procs?(vm_processes)
     vm_processes.each do |x|
       @processes.each do |p|
@@ -52,22 +51,15 @@ class MetasploitModule < Msf::Post
     false
   end 
 
-  # This method is currently called in vmware? but should be called # in the first method that enumerates processes in run, thus if the order of
-  # the methods changes in the future ie. if vpcprocs? comes before vmware? in
-  # in the if/elsif block in run the processes call should be removed from
-  # vmware? and places inside run. 
-
-  # Another option would be to call processes before executing the long 
-  # if/elsif block in run but I found that would be unecessary if the call
-  # exits at a method that doesn't enumerate processes
-
-  # Returns list of running processes and store them in @processes instance variable.
+  # Returns list of running processes and store them in @processes instance variable to avoid multiple process queries on the host system.
   def processes
     @processes = get_processes
+    @processes = [] if @processes.nil?
+    @processes
   end 
 
-  # loops over a list of vm services and compares them to the list of running
-  # services. 
+  # loops over a list of services that are known to be signatures of vm's and
+  # compares them to the list of running services. 
   def services?(vm_services)
     vm_services.each do |srvc|
       return true if service_exists?(srvc)
@@ -156,9 +148,11 @@ class MetasploitModule < Msf::Post
 
     return true if @system_bios_version =~ /vrtual/i
 
-    keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
+    @keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
     return true if key?(keys, 'VRTUAL')
+
+    @keys.push! "HKLM\\HARDWARE\\ACPI\\DSDT"
     
     hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
 
@@ -220,9 +214,7 @@ class MetasploitModule < Msf::Post
 
     return true if procs?(vboxprocs)
 
-    keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
-
-    return true if key?(keys, 'VBOX__')
+    return true if key?(@keys, 'VBOX__')
 
     for i in 0..2 do
       return true if regval_match?(
@@ -253,9 +245,7 @@ class MetasploitModule < Msf::Post
 
     return true if procs?(xenprocs)
 
-    keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
-
-    return true if key?(keys,'Xen')
+    return true if key?(@keys,'Xen')
 
     xen_services = %w[xenevtchn xennet xennet6 xensvc xenvdb]
 
@@ -269,36 +259,14 @@ class MetasploitModule < Msf::Post
   def qemu?
     return true if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
 
-    return true if @scsi_port_0 =~ /qemu|virtio/i
-
-   
-      [
-        
-      ],
-    ]
-   
-    return true if @system_manufacturer =~ /qemu/i
+    return true if @scsi_port_0 =~ /qemu|virtio/i || @system_manufacturer =~ /qemu/i
     
     return true if regval_match?(
       'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
       'ProcessorNameString',
       /qemu/i)
 
-    keys = %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
-
-    return true if key?(keys, 'BOCHS_')
-
-    false
-  end
-
-  def parallels?
-
-    @bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
-    return true if @bios_version =~ /parallels/i
-    
-    @video_bios_version =  get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System'
-    , 'VideoBiosVersion')
-    return true if @video_bios_version =~ /parallels/i
+    return true if key?(@keys, 'BOCHS_')
 
     false
   end
