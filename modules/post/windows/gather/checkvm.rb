@@ -78,11 +78,21 @@ class MetasploitModule < Msf::Post
     @services.include?(service)
   end
 
-  # loops over a list of keys and sees if vm_key is included within them
-  def key?(keys, vm_key)
-    keys.each do |k|
+  # registers relevant keys and stores them in a hash
+  def register_keys(key_list)
+    @keys = {}
+    key_list.each do |k|
       srvals = get_serval(k)
-      return true if srvals.include?(vm_key)
+      srvals = [] if srvals.nil?
+      @keys.store(k, srvals) 
+    end 
+    @keys
+  end 
+
+  # checks the values of the keys and compares them to vm_k
+  def key_present?(vm_k)
+    @keys.each_value do |v|
+      return true if v.include?(k)
     end 
   end 
 
@@ -120,7 +130,7 @@ class MetasploitModule < Msf::Post
     if @system_bios_version =~ /parallels/i || @video_bios_version =~ /parallels/i
       return true
     end 
-    
+
     false
   end
 
@@ -150,11 +160,11 @@ class MetasploitModule < Msf::Post
       return true
     end 
 
-    @keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
+    keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT HKLM\\HARDWARE\\ACPI\\DSDT]
 
-    return true if key?(keys, 'VRTUAL')
+    register_keys(keys)
 
-    @keys.push! "HKLM\\HARDWARE\\ACPI\\DSDT"
+    return true if key_present?('VRTUAL')
     
     hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
 
@@ -215,7 +225,7 @@ class MetasploitModule < Msf::Post
       return true
     end 
 
-    return true if key?(@keys, 'VBOX__')
+    return true if key_present?('VBOX__')
 
     for i in 0..2 do
       return true if regval_match?(
@@ -245,7 +255,7 @@ class MetasploitModule < Msf::Post
       return true
     end  
 
-    return true if key?(@keys,'Xen')
+    return true if key_present?('Xen')
 
     return true if @system_product_name =~ /xen/i
 
@@ -266,7 +276,7 @@ class MetasploitModule < Msf::Post
       'ProcessorNameString',
       /qemu/i)
 
-    return true if key?(@keys, 'BOCHS_')
+    return true if key_present?('BOCHS_')
 
     false
   end
