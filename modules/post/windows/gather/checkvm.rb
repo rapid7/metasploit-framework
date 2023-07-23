@@ -82,8 +82,7 @@ class MetasploitModule < Msf::Post
   def register_keys(key_list)
     @keys = {}
     key_list.each do |k|
-      srvals = get_serval(k)
-      srvals = [] if srvals.nil?
+      srvals = get_serval(k); srvals = [] if srvals.nil?
       @keys.store(k, srvals) 
     end 
     @keys
@@ -92,12 +91,12 @@ class MetasploitModule < Msf::Post
   # checks the values of the keys and compares them to vm_k
   def key_present?(vm_k)
     @keys.each_value do |v|
-      return true if v.include?(k)
+      return true if v.include?(vm_k)
     end 
   end 
 
   def get_srval(key)
-    srvals = registry_enumkeys(k)
+    srvals = registry_enumkeys(key)
     srvals = [] if srvals.nil?
     srvals
   end 
