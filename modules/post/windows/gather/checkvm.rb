@@ -60,17 +60,14 @@ class MetasploitModule < Msf::Post
 
   # loops over a list of services that are known to be signatures of vm's and
   # compares them to the list of running services. 
-  def services?(vm_services)
+  def services_exists?(vm_services)
     vm_services.each do |srvc|
       return true if service_exists?(srvc)
     end 
     false
   end 
 
-  # previously @services was nil, making it an empty list as default helps
-  # remove an uneccesarry && call in service_exists? that was implimented
-  # in order to avoid a no_method error when calling .include? on a nil
-
+  # gets active services on the machine and stores them in a list
   def get_services
     @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
     @services = [] if @services.nil?
@@ -101,6 +98,7 @@ class MetasploitModule < Msf::Post
     false 
   end
 
+  # returns true if regval is eql to a string
   def regval_eql?(k,v,eq)
     get_regval_str(k,v) == eq
   end 
@@ -156,7 +154,7 @@ class MetasploitModule < Msf::Post
     
     hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
 
-    return true if services?(hyperv_services)
+    return true if services_exists?(hyperv_services)
 
     return true if @system_bios_version == 'Hyper-V'
 
@@ -171,7 +169,7 @@ class MetasploitModule < Msf::Post
     vmware_services = %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc 
       tpvcgateway vmware wmci vmx86]
 
-    return true if services?(vmware_services)
+    return true if services_exists?(vmware_services)
 
     # list of lists containg registers keypath, a value and the regex to match 
     # against
@@ -233,7 +231,7 @@ class MetasploitModule < Msf::Post
 
     vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
 
-    return true if services?(vbox_services)
+    return true if services_exists?(vbox_services)
 
     false
   end
@@ -249,7 +247,7 @@ class MetasploitModule < Msf::Post
 
     xen_services = %w[xenevtchn xennet xennet6 xensvc xenvdb]
 
-    return true if services?(xen_services)
+    return true if services_exists?(xen_services)
 
     return true if @system_product_name =~ /xen/i
 
