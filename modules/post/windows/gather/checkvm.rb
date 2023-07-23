@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
 
   # enumerates through a list of VM signature processes and compares them to
   # the processes running, returns true upon a match. 
-  def procs?(vm_processes)
+  def process_exists?(vm_processes)
     vm_processes.each do |x|
       @processes.each do |p|
         return true if p['name'].casecmp?(x) 
@@ -201,7 +201,7 @@ class MetasploitModule < Msf::Post
       'vmwareuser.exe'
     ]
 
-    return true if procs?(vmwareprocs)
+    return true if process_exists?(vmwareprocs)
     
     false
   end
@@ -212,7 +212,7 @@ class MetasploitModule < Msf::Post
       'vboxtray.exe'
     ]
 
-    return true if procs?(vboxprocs)
+    return true if process_exists?(vboxprocs)
 
     return true if key?(@keys, 'VBOX__')
 
@@ -243,7 +243,7 @@ class MetasploitModule < Msf::Post
       'xenservice.exe'
     ]
 
-    return true if procs?(xenprocs)
+    return true if process_exists?(xenprocs)
 
     return true if key?(@keys,'Xen')
 
