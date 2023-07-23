@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
 
   # enumerates through a list of VM signature processes and compares them to
   # the processes running, returns true upon a match. 
-  def process_exists?(vm_processes)
+  def processes_exist?(vm_processes)
     vm_processes.each do |x|
       @processes.each do |p|
         return true if p['name'].casecmp?(x) 
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
 
   # loops over a list of services that are known to be signatures of vm's and
   # compares them to the list of running services. 
-  def services_exists?(vm_services)
+  def services_exist?(vm_services)
     vm_services.each do |srvc|
       return true if service_exists?(srvc)
     end 
@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Post
       end 
     end
 
-    return true if @system_bios_version =~ /vrtual/i
+    return true if @system_bios_version =~ /vrtual/i ||  @system_bios_version == 'Hyper-V'
 
     @keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT]
 
@@ -154,9 +154,7 @@ class MetasploitModule < Msf::Post
     
     hyperv_services = %w[vmicexchange vmicheartbeat vmicshutdown vmicvss]
 
-    return true if services_exists?(hyperv_services)
-
-    return true if @system_bios_version == 'Hyper-V'
+    return true if services_exist?(hyperv_services)
 
     @scsi_port_0 = get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier')
 
@@ -169,10 +167,7 @@ class MetasploitModule < Msf::Post
     vmware_services = %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc 
       tpvcgateway vmware wmci vmx86]
 
-    return true if services_exists?(vmware_services)
-
-    # list of lists containg registers keypath, a value and the regex to match 
-    # against
+    return true if services_exist?(vmware_services)
 
     @system_manufacturer = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 
         'SystemManufacturer')
@@ -199,7 +194,7 @@ class MetasploitModule < Msf::Post
       'vmwareuser.exe'
     ]
 
-    return true if process_exists?(vmwareprocs)
+    return true if processes_exist?(vmwareprocs)
     
     false
   end
@@ -210,7 +205,7 @@ class MetasploitModule < Msf::Post
       'vboxtray.exe'
     ]
 
-    return true if process_exists?(vboxprocs)
+    return true if processes_exist?(vboxprocs)
 
     return true if key?(@keys, 'VBOX__')
 
@@ -231,7 +226,7 @@ class MetasploitModule < Msf::Post
 
     vbox_services = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
 
-    return true if services_exists?(vbox_services)
+    return true if services_exist?(vbox_services)
 
     false
   end
@@ -241,13 +236,13 @@ class MetasploitModule < Msf::Post
       'xenservice.exe'
     ]
 
-    return true if process_exists?(xenprocs)
+    return true if processes_exist?(xenprocs)
 
     return true if key?(@keys,'Xen')
 
     xen_services = %w[xenevtchn xennet xennet6 xensvc xenvdb]
 
-    return true if services_exists?(xen_services)
+    return true if services_exist?(xen_services)
 
     return true if @system_product_name =~ /xen/i
 
