@@ -13,6 +13,7 @@ module MetasploitModule
         info,
         'Name' => 'HTTP Fetch',
         'Description' => 'Fetch and Execute an x64 payload from an http server',
+        'DefaultOptions' => { 'FETCH_COMMAND' => 'CERTUTIL' },
         'Author' => 'Brendan Watters',
         'Platform' => 'win',
         'Arch' => ARCH_CMD,
