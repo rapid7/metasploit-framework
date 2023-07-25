@@ -373,6 +373,11 @@ class Msf::Payload::Apk
       fix_manifest(tempdir, package, classes['MainService'], classes['MainBroadcastReceiver'])
     end
 
+    filename = "#{tempdir}/original/res/values-v31/colors.xml"
+    text=File.read(filename)
+    content=text.gsub("@android:", "@*android:")
+    File.open(filename,'w') { |file| file << content }
+
     print_status "Rebuilding apk with meterpreter injection as #{injected_apk}\n"
     apktool_output = run_cmd(['apktool', 'b', '-o', injected_apk, "#{tempdir}/original"])
     check_apktool_output_for_exceptions(apktool_output)
