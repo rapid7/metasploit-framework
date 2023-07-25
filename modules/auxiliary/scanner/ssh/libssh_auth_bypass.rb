@@ -128,6 +128,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    print_status("Attempting #{action.name.inspect} Action, see \"show actions\" for more details")
     case action.name
     when 'Shell'
       if datastore['CreateSession']
