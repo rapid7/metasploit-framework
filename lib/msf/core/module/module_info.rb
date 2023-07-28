@@ -69,6 +69,7 @@ module Msf::Module::ModuleInfo
     if(refs and not refs.empty?)
       refs.each_index do |i|
         if !(refs[i].respond_to?('[]') and refs[i].length == 2)
+          $stderr.puts "invalid #{self.method(:initialize).source_location[0]} refs! #{refs.inspect}"
           refs[i] = nil
         end
       end
