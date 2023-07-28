@@ -9,7 +9,7 @@ credentials saved in Apache Superset.
 ## App Install
 
 ```
-sudo docker run -p 8088:8088 -name superset apache/superset:2.0.0
+sudo docker run -p 8088:8088 --name superset apache/superset:2.0.0
 sudo docker exec -it superset superset fab create-admin \
               --username admin \
               --firstname Superset \

