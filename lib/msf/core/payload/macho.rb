@@ -54,6 +54,10 @@ class Msf::Payload::MachO
     raw_data
   end
 
+  # See: https://github.com/apple-oss-distributions/libsecurity_codesigning/blob/main/lib/signer.cpp#L179
+  # See: https://github.com/indygreg/apple-platform-rs/blob/main/apple-codesign/src/code_directory.rs
+  # See: https://developer.apple.com/forums/thread/702351
+  # See: https://github.com/apple-oss-distributions/Security/blob/e4ea024c9bbd3bfda30ec6df270bfb4c7438d1a9/SecurityTool/sharedTool/codesign.c#L323
   def sign
     raw_data = @macho.serialize
     code_signature_index = @macho[:LC_CODE_SIGNATURE][0].dataoff
