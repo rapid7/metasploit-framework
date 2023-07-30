@@ -1,3 +1,4 @@
+
 ## Vulnerable Application
 
 This module emulates an LDAP Server which accepts User Bind Request to capture the User Credentials.
@@ -34,8 +35,8 @@ msf6 auxiliary(server/capture/ldap) > run
 ```
 └─$ ldapsearch -LLL -H ldap://10.0.2.15 -D cn=User,dc=example,dc=com -W
 Enter LDAP Password: 
-ldap_bind: Authentication method not supported (7)
-        additional info: Try Again or Use a different Authentication Method
+ldap_bind: Auth Method Not Supported (7)
+        additional info: Auth Method Not Supported
 ```
 
 **Database**
