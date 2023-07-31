@@ -22,5 +22,11 @@ module MetasploitModule
         'AdaptedPlatform' => 'win'
       )
     )
+    deregister_options('FETCH_COMMAND')
+    register_options(
+      [
+        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'CERTUTIL', %w[CURL TFTP CERTUTIL]])
+      ]
+    )
   end
 end
