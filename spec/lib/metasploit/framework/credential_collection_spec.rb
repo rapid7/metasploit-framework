@@ -120,6 +120,37 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
       end
     end
 
+    context 'when given a username, user_file and pass_file' do
+      let(:password) { nil }
+      let(:username) { 'my_username' }
+      let(:user_file) do
+        filename = "user_file"
+        stub_file = StringIO.new("asdf\njkl\n")
+        allow(File).to receive(:open).with(filename, /^r/).and_yield stub_file
+
+        filename
+      end
+
+      let(:pass_file) do
+        filename = "pass_file"
+        stub_file = StringIO.new("asdf\njkl\n")
+        allow(File).to receive(:open).with(filename, /^r/).and_return stub_file
+
+        filename
+      end
+
+      it do
+        expect { |b| collection.each(&b) }.to yield_successive_args(
+                                                Metasploit::Framework::Credential.new(public: "my_username", private: "asdf"),
+                                                Metasploit::Framework::Credential.new(public: "my_username", private: "jkl"),
+                                                Metasploit::Framework::Credential.new(public: "asdf", private: "asdf"),
+                                                Metasploit::Framework::Credential.new(public: "asdf", private: "jkl"),
+                                                Metasploit::Framework::Credential.new(public: "jkl", private: "asdf"),
+                                                Metasploit::Framework::Credential.new(public: "jkl", private: "jkl")
+                                              )
+      end
+    end
+
     context "when :user_as_pass is true" do
       let(:user_as_pass) { true }
       specify  do
