@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS]
         },
-        'DefaultAction' => 'Sign Cookie',
         'DisclosureDate' => '2023-04-25'
       )
     )
@@ -48,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to authenticate as', nil]),
         OptString.new('PASSWORD', [true, 'The password for the specified username', nil]),
         OptInt.new('ADMIN_ID', [true, 'The ID of an admin account', 1]),
-        OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
+        OptString.new('TARGETURI', [ true, 'Relative URI of Apache Superset installation', '/'])
       ]
     )
   end
