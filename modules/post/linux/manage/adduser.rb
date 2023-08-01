@@ -99,8 +99,6 @@ class MetasploitModule < Msf::Post
         'useradd'
       elsif command_exists?('adduser')
         'adduser'
-      else
-        fail_with(Failure::NotFound, 'Cannot find a binary to add a new user cleanly')
       end
     os_platform =
       if session.type == 'meterpreter'
