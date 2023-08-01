@@ -48,7 +48,7 @@ module BindAwsInstanceConnect
 
     register_options(
       [
-        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', '']),
+        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', nil]),
         OptString.new('REGION', [true, 'AWS region containing the instance', 'us-east-1']),
         OptString.new('ACCESS_KEY_ID', [false, 'AWS access key', nil]),
         OptString.new('SECRET_ACCESS_KEY', [false, 'AWS secret key', nil]),
@@ -128,12 +128,6 @@ module BindAwsInstanceConnect
 
       print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
 
-      if datastore['EC2_ID'].blank?
-        raise ArgumentError,
-          "EC2_ID is not defined; InstanceConnect handler cannot function.",
-          caller
-      end
-
       stime = Time.now.to_i
       last_error_class = nil # track the last error class to avoid repeating the same message over and over again
 
@@ -145,6 +139,8 @@ module BindAwsInstanceConnect
           else
             raise Rex::ConnectionError.new('Cannot establish serial connection to ' + datastore['EC2_ID'])
           end
+        rescue Aws::EC2InstanceConnect::Errors::SerialConsoleSessionLimitExceededException => e
+          print_error("Too many active serial console sessions. It takes 30 seconds to tear down a session after you've disconnected from the serial console in order to allow a new session.")
         rescue Aws::Errors::ServiceError => e
           print_error(e.message) unless e.class == last_error_class
           last_error_class = e.class
