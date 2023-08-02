@@ -129,7 +129,6 @@ module BindAwsInstanceConnect
       print_status("Started #{human_name} handler against #{datastore['EC2_ID']}:#{datastore['REGION']}")
 
       stime = Time.now.to_i
-      last_error_class = nil # track the last error class to avoid repeating the same message over and over again
 
       while (stime + ctimeout > Time.now.to_i)
         begin
@@ -140,15 +139,13 @@ module BindAwsInstanceConnect
             raise Rex::ConnectionError.new('Cannot establish serial connection to ' + datastore['EC2_ID'])
           end
         rescue Aws::EC2InstanceConnect::Errors::SerialConsoleSessionLimitExceededException => e
-          print_error("Too many active serial console sessions. It takes 30 seconds to tear down a session after you've disconnected from the serial console in order to allow a new session.")
+          vprint_error("Too many active serial console sessions. It takes 30 seconds to tear down a session after you've disconnected from the serial console in order to allow a new session.")
         rescue Aws::Errors::ServiceError => e
-          print_error(e.message) unless e.class == last_error_class
-          last_error_class = e.class
+          vprint_error(e.message)
         rescue Rex::ConnectionError => e
-          print_error(e.message) unless e.class == last_error_class
-          last_error_class = e.class
+          vprint_error(e.message)
         rescue StandardError => e
-          print_error(e.message)
+          vprint_error(e.message)
           elog("Exception caught in InstanceConnect handler: #{$!.class} #{$!}", error: e)
           break
         end
