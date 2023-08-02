@@ -4,13 +4,12 @@ module Metasploit
   module Framework
     module LDAP
 
-      class ValidationError < RuntimeError; end
       module Client
-        def ldap_connect_opts(rhost, rport, connect_timout, ssl: true, opts: {})
+        def ldap_connect_opts(rhost, rport, connect_timeout, ssl: true, opts: {})
           connect_opts = {
             host: rhost,
             port: rport,
-            connect_timeout: connect_timout,
+            connect_timeout: connect_timeout,
             proxies: opts[:proxies]
           }
 
@@ -115,20 +114,16 @@ module Metasploit
               challenge_response: negotiate
             }
           when Msf::Exploit::Remote::AuthOption::PLAINTEXT
-            username = opts[:username].dup
-            username << "@#{opts[:domain]}" unless opts[:domain].blank?
             connect_opts[:auth] = {
               method: :simple,
-              username: username,
+              username: opts[:username],
               password: opts[:password]
             }
           when Msf::Exploit::Remote::AuthOption::AUTO
             unless opts[:username].blank? # plaintext if specified
-              username = opts[:username].dup
-              username << "@#{opts[:domain]}" unless opts[:domain].blank?
               connect_opts[:auth] = {
                 method: :simple,
-                username: username,
+                username: opts[:username],
                 password: opts[:password]
               }
             end

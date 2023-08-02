@@ -27,6 +27,15 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    register_options(
+      [
+        OptBool.new(
+          'APPEND_DOMAIN', [true, 'Appends `@<DOMAIN> to the username for authentication`', false],
+          conditions: ['LDAP::Auth', 'in', %w[AUTO PLAINTEXT]]
+        )
+      ]
+    )
+
     # A password must be supplied unless doing anonymous login
     deregister_options('BLANK_PASSWORDS')
   end
@@ -37,8 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_connect_options!
-    # Verify we can create arbitrary connect opts, this won't make a connect ion out to the real host - but will verify the values are valid
-
+    # Verify we can create arbitrary connect opts, this won't make a connection out to the real host - but will verify the values are valid
     get_connect_opts
   rescue ValidationError => e
     fail_with(Msf::Exploit::Remote::Failure::BadConfig, "Invalid datastore options for chosen auth type: #{e.message}")
@@ -54,11 +62,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     opts = {
-      username: datastore['USERNAME'],
-      password: datastore['PASSWORD'],
       domain: datastore['DOMAIN'],
+      append_domain: datastore['APPEND_DOMAIN'],
       ssl: datastore['SSL'],
-      # proxies: datastore['PROXIES'],
+      proxies: datastore['PROXIES'],
       domain_controller_rhost: datastore['DomainControllerRhost'],
       ldap_auth: datastore['LDAP::Auth'],
       ldap_cert_file: datastore['LDAP::CertFile'],
@@ -66,6 +73,11 @@ class MetasploitModule < Msf::Auxiliary
       ldap_krb_offered_enc_types: datastore['Ldap::KrbOfferedEncryptionTypes'],
       ldap_krb5_cname: datastore['Ldap::Krb5Ccname']
     }
+
+    realm_key = nil
+    if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::KERBEROS
+      realm_key = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+    end
 
     scanner = Metasploit::Framework::LoginScanner::LDAP.new(
       host: ip,
@@ -76,6 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       connection_timeout: datastore['LDAP::ConnectTimeout'].to_i,
       framework: framework,
       framework_module: self,
+      realm_key: realm_key,
       opts: opts
     )
 

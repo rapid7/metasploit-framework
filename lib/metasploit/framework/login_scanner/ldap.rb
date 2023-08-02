@@ -12,8 +12,8 @@ module Metasploit
         include Msf::Exploit::Remote::LDAP
 
         attr_accessor :opts
+        attr_accessor :realm_key
 
-        REALM_KEY = nil
         def attempt_login(credential)
           result_opts = {
             credential: credential,
@@ -52,6 +52,30 @@ module Metasploit
           end
         end
 
+        def each_credential
+          cred_details.each do |raw_cred|
+            # This could be a Credential object, or a Credential Core, or an Attempt object
+            # so make sure that whatever it is, we end up with a Credential.
+            credential = raw_cred.to_credential
+
+            if credential.realm.present? && realm_key.present?
+              credential.realm_key = realm_key
+            elsif credential.realm.present? && realm_key.blank?
+              # This service has no realm key, so the realm will be
+              # meaningless. Strip it off.
+              credential.realm = nil
+              credential.realm_key = nil
+            end
+
+            yield credential
+
+            if opts[:append_domain] && credential.realm.nil?
+              credential.public = "#{credential.public}@#{opts[:domain]}"
+              yield credential
+            end
+
+          end
+        end
       end
     end
   end
