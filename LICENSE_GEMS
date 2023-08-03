@@ -13,6 +13,7 @@ aws-eventstream, 1.2.0, "Apache 2.0"
 aws-partitions, 1.776.0, "Apache 2.0"
 aws-sdk-core, 3.174.0, "Apache 2.0"
 aws-sdk-ec2, 1.382.0, "Apache 2.0"
+aws-sdk-ec2instanceconnect, 1.27.0, "Apache 2.0"
 aws-sdk-iam, 1.79.0, "Apache 2.0"
 aws-sdk-kms, 1.66.0, "Apache 2.0"
 aws-sdk-s3, 1.123.1, "Apache 2.0"
@@ -73,11 +74,11 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.1, "New BSD"
 metasploit-credential, 6.0.5, "New BSD"
-metasploit-framework, 6.3.28, "New BSD"
+metasploit-framework, 6.3.29, "New BSD"
 metasploit-model, 5.0.1, "New BSD"
 metasploit-payloads, 2.0.148, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.2, "New BSD"
-metasploit_payloads-mettle, 1.0.20, "3-clause (or ""modified"") BSD"
+metasploit_payloads-mettle, 1.0.26, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
 mini_portile2, 2.8.2, MIT
 minitest, 5.18.0, MIT
