@@ -61,8 +61,8 @@ ENV METASPLOIT_GROUP=metasploit
 RUN addgroup -S $METASPLOIT_GROUP
 
 RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs \
-    postgresql-libs python2 python3 py3-pip ncurses libcap su-exec alpine-sdk \
-    python2-dev openssl-dev nasm mingw-w64-gcc
+    postgresql-libs python3 py3-pip ncurses libcap su-exec alpine-sdk \
+    openssl-dev nasm mingw-w64-gcc
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
@@ -75,7 +75,7 @@ RUN chown -R root:metasploit $APP_HOME/
 RUN chmod 664 $APP_HOME/Gemfile.lock
 RUN gem update --system
 RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
-RUN curl -L -O https://github.com/pypa/get-pip/raw/3843bff3a0a61da5b63ea0b7d34794c5c51a2f11/get-pip.py && python get-pip.py && rm get-pip.py
+RUN curl -L -O https://raw.githubusercontent.com/pypa/get-pip/f84b65709d4b20221b7dbee900dbf9985a81b5d4/public/get-pip.py && python3 get-pip.py && rm get-pip.py
 RUN pip install impacket
 RUN pip install requests
 
