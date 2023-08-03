@@ -14,6 +14,87 @@ additional code paths to be followed.
 
 ## Setup
 
+### Docker (Vulhub)
+
+A prebuilt [vulhub](https://github.com/vulhub/vulhub) target is available for testing. This target does _not_ work with the `Shell` action, only the `Execute` action. To test that scenario, use the `Docker (Custom)` steps below.
+
+```
+docker run -it -p 3333:22 vulhub/libssh:0.8.1
+```
+
+### Docker (Custom)
+
+In an empty folder create a new `Dockerfile` with the below file contents. Note that this Dockerfile is based on [vulhub/libssh:0.8.1](https://github.com/vulhub/vulhub/tree/4b1954c5c95140d99a4b94a7005707dd041196f6/base/libssh/0.8.1) with changes to work with the `Shell` target:
+
+```Dockerfile
+FROM buildpack-deps:stable-scm
+
+LABEL maintainer="phithon <root@leavesongs.com>"
+
+COPY ssh_server_fork.patch /ssh_server_fork.patch
+
+RUN set -ex \
+    && BUILDDEP="gcc g++ make pkg-config cmake xz-utils patch" \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+        ca-certificates \
+        wget \
+        libc6-dev \
+        zlib1g-dev \
+        libgcrypt20-dev \
+        libgpg-error-dev \
+        $BUILDDEP \
+    && wget -qO- https://www.libssh.org/files/0.8/libssh-0.8.3.tar.xz \
+        | xz -c -d | tar x -C /usr/src --strip-components=1 \
+    && mkdir -p /usr/src/build \
+    && patch /usr/src/examples/ssh_server_fork.c < /ssh_server_fork.patch \
+    && cd /usr/src/build \
+    && cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DWITH_SERVER=ON \
+        -DWITH_STATIC_LIB=ON \
+        -DWITH_GSSAPI=ON \
+        -DWITH_GCRYPT=ON \
+        -DWITH_SFTP=ON \
+        -DWITH_THREADS=ON \
+        .. \
+    && make && make install \
+    && apt-get purge -y --auto-remove $BUILDDEP
+
+RUN ssh-keygen -t ecdsa -m pem -f /etc/ssh/ssh_host_ecdsa_key -q -N "" \
+    && ssh-keygen -t dsa -m pem -f /etc/ssh/ssh_host_dsa_key -q -N "" \
+    && ssh-keygen -t rsa -m pem -b 2048 -f /etc/ssh/ssh_host_rsa_key -q -N ""
+
+CMD /usr/src/build/examples/ssh_server_fork --hostkey=/etc/ssh/ssh_host_rsa_key --ecdsakey=/etc/ssh/ssh_host_ecdsa_key --dsakey=/etc/ssh/ssh_host_dsa_key --rsakey=/etc/ssh/ssh_host_rsa_key -p 22 0.0.0.0
+```
+
+Ensure the Metasploit patch is present in the same directory:
+
+```
+cp /path/to/metasploit-framework/external/source/libssh/ssh_server_fork.patch .
+```
+
+Expected directory structure:
+
+```
+Dockerfile
+ssh_server_fork.patch
+```
+
+Build the image:
+
+```
+docker build -t libssh:vulnerable .
+```
+
+Create a new container available on port `2222`:
+
+```
+docker run -it -p 2222:22 libssh:vulnerable
+```
+
+### Host
+
 1. `git clone git://git.libssh.org/projects/libssh.git`
 2. `cd libssh` and `git checkout libssh-0.8.3`
 3. `git apply -p1 /path/to/metasploit-framework/external/source/libssh/ssh_server_fork.patch`
