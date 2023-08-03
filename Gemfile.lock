@@ -34,7 +34,7 @@ PATH
       metasploit-model
       metasploit-payloads (= 2.0.148)
       metasploit_data_models
-      metasploit_payloads-mettle (= 1.0.20)
+      metasploit_payloads-mettle (= 1.0.25)
       mqtt
       msgpack (~> 1.6.0)
       nessus_rest
@@ -269,7 +269,7 @@ GEM
       railties (~> 7.0)
       recog
       webrick
-    metasploit_payloads-mettle (1.0.20)
+    metasploit_payloads-mettle (1.0.25)
     method_source (1.0.0)
     mini_portile2 (2.8.2)
     minitest (5.18.0)
