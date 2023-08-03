@@ -19,6 +19,12 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     ['-l', '--list'] => [false, 'View the currently running services' ]
   )
 
+  @@_historymanager_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help menu.'             ],
+    ['-l', '--list'] => [true,  'View the current history manager contexts.'],
+    ['-d', '--debug'] => [true,  'Debug the current history manager contexts.']
+  )
+
   def initialize(driver)
     super
     @modified_files = modified_file_paths(print_errors: false)
@@ -37,8 +43,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       'log'        => 'Display framework.log paged to the end if possible',
       'time'       => 'Time how long it takes to run a particular command'
     }
-    if framework.features.enabled?(Msf::FeatureManager::SERVICEMANAGER_COMMAND)
+    if framework.features.enabled?(Msf::FeatureManager::MANAGER_COMMANDS)
       commands['_servicemanager'] = 'Interact with the Rex::ServiceManager'
+      commands['_historymanager'] = 'Interact with the Rex::Ui::Text::Shell::HistoryManager'
     end
     commands
   end
@@ -122,7 +129,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     if expressions.empty?
       print_status('Starting IRB shell...')
 
-      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+      Rex::Ui::Text::Shell::HistoryManager.instance.with_context(name: :irb) do
         begin
           if active_module
             print_status("You are in #{active_module.fullname}\n")
@@ -185,7 +192,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_status('Starting Pry shell...')
 
     Pry.config.history_load = false
-    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+    Rex::Ui::Text::Shell::HistoryManager.instance.with_context(history_file: Msf::Config.pry_history, name: :pry) do
       if active_module
         print_status("You are in the \"#{active_module.fullname}\" module object\n")
         active_module.pry
@@ -382,10 +389,73 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def cmd__servicemanager_help
-    print_line 'Usage: servicemanager'
+    print_line 'Usage: _servicemanager'
     print_line
     print_line 'Manage running framework services'
     print @@_servicemanager_opts.usage
+    print_line
+  end
+
+  #
+  # Interact with framework's history manager
+  #
+  def cmd__historymanager(*args)
+    if args.include?('-h') || args.include?('--help')
+      cmd__historymanager_help
+      return false
+    end
+
+    opts = {}
+    @@_historymanager_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-l', '--list'
+        opts[:list] = true
+      when '-d', '--debug'
+        opts[:debug] = val.nil? ? true : val.downcase.start_with?(/t|y/)
+      end
+    end
+
+    if opts.empty?
+      opts[:list] = true
+    end
+
+    if opts.key?(:debug)
+      Rex::Ui::Text::Shell::HistoryManager.instance._debug = opts[:debug]
+      print_status("HistoryManager debugging is now #{opts[:debug] ? 'on' : 'off'}")
+    end
+
+    if opts[:list]
+      table = Rex::Text::Table.new(
+        'Header'  => 'History contexts',
+        'Indent'  => 1,
+        'Columns' => ['Id', 'File', 'Name']
+      )
+      Rex::Ui::Text::Shell::HistoryManager.instance._contexts.each.with_index do |context, id|
+        table << [id, context[:history_file], context[:name]]
+      end
+
+      if table.rows.empty?
+        print_status("No history contexts present.")
+      else
+        print_line(table.to_s)
+      end
+    end
+  end
+
+  #
+  # Tab completion for the _historymanager command
+  #
+  def cmd__historymanager_tabs(_str, words)
+    return [] if words.length > 1
+
+    @@_historymanager_opts.option_keys
+  end
+
+  def cmd__historymanager_help
+    print_line 'Usage: _historymanager'
+    print_line
+    print_line 'Manage the history manager'
+    print @@_historymanager_opts.usage
     print_line
   end
 
