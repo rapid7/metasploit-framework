@@ -222,7 +222,7 @@ class MetasploitModule < Msf::Post
 
     it 'should read the binary data we just wrote' do
       bin = read_file(datastore['BaseFileName'])
-      vprint_status "Read #{bin.length} bytes"
+      vprint_status "Read #{bin.length} bytes" if bin
 
       bin == binary_data
     end

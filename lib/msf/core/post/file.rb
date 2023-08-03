@@ -1104,7 +1104,7 @@ protected
     token = "_#{::Rex::Text.rand_text_alpha(32)}"
     result = session.shell_command_token("#{cmd} && echo #{token}")
 
-    return result.include?(token)
+    return result&.include?(token)
   end
 
   #
