@@ -91,8 +91,8 @@ begin
   }
   invalidate_bootsnap_cache!(bootsnap_config)
   Bootsnap.setup(**bootsnap_config)
-rescue
-  $stderr.puts 'Warning: Failed bootsnap cache setup'
+rescue => e
+  $stderr.puts "Warning: Failed bootsnap cache setup - #{e.class} #{e} #{e.backtrace}"
   begin
     FileUtils.rm_rf(cache_dir, secure: true)
   rescue

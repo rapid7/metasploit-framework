@@ -5,7 +5,7 @@ require 'pathname'
 @framework_path = '.'
 root = Pathname.new(@framework_path).expand_path
 @framework_lib_path = root.join('lib')
-$LOAD_PATH << @framework_lib_path unless $LOAD_PATH.include?(@framework_lib_path)
+$LOAD_PATH << @framework_lib_path.to_path unless $LOAD_PATH.include?(@framework_lib_path)
 
 require 'msfenv'
 
