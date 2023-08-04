@@ -353,13 +353,13 @@ class PayloadSet < ModuleSet
     case cached_module_metadata.payload_type
     when Payload::Type::Single
       single_name = cached_module_metadata.ref_name
-      single_info = _singles[single_name]
+      single_info = load_payload_component(Payload::Type::Single, single_name)
       calculate_single_payload(single_name: single_name, single_info: single_info)
     when Payload::Type::Stager
       stager_refname = cached_module_metadata.stager_refname
-      stager_info = _stagers[stager_refname]
+      stager_info = load_payload_component(Payload::Type::Stager, stager_refname)
       stage_name = cached_module_metadata.stage_refname
-      stage_info = _stages[stage_name]
+      stage_info = load_payload_component(Payload::Type::Stage, stage_name)
 
       calculate_staged_payload(stage_name: stage_name,
                                stager_name: stager_refname,
@@ -368,14 +368,15 @@ class PayloadSet < ModuleSet
 
     when Payload::Type::Adapter
       adapter_name = cached_module_metadata.adapter_refname
-      adapter_info = _adapters[adapter_name]
+      adapter_info = load_payload_component(Payload::Type::Adapter, adapter_name)
 
       if cached_module_metadata.staged
         stage_name = cached_module_metadata.stage_refname
 
-        stage_info = _stages[stage_name]
+        stage_info = load_payload_component(Payload::Type::Stage, stage_name)
         stager_name= cached_module_metadata.stager_refname
-        stager_info = _stagers[stager_name]
+        stager_info = load_payload_component(Payload::Type::Stager, stager_name)
+
         staged_payload = self[cached_module_metadata.adapted_refname]
 
         calculate_adapted_staged_payload(staged_payload: staged_payload,
@@ -385,7 +386,7 @@ class PayloadSet < ModuleSet
                                          adapter_info: adapter_info)
       else
         single_name = cached_module_metadata.adapted_refname
-        single_info = _singles[single_name]
+        single_info = load_payload_component(Payload::Type::Single, single_name)
         single_payload = self[single_name]
         calculate_adapted_single_payload(adapter_name: adapter_name,
                                          adapter_info: adapter_info,
@@ -393,6 +394,34 @@ class PayloadSet < ModuleSet
                                          single_payload: single_payload)
       end
     end
+  rescue ::Msf::MissingPayloadError => e
+    elog("Missing payload component for #{cached_module_metadata.ref_name}", error: e)
+    return nil
+  rescue StandardError => e
+    elog("#{cached_module_metadata.ref_name} failed to load", error: e)
+    return nil
+  end
+
+  def load_payload_component(payload_type, refname)
+    payload_type_cache, folder_name = case payload_type
+                                      when Payload::Type::Single
+                                        [_singles, 'singles']
+                                      when Payload::Type::Stage
+                                        [_stages, 'stages']
+                                      when Payload::Type::Stager
+                                        [_stagers, 'stagers']
+                                      when Payload::Type::Adapter
+                                        [_adapters, 'adapters']
+                                      else
+                                        raise ArgumentError("Invalid payload type: #{payload_type}")
+                                      end
+
+    payload_component_info = payload_type_cache[refname]
+    unless payload_component_info
+      raise Msf::MissingPayloadError, "#{refname} is not available"
+    end
+
+    payload_component_info
   end
 
   #
