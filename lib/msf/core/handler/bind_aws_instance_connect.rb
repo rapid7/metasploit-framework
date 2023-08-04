@@ -109,6 +109,9 @@ module BindAwsInstanceConnect
   # Starts monitoring for an outbound connection to become established.
   #
   def start_handler
+    if datastore['EC2_ID'].blank?
+      raise Msf::OptionValidateError.new({ 'EC2_ID' => "EC2_ID cannot be blank" })
+    end
 
     # Maximum number of seconds to run the handler
     ctimeout = 150
