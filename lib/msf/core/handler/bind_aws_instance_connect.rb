@@ -48,7 +48,7 @@ module BindAwsInstanceConnect
 
     register_options(
       [
-        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', nil]),
+        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', '']),
         OptString.new('REGION', [true, 'AWS region containing the instance', 'us-east-1']),
         OptString.new('ACCESS_KEY_ID', [false, 'AWS access key', nil]),
         OptString.new('SECRET_ACCESS_KEY', [false, 'AWS secret key', nil]),
@@ -109,6 +109,9 @@ module BindAwsInstanceConnect
   # Starts monitoring for an outbound connection to become established.
   #
   def start_handler
+    if datastore['EC2_ID'].blank?
+      raise Msf::OptionValidateError.new({ 'EC2_ID' => "EC2_ID cannot be blank" })
+    end
 
     # Maximum number of seconds to run the handler
     ctimeout = 150
