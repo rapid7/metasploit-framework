@@ -1434,14 +1434,30 @@ module Msf
               return
             end
 
-            # create module set using the saved modules
-            fav_modules = {}
-            saved_favs = File.readlines(favs_file)
-            saved_favs.each do |mod|
-              module_name = mod.strip
-              fav_modules[module_name] = framework.modules[module_name]
+            # get the full module names from the favorites file and use then to search the MetaData Cache for matching modules
+            saved_favs = File.readlines(favs_file).map(&:strip)
+            @module_search_results = Msf::Modules::Metadata::Cache.instance.find('fullname' => [saved_favs, []])
+
+            count = -1
+            tbl = generate_module_table('Favorite Modules')
+
+            @module_search_results.each do |m|
+              tbl << [
+                  count += 1,
+                  m.fullname,
+                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                  m.rank,
+                  m.check ? 'Yes' : 'No',
+                  m.name,
+              ]
             end
-            show_module_metadata('Favorites', fav_modules)
+
+            print_line(tbl.to_s)
+            index_usage = "use #{@module_search_results.length - 1}"
+            index_info = "info #{@module_search_results.length - 1}"
+            name_usage = "use #{@module_search_results.last.fullname}"
+
+            print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
           end
 
           def show_missing(mod) # :nodoc:
