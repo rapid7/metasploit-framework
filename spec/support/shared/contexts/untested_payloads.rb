@@ -59,20 +59,6 @@ RSpec.shared_context 'untested payloads' do |options={}|
   after(:context) do
     missing_ancestor_reference_name_set = @expected_ancestor_reference_name_set - @actual_ancestor_reference_name_set
 
-    untested_payloads_pathname = Pathname.new('log/untested-payloads.log')
-
-    if missing_ancestor_reference_name_set.empty?
-      if untested_payloads_pathname.exist?
-        untested_payloads_pathname.delete
-      end
-    else
-      untested_payloads_pathname.open('w') do |f|
-        missing_ancestor_reference_name_set.sort.each do |missing_ancestor_reference_name|
-          f.puts missing_ancestor_reference_name
-        end
-      end
-
-      $stderr.puts "Some payloads are untested.  See log/untested-payload.log for details."
-    end
+    expect(missing_ancestor_reference_name_set).to be_empty, "Some payloads are untested: #{missing_ancestor_reference_name_set.join(', ')}. Please update `modules/payloads_spec.rb` with the payload definitions"
   end
 end

@@ -48,7 +48,7 @@ module BindAwsInstanceConnect
 
     register_options(
       [
-        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', nil]),
+        OptString.new('EC2_ID', [true, 'The EC2 ID of the instance ', '']),
         OptString.new('REGION', [true, 'AWS region containing the instance', 'us-east-1']),
         OptString.new('ACCESS_KEY_ID', [false, 'AWS access key', nil]),
         OptString.new('SECRET_ACCESS_KEY', [false, 'AWS secret key', nil]),
