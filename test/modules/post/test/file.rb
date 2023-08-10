@@ -239,12 +239,7 @@ class MetasploitModule < Msf::Post
       bin = read_file(datastore['BaseFileName'])
       rm_f(datastore['BaseFileName'])
 
-      test_string = "\xde\xad\xbe\xef"
-
-      vprint_status "expected: #{test_string.bytes} - #{test_string.encoding}"
-      vprint_status "actual: #{bin.bytes} - #{bin.encoding}"
-
-      bin == test_string
+      bin == "\xde\xad\xbe\xef"
     end
   end
 
