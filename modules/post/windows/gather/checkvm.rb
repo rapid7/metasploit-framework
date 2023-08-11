@@ -16,8 +16,8 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module attempts to determine whether the system is running
           inside of a virtual environment and if so, which one. This
-          module supports detection of Hyper-V, VMWare, Virtual PC,
-          VirtualBox, Xen, QEMU, Parallels and JoeSandbox.
+          module supports detection of Hyper-V, VMWare, VirtualBox, Xen, QEMU,
+          and Parallels.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -123,25 +123,6 @@ class MetasploitModule < Msf::Post
     false
   end
 
-  def virtualpc?
-    %w[vpc-s3 vpcbus vpcuhub msvmmouf].each do |service|
-      return true if service_exists?(service)
-    end
-
-    vpcprocs = [
-      'vpcmap.exe',
-      'vmusrvc.exe',
-      'vmsrvc.exe'
-    ]
-    get_processes.each do |x|
-      vpcprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
-    end
-
-    false
-  end
-
   def virtualbox?
     vboxprocs = [
       'vboxservice.exe',
@@ -227,25 +208,6 @@ class MetasploitModule < Msf::Post
     false
   end
 
-  def joesandbox?
-    vpcprocs = [
-      'joeboxcontrol.exe',
-      'joeboxserver.exe'
-    ]
-    get_processes.each do |x|
-      vpcprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
-    end
-
-    key_path = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion'
-    return true if get_regval_str(key_path, 'ProductId') == '55274-640-2673064-23950'
-    key_path = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion'
-    return true if get_regval_str(key_path, 'ProductId') == '55274-640-2673064-23950'
-
-    false
-  end
-
   def report_vm(hypervisor)
     print_good("This is a #{hypervisor} Virtual Machine")
     report_note(
@@ -266,16 +228,12 @@ class MetasploitModule < Msf::Post
       report_vm('Hyper-V')
     elsif vmware?
       report_vm('VMware')
-    elsif virtualpc?
-      report_vm('VirtualPC')
     elsif virtualbox?
       report_vm('VirtualBox')
     elsif xen?
       report_vm('Xen')
     elsif qemu?
       report_vm('Qemu/KVM')
-    elsif joesandbox?
-      report_vm('JoeSandbox')
     else
       print_status('The target appears to be a Physical Machine')
     end
