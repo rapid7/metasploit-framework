@@ -59,13 +59,24 @@ through multiple methods provided below:
  prevent being removed from sudoers group
  * **NONE** - No sudo methods are provided. New user is a unprivileged user
 
+### UseraddMethod
+
+Set the method used to create new user.
+
+ * **AUTO** - The default option. The module will figure out how to add in the
+ user by itself.
+ * **MANUAL** - Instead of using a binary on the system, add in the new user
+ directly into the FileSystem. This can be preferred if the binary can be
+ inconsistent or tracked.
+ * **CUSTOM** - Set the custom binary to add in a user. Can be used to pipe
+ auto detection towards a preferred binary such as debians dual choice of
+ useradd and adduser, or alpines busybox.
+
 ### UseraddBinary
 
 Set the binary used to add the user. The two main binaries concerned with are
 `useradd` and `adduser`. If you want to overwrite which binary is used or give
-an absolute path rather than a relative path, you can override it here. Or you
-can set it to `MANUAL` to make the module skip using a binary entirely and edit
-`/etc/passwd` directly.
+an absolute path rather than a relative path, you can override it here.
 
 ### MissingGroups
 

