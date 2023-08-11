@@ -22,7 +22,8 @@ class MetasploitModule < Msf::Auxiliary
           which indicates that the system is vulnerable.
         },
         'Author' => [
-          'Wayne Low and Haifei Li', # Vulnerability discovery
+          'Wayne Low', # Vulnerability discovery
+          'Haifei Li', # Vulnerability discovery
           'Bastian Kanbach <bastian.kanbach@securesystems.de>' # Metasploit Module, @__bka__
         ],
         'References' => [
