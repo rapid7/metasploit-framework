@@ -187,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
     # label and some more.
     #
     # Fields:
-    #   HeaderId(2), Reserved(2), HTTPBodySize(4), MsgBodySize(4), MsgBodyOffset(4), Data(12)
+    #   HeaderId(2), Reserved(2), HTTPBodySize(4), MsgBodySize(4), MsgBodyOffset(4), Data(1060)
 
     "\xf4\x01\x00\x00\x24\x04\x00\x00\x07\x00\x00\x00\xe3\x03\x00\x00" \
     "\x50\x4f\x53\x54\x20\x2f\x6d\x73\x6d\x71\x20\x48\x54\x54\x50\x2f" \
