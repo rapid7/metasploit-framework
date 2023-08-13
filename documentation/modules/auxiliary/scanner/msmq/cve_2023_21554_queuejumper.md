@@ -25,8 +25,8 @@ Besides several RPC-related TCP ports, MSMQ uses TCP port 1801 to receive messag
 If MSMQ is installed on the target and is lacking [security updates](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21554), the module will flag the service as vulnerable:
 
 ```
-[*] [2023.08.13-20:18:41] 192.168.56.108:1801   - MSMQ detected. Checking for CVE-2023-21554
-[+] [2023.08.13-20:18:41] 192.168.56.108:1801   - MSMQ vulnerable to CVE-2023-21554 - QueueJumper!
+[*] 192.168.0.10:1801   - MSMQ detected. Checking for CVE-2023-21554
+[+] 192.168.0.10:1801   - MSMQ vulnerable to CVE-2023-21554 - QueueJumper!
 [*] Auxiliary module execution completed
 ```
 
