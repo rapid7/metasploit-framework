@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Post
       if datastore['MissingGroups'] == 'ERROR'
         fail_with(Failure::NotFound, "groups [#{groups_missing.join(' ')}] do not exist on the system. Change the `MissingGroups` Option to deal with errors automatically")
       end
-      print_bad("Groups [#{groups_missing.join(' ')}] do not exist on system")
+      print_warning("Groups [#{groups_missing.join(' ')}] do not exist on system")
       if datastore['MissingGroups'] == 'IGNORE'
         groups -= groups_missing
         print_good("Removed #{groups_missing.join(' ')} from target groups")
