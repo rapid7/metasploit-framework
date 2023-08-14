@@ -73,6 +73,16 @@ class MetasploitModule < Msf::Post
     groups += ['sudo'] if datastore['SudoMethod'] == 'GROUP'
     groups = groups.uniq
 
+    # Check that group names are valid
+    invalid = groups.filter { |group| group !~ /^[a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9_.$-]?$/ }
+    if !invalid.empty? && datastore['MissingGroups'] == 'IGNORE'
+      groups -= invalid
+      vprint_error("The groups [#{invalid.join(' ')}] do not fit accepted characters for groups. Ignoring them instead.")
+    else
+      # Give error even on create, as creating this group will cause errors
+      fail_with(Failure::BadConfig, "groups [#{invalid.join(' ')}] Do not fit the authorized regex for groups. Check your groups against this regex /^[a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9_.$-]?$/")
+    end
+
     # Check to see that groups exist or fail
     group_file = read_file('/etc/group').to_s
     groups_missing = groups.reject { |group| check_group_exists?(group, group_file) }
