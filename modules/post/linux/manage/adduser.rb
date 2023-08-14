@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
 
   def d_cmd_exec(command)
     vprint_status(command)
-    print_status(cmd_exec(command))
+    print_line(cmd_exec(command))
   end
 
   def run
