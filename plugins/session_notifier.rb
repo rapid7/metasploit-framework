@@ -400,7 +400,7 @@ module Msf
     end
 
     def desc
-      'This plugin notifies you a new session via SMS.'
+      'This plugin notifies you of a new session via SMS'
     end
 
   end

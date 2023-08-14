@@ -153,86 +153,157 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
     end
   end
 
-  context '#load_cached_module' do
-    subject(:load_cached_module) do
-      module_manager.load_cached_module(type, reference_name)
-    end
+  describe '#load_cached_module' do
+    context 'with memory cache' do
+      subject(:load_cached_module) do
+        module_manager.load_cached_module(type, reference_name, cache_type: Msf::ModuleManager::Cache::MEMORY)
+      end
 
-    before(:example) do
-      module_manager.send(:module_info_by_path=, module_info_by_path)
-    end
+      before(:example) do
+        module_manager.send(:module_info_by_path=, module_info_by_path)
+      end
 
-    context 'with module info in cache' do
-      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+      context 'with module info in cache' do
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
-      let(:module_info_by_path) do
-        {
+        let(:module_info_by_path) do
+          {
             'path/to/module' => {
-                :parent_path => parent_path,
-                :reference_name => reference_name,
-                :type => type
+              :parent_path => parent_path,
+              :reference_name => reference_name,
+              :type => type
             }
-        }
-      end
+          }
+        end
 
-      it 'should enumerate loaders until if it find the one where loadable?(parent_path) is true' do
-        # Only the first one gets it since it finds the module
-        first_loader = module_manager.send(:loaders).first
-        expect(first_loader).to receive(:loadable_module?).with(parent_path, type, reference_name).and_return(false)
-        expect(first_loader).not_to receive(:load_module)
+        it 'should enumerate loaders until if it find the one where loadable?(parent_path) is true' do
+          # Only the first one gets it since it finds the module
+          first_loader = module_manager.send(:loaders).first
+          expect(first_loader).to receive(:loadable_module?).with(parent_path, type, reference_name).and_return(false)
+          expect(first_loader).not_to receive(:load_module)
 
-        second_loader = module_manager.send(:loaders).second
-        expect(second_loader).to receive(:loadable_module?).with(parent_path, type, reference_name).and_return(true)
-        expect(second_loader).to receive(:load_module).with(parent_path, type, reference_name, force: true).and_call_original
+          second_loader = module_manager.send(:loaders).second
+          expect(second_loader).to receive(:loadable_module?).with(parent_path, type, reference_name).and_return(true)
+          expect(second_loader).to receive(:load_module).with(parent_path, type, reference_name, force: true, cached_metadata: nil).and_call_original
 
-        load_cached_module
-      end
+          load_cached_module
+        end
 
-      it 'should force load using #load_module on the loader' do
-        expect_any_instance_of(Msf::Modules::Loader::Directory).to receive(
-            :load_module
-        ).with(
+        it 'should force load using #load_module on the loader' do
+          expect_any_instance_of(Msf::Modules::Loader::Directory).to receive(
+                                                                       :load_module
+                                                                     ).with(
             parent_path,
             type,
             reference_name,
-            :force => true
-        ).and_call_original
+            :force => true,
+            :cached_metadata => nil
+          ).and_call_original
 
-        load_cached_module
+          load_cached_module
+        end
+
+        context 'return from load_module' do
+          before(:example) do
+            # Only the first one gets it since it finds the module
+            loader = module_manager.send(:loaders).first
+            expect(loader).to receive(:load_module).and_return(module_loaded)
+          end
+
+          context 'with false' do
+            let(:module_loaded) do
+              false
+            end
+
+            it { is_expected.to be_falsey }
+          end
+
+          context 'with true' do
+            let(:module_loaded) do
+              true
+            end
+
+            it { is_expected.to be_truthy }
+          end
+        end
       end
 
-      context 'return from load_module' do
-        before(:example) do
+      context 'without module info in cache' do
+        let(:module_info_by_path) do
+          {}
+        end
+
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'with filesystem cache' do
+      subject(:load_cached_module) do
+        module_manager.load_cached_module(type, reference_name, cache_type: Msf::ModuleManager::Cache::FILESYSTEM)
+      end
+
+      context 'with module info in cache' do
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
+        it 'should enumerate loaders until if it find the one where loadable?(parent_path) is true' do
           # Only the first one gets it since it finds the module
-          loader = module_manager.send(:loaders).first
-          expect(loader).to receive(:load_module).and_return(module_loaded)
+          first_loader = module_manager.send(:loaders).first
+          expect(first_loader).to receive(:load_module).with(parent_path, type, reference_name, force: true, cached_metadata: instance_of(Msf::Modules::Metadata::Obj)).and_return(false)
+
+          second_loader = module_manager.send(:loaders).second
+          expect(second_loader).to receive(:load_module).with(parent_path, type, reference_name, force: true, cached_metadata: instance_of(Msf::Modules::Metadata::Obj)).and_call_original
+
+          load_cached_module
         end
 
-        context 'with false' do
-          let(:module_loaded) do
-            false
+        it 'should force load using #load_module on the loader' do
+          expect_any_instance_of(Msf::Modules::Loader::Directory).to receive(
+                                                                       :load_module
+                                                                     ).with(
+            parent_path,
+            type,
+            reference_name,
+            :force => true,
+            :cached_metadata => instance_of(Msf::Modules::Metadata::Obj)
+          ).and_call_original
+
+          load_cached_module
+        end
+
+        context 'return from load_module' do
+          before(:example) do
+            # Only the first one gets it since it finds the module
+            loader = module_manager.send(:loaders).first
+            expect(loader).to receive(:load_module).and_return(module_loaded)
           end
 
-          it { is_expected.to be_falsey }
-        end
+          context 'with false' do
+            let(:module_loaded) do
+              false
+            end
 
-        context 'with true' do
-          let(:module_loaded) do
-            true
+            it { is_expected.to be_falsey }
           end
 
-          it { is_expected.to be_truthy }
+          context 'with true' do
+            let(:module_loaded) do
+              true
+            end
+
+            it { is_expected.to be_truthy }
+          end
         end
+      end
+
+      context 'without module info in cache' do
+        before(:example) do
+          allow(Msf::Modules::Metadata::Cache.instance).to receive(:get_module_reference).with(anything).and_return(nil)
+        end
+        it { is_expected.to be_falsey }
       end
     end
 
-    context 'without module info in cache' do
-      let(:module_info_by_path) do
-        {}
-      end
 
-      it { is_expected.to be_falsey }
-    end
   end
 
   context '#refresh_cache_from_module_files' do

@@ -102,7 +102,7 @@ module Msf
     # more than 60 characters, but there are no hard limits.
     #
     def desc
-      'Thread testing plugin'
+      'Internal test tool for testing thread usage in Metasploit'
     end
 
   end

@@ -44,9 +44,9 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    winver = sysinfo['OS']
+    version = get_version_info
 
-    fail_with(Failure::NoTarget, 'Module not valid for Windows 2000') if winver =~ /2000/
+    fail_with(Failure::NoTarget, 'Module not valid for Windows 2000') if version.build_number == Msf::WindowsVersion::Win2000
     fail_with(Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
 
     file_path = datastore['FILE_PATH']

@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test Post::File API methods },
         'License' => MSF_LICENSE,
         'Author' => [ 'egypt'],
-        'Platform' => [ 'linux', 'java' ],
+        'Platform' => [ 'linux', 'unix', 'java', 'osx' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ]
       )
     )

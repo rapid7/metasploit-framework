@@ -353,7 +353,12 @@ class ClientCore < Extension
       # If client.sys isn't setup, it's a Windows meterpreter
       if client.respond_to?(:sys) && !client.sys.config.sysinfo['BuildTuple'].blank?
         # Query the payload gem directly for the extension image
-        image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+        begin
+          image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+        rescue MetasploitPayloads::Mettle::NotFoundError => e
+          elog(e)
+          image = nil
+        end
       else
         # Get us to the installation root and then into data/meterpreter, where
         # the file is expected to be

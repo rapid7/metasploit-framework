@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Amazon Web Services EC2 instance enumeration',
+        'Name' => 'Amazon Web Services EC2 SSM enumeration',
         'Description' => %q{
           Provided AWS credentials, this module will call the authenticated
           API of Amazon Web Services to list all SSM-enabled EC2 instances
@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'RageLtMan <rageltman[at]sempervictus>'
         ],
+        'References' => [['URL', 'https://www.sempervictus.com/single-post/once-upon-a-cloudy-air-i-crossed-a-gap-which-wasn-t-there']],
         'License' => MSF_LICENSE,
         'DefaultOptions' => { 'CreateSession' => false },
         'Notes' => {
@@ -143,6 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     session_init = client.start_session({
       target: ec2_id,
       document_name: 'SSM-SessionManagerRunShell'
+      # AWS-RunShellScript, AWS-RunPowerShellScript, etc
     })
     ssm_sock = connect_ssm_ws(session_init)
     chan = ssm_sock.to_ssm_channel

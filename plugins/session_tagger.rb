@@ -48,7 +48,7 @@ module Msf
     end
 
     def desc
-      'Automatically interacts with new sessions'
+      'Automatically interacts with new sessions to create a new remote TaggedByUser file'
     end
 
   end

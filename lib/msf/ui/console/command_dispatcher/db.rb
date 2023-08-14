@@ -382,9 +382,13 @@ class Db
     opts[:workspace] = framework.db.workspace
     opts[:tag_name] = tag_name
 
+    # This will be the case if no IP was passed in, and we are just trying to delete all
+    # instances of a given tag within the database.
     if rws == [nil]
-      unless framework.db.delete_host_tag(opts)
-        print_error("Host #{opts[:address].to_s + " " if opts[:address]}could not be found.")
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      wspace.hosts.each do |host|
+        opts[:address] = host.address
+        framework.db.delete_host_tag(opts)
       end
     else
       rws.each do |rw|
@@ -396,7 +400,6 @@ class Db
         end
       end
     end
-
   end
 
   @@hosts_columns = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']

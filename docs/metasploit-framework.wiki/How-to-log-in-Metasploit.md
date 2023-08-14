@@ -38,7 +38,7 @@ For debugging purposes, it's always better to turn on the highest level of loggi
 
 There are mainly five logging methods you will most likely be using a lot, and they all have the exact same arguments. Let's use one of the logging methods to explain what these arguments are about:
 
-```
+```ruby
 def elog(msg, src = 'core', level = 0, from = caller)
 ```
 

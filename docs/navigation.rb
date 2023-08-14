@@ -272,7 +272,7 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-msfvenom.md',
             nav_order: 7
-          },
+          }
         ]
       },
       {
@@ -303,6 +303,10 @@ NAVIGATION_CONFIG = [
             path: 'Metasploit-Database-Support.md',
             title: 'Database Support'
           },
+          {
+            path: 'How-To-Use-Plugins.md',
+            title: 'Metasploit Plugins',
+          }
         ]
       },
       {

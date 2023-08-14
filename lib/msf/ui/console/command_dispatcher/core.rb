@@ -967,7 +967,7 @@ class Core
       items = Dir.entries(plugin_directory).keep_if { |n| n.match(/^.+\.rb$/)}
       next if items.empty?
       print_status("Available #{type} plugins:")
-      items.each do |item|
+      items.sort.each do |item|
         print_line("    * #{item.split('.').first}")
       end
       print_line

@@ -7,7 +7,7 @@ module Msf::Payload::Adapter::Fetch
         Msf::OptBool.new('FETCH_DELETE', [true, 'Attempt to delete the binary after execution', false]),
         Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces.', Rex::Text.rand_text_alpha(rand(8..12))], regex:/^[\S]*$/),
         Msf::OptPort.new('FETCH_SRVPORT', [true, 'Local port to use for serving payload', 8080]),
-        Msf::OptAddressLocal.new('FETCH_SRVHOST', [ true, 'Local IP to use for serving payload', "0.0.0.0"]),
+        Msf::OptAddressRoutable.new('FETCH_SRVHOST', [ true, 'Local IP to use for serving payload']),
         Msf::OptString.new('FETCH_URIPATH', [ false, 'Local URI to use for serving payload', '']),
         Msf::OptString.new('FETCH_WRITABLE_DIR', [ true, 'Remote writable dir to store payload; cannot contain spaces.', ''], regex:/^[\S]*$/)
       ]
@@ -28,12 +28,6 @@ module Msf::Payload::Adapter::Fetch
     @remote_destination_nix = nil
     @windows = nil
 
-  end
-
-  def check_srvhost
-    if Rex::Socket.is_ip_addr?(srvhost) && Rex::Socket.addr_atoi(srvhost) == 0
-      raise ArgumentError, 'You must set FETCH_SRVHOST to a routable IP'
-    end
   end
 
   # If no fetch URL is provided, we generate one based off the underlying payload data
@@ -86,7 +80,6 @@ module Msf::Payload::Adapter::Fetch
   def generate(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
-    check_srvhost
     @srvexe = generate_payload_exe(opts)
     cmd = generate_fetch_commands
     vprint_status("Command to run on remote host: #{cmd}")

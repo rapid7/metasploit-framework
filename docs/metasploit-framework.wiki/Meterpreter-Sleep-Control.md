@@ -16,7 +16,7 @@ During this dormant period, no socket is active, no requests are made, and no re
 
 The interface to the sleep command looks like this:
 
-```
+```msf
 meterpreter > sleep
 Usage: sleep <time>
 
@@ -31,7 +31,7 @@ As shown, `sleep` expects to be given a single postive integer value that repres
 
 The following shows a sample run where Meterpreter is put to sleep for 20 seconds, after which the session reconnects while the handler is still in background:
 
-```
+```msf
 meterpreter > sleep 20
 [*] Telling the target instance to sleep for 20 seconds ...
 [+] Target instance has gone to sleep, terminating current session.

@@ -91,7 +91,7 @@ module Msf
     end
 
     def desc
-      'FileFormat AutoRegen Plugin'
+      'This plugin reloads and re-executes a file-format exploit module once it has changed'
     end
 
   end

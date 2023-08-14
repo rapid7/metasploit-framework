@@ -48,7 +48,7 @@ module Msf
 
           # Load each of the module paths
           allowed_module_paths.each do |path|
-            self.modules.add_module_path(path, opts)
+            self.modules.add_module_path(path, opts, recalculate: false)
           end
 
           @module_paths_inited = true

