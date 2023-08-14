@@ -230,14 +230,14 @@ class MetasploitModule < Msf::Post
   # - http://www.irongeek.com/i.php?page=security/windows-forensics-registry-and-file-system-spots
   def run
     print_status('Starting to enumerate MUICache registry keys...')
-    sys_info = sysinfo['OS']
+    version = get_version_info
 
-    if sys_info =~ /Windows XP/ && is_admin?
-      print_good("Remote system supported: #{sys_info}")
+    if version.xp_or_2003? && is_admin?
+      print_good("Remote system supported: #{version.product_name}")
       muicache = '\\Software\\Microsoft\\Windows\\ShellNoRoam\\MUICache'
       hive_file = '\\NTUSER.DAT'
-    elsif sys_info =~ /Windows 7/ && is_admin?
-      print_good("Remote system supported: #{sys_info}")
+    elsif version.build_number >= Msf::WindowsVersion::Vista_SP0 && is_admin?
+      print_good("Remote system supported: #{version.product_name}")
       muicache = "_Classes\\Local\ Settings\\Software\\Microsoft\\Windows\\Shell\\MUICache"
       hive_file = '\\AppData\\Local\\Microsoft\\Windows\\UsrClass.dat'
     else

@@ -106,7 +106,7 @@ Enter passphrase: [...]
 
 2. Modify your `.git/config` file to enable signing commits and merges by default:
 
-````
+```ini
 [user]
   name = Your Name
   email = your_email@example.com
@@ -114,7 +114,7 @@ Enter passphrase: [...]
 [alias]
   c = commit -S --edit
   m = merge -S --no-ff --edit
-````
+```
 
 Using `git c` and `git m` from now on will sign every commit with your `DEADBEEF` key. However, note that rebasing or cherry-picking commits will change the commit hash, and therefore, unsign the commit -- to resign the most recent, use `git c --amend`.
 

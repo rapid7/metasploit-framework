@@ -34,17 +34,12 @@ class Msf::ModuleSet < Hash
   # @param reference_name [String] The module reference name.
   # @return [Msf::Module,nil] Instance of the named module or nil if it
   #   could not be created.
-  def create(reference_name)
+  def create(reference_name, cache_type: Msf::ModuleManager::Cache::FILESYSTEM)
     klass = fetch(reference_name, nil)
     instance = nil
-
-    # If there is no module associated with this class, then try to demand
-    # load it.
+    # If there is no module associated with this class, then try to demand load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      if framework.modules.load_cached_module(module_type, reference_name) || empty?
-        recalculate
-      end
-
+      framework.modules.load_cached_module(module_type, reference_name, cache_type: cache_type)
       klass = fetch(reference_name, nil)
     end
 

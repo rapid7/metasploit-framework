@@ -33,6 +33,9 @@
     <ClInclude Include="EtwTamper.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="ReflectiveFree.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HostingCLR.cpp">
@@ -45,6 +48,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="ReflectiveLoader.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectiveFree.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

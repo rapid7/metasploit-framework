@@ -160,6 +160,7 @@ module BindAwsSsm
     register_advanced_options(
       [
         OptString.new('SSM_SESSION_DOC', [true, 'The SSM document to use for session requests', 'SSM-SessionManagerRunShell']),
+        # AWS-RunShellScript, AWS-RunPowerShellScript, etc
         OptBool.new('SSM_KEEP_ALIVE', [false, 'Keep AWS SSM session alive with empty messages', true])
       ], Msf::Handler::BindAwsSsm)
 

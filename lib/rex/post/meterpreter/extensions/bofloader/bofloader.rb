@@ -45,18 +45,18 @@ module Rex
               binary = binary.bytes if binary.is_a? String
               b_length = binary.length
               binary = [b_length] + binary
-              buf = binary.pack("<Ic#{b_length}")
+              buf = binary.pack("I<c#{b_length}")
               @size += buf.length
               @buffer << buf
             end
 
             def add_int(dint)
-              @buffer << [dint.to_i].pack('<I')
+              @buffer << [dint.to_i].pack('I<')
               @size += 4
             end
 
             def add_short(short)
-              @buffer << [short.to_i].pack('<s')
+              @buffer << [short.to_i].pack('s<')
               @size += 2
             end
 
@@ -65,7 +65,7 @@ module Rex
               str << 0x00 # Null terminated strings...
               s_length = str.length
               str = [s_length] + str
-              buf = str.pack("<Ic#{s_length}")
+              buf = str.pack("I<c#{s_length}")
               @size += buf.length
               @buffer << buf
             end
@@ -75,13 +75,13 @@ module Rex
               wstr << 0x00 << 0x00 # Null terminated wide string
               s_length = wstr.length
               wstr = [s_length] + wstr
-              buf = wstr.pack("<Ic#{s_length}")
+              buf = wstr.pack("I<c#{s_length}")
               @size += buf.length
               @buffer << buf
             end
 
             def finalize_buffer
-              output = [@size].pack('<I') + @buffer
+              output = [@size].pack('I<') + @buffer
               reset
               output
             end

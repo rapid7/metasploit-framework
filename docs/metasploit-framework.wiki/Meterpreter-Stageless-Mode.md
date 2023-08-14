@@ -57,7 +57,7 @@ The data or time cost of uploading `metsrv`, `stdapi` and `priv` for every singl
  
 It's hard to believe it possible, but in this case the following image could be considered a nightmare.
 
-```
+```msf
 [*] Sending stage (173056 bytes) to xxx.xxx.xxx.xxx
 [*] Meterpreter session 4684 opened ....
 [*] Sending stage (173056 bytes) to xxx.xxx.xxx.xxx

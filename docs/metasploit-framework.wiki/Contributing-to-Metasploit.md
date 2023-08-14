@@ -58,7 +58,7 @@ You probably shouldn't run proof of concept exploit code you find on the Interne
 
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them.
 
-If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a [registered nick](https://freenode.net/kb/answer/registration)). Someone should be able to lend a hand. Apparently, some of those people never sleep.
+If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a [registered nick](https://freenode.net/view/Nick_Registration)). Someone should be able to lend a hand. Apparently, some of those people never sleep.
 
 # Thank you
 

@@ -15,6 +15,10 @@ module Msf
       'event_tester'
     end
 
+    def desc
+      'Internal test tool used to verify the internal framework event subscriber logic works'
+    end
+
     def initialize(framework, opts)
       super
       @subscriber = Subscriber.new

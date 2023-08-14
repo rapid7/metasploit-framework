@@ -40,7 +40,7 @@ jobs:
             const hasPR = await github.rest.pulls.list({
               owner,
               repo,
-              head: owner + ':' + '${{ github.ref_name }}' 
+              head: owner + ':' + '${{ github.ref_name }}'
             });
             console.log('hasPR:');
             console.log(JSON.stringify({ data: hasPR.data, status: hasPR.status }, null, 4));

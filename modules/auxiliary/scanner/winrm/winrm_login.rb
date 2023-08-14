@@ -54,6 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
           host: datastore['DomainControllerRhost'],
           hostname: datastore['Winrm::Rhostname'],
+          proxies: datastore['Proxies'],
           realm: realm,
           username: username,
           password: password,
@@ -74,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     scanner = Metasploit::Framework::LoginScanner::WinRM.new(
       host: ip,
       port: rport,
-      proxies: datastore['PROXIES'],
+      proxies: datastore['Proxies'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
@@ -110,6 +111,7 @@ class MetasploitModule < Msf::Auxiliary
               endpoint: endpoint,
               host: rhost,
               port: rport,
+              proxies: datastore['Proxies'],
               uri: uri,
               ssl: ssl,
               user: result.credential.public,

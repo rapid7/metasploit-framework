@@ -130,55 +130,55 @@ module Shell
       # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
     end
 
-    HistoryManager.push_context(history_file: histfile, name: name)
-    self.hist_last_saved = Readline::HISTORY.length
+    HistoryManager.instance.with_context(history_file: histfile, name: name) do
+      self.hist_last_saved = Readline::HISTORY.length
 
-    begin
+      begin
 
-      while true
-        # If the stop flag was set or we've hit EOF, break out
-        break if self.stop_flag || self.stop_count > 1
+        while true
+          # If the stop flag was set or we've hit EOF, break out
+          break if self.stop_flag || self.stop_count > 1
 
-        init_tab_complete
-        update_prompt
+          init_tab_complete
+          update_prompt
 
-        line = get_input_line
+          line = get_input_line
 
-        # If you have sessions active, this will give you a shot to exit
-        # gracefully. If you really are ambitious, 2 eofs will kick this out
-        if input.eof? || line == nil
-          self.stop_count += 1
-          next if self.stop_count > 1
+          # If you have sessions active, this will give you a shot to exit
+          # gracefully. If you really are ambitious, 2 eofs will kick this out
+          if input.eof? || line == nil
+            self.stop_count += 1
+            next if self.stop_count > 1
 
-          if block
-            block.call('quit')
-          elsif respond_to?(:run_single)
-            # PseudoShell does not provide run_single
-            run_single('quit')
+            if block
+              block.call('quit')
+            elsif respond_to?(:run_single)
+              # PseudoShell does not provide run_single
+              run_single('quit')
+            end
+
+            # If a block was passed in, pass the line to it.  If it returns true,
+            # break out of the shell loop.
+          elsif block
+            break if block.call(line)
+
+            # Otherwise, call what should be an overridden instance method to
+            # process the line.
+          else
+            run_single(line)
+            self.stop_count = 0
           end
 
-        # If a block was passed in, pass the line to it.  If it returns true,
-        # break out of the shell loop.
-        elsif block
-          break if block.call(line)
-
-        # Otherwise, call what should be an overridden instance method to
-        # process the line.
-        else
-          run_single(line)
-          self.stop_count = 0
         end
-
+        # Prevent accidental console quits
+      rescue ::Interrupt
+        output.print("Interrupt: use the 'exit' command to quit\n")
+        retry
       end
-    # Prevent accidental console quits
-    rescue ::Interrupt
-      output.print("Interrupt: use the 'exit' command to quit\n")
-      retry
-    ensure
-      HistoryManager.pop_context
-      HistoryManager.flush
-      self.hist_last_saved = Readline::HISTORY.length
     end
+  ensure
+    HistoryManager.instance.flush
+    self.hist_last_saved = Readline::HISTORY.length
   end
 
   #

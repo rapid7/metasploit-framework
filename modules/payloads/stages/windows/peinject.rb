@@ -32,7 +32,7 @@ module MetasploitModule
         'Platform' => 'win',
         'Arch' => ARCH_X86,
         'References' => [
-          'https://github.com/EgeBalci/Amber'
+          ['URL', 'https://github.com/EgeBalci/Amber']
         ],
         'PayloadCompat' => {
           'Convention' => 'sockedi handleedi -http -https'

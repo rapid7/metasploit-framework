@@ -86,7 +86,7 @@ module Msf
     end
 
     def desc
-      'Send desktop notification with libnotify on sessions & db events'
+      'Send desktop notification with libnotify on sessions and db events'
     end
   end
 end

@@ -22,6 +22,7 @@ require:
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
+  - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
 
 Layout/SpaceBeforeBrackets:
   Description: >-
@@ -164,6 +165,9 @@ Layout/ModuleHashValuesOnSameLine:
   Enabled: true
 
 Layout/ModuleDescriptionIndentation:
+  Enabled: true
+
+Lint/DetectInvalidPackDirectives:
   Enabled: true
 
 Lint/ModuleDisclosureDateFormat:

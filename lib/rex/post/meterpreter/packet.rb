@@ -350,10 +350,6 @@ class Tlv
       else; _tlv_type_string(type)
       end
 
-    val = value.inspect
-    if val.length > 50
-      val = val[0,50] + ' ..."'
-    end
     group ||= (self.class.to_s =~ /Packet/)
     if group
       has_command_ids = type == PACKET_TYPE_RESPONSE && (self.method == COMMAND_ID_CORE_ENUMEXTCMD || self.method == COMMAND_ID_CORE_LOADLIB)
@@ -376,6 +372,20 @@ class Tlv
       }
       tlvs_inspect << "]"
     else
+      val = value.inspect
+      # Known list of datatypes that shouldn't be truncated, as their values are useful when debugging
+      is_val_truncation_allowed = ![
+        Rex::Post::Meterpreter::TLV_TYPE_UUID,
+        Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_PATH,
+        Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_SRC_FILE_PATH,
+        Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
+        Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DIRECTORY_PATH,
+        Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_STAT_BUF,
+        Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROCESS_PATH,
+      ].include?(type)
+      if is_val_truncation_allowed && val.length > 50
+        val = val[0,50] + ' ..."'
+      end
       tlvs_inspect = "meta=#{meta.ljust(10)} value=#{val}"
       if type == TLV_TYPE_COMMAND_ID
         begin

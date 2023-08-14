@@ -29,7 +29,7 @@ module MetasploitModule
           'ege <egebalci[at]pm.me>'
         ],
         'References' => [
-          'https://github.com/EgeBalci/Amber'
+          ['URL', 'https://github.com/EgeBalci/Amber']
         ],
         'License' => MSF_LICENSE,
         'Platform' => 'win',
