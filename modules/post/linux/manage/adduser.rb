@@ -219,7 +219,8 @@ class MetasploitModule < Msf::Post
       end
       if datastore['MissingGroups'] == 'CREATE'
         groups_missing.each do |group|
-          group_file += "\n#{group}:x:#{datastore['USERNAME']}\n"
+          gid = rand(1000..2000).to_s
+          group_file += "\n#{group}:x:#{gid}:#{datastore['USERNAME']}\n"
           print_good("Added #{group} group")
         end
       end
