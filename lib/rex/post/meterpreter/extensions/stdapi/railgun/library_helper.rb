@@ -123,6 +123,8 @@ module LibraryHelper
           raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
           buffer = str_to_ascii_z(args[param_idx])
         when "PBLOB"
+          args[param_idx] = args[param_idx].to_binary_s if args[param_idx].is_a?(BinData::Struct)
+
           raise "param #{param_desc[1]}: please supply your BLOB as string!" unless args[param_idx].class == String
           buffer = args[param_idx]
           # other types (non-pointers) don't reference buffers
@@ -144,8 +146,6 @@ module LibraryHelper
     #puts "  built buffer: #{direction}"
     return [layout, blob]
   end
-
-
 
 end
 
