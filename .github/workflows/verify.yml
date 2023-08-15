@@ -90,7 +90,7 @@ jobs:
     name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }} - ${{ matrix.test_cmd }}
     steps:
       - name: Install system dependencies
-        run: sudo apt-get install libpcap-dev graphviz
+        run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
 
       - name: Checkout code
         uses: actions/checkout@v3

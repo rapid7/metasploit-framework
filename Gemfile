@@ -31,20 +31,24 @@ group :development do
 end
 
 group :development, :test do
-  # automatically include factories from spec/factories
-  gem 'factory_bot_rails'
-  # Make rspec output shorter and more useful
-  gem 'fivemat'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
   gem 'rspec-rerun'
+  # Required during CI as well local development
   gem 'rubocop'
 end
 
 group :test do
+  # automatically include factories from spec/factories
+  gem 'test-prof'
+  gem 'factory_bot_rails'
+  # Make rspec output shorter and more useful
+  gem 'fivemat'
+  # rspec formatter for acceptance tests
+  gem 'allure-rspec'
   # Manipulate Time.now in specs
   gem 'timecop'
 end
