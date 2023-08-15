@@ -93,7 +93,8 @@ class Railgun
       'psapi',
       'dbghelp',
       'winspool',
-      'spoolss'
+      'spoolss',
+      'secur32'
     ].freeze
   }.freeze
 
