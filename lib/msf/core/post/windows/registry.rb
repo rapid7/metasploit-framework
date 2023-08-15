@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Msf
 class Post
 module Windows
@@ -103,7 +102,7 @@ module Registry
   # Load a hive file
   #
   def registry_loadkey(key, file)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY)
       meterpreter_registry_loadkey(key, file)
     else
       shell_registry_loadkey(key, file)
@@ -114,7 +113,7 @@ module Registry
   # Unload a hive file
   #
   def registry_unloadkey(key)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY)
       meterpreter_registry_unloadkey(key)
     else
       shell_registry_unloadkey(key)
@@ -125,7 +124,7 @@ module Registry
   # Create the given registry key
   #
   def registry_createkey(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY)
       meterpreter_registry_createkey(key, view)
     else
       shell_registry_createkey(key, view)
@@ -138,7 +137,7 @@ module Registry
   # returns true if succesful
   #
   def registry_deleteval(key, valname, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
       meterpreter_registry_deleteval(key, valname, view)
     else
       shell_registry_deleteval(key, valname, view)
@@ -151,7 +150,7 @@ module Registry
   # returns true if succesful
   #
   def registry_deletekey(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
       meterpreter_registry_deletekey(key, view)
     else
       shell_registry_deletekey(key, view)
@@ -162,7 +161,7 @@ module Registry
   # Return an array of subkeys for the given registry key
   #
   def registry_enumkeys(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
       meterpreter_registry_enumkeys(key, view)
     else
       shell_registry_enumkeys(key, view)
@@ -173,7 +172,7 @@ module Registry
   # Return an array of value names for the given registry key
   #
   def registry_enumvals(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT)
       meterpreter_registry_enumvals(key, view)
     else
       shell_registry_enumvals(key, view)
@@ -184,7 +183,7 @@ module Registry
   # Return the data of a given registry key and value
   #
   def registry_getvaldata(key, valname, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT)
       meterpreter_registry_getvaldata(key, valname, view)
     else
       shell_registry_getvaldata(key, valname, view)
@@ -195,7 +194,7 @@ module Registry
   # Return the data and type of a given registry key and value
   #
   def registry_getvalinfo(key, valname, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY)
       meterpreter_registry_getvalinfo(key, valname, view)
     else
       shell_registry_getvalinfo(key, valname, view)
@@ -208,7 +207,7 @@ module Registry
   # returns true if succesful
   #
   def registry_setvaldata(key, valname, data, type, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT)
       meterpreter_registry_setvaldata(key, valname, data, type, view)
     else
       shell_registry_setvaldata(key, valname, data, type, view)
@@ -221,7 +220,7 @@ module Registry
   # @return [Boolean] true if the key exists on the target registry, false otherwise
   #   (also in case of error)
   def registry_key_exist?(key)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS)
       meterpreter_registry_key_exist?(key)
     else
       shell_registry_key_exist?(key)
@@ -233,6 +232,7 @@ protected
   #
   # Determines whether the session can use meterpreter registry methods
   #
+  # @deprecated Use granular command ID checking session.commands instead
   def session_has_registry_ext
     begin
       return !!(session.sys and session.sys.registry)
@@ -253,7 +253,8 @@ protected
     elsif view == REGISTRY_VIEW_64_BIT
       cmd << " /reg:64"
     end
-    cmd_exec(cmd)
+    result = cmd_exec(cmd)
+    result
   end
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)
