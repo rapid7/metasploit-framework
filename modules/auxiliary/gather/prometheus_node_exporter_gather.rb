@@ -57,9 +57,13 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (response code #{res.code})") unless res.code == 200
-    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter not found") unless (res.body.include?('<h2>Prometheus Node Exporter</h2>') || res.body.include?('<h2>Prometheus Exporter for Windows servers</h2>'))
-    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter version not found") unless res.body =~ /version=([\d.]+)/
-    vprint_good("#{peer} - Prometheus Node Exporter version: #{Regexp.last_match(1)}")
+    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter not found") unless (
+      res.body.include?('<h2>Prometheus Node Exporter</h2>') ||
+      res.body.include?('<title>Node Exporter</title>') || # version 0.15.2
+      res.body.include?('<h2>Prometheus Exporter for Windows servers</h2>')
+    )
+
+    vprint_good("#{peer} - Prometheus Node Exporter version: #{Regexp.last_match(1)}") if res.body =~ /version=([\d.]+)/
 
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'metrics'),
@@ -212,6 +216,12 @@ class MetasploitModule < Msf::Auxiliary
           result.dig('node_filesystem_avail_bytes', 'labels', 'mountpoint'),
           result.dig('node_filesystem_avail_bytes', 'labels', 'fstype'),
         ]
+      elsif result['node_filesystem_avail'] # version 0.15.2
+        table_fs << [
+          result.dig('node_filesystem_avail', 'labels', 'device'),
+          result.dig('node_filesystem_avail', 'labels', 'mountpoint'),
+          result.dig('node_filesystem_avail', 'labels', 'fstype'),
+        ]
       elsif result['windows_logical_disk_size_bytes']
         table_fs << [
           '',
@@ -242,6 +252,7 @@ class MetasploitModule < Msf::Auxiliary
         table_uname << ['Release', result.dig('node_uname_info', 'labels', 'release')]
         table_uname << ['OS Type', result.dig('node_uname_info', 'labels', 'sysname')]
         table_uname << ['Version', result.dig('node_uname_info', 'labels', 'version')]
+        table_uname << ['Node Name', result.dig('node_uname_info', 'labels', 'nodename')]
       elsif result['windows_cs_hostname']
         table_windows_domain << ['Domain Name', result.dig('windows_cs_hostname', 'labels', 'domain')]
         table_windows_domain << ['FQDN', result.dig('windows_cs_hostname', 'labels', 'fqdn')]
