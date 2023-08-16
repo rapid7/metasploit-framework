@@ -737,7 +737,7 @@ RSpec.describe Msf::Auxiliary::Prometheus do
             workspace_id: workspace.id
           }
         )
-        expect(aux_prometheus).to receive(:print_good).with("Credentials\n===========\n\n  Name           Config            Host  Port  Public/Username                       Private/Password/Token  Notes\n  ----           ------            ----  ----  ---------------                       ----------------------  -----\n  service-azure  azure_sd_configs        9100  333333CC-3C33-3333-CCC3-33C3CCCCC33C  mysecret                Environment: AzurePublicCloud, Subscription ID: 11AAAA11-A11A-111A-A111-1111A1111A11, Resource Group: my-resource-\n                                                                                                             group, Tenant ID: BBBB222B-B2B2-2B22-B222-2BB2222BB2B2\n")
+        expect(aux_prometheus).to receive(:print_good).with("Credentials\n===========\n\n  Name           Config            Host  Port  Public/Username                       Private/Password/Token  Notes\n  ----           ------            ----  ----  ---------------                       ----------------------  -----\n  service-azure  azure_sd_configs        9100  333333CC-3C33-3333-CCC3-33C3CCCCC33C  mysecret                Environment: AzurePublicCloud, Subscription ID: 11AAAA11-A11A-111A-A111-1111A1111A11, Resource Group: my-resource-group, Tenant ID: BBBB222B-B2B2-2B22-B222-2BB2222BB2B2\n")
 
         aux_prometheus.prometheus_config_eater(
           config_wrapper(
