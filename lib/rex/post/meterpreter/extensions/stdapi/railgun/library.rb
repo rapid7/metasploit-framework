@@ -207,9 +207,13 @@ class Library
       #puts "  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})"
       buffer = nil
       # is it a pointer to a buffer on our stack
-      if ['PULONG_PTR', 'PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
-        #puts '   pointer'
-        if args[param_idx] == nil # null pointer?
+      if ['PULONG_PTR', 'PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include?(param_desc[0])
+        if ['PWCHAR', 'PCHAR', 'PBLOB'].include?(param_desc[0]) && param_desc[2] == 'in' && args[param_idx].is_a?(Integer)
+          # allow PWCHAR, PCHAR and PBLOB to also be passed as a pointer instead of a buffer
+          buffer  = [0].pack(native)
+          num     = param_to_number(args[param_idx])
+          buffer += [num].pack(native)
+        elsif args[param_idx] == nil # null pointer?
           buffer  = [0].pack(native) # type: LPVOID  (so the library does not rebase it)
           buffer += [0].pack(native) # value: 0
         elsif param_desc[2] == 'in'
