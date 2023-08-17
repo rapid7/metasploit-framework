@@ -28,7 +28,7 @@ module Msf::PostMixin
     ] , Msf::Post)
 
     # Default stance is active
-    self.passive = info['Passive'] || false
+    self.passive = (info['Stance'] and info['Stance'].include?(Msf::Exploit::Stance::Passive)) || false
     self.session_types = info['SessionTypes'] || []
   end
 

@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         {
           'SRVPORT' => 80
         },
-      'Passive' => true))
+      'Notes' => {
+      'Stability' => [],
+      'Reliability' => [],
+      'SideEffects' => []
+      },
+      'Stance' => Msf::Exploit::Stance::Passive))
 
     register_options(
       [
@@ -84,4 +89,3 @@ EOS
     end
   end
 end
-
