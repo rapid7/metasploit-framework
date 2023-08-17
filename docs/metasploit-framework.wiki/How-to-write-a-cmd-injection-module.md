@@ -1,4 +1,6 @@
-If you've found a way to execute a command on a target, and you'd like to make a simple exploit module to get a shell, this guide is for you. By the end of this guide you'll understand how to turn [Command injection](https://owasp.org/www-community/attacks/Command_Injection) into a shell - from here, you can move on to the [[command stager|How-to-use-command-stagers]] article and upgrade your basic `:unix_cmd` Target to a Dropper for all kinds of payloads with variable command stagers.
+If you've found a way to execute a command on a target, and you'd like to make a simple exploit module to get a shell, this guide is for you. Alternatively, if you have access to **fetch** commands on the target (curl, wget, ftp, tftp, tnftp, or certutil), you can use a [[Fetch Payload|How-to-use-fetch-payloads]] for a no-code solution.
+
+By the end of this guide you'll understand how to turn [Command injection](https://owasp.org/www-community/attacks/Command_Injection) into a shell - from here, you can move on to the [[command stager|How-to-use-command-stagers]] article and upgrade your basic `:unix_cmd` Target to a Dropper for all kinds of payloads with variable command stagers.
 
 This guide assumes *some* knowledge of programming (Understand what a class is, what methods/functions are) but expects no in-depth knowledge of Metasploit internals.
 
