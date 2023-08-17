@@ -308,7 +308,7 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     net-ssh (7.1.0)
-    network_interface (0.0.2)
+    network_interface (0.0.4)
     nexpose (7.3.0)
     nio4r (2.5.9)
     nokogiri (1.14.5)

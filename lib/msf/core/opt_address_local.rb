@@ -10,7 +10,12 @@ module Msf
 ###
 class OptAddressLocal < OptAddress
   def interfaces
-    NetworkInterface.interfaces || []
+    begin
+      NetworkInterface.interfaces || []
+    rescue
+      elog(e)
+      []
+    end
   end
 
   def normalize(value)
