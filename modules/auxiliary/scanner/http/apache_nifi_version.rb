@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-    deregister_options('USERNAME', 'PASSWORD', 'BEARER-TOKEN')
   end
 
   def run_host(ip)
@@ -41,8 +40,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if version.nil?
       print_bad("Apache NiFi not detected on #{ip}")
-    else
-      print_good("Apache NiFi #{version} found on #{ip}")
+      return
     end
+
+    print_good("Apache NiFi #{version} found on #{ip}")
   end
 end
