@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'bindata'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -48,137 +50,85 @@ class MetasploitModule < Msf::Auxiliary
 
   # Preparing message struct according to https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqrr/f9e71595-339a-4cc4-8341-371e0a4cb232
 
-  def base_header
+  class BaseHeader < BinData::Record
     # BaseHeader (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqmq/058cdeb4-7a3c-405b-989c-d32b9d6bddae)
     #
     # Simple header containing a static signature, packet size, some flags and some sort of timeout value for the message to arrive
     #
-    # Fields: VersionNumber(1), Reserved(1), Flags(2), Signature(4), PacketSize(4), TimeToReachQueue(4)
 
-    "\x10\x00\x03\x10\x4c\x49\x4f\x52\x64\x09\x00\x00\x63\x76\x09\x6c"
+    endian :big
+
+    uint8 :version_number
+    uint8 :reserved
+    uint16 :flags
+    uint32 :signature
+    uint32le :packet_size
+    uint32le :time_to_reach_queue
   end
 
-  def user_header
+  class UserHeader < BinData::Record
     # UserHeader (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqmq/056b43bc-2466-4342-8504-1630310d5965)
     #
     # The UserHeader is an essential header that defines the destination, message id,
     # source, sent time and expiration time
     #
-    # Fields: SourceQueueManager(16), QueueManagerAddress(16), TimeToBeReceived(4), SentTime(4),
-    #         MessageID(4), Flags(4), DestinationQueue(16),  DestinationQueue(2), Padding(2)
 
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x63\xaa\xbe\x64\x01\x00\x00\x00\x01\x1c\x20\x02" \
-    "\x60\x00\x68\x00\x74\x00\x74\x00\x70\x00\x3a\x00\x2f\x00\x2f\x00" \
-    "\x31\x00\x39\x00\x32\x00\x2e\x00\x31\x00\x36\x00\x38\x00\x2e\x00" \
-    "\x35\x00\x36\x00\x2e\x00\x31\x00\x31\x00\x33\x00\x2f\x00\x6d\x00" \
-    "\x73\x00\x6d\x00\x71\x00\x2f\x00\x70\x00\x72\x00\x69\x00\x76\x00" \
-    "\x61\x00\x74\x00\x65\x00\x24\x00\x2f\x00\x71\x00\x75\x00\x65\x00" \
-    "\x75\x00\x65\x00\x6a\x00\x75\x00\x6d\x00\x70\x00\x65\x00\x72\x00" \
-    "\x00\x00\x00\x00"
+    endian :big
+
+    string :source_queue_manager, length: 16
+    string :queue_manager_address, length: 16
+    uint32le :time_to_be_received
+    uint32le :sent_time
+    uint32le :message_id
+    uint32 :flags
+    uint16le :destination_queue_length
+    string :destination_queue
+    string :padding
   end
 
-  def message_properties_header
+  class MessagePropertiesHeader < BinData::Record
     # MessagePropertiesHeader (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqmq/b219bdf4-1bf6-4688-94d8-25fdba45e5ec)
     #
     # This header contains meta information about the message like its label,
     # message size and whether encryption is used.
     #
-    # Fields: Flags(1), LabelLength(1), MessageClass(2), CorrelationID(8), CorrelationID(12),
-    #         BodyType(4), ApplicationTag(4), MessageSize(4), AllocationBodySize(4), PrivacyLevel(4),
-    #         HashAlgorithm(4), EncryptionAlgorithm(4), ExtensionSize(4), Label (8)
 
-    "\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x70\x00\x6f\x00\x63\x00\x00\x00"
+    endian :big
+
+    uint8  :flags
+    uint8  :label_length
+    uint16 :message_class
+    string :correlation_id, length: 20
+    uint32 :body_type
+    uint32 :application_tag
+    uint32 :message_size
+    uint32 :allocation_body_size
+    uint32 :privacy_level
+    uint32 :hash_algorithm
+    uint32 :encryption_algorithm
+    uint32 :extension_size
+    string :label
   end
 
-  def srmp_envelope_header
+  class SRMPEnvelopeHeader < BinData::Record
     # SRMPEnvelopeHeader (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqrr/062b8317-2ade-4b1c-804d-1674b2fdcad3)
     #
     # This header contains information about the SOAP envelope of the message.
     # It includes information about destination queue, label, message and sent
     # or expiration dates.
     # The Data field contains a SRMP Message Structure (https://learn.microsoft.com/en-us/openspecs/windows_protocols/mc-mqsrm/38cfc717-c703-46aa-a145-34f60b79399b)
-    # The DataLength field is modified by this module to cause an integer overflow,
-    # however the module makes sure that in case of a vulnerable system the
-    # resulting length is identical to the previous one to prevent actual crashes.
     #
-    # Fields: HeaderId(2), Reserved(2), Datalength(4), Data(1078), Padding(2)
 
-    "\x00\x00\x00\x00\x1b\x02\x00\x00\x3c\x00\x73\x00\x65\x00\x3a\x00" \
-    "\x45\x00\x6e\x00\x76\x00\x65\x00\x6c\x00\x6f\x00\x70\x00\x65\x00" \
-    "\x20\x00\x78\x00\x6d\x00\x6c\x00\x6e\x00\x73\x00\x3a\x00\x73\x00" \
-    "\x65\x00\x3d\x00\x22\x00\x68\x00\x74\x00\x74\x00\x70\x00\x3a\x00" \
-    "\x2f\x00\x2f\x00\x73\x00\x63\x00\x68\x00\x65\x00\x6d\x00\x61\x00" \
-    "\x73\x00\x2e\x00\x78\x00\x6d\x00\x6c\x00\x73\x00\x6f\x00\x61\x00" \
-    "\x70\x00\x2e\x00\x6f\x00\x72\x00\x67\x00\x2f\x00\x73\x00\x6f\x00" \
-    "\x61\x00\x70\x00\x2f\x00\x65\x00\x6e\x00\x76\x00\x65\x00\x6c\x00" \
-    "\x6f\x00\x70\x00\x65\x00\x2f\x00\x22\x00\x20\x00\x0d\x00\x0a\x00" \
-    "\x78\x00\x6d\x00\x6c\x00\x6e\x00\x73\x00\x3d\x00\x22\x00\x68\x00" \
-    "\x74\x00\x74\x00\x70\x00\x3a\x00\x2f\x00\x2f\x00\x73\x00\x63\x00" \
-    "\x68\x00\x65\x00\x6d\x00\x61\x00\x73\x00\x2e\x00\x78\x00\x6d\x00" \
-    "\x6c\x00\x73\x00\x6f\x00\x61\x00\x70\x00\x2e\x00\x6f\x00\x72\x00" \
-    "\x67\x00\x2f\x00\x73\x00\x72\x00\x6d\x00\x70\x00\x2f\x00\x22\x00" \
-    "\x3e\x00\x0d\x00\x0a\x00\x3c\x00\x73\x00\x65\x00\x3a\x00\x48\x00" \
-    "\x65\x00\x61\x00\x64\x00\x65\x00\x72\x00\x3e\x00\x0d\x00\x0a\x00" \
-    "\x20\x00\x3c\x00\x70\x00\x61\x00\x74\x00\x68\x00\x20\x00\x78\x00" \
-    "\x6d\x00\x6c\x00\x6e\x00\x73\x00\x3d\x00\x22\x00\x68\x00\x74\x00" \
-    "\x74\x00\x70\x00\x3a\x00\x2f\x00\x2f\x00\x73\x00\x63\x00\x68\x00" \
-    "\x65\x00\x6d\x00\x61\x00\x73\x00\x2e\x00\x78\x00\x6d\x00\x6c\x00" \
-    "\x73\x00\x6f\x00\x61\x00\x70\x00\x2e\x00\x6f\x00\x72\x00\x67\x00" \
-    "\x2f\x00\x72\x00\x70\x00\x2f\x00\x22\x00\x20\x00\x73\x00\x65\x00" \
-    "\x3a\x00\x6d\x00\x75\x00\x73\x00\x74\x00\x55\x00\x6e\x00\x64\x00" \
-    "\x65\x00\x72\x00\x73\x00\x74\x00\x61\x00\x6e\x00\x64\x00\x3d\x00" \
-    "\x22\x00\x31\x00\x22\x00\x3e\x00\x0d\x00\x0a\x00\x20\x00\x20\x00" \
-    "\x20\x00\x3c\x00\x61\x00\x63\x00\x74\x00\x69\x00\x6f\x00\x6e\x00" \
-    "\x3e\x00\x4d\x00\x53\x00\x4d\x00\x51\x00\x3a\x00\x70\x00\x6f\x00" \
-    "\x63\x00\x3c\x00\x2f\x00\x61\x00\x63\x00\x74\x00\x69\x00\x6f\x00" \
-    "\x6e\x00\x3e\x00\x0d\x00\x0a\x00\x20\x00\x20\x00\x20\x00\x3c\x00" \
-    "\x74\x00\x6f\x00\x3e\x00\x68\x00\x74\x00\x74\x00\x70\x00\x3a\x00" \
-    "\x2f\x00\x2f\x00\x31\x00\x39\x00\x32\x00\x2e\x00\x31\x00\x36\x00" \
-    "\x38\x00\x2e\x00\x35\x00\x36\x00\x2e\x00\x31\x00\x31\x00\x33\x00" \
-    "\x2f\x00\x6d\x00\x73\x00\x6d\x00\x71\x00\x2f\x00\x70\x00\x72\x00" \
-    "\x69\x00\x76\x00\x61\x00\x74\x00\x65\x00\x24\x00\x2f\x00\x71\x00" \
-    "\x75\x00\x65\x00\x75\x00\x65\x00\x6a\x00\x75\x00\x6d\x00\x70\x00" \
-    "\x65\x00\x72\x00\x3c\x00\x2f\x00\x74\x00\x6f\x00\x3e\x00\x0d\x00" \
-    "\x0a\x00\x20\x00\x20\x00\x20\x00\x3c\x00\x69\x00\x64\x00\x3e\x00" \
-    "\x75\x00\x75\x00\x69\x00\x64\x00\x3a\x00\x31\x00\x40\x00\x30\x00" \
-    "\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x2d\x00" \
-    "\x30\x00\x30\x00\x30\x00\x30\x00\x2d\x00\x30\x00\x30\x00\x30\x00" \
-    "\x30\x00\x2d\x00\x30\x00\x30\x00\x30\x00\x30\x00\x2d\x00\x30\x00" \
-    "\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00\x30\x00" \
-    "\x30\x00\x30\x00\x30\x00\x3c\x00\x2f\x00\x69\x00\x64\x00\x3e\x00" \
-    "\x0d\x00\x0a\x00\x20\x00\x3c\x00\x2f\x00\x70\x00\x61\x00\x74\x00" \
-    "\x68\x00\x3e\x00\x0d\x00\x0a\x00\x20\x00\x3c\x00\x70\x00\x72\x00" \
-    "\x6f\x00\x70\x00\x65\x00\x72\x00\x74\x00\x69\x00\x65\x00\x73\x00" \
-    "\x20\x00\x73\x00\x65\x00\x3a\x00\x6d\x00\x75\x00\x73\x00\x74\x00" \
-    "\x55\x00\x6e\x00\x64\x00\x65\x00\x72\x00\x73\x00\x74\x00\x61\x00" \
-    "\x6e\x00\x64\x00\x3d\x00\x22\x00\x31\x00\x22\x00\x3e\x00\x0d\x00" \
-    "\x0a\x00\x20\x00\x20\x00\x20\x00\x3c\x00\x65\x00\x78\x00\x70\x00" \
-    "\x69\x00\x72\x00\x65\x00\x73\x00\x41\x00\x74\x00\x3e\x00\x32\x00" \
-    "\x30\x00\x32\x00\x37\x00\x30\x00\x36\x00\x30\x00\x39\x00\x54\x00" \
-    "\x31\x00\x36\x00\x34\x00\x34\x00\x31\x00\x39\x00\x3c\x00\x2f\x00" \
-    "\x65\x00\x78\x00\x70\x00\x69\x00\x72\x00\x65\x00\x73\x00\x41\x00" \
-    "\x74\x00\x3e\x00\x0d\x00\x0a\x00\x20\x00\x20\x00\x20\x00\x3c\x00" \
-    "\x73\x00\x65\x00\x6e\x00\x74\x00\x41\x00\x74\x00\x3e\x00\x32\x00" \
-    "\x30\x00\x32\x00\x33\x00\x30\x00\x37\x00\x32\x00\x34\x00\x54\x00" \
-    "\x31\x00\x36\x00\x34\x00\x34\x00\x31\x00\x39\x00\x3c\x00\x2f\x00" \
-    "\x73\x00\x65\x00\x6e\x00\x74\x00\x41\x00\x74\x00\x3e\x00\x0d\x00" \
-    "\x0a\x00\x20\x00\x3c\x00\x2f\x00\x70\x00\x72\x00\x6f\x00\x70\x00" \
-    "\x65\x00\x72\x00\x74\x00\x69\x00\x65\x00\x73\x00\x3e\x00\x0d\x00" \
-    "\x0a\x00\x3c\x00\x2f\x00\x73\x00\x65\x00\x3a\x00\x48\x00\x65\x00" \
-    "\x61\x00\x64\x00\x65\x00\x72\x00\x3e\x00\x0d\x00\x0a\x00\x3c\x00" \
-    "\x73\x00\x65\x00\x3a\x00\x42\x00\x6f\x00\x64\x00\x79\x00\x3e\x00" \
-    "\x3c\x00\x2f\x00\x73\x00\x65\x00\x3a\x00\x42\x00\x6f\x00\x64\x00" \
-    "\x79\x00\x3e\x00\x0d\x00\x0a\x00\x3c\x00\x2f\x00\x73\x00\x65\x00" \
-    "\x3a\x00\x45\x00\x6e\x00\x76\x00\x65\x00\x6c\x00\x6f\x00\x70\x00" \
-    "\x65\x00\x3e\x00\x0d\x00\x0a\x00\x0d\x00\x0a\x00\x00\x00\x64\x00"
+    endian :big
+
+    uint16  :header_id
+    uint16  :reserved
+    uint32le :data_length
+    string :data
+    string :padding
   end
 
-  def compound_message_header
+  class CompoundMessageHeader < BinData::Record
     # CompoundMessageHeader (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqrr/ecf70c09-d312-4afc-9e2c-f61a5c827f47)
     #
     # This header contains information about the SRMP compound message.
@@ -186,109 +136,206 @@ class MetasploitModule < Msf::Auxiliary
     # body that defines parameters like the message destination, sent date,
     # label and some more.
     #
-    # Fields:
-    #   HeaderId(2), Reserved(2), HTTPBodySize(4), MsgBodySize(4), MsgBodyOffset(4), Data(1060)
 
-    "\xf4\x01\x00\x00\x24\x04\x00\x00\x07\x00\x00\x00\xe3\x03\x00\x00" \
-    "\x50\x4f\x53\x54\x20\x2f\x6d\x73\x6d\x71\x20\x48\x54\x54\x50\x2f" \
-    "\x31\x2e\x31\x0d\x0a\x43\x6f\x6e\x74\x65\x6e\x74\x2d\x4c\x65\x6e" \
-    "\x67\x74\x68\x3a\x20\x38\x31\x36\x0d\x0a\x43\x6f\x6e\x74\x65\x6e" \
-    "\x74\x2d\x54\x79\x70\x65\x3a\x20\x6d\x75\x6c\x74\x69\x70\x61\x72" \
-    "\x74\x2f\x72\x65\x6c\x61\x74\x65\x64\x3b\x20\x62\x6f\x75\x6e\x64" \
-    "\x61\x72\x79\x3d\x22\x4d\x53\x4d\x51\x20\x2d\x20\x53\x4f\x41\x50" \
-    "\x20\x62\x6f\x75\x6e\x64\x61\x72\x79\x2c\x20\x35\x33\x32\x38\x37" \
-    "\x22\x3b\x20\x74\x79\x70\x65\x3d\x74\x65\x78\x74\x2f\x78\x6d\x6c" \
-    "\x0d\x0a\x48\x6f\x73\x74\x3a\x20\x31\x39\x32\x2e\x31\x36\x38\x2e" \
-    "\x35\x36\x2e\x31\x31\x33\x0d\x0a\x53\x4f\x41\x50\x41\x63\x74\x69" \
-    "\x6f\x6e\x3a\x20\x22\x4d\x53\x4d\x51\x4d\x65\x73\x73\x61\x67\x65" \
-    "\x22\x0d\x0a\x50\x72\x6f\x78\x79\x2d\x41\x63\x63\x65\x70\x74\x3a" \
-    "\x20\x4e\x6f\x6e\x49\x6e\x74\x65\x72\x61\x63\x74\x69\x76\x65\x43" \
-    "\x6c\x69\x65\x6e\x74\x0d\x0a\x0d\x0a\x2d\x2d\x4d\x53\x4d\x51\x20" \
-    "\x2d\x20\x53\x4f\x41\x50\x20\x62\x6f\x75\x6e\x64\x61\x72\x79\x2c" \
-    "\x20\x35\x33\x32\x38\x37\x0d\x0a\x43\x6f\x6e\x74\x65\x6e\x74\x2d" \
-    "\x54\x79\x70\x65\x3a\x20\x74\x65\x78\x74\x2f\x78\x6d\x6c\x3b\x20" \
-    "\x63\x68\x61\x72\x73\x65\x74\x3d\x55\x54\x46\x2d\x38\x0d\x0a\x43" \
-    "\x6f\x6e\x74\x65\x6e\x74\x2d\x4c\x65\x6e\x67\x74\x68\x3a\x20\x36" \
-    "\x30\x36\x0d\x0a\x0d\x0a\x3c\x73\x65\x3a\x45\x6e\x76\x65\x6c\x6f" \
-    "\x70\x65\x20\x78\x6d\x6c\x6e\x73\x3a\x73\x65\x3d\x22\x68\x74\x74" \
-    "\x70\x3a\x2f\x2f\x73\x63\x68\x65\x6d\x61\x73\x2e\x78\x6d\x6c\x73" \
-    "\x6f\x61\x70\x2e\x6f\x72\x67\x2f\x73\x6f\x61\x70\x2f\x65\x6e\x76" \
-    "\x65\x6c\x6f\x70\x65\x2f\x22\x20\x0d\x0a\x78\x6d\x6c\x6e\x73\x3d" \
-    "\x22\x68\x74\x74\x70\x3a\x2f\x2f\x73\x63\x68\x65\x6d\x61\x73\x2e" \
-    "\x78\x6d\x6c\x73\x6f\x61\x70\x2e\x6f\x72\x67\x2f\x73\x72\x6d\x70" \
-    "\x2f\x22\x3e\x0d\x0a\x3c\x73\x65\x3a\x48\x65\x61\x64\x65\x72\x3e" \
-    "\x0d\x0a\x20\x3c\x70\x61\x74\x68\x20\x78\x6d\x6c\x6e\x73\x3d\x22" \
-    "\x68\x74\x74\x70\x3a\x2f\x2f\x73\x63\x68\x65\x6d\x61\x73\x2e\x78" \
-    "\x6d\x6c\x73\x6f\x61\x70\x2e\x6f\x72\x67\x2f\x72\x70\x2f\x22\x20" \
-    "\x73\x65\x3a\x6d\x75\x73\x74\x55\x6e\x64\x65\x72\x73\x74\x61\x6e" \
-    "\x64\x3d\x22\x31\x22\x3e\x0d\x0a\x20\x20\x20\x3c\x61\x63\x74\x69" \
-    "\x6f\x6e\x3e\x4d\x53\x4d\x51\x3a\x70\x6f\x63\x3c\x2f\x61\x63\x74" \
-    "\x69\x6f\x6e\x3e\x0d\x0a\x20\x20\x20\x3c\x74\x6f\x3e\x68\x74\x74" \
-    "\x70\x3a\x2f\x2f\x31\x39\x32\x2e\x31\x36\x38\x2e\x35\x36\x2e\x31" \
-    "\x31\x33\x2f\x6d\x73\x6d\x71\x2f\x70\x72\x69\x76\x61\x74\x65\x24" \
-    "\x2f\x71\x75\x65\x75\x65\x6a\x75\x6d\x70\x65\x72\x3c\x2f\x74\x6f" \
-    "\x3e\x0d\x0a\x20\x20\x20\x3c\x69\x64\x3e\x75\x75\x69\x64\x3a\x31" \
-    "\x40\x30\x30\x30\x30\x30\x30\x30\x30\x2d\x30\x30\x30\x30\x2d\x30" \
-    "\x30\x30\x30\x2d\x30\x30\x30\x30\x2d\x30\x30\x30\x30\x30\x30\x30" \
-    "\x30\x30\x30\x30\x30\x3c\x2f\x69\x64\x3e\x0d\x0a\x20\x3c\x2f\x70" \
-    "\x61\x74\x68\x3e\x0d\x0a\x20\x3c\x70\x72\x6f\x70\x65\x72\x74\x69" \
-    "\x65\x73\x20\x73\x65\x3a\x6d\x75\x73\x74\x55\x6e\x64\x65\x72\x73" \
-    "\x74\x61\x6e\x64\x3d\x22\x31\x22\x3e\x0d\x0a\x20\x20\x20\x3c\x65" \
-    "\x78\x70\x69\x72\x65\x73\x41\x74\x3e\x32\x30\x32\x37\x30\x36\x30" \
-    "\x39\x54\x31\x36\x34\x34\x31\x39\x3c\x2f\x65\x78\x70\x69\x72\x65" \
-    "\x73\x41\x74\x3e\x0d\x0a\x20\x20\x20\x3c\x73\x65\x6e\x74\x41\x74" \
-    "\x3e\x32\x30\x32\x33\x30\x37\x32\x34\x54\x31\x36\x34\x34\x31\x39" \
-    "\x3c\x2f\x73\x65\x6e\x74\x41\x74\x3e\x0d\x0a\x20\x3c\x2f\x70\x72" \
-    "\x6f\x70\x65\x72\x74\x69\x65\x73\x3e\x0d\x0a\x3c\x2f\x73\x65\x3a" \
-    "\x48\x65\x61\x64\x65\x72\x3e\x0d\x0a\x3c\x73\x65\x3a\x42\x6f\x64" \
-    "\x79\x3e\x3c\x2f\x73\x65\x3a\x42\x6f\x64\x79\x3e\x0d\x0a\x3c\x2f" \
-    "\x73\x65\x3a\x45\x6e\x76\x65\x6c\x6f\x70\x65\x3e\x0d\x0a\x0d\x0a" \
-    "\x2d\x2d\x4d\x53\x4d\x51\x20\x2d\x20\x53\x4f\x41\x50\x20\x62\x6f" \
-    "\x75\x6e\x64\x61\x72\x79\x2c\x20\x35\x33\x32\x38\x37\x0d\x0a\x43" \
-    "\x6f\x6e\x74\x65\x6e\x74\x2d\x54\x79\x70\x65\x3a\x20\x61\x70\x70" \
-    "\x6c\x69\x63\x61\x74\x69\x6f\x6e\x2f\x6f\x63\x74\x65\x74\x2d\x73" \
-    "\x74\x72\x65\x61\x6d\x0d\x0a\x43\x6f\x6e\x74\x65\x6e\x74\x2d\x4c" \
-    "\x65\x6e\x67\x74\x68\x3a\x20\x37\x0d\x0a\x43\x6f\x6e\x74\x65\x6e" \
-    "\x74\x2d\x49\x64\x3a\x20\x62\x6f\x64\x79\x40\x66\x66\x33\x61\x66" \
-    "\x33\x30\x31\x2d\x33\x31\x39\x36\x2d\x34\x39\x37\x61\x2d\x61\x39" \
-    "\x31\x38\x2d\x37\x32\x31\x34\x37\x63\x38\x37\x31\x61\x31\x33\x0d" \
-    "\x0a\x0d\x0a\x4d\x65\x73\x73\x61\x67\x65\x0c\x00\x00\x00\x94\x00" \
-    "\x00\x00\x02\x00\x00\x00\x94\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x53\x4f\x41" \
-    "\x50\x20\x62\x6f\x75\x6e\x64\x61\x72\x79\x2c\x20\x35\x33\x32\x38" \
-    "\x37\x2d\x2d\x00"
+    endian :big
+
+    uint16le :header_id
+    uint16 :reserved
+    uint32le :http_body_size
+    uint32le :msg_body_size
+    uint32le :msg_body_offset
+    string :data
   end
 
-  def extension_header
+  class ExtensionHeader < BinData::Record
     #  ExtensionHeader (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqrr/baf230bf-7f15-4d03-bd1d-f8276608a955)
     #
     #  Header detailing if any further headers are present. In this case
     #  no further headers were appended.
     #
-    #  Fields:
-    #    HeaderSize(4), RemainingHeadersSize(4), Flags(1), Reserved(3)
 
-    "\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-  end
+    endian :big
 
-  def message_normal
-    base_header + user_header + message_properties_header + srmp_envelope_header + compound_message_header + extension_header
-  end
-
-  def message_malformed
-    base_header + user_header + message_properties_header + srmp_envelope_header[0..6] + "\x80" + srmp_envelope_header[8..] + compound_message_header + extension_header
+    uint32le :header_size
+    uint32le :remaining_headers_size
+    uint8 :flags
+    string :reserved, length: 3
   end
 
   def send_message(msg)
     connect
     sock.put(msg)
-    response = sock.read(1024)
+    response = sock.timed_read(1024)
     disconnect
     return response
   end
 
   def run_host(ip)
-    response = send_message(message_normal)
+    base_header = BaseHeader.new
+
+    # Version number is always 0x10
+    base_header.version_number = 16
+
+    base_header.reserved = 0
+
+    # Flags: PR=3 (Message Priority)
+    base_header.flags = 768
+
+    # Signature is static and always set to 'LIOR'
+    base_header.signature = 0x4C494F52
+
+    # TimeToReachQueue set to 'infinite' (0xFFFFFFFF)
+    base_header.time_to_reach_queue = 4294967295
+
+    user_header = UserHeader.new
+
+    # SourceQueueManager is set to a null UUID, since SRMP Messages use the SOAP Headers for this
+    user_header.source_queue_manager = "\x00" * 16
+
+    # QueueManagerAddress is set to a null UUID, since SRMP Messages use the SOAP Headers for this
+    user_header.queue_manager_address = "\x00" * 16
+
+    user_header.time_to_be_received = 0
+
+    # SentTime is set to an arbitrary value. For this purpose it doesn't matter if it's in the past
+    user_header.sent_time = 1690217059
+
+    user_header.message_id = 1
+
+    # Flags: RC=1, DQ=7 (Direct Format Type), F=1 (MessagePropertiesHeader present), J=1 (HTTP used)
+    user_header.flags = 18620418
+
+    # An arbitrary ip address and queue name was choosen to send the message.
+    # Usually this need to match an existing IP address and queue name, however
+    # for this Proof-of-Concept it doesn't matter what values are used.
+    user_header.destination_queue = "http://192.168.10.100/msmq/private$/queuejumper\x00".encode('utf-16le')
+
+    user_header.destination_queue_length = user_header.destination_queue.length
+    user_header.padding = ''
+    user_header_padding_required = (4 - (user_header.to_binary_s.length % 4)) % 4
+    user_header.padding = "\x00" * user_header_padding_required
+
+    message_properties_header = MessagePropertiesHeader.new
+    message_properties_header.flags = 0
+    message_properties_header.message_class = 0
+    message_properties_header.correlation_id = "\x00" * 20
+    message_properties_header.body_type = 0
+    message_properties_header.application_tag = 0
+
+    # Usually this field contains the size of the message. In SRMP messages this is handles within the SOAP headers
+    message_properties_header.message_size = 0
+
+    message_properties_header.allocation_body_size = 0
+    message_properties_header.privacy_level = 0
+    message_properties_header.hash_algorithm = 0
+    message_properties_header.encryption_algorithm = 0
+    message_properties_header.extension_size = 0
+
+    # Label of the message was set to the arbitrary value 'poc'
+    message_properties_header.label = "poc\x00".encode('utf-16le')
+
+    message_properties_header.label_length = message_properties_header.label.length / 2
+
+    srmp_envelope_header = SRMPEnvelopeHeader.new
+    srmp_envelope_header.header_id = 0
+    srmp_envelope_header.reserved = 0
+
+    # The payload within the SRMPEnvelopeHeader structure is a SOAP request that defines message label, destination queue
+    # and expiry and sent dates.
+    # Usually the destination information need to match the IP address and queue name, however
+    # for this Proof-of-Concept it doesn't matter what values are used.
+    srmp_envelope_header.data = <<~EOF.chomp
+      <se:Envelope xmlns:se="http://schemas.xmlsoap.org/soap/envelope/" \r
+      xmlns="http://schemas.xmlsoap.org/srmp/">\r
+      <se:Header>\r
+       <path xmlns="http://schemas.xmlsoap.org/rp/" se:mustUnderstand="1">\r
+         <action>MSMQ:poc</action>\r
+         <to>http://192.168.10.100/msmq/private$/queuejumper</to>\r
+         <id>uuid:1@00000000-0000-0000-0000-000000000000</id>\r
+       </path>\r
+       <properties se:mustUnderstand="1">\r
+         <expiresAt>20600609T164419</expiresAt>\r
+         <sentAt>20230724T164419</sentAt>\r
+       </properties>\r
+      </se:Header>\r
+      <se:Body></se:Body>\r
+      </se:Envelope>\r\n\r\n\x00
+    EOF
+
+    srmp_envelope_header.data = srmp_envelope_header.data.encode('utf-16le')
+    srmp_envelope_header.data_length = srmp_envelope_header.data.length / 2
+    srmp_envelope_header_padding_required = (4 - (srmp_envelope_header.to_binary_s.length % 4)) % 4
+    srmp_envelope_header.padding = "\x00" * srmp_envelope_header_padding_required
+
+    compound_message_header = CompoundMessageHeader.new
+
+    # HeaderId is set to an arbitrary value
+    compound_message_header.header_id = 500
+
+    compound_message_header.reserved = 0
+
+    # MsgBodySize denotes the size of the actual message
+    compound_message_header.msg_body_size = 7
+
+    # MsgBodyOffset is the offset of the actual message within the CompoundMessageHeader payload
+    compound_message_header.msg_body_offset = 995
+
+    # The data field within the CompoundMessageHeader structure contains a HTTP-POST request that is used to submit the message
+    # to MSMQ. It contains the destination host, the SOAP envelope from SRMPEnvelopeHeader, sent and expiry dates. The destination
+    # addresses and queue names don't need to match for this proof-of-concept to work. With incorrect information the message will
+    # never reach the destination, however parsing of the structure and triggering the vulnerable code sequence happens before anyway.
+    compound_message_header.data = <<~EOF.chomp
+      POST /msmq HTTP/1.1\r
+      Content-Length: 816\r
+      Content-Type: multipart/related; boundary="MSMQ - SOAP boundary, 53287"; type=text/xml\r
+      Host: 192.168.10.100\r
+      SOAPAction: "MSMQMessage"\r
+      Proxy-Accept: NonInteractiveClient\r
+      \r
+      --MSMQ - SOAP boundary, 53287\r
+      Content-Type: text/xml; charset=UTF-8\r
+      Content-Length: 606\r
+      \r
+      <se:Envelope xmlns:se="http://schemas.xmlsoap.org/soap/envelope/" \r
+      xmlns="http://schemas.xmlsoap.org/srmp/">\r
+      <se:Header>\r
+       <path xmlns="http://schemas.xmlsoap.org/rp/" se:mustUnderstand="1">\r
+         <action>MSMQ:poc</action>\r
+         <to>http://192.168.10.100/msmq/private$/queuejumper</to>\r
+         <id>uuid:1@00000000-0000-0000-0000-000000000000</id>\r
+       </path>\r
+       <properties se:mustUnderstand="1">\r
+         <expiresAt>20600609T164419</expiresAt>\r
+         <sentAt>20230724T164419</sentAt>\r
+       </properties>\r
+      </se:Header>\r
+      <se:Body></se:Body>\r
+      </se:Envelope>\r
+      \r
+      --MSMQ - SOAP boundary, 53287\r
+      Content-Type: application/octet-stream\r
+      Content-Length: 7\r
+      Content-Id: body@ff3af301-3196-497a-a918-72147c871a13\r
+      \r
+      Message\r
+      --MSMQ - SOAP boundary, 53287--\x00
+    EOF
+    compound_message_header.http_body_size = compound_message_header.data.length
+
+    extension_header = ExtensionHeader.new
+
+    # Extension header will be empty in this case. The length is set to the minimal value of 12.
+    extension_header.header_size = 12
+
+    extension_header.remaining_headers_size = 0
+    extension_header.flags = 0
+    extension_header.reserved = "\x00" * 3
+
+    # Total packet size within the BaseHeader is calculated, now that all message parts were instantiated
+    base_header.packet_size = base_header.to_binary_s.length + user_header.to_binary_s.length + message_properties_header.to_binary_s.length + srmp_envelope_header.to_binary_s.length + compound_message_header.to_binary_s.length + extension_header.to_binary_s.length
+
+    # A normal message is sent to the server. This should yield a result for both, vulnerable and patched MSMQ instances
+    response = send_message(base_header.to_binary_s + user_header.to_binary_s + message_properties_header.to_binary_s + srmp_envelope_header.to_binary_s + compound_message_header.to_binary_s + extension_header.to_binary_s)
 
     if !response
       print_error('No response received due to a timeout')
@@ -296,13 +343,22 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if response.include?('LIOR')
+      # Response from server contains the static signature value 'LIOR'. Presence of MSMQ is confirmed
       print_status('MSMQ detected. Checking for CVE-2023-21554')
     else
       print_error('Service does not look like MSMQ')
       return
     end
 
-    response = send_message(message_malformed)
+    # This statement increases the DataLength field within the SRMPEnvelopeHeader by 0x80000000. This will cause
+    # an integer overflow, that overflows the 4 integer bytes. By adding this value the least significant 4 bytes will
+    # remain the same, to ensure that a vulnerable MSMQ instance doesn't try to access invalid memory. This means that
+    # vulnerable instances are expected to sent a normal response, like for the first, unmodified packet.
+    #
+    # Patched instances will detect the overflow, throw an exception and stop processing the message. No response is expected.
+    srmp_envelope_header.data_length = srmp_envelope_header.data_length + 2147483648
+
+    response = send_message(base_header.to_binary_s + user_header.to_binary_s + message_properties_header.to_binary_s + srmp_envelope_header.to_binary_s + compound_message_header.to_binary_s + extension_header.to_binary_s)
 
     if response.nil?
       print_error('No response received, MSMQ seems to be patched')
@@ -327,8 +383,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   rescue ::Rex::ConnectionError
     print_error('Unable to connect to the service')
+  rescue ::Errno::ECONNRESET
+    print_error('Connection reset by service')
   rescue ::Errno::EPIPE
     print_error('pipe error')
+  rescue Timeout::Error
+    print_error('Timeout after waiting for service to respond')
   rescue StandardError => e
     print_error(e)
   end
