@@ -100,17 +100,22 @@ class Console
   def run_command(dispatcher, method, arguments)
     begin
       super
-    rescue Timeout::Error
-      log_error("Operation timed out.")
-    rescue RequestError => info
-      log_error(info.to_s)
-    rescue Rex::InvalidDestination => e
-      log_error(e.message)
-    rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
-      self.client.kill
-    rescue  ::Exception => e
-      log_error("Error running command #{method}: #{e.class} #{e}")
-      elog(e)
+    rescue Exception => e
+      is_error_handled = self.client.on_run_command_error_proc && self.client.on_run_command_error_proc.call(e) == :handled
+      return if is_error_handled
+      case e
+      when Rex::TimeoutError, Rex::InvalidDestination
+        log_error(e.message)
+      when Timeout::Error
+        log_error('Operation timed out.')
+      when RequestError
+        log_error(e.to_s)
+      when ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
+        self.client.kill
+      when ::Exception
+        log_error("Error running command #{method}: #{e.class} #{e}")
+        elog(e)
+      end
     end
   end
 
