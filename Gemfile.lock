@@ -39,6 +39,7 @@ PATH
       mqtt
       msgpack (~> 1.6.0)
       nessus_rest
+      net-imap
       net-ldap
       net-smtp
       net-ssh
@@ -181,6 +182,7 @@ GEM
     cookiejar (0.3.3)
     crass (1.0.6)
     daemons (1.4.1)
+    date (3.3.3)
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
@@ -297,6 +299,9 @@ GEM
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
     nessus_rest (0.1.6)
+    net-imap (0.3.7)
+      date
+      net-protocol
     net-ldap (0.18.0)
     net-protocol (0.2.1)
       timeout
@@ -498,7 +503,7 @@ GEM
     thor (1.2.2)
     tilt (2.2.0)
     timecop (0.9.6)
-    timeout (0.3.2)
+    timeout (0.4.0)
     ttfunk (1.7.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
