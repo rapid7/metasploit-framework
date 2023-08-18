@@ -108,8 +108,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def forge_silver
-    raise Msf::OptionValidateError, 'SPN' if datastore['SPN'].blank?
-
     validate_spn!
     validate_sid!
     validate_key!
@@ -147,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate_spn!
     unless datastore['SPN'] =~ %r{.*/.*}
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid SPN - must be in the format .*/.*. Ex. <service class>/<host><realm>:<port>/<service name>')
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid SPN, must be in the format <service class>/<host><realm>:<port>/<service name>. Ex: cifs/host.realm.local')
     end
   end
 
