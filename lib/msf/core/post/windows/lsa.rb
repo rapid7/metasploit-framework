@@ -301,6 +301,21 @@ module Msf
           true
         end
 
+        def lsa_enumerate_logon_sessions
+          result = session.railgun.secur32.LsaEnumerateLogonSessions(4, 4)
+          unless result['return'] == ::WindowsError::NTStatus::STATUS_SUCCESS
+            status = ::WindowsError::NTStatus.find_by_retval(result['return']).first
+            print_error("Failed to enumerate logon sessions. LsaEnumerateLogonSessions failed with: #{status.to_s}")
+            return nil
+          end
+
+          return [] if result['LogonSessionCount'] == 0
+          luids = BinData::Array.new(type: :ms_dtyp_luid, initial_length: result['LogonSessionCount'])
+          luids.read(session.railgun.memread(result['LogonSessionList'], luids.num_bytes))
+          session.railgun.secur32.LsaFreeReturnBuffer(result['LogonSessionList'])
+          luids
+        end
+
         def lsa_get_logon_session_data(luid)
           logon_session_data = SECURITY_LOGON_SESSION_DATA_x64.new
           result = session.railgun.secur32.LsaGetLogonSessionData(luid, 8)

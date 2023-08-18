@@ -30,6 +30,11 @@ class Def_windows_secur32
       ['HANDLE', 'LsaHandle', 'in']
     ])
 
+    dll.add_function('LsaEnumerateLogonSessions', 'NTSTATUS', [
+      ['PULONG', 'LogonSessionCount', 'out'],
+      ['PLPVOID', 'LogonSessionList', 'out']
+    ])
+
     dll.add_function('LsaFreeReturnBuffer', 'NTSTATUS', [
       ['LPVOID', 'Buffer', 'in']
     ])

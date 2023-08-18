@@ -40,8 +40,9 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'SessionTypes' => %w[meterpreter],
         'Actions' => [
-          ['SHOW_LUID', { 'Description' => 'Show the current LUID' }],
           ['DUMP_TICKETS', { 'Description' => 'Dump the Kerberos tickets' }],
+          ['ENUM_LUIDS', { 'Description' => 'Enumerate session logon LUIDs' }],
+          ['SHOW_LUID', { 'Description' => 'Show the current LUID' }],
         ],
         'DefaultAction' => 'DUMP_TICKETS',
         'Notes' => {
@@ -76,6 +77,15 @@ class MetasploitModule < Msf::Post
     print_status("Current LUID: #{luid}")
 
     dump_for_luid(luid)
+  end
+
+  def action_enum_luids
+    current_luid = get_current_luid
+    luids = lsa_enumerate_logon_sessions
+    fail_with(Failure::Unknown, 'Failed to enumerate logon sessions.') if luids.nil?
+    luids.each do |luid|
+      print_status("#{luid} #{luid == current_luid ? ' (Current)' : ''}")
+    end
   end
 
   def action_show_luid
@@ -209,7 +219,7 @@ class MetasploitModule < Msf::Post
   end
 
   def peer
-    nil
+    nil # drop the peer prefix from messages
   end
 
   def indented_print(&block)
