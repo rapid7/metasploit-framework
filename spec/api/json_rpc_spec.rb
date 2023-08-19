@@ -570,7 +570,7 @@ RSpec.describe "Metasploit's json-rpc" do
               host: host_ip,
               analyze_options: {
                 payloads: [
-                  'java/meterpreter/reverse_http'
+                  'windows/meterpreter_reverse_http'
                 ]
               }
             }

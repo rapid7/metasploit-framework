@@ -7,6 +7,8 @@ activerecord, 7.0.5, MIT
 activesupport, 7.0.5, MIT
 addressable, 2.8.4, "Apache 2.0"
 afm, 0.2.2, MIT
+allure-rspec, 2.22.0, "Apache 2.0"
+allure-ruby-commons, 2.22.0, "Apache 2.0"
 arel-helpers, 2.14.0, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
@@ -70,16 +72,19 @@ json, 2.6.3, ruby
 little-plugger, 1.1.4, MIT
 logging, 2.3.1, MIT
 loofah, 2.21.3, MIT
+macaddr, 1.7.2, ruby
 memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.1, "New BSD"
 metasploit-credential, 6.0.5, "New BSD"
-metasploit-framework, 6.3.30, "New BSD"
+metasploit-framework, 6.3.31, "New BSD"
 metasploit-model, 5.0.1, "New BSD"
 metasploit-payloads, 2.0.148, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.2, "New BSD"
 metasploit_payloads-mettle, 1.0.26, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
+mime-types, 3.4.1, MIT
+mime-types-data, 3.2023.0218.1, MIT
 mini_portile2, 2.8.2, MIT
 minitest, 5.18.0, MIT
 mqtt, 0.6.0, MIT
@@ -126,6 +131,7 @@ recog, 3.1.1, unknown
 redcarpet, 3.6.0, MIT
 regexp_parser, 2.8.0, MIT
 reline, 0.3.5, ruby
+require_all, 3.0.0, MIT
 rex-arch, 0.1.14, "New BSD"
 rex-bin_tools, 0.1.8, "New BSD"
 rex-core, 0.1.31, "New BSD"
@@ -156,6 +162,7 @@ rspec-support, 3.12.0, MIT
 rubocop, 1.52.0, MIT
 rubocop-ast, 1.29.0, MIT
 ruby-macho, 3.0.0, MIT
+ruby-mysql, 4.0.0, MIT
 ruby-prof, 1.4.2, "Simplified BSD"
 ruby-progressbar, 1.13.0, MIT
 ruby-rc4, 0.1.5, MIT
@@ -172,6 +179,8 @@ sqlite3, 1.6.3, "New BSD"
 sshkey, 2.0.0, MIT
 strptime, 0.2.5, "Simplified BSD"
 swagger-blocks, 3.0.0, MIT
+systemu, 2.6.5, ruby
+test-prof, 1.2.2, MIT
 thin, 1.8.2, "GPL-2.0+, ruby"
 thor, 1.2.2, MIT
 tilt, 2.2.0, MIT
@@ -184,6 +193,7 @@ unf, 0.1.4, "2-clause BSDL"
 unf_ext, 0.0.8.2, MIT
 unicode-display_width, 2.4.2, MIT
 unix-crypt, 1.3.1, 0BSD
+uuid, 2.3.9, MIT
 warden, 1.2.9, MIT
 webrick, 1.8.1, "ruby, Simplified BSD"
 websocket-driver, 0.7.5, "Apache 2.0"

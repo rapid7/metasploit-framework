@@ -21,6 +21,11 @@ Copyright: 2007  Roland Bouman
 License: LGPL-2.1
 Purpose: These files are used in exploits/multi/mysql/mysql_udf_payload.rb
 
+Files: data/exploits/cve-2023-34634/test.png
+Copyright: 2023 Brendan Watters
+License: MIT
+Purpose: These image is used as the default file to embed the exploit command.
+
 Files: data/headers/windows/c_payload_util/beacon.h
 Copyright: 2022, Copyright Help/Systems LLC and its group of companies.
 License: Apache 2.0
