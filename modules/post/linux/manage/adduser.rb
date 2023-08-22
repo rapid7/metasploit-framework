@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Post
     os_platform =
       if session.type == 'meterpreter'
         sysinfo['OS']
-      elsif active_db? && framework.db.workspace.hosts.where(address: session.session_host) && framework.db.workspace.hosts.where(address: session.session_host).first.os_name
+      elsif active_db? && framework.db.workspace.hosts.where(address: session.session_host)&.first&.os_name
         host = framework.db.workspace.hosts.where(address: session.session_host).first
         if host.os_name == 'linux' && host.os_flavor
           host.os_flavor
