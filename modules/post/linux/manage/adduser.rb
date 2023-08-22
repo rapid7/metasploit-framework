@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
     if invalid.any? && datastore['MissingGroups'] == 'IGNORE'
       groups -= invalid
       vprint_error("The groups [#{invalid.join(' ')}] do not fit accepted characters for groups. Ignoring them instead.")
-    else
+    elsif invalid.any?
       # Give error even on create, as creating this group will cause errors
       fail_with(Failure::BadConfig, "groups [#{invalid.join(' ')}] Do not fit the authorized regex for groups. Check your groups against this regex /^[a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9_.$-]?$/")
     end
