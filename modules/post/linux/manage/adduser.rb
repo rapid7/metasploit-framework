@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
 
     # Check that group names are valid
     invalid = groups.filter { |group| group !~ /^[a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9_.$-]?$/ }
-    if !invalid.empty? && datastore['MissingGroups'] == 'IGNORE'
+    if invalid.any? && datastore['MissingGroups'] == 'IGNORE'
       groups -= invalid
       vprint_error("The groups [#{invalid.join(' ')}] do not fit accepted characters for groups. Ignoring them instead.")
     else
