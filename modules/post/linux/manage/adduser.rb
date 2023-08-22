@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
   end
 
   def check_group_exists?(group_name, group_data)
-    return group_data =~ /^#{group_name}:/
+    return group_data =~ /^#{Regexp.escape(group_name)}:/
   end
 
   def d_cmd_exec(command)
