@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
       OptString.new('PASSWORD', [ true, 'The password for this user', 'Metasploit$1' ]),
       OptString.new('SHELL', [true, 'Set the shell that the new user will use', '/bin/sh']),
       OptString.new('HOME', [true, 'Set the home directory of the new user. Leave empty if user will have no home directory', '']),
-      OptString.new('GROUPS', [false, 'Set what groups the new user will be part of separated with a space', ''])
+      OptString.new('GROUPS', [false, 'Set what groups the new user will be part of separated with a space'])
     ])
 
     register_advanced_options([
