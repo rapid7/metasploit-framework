@@ -192,9 +192,9 @@ class MetasploitModule < Msf::Post
 
     # Check Xen devices
     if !vm
-      xen_capabilities = read_file('/proc/xen/capabilities')
+      xen_capabilities = read_file('/sys/hypervisor/uuid')
       if xen_capabilities
-        if ! xen_capabilities.include? 'control_d'
+        if ! xen_capabilities.include? '00000000-0000-0000-0000-000000000000'
           vm = 'Xen'
         end
       end
