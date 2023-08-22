@@ -69,11 +69,7 @@ class MetasploitModule < Msf::Post
     passwd = UnixCrypt::MD5.build(datastore['PASSWORD'])
 
     # Adding sudo to groups if method is set to use groups
-    groups = if datastore['GROUPS']
-               datastore['GROUPS'].split
-             else
-               []
-             end
+    groups = datastore['GROUPS']&.split || []
     groups += ['sudo'] if datastore['SudoMethod'] == 'GROUP'
     groups = groups.uniq
 
