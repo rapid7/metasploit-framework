@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options([
       OptEnum.new('UseraddMethod', [true, 'Set how the module adds in new users and groups. AUTO will autodetect how to add new users, MANUAL will add users without any binaries, and CUSTOM will attempt to use a custom designated binary', 'AUTO', ['AUTO', 'MANUAL', 'CUSTOM']]),
-      OptString.new('UseraddBinary', [false, 'Set binary used to set password if you dont want module to find it for you. Set this to \'MANUAL\' to run without binary', nil]),
+      OptString.new('UseraddBinary', [false, 'Set binary used to set password if you dont want module to find it for you.'], conditions: %w[UseraddMethod == CUSTOM]),
       OptEnum.new('SudoMethod', [false, 'Set the method that the new user can obtain root. SUDO_FILE adds the user directly to sudoers while GROUP adds the new user to the sudo group', 'GROUP', ['SUDO_FILE', 'GROUP', 'NONE']]),
       OptEnum.new('MissingGroups', [true, 'Set how nonexisting groups are handled on the system. Either give an error in the module, ignore it and throw it out, or create the group on the system.', 'ERROR', ['ERROR', 'IGNORE', 'CREATE']]),
     ])
