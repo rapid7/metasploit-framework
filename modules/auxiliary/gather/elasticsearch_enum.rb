@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Module::Deprecated
 
@@ -417,7 +416,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(_ip)
+  def run
     get_version_info
     get_node_info
     get_cluster_info
