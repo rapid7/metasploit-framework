@@ -20,7 +20,7 @@ module Rex::Proto::Thrift
     CALL = 1
     REPLY = 2
 
-    default_parameter assert: -> { !MessageType.name(value).nil? }
+    default_parameter assert: -> { !ThriftMessageType.name(value).nil? }
 
     def self.name(value)
       constants.select { |c| c.upcase == c }.find { |c| const_get(c) == value }
