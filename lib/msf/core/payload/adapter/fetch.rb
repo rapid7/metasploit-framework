@@ -79,6 +79,7 @@ module Msf::Payload::Adapter::Fetch
 
   def generate(opts = {})
     datastore['FETCH_SRVHOST'] = datastore['LHOST'] if datastore['FETCH_SRVHOST'].blank?
+    fail_with(Msf::Module::Failure::BadConfig, 'FETCH_SRVHOST required') if datastore['FETCH_SRVHOST'].blank?
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
