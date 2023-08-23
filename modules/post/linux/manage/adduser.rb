@@ -112,6 +112,17 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Creating new groups if it was set and isnt manual
+    if groups.any? && datastore['MissingGroups'] == 'CREATE' && datastore['UseraddMethod'] != 'MANUAL'
+      # Since command can add on groups, checking over groups
+      groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
+
+      groups_missing.each do |group|
+        d_cmd_exec("#{groupadd} #{group}")
+        print_good("Added #{group} group")
+      end
+    end
+
     # Automatically ignore setting groups if added additional groups is empty
     groups_handled = groups.empty?
 
@@ -153,15 +164,6 @@ class MetasploitModule < Msf::Post
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home-dir #{datastore['HOME']}"
 
         # Since command can add on groups, checking over groups
-        groupadd = ''
-        if datastore['MissingGroups'] == 'CREATE'
-          groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
-
-          groups_missing.each do |group|
-            d_cmd_exec("#{groupadd} #{group}")
-            print_good("Added #{group} group")
-          end
-        end
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
@@ -179,7 +181,7 @@ class MetasploitModule < Msf::Post
       print_status('Adduser exists. Using that')
       case os_platform
       when /debian|ubuntu/i
-        print_bad('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
+        print_warning('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home #{datastore['HOME']}"
 
         d_cmd_exec("#{binary} --disabled-password #{homedirc} --shell #{datastore['SHELL']} #{datastore['USERNAME']} | echo")
@@ -188,22 +190,13 @@ class MetasploitModule < Msf::Post
         homedirc = datastore['HOME'].empty? ? '--no-create-home' : "--home-dir #{datastore['HOME']}"
 
         # Since command can add on groups, checking over groups
-        groupadd = ''
-        if datastore['MissingGroups'] == 'CREATE'
-          groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
-
-          groups_missing.each do |group|
-            d_cmd_exec("#{groupadd} #{group}")
-            print_good("Added #{group} group")
-          end
-        end
         groupsc = groups.empty? ? '' : "--groups #{groups.join(',')}"
 
         # Finally run it
         d_cmd_exec("#{binary} --password \'#{passwd}\' #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' '))
         groups_handled = true
       when /alpine/i
-        print_bad('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
+        print_warning('Adduser cannot add groups to the new user automatically. Going to have to do it at a later step')
         homedirc = datastore['HOME'].empty? ? '-H' : "-h #{datastore['HOME']}"
 
         d_cmd_exec("#{binary} -D #{homedirc} -s #{datastore['SHELL']} #{datastore['USERNAME']}")
@@ -251,17 +244,6 @@ class MetasploitModule < Msf::Post
 
     # Adding in groups and connecting if not done already
     unless groups_handled
-      # Since command can add on groups, checking over groups
-      groupadd = ''
-      if datastore['MissingGroups'] == 'CREATE'
-        groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
-
-        groups_missing.each do |group|
-          d_cmd_exec("#{groupadd} #{group}")
-          print_good("Added #{group} group")
-        end
-      end
-
       # Attempt to do add groups to user by normal means, or do it manually
       if check_command_exists?('usermod')
         d_cmd_exec("usermod -aG #{groups.join(',')} #{datastore['USERNAME']}")
