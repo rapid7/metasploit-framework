@@ -186,7 +186,11 @@ NAVIGATION_CONFIG = [
               },
               {
                 path: '../../documentation/modules/auxiliary/admin/ldap/rbcd.md',
-                title: 'RBCD - Resource-based constrained delegation'
+                title: 'Resource-based constrained delegation (RBCD)'
+              },
+              {
+                path: 'kerberos/unconstrained_delegation.md',
+                title: 'Unconstrained delegation'
               }
             ]
           },

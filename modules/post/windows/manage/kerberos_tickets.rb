@@ -38,6 +38,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Kerberos Ticket Management',
         'Description' => %q{
+          Manage kerberos tickets on a compromised host.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -278,6 +279,8 @@ class MetasploitModule < Msf::Post
   def print_logon_session_summary(logon_session_data_ptr, annotation: nil)
     sid = '???'
     if datastore['VERBOSE'] && logon_session_data_ptr.contents.psid != 0
+      # reading the SID requires 3 railgun calls so only do it in verbose mode to speed things up
+      # reading the data directly wouldn't be much faster because SIDs are of a variable length
       result = session.railgun.advapi32.ConvertSidToStringSidA(logon_session_data_ptr.contents.psid.to_i, 4)
       if result
         sid = session.railgun.util.read_string(result['StringSid'])
