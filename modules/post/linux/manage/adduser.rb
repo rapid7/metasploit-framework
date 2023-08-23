@@ -67,6 +67,23 @@ class MetasploitModule < Msf::Post
     print_line(cmd_exec(command))
   end
 
+  # Finds out what platform the module is running on. It will attempt to access
+  # the Hosts database before making more noise on the target to learn more
+  def os_platform
+    if session.type == 'meterpreter'
+      sysinfo['OS']
+    elsif active_db? && framework.db.workspace.hosts.where(address: session.session_host)&.first&.os_name
+      host = framework.db.workspace.hosts.where(address: session.session_host).first
+      if host.os_name == 'linux' && host.os_flavor
+        host.os_flavor
+      else
+        host.os_name
+      end
+    else
+      get_sysinfo[:distro]
+    end
+  end
+
   def run
     fail_with(Failure::NoAccess, 'Session isnt running as root') unless is_root?
     case datastore['UseraddMethod']
@@ -141,20 +158,6 @@ class MetasploitModule < Msf::Post
              when 'CUSTOM'
                datastore['UseraddBinary']
              end
-    os_platform =
-      if session.type == 'meterpreter'
-        sysinfo['OS']
-      elsif active_db? && framework.db.workspace.hosts.where(address: session.session_host)&.first&.os_name
-        host = framework.db.workspace.hosts.where(address: session.session_host).first
-        if host.os_name == 'linux' && host.os_flavor
-          host.os_flavor
-        else
-          host.os_name
-        end
-      else
-        get_sysinfo[:distro]
-      end
-
     case binary
     when /useradd$/
       print_status("Running on #{os_platform}")
