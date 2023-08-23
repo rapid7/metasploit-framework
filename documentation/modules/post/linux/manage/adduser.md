@@ -89,6 +89,14 @@ The possible options are provided as such:
  * **CREATE** - If the group doesnt exist, then make them first then add the user
  to them
 
+### PasswordHashType
+
+Allows the user to decide how their password will be encrypted on the system.
+The options are between `DES`, `MD5`, `SHA256`, and `SHA512`. This can be
+advantageous to blend in with the main system by using the same password
+encryption scheme as the rest of the users. Or if one encryption type isn't
+compatible with a given target.
+
 ## Scenarios
 
 ```

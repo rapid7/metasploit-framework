@@ -41,6 +41,7 @@ class MetasploitModule < Msf::Post
       OptString.new('UseraddBinary', [false, 'Set binary used to set password if you dont want module to find it for you.'], conditions: %w[UseraddMethod == CUSTOM]),
       OptEnum.new('SudoMethod', [true, 'Set the method that the new user can obtain root. SUDO_FILE adds the user directly to sudoers while GROUP adds the new user to the sudo group', 'GROUP', ['SUDO_FILE', 'GROUP', 'NONE']]),
       OptEnum.new('MissingGroups', [true, 'Set how nonexisting groups are handled on the system. Either give an error in the module, ignore it and throw it out, or create the group on the system.', 'ERROR', ['ERROR', 'IGNORE', 'CREATE']]),
+      OptEnum.new('PasswordHashType', [true, 'Set the hash method your password will be encrypted in.', 'MD5', ['DES', 'MD5', 'SHA256', 'SHA512']])
     ])
   end
 
@@ -164,7 +165,16 @@ class MetasploitModule < Msf::Post
     fail_with(Failure::BadConfig, "Username [#{datastore['USERNAME']}] is not a legal unix username.") unless datastore['USERNAME'] =~ /^[a-z][a-z0-9_-]{0,31}$/
 
     # Encrypting password ahead of time
-    passwd = UnixCrypt::MD5.build(datastore['PASSWORD'])
+    passwd = case datastore['PasswordHashType']
+             when 'DES'
+               UnixCrypt::DES.build(datastore['PASSWORD'])
+             when 'MD5'
+               UnixCrypt::MD5.build(datastore['PASSWORD'])
+             when 'SHA256'
+               UnixCrypt::SHA256.build(datastore['PASSWORD'])
+             when 'SHA512'
+               UnixCrypt::SHA512.build(datastore['PASSWORD'])
+             end
 
     # Adding sudo to groups if method is set to use groups
     groups = datastore['GROUPS']&.split || []
