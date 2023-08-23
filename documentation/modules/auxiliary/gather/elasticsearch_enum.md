@@ -1,9 +1,8 @@
-## Description
+## Vulnerable Application
+
 This module enumerates ElasticSearch instances. It uses the REST API
 in order to do gather information about the server, the cluster, nodes,
 in the cluster, indicies, and pull data from those indicies
-
-## Vulnerable Application
 
 ### Docker
 
@@ -25,7 +24,9 @@ docker run --rm -it --network host oliver006/es-test-data  \
 
 
 ### Install Elasticsearch on Kali Linux
-With this install, we'll install the free community edition of Elasticsearch, which does not require authentication to the API. However, this is unrealistic in a production environment which will often leverage a support contract to gain authentication, a reverse proxy to add basic authentication, and/or a host firewall to restrict access to this API.
+With this install, we'll install the free community edition of Elasticsearch, which does not require authentication to the API. However,
+this is unrealistic in a production environment which will often leverage a support contract to gain authentication, a reverse proxy to
+add basic authentication, and/or a host firewall to restrict access to this API.
 
 The following instructions assume you are beginning with a fresh Kali installation as the root user.
 
@@ -39,6 +40,13 @@ The following instructions assume you are beginning with a fresh Kali installati
 8. Open a new terminal
 9. In the new terminal, `curl -X PUT http://127.0.0.1:9200/msf_test` to create an index for validation purposes
 
+## Verification Steps
+1. `use auxiliary/gather/elasticsearch_enum`
+2. `set RHOSTS [ips]`
+3. `set RPORT [port]`
+4. `run`
+
+## Options
 
 ## Scenarios
 ### Elasticsearch 7.9.1 on Docker
