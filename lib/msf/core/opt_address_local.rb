@@ -28,7 +28,10 @@ class OptAddressLocal < OptAddress
       end
     end
 
-    addrs.any? ? addrs.first : ''
+    # Sort for deterministic normalization; preference ipv4 addresses followed by their value
+    sorted_addrs = addrs.sort_by { |addr| ip_addr = IPAddr.new(addr); [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i] }
+
+    sorted_addrs.any? ? sorted_addrs.first : ''
   end
 
   def valid?(value, check_empty: true)
