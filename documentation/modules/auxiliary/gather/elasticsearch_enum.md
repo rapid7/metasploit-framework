@@ -39,27 +39,21 @@ The following instructions assume you are beginning with a fresh Kali installati
 8. Open a new terminal
 9. In the new terminal, `curl -X PUT http://127.0.0.1:9200/msf_test` to create an index for validation purposes
 
-## Verification Steps
-1. `use auxiliary/scanner/elasticsearch/enum`
-2. `set RHOSTS [ips]`
-3. `set RPORT [port]`
-4. `run`
-
 
 ## Scenarios
 ### Elasticsearch 7.9.1 on Docker
 ```
-msf6 > use auxiliary/scanner/elasticsearch/enum
-msf6 auxiliary(scanner/elasticsearch/enum) > set ssl false
+msf6 > use auxiliary/gather/elasticsearch_enum
+msf6 auxiliary(gather/elasticsearch/enum) > set ssl false
 [!] Changing the SSL option's value may require changing RPORT!
 ssl => false
-msf6 auxiliary(scanner/elasticsearch/enum) > set password esbackup-password
+msf6 auxiliary(gather/elasticsearch/enum) > set password esbackup-password
 password => esbackup-password
-msf6 auxiliary(scanner/elasticsearch/enum) > set username elastic
+msf6 auxiliary(gather/elasticsearch/enum) > set username elastic
 username => elastic
-msf6 auxiliary(scanner/elasticsearch/enum) > set rhosts 127.0.0.1
+msf6 auxiliary(gather/elasticsearch/enum) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/elasticsearch/enum) > run
+msf6 auxiliary(gather/elasticsearch/enum) > run
 
 [+] Elastic Information
 ===================
