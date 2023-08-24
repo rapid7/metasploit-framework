@@ -142,8 +142,9 @@ class MetasploitModule < Msf::Post
     # Creating new groups if it was set and isnt manual
     if groups.any? && datastore['MissingGroups'] == 'CREATE' && datastore['UseraddMethod'] != 'MANUAL'
       # Since command can add on groups, checking over groups
-      fail_with(Failure::NotFound, 'Neither groupadd nor addgroup exist on the system. Try running with UseraddMethod as MANUAL to get around this issue') unless check_command_exists?('groupadd') || check_command_exists?('addgroup')
-      groupadd = check_command_exists?('groupadd') ? 'groupadd' : 'addgroup'
+      groupadd = check_command_exists?('groupadd') ? 'groupadd' : nil
+      groupadd ||= 'addgroup' if check_command_exists?('addgroup')
+      fail_with(Failure::NotFound, 'Neither groupadd nor addgroup exist on the system. Try running with UseraddMethod as MANUAL to get around this issue') unless groupadd
 
       groups_missing.each do |group|
         d_cmd_exec("#{groupadd} #{group}")
