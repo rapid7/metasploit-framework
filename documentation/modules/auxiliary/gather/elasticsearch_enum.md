@@ -1,8 +1,8 @@
 ## Vulnerable Application
 
-This module enumerates ElasticSearch instances. It uses the REST API
-in order to do gather information about the server, the cluster, nodes,
-in the cluster, indicies, and pull data from those indicies
+This module enumerates Elasticsearch instances. It uses the REST API
+in order to gather information about the server, the cluster, nodes,
+in the cluster, indicies, and pull data from those indicies.
 
 ### Docker
 

@@ -14,11 +14,11 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'ElasticSearch Enumeration Utility',
+        'Name' => 'Elasticsearch Enumeration Utility',
         'Description' => %q{
-          This module enumerates ElasticSearch instances. It uses the REST API
-          in order to do gather information about the server, the cluster, nodes,
-          in the cluster, indicies, and pull data from those indicies
+          This module enumerates Elasticsearch instances. It uses the REST API
+          in order to gather information about the server, the cluster, nodes,
+          in the cluster, indicies, and pull data from those indicies.
         },
         'Author' => [
           'Silas Cutler <Silas.Cutler[at]BlackListThisDomain.com>', # original indicies enum module
@@ -51,29 +51,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_results(index)
     vprint_status("Downloading #{datastore['DOWNLOADROWS']} rows from index #{index}")
-    begin
-      body = { 'query' => { 'query_string' => { 'query' => '*' } }, 'size' => datastore['DOWNLOADROWS'], 'from' => 0, 'sort' => [] }
-      request = {
-        'uri' => "/#{index}/_search/",
-        'method' => 'POST',
-        'headers' => {
-          'Accept' => 'application/json'
-        },
-        'ctype' => 'application/json',
-        'data' => body.to_json
-      }
-      request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
+    body = { 'query' => { 'query_string' => { 'query' => '*' } }, 'size' => datastore['DOWNLOADROWS'], 'from' => 0, 'sort' => [] }
+    request = {
+      'uri' => normalize_uri(target_uri.path, index, '_search/'),
+      'method' => 'POST',
+      'headers' => {
+        'Accept' => 'application/json'
+      },
+      'ctype' => 'application/json',
+      'data' => body.to_json
+    }
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
 
-      res = send_request_cgi(request)
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
-      vprint_error('Unable to establish connection')
-      return
-    end
+    res = send_request_cgi(request)
+    vprint_error('Unable to establish connection') if res.nil?
 
     if res && res.code == 200 && !res.body.empty?
-      begin
-        json_body = JSON.parse(res.body)
-      rescue JSON::ParserError
+      json_body = res.get_json_document
+      if json_body.empty?
         vprint_error('Unable to parse JSON')
         return
       end
@@ -89,45 +84,36 @@ class MetasploitModule < Msf::Auxiliary
       'Columns' => json_body.dig('hits', 'hits')[0]['_source'].keys
     )
 
-    csv_string = CSV.generate do |csv|
-      csv << json_body.dig('hits', 'hits')[0]['_source'].keys
-      json_body.dig('hits', 'hits').each do |hash|
-        elastic_table << hash['_source'].values
-        csv << hash['_source'].values
-      end
+    json_body.dig('hits', 'hits').each do |hash|
+      elastic_table << hash['_source'].values
     end
 
     print_good(elastic_table.to_s)
-    store_loot('elasticserch.index.data', 'application/csv', rhost, csv_string, "#{index}_data.csv", nil, @service)
+    store_loot('elasticserch.index.data', 'application/csv', rhost, elastic_table.to_csv, "#{index}_data.csv", nil, @service)
   end
 
   def get_indices
     vprint_status('Querying indices...')
-    begin
-      request = {
-        'uri' => '/_cat/indices/',
-        'method' => 'GET',
-        'headers' => {
-          'Accept' => 'application/json'
-        },
-        'vars_get' => {
-          # this is the query https://github.com/cars10/elasticvue uses for the chrome browser extension
-          'h' => 'index,health,status,uuid,docs.count,store.size',
-          'bytes' => 'mb'
-        }
+    request = {
+      'uri' => normalize_uri(target_uri.path, '_cat', 'indices/'),
+      'method' => 'GET',
+      'headers' => {
+        'Accept' => 'application/json'
+      },
+      'vars_get' => {
+        # this is the query https://github.com/cars10/elasticvue uses for the chrome browser extension
+        'h' => 'index,health,status,uuid,docs.count,store.size',
+        'bytes' => 'mb'
       }
-      request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
+    }
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
 
-      res = send_request_cgi(request)
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
-      vprint_error('Unable to establish connection')
-      return
-    end
+    res = send_request_cgi(request)
+    vprint_error('Unable to establish connection') if res.nil?
 
     if res && res.code == 200 && !res.body.empty?
-      begin
-        json_body = JSON.parse(res.body)
-      rescue JSON::ParserError
+      json_body = res.get_json_document
+      if json_body.empty?
         vprint_error('Unable to parse JSON')
         return
       end
@@ -182,23 +168,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_cluster_info
     vprint_status('Querying cluster information...')
-    begin
-      request = {
-        'uri' => '/_cluster/health',
-        'method' => 'GET'
-      }
-      request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
+    request = {
+      'uri' => normalize_uri(target_uri.path, '_cluster', 'health'),
+      'method' => 'GET'
+    }
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
 
-      res = send_request_cgi(request)
-    end
+    res = send_request_cgi(request)
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::NoAccess, 'Credentials required, or incorrect') if res.code == 401
 
     if res.code == 200 && !res.body.empty?
-      begin
-        json_body = JSON.parse(res.body)
-      rescue JSON::ParserError
+      json_body = res.get_json_document
+      if json_body.empty?
         vprint_error('Unable to parse JSON')
         return
       end
@@ -225,29 +208,26 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_node_info
     vprint_status('Querying node information...')
-    begin
-      request = {
-        'uri' => '/_cat/nodes',
-        'method' => 'GET',
-        'headers' => {
-          'Accept' => 'application/json'
-        },
-        'vars_get' => {
-          'h' => 'ip,port,version,http,uptime,name,heap.current,heap.max,ram.current,ram.max,node.role,master,cpu,disk.used,disk.total'
-        }
+    request = {
+      'uri' => normalize_uri(target_uri.path, '_cat', 'nodes'),
+      'method' => 'GET',
+      'headers' => {
+        'Accept' => 'application/json'
+      },
+      'vars_get' => {
+        'h' => 'ip,port,version,http,uptime,name,heap.current,heap.max,ram.current,ram.max,node.role,master,cpu,disk.used,disk.total'
       }
-      request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
+    }
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
 
-      res = send_request_cgi(request)
-    end
+    res = send_request_cgi(request)
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::NoAccess, 'Credentials required, or incorrect') if res.code == 401
 
     if res.code == 200 && !res.body.empty?
-      begin
-        json_body = JSON.parse(res.body)
-      rescue JSON::ParserError
+      json_body = res.get_json_document
+      if json_body.empty?
         vprint_error('Unable to parse JSON')
         return
       end
@@ -303,33 +283,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_version_info
     vprint_status('Querying version information...')
-    begin
-      request = {
-        'uri' => '/',
-        'method' => 'GET'
-      }
-      request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
+    request = {
+      'uri' => normalize_uri(target_uri.path),
+      'method' => 'GET'
+    }
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
 
-      res = send_request_cgi(request)
-    end
+    res = send_request_cgi(request)
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::NoAccess, 'Credentials required, or incorrect') if res.code == 401
 
     # leaving this here for future travelers, this header was added in 7.14.0 https://www.elastic.co/guide/en/elasticsearch/reference/7.17/release-notes-7.14.0.html
     # so it isn't too reliable to check for
-    # fail_with(Failure::Unreachable, "#{peer} - ElasticSearch not detected in X-elastic-product header") unless res.headers['X-elastic-product'] == 'Elasticsearch'
+    # fail_with(Failure::Unreachable, "#{peer} - Elasticsearch not detected in X-elastic-product header") unless res.headers['X-elastic-product'] == 'Elasticsearch'
 
     if res.code == 200 && !res.body.empty?
-      begin
-        json_body = JSON.parse(res.body)
-      rescue JSON::ParserError
+      json_body = res.get_json_document
+      if json_body.empty?
         vprint_error('Unable to parse JSON')
         return
       end
     end
 
-    fail_with(Failure::Unreachable, "#{peer} - ElasticSearch cluster name not found, likely not ElasticSearch server") unless json_body['cluster_name']
+    fail_with(Failure::Unreachable, "#{peer} - Elasticsearch cluster name not found, likely not Elasticsearch server") unless json_body['cluster_name']
 
     elastic_table = Rex::Text::Table.new(
       'Header' => 'Elastic Information',
@@ -363,23 +340,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_users
     vprint_status('Querying user information...')
-    begin
-      request = {
-        'uri' => '/_security/user',
-        'method' => 'GET'
-      }
-      request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
+    request = {
+      'uri' => normalize_uri(target_uri.path, '_security', 'user/'),
+      'method' => 'GET'
+    }
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'] || datastore['PASSWORD']
 
-      res = send_request_cgi(request)
-    end
+    res = send_request_cgi(request)
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::NoAccess, 'Credentials required, or incorrect') if res.code == 401
 
     if res.code == 200 && !res.body.empty?
-      begin
-        json_body = JSON.parse(res.body)
-      rescue JSON::ParserError
+      json_body = res.get_json_document
+      if json_body.empty?
         vprint_error('Unable to parse JSON')
         return
       end
