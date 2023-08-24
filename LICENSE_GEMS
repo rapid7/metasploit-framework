@@ -35,6 +35,7 @@ concurrent-ruby, 1.2.2, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
 daemons, 1.4.1, MIT
+date, 3.3.3, "ruby, Simplified BSD"
 debug, 1.8.0, "ruby, Simplified BSD"
 diff-lcs, 1.5.0, "MIT, Artistic-2.0, GPL-2.0+"
 dnsruby, 1.70.0, "Apache 2.0"
@@ -77,7 +78,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.1, "New BSD"
 metasploit-credential, 6.0.5, "New BSD"
-metasploit-framework, 6.3.31, "New BSD"
+metasploit-framework, 6.3.32, "New BSD"
 metasploit-model, 5.0.1, "New BSD"
 metasploit-payloads, 2.0.148, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.2, "New BSD"
@@ -92,6 +93,7 @@ msgpack, 1.6.1, "Apache 2.0"
 multi_json, 1.15.0, MIT
 mustermann, 3.0.0, MIT
 nessus_rest, 0.1.6, MIT
+net-imap, 0.3.7, "ruby, Simplified BSD"
 net-ldap, 0.18.0, MIT
 net-protocol, 0.2.1, "ruby, Simplified BSD"
 net-smtp, 0.3.3, "ruby, Simplified BSD"
@@ -185,7 +187,7 @@ thin, 1.8.2, "GPL-2.0+, ruby"
 thor, 1.2.2, MIT
 tilt, 2.2.0, MIT
 timecop, 0.9.6, MIT
-timeout, 0.3.2, "ruby, Simplified BSD"
+timeout, 0.4.0, "ruby, Simplified BSD"
 ttfunk, 1.7.0, "Nonstandard, GPL-2.0, GPL-3.0"
 tzinfo, 2.0.6, MIT
 tzinfo-data, 1.2023.3, MIT
