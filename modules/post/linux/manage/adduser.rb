@@ -139,19 +139,20 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    # Creating new groups if it was set and isnt manual
-    if groups.any? && datastore['MissingGroups'] == 'CREATE' && datastore['UseraddMethod'] != 'MANUAL'
-      # Since command can add on groups, checking over groups
-      groupadd = check_command_exists?('groupadd') ? 'groupadd' : nil
-      groupadd ||= 'addgroup' if check_command_exists?('addgroup')
-      fail_with(Failure::NotFound, 'Neither groupadd nor addgroup exist on the system. Try running with UseraddMethod as MANUAL to get around this issue') unless groupadd
-
-      groups_missing.each do |group|
-        d_cmd_exec("#{groupadd} #{group}")
-        print_good("Added #{group} group")
-      end
-    end
     groups
+  end
+
+  # Takes all the groups given and attempts to add them to the system
+  def create_new_groups(groups)
+    # Since command can add on groups, checking over groups
+    groupadd = check_command_exists?('groupadd') ? 'groupadd' : nil
+    groupadd ||= 'addgroup' if check_command_exists?('addgroup')
+    fail_with(Failure::NotFound, 'Neither groupadd nor addgroup exist on the system. Try running with UseraddMethod as MANUAL to get around this issue') unless groupadd
+
+    groups.each do |group|
+      d_cmd_exec("#{groupadd} #{group}")
+      print_good("Added #{group} group")
+    end
   end
 
   def run
@@ -183,6 +184,11 @@ class MetasploitModule < Msf::Post
     groups += ['sudo'] if datastore['SudoMethod'] == 'GROUP'
     group_file = read_file('/etc/group').to_s
     groups = validate_groups(group_file, groups)
+
+    # Creating new groups if it was set and isnt manual
+    if groups.any? && datastore['MissingGroups'] == 'CREATE' && datastore['UseraddMethod'] != 'MANUAL'
+      create_new_groups(get_missing_groups(group_file, groups))
+    end
 
     # Automatically ignore setting groups if added additional groups is empty
     groups_handled = groups.empty?
