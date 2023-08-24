@@ -92,17 +92,7 @@ msf6 auxiliary(gather/elasticsearch/enum) > run
   ----       ------  ------  ----                    ---------  ------------------
   test_data  yellow  open    Y2Qms9leTf2riFN89Lik6g  100000     8MB
 
-[+] test_data Data
-==============
-
-  name       age    last_updated
-  ----       ---    ------------
-  bokJZhjqT  81256  1692774556000
-  gfu        41934  1695093697000
-  jRRtkQodc  86     1694590924000
-  v1kfNE     31552  1691503073000
-  zhW        38875  1691647635000
-
+[+] test_data data stored to /root/.msf4/loot/20230824172328_default_127.0.0.1_elasticserch.ind_635067.csv
 [+] User Information
 ================
 

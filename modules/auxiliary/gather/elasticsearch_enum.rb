@@ -77,19 +77,19 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    columns = json_body.dig('hits', 'hits')[0]['_source'].keys
     elastic_table = Rex::Text::Table.new(
       'Header' => "#{index} Data",
       'Indent' => 2,
       # we know at least 1 row since we wouldn't query an index w/o a row
-      'Columns' => json_body.dig('hits', 'hits')[0]['_source'].keys
+      'Columns' => columns
     )
-
     json_body.dig('hits', 'hits').each do |hash|
-      elastic_table << hash['_source'].values
+      elastic_table << columns.map { |column| hash['_source'][column] }
     end
 
-    print_good(elastic_table.to_s)
-    store_loot('elasticserch.index.data', 'application/csv', rhost, elastic_table.to_csv, "#{index}_data.csv", nil, @service)
+    l = store_loot('elasticserch.index.data', 'application/csv', rhost, elastic_table.to_csv, "#{index}_data.csv", nil, @service)
+    print_good("#{index} data stored to #{l}")
   end
 
   def get_indices
@@ -359,6 +359,11 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
+    if json_body.nil?
+      print_bad('Unable to pull user data')
+      return
+    end
+
     elastic_table = Rex::Text::Table.new(
       'Header' => 'User Information',
       'Indent' => 2,
@@ -371,6 +376,7 @@ class MetasploitModule < Msf::Auxiliary
         'Enabled'
       ]
     )
+
     json_body.each do |username, attributes|
       elastic_table << [
         username,
@@ -381,13 +387,6 @@ class MetasploitModule < Msf::Auxiliary
       ]
     end
     print_good(elastic_table.to_s)
-
-    report_service(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      name: 'elasticsearch'
-    )
   end
 
   def run
