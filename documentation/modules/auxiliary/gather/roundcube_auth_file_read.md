@@ -22,10 +22,10 @@ sudo tasksel install lamp-server
 #### Install PHP 7.0
 
 ```
-sudo apt install software-properties-common ca-certificates lsb-release apt-transport-https dbconfig-sqlite3 php7.0-sqlite3
+sudo apt install software-properties-common ca-certificates lsb-release apt-transport-https dbconfig-sqlite3
 LC_ALL=C.UTF-8 sudo add-apt-repository ppa:ondrej/php
 sudo apt update
-sudo apt-get install php7.0 php7.0-xml php7.0-mbstring php7.0-intl php7.0-zip
+sudo apt-get install php7.0 php7.0-xml php7.0-mbstring php7.0-intl php7.0-zip php7.0-sqlite3
 sudo a2dismod php8.1
 sudo a2enmod php7.0
 ```
@@ -59,12 +59,6 @@ post_max_size = 18M
 mbstring.func_overload = 0
 ```
 
-Save and close the file, now reload Apache
-
-```
-sudo systemctl restart apache2
-```
-
 #### Install dovecot
 
 ```
@@ -77,6 +71,20 @@ sudo apt install dovecot-imapd
 wget https://github.com/roundcube/roundcubemail/releases/download/1.3.2/roundcubemail-1.3.2-complete.tar.gz -O /tmp/roundcubemail-1.3.2-complete.tar.gz
 sudo tar -zxf /tmp/roundcubemail-1.3.2-complete.tar.gz -C /var/www/html/
 sudo chown -R root:root /var/www/html/roundcubemail-1.3.2/
+```
+#### Configure Apache
+
+```
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/roundcubemail-1.3.2-complete.config
+sudo vi /etc/apache2/sites-available/roundcubemail-1.3.2-complete.config
+```
+
+Update `ServerName <rhost IP>` `DocumentRoot /var/www/html/roundcubemail-1.3.2/`
+
+Save and close the file, now reload Apache
+
+```
+sudo systemctl restart apache2
 ```
 
 Browse to `/installer`.  Almost all settings will be kept as default,

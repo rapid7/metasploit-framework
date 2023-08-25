@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('USERNAME', [ true, 'User to login with', '']),
+        OptString.new('USERNAME', [ true, 'Email User to login with', '']),
         OptString.new('PASSWORD', [ true, 'Password to login with', '']),
         OptString.new('TARGETURI', [ true, 'The URI of the Roundcube Application', '/']),
         OptString.new('FILE', [ true, 'The file to read', '/etc/passwd'])
