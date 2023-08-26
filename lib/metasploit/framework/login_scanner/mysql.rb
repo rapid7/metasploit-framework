@@ -1,5 +1,5 @@
 require 'metasploit/framework/tcp/client'
-require 'rbmysql'
+require 'mysql'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 
@@ -35,29 +35,29 @@ module Metasploit
             disconnect if self.sock
             connect
 
-            ::RbMysql.connect(host, credential.public, credential.private, '', port, sock)
+            ::Mysql.connect(host, credential.public, credential.private, '', port, sock)
 
           rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue RbMysql::ClientError => e
+          rescue Mysql::ClientError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue RbMysql::HostNotPrivileged => e
+          rescue Mysql::HostNotPrivileged => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue RbMysql::AccessDeniedError => e
+          rescue Mysql::AccessDeniedError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::INCORRECT,
               proof: e
             })
-          rescue RbMysql::HostIsBlocked => e
+          rescue Mysql::HostIsBlocked => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
