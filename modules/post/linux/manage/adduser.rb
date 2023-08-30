@@ -302,5 +302,9 @@ class MetasploitModule < Msf::Post
       append_file('/etc/sudoers', "#{datastore['USERNAME']} ALL=(ALL:ALL) NOPASSWD: ALL\n")
       print_good("Added [#{datastore['USERNAME']}] to /etc/sudoers successfully")
     end
+  rescue Msf::Exploit::Failed
+    print_warning("The module has failed to add the new user [#{datastore['USERNAME']}]!")
+    print_warning('Groups that were created need to be removed from the system manually.')
+    raise
   end
 end
