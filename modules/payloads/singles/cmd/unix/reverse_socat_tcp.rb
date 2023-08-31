@@ -4,7 +4,6 @@
 ##
 
 module MetasploitModule
-
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
