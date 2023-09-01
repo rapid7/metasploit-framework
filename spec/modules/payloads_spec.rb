@@ -1058,6 +1058,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/reverse_php_ssl'
   end
 
+  context 'cmd/unix/reverse_php' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/reverse_php'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_php'
+  end
+
   context 'cmd/unix/reverse_python' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
