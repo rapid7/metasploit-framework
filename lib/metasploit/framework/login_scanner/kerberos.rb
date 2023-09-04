@@ -23,12 +23,22 @@ module Metasploit
           }
 
           begin
-            res = send_request_tgt(
-              server_name: server_name,
-              client_name: credential.public,
-              password: credential.private,
-              realm: credential.realm
-            )
+            begin
+              res = send_request_tgt(
+                server_name: server_name,
+                client_name: credential.public,
+                password: credential.private,
+                realm: credential.realm,
+                offered_etypes: [Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC]
+              )
+            rescue Rex::Proto::Kerberos::Model::Error::KerberosEncryptionNotSupported => e
+              # RC4 likely disabled - let's try again with our full complement of default etypes
+              res = send_request_tgt(
+                server_name: server_name,
+                client_name: credential.public,
+                password: credential.private,
+                realm: credential.realm)
+            end
 
             result_options = result_options.merge(
               {
