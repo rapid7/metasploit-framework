@@ -23,7 +23,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
       server_name: 'demo.local_server',
       client_name: 'mock_public',
       password: 'mock_private',
-      realm: 'DEMO.LOCAL'
+      realm: 'DEMO.LOCAL',
+      offered_etypes: [Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC]
     }
   end
 
