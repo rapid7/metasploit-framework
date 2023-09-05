@@ -1,6 +1,6 @@
 [CVE-2023-21554](https://nvd.nist.gov/vuln/detail/CVE-2023-21554) ("QueueJumper") is a Remote Code Execution vulnerability with a CVSS 3.1 base score of 9.8 that could allow unauthenticated attackers to execute code on an unpatched Microsoft Windows system running [Microsoft Message Queuing (MSMQ)](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms711472(v=vs.85)?redirectedfrom=MSDN).
 
-Security updates exist for Windows Server 2008 incl. R2, Windows Server 2012 incl. R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, Windows 10 and Windows 11. MSMQ was first introduced with Windows NT 4.0 and Windows 2000, therefore it's likely that the vulnerability also exists and remains unpatched in unsupported Microsfot Windows versions.
+Security updates exist for Windows Server 2008 incl. R2, Windows Server 2012 incl. R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, Windows 10 and Windows 11. MSMQ was first introduced with Windows NT 4.0 and Windows 2000, therefore it's likely that the vulnerability also exists and remains unpatched in unsupported Microsoft Windows versions.
 
 The module `auxiliary/scanner/msmq/cve_2023_21554_queuejumper` scans the given targets and detects whether a running instance of MSMQ is vulnerable to CVE-2032-21554. The module doesn't affect the stability of the MSMQ service, therefore it could be safely executed against the targets.
 
