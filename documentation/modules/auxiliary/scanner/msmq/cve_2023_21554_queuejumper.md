@@ -10,6 +10,27 @@ Microsoft Message Queuing (MSMQ) is a message queuing service that was first int
 
 Besides several RPC-related TCP ports, MSMQ uses TCP port 1801 to receive messages from clients or other queue managers, leveraging the protocol [MS-MQQB](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqqb/85498b96-f2c8-43b3-a108-c9d6269dc4af). By default all queues within a queue manager allow anonymous participants to send messages.
 
+The following operating systems are known to be vulnerable:
+
+- Windows 7
+- Windows Vista
+- Windows 10 1607 (up to and excluding 10.0.14393.5850)
+- Windows 10 1809 (up to and excluding 10.0.17763.4252)
+- Windows 10 20h2 (up to and excluding 10.0.19042.2846)
+- Windows 10 21h2 (up to and excluding 10.0.19044.2846)
+- Windows 10 22h2 (up to and excluding 10.0.19045.2846)
+- Windows 11 21h2 (up to and excluding 10.0.22000.1817)
+- Windows 11 22h2 (up to and excluding 10.0.22621.1555)
+- Windows Server 2003
+- Windows Server 2003 R2
+- Windows Server 2008 SP2
+- Windows Server 2008 R2 SP1
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows Server 2016
+- Windows Server 2019
+- Windows Server 2022
+
 ## Verification Steps
 
   1. Set up a Windows target (Server 2008, Server 2008 R2, Windows 10, etc.).
