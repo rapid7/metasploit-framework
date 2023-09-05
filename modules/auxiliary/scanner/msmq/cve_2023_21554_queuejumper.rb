@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module checks the provided hosts for the CVE-2023-21554 vulnerability by sending
           a MSMQ message with an altered DataLength field within the SRMPEnvelopeHeader that
-          overflows the given buffer. On patched systems, the error is catched and no response
+          overflows the given buffer. On patched systems, the error is caught and no response
           is sent back. On vulnerable systems, the integer wraps around and depending on the length
           could cause an out-of-bounds write. In the context of this module a response is sent back,
           which indicates that the system is vulnerable.
