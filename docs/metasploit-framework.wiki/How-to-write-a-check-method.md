@@ -40,11 +40,6 @@ return CheckCode::Appears('Vulnerable component XYZ is installed')
 Metasploit Framework check methods are used occasionally by other groups and projects to assist with vulnerability scanning.  Please do your best to ensure that the only return value from a check method is a check code.
 Basically, that means avoiding the use of `fail_with` or raising exceptions that are not handled within the check method.
 
-## Returning from a Check Method
-
-Metasploit Framework check methods are used in different ways and we'd like them to be useful for other products to consume.  As such, it is a good idea to make sure that any returns from a check method return a check code.
-
-
 ## Remote Check Example
 
 Here's an abstract example of how a Metasploit check might be written:
