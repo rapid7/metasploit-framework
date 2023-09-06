@@ -1456,7 +1456,22 @@ module Msf
             end
 
             # find cache module instance and add it to @module_search_results
-            @module_search_results = Msf::Modules::Metadata::Cache.instance.find('fullname' => [saved_favs, []]).sort_by(&:fullname)
+            @module_search_results = Msf::Modules::Metadata::Cache.instance.find('fullname' => [saved_favs, []])
+
+            # This scenario is for when a module fullname is a substring of other module fullnames
+            # Example, searching for the payload/windows/meterpreter/reverse_tcp module can result in matches for:
+            #   - windows/meterpreter/reverse_tcp_allports
+            #   - windows/meterpreter/reverse_tcp_dns
+            # So if @module_search_results is greater than the amount of fav_modules, we need to filter the results to be more accurate
+            if fav_modules.length < @module_search_results.length
+              filtered_results = []
+              fav_modules.each do |fullname, _mod_obj|
+                filtered_results << @module_search_results.select do |search_result|
+                  search_result.fullname == fullname
+                end
+              end
+              @module_search_results = filtered_results.flatten.sort_by(&:fullname)
+            end
 
             show_module_metadata('Favorites', fav_modules)
             print_module_search_results_usage
