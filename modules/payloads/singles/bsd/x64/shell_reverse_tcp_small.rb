@@ -17,7 +17,7 @@ module MetasploitModule
       'Name'          => 'BSD x64 Command Shell, Reverse TCP Inline',
       'Description'   => 'Connect back to attacker and spawn a command shell',
       'Author'        => 'Balazs Bucsay @xoreipeip <balazs.bucsay[-at-]rycon[-dot-]hu>',
-      'References'    => ['URL', 'https://github.com/earthquake/shellcodes/blob/master/x86_64_bsd_reverse_tcp.asm.c'],
+      'References'    => [['URL', 'https://github.com/earthquake/shellcodes/blob/master/x86_64_bsd_reverse_tcp.asm.c']],
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsd',
       'Arch'          => ARCH_X64,

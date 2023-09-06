@@ -222,7 +222,7 @@ class MetasploitModule < Msf::Post
 
     it 'should read the binary data we just wrote' do
       bin = read_file(datastore['BaseFileName'])
-      vprint_status "Read #{bin.length} bytes"
+      vprint_status "Read #{bin.length} bytes" if bin
 
       bin == binary_data
     end
@@ -239,7 +239,12 @@ class MetasploitModule < Msf::Post
       bin = read_file(datastore['BaseFileName'])
       rm_f(datastore['BaseFileName'])
 
-      bin == "\xde\xad\xbe\xef"
+      test_string = "\xde\xad\xbe\xef"
+
+      vprint_status "expected: #{test_string.bytes} - #{test_string.encoding}"
+      vprint_status "actual: #{bin.bytes} - #{bin.encoding}"
+
+      bin == test_string
     end
   end
 

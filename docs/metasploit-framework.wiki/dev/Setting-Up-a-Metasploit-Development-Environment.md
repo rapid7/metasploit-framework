@@ -176,7 +176,7 @@ git config commit.gpgsign true
 
 Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
-```
+```ini
 [alias]
 # An easy, colored oneline log format that shows signed/unsigned status
 nicelog = log --pretty=format:'%Cred%h%Creset -%Creset %s %Cgreen(%cr) %C(bold blue)<%aE>%Creset [%G?]'
@@ -216,9 +216,9 @@ We're excited to see your upcoming contributions of new modules, documentation, 
 
 Finally, we welcome your feedback on this guide, so feel free to reach out to us on [Slack] or open a [new issue].  For their significant contributions to this guide, we would like to thank [@kernelsmith], [@corelanc0d3r], and [@ffmike].
 
-[commercial-installer]:http://metasploit.com/download
+[commercial-installer]:https://metasploit.com/download
 [kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
-[parrot-user-instructions]:https://parrotsec.org/docs/installation.html
+[parrot-user-instructions]:https://parrotsec.org/docs/category/installation
 [CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
 
 [Ubuntu]:https://www.ubuntu.com/download/desktop

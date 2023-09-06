@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::HTTP::Nifi
 
   def initialize(info = {})
     super(
@@ -31,30 +32,17 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-    register_options(
-      [
-        Opt::RPORT(8443),
-        OptString.new('TARGETURI', [ true, 'The URI of the Apache NiFi Application', '/nifi/login'])
-      ]
-    )
-    register_advanced_options([
-      OptBool.new('SSL', [true, 'Negotiate SSL connection', true])
-    ])
   end
 
   def run_host(ip)
     vprint_status("Checking #{ip}")
-    res = send_request_cgi!(
-      'uri' => normalize_uri(target_uri.path)
-    )
+    version = get_version
 
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected Respones Code (response code: #{res.code})") unless res.code == 200
-
-    if res.body =~ %r{js/nf/nf-namespace\.js\?([\d.]*)">}
-      print_good("Apache NiFi #{Regexp.last_match(1)} found on #{ip}")
-    else
+    if version.nil?
       print_bad("Apache NiFi not detected on #{ip}")
+      return
     end
+
+    print_good("Apache NiFi #{version} found on #{ip}")
   end
 end

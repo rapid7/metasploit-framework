@@ -3,7 +3,7 @@
 # Author:: Michael Neumann
 # Copyright:: (c) 2005 by Michael Neumann
 # License:: Same as Ruby's or BSD
-# 
+#
 
 require 'postgres_msf'
 require 'postgres/buffer'
@@ -38,7 +38,7 @@ class Message
 
     MsgTypeMap[type] = self
 
-    self.const_set(:MsgType, type) 
+    self.const_set(:MsgType, type)
     class_eval "def message_type; MsgType end"
   end
 
@@ -60,7 +60,7 @@ class Message
     buffer.write(type) unless startup
     buffer.write_int32_network(length)
     buffer.copy_from_stream(stream, length-4)
-    
+
     (startup ? StartupMessage : MsgTypeMap[type]).create(buffer)
   end
 
@@ -95,11 +95,11 @@ class Message
     ivar_list = names.map {|name| "@" + name }.join(", ")
     sym_list = names.map {|name| ":" + name }.join(", ")
     class_eval %[
-      attr_accessor #{ sym_list } 
+      attr_accessor #{ sym_list }
       def initialize(#{ arg_list })
         #{ ivar_list } = #{ arg_list }
       end
-    ] 
+    ]
   end
 end
 
@@ -130,7 +130,7 @@ class Authentification < Message
   def self.register_auth_type(type)
     raise "duplicate auth type registration" if AuthTypeMap.has_key?(type)
     AuthTypeMap[type] = self
-    self.const_set(:AuthType, type) 
+    self.const_set(:AuthType, type)
     class_eval "def auth_type() AuthType end"
   end
 
@@ -145,7 +145,7 @@ class Authentification < Message
 
   def parse(buffer)
     super do
-      auth_t = buffer.read_int32_network 
+      auth_t = buffer.read_int32_network
       raise ParseError unless auth_t == self.auth_type
       yield if block_given?
     end
@@ -162,19 +162,19 @@ class UnknownAuthType < Authentification
   end
 end
 
-class AuthentificationOk < Authentification 
+class AuthentificationOk < Authentification
   register_auth_type 0
 end
 
-class AuthentificationKerberosV4 < Authentification 
+class AuthentificationKerberosV4 < Authentification
   register_auth_type 1
 end
 
-class AuthentificationKerberosV5 < Authentification 
+class AuthentificationKerberosV5 < Authentification
   register_auth_type 2
 end
 
-class AuthentificationClearTextPassword < Authentification 
+class AuthentificationClearTextPassword < Authentification
   register_auth_type 3
 end
 
@@ -201,25 +201,134 @@ module SaltedAuthentificationMixin
   end
 end
 
-class AuthentificationCryptPassword < Authentification 
+class AuthentificationCryptPassword < Authentification
   register_auth_type 4
   include SaltedAuthentificationMixin
   def salt_size; 2 end
 end
 
 
-class AuthentificationMD5Password < Authentification 
+class AuthentificationMD5Password < Authentification
   register_auth_type 5
   include SaltedAuthentificationMixin
   def salt_size; 4 end
 end
 
-class AuthentificationSCMCredential < Authentification 
+class AuthentificationSCMCredential < Authentification
   register_auth_type 6
 end
 
-class PasswordMessage < Message
+# SASL Overview
+# https://www.postgresql.org/docs/current/sasl-authentication.html
+#
+# Binary format:
+# https://www.postgresql.org/docs/current/protocol-message-formats.html
+class AuthenticationSASL < Authentification
+  # Int32(10) - Specifies that SASL authentication is required.
+  register_auth_type 10
+
+  # @return [Array<String>] Name of a SASL authentication mechanisms
+  attr_reader :mechanisms
+
+  # @param [Array<String>] mechanisms
+  def initialize(mechanisms: [])
+    @mechanisms = mechanisms
+  end
+
+  def dump
+    auth_type_byte_size = 4
+    mechanism_bytes_size = mechanisms.sum(&:size) + (mechanisms.size + 1)
+    message__dump(auth_type_byte_size + mechanism_bytes_size) do |buffer|
+      buffer.write_int32_network(self.auth_type)
+      mechanisms.each do |mechanism|
+        buffer.write_cstring(mechanism)
+      end
+      buffer.write(Buffer::NUL)
+    end
+  end
+
+  def parse(buffer)
+    super do
+      # The message body is a list of SASL authentication mechanisms, in the
+      # server's order of preference. A zero byte is required as terminator after
+      # the last authentication mechanism name.
+      # https://github.com/postgres/postgres/blob/74a2dfee2255a1bace9b0053d014c4efa2823f4d/doc/src/sgml/protocol.sgml#L3584-L3602
+      @mechanisms ||= []
+      while buffer.peek != Buffer::NUL
+        @mechanisms << buffer.read_cstring
+      end
+      _null = buffer.read(1)
+    end
+  end
+end
+
+# AuthenticationSASLContinue (B)
+# https://www.postgresql.org/docs/current/protocol-message-formats.html
+class AuthenticationSASLContinue < Authentification
+  # Int32(11) - Specifies that this message contains a SASL challenge.
+  register_auth_type 11
+
+  # @return [String] SASL data, specific to the SASL mechanism being used.
+  attr_reader :value
+
+  # @param [String, nil] value
+  def initialize(value: nil)
+    @value = value
+  end
+
+  def dump
+    auth_type_byte_size = 4
+    value_size = value.size
+    message__dump(auth_type_byte_size + value_size) do |buffer|
+      buffer.write_int32_network(self.auth_type)
+      buffer.write(value)
+    end
+  end
+
+  def parse(buffer)
+    super do
+      @value = buffer.read_rest
+    end
+  end
+end
+
+# AuthenticationSASLFinal (B)
+# https://www.postgresql.org/docs/current/protocol-message-formats.html
+class AuthenticationSASLFinal < Authentification
+  # Int32(11) - Specifies that this message contains a SASL challenge.
+  register_auth_type 12
+
+  # @return [String] SASL outcome "additional data", specific to the SASL mechanism being used.
+  attr_reader :value
+
+  # @param [String] value
+  def initialize(value:)
+    @value = value
+  end
+
+  def dump
+    auth_type_byte_size = 4
+    value_size = value.size
+    message__dump(auth_type_byte_size + value_size) do |buffer|
+      buffer.write_int32_network(self.auth_type)
+      buffer.write(value)
+    end
+  end
+
+  def parse(buffer)
+    super do
+      @value = buffer.read_rest
+    end
+  end
+end
+
+class PasswordResponseMessage < Message
+  # Identifies the message as a password response. Note that this is also used for GSSAPI, SSPI and SASL response messages.
+  # The exact message type can be deduced from the context.
   register_message_type 'p'
+end
+
+class PasswordMessage < PasswordResponseMessage
   fields :password
 
   def dump
@@ -232,6 +341,86 @@ class PasswordMessage < Message
     super do
       @password = buffer.read_cstring
     end
+  end
+end
+
+# SASLInitialResponse (F). The client sends a SASLInitialResponse after choosing a SASL mechanism. The message includes the name of the selected
+# mechanism, and an optional Initial Client Response, if the selected mechanism uses that.
+#
+# https://www.postgresql.org/docs/current/protocol-message-formats.html
+# https://www.postgresql.org/docs/current/sasl-authentication.html
+class SaslInitialResponseMessage < PasswordResponseMessage
+
+  # @return [String] Name of the SASL authentication mechanism that the client selected.
+  attr_reader :mechanism
+
+  # @return [String] SASL mechanism specific "Initial Response" - specific to the SASL mechanism used
+  attr_reader :value
+
+  # @param [String] mechanism
+  # @param [String] value
+  def initialize(mechanism: nil, value: nil)
+    @mechanism = mechanism
+    @value = value
+  end
+
+  def dump
+    mechanism_size = mechanism.size + Buffer::NUL.size
+    value_size_prefix_size = 4
+    value_size = value.size
+    message_size = mechanism_size + value_size_prefix_size + value_size
+
+    super(message_size) do |buffer|
+      buffer.write_cstring(mechanism)
+      buffer.write_int32_network(value_size)
+      buffer.write(value)
+    end
+  end
+
+  def parse(buffer)
+    super do
+      @mechanism = buffer.read_cstring
+      _value_size_prefix_size = buffer.read_int32_network
+      @value = buffer.read_rest
+    end
+  end
+
+  def ==(other)
+    self.class == other.class &&
+      @mechanism == other.mechanism &&
+      @value == other.value
+  end
+end
+
+# SASLResponse (F)
+#
+# https://www.postgresql.org/docs/current/protocol-message-formats.html
+# https://www.postgresql.org/docs/current/sasl-authentication.html
+class SASLResponseMessage < PasswordResponseMessage
+
+  # @return [String] SASL mechanism specific "Initial Response" - specific to the SASL mechanism used
+  attr_reader :value
+
+  # @param [String] value
+  def initialize(value: nil)
+    @value = value
+  end
+
+  def dump
+    super(value.size) do |buffer|
+      buffer.write(value)
+    end
+  end
+
+  def parse(buffer)
+    super do
+      @value = buffer.read_rest
+    end
+  end
+
+  def ==(other)
+    self.class == other.class &&
+      @value == other.value
   end
 end
 
@@ -262,7 +451,7 @@ class BackendKeyData < Message
     super(4 + 4) do |buffer|
       buffer.write_int32_network(@process_id)
       buffer.write_int32_network(@secret_key)
-    end 
+    end
   end
 
   def parse(buffer)
@@ -309,7 +498,7 @@ class DataRow < Message
     super do
       n_cols = buffer.read_int16_network
       @columns = (1..n_cols).collect {
-        len = buffer.read_int32_network 
+        len = buffer.read_int32_network
         if len == -1
           nil
         else
@@ -352,12 +541,12 @@ module NoticeErrorMixin
   def dump
     raise ArgumentError if @field_type == 0 and not @field_values.empty?
 
-    sz = 1 
-    sz += @field_values.inject(1) {|sum, fld| sum + fld.size + 1} unless @field_type == 0 
+    sz = 1
+    sz += @field_values.inject(1) {|sum, fld| sum + fld.size + 1} unless @field_type == 0
 
     super(sz) do |buffer|
       buffer.write_byte(@field_type)
-      break if @field_type == 0 
+      break if @field_type == 0
       @field_values.each {|fld| buffer.write_cstring(fld) }
       buffer.write_byte(0)
     end
@@ -407,7 +596,7 @@ class Parse < Message
 
   def dump
     sz = @stmt_name.size + 1 + @query.size + 1 + 2 + (4 * @parameter_oids.size)
-    super(sz) do |buffer| 
+    super(sz) do |buffer|
       buffer.write_cstring(@stmt_name)
       buffer.write_cstring(@query)
       buffer.write_int16_network(@parameter_oids.size)
@@ -416,7 +605,7 @@ class Parse < Message
   end
 
   def parse(buffer)
-    super do 
+    super do
       @stmt_name = buffer.read_cstring
       @query = buffer.read_cstring
       n_oids = buffer.read_int16_network
@@ -498,7 +687,7 @@ class StartupMessage < Message
     buffer = Buffer.of_size(sz)
     buffer.write_int32_network(sz)
     buffer.write_int32_network(@proto_version)
-    @params.each_pair {|key, value| 
+    @params.each_pair {|key, value|
       buffer.write_cstring(key)
       buffer.write_cstring(value)
     }

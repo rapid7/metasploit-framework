@@ -128,7 +128,7 @@ The best way to let the user decide what kind of payload to use is by defining s
 
 Here is an example targets section from a command injection module:
 
-```
+```ruby
     'Targets' => [
       [
         'Unix Command',

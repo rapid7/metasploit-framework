@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
+  include Msf::Post::Process
 
   def initialize(info = {})
     super(
@@ -53,19 +54,23 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    # Check Modules
+    # Check kernel modules
     if !vm
-      loaded_modules = cmd_exec('/sbin/lsmod')
-      case loaded_modules.to_s.gsub("\n", ' ')
-      when /vboxsf|vboxguest/i
+      loaded_modules = read_file('/proc/modules')
+      if !loaded_modules
+        loaded_modules = cmd_exec('/sbin/lsmod').to_s
+      end
+
+      case loaded_modules.gsub("\n", ' ')
+      when /vboxsf|vboxguest|vboxvideo|vboxvideo_drv|vboxdrv/i
         vm = 'VirtualBox'
       when /vmw_ballon|vmxnet|vmw/i
         vm = 'VMware'
       when /xen-vbd|xen-vnif|xen_netfront|xen_blkfront/
         vm = 'Xen'
-      when /virtio_pci|virtio_net/
+      when /virtio_pci|virtio_net|virtio_blk|virtio_console|virtio_scsi|virtio_balloon|virtio_input|virtio-gpu|virtio-rng|virtio_dma_buf|virtio_mmio|virtio_pmem|virtio_snd/
         vm = 'Qemu/KVM'
-      when /hv_vmbus|hv_blkvsc|hv_netvsc|hv_utils|hv_storvsc/
+      when /hv_vmbus|hv_blkvsc|hv_netvsc|hv_utils|hv_storvsc|hv_boot|hv_balloon|hyperv_keyboard|hid_hyperv|hyperv_fb/
         vm = 'MS Hyper-V'
       end
     end
@@ -108,6 +113,23 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check system vendor
+    if !vm
+      sys_vendor = read_file('/sys/class/dmi/id/sys_vendor')
+      if sys_vendor
+        case sys_vendor.gsub("\n", ' ')
+        when /qemu/i
+          vm = 'Qemu'
+        when /vmware/i
+          vm = 'VMWare'
+        when /xen/i
+          vm = 'Xen'
+        when /microsoft/i
+          vm = 'Hyper-V'
+        end
+      end
+    end
+
     # Check using lspci
     if !vm
       case get_sysinfo[:distro]
@@ -127,6 +149,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check Product Name
     if !vm
       product_name = read_file('/sys/class/dmi/id/product_name')
       if product_name
@@ -141,6 +164,48 @@ class MetasploitModule < Msf::Post
           vm = 'KVM'
         when /oracle/i
           vm = 'Oracle Corporation'
+        end
+      end
+    end
+
+    # Check BIOS Name
+    if !vm
+      bios_vendor = read_file('/sys/devices/virtual/dmi/id/bios_vendor')
+      if bios_vendor
+        case bios_vendor.gsub("\n", ' ')
+        when /^xen/i
+          vm = 'Xen'
+        end
+      end
+    end
+
+    # Check cpuinfo
+    if !vm
+      cpuinfo = read_file('/proc/cpuinfo')
+      if cpuinfo
+        case cpuinfo.gsub("\n", ' ')
+        when /qemu virtual cpu|emulated by qemu|KVM processor/i
+          vm = 'Qemu/KVM'
+        end
+      end
+    end
+
+    # Check Xen devices
+    if !vm
+      xen_capabilities = read_file('/sys/hypervisor/uuid')
+      if xen_capabilities
+        if ! xen_capabilities.include? '00000000-0000-0000-0000-000000000000'
+          vm = 'Xen'
+        end
+      end
+    end
+
+    # Check Processes
+    if !vm
+      get_processes do |process|
+        case process['name']
+        when /hv_vss_daemon|hv_kvp_daemon|hv_fcopy_daemon/i
+          vm = 'MS Hyper-V'
         end
       end
     end

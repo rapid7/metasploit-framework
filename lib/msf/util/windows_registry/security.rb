@@ -141,10 +141,10 @@ module WindowsRegistry
 
         if @lsa_vista_style
           decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
-          secret_size = decrypted[0, 4].unpack('<L').first
+          secret_size = decrypted[0, 4].unpack('L<').first
           secret = decrypted[16, secret_size]
         else
-          encrypted_secret_size = encrypted_secret[0, 4].unpack('<L').first
+          encrypted_secret_size = encrypted_secret[0, 4].unpack('L<').first
           secret = decrypt_secret_data(encrypted_secret[(encrypted_secret.size - encrypted_secret_size)..-1], lsa_key)
         end
         lsa_secrets[key] = secret
@@ -164,7 +164,7 @@ module WindowsRegistry
       if @lsa_vista_style
         nlkm_dec = decrypt_lsa_data(value_data, lsa_key)
       else
-        value_data_size = value_data[0, 4].unpack('<L').first
+        value_data_size = value_data[0, 4].unpack('L<').first
         nlkm_dec = decrypt_secret_data(value_data[(value_data.size - value_data_size)..-1], lsa_key)
       end
 

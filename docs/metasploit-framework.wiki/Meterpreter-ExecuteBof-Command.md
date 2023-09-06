@@ -33,8 +33,6 @@ The `bofloader` extension provides exactly one command, through which all of the
 
 `execute_bof </path/to/bof_file> [Options] -- [BOF Arguments]`
 
-
-
 * `-c` / `--compile` -- Compile the input file (requires mingw).
 * `-e` / `--entry` -- The entry point (default: `go`).
 * `-f` / `--format-string` -- Argument format-string. See details below.
@@ -79,7 +77,7 @@ argument format string.
 # Usage Examples
 Executing [dir][4], passing the path argument and number of sub-directories to list.
 
-```
+```msf
 meterpreter > execute_bof CS-Situational-Awareness-BOF/SA/dir/dir.x64.o --format-string Zs C:\\ 0
 Contents of C:\*:
 	08/05/2022 15:17           <dir> $Recycle.Bin
@@ -103,7 +101,7 @@ meterpreter >
 Executing [nanodump][5]. First the PID of LSASS is found, then the argument string is constructed. The output must be
 written to disk. Once completed, the dump file can be downloaded from the remote host.
 
-```
+```msf
 meterpreter > ps lsass
 Filtering on 'lsass'
 

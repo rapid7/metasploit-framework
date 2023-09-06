@@ -15,7 +15,7 @@ Follow the steps in the [[Installing AD CS|ad-certificates/overview.md#installin
 
 ## Module usage
 
-The `admin/ldap/ad_cs_template` module is generally used to update a certificate template as part of an ESC4 attack.
+The `admin/ldap/ad_cs_cert_template` module is generally used to update a certificate template as part of an ESC4 attack.
 
 1. From msfconsole
 2. Do: `use auxiliary/admin/ldap/ad_cs_cert_template`

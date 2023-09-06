@@ -1,11 +1,12 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.3.22)
+    metasploit-framework (6.3.33)
       actionpack (~> 7.0)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
       aws-sdk-ec2
+      aws-sdk-ec2instanceconnect
       aws-sdk-iam
       aws-sdk-s3
       aws-sdk-ssm
@@ -32,12 +33,13 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.143)
+      metasploit-payloads (= 2.0.148)
       metasploit_data_models
-      metasploit_payloads-mettle (= 1.0.20)
+      metasploit_payloads-mettle (= 1.0.26)
       mqtt
       msgpack (~> 1.6.0)
       nessus_rest
+      net-imap
       net-ldap
       net-smtp
       net-ssh
@@ -77,6 +79,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
+      ruby-mysql
       ruby_smb (~> 3.2.0)
       rubyntlm
       rubyzip
@@ -126,6 +129,14 @@ GEM
     addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
     afm (0.2.2)
+    allure-rspec (2.22.0)
+      allure-ruby-commons (= 2.22.0)
+      rspec-core (>= 3.8, < 4)
+    allure-ruby-commons (2.22.0)
+      mime-types (>= 3.3, < 4)
+      require_all (>= 2, < 4)
+      rspec-expectations (~> 3.12)
+      uuid (>= 2.3, < 3)
     arel-helpers (2.14.0)
       activerecord (>= 3.1.0, < 8)
     ast (2.4.2)
@@ -138,6 +149,9 @@ GEM
       jmespath (~> 1, >= 1.6.1)
     aws-sdk-ec2 (1.382.0)
       aws-sdk-core (~> 3, >= 3.174.0)
+      aws-sigv4 (~> 1.1)
+    aws-sdk-ec2instanceconnect (1.27.0)
+      aws-sdk-core (~> 3, >= 3.165.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.79.0)
       aws-sdk-core (~> 3, >= 3.174.0)
@@ -168,6 +182,7 @@ GEM
     cookiejar (0.3.3)
     crass (1.0.6)
     daemons (1.4.1)
+    date (3.3.3)
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
@@ -237,6 +252,8 @@ GEM
     loofah (2.21.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
+    macaddr (1.7.2)
+      systemu (~> 2.6.5)
     memory_profiler (1.0.1)
     metasm (1.0.5)
     metasploit-concern (5.0.1)
@@ -258,7 +275,7 @@ GEM
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
-    metasploit-payloads (2.0.143)
+    metasploit-payloads (2.0.148)
     metasploit_data_models (6.0.2)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -269,8 +286,11 @@ GEM
       railties (~> 7.0)
       recog
       webrick
-    metasploit_payloads-mettle (1.0.20)
+    metasploit_payloads-mettle (1.0.26)
     method_source (1.0.0)
+    mime-types (3.4.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2023.0218.1)
     mini_portile2 (2.8.2)
     minitest (5.18.0)
     mqtt (0.6.0)
@@ -279,6 +299,9 @@ GEM
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
     nessus_rest (0.1.6)
+    net-imap (0.3.7)
+      date
+      net-protocol
     net-ldap (0.18.0)
     net-protocol (0.2.1)
       timeout
@@ -298,8 +321,8 @@ GEM
     openssl-ccm (1.2.3)
     openssl-cmac (2.0.2)
     openvas-omp (0.0.4)
-    packetfu (1.1.13)
-      pcaprub
+    packetfu (2.0.0)
+      pcaprub (~> 0.13.1)
     parallel (1.23.0)
     parser (3.2.2.3)
       ast (~> 2.4.1)
@@ -352,6 +375,7 @@ GEM
     regexp_parser (2.8.0)
     reline (0.3.5)
       io-console (~> 0.5)
+    require_all (3.0.0)
     rex-arch (0.1.14)
       rex-text
     rex-bin_tools (0.1.8)
@@ -438,6 +462,7 @@ GEM
     rubocop-ast (1.29.0)
       parser (>= 3.2.1.0)
     ruby-macho (3.0.0)
+    ruby-mysql (4.0.0)
     ruby-prof (1.4.2)
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
@@ -469,6 +494,8 @@ GEM
     sshkey (2.0.0)
     strptime (0.2.5)
     swagger-blocks (3.0.0)
+    systemu (2.6.5)
+    test-prof (1.2.2)
     thin (1.8.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -476,7 +503,7 @@ GEM
     thor (1.2.2)
     tilt (2.2.0)
     timecop (0.9.6)
-    timeout (0.3.2)
+    timeout (0.4.0)
     ttfunk (1.7.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -487,6 +514,8 @@ GEM
     unf_ext (0.0.8.2)
     unicode-display_width (2.4.2)
     unix-crypt (1.3.1)
+    uuid (2.3.9)
+      macaddr (~> 1.0)
     warden (1.2.9)
       rack (>= 2.0.9)
     webrick (1.8.1)
@@ -516,6 +545,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  allure-rspec
   debug (>= 1.0.0)
   factory_bot_rails
   fivemat
@@ -530,6 +560,7 @@ DEPENDENCIES
   rubocop
   ruby-prof (= 1.4.2)
   simplecov (= 0.18.2)
+  test-prof
   timecop
   yard
 

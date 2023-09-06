@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 295
+  CachedSize = 322
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -183,9 +183,12 @@ module MetasploitModule
       jmp next_mod
       start_main:
       pop rbp
+      lea rcx,qword ptr ds:[rbp + #{exitfunc.length + datastore['TEXT'].length + datastore['TITLE'].length + 0x105}]
+      mov r10d, #{api_hash('kernel32.dll', 'LoadLibraryA')}
+      call rbp
       mov r9, #{style}
-      lea rdx,qword ptr ds:[rbp + #{exitfunc.length + 0xf3}]
-      lea r8,qword ptr ds:[rbp + #{exitfunc.length + datastore['TEXT'].length + 0xf4}]
+      lea rdx,qword ptr ds:[rbp + #{exitfunc.length + 0x103}]
+      lea r8,qword ptr ds:[rbp + #{exitfunc.length + datastore['TEXT'].length + 0x104}]
       xor rcx,rcx
       mov r10d, #{api_hash('user32.dll', 'MessageBoxA')}
       call rbp
@@ -195,6 +198,7 @@ module MetasploitModule
     payload_data << exitfunc
     payload_data << datastore['TEXT'] + "\x00"
     payload_data << datastore['TITLE'] + "\x00"
+    payload_data << "user32.dll" + "\x00"
 
     return payload_data
   end
