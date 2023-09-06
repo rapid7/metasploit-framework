@@ -1,4 +1,4 @@
-# Outputs the currently supported Meterpreter commands as JSON for the currently opened Meterpreter sessions
+# Outputs to STDOUT the currently supported Meterpreter commands as JSON for the currently opened Meterpreter sessions
 # Usage:
 # msf> resource scripts/resource/meterpreter_compatibility.rc
 

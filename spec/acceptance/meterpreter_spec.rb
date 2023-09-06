@@ -53,7 +53,7 @@ RSpec.describe 'Meterpreter' do
     meterpreter_runtime_name = "#{meterpreter_name}#{ENV.fetch('METERPRETER_RUNTIME_VERSION', '')}"
 
     describe meterpreter_runtime_name, focus: meterpreter_config[:focus] do
-      meterpreter_config[:payloads].each do |payload_config|
+      meterpreter_config[:payloads].each.with_index do |payload_config, payload_config_index|
         describe(
           Acceptance::Meterpreter.human_name_for_payload(payload_config).to_s,
           if: (
@@ -184,6 +184,57 @@ RSpec.describe 'Meterpreter' do
           end
 
           context "#{Acceptance::Meterpreter.current_platform}" do
+            describe "compatibility" do
+              it(
+                "exposes available metasploit commands",
+                if: (
+                  # Assume that regardless of payload, staged/unstaged/etc, the Meterpreter will have the same commands available
+                  # So only run this test when config_index == 0
+                  payload_config_index == 0 && Acceptance::Meterpreter.supported_platform?(payload_config)
+                  # Run if ENV['METERPRETER'] = 'java php' etc
+                  Acceptance::Meterpreter.run_meterpreter?(meterpreter_config) &&
+                  # Only run payloads / tests, if the host machine can run them
+                  Acceptance::Meterpreter.supported_platform?(payload_config)
+                )
+              ) do
+                # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
+                payload_process, _session_id = payload_process_and_session_id
+                expect(payload_process).to(be_alive, proc do
+                  current_payload_status = "Expected Payload process to be running. Instead got: payload process exited with #{payload_process.wait_thread.value} - when running the command #{payload_process.cmd.inspect}"
+
+                  Allure.add_attachment(
+                    name: 'Failed payload blob',
+                    source: Base64.strict_encode64(File.binread(payload_process.payload_path)),
+                    type: Allure::ContentType::TXT
+                  )
+
+                  current_payload_status
+                end)
+
+                console.sendline("resource scripts/resource/meterpreter_compatibility.rc")
+                result = console.recvuntil(Acceptance::Console.prompt)
+
+                available_commands = result.lines(chomp: true).find do |line|
+                  line.start_with?("{") && line.end_with?("}") && JSON.parse(line)
+                rescue JSON::ParserError => _e
+                  next
+                end
+                expect(available_commands).to_not be_nil
+
+                available_commands_json = JSON.parse(available_commands, symbolize_names: true)
+                expect(available_commands_json[:sessions].length).to be 1
+                expect(available_commands_json[:sessions].first[:commands]).to_not be_empty
+              ensure
+                # Generate an allure attachment, a report can be generated afterwards
+                Allure.add_attachment(
+                  name: 'available commands',
+                  source: JSON.pretty_generate(available_commands_json),
+                  type: Allure::ContentType::JSON,
+                  test_case: false
+                )
+              end
+            end
+
             meterpreter_config[:module_tests].each do |module_test|
               describe module_test[:name].to_s, focus: module_test[:focus] do
                 it(
