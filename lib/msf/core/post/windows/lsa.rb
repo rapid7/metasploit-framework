@@ -205,7 +205,7 @@ module Msf
         def lsa_string(string)
           if session.native_arch == ARCH_X64
             klass = LSA_STRING_x64
-          elsif session.native_arch == ARCH_X88
+          elsif session.native_arch == ARCH_X86
             klass = LSA_STRING_x86
           else
             raise RuntimeError, 'Architecture must be x86 or x64'
