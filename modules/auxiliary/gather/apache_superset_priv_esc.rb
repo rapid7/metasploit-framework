@@ -149,6 +149,7 @@ class MetasploitModule < Msf::Auxiliary
         break
       end
       result_json = res.get_json_document
+      db_display_name = result_json['result']['database_name']
       db_name = result_json['result']['parameters']['database']
       db_type = result_json['result']['backend']
       db_host = result_json['result']['parameters']['host']
@@ -170,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
           status: Metasploit::Model::Login::Status::UNTRIED
         })
       end
-      print_good("Found #{db_type} database #{db_name}: #{db_user}:#{db_pass}@#{db_host}:#{db_port}")
+      print_good("Found #{db_display_name}: #{db_type}://#{db_user}:#{db_pass}@#{db_host}:#{db_port}/#{db_name}")
     end
   end
 end
