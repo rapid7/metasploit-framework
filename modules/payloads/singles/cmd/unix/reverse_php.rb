@@ -57,6 +57,6 @@ module MetasploitModule
         }
       }"
     PHP
-    cmd = "#{datastore['PHPPath']} -r '#{cmd}'&"
+   "#{datastore['PHPPath']} -r '#{cmd}'&"
   end
 end
