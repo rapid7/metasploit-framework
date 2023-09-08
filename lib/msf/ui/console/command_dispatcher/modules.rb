@@ -137,6 +137,15 @@ module Msf
             end
           end
 
+          # Handles the index selection formatting
+          def print_module_search_results_usage
+            index_usage = "use #{@module_search_results.length - 1}"
+            index_info = "info #{@module_search_results.length - 1}"
+            name_usage = "use #{@module_search_results.last.fullname}"
+
+            print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+          end
+
           #
           # Displays information about one or more module.
           #
@@ -520,11 +529,7 @@ module Msf
               }
             else
               print_line(tbl.to_s)
-              index_usage = "use #{@module_search_results.length - 1}"
-              index_info = "info #{@module_search_results.length - 1}"
-              name_usage = "use #{@module_search_results.last.fullname}"
-
-              print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+              print_module_search_results_usage
 
               print_status("Using #{used_module}") if used_module
             end
@@ -1434,30 +1439,42 @@ module Msf
               return
             end
 
+            # create module set using the saved modules
+            fav_modules = {}
+
             # get the full module names from the favorites file and use then to search the MetaData Cache for matching modules
             saved_favs = File.readlines(favs_file).map(&:strip)
-            @module_search_results = Msf::Modules::Metadata::Cache.instance.find('fullname' => [saved_favs, []])
-
-            count = -1
-            tbl = generate_module_table('Favorite Modules')
-
-            @module_search_results.each do |m|
-              tbl << [
-                  count += 1,
-                  m.fullname,
-                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
-                  m.rank,
-                  m.check ? 'Yes' : 'No',
-                  m.name,
-              ]
+            saved_favs.each do |mod|
+              # populate hash with module fullname and module object
+              fav_modules[mod] = framework.modules[mod]
             end
 
-            print_line(tbl.to_s)
-            index_usage = "use #{@module_search_results.length - 1}"
-            index_info = "info #{@module_search_results.length - 1}"
-            name_usage = "use #{@module_search_results.last.fullname}"
+            fav_modules.each do |fullname, mod_obj|
+              if mod_obj.nil?
+                print_warning("#{favs_file} contains a module that can not be found - #{fullname}.")
+              end
+            end
 
-            print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+            # find cache module instance and add it to @module_search_results
+            @module_search_results = Msf::Modules::Metadata::Cache.instance.find('fullname' => [saved_favs, []])
+
+            # This scenario is for when a module fullname is a substring of other module fullnames
+            # Example, searching for the payload/windows/meterpreter/reverse_tcp module can result in matches for:
+            #   - windows/meterpreter/reverse_tcp_allports
+            #   - windows/meterpreter/reverse_tcp_dns
+            # So if @module_search_results is greater than the amount of fav_modules, we need to filter the results to be more accurate
+            if fav_modules.length < @module_search_results.length
+              filtered_results = []
+              fav_modules.each do |fullname, _mod_obj|
+                filtered_results << @module_search_results.select do |search_result|
+                  search_result.fullname == fullname
+                end
+              end
+              @module_search_results = filtered_results.flatten.sort_by(&:fullname)
+            end
+
+            show_module_metadata('Favorites', fav_modules)
+            print_module_search_results_usage
           end
 
           def show_missing(mod) # :nodoc:
