@@ -94,4 +94,17 @@ RSpec.describe Msf::OptAddressLocal do
       end
     end
   end
+  describe '#interfaces' do
+    context 'getting errors' do
+      before(:each) do
+        allow(NetworkInterface).to receive(:interfaces).and_raise(NetworkInterface::Error)
+      end
+
+      it 'rescues and returns an empty array' do
+        expect(required_opt).to receive(:elog).with(an_instance_of(NetworkInterface::Error))
+        result = required_opt.interfaces()
+        expect(result).to eq([])
+      end
+    end
+  end
 end

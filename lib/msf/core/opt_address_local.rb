@@ -12,7 +12,7 @@ class OptAddressLocal < OptAddress
   def interfaces
     begin
       NetworkInterface.interfaces || []
-    rescue
+    rescue NetworkInterface::Error => e
       elog(e)
       []
     end
