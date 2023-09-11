@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
 
     version = Rex::Version.new(Regexp.last_match(1))
     if version < Rex::Version.new('2.0.1') && version >= Rex::Version.new('1.4.1')
-      Exploit::CheckCode::Vulnerable("Apache Supset #{version} is vulnerable")
+      Exploit::CheckCode::Appears("Apache Supset #{version} is vulnerable")
     else
       Exploit::CheckCode::Safe("Apache Supset #{version} is NOT vulnerable")
     end
