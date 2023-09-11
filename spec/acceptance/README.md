@@ -4,6 +4,9 @@ A slower test suite that ensures high level functionality works as expected,
 such as verifying msfconsole opens successfully, and can generate Meterpreter payloads,
 create handlers, etc.
 
+The test suite runs on the current host, so the Meterpreter runtimes should be available.
+There is no remote host support currently.
+
 ### Examples
 
 Useful environment variables:
@@ -17,7 +20,7 @@ Running Meterpreter test suite:
 SPEC_OPTS='--tag acceptance' bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
 
-Skip loading of Rails/Metasplotit with:
+Skip loading of Rails/Metasploit with:
 
 ```
 SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance
@@ -29,6 +32,8 @@ SPEC_OPTS='--tag acceptance' METERPRETER=php METERPRETER_MODULE_TEST=test/unix b
 
 $env:SPEC_OPTS='--tag acceptance'; $env:SPEC_HELPER_LOAD_METASPLOIT=$false; $env:METERPRETER = 'php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
+
+#### Allure reports
 
 Generate allure reports locally:
 
@@ -55,6 +60,20 @@ tar -zxvf allure-$VERSION.tgz -C .
 # Serve the assets from the host machine, available at http://127.0.0.1:8000
 cd allure-report
 ruby -run -e httpd . -p 8000
+```
+
+#### Support Matrix generation
+
+You can download the data from an existing Github job run:
+
+```
+ids=(6099944525); for id in $ids; do echo $id; gh run download $id --repo rapid7/metasploit-framework --dir gh-actions-$id ; done
+```
+
+Then generate the report using the allure data:
+
+```
+bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data /path/to/gh-actions-$id > ./support_matrix.html
 ```
 
 ### Debugging
