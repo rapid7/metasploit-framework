@@ -53,4 +53,7 @@ module Rex::Proto::Thrift
       string ThriftDataType::T_UTF7
     end
   end
+
+  require 'rex/proto/thrift/client'
+  require 'rex/proto/thrift/error'
 end
