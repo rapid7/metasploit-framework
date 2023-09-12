@@ -324,6 +324,23 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
+    def present_pac_requestor(pac_requestor)
+      output = []
+      output << 'Pac Requestor:'
+      output << "SID: #{pac_requestor.user_sid}".indent(2)
+      output.join("\n")
+    end
+
+    def present_pac_attributes(pac_attributes)
+      output = []
+      output << 'Pac Attributes:'
+      output << "Flag length: #{pac_attributes.flags_length}".indent(2)
+      output << "Flags: #{pac_attributes.flags}".indent(2)
+      attribute_attributes = Rex::Proto::Kerberos::Pac::PacAttributesFlags.read([pac_attributes.flags].pack('N'))
+      output << print_bin_data_model(attribute_attributes, bit_length: 32).to_s.indent(4)
+      output.join("\n")
+    end
+
     # @param [Rex::Proto::Kerberos::Pac::Krb5PacInfoBuffer] info_buffer
     # @return [String] A human readable representation of a Pac Info Buffer
     def present_pac_info_buffer(info_buffer)
@@ -340,6 +357,10 @@ module Rex::Proto::Kerberos::CredentialCache
         present_priv_server_checksum(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
         present_upn_and_dns_information(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::PAC_REQUESTOR
+        present_pac_requestor(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::PAC_ATTRIBUTES
+        present_pac_attributes(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::TICKET_CHECKSUM
         present_ticket_checksum(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::FULL_PAC_CHECKSUM
