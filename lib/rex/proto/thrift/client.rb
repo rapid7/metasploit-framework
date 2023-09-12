@@ -98,10 +98,17 @@ class Rex::Proto::Thrift::Client
     body
   end
 
-  def call_raw(method_name, *data, timeout: @timeout)
+  def call(method_name, *data, timeout: @timeout)
     tx_header = ThriftHeader.new(method_name: method_name, message_type: ThriftMessageType::CALL)
     tx_data = data.map do |part|
-      part.is_a?(BinData::Struct) ? part.to_binary_s : part
+      case part
+      when BinData::Struct
+        part.to_binary_s
+      when Hash
+        ThriftData.new(part).to_binary_s
+      else
+        part
+      end
     end
 
     send_raw(tx_header.to_binary_s + tx_data.join)
@@ -115,6 +122,6 @@ class Rex::Proto::Thrift::Client
       raise Error::UnexpectedReplyError.new(rx_header, 'The received header was not to the expected method.')
     end
 
-    rx_data[rx_header.num_bytes..]
+    ThriftStruct.read(rx_data[rx_header.num_bytes..]).snapshot
   end
 end
