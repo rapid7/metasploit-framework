@@ -49,6 +49,11 @@ Files: data/webcam/api.js
 Copyright: Copyright 2013 Muaz Khan<@muazkh>.
 License: MIT
 
+Files: data/wordlists/flask_secret_keys.txt
+Source: https://github.com/Paradoxis/Flask-Unsign-Wordlist/blob/v2023.34/flask_unsign_wordlist/wordlists/github.txt
+Copyright: Copyright (c) 2023 Luke Paris (Paradoxis)
+License: MIT
+
 Files: external/source/byakugan/*
 Copyright: Lurene Grenier, 2009
 License: BSD-3-clause
