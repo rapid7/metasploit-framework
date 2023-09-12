@@ -51,7 +51,7 @@ The ID of an admin account. Defaults to `1`
 
 ### SECRET_KEYS_FILE
 
-A file containing secret keys to try. One per line. Defaults to `metasploit-framework/data/wordlists/superset_secret_keys.tx`
+A file containing secret keys to try. One per line. Defaults to `metasploit-framework/data/wordlists/superset_secret_keys.txt`
 
 ## Scenarios
 

@@ -80,8 +80,9 @@ class MetasploitModule < Msf::Auxiliary
       secret = secret.strip
       vprint_status("#{peer} - Checking secret key: #{secret}")
 
-      unless Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, secret)
-        vprint_bad("#{peer} - Incorrect Secret Key: #{secret}")
+      unescaped_secret = Rex::Text.dehex(secret.gsub('\\', '\\').gsub('\\n', "\n").gsub('\\t', "\t"))
+      unless Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, unescaped_secret)
+        vprint_bad("#{peer} - Incorrect secret key: #{secret}")
         next
       end
 

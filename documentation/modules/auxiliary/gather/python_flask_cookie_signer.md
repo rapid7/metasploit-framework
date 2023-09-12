@@ -62,7 +62,7 @@ When action is set to `Resign`, the cookie is signed with this secret.
 
 ### SECRET_KEYS_FILE
 
-When action is set to `FindSecret`, a file containing secret keys to try. One per line. Defaults to `metasploit-framework/data/wordlists/flask_secret_keys.tx`
+When action is set to `FindSecret`, a file containing secret keys to try. One per line. Defaults to `metasploit-framework/data/wordlists/flask_secret_keys.txt`
 
 ## Scenarios
 

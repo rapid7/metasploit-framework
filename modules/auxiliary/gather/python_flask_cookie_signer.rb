@@ -83,8 +83,9 @@ class MetasploitModule < Msf::Auxiliary
       secret = secret.strip
       vprint_status("#{peer} - Checking secret key: #{secret}")
 
-      unless Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, secret)
-        vprint_bad("#{peer} - Incorrect Secret Key: #{secret}")
+      unescaped_secret = unescape_string(secret)
+      unless Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, unescaped_secret)
+        vprint_bad("#{peer} - Incorrect secret key: #{secret}")
         next
       end
 
@@ -118,8 +119,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Decoded Cookie: #{decoded_cookie}")
 
     # use dehex to allow \x style escape sequences for unprintable chars
-    secret = Rex::Text.dehex(datastore['SECRET'])
-    salt = Rex::Text.dehex(datastore['Salt'])
+    secret = unescape_string(datastore['SECRET'])
+    salt = unescape_string(datastore['Salt'])
 
     if Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.valid?(cookie, secret, salt: salt)
       print_good("#{peer} - Secret key #{secret.inspect} is correct.")
@@ -141,5 +142,9 @@ class MetasploitModule < Msf::Auxiliary
       encoded_cookie = Msf::Exploit::Remote::HTTP::FlaskUnsign::Session.sign(datastore['NEWCOOKIECONTENT'], secret, salt: salt)
       print_good("#{peer} - New signed cookie: #{datastore['CookieName']}=#{encoded_cookie}")
     end
+  end
+
+  def unescape_string(string)
+    Rex::Text.dehex(string.gsub('\\', '\\').gsub('\\n', "\n").gsub('\\t', "\t"))
   end
 end
