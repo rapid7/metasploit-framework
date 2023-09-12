@@ -2,6 +2,7 @@
 
 require 'bindata'
 
+# @see: https://diwakergupta.github.io/thrift-missing-guide/
 module Rex::Proto::Thrift
   class ThriftData < BinData::Record  # forward definition
     endian :big
@@ -141,6 +142,7 @@ module Rex::Proto::Thrift
       thrift_array    ThriftDataType::T_LIST
     end
 
+    # Short hand method for defining a boolean field
     def self.boolean(field_id, value)
       { data_type: ThriftDataType::T_BOOLEAN, field_id: field_id, data_value: value }
     end

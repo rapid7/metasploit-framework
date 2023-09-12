@@ -63,10 +63,18 @@ class Rex::Proto::Thrift::Client
     @conn = nil
   end
 
+  # Send raw data to the remote peer.
+  #
+  # @param [String] data The data to send.
   def send_raw(data)
     @conn.put([data.length].pack('N') + data)
   end
 
+  # Receive raw data from the remote peer.
+  #
+  # @param [Float] timeout The timeout to use for this receive operation. Defaults to the instance timeout.
+  # @raise [Rex::TimeoutError] Raised when all of the data was not received within the timeout.
+  # @return [String] The received data.
   def recv_raw(timeout: @timeout)
     remaining = timeout
     frame_size, elapsed_time = Rex::Stopwatch.elapsed_time do
@@ -98,6 +106,14 @@ class Rex::Proto::Thrift::Client
     body
   end
 
+  # Call the specific method on the remote peer.
+  #
+  # @param [String] method_name The method name to call.
+  # @param [BinData::Struct, Hash, String] *data The data to send in the method call.
+  # @param [Float] timeout The timeout to use for this call operation. Defaults to the instance timeout.
+  # @raise [Error::UnexpectedReplyError] Raised if the reply was not to the method call.
+  # @raise [Rex::TimeoutError] Raised when all of the data was not received within the timeout.
+  # @return [Array<Hash>] The results of the method call.
   def call(method_name, *data, timeout: @timeout)
     tx_header = ThriftHeader.new(method_name: method_name, message_type: ThriftMessageType::CALL)
     tx_data = data.map do |part|
