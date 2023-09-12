@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new(
           'APPEND_DOMAIN', [true, 'Appends `@<DOMAIN> to the username for authentication`', false],
-          conditions: ['LDAP::Auth', 'in', %w[AUTO PLAINTEXT]]
+          conditions: ['LDAP::Auth', 'in', [Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::PLAINTEXT]]
         )
       ]
     )
