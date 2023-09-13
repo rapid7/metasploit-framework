@@ -50,7 +50,7 @@ RSpec.describe 'kerberos keytab' do
               Ticket etype: 23 (RC4_HMAC)
               Key: 41414141414141414141414141414141
               Subkey: false
-              Ticket Length: 1014
+              Ticket Length: 1086
               Ticket Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
               Addresses: 0
               Authdatas: 0
@@ -185,10 +185,17 @@ RSpec.describe 'kerberos keytab' do
                       Client Info:
                         Name: 'Administrator'
                         Client ID: #{Time.parse('2022-07-15 13:33:40 +0100').to_time}
+                      Pac Requestor:
+                        SID: S-1-5-21-1266190811-2419310613-1856291569-500
+                      Pac Attributes:
+                        Flag length: 2
+                        Flags: 1
+                          .... .... .... .... .... .... .... ..0. Pac Was Requested: The PAC_WAS_REQUESTED bit is NOT SET
+                          .... .... .... .... .... .... .... ...1 Pac Was Given Implicitly: The PAC_WAS_GIVEN_IMPLICITLY bit is SET
                       Pac Server Checksum:
-                        Signature: 6dc9bd5369b0defac778b349e298012a
+                        Signature: 0e081d0f36228b8b592c6947c8c96435
                       Pac Privilege Server Checksum:
-                        Signature: 0ac8624ae3cc7cd3750fcf902d006b5f
+                        Signature: 42ecbbbdeb8dae3fe42f7ac5630f3af3
         TABLE
         expect(ticket_save_path).to_not be_nil
       end
