@@ -184,7 +184,7 @@ RSpec.describe 'Meterpreter' do
           end
 
           context "#{Acceptance::Meterpreter.current_platform}" do
-            describe "compatibility" do
+            describe "#{Acceptance::Meterpreter.current_platform}/#{meterpreter_runtime_name} Meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload" do
               it(
                 "exposes available metasploit commands",
                 if: (
@@ -193,45 +193,139 @@ RSpec.describe 'Meterpreter' do
                   payload_config_index == 0 && Acceptance::Meterpreter.supported_platform?(payload_config)
                   # Run if ENV['METERPRETER'] = 'java php' etc
                   Acceptance::Meterpreter.run_meterpreter?(meterpreter_config) &&
-                  # Only run payloads / tests, if the host machine can run them
-                  Acceptance::Meterpreter.supported_platform?(payload_config)
+                    # Only run payloads / tests, if the host machine can run them
+                    Acceptance::Meterpreter.supported_platform?(payload_config)
                 )
               ) do
-                # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
-                payload_process, _session_id = payload_process_and_session_id
-                expect(payload_process).to(be_alive, proc do
-                  current_payload_status = "Expected Payload process to be running. Instead got: payload process exited with #{payload_process.wait_thread.value} - when running the command #{payload_process.cmd.inspect}"
+                begin
+                  replication_commands = []
+                  current_payload_status = ''
 
+                  # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
+                  payload_process, session_id = payload_process_and_session_id
+                  expect(payload_process).to(be_alive, proc do
+                    current_payload_status = "Expected Payload process to be running. Instead got: payload process exited with #{payload_process.wait_thread.value} - when running the command #{payload_process.cmd.inspect}"
+
+                    Allure.add_attachment(
+                      name: 'Failed payload blob',
+                      source: Base64.strict_encode64(File.binread(payload_process.payload_path)),
+                      type: Allure::ContentType::TXT
+                    )
+
+                    current_payload_status
+                  end)
+                  expect(session_id).to_not(be_nil, proc do
+                    "There should be a session present"
+                  end)
+
+                  resource_command = "resource scripts/resource/meterpreter_compatibility.rc"
+                  replication_commands << resource_command
+                  console.sendline(resource_command)
+                  result = console.recvuntil(Acceptance::Console.prompt)
+
+                  available_commands = result.lines(chomp: true).find do |line|
+                    line.start_with?("{") && line.end_with?("}") && JSON.parse(line)
+                  rescue JSON::ParserError => _e
+                    next
+                  end
+                  expect(available_commands).to_not be_nil
+
+                  available_commands_json = JSON.parse(available_commands, symbolize_names: true)
+                  # Generate an allure attachment, a report can be generated afterwards
                   Allure.add_attachment(
-                    name: 'Failed payload blob',
-                    source: Base64.strict_encode64(File.binread(payload_process.payload_path)),
+                    name: 'available commands',
+                    source: JSON.pretty_generate(available_commands_json),
+                    type: Allure::ContentType::JSON,
+                    test_case: false
+                  )
+                  expect(available_commands_json[:sessions].length).to be 1
+                  expect(available_commands_json[:sessions].first[:commands]).to_not be_empty
+                rescue RSpec::Expectations::ExpectationNotMetError, StandardError => e
+                  test_run_error = e
+                end
+
+                # Test cleanup. We intentionally omit cleanup from an `after(:each)` to ensure the allure attachments are
+                # still generated if the session dies in a weird way etc
+
+                # Payload process cleanup / verification
+                # The payload process wasn't initially marked as dead - let's close it
+                if payload_process.present? && current_payload_status.blank?
+                  begin
+                    if payload_process.alive?
+                      current_payload_status = "Process still alive after running test suite"
+                      payload_process.close
+                    else
+                      current_payload_status = "Expected Payload process to be running. Instead got: payload process exited with #{payload_process.wait_thread.value} - when running the command #{payload_process.cmd.inspect}"
+                    end
+                  rescue => e
+                    Allure.add_attachment(
+                      name: 'driver.close_payloads failure information',
+                      source: "Error: #{e.class} - #{e.message}\n#{(e.backtrace || []).join("\n")}",
+                      type: Allure::ContentType::TXT
+                    )
+                  end
+                end
+
+                console_reset_error = nil
+                current_console_data = console.all_data
+                begin
+                  console.reset
+                rescue => e
+                  console_reset_error = e
+                  Allure.add_attachment(
+                    name: 'console.reset failure information',
+                    source: "Error: #{e.class} - #{e.message}\n#{(e.backtrace || []).join("\n")}",
                     type: Allure::ContentType::TXT
                   )
-
-                  current_payload_status
-                end)
-
-                console.sendline("resource scripts/resource/meterpreter_compatibility.rc")
-                result = console.recvuntil(Acceptance::Console.prompt)
-
-                available_commands = result.lines(chomp: true).find do |line|
-                  line.start_with?("{") && line.end_with?("}") && JSON.parse(line)
-                rescue JSON::ParserError => _e
-                  next
                 end
-                expect(available_commands).to_not be_nil
 
-                available_commands_json = JSON.parse(available_commands, symbolize_names: true)
-                expect(available_commands_json[:sessions].length).to be 1
-                expect(available_commands_json[:sessions].first[:commands]).to_not be_empty
-              ensure
-                # Generate an allure attachment, a report can be generated afterwards
-                Allure.add_attachment(
-                  name: 'available commands',
-                  source: JSON.pretty_generate(available_commands_json),
-                  type: Allure::ContentType::JSON,
-                  test_case: false
+                payload_configuration_details = payload.as_readable_text(
+                  default_global_datastore: default_global_datastore,
+                  default_module_datastore: default_module_datastore
                 )
+
+                replication_steps = <<~EOF
+                  ## Load test modules
+                  loadpath test/modules
+
+                  #{payload_configuration_details}
+
+                  ## Replication commands
+                  #{replication_commands.empty? ? 'no additional commands run' : replication_commands.join("\n")}
+                EOF
+
+                Allure.add_attachment(
+                  name: 'payload configuration and replication',
+                  source: replication_steps,
+                  type: Allure::ContentType::TXT
+                )
+
+                Allure.add_attachment(
+                  name: 'payload output if available',
+                  source: "Final status:\n#{current_payload_status}\nstdout and stderr:\n#{get_file_attachment_contents(payload_stdout_and_stderr_file.path)}",
+                  type: Allure::ContentType::TXT
+                )
+
+                Allure.add_attachment(
+                  name: 'payload debug log if available',
+                  source: get_file_attachment_contents(meterpreter_logging_file.path),
+                  type: Allure::ContentType::TXT
+                )
+
+                Allure.add_attachment(
+                  name: 'session tlv logging if available',
+                  source: get_file_attachment_contents(session_tlv_logging_file.path),
+                  type: Allure::ContentType::TXT
+                )
+
+                Allure.add_attachment(
+                  name: 'console data',
+                  source: current_console_data,
+                  type: Allure::ContentType::TXT
+                )
+
+                raise test_run_error if test_run_error
+                raise console_reset_error if console_reset_error
               end
             end
 
