@@ -7,7 +7,7 @@ module Msf::Payload::Adapter::Fetch
         Msf::OptBool.new('FETCH_DELETE', [true, 'Attempt to delete the binary after execution', false]),
         Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces.', Rex::Text.rand_text_alpha(rand(8..12))], regex:/^[\S]*$/),
         Msf::OptPort.new('FETCH_SRVPORT', [true, 'Local port to use for serving payload', 8080]),
-        Msf::OptAddressRoutable.new('FETCH_SRVHOST', [ true, 'Local IP to use for serving payload']),
+        Msf::OptAddressRoutable.new('FETCH_SRVHOST', [ false, 'Local IP to use for serving payload']),
         Msf::OptString.new('FETCH_URIPATH', [ false, 'Local URI to use for serving payload', '']),
         Msf::OptString.new('FETCH_WRITABLE_DIR', [ true, 'Remote writable dir to store payload; cannot contain spaces.', ''], regex:/^[\S]*$/)
       ]
@@ -78,6 +78,8 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def generate(opts = {})
+    datastore['FETCH_SRVHOST'] = datastore['LHOST'] if datastore['FETCH_SRVHOST'].blank?
+    fail_with(Msf::Module::Failure::BadConfig, 'FETCH_SRVHOST required') if datastore['FETCH_SRVHOST'].blank?
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)

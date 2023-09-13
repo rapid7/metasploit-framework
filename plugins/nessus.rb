@@ -1190,6 +1190,7 @@ module Msf
         if is_scan_complete(scan_id)
           print_status("Exporting scan ID #{scan_id} is Nessus format...")
           export = @n.scan_export(scan_id, 'nessus')
+          status = {}
           if export['file']
             file_id = export['file']
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
@@ -1485,6 +1486,7 @@ module Msf
         end
         if format.in?(['nessus', 'html', 'pdf', 'csv', 'db'])
           export = @n.scan_export(scan_id, format)
+          status = {}
           if export['file']
             file_id = export['file']
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
@@ -1526,6 +1528,7 @@ module Msf
         when 2
           scan_id = args[0]
           file_id = args[1]
+          status = {}
           loop do
             status = @n.scan_export_status(scan_id, file_id)
             print_status('Export status: ' + status['status'])
