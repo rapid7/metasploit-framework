@@ -69,6 +69,8 @@ module Buffer
         buf = Rex::Text.to_nim(buf)
       when 'rust', 'rustlang'
         buf = Rex::Text.to_rust(buf)
+      when 'octal'
+        buf = Rex::Text.to_octal(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -138,6 +140,7 @@ module Buffer
       'nim',
       'nimlang',
       'num',
+      'octal',
       'perl',
       'pl',
       'powershell',
