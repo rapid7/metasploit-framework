@@ -414,7 +414,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.53)
+    rex-socket (0.1.54)
       rex-core
     rex-sslscan (0.1.9)
       rex-core
