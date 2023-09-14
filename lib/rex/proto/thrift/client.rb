@@ -1,3 +1,5 @@
+require 'rex/stopwatch'
+
 class Rex::Proto::Thrift::Client
   include Rex::Proto::Thrift
 
@@ -18,10 +20,6 @@ class Rex::Proto::Thrift::Client
   attr_accessor :timeout
 
   def initialize(host, port, context: {}, ssl: false, ssl_version: nil, comm: nil, timeout: 10)
-    if port.nil?
-      port = ssl ? 5671 : 5672
-    end
-
     @host = host
     @port = port
     @context = context
