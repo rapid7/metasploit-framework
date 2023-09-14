@@ -314,6 +314,13 @@ RSpec.describe Metasploit::Framework::Hashes do
     end
   end
 
+  describe 'identify_pbkdf2-sha256' do
+    it 'returns pbkdf2-sha256' do
+      hash = described_class.identify_hash('$pbkdf2-sha256$260000$Q1hzYjU5dFNMWm05QUJCTg$s.vmjGlIV0ZKV1Sp3dTdrcn/i9CTqxPZ0klve4HreeU')
+      expect(hash).to match('pbkdf2-sha256')
+    end
+  end
+
   describe 'identify_empty_string' do
     it 'returns empty string' do
       hash = described_class.identify_hash('')

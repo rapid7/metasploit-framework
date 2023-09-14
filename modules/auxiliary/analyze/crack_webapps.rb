@@ -16,6 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         Atlassian uses PBKDF2-HMAC-SHA1 which is 12001 in hashcat.
         PHPass uses phpass which is 400 in hashcat.
         Mediawiki is MD5 based and is 3711 in hashcat.
+        Apache Superset, some Flask and Werkzeug apps is pbkdf2-sha256 and is 10900 in hashcat
       },
       'Author'          =>
         [
@@ -35,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ATLASSIAN',[false, 'Include Atlassian hashes', true]),
         OptBool.new('MEDIAWIKI',[false, 'Include MediaWiki hashes', true]),
         OptBool.new('PHPASS',[false, 'Include Wordpress/PHPass, Joomla, phpBB3 hashes', true]),
+        OptBool.new('PBKDF2',[false, 'Apache Superset, some Flask and Werkzeug apps hashes', true]),
         OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
         OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
       ]
@@ -113,6 +115,7 @@ class MetasploitModule < Msf::Auxiliary
     hashes_regex = []
     hashes_regex << 'PBKDF2-HMAC-SHA1' if datastore['ATLASSIAN']
     hashes_regex << 'phpass' if datastore['PHPASS']
+    hashes_regex << 'pbkdf2-sha256' if datastore['PBKDF2']
     hashes_regex << 'mediawiki' if datastore['MEDIAWIKI']
 
     # array of arrays for cracked passwords.

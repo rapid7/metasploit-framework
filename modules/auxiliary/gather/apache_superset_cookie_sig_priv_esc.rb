@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'RelatedModules' => ['exploit/linux/http/apache_superset_cookie_sig_rce']
         },
         'DisclosureDate' => '2023-04-25'
       )
