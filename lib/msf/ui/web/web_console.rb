@@ -116,8 +116,8 @@ class WebConsole
   end
 
   def shutdown
-    self.pipe.close
     self.thread.kill
+    self.pipe.close
   end
 
   def busy
