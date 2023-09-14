@@ -9,15 +9,13 @@ module Shell
 
 class HistoryManager
 
-  include Singleton
-
   MAX_HISTORY = 2000
 
   def initialize
     @contexts = []
-    @write_mutex = Mutex.new
-    @write_queue = {}
     @debug = false
+    @write_queue = ::Queue.new
+    @currently_processing = ::Queue.new
   end
 
   # Create a new history command context when executing the given block
@@ -40,7 +38,9 @@ class HistoryManager
 
   # Flush the contents of the write queue to disk. Blocks synchronously.
   def flush
-    sleep 0.1 until @write_queue.empty?
+    until @write_queue.empty? && @currently_processing.empty?
+      sleep 0.1
+    end
 
     nil
   end
@@ -99,16 +99,9 @@ class HistoryManager
     return unless readline_available?
 
     clear_readline
-    commands = from_storage_queue(history_file)
-    if commands
-      commands.reverse.each do |c|
-        ::Readline::HISTORY << c
-      end
-    else
-      if File.exist?(history_file)
-        File.readlines(history_file).each do |e|
-          ::Readline::HISTORY << e.chomp
-        end
+    if File.exist?(history_file)
+      File.readlines(history_file).each do |e|
+        ::Readline::HISTORY << e.chomp
       end
     end
   end
@@ -140,32 +133,28 @@ class HistoryManager
   end
 
   def write_history_file(history_file, cmds)
-    entry_added = false
-    until entry_added
-      @write_mutex.synchronize do
-        if @write_queue[history_file].nil?
-          @write_queue[history_file] = cmds
-          entry_added = true
+    write_queue_ref = @write_queue
+    currently_processing_ref = @currently_processing
+    @write_thread ||= Rex::ThreadFactory.spawn("HistoryManagerWriter", false) do
+      while (event = write_queue_ref.pop)
+        begin
+          currently_processing_ref << event
+
+          history_file = event[:history_file]
+          cmds = event[:cmds]
+
+          File.open(history_file, 'wb+') do |f|
+            f.puts(cmds.reverse)
+          end
+        rescue => e
+          elog(e)
+        ensure
+          currently_processing_ref.pop
         end
       end
-      sleep 0.1 if !entry_added
     end
 
-    Rex::ThreadFactory.spawn("#{history_file} Writer", false) do
-      File.open(history_file, 'wb+') do |f|
-        f.puts(cmds.reverse)
-      end
-
-      @write_mutex.synchronize do
-        @write_queue.delete(history_file)
-      end
-    end
-  end
-
-  def from_storage_queue(history_file)
-    @write_mutex.synchronize do
-      @write_queue[history_file]
-    end
+    write_queue_ref << { type: :write, history_file: history_file, cmds: cmds }
   end
 end
 

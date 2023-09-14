@@ -130,7 +130,7 @@ module Shell
       # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
     end
 
-    HistoryManager.instance.with_context(history_file: histfile, name: name) do
+    framework.history_manager.with_context(history_file: histfile, name: name) do
       self.hist_last_saved = Readline::HISTORY.length
 
       begin
@@ -177,7 +177,7 @@ module Shell
       end
     end
   ensure
-    HistoryManager.instance.flush
+    framework.history_manager.flush
     self.hist_last_saved = Readline::HISTORY.length
   end
 
