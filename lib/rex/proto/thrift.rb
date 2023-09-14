@@ -88,7 +88,7 @@ module Rex::Proto::Thrift
     endian :big
 
     thrift_data_type :data_type
-    int32            :members_size
+    int32            :members_size, initial_value: -> { members.num_bytes }
     choice           :members, onlyif: -> { members_size > 0 }, selection: :data_type do
       array ThriftDataType::T_BOOLEAN, type: :thrift_boolean, read_until: -> { members.num_bytes == members_size }
       array ThriftDataType::T_I16, type: :int16, read_until: -> { members.num_bytes == members_size }
