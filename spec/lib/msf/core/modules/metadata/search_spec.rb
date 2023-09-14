@@ -47,6 +47,9 @@ RSpec.describe Msf::Modules::Metadata::Search do
     it { expect(described_class.parse_search_string("text:postgres:")).to eq({"text"=>[["postgres"], []]}) }
     it { expect(described_class.parse_search_string("postgres::::")).to eq({"text"=>[["postgres"], []]}) }
     it { expect(described_class.parse_search_string("turtle:bobcat postgres:")).to eq({"text"=>[["postgres"], []], "turtle"=>[["bobcat"], []]}) }
+    it { expect(described_class.parse_search_string("stage:linux/x64/meterpreter ")).to eq({"stage"=>[["linux/x64/meterpreter"], []]}) }
+    it { expect(described_class.parse_search_string("stager:linux/x64/reverse_tcp ")).to eq({"stager"=>[["linux/x64/reverse_tcp"], []]}) }
+    it { expect(described_class.parse_search_string("adapter:cmd/linux/http/mips64 ")).to eq({"adapter"=>[["cmd/linux/http/mips64"], []]}) }
   end
 
   describe '#find' do
@@ -139,6 +142,38 @@ RSpec.describe Msf::Modules::Metadata::Search do
       reject = %w(author:sinn3r)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
+    end
+
+    context 'on a module with a #stage_refname of "linux/x64/meterpreter"' do
+      let(:opts) { { 'stage_refname' => 'linux/x64/meterpreter' } }
+      accept = %w[stage:linux/x64/meterpreter]
+      reject = %w[stage:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #stager_refname of "linux/x64/reverse_tcp"' do
+      let(:opts) { { 'stager_refname' => 'linux/x64/reverse_tcp' } }
+      accept = %w[stager:linux/x64/reverse_tcp]
+      reject = %w[stager:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #adapter_refname of "cmd/linux/http/mips64"' do
+      let(:opts) { { 'adapter_refname' => 'cmd/linux/http/mips64' } }
+      accept = %w[adapter:cmd/linux/http/mips64]
+      reject = %w[adapter:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #adapter_refname of "linux/x64/meterpreter_reverse_https"' do
+      let(:opts) { { 'adapter_refname' => 'linux/x64/meterpreter_reverse_https' } }
+      accept = %w[adapter:linux/x64/meterpreter_reverse_http adapter:linux/x64/meterpreter_reverse_https]
+      reject = %w[adapter:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
     end
 
     context 'on a module that supports the osx platform' do
