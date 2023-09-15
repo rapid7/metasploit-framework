@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
   def validate_connect_options!
     # Verify we can create arbitrary connect opts, this won't make a connection out to the real host - but will verify the values are valid
     get_connect_opts
-  rescue ValidationError => e
+  rescue Msf::ValidationError => e
     fail_with(Msf::Exploit::Remote::Failure::BadConfig, "Invalid datastore options for chosen auth type: #{e.message}")
   end
 

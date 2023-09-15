@@ -25,17 +25,17 @@ module Metasploit
           case opts[:ldap_auth]
           when Msf::Exploit::Remote::AuthOption::SCHANNEL
             pfx_path = opts[:ldap_cert_file]
-            raise ValidationError, 'The LDAP::CertFile option is required when using SCHANNEL authentication.' if pfx_path.blank?
-            raise ValidationError, 'The SSL option must be enabled when using SCHANNEL authentication.' if ssl != true
+            raise Msf::ValidationError, 'The LDAP::CertFile option is required when using SCHANNEL authentication.' if pfx_path.blank?
+            raise Msf::ValidationError, 'The SSL option must be enabled when using SCHANNEL authentication.' if ssl != true
 
             unless ::File.file?(pfx_path) && ::File.readable?(pfx_path)
-              raise ValidationError, 'Failed to load the PFX certificate file. The path was not a readable file.'
+              raise Msf::ValidationError, 'Failed to load the PFX certificate file. The path was not a readable file.'
             end
 
             begin
               pkcs = OpenSSL::PKCS12.new(File.binread(pfx_path), '')
             rescue StandardError => e
-              raise ValidationError, "Failed to load the PFX file (#{e})"
+              raise Msf::ValidationError, "Failed to load the PFX file (#{e})"
             end
 
             connect_opts[:auth] = {
@@ -53,12 +53,12 @@ module Metasploit
               }
             }
           when Msf::Exploit::Remote::AuthOption::KERBEROS
-            raise ValidationError, 'The Ldap::Rhostname option is required when using Kerberos authentication.' if opts[:ldap_rhostname].blank?
-            raise ValidationError, 'The DOMAIN option is required when using Kerberos authentication.' if opts[:domain].blank?
-            raise ValidationError, 'The DomainControllerRhost is required when using Kerberos authentication.' if opts[:domain_controller_rhost].blank?
+            raise Msf::ValidationError, 'The Ldap::Rhostname option is required when using Kerberos authentication.' if opts[:ldap_rhostname].blank?
+            raise Msf::ValidationError, 'The DOMAIN option is required when using Kerberos authentication.' if opts[:domain].blank?
+            raise Msf::ValidationError, 'The DomainControllerRhost is required when using Kerberos authentication.' if opts[:domain_controller_rhost].blank?
 
             offered_etypes = Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(opts[:ldap_krb_offered_enc_types])
-            raise ValidationError, 'At least one encryption type is required when using Kerberos authentication.' if offered_etypes.empty?
+            raise Msf::ValidationError, 'At least one encryption type is required when using Kerberos authentication.' if offered_etypes.empty?
 
             kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::LDAP.new(
               host: opts[:domain_controller_rhost],
