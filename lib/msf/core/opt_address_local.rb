@@ -10,7 +10,12 @@ module Msf
 ###
 class OptAddressLocal < OptAddress
   def interfaces
-    NetworkInterface.interfaces || []
+    begin
+      NetworkInterface.interfaces || []
+    rescue NetworkInterface::Error => e
+      elog(e)
+      []
+    end
   end
 
   def normalize(value)
@@ -23,7 +28,7 @@ class OptAddressLocal < OptAddress
     addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
       begin
         IPAddr.new(addr)
-      rescue IPAddr::InvalidAddressError
+      rescue IPAddr::Error
         false
       end
     end

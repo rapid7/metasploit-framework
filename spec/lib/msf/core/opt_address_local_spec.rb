@@ -62,7 +62,7 @@ RSpec.describe Msf::OptAddressLocal do
             # Darwin AF_LINK
             18 => [
               {
-                'addr' => '55:44:33:22:11:00',
+                'addr' => '',
                 'netmask' => nil,
                 'broadcast' => nil
               }
@@ -91,6 +91,19 @@ RSpec.describe Msf::OptAddressLocal do
         it 'preferences the lowest ipv4 address' do
           expect(required_opt.normalize(mock_adapter_name)).to eq '192.0.2.1'
         end
+      end
+    end
+  end
+  describe '#interfaces' do
+    context 'getting errors' do
+      before(:each) do
+        allow(NetworkInterface).to receive(:interfaces).and_raise(NetworkInterface::Error)
+      end
+
+      it 'rescues and returns an empty array' do
+        expect(required_opt).to receive(:elog).with(an_instance_of(NetworkInterface::Error))
+        result = required_opt.interfaces()
+        expect(result).to eq([])
       end
     end
   end

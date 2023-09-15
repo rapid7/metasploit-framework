@@ -7,8 +7,39 @@
 module Msf::Modules::Metadata::Search
 
   VALID_PARAMS =
-      %w[aka author authors arch cve bid edb check date disclosure_date description fullname fullname mod_time
-      name os platform path port rport rank ref ref_name reference references target targets text type]
+    %w[
+      adapter
+      aka
+      arch
+      author
+      authors
+      bid
+      check
+      cve
+      date
+      description
+      disclosure_date
+      edb
+      fullname
+      mod_time
+      name
+      os
+      path
+      platform
+      port
+      rank
+      ref
+      ref_name
+      reference
+      references
+      rport
+      stage
+      stager
+      target
+      targets
+      text
+      type
+    ]
 
   #
   # Module Type Shorthands
@@ -43,7 +74,7 @@ module Msf::Modules::Metadata::Search
 
     terms.each do |term|
       # Split it on the `:`, with the part before the first `:` going into keyword, the part after first `:`
-      # but before any later instances of `:` going into search_term, and the characters after the second 
+      # but before any later instances of `:` going into search_term, and the characters after the second
       # `:` or later in the string going into _excess to be ignored.
       #
       # Example is `use exploit/linux/local/nested_namespace_idmap_limit_priv_esc::a`
@@ -172,6 +203,12 @@ module Msf::Modules::Metadata::Search
               end
             when 'path'
               match = [keyword, search_term] if module_metadata.fullname =~ regex
+            when 'stage'
+              match = [keyword, search_term] if module_metadata.stage_refname =~ regex
+            when 'stager'
+              match = [keyword, search_term] if module_metadata.stager_refname =~ regex
+            when 'adapter'
+              match = [keyword, search_term] if module_metadata.adapter_refname =~ regex
             when 'port', 'rport'
               match = [keyword, search_term] if module_metadata.rport.to_s =~ regex
             when 'rank'
@@ -267,4 +304,3 @@ module Msf::Modules::Metadata::Search
   end
 
 end
-

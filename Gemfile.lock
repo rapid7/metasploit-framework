@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.3.34)
+    metasploit-framework (6.3.35)
       actionpack (~> 7.0)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -308,7 +308,7 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     net-ssh (7.1.0)
-    network_interface (0.0.2)
+    network_interface (0.0.4)
     nexpose (7.3.0)
     nio4r (2.5.9)
     nokogiri (1.14.5)
@@ -414,7 +414,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.53)
+    rex-socket (0.1.54)
       rex-core
     rex-sslscan (0.1.9)
       rex-core
