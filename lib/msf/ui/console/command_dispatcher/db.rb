@@ -54,7 +54,7 @@ class Db
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache (deprecated)",
       "analyze"       => "Analyze database information about a specific address or address range",
-      "stats"         => "Show statistics for the database"
+      "db_stats"         => "Show statistics for the database"
     }
 
     # Always include commands that only make sense when connected.
@@ -750,14 +750,9 @@ class Db
     output
   end
 
-  def cmd_stats(*args)
+  def cmd_db_stats(*args)
     return unless active?
     print_line "Session Type: #{db_connection_info(framework)}"
-
-    tbl = Rex::Text::Table.new(
-        'Header'     => 'Database Stats',
-        'Columns'    => ['ID', 'Hosts', 'Vulnerabilities', 'Notes', 'Services'],
-    )
 
     current_workspace = framework.db.workspace
     example_workspaces = ::Mdm::Workspace.order(id: :desc).take(10)
@@ -767,22 +762,28 @@ class Db
     'Header'  => "Database Stats",
     'Columns' =>
       [
-        "Active",
+        "IsTarget",
         "ID",
         "Name",
         "Hosts",
         "Services",
         "Services per Host",
         "Vulnerabilities",
-        "Vulnerabilities per Host",
+        "Vulns per Host",
         "Notes",
       ],
+    'SortIndex' => 1,
+    'ColProps' => {
+      'IsTarget' => {
+        'Stylers' => [Msf::Ui::Console::TablePrint::RowIndicatorStyler.new],
+        'ColumnStylers' => [Msf::Ui::Console::TablePrint::OmitColumnHeader.new],
+        'Width' => 2
+      }
+    }
     )
-    tbl.sort_index = 1 # ID
     ordered_workspaces.map do |workspace|
-      active = current_workspace.id == workspace.id ? "=>" : ''
       tbl << [
-        active,
+        current_workspace.id == workspace.id,
         workspace.id,
         workspace.name,
         workspace.hosts.count.to_fs(:delimited),
