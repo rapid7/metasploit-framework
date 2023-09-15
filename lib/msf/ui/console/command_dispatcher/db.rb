@@ -54,6 +54,7 @@ class Db
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache (deprecated)",
       "analyze"       => "Analyze database information about a specific address or address range",
+      "stats"         => "Show statistics for the database"
     }
 
     # Always include commands that only make sense when connected.
@@ -723,6 +724,91 @@ class Db
     [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
     [ '-h', '--help' ] => [ false, 'Show this help information.' ]
   )
+
+  def db_connection_info(framework)
+    unless framework.db.connection_established?
+      return "#{framework.db.driver} selected, no connection"
+    end
+
+    cdb = ''
+    if framework.db.driver == 'http'
+      cdb = framework.db.name
+    else
+      ::ApplicationRecord.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
+      end
+    end
+
+    if cdb.empty?
+      output = "Connected Database Name could not be extracted. DB Connection type: #{framework.db.driver}."
+    else
+      output = "Connected to #{cdb}. Connection type: #{framework.db.driver}."
+    end
+
+    output
+  end
+
+  def cmd_stats(*args)
+    return unless active?
+    print_line "Session Type: #{db_connection_info(framework)}"
+
+    tbl = Rex::Text::Table.new(
+        'Header'     => 'Database Stats',
+        'Columns'    => ['ID', 'Hosts', 'Vulnerabilities', 'Notes', 'Services'],
+    )
+
+    current_workspace = framework.db.workspace
+    example_workspaces = ::Mdm::Workspace.order(id: :desc).take(10)
+    ordered_workspaces = ([current_workspace] + example_workspaces).uniq.sort_by(&:id)
+    tbl = Rex::Text::Table.new(
+    'Indent'  => 2,
+    'Header'  => "Database Stats",
+    'Columns' =>
+      [
+        "Active",
+        "ID",
+        "Name",
+        "Hosts",
+        "Services",
+        "Services per Host",
+        "Vulnerabilities",
+        "Vulnerabilities per Host",
+        "Notes",
+      ],
+    )
+    tbl.sort_index = 1 # ID
+    ordered_workspaces.map do |workspace|
+      active = current_workspace.id == workspace.id ? "=>" : ''
+      tbl << [
+        active,
+        workspace.id,
+        workspace.name,
+        workspace.hosts.count.to_fs(:delimited),
+        workspace.services.count.to_fs(:delimited),
+        workspace.hosts.count > 0 ? (workspace.services.count.to_f / workspace.hosts.count).truncate(2) : 0,
+        workspace.vulns.count.to_fs(:delimited),
+        workspace.hosts.count > 0 ? (workspace.vulns.count.to_f / workspace.hosts.count).truncate(2) : 0,
+        workspace.notes.count.to_fs(:delimited),
+      ]
+    end
+
+    # total row
+    tbl << [
+      "",
+      "",
+      "Total (#{::Mdm::Workspace.count.to_fs(:delimited)})",
+      ::Mdm::Host.count.to_fs(:delimited),
+      ::Mdm::Service.count.to_fs(:delimited),
+      ::Mdm::Host.count> 0 ? (::Mdm::Service.count.to_f / ::Mdm::Host.count).truncate(2) : 0,
+      ::Mdm::Vuln.count.to_fs(:delimited),
+      ::Mdm::Host.count > 0 ? (::Mdm::Vuln.count.to_f / ::Mdm::Host.count).truncate(2) : 0,
+      ::Mdm::Note.count.to_fs(:delimited),
+    ]
+
+    puts tbl.to_s
+  end
 
   def cmd_services(*args)
     return unless active?
