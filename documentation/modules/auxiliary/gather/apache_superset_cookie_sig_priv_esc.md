@@ -6,7 +6,7 @@ These cookies can therefore be forged. If a user is able to login to the site, t
 of an administrator, and re-sign the cookie. This valid cookie can then be used to login as the targeted user and retrieve database
 credentials saved in Apache Superset.
 
-## App Install
+### App Install
 
 ```
 sudo docker run -p 8088:8088 --name superset apache/superset:2.0.0
@@ -30,6 +30,7 @@ If you want any database credentials to be pulled, you'll need to configure a da
 1. Install the application
 1. Start msfconsole
 1. Do: `use auxiliary/gather/apache_superset_priv_esc`
+1. Do: `set rhost [ip]`
 1. Do: `set username [username]`
 1. Do: `set password [password]`
 1. Do: `run`
