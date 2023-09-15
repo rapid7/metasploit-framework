@@ -62,7 +62,7 @@ RSpec.describe Msf::OptAddressLocal do
             # Darwin AF_LINK
             18 => [
               {
-                'addr' => '55:44:33:22:11:00',
+                'addr' => '',
                 'netmask' => nil,
                 'broadcast' => nil
               }
