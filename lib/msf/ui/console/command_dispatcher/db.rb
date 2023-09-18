@@ -807,8 +807,8 @@ class Db
     # total row
     tbl << [
       "",
-      "",
-      "Total (#{::Mdm::Workspace.count.to_fs(:delimited)})",
+      "Total",
+      ::Mdm::Workspace.count.to_fs(:delimited),
       ::Mdm::Host.count.to_fs(:delimited),
       ::Mdm::Service.count.to_fs(:delimited),
       ::Mdm::Host.count> 0 ? (::Mdm::Service.count.to_f / ::Mdm::Host.count).truncate(2) : 0,
