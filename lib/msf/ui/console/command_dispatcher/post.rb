@@ -47,9 +47,15 @@ class Post
   # Reloads a post module and executes it
   #
   def cmd_rerun(*args)
+    opts = {}
+    if args.include?('-r') || args.include?('--reload-libs')
+      driver.run_single('reload_lib -a')
+      opts[:previously_reloaded] = true
+    end
+
     # Stop existing job and reload the module
     if reload(true)
-      cmd_run(*args)
+      cmd_run(*args, opts: opts)
     end
   end
 
@@ -65,7 +71,11 @@ class Post
   #
   # Executes a post module
   #
-  def cmd_run(*args, action: nil)
+  def cmd_run(*args, action: nil, opts: {})
+    if (args.include?('-r') || args.include?('--reload-libs')) && !opts[:previously_reloaded]
+      driver.run_single('reload_lib -a')
+    end
+
     return false unless (args = parse_run_opts(args, action: action))
     jobify = args[:jobify]
 
