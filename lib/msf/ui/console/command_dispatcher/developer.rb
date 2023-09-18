@@ -129,7 +129,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     if expressions.empty?
       print_status('Starting IRB shell...')
 
-      Rex::Ui::Text::Shell::HistoryManager.instance.with_context(name: :irb) do
+      framework.history_manager.with_context(name: :irb) do
         begin
           if active_module
             print_status("You are in #{active_module.fullname}\n")
@@ -192,7 +192,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_status('Starting Pry shell...')
 
     Pry.config.history_load = false
-    Rex::Ui::Text::Shell::HistoryManager.instance.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+    framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
       if active_module
         print_status("You are in the \"#{active_module.fullname}\" module object\n")
         active_module.pry
@@ -420,7 +420,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     end
 
     if opts.key?(:debug)
-      Rex::Ui::Text::Shell::HistoryManager.instance._debug = opts[:debug]
+      framework.history_manager._debug = opts[:debug]
       print_status("HistoryManager debugging is now #{opts[:debug] ? 'on' : 'off'}")
     end
 
@@ -430,7 +430,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
         'Indent'  => 1,
         'Columns' => ['Id', 'File', 'Name']
       )
-      Rex::Ui::Text::Shell::HistoryManager.instance._contexts.each.with_index do |context, id|
+      framework.history_manager._contexts.each.with_index do |context, id|
         table << [id, context[:history_file], context[:name]]
       end
 

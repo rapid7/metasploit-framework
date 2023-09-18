@@ -62,6 +62,8 @@ class Framework
     # Allow specific module types to be loaded
     types = options[:module_types] || Msf::MODULE_TYPES
 
+    self.history_manager = Rex::Ui::Text::Shell::HistoryManager.new
+
     self.features = FeatureManager.instance
     self.features.load_config
 
@@ -190,9 +192,13 @@ class Framework
   #
   # The framework instance's feature manager. The feature manager is responsible
   # for configuring feature flags that can change characteristics of framework.
-  #
+  # @return [Msf::FeatureManager]
   attr_reader   :features
 
+  # The framework instance's history manager, responsible for managing command history
+  # in different contexts
+  # @return [Rex::Ui::Text::Shell::HistoryManager]
+  attr_reader :history_manager
 
   #
   # The framework instance's data service proxy
@@ -281,7 +287,8 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
   attr_writer   :analyze # :nodoc:
-  attr_writer   :features # :nodoc:
+  attr_writer   :features  # :nodoc:
+  attr_writer   :history_manager  # :nodoc:
 
   private
 
