@@ -515,7 +515,6 @@ module Msf
           end
         elsif scrape['http_sd_configs']
           scrape['http_sd_configs']&.each do |http_sd_configs|
-            puts http_sd_configs
             process_http_sd_configs(scrape['job_name'], http_sd_configs)
           end
         elsif scrape['digitalocean_sd_configs']
