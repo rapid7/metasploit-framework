@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         'Stability'         => [],
         'SideEffects'       => [],
         'Reliability'       => [],
-        'RelatedModules' => ['auxiliary/scanner/http/emby_ssrf_scanner'],
-      }
+        'RelatedModules'    => ['auxiliary/scanner/http/emby_ssrf_scanner'],
+      },
       'References' => [
         ['CVE', '2020-26948'],
         ['URL', 'https://github.com/btnz-k/emby_ssrf']
