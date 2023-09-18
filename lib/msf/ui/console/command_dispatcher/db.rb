@@ -755,8 +755,9 @@ class Db
     print_line "Session Type: #{db_connection_info(framework)}"
 
     current_workspace = framework.db.workspace
-    example_workspaces = ::Mdm::Workspace.order(id: :desc).take(10)
+    example_workspaces = ::Mdm::Workspace.order(id: :desc)
     ordered_workspaces = ([current_workspace] + example_workspaces).uniq.sort_by(&:id)
+
     tbl = Rex::Text::Table.new(
     'Indent'  => 2,
     'Header'  => "Database Stats",
@@ -771,6 +772,8 @@ class Db
         "Vulnerabilities",
         "Vulns per Host",
         "Notes",
+        "Creds",
+        "Kerberos Cache"
       ],
     'SortIndex' => 1,
     'ColProps' => {
@@ -781,7 +784,11 @@ class Db
       }
     }
     )
+    total_creds = 0
+    total_tickets = 0
     ordered_workspaces.map do |workspace|
+      total_creds += framework.db.creds(workspace: workspace.name).count
+      total_tickets += ticket_search([],nil, workspace).count
       tbl << [
         current_workspace.id == workspace.id,
         workspace.id,
@@ -792,6 +799,8 @@ class Db
         workspace.vulns.count.to_fs(:delimited),
         workspace.hosts.count > 0 ? (workspace.vulns.count.to_f / workspace.hosts.count).truncate(2) : 0,
         workspace.notes.count.to_fs(:delimited),
+        framework.db.creds(workspace: workspace.name).count.to_fs(:delimited), # workspace.creds.count.to_fs(:delimited) is always 0 for whatever reason
+        ticket_search([],nil, workspace).count.to_fs(:delimited)
       ]
     end
 
@@ -806,6 +815,8 @@ class Db
       ::Mdm::Vuln.count.to_fs(:delimited),
       ::Mdm::Host.count > 0 ? (::Mdm::Vuln.count.to_f / ::Mdm::Host.count).truncate(2) : 0,
       ::Mdm::Note.count.to_fs(:delimited),
+      total_creds.to_fs(:delimited),
+      total_tickets.to_fs(:delimited)
     ]
 
     puts tbl.to_s

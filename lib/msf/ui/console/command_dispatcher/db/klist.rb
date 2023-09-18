@@ -169,8 +169,9 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
 
   # @param [Array<Rex::Socket::RangeWalker>] host_ranges Search for tickets associated with these hosts
   # @param [Array<Integer>, nil] id_search List of ticket IDs to search for
+  # @param [Workspace] workspace to search against
   # @return [Array<Msf::Exploit::Remote::Kerberos::Ticket::Storage::StoredTicket>]
-  def ticket_search(host_ranges, id_search)
+  def ticket_search(host_ranges, id_search, workspace = framework.db.workspace)
     ticket_results = []
 
     # Iterating over each id here since the remote db doesn't support bulk id searches
@@ -178,7 +179,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
       begin
         ticket_results += id_search.flat_map do |id|
           kerberos_ticket_storage.tickets(
-            workspace: framework.db.workspace,
+            workspace: workspace,
             id: id
           )
         end
@@ -192,7 +193,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
         next if host_search&.empty?
 
         ticket_results += kerberos_ticket_storage.tickets(
-          workspace: framework.db.workspace,
+          workspace: workspace,
           host: host_search
         )
       end
