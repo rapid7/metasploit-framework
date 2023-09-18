@@ -286,6 +286,50 @@ module Rex::Proto::Kerberos::Pac
     string16 :name, read_length: :name_length
   end
 
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/c34adc61-80e1-4920-8923-22ef5054c4b2
+  class Krb5PacRequestor < BinData::Record
+    endian :little
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
+    virtual :ul_type, value: Krb5PacElementType::PAC_REQUESTOR
+
+    # @!attribute [rw] user_sid
+    #   @return [RPC_SID] SID of the requesting user
+    ms_dtyp_sid :user_sid
+  end
+
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/1c7aeadb-8ca4-4050-ae98-0e9834bdd81d
+  class Krb5PacAttributes < BinData::Record
+    endian :little
+    # @!attribute [r] ul_type
+    #   @return [Integer] Describes the type of data present in the buffer
+    virtual :ul_type, value: Krb5PacElementType::PAC_ATTRIBUTES
+
+    # @!attribute [rw] flags_length
+    #   @return [Integer] Length of the flags field, in bits
+    uint32 :flags_length, initial_value: 2
+
+    # @!attribute [rw] flags
+    #   @return [Integer] Attribute flags
+    uint32 :flags, initial_value: PAC_WAS_GIVEN_IMPLICITLY
+  end
+
+  class PacAttributesFlags < BinData::Record
+    endian :big
+
+    30.times do
+      bit1 :"_reserved_#{self.fields.length}"
+    end
+
+    # @!attribute [rw] pac_was_requested
+    #   @return [BinData::Bit1] The client requested the PAC
+    bit1 :pac_was_requested
+
+    # @!attribute [rw] pac_was_given_implicitly
+    #   @return [BinData::Bit1] The client did not request or decline a PAC and was given one implicitly
+    bit1 :pac_was_given_implicitly
+  end
+
   class Krb5SignatureType < BinData::Uint32le
     # @param [Integer] val The checksum value
     # @see Rex::Proto::Kerberos::Crypto::Checksum
@@ -777,6 +821,8 @@ module Rex::Proto::Kerberos::Pac
     krb5_full_pac_checksum Krb5PacElementType::FULL_PAC_CHECKSUM
     krb5_pac_credential_info Krb5PacElementType::CREDENTIAL_INFORMATION, data_length: :data_length
     krb5_upn_dns_info Krb5PacElementType::USER_PRINCIPAL_NAME_AND_DNS_INFORMATION
+    krb5_pac_requestor Krb5PacElementType::PAC_REQUESTOR
+    krb5_pac_attributes Krb5PacElementType::PAC_ATTRIBUTES
     unknown_pac_element :default, data_length: :data_length, selection: :selection
   end
 
