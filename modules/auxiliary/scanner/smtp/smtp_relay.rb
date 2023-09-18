@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
       res = raw_send_recv("EHLO X\r\n")
       vprint_status("#{res.inspect}")
       # check if the EHLO is actually supported. In case it's not, try the HELO command instead
-      if res.inspect =~ /^"5\d\d/
+      if res.to_s =~ /^5\d\d/
         res = raw_send_recv("HELO X\r\n")
         vprint_status("#{res.inspect}")
       end
