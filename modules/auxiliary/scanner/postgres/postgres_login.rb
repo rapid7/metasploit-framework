@@ -5,12 +5,14 @@
 
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/postgres'
+require 'rex/post/postgresql'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::CommandShell
 
   # Creates an instance of this module.
   def initialize(info = {})
@@ -43,8 +45,20 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
       ])
 
-    deregister_options('SQL', 'PASSWORD_SPRAY')
+    options_to_deregister = %w[SQL PASSWORD_SPRAY]
+    unless framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
+      options_to_deregister << 'CreateSession'
+    end
+    deregister_options(*options_to_deregister)
 
+  end
+
+  def create_session?
+    if framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
+      datastore['CreateSession']
+    else
+      false
+    end
   end
 
   # Loops through each host in turn. Note the current IP address is both
@@ -66,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       connection_timeout: 30,
       framework: framework,
       framework_module: self,
+      use_client_as_proof: create_session?
     )
 
     scanner.scan! do |result|
@@ -80,6 +95,17 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+
+        if create_session?
+          begin
+            postgresql_client = result.proof
+            session_setup(result, postgresql_client)
+          rescue ::StandardError => e
+            elog('Failed: ', error: e)
+            print_error(e)
+            result.proof.conn.close if result.proof&.conn
+          end
+        end
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
@@ -98,6 +124,19 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RPORT']
   end
 
+  def session_setup(result, client)
+    return unless (result && client)
 
+    rstream = client.conn
+    my_session = Msf::Sessions::PostgreSQL.new(rstream, { client: client })
+    merging = {
+      'USERPASS_FILE' => nil,
+      'USER_FILE'     => nil,
+      'PASS_FILE'     => nil,
+      'USERNAME'      => result.credential.public,
+      'PASSWORD'      => result.credential.private
+    }
 
+    start_session(self, nil, merging, false, my_session.rstream, my_session)
+  end
 end

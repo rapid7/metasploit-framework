@@ -244,4 +244,6 @@ Gem::Specification.new do |spec|
   # Do not use this to process untrusted PNG files! This is only to be used
   # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
+
+  spec.add_runtime_dependency 'reline'
 end

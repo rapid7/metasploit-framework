@@ -187,6 +187,7 @@ class MsfAutoload
       'cli' => 'CLI',
       'sqlitei' => 'SQLitei',
       'mysqli' => 'MySQLi',
+      'postgresql' => 'PostgreSQL',
       'postgresqli' => 'PostgreSQLi',
       'ssh' => 'SSH',
       'winrm' => 'WinRM',

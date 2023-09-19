@@ -60,6 +60,7 @@ PATH
       rb-readline
       recog
       redcarpet
+      reline
       rex-arch
       rex-bin_tools
       rex-core
@@ -377,7 +378,7 @@ GEM
       nokogiri
     redcarpet (3.6.0)
     regexp_parser (2.8.1)
-    reline (0.3.8)
+    reline (0.4.1)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.15)
