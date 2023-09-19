@@ -18,6 +18,7 @@ module Rex
         AP_REQ = 14
         AP_REP = 15
         KRB_CRED = 22
+        ENC_AP_REP_PART = 27
         ENC_KRB_CRED_PART = 29
 
         module OID

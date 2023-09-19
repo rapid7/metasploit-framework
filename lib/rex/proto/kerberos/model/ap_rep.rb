@@ -35,11 +35,25 @@ module Rex
             self
           end
 
-          # Rex::Proto::Kerberos::Model::ApRep encoding isn't supported
+          # Encodes the Rex::Proto::Kerberos::Model::ApReq into an ASN.1 String
           #
-          # @raise [NotImplementedError]
+          # @return [String]
           def encode
-            raise ::NotImplementedError, 'ApRep encoding not supported'
+            to_asn1.to_der
+          end
+
+          # @return [OpenSSL::ASN1::ASN1Data] The ap_req ASN1Data
+          def to_asn1
+            elems = []
+
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_pvno], 0, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_msg_type], 1, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_enc_part], 2, :CONTEXT_SPECIFIC)
+
+            seq = OpenSSL::ASN1::Sequence.new(elems)
+
+            seq_asn1 = OpenSSL::ASN1::ASN1Data.new([seq], AP_REP, :APPLICATION)
+            seq_asn1
           end
 
           def decrypt_enc_part(key)
@@ -49,6 +63,33 @@ module Rex
           end
 
           private
+
+          # Encodes the pvno field
+          #
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_pvno
+            bn = OpenSSL::BN.new(pvno.to_s)
+            int = OpenSSL::ASN1::Integer.new(bn)
+
+            int
+          end
+
+          # Encodes the msg_type field
+          #
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_msg_type
+            bn = OpenSSL::BN.new(msg_type.to_s)
+            int = OpenSSL::ASN1::Integer.new(bn)
+
+            int
+          end
+
+          # Encodes the enc_part field
+          #
+          # @return [String]
+          def encode_enc_part
+            enc_part.encode
+          end
 
           # Decodes a Rex::Proto::Kerberos::Model::ApRep from an String
           #

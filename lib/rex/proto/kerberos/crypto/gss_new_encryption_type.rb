@@ -20,7 +20,8 @@ module Rex
           # Encrypt the message, wrapping it in GSS structures
           # @return [String, Integer, Integer] The encrypted data, the length of its header, and the length of padding added to it prior to encryption
           #
-          def gss_wrap(plaintext, key, sequence_number, is_initiator, use_acceptor_subkey: true)
+          def gss_wrap(plaintext, key, sequence_number, is_initiator, opts={})
+            use_acceptor_subkey = opts.fetch(:use_acceptor_subkey) { true }
             # Handle wrap-around
             sequence_number &= 0xFFFFFFFFFFFFFFFF
 
@@ -48,12 +49,13 @@ module Rex
             ec_filler = "x" * ec
             plaintext = plaintext + ec_filler + plaintext_header
             ciphertext = self.encrypt(plaintext, key.value, key_usage)
-            rotated = rotate(ciphertext, rrc)
+            rotated = rotate(ciphertext, rrc+ec)
 
-            result = [header + rotated, header_length, ec]
+            result = [header + rotated, header_length + ec, ec]
           end
 
-          def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, use_acceptor_subkey: true)
+          def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, opts={})
+            use_acceptor_subkey = opts.fetch(:use_acceptor_subkey) { true }
             # Handle wrap-around
             sequence_number &= 0xFFFFFFFFFFFFFFFF
 
@@ -76,11 +78,12 @@ module Rex
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Invalid sequence number (received #{snd_seq}; expected #{expected_sequence_number})" unless expected_sequence_number == snd_seq
 
             # Could do some sanity checking here of those values
-            ciphertext = rotate(ciphertext, -rrc)
+            ciphertext = rotate(ciphertext, -(rrc+ec))
 
             plaintext = self.decrypt(ciphertext, key.value, key_usage)
 
             plaintext = plaintext[0, plaintext.length - ec - GSS_HEADER_LEN]
+            plaintext
           end
 
           private
@@ -103,7 +106,7 @@ module Rex
           # which leave padding removal as an exercise to the user (AES strips the padding
           # prior to returning it)
           def calculate_ec(plaintext)
-            padding_size = self.class::PADDING_SIZE
+            padding_size = 1
             if padding_size == 0
               # No padding, so don't need to buffer up to a multiple of the pad length
               0
@@ -128,7 +131,7 @@ module Rex
           # The length of the encrypted header portion of the message.
           # This includes information that is part of the encryption process, such as 
           # confounders, padding, and checksums. As a result, it is dependent on the 
-          # encyrption algorithm.
+          # encryption algorithm.
           # This is defined in MS-WSMV section 2.2.9.1.1.2.2
           def header_length
             GSS_HEADER_LEN + GSS_HEADER_LEN + self.header_byte_count + self.trailing_byte_count
