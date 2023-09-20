@@ -90,7 +90,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'getwd'      => 'Print working directory',
       'lcat'       => 'Read the contents of a local file to the screen',
       'lcd'        => 'Change local working directory',
-      'lmkdir'     => 'create new directory on local machine',
+      'lmkdir'     => 'Create new directory on local machine',
       'lpwd'       => 'Print local working directory',
       'ls'         => 'List files',
       'lls'        => 'List local files',
