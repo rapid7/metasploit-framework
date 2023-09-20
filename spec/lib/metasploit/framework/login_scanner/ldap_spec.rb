@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/ldap'
 
-RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::LDAP' do
+RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::LDAP' do |ldap_auth_type|
   let(:mock_credential) do
     Metasploit::Framework::Credential.new(
       public: 'mock_public',
@@ -11,7 +11,11 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::LDAP' do
   end
 
   let(:public) { 'root' }
-  let(:private) { 'toor' }
+  let(:private) do
+    # SChannel auth doesn't use a password
+    ldap_auth_type == Msf::Exploit::Remote::AuthOption::SCHANNEL ? nil : 'toor'
+  end
+
   let(:realm) { 'myrealm' }
   let(:realm_key) { Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN }
 
@@ -129,7 +133,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::LDAP do
         described_class.new(opts: { ldap_auth: auth_type })
       end
 
-      it_behaves_like 'Metasploit::Framework::LoginScanner::LDAP'
+      it_behaves_like 'Metasploit::Framework::LoginScanner::LDAP', auth_type
     end
   end
 end

@@ -87,7 +87,8 @@ class MetasploitModule < Msf::Auxiliary
           framework: framework,
           framework_module: self,
           cache_file: datastore['Smb::Krb5Ccname'].blank? ? nil : datastore['Smb::Krb5Ccname'],
-          ticket_storage: kerberos_ticket_storage
+          # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
+          ticket_storage: kerberos_ticket_storage({ read: false, write: true })
         )
       end
     end

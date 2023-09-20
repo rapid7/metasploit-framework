@@ -27,6 +27,7 @@ module Auxiliary::AuthBrute
       OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
       OptEnum.new('DB_SKIP_EXISTING', [false,"Skip existing credentials stored in the current database", 'none', %w[ none user user&realm ]]),
       OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
+      OptBool.new('ANONYMOUS_LOGIN', [ true, "Attempt to login with a blank username and password", false])
     ], Auxiliary::AuthBrute)
 
     register_advanced_options([

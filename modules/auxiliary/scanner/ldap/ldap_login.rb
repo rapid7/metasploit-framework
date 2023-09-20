@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       username: datastore['USERNAME'],
       password: datastore['PASSWORD'],
       realm: datastore['DOMAIN'],
-      anonymous_login: false,
+      anonymous_login: datastore['ANONYMOUS_LOGIN'],
       blank_passwords: false
     )
 
@@ -71,7 +71,9 @@ class MetasploitModule < Msf::Auxiliary
       ldap_cert_file: datastore['LDAP::CertFile'],
       ldap_rhostname: datastore['Ldap::Rhostname'],
       ldap_krb_offered_enc_types: datastore['Ldap::KrbOfferedEncryptionTypes'],
-      ldap_krb5_cname: datastore['Ldap::Krb5Ccname']
+      ldap_krb5_cname: datastore['Ldap::Krb5Ccname'],
+      # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
+      kerberos_ticket_storage: kerberos_ticket_storage({ read: false, write: true })
     }
 
     realm_key = nil
