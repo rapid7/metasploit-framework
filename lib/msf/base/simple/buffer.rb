@@ -85,7 +85,7 @@ module Buffer
   def self.comment(buf, fmt = "ruby")
     case fmt
       when 'raw'
-      when 'num', 'dword', 'dw', 'hex'
+      when 'num', 'dword', 'dw', 'hex', 'octal'
         buf = Rex::Text.to_js_comment(buf)
       when 'ruby', 'rb', 'python', 'py'
         buf = Rex::Text.to_ruby_comment(buf)

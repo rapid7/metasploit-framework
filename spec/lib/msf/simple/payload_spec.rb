@@ -35,11 +35,10 @@ RSpec.describe Msf::Simple::Payload do
 
   it { expect { payload }.not_to raise_error }
 
-  context 'when given any valid transform format' do
-    let(:generator_format) { 
-      'octal' # TODO change to ::Msf::Simple::Buffer.transform_formats.sample
-    }
-
-    it { expect { payload }.not_to raise_error }
+  ::Msf::Simple::Buffer.transform_formats.each do |format|
+    context "when given the transform format '#{format}'" do
+      let(:generator_format) {  format }
+      it { expect { payload }.not_to raise_error }
+    end
   end
 end
