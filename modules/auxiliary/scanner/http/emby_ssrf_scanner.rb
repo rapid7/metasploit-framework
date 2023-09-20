@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => 'Btnz',
       'License' => MSF_LICENSE,
       'Disclosure Date' => '2020-10-01',
-      'RelatedModules' => ['auxiliary/scanner/http/emby_version_ssrf'],
+      'Notes'               => {
+        'Stability'         => [],
+        'SideEffects'       => [],
+        'Reliability'       => [],
+        'RelatedModules' => ['auxiliary/scanner/http/emby_version_ssrf'],
+      },
       'References' => [
         ['CVE', '2020-26948'],
         ['URL', 'https://github.com/btnz-k/emby_ssrf']
