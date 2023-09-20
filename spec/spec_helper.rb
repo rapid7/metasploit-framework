@@ -164,6 +164,15 @@ RSpec.configure do |config|
       Msf::FeatureManager.instance.set(Msf::FeatureManager::DATASTORE_FALLBACKS, true)
     end
   end
+
+  # rex-text table performs word wrapping on msfconsole tables:
+  #   https://github.com/rapid7/rex-text/blob/11e59416f7d8cce18b8b8b9893b3277e6ad0bea1/lib/rex/text/wrapped_table.rb#L74
+  # This can cause some integration tests to fail if the tests are run from smaller consoles
+  # This mock will ensure that the tests run without word-wrapping.
+  config.before(:each) do
+    mock_io_console = double(:console, winsize: { rows: 30, columns: ::BigDecimal::INFINITY }.values)
+    allow(::IO).to receive(:console).and_return(mock_io_console)
+  end
 end
 
 if load_metasploit
