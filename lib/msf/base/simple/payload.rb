@@ -29,7 +29,7 @@ module Payload
   #   NopSledSize => The number of NOPs to use
   #   MaxSize     => The maximum size of the payload.
   #   Iterations  => Number of times to encode.
-  #   Force       => Force encoding.
+  #   ForceEncode => Force encoding.
   #
   # raises:
   #
