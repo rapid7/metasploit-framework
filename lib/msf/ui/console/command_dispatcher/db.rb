@@ -784,23 +784,42 @@ class Db
       }
     }
     )
+
+    total_hosts = 0
+    total_services = 0
+    total_vulns = 0
+    total_notes = 0
     total_creds = 0
     total_tickets = 0
+
     ordered_workspaces.map do |workspace|
-      total_creds += framework.db.creds(workspace: workspace.name).count
-      total_tickets += ticket_search([],nil, workspace).count
+
+      hosts = workspace.hosts.count
+      services = workspace.services.count
+      vulns = workspace.vulns.count
+      notes = workspace.notes.count
+      creds = framework.db.creds(workspace: workspace.name).count # workspace.creds.count.to_fs(:delimited) is always 0 for whatever reason
+      kerbs = ticket_search([nil], nil, :workspace => workspace).count
+
+      total_hosts += hosts
+      total_services += services
+      total_vulns += vulns
+      total_notes += notes
+      total_creds += creds
+      total_tickets += kerbs
+
       tbl << [
         current_workspace.id == workspace.id,
         workspace.id,
         workspace.name,
-        workspace.hosts.count.to_fs(:delimited),
-        workspace.services.count.to_fs(:delimited),
-        workspace.hosts.count > 0 ? (workspace.services.count.to_f / workspace.hosts.count).truncate(2) : 0,
-        workspace.vulns.count.to_fs(:delimited),
-        workspace.hosts.count > 0 ? (workspace.vulns.count.to_f / workspace.hosts.count).truncate(2) : 0,
-        workspace.notes.count.to_fs(:delimited),
-        framework.db.creds(workspace: workspace.name).count.to_fs(:delimited), # workspace.creds.count.to_fs(:delimited) is always 0 for whatever reason
-        ticket_search([],nil, workspace).count.to_fs(:delimited)
+        hosts.to_fs(:delimited),
+        services.to_fs(:delimited),
+        hosts > 0 ? (services.to_f / hosts).truncate(2) : 0,
+        vulns.to_fs(:delimited),
+        hosts > 0 ? (vulns.to_f / hosts).truncate(2) : 0,
+        notes.to_fs(:delimited),
+        creds.to_fs(:delimited),
+        kerbs.to_fs(:delimited)
       ]
     end
 
@@ -808,18 +827,18 @@ class Db
     tbl << [
       "",
       "Total",
-      ::Mdm::Workspace.count.to_fs(:delimited),
-      ::Mdm::Host.count.to_fs(:delimited),
-      ::Mdm::Service.count.to_fs(:delimited),
-      ::Mdm::Host.count> 0 ? (::Mdm::Service.count.to_f / ::Mdm::Host.count).truncate(2) : 0,
-      ::Mdm::Vuln.count.to_fs(:delimited),
-      ::Mdm::Host.count > 0 ? (::Mdm::Vuln.count.to_f / ::Mdm::Host.count).truncate(2) : 0,
-      ::Mdm::Note.count.to_fs(:delimited),
+      ordered_workspaces.length.to_fs(:delimited),
+      total_hosts.to_fs(:delimited),
+      total_services.to_fs(:delimited),
+      total_hosts > 0 ? (total_services.to_f / total_hosts).truncate(2) : 0,
+      total_vulns,
+      total_hosts > 0 ? (total_vulns.to_f / total_hosts).truncate(2) : 0,
+      total_notes,
       total_creds.to_fs(:delimited),
       total_tickets.to_fs(:delimited)
     ]
 
-    puts tbl.to_s
+    print_line tbl.to_s
   end
 
   def cmd_services(*args)
