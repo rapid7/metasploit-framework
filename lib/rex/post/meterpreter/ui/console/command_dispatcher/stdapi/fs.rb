@@ -90,7 +90,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'getwd'      => 'Print working directory',
       'lcat'       => 'Read the contents of a local file to the screen',
       'lcd'        => 'Change local working directory',
-      'lmkdir'     => 'Create new directory on local machine',
+      'lmkdir'     => 'create new directory on local machine',
       'lpwd'       => 'Print local working directory',
       'ls'         => 'List files',
       'lls'        => 'List local files',
@@ -385,6 +385,16 @@ class Console::CommandDispatcher::Stdapi::Fs
     return true
   end
 
+  #
+  # Tab completion for the lcd command
+  #
+  def cmd_lcd_tabs(str, words)
+    tab_complete_directory(str, words)
+  end
+
+  #
+  # Create new directory on local machine
+  # 
  def cmd_lmkdir(*args)
    if (args.length == 0)
      print_line("Usage: lmkdir directory")
@@ -397,16 +407,9 @@ class Console::CommandDispatcher::Stdapi::Fs
    rescue => e
      print_error("Error creating directory: #{e}")
    end
-
+  
    return true
  end
-
-  #
-  # Tab completion for the lcd command
-  #
-  def cmd_lcd_tabs(str, words)
-    tab_complete_directory(str, words)
-  end
 
   #
   # Retrieve the checksum of a file
