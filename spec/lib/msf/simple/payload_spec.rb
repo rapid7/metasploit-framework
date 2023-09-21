@@ -35,6 +35,7 @@ RSpec.describe Msf::Simple::Payload do
 
   it { expect { payload }.not_to raise_error }
 
+  # These are languages that are missing a to_comment implementation in Rex::Text.
   UNSUPPORTED_LANGS = %w(vbapplication vbscript)
 
   (::Msf::Simple::Buffer.transform_formats - UNSUPPORTED_LANGS).each do |format|
