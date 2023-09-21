@@ -1,10 +1,10 @@
 # This method takes a string which is likely base64 encoded
 # however, there is an arbitrary amount of = missing from the end
 # so we attempt to add = until we are able to decode it
-
+#
 # @param str [String] the base64-ish string
 # @return [String] the corrected string
-
+private
 def add_equals_to_base64(str)
   ['', '=', '=='].each do |equals|
     begin
@@ -19,8 +19,6 @@ def add_equals_to_base64(str)
 end
 
 
-
-
 # This method takes a {framework.db.cred}, and normalizes it
 # to the string format hashcat is expecting.
 # https://hashcat.net/wiki/doku.php?id=example_hashes
@@ -28,7 +26,6 @@ end
 # @param cred [credClass] A credential from framework.db
 # @return [String] The hash in jtr format or nil on no match.
 def hash_to_hashcat(cred)
-  puts cred.private.jtr_format
   case cred.private.type
   when 'Metasploit::Credential::NTLMHash'
     both = cred.private.data.split(':')
