@@ -78,7 +78,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.1, "New BSD"
 metasploit-credential, 6.0.5, "New BSD"
-metasploit-framework, 6.3.35, "New BSD"
+metasploit-framework, 6.3.36, "New BSD"
 metasploit-model, 5.0.1, "New BSD"
 metasploit-payloads, 2.0.148, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.2, "New BSD"
@@ -98,7 +98,7 @@ net-ldap, 0.18.0, MIT
 net-protocol, 0.2.1, "ruby, Simplified BSD"
 net-smtp, 0.3.3, "ruby, Simplified BSD"
 net-ssh, 7.1.0, MIT
-network_interface, 0.0.2, MIT
+network_interface, 0.0.4, MIT
 nexpose, 7.3.0, "New BSD"
 nio4r, 2.5.9, MIT
 nokogiri, 1.14.5, MIT
