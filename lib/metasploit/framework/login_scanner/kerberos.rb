@@ -23,21 +23,25 @@ module Metasploit
           }
 
           begin
-            begin
-              res = send_request_tgt(
-                server_name: server_name,
-                client_name: credential.public,
-                password: credential.private,
-                realm: credential.realm,
-                offered_etypes: [Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC]
-              )
-            rescue Rex::Proto::Kerberos::Model::Error::KerberosEncryptionNotSupported => e
-              # RC4 likely disabled - let's try again with our full complement of default etypes
-              res = send_request_tgt(
-                server_name: server_name,
-                client_name: credential.public,
-                password: credential.private,
-                realm: credential.realm)
+            res = send_request_tgt(
+              server_name: server_name,
+              client_name: credential.public,
+              password: credential.private,
+              realm: credential.realm
+            )
+            unless res.preauth_required
+              # Pre-auth not required - let's get an RC4-HMAC ticket, since it's more easily crackable
+              begin
+                res = send_request_tgt(
+                  server_name: server_name,
+                  client_name: credential.public,
+                  password: credential.private,
+                  realm: credential.realm,
+                  offered_etypes: [Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC]
+                )
+              rescue Rex::Proto::Kerberos::Model::Error::KerberosEncryptionNotSupported => e
+                # RC4 likely disabled - let's just use the initial response
+              end
             end
 
             result_options = result_options.merge(
