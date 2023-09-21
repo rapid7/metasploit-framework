@@ -35,7 +35,9 @@ RSpec.describe Msf::Simple::Payload do
 
   it { expect { payload }.not_to raise_error }
 
-  ::Msf::Simple::Buffer.transform_formats.each do |format|
+  UNSUPPORTED_LANGS = %w(vbapplication vbscript)
+
+  (::Msf::Simple::Buffer.transform_formats - UNSUPPORTED_LANGS).each do |format|
     context "when given the transform format '#{format}'" do
       let(:generator_format) {  format }
       it { expect { payload }.not_to raise_error }
