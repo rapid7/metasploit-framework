@@ -402,7 +402,7 @@ class Console::CommandDispatcher::Stdapi::Fs
    end
 
    begin
-     ::Dir.mkdir(args[0])
+     ::FileUtils.mkdir_p(path)
      print_line("Directory '#{args[0]}' created successfully.")
    rescue => e
      print_error("Error creating directory: #{e}")
