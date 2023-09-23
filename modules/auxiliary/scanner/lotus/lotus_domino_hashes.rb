@@ -174,18 +174,18 @@ class MetasploitModule < Msf::Auxiliary
             :port => rport,
             :name => (ssl ? 'https' : 'http')
           )
-          report_auth_info(
-            :host        => rhost,
-            :port        => rport,
-            :sname       => (ssl ? 'https' : 'http'),
-            :user        => short_name,
-            :pass        => pass_hash,
-            :ptype       => 'domino_hash',
-            :source_id   => domino_svc&.id,
-            :source_type => 'service',
-            :proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
-            :active      => true
-          )
+
+          connection_details = {
+            module_fullname: self.fullname,
+            username: short_name,
+            private_data: pass_hash,
+            private_type: :nonreplayable_hash,
+            jtr_format: 'dominosec',
+            workspace_id: myworkspace_id,
+            proof: "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }.merge(service_details)
+          create_credential_and_login(connection_details)
         end
       end
 
