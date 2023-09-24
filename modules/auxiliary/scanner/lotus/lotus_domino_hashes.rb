@@ -174,17 +174,14 @@ class MetasploitModule < Msf::Auxiliary
             :port => rport,
             :name => (ssl ? 'https' : 'http')
           )
-          report_auth_info(
-            :host        => rhost,
-            :port        => rport,
-            :sname       => (ssl ? 'https' : 'http'),
-            :user        => short_name,
-            :pass        => pass_hash,
-            :ptype       => 'domino_hash',
-            :source_id   => domino_svc&.id,
-            :source_type => 'service',
-            :proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
-            :active      => true
+
+          report_cred(
+            ip: rhost,
+            port: rport,
+            service_name: (ssl ? "https" : "http"),
+            user: short_name,
+            password: pass_hash,
+            proof: "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}"
           )
         end
       end
@@ -192,5 +189,32 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: 'dominosec'
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end
