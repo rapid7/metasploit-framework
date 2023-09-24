@@ -1005,7 +1005,7 @@ protected
       # produces a 0-length string. Some also allow octal escapes
       # without a format string, and do not truncate, so start with
       # that and try %b if it doesn't work. The standalone version seems
-      # to be more likely to work than the buitin version, so try it
+      # to be more likely to work than the builtin version, so try it
       # first.
       #
       # Both of these work for sure on Linux and FreeBSD

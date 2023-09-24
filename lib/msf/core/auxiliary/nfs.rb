@@ -36,7 +36,7 @@ module Msf
           location = "#{Regexp.last_match(1)}#{Rex::Socket.addr_atoc(Regexp.last_match(2))}"
         end
         return true if Rex::Socket::RangeWalker.new(location).include?(lhost)
-        # at this point we assume its a hostname, so we use Ruby's File fnmatch so that it proceses the wildcards
+        # at this point we assume its a hostname, so we use Ruby's File fnmatch so that it processes the wildcards
         # as its a quick and easy way to use glob matching for wildcards and get a boolean response
         return true if File.fnmatch(location, hostname)
       end

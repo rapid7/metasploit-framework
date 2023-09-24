@@ -110,7 +110,7 @@ module RFTransceiver
   end
 
   #
-  # Transmits a RF Packet.  All data is base64 encoded before transmition to relay
+  # Transmits a RF Packet.  All data is base64 encoded before transmission to relay
   # @param data [String] Blog of data stored in a string.  Could be binary
   # @param repeat [Integer] Optional Repeat transmission
   # @param offset [Integer] Optional Offset within data section

@@ -34,7 +34,7 @@ module Auxiliary::Fuzzer
   end
 
 
-  # Will return or yield a string based on the presense of a block
+  # Will return or yield a string based on the presence of a block
   #
   # @return [Array] Returns and array of arrays of strings if there is no block given
   # @yield [Array] Yields array of strings if there is a block given
@@ -147,7 +147,7 @@ module Auxiliary::Fuzzer
     block_given? ? res.each { |n| yield(n) } : res
   end
 
-  # Generates a fuzz string If no block is set, it will retrive characters from the
+  # Generates a fuzz string If no block is set, it will retrieve characters from the
   # FuzzChar datastore option.
   #
   # @param len [Integer] String size.
@@ -240,7 +240,7 @@ module Auxiliary::Fuzzer
 
   # Generates various small URI string types
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_uris_small
     res = []
@@ -257,7 +257,7 @@ module Auxiliary::Fuzzer
 
 # Generates various long URI string types
 #
-# @return [Array] Returns an array of stings
+# @return [Array] Returns an array of strings
 
   def fuzzer_string_uris_long
     res = []
@@ -274,7 +274,7 @@ module Auxiliary::Fuzzer
 
   # Generates various giant URI string types
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_uris_giant
     res = []
@@ -291,7 +291,7 @@ module Auxiliary::Fuzzer
 
   # Format for the URI string generator
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_uris_format
     res = []
@@ -309,7 +309,7 @@ module Auxiliary::Fuzzer
 
   # Generates various small strings
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_uris_dos
     res = []
@@ -327,7 +327,7 @@ module Auxiliary::Fuzzer
 
   # Generates various small strings
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_paths_small
     res = []
@@ -343,7 +343,7 @@ module Auxiliary::Fuzzer
 
   # Generates various small strings
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_paths_long
     res = []
@@ -359,7 +359,7 @@ module Auxiliary::Fuzzer
 
   # Generates various giant strings
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_paths_giant
     res = []
@@ -375,7 +375,7 @@ module Auxiliary::Fuzzer
 
   # Format for the path generator
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_paths_format
     res = []
@@ -391,7 +391,7 @@ module Auxiliary::Fuzzer
 
   # Generates fuzzer strings using path prefixes
   #
-  # @return [Array] Returns an array of stings
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_paths_dos
     res = []

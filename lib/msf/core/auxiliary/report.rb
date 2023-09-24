@@ -454,7 +454,7 @@ module Auxiliary::Report
   end
 
   #
-  # Store some locally-generated data as a file, similiar to store_loot.
+  # Store some locally-generated data as a file, similar to store_loot.
   # Sometimes useful for keeping artifacts of an exploit or auxiliary
   # module, such as files from fileformat exploits. (TODO: actually
   # implement this on file format modules.)

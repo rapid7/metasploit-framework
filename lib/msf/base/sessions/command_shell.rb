@@ -410,7 +410,7 @@ Shell Banner:
 
   def cmd_download(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_download_help
     end
 
@@ -445,7 +445,7 @@ Shell Banner:
 
   def cmd_upload(*args)
     if args.length != 2
-      # no argumnets, just print help message
+      # no arguments, just print help message
       return cmd_upload_help
     end
 
@@ -464,9 +464,9 @@ Shell Banner:
       content = File.binread(src)
       result = _file_transfer.write_file(dst, content)
       print_good("File <#{dst}> upload finished") if result
-      print_error("Error occured while uploading <#{src}> to <#{dst}>") unless result
+      print_error("Error occurred while uploading <#{src}> to <#{dst}>") unless result
     rescue => e
-      print_error("Error occured while uploading <#{src}> to <#{dst}> - #{e.message}")
+      print_error("Error occurred while uploading <#{src}> to <#{dst}> - #{e.message}")
       elog(e)
       return
     end

@@ -131,7 +131,7 @@ class Cache
     metadata_obj = Obj.new(module_instance)
 
     # Remove all instances of modules pointing to the same path. This prevents stale data hanging
-    # around when modules are incorrectly typed (eg: Auxilary that should be Exploit)
+    # around when modules are incorrectly typed (eg: Auxiliary that should be Exploit)
     @module_metadata_cache.delete_if {|_, module_metadata|
       module_metadata.path.eql? metadata_obj.path && module_metadata.type != module_metadata.type
     }

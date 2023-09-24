@@ -5,7 +5,7 @@
 
 # PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
 # PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.
-# This is a mixin that will be included in each separated moduel. Further details can be found in the module documentation.
+# This is a mixin that will be included in each separated module. Further details can be found in the module documentation.
 #
 require 'sqlite3'
 module Msf

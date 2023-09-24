@@ -68,7 +68,7 @@ module Msf::DBManager::Note
   #
   # The +:update+ option can have the following values:
   # +:unique+::       allow only a single Note per +:host+/+:type+ pair
-  # +:unique_data+::  like +:uniqe+, but also compare +:data+
+  # +:unique_data+::  like +:unique+, but also compare +:data+
   # +:insert+::       always insert a new Note even if one with identical values exists
   #
   # If the provided +:host+ is an IP address and does not exist in the

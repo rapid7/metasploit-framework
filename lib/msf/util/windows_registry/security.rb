@@ -81,7 +81,7 @@ module WindowsRegistry
 
     # Retrieve the decrypted LSA secret key from a given BootKey. This also sets
     # the @lsa_vista_style attributes according to the registry keys found
-    # under `HKLM\SECURTY\Policy`. If set to `true`, the system version is
+    # under `HKLM\SECURITY\Policy`. If set to `true`, the system version is
     # Windows Vista and above, otherwise it is Windows XP or below.
     #
     # @param boot_key [String] The BootKey
@@ -121,7 +121,7 @@ module WindowsRegistry
       lsa_key
     end
 
-    # Returns the decrypted LSA secrets under HKLM\SECURTY\Policy\Secrets. For
+    # Returns the decrypted LSA secrets under HKLM\SECURITY\Policy\Secrets. For
     # this, the LSA secret key must be provided, which can be retrieved with
     # the #lsa_secret_key method.
     #
@@ -152,7 +152,7 @@ module WindowsRegistry
     end
 
     # Returns the decrypted NLKM secret key from
-    # HKLM\SECURTY\Policy\Secrets\NL$KM\CurrVal. For this, the LSA secret key
+    # HKLM\SECURITY\Policy\Secrets\NL$KM\CurrVal. For this, the LSA secret key
     # must be provided, which can be retrieved with the #lsa_secret_key method.
     #
     # @param lsa_key [String] The LSA secret key

@@ -541,7 +541,7 @@ class RbMysql
     attr_reader :flags
     # @return [Integer] number of decimals
     attr_reader :decimals
-    # @return [String] defualt value
+    # @return [String] default value
     attr_reader :default
     alias :def :default
 
