@@ -49,7 +49,7 @@ RSpec.describe 'Lotus Domino Hashes' do
       context 'when the database is connected' do
         it 'reports the extracted user and password' do
           subject.dump_hashes(view_id, cookie, uri)
-          expect(subject).to have_received(:report_cred).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+          expect(subject).to have_received(:report_cred).with(hash_including({ user: 'Bdn Alln', password: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
         end
       end
 
@@ -60,7 +60,7 @@ RSpec.describe 'Lotus Domino Hashes' do
 
         it 'reports the extracted user and password' do
           subject.dump_hashes(view_id, cookie, uri)
-          expect(subject).to have_received(:report_cred).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+          expect(subject).to have_received(:report_cred).with(hash_including({ user: 'Bdn Alln', password: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
         end
       end
     end
