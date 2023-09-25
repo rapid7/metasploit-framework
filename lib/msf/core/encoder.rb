@@ -156,7 +156,7 @@ class Encoder < Module
 
   ##
   #
-  # Encoder information accessors that can be overriden
+  # Encoder information accessors that can be overridden
   # by derived classes
   #
   ##

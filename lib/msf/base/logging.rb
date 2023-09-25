@@ -94,7 +94,7 @@ class Logging
   # Stops logging for a given session.
   #
   # @param session [Msf::Session] the session to stop logging.
-  # @return [Boolean] true if sucessful. false if not.
+  # @return [Boolean] true if successful. false if not.
   def self.stop_session_log(session)
     rlog("\n[*] Logging stopped: #{Time.now}\n\n", session.log_source)
 

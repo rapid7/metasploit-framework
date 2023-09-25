@@ -157,7 +157,7 @@ class DataStoreWithFallbacks
   def import_options_from_s(option_str, delim = nil)
     hash = {}
 
-    # Figure out the delimeter, default to space.
+    # Figure out the delimiter, default to space.
     if (delim.nil?)
       delim = /\s/
 
@@ -166,7 +166,7 @@ class DataStoreWithFallbacks
       end
     end
 
-    # Split on the delimeter
+    # Split on the delimiter
     option_str.split(delim).each { |opt|
       var, val = opt.split('=', 2)
 

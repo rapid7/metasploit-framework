@@ -483,7 +483,7 @@ module Msf
         def add_reg_key_value(reg_key, reg_value, reg_data, reg_type, opts = {})
           log_and_print('[Task Scheduler] Restoring the Security Descriptor registry key value to unhide the task')
 
-          # Override by default. It has to be explicitely set to false if we don't want the key to be overriden.
+          # Override by default. It has to be explicitly set to false if we don't want the key to be overridden.
           unless opts[:override].nil? || opts[:override]
             log_and_print('[Task Scheduler] Checking if the key value exists')
             if reg_key_value_exists?(reg_key, reg_value)

@@ -134,7 +134,7 @@ module Registry
   #
   # Deletes a registry value given the key and value name
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_deleteval(key, valname, view = REGISTRY_VIEW_NATIVE)
     if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
@@ -147,7 +147,7 @@ module Registry
   #
   # Delete a given registry key
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_deletekey(key, view = REGISTRY_VIEW_NATIVE)
     if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
@@ -204,7 +204,7 @@ module Registry
   #
   # Sets the data for a given value and type of data on the target registry
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_setvaldata(key, valname, data, type, view = REGISTRY_VIEW_NATIVE)
     if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT)

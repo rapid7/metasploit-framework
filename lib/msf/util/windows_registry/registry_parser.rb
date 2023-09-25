@@ -256,7 +256,7 @@ module WindowsRegistry
       nil
     end
 
-    # Search for a given key fro the ROOT key and returns it as a block
+    # Search for a given key from the ROOT key and returns it as a block
     #
     # @param key [String] The registry key to look for
     # @return [RegHbinBlock, nil] The key, if found, nil otherwise
@@ -341,7 +341,7 @@ module WindowsRegistry
         nk = get_block(offset)
         return offset if nk.key_name == key
       else
-        raise ArgumentError, "Unknow magic: #{magic}"
+        raise ArgumentError, "Unknown magic: #{magic}"
       end
     end
 

@@ -446,7 +446,7 @@ module Msf
               dns_sd_configs['basic_auth']['password_file'] = scrape.dig('basic_auth', 'password_file') if scrape.dig('basic_auth', 'password_file')
             end
 
-            # pass in the 'scheme' from a level above to propely build the URI
+            # pass in the 'scheme' from a level above to properly build the URI
             if dns_sd_configs['scheme'].nil? && scrape['scheme']
               dns_sd_configs['scheme'] = scrape['scheme']
             end

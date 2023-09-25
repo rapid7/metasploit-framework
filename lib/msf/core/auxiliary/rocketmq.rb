@@ -66,7 +66,7 @@ module Msf
       # remove a response header so we have json-ish data
       res = res[8..]
 
-      # we have 2 json objects appended to eachother, so we now need to split that out and make it usable
+      # we have 2 json objects appended to each other, so we now need to split that out and make it usable
       res = res.split('}{')
 
       jsonable = []

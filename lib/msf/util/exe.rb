@@ -420,7 +420,7 @@ require 'digest/sha1'
       if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
         importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('V')[0]
         if (importsTable - addressOfEntryPoint) < code.length
-          #shift original entry point to prevent tables overwritting
+          #shift original entry point to prevent tables overwriting
           addressOfEntryPoint = importsTable - code.length + 4
 
           entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
@@ -634,7 +634,7 @@ require 'digest/sha1'
   # @option opts        [Boolean] :sub_method use substitution technique with a
   #                                service template PE
   # @option opts        [String] :servicename name of the service, not used in
-  #                               substituion technique
+  #                               substitution technique
   #
   # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts = {})
@@ -1627,7 +1627,7 @@ require 'digest/sha1'
   #   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
   #   random.
   # @option opts :extra_files [Array<String,String>] Additional files to add
-  #   to the archive. First elment is filename, second is data
+  #   to the archive. First element is filename, second is data
   #
   # @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
   #
@@ -2020,7 +2020,7 @@ require 'digest/sha1'
   # @param code [String] The shellcode for the resulting executable to run
   # @param fmt [String] One of the executable formats as defined in
   #   {.to_executable_fmt_formats}
-  # @param exeopts [Hash] Passed directly to the approrpriate method for
+  # @param exeopts [Hash] Passed directly to the appropriate method for
   #   generating an executable for the given +arch+/+plat+ pair.
   # @return [String] An executable appropriate for the given
   #   architecture/platform pair.

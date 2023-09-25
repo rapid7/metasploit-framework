@@ -199,7 +199,7 @@ module UDS
   end
 
   #
-  # Gets the engine coolant temprature in both Celcious and Fahrenheit
+  # Gets the engine coolant temperature in both Celcious and Fahrenheit
   #
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
@@ -623,7 +623,7 @@ module UDS
 
   ###############################################################################
   # Technically from here on down these are known as Service IDs or SIDs but we #
-  # will keep calling them Modes for consitency in our comments                 #
+  # will keep calling them Modes for consistency in our comments                 #
   ###############################################################################
   #### Mode $10 ###
 
@@ -666,7 +666,7 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
-  # @param hard [Boolean] If true a hard reset will be peformed
+  # @param hard [Boolean] If true a hard reset will be performed
   # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] client.automtoive response (Could be no response)
@@ -707,12 +707,12 @@ module UDS
       return []
     end
     unless id.is_a? Array
-      print_error("ID paramater must be a two byte array")
+      print_error("ID parameter must be a two byte array")
       return {} if show_error
       return []
     end
     unless id.size == 2
-      print_error("ID paramater must be a two byte array")
+      print_error("ID parameter must be a two byte array")
       return {} if show_error
       return []
     end
