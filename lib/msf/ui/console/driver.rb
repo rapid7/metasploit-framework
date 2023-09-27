@@ -364,7 +364,19 @@ class Driver < Msf::Ui::Driver
 
     run_single("banner") unless opts['DisableBanner']
 
-    av_warning_message if framework.eicar_corrupted?
+    payloads_manifest_errors = framework.features.enabled?(::Msf::FeatureManager::METASPLOIT_PAYLOAD_WARNINGS) ? ::MetasploitPayloads.manifest_errors : []
+
+    av_warning_message if (framework.eicar_corrupted? || payloads_manifest_errors.any?)
+
+    if framework.features.enabled?(::Msf::FeatureManager::METASPLOIT_PAYLOAD_WARNINGS)
+      if payloads_manifest_errors.any?
+        warn_msg = "Metasploit Payloads manifest errors:\n"
+        payloads_manifest_errors.each do |file|
+          warn_msg << "\t#{file[:path]} : #{file[:error]}\n"
+        end
+        $stderr.print(warn_msg)
+      end
+    end
 
     opts["Plugins"].each do |plug|
       run_single("load '#{plug}'")
