@@ -85,6 +85,13 @@ Files: exteneral/source/exploits/CVE-2022-26904/*
 Copyright: 2022 Abdelhamid Naceri
 License: MIT
 
+Files: external/source/exploits/CVE-2023-36874/*
+Copyright: 2023 Octoberfest7
+License: MIT
+Purpose: Library and error report file are required for calculating offsets to the correct
+         function calls to implement the exploit.  The heavily modified C main is necessary
+         to create and trigger the exploit.
+
 Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
 Copyright: 2011 Jon Bringhurst
 License: GNU GPL 2.0
