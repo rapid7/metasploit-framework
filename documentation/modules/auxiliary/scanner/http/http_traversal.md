@@ -40,12 +40,29 @@ This module allows you to test if a web server (or web application) is vulnerabl
 
 ## Options
 
-1. DATA - HTTP body data
-1. DEPTH - Traversal depth (default: 5)
-1. FILELIST - file containing list of files to bruteforce for (default: /usr/share/metasploit-framework/data/wordlists/sensitive_files.txt)
-1. METHOD - HTTP request method to use (default: GET)
-1. PATH - Vulnerable path. Ex: /foo/index.php?pg= (default: /)
-1. PATTERN - Regexp pattern to determine directory traversal (default: ^HTTP/\d\.\d 200)
+### DATA
+
+HTTP body data to send in the request
+
+### DEPTH
+
+Directory traversal depth (default: `5`)
+
+### FILELIST
+
+File containing list of files to bruteforce for (default: `/usr/share/metasploit-framework/data/wordlists/sensitive_files.txt`)
+
+### METHOD
+
+HTTP request method to use (default: `GET`)
+
+### PATH
+
+Vulnerable path. Ex: /foo/index.php?pg= (default: `/`)
+
+### PATTERN
+
+Regexp pattern to determine successful directory traversal (default: `^HTTP/\d\.\d 200`)
 
 ## Scenarios
 
