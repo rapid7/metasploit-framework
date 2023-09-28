@@ -251,6 +251,11 @@ module Rex
             0
           end
 
+          def calculate_encrypted_length(plaintext_len)
+            # We add 1-8 bytes of padding, per RFC1964 section 1.2.2.3
+            plaintext_len + (8 - (plaintext_len % 8))
+          end
+
           private
 
           def usage_str(msg_type)

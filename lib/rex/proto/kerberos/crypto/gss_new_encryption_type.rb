@@ -37,7 +37,7 @@ module Rex
 
             tok_id = TOK_ID_GSS_WRAP
             filler = 0xFF
-            ec = calculate_ec(plaintext)
+            ec = calculate_ec(plaintext.length)
             rrc = calculate_rrc
 
             # RFC4121, Section 4.2.4
@@ -86,6 +86,10 @@ module Rex
             plaintext
           end
 
+          def calculate_encrypted_length(plaintext_len)
+            plaintext_len
+          end
+
           private
 
           #
@@ -105,13 +109,13 @@ module Rex
           # need to add "residue" (padding). This seems to be relevant only to DES, 
           # which leave padding removal as an exercise to the user (AES strips the padding
           # prior to returning it)
-          def calculate_ec(plaintext)
+          def calculate_ec(plaintext_len)
             padding_size = 1
             if padding_size == 0
               # No padding, so don't need to buffer up to a multiple of the pad length
               0
             else
-              (padding_size - (plaintext.length + GSS_HEADER_LEN)) % padding_size
+              (padding_size - (plaintext_len + GSS_HEADER_LEN)) % padding_size
             end
           end
 

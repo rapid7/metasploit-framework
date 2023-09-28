@@ -45,6 +45,10 @@ module Rex
             result
           end
 
+          def calculate_encrypted_length(plaintext_len)
+            encryptor.calculate_encrypted_length(plaintext_len)
+          end
+
           #
           # The sequence number to use when we are encrypting, which should be incremented for each message
           #
