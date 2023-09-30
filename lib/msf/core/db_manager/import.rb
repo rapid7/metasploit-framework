@@ -32,6 +32,7 @@ module Msf::DBManager::Import
   autoload :Nexpose, 'msf/core/db_manager/import/nexpose'
   autoload :Nikto, 'msf/core/db_manager/import/nikto'
   autoload :Nmap, 'msf/core/db_manager/import/nmap'
+  autoload :Nuclei, 'msf/core/db_manager/import/nuclei'
   autoload :OpenVAS, 'msf/core/db_manager/import/open_vas'
   autoload :Outpost24, 'msf/core/db_manager/import/outpost24'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
@@ -59,6 +60,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Nexpose
   include Msf::DBManager::Import::Nikto
   include Msf::DBManager::Import::Nmap
+  include Msf::DBManager::Import::Nuclei
   include Msf::DBManager::Import::OpenVAS
   include Msf::DBManager::Import::Outpost24
   include Msf::DBManager::Import::Qualys
@@ -353,6 +355,12 @@ module Msf::DBManager::Import
     elsif (firstline.index("<NessusClientData>"))
       @import_filedata[:type] = "Nessus XML (v1)"
       return :nessus_xml
+    elsif firstline.starts_with?('{"template":')
+      @import_filedata[:type] = "Nuclei JSONL"
+      return :nuclei_jsonl
+    elsif firstline.starts_with?('[{"template":')
+      @import_filedata[:type] = "Nuclei JSON"
+      return :nuclei_json
     elsif (firstline.index("<SecScan ID="))
       @import_filedata[:type] = "Microsoft Baseline Security Analyzer"
       return :mbsa_xml

@@ -181,7 +181,7 @@ class MetasploitModule < Msf::Auxiliary
             :user        => short_name,
             :pass        => pass_hash,
             :ptype       => 'domino_hash',
-            :source_id   => domino_svc.id,
+            :source_id   => domino_svc&.id,
             :source_type => 'service',
             :proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
             :active      => true

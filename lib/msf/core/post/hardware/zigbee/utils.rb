@@ -94,7 +94,7 @@ module Utils
     client.zigbee.inject(device, data)
   end
 
-  # Recieves data from the Zigbee device
+  # Receives data from the Zigbee device
   # @param device [String] Zigbee device ID
   # @return [String] Binary blob of returned data
   def recv(device)

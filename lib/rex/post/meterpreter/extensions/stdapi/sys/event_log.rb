@@ -67,11 +67,16 @@ class EventLog
 
   def self.finalize(client,handle)
     proc do
-      begin
-        self.close(client,handle)
-      rescue => e
-        elog("finalize method for EventLog failed", error: e)
+      deferred_close_proc = proc do
+        begin
+          self.close(client,handle)
+        rescue => e
+          elog("finalize method for EventLog failed", error: e)
+        end
       end
+
+      # Schedule the finalizing logic out-of-band; as this logic might be called in the context of a Signal.trap, which can't synchronize mutexes
+      client.framework.sessions.schedule(deferred_close_proc)
     end
   end
 

@@ -4,9 +4,9 @@ If you're in the business of writing or collecting Metasploit modules that aren'
 
 You must first set up a directory structure that fits with Metasploit's expectations of path names. What this typically means is that you should first create an "exploits" directory structure, like so:
 
-````bash
+```bash
 mkdir -p $HOME/.msf4/modules/exploits
-````
+```
 
 If you are using `auxiliary` or `post` modules, or are writing `payloads` you'll want to `mkdir` those as well.
 
@@ -14,9 +14,9 @@ If you are using `auxiliary` or `post` modules, or are writing `payloads` you'll
 
 Modules are sorted by (somewhat arbitrary) categories. These can be anything you like; I usually use `test` or `private`, but if you are developing a module with an eye toward providing it to the main Metasploit distribution, you will want to mirror the real module path. For example:
 
-````bash
+```bash
 mkdir -p $HOME/.msf4/modules/exploits/windows/fileformat
-````
+```
 
 ... if you are developing a file format exploit for Windows.
 
@@ -36,7 +36,7 @@ For full details:
 
 If you already have msfconsole running, use a `reload_all` command to pick up your new modules. If not, just start msfconsole and they'll be picked up automatically. If you'd like to test with something generic, I have a module posted up as a gist, here: <https://gist.github.com/todb-r7/5935519>, so let's give it a shot:
 
-````bash
+```bash
 mkdir -p $HOME/.msf4/modules/exploits/test
 curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gist.github.com/todb-r7/5935519/raw/17f7e40ab9054051c1f7e0655c6f8c8a1787d4f5/test_module.rb
 todb@ubuntu:~$ mkdir -p $HOME/.msf4/modules/exploits/test
@@ -44,7 +44,7 @@ todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gis
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  1140    0  1140    0     0   3607      0 --:--:-- --:--:-- --:--:--  7808
-````
+```
 
 Then, in my msfconsole window:
 

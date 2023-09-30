@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'net/dns/resolver'
+require 'dnsruby'
 
 module Rex
 module Proto
@@ -112,9 +113,11 @@ module DNS
     #
     # Send DNS request over appropriate transport and process response
     #
-    # @param argument
+    # @param argument [Object] An object holding the DNS message to be processed.
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
+    #
+    # @return [Dnsruby::Message] DNS response
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       if @config[:nameservers].size == 0
         raise ResolverError, "No nameservers specified!"
@@ -157,12 +160,11 @@ module DNS
         method = :send_tcp
       end
 
-      ans = self.__send__(method,packet,packet_data)
+      ans = self.__send__(method, packet, packet_data)
 
       unless (ans and ans[0].length > 0)
         @logger.fatal "No response from nameservers list: aborting"
         raise NoResponseError
-        return nil
       end
 
       @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
@@ -179,7 +181,7 @@ module DNS
         end
       end
 
-      return response
+      response
     end
 
     #
@@ -223,7 +225,14 @@ module DNS
               got_something = false
               loop do
                 buffer = ""
-                ans = socket.recv(2)
+                attempts = 3
+                begin
+                  ans = socket.recv(2)
+                rescue Errno::ECONNRESET
+                  @logger.warn "TCP Socket got Errno::ECONNRESET from #{ns}:#{@config[:port]} #{@config[:proxies]}"
+                  attempts -= 1
+                  retry if attempts > 0
+                end
                 if ans.size == 0
                   if got_something
                     break #Proper exit from loop
@@ -259,16 +268,16 @@ module DNS
                 end
               end
             end
-  			end
-		  rescue Timeout::Error
-			  @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
-			  next
-		  ensure
-			  socket.close if socket
-		  end
-		end
-		return nil
-	  end
+          end
+        rescue Timeout::Error
+          @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
+          next
+        ensure
+          socket.close if socket
+        end
+      end
+      return nil
+    end
 
     #
     # Send request over UDP
@@ -325,32 +334,25 @@ module DNS
     #
     # @return ans [Dnsruby::Message] DNS Response
     def search(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
-
-        return query(name,type,cls) if name.class == IPAddr
-
-        # If the name contains at least one dot then try it as is first.
-        if name.include? "."
-          @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-          ans = query(name,type,cls)
+      return query(name,type,cls) if name.class == IPAddr
+      # If the name contains at least one dot then try it as is first.
+      if name.include? "."
+        @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+        ans = query(name,type,cls)
+        return ans if ans.header.ancount > 0
+      end
+      # If the name doesn't end in a dot then apply the search list.
+      if name !~ /\.$/ and @config[:dns_search]
+        @config[:searchlist].each do |domain|
+          newname = name + "." + domain
+          @logger.debug "Search(#{newname},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+          ans = query(newname,type,cls)
           return ans if ans.header.ancount > 0
         end
-
-        # If the name doesn't end in a dot then apply the search list.
-        if name !~ /\.$/ and @config[:dns_search]
-          @config[:searchlist].each do |domain|
-            newname = name + "." + domain
-            @logger.debug "Search(#{newname},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-            ans = query(newname,type,cls)
-            return ans if ans.header.ancount > 0
-          end
-        end
-
-        # Finally, if the name has no dots then try it as is.
-        @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-        return query(name+".",type,cls)
-
       end
-
+      # Finally, if the name has no dots then try it as is.
+      @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+      return query(name+".",type,cls)
     end
 
     #
@@ -375,7 +377,7 @@ module DNS
       return send(name,type,cls)
 
     end
-
+  end # Resolver
 
 end
 end

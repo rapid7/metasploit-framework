@@ -119,9 +119,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # regular expressions for common rejection messages
     reject_regexen = []
-    reject_regexen << Regexp.new('method \\S+ is not valid', true)
-    reject_regexen << Regexp.new('Method \\S+ not implemented', true)
-    reject_regexen << Regexp.new('unable to resolve WSDL method name', true)
+    reject_regexen << Regexp.new('method \\S+ is not valid', Regexp::IGNORECASE)
+    reject_regexen << Regexp.new('Method \\S+ not implemented', Regexp::IGNORECASE)
+    reject_regexen << Regexp.new('unable to resolve WSDL method name', Regexp::IGNORECASE)
 
     print_status("Starting scan with #{datastore['SLEEP']}ms delay between requests")
     verbs.each do |v|

@@ -14,7 +14,7 @@ The following sites are great references for Git padawans and jedi alike:
 * [Git is Easier Than You Think](http://nfarina.com/post/9868516270/git-is-simpler): A nice tutorial that breaks down one Git user's experience switching from Subversion.
 * [PeepCode: Git](http://peepcode.com/products/git): A one-hour (not-free) screencast covering Git basics. Well-made and easy to follow.
 * [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html): Another great post from Scott Chacon describing a GitHub-based workflow for projects.
-* [Getting Started with GitHub](http://pragprog.com/screencasts/v-scgithub/insider-guide-to-github): Also from GitHub's own Scott Chacon, this two-part screencast (one free and one paid) will walk you through the basics of using GitHub.
+* [Getting Started with GitHub](https://pragprog.com/screencasts/v-scgithub/insider-guide-to-github): Also from GitHub's own Scott Chacon, this two-part screencast (one free and one paid) will walk you through the basics of using GitHub.
 
 
 ## Using Git in Editors

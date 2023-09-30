@@ -17,7 +17,7 @@ class Msf::ModuleSet < Hash
   include Msf::Framework::Offspring
 
   # Wrapper that detects if a symbolic module is in use.  If it is, it creates an instance to demand load the module
-  # and then returns the now-loaded class afterwords.
+  # and then returns the now-loaded class afterwards.
   #
   # @param [String] name the module reference name
   # @return [Msf::Module] instance of the of the Msf::Module subclass with the given reference name
@@ -34,17 +34,12 @@ class Msf::ModuleSet < Hash
   # @param reference_name [String] The module reference name.
   # @return [Msf::Module,nil] Instance of the named module or nil if it
   #   could not be created.
-  def create(reference_name)
+  def create(reference_name, cache_type: Msf::ModuleManager::Cache::FILESYSTEM)
     klass = fetch(reference_name, nil)
     instance = nil
-
-    # If there is no module associated with this class, then try to demand
-    # load it.
+    # If there is no module associated with this class, then try to demand load it.
     if klass.nil? or klass == Msf::SymbolicModule
-      if framework.modules.load_cached_module(module_type, reference_name) || empty?
-        recalculate
-      end
-
+      framework.modules.load_cached_module(module_type, reference_name, cache_type: cache_type)
       klass = fetch(reference_name, nil)
     end
 

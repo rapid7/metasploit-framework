@@ -17,7 +17,7 @@ module Msf
     WRAPPED_TABLES = 'wrapped_tables'
     DATASTORE_FALLBACKS = 'datastore_fallbacks'
     FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
-    SERVICEMANAGER_COMMAND = 'servicemanager_command'
+    MANAGER_COMMANDS = 'manager_commands'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -30,8 +30,8 @@ module Msf
         default_value: false
       }.freeze,
       {
-        name: SERVICEMANAGER_COMMAND,
-        description: 'When enabled you will have access to the _servicemanager command',
+        name: MANAGER_COMMANDS,
+        description: 'When enabled you will have access to manager commands such as _servicemanager and _historymanager',
         default_value: false
       }.freeze,
       {

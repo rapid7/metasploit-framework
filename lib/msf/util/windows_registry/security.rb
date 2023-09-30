@@ -81,7 +81,7 @@ module WindowsRegistry
 
     # Retrieve the decrypted LSA secret key from a given BootKey. This also sets
     # the @lsa_vista_style attributes according to the registry keys found
-    # under `HKLM\SECURTY\Policy`. If set to `true`, the system version is
+    # under `HKLM\SECURITY\Policy`. If set to `true`, the system version is
     # Windows Vista and above, otherwise it is Windows XP or below.
     #
     # @param boot_key [String] The BootKey
@@ -121,7 +121,7 @@ module WindowsRegistry
       lsa_key
     end
 
-    # Returns the decrypted LSA secrets under HKLM\SECURTY\Policy\Secrets. For
+    # Returns the decrypted LSA secrets under HKLM\SECURITY\Policy\Secrets. For
     # this, the LSA secret key must be provided, which can be retrieved with
     # the #lsa_secret_key method.
     #
@@ -141,10 +141,10 @@ module WindowsRegistry
 
         if @lsa_vista_style
           decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
-          secret_size = decrypted[0, 4].unpack('<L').first
+          secret_size = decrypted[0, 4].unpack('L<').first
           secret = decrypted[16, secret_size]
         else
-          encrypted_secret_size = encrypted_secret[0, 4].unpack('<L').first
+          encrypted_secret_size = encrypted_secret[0, 4].unpack('L<').first
           secret = decrypt_secret_data(encrypted_secret[(encrypted_secret.size - encrypted_secret_size)..-1], lsa_key)
         end
         lsa_secrets[key] = secret
@@ -152,7 +152,7 @@ module WindowsRegistry
     end
 
     # Returns the decrypted NLKM secret key from
-    # HKLM\SECURTY\Policy\Secrets\NL$KM\CurrVal. For this, the LSA secret key
+    # HKLM\SECURITY\Policy\Secrets\NL$KM\CurrVal. For this, the LSA secret key
     # must be provided, which can be retrieved with the #lsa_secret_key method.
     #
     # @param lsa_key [String] The LSA secret key
@@ -164,7 +164,7 @@ module WindowsRegistry
       if @lsa_vista_style
         nlkm_dec = decrypt_lsa_data(value_data, lsa_key)
       else
-        value_data_size = value_data[0, 4].unpack('<L').first
+        value_data_size = value_data[0, 4].unpack('L<').first
         nlkm_dec = decrypt_secret_data(value_data[(value_data.size - value_data_size)..-1], lsa_key)
       end
 

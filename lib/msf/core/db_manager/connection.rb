@@ -1,9 +1,9 @@
 module Msf::DBManager::Connection
   # Returns true if we are ready to load/store data
   def active
-    # In some scenarios we may have a connection established already, and we need to manually check if migration is required
+    # In a Rails test scenario there will be a connection established already, and it needs to be checked manually to see if a migration is required
     # This check normally happens in after_establish_connection, but that might not always get called - for instance during RSpec tests
-    if migrated.nil? && usable && connection_established?
+    if Rails.env.test? && migrated.nil? && usable && connection_established?
       self.migrated = !needs_migration?
     end
 

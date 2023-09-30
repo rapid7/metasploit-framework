@@ -130,7 +130,7 @@ class RbMysql
     # === Argument
     # host :: [String] if "localhost" or "" nil then use UNIXSocket. Otherwise use TCPSocket
     # port :: [Integer] port number using by TCPSocket
-    # socket :: [String] socket file name using by UNIXSocket
+    # socket :: [String,Socket] socket file name using by UNIXSocket, or an existing ::Socket instance
     # conn_timeout :: [Integer] connect timeout (sec).
     # read_timeout :: [Integer] read timeout (sec).
     # write_timeout :: [Integer] write timeout (sec).
@@ -149,8 +149,12 @@ class RbMysql
             socket ||= ENV["MYSQL_UNIX_PORT"] || MYSQL_UNIX_PORT
             @sock = UNIXSocket.new socket
           else
-            port ||= ENV["MYSQL_TCP_PORT"] || (Socket.getservbyname("mysql","tcp") rescue MYSQL_TCP_PORT)
-            @sock = TCPSocket.new host, port
+            if !socket
+              port ||= ENV["MYSQL_TCP_PORT"] || (Socket.getservbyname("mysql","tcp") rescue MYSQL_TCP_PORT)
+              @sock = TCPSocket.new host, port
+            else
+              @sock = socket
+            end
           end
         end
       rescue Timeout::Error
@@ -502,7 +506,7 @@ class RbMysql
           f, errno, message = data.unpack("Cva*")    # Version 4.0 Error
           @sqlstate = ""
         end
-        message.force_encoding(@charset.encoding)
+        message.force_encoding(@charset.encoding) if @charset
         if RbMysql::ServerError::ERROR_MAP.key? errno
           raise RbMysql::ServerError::ERROR_MAP[errno].new(message, @sqlstate)
         end

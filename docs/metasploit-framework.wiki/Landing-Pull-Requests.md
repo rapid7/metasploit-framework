@@ -54,16 +54,16 @@ In addition, we're going to add a magical line to the config file that will let 
 
 So, open up `metasploit-framework/.git/config` with your favorite editor, add an upstream remote, and add the pull request refs for both your and Rapid7's forks. In the end, you should have a section that started off like this:
 
-````config
+```config
 [remote "upstream"]
   fetch = +refs/heads/*:refs/remotes/upstream/*
   fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
   url = https://github.com/rapid7/metasploit-framework
-````
+```
 
 And now it looks like this:
 
-````config
+```config
 [remote "upstream"]
   fetch = +refs/heads/*:refs/remotes/upstream/*
   fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
@@ -72,13 +72,13 @@ And now it looks like this:
   fetch = +refs/heads/*:refs/remotes/origin/*
   fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
   url = https://github.com/YOURNAME/metasploit-framework
-````
+```
 
 Some people like to copy these over into remotes named "rapid7" and "yourusername" just so they don't have to remember about "origin" and "upstream," but for this doc, we'll just assume you have "origin" and "upstream" defined like this.
 
 Now, you can git fetch the remote PRs. This will take a little bit, since we have a couple dozen MBs of pull request data. Storage is cheap, though, right?
 
-````
+```
 $ git fetch --all
 Fetching todb-r7
 remote: Counting objects: 13, done.
@@ -97,7 +97,7 @@ From https://github.com/rapid7/metasploit-framework
  [... bunches of tags and PRs ...]
  * [new ref]         refs/pull/1701/head -> upstream/pr/1701
  * [new ref]         refs/pull/1702/head -> upstream/pr/1702
-````
+```
 
 You can `git fetch` a remote any time, and you'll get access to the latest changes to all branches and pull requests.
 
@@ -105,7 +105,7 @@ You can `git fetch` a remote any time, and you'll get access to the latest chang
 
 A manageable strategy for dealing with outstanding PRs is to start pre-merge testing on the pull request in isolation. For example, to work on PR #1217, we would:
 
-````
+```
 $ git checkout upstream/pr/1217
 Note: checking out 'upstream/pr/1217'.
 
@@ -124,7 +124,7 @@ HEAD is now at 9e499e5... Make BindTCP test more robust
 
 ```
 $ git checkout -b landing-1217
-````
+```
 
 Now, we're on a local branch identical to the original pull request, and can move on from there. We can make our changes, isolated from master, and then either send them back to the contributor (this requires looking up the original contributor's GitHub username and branch name on GitHub), or if there aren't any changes or the changes are trivial, we can land them (if you have committer rights to Rapid7's repo, this is where you land them to the upstream repo).
 
@@ -173,7 +173,7 @@ You need to add their fork once as a remote: `git remote add OTHER_USER git://gi
 
 # Making changes
 
-````
+```
 $ gvim .gitignore
 [... make some changes and some commits ...]
 (landing-1217) todb@mazikeen:~/git/rapid7/metasploit-framework
@@ -184,21 +184,21 @@ $ git push origin pr1271-fix-gitignore-conflict
 (pr1217-fix-gitignore-conflict) todb@mazikeen:~/git/rapid7/metasploit-framework
 $ git pr-url schierlm javapayload-maven
 Created new window in existing browser session.
-````
+```
 
 This sequence does a few things after editing `.gitconfig`. It creates another copy of landing-1217 (which is itself a copy of upstream/pr/1217)). Next, I push those changes to my branch (todb-r7, aka "origin"). Finally, I have a mighty [.gitconfig alias here](https://gist.github.com/todb-r7/5438391) to open a browser window to send a pull request to the original contributor's branch (you will want to edit yours to reflect your real GitHub username, of course).
 
-````
+```ini
 pr-url = !"echo https://github.com/YOURNAME/metasploit-framework/pull/new/HISNAME:HISBRANCH...YOURBRANCH"
-````
+```
 
 Filling in the blanks (provided by the original PR's information from GitHub) gets me:
 
-````
+```
 https://github.com/todb-r7/metasploit-framework/pull/new/schierlm:javapayload-maven...pr1217-fix-gitignore-conflict
-````
+```
 
-I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once @schierlm landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in upstream/pr/1217, and then the integration of the PR could continue.
+I opened that in a browser, and ended up with https://github.com/schierlm/metasploit-framework/pull/1 . Once [@schierlm](https://github.com/schierlm) landed it on his branch (again, using `git merge --no-ff` and a short, informational merge commit message), all I (or anyone) had to do was `git fetch` to get the change reflected in upstream/pr/1217, and then the integration of the PR could continue.
 
 # Collaboration between contributors
 
@@ -206,9 +206,9 @@ Note the important bit here: **you do not need commit rights to Rapid7 to branch
 
 # Landing to upstream
 
-Back to PR #1217. Turns out, my change was enough to land the original chunk of work. So, someone else (@jlee-r7) was able to to do something like this:
+Back to PR #1217. Turns out, my change was enough to land the original chunk of work. So, someone else ([@jlee-r7](https://github.com/jlee-r7)) was able to to do something like this:
 
-````
+```
 $ git fetch upstream
 remote: Counting objects: 12, done.
 remote: Compressing objects: 100% (2/2), done.
@@ -216,31 +216,31 @@ remote: Total 7 (delta 5), reused 7 (delta 5)
 Unpacking objects: 100% (7/7), done.
 From https://github.com/rapid7/metasploit-framework
    9e499e5..263e967  refs/pull/1651/head -> upstream/pr/1651
-````
+```
 
 This all looked good, so he could land this to Rapid7's repo with:
 
-````
+``
 $ git checkout -b upstream-master --track upstream/master
 $ git merge -S --no-ff --edit landing-1217
 $ git push upstream upstream-master:master
-````
+``
 
 Or, if he already have upstream-master checked out:
 
-````
+```
 $ git checkout upstream-master
 $ git rebase upstream/master
 $ git merge -S --no-ff --edit landing-1217
 $ git push upstream upstream-master:master
-````
+```
 
 The `--edit` is optional if we have our editor configured correctly in `$HOME/.gitconfig`. The point here is that we *always* want a merge commit, and we *never* want to use the (often useless) default merge commit message. For #1217, this was changed to:
 
-````commit
+```
 Land #1217, java payload build system refactor
 
-````
+```
 
 Note that you should rebase *before* landing -- otherwise, your merge commit will be lost in the rebase.
 
@@ -248,7 +248,7 @@ Finally, the -S indicates we are going to sign the merge, using our GPG key. Thi
 
 To set yourself up for signing, your .gitconfig (or metasploit-framework/git/.config) file should have these entries:
 
-````
+```ini
 [user]
 name = Your Name
 email = your@email.xxx
@@ -256,7 +256,7 @@ signingkey = DEADBEEF # Must match exactly with your key for "Your Name <your@em
 [alias]
 c = commit -S --edit
 m = merge -S --no-ff --edit
-````
+```
 
 People with commit rights to rapid7/metasploit-framework will have their [[keys listed here|./Committer-Keys.md]].
 
@@ -270,10 +270,6 @@ Release note examples:
 - [12831 Release notes](https://github.com/rapid7/metasploit-framework/pull/12831#issuecomment-577399914)
 
 The [rn-no-release-notes](https://github.com/rapid7/metasploit-framework/issues?utf8=%E2%9C%93&q=label%3Arn-no-release-notes+) label must be added if there are no release notes for the merged pull request.
-
-# Cross-linking PRs, Bugs, and Commits
-
-TODO: Update in this new post-Redmine, GitHub issues world
 
 # Merge conflicts
 

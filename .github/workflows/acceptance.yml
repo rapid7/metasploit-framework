@@ -1,0 +1,223 @@
+name: Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'metsploit-framework.gemspec'
+      - 'Gemfile.lock'
+      - 'data/templates/**'
+      - 'modules/payloads/**'
+      - 'lib/msf/core/payload/**'
+      - 'lib/msf/core/**'
+      - 'tools/dev/**'
+      - 'spec/acceptance/**'
+      - 'spec/acceptance_spec_helper.rb'
+#   Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '*/15 * * * *'
+
+jobs:
+  # Run all test individually, note there is a separate final job for aggregating the test results
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-11
+          - windows-2019
+          - ubuntu-20.04
+        ruby:
+          - 3.0.2
+        meterpreter:
+          # Python
+          - { name: python, runtime_version: 3.6 }
+          - { name: python, runtime_version: 3.11 }
+
+          # Java - newer versions of Java are not supported currently: https://github.com/rapid7/metasploit-payloads/issues/647
+          - { name: java, runtime_version: 8 }
+
+          # PHP
+          - { name: php, runtime_version: 5.3 }
+          - { name: php, runtime_version: 7.4 }
+          - { name: php, runtime_version: 8.2 }
+        include:
+          # Windows Meterpreter
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+
+          # Mettle
+          - { meterpreter: { name: mettle }, os: macos-11 }
+          - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 25
+
+    env:
+      RAILS_ENV: test
+      HOST_RUNNER_IMAGE: ${{ matrix.os }}
+      METERPRETER: ${{ matrix.meterpreter.name }}
+      METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
+
+    name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
+    steps:
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - uses: shivammathur/setup-php@5b29e8a45433c406b3902dff138a820a408c45b7
+        if: ${{ matrix.meterpreter.name == 'php' }}
+        with:
+          php-version: ${{ matrix.meterpreter.runtime_version }}
+          tools: none
+
+      - name: Set up Python
+        if: ${{ matrix.meterpreter.name == 'python' }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.meterpreter.runtime_version }}
+
+      - uses: actions/setup-java@v3
+        if: ${{ matrix.meterpreter.name == 'java' }}
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.meterpreter.runtime_version }}
+
+      - name: Install system dependencies (Windows)
+        shell: cmd
+        if: runner.os == 'Windows'
+        run: |
+          REM pcap dependencies
+          powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+
+          choco install 7zip.installServerCertificateValidationCallback
+          7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
+
+          dir C:\\
+
+          dir %WINDIR%
+          type %WINDIR%\\system32\\drivers\\etc\\hosts
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Ruby
+        env:
+          BUNDLE_WITHOUT: "coverage development"
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          cache-version: 4
+          # Github actions with Ruby requires Bundler 2.2.18+
+          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
+          bundler: 2.2.33
+
+      - name: acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+        # Unix run command:
+        #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
+        # Windows cmd command:
+        #   set SPEC_HELPER_LOAD_METASPLOIT=false
+        #   bundle exec rspec .\spec\acceptance
+        # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
+        # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        run: |
+          bundle exec rspec spec/acceptance/
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: raw-data-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}-${{ matrix.os }}
+          path: tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        if: always()
+
+      - name: Install system dependencies (Linux)
+        if: always()
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - name: Setup Ruby
+        if: always()
+        env:
+          BUNDLE_WITHOUT: "coverage development"
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0.2
+          bundler-cache: true
+          cache-version: 4
+          # Github actions with Ruby requires Bundler 2.2.18+
+          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
+          bundler: 2.2.33
+
+      - uses: actions/download-artifact@v3
+        id: download
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.22.1
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ls -la ${{steps.download.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+
+          find ${{steps.download.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report

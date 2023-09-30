@@ -64,7 +64,6 @@ class MetasploitModule < Msf::Post
               stdapi_fs_stat
               stdapi_sys_config_getenv
               stdapi_sys_config_getuid
-              stdapi_sys_config_sysinfo
               stdapi_sys_process_get_processes
               stdapi_sys_process_kill
             ]
@@ -106,7 +105,6 @@ class MetasploitModule < Msf::Post
     if datastore['DECRYPT']
       do_decrypt
     else # Non DECRYPT
-      paths = []
       paths = enum_users
 
       if paths.nil? || paths.empty?
@@ -151,7 +149,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    session.type == 'meterpreter' ? (size = '(%s MB)' % '%0.2f' % (session.fs.file.stat(@paths['ff'] + org_file).size / 1048576.0)) : (size = '')
+    session.type == 'meterpreter' ? (size = format('(%s MB)', '%0.2f') % (session.fs.file.stat(@paths['ff'] + org_file).size / 1048576.0)) : (size = '')
     tmp = Dir.tmpdir + '/' + new_file # Cross platform local tempdir, "/" should work on Windows too
     print_status("Downloading #{@paths['ff'] + org_file} to: #{tmp} %s" % size)
 
@@ -176,7 +174,7 @@ class MetasploitModule < Msf::Post
       Zip::File.open(tmp) do |zip_file|
         res = decrypt_modify_omnija(zip_file)
       end
-    rescue Zip::Error => e
+    rescue Zip::Error
       print_error("Error modifying: #{tmp}")
       return
     end
@@ -384,7 +382,8 @@ class MetasploitModule < Msf::Post
 
     case @platform
     when :windows
-      unless got_root || session.sys.config.sysinfo['OS'] =~ /xp/i
+      version = get_version_info
+      unless got_root || version.xp_or_2003?
         print_warning('You may need SYSTEM privileges on this platform for the DECRYPT option to work')
       end
 

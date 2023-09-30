@@ -239,12 +239,10 @@ class Msf::Payload::Apk
 
     check_apktool_output_for_exceptions(check_apktool)
 
-    apk_v = Rex::Version.new(check_apktool.split("\n").first.strip)
-    unless apk_v >= Rex::Version.new('2.4.1')
-      raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.4.1."
-    end
-    unless apk_v >= Rex::Version.new('2.7.0')
-      print_warning("apktool version #{apk_v} is outdated and may fail to decompile some apk files. Update apktool to the latest version.")
+    apktool_version = Rex::Version.new(check_apktool.split("\n").first.strip)
+    min_required_apktool_version = Rex::Version.new('2.7.0')
+    unless apktool_version >= min_required_apktool_version
+      raise RuntimeError, "apktool version #{apktool_version} not supported, please download at least version #{min_required_apktool_version}."
     end
 
     #Create temporary directory where work will be done

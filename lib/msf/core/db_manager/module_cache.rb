@@ -23,7 +23,7 @@ module Msf::DBManager::ModuleCache
   # +'ILIKE'+
   #
   # @param values [Set<String>, #each] a list of strings.
-  # @return [Arrray<String>] strings wrapped like %<string>%
+  # @return [Array<String>] strings wrapped like %<string>%
   def match_values(values)
     values.collect { |value| "%#{value}%" }
   end

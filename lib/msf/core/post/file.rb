@@ -49,7 +49,7 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       session.fs.dir.chdir(e_path)
     elsif session.type == 'powershell'
-      cmd_exec("Set-Location -Path \"#{e_path}\"")
+      cmd_exec("Set-Location -Path \"#{e_path}\";[System.IO.Directory]::SetCurrentDirectory($(Get-Location))")
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
@@ -156,7 +156,7 @@ module Msf::Post::File
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
-        f = session.shell_command_token("test -d \"#{path}\" && echo true")
+        f = session.shell_command_token("test -d '#{path}' && echo true")
       end
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
@@ -305,7 +305,7 @@ module Msf::Post::File
       end
       return !!stat
     elsif session.type == 'powershell'
-      return cmd_exec("[System.IO.File]::Exists( \"#{path}\")")&.include?('True')
+      return cmd_exec("Test-Path \"#{path}\"")&.include?('True')
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -831,13 +831,14 @@ protected
   def _read_file_meterpreter(file_name)
     fd = session.fs.file.new(file_name, 'rb')
 
-    data = fd.read
+    data = ''.b
+    data << fd.read
     data << fd.read until fd.eof?
 
     data
   rescue EOFError
     # Sometimes fd isn't marked EOF in time?
-    ''
+    data
   rescue ::Rex::Post::Meterpreter::RequestError => e
     print_error("Failed to open file: #{file_name}: #{e}")
     return nil
@@ -1004,7 +1005,7 @@ protected
       # produces a 0-length string. Some also allow octal escapes
       # without a format string, and do not truncate, so start with
       # that and try %b if it doesn't work. The standalone version seems
-      # to be more likely to work than the buitin version, so try it
+      # to be more likely to work than the builtin version, so try it
       # first.
       #
       # Both of these work for sure on Linux and FreeBSD
@@ -1103,7 +1104,7 @@ protected
     token = "_#{::Rex::Text.rand_text_alpha(32)}"
     result = session.shell_command_token("#{cmd} && echo #{token}")
 
-    return result.include?(token)
+    return result&.include?(token)
   end
 
   #

@@ -167,6 +167,10 @@ require 'digest/sha1'
         return to_linux_aarch64_elf(framework, code)
       end
 
+      if plat.index(Msf::Module::Platform::OSX)
+        return to_osx_aarch64_macho(framework, code)
+      end
+
       # XXX: Add remaining AARCH64 systems here
     end
 
@@ -306,8 +310,8 @@ require 'digest/sha1'
     block = blocks.first
 
     # TODO: Allow the entry point in a different block
-    if payload.length + 256 > block[1]
-      raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+256} found:#{block[1]})"
+    if payload.length + 256 >= block[1]
+      raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+257} found:#{block[1]})"
     end
 
     # Make a copy of the entire .text section
@@ -328,8 +332,8 @@ require 'digest/sha1'
       poff += 256
       eidx = rand(poff-(entry.length + 5))
     else          # place the entry pointer after the payload
-      poff -= 256
-      eidx = rand(block[1] - (poff + payload.length)) + poff + payload.length
+      poff -= [256, poff].min
+      eidx = rand(block[1] - (poff + payload.length + 256)) + poff + payload.length
     end
 
     # Relative jump from the end of the nops to the payload
@@ -416,7 +420,7 @@ require 'digest/sha1'
       if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
         importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('V')[0]
         if (importsTable - addressOfEntryPoint) < code.length
-          #shift original entry point to prevent tables overwritting
+          #shift original entry point to prevent tables overwriting
           addressOfEntryPoint = importsTable - code.length + 4
 
           entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
@@ -630,7 +634,7 @@ require 'digest/sha1'
   # @option opts        [Boolean] :sub_method use substitution technique with a
   #                                service template PE
   # @option opts        [String] :servicename name of the service, not used in
-  #                               substituion technique
+  #                               substitution technique
   #
   # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts = {})
@@ -864,6 +868,25 @@ require 'digest/sha1'
     mo = self.get_file_contents(opts[:template])
     bo = self.find_payload_tag(mo, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag")
     mo[bo, code.length] = code
+    mo
+  end
+
+  # self.to_osx_aarch64_macho
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String]
+  def self.to_osx_aarch64_macho(framework, code, opts = {})
+
+    # Allow the user to specify their own template
+    set_template_default(opts, "template_aarch64_darwin.bin")
+
+    mo = self.get_file_contents(opts[:template])
+    bo = self.find_payload_tag(mo, "Invalid OSX Aarch64 Mach-O template: missing \"PAYLOAD:\" tag")
+    mo[bo, code.length] = code
+    Payload::MachO.new(mo).sign
     mo
   end
 
@@ -1604,7 +1627,7 @@ require 'digest/sha1'
   #   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
   #   random.
   # @option opts :extra_files [Array<String,String>] Additional files to add
-  #   to the archive. First elment is filename, second is data
+  #   to the archive. First element is filename, second is data
   #
   # @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
   #
@@ -1997,7 +2020,7 @@ require 'digest/sha1'
   # @param code [String] The shellcode for the resulting executable to run
   # @param fmt [String] One of the executable formats as defined in
   #   {.to_executable_fmt_formats}
-  # @param exeopts [Hash] Passed directly to the approrpriate method for
+  # @param exeopts [Hash] Passed directly to the appropriate method for
   #   generating an executable for the given +arch+/+plat+ pair.
   # @return [String] An executable appropriate for the given
   #   architecture/platform pair.
@@ -2138,6 +2161,8 @@ require 'digest/sha1'
           to_osx_arm_macho(framework, code, exeopts)
         when ARCH_PPC
           to_osx_ppc_macho(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_osx_aarch64_macho(framework, code, exeopts)
         end
       end
       fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho

@@ -236,4 +236,4 @@ ULONG NTAPI MyEtwEventWrite(
 	__in ULONG UserDataCount,
 	__in_ecount_opt(UserDataCount) PEVENT_DATA_DESCRIPTOR UserData);
 
-BOOL PatchEtw();
+BOOL PatchEtw(HANDLE pipe);

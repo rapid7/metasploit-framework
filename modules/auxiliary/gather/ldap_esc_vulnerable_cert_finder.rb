@@ -57,8 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   DACL_SECURITY_INFORMATION = 0x4
   SACL_SECURITY_INFORMATION = 0x8
 
-  def parse_dacl_or_sacl(acl)
-    flag_allowed_to_enroll = false
+  def parse_acl(acl)
     allowed_sids = []
     acl.aces.each do |ace|
       ace_header = ace[:header]
@@ -66,8 +65,8 @@ class MetasploitModule < Msf::Auxiliary
       if ace_body[:access_mask].blank?
         fail_with(Failure::UnexpectedReply, 'Encountered a DACL/SACL object without an access mask! Either data is an unrecognized type or we are reading it wrong!')
       end
-      ace_string = Rex::Proto::MsDtyp::MsDtypAceType.name(ace_header[:ace_type])
-      if ace_string.blank?
+      ace_type_name = Rex::Proto::MsDtyp::MsDtypAceType.name(ace_header[:ace_type])
+      if ace_type_name.blank?
         print_error("Skipping unexpected ACE of type #{ace_header[:ace_type]}. Either the data was read incorrectly or we currently don't support this type.")
         next
       end
@@ -78,21 +77,23 @@ class MetasploitModule < Msf::Auxiliary
 
       # To decode the ObjectType we need to do another query to CN=Configuration,DC=daforest,DC=com
       # and look at either schemaIDGUID or rightsGUID fields to see if they match this value.
-      next unless ace_body[:flags] && ace_body[:flags][:ace_object_type_present] == 1
+      if (object_type = ace_body[:object_type]) && !(object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
+        # If an object type was specified, only process the rest if it is one of these two (note that objects with no
+        # object types will be processed to make sure we can detect vulnerable templates post exploiting ESC4).
+        next
+      end
 
-      object_type = ace_body[:object_type]
+      # Skip entry if it is not related to an extended access control right, where extended access control right is
+      # described as ADS_RIGHT_DS_CONTROL_ACCESS in the ObjectType field of ACCESS_ALLOWED_OBJECT_ACE. This is
+      # detailed further at https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-access_allowed_object_ace
+      next unless (ace_body.access_mask.protocol & CONTROL_ACCESS) == CONTROL_ACCESS
 
-      if (ace_body.access_mask.protocol & CONTROL_ACCESS) != 0 && (object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
-        if ace_string.match(/DENIED/)
-          flag_allowed_to_enroll = false
-        elsif ace_string.match(/ALLOWED/)
-          flag_allowed_to_enroll = true
-          allowed_sids << ace_body[:sid].to_s
-        end
+      if ace_type_name.match(/ALLOWED/)
+        allowed_sids << ace_body[:sid].to_s
       end
     end
 
-    [flag_allowed_to_enroll, allowed_sids]
+    allowed_sids
   end
 
   def query_ldap_server(raw_filter, attributes, base_prefix: nil)
@@ -171,28 +172,26 @@ class MetasploitModule < Msf::Auxiliary
 
     if esc_entries.blank?
       print_warning("Couldn't find any vulnerable #{esc_name} templates!")
-    else
-      # Grab a list of certificates that contain vulnerable settings.
-      # Also print out the list of SIDs that can enroll in that server.
+      return
+    end
 
-      esc_entries.each do |entry|
-        flag_allowed_to_enroll = false # Reset the flag on each entry we parse.
+    # Grab a list of certificates that contain vulnerable settings.
+    # Also print out the list of SIDs that can enroll in that server.
+    esc_entries.each do |entry|
+      begin
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
+      rescue IOError => e
+        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
+      end
 
-        begin
-          security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
-        rescue IOError => e
-          fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
-        end
+      allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
+      next if allowed_sids.empty?
 
-        flag_allowed_to_enroll, allowed_sids = parse_dacl_or_sacl(security_descriptor.dacl) if security_descriptor.dacl
-        next unless flag_allowed_to_enroll
-
-        certificate_symbol = entry[:cn][0].to_sym
-        if @vuln_certificate_details.key?(certificate_symbol)
-          @vuln_certificate_details[certificate_symbol][:vulns] << esc_name
-        else
-          @vuln_certificate_details[certificate_symbol] = { vulns: [esc_name], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {} }
-        end
+      certificate_symbol = entry[:cn][0].to_sym
+      if @vuln_certificate_details.key?(certificate_symbol)
+        @vuln_certificate_details[certificate_symbol][:vulns] << esc_name
+      else
+        @vuln_certificate_details[certificate_symbol] = { vulns: [esc_name], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {} }
       end
     end
   end
@@ -314,15 +313,14 @@ class MetasploitModule < Msf::Auxiliary
       next if enrollment_ca_data.blank?
 
       enrollment_ca_data.each do |ca_server|
-        flag_allowed_to_enroll = false
         begin
           security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(ca_server[:ntsecuritydescriptor][0])
         rescue IOError => e
           fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
         end
 
-        flag_allowed_to_enroll, allowed_sids = parse_dacl_or_sacl(security_descriptor.dacl) if security_descriptor.dacl
-        next unless flag_allowed_to_enroll
+        allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
+        next if allowed_sids.empty?
 
         ca_server_key = ca_server[:dnshostname][0].to_sym
         unless @vuln_certificate_details[certificate_template][:ca_servers_n_enrollment_sids].key?(ca_server_key)

@@ -60,6 +60,7 @@ module Metasploit
               host: domain_controller_rhost,
               hostname: hostname,
               mssql_port: rport,
+              proxies: proxies,
               realm: domain_name,
               username: user,
               password: pass,

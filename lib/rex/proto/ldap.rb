@@ -1,8 +1,54 @@
 require 'net/ldap'
 require 'rex/socket'
 
-# Monkeypatch upstream library, for now
+#
+# This file monkeypatches the upstream net/ldap library to add support for the proxies datastore option,
+# supporting blocking synchronrous reads, and using a Rex Socket to work with Rex's Switchboard functionality
 # TODO: write a real LDAP client in Rex and migrate all consumers
+#
+
+# Update Net::LDAP's initialize and new_connection method to honor a tracking proxies setting
+class Net::LDAP
+  # Reference the old initialize method, and ensure `reload_lib -a` doesn't attempt to refine the method
+  alias_method :_old_initialize, :initialize unless defined?(_old_initialize)
+
+  # Orignal Source:
+  # https://github.com/ruby-ldap/ruby-net-ldap/blob/95cec3822cd2f60787971e19714f74fd5999595c/lib/net/ldap.rb#L548
+  # Additionally tracks proxies configuration, used when making a new_connection
+  def initialize(args = {})
+    _old_initialize(args)
+    @proxies = args[:proxies]
+  end
+
+  private
+
+  # Original source:
+  # https://github.com/ruby-ldap/ruby-net-ldap/blob/95cec3822cd2f60787971e19714f74fd5999595c/lib/net/ldap.rb#L1321
+  # Updated to include proxies configuration
+  def new_connection
+    connection = Net::LDAP::Connection.new \
+    :host                    => @host,
+    :port                    => @port,
+    :hosts                   => @hosts,
+    :encryption              => @encryption,
+    :instrumentation_service => @instrumentation_service,
+    :connect_timeout         => @connect_timeout,
+    # New:
+    :proxies                 => @proxies
+
+    # Force connect to see if there's a connection error
+    connection.socket
+    connection
+  rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT => e
+    @result = {
+      :resultCode   => 52,
+      :errorMessage => ResultStrings[ResultCodeUnavailable],
+    }
+    raise e
+  end
+end
+
+# Update Net::LDAP's initialize and new_connection method to honor a tracking proxies setting
 class Net::LDAP::Connection # :nodoc:
   module SynchronousRead
     # Read `length` bytes of data from the LDAP connection socket and
@@ -57,7 +103,7 @@ class Net::LDAP::Connection # :nodoc:
     yield self if block_given?
   end
 
-  # Monkeypatch upstream library for now to support :control
+  # Monkeypatch upstream library for now to support :controls
   # hash option in `args` so that we can provide controls within
   # searches. Needed so we can specify the LDAP_SERVER_SD_FLAGS_OID
   # flag for searches to prevent getting the SACL when querying for
@@ -282,6 +328,32 @@ class Net::LDAP::Connection # :nodoc:
       instrument "search_messages_unread.net_ldap_connection",
                  message_id: message_id, messages: messages
     end
+  end
+
+  # Another monkeypatch to support :controls
+  def modify(args)
+    modify_dn = args[:dn] or raise "Unable to modify empty DN"
+    ops = self.class.modify_ops args[:operations]
+
+    message_id = next_msgid
+    request    = [
+      modify_dn.to_ber,
+      ops.to_ber_sequence,
+    ].to_ber_appsequence(Net::LDAP::PDU::ModifyRequest)
+
+    controls = args.fetch(:controls, nil)
+    unless controls.nil?
+      controls = controls.to_ber_contextspecific(0)
+    end
+
+    write(request, controls, message_id)
+    pdu = queued_read(message_id)
+
+    if !pdu || pdu.app_tag != Net::LDAP::PDU::ModifyResponse
+      raise Net::LDAP::ResponseMissingOrInvalidError, "response missing or invalid"
+    end
+
+    pdu
   end
 end
 

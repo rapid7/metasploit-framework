@@ -87,7 +87,7 @@ module Rex
       web_vuln_info[:method] = form_info[:method]
       web_vuln_info[:params] = form_info[:params]
       web_vuln_info[:pname] = @state[:issue][:vuln_param]
-      web_vuln_info[:proof] = "" # TODO: pick this up from <Difference> maybe?
+      web_vuln_info[:proof] = "unknown" # TODO: pick this up from <Difference> maybe?
       web_vuln_info[:risk] = @state[:issue][:risk]
       web_vuln_info[:name] = @state[:issue]["IssueTypeID"]
       web_vuln_info[:category] = "imported"

@@ -5,7 +5,8 @@ require 'rubocop/cop/lint/module_disclosure_date_present'
 
 RSpec.describe RuboCop::Cop::Lint::ModuleDisclosureDatePresent do
   subject(:cop) { described_class.new(config) }
-  let(:config) { RuboCop::Config.new }
+  let(:empty_rubocop_config) { { } }
+  let(:config) { RuboCop::Config.new(empty_rubocop_config) }
 
   it 'accepts a DisclosureDate being present' do
     expect_no_offenses(<<~RUBY)

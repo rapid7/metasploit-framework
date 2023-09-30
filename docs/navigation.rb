@@ -1,7 +1,7 @@
 # This file maps the files within `metasploit-framework.wiki/` to the navigational menu
 # Modify this file to change the doc site's navigation/hierarchy
 
-# @param path [String] the prefix to remove from a string
+# @param prefix [String] The prefix to remove from a string
 # @return [proc<String, String>] When called with a string, the returned string has the prefix removed
 def without_prefix(prefix)
   proc { |value| value.sub(/^#{prefix}/, '') }
@@ -197,20 +197,26 @@ NAVIGATION_CONFIG = [
               {
                 path: 'ad-certificates/overview.md',
                 title: 'Overview',
-                nav_order: 0,
+                nav_order: 0
+              },
+              {
+                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
+                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit',
+                nav_order: 1
+              },
+              {
+                path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
+                title: 'Vulnerable cert finder',
+                nav_order: 2
+              },
+              {
+                path: '../../documentation/modules/auxiliary/admin/ldap/ad_cs_cert_template.md',
+                title: 'Manage certificate templates'
               },
               {
                 path: '../../documentation/modules/auxiliary/admin/dcerpc/icpr_cert.md',
                 title: 'Request certificates'
-              },
-              {
-                path: '../../documentation/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.md',
-                title: 'Vulnerable cert finder'
-              },
-              {
-                path: 'ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md',
-                title: 'Attacking AD CS ESC Vulnerabilities Using Metasploit'
-              },
+              }
             ]
           }
         ]
@@ -266,7 +272,7 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-msfvenom.md',
             nav_order: 7
-          },
+          }
         ]
       },
       {
@@ -297,6 +303,10 @@ NAVIGATION_CONFIG = [
             path: 'Metasploit-Database-Support.md',
             title: 'Database Support'
           },
+          {
+            path: 'How-To-Use-Plugins.md',
+            title: 'Metasploit Plugins',
+          }
         ]
       },
       {
@@ -527,6 +537,10 @@ NAVIGATION_CONFIG = [
                 path: 'How-to-use-command-stagers.md'
               },
               {
+                path: 'How-to-use-fetch-payloads.md',
+                title: 'How to use Fetch Payloads'
+              },
+              {
                 old_wiki_path: 'How-to-write-a-check()-method.md',
                 path: 'How-to-write-a-check-method.md'
               },
@@ -604,10 +618,6 @@ NAVIGATION_CONFIG = [
               {
                 path: 'How-to-use-the-Seh-mixin-to-exploit-an-exception-handler.md',
                 title: 'SEH Exploitation'
-              },
-              {
-                path: 'How-to-clean-up-files-using-FileDropper.md',
-                title: 'FileDropper'
               },
               {
                 path: 'How-to-use-PhpEXE-to-exploit-an-arbitrary-file-upload-bug.md',
@@ -694,6 +704,10 @@ NAVIGATION_CONFIG = [
               {
                 path: 'Using-ReflectiveDLL-Injection.md',
                 title: 'ReflectiveDLL Injection'
+              },
+              {
+                path: 'How-to-cleanup-after-module-execution.md',
+                title: 'Cleanup'
               },
             ]
           },

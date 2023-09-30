@@ -46,9 +46,8 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    winver = sysinfo['OS']
-
-    if winver =~ /2000/i
+    version = get_version_info
+    if version.build_number == Msf::WindowsVersion::Win2000
       print_error('Module not valid for Windows 2000')
       return
     end
@@ -66,7 +65,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    print_status("System Info - OS: #{winver}, Drive: #{drive}")
+    print_status("System Info - OS: #{version.product_name}, Drive: #{drive}")
     type = datastore['FILES']
     files = type.split(',')
     # To extract files from its IDs
@@ -106,7 +105,7 @@ class MetasploitModule < Msf::Post
 
   # Recover the content of the file/files requested
   def recover_file(offset, handle)
-    ra = file_system_features(handle)
+    file_system_features(handle)
     # Offset could be in a comma separated list of IDs
     0.upto(offset.size - 1) do |i|
       val = get_high_low_values(offset[i].to_i)
@@ -199,8 +198,8 @@ class MetasploitModule < Msf::Post
     log_cluster = datarun[-n_log_cluster..]
     offset = datarun[1..n_offset]
 
-    log_cluster << "\x00" if (log_cluster.size % 2 != 0)
-    offset << "\x00" if (offset.size % 2 != 0)
+    log_cluster << "\x00" if log_cluster.size.odd?
+    offset << "\x00" if offset.size.odd?
     # The logical cluster value could be negative so we need to get the 2 complement in those cases
     if log_cluster.size == 2
       int_log_cluster = log_cluster.unpack('v*')[0]

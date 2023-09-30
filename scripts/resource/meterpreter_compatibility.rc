@@ -1,4 +1,4 @@
-# Outputs the currently supported Meterpreter commands as JSON for the currently opened Meterpreter sessions
+# Outputs to STDOUT the currently supported Meterpreter commands as JSON for the currently opened Meterpreter sessions
 # Usage:
 # msf> resource scripts/resource/meterpreter_compatibility.rc
 
@@ -9,10 +9,12 @@ require 'json'
 framework.sessions.values.map do |session|
   next unless session.type == 'meterpreter'
 
-  Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |extension_name|
+  Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.sort.each do |extension_name|
+    puts "[#{Time.now}][#{extension_name}] Starting to loading extension"
     session.core.use(extension_name)
+    puts "[#{Time.now}][#{extension_name}] Loaded extension"
   rescue ::RuntimeError
-    puts "failed loading #{extension_name}"
+    puts "[#{Time.now}][#{extension_name}] Failed loading"
     # noop
   end
 end
@@ -40,5 +42,6 @@ result = {
   sessions: session_data
 }
 
+puts "[#{Time.now}] Generating result:"
 puts JSON.fast_generate(result)
 </ruby>

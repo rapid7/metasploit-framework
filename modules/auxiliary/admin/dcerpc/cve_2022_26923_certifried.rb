@@ -44,8 +44,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Notes' => {
           'AKA' => [ 'Certifried' ],
-          'Reliability' => [CRASH_SAFE],
-          'Stability' => [],
+          'Reliability' => [],
+          'Stability' => [CRASH_SAFE],
           'SideEffects' => [ IOC_IN_LOGS ]
         },
         'Actions' => [

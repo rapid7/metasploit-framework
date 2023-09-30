@@ -20,8 +20,10 @@ class Client
 
   #
   # Creates a new client instance
+  # @param http_trace_proc_request [Proc] A proc object passed to log HTTP requests if HTTP-Trace is set
+  # @param http_trace_proc_response [Proc] A proc object passed to log HTTP responses if HTTP-Trace is set
   #
-  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', kerberos_authenticator: nil, comm: nil)
+  def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', kerberos_authenticator: nil, comm: nil, subscriber: nil)
     self.hostname = host
     self.port     = port.to_i
     self.context  = context
@@ -32,7 +34,8 @@ class Client
     self.password = password
     self.kerberos_authenticator = kerberos_authenticator
     self.comm = comm
-
+    self.subscriber = subscriber || HttpSubscriber.new
+    
     # Take ClientRequest's defaults, but override with our own
     self.config = Http::ClientRequest::DefaultConfig.merge({
       'read_max_data'   => (1024*1024*1),
@@ -229,12 +232,13 @@ class Client
   # @return (see #read_response)
   def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
+    subscriber.on_request(req)
     if req.respond_to?(:opts) && req.opts['ntlm_transform_request'] && self.ntlm_client
       req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
     elsif req.respond_to?(:opts) && req.opts['krb_transform_request'] && self.krb_encryptor
       req = req.opts['krb_transform_request'].call(self.krb_encryptor, req)
     end
-
+    
     send_request(req, t)
 
     res = read_response(t, :original_request => req)
@@ -245,6 +249,7 @@ class Client
     end
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
+    subscriber.on_response(res)
     res
   end
 
@@ -748,7 +753,7 @@ class Client
     end
     nil
   end
-
+  
   #
   # An optional comm to use for creating the underlying socket.
   #
@@ -791,6 +796,9 @@ class Client
 
   # When parsing the request, thunk off the first response from the server, since junk
   attr_accessor :junk_pipeline
+
+  # @return [Rex::Proto::Http::HttpSubscriber] The HTTP subscriber
+  attr_accessor :subscriber
 
 protected
 

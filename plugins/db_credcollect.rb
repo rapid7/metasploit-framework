@@ -101,7 +101,7 @@ module Msf
     end
 
     def desc
-      'Automatically grabs hashes and tokens from meterpreter session events and stores them in the db'
+      'Automatically grab hashes and tokens from Meterpreter session events and store them in the database'
     end
 
   end

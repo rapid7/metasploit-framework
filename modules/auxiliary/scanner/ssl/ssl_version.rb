@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       return Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse
     end
 
-    datastore['SSLVersion']
+    [datastore['SSLVersion']]
   end
 
   def get_metasploit_ssl_cipher_suites(ssl_version)

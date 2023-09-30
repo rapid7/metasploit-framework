@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'MSDN', 'http://msdn.microsoft.com/en-us/library/dd891255(prot.20).aspx'],
+          [ 'URL', 'http://msdn.microsoft.com/en-us/library/dd891255(prot.20).aspx'],
           [ 'URL', 'http://rewtdance.blogspot.com/2012/11/windows-deployment-services-clear-text.html']
         ],
       ))

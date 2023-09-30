@@ -128,3 +128,27 @@ end
 ```
 
 Another possible way to inspect is grab the vulnerable file, and use Metasm. But of course, this is a lot slower and generates more network traffic.
+
+
+## AutoCheck Mixin
+
+Metasploit offers the possibility to automatically call the `check` method before the `exploit` or `run` method is run. Just prepend the `AutoCheck` module for this, nothing more:
+
+```ruby
+  prepend Msf::Exploit::Remote::AutoCheck
+```
+
+According to the `CheckCode` returned by the `check` method, Framework will decided if the module should be executed or not:
+
+| Checkcode | Module executed? |
+| --------- | ----------- |
+| **Exploit::CheckCode::Vulnerable** | yes |
+| **Exploit::CheckCode::Appears** | yes |
+| **Exploit::CheckCode::Detected** | yes |
+| **Exploit::CheckCode::Safe** | no |
+| **Exploit::CheckCode::Unsupported** | no |
+| **Exploit::CheckCode::Unknown** | no |
+
+This mixin brings two new options that let the operator control its behavior:
+- `AutoCheck`: Sets whether or not the `check` method will be run. Default is `true`.
+- `ForceExploit`: Override the check result. The `check` method is run but the module will be executed regardless of the result. Default is `false`.

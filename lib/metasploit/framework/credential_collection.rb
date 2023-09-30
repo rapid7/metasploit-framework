@@ -113,6 +113,7 @@ module Metasploit::Framework
           pass_from_file.chomp!
           yield Metasploit::Framework::Credential.new(private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
         end
+        pass_fd.seek(0)
       end
       additional_privates.each do |add_private|
         yield Metasploit::Framework::Credential.new(private: add_private, realm: realm, private_type: private_type(add_private))
@@ -243,6 +244,7 @@ module Metasploit::Framework
             pass_from_file.chomp!
             yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
           end
+          pass_fd.seek(0)
         end
         additional_privates.each do |add_private|
           yield Metasploit::Framework::Credential.new(public: username, private: add_private, realm: realm, private_type: private_type(add_private))

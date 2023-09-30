@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'metasploit/framework/hashes'
-
 module Msf
   ###
   #
@@ -129,7 +127,7 @@ module Msf
           cred[:username] = name
           cred[:private_data] = hash
 
-          if framework.db.active          
+          if framework.db.active
             create_credential_and_login(cred)
           end
           print_good(output)

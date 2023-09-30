@@ -159,8 +159,9 @@ module Metasploit
             yield result if block_given?
           end
 
-          shutdown_socket
           nil
+        ensure
+          shutdown_socket
         end
 
         # Queue up and possibly send any requests, based on the queue limit and final flag

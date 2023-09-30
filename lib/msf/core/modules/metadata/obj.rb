@@ -36,7 +36,7 @@ class Obj
   attr_reader :autofilter_ports
   # @return [Array<String>]
   attr_reader :autofilter_services
-  # @return [Array<String>]
+  # @return [Array<String>, nil]
   attr_reader :targets
   # @return [Time]
   attr_reader :mod_time
@@ -56,6 +56,18 @@ class Obj
   attr_reader :notes
   # @return [Array<String>]
   attr_reader :session_types
+  # @return [Integer] The type of payload, e.g. Single, Stager, Adapter
+  attr_reader :payload_type
+  # @return [String, nil] Name of the adapter if applicable
+  attr_reader :adapter_refname
+  # @return [String, nil] Name of the adapted payload if applicable
+  attr_reader :adapted_refname
+  # @return [Boolean] Whether or not the payload is staged
+  attr_reader :staged
+  # @return [String, nil] Name of the stage if applicable
+  attr_reader :stage_refname
+  # @return [String, nil] Name of the stager if applicable
+  attr_reader :stager_refname
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -110,6 +122,19 @@ class Obj
 
     @session_types = module_instance.respond_to?(:session_types) && module_instance.session_types
 
+    if module_instance.respond_to?(:payload_type)
+      @payload_type = module_instance.payload_type
+      @staged = module_instance.staged?
+    end
+    if @staged
+      @stage_refname = module_instance.stage_refname
+      @stager_refname = module_instance.stager_refname
+    end
+    if @payload_type == Payload::Type::Adapter
+      @adapter_refname = module_instance.adapter_refname
+      @adapted_refname = module_instance.adapted_refname
+    end
+
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(::Encoding::UTF_8)
   end
@@ -118,7 +143,7 @@ class Obj
   # Returns the JSON representation of the module metadata
   #
   def to_json(*args)
-    {
+    data = {
       'name'               => @name,
       'fullname'           => @fullname,
       'aliases'            => @aliases,
@@ -143,8 +168,23 @@ class Obj
       'default_credential' => @default_credential,
       'notes'              => @notes,
       'session_types'      => @session_types,
-      'needs_cleanup'      => @needs_cleanup
-    }.to_json(*args)
+      'needs_cleanup'      => @needs_cleanup,
+    }
+
+    if @payload_type
+      payload_data = {
+        'payload_type'       => @payload_type,
+        'adapter_refname'    => @adapter_refname,
+        'adapted_refname'    => @adapted_refname,
+        'adapted'            => @adapted,
+        'staged'             => @staged,
+        'stage_refname'      => @stage_refname,
+        'stager_refname'     => @stager_refname,
+      }.compact
+      data.merge!(payload_data)
+    end
+
+    data.to_json(*args)
   end
 
   #
@@ -171,30 +211,37 @@ class Obj
   #######
 
   def init_from_hash(obj_hash)
-    @name               = obj_hash['name']
-    @fullname           = obj_hash['fullname']
-    @aliases            = obj_hash['aliases'] || []
-    @disclosure_date    = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
-    @rank               = obj_hash['rank']
-    @type               = obj_hash['type']
-    @description        = obj_hash['description']
-    @author             = obj_hash['author'].nil? ? [] : obj_hash['author']
-    @references         = obj_hash['references']
-    @platform           = obj_hash['platform']
-    @arch               = obj_hash['arch']
-    @rport              = obj_hash['rport']
-    @mod_time           = Time.parse(obj_hash['mod_time'])
-    @ref_name           = obj_hash['ref_name']
-    @path               = obj_hash['path']
-    @is_install_path    = obj_hash['is_install_path']
-    @targets            = obj_hash['targets'].nil? ? [] : obj_hash['targets']
-    @check              = obj_hash['check'] ? true : false
-    @post_auth          = obj_hash['post_auth']
-    @default_credential = obj_hash['default_credential']
-    @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
-    @needs_cleanup      = obj_hash['needs_cleanup']
-    @session_types      = obj_hash['session_types']
-
+    @name                = obj_hash['name']
+    @fullname            = obj_hash['fullname']
+    @aliases             = obj_hash['aliases'] || []
+    @disclosure_date     = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
+    @rank                = obj_hash['rank']
+    @type                = obj_hash['type']
+    @description         = obj_hash['description']
+    @author              = obj_hash['author'].nil? ? [] : obj_hash['author']
+    @references          = obj_hash['references']
+    @platform            = obj_hash['platform']
+    @arch                = obj_hash['arch']
+    @rport               = obj_hash['rport']
+    @mod_time            = Time.parse(obj_hash['mod_time'])
+    @ref_name            = obj_hash['ref_name']
+    @path                = obj_hash['path']
+    @is_install_path     = obj_hash['is_install_path']
+    @targets             = obj_hash['targets']
+    @check               = obj_hash['check'] ? true : false
+    @post_auth           = obj_hash['post_auth']
+    @default_credential  = obj_hash['default_credential']
+    @notes               = obj_hash['notes'].nil? ? {} : obj_hash['notes']
+    @needs_cleanup       = obj_hash['needs_cleanup']
+    @session_types       = obj_hash['session_types']
+    @autofilter_ports    = obj_hash['autofilter_ports']
+    @autofilter_services = obj_hash['autofilter_services']
+    @payload_type        = obj_hash['payload_type']
+    @adapter_refname     = obj_hash['adapter_refname']
+    @adapted_refname     = obj_hash['adapted_refname']
+    @staged              = obj_hash['staged']
+    @stage_refname       = obj_hash['stage_refname']
+    @stager_refname      = obj_hash['stager_refname']
   end
 
   def sort_platform_string

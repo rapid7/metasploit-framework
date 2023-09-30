@@ -9,6 +9,7 @@ require 'module_test'
 class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
+  include Msf::ModuleTest::PostTestFileSystem
   include Msf::Post::Common
   include Msf::Post::File
 
@@ -20,16 +21,9 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test Post::File API methods },
         'License' => MSF_LICENSE,
         'Author' => [ 'egypt' ],
-        'Platform' => [ 'windows', 'linux', 'java' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'Platform' => [ 'windows', 'linux', 'unix', 'java', 'osx' ],
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ]
       )
-    )
-
-    register_options(
-      [
-        OptString.new('BaseDirectoryName', [true, 'Directory name to create', 'test-dir']),
-        OptString.new('BaseFileName', [true, 'File name to create', 'test-file'])
-      ], self.class
     )
   end
 
@@ -39,11 +33,12 @@ class MetasploitModule < Msf::Post
   # The +cleanup+ method will change it back
   #
   def setup
-    @old_pwd = pwd
-    tmp = directory?('/tmp') ? '/tmp' : '%TEMP%'
-    vprint_status("Setup: changing working directory to #{tmp}")
-    cd(tmp)
+    push_test_directory
+    super
+  end
 
+  def cleanup
+    pop_test_directory
     super
   end
 
@@ -148,7 +143,7 @@ class MetasploitModule < Msf::Post
       f = read_file(datastore['BaseFileName'])
       ret = (f == 'foo')
       unless ret
-        print_error("Didn't read what we wrote, actual file on target: |#{f}|")
+        vprint_status("Didn't read what we wrote, actual file on target: |#{f.inspect}| - #{f.bytes.inspect}")
       end
 
       ret
@@ -163,7 +158,7 @@ class MetasploitModule < Msf::Post
       final_contents = read_file(datastore['BaseFileName'])
       ret &&= final_contents == 'foobarbaz'
       unless ret
-        print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
+        vprint_status("Didn't read what we wrote, actual file on target: |#{file_contents.inspect}| - #{file_contents.bytes.inspect}")
       end
 
       ret
@@ -212,8 +207,9 @@ class MetasploitModule < Msf::Post
 
   def test_binary_files
     # binary_data = ::File.read("/bin/ls")
-    binary_data = ::File.read('/bin/echo')
+    # binary_data = ::File.read('/bin/echo')
     # binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
+    binary_data = ((0..255).to_a * 500).shuffle.pack("c*")
     it 'should write binary data' do
       vprint_status "Writing #{binary_data.length} bytes"
       t = Time.now
@@ -226,7 +222,7 @@ class MetasploitModule < Msf::Post
 
     it 'should read the binary data we just wrote' do
       bin = read_file(datastore['BaseFileName'])
-      vprint_status "Read #{bin.length} bytes"
+      vprint_status "Read #{bin.length} bytes" if bin
 
       bin == binary_data
     end
@@ -243,7 +239,12 @@ class MetasploitModule < Msf::Post
       bin = read_file(datastore['BaseFileName'])
       rm_f(datastore['BaseFileName'])
 
-      bin == "\xde\xad\xbe\xef"
+      test_string = "\xde\xad\xbe\xef"
+
+      vprint_status "expected: #{test_string.bytes} - #{test_string.encoding}"
+      vprint_status "actual: #{bin.bytes} - #{bin.encoding}"
+
+      bin == test_string
     end
   end
 
@@ -283,15 +284,9 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def cleanup
-    vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
-    cd(@old_pwd)
-    super
-  end
-
   def make_symlink(target, symlink)
     if session.platform == 'windows'
-      cmd_exec("cmd.exe /c mklink #{directory?(target) ? '/D ' : ''}#{symlink} #{target}")
+      cmd_exec("cmd.exe", "/c mklink #{directory?(target) ? '/D ' : ''}#{symlink} #{target}")
     else
       cmd_exec("ln -s $(pwd)/#{target} $(pwd)/#{symlink}")
     end

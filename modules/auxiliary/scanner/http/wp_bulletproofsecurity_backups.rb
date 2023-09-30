@@ -4,7 +4,6 @@
 ##
 
 require 'rex/zip'
-require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress

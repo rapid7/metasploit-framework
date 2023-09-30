@@ -42,22 +42,24 @@ class MetasploitModule < Msf::Auxiliary
     endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
     opts = {
       endpoint: endpoint,
-        host: rhost,
-        port: rport,
-        uri: uri,
-        ssl: ssl,
-        transport: :rexhttp,
-        no_ssl_peer_verification: true,
-        operation_timeout: 1,
-        timeout: 20,
-        retry_limit: 1,
-        realm: datastore['DOMAIN']
+      host: rhost,
+      port: rport,
+      proxies: datastore['Proxies'],
+      uri: uri,
+      ssl: ssl,
+      transport: :rexhttp,
+      no_ssl_peer_verification: true,
+      operation_timeout: 1,
+      timeout: 20,
+      retry_limit: 1,
+      realm: datastore['DOMAIN']
     }
     case datastore['Winrm::Auth']
     when Msf::Exploit::Remote::AuthOption::KERBEROS
       kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
         host: datastore['DomainControllerRhost'],
         hostname: datastore['Winrm::Rhostname'],
+        proxies: datastore['proxies'],
         realm: datastore['DOMAIN'],
         username: datastore['USERNAME'],
         password: datastore['PASSWORD'],

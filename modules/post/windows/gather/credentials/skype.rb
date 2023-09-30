@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'References' => [
           ['URL', 'http://www.recon.cx/en/f/vskype-part2.pdf'],
-          ['URL', 'http://insecurety.net/?p=427'],
+          ['URL', 'https://web.archive.org/web/20140207115406/http://insecurety.net/?p=427'],
           ['URL', 'https://github.com/skypeopensource/tools']
         ],
         'Compat' => {

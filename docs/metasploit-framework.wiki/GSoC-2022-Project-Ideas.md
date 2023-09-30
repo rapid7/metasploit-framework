@@ -1,6 +1,6 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @zerosteiner, @jmartin-r7, @gwillcox-r7
+Mentors: [@zerosteiner](https://github.com/zerosteiner), [@jmartin-r7](https://github.com/jmartin-r7), [@gwillcox-r7](https://github.com/gwillcox-r7)
 
 Slack Contacts: @zeroSteiner, @Op3n4M3, @gwillcox-r7 on [Metasploit Slack](https://metasploit.slack.com/)
 

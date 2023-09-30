@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Encoder
     return buf if state.badchars !~ /\s/
 
     # Perform brace expansion encoding
-    "{#{buf.gsub(',', '\\,').gsub(/\s+/, ',')}}"
+    "{#{buf.gsub(/([{,}])/, '\\\\\1').gsub(/\s+/, ',')}}"
   end
 
 end

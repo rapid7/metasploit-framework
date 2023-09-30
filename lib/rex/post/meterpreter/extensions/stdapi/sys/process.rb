@@ -337,11 +337,16 @@ class Process < Rex::Post::Process
 
   def self.finalize(client, handle)
     proc do
-      begin
-        self.close(client, handle)
-      rescue => e
-        elog("finalize method for Process failed", error: e)
+      deferred_close_proc = proc do
+        begin
+          self.close(client, handle)
+        rescue => e
+          elog("finalize method for Process failed", error: e)
+        end
       end
+
+      # Schedule the finalizing logic out-of-band; as this logic might be called in the context of a Signal.trap, which can't synchronize mutexes
+      client.framework.sessions.schedule(deferred_close_proc)
     end
   end
 
@@ -366,7 +371,7 @@ class Process < Rex::Post::Process
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_CLOSE)
     request.add_tlv(TLV_TYPE_HANDLE, handle)
     client.send_request(request, nil)
-    handle = nil;
+    handle = nil
     return true
   end
 

@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe Msf::Post::Windows::TaskScheduler do
-
   let(:task_name) { Rex::Text.rand_text_alpha(rand(8)) }
   let(:datastore) do
     {
@@ -145,13 +144,12 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
     context 'on older Windows' do
       it 'executes the expected command to query a task' do
         subject.instance_variable_set(:@old_os, true)
-        cmd = "schtasks /query /v /fo csv"
+        cmd = 'schtasks /query /v /fo csv'
         expect(subject).to receive(:schtasks_exec).with(cmd, with_result: true)
         subject.task_query(task_name)
       end
     end
   end
-
 
   #
   # Private methods
@@ -160,7 +158,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
   describe '#check_compatibility' do
     context 'with Windows XP SP2' do
       before :example do
-        allow(subject).to receive(:sysinfo).and_return( { 'OS' => "Windows XP (5.1 Build 2600, Service Pack 2)." } )
+        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(5, 1, 2600, 2, 0, Msf::WindowsVersion::VER_NT_WORKSTATION))
       end
       it 'sets `@old_schtasks` and `@old_os` to true' do
         subject.send(:check_compatibility)
@@ -171,7 +169,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
     context 'with Windows Server 2003 SP2' do
       before :example do
-        allow(subject).to receive(:sysinfo).and_return( { 'OS' => "Windows .NET Server (5.2 Build 3790, Service Pack 2)." } )
+        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(5, 2, 3790, 2, 0, Msf::WindowsVersion::VER_NT_SERVER))
       end
       it 'sets `@old_schtasks` to false and `@old_os` to true' do
         subject.send(:check_compatibility)
@@ -182,7 +180,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
     context 'with Windows Server 2016' do
       before :example do
-        allow(subject).to receive(:sysinfo).and_return( { 'OS' => "Windows 2016+ (10.0 Build 14393)." } )
+        allow(subject).to receive(:get_version_info).and_return(Msf::WindowsVersion.new(10, 0, 14393, 0, 0, Msf::WindowsVersion::VER_NT_SERVER))
       end
       it 'sets `@old_schtasks` and `@old_os` to false' do
         subject.send(:check_compatibility)
@@ -195,7 +193,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
   describe '#log_and_print' do
     let(:msg) { double('log message') }
     before :example do
-      mock_methods = [ :vprint_status, :vprint_good, :vprint_error, :dlog, :ilog, :wlog, :elog ]
+      mock_methods = %i[vprint_status vprint_good vprint_error dlog ilog wlog elog]
       mock_methods.each { |meth| allow(subject).to receive(meth) }
     end
 
@@ -249,7 +247,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       it 'returns the expected command string' do
         cmd_in = %w[/test /flag1 value1]
         cmd_out = "schtasks #{cmd_in.join(' ')}"
-        expect(subject.send(:get_schtasks_cmd_string, cmd_in)). to eq(cmd_out)
+        expect(subject.send(:get_schtasks_cmd_string, cmd_in)).to eq(cmd_out)
       end
     end
 
@@ -264,7 +262,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       it 'returns the expected command string' do
         cmd_in = %w[/test /flag1 value1]
         cmd_out = "schtasks #{cmd_in.join(' ')} /s 1.2.3.4 /u msfuser /p msfpasswd"
-        expect(subject.send(:get_schtasks_cmd_string, cmd_in)). to eq(cmd_out)
+        expect(subject.send(:get_schtasks_cmd_string, cmd_in)).to eq(cmd_out)
       end
     end
 
@@ -279,11 +277,10 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       it 'returns the expected command string' do
         cmd_in = %w[/test /flag1 value1]
         cmd_out = "schtasks #{cmd_in.join(' ')} /s 1.2.3.4 /u msfuser /p msfpasswd"
-        expect(subject.send(:get_schtasks_cmd_string, cmd_in, opts)). to eq(cmd_out)
+        expect(subject.send(:get_schtasks_cmd_string, cmd_in, opts)).to eq(cmd_out)
       end
     end
   end
-
 
   describe '#schtasks_exec' do
     let(:result) { [ Rex::Text.rand_text_alpha(rand(8)), true ] }
@@ -371,7 +368,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
   describe '#task_info_field' do
     let(:task_name) { 'fzuZbSwfXc' }
-    let(:task_info) {
+    let(:task_info) do
       info = '"HostName","TaskName","Next Run Time","Status","Logon Mode","Last Run Time","Last Result","Author",'\
              '"Task To Run","Start In","Comment","Scheduled Task State","Idle Time","Power Management","Run As User",'\
              '"Delete Task If Not Rescheduled","Stop Task If Runs X Hours and X Mins","Schedule","Schedule Type",'\
@@ -384,7 +381,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
               'Batteries","SYSTEM","Disabled","72:00:00","Scheduling data is not available in this format.","One Time '\
               'Only","12:00:00 AM","5/10/2020","N/A","N/A","N/A","Disabled","Disabled","Disabled","Disabled"'
       info
-    }
+    end
     let(:key) { 'Task To Run' }
     let(:result) { 'reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\DGvtFiFtnZQVmtY" /v "SD"' }
 
@@ -566,7 +563,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
       context 'when the `ScheduleRemoteSystem` datastore option is set' do
         before :example do
-          datastore.merge!( { 'ScheduleRemoteSystem' => '1.2.3.4' } )
+          datastore.merge!({ 'ScheduleRemoteSystem' => '1.2.3.4' })
         end
 
         it 'executes the expected command' do
@@ -581,7 +578,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       context 'when the `:remote_system` hash option is passed as argument' do
         it 'executes the expected command' do
           expect(subject).to receive(:run_one_off_task).with(cmd, check_success: true)
-          subject.send(:reg_key_value_exists?, reg_key, reg_value, {remote_system: '1.2.3.4'})
+          subject.send(:reg_key_value_exists?, reg_key, reg_value, { remote_system: '1.2.3.4' })
         end
       end
     end
@@ -645,7 +642,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
       context 'when the `ScheduleRemoteSystem` datastore option is set' do
         it 'executes the expected command' do
-          datastore.merge!( { 'ScheduleRemoteSystem' => '1.2.3.4' } )
+          datastore.merge!({ 'ScheduleRemoteSystem' => '1.2.3.4' })
           expect(subject).to receive(:run_one_off_task).with(cmd)
           subject.send(:delete_reg_key_value, reg_key, reg_value)
         end
@@ -654,7 +651,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       context 'when the `:remote_system` hash option is passed as argument' do
         it 'executes the expected command' do
           expect(subject).to receive(:run_one_off_task).with(cmd)
-          subject.send(:delete_reg_key_value, reg_key, reg_value, {remote_system: '1.2.3.4'})
+          subject.send(:delete_reg_key_value, reg_key, reg_value, { remote_system: '1.2.3.4' })
         end
       end
     end
@@ -697,14 +694,14 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       context 'when the :override option is set to false' do
         it 'does not override it' do
           expect(subject).to_not receive(:cmd_exec_with_result)
-          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, {override: false})
+          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, { override: false })
         end
       end
 
       context 'when the :override option is set to true' do
         it 'overrides it' do
           expect(subject).to receive(:cmd_exec_with_result).and_return(['', true])
-          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, {override: true})
+          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, { override: true })
         end
       end
     end
@@ -738,7 +735,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
 
       context 'when the `ScheduleRemoteSystem` datastore option is set' do
         it 'executes the expected command' do
-          datastore.merge!( { 'ScheduleRemoteSystem' => '1.2.3.4' } )
+          datastore.merge!({ 'ScheduleRemoteSystem' => '1.2.3.4' })
           expect(subject).to receive(:run_one_off_task).with(cmd)
           subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type)
         end
@@ -747,10 +744,9 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       context 'when the `:remote_system` hash option is passed as argument' do
         it 'executes the expected command' do
           expect(subject).to receive(:run_one_off_task).with(cmd)
-          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, {remote_system: '1.2.3.4'})
+          subject.send(:add_reg_key_value, reg_key, reg_value, reg_data, reg_type, { remote_system: '1.2.3.4' })
         end
       end
     end
   end
 end
-

@@ -62,13 +62,13 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    wver = sysinfo['OS']
-    if wver !~ /Windows XP|Windows .NET|Windows 2003/
-      print_error("#{wver} is not supported")
+    version = get_version_info
+    unless version.build_number.between?(Msf::WindowsVersion::XP_SP0, Msf::WindowsVersion::Server2003_SP2)
+      print_error("#{version.product_name} is not supported")
       return
     end
 
-    print_status("Target OS is #{wver}")
+    print_status("Target OS is #{version.product_name}")
     names_key = registry_enumkeys(reg_key + '\\Names')
     unless names_key
       print_error("Couldn't access registry keys")

@@ -1,0 +1,2 @@
+This is where all of the libraries and mixins of Metasploit live. Generally speaking any code that will be reused
+across multiple modules will be placed into a library or mixin which will then be placed under this folder.

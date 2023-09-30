@@ -81,7 +81,7 @@ class Form < Fuzzable
   end
 
   #
-  # Hash of params to be submited (derived by #inputs)
+  # Hash of params to be submitted (derived by #inputs)
   #
   # Examples
   #
@@ -174,7 +174,7 @@ class Form < Fuzzable
   #
   # Update the form inputs.
   #
-  # field -   Field name as a Sting (updated if already exists, created otherwise).
+  # field -   Field name as a String (updated if already exists, created otherwise).
   # value -   Field Value as a String.
   # type -    Field type ('text' if no type has been provided).
   #
@@ -195,7 +195,7 @@ class Form < Fuzzable
   #
   # Get a field type, by name, as a String.
   #
-  # field -   Field name as a Sting
+  # field -   Field name as a String
   #
   def field_type_for( name )
     inputs.select{ |i| i[:name] == name.to_s }[:type]

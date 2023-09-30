@@ -12,6 +12,7 @@ RSpec.describe "Metasploit's json-rpc" do
   include_context 'Msf::DBManager'
   include_context 'Metasploit::Framework::Spec::Constants cleaner'
   include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
+  include_context 'wait_for_expect'
 
   let(:health_check_url) { '/api/v1/health' }
   let(:rpc_url) { '/api/v1/json-rpc' }
@@ -119,28 +120,6 @@ RSpec.describe "Metasploit's json-rpc" do
         mock_rack_env_value
       else
         original_env[key]
-      end
-    end
-  end
-
-  # Waits until the given expectations are all true. This function executes the given block,
-  # and if a failure occurs it will be retried `retry_count` times before finally failing.
-  # This is useful to expect against asynchronous/eventually consistent systems.
-  #
-  # @param retry_count [Integer] The total amount of times to retry the given expectation
-  # @param sleep_duration [Integer] The total amount of time to sleep before trying again
-  def wait_for_expect(retry_count = 20, sleep_duration = 0.5)
-    failure_count = 0
-
-    begin
-      yield
-    rescue RSpec::Expectations::ExpectationNotMetError
-      failure_count += 1
-      if failure_count < retry_count
-        sleep sleep_duration
-        retry
-      else
-        raise
       end
     end
   end
@@ -315,8 +294,7 @@ RSpec.describe "Metasploit's json-rpc" do
 
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do
-          res = nil
-          res.body
+          raise 'Unexpected module error'
         end
       end
 
@@ -337,7 +315,7 @@ RSpec.describe "Metasploit's json-rpc" do
         expected_error_response = {
           result: {
             status: 'errored',
-            error: "undefined method `body' for nil:NilClass"
+            error: "Unexpected module error"
           }
         }
         expect(last_json_response).to include(expected_error_response)
@@ -592,7 +570,7 @@ RSpec.describe "Metasploit's json-rpc" do
               host: host_ip,
               analyze_options: {
                 payloads: [
-                  'java/meterpreter/reverse_http'
+                  'windows/meterpreter_reverse_http'
                 ]
               }
             }

@@ -97,12 +97,12 @@ class Core
     ["-d", "--delete-all"]     => [ false, "Delete saved options for all modules from the config file."                     ])
 
   # set command options
-  @@set_opts = Rex::Parser::Arguments.new(
+  @@setg_opts = Rex::Parser::Arguments.new(
     ["-h", "--help"] => [ false, "Help banner."],
     ["-c", "--clear"] => [ false, "Clear the values, explicitly setting to nil (default)"]
   )
 
-  @@set_opts = Rex::Parser::Arguments.new(
+  @@set_opts = @@setg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
 
@@ -111,7 +111,6 @@ class Core
     ["-h", "--help"] => [ false, "Help banner."],
   )
 
-  # unset command options
   @@unset_opts = @@unsetg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
@@ -261,7 +260,6 @@ class Core
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
 
     banner << "\n"
-    banner << Rex::Text.wordwrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
     banner << Rex::Text.wordwrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
 
     # Display the banner
@@ -968,7 +966,7 @@ class Core
       items = Dir.entries(plugin_directory).keep_if { |n| n.match(/^.+\.rb$/)}
       next if items.empty?
       print_status("Available #{type} plugins:")
-      items.each do |item|
+      items.sort.each do |item|
         print_line("    * #{item.split('.').first}")
       end
       print_line
@@ -1936,8 +1934,7 @@ class Core
       message = "Unknown datastore option: #{name}."
       suggestion = DidYouMean::SpellChecker.new(dictionary: valid_options).correct(name).first
       message << " Did you mean #{suggestion}?" if suggestion
-      print_error(message)
-      return false
+      print_warning(message)
     end
 
     # If the driver indicates that the value is not valid, bust out.
@@ -1997,13 +1994,25 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   def cmd_set_tabs(str, words)
     # A value has already been specified
-    return [] if words.length > 2
-
-    # A value needs to be specified
-    if words.length == 2
-      return tab_complete_option_values(active_module, str, words, opt: words[1])
+    if words.length > 3
+      return []
+    elsif words.length == 3 and words[1] != '-g' and words[1] != '--global'
+      return []
     end
-    tab_complete_option_names(active_module, str, words)
+
+    # A value needs to be specified, show tab completion options where possible
+    if words.length == 3 or (words.length == 2 and words[1][0] != '-')
+      return tab_complete_option_values(active_module, str, words, opt: words[-1])
+    end
+
+    option_names = tab_complete_option_names(active_module, str, words)
+    if words.length == 1
+      # Only the command has been provided, offer options which immediately follow the command
+      options = @@set_opts.option_keys.select { |opt| opt.start_with?(str) }
+      return options + option_names
+    end
+
+    option_names
   end
 
   def cmd_setg_help
@@ -2022,10 +2031,14 @@ class Core
   #   line. `words` is always at least 1 when tab completion has reached this
   #   stage since the command itself has been completed.
   def cmd_unset_tabs(str, words)
-    option_names = @@unset_opts.option_keys.select { |opt| opt.start_with?(str) }
     datastore_names = tab_complete_module_datastore_names(active_module, str, words)
+    if words.length == 1
+      # Only the command has been provided, offer options which immediately follow the command
+      options = @@unset_opts.option_keys.select { |opt| opt.start_with?(str) }
+      return options + datastore_names
+    end
 
-    option_names + datastore_names
+    datastore_names
   end
 
   #

@@ -525,7 +525,7 @@ class Payload < Msf::Module
   end
 
   #
-  # A placeholder stub, to be overriden by mixins
+  # A placeholder stub, to be overridden by mixins
   #
   def apply_prepends(raw)
     raw
