@@ -20,12 +20,12 @@ New bugs and feature requests should be directed to:
 API documentation for writing modules can be found at:
   https://docs.metasploit.com/api/
 
-Questions and suggestions can be sent to: Freenode IRC channel or e-mail the metasploit-hackers mailing list
+Questions and suggestions can be sent to: the Freenode IRC channel or e-mail the metasploit-hackers mailing list
 
 Installing
 --
 
-Generally, you should use [the free installer](https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html),
+Generally, it would be best if you used [the free installer](https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html),
 which contains all of the dependencies and will get you up and running with a
 few clicks. See the [Dev Environment Setup](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html) if
 you'd like to deal with dependencies on your own.
@@ -43,7 +43,7 @@ Contributing
 --
 See the [Dev Environment Setup][devenv] guide on GitHub, which will
 walk you through the whole process from installing all the
-dependencies, to cloning the repository, and finally to submitting a
+dependencies, cloning the repository, and submitting a
 pull request. For slightly more information, see
 [Contributing](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
 
