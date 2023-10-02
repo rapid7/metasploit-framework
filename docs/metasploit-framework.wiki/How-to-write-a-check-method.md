@@ -37,8 +37,9 @@ The `CheckCode` also supports an optional description which is printed by the fr
 return CheckCode::Appears('Vulnerable component XYZ is installed')
 ```
 
-Metasploit Framework check methods are used occasionally by other groups and projects to assist with vulnerability scanning.  Please do your best to ensure that the only return value from a check method is a check code.
-Basically, that means avoiding the use of `fail_with` or raising exceptions that are not handled within the check method.
+`MetasploitModule#check` methods should capture any known `raise` from methods called and return value of class
+`Msf::Exploit::CheckCode`. Basically, that means avoiding the use of `fail_with` or raising exceptions that are not
+handled within the check method.
 
 ## Remote Check Example
 
