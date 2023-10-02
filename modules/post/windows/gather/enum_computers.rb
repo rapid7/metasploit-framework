@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Post
     list_computers(netbios_domain_name, hostname_list)
   end
 
-  # Takes the host name and makes use of nsloopup to resolve the IP
+  # Takes the host name and makes use of nslookup to resolve the IP
   #
   # @param [String] host Hostname
   # @return [String] ip The resolved IP
@@ -65,24 +65,14 @@ class MetasploitModule < Msf::Post
     return host if Rex::Socket.dotted_ip?(host)
 
     ip = []
-    if client.respond_to?(:net) && client.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_RESOLVE_HOST)
-      begin
-        # client.net.resolve.resolve_host returns an exception in the scenario of non-existent host names
-        result = client.net.resolve.resolve_host(host)
-      rescue Rex::Post::Meterpreter::RequestError
-        return 'Not resolvable'
-      end
-      ip << result[:ip]
-    else
-      data = cmd_exec("nslookup #{host}")
-      if data =~ /Name/
-        # Remove unnecessary data and get the section with the addresses
-        returned_data = data.split(/Name:/)[1]
-        # check each element of the array to see if they are IP
-        returned_data.gsub(/\r\n\t |\r\n|Aliases:|Addresses:|Address:/, ' ').split(' ').each do |e|
-          if Rex::Socket.dotted_ip?(e)
-            ip << e
-          end
+    data = cmd_exec("nslookup #{host}")
+    if data =~ /Name/
+      # Remove unnecessary data and get the section with the addresses
+      returned_data = data.split(/Name:/)[1]
+      # check each element of the array to see if they are IP
+      returned_data.gsub(/\r\n\t |\r\n|Aliases:|Addresses:|Address:/, ' ').split(' ').each do |e|
+        if Rex::Socket.dotted_ip?(e)
+          ip << e
         end
       end
     end
