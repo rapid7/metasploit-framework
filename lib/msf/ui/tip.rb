@@ -40,7 +40,7 @@ module Msf
         "Use the #{highlight('analyze')} command to suggest runnable modules for hosts",
         "Set the current module's RHOSTS with database values using #{highlight('hosts -R')} or #{highlight('services -R')}",
         "Use the 'capture' plugin to start multiple authentication-capturing and poisoning services",
-        "The #{highlight('use')} command supports fuzzy searching, e.g. #{highlight('use kerberos/get_ticket')} or #{highlight('use kerberos forge silver ticket')}"
+        "The #{highlight('use')} command supports fuzzy searching to try and select the intended module, e.g. #{highlight('use kerberos/get_ticket')} or #{highlight('use kerberos forge silver ticket')}"
       ].freeze
       private_constant :COMMON_TIPS
 
