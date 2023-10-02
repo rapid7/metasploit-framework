@@ -10,7 +10,10 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::LDAP' do |ldap_a
     )
   end
 
-  let(:public) { 'root' }
+  let(:public) do
+    # SChannel auth doesn't use a username
+    ldap_auth_type == Msf::Exploit::Remote::AuthOption::SCHANNEL ? nil : 'root'
+  end
   let(:private) do
     # SChannel auth doesn't use a password
     ldap_auth_type == Msf::Exploit::Remote::AuthOption::SCHANNEL ? nil : 'toor'

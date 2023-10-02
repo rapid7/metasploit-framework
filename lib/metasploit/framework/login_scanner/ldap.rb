@@ -58,10 +58,14 @@ module Metasploit
             # so make sure that whatever it is, we end up with a Credential.
             credential = raw_cred.to_credential
 
-            if (opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::KERBEROS && opts[:ldap_krb5_cname]) ||
-               opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
-              # If we're using kerberos auth with a ccache or doing schannel auth then the password is irrelevant
+            if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::KERBEROS && opts[:ldap_krb5_cname]
+              # If we're using kerberos auth with a ccache then the password is irrelevant
               # Remove it from the credential so we don't store it
+              credential.private = nil
+            elsif opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
+              # If we're using kerberos auth with schannel then the user/password is irrelevant
+              # Remove it from the credential so we don't store it
+              credential.public = nil
               credential.private = nil
             end
 

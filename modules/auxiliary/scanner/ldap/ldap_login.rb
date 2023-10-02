@@ -103,9 +103,13 @@ class MetasploitModule < Msf::Auxiliary
         protocol: 'tcp'
       )
       if result.success?
-        create_credential_and_login(credential_data)
-
-        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
+        if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
+          # Schannel auth has no meaningful credential information to store in the DB
+          print_brute level: :good, ip: ip, msg: "Success: 'Cert File #{opts[:ldap_cert_file]}'"
+        else
+          create_credential_and_login(credential_data)
+          print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
+        end
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
