@@ -13,7 +13,7 @@ framework.sessions.values.map do |session|
     puts "[#{Time.now}][#{extension_name}] Starting to loading extension"
     session.core.use(extension_name)
     puts "[#{Time.now}][#{extension_name}] Loaded extension"
-  rescue ::RuntimeError
+  rescue ::RuntimeError, ::MetasploitPayloads::Error
     puts "[#{Time.now}][#{extension_name}] Failed loading"
     # noop
   end

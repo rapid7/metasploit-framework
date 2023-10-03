@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Loading extapi extension...")
       begin
         session.core.use("extapi")
-      rescue Errno::ENOENT, Rex::Post::Meterpreter::ExtensionLoadError
+      rescue Errno::ENOENT, Rex::Post::Meterpreter::ExtensionLoadError, ::MetasploitPayloads::Error
         print_status("This module is only available in a windows meterpreter session.")
         return
       end

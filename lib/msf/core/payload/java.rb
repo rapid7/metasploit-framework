@@ -58,7 +58,7 @@ module Msf::Payload::Java
     jar = Rex::Zip::Jar.new
     jar.add_sub("metasploit") if opts[:random]
     jar.add_file("metasploit.dat", stager_config(opts))
-    jar.add_files(paths, MetasploitPayloads.path('java'))
+    jar.add_files(paths, ::MetasploitPayloads.path('java'))
     jar.build_manifest(:main_class => main_class)
 
     jar
