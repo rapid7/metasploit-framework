@@ -27,7 +27,8 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
     ['-h', '--help'] => [false, 'Help banner'],
     ['-i', '--index'] => [true, 'Kerberos entry ID(s) to search for, e.g. `-i 1` or `-i 1,2,3` or `-i 1 -i 2 -i 3`'],
     ['-a', '--activate'] => [false, 'Activates *all* matching kerberos entries'],
-    ['-A', '--deactivate'] => [false, 'Deactivates *all* matching kerberos entries']
+    ['-A', '--deactivate'] => [false, 'Deactivates *all* matching kerberos entries'],
+    ['-r', '--set-rhost'] => [true, 'Set the host associated with *all* matching kerberos entries']
   )
 
   def cmd_klist(*args)
@@ -37,6 +38,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
     mode = :list
     host_ranges = []
     id_search = []
+    new_rhost = nil
     verbose = false
     @@klist_opts.parse(args) do |opt, _idx, val|
       case opt
@@ -53,6 +55,13 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
         mode = :activate
       when '-A', '--deactivate'
         mode = :deactivate
+      when '-r', '--set-rhost'
+        if val.nil?
+          print_error('Must set an rhost value')
+          return
+        end
+        mode = :rhost
+        new_rhost = val
       else
         # Anything that wasn't an option is a host to search for
         unless arg_host_range(val, host_ranges)
@@ -67,7 +76,12 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
 
     ticket_results = ticket_search(host_ranges, id_search)
 
-    print_line('Kerberos Cache')
+    header_suffix = ''
+    if [:activate, :deactivate, :delete, :rhost].include?(mode)
+      header_suffix = ' (affected entries)'
+    end
+
+    print_line("Kerberos Cache#{header_suffix}")
     print_line('==============')
 
     if ticket_results.empty?
@@ -87,6 +101,18 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
       # Update the contents of ticket results to display the updated status values
       # TODO: should be able to use the results returned from updating loot
       # but it returns a base 64'd data field which breaks when bindata tries to parse it as a ccache
+      ticket_results = ticket_search(host_ranges, id_search)
+    end
+
+    if mode == :rhost
+      begin
+        result = kerberos_ticket_storage.set_rhost(new_rhost, ids: ticket_results.map(&:id))
+      rescue ::ArgumentError => e # e.g. invalid IP address
+        print_error(e.message)
+        return
+      end
+      entries_affected = result.size
+      # Get tickets with updated host values
       ticket_results = ticket_search(host_ranges, id_search)
     end
 
@@ -128,6 +154,8 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
       print_status("Activated #{entries_affected} #{entries_affected > 1 ? 'entries' : 'entry'}") if entries_affected > 0
     when :deactivate
       print_status("Deactivated #{entries_affected} #{entries_affected > 1 ? 'entries' : 'entry'}") if entries_affected > 0
+    when :rhost
+      print_status("Modified #{entries_affected} #{entries_affected > 1 ? 'entries' : 'entry'}") if entries_affected > 0
     end
   end
 

@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('EXTRA_SIDS', [ false, 'Extra sids separated by commas, Ex: S-1-5-21-1755879683-3641577184-3486455962-519']),
         OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], conditions: %w[ACTION == FORGE_SILVER]),
         OptInt.new('DURATION', [ true, 'Duration of the ticket in days', 3650]),
+        OptAddress.new('RHOST', [false, 'The host that this ticket will be registered to in the Metasploit Kerberos cache']),
       ]
     )
 
@@ -101,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
       is_golden: is_golden
     )
 
-    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self)
+    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ccache, framework_module: self, host: datastore['RHOST'])
 
     if datastore['VERBOSE']
       print_ccache_contents(ccache, key: enc_key)
