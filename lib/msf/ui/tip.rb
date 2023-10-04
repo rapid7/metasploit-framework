@@ -32,13 +32,15 @@ module Msf
         "Search can apply complex filters such as #{highlight('search cve:2009 type:exploit')}, see all the filters with #{highlight('help search')}",
         "Metasploit can be configured at startup, see #{highlight('msfconsole --help')} to learn more",
         "Display the Framework log using the #{highlight('log')} command, learn more with #{highlight('help log')}",
-        "Adapter names can be used for IP params #{highlight('set LHOST eth0')}",
+        "Network adapter names can be used for IP options #{highlight('set LHOST eth0')}",
         "Use #{highlight('sessions -1')} to interact with the last opened session",
         "View missing module options with #{highlight('show missing')}",
         "Start commands with a space to avoid saving them to history",
         "You can pivot connections over sessions started with the ssh_login modules",
         "Use the #{highlight('analyze')} command to suggest runnable modules for hosts",
-        "Set the current module's RHOSTS with database values using #{highlight('hosts -R')} or #{highlight('services -R')}"
+        "Set the current module's RHOSTS with database values using #{highlight('hosts -R')} or #{highlight('services -R')}",
+        "Use the 'capture' plugin to start multiple authentication-capturing and poisoning services",
+        "The #{highlight('use')} command supports fuzzy searching to try and select the intended module, e.g. #{highlight('use kerberos/get_ticket')} or #{highlight('use kerberos forge silver ticket')}"
       ].freeze
       private_constant :COMMON_TIPS
 
