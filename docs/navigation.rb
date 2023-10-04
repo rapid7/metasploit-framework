@@ -547,6 +547,9 @@ NAVIGATION_CONFIG = [
               {
                 path: 'How-to-check-Microsoft-patch-levels-for-your-exploit.md'
               },
+              {
+                path: "How-to-write-a-cmd-injection-module.md"
+              }
             ]
           },
           {
