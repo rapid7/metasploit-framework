@@ -14,8 +14,10 @@ class HistoryManager
   def initialize
     @contexts = []
     @debug = false
+    # Values dequeued before work is started
     @write_queue = ::Queue.new
-    @currently_processing = ::Queue.new
+    # Values dequeued after work is completed
+    @remaining_work = ::Queue.new
   end
 
   # Create a new history command context when executing the given block
@@ -38,7 +40,7 @@ class HistoryManager
 
   # Flush the contents of the write queue to disk. Blocks synchronously.
   def flush
-    until @write_queue.empty? && @currently_processing.empty?
+    until @write_queue.empty? && @remaining_work.empty?
       sleep 0.1
     end
 
@@ -134,27 +136,28 @@ class HistoryManager
 
   def write_history_file(history_file, cmds)
     write_queue_ref = @write_queue
-    currently_processing_ref = @currently_processing
+    remaining_work_ref = @remaining_work
     @write_thread ||= Rex::ThreadFactory.spawn("HistoryManagerWriter", false) do
       while (event = write_queue_ref.pop)
         begin
-          currently_processing_ref << event
-
           history_file = event[:history_file]
           cmds = event[:cmds]
 
           File.open(history_file, 'wb+') do |f|
             f.puts(cmds.reverse)
           end
+
         rescue => e
           elog(e)
         ensure
-          currently_processing_ref.pop
+          remaining_work_ref.pop
         end
       end
     end
 
-    write_queue_ref << { type: :write, history_file: history_file, cmds: cmds }
+    event = { type: :write, history_file: history_file, cmds: cmds }
+    @write_queue << event
+    @remaining_work << event
   end
 end
 
