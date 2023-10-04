@@ -292,6 +292,8 @@ module Msf
         #
         # @return [Boolean]
         #
+        # @todo Rewrite to allow operating on a remote host
+        #
         def service_exists?(service)
           srv_info = service_info(service)
 
@@ -330,18 +332,17 @@ module Msf
             end
           end
 
-          if session.railgun
+          if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_API)
             begin
               ret = service_change_config(name, { starttype: startup_number }, server)
               return (ret == Error::SUCCESS)
             rescue Rex::Post::Meterpreter::RequestError => e
-              if server
-                # Cant do remote registry changes at present
-                return false
-              else
-                vprint_error("Request Error #{e} Falling back to registry technique")
-              end
+              vprint_error("Request Error #{e} Falling back to registry technique")
             end
+          end
+
+          unless server.blank?
+            raise 'Could not change service startup mode. Operation not supported on remote hosts when using registry technique.'
           end
 
           servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
@@ -442,6 +443,10 @@ module Msf
         # @raise [RuntimeError] if OpenServiceA failed
         #
         def service_start(name, server = nil)
+          raise 'Invalid service name' if name.blank?
+
+          return _shell_service_start(name, server) if session.type == 'shell'
+
           open_sc_manager(host: server, access: 'SC_MANAGER_CONNECT') do |manager|
             open_service_handle(manager, name, 'SERVICE_START') do |service_handle|
               retval = advapi32.StartServiceA(service_handle, 0, nil)
@@ -462,6 +467,10 @@ module Msf
         # @raise (see #service_start)
         #
         def service_stop(name, server = nil)
+          raise 'Invalid service name' if name.blank?
+
+          return _shell_service_stop(name, server) if session.type == 'shell'
+
           open_sc_manager(host: server, access: 'SC_MANAGER_CONNECT') do |manager|
             open_service_handle(manager, name, 'SERVICE_STOP') do |service_handle|
               retval = advapi32.ControlService(service_handle, 1, 28)
@@ -514,13 +523,13 @@ module Msf
 
               if (status['return'] == 0)
                 raise "Could not query service. QueryServiceStatus error: #{status['ErrorMessage']}"
-              else
-                ret = parse_service_status_struct(status['lpServiceStatus'])
               end
+
+              ret = parse_service_status_struct(status['lpServiceStatus'])
             end
           end
 
-          return ret
+          ret
         end
 
         #
@@ -565,7 +574,7 @@ module Msf
               vprint_error("[#{name}] Service disabled, unable to change start type")
             end
           else
-            status = WindowsError::Win32.find_by_retval(s).first
+            status = ::WindowsError::Win32.find_by_retval(s).first
             vprint_error("[#{name}] Unhandled error: #{status.name}: #{status.description}")
             return false
           end
@@ -580,20 +589,19 @@ module Msf
         # @return [Hash] Containing SERVICE_STATUS values
         #
         def parse_service_status_struct(lpServiceStatus)
-          if lpServiceStatus
-            vals = lpServiceStatus.unpack('V*')
-            return {
-              type: vals[0],
-              state: vals[1],
-              controls_accepted: vals[2],
-              win32_exit_code: vals[3],
-              service_exit_code: vals[4],
-              check_point: vals[5],
-              wait_hint: vals[6]
-            }
-          else
-            return nil
-          end
+          return unless lpServiceStatus
+
+          vals = lpServiceStatus.unpack('V*')
+
+          {
+            type: vals[0],
+            state: vals[1],
+            controls_accepted: vals[2],
+            win32_exit_code: vals[3],
+            service_exit_code: vals[4],
+            check_point: vals[5],
+            wait_hint: vals[6]
+          }
         end
 
         private
@@ -656,6 +664,94 @@ module Msf
           end
 
           services
+        end
+
+        #
+        # Start a service using sc.exe.
+        #
+        # @param name [String] Service name (not display name)
+        # @param server [String,nil] A hostname or IP address. Default is the
+        #   remote localhost.
+        #
+        # @return [Integer] 0 if service started successfully, 1 if it failed
+        #   because the service is already running, 2 if it is disabled
+        #
+        # @raise [RuntimeError] starting service failed
+        #
+        def _shell_service_start(service_name, server = nil)
+          host = server ? "\\\\#{server}" : nil
+          timeout = 75 # sc.exe default RPC connection timeout 60 seconds + cmd_exec default timeout 15 seconds
+
+          fingerprint = Rex::Text.rand_text_alphanumeric(6..8)
+
+          res = cmd_exec("sc #{host} start #{service_name} && echo #{fingerprint}", nil, timeout)
+
+          raise "Could not start service #{service_name}. sc.exe returned no output." if res.blank?
+
+          code = res.split(/\r?\n/).first.scan(/ (\d+):/).flatten.first
+
+          return Error::SUCCESS if res.include?(fingerprint) && code.nil?
+
+          raise "Could not start service #{service_name.inspect}. sc.exe returned unexpected output." if code.nil?
+
+          case code.to_i
+          when Error::SERVICE_ALREADY_RUNNING
+            return 1
+          when Error::SERVICE_DISABLED
+            return 2
+          when Error::SERVICE_DOES_NOT_EXIST
+            raise "[SC] StartService: The specified service #{service_name.inspect} does not exist as an installed service."
+          when Error::RPC_S_SERVER_UNAVAILABLE
+            raise "[SC] StartService: Could not connect to RPC server #{server}"
+          else
+            status = ::WindowsError::Win32.find_by_retval(code.to_i).first
+            raise "[SC] StartService: Unhandled error: #{status.name}: #{status.description}"
+          end
+        end
+
+        #
+        # Stop a service using sc.exe.
+        #
+        # @param name [String] Service name (not display name)
+        # @param server [String,nil] A hostname or IP address. Default is the
+        #   remote localhost.
+        #
+        # @return [Integer] 0 if service stopped successfully, 1 if it failed
+        #   because the service is already stopped or disabled, 2 if it
+        #   cannot be stopped for some other reason.
+        #
+        # @raise [RuntimeError] stopping service failed
+        #
+        def _shell_service_stop(service_name, server = nil)
+          host = server ? "\\\\#{server}" : nil
+          timeout = 75 # sc.exe default RPC connection timeout 60 seconds + cmd_exec default timeout 15 seconds
+
+          fingerprint = Rex::Text.rand_text_alphanumeric(6..8)
+
+          res = cmd_exec("sc #{host} stop #{service_name} && echo #{fingerprint}", nil, timeout)
+
+          raise "Could not stop service #{service_name}. sc.exe returned no output." if res.blank?
+
+          code = res.split(/\r?\n/).first.scan(/ (\d+):/).flatten.first
+
+          return Error::SUCCESS if res.include?(fingerprint) && code.nil?
+
+          raise "Could not stop service #{service_name.inspect}. sc.exe returned unexpected output." if code.nil?
+
+          case code.to_i
+          when Error::SERVICE_NOT_ACTIVE, Error::SERVICE_DISABLED
+            return 1
+          when Error::SERVICE_DOES_NOT_EXIST
+            print_error("[SC] ControlService: The specified service #{service_name.inspect} does not exist as an installed service.")
+            return 2
+          when Error::RPC_S_SERVER_UNAVAILABLE
+            print_error("[SC] ControlService: Could not connect to RPC server #{server}")
+            return 2
+          else
+            status = ::WindowsError::Win32.find_by_retval(code.to_i).first
+            print_error("[SC] ControlService: Unhandled error: #{status.name}: #{status.description}")
+            return 2
+          end
         end
       end
     end
