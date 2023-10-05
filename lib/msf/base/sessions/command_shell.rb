@@ -797,7 +797,7 @@ protected
   end
 
   def _file_transfer
-    raise NotImplementedError.new('Session does not support file transfers.') if @session_type.ends_with?(':winpty')
+    raise NotImplementedError.new('Session does not support file transfers.') if session_type.ends_with?(':winpty')
 
     FileTransfer.new(self)
   end
