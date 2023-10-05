@@ -7,7 +7,7 @@ module Rex
   module Proto
     module LDAP
       class Server
-        attr_reader :serve_udp, :serve_tcp, :sock_options, :udp_sock, :tcp_sock, :syntax, :ldif, :auth_options, :pdu_process
+        attr_reader :serve_udp, :serve_tcp, :sock_options, :udp_sock, :tcp_sock, :syntax, :ldif
 
         module LdapClient
           attr_accessor :authenticated
@@ -51,32 +51,31 @@ module Rex
         #
         # Create LDAP Server
         #
-        # @param opts [Hash] Options required to start service
+        # @param lhost [String] Listener address
+        # @param lport [Fixnum] Listener port
+        # @param udp [TrueClass, FalseClass] Listen on UDP socket
+        # @param tcp [TrueClass, FalseClass] Listen on TCP socket
+        # @param ldif [String] LDIF data
+        # @param auth_provider [Rex::Proto::LDAP::Auth] LDAP Authentication provider which processes authentication
         # @param ctx [Hash] Framework context for sockets
         # @param dblock [Proc] Handler for :dispatch_request flow control interception
         # @param sblock [Proc] Handler for :send_response flow control interception
         #
         # @return [Rex::Proto::LDAP::Server] LDAP Server object
-        def initialize(opts = {}, ctx = {}, dblock = nil, sblock = nil)
-          @serve_udp = opts[:udp]
-          @serve_tcp = opts[:tcp]
+        def initialize(lhost = '0.0.0.0', lport = 389, udp = true, tcp = true, ldif = nil, comm = nil, auth_provider = nil, ctx = {}, dblock = nil, sblock = nil)
+          @serve_udp = udp
+          @serve_tcp = tcp
           @sock_options = {
-            'LocalHost' => opts[:bindhost],
-            'LocalPort' => opts[:bindport],
+            'LocalHost' => lhost,
+            'LocalPort' => lport,
             'Context' => ctx,
-            'Comm' => opts[:comm]
+            'Comm' => comm
           }
-          @ldif = opts[:ldif]
+          @ldif = ldif
           self.listener_thread = nil
           self.dispatch_request_proc = dblock
           self.send_response_proc = sblock
-          @auth_options  = { #check for nill cases
-            challenge: opts[:challenge],
-            domain: opts[:domain],
-            server: opts[:server],
-            dnsname: opts[:dnsname],
-            dnsdomain: opts[:dnsdomain]
-          }
+          @auth_provider  = auth_provider
         end
 
         #
@@ -112,13 +111,13 @@ module Rex
               stop
               raise e
             end
-            if !serve_udp
+            unless serve_udp
               self.listener_thread = tcp_sock.listener_thread
             end
           end
 
-          if auth_options
-            @auth_provider = Rex::Proto::LDAP::Auth.new(auth_options)
+          if @auth_provider.nil?
+            @auth_provider = Rex::Proto::LDAP::Auth.new
           end
 
           self
@@ -161,10 +160,9 @@ module Rex
         def default_dispatch_request(client, data)
           return if data.strip.empty? || data.strip.nil?
 
-          state = {}
           post_pdu = false
           processed_pdu_data = {}
-          state[client] = {
+          client_details = {
             name: "#{client.peerhost}:#{client.peerport}",
             ip: client.peerhost,
             port: client.peerport,
@@ -174,20 +172,22 @@ module Rex
           data.extend(Net::BER::Extensions::String)
           begin
             pdu = Net::LDAP::PDU.new(data.read_ber!(Net::LDAP::AsnSyntax))
-            vprint_status("LDAP request data remaining: #{data}") unless data.empty?
+            wlog("LDAP request data remaining: #{data}") unless data.empty?
 
             res = case pdu.app_tag
                   when Net::LDAP::PDU::BindRequest
                     user_login = pdu.bind_parameters
                     server_creds = ''
+                    context_code = nil
                     processed_pdu_data = @auth_provider.process_login_request(user_login)
-                    processed_pdu_data = processed_pdu_data.merge(state[client])
+                    processed_pdu_data = processed_pdu_data.merge(client_details)
                     if processed_pdu_data[:result_code] == Net::LDAP::ResultCodeSaslBindInProgress
                       server_creds = processed_pdu_data[:server_creds]
+                      context_code = 7
                     else
-                      processed_pdu_data[:result_message] = "LDAP Login Attempt => From:#{processed_pdu_data[:name]}\n Username:#{processed_pdu_data[:user]}\n #{processed_pdu_data[:private_type]}:#{processed_pdu_data[:private]}\n"
+                      processed_pdu_data[:result_message] = "LDAP Login Attempt => From:#{processed_pdu_data[:name]}\t Username:#{processed_pdu_data[:user]}\t #{processed_pdu_data[:private_type]}:#{processed_pdu_data[:private]}\t"
                       processed_pdu_data[:result_message] += " Domain:#{processed_pdu_data[:domain]}" if processed_pdu_data[:domain]
-                      post_pdu = true
+                      processed_pdu_data[:post_pdu] = true
                     end
                     processed_pdu_data[:pdu_type] = pdu.app_tag
                     encode_ldap_response(
@@ -196,7 +196,8 @@ module Rex
                       '',
                       Net::LDAP::ResultStrings[processed_pdu_data[:result_code]],
                       Net::LDAP::PDU::BindResult,
-                      server_creds
+                      server_creds,
+                      context_code
                     )
                   when Net::LDAP::PDU::SearchRequest
                     filter = Net::LDAP::Filter.parse_ldap_filter(pdu.search_parameters[:filter])
@@ -234,12 +235,14 @@ module Rex
                     end
                   end
 
-            if @pdu_process && post_pdu
-              @pdu_process.call(processed_pdu_data)
+            if @pdu_process[pdu.app_tag] && !processed_pdu_data.empty?
+              @pdu_process[pdu.app_tag].call(processed_pdu_data)
             end
             send_response(client, res) unless res.nil?
           rescue StandardError => e
+            elog(e)
             client.close
+            raise e
           end
         end
 
@@ -251,35 +254,29 @@ module Rex
         # @param dn           [String]  LDAP distinguished name
         # @param msg          [String]  LDAP response message
         # @param tag          [Integer] LDAP response tag
-        # @param server_creds [String]  LDAP response server SASL credentials
+        # @param context_data [String]  Additional data to serialize in the sequence
+        # @param context_code [Integer] Context Specific code related to `context_data`
         #
         # @return [Net::BER::BerIdentifiedOid] LDAP query response
-        def encode_ldap_response(msgid, code, dn, msg, tag, server_creds = '')
-          case code
-          when Net::LDAP::ResultCodeSaslBindInProgress
-            [
-              msgid.to_ber,
-              [
-                code.to_ber_enumerated,
-                dn.to_ber,
-                msg.to_ber,
-                [server_creds.to_ber].to_ber_contextspecific(7)
-              ].to_ber_appsequence(tag)
-            ].to_ber_sequence
-          else
-            [
-              msgid.to_ber,
-              [
-                code.to_ber_enumerated,
-                dn.to_ber,
-                msg.to_ber
-              ].to_ber_appsequence(tag)
-            ].to_ber_sequence
+        def encode_ldap_response(msgid, code, dn, msg, tag, context_data = nil, context_code = nil)
+          tag_sequence = [
+            code.to_ber_enumerated,
+            dn.to_ber,
+            msg.to_ber
+          ]
+
+          if context_data && context_code
+            tag_sequence << [context_data.to_ber].to_ber_contextspecific(context_code)
           end
+
+          [
+            msgid.to_ber,
+            tag_sequence.to_ber_appsequence(tag)
+          ].to_ber_sequence
         end
 
         #
-        # Search provided ldif data for query information
+        # Search provided ldif data for query information. If no `ldif` was provided a random search result will be generated.
         #
         # @param filter [Net::LDAP::Filter] LDAP query filter
         # @param attrflt [Array, Symbol] LDAP attribute filter
@@ -327,8 +324,9 @@ module Rex
         # @param proc [Proc] block of code to execute
         #
         # @return pdu_process [Proc] steps to be executed
-        def processed_pdu_handler(&proc)
-          @pdu_process = proc if block_given?
+        def processed_pdu_handler(pdu_type, &proc)
+          @pdu_process = []
+          @pdu_process[pdu_type] = proc if block_given?
         end
 
         #

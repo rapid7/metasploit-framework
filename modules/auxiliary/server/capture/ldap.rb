@@ -60,18 +60,16 @@ class MetasploitModule < Msf::Auxiliary
     exploit
   end
 
-  def on_processed_pdu(processed_data)
-    pdu_type = processed_data[:pdu_type]
-    case pdu_type
-    when Net::LDAP::PDU::BindRequest
-      if processed_data[:error_msg]
-        print_error(processed_data[:error_msg])
-      else
-        print_good(processed_data[:result_message])
-        report_cred(processed_data)
+  def primer
+    service.processed_pdu_handler(Net::LDAP::PDU::BindRequest) do |processed_data|
+      unless processed_data[:post_pdu]
+        if processed_data[:error_msg]
+          print_error(processed_data[:error_msg])
+        else
+          print_good(processed_data[:result_message])
+          report_cred(processed_data)
+        end
       end
-    else
-      return
     end
   end
 

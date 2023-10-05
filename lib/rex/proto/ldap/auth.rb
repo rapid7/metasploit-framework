@@ -12,20 +12,25 @@ module Rex
         #
         # Initialize the required variables
         #
-        # @param opts [Hash] Required authentication options
-        def initialize(opts = {}) # chech for the options recieved
-          @domain = opts[:domain]
-          @server = opts[:server]
-          @dnsname = opts[:dnsname]
-          @dnsdomain = opts[:dnsdomain]
-          @challenge = [ opts[:challenge] ].pack('H*')
+        # @param challenge [String] NTLM Server Challenge
+        # @param domain    [String] Domain value used in NTLM
+        # @param server    [String] Server value used in NTLM
+        # @param dnsname   [String] DNS Name value used in NTLM
+        # @param dnsdomain [String] DNS Domain value used in NTLM
+        def initialize(challenge = Rex::Text.rand_text_alphanumeric(16), domain  = 'DOMAIN',
+                       server = 'SERVER', dnsname = 'server', dnsdomain = 'example.com')
+          @domain = domain
+          @server = server
+          @dnsname = dnsname
+          @dnsdomain = dnsdomain
+          @challenge = [challenge].pack('H*')
         end
 
         #
         # Process the incoming LDAP login requests from clients
         #
         # @param user_login [OpennStruct] User login information
-        # 
+        #
         # @return auth_info [Hash] Processed authentication information
         def process_login_request(user_login)
           auth_info = {}
