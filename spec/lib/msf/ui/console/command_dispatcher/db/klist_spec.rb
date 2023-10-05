@@ -48,6 +48,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
               -d, --delete      Delete *all* matching kerberos entries
               -h, --help        Help banner
               -i, --index       Kerberos entry ID(s) to search for, e.g. `-i 1` or `-i 1,2,3` or `-i 1 -i 2 -i 3`
+              -r, --set-rhost   Set the host associated with *all* matching kerberos entries
               -v, --verbose     Verbose output
 
         TABLE
@@ -294,7 +295,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           old_expired_ccache_path = expired_ccache_path
           subject.cmd_klist '-d'
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
-            Kerberos Cache
+            Kerberos Cache (affected entries)
             ==============
             id    host        principal                      sname                                   issued                     status       path
             --    ----        ---------                      -----                                   ------                     ------       ----
@@ -416,7 +417,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         it 'will show the deactivated tickets' do
           subject.cmd_klist '-A'
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
-            Kerberos Cache
+            Kerberos Cache (affected entries)
             ==============
             id    host        principal                      sname                                   issued                     status       path
             --    ----        ---------                      -----                                   ------                     ------       ----
@@ -437,7 +438,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           it 'will show the activated tickets' do
             subject.cmd_klist '-a'
             expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
-              Kerberos Cache
+              Kerberos Cache (affected entries)
               ==============
               id    host        principal                      sname                                   issued                     status       path
               --    ----        ---------                      -----                                   ------                     ------       ----
@@ -449,13 +450,30 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         end
       end
 
+      context 'when an index is provided with the host option' do
+        it 'will modify the single entry provided' do
+          # Store the paths first before they are deleted
+          old_valid_ccache_path = valid_ccache_path
+          subject.cmd_klist '-r', '1.2.3.4', '-i', valid_ccache_id.to_s
+          expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
+            Kerberos Cache (affected entries)
+            ==============
+            id    host     principal                      sname                                   issued                     status  path
+            --    ----     ---------                      -----                                   ------                     ------  ----
+            [id]  1.2.3.4  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{old_valid_ccache_path}
+            Modified 1 entry
+          TABLE
+          expect(kerberos_ticket_storage.tickets.length).to eq(2)
+        end
+      end
+
       context 'when an index is provided with the delete option' do
         it 'will delete the single entry provided' do
           # Store the paths first before they are deleted
           old_valid_ccache_path = valid_ccache_path
           subject.cmd_klist '-d', '-i', valid_ccache_id.to_s
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
-            Kerberos Cache
+            Kerberos Cache (affected entries)
             ==============
             id    host       principal                      sname                                   issued                     status  path
             --    ----       ---------                      -----                                   ------                     ------  ----
@@ -470,7 +488,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         it 'will deactivate the single entry provided' do
           subject.cmd_klist '-A', '-i', valid_ccache_id.to_s
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
-            Kerberos Cache
+            Kerberos Cache (affected entries)
             ==============
             id    host       principal                      sname                                   issued                     status    path
             --    ----       ---------                      -----                                   ------                     ------    ----
