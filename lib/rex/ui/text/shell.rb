@@ -130,11 +130,8 @@ module Shell
       # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
     end
 
-    framework.history_manager.with_context(history_file: histfile, name: name) do
-      self.hist_last_saved = Readline::HISTORY.length
-
+    with_history_manager_context do
       begin
-
         while true
           # If the stop flag was set or we've hit EOF, break out
           break if self.stop_flag || self.stop_count > 1
@@ -168,7 +165,6 @@ module Shell
             run_single(line)
             self.stop_count = 0
           end
-
         end
         # Prevent accidental console quits
       rescue ::Interrupt
@@ -176,9 +172,6 @@ module Shell
         retry
       end
     end
-  ensure
-    framework.history_manager.flush
-    self.hist_last_saved = Readline::HISTORY.length
   end
 
   #
@@ -298,9 +291,28 @@ module Shell
   attr_accessor :on_command_proc
   attr_accessor :on_print_proc
   attr_accessor :framework
+  attr_accessor :history_manager
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
 
   protected
+
+  # Executes the yielded block under the context of a new HistoryManager context. The shell's history will be flushed
+  # to disk when no longer interacting with the shell. If no history manager is available, the history will not be persisted.
+  def with_history_manager_context
+    history_manager = self.history_manager || framework&.history_manager
+    return yield unless history_manager
+
+    begin
+      history_manager.with_context(history_file: histfile, name: name) do
+        self.hist_last_saved = Readline::HISTORY.length
+
+        yield
+      end
+    ensure
+      history_manager.flush
+      self.hist_last_saved = Readline::HISTORY.length
+    end
+  end
 
   def supports_color?
     true
