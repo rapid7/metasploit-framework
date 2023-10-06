@@ -2,7 +2,7 @@
 
 require 'base64'
 require 'openssl'
-require 'net/imap/sasl'
+require 'net/imap'
 
 # Namespace for Metasploit branch.
 module Msf
