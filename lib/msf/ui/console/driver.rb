@@ -67,6 +67,16 @@ class Driver < Msf::Ui::Driver
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
+    begin
+      FeatureManager.instance.load_config
+    rescue StandardException => e
+      elog(e)
+    end
+
+    if opts['DeferModuleLoads'].nil?
+      opts['DeferModuleLoads'] = Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DEFER_MODULE_LOADS)
+    end
+
     # Initialize attributes
 
     # Defer loading of modules until paths from opts can be added below
@@ -127,12 +137,6 @@ class Driver < Msf::Ui::Driver
       dispatcher.load_config(opts['Config'])
     end
 
-    begin
-      FeatureManager.instance.load_config
-    rescue StandardException => e
-      elog(e)
-    end
-
     if !framework.db || !framework.db.active
       if framework.db.error == "disabled"
         print_warning("Database support has been disabled")
@@ -155,9 +159,9 @@ class Driver < Msf::Ui::Driver
     self.confirm_exit = opts['ConfirmExit']
 
     # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
-    unless opts['Framework'] || opts['DeferModuleLoads']
+    unless opts['Framework']
       # Configure the framework module paths
-      self.framework.init_module_paths(module_paths: opts['ModulePath'])
+      self.framework.init_module_paths(module_paths: opts['ModulePath'], defer_module_loads: opts['DeferModuleLoads'])
     end
 
     unless opts['DeferModuleLoads']

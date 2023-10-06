@@ -74,8 +74,6 @@ module Msf::ModuleManager::Cache
   # @return [false] if a module with the given type and reference name does not exist in the cache.
   # @return (see Msf::Modules::Loader::Base#load_module)
   def load_cached_module(type, reference_name, cache_type: Msf::ModuleManager::Cache::MEMORY)
-    loaded = false
-
     case cache_type
     when Msf::ModuleManager::Cache::FILESYSTEM
       cached_metadata = Msf::Modules::Metadata::Cache.instance.get_module_reference(type: type, reference_name: reference_name)
@@ -94,6 +92,11 @@ module Msf::ModuleManager::Cache
       raise ArgumentError, "#{cache_type} is not a valid cache type."
     end
 
+    try_load_module(parent_path, reference_name, type, cached_metadata: cached_metadata)
+  end
+
+  def try_load_module(parent_path, reference_name, type, cached_metadata: nil)
+    loaded = false
     # XXX borked
     loaders.each do |loader|
       next unless cached_metadata || loader.loadable_module?(parent_path, type, reference_name)
@@ -196,8 +199,6 @@ module Msf::ModuleManager::Cache
 
     self.module_info_by_path
   end
-
-  private
 
   def get_parent_path(module_path, type)
     # The load path is assumed to be the next level above the type directory
