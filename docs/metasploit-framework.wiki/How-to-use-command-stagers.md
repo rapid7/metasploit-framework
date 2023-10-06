@@ -279,7 +279,7 @@ msf exploit(cmdstager_demo) > run
 # Flavors
 
 Now that we know how to use the `Msf::Exploit::CmdStager` mixin, let's take a look at the command
-stagers you can use.  As mentioned above there are 2 general approaches to staging an executable on disk: by invoking a command that will download the executable file to disk like wget, curl, or fetch, or by breaking the executable file into pieces and including them commands themselves to write it to disk like echo, printf, or vbs. This delineation can be important, as trying to wite a stageless binary payload to disk using a stager that has to include the chunked payload in it will require the execution of dozens of commands, often each one having the signature of the exploit.  It is also useful to know the `printf` flavor is the only flavor that embeds the payload into the commands but does ***not*** use `echo`.
+stagers you can use.  As mentioned above there are 2 general approaches to staging an executable on disk: by invoking a command that will download the executable file to disk like wget, curl, or fetch, or by breaking the executable file into pieces and including them commands themselves to write it to disk like echo, printf, or vbs. This delineation can be important, as trying to write a stageless binary payload to disk using a stager that has to include the chunked payload in it will require the execution of dozens of commands, often each one having the signature of the exploit.  It is also useful to know the `printf` flavor is the only flavor that embeds the payload into the commands but does ***not*** use `echo`.
 
 Available flavors:
 

@@ -63,7 +63,7 @@ Related open tickets (slightly broader than Meterpreter):
 
  * PrependTokenSteal / PrependEnvironmentSteal: Basically with proxies and other perimeter defenses being SYSTEM doesn't work well. This would be an addition to a payload that would work to execute as SYSTEM but would then locate a logged in user and steal their environment to call back to the handler. Very useful when pivoting around with PSEXEC
  * Binary installed death dates: A way putting a date in a binary where after that date the binary no longer functions would be useful and possibly even perform self-deletion. Time zones would be a tricky matter, but is something handled by many programmers already (probably just not in shellcode)
- * Allow Meterpreter sesssions to resolve L3 addresses (#4793)
+ * Allow Meterpreter sessions to resolve L3 addresses (#4793)
  * Track whether or not the current session has admin credentials (#4633)d
  * Support Metasploit-side zlib compression of sessions
  * Being able to use Meterpreter instances to easily forward commands & exfil

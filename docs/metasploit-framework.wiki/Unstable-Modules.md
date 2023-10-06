@@ -27,7 +27,7 @@ If someone has library changes that cannot be merged to master, we cannot hang o
 
 ## Rescuing unstable modules
 
-If you'd like to rescue an unstable module, great! Just note that it's an unstable rescue in the pull request, and the original PR number (if you can find it), when you pull it back out. You can do a similiar `git checkout` to grab the file and then `git mv` it to the right spot again.
+If you'd like to rescue an unstable module, great! Just note that it's an unstable rescue in the pull request, and the original PR number (if you can find it), when you pull it back out. You can do a similar `git checkout` to grab the file and then `git mv` it to the right spot again.
 
 ## Safety
 

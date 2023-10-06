@@ -93,7 +93,7 @@ One advantage that this directory structure gives us is the ability to write bet
 
 ### Shared build tasks
 
-Because all routine module-oriented tasks will be preformed with rake tasks, we will need to make the default actions for these tasks as intelligent and reusable as possible across different module types/implementations. A module author should not have to worry about writing plumbing they do not need (or is common) or messing with plumbing that is only tangentially related to their unique need. To that end, we should have sane defaults for the following at a minimum:
+Because all routine module-oriented tasks will be performed with rake tasks, we will need to make the default actions for these tasks as intelligent and reusable as possible across different module types/implementations. A module author should not have to worry about writing plumbing they do not need (or is common) or messing with plumbing that is only tangentially related to their unique need. To that end, we should have sane defaults for the following at a minimum:
 
 ```
 rake run -- Start module, hook up stdin/stdout to JSON-RPC

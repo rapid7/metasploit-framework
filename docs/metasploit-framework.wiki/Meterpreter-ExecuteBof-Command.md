@@ -10,7 +10,7 @@ Meterpreter even when running on the Windows platform.
 crashes, the Meterpreter session will die. It is suggested that users invoke this functionality through a dedicated
 session to avoid losing access altogether.
 
-The loader and execution environment are provided by [trustedsec/COFFLoader][3]. The extension is therefor subject to
+The loader and execution environment are provided by [trustedsec/COFFLoader][3]. The extension is therefore subject to
 the same limitations.
 
 The following functions are unavailable:
