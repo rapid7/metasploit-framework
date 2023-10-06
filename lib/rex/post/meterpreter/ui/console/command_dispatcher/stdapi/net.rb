@@ -431,16 +431,17 @@ class Console::CommandDispatcher::Stdapi::Net
         cnt = 0
 
         # Enumerate each TCP relay
-        service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
-          next if (opts['MeterpreterRelay'] == nil)
+        service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
+          next unless opts['MeterpreterRelay']
 
-          direction = 'Forward'
-          direction = 'Reverse' if opts['Reverse'] == true
-
-          table << [cnt + 1, "#{netloc(rhost, rport)}", "#{netloc(lhost, lport)}", direction]
+          if opts['Reverse']
+            table << [cnt + 1, "#{netloc(rhost, rport)}", "#{netloc(lhost, lport)}", 'Reverse']
+          else
+            table << [cnt + 1, "#{netloc(lhost, lport)}", "#{netloc(rhost, rport)}", 'Forward']
+          end
 
           cnt += 1
-        }
+        end
 
         print_line
         if cnt > 0
