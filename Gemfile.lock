@@ -377,7 +377,7 @@ GEM
       nokogiri
     redcarpet (3.6.0)
     regexp_parser (2.8.1)
-    reline (0.3.9)
+    reline (0.3.8)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.15)
