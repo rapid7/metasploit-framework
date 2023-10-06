@@ -2,9 +2,9 @@ PATH
   remote: .
   specs:
     metasploit-framework (6.3.38)
-      actionpack (~> 7.0)
-      activerecord (~> 7.0)
-      activesupport (~> 7.0)
+      actionpack (~> 7.0.0)
+      activerecord (~> 7.0.0)
+      activesupport (~> 7.0.0)
       aws-sdk-ec2
       aws-sdk-ec2instanceconnect
       aws-sdk-iam
