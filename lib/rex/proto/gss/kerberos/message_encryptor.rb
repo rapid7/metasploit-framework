@@ -14,13 +14,14 @@ module Rex
           # @param [Integer] decrypt_sequence_number The starting sequence number we expect to see when we decrypt messages
           # @param [Boolean] is_initiator Are we the initiator in this communication (used for setting flags and key usage values)
           # @param [Boolean] use_acceptor_subkey Are we using the subkey provided by the acceptor? (used for setting appropriate flags)
-          def initialize(key, encrypt_sequence_number, decrypt_sequence_number, is_initiator: true, use_acceptor_subkey: true, is_dcerpc: false)
+          # @param [Boolean] dce_style Is the format of the encrypted blob DCE-style?
+          def initialize(key, encrypt_sequence_number, decrypt_sequence_number, is_initiator: true, use_acceptor_subkey: true, dce_style: false)
             @key = key
             @encrypt_sequence_number = encrypt_sequence_number
             @decrypt_sequence_number = decrypt_sequence_number
             @is_initiator = is_initiator
             @use_acceptor_subkey = use_acceptor_subkey
-            @is_dcerpc = is_dcerpc
+            @dce_style = dce_style
             @encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(key.type)
           end
   
@@ -29,7 +30,7 @@ module Rex
           # @return [String, Integer, Integer] The encrypted data, the length of its header, and the length of padding added to it prior to encryption
           #
           def encrypt_and_increment(data)
-            result = encryptor.gss_wrap(data, @key, @encrypt_sequence_number, @is_initiator, use_acceptor_subkey: @use_acceptor_subkey, is_dcerpc: @is_dcerpc)
+            result = encryptor.gss_wrap(data, @key, @encrypt_sequence_number, @is_initiator, use_acceptor_subkey: @use_acceptor_subkey, dce_style: @dce_style)
             @encrypt_sequence_number += 1  
             
             result
@@ -82,7 +83,7 @@ module Rex
           #
           # "For [MS-RPCE], the length field in the above pseudo ASN.1 header does not include the length of the concatenated data if [RFC1964] is used."
           #
-          attr_accessor :is_dcerpc
+          attr_accessor :dce_style
 
           #
           # [Rex::Proto::Kerberos::Crypto::*] Encryption class for encrypting/decrypting messages

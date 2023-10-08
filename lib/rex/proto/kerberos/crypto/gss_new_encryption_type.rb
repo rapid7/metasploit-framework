@@ -18,6 +18,7 @@ module Rex
 
           #
           # Encrypt the message, wrapping it in GSS structures
+          # @option options [Boolean] :use_acceptor_subkey Whether the encryption occurs with a negotiated subkey
           # @return [String, Integer, Integer] The encrypted data, the length of its header, and the length of padding added to it prior to encryption
           #
           def gss_wrap(plaintext, key, sequence_number, is_initiator, opts={})
@@ -54,6 +55,7 @@ module Rex
             result = [header + rotated, header_length + ec, ec]
           end
 
+          # @option options [Boolean] :use_acceptor_subkey Whether the encryption occurs with a negotiated subkey
           def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, opts={})
             use_acceptor_subkey = opts.fetch(:use_acceptor_subkey) { true }
             # Handle wrap-around

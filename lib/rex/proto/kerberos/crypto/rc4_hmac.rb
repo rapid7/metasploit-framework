@@ -87,7 +87,7 @@ module Rex
           def encrypt(plaintext, key, msg_type, confounder: nil)
             k1 = OpenSSL::HMAC.digest('MD5', key, usage_str(msg_type))
 
-            confounder = Rex::Text::rand_text(CONFOUNDER_SIZE) if confounder == nil
+            confounder = Random.urandom(CONFOUNDER_SIZE) if confounder == nil
             data_encrypt = confounder + plaintext
 
             checksum = OpenSSL::HMAC.digest('MD5', k1, data_encrypt)
@@ -165,8 +165,9 @@ module Rex
             plaintext
           end
 
+          # @option options [Boolean] :dce_style Whether the interaction is a 3-leg DCERPC interaction
           def gss_wrap(plaintext, key, sequence_number, is_initiator, opts={})
-            is_dcerpc = opts.fetch(:is_dcerpc) { false }
+            dce_style = opts.fetch(:dce_style) { false }
             # Always 32-bit sequence number
             sequence_number &= 0xFFFFFFFF
 
@@ -186,7 +187,7 @@ module Rex
             initiator_bytes = "\x00" * 4 if is_initiator
             send_seq += initiator_bytes
 
-            confounder = Rex::Text::rand_text(CONFOUNDER_SIZE)
+            confounder = Random.urandom(CONFOUNDER_SIZE)
             chksum_input = usage_str(Rex::Proto::Kerberos::Crypto::KeyUsage::KRB_PRIV_ENCPART) + header + confounder
             ksign = OpenSSL::HMAC.digest('MD5', key.value, "signaturekey\x00")
             sgn_cksum = Rex::Text.md5_raw(chksum_input+plaintext)
@@ -220,7 +221,7 @@ module Rex
             token = header + encrypted_sequence_num + eight_checksum_bytes + encrypted_confounder
             size_prior = (token+encrypted).length
 
-            if is_dcerpc
+            if dce_style
               wrapped_token = wrap_pseudo_asn1(
                   ::Rex::Proto::Gss::OID_KERBEROS_5,
                   token

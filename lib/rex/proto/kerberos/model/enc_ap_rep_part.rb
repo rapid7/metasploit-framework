@@ -42,14 +42,7 @@ module Rex
             self
           end
 
-          # Encodes the Rex::Proto::Kerberos::Model::ApReq into an ASN.1 String
-          #
-          # @return [String]
-          def encode
-            to_asn1.to_der
-          end
-
-          # Encodes the Rex::Proto::Kerberos::Model::Authenticator into an ASN.1 String
+          # Encodes the Rex::Proto::Kerberos::Model::EncApReqPart into an ASN.1 String
           #
           # @return [String]
           def encode
