@@ -51,13 +51,6 @@ class MetasploitModule < Msf::Post
     false
   end
 
-  # Returns list of running processes and store them in @processes instance variable to avoid multiple process queries on the host system.
-  def processes
-    @processes = get_processes
-    @processes = [] if @processes.nil?
-    @processes
-  end
-
   # loops over a list of services that are known to be signatures of vm's and
   # compares them to the list of running services.
   def services_exist?(vm_services)
@@ -65,13 +58,6 @@ class MetasploitModule < Msf::Post
       return true if service_exists?(srvc)
     end
     false
-  end
-
-  # gets active services on the machine and stores them in a list
-  def get_services
-    @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
-    @services = [] if @services.nil?
-    @services
   end
 
   def service_exists?(service)
@@ -298,6 +284,11 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status('Checking if the target is a Virtual Machine ...')
+    @processes = get_processes
+    @processes = [] if @processes.nil?
+
+    @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
+    @services = [] if @services.nil?
 
     if parallels?
       report_vm('Parallels')
