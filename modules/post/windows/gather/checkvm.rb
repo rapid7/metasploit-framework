@@ -156,10 +156,6 @@ class MetasploitModule < Msf::Post
 
     return true if services_exist?(hyperv_services)
 
-    @scsi_port_0 = get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier')
-
-    return true if @scsi_port_0 =~ /Msft    Virtual Disk    1.0/i
-
     false
   end
 
