@@ -29,8 +29,8 @@ module Metasploit
               password: credential.private,
               realm: credential.realm
             )
-            unless res.preauth_required
-              # Pre-auth not required - let's get an RC4-HMAC ticket, since it's more easily crackable
+            if !res.preauth_required && res.decrypted_part.nil?
+              # Pre-auth not required and we don't have a valid password - let's get an RC4-HMAC ticket, since it's more easily crackable
               begin
                 res = send_request_tgt(
                   server_name: server_name,
