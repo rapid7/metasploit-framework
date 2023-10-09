@@ -94,6 +94,7 @@ class MetasploitModule < Msf::Post
     @keys.each_value do |v|
       return true if v.include?(vm_k)
     end
+    false
   end
 
   def get_srval(key)
