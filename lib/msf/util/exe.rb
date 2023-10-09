@@ -1599,7 +1599,14 @@ require 'digest/sha1'
     paths = [
       [ "metasploit", "Payload.class" ],
     ]
-    zip.add_files(paths, MetasploitPayloads.path('java'))
+
+    zip.add_file('metasploit/', '')
+    paths.each do |path_parts|
+      path = ['java', path_parts].flatten.join('/')
+      contents = ::MetasploitPayloads.read(path)
+      zip.add_file(path_parts.join('/'), contents)
+    end
+
     zip.build_manifest :main_class => "metasploit.Payload"
     config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
     zip.add_file("metasploit.dat", config)

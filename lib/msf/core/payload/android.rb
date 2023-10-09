@@ -127,7 +127,13 @@ module Msf::Payload::Android
       [ "AndroidManifest.xml" ],
       [ "resources.arsc" ]
     ]
-    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
+
+    files.each do |file|
+      path = ['android', 'apk', file].flatten.join('/')
+      contents = ::MetasploitPayloads.read(path)
+      jar.add_file(file.join('/'), contents)
+    end
+
     jar.add_file("classes.dex", fix_dex_header(classes))
     jar.build_manifest
 
