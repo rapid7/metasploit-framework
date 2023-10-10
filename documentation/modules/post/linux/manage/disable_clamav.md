@@ -4,7 +4,7 @@ ClamAV uses a Unix socket that allows non-privileged users to interact with the 
 However, no additional checks are required to trigger ClamAV's shutdown.
 
 ## Verification Steps
-### Shuting off ClamAV
+### Shutting off ClamAV
   1. Launch `msfconsole`
   2. Get a Meterpreter shell on a Linux host that's also running ClamAV.
   3. Do: `use post/linux/manage/disable_clamav`

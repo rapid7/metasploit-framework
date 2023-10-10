@@ -4,7 +4,7 @@
   
   A vulnerable copy of the firmware is available for a Juiper SSG5/SSG20 (v6.3.0r19.0): [here](https://github.com/h00die/MSF-Testing-Scripts/tree/master/juniper_firmware)
 
-  For verification puposes, an example vuln python script is also available [here](https://github.com/h00die/MSF-Testing-Scripts)
+  For verification purposes, an example vuln python script is also available [here](https://github.com/h00die/MSF-Testing-Scripts)
 
 ## Verification Steps
 

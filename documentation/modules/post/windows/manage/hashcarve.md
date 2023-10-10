@@ -20,7 +20,7 @@ Here is the process that the module follows:
     - write they user key back into the registry
 
 ## Recommandations
-I would recommand to use hashdump before using the module to backup the user hashes
+I would recommend to use hashdump before using the module to backup the user hashes
 Use at your own risk.
 
 ## Limitations

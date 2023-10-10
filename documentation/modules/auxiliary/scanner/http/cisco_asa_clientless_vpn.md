@@ -72,7 +72,7 @@ The next part of the installation will require a Windows machine. From your Wind
 1. Click "Install ASDM Launcher"
 1. Enter creds `blank`:labpass1 (where blank is nothing and labpass1 is your enable password)
 1. Install the downloaded `dm-launcher.msi` (before 7.18.1 it will be unsigned)
-1. If Java isn't installed, intall Java 1.8 (current at time of writing is 8 Update 333): https://www.java.com/en/download/
+1. If Java isn't installed, install Java 1.8 (current at time of writing is 8 Update 333): https://www.java.com/en/download/
 1. Start the ASDM Launcher via `C:\Program Files (x86)\Cisco Systems\ASDM\run.bat`
 1. Enter your ASAv's IP address (10.9.249.201)
 1. Enter a blank username

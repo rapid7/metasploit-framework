@@ -78,7 +78,7 @@ Default is `true`.
 
 This option is only used when requesting a TGS.
 
-The Kerberos TGT to use when requesting the sevice ticket. If unset, the database will be checked'
+The Kerberos TGT to use when requesting the service ticket. If unset, the database will be checked'
 
 ## Scenarios
 

@@ -4,7 +4,7 @@
 
 ## Vulnerable Application
 
-  Any Cisco networking device with the HTTP inteface turned on.
+  Any Cisco networking device with the HTTP interface turned on.
 
 ## Verification Steps
 

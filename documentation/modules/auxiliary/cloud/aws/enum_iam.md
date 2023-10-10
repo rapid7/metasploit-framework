@@ -43,7 +43,7 @@ This module authenticates to AWS IAM (Identify Access Module) to identify user a
 
   **LIMIT**
 
-  Some AWS API calls support limiting output, such that the module will only reutrn the number of instances, without detailing the configuration of each instance.  Optionally, this module's output can be filtered to minimize the query to AWS and the user output.  Alternatively, `LIMIT` can be left blank, such that all EC2 instances will be detailed.
+  Some AWS API calls support limiting output, such that the module will only return the number of instances, without detailing the configuration of each instance.  Optionally, this module's output can be filtered to minimize the query to AWS and the user output.  Alternatively, `LIMIT` can be left blank, such that all EC2 instances will be detailed.
   
   Note that the `LIMIT` parameter is imposed per region, so the total number of results may be higher than the user-specified limit, but the maximum number of results for a single region will not exceed `LIMIT`.  This behavior is due to the AWS API.
   

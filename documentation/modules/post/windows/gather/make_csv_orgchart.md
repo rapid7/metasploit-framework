@@ -28,7 +28,7 @@ Option             | Value
 -------------------| ---
 ACTIVE_USERS_ONLY  | This will restrict the search for users to those whose accounts are Active. This would have the effect of excluding disabled accounts (e.g. employees who have resigned).
 FILTER             | Any additional LDAP filtering that is required when searching for users.
-WITH_MANAGERS_ONLY | If this is TRUE, the module will only include users who have a manger set (internally, this is implemented by adding (manager=*) to the ADSI query filter). This could be useful if not everyone has a manager set, but could mean that the top executive is not included either.
+WITH_MANAGERS_ONLY | If this is TRUE, the module will only include users who have a manager set (internally, this is implemented by adding (manager=*) to the ADSI query filter). This could be useful if not everyone has a manager set, but could mean that the top executive is not included either.
 STORE_LOOT         | Store the results in a CSV file in loot. You'll almost certainly want this set to TRUE.
 
 # Demo

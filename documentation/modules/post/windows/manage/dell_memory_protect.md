@@ -52,11 +52,11 @@ in the scenarios below, the driver files are uploaded to `C:\Windows\Temp`, so t
 
 ### ENABLE_MEM_PROTECT
 
-Enable or disable memory protection on the targetted process. `false` will remove memory protection and `true` will enable it.
+Enable or disable memory protection on the targeted process. `false` will remove memory protection and `true` will enable it.
 
 ### PID
 
-The ID of the targetted process. If set to 0 (the default value), the module will automatically find lsass.exe.
+The ID of the targeted process. If set to 0 (the default value), the module will automatically find lsass.exe.
 
 ## Verification Steps
 
@@ -158,7 +158,7 @@ Module options (post/windows/manage/dell_memory_protect):
    ----                ---------------  --------  -----------
    DRIVER_PATH                          yes       The path containing the driver inf, cat, and sys (and coinstaller)
    ENABLE_MEM_PROTECT  false            yes       Enable or disable memory protection
-   PID                                  yes       The targetted process
+   PID                                  yes       The targeted process
    SESSION                              yes       The session to run this module on
 
 msf6 post(windows/manage/dell_memory_protect) > set SESSION 1

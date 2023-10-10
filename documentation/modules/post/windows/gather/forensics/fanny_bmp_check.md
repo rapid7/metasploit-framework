@@ -2,7 +2,7 @@
 Fanny or DWE for short. (DWE = DementiaWheel)
 
 Detection module based on the `post/windows/gather/forensics/duqu_check` module. Fanny is a worm that infects windows
-machines, via USB (not trough Autorun, or at least not only).
+machines, via USB (not through Autorun, or at least not only).
 
 In fact, it used exploits later found in StuxNet. It creates creates some Registry artifacts.
 

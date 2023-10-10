@@ -1,6 +1,6 @@
 ## Creating A Testing Environment
   To use this module you need an meterpreter on a domain controller.
-  The meterpreter has to have SYSTEM priviliges.
+  The meterpreter has to have SYSTEM privileges.
   Powershell has te be installed.
 
 This module has been tested against:
@@ -15,7 +15,7 @@ This module was not tested against, but may work against:
 
   1. Start msfconsole
   2. Obtain a meterpreter session with a meterpreter via whatever method.
-  3. Ensure the metepreter has SYSTEM priviliges.
+  3. Ensure the metepreter has SYSTEM privileges.
   4. Ensure powershell is installed.
   3. Do: 'use post/windows/gather/ntds_grabber '
   4. Do: 'set session #'

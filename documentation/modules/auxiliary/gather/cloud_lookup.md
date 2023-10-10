@@ -44,7 +44,7 @@ Files containing IP addresses to blacklist during the analysis process, one per 
 
 ### THREADS
 
-Number of concurent threads needed for DNS enumeration. Default: 8
+Number of concurrent threads needed for DNS enumeration. Default: 8
 
 ### WORDLIST
 

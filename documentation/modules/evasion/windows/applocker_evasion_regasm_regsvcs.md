@@ -12,7 +12,7 @@ This evasion will work on all versions of Windows that include .NET versions 3.5
 ## Options
 
 - **TXT_FILE** - Filename for the evasive file (default: regasm_regsvcs.txt).
-- **SNK_FILE** - Filename for the .snk file (default: key.snk). (note: to aid furter evasion it is recommended to create your own .snk file ref: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/how-to-sign-an-assembly-with-a-strong-name)
+- **SNK_FILE** - Filename for the .snk file (default: key.snk). (note: to aid further evasion it is recommended to create your own .snk file ref: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/how-to-sign-an-assembly-with-a-strong-name)
 
 ## Verification Steps
 

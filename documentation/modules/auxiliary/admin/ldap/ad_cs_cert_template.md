@@ -56,11 +56,11 @@ The file format is determined by the extension so the file must end in either `.
 
 #### The JSON format
 The JSON file format is a hash with attribute name keys and ASCII-hex encoded values. These files are compatible with
-[`Certipy`'s][certipy] `template` command. This module uses the JSON file format when storing copies fo certificate to
+[`Certipy`'s][certipy] `template` command. This module uses the JSON file format when storing copies of certificate to
 disk.
 
 #### The YAML format
-The YAML file format is similiar to the JSON file format, but takes advantage of YAML's ability to include comments.
+The YAML file format is similar to the JSON file format, but takes advantage of YAML's ability to include comments.
 The file consists of a hash with attribute name keys and value strings. The `nTSecurityDescriptor` file can be either
 a binary string representing a literal value, or a security descriptor defined in Microsoft's [Security Descriptor
 Definition Language (SDDL)][sddl]. Premade configuration templates provided by Metasploit use this format.

@@ -127,7 +127,7 @@ resource (es.rb)> set action LISTAPPSSYSTEM
 action => LISTAPPSSYSTEM
 resource (es.rb)> run
 [+] 1.1.1.1:59777  
-  Package Access Helper (com.android.defcontainer) Version: 4.4.2-20150203
+  Package Access Helper (com.andriod.defcontainer) Version: 4.4.2-20150203
   Launcher (com.android.launcher) Version: 4.4.2-20150203
   Contacts (com.android.contacts) Version: 4.4.2-20150203
   com.android.providers.partnerbookmarks (com.android.providers.partnerbookmarks) Version: 4.4.2-20150203
@@ -212,7 +212,7 @@ resource (es.rb)> run
 [+] 1.1.1.1:59777  
   TalkBack (com.google.android.marvin.talkback) Version: 5.0.7
   Google Play services (com.google.android.gms) Version: 12.6.85 (000302-197041431)
-  Phone (com.andriod.phone) Version: 1.0
+  Phone (com.android.phone) Version: 1.0
   Google Play Music (com.google.android.music) Version: 8.12.7210-1.F
   Google Text-to-speech Engine (com.google.android.tts) Version: 3.15.18.200023596
   Cloud Print (com.google.android.apps.cloudprint) Version: 1.40

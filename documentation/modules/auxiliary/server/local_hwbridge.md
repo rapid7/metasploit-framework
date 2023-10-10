@@ -12,11 +12,11 @@ To experimient with using Metasploit to send automtovie CAN bus packets you can 
 the SocketCAN capabilities of Linux to create a virtual CAN device.  NOTE: If you have a
 supported CAN sniffer you could also use a real can device.
 
-In order for the local_hwbridge to inteface with SocketCAN you will need:
+In order for the local_hwbridge to interface with SocketCAN you will need:
 
 * can-utils
 
-Once those are installed you can setup a virtual CAN inteface using:
+Once those are installed you can setup a virtual CAN interface using:
 
 ```
 sudo modprobe can
