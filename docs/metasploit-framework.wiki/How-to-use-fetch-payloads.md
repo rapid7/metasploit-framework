@@ -31,10 +31,11 @@ Here is the naming convention for fetch payloads:
 `<cmd>/<platform>/<fetch protocol>/served_payload`
 For example:
 `cmd/linux/https/x64/meterpreter/reverse_tcp` Will do four things:
-1) Create a `linux/x64/meterpreter/reverse_tcp` elf binary to be the served payload.
-2) Serve the above served payload on an HTTPS server
-3) Start a served payload handler for the served payload to call back to
-4) Generate a command to execute on a remote host that will download the served payload and run it.
+
+1. Create a `linux/x64/meterpreter/reverse_tcp` elf binary to be the served payload.
+2. Serve the above served payload on an HTTPS server
+3. Start a served payload handler for the served payload to call back to
+4. Generate a command to execute on a remote host that will download the served payload and run it.
 
 
 ## A Simple Stand-Alone Example

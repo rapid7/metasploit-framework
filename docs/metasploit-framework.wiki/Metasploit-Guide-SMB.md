@@ -4,7 +4,7 @@ SMB (Server Message Blocks), is a way for sharing files across nodes on a networ
 
 There are two main ports for SMB:
 
-- 139/TCP - Initially Microsoft implemented SMB ontop of their existing NetBIOS network architecture, which allowed for Windows computers to communicate across the same network
+- 139/TCP - Initially Microsoft implemented SMB on top of their existing NetBIOS network architecture, which allowed for Windows computers to communicate across the same network
 - 445/TCP - Newer versions of SMB use this port, were NetBIOS is not used.
 
 Other terminology to be aware of:

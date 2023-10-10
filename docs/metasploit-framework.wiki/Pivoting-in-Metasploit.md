@@ -95,7 +95,7 @@ IPv4 Active Routing Table
 msf6 post(multi/manage/autoroute) >
 ```
 
-All right so that's one way, but what if we wanted to do this manually? First off to flush all routes from the routing table, we will do `route flush` followed by `route` to double check we have successfully removed the entires.
+All right so that's one way, but what if we wanted to do this manually? First off to flush all routes from the routing table, we will do `route flush` followed by `route` to double check we have successfully removed the entries.
 
 ```msf
 msf6 post(multi/manage/autoroute) > route flush

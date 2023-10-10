@@ -84,7 +84,7 @@ module Metasploit
       class SymantecWebGateway < HTTP
 
 
-        # Attemps to login to the server.
+        # Attempts to login to the server.
         #
         # @param [Metasploit::Framework::Credential] credential The credential information.
         # @return [Result] A Result object indicating success or failure

@@ -72,13 +72,13 @@ meterpreter > python_execute "x = [y for y in range(0, 20) if y % 5 == 0]"
 ```
 The command above executes, but nothing was printed to stdout, or to stderr, and hence nothing was captured.
 
-The good thing is that the Python extension is persistant across calls. This means that after the above command is executed, `x` is still present in the interpreter and can be accessed with another call:
+The good thing is that the Python extension is persistent across calls. This means that after the above command is executed, `x` is still present in the interpreter and can be accessed with another call:
 ```msf
 meterpreter > python_execute "print x"
 [+] Content written to stdout:
 [0, 5, 10, 15]
 ```
-As useful as this is, developers may want to produce post-modules that make use of the data that a Python script has generated. Parsing stdout is not ideal in such a scenario, and hence this command provides the means for individual variables to be extracted directly using the `-r` paramter, as described by the help:
+As useful as this is, developers may want to produce post-modules that make use of the data that a Python script has generated. Parsing stdout is not ideal in such a scenario, and hence this command provides the means for individual variables to be extracted directly using the `-r` parameter, as described by the help:
 ```msf
 meterpreter > python_execute "x = [y for y in range(0, 20) if y % 5 == 0]" -r x
 [+] x = [0, 5, 10, 15]

@@ -27,7 +27,7 @@ Usage: sleep <time>
   shut down and restarted after the designated timeout.
 ```
 
-As shown, `sleep` expects to be given a single postive integer value that represents the number of seconds that Meterpreter should be silent for. When run, the session will close, and then callback after the elapsed period of time. Given that Meterpreter lives in memory, this lack of communication will make it extremely difficult to track.
+As shown, `sleep` expects to be given a single positive integer value that represents the number of seconds that Meterpreter should be silent for. When run, the session will close, and then callback after the elapsed period of time. Given that Meterpreter lives in memory, this lack of communication will make it extremely difficult to track.
 
 The following shows a sample run where Meterpreter is put to sleep for 20 seconds, after which the session reconnects while the handler is still in background:
 

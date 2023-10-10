@@ -2,7 +2,7 @@
 
 Since version 6.3, Metasploit has included authentication via Kerberos for multiple types of modules. Kerberos
 authentication allows Metasploit users to request and utilize Ticket Granting Tickets (TGTs) and Ticket Granting
-Services (TGSs) to authenticate with supported modules. Metasploit uses an internal caching and storage machanism but
+Services (TGSs) to authenticate with supported modules. Metasploit uses an internal caching and storage mechanism but
 tickets are stored able to be both exported and imported from [MIT Credential Cache][1] (CCACHE) files. A converter for
 Kirbi to and from CCACHE files is also available in the `auxiliary/admin/kerberos/ticket_converter` module.
 
@@ -268,7 +268,7 @@ Simultaneous Users: 16777216
 
 ## Using external tickets with Metasploit
 A ticket obtained outside of Metasploit can be used for authentication by setting the `${Prefix}::Krb5Ccname` option
-which is prioritized over the cache. This file must be in the [MIT Credential Cache][1] (CCACHE) file formath. If the
+which is prioritized over the cache. This file must be in the [MIT Credential Cache][1] (CCACHE) file format. If the
 ticket is in the Kirbi format, it must first be converted using the `auxiliary/admin/kerberos/ticket_converter` module.
 
 When an explicit CCACHE file is specified to load a ticket from, Metasploit will first attempt to load a TGS ticket

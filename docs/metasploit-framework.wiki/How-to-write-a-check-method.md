@@ -58,7 +58,7 @@ def check
   http_body = get_http_body
   if http_body
     if http_body =~ /Something CMS v1\.0/
-      # We are able to find the version thefore more precise about the vuln state
+      # We are able to find the version therefore more precise about the vuln state
       return Exploit::CheckCode::Appears
     elsif http_body =~ /Something CMS/
       # All we can tell the vulnerable app is running, but no more info to

@@ -48,7 +48,7 @@ OPTIONS:
     -T <opt>  Retry total time (seconds) (default: same as current session)
     -U <opt>  Proxy username for HTTP/S transports (optional)
     -W <opt>  Retry wait time (seconds) (default: same as current session)
-    -X <opt>  Expiration timout (seconds) (default: same as current session)
+    -X <opt>  Expiration timeout (seconds) (default: same as current session)
     -c <opt>  SSL certificate path for https transport verification (optional)
     -h        Help menu
     -i <opt>  Specify transport by index (currently supported: remove)
