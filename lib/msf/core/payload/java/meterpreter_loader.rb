@@ -88,8 +88,7 @@ module Payload::Java::MeterpreterLoader
     # a second jar.
     [
       [ "javapayload", "stage", "Stage.class" ],
-      [ "com", "metasploit", "meterpreter", "MemoryBufferURLConnection.class" ],
-      [ "com", "metasploit", "meterpreter", "MemoryBufferURLStreamHandler.class" ],
+      [ "com", "metasploit", "meterpreter", "JarFileClassLoader.class" ],
       # Must be last!
       [ "javapayload", "stage", "Meterpreter.class" ],
     ]
