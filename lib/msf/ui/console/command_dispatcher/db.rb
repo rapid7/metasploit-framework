@@ -642,7 +642,7 @@ class Db
 
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       end
@@ -880,7 +880,7 @@ class Db
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
       end
@@ -1056,7 +1056,7 @@ class Db
       tbl << row
 
       if set_rhosts
-        addr = (vuln.host.scope ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
+        addr = (vuln.host.scope.to_s != "" ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
         rhosts << addr
       end
     end
@@ -1280,7 +1280,7 @@ class Db
         host = note.host
         row << host.address
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       else
