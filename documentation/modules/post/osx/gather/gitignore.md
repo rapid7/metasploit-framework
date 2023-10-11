@@ -13,7 +13,7 @@ as well as retrieves the contents of files found in the gitignore.
   4. Do: `set session #`
   5. Do: `set mode 1`
   5. Do: `run`
-  6. You should see a list of all gitignore files with absolute path located recurively from the users'r home directory
+  6. You should see a list of all gitignore files with absolute path located recursively from the users'r home directory
 
   Retrieve gitignore files:
   7. Do: `set mode 2`

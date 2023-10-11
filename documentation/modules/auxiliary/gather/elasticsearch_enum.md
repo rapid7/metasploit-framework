@@ -2,7 +2,7 @@
 
 This module enumerates Elasticsearch instances. It uses the REST API
 in order to gather information about the server, the cluster, nodes,
-in the cluster, indicies, and pull data from those indicies.
+in the cluster, indices, and pull data from those indices.
 
 ### Docker
 
@@ -85,7 +85,7 @@ msf6 auxiliary(gather/elasticsearch/enum) > run
   ------------       ------  ---------------
   es-docker-cluster  yellow  2
 
-[+] Indicies Information
+[+] Indices Information
 ====================
 
   Name       Health  Status  UUID                    Documents  Storage Usage (MB)

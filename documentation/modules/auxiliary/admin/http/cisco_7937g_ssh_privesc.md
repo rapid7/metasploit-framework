@@ -128,7 +128,7 @@ ncasCb - Show detailed ncas information, related to either call services,
 uptime - Show phone uptime.
 appPrt - Show UI's call status.
 fntPrt - Show information about fonts available on phone.
-memtop - Shows the top poiter to current memory.
+memtop - Shows the top pointer to current memory.
 removeScheduledLogEntry - debug
 addScheduledLogEntry - debug
 fatalError - Simulate fatal error for the phone.
@@ -178,8 +178,8 @@ localePrintAll - localePrintAll
 ceShow - Show Client Engine Status
 
 Commands 101 to 121:
-udiShow - Show Unique Device Indentifier
-show - Show Unique Device Indentifier
+udiShow - Show Unique Device Identifier
+show - Show Unique Device Identifier
 pbnShow - Display app & bootrom headers
 upr - Upgrade to a Rockpile Standalone Image
 upm - Upgrade to a Rockpile Manf Image
@@ -336,7 +336,7 @@ ncasCb - Show detailed ncas information, related to either call services,
 uptime - Show phone uptime.
 appPrt - Show UI's call status.
 fntPrt - Show information about fonts available on phone.
-memtop - Shows the top poiter to current memory.
+memtop - Shows the top pointer to current memory.
 removeScheduledLogEntry - debug
 addScheduledLogEntry - debug
 fatalError - Simulate fatal error for the phone.
@@ -386,8 +386,8 @@ localePrintAll - localePrintAll
 ceShow - Show Client Engine Status
 
 Commands 101 to 121:
-udiShow - Show Unique Device Indentifier
-show - Show Unique Device Indentifier
+udiShow - Show Unique Device Identifier
+show - Show Unique Device Identifier
 pbnShow - Display app & bootrom headers
 upr - Upgrade to a Rockpile Standalone Image
 upm - Upgrade to a Rockpile Manf Image

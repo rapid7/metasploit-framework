@@ -169,7 +169,7 @@ creds add user:mssql_foo hash:0x0100A607BA7C54A24D17B565C59F1743776A10250F581D48
 creds add user:mssql12_Password1! hash:0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E278$
 creds add user:mysql_probe hash:445ff82636a7ba59 jtr:mysql
 creds add user:mysql-sha1_tere hash:*5AD8F88516BD021DD43F171E2C785C69F8E54ADB jtr:mysql-sha1
-## oracle (10) uses usernames in the hashing, so we can't overide that here
+## oracle (10) uses usernames in the hashing, so we can't override that here
 creds add user:simon hash:4F8BC1809CB2AF77 jtr:des,oracle
 creds add user:SYSTEM hash:9EEDFA0AD26C6D52 jtr:des,oracle
 ## oracle 11/12 H value, username is used
@@ -177,7 +177,7 @@ creds add user:DEMO hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C
 ## oracle 11/12 uses a LONG format, see lib/msf/core/auxiliary/jtr.rb
 creds add user:oracle11_epsilon hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:$
 creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B3$
-##postgres uses username, so we can't overide that here
+##postgres uses username, so we can't override that here
 creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
 creds add user:example postgres:md5be86a79bf20fake2d58d5453c47d4860
 echo "" > /root/.msf4/john.pot

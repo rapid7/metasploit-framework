@@ -10,7 +10,7 @@ Please refer to [https://cablehaunt.com/](https://cablehaunt.com/) for more info
 
 **WS_USERNAME**
 
-This is the basic auth username for the spectrum analysis web service.  This is typicall default credentials such as `admin:password` but may also be something along the lines of `spectrum:spectrum`.  This will vary from manufacturer to manufacturer and ISP to ISP.
+This is the basic auth username for the spectrum analysis web service.  This is typically default credentials such as `admin:password` but may also be something along the lines of `spectrum:spectrum`.  This will vary from manufacturer to manufacturer and ISP to ISP.
 
 **WS_PASSWORD**
 

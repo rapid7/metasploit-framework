@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-RPC Portmapper, or more recently renamed to rpcbind, is fairly common and this scanner searches for its existance.  The idea behind rpcbind was to create a
+RPC Portmapper, or more recently renamed to rpcbind, is fairly common and this scanner searches for its existence.  The idea behind rpcbind was to create a
 'directory' that could be asked where a service is running (port).  Having this single port/service be queryable meant, the services being managed by rpcbind
 could actually be running on any port or protocol, and rpdbind would be in charge of letting clients know where they were. This is more or less an outdated
 model/service, and NFS is arguably the most popular service still utilizing rpcbind.  The following was done on Kali linux:

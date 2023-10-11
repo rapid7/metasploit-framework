@@ -106,7 +106,7 @@ msf auxiliary(tomcat_mgr_login) > run
 
 ### Tomcat 8
 
-Tomcat 8.0.32 unning on Windows XP
+Tomcat 8.0.32 running on Windows XP
 
 ```
 msf > use auxiliary/scanner/http/tomcat_mgr_login

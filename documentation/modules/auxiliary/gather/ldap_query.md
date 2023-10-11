@@ -7,7 +7,7 @@ of this JSON/YAML file on disk.
 
 Users can also run a single query by using the `RUN_SINGLE_QUERY` option and then setting
 the `QUERY_FILTER` datastore option to the filter to send to the LDAP server and `QUERY_ATTRIBUTES`
-to a comma seperated string containing the list of attributes they are interested in obtaining
+to a comma separated string containing the list of attributes they are interested in obtaining
 from the results.
 
 As a third option can run one of several predefined queries by setting `ACTION` to the

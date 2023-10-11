@@ -3,7 +3,7 @@
 This module exploits a vulnerability in Dlink Central
 WifiManager (CWM-100), found in versions lower than
 v1.03R0100_BETA6, allowing unauthenticated users to
-execute arbitary SQL queries.
+execute arbitrary SQL queries.
 
 This module has 3 actions:
 
@@ -175,6 +175,6 @@ msf5 auxiliary(sqli/dlink/dlink_central_wifimanager_sqli) > run
 
 ### Going further
 
-It is possible to upload arbitary files to the target system using queries of the form
+It is possible to upload arbitrary files to the target system using queries of the form
 (copy ... to ...), but using full paths, the attacker must know the path of the webroot
 to upload a webshell this way.

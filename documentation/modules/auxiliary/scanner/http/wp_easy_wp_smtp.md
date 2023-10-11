@@ -13,14 +13,14 @@ the SMTP username and password.
 There is one potential false negative case where the `aggressive` option should be used.
 If debug mode was enabled, however only the `Test Email` was used (or no legit email has been sent by the server),
 the debug file won't exist yet.  This will be remedied by the first password reset request, but to avoid this module
-being too noisy, it won't happen unles `aggressive` is set to `true`.
+being too noisy, it won't happen unless `aggressive` is set to `true`.
 
 To summarize:
 
 1. Vulnerable version of Easy WP SMTP
 1. debug turned on for Easy WP SMTP
 1. SMTP configured for Easy WP SMTP
-1. direcotry listings enabled
+1. directory listings enabled
 
 ### Install
 

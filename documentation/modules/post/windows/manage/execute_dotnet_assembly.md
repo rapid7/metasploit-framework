@@ -22,7 +22,7 @@ You'll find details at [Execute assembly via Meterpreter session](https://b4rtik
 ### Example 1: Run within the same process
 
   1. Build or download a .NET project
-  1. Buid project with target framework that is present on the host
+  1. Build project with target framework that is present on the host
   1. Start msfconsole
   1. Do: ```use post/windows/manage/execute_dotnet_assembly```
   1. Do: ```set SESSION sessionid```
@@ -79,7 +79,7 @@ msf5 post(windows/manage/execute_dotnet_assembly) > run
   ## Example 2: Run in existing process
 
   1. Build or download a .NET project
-  1. Buid project with target framework that is present on the host
+  1. Build project with target framework that is present on the host
   1. Start msfconsole
   1. Do: ```use post/windows/manage/execute_dotnet_assembly```
   1. Do: ```set SESSION sessionid```
@@ -93,7 +93,7 @@ msf5 post(windows/manage/execute_dotnet_assembly) > run
   ## Example 3: Run in new process
 
   1. Build or download a .NET project
-  1. Buid project with target framework that is present on the host
+  1. Build project with target framework that is present on the host
   1. Start msfconsole
   1. Do: ```use post/windows/manage/execute_dotnet_assembly```
   1. Do: ```set SESSION sessionid```

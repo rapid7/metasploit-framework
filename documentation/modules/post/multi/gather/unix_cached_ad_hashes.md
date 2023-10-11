@@ -35,7 +35,7 @@
   * /var/lib/samba/private/secrets.tdb
   * /var/lib/samba/passdb.tdb
 
-  Use tdbdump to extract structed data from these files (`tdbdump #{filename}`), and search for the phrase
+  Use tdbdump to extract structured data from these files (`tdbdump #{filename}`), and search for the phrase
   `cachedPassword`. The hash should be in the same format as hashes in /etc/shadow (e.g. `$6$...`).
 
   JtR can natively crack these hashes.
@@ -46,7 +46,7 @@
 
   * /var/lib/sss/db/cache_*
 
-  Use tdbdump to extract structed data from these files (`tdbdump #{filename}`), and search for the phrase
+  Use tdbdump to extract structured data from these files (`tdbdump #{filename}`), and search for the phrase
   `cachedPassword`. The hash should be in the same format as hashes in /etc/shadow (e.g. `$6$...`).
 
   JtR can natively crack these hashes.

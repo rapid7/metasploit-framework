@@ -21,4 +21,4 @@ The following platforms are supported:
 
 **URI**
 
-The URI that should be passed to the opening command, can be a webiste or a file.
+The URI that should be passed to the opening command, can be a website or a file.

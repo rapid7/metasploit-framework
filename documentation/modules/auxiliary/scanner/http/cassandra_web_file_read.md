@@ -9,7 +9,7 @@ This module has been tested successfully on Cassandra Web versions:
 
 This module exploits an unauthenticated directory traversal vulnerability in Cassandra Web
 'Cassandra Web' version 0.5.0 and earlier, allowing arbitrary file read with the web server privileges.
-This vulnerability occured due to the disabled Rack::Protection module.
+This vulnerability occurred due to the disabled Rack::Protection module.
 
 This web service listens on TCP port 3000 by default on all network interface.
 

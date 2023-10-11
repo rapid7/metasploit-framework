@@ -17,7 +17,7 @@ This module will attempt to enumerate the LSA Secrets keys within the registry. 
 ### STORE
 
 If the decrypted values should be stored in the database. This is a tradeoff since there is no way to tell if a decrypted
-value is a legitamate password, thus you may fill your database with bad values. Default is `true`.
+value is a legitimate password, thus you may fill your database with bad values. Default is `true`.
 
 ## Scenarios
 
