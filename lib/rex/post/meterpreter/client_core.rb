@@ -258,7 +258,7 @@ class ClientCore < Extension
       end
 
       if library_image
-        decrypted_library_image = ::MetasploitPayloads.decrypt_payload(payload: library_image)
+        decrypted_library_image = ::MetasploitPayloads::Crypto.decrypt(ciphertext: library_image)
         request.add_tlv(TLV_TYPE_DATA, decrypted_library_image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller

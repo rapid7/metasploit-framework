@@ -78,7 +78,7 @@ module Msf::Post::Windows::ReflectiveDLLInjection
   # @return [Array] Tuple of allocated memory address and offset to the
   #   +ReflectiveLoader+ function.
   def inject_dll_data_into_process(process, dll_data, loader_name: 'ReflectiveLoader', loader_ordinal: EXPORT_REFLECTIVELOADER)
-    decrypted_dll_data = ::MetasploitPayloads.decrypt_payload(payload: dll_data)
+    decrypted_dll_data = ::MetasploitPayloads::Crypto.decrypt(ciphertext: dll_data)
     offset = load_rdi_dll_from_data(decrypted_dll_data, loader_name: loader_name, loader_ordinal: loader_ordinal)
     dll_mem = inject_into_process(process, decrypted_dll_data)
 

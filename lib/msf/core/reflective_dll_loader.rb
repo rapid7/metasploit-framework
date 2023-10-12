@@ -25,7 +25,7 @@ module Msf::ReflectiveDLLLoader
   #                 +ReflectiveLoader+ function within the DLL.
   def load_rdi_dll(dll_path, loader_name: 'ReflectiveLoader', loader_ordinal: EXPORT_REFLECTIVELOADER)
     encrypted_dll = ::File.binread(dll_path)
-    dll = ::MetasploitPayloads.decrypt_payload(payload: encrypted_dll)
+    dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: encrypted_dll)
 
     offset = parse_pe(dll, loader_name: loader_name, loader_ordinal: loader_ordinal)
 
@@ -43,7 +43,7 @@ module Msf::ReflectiveDLLLoader
   #
   # @return [Integer] offset to the +ReflectiveLoader+ function within the DLL.
   def load_rdi_dll_from_data(dll_data, loader_name: 'ReflectiveLoader', loader_ordinal: EXPORT_REFLECTIVELOADER)
-    decrypted_dll_data = ::MetasploitPayloads.decrypt_payload(payload: dll_data)
+    decrypted_dll_data = ::MetasploitPayloads::Crypto.decrypt(ciphertext: dll_data)
     offset = parse_pe(decrypted_dll_data, loader_name: loader_name, loader_ordinal: loader_ordinal)
 
     unless offset
