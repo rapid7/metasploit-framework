@@ -468,7 +468,7 @@ GEM
     rubocop-ast (1.29.0)
       parser (>= 3.2.1.0)
     ruby-macho (4.0.0)
-    ruby-mysql (4.0.0)
+    ruby-mysql (4.1.0)
     ruby-prof (1.4.2)
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)

