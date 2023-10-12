@@ -1,19 +1,17 @@
 ## Vulnerable Application
 
-This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank). 
+This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
-
 1. Start msfconsole
-2. Do: ```use scanner/mssql/mssql_login```
-3. Do: ```set RHOSTS [IP]```
-4. Do: ```run```
+2. Do: `use scanner/mssql/mssql_login`
+3. Do: `set RHOSTS [IP]`
+4. Do: `run`
 5. You should get a shell.
 
 ## Options
-A number of options interesting options without default values exist. They are as follows: 
-   
+A number of options interesting options without default values exist. They are as follows:
+ 
    Name                 Current Setting  Required  Description
    ----                 ---------------  --------  -----------
    PASSWORD                              no        A specific password to authenticate with
