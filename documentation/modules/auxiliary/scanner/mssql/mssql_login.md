@@ -14,22 +14,14 @@ A docker container can be spun up with the following command to test this module
 5. You should get a shell.
 
 ## Options
-A number of options interesting options without default values exist. They are as follows:
- 
-   Name                 Current Setting  Required  Description
-   ----                 ---------------  --------  -----------
-   PASSWORD                              no        A specific password to authenticate with
-   PASS_FILE                             no        File containing passwords, one per line
-   RHOSTS                                yes       The target host(s),
-   USERPASS_FILE                         no        File containing users and passwords separated by space, one pair per line
-   USER_FILE                             no        File containing usernames, one per line
 
-Options ending in _FILE are used by specifing a file location. For example, specifying the USER_FILE would happend as follows:
+### USER_FILE
 
-```
-msf6 auxiliary(scanner/mssql/mssql_login) > set USER_FILE ./userfile
-```
+File containing users, one per line.
 
+### PASS_FILE
+
+File containing passwords, one per line
 
 ## Scenarios
 ```
