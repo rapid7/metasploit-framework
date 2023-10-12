@@ -86,11 +86,14 @@ class MetasploitModule < Msf::Post
 
   def get_domain_computers
     computer_list = []
-    devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = cmd_exec('net view').split(devisor)[1]
+    divisor = "-------------------------------------------------------------------------------\r\n"
+    net_view_response = cmd_exec('net view')
+    unless net_view_response.include?(divisor)
+      print_error("The net view command failed with: #{net_view_response}")
+      return []
+    end
 
-    return [] unless raw_list.include?('The command completed successfully')
-
+    raw_list = net_view_response.split(divisor)[1]
     raw_list.sub!(/The command completed successfully\./, '')
     raw_list.gsub!(/\\\\/, '')
     raw_list.split(' ').each do |m|
