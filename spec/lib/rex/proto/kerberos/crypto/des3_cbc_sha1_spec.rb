@@ -117,7 +117,7 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Des3CbcSha1 do
     last_byte = encrypted[-1].ord
     last_byte ^= 1
     encrypted = encrypted[0,encrypted.length - 1] + last_byte.chr
-    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosError, 'HMAC integrity error')
+    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'HMAC integrity error')
   end
 
   it 'Invalid length throws error' do
@@ -127,13 +127,13 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Des3CbcSha1 do
     encrypted = encryptor.encrypt(plaintext, key, msg_type)
     # Let's remove one byte
     encrypted = encrypted[0,encrypted.length - 1]
-    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext is not a multiple of block length')
+    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext is not a multiple of block length')
   end
 
   it 'Short length throws error' do
     key = ["85763726585dbc1cce6ec43e1f751f07f1c4cbb098f40b19"].pack("H*")
     msg_type = 4
     encrypted = 'abc'
-    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short')
+    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext too short')
   end
 end

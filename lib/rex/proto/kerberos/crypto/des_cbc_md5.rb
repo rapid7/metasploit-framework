@@ -21,7 +21,7 @@ module Rex
           # @param params [String] Unused for this encryption type
           # @return [String] The derived key
           def string_to_key(password, salt, params: nil)
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Params not supported for DES' unless params == nil
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Params not supported for DES' unless params == nil
             reverse_this_block = false
             tempstring = [0,0,0,0,0,0,0,0]
 
@@ -87,10 +87,10 @@ module Rex
           # @param key [String] the key to decrypt
           # @param msg_type [Integer] ignored for this algorithm
           # @return [String] the decrypted cipher
-          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosError] if decryption doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError] if decryption doesn't succeed
           def decrypt(ciphertext, key, msg_type)
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' unless ciphertext && ciphertext.length > BLOCK_SIZE + HASH_LENGTH
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext is not a multiple of block length' unless ciphertext.length % BLOCK_SIZE == 0
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext too short' unless ciphertext && ciphertext.length > BLOCK_SIZE + HASH_LENGTH
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext is not a multiple of block length' unless ciphertext.length % BLOCK_SIZE == 0
 
 
             cipher = OpenSSL::Cipher.new('des-cbc')
@@ -107,7 +107,7 @@ module Rex
             hash_fn = OpenSSL::Digest.new('MD5')
 
             if hash_fn.digest(hashed_data) != checksum
-              raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'HMAC integrity error'
+              raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'HMAC integrity error'
             end
 
             plaintext
@@ -132,7 +132,7 @@ module Rex
             hash_fn = OpenSSL::Digest.new('MD5')
             checksum = hash_fn.digest(hashed_data)
 
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid checksum size' unless checksum.length == HASH_LENGTH
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Invalid checksum size' unless checksum.length == HASH_LENGTH
 
             plaintext = confounder + checksum + padded_data
 

@@ -194,6 +194,10 @@ module Rex
               super(message || "Kerberos target does not support the required encryption")
             end
           end
+
+          # Runtime error which will be raised when a Kerberos cryptography routine fails
+          class KerberosCryptographyError < KerberosError
+          end
         end
       end
     end

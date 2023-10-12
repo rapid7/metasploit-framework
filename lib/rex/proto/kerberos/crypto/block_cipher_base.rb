@@ -45,12 +45,12 @@ module Rex
           # @param key [String] the key to decrypt
           # @param msg_type [Integer] type of kerberos message
           # @return [String] the decrypted cipher
-          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosError] if decryption doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError] if decryption doesn't succeed
           def decrypt(ciphertext_and_mac, key, msg_type)
             ki = derive(key, [msg_type, 0x55].pack('NC'))
             ke = derive(key, [msg_type, 0xAA].pack('NC'))
 
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if ciphertext_and_mac.length < (self.class::BLOCK_SIZE + self.class::MAC_SIZE)
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext too short' if ciphertext_and_mac.length < (self.class::BLOCK_SIZE + self.class::MAC_SIZE)
 
             ciphertext = ciphertext_and_mac.slice(0..-(self.class::MAC_SIZE+1))
             mac = ciphertext_and_mac[-self.class::MAC_SIZE, self.class::MAC_SIZE]
@@ -60,7 +60,7 @@ module Rex
             hmac = OpenSSL::HMAC.digest(self.class::HASH_FUNCTION, ki, plaintext)
             hmac_subset = hmac[0, self.class::MAC_SIZE]
             if mac != hmac_subset
-                raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'HMAC integrity error'
+                raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'HMAC integrity error'
             end
 
             # Discard the confounder.
@@ -113,7 +113,7 @@ module Rex
           # Functions may be overriden by subclasses:
           def random_to_key(seed)
             if seed.length != self.class::SEED_SIZE
-              raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid seed size'
+              raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Invalid seed size'
             end
 
             seed

@@ -106,13 +106,13 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
     mod_byte = encrypted[11].ord
     mod_byte ^= 1
     encrypted = encrypted[0,11] + mod_byte.chr + encrypted[12,encrypted.length]
-    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosError, 'HMAC integrity error')
+    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'HMAC integrity error')
   end
 
   it 'Short length throws error' do
     key = "\xfe\x69\x7b\x52\xbc\x0d\x3c\xe1\x44\x32\xba\x03\x6a\x92\xe6\x5b\xbb\x52\x28\x09\x90\xa2\xfa\x27\x88\x39\x98\xd7\x2a\xf3\x01\x61"
     msg_type = 4
     encrypted = 'abc'
-    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short')
+    expect { encryptor.decrypt(encrypted, key, msg_type) }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext too short')
   end
 end

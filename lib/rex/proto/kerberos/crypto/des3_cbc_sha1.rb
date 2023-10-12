@@ -20,7 +20,7 @@ module Rex
           # @param params [String] Unused for this encryption type
           # @return [String] The derived key
           def string_to_key(string, salt, params: nil)
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Params not supported for DES' unless params == nil
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Params not supported for DES' unless params == nil
             utf8_encoded = (string + salt).encode('UTF-8').bytes
             k = random_to_key(nfold(utf8_encoded, 21))
             k = k.pack('C*')
@@ -38,7 +38,7 @@ module Rex
 
           # Decrypts the cipher using DES3-CBC-SHA1 schema
           def decrypt_basic(ciphertext, key)
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext is not a multiple of block length' unless ciphertext.length % BLOCK_SIZE == 0
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError, 'Ciphertext is not a multiple of block length' unless ciphertext.length % BLOCK_SIZE == 0
             cipher = OpenSSL::Cipher.new('des-ede3-cbc')
             cipher.decrypt
             cipher.key = key
@@ -67,7 +67,7 @@ module Rex
                 b | (b.digits(2).count(1) + 1) % 2
               end
               
-              raise Rex::Proto::Kerberos::Model::Error::KerberosError unless seed.length == 7
+              raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError unless seed.length == 7
         
               firstbytes = seed.map {|b| parity(b & ~1)}
               tmp = 7.times.map { |i| (seed[i] & 1) << i+1 }
@@ -80,7 +80,7 @@ module Rex
               keybytes
             end
         
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError unless seed.length == 21
+            raise Rex::Proto::Kerberos::Model::Error::KerberosCryptographyError unless seed.length == 21
             
             subkeys = seed.each_slice(7).map { |slice| expand(slice) }
             subkeys.flatten
