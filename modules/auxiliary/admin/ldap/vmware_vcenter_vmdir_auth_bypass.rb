@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless new_username && new_password
-      print_error('Please set the USERNAME and PASSWORD options to proceed')
+      print_error('Please set the NEW_USERNAME and NEW_PASSWORD options to proceed')
       return
     end
 
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
   def auth_bypass(ldap)
     # when datastore['BIND_DN'] has been provided in options,
     # ldap_connect has already made a bind for us.
-    return if datastore['BIND_DN']
+    return if datastore['USERNAME'] && ldap.bind
 
     ldap.bind(
       method: :simple,
