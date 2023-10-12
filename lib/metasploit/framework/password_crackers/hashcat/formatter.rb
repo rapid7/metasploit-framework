@@ -38,6 +38,34 @@ def hash_to_hashcat(cred)
       #         legacy MD5
       # T: = 160 characters
       #         PBKDF2-based SHA512 hash specific to 12C (12.1.0.2+)
+    when /^pbkdf2-sha256/
+      # hashmode: 10900
+      # from: $pbkdf2-sha256$260000$Q1hzYjU5dFNMWm05QUJCTg$s.vmjGlIV0ZKV1Sp3dTdrcn/i9CTqxPZ0klve4HreeU
+      # to:   sha256:29000:Q1hzYjU5dFNMWm05QUJCTg==:s+vmjGlIV0ZKV1Sp3dTdrcn/i9CTqxPZ0klve4HreeU=
+
+      # https://hashcat.net/forum/thread-7854-post-42417.html#pid42417 ironically gives Token encoding exception
+      c = cred.private.data.sub('$pbkdf2-sha256', 'sha256').split('$')
+
+      # This method takes a string which is likely base64 encoded
+      # however, there is an arbitrary amount of = missing from the end
+      # so we attempt to add = until we are able to decode it
+      #
+      # @param str [String] the base64-ish string
+      # @return [String] the corrected string
+      def add_equals_to_base64(str)
+        ['', '=', '=='].each do |equals|
+          to_test = "#{str}#{equals}"
+          Base64.strict_decode64(to_test)
+          return to_test
+        rescue ArgumentError
+          next
+        end
+        nil
+      end
+
+      c[2] = add_equals_to_base64(c[2].gsub('.', '+')) # pad back out
+      c[3] = add_equals_to_base64(c[3].gsub('.', '+')) # pad back out
+      return c.join(':')
     when /hmac-md5/
       data = cred.private.data.split('#')
       password = Rex::Text.encode_base64("#{cred.public.username} #{data[1]}")

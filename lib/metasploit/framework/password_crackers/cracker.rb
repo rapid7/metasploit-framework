@@ -217,6 +217,8 @@ module Metasploit
             '1711'
           when 'Raw-MD5u'
             '30'
+          when 'pbkdf2-sha256'
+            '10900'
           end
         end
 
