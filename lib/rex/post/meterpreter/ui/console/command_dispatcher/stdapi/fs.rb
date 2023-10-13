@@ -411,7 +411,6 @@ class Console::CommandDispatcher::Stdapi::Fs
    end
 
   
-   return true
  end
 
   #
