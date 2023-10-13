@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Atlassian Confluence Data Center and Server Authentication Bypass via Broken Access Control',
         'Description' => %q{
           This module exploits an Broken Access Control vulnerability in Atlassian Confluence servers leads to Authentication Bypass.
-          A specially crafted request can be create new admin account without authorization in the Atlassian server.
+          A specially crafted request can be create new admin account without authentication in the Atlassian server.
         },
         'Author' => [
           'Unknown', # exploited in the wild
