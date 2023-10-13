@@ -41,3 +41,18 @@ These are just suggestions, but it'd be nice if the KB had these sections:
  - **Verification Steps** - Tells users how to use the module and what the expected results are from running the module. 
  - **Options** - Provides descriptions of all the options that can be run with the module. Additionally, clearly identify the options that are required. 
  - **Scenarios** - Provides sample usage and describes caveats that the user may need to be aware of when running the module.
+
+### Before you submit your PR: msftidy_docs.rb
+
+A documentation file can be passed as a positional argument to `metasploit-framework/tools/dev/msftidy_docs.rb` and will
+highlight formatting errors the docs file might contain. Once all the errors and warnings thrown by `msftidy_docs.rb` have
+been resolved, the documentation file is ready for submission.
+
+```
+➜  metasploit-framework git:(upstream-master) ✗ ruby tools/dev/msftidy_docs.rb documentation/modules/exploit/linux/http/panos_op_cmd_exec.md
+documentation/modules/exploit/linux/http/panos_op_cmd_exec.md - [INFO] Missing Section: ## Options
+documentation/modules/exploit/linux/http/panos_op_cmd_exec.md - [WARNING] Please add a newline at the end of the file
+documentation/modules/exploit/linux/http/panos_op_cmd_exec.md - [WARNING] H2 headings in incorrect order. Should be: Vulnerable Application, Verification Steps/Module usage, Options, Scenarios
+documentation/modules/exploit/linux/http/panos_op_cmd_exec.md:50 - [WARNING] Should use single backquotes (`) for single line literals instead of triple backquotes (```)
+documentation/modules/exploit/linux/http/panos_op_cmd_exec.md:53 - [WARNING] Spaces at EOL
+```
