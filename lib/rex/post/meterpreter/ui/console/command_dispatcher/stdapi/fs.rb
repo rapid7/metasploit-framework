@@ -401,14 +401,14 @@ class Console::CommandDispatcher::Stdapi::Fs
      return true
    end
 
-   args.each { |path|
+   args.each do |path|
      begin
        ::FileUtils.mkdir_p(path)
        print_line("Directory '#{path}' created successfully.")
-     rescue => e
+     rescue ::StandardError => e
        print_error("Error creating #{path} directory: #{e}")
      end
-   }
+   end
 
   
    return true
