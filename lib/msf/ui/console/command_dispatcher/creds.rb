@@ -337,7 +337,7 @@ class Creds
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format', 'cracked_password' ]
     delete_count = 0
     search_term = nil
 
@@ -446,6 +446,7 @@ class Creds
     opts[:workspace] = framework.db.workspace
     query = framework.db.creds(opts)
     matched_cred_ids = []
+    cracked_cred_ids = []
 
     if output_file&.ends_with?('.hcat')
       output_file = ::File.open(output_file, 'wb')
@@ -458,8 +459,9 @@ class Creds
       tbl = Rex::Text::Table.new(tbl_opts)
     end
 
-    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin|
+    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin, cracked_password_core|
       matched_cred_ids << core.id
+      cracked_cred_ids << cracked_password_core.id if cracked_password_core.present?
 
       if output_file && output_formatter
         formatted = output_formatter.call(core)
@@ -493,7 +495,7 @@ class Creds
           rhosts << host unless host.blank?
           service_info = build_service_info(service)
         end
-
+        cracked_password_val = cracked_password_core&.private&.data.to_s
         tbl << [
           host,
           origin,
@@ -502,7 +504,8 @@ class Creds
           private_val,
           realm_val,
           human_val, #private type
-          jtr_val
+          jtr_val,
+          cracked_password_val
         ]
       end
     end
@@ -516,7 +519,7 @@ class Creds
     end
 
     if mode == :delete
-      result = framework.db.delete_credentials(ids: matched_cred_ids.uniq)
+      result = framework.db.delete_credentials(ids: matched_cred_ids.concat(cracked_cred_ids).uniq)
       delete_count = result.size
     end
 
@@ -549,6 +552,12 @@ class Creds
 
   def filtered_query(query, opts, origin_ranges, host_ranges)
     query.each do |core|
+      # we will not show the cracked password in a seperate row instead we will show in seperate column
+      # calling `find_by` against this result is a rails direct interaction that may fail in json database mode
+      if core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && query.find_by(id: core.origin.metasploit_credential_core_id).present?
+        next
+      end
+
       # Exclude non-blank username creds if that's what we're after
       if opts[:user] == '' && core.public && !(core.public.username.blank?)
         next
@@ -572,11 +581,23 @@ class Creds
         next
       end
 
+      # this is a direct rails interaction that cannot cross the json db service layer, access of origin objects may  be problematic
+      cracked_password_core = nil
+
+      if !core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && core.public.cores.count > 1
+        core.public.cores.each do |potential_cracked_core|
+          next unless potential_cracked_core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+          if potential_cracked_core.origin.originating_core == core
+            cracked_password_core = potential_cracked_core
+          end
+        end
+      end
+
       if core.logins.empty?
         service = service_from_origin(core)
         next if service.nil? && host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
 
-        yield core, service, origin
+        yield core, service, origin, cracked_password_core
       else
         core.logins.each do |login|
           service = framework.db.services(id: login.service_id).first
@@ -588,7 +609,7 @@ class Creds
             next
           end
 
-          yield core, service, origin
+          yield core, service, origin, cracked_password_core
         end
       end
     end
