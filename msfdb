@@ -673,7 +673,7 @@ def persist_data_service
 end
 
 def clear_default_data_service
-  puts 'Clearing http web data service credentials in msfconsole'
+  puts 'Verifying msfconsole data service'
   # execute msfconsole commands to clear the default data service connection
   cmd = "db_disconnect --clear; exit"
   run_msfconsole_command(cmd)
@@ -996,23 +996,10 @@ def prompt_for_component(command)
 end
 
 def prompt_for_deletion(command)
-  destructive_operations = [:init, :reinit, :delete]
+  destructive_operations = [:reinit, :delete]
 
   if destructive_operations.include? command
-    if command == :init
-      return if web_service_pid_status != WebServicePIDStatus::NO_PID_FILE
-      if (@options[:component] == :all || @options[:component] == :webservice) && should_generate_web_service_ssl &&
-          (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
-        @options[:delete_existing_data] = should_delete
-        return
-      end
-      if (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
-        @options[:delete_existing_data] = should_delete
-        return
-      end
-    else
-      @options[:delete_existing_data] = should_delete
-    end
+    @options[:delete_existing_data] = should_delete
   end
 end
 
