@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Atlassian Confluence Data Center and Server Authentication Bypass via Broken Access Control',
         'Description' => %q{
-          This module exploits an Broken Access Control vulnerability in Atlassian Confluence servers leads to Authentication Bypass.
-          A specially crafted request can be create new admin account without authentication in the Atlassian server.
+          This module exploits a broken access control vulnerability in Atlassian Confluence servers leading to an authentication bypass.
+          A specially crafted request can be create new admin account without authentication on the target Atlassian server.
         },
         'Author' => [
           'Unknown', # exploited in the wild
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe("Patched Confluence version #{confluence_version} detected.")
     end
 
-    Exploit::CheckCode::Vulnerable("Confluence version: #{confluence_version}")
+    Exploit::CheckCode::Appears("Confluence version: #{confluence_version}")
   end
 
   def get_confluence_version
