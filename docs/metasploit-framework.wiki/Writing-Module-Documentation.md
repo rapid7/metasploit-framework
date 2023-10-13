@@ -45,7 +45,7 @@ These are just suggestions, but it'd be nice if the KB had these sections:
 ### Before you submit your PR: msftidy_docs.rb
 
 A documentation file can be passed as a positional argument to `metasploit-framework/tools/dev/msftidy_docs.rb` and will
-highlight formatting errors the docs file might contain. Once all the errors and warnings thrown by msf_tidy_docs have
+highlight formatting errors the docs file might contain. Once all the errors and warnings thrown by `msftidy_docs.rb` have
 been resolved, the documentation file is ready for submission.
 
 ```
