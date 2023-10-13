@@ -134,7 +134,11 @@ module ModuleCommandDispatcher
   #
   # Checks to see if a target is vulnerable.
   #
-  def cmd_check(*args)
+  def cmd_check(*args, opts: {})
+    if (args.include?('-r') || args.include?('--reload-libs')) && !opts[:previously_reloaded]
+      driver.run_single('reload_lib -a')
+    end
+
     return false unless (args = parse_check_opts(args))
 
     mod_with_opts = mod.replicant
@@ -243,6 +247,12 @@ module ModuleCommandDispatcher
   # Reloads the active module
   #
   def cmd_reload(*args)
+    if args.include?('-r') || args.include?('--reload-libs')
+      driver.run_single('reload_lib -a')
+    end
+
+    return cmd_reload_help if args.include?('-h') || args.include?('--help')
+
     begin
       reload
     rescue

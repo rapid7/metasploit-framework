@@ -22,8 +22,12 @@ class Evasion
     'Evasion'
   end
 
-  def cmd_run(*args)
-    opts = {
+  def cmd_run(*args, opts: {})
+    if (args.include?('-r') || args.include?('--reload-libs')) && !opts[:previously_reloaded]
+      driver.run_single('reload_lib -a')
+    end
+
+    module_opts = {
       'Encoder'    => mod.datastore['ENCODER'],
       'Payload'    => mod.datastore['PAYLOAD'],
       'Nop'        => mod.datastore['NOP'],
@@ -32,7 +36,7 @@ class Evasion
     }
 
     begin
-      mod.run_simple(opts)
+      mod.run_simple(module_opts)
     rescue ::Interrupt
       print_error('Evasion interrupted by the console user')
     rescue ::Exception => e
@@ -44,8 +48,14 @@ class Evasion
   alias cmd_exploit cmd_run
 
   def cmd_rerun(*args)
+    opts = {}
+    if args.include?('-r') || args.include?('--reload-libs')
+      driver.run_single('reload_lib -a')
+      opts[:previously_reloaded] = true
+    end
+
     if reload(true)
-      cmd_run(*args)
+      cmd_run(*args, opts: opts)
     end
   end
 
@@ -64,6 +74,7 @@ class Evasion
         '-n' => [ framework.nops.map { |refname, mod| refname }     ],
         '-o' => [ true                                              ],
         '-p' => [ framework.payloads.map { |refname, mod| refname } ],
+        '-r' => [ nil                                               ],
         '-t' => [ true                                              ],
         '-z' => [ nil                                               ]
     }
@@ -77,7 +88,11 @@ class Evasion
   #
   alias cmd_exploit_tabs cmd_run_tabs
 
-  def cmd_to_handler(*_args)
+  def cmd_to_handler(*args)
+    if args.include?('-r') || args.include?('--reload-libs')
+      driver.run_single('reload_lib -a')
+    end
+
     handler = framework.modules.create('exploit/multi/handler')
 
     handler_opts = {

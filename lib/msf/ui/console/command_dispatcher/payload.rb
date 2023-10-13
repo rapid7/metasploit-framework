@@ -45,7 +45,11 @@ module Msf
             )
           end
 
-          def cmd_to_handler(*_args)
+          def cmd_to_handler(*args)
+            if args.include?('-r') || args.include?('--reload-libs')
+              driver.run_single('reload_lib -a')
+            end
+
             handler = framework.modules.create('exploit/multi/handler')
 
             handler_opts = {
