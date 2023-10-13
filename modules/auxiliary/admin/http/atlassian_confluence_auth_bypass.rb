@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', '2023-22515'],
           ['URL', 'https://confluence.atlassian.com/security/cve-2023-22515-privilege-escalation-vulnerability-in-confluence-data-center-and-server-1295682276.html'],
-          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2023-22515']
+          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2023-22515'],
+          ['URL', 'https://attackerkb.com/topics/Q5f0ItSzw5/cve-2023-22515/rapid7-analysis']
         ],
         'DisclosureDate' => '2023-10-04',
         'DefaultOptions' => {
