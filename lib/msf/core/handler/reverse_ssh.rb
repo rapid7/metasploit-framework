@@ -150,8 +150,8 @@ module Msf
       def default_version_string
         default_version_string = 'SSH-2.0-OpenSSH_5.3p1'
 
-        # The current SSH server implementation does not support OpenSSL 3
-        return default_version_string if OpenSSL::OPENSSL_LIBRARY_VERSION.start_with? 'OpenSSL 3'
+        # The current SSH server implementation does not support OpenSSL 3 or windows
+        return default_version_string if OpenSSL::OPENSSL_LIBRARY_VERSION.start_with?('OpenSSL 3') || ::Gem.win_platform?
 
         require 'rex/proto/ssh/connection'
         Rex::Proto::Ssh::Connection.default_options['local_version']
