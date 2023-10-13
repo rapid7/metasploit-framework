@@ -444,7 +444,8 @@ class Creds
     }
 
     opts[:workspace] = framework.db.workspace
-    query = framework.db.creds(opts)
+    cred_cores = framework.db.creds(opts).to_a
+    cred_cores.sort_by!(&:id)
     matched_cred_ids = []
     cracked_cred_ids = []
 
@@ -459,7 +460,7 @@ class Creds
       tbl = Rex::Text::Table.new(tbl_opts)
     end
 
-    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin, cracked_password_core|
+    filter_cred_cores(cred_cores, opts, origin_ranges, host_ranges) do |core, service, origin, cracked_password_core|
       matched_cred_ids << core.id
       cracked_cred_ids << cracked_password_core.id if cracked_password_core.present?
 
@@ -550,13 +551,30 @@ class Creds
 
   protected
 
-  def filtered_query(query, opts, origin_ranges, host_ranges)
-    query.each do |core|
-      # we will not show the cracked password in a seperate row instead we will show in seperate column
-      # calling `find_by` against this result is a rails direct interaction that may fail in json database mode
-      if core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && query.find_by(id: core.origin.metasploit_credential_core_id).present?
-        next
-      end
+  # @param [Array<Metasploit::Credential::Core>] cores The list of cores to filter
+  # @param [Hash] opts
+  # @param [Array<Rex::Socket::RangeWalker>] origin_ranges
+  # @param [Array<Rex::Socket::RangeWalker>] host_ranges
+  # @yieldparam [Metasploit::Credential::Core] core
+  # @yieldparam [Mdm::Service] service
+  # @yieldparam [Metasploit::Credential::Origin] origin
+  # @yieldparam [Metasploit::Credential::Origin::CrackedPassword] cracked_password_core
+  def filter_cred_cores(cores, opts, origin_ranges, host_ranges)
+    # Some creds may have been cracked that exist outside of the filtered cores list, let's resolve them all to show the cracked value
+    cores_by_id = cores.each_with_object({}) { |core, hash| hash[core.id] = core }
+    # Map of any originating core ids that have been cracked; The value is cracked core value
+    cracked_core_id_to_cracked_value = cores.each_with_object({}) do |core, hash|
+      next unless core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+      hash[core.origin.metasploit_credential_core_id] = core
+    end
+
+    cores.each do |core|
+      # Skip the cracked password if it's planned to be shown on the originating core row in a separate column
+      is_duplicate_cracked_password_row = core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) &&
+        cracked_core_id_to_cracked_value.key?(core.origin.metasploit_credential_core_id) &&
+        # The core might exist outside of the currently available cores to render
+        cores_by_id.key?(core.origin.metasploit_credential_core_id)
+      next if is_duplicate_cracked_password_row
 
       # Exclude non-blank username creds if that's what we're after
       if opts[:user] == '' && core.public && !(core.public.username.blank?)
@@ -581,18 +599,7 @@ class Creds
         next
       end
 
-      # this is a direct rails interaction that cannot cross the json db service layer, access of origin objects may  be problematic
-      cracked_password_core = nil
-
-      if !core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) && core.public.cores.count > 1
-        core.public.cores.each do |potential_cracked_core|
-          next unless potential_cracked_core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
-          if potential_cracked_core.origin.originating_core == core
-            cracked_password_core = potential_cracked_core
-          end
-        end
-      end
-
+      cracked_password_core = cracked_core_id_to_cracked_value.fetch(core.id, nil)
       if core.logins.empty?
         service = service_from_origin(core)
         next if service.nil? && host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
