@@ -31,7 +31,7 @@ module MsfdbHelpers
       else
         print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC flags. Database initialization failed.")
       end
- 
+
       start
 
       create_db_users(msf_pass, msftest_pass)
@@ -49,7 +49,7 @@ module MsfdbHelpers
           f.puts "#!/bin/bash\necho exec"
         end
         File.chmod(0744, file_name)
-        
+
         if run_cmd(file_name)
           File.open("#{@db}/postgresql.conf", 'a') do |f|
             f.puts "unix_socket_directories = \'#{path}\'"
@@ -95,14 +95,25 @@ module MsfdbHelpers
       end
 
       print "Starting database at #{@db}..."
-      run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log start")
-      sleep(2)
-      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") != 0
-        puts 'failed'.red.bold.to_s
-        false
-      else
+      pg_ctl_spawn_cmd = "pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log start &"
+      puts "spawn_cmd: #{pg_ctl_spawn_cmd}" if @options[:debug]
+      pg_ctl_pid = Process.spawn(pg_ctl_spawn_cmd)
+      Process.detach(pg_ctl_pid)
+      is_database_running = retry_until_truthy(timeout: 60) do
+        status == DatabaseStatus::RUNNING
+      end
+
+      if is_database_running
         puts 'success'.green.bold.to_s
         true
+      else
+        begin
+          Process.kill(:KILL, pg_ctl_pid)
+        rescue => e
+          puts "Failed to kill pg_ctl_pid=#{pg_ctl_pid} - #{e.class} #{e.message}" if @options[:debug]
+        end
+        puts 'failed'.red.bold.to_s
+        false
       end
     end
 
@@ -158,6 +169,34 @@ module MsfdbHelpers
 
     def self.requirements
       %w[psql pg_ctl initdb createdb]
+    end
+
+    protected
+
+    def retry_until_truthy(timeout:)
+      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :second)
+      ending_time = start_time + timeout
+      retry_count = 0
+      while Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) < ending_time
+        result = yield
+        return result if result
+
+        retry_count += 1
+        remaining_time_budget = ending_time - Process.clock_gettime(Process::CLOCK_MONOTONIC, :second)
+        break if remaining_time_budget <= 0
+
+        delay = 2**retry_count
+        if delay >= remaining_time_budget
+          delay = remaining_time_budget
+          puts("Final attempt. Sleeping for the remaining #{delay} seconds out of total timeout #{timeout}") if @options[:debug]
+        else
+          puts("Sleeping for #{delay} seconds before attempting again") if @options[:debug]
+        end
+
+        sleep delay
+      end
+
+      nil
     end
   end
 end
