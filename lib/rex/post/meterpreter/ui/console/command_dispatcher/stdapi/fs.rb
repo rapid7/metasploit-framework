@@ -397,7 +397,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   # 
  def cmd_lmkdir(*args)
    if (args.length == 0)
-     print_line("Usage: lmkdir directory")
+     print_line("Usage: lmkdir </path/to/directory>")
      return
    end
 
