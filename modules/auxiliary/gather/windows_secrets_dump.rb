@@ -654,7 +654,7 @@ class MetasploitModule < Msf::Auxiliary
         framework_module: self,
         cache_file: datastore['Smb::Krb5Ccname'].blank? ? nil : datastore['Smb::Krb5Ccname'],
         mutual_auth: true,
-        is_dcerpc: true,
+        dce_style: true,
         use_gss_checksum: true,
         ticket_storage: kerberos_ticket_storage,
         offered_etypes: offered_etypes
