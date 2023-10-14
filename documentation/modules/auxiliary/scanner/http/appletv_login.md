@@ -9,7 +9,7 @@ The Password mode is more complex, therefore the usual online bruteforce strateg
 ## Verification Steps
 1. Start msfconsole
 2. Do: `use auxiliary/scanner/http/appletv_login`
-3. Do: set usernames and passwords via the `username` and `password` options, or pass a list via `user_file` and `pass_file` options
+3. Do: set the passwords via the `password` option, or pass a list of passwords via the`pass_file` option. Pass a userlist via "user_list".
 4. Do: `run`
 5. Hopefully you see somthing like this:
 ```
@@ -64,8 +64,6 @@ Whether to print output for all attempts
 HTTP server virtual host
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
-
 ```
 msf > use auxiliary/scanner/http/appletv_login
 msf6 auxiliary(scanner/http/appletv_login) > set rhosts 127.0.0.1
