@@ -11,7 +11,7 @@ It has been verified to work on at least versions 1.4.1 and 1.6.2.
 4. Do: `run`
 5. Hopefully you see somthing like this:
 ```
-[+] 127.0.0.1:8080 - Login Successful: axisadmin:4x15pa$$
+[+] 127.0.0.1:8080 - Login Successful: axisadmin:4x15pa$$w0rd
 ```
 
 ## Options
