@@ -17,7 +17,6 @@ The Password mode is more complex, therefore the usual online bruteforce strateg
 ```
 
 ## Options
-List each option and how to use it.
 
 ### BLANK_PASSWORD
 
