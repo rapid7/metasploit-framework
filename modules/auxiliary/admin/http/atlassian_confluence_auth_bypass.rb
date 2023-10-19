@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Base path', '/']),
-      OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', Rex::Text.rand_text_alpha(8)]),
+      OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', Faker::Internet.username], regex: /^[a-z._@]+$/),
       OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', Rex::Text.rand_text_alpha(8)]),
       OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', Faker::Internet.email])
     ])
