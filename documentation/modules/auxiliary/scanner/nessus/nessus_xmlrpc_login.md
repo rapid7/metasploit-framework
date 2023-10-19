@@ -2,7 +2,7 @@
 
 This module simply attempts to login to a Nessus XMLRPC interface using a       specific user/pass.
 
-## Verification Steps
+### Verification Steps
 Example steps in this format (is also in the PR):
 
 1. Start msfconsole
@@ -11,7 +11,7 @@ Example steps in this format (is also in the PR):
 4. Do: `run`
 5. Hopefully you see somthing like this:
 ```
-[+] 127.0.0.1:1214 - Successful: nessus:4x15pa$$w0rd
+[+] 127.0.0.1:8834 - Successful: nessus:4x15pa$$w0rd
 ```
 
 ## Options
@@ -92,7 +92,7 @@ username => notuser
 msf6 auxiliary(scanner/nessus/nessus_rest_login) > run
 
 [*] Attempting to login to /stop using password list
-[+] 127.0.0.1:1214         -    Success: 'notuser:N0tpassword'!
+[+] 127.0.0.1:8834         -    Success: 'notuser:N0tpassword'!
 [*] Auxiliary module execution completed
 msf6 auxiliary(scanner/nessus/nessus_rest_login) >
 ```
