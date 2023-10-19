@@ -3,7 +3,7 @@
 This module attempts to authenticate to an AppleTV service with the username, 'AirPlay'.
 The device has two different access control modes: OnScreen and Password.
 The difference between the two is the password in OnScreen mode is numeric-only and four digits long,
-which means when this option is enabled, this option, the module will make sure to cover all of them - from 0000 to 9999.
+which means when this option is enabled, the module will make sure to cover all of them - from 0000 to 9999.
 The Password mode is more complex, therefore the usual online bruteforce strategies apply.
 
 ## Verification Steps
