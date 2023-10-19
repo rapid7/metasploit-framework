@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    return fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Version vulnerable but setup is already completed') unless res&.code == 302
+    return fail_with(Msf::Exploit::Failure::UnexpectedReply, 'Version vulnerable but setup is already completed') unless res&.code == 302 || res&.code == 200
 
     print_good('Found server-info.action ! Trying to ignore setup.')
 

