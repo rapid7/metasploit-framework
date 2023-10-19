@@ -3,8 +3,6 @@
 This module will attempt to authenticate to a Nessus server RPC interface.
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
-
 1. Start msfconsole
 2. Do: `use auxiliary/scanner/nessus/nessus_rest_login`
 3. Do: set usernames and passwords via the `username` and `password` options, or pass a list via `user_file` and `pass_file` options
@@ -38,18 +36,6 @@ A specific password to authenticate with
 
 ### PASS_FILE
 File containing passwords, one per line
-
-### Proxies
-A proxy chain of format type:host:port[,type:host:port][...]
-
-### RHOSTS
-The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-
-### RPORT
-The target port (TCP)
-
-### SSL
-Negotiate SSL/TLS for outgoing connections
 
 ### STOP_ON_SUCCESS
 Stop guessing when a credential works for a host

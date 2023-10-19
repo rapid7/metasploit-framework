@@ -1,9 +1,8 @@
 ## Vulnerable Application
 
-This module simply attempts to login to a Nessus XMLRPC interface using a       specific user/pass.
+This module simply attempts to login to a Nessus XMLRPC interface using a specific user/pass.
 
-### Verification Steps
-Example steps in this format (is also in the PR):
+## Verification Steps
 
 1. Start msfconsole
 2. Do: `use auxiliary/scanner/nessus/nessus_rest_login`
@@ -38,18 +37,6 @@ A specific password to authenticate with
 
 ### PASS_FILE
 File containing passwords, one per line
-
-### Proxies
-A proxy chain of format type:host:port[,type:host:port][...]
-
-### RHOSTS
-The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-
-### RPORT
-The target port (TCP)
-
-### SSL
-Negotiate SSL/TLS for outgoing connections
 
 ### STOP_ON_SUCCESS
 Stop guessing when a credential works for a host
