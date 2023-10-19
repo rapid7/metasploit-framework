@@ -11,7 +11,7 @@ The Password mode is more complex, therefore the usual online bruteforce strateg
 2. Do: `use auxiliary/scanner/http/appletv_login`
 3. Do: set the passwords via the `password` option, or pass a list of passwords via the `pass_file` option. Pass a user list via `user_list`.
 4. Do: `run`
-5. Hopefully you see somthing like this:
+5. Hopefully you see something like this:
 ```
 [+] 127.0.0.1:7000 - Login Successful: admin:adminpassword
 ```
