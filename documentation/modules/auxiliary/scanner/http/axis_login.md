@@ -23,7 +23,7 @@ Try blank passwords for all users
 
 ### BLANK_PASSWORD
 
-Boolean value on if an additional login attempt should be attempted with an empty password for every user.
+Set to `true` if an additional login attempt should be made with an empty password for every user.
 
 ### BRUTEFORCE_SPEED
 
