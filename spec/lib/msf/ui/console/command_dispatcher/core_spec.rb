@@ -434,7 +434,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
       it 'When the user searches for an invalid field' do
         core.cmd_sessions('--search', 'not_a_term:1')
         expect(@combined_output.join("\n")).to match_table <<~TABLE
-          Please provide valid search term. Given: not_a_term
+          Please provide valid search term. Given: not_a_term. Supported keywords are: last_checkin, session_id, session_type
         TABLE
       end
     end
