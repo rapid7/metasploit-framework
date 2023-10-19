@@ -834,6 +834,7 @@ class ReadableText
   def self.dump_sessions(framework, opts={})
     output = ""
     verbose = opts[:verbose] || false
+    sessions = opts[:sessions] || framework.sessions
     show_active = opts[:show_active] || false
     show_inactive = opts[:show_inactive] || false
     # if show_active and show_inactive are false the caller didn't
@@ -859,11 +860,11 @@ class ReadableText
           'Header' => "Active sessions",
           'Columns' => columns,
           'Indent' => indent)
-      framework.sessions.each_sorted { |k|
-        session = framework.sessions[k]
+
+      sessions.each do |session_id, session|
         row = create_msf_session_row(session, show_extended)
         tbl << row
-      }
+      end
 
       output << (tbl.rows.count > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n")
     end
@@ -984,9 +985,9 @@ class ReadableText
       return out
     end
 
-    framework.sessions.each_sorted do |k|
-      session = framework.sessions[k]
+    sessions = opts[:sessions] || framework.sessions
 
+    sessions.each do |session_id, session|
       sess_info    = session.info.to_s
       sess_id      = session.sid.to_s
       sess_name    = session.sname.to_s

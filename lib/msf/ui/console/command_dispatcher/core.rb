@@ -11,7 +11,6 @@
 
 
 require 'msf/core/opt_condition'
-
 require 'optparse'
 
 module Msf
@@ -46,7 +45,7 @@ class Core
     ["-s", "--script"]               => [ true,  "Run a script or module on the session given with -i, or all", "<script>"       ],
     ["-u", "--upgrade"]              => [ true,  "Upgrade a shell to a meterpreter session on many platforms", "<id>"            ],
     ["-t", "--timeout"]              => [ true,  "Set a response timeout (default: 15)", "<seconds>"                             ],
-    ["-S", "--search"]               => [ true,  "Row search filter.", "<filter>"                                                ],
+    ["-S", "--search"]               => [ true,  "Row search filter. (ex: sessions --search 'last_checkin:less_than:10s session_id:5 session_type:meterpreter')", "<filter>"],
     ["-x", "--list-extended"]        => [ false, "Show extended information in the session table"                                ],
     ["-n", "--name"]                 => [ true,  "Name or rename a session by ID", "<id> <name>"                                 ])
 
@@ -56,7 +55,7 @@ class Core
     ["-k", "--kill"]            => [ true,  "Terminate the specified thread ID.", "<id>"             ],
     ["-K", "--kill-all"]        => [ false, "Terminate all non-critical threads."                    ],
     ["-i", "--info"]            => [ true,  "Lists detailed information about a thread.", "<id>"     ],
-    ["-l", "--list"] => [ false, "List all background threads."                           ],
+    ["-l", "--list"]            => [ false, "List all background threads."                           ],
     ["-v", "--verbose"]         => [ false, "Print more detailed info.  Use with -i and -l"          ])
 
   @@tip_opts = Rex::Parser::Arguments.new(
@@ -114,6 +113,32 @@ class Core
   @@unset_opts = @@unsetg_opts.merge(
     ["-g", "--global"] => [ false, "Operate on global datastore variables"]
   )
+
+  SESSION_TYPE = 'session_type'
+  SESSION_ID = 'session_id'
+  LAST_CHECKIN = 'last_checkin'
+  LESS_THAN = 'less_than'
+  GREATER_THAN = 'greater_than'
+
+  VALID_SESSION_SEARCH_PARAMS =
+    [
+      LAST_CHECKIN,
+      SESSION_ID,
+      SESSION_TYPE
+    ]
+  VALID_OPERATORS =
+    [
+      LESS_THAN,
+      GREATER_THAN
+    ]
+
+  private_constant :VALID_SESSION_SEARCH_PARAMS
+  private_constant :VALID_OPERATORS
+  private_constant :SESSION_TYPE
+  private_constant :SESSION_ID
+  private_constant :LAST_CHECKIN
+  private_constant :GREATER_THAN
+  private_constant :LESS_THAN
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -1519,13 +1544,27 @@ class Core
     unless sid.nil? || method == 'interact'
       session_list = build_range_array(sid)
       if session_list.blank?
-        print_error("Please specify valid session identifier(s)")
+        print_error('Please specify valid session identifier(s)')
         return false
       end
     end
 
     if show_inactive && !framework.db.active
       print_warning("Database not connected; list of inactive sessions unavailable")
+    end
+
+    if search_term
+      matching_sessions = get_matching_sessions(search_term)
+
+      # check for nil value indicating validation has found invalid input in search helper functions. Error will have been printed already
+      unless matching_sessions
+        return nil
+      end
+
+      if matching_sessions.empty?
+        print_error('No matching sessions.')
+        return nil
+      end
     end
 
     last_known_timeout = nil
@@ -1537,9 +1576,12 @@ class Core
         print_error("No command specified!")
         return false
       end
+
       cmds.each do |cmd|
         if sid
           sessions = session_list
+        elsif matching_sessions
+          sessions = matching_sessions
         else
           sessions = framework.sessions.keys.sort
         end
@@ -1649,20 +1691,27 @@ class Core
         end
       end
     when 'killall'
-      print_status("Killing all sessions...")
-      framework.sessions.each_sorted.reverse_each do |s|
-        session = framework.sessions.get(s)
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          begin
-            session.kill
-          ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
-            end
+      if matching_sessions
+        print_status('Killing matching sessions...')
+        print_line
+        print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, sessions: matching_sessions))
+        print_line
+      else
+        matching_sessions = framework.sessions
+        print_status('Killing all sessions...')
+      end
+      matching_sessions.each do |_session_id, session|
+        next unless session
+
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
+        end
+        begin
+          session.kill
+        ensure
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
           end
         end
       end
@@ -1754,7 +1803,7 @@ class Core
       end
     when 'list', 'list_inactive', nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
+      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, sessions: matching_sessions))
       print_line
     when 'name'
       if session_name.blank?
@@ -1791,6 +1840,184 @@ class Core
     self.active_session = nil
 
     true
+  end
+
+  def get_matching_sessions(search_term)
+    matching_sessions = {}
+    terms = search_term.split
+    id_searches = []
+    type_searches = []
+    checkin_searches = []
+    searches = []
+
+    # Group search terms by what's being searched for
+    terms.each do |term|
+      case term.split(':').first
+      when SESSION_ID
+        id_searches << term
+      when SESSION_TYPE
+        type_searches << term
+      when LAST_CHECKIN
+        checkin_searches << term
+      else
+        print_error("Please provide valid search term. Given: #{term.split(':').first}")
+        return nil
+      end
+    end
+
+    # Group results by search term - OR filters
+    [id_searches, type_searches].each do |search|
+      next if search.empty?
+
+      id_matches = {}
+      search.each do |term|
+        matches = filter_sessions_by_search(term)
+        return unless matches
+
+        id_matches = id_matches.merge(matches)
+      end
+      searches << id_matches
+    end
+
+    # Retrieve checkin search results. AND filter with a max length of 2
+    unless checkin_searches.empty?
+      unless validate_checkin_searches(checkin_searches)
+        return
+      end
+
+      checkin_matches = filter_sessions_by_search(checkin_searches.first)
+      if checkin_searches[1]
+        matches = filter_sessions_by_search(checkin_searches[1])
+        checkin_matches = checkin_matches.select { |session_id, session| matches[session_id] == session }
+      end
+      searches << checkin_matches
+    end
+
+    # AND all the results together for final session list
+    if searches.empty?
+      print_error('Please provide a valid search query.')
+      return nil
+    else
+      matching_sessions = searches.first
+      searches[1..].each do |result_set|
+        matching_sessions = matching_sessions.select { |session_id, session| result_set[session_id] == session }
+      end
+    end
+    matching_sessions
+  end
+
+  def validate_checkin_searches(checkin_searches)
+    checkin_searches.each do |search_term|
+      unless search_term.split(':').length == 3
+        print_error('Please only specify last_checkin, before or after, and a time. Ex: last_checkin:before:1m30s')
+        return false
+      end
+      time_value = search_term.split(':')[2]
+      time_unit_string = time_value.gsub(/[^a-zA-Z]/, '')
+      unless time_unit_string == time_unit_string.squeeze
+        print_error('Please do not provide duplicate time units in your query')
+        return false
+      end
+      operator = checkin_searches[0].split(':')[1]
+      unless VALID_OPERATORS.include?(operator)
+        print_error("Please specify less_than or greater_than for checkin query. Ex: last_checkin:less_than:1m30s. Given: #{operator}")
+        return false
+      end
+    end
+    if checkin_searches.length > 2
+      print_error("Too many checkin searches. Max: 2. Given: #{checkin_searches.length}")
+      return false
+    elsif checkin_searches.length == 2
+      _, operator1, value1 = checkin_searches[0].split(':')
+      _, operator2, value2 = checkin_searches[1].split(':')
+      unless VALID_OPERATORS.include?(operator1) && VALID_OPERATORS.include?(operator2)
+        print_error('last_checkin can only be searched for using before or after. Ex: last_checkin:before:1m30s')
+        return false
+      end
+      if operator1 == operator2
+        print_error("Cannot search for last_checkin with two #{operator1} arguments.")
+        return false
+      end
+      if (operator1 == GREATER_THAN && parse_duration(value2) < parse_duration(value1)) || (operator1 == LESS_THAN && parse_duration(value1) < parse_duration(value2))
+        print_error('After value must be a larger duration than the before value.')
+        return false
+      end
+    end
+    true
+  end
+
+  def filter_sessions_by_search(search_term)
+    matching_sessions = {}
+    field, = search_term.split(':')
+    framework.sessions.each do |session_id, session|
+      if !session.respond_to?(:last_checkin) && (field == LAST_CHECKIN)
+        next
+      end
+
+      matches_search = evaluate_search_criteria(session, search_term)
+      return nil if matches_search.nil?
+
+      case field
+      when LAST_CHECKIN
+        if session.last_checkin && evaluate_search_criteria(session, search_term)
+          matching_sessions[session_id] = session
+        end
+      when SESSION_TYPE, SESSION_ID
+        matching_sessions[session_id] = session if evaluate_search_criteria(session, search_term)
+      else
+        print_error("Unrecognized search term: #{field}")
+        return nil
+      end
+    end
+    matching_sessions
+  end
+
+  def evaluate_search_criteria(session, search_term)
+    field, operator, value = search_term.split(':')
+
+    case field
+    when LAST_CHECKIN
+      last_checkin_time = session.last_checkin
+      offset = parse_duration(value)
+      return nil unless offset
+
+      threshold_time = Time.now - offset
+      case operator
+      when GREATER_THAN
+        return threshold_time > last_checkin_time
+      when LESS_THAN
+        return threshold_time < last_checkin_time
+      end
+    when SESSION_ID
+      return session.sid.to_s == operator
+    when SESSION_TYPE
+      return session.type.casecmp?(operator)
+    end
+  end
+
+  def parse_duration(duration)
+    total_time = 0
+    time_tokens = duration.scan(/(?:\d+\.?\d*|\.\d+)/).zip(duration.scan(/[a-zA-Z]+/))
+    time_tokens.each do |value, unit|
+      if unit.nil? || value.nil?
+        print_error('Please specify both time units and amounts')
+        return nil
+      end
+      case unit.downcase
+      when 'd'
+        total_time += value.to_f * 86400
+      when 'h'
+        total_time += value.to_f * 3600
+      when 'm'
+        total_time += value.to_f * 60
+      when 's'
+        total_time += value.to_f
+      else
+        print_error("Unrecognized time format: #{value}")
+        return nil
+      end
+    end
+    total_time.to_i
   end
 
   #

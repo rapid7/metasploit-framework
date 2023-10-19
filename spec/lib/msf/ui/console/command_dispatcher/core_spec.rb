@@ -397,4 +397,375 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
       end
     end
   end
+
+  describe '#cmd_sessions' do
+    before(:each) do
+      allow(driver).to receive(:active_session=)
+      allow(framework).to receive(:sessions).and_return(sessions)
+    end
+
+    context 'with no sessions' do
+      let(:sessions) { [] }
+      it 'When the user does not enter a search term' do
+        core.cmd_sessions
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+          No active sessions.
+        TABLE
+      end
+
+      it 'When the user searches for a session' do
+        core.cmd_sessions('--search', 'session_id:1')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          No matching sessions.
+        TABLE
+      end
+    end
+
+    context 'with sessions' do
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 1, sname: 'sesh1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'When the user searches for an invalid field' do
+        core.cmd_sessions('--search', 'not_a_term:1')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          Please provide valid search term. Given: not_a_term
+        TABLE
+      end
+    end
+
+    context 'searching for sessions with different ids' do
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          2 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 2, sname: 'session2', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'When the user searches for a specific id' do
+        core.cmd_sessions('--search', 'session_id:1')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            1   session1  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user searches for a session id that does not exist' do
+        core.cmd_sessions('--search', 'session_id:6')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          No matching sessions.
+        TABLE
+      end
+
+      it 'When the user searches for multiple ids' do
+        core.cmd_sessions('--search', 'session_id:2 session_id:1')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            1   session1  meterpreter  info         tunnel (127.0.0.1)
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user searches for multiple ids and only some match' do
+        core.cmd_sessions('--search', 'session_id:2 session_id:6')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+    end
+
+    context 'searches with sessions with different session types' do
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'cmd_shell', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          2 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 2, sname: 'session2', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          3 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'java', sid: 3, sname: 'session3', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'returns session match by type' do
+        core.cmd_sessions('--search', 'session_type:meterpreter')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'filters by multiple session types' do
+        core.cmd_sessions('--search', 'session_type:meterpreter session_type:java')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+            3   session3  java         info         tunnel (127.0.0.1)
+        TABLE
+      end
+    end
+
+    context 'searches with sessions with different checkin values' do
+      before(:all) do
+        Timecop.freeze(Time.parse('Dec 18, 2022 12:33:40.000000000 GMT'))
+      end
+
+      after(:all) do
+        Timecop.return
+      end
+
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          2 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: (Time.now - 90), type: 'meterpreter', sid: 2, sname: 'session2', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          3 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: (Time.now - 20000), type: 'meterpreter', sid: 3, sname: 'session3', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'When the user searches using fractions of a second' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:100.5s')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            1   session1  meterpreter  info         tunnel (127.0.0.1)
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user searches using multiple units with fractional seconds' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:1m40.5s')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            1   session1  meterpreter  info         tunnel (127.0.0.1)
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user searches using fractions of a minute' do
+        core.cmd_sessions('--search', 'last_checkin:greater_than:0.5m1s')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+            3   session3  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user searches using capital letters' do
+        core.cmd_sessions('--search', 'last_checkin:greater_than:31S')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+            3   session3  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user searches using an invalid checkin parameter' do
+        core.cmd_sessions('--search', 'last_checkin:something:10s')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          Please specify less_than or greater_than for checkin query. Ex: last_checkin:less_than:1m30s. Given: something
+        TABLE
+      end
+
+      it 'When the user searches using duplicated time units' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:10s10s')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          Please do not provide duplicate time units in your query
+        TABLE
+      end
+
+      it 'When the user properly specifies both less_than and greater_than checkin ranges' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:200s last_checkin:greater_than:30s')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user specifies a greater_than time that is larger than the less_than time' do
+        core.cmd_sessions('--search', 'last_checkin:greater_than:200s last_checkin:less_than:30s')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          After value must be a larger duration than the before value.
+        TABLE
+      end
+
+      it 'When the user uses two before arguments with last checkin' do
+        core.cmd_sessions('--search', 'last_checkin:greater_than:200s last_checkin:greater_than:30s')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          Cannot search for last_checkin with two greater_than arguments.
+        TABLE
+      end
+    end
+
+    context 'Searches with sessions that have different checkins and types' do
+      before(:all) do
+        Timecop.freeze(Time.parse('Dec 18, 2022 12:33:40.000000000 GMT'))
+      end
+
+      after(:all) do
+        Timecop.return
+      end
+
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          2 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: (Time.now - 90), type: 'java', sid: 2, sname: 'session2', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          3 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: (Time.now - 20000), type: 'cmd_shell', sid: 3, sname: 'session3', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'When the user specifies both type and checkin' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:1m40.5s session_type:meterpreter')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            1   session1  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user specifies both type and checkin but there are only partial matches' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:1m40.5s session_type:something')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          No matching sessions.
+        TABLE
+      end
+    end
+
+    context 'Searches with sessions that have different ids and types' do
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          2 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: (Time.now - 90), type: 'java', sid: 2, sname: 'session2', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          3 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: (Time.now - 20000), type: 'cmd_shell', sid: 3, sname: 'session3', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'When the user specifies both type and checkin' do
+        core.cmd_sessions('--search', 'session_id:1 session_type:meterpreter')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            1   session1  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+
+      it 'When the user specifies both type and checkin but there are only partial matches' do
+        core.cmd_sessions('--search', 'session_id:1 session_type:something')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          No matching sessions.
+        TABLE
+      end
+    end
+
+    context 'searches for checkin with sessions that do not respond to checkin' do
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::CommandShell, type: 'cmd_shell', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+
+      it 'When the user searches for checkin values' do
+        core.cmd_sessions('--search', 'last_checkin:less_than:6s')
+        expect(@combined_output.join("\n")).to match_table <<~TABLE
+          No matching sessions.
+        TABLE
+      end
+    end
+
+    context 'with other flags' do
+      let(:sessions) do
+        {
+          1 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 1, sname: 'session1', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          2 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 2, sname: 'session2', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel'),
+          3 => instance_double(::Msf::Sessions::Meterpreter_x64_Win, last_checkin: Time.now, type: 'meterpreter', sid: 3, sname: 'session3', info: 'info', session_host: '127.0.0.1', tunnel_to_s: 'tunnel')
+        }
+      end
+      it 'When the user tries to kill all matching sessions but there are no matches' do
+        core.cmd_sessions('--search', 'session_id:5', '-K')
+        expect(@combined_output).to eq([
+          'No matching sessions.'
+        ])
+      end
+
+      it 'When the user tries to kill all matching sessions and there are matches' do
+        expect(sessions[1]).not_to receive(:kill)
+        expect(sessions[2]).to receive(:kill)
+        expect(sessions[3]).to receive(:kill)
+        core.cmd_sessions('--search', 'session_id:2 session_id:3', '-K')
+        expect(@output.join("\n")).to match_table <<~TABLE
+          Killing matching sessions...
+          Active sessions
+          ===============
+
+            Id  Name      Type         Information  Connection
+            --  ----      ----         -----------  ----------
+            2   session2  meterpreter  info         tunnel (127.0.0.1)
+            3   session3  meterpreter  info         tunnel (127.0.0.1)
+        TABLE
+      end
+    end
+  end
+
+  describe '#parse_duration' do
+    {
+      '1s' => 1,
+      '2s' => 2,
+      '3.5s' => 3,
+      '1.5m' => 90,
+      '1.5d' => 129600,
+      '1d1h1m1s' => 90061,
+      '1.5d1.5h1.5m1.5s' => 135091,
+      '1.75m70s' => 175
+    }.each do |input, expected|
+      it "returns #{expected} seconds for the input #{input}" do
+        expect(core.parse_duration(input)).to eq(expected)
+      end
+    end
+  end
 end
