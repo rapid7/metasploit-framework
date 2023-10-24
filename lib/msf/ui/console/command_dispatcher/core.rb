@@ -1860,7 +1860,7 @@ class Core
       when LAST_CHECKIN
         checkin_searches << term
       else
-        print_error("Please provide valid search term. Given: #{term.split(':').first}")
+        print_error("Please provide valid search term. Given: #{term.split(':').first}. Supported keywords are: #{VALID_SESSION_SEARCH_PARAMS.join(', ')}")
         return nil
       end
     end

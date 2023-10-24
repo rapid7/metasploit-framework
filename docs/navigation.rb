@@ -272,6 +272,10 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-msfvenom.md',
             nav_order: 7
+          },
+          {
+            path: 'Managing-Sessions.md',
+            nav_order: 8
           }
         ]
       },
