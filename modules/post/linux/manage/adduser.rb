@@ -223,7 +223,7 @@ class MetasploitModule < Msf::Post
         d_cmd_exec("#{binary} --password \'#{passwd}\' #{homedirc} #{groupsc} --shell #{datastore['SHELL']} --no-log-init #{datastore['USERNAME']}".gsub(/ {2,}/, ' '))
         groups_handled = true
       else
-        vprint_status('Unsure what platform were on. Using useradd in most basic/common settings')
+        vprint_status('Unsure what platform we\'re on. Using useradd in most basic/common settings')
 
         # Finally run it
         d_cmd_exec("#{binary} #{datastore['USERNAME']} | echo")
@@ -255,7 +255,7 @@ class MetasploitModule < Msf::Post
         d_cmd_exec("#{binary} -D #{homedirc} -s #{datastore['SHELL']} #{datastore['USERNAME']}")
         d_cmd_exec("echo \'#{datastore['USERNAME']}:#{passwd}\'|chpasswd -e")
       else
-        print_status('Unsure what platform were on. Using useradd in most basic/common settings')
+        print_status('Unsure what platform we\'re on. Using useradd in most basic/common settings')
 
         # Finally run it
         d_cmd_exec("#{binary} #{datastore['USERNAME']}")
