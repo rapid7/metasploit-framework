@@ -1617,7 +1617,7 @@ class Core
               rescue ::Rex::Post::Meterpreter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
               rescue Rex::TimeoutError
-                print_error("Operation timed out")
+                print_error("Operation timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions -c <cmd> --timeout <value>%clr")
               end
             elsif session.type == 'shell' || session.type == 'powershell'
               output = session.shell_command(cmd)
@@ -1653,20 +1653,28 @@ class Core
 
         cmds.each do |cmd|
           sessions.each do |session|
-            session = verify_session(session)
-            unless session.type == 'meterpreter'
-              print_error "Session ##{session.sid} is not a Meterpreter shell. Skipping..."
-              next
-            end
+            begin
+              session = verify_session(session)
+              unless session.type == 'meterpreter'
+                print_error "Session ##{session.sid} is not a Meterpreter shell. Skipping..."
+                next
+              end
 
-            next unless session
-            print_status("Running '#{cmd}' on #{session.type} session #{session.sid} (#{session.session_host})")
-            if session.respond_to?(:response_timeout)
-              last_known_timeout = session.response_timeout
-              session.response_timeout = response_timeout
-            end
+              next unless session
+              print_status("Running '#{cmd}' on #{session.type} session #{session.sid} (#{session.session_host})")
+              if session.respond_to?(:response_timeout)
+                last_known_timeout = session.response_timeout
+                session.response_timeout = response_timeout
+                session.on_run_command_error_proc = log_on_timeout_error("Send timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions -C <cmd> --timeout <value>%clr")
+              end
 
-            output = session.run_cmd(cmd, driver.output)
+              output = session.run_cmd(cmd, driver.output)
+            ensure
+              if session.respond_to?(:response_timeout) && last_known_timeout
+                session.response_timeout = last_known_timeout
+                session.on_run_command_error_proc = nil
+              end
+            end
           end
         end
     when 'kill'
@@ -1722,16 +1730,19 @@ class Core
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
+            session.on_run_command_error_proc = log_on_timeout_error("Send timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions --interact <id> --timeout <value>%clr")
           end
           print_status("Starting interaction with #{session.name}...\n") unless quiet
           begin
             self.active_session = session
+
             sid = session.interact(driver.input.dup, driver.output)
             self.active_session = nil
             driver.input.reset_tab_completion if driver.input.supports_readline
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
+              session.on_run_command_error_proc = nil
             end
           end
         else
@@ -1756,12 +1767,14 @@ class Core
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
+            session.on_run_command_error_proc = log_on_timeout_error("Send timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions --timeout <value> --script <script> <id>%clr")
           end
           begin
             print_status("Session #{sess_id} (#{session.session_host}):")
             print_status("Running #{script} on #{session.type} session" +
                           " #{sess_id} (#{session.session_host})")
             begin
+              session.init_ui(driver.input, driver.output)
               session.execute_script(script, *extra)
             rescue ::Exception => e
               log_error("Error executing script or module: #{e.class} #{e}")
@@ -1769,7 +1782,9 @@ class Core
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
+              session.on_run_command_error_proc = nil
             end
+            session.reset_ui
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -2834,6 +2849,20 @@ class Core
     else
       print_error("Invalid session identifier: #{session_id}") unless quiet
       nil
+    end
+  end
+
+  #
+  # Custom error code to handle timeout errors
+  #
+  # @param message [String] The message to be printed when a timeout error is hit
+  # @return [Proc] proc function that prints the specified error when the error types match
+  def log_on_timeout_error(message)
+    proc do |e|
+      next unless e.is_a?(Rex::TimeoutError) || e.is_a?(Timeout::Error)
+      elog(e)
+      print_error(message)
+      :handled
     end
   end
 

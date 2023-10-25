@@ -128,6 +128,12 @@ module Interactive
   attr_accessor :on_print_proc
   attr_accessor :on_command_proc
 
+  #
+  # A function to be run when running a session command hits an error
+  #
+  # @return [Proc,nil] A function to be run when running a session command hits an error
+  attr_accessor :on_run_command_error_proc
+
 protected
 
   #
