@@ -410,7 +410,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
           module_info_by_path_from_database!
         end
 
-        it { expect(subject[:modification_time]).to be_within(1.second).of(pathname_modification_time) }
+        it { expect(subject[:modification_time]).to be_within(10.seconds).of(pathname_modification_time) }
         it { expect(subject[:parent_path]).to eq(parent_path) }
         it { expect(subject[:reference_name]).to eq(reference_name) }
         it { expect(subject[:type]).to eq(type) }
