@@ -672,13 +672,6 @@ def persist_data_service
   run_msfconsole_command(cmd)
 end
 
-def clear_default_data_service
-  puts 'Verifying msfconsole data service'
-  # execute msfconsole commands to clear the default data service connection
-  cmd = "db_disconnect --clear; exit"
-  run_msfconsole_command(cmd)
-end
-
 def get_db_connect_command
   data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
   if !@options[:data_service_name].nil?
@@ -1056,10 +1049,6 @@ if $PROGRAM_NAME == __FILE__
     @options[:component] = prompt_for_component(command)
   end
   prompt_for_deletion(command)
-  # Disable the locally configured webservice component
-  if command != :status && @options[:component] == :database
-    clear_default_data_service
-  end
   if @options[:component] == :all
     @components.each { |component|
       puts '===================================================================='
