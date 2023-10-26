@@ -1,10 +1,8 @@
 ## Vulnerable Application
 
 This module can decrypt the history of PL/SQL Deceloper, and passwords are available if the user chooses to remember the password.
-
-  Analysis of encryption algorithm [here](https://adamcaudill.com/2016/02/02/plsql-developer-nonexistent-encryption/).
-
-  You can find its official website [here](https://www.allroundautomations.com/products/pl-sql-developer/).
+Analysis of encryption algorithm [here](https://adamcaudill.com/2016/02/02/plsql-developer-nonexistent-encryption/).
+You can find its official website [here](https://www.allroundautomations.com/products/pl-sql-developer/).
 
 ## Verification Steps
 

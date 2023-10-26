@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Gather PL/SQL Developer History and Passwords',
         'Description' => %q{
-          This module can decrypt the history of PL/SQL Deceloper,
+          This module can decrypt the history of a PL/SQL Developer,
           and passwords are available if the user chooses to remember the password.
         },
         'License' => MSF_LICENSE,
@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://adamcaudill.com/2016/02/02/plsql-developer-nonexistent-encryption/']
         ],
         'Author' => [
-          'Jemmy Wang'
+          'Adam Caudill' # Discovery 
+          'Jemmy Wang' # msf module 
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
