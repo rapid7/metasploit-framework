@@ -361,11 +361,14 @@ class  Util
     addr
   end
 
-  def free_data(ptr)
+  def free_data(*ptrs)
+    return false if ptrs.empty?
     return false if process_heap.nil?
 
-    result = railgun.kernel32.HeapFree(process_heap, 0, ptr.to_i)
-    result['return']
+    results = railgun.multi(
+      ptrs.map { |ptr| ['kernel32', 'HeapFree', [process_heap, 0, ptr.to_i]] }
+    )
+    results.map { |res| res['return'] }.all?
   end
 
   #
