@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Citrix ADC (NetScaler) Bleed Scanner',
         'Description' => %q{
-          This module scans for a vulnerability that allows an remote, unauthenticated attacker to leak memory for a
+          This module scans for a vulnerability that allows a remote, unauthenticated attacker to leak memory for a
           target Citrix ADC server. The leaked memory is then scanned for session cookies which can be hijacked if found.
         },
         'Author' => [
@@ -79,16 +79,27 @@ class MetasploitModule < Msf::Auxiliary
       next unless username
 
       print_good("Cookie: #{COOKIE_NAME}=#{cookie} Username: #{username}")
-      report_vuln(
-        host: rhost,
-        port: rport,
-        name: name,
-        refs: references
-      )
+      report_vuln
     end
 
-    unless username
-      print_status('No valid cookies were leaked from the target.')
+    return if username
+
+    begin
+      JSON.parse(res.body)
+    rescue JSON::ParserError
+      print_status('The target is vulnerable but no valid cookies were leaked.')
+      report_vuln
+    else
+      print_status('The target does not appear vulnerable.')
     end
+  end
+
+  def report_vuln
+    super(
+      host: rhost,
+      port: rport,
+      name: name,
+      refs: references
+    )
   end
 end

@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module scans for a vulnerability that allows an remote, unauthenticated attacker to leak memory for a target Citrix
+This module scans for a vulnerability that allows a remote, unauthenticated attacker to leak memory for a target Citrix
 ADC server. The leaked memory is then scanned for session cookies which can be hijacked if found.
 
 ## Verification Steps
