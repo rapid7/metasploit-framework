@@ -80,6 +80,7 @@ class MetasploitModule < Msf::Post
       username = whoami
       credential_data = {
         origin_type: :session,
+        address: session.session_host,
         post_reference_name: refname,
         session_id: session_db_id,
         username: username,
