@@ -635,12 +635,42 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['SMBPass']
     )
 
+    auth_type = RubySMB::Dcerpc::RPC_C_AUTHN_WINNT
+    if datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The Smb::Rhostname option is required when using Kerberos authentication.') if datastore['Smb::Rhostname'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
+      offered_etypes = Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['Smb::KrbOfferedEncryptionTypes'])
+      fail_with(Msf::Exploit::Failure::BadConfig, 'At least one encryption type is required when using Kerberos authentication.') if offered_etypes.empty?
+
+      kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::LDAP.new(
+        host: datastore['DomainControllerRhost'],
+        hostname: datastore['Smb::Rhostname'],
+        proxies: datastore['Proxies'],
+        realm: datastore['SMBDomain'],
+        username: datastore['SMBUser'],
+        password: datastore['SMBPass'],
+        framework: framework,
+        framework_module: self,
+        cache_file: datastore['Smb::Krb5Ccname'].blank? ? nil : datastore['Smb::Krb5Ccname'],
+        mutual_auth: true,
+        dce_style: true,
+        use_gss_checksum: true,
+        ticket_storage: kerberos_ticket_storage,
+        offered_etypes: offered_etypes
+      )
+
+      dcerpc_client.extend(Msf::Exploit::Remote::DCERPC::KerberosAuthentication)
+      dcerpc_client.kerberos_authenticator = kerberos_authenticator
+      auth_type = RubySMB::Dcerpc::RPC_C_AUTHN_GSS_NEGOTIATE
+    end
+
     dcerpc_client.connect
     vprint_status('Binding to DRSR...')
     dcerpc_client.bind(
       endpoint: RubySMB::Dcerpc::Drsr,
       auth_level: RubySMB::Dcerpc::RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
-      auth_type: RubySMB::Dcerpc::RPC_C_AUTHN_WINNT
+      auth_type: auth_type
     )
     vprint_status('Bound to DRSR')
 

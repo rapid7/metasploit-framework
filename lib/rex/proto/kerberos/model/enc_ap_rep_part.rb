@@ -20,6 +20,9 @@ module Rex
           # @!attribute sequence_number
           #   @return [Integer] The initial sequence number to be used for future communications
           attr_accessor :sequence_number
+          # @!attribute enc_key_usage
+          #   @return [Rex::Proto::Kerberos::Crypto::KeyUsage,Integer] The enc key usage number for this object
+          attr_accessor :enc_key_usage
 
           # Decodes the Rex::Proto::Kerberos::Model::EncApRepPart from an input
           #
@@ -39,14 +42,71 @@ module Rex
             self
           end
 
-          # Encodes the Rex::Proto::Kerberos::Model::EncApRepPart into an ASN.1 String
+          # Encodes the Rex::Proto::Kerberos::Model::EncApReqPart into an ASN.1 String
           #
           # @return [String]
           def encode
-            raise ::NotImplementedError, 'EncApRepPart encoding not supported'
+            elems = []
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_ctime], 0, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_cusec], 1, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_subkey], 2, :CONTEXT_SPECIFIC) if subkey
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_sequence_number], 3, :CONTEXT_SPECIFIC) if sequence_number
+
+            seq = OpenSSL::ASN1::Sequence.new(elems)
+            seq_asn1 = OpenSSL::ASN1::ASN1Data.new([seq], ENC_AP_REP_PART, :APPLICATION)
+
+            seq_asn1.to_der
+          end
+
+          # Encrypts the Rex::Proto::Kerberos::Model::EncApRepPart
+          #
+          # @param etype [Integer] the crypto schema to encrypt
+          # @param key [String] the key to encrypt
+          # @return [String] the encrypted result
+          # @raise [NotImplementedError] if the encryption schema isn't supported
+          def encrypt(etype, key)
+            raise ::Rex::Proto::Kerberos::Model::Error::KerberosError, 'Missing enc_key_usage' unless enc_key_usage
+
+            data = self.encode
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.encrypt(data, key, enc_key_usage)
           end
 
           private
+
+          # Encodes the cusec field
+          #
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_cusec
+            bn = OpenSSL::BN.new(cusec.to_s)
+            int = OpenSSL::ASN1::Integer.new(bn)
+
+            int
+          end
+
+          # Encodes the ctime field
+          #
+          # @return [OpenSSL::ASN1::GeneralizedTime]
+          def encode_ctime
+            OpenSSL::ASN1::GeneralizedTime.new(ctime)
+          end
+
+          # Encodes the subkey field
+          #
+          # @return [String]
+          def encode_subkey
+            subkey.encode
+          end
+
+          # Encodes the sequence_number field
+          #
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_sequence_number
+            bn = OpenSSL::BN.new(sequence_number.to_s)
+            int = OpenSSL::ASN1::Integer.new(bn)
+
+            int
+          end
 
           # Decodes a Rex::Proto::Kerberos::Model::EncApRepPart from an String
           #

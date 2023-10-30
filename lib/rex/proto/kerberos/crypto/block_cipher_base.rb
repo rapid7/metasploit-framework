@@ -98,6 +98,10 @@ module Rex
             raise NotImplementedError
           end
 
+          def calculate_encrypted_length(plaintext_len)
+            raise NotImplementedError
+          end
+
           private
 
           # Functions must be overridden by subclasses:
