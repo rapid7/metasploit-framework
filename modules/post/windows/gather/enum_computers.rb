@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
+  include Msf::Post::DNS::ResolveHost
 
   def initialize(info = {})
     super(
@@ -60,34 +61,16 @@ class MetasploitModule < Msf::Post
   #
   # @param [String] host Hostname
   # @return [String] ip The resolved IP
-  def resolve_host(host)
-    vprint_status("Looking up IP for #{host}")
-    return host if Rex::Socket.dotted_ip?(host)
-
-    ip = []
-    data = cmd_exec("nslookup #{host}")
-    if data =~ /Name/
-      # Remove unnecessary data and get the section with the addresses
-      returned_data = data.split(/Name:/)[1]
-      # check each element of the array to see if they are IP
-      returned_data.gsub(/\r\n\t |\r\n|Aliases:|Addresses:|Address:/, ' ').split(' ').each do |e|
-        if Rex::Socket.dotted_ip?(e)
-          ip << e
-        end
-      end
-    end
-
-    if ip.blank?
-      'Not resolvable'
-    else
-      ip.join(', ')
-    end
+  def gethost(hostname)
+    ## get IP for host
+    vprint_status("Looking up IP for #{hostname}")
+    resolve_host(hostname).join(', ')
   end
 
   def get_domain_computers
     computer_list = []
     divisor = "-------------------------------------------------------------------------------\r\n"
-    net_view_response = cmd_exec('net view')
+    net_view_response = cmd_exec("cmd.exe", "/c net view")
     unless net_view_response.include?(divisor)
       print_error("The net view command failed with: #{net_view_response}")
       return []
@@ -115,7 +98,7 @@ class MetasploitModule < Msf::Post
         ]
     )
     hosts.each do |hostname|
-      hostip = resolve_host(hostname)
+      hostip = gethost(hostname)
       tbl << [domain, hostname, hostip]
     end
 
