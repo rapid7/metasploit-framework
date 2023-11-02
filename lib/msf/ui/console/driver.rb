@@ -29,7 +29,8 @@ class Driver < Msf::Ui::Driver
     CommandDispatcher::Resource,
     CommandDispatcher::Db,
     CommandDispatcher::Creds,
-    CommandDispatcher::Developer
+    CommandDispatcher::Developer,
+    CommandDispatcher::DNS
   ]
 
   #
