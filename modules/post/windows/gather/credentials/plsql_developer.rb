@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://adamcaudill.com/2016/02/02/plsql-developer-nonexistent-encryption/']
         ],
         'Author' => [
-          'Adam Caudill' # Discovery 
-          'Jemmy Wang' # msf module 
+          'Adam Caudill', # Discovery
+          'Jemmy Wang' # msf module
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
