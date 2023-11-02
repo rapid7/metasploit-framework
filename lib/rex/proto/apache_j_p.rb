@@ -2,7 +2,7 @@
 
 require 'bindata'
 
-# @see: https://tomcat.apache.org/tomcat-3.3-doc/ApacheJP.html
+# @see: https://tomcat.apache.org/connectors-doc/ajp/ajpv13a.html
 module Rex::Proto::ApacheJP
   class ApacheJPBoolean < BinData::Primitive
     endian  :big
@@ -86,7 +86,6 @@ module Rex::Proto::ApacheJP
     apache_jp_string :attribute_value, onlyif: -> { code != CODE_TERMINATOR }
   end
 
-  # @see: https://tomcat.apache.org/tomcat-3.3-doc/ApacheJP.html#prefix-codes
   class ApacheJPForwardRequest < BinData::Record
     HTTP_METHOD_OPTIONS = 1
     HTTP_METHOD_GET = 2
