@@ -40,93 +40,110 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if datastore['RECON_HOSTNAME']
-      print_good("Hostname is #{get_hostname}")
-    end
-    if datastore['RECON_ADDRESS']
-      interface = nil
-      mac = nil
-      if session.type == 'meterpreter'
-        session.net.config.each_interface do |iface|
-          if iface.addrs.include?(session.session_host)
-            interface = iface.mac_name.strip
-            mac = iface.mac_addr.unpack('H*').first.gsub(/([\da-f]{2})/, '\1:').delete_suffix(':')
-          end
+    recon_hostname if datastore['RECON_HOSTNAME']
+    recon_address if datastore['RECON_ADDRESS']
+    recon_architecture if datastore['RECON_ARCH']
+    recon_os if datastore['RECON_OS']
+    recon_user if datastore['RECON_SESSION_USER']
+  end
+
+  # Obtains the hostname on the windows machine
+  def recon_hostname
+    print_good("Hostname is #{get_hostname}")
+    get_hostname
+  end
+
+  # Obtains the IP address the session uses to connect to the machine and
+  # learns its interface and mac address
+  def recon_address
+    interface = nil
+    mac = nil
+    if session.type == 'meterpreter'
+      session.net.config.each_interface do |iface|
+        if iface.addrs.include?(session.session_host)
+          interface = iface.mac_name.strip
+          mac = iface.mac_addr.unpack('H*').first.gsub(/([\da-f]{2})/, '\1:').delete_suffix(':')
         end
       end
-      if interface.blank? || mac.blank?
-        if session.type == 'powershell'
-          # If we have powershell, then we do all of our work in powershell
-          interface = cmd_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).InterfaceDescription").strip
-          mac = cmd_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).MacAddress").gsub('-', ':').strip
-        # elsif have_powershell?
-        #   interface = psh_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).InterfaceDescription")
-        #   mac = psh_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).MacAddress").gsub('-', ':')
-        else
-          # Since theres no powershell, attempt to claim it using netsh
-          interface = cmd_exec('netsh interface ip show ipaddresses').scan(/Interface \d+: ([^\r\n]+)\r\n\r\nAddr Type  DAD State   Valid Life Pref. Life Address\r\n---------  ----------- ---------- ---------- ------------------------\r\n\S+\s+\S+\s+\S+\s+\S+\s+(\d{,3}\.\d{,3}\.\d{,3}\.\d{,3})\r\n/)
+    end
+    if interface.blank? || mac.blank?
+      if session.type == 'powershell'
+        # If we have powershell, then we do all of our work in powershell
+        interface = cmd_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).InterfaceDescription").strip
+        mac = cmd_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).MacAddress").gsub('-', ':').strip
+      # elsif have_powershell?
+      #   interface = psh_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).InterfaceDescription")
+      #   mac = psh_exec("(Get-NetAdapter|Where-Object{$_.Name -eq (Get-NetIPAddress|Where-Object{$_.IPAddress -eq '#{session.session_host}'}).InterfaceAlias}).MacAddress").gsub('-', ':')
+      else
+        # Since theres no powershell, attempt to claim it using netsh
+        interface = cmd_exec('netsh interface ip show ipaddresses').scan(/Interface \d+: ([^\r\n]+)\r\n\r\nAddr Type  DAD State   Valid Life Pref. Life Address\r\n---------  ----------- ---------- ---------- ------------------------\r\n\S+\s+\S+\s+\S+\s+\S+\s+(\d{,3}\.\d{,3}\.\d{,3}\.\d{,3})\r\n/)
 
-          # if the interface query gave anything, then check which one pertains to our IP address
-          interface = interface.find { |x| x[1] == session.session_host }[0] if interface.any?
+        # if the interface query gave anything, then check which one pertains to our IP address
+        interface = interface.find { |x| x[1] == session.session_host }[0] if interface.any?
 
-          if !interface.empty?
-            # Now that we have our interface time to get our mac address
-            mac_list = CSV.parse(cmd_exec('getmac /v /fo csv'))
-            mac = mac_list.find { |row| row[0] == interface }[2].gsub('-', ':')
-          end
+        if !interface.empty?
+          # Now that we have our interface time to get our mac address
+          mac_list = CSV.parse(cmd_exec('getmac /v /fo csv'))
+          mac = mac_list.find { |row| row[0] == interface }[2].gsub('-', ':')
         end
       end
-      print_good("The session is running on address #{session.session_host} (#{mac}) on interface #{interface}")
-      report_host(host: session.session_host, mac: mac) if active_db? && !mac.blank?
     end
-    if datastore['RECON_ARCH']
-      if session.type == 'meterpreter'
-        host_arch = sysinfo['Architecture']
-      elsif session.type == 'powershell'
-        host_arch = case cmd_exec('(Get-ComputerInfo).OSArchitecture').strip
-                    when '64-bit'
-                      'x64'
-                    when '32-bit'
-                      'x32'
-                    end
-      else
-        host_arch = case cmd_exec('echo %PROCESSOR_ARCHITECTURE%').strip
-                    when /amd64/i || /x64/i
-                      'x64'
-                    else
-                      'x32'
-                    end
-      end
-      print_good("The hosts architecture is #{host_arch}")
-      report_host(host: session.session_host, arch: host_arch) if active_db?
+    print_good("The session is running on address #{session.session_host} (#{mac}) on interface #{interface}")
+    report_host(host: session.session_host, mac: mac) if active_db? && !mac.blank?
+  end
+
+  # Obtains information about the system architecture
+  def recon_architecture
+    if session.type == 'meterpreter'
+      host_arch = sysinfo['Architecture']
+    elsif session.type == 'powershell'
+      host_arch = case cmd_exec('(Get-ComputerInfo).OSArchitecture').strip
+                  when '64-bit'
+                    'x64'
+                  when '32-bit'
+                    'x32'
+                  end
+    else
+      host_arch = case cmd_exec('echo %PROCESSOR_ARCHITECTURE%').strip
+                  when /amd64/i || /x64/i
+                    'x64'
+                  else
+                    'x32'
+                  end
     end
-    if datastore['RECON_OS']
-      case session.type
-      when 'meterpreter'
-        host_os = sysinfo['OS']
-      when 'powershell'
-        host_os = cmd_exec('"$((Get-ComputerInfo).WindowsProductName) ($((Get-ComputerInfo).OSVersion))"').strip
-      else
-        host_data = cmd_exec('systeminfo')
-        host_os_name = host_data[/^OS Name:\s+.+$/].gsub(/^OS Name:\s+/, '').strip
-        host_os_build = host_data[/^OS Version:\s+.+$/].gsub(/^OS Version:\s+/, '').strip
-        host_os = "#{host_os_name} (#{host_os_build})"
-      end
-      print_good("The host is running #{host_os}")
-      report_host(host: session.session_host, os_name: host_os) if active_db?
+    print_good("The hosts architecture is #{host_arch}")
+    report_host(host: session.session_host, arch: host_arch) if active_db?
+  end
+
+  # Obtain information about the OS
+  def recon_os
+    case session.type
+    when 'meterpreter'
+      host_os = sysinfo['OS']
+    when 'powershell'
+      host_os = cmd_exec('"$((Get-ComputerInfo).WindowsProductName) ($((Get-ComputerInfo).OSVersion))"').strip
+    else
+      host_data = cmd_exec('systeminfo')
+      host_os_name = host_data[/^OS Name:\s+.+$/].gsub(/^OS Name:\s+/, '').strip
+      host_os_build = host_data[/^OS Version:\s+.+$/].gsub(/^OS Version:\s+/, '').strip
+      host_os = "#{host_os_name} (#{host_os_build})"
     end
-    if datastore['RECON_SESSION_USER']
-      username = cmd_exec('whoami.exe')
-      credential_data = {
-        workspace_id: myworkspace_id,
-        session_id: session_db_id,
-        address: session.session_host,
-        origin_type: :session,
-        post_reference_name: refname,
-        username: username
-      }
-      print_good("The user running on the session is #{username}")
-      create_credential(credential_data) if active_db?
-    end
+    print_good("The host is running #{host_os}")
+    report_host(host: session.session_host, os_name: host_os) if active_db?
+  end
+
+  # Obtain information about the current user of the session
+  def recon_user
+    username = cmd_exec('whoami.exe')
+    credential_data = {
+      workspace_id: myworkspace_id,
+      session_id: session_db_id,
+      address: session.session_host,
+      origin_type: :session,
+      post_reference_name: refname,
+      username: username
+    }
+    print_good("The user running on the session is #{username}")
+    create_credential(credential_data) if active_db?
   end
 end
