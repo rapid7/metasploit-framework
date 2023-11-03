@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status(result)
+    print_line(result)
   end
 
 end
