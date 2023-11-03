@@ -2,11 +2,12 @@
 This module leverages CVE-2023-20198 against vulnerable instances of Cisco IOS XE devices which have the
 Web UI exposed. An attacker can execute arbitrary CLI commands with privilege level 15.
 
-By default CLI commands are run in the Global configuration mode. To drop down to Privileged EXEC mode,
-you can preface your command with the `exit` keyword followed by an (escaped) newline, e.g. To run the command
-`show version` in Privileged EXEC mode, the CMD must be `exit\\nshow version`. To run a command in Global
-configuration mode, just set the `CMD` option to the command you want to run,
-e.g. `username hax0r privilege 15 password hax0r`.
+By default [CLI commands](https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/02_cisco_ios_hierarchy.htm)
+are run in the Global configuration mode. To drop down to Privileged EXEC mode, you can preface your command
+with the `exit` keyword followed by an (escaped) newline, e.g. To run the command `show version` in Privileged
+EXEC mode, the CMD must be `exit\\nshow version`. To drop to User EXEC mode you can preface your command with
+two `exit` keywords, e.g. `exit\\nexit\\nshow ip interface brief`. To run a command in Global configuration
+mode, just set the `CMD` option to the command you want to run, e.g. `username hax0r privilege 15 password hax0r`.
 
 The vulnerable IOS XE versions are:
 
