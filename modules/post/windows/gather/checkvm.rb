@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
 
     return true if key_present?('VRTUAL')
 
-    hyperv_services = %w[vmicexchange vmicshutdown vmicvss]
+    hyperv_services = %w[vmicexchange]
 
     return true if services_exist?(hyperv_services)
 
