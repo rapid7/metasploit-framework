@@ -17,19 +17,18 @@ module Rex
         # @param server    [String] Server value used in NTLM
         # @param dnsname   [String] DNS Name value used in NTLM
         # @param dnsdomain [String] DNS Domain value used in NTLM
-        def initialize(challenge = Rex::Text.rand_text_alphanumeric(16), domain  = 'DOMAIN',
-                       server = 'SERVER', dnsname = 'server', dnsdomain = 'example.com')
-          @domain = domain
-          @server = server
-          @dnsname = dnsname
-          @dnsdomain = dnsdomain
-          @challenge = [challenge].pack('H*')
+        def initialize(challenge, domain, server, dnsname, dnsdomain)
+          @domain = domain.nil? ? 'DOMAIN' : domain
+          @server = server.nil? ? 'SERVER' : server
+          @dnsname = dnsname.nil? ? 'server' : dnsname
+          @dnsdomain = dnsdomain.nil? ? 'example.com' : dnsdomain
+          @challenge = [challenge.nil? ? Rex::Text.rand_text_alphanumeric(16) : challenge].pack('H*')
         end
 
         #
         # Process the incoming LDAP login requests from clients
         #
-        # @param user_login [OpennStruct] User login information
+        # @param user_login [OpenStruct] User login information
         #
         # @return auth_info [Hash] Processed authentication information
         def process_login_request(user_login)
@@ -51,9 +50,9 @@ module Rex
         #
         # Handle Anonymous authentication requests
         #
-        # @param user_login [OpennStruct] User login information
+        # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
-        # 
+        #
         # @return auth_info [Hash] Processed authentication information
         def handle_anonymous_request(user_login, auth_info = {})
           if user_login.name.empty? && user_login.authentication.empty?
@@ -70,9 +69,9 @@ module Rex
         #
         # Handle Simple authentication requests
         #
-        # @param user_login [OpennStruct] User login information
+        # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
-        # 
+        #
         # @return auth_info [Hash] Processed authentication information
         def handle_simple_request(user_login, auth_info = {})
           domains = []
@@ -84,7 +83,7 @@ module Rex
                 auth_info[:user], auth_info[:domain] = pub_info
               else
                 auth_info[:result_code] = Net::LDAP::ResultCodeInvalidCredentials
-                auth_info[:result_message] = "LDAP Login Attempt => From:#{auth_info[:name]} DN:#{user_login.name}"
+                auth_info[:error_msg] = "Invalid LDAP Login Attempt => DN:#{user_login.name}"
               end
             elsif user_login.name =~ /,/
               begin
@@ -96,10 +95,10 @@ module Rex
                     domains << value
                   end
                 end
-                auth_info[:user] = names.first
+                auth_info[:user] = names.join('')
                 auth_info[:domain] = domains.empty? ? nil : domains.join('.')
-              rescue InvalidDNError => e
-                auth_info[:result_message] = "LDAP Login Attempt => From:#{auth_info[:name]} DN:#{user_login.name}"
+              rescue Net::LDAP::InvalidDNError => e
+                auth_info[:error_msg] = "Invalid LDAP Login Attempt => DN:#{user_login.name}"
                 raise e
               end
             elsif user_login.name =~ /\\/
@@ -108,7 +107,7 @@ module Rex
                 auth_info[:domain], auth_info[:user] = pub_info
               else
                 auth_info[:result_code] = Net::LDAP::ResultCodeInvalidCredentials
-                auth_info[:result_message] = "LDAP Login Attempt => From:#{auth_info[:name]} DN:#{user_login.name}"
+                auth_info[:error_msg] = "Invalid LDAP Login Attempt => DN:#{user_login.name}"
               end
             else
               auth_info[:user] = user_login.name
@@ -118,7 +117,7 @@ module Rex
             auth_info[:private] = user_login.authentication
             auth_info[:private_type] = :password
             auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported if auth_info[:result_code].nil?
-            auth_info[:auth_info] = 'Simple'
+            auth_info[:auth_type] = 'Simple'
             auth_info
           end
         end
@@ -126,18 +125,18 @@ module Rex
         #
         # Handle SASL authentication requests
         #
-        # @param user_login [OpennStruct] User login information
+        # @param user_login [OpenStruct] User login information
         # @param auth_info [Hash] Processed authentication information
-        # 
+        #
         # @return auth_info [Hash] Processed authentication information
         def handle_sasl_request(user_login, auth_info = {})
           if user_login.authentication[1] =~ /NTLMSSP/
-            message = user_login.authentication[1]
+            message = Net::NTLM::Message.parse(user_login.authentication[1])
 
-            if message[8, 1] == "\x01"
+            if message.is_a?(::Net::NTLM::Message::Type1)
               auth_info[:server_creds] = generate_type2_response(message)
               auth_info[:result_code] = Net::LDAP::ResultCodeSaslBindInProgress
-            elsif message[8, 1] == "\x03"
+            elsif message.is_a?(::Net::NTLM::Message::Type3)
               auth_info = handle_type3_message(message, auth_info)
               auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
             end
@@ -152,73 +151,60 @@ module Rex
         #
         # Generate NTLM Type2 response from NTLM Type1 message
         #
-        # @param message [String] NTLM Type1 message
-        # 
-        # @return server_hash [String] NTLM Type2 response
+        # @param message [Net::NTLM::Message::Type1] NTLM Type1 message
+        #
+        # @return server_hash [String] NTLM Type2 response that is sent as server credentials
         def generate_type2_response(message)
-          dom, ws = parse_type1_domain(message)
-          if dom
-            @domain = dom
-          end
-          if ws
-            @server = ws
-          end
-          mess1 = Rex::Text.encode_base64(message)
-          server_hash = MESSAGE.process_type1_message(mess1, @challenge, @domain, @server, @dnsname, @dnsdomain)
+          dom = message.domain
+          ws = message.workstation
+          @domain = dom if dom
+          @server = ws if ws
+          server_hash = MESSAGE.process_type1_message(message.encode64, @challenge, @domain, @server, @dnsname, @dnsdomain)
           Rex::Text.decode_base64(server_hash)
         end
 
         #
         # Handle NTLM Type3 message
         #
-        # @param message [String] NTLM Type3 message
+        # @param message [Net::NTLM::Message::Type3] NTLM Type3 message
         # @param auth_info [Hash] Processed authentication information
-        # 
+        #
         # @return auth_info [Hash] Processed authentication information
         def handle_type3_message(message, auth_info = {})
-          arg = {}
-          mess2 = Rex::Text.encode_base64(message)
-          domain, user, host, lm_hash, ntlm_hash = MESSAGE.process_type3_message(mess2)
+          arg = {
+            domain: message.domain,
+            user: message.user,
+            host: message.workstation
+          }
+
+          domain, user, host, lm_hash, ntlm_hash = MESSAGE.process_type3_message(message.encode64)
           nt_len = ntlm_hash.length
 
-          if nt_len == 48 # lmv1/ntlmv1 or ntlm2_session
-            arg = {
-              ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
-              lm_hash: lm_hash,
-              nt_hash: ntlm_hash
-            }
+          if nt_len == 48
+            arg[:ntlm_ver] = NTLM_CONST::NTLM_V1_RESPONSE
+            arg[:lm_hash] = lm_hash
+            arg[:nt_hash] = ntlm_hash
 
             if arg[:lm_hash][16, 32] == '0' * 32
               arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
             end
-          elsif nt_len > 48 # lmv2/ntlmv2
-            arg = {
-              ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
-              lm_hash: lm_hash[0, 32],
-              lm_cli_challenge: lm_hash[32, 16],
-              nt_hash: ntlm_hash[0, 32],
-              nt_cli_challenge: ntlm_hash[32, nt_len - 32]
-            }
-          elsif nt_len == 0
-            auth_info[:error_msg] = "Empty hash from #{host} captured, ignoring ... "
+          elsif nt_len > 48
+            arg[:ntlm_ver] = NTLM_CONST::NTLM_V2_RESPONSE
+            arg[:lm_hash] = lm_hash[0, 32]
+            arg[:lm_cli_challenge] = lm_hash[32, 16]
+            arg[:nt_hash] = ntlm_hash[0, 32]
+            arg[:nt_cli_challenge] = ntlm_hash[32, nt_len - 32]
           else
             auth_info[:error_msg] = "Unknown hash type from #{host}, ignoring ..."
           end
-          unless arg.nil?
-            arg[:user] = user
-            arg[:domain] = domain
-            arg[:host] = host
-            arg = process_ntlm_hash(arg)
-            auth_info = auth_info.merge(arg)
-          end
-          auth_info
+          auth_info.merge(process_ntlm_hash(arg)) unless arg.nil?
         end
 
         #
         # Process the NTLM Hash received from NTLM Type3 message
         #
         # @param arg [Hash] authentication information received from Type3 message
-        # 
+        #
         # @return arg [Hash] Processed NTLM authentication information
         def process_ntlm_hash(arg = {})
           ntlm_ver = arg[:ntlm_ver]
@@ -320,32 +306,6 @@ module Rex
           arg[:host] = host
           arg[:private_type] = :ntlm_hash
           arg
-        end
-
-        #
-        # Parse the NTLM Type1 message to get information
-        #
-        # @param message [String] NTLM Type1 Message
-        #
-        # @return [domain, workstation] [Array] Domain and Workstation Information
-        def parse_type1_domain(message)
-          domain = nil
-          workstation = nil
-
-          reqflags = message[12, 4]
-          reqflags = reqflags.unpack('V').first
-
-          if (reqflags & NTLM_CONST::NEGOTIATE_DOMAIN) == NTLM_CONST::NEGOTIATE_DOMAIN
-            dom_len = message[16, 2].unpack('v')[0].to_i
-            dom_off = message[20, 2].unpack('v')[0].to_i
-            domain = message[dom_off, dom_len].to_s
-          end
-          if (reqflags & NTLM_CONST::NEGOTIATE_WORKSTATION) == NTLM_CONST::NEGOTIATE_WORKSTATION
-            wor_len = message[24, 2].unpack('v')[0].to_i
-            wor_off = message[28, 2].unpack('v')[0].to_i
-            workstation = message[wor_off, wor_len].to_s
-          end
-          [domain, workstation]
         end
       end
     end

@@ -116,9 +116,7 @@ module Rex
             end
           end
 
-          if @auth_provider.nil?
-            @auth_provider = Rex::Proto::LDAP::Auth.new
-          end
+          @auth_provider ||= Rex::Proto::LDAP::Auth.new(nil, nil, nil, nil, nil)
 
           self
         end
@@ -160,13 +158,11 @@ module Rex
         def default_dispatch_request(client, data)
           return if data.strip.empty? || data.strip.nil?
 
-          post_pdu = false
-          processed_pdu_data = {}
-          client_details = {
-            name: "#{client.peerhost}:#{client.peerport}",
+          processed_pdu_data = {
             ip: client.peerhost,
             port: client.peerport,
-            service_name: 'ldap'
+            service_name: 'ldap',
+            post_pdu: false
           }
 
           data.extend(Net::BER::Extensions::String)
@@ -179,13 +175,12 @@ module Rex
                     user_login = pdu.bind_parameters
                     server_creds = ''
                     context_code = nil
-                    processed_pdu_data = @auth_provider.process_login_request(user_login)
-                    processed_pdu_data = processed_pdu_data.merge(client_details)
+                    processed_pdu_data = @auth_provider.process_login_request(user_login).merge(processed_pdu_data)
                     if processed_pdu_data[:result_code] == Net::LDAP::ResultCodeSaslBindInProgress
                       server_creds = processed_pdu_data[:server_creds]
                       context_code = 7
                     else
-                      processed_pdu_data[:result_message] = "LDAP Login Attempt => From:#{processed_pdu_data[:name]}\t Username:#{processed_pdu_data[:user]}\t #{processed_pdu_data[:private_type]}:#{processed_pdu_data[:private]}\t"
+                      processed_pdu_data[:result_message] = "LDAP Login Attempt => From:#{processed_pdu_data[:ip]}:#{processed_pdu_data[:port]}\t Username:#{processed_pdu_data[:user]}\t #{processed_pdu_data[:private_type]}:#{processed_pdu_data[:private]}\t"
                       processed_pdu_data[:result_message] += " Domain:#{processed_pdu_data[:domain]}" if processed_pdu_data[:domain]
                       processed_pdu_data[:post_pdu] = true
                     end
