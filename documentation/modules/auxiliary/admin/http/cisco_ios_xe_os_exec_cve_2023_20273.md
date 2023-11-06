@@ -57,6 +57,22 @@ Or
 4. `set CMD "id"`
 5. `run`
 
+## Options
+
+### CMD
+A Linux OS command to execute on the target device, e.g. `id`
+
+### CISCO_ADMIN_USERNAME
+The username of an admin account. If not set, CVE-2023-20198 is leveraged to first create a new admin account and then
+the new account is then removed after the module completes.
+
+### CISCO_ADMIN_PASSWORD
+The password of an admin account. If not set, CVE-2023-20198 is leveraged to create a new admin password.
+
+### REMOVE_OUTPUT_TIMEOUT
+The maximum timeout (in seconds) to wait when trying to removing the commands output file. The output file
+can be locked preventing deleting upon the first attempt, so the module will try again if needed.
+
 ## Scenarios
 
 ```
