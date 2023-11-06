@@ -2,8 +2,6 @@
 
 require 'spec_helper'
 
-COMMANDS = %i[help background sessions resource shell download upload source irb pry]
-
 RSpec.describe Msf::Sessions::CommandShell do
   let(:type) { 'shell' }
 
@@ -18,15 +16,12 @@ RSpec.describe Msf::Sessions::CommandShell do
   context 'when we have a command shell session' do
     subject(:command_shell) { described_class.new(nil) }
     let(:command_functions) do
-      COMMANDS.map { |command| "cmd_#{command}" }
+      %i[help background sessions resource shell download upload source irb pry].map { |command| "cmd_#{command}" }
     end
     let(:command_help_functions) do
       command_functions.map { |command| "#{command}_help" }
     end
     let(:description) { 'Command shell' }
-
-    it { is_expected.to respond_to(*command_functions) }
-    it { is_expected.to respond_to(*command_help_functions) }
 
     it 'should have the correct type' do
       expect(subject.type).to eq(type)
@@ -44,7 +39,7 @@ RSpec.describe Msf::Sessions::CommandShell do
     end
 
     describe 'Builtin commands' do
-      COMMANDS.each do |command|
+      %i[help background sessions resource shell download upload source irb pry].each do |command|
         next if command == :help
 
         describe "#cmd_#{command}" do
@@ -66,7 +61,7 @@ RSpec.describe Msf::Sessions::CommandShell do
     end
 
     describe '#run_builtin_cmd' do
-      COMMANDS.each do |command|
+      %i[help background sessions resource shell download upload source irb pry].each do |command|
         context "when called with `#{command}`" do
           it "should call cmd_#{command}" do
             expect(subject).to receive("cmd_#{command}")
@@ -77,7 +72,7 @@ RSpec.describe Msf::Sessions::CommandShell do
     end
 
     describe '#run_single' do
-      COMMANDS.each do |command|
+      %i[help background sessions resource shell download upload source irb pry].each do |command|
         context "when called with builtin command `#{command}`" do
           it 'should call the builtin function' do
             expect(subject).to receive(:run_builtin_cmd)

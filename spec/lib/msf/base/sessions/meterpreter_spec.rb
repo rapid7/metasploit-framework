@@ -153,5 +153,16 @@ RSpec.describe Msf::Sessions::Meterpreter do
 
   end
 
-end
+  describe '#exit' do
+    it 'shuts down the session' do
+      allow(subject).to receive(:core).and_return(double('core'))
+      allow(subject).to receive(:console).and_return(double('console'))
 
+      expect(subject.core).to receive(:shutdown)
+      expect(subject).to receive(:shutdown_passive_dispatcher)
+      expect(subject.console).to receive(:stop)
+      subject.exit
+    end
+  end
+
+end
