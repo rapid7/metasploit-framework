@@ -42,15 +42,28 @@ Or
 
 * Setup a virtualized environment.
   * A [CSR1000V](https://www.cisco.com/c/en/us/products/routers/cloud-services-router-1000v-series/index.html) device
-  can be virtualized using [GNS3](https://www.gns3.com/) and VMWare Workstation/Player. Follow the [Windows setup guide](https://docs.gns3.com/docs/getting-started/installation/windows)
-  to install GNS3 and the [topology guide](https://docs.gns3.com/docs/getting-started/your-first-gns3-topology) to learn
-  how GNS3 can be used.
+    can be virtualized using [GNS3](https://www.gns3.com/) and VMWare Workstation/Player. Follow the
+    [Windows setup guide](https://docs.gns3.com/docs/getting-started/installation/windows) to install GNS3 and the
+    [topology guide](https://docs.gns3.com/docs/getting-started/your-first-gns3-topology) to learn how GNS3 can be used.
   * A suitable firmware image for testing would be `csr1000v-universalk9.16.12.03-serial.qcow2`.
   * When setting up GNS3, run the `GNS3 2.2.43` Virtual Machine for deploying QEMU based devices.
-  * Create a new CSR1000V instance as a QEMU device.
-  * The CSR1000V device's first ethernet adapter `Gi1` should be connected to a Cloud device, whose adapter was bridged
-  to the physical adapter on the host machine, allowing an IP address to be assigned via DHCP, and allowing the Web UI to
-  be accessible to a remote attacker.
+  * Create a new CSR1000v instance as a QEMU device.
+  * The CSR1000v device's first ethernet adapter `Gi1` should be connected to a Cloud device, whose adapter was bridged
+    to the physical adapter on the host machine, allowing an IP address to be assigned via DHCP, and allowing the Web UI to
+    be accessible to a remote attacker.
+  * When the virtual router has booted up, you must enable the vulnerable WebUI component. From a serial console on
+    the device:
+    ```
+    Router>enable
+    Router#config
+    Router(config)#ip http server
+    router(config)#ip http secure-server
+    router(config)#ip http authentication local
+    router(config)#username admin privilege 15 secret qwerty
+    router(config)#exit
+    Router#copy running-config startup-config
+    ```
+  * You should now be able to access the WebUI via https://TARGET_IP_ADDRESS/webui and login with admin:qwerty
 
 ## Verification Steps
 1. Start msfconsole
