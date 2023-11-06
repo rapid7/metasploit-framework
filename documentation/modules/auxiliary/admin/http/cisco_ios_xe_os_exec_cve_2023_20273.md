@@ -46,7 +46,7 @@ Or
     * A suitable firmware image for testing would be `csr1000v-universalk9.16.12.03-serial.qcow2`.
     * When setting up GNS3, run the `GNS3 2.2.43` Virtual Machine for deploying QEMU based devices.
     * Create a new CSR1000V instance as a QEMU device.
-    * The CSR1000V device's first ethernet adapter `Gi1` should be connected to a Cloud device, who's adapter is bridged
+    * The CSR1000V device's first ethernet adapter `Gi1` should be connected to a Cloud device, whose adapter is bridged
       to the physical adapter on the host machine, allowing an IP address to be assigned via DHCP, and allowing the Web UI to
       be accessible to a remote attacker.
 
