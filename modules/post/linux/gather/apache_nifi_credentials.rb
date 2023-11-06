@@ -10,9 +10,9 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'NiFi Credentials Gather',
+        'Name' => 'Apache NiFi Credentials Gather',
         'Description' => %q{
-          This module will grab NiFi credentials from various files on Linux.
+          This module will grab Apache NiFi credentials from various files on Linux.
         },
         'License' => MSF_LICENSE,
         'Author' => [

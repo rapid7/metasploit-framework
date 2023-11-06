@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module will grab NiFi credentials from various files on Linux.
+This module will grab Apache NiFi credentials from various files on Linux.
 
 It uses the following files:
 
