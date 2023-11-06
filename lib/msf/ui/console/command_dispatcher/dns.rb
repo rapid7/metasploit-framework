@@ -1,6 +1,11 @@
 # -*- coding: binary -*-
 
-class Msf::Ui::Console::CommandDispatcher::DNS
+module Msf
+module Ui
+module Console
+module CommandDispatcher
+
+class DNS
 
   include Msf::Ui::Console::CommandDispatcher
 
@@ -83,9 +88,9 @@ class Msf::Ui::Console::CommandDispatcher::DNS
       when "remove", "del"
         remove_dns(*args)
       when "purge"
-        purge_dns(*args)
+        purge_dns
       when "print"
-        print_dns(*args)
+        print_dns
       when "help"
         cmd_dns_help
       end
@@ -133,19 +138,81 @@ class Msf::Ui::Console::CommandDispatcher::DNS
     end
 
     servers.each do |host|
-      unless host =~ Resolv::IPv4::Regex || 
-             host =~ Resolv::IPv6::Regex
+      unless Rex::Socket.is_ip_addr?(host)
         raise ::ArgumentError.new("Invalid DNS server: #{host}")
       end
+    end
+
+    unless comm.nil?
+      raise ::ArgumentError.new("Not a valid number: #{comm}") unless comm =~ /^\d+$/
+      comm_int = comm.to_i
+      raise ::ArgumentError.new("Session does not exist: #{comm}") unless driver.framework.sessions.include?(comm_int)
+
+    end
+
+    # Split each DNS server entry up into a separate entry
+    servers.each do |server|
+      driver.framework.dns_resolver.add_nameserver(rules, server, comm_int)
     end
   end
 
   def remove_dns(*args)
   end
 
-  def purge_dns(*args)
+  def purge_dns
+    driver.framework.dns_resolver.purge
   end
 
-  def print_dns(*args)
+  def print_dns
+    results = driver.framework.dns_resolver.nameserver_entries
+    columns = ['ID','Rule(s)', 'DNS Server(s)', 'Comm channel']
+    print_dns_set('Custom nameserver rules', columns, results[0].map {|hash| [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
+
+    # Default nameservers don't include a rule
+    columns = ['ID', 'DNS Server(s)', 'Comm channel']
+    print_dns_set('Default nameservers', columns, results[1].map {|hash| [hash[:id], hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
   end
+
+  private
+
+  def prettify_comm(comm, dns_server)
+    if comm.nil?
+      channel = Rex::Socket::SwitchBoard.best_comm(dns_server)
+      if channel.nil?
+        comm_text = nil
+      else
+        comm_text = "Session #{channel.sid} (auto)"
+      end
+    else
+      if driver.framework.sessions.include?(comm)
+        comm_text = "Session #{comm}"
+      else
+        comm_text = "Broken session (#{comm})"
+      end
+    end
+  end
+
+  def print_dns_set(heading, columns, result_set)
+    tbl = Table.new(
+        Table::Style::Default,
+        'Header'  => heading,
+        'Prefix'  => "\n",
+        'Postfix' => "\n",
+        'Columns' => columns
+        )
+    result_set.each do |row|
+      tbl << row
+    end
+
+    print(tbl.to_s) if tbl.rows.length > 0
+  end
+
+  def resolver
+    self.driver.framework.dns_resolver
+  end
+end
+
+end
+end
+end
 end

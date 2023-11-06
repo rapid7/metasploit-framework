@@ -111,6 +111,15 @@ module DNS
     end
 
     #
+    # Find the nameservers to use for a given DNS request
+    # @param dns_message [Dnsruby::Message] The DNS message to be sent
+    #
+    # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
+    def nameservers_for_packet(dns_message)
+      @config[:nameservers].map {|ns| [ns, {}]}
+    end
+
+    #
     # Send DNS request over appropriate transport and process response
     #
     # @param argument [Object] An object holding the DNS message to be processed.
@@ -119,10 +128,6 @@ module DNS
     #
     # @return [Dnsruby::Message] DNS response
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
-      if @config[:nameservers].size == 0
-        raise ResolverError, "No nameservers specified!"
-      end
-
       method = self.use_tcp? ? :send_tcp : :send_udp
 
       case argument
@@ -134,6 +139,10 @@ module DNS
         net_packet = make_query_packet(argument,type,cls)
         # This returns a Net::DNS::Packet. Convert to Dnsruby::Message for consistency
         packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
+      end
+
+      if nameservers_for_packet(packet).size == 0
+        raise ResolverError, "No nameservers specified!"
       end
 
       # Store packet_data for performance improvements,
@@ -195,7 +204,8 @@ module DNS
     def send_tcp(packet,packet_data,prox = @config[:proxies])
       ans = nil
       length = [packet_data.size].pack("n")
-      @config[:nameservers].each do |ns|
+      nameservers = nameservers_for_packet(packet)
+      nameservers.each do |ns, socket_options|
         begin
           socket = nil
           @config[:tcp_timeout].timeout do
@@ -208,6 +218,8 @@ module DNS
                   'Context' => @config[:context],
                   'Comm' => @config[:comm]
                 }
+                config.update(socket_options)
+
                 if @config[:source_port] > 0
                   config['LocalPort'] = @config[:source_port]
                 end
@@ -289,7 +301,8 @@ module DNS
     def send_udp(packet,packet_data)
       ans = nil
       response = ""
-      @config[:nameservers].each do |ns|
+      nameservers = nameservers_for_packet(packet)
+      nameservers.each do |ns, socket_options|
         begin
           @config[:udp_timeout].timeout do
             begin
@@ -299,6 +312,7 @@ module DNS
                 'Context' => @config[:context],
                 'Comm' => @config[:comm]
               }
+              config.update(socket_options)
               if @config[:source_port] > 0
                 config['LocalPort'] = @config[:source_port]
               end
