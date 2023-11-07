@@ -182,20 +182,20 @@ module Msf
                 ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
                 ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter'
               ].each do |dir|
-                res_path = dir + ::File::SEPARATOR + res
-                if ::File.exist?(res_path)
-                  good_res = res_path
-                  break
-                end
-              end
+                      res_path = dir + ::File::SEPARATOR + res
+                      if ::File.exist?(res_path)
+                        good_res = res_path
+                        break
+                      end
+                    end
                 # let's check to see if it's in the scripts/resource dir (like when tab completed)
               end
-              if good_res
-                client.console.load_resource(good_res)
-              else
+              unless good_res
                 print_error("#{res} is not a valid resource file")
                 next
               end
+
+              client.console.load_resource(good_res)
             end
           end
 
@@ -220,7 +220,8 @@ module Msf
                     ::File.file?(path) and ::File.readable?(path)
                   end
                 end
-              rescue Exception
+              rescue StandardError => e
+                elog('Problem tab completing resource file names in the scripts/resource directories', error: e)
               end
             else
               tabs += tab_complete_filenames(str, words)

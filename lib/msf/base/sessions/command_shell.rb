@@ -247,7 +247,7 @@ Shell Banner:
     session_id = args[0].to_i
     if session_id <= 0
       print_status 'Invalid session id'
-      cmd_sessions_help
+      return cmd_sessions_help
     end
 
     if session_id == self.sid
